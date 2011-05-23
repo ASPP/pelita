@@ -1,5 +1,17 @@
 import socket
 import json
+import threading
+
+import logging
+
+logger = logging.getLogger("jsonSocket")
+logger.setLevel(logging.DEBUG)
+FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
+logging.basicConfig(format=FORMAT)
+
+class DeadConnection(RuntimeError):
+    pass
+
 
 class JsonSocketConnection(object):
     """Implements a socket for JSON-RPC communication."""
@@ -44,6 +56,10 @@ class JsonSocketConnection(object):
     def _read(self):
         data = self.connection.recv(4096)
 
+        if not data:
+            # this connection seems to be dead
+            raise DeadConnection()
+
         split_data = data.split(self.terminator)
         # we split the data to get the following:
         # [contd*, full*, incomplete]
@@ -81,7 +97,7 @@ class JsonSocketConnection(object):
         return json.loads(data)
 
     def close(self):
-        self.socket.close()
+        self.connection.close()
 
 
 class JsonSocket(object):
@@ -102,9 +118,80 @@ class JsonListeningServer(JsonSocket):
         connection, addr = self.socket.accept()
         return JsonSocketConnection(connection)
 
+CONNECTIONS = []
+
+class JsonThreadedListeningServer(threading.Thread, JsonListeningServer):
+    def __init__(self, address="localhost", port=8881):
+        threading.Thread.__init__(self)
+        JsonListeningServer.__init__(self, address, port)
+
+        self.socket.settimeout(3)
+        self._running = False
+
+    def run(self):
+        while self._running:
+            try:
+                print "handle_accept"
+                conn = self.handle_accept()
+                CONNECTIONS.append(conn)
+                conn.start()
+            except socket.timeout as e:
+                logger.debug("socket.timeout: %s" % e)
+                continue
+            except Exception as e:
+                logger.exception(e)
+                continue
+            
+
+    def start(self):
+        logger.info("Start listening server.")
+        self._running = True
+        threading.Thread.start(self)
+
+    def stop(self):
+        self._running = False
+
+    def handle_accept(self):
+        connection, addr = self.socket.accept()
+        logger.info("Connection accepted.")
+        return JsonThreadedSocketConnection(connection)
+
+class JsonThreadedSocketConnection(threading.Thread, JsonSocketConnection):
+    def __init__(self, connection):
+        threading.Thread.__init__(self)
+        JsonSocketConnection.__init__(self, connection)
+
+        self.connection.settimeout(3)
+        self._running = False
+
+    def run(self):
+        while self._running:
+            try:
+                print "read"
+                obj = self.read()
+                print obj
+            except socket.timeout as e:
+                logger.debug("socket.timeout: %s" % e)
+                continue
+            except DeadConnection:
+                self.close()
+                self._running = False
+            except Exception as e:
+                logger.exception(e)
+                continue
+
+    def start(self):
+        logger.info("Start socket connection server.")
+        self._running = True
+        threading.Thread.start(self)
+
+    def stop(self):
+        self._running = False
+
 class JsonConnectingClient(JsonSocket):
     def __init__(self, address="localhost", port=8881):
         super(JsonConnectingClient, self).__init__(address, port)
+        self.socket.settimeout(3)
 
     def handle_connect(self):
         connection = self.socket.connect((self.address, self.port))
@@ -112,9 +199,23 @@ class JsonConnectingClient(JsonSocket):
 
 
 if __name__ == "__main__":
-    s = JsonListeningServer()
-    serv = s.handle_accept()
-    print serv.read()
+    import yappi
+    yappi.start() # start the profiler
+
+    s = JsonThreadedListeningServer()
+    s.start()
+
+    def show_num_threads():
+        logger.info("%d threads alive", threading.active_count())
+        t = threading.Timer(5, show_num_threads)
+        t.start()
+
+    t = threading.Timer(5, show_num_threads)
+    t.start()
+
+    while 1:
+        y = raw_input("yappi>")
+        exec y
 
 
 
