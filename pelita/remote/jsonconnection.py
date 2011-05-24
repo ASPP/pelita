@@ -4,16 +4,20 @@ import threading
 
 import logging
 
+from Queue import Queue
+
 log = logging.getLogger("jsonSocket")
 log.setLevel(logging.DEBUG)
 FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
 logging.basicConfig(format=FORMAT)
 
+import weakref
+
 class DeadConnection(Exception):
     pass
 
 class JsonSocketConnection(object):
-    """Implements a socket for JSON-RPC communication."""
+    """Implements a socket for JSON communication."""
     def __init__(self, connection):
         self.connection = connection
 
@@ -33,7 +37,6 @@ class JsonSocketConnection(object):
         if len(value) != 1:
             raise RuntimeError("Terminator length must be 1.")
         self._terminator = value
-
 
     def send(self, obj):
         if self.connection:
@@ -101,10 +104,136 @@ class JsonSocketConnection(object):
         self.connection.close()
 
 
-class JsonThreadedSocketConnection(threading.Thread, JsonSocketConnection):
+def get_rpc(json):
+    classes = [Message, Result, Error]
+    for cls in classes:
+        try:
+            return cls(**json)
+        except TypeError:
+            pass
+    raise ValueError("Wrong keys in JSON: {0}.".format(json))
+
+class Message(object):
+    def __init__(self, method, params, id=None):
+        self.method = method
+        self.params = params
+        self.id = id
+
+    @property
+    def rpc(self):
+        return {"method": self.method, "params": self.params, "id": self.id}
+
+class Result(object):
+    def __init__(self, result, id):
+        self.result = result
+        self.id = id
+
+    @property
+    def rpc(self):
+        return {"result": self.result, "id": self.id}
+
+class Error(object):
+    def __init__(self, error, id):
+        self.error = error
+        self.id = id
+
+    @property
+    def rpc(self):
+        return {"error": self.error, "id": self.id}
+
+
+class Request(object):
+    def __init__(self, id):
+        self.id = id
+        self._queue = Queue()
+
+    def get(self, timeout=0):
+        return self._queue.get(True)# , timeout)
+
+
+class Value():
+    def __init__(self, value):
+        self.value = value
+        self.mutex = threading.Lock()
+
+    def get(self):
+        self.mutex.acquire()
+        val = self.value
+        self.mutex.release()
+        return val
+
+    def put(self, value):
+        self.mutex.acquire()
+        self.value = value
+        self.mutex.release()
+        return val
+
+    def do(self, fun):
+        self.mutex.acquire()
+        self.value = fun(self.value)
+        val = self.value
+        self.mutex.release()
+        return val
+
+class Counter(Value):
+    def inc(self):
+        self.mutex.acquire()
+        self.value += 1
+        val = self.value
+        self.mutex.release()
+        return val
+
+class JsonRPCSocketConnection(JsonSocketConnection):
+    """Implements a socket for JSON-RPC communication."""
+    def __init__(self, connection):
+        super(JsonRPCSocketConnection, self).__init__(connection)
+        self._requests = weakref.WeakValueDictionary()
+        self._counter = Counter(0)
+
+    def send(self, msg, check=True):
+        try:
+            get_rpc(msg)
+        except ValueError:
+            if check==True:
+                raise
+            else:
+                pass
+
+        super(JsonRPCSocketConnection, self).send(msg)
+
+    def request(self, msg):
+        """Requests an answer and returns a Request object."""
+
+        id = self._counter.inc()
+
+        # compile message
+        msg_obj = Message("msg", msg, id)
+        # send as json
+        self.send(msg_obj.rpc)
+
+        req_obj = Request(id)
+        self._requests[id] = req_obj
+        return req_obj
+
+    def read(self):
+        obj = super(JsonRPCSocketConnection, self).read()
+        log.debug("Received: %s", obj)
+        try:
+            msg_obj = get_rpc(obj)
+        except ValueError:
+            msg_obj = Error("wrong input", None)
+        return msg_obj
+        self.id += 1
+        try:
+            self._requests[self.id]._queue.put(json_data.toupper())
+            log.debug("Adding id to queue.")
+        except KeyError:
+            pass
+
+class JsonThreadedSocketConnection(threading.Thread, JsonRPCSocketConnection):
     def __init__(self, connection):
         threading.Thread.__init__(self)
-        JsonSocketConnection.__init__(self, connection)
+        JsonRPCSocketConnection.__init__(self, connection)
 
         self.connection.settimeout(3)
         self._running = False
@@ -134,4 +263,12 @@ class JsonThreadedSocketConnection(threading.Thread, JsonSocketConnection):
 
     def stop(self):
         self._running = False
+
+class JsonThreadedMailboxSocketConnection(JsonThreadedSocketConnection):
+    def __init__(self, connection, inbox, outbox):
+        super(JsonThreadedMailboxSocketConnection, self).__init__(self, connection)
+        self._inbox = Queue()
+        self._outbox = Queue()
+
+
 

@@ -16,12 +16,46 @@ t.start()
 s = JsonThreadedListeningServer()
 s.start()
 
+
+#from actors.actor import Actor
+import threading
+
+
+
+class RemoteActor(threading.Thread):
+    @property
+    def remote(self):
+        return self._remote
+
+    @remote.setter
+    def remote(self, value):
+        self._remote = value
+
+    def start(self):
+        self.remote.start()
+
+    def stop(self):
+        self.remote.stop()
+
+    def send(self, msg):
+        self.remote.send(msg)
+
+    def request(self, msg):
+        return self.remote.request(msg)
+
+    def request_recv(self, msg, timeout=0):
+        return self.request(msg).get(timeout)
+
 while 1:
-    from pelita.remote.jsonconnection import JsonThreadedSocketConnection
+    from pelita.remote.jsonconnection import JsonThreadedMailboxSocketConnection
     conn = CONNECTIONS.get()
-    cq = JsonThreadedSocketConnection(conn)
-    cq.start()
-    cq.join()
+    a = RemoteActor()
+    a.remote = JsonThreadedMailboxSocketConnection(conn)
+    a.start()
+
+    #cq = JsonThreadedSocketConnection(conn)
+    #cq.start()
+    #cq.join()
 
 
 while 1:
