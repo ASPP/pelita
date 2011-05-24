@@ -4,11 +4,21 @@ import threading
 killable_threads = []
 
 def killable(cls):
-    def wrap(*args, **kwargs):
-        obj = cls(*args, **kwargs)
+    _n = cls.__init__
+    def __new__(*args, **kwargs):
+        obj = _n(*args, **kwargs)
         killable_threads.append(obj)
         return obj
-    return wrap
+    cls.__new__ = __new__
+    return cls
+
+
+#class Actor():
+#    pass
+#Actor = killable(Actor)
+
+##
+
 
 
 @killable
