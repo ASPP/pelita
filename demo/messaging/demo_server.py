@@ -55,7 +55,12 @@ while 1:
     a = MailboxConnection(conn)
     a.start()
     while 1:
-        print a.get()
+        res = a.get()
+        print res
+#        if res[1].method == "shutdown":
+#            print "EXIT"
+#            a.stop()
+#            exit()
 
     #cq = JsonThreadedSocketConnection(conn)
     #cq.start()

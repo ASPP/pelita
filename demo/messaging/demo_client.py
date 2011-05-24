@@ -44,8 +44,11 @@ a = RemoteActor()
 a.remote = JsonThreadedSocketConnection(conn)
 a.start()
 
-print a.request("Hello")
-print a.request_recv("Hello")
+from pelita.remote.jsonconnection import MailboxConnection
+#a = MailboxConnection(conn)
+
+#a.put("Hello")
+#print a.request_recv("Hello")
 
 a.stop()
 

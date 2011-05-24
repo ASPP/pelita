@@ -56,7 +56,12 @@ class JsonSocketConnection(object):
             sent_bytes += self.connection.send(data[sent_bytes:])
 
     def _read(self):
-        data = self.connection.recv(4096)
+        try:
+            data = self.connection.recv(4096)
+            log.info("Got raw data %s", data)
+        except socket.error:
+            log.warning("Caught an error in recv")
+            data = ""
 
         if not data:
             # this connection seems to be dead
@@ -235,7 +240,8 @@ class JsonThreadedSocketConnection(threading.Thread, JsonRPCSocketConnection):
         threading.Thread.__init__(self)
         JsonRPCSocketConnection.__init__(self, connection)
 
-        self.connection.settimeout(3)
+#        self.connection.settimeout(3)
+        self.connection.setblocking(1)
         self._running = False
 
     def run(self):
@@ -352,5 +358,5 @@ class MailboxConnection(object):
         self._outbox._queue.put(msg)
 
     def get(self):
-        self._outbox._queue.get()
+        return self._inbox._queue.get()
 
