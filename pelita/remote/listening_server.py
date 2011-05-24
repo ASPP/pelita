@@ -1,8 +1,10 @@
+from pelita.remote.rpcsocket import JsonSocket
 
 import Queue
 
-
+import threading
 import logging
+import socket
 
 log = logging.getLogger("jsonSocket")
 log.setLevel(logging.DEBUG)
@@ -20,7 +22,7 @@ class JsonListeningServer(JsonSocket):
 
     def handle_accept(self):
         connection, addr = self.socket.accept()
-        logger.info("Connection accepted.")
+        log.info("Connection accepted.")
 
         CONNECTIONS.put(connection)
 
@@ -37,14 +39,14 @@ class JsonThreadedListeningServer(threading.Thread, JsonListeningServer):
             try:
                 self.handle_accept()
             except socket.timeout as e:
-                logger.debug("socket.timeout: %s" % e)
+                log.debug("socket.timeout: %s" % e)
                 continue
             except Exception as e:
-                logger.exception(e)
+                log.exception(e)
                 continue
 
     def start(self):
-        logger.info("Start listening server.")
+        log.info("Start listening server.")
         self._running = True
         threading.Thread.start(self)
 
