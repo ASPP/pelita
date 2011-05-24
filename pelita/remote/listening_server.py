@@ -6,6 +6,8 @@ import threading
 import logging
 import socket
 
+import time
+
 log = logging.getLogger("jsonSocket")
 log.setLevel(logging.DEBUG)
 FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
@@ -31,7 +33,7 @@ class JsonThreadedListeningServer(threading.Thread, JsonListeningServer):
         threading.Thread.__init__(self)
         JsonListeningServer.__init__(self, address, port)
 
-        self.socket.settimeout(3)
+#        self.socket.settimeout(3)
         self._running = False
 
     def run(self):
