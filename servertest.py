@@ -47,11 +47,15 @@ class RemoteActor(threading.Thread):
         return self.request(msg).get(timeout)
 
 while 1:
-    from pelita.remote.jsonconnection import JsonThreadedMailboxSocketConnection
+    from pelita.remote.jsonconnection import MailboxConnection
     conn = CONNECTIONS.get()
-    a = RemoteActor()
-    a.remote = JsonThreadedMailboxSocketConnection(conn)
+#    a = RemoteActor()
+#    a.remote = JsonThreadedMailboxSocketConnection(conn)
+#    a.start()
+    a = MailboxConnection(conn)
     a.start()
+    while 1:
+        print a.get()
 
     #cq = JsonThreadedSocketConnection(conn)
     #cq.start()

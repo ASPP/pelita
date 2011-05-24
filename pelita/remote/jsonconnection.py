@@ -264,11 +264,93 @@ class JsonThreadedSocketConnection(threading.Thread, JsonRPCSocketConnection):
     def stop(self):
         self._running = False
 
-class JsonThreadedMailboxSocketConnection(JsonThreadedSocketConnection):
-    def __init__(self, connection, inbox, outbox):
-        super(JsonThreadedMailboxSocketConnection, self).__init__(self, connection)
-        self._inbox = Queue()
-        self._outbox = Queue()
+class SuspendableThread(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self._running = False
+        self._unpaused = threading.Event()
+        self._unpaused.set()
+
+    def run(self):
+        if self._running:
+            self._unpaused.wait()
+            self._run()
+        log.info("Ended thread %s", self)
+
+    def suspend(self):
+        log.info("Suspending thread %s", self)
+        self._unpaused.clear()
+
+    def resume(self):
+        log.info("Resuming thread %s", self)
+        self._unpaused.set()
+
+    def stop(self):
+        log.info("Stopping thread %s", self)
+        self._running = False
+
+    def start(self):
+        log.info("Starting thread %s", self)
+        self._running = True
+        threading.Thread.start(self)
+
+    def _run(self):
+        raise NotImplementedError
 
 
+class JsonThreadedInbox(SuspendableThread):
+    def __init__(self, connection):
+        SuspendableThread.__init__(self)
+        self.connection = connection
+
+        self._queue = Queue()
+
+    def _run(self):
+        self.handle_inbox()
+
+    def handle_inbox(self):
+        recv = self.connection.read()
+        self._queue.put( (self.connection, recv) )
+
+
+class JsonThreadedOutbox(SuspendableThread):
+    def __init__(self, connection):
+        SuspendableThread.__init__(self)
+        self.connection = connection
+
+        self._queue = Queue()
+
+    def _run(self):
+        self.handle_outbox()
+
+    def handle_outbox(self):
+        try:
+            to_send = self._queue.get()
+            if self.connection == to_send[0]:
+                self.connection.send(to_send)
+            else:
+                log.debug("Wrong connection in inbox %s", to_send)
+        except:
+            Queue.Empty
+
+class MailboxConnection(object):
+    def __init__(self, connection):
+        connection = JsonRPCSocketConnection(connection)
+
+        self._inbox = JsonThreadedInbox(connection)
+        self._outbox = JsonThreadedOutbox(connection)
+
+    def start(self):
+        self._inbox.start()
+        self._outbox.start()
+
+    def stop(self):
+        self._inbox.stop()
+        self._outbox.stop()
+
+    def put(self, msg):
+        self._outbox._queue.put(msg)
+
+    def get(self):
+        self._outbox._queue.get()
 
