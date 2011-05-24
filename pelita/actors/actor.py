@@ -1,6 +1,17 @@
 import Queue
 import threading
 
+import logging
+
+log = logging.getLogger("jsonSocket")
+log.setLevel(logging.DEBUG)
+FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
+logging.basicConfig(format=FORMAT)
+
+class DeadConnection(RuntimeError):
+    pass
+
+
 killable_threads = []
 
 def killable(cls):
