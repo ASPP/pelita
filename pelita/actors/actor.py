@@ -8,6 +8,42 @@ log.setLevel(logging.DEBUG)
 FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
 logging.basicConfig(format=FORMAT)
 
+
+class SuspendableThread(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self._running = False
+        self._unpaused = threading.Event()
+        self._unpaused.set()
+
+    def run(self):
+        while self._running:
+            self._unpaused.wait()
+            self._run()
+
+        log.info("Ended thread %s", self)
+
+    def suspend(self):
+        log.info("Suspending thread %s", self)
+        self._unpaused.clear()
+
+    def resume(self):
+        log.info("Resuming thread %s", self)
+        self._unpaused.set()
+
+    def stop(self):
+        log.info("Stopping thread %s", self)
+        self._running = False
+
+    def start(self):
+        log.info("Starting thread %s", self)
+        self._running = True
+        threading.Thread.start(self)
+
+    def _run(self):
+        raise NotImplementedError
+
+
 class DeadConnection(RuntimeError):
     pass
 

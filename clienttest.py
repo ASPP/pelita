@@ -56,6 +56,8 @@ yappi.start() # start the profiler
 a.put({"method": "shutdown", "params": None})
 a.put({"method": "shutdon", "params": None})
 
+print a.get()
+
 print a._outbox._queue.qsize()
 #print a.request_recv("Hello")
 
