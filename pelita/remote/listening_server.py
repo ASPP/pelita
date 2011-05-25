@@ -14,7 +14,7 @@ FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
 logging.basicConfig(format=FORMAT)
 
 
-CONNECTIONS = Queue.Queue()
+q_connections = Queue.Queue()
 
 class JsonListeningServer(JsonSocket):
     def __init__(self, address, port):
@@ -26,7 +26,7 @@ class JsonListeningServer(JsonSocket):
         connection, addr = self.socket.accept()
         log.info("Connection accepted.")
 
-        CONNECTIONS.put(connection)
+        q_connections.put(connection)
 
 class JsonThreadedListeningServer(threading.Thread, JsonListeningServer):
     def __init__(self, address="localhost", port=8881):

@@ -6,6 +6,8 @@ import logging
 
 from Queue import Queue
 
+from pelita.actors.actor import SuspendableThread
+
 log = logging.getLogger("jsonSocket")
 log.setLevel(logging.DEBUG)
 FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
@@ -275,45 +277,12 @@ class JsonThreadedSocketConnection(threading.Thread, JsonRPCSocketConnection):
     def stop(self):
         self._running = False
 
-class SuspendableThread(threading.Thread):
-    def __init__(self):
-        threading.Thread.__init__(self)
-        self._running = False
-        self._unpaused = threading.Event()
-        self._unpaused.set()
-
-    def run(self):
-        while self._running:
-            self._unpaused.wait()
-            self._run()
-
-        log.info("Ended thread %s", self)
-
-    def suspend(self):
-        log.info("Suspending thread %s", self)
-        self._unpaused.clear()
-
-    def resume(self):
-        log.info("Resuming thread %s", self)
-        self._unpaused.set()
-
-    def stop(self):
-        log.info("Stopping thread %s", self)
-        self._running = False
-
-    def start(self):
-        log.info("Starting thread %s", self)
-        self._running = True
-        threading.Thread.start(self)
-
-    def _run(self):
-        raise NotImplementedError
-
 
 class JsonThreadedInbox(SuspendableThread):
-    def __init__(self, connection, inbox=None):
+    def __init__(self, mailbox, inbox=None):
         SuspendableThread.__init__(self)
-        self.connection = connection
+        self.mailbox = mailbox
+        self.connection = mailbox.connection
 
         self._queue = inbox or Queue()
 
@@ -331,13 +300,14 @@ class JsonThreadedInbox(SuspendableThread):
             self.connection.close()
             self.stop = False
             return
-        self._queue.put( (self.connection.connection, recv) )
+        self._queue.put( (self.mailbox, recv) )
 
 
 class JsonThreadedOutbox(SuspendableThread):
-    def __init__(self, connection, outbox=None):
+    def __init__(self, mailbox, outbox=None):
         SuspendableThread.__init__(self)
-        self.connection = connection
+        self.mailbox = mailbox
+        self.connection = mailbox.connection
 
         self._queue = outbox or Queue()
 
@@ -351,10 +321,10 @@ class JsonThreadedOutbox(SuspendableThread):
 
 class MailboxConnection(object):
     def __init__(self, connection, inbox=None, outbox=None):
-        connection = JsonRPCSocketConnection(connection)
+        self.connection = JsonRPCSocketConnection(connection)
 
-        self._inbox = JsonThreadedInbox(connection, inbox)
-        self._outbox = JsonThreadedOutbox(connection, outbox)
+        self._inbox = JsonThreadedInbox(self, inbox)
+        self._outbox = JsonThreadedOutbox(self, outbox)
 
     def start(self):
         self._inbox.start()
