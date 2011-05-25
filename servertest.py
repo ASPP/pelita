@@ -4,6 +4,7 @@ yappi.start() # start the profiler
 from pelita.remote.listening_server import JsonThreadedListeningServer, CONNECTIONS
 import threading
 
+import Queue
 
 def show_num_threads():
     print "%d threads alive" % threading.active_count()
@@ -19,7 +20,6 @@ s.start()
 
 #from actors.actor import Actor
 import threading
-
 
 
 class RemoteActor(threading.Thread):
@@ -46,17 +46,33 @@ class RemoteActor(threading.Thread):
     def request_recv(self, msg, timeout=0):
         return self.request(msg).get(timeout)
 
+from pelita.remote.jsonconnection import MailboxConnection
+
+connections = []
+mailboxes = {}
+
+inbox = Queue.Queue()
+
 while 1:
-    from pelita.remote.jsonconnection import MailboxConnection
-    conn = CONNECTIONS.get()
-#    a = RemoteActor()
-#    a.remote = JsonThreadedMailboxSocketConnection(conn)
-#    a.start()
-    a = MailboxConnection(conn)
-    a.start()
     while 1:
-        res = a.get()
-        print res
+        try:
+            connections.append(CONNECTIONS.get(False))
+        except Queue.Empty:
+            break
+
+    for conn in connections:
+        if conn in mailboxes:
+            pass
+        else:
+            mailboxes[conn] = MailboxConnection(conn, inbox=inbox)
+            mailboxes[conn].start()
+
+#    for conn, mailb in mailboxes.iteritems():
+    try:
+        res = inbox.get(True, 1)
+    except Queue.Empty:
+        res = "None"
+    print "RES", res
 #        if res[1].method == "shutdown":
 #            print "EXIT"
 #            a.stop()

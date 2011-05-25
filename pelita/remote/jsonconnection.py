@@ -305,11 +305,11 @@ class SuspendableThread(threading.Thread):
 
 
 class JsonThreadedInbox(SuspendableThread):
-    def __init__(self, connection):
+    def __init__(self, connection, inbox=None):
         SuspendableThread.__init__(self)
         self.connection = connection
 
-        self._queue = Queue()
+        self._queue = inbox or Queue()
 
     def _run(self):
         self.handle_inbox()
@@ -320,31 +320,25 @@ class JsonThreadedInbox(SuspendableThread):
 
 
 class JsonThreadedOutbox(SuspendableThread):
-    def __init__(self, connection):
+    def __init__(self, connection, outbox=None):
         SuspendableThread.__init__(self)
         self.connection = connection
 
-        self._queue = Queue()
+        self._queue = outbox or Queue()
 
     def _run(self):
         self.handle_outbox()
 
     def handle_outbox(self):
-        try:
-            to_send = self._queue.get()
-            if self.connection == to_send[0]:
-                self.connection.send(to_send)
-            else:
-                log.debug("Wrong connection in inbox %s", to_send)
-        except:
-            Queue.Empty
+        to_send = self._queue.get()
+        self.connection.send(to_send)
 
 class MailboxConnection(object):
-    def __init__(self, connection):
+    def __init__(self, connection, inbox=None, outbox=None):
         connection = JsonRPCSocketConnection(connection)
 
-        self._inbox = JsonThreadedInbox(connection)
-        self._outbox = JsonThreadedOutbox(connection)
+        self._inbox = JsonThreadedInbox(connection, inbox)
+        self._outbox = JsonThreadedOutbox(connection, outbox)
 
     def start(self):
         self._inbox.start()
@@ -354,9 +348,9 @@ class MailboxConnection(object):
         self._inbox.stop()
         self._outbox.stop()
 
-    def put(self, msg):
-        self._outbox._queue.put(msg)
+    def put(self, msg, block=True, timeout=0.0):
+        self._outbox._queue.put(msg, block, timeout)
 
-    def get(self):
-        return self._inbox._queue.get()
+    def get(self, block=True, timeout=0.0):
+        return self._inbox._queue.get(block, timeout)
 

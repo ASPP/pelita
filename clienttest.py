@@ -40,14 +40,15 @@ class RemoteActor(threading.Thread):
     def request_recv(self, msg, timeout=0):
         return self.request(msg).get(timeout)
 
-a = RemoteActor()
-a.remote = JsonThreadedSocketConnection(conn)
-a.start()
+#a = RemoteActor()
+#a.remote = JsonThreadedSocketConnection(conn)
+#a.start()
 
 from pelita.remote.jsonconnection import MailboxConnection
-#a = MailboxConnection(conn)
+a = MailboxConnection(conn)
+a.start()
 
-#a.put("Hello")
+a.put({"method": "shutdown", "params": None})
 #print a.request_recv("Hello")
 
 a.stop()

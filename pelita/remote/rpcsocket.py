@@ -20,7 +20,7 @@ class JsonSocket(object):
         # a TCP socket
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # make socket reusable
-#        self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._socket.setblocking(1)
 
     @property
