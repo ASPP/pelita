@@ -53,6 +53,7 @@ class JsonSocketConnection(object):
 
         sent_bytes = 0
         while sent_bytes < len(data):
+            log.info("Sending raw data %s", data[sent_bytes:])
             sent_bytes += self.connection.send(data[sent_bytes:])
 
     def _read(self):
@@ -61,6 +62,7 @@ class JsonSocketConnection(object):
             log.info("Got raw data %s", data)
         except socket.error:
             log.warning("Caught an error in recv")
+            raise
             data = ""
 
         if not data:
@@ -221,7 +223,7 @@ class JsonRPCSocketConnection(JsonSocketConnection):
         return req_obj
 
     def read(self):
-        obj = super(JsonRPCSocketConnection, self).read()
+        obj = Message("msg", 0).rpc # super(JsonRPCSocketConnection, self).read()
         log.debug("Received: %s", obj)
         try:
             msg_obj = get_rpc(obj)
@@ -279,8 +281,10 @@ class SuspendableThread(threading.Thread):
 
     def run(self):
         if self._running:
+            log.info("Thread runs %s", self)
             self._unpaused.wait()
             self._run()
+
         log.info("Ended thread %s", self)
 
     def suspend(self):
@@ -316,7 +320,7 @@ class JsonThreadedInbox(SuspendableThread):
 
     def handle_inbox(self):
         recv = self.connection.read()
-        self._queue.put( (self.connection, recv) )
+        self._queue.put( (self.connection.connection, recv) )
 
 
 class JsonThreadedOutbox(SuspendableThread):
@@ -331,6 +335,7 @@ class JsonThreadedOutbox(SuspendableThread):
 
     def handle_outbox(self):
         to_send = self._queue.get()
+        log.info("Processing outbox %s", to_send)
         self.connection.send(to_send)
 
 class MailboxConnection(object):
@@ -348,9 +353,9 @@ class MailboxConnection(object):
         self._inbox.stop()
         self._outbox.stop()
 
-    def put(self, msg, block=True, timeout=0.0):
+    def put(self, msg, block=True, timeout=None):
         self._outbox._queue.put(msg, block, timeout)
 
-    def get(self, block=True, timeout=0.0):
+    def get(self, block=True, timeout=None):
         return self._inbox._queue.get(block, timeout)
 

@@ -1,9 +1,11 @@
 from pelita.remote.rpcsocket import JsonConnectingClient
 from pelita.remote.jsonconnection import JsonThreadedSocketConnection, MailboxConnection
+
+
 sock = JsonConnectingClient()
 conn = sock.handle_connect()
 
-jsc = JsonThreadedSocketConnection(conn)
+#jsc = JsonThreadedSocketConnection(conn)
 #jsc.send("a")
 #jsc.send("a")
 #jsc.send("a")
@@ -12,9 +14,6 @@ jsc = JsonThreadedSocketConnection(conn)
 
 #from actors.actor import Actor
 import threading
-
-mc = MailboxConnection(conn)
-mc.put("jhjhfhjfjf")
 
 class RemoteActor(threading.Thread):
     @property
@@ -49,7 +48,11 @@ a = MailboxConnection(conn)
 a.start()
 
 a.put({"method": "shutdown", "params": None})
+a.put({"method": "shutdon", "params": None})
 #print a.request_recv("Hello")
+
+#a._inbox._queue.join()
+
 
 a.stop()
 
