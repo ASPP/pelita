@@ -2,6 +2,7 @@ from pelita.remote.rpcsocket import JsonConnectingClient
 from pelita.remote.jsonconnection import JsonThreadedSocketConnection, MailboxConnection
 
 
+
 sock = JsonConnectingClient()
 conn = sock.handle_connect()
 
@@ -47,12 +48,24 @@ from pelita.remote.jsonconnection import MailboxConnection
 a = MailboxConnection(conn)
 a.start()
 
+
+
+import yappi
+yappi.start() # start the profiler
+
 a.put({"method": "shutdown", "params": None})
 a.put({"method": "shutdon", "params": None})
+
+print a._outbox._queue.qsize()
 #print a.request_recv("Hello")
 
 #a._inbox._queue.join()
+import time
+time.sleep(3)
 
+#yappi.print_stats()
+
+print a._outbox._queue.qsize()
 
 a.stop()
 

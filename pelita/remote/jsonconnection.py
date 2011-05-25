@@ -13,6 +13,9 @@ logging.basicConfig(format=FORMAT)
 
 import weakref
 
+import traceback
+
+
 class DeadConnection(Exception):
     pass
 
@@ -223,7 +226,7 @@ class JsonRPCSocketConnection(JsonSocketConnection):
         return req_obj
 
     def read(self):
-        obj = Message("msg", 0).rpc # super(JsonRPCSocketConnection, self).read()
+        obj = super(JsonRPCSocketConnection, self).read()
         log.debug("Received: %s", obj)
         try:
             msg_obj = get_rpc(obj)
@@ -280,8 +283,7 @@ class SuspendableThread(threading.Thread):
         self._unpaused.set()
 
     def run(self):
-        if self._running:
-            log.info("Thread runs %s", self)
+        while self._running:
             self._unpaused.wait()
             self._run()
 
@@ -319,7 +321,16 @@ class JsonThreadedInbox(SuspendableThread):
         self.handle_inbox()
 
     def handle_inbox(self):
-        recv = self.connection.read()
+        try:
+            recv = self.connection.read()
+        except socket.timeout as e:
+            log.debug("socket.timeout: %s" % e)
+            return
+        except DeadConnection:
+            log.debug("Remote connection is dead, closing in %s", self)
+            self.connection.close()
+            self.stop = False
+            return
         self._queue.put( (self.connection.connection, recv) )
 
 
@@ -335,7 +346,7 @@ class JsonThreadedOutbox(SuspendableThread):
 
     def handle_outbox(self):
         to_send = self._queue.get()
-        log.info("Processing outbox %s", to_send)
+#        log.info("Processing outbox %s", to_send)
         self.connection.send(to_send)
 
 class MailboxConnection(object):
