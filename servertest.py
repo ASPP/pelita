@@ -69,7 +69,14 @@ while 1:
 
 #    for conn, mailb in mailboxes.iteritems():
     try:
+        print inbox.qsize()
         res = inbox.get(True, 1)
+        for conn, mb in mailboxes.iteritems():
+            if res[0] == conn:
+                print "SELF"
+            else:
+                mb.put({"method": "hello", "params": "12345"})
+
     except Queue.Empty:
         res = "None"
     print "RES", res
