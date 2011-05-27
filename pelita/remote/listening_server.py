@@ -2,7 +2,7 @@ from pelita.remote.rpcsocket import JsonSocket
 
 import Queue
 
-import threading
+from pelita.actors.actor import SuspendableThread
 import logging
 import socket
 
@@ -28,13 +28,12 @@ class JsonListeningServer(JsonSocket):
 
         q_connections.put(connection)
 
-class JsonThreadedListeningServer(threading.Thread, JsonListeningServer):
+class JsonThreadedListeningServer(SuspendableThread, JsonListeningServer):
     def __init__(self, address="localhost", port=8881):
-        threading.Thread.__init__(self)
+        SuspendableThread.__init__(self)
         JsonListeningServer.__init__(self, address, port)
 
-#        self.socket.settimeout(3)
-        self._running = False
+        self.socket.settimeout(3)
 
     def run(self):
         while self._running:
@@ -47,11 +46,4 @@ class JsonThreadedListeningServer(threading.Thread, JsonListeningServer):
                 log.exception(e)
                 continue
 
-    def start(self):
-        log.info("Start listening server.")
-        self._running = True
-        threading.Thread.start(self)
-
-    def stop(self):
-        self._running = False
 

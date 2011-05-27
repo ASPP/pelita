@@ -14,10 +14,13 @@ log.setLevel(logging.DEBUG)
 FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
 logging.basicConfig(format=FORMAT)
 
+endtimer = False
+
 def show_num_threads():
     print "%d threads alive" % threading.active_count()
     t = threading.Timer(5, show_num_threads)
-    t.start()
+    if not endtimer:
+        t.start()
 t = threading.Timer(5, show_num_threads)
 t.start()
 
@@ -44,16 +47,18 @@ class IncomingConnectionsActor(SuspendableThread):
 
     def run(self):
         while self._running:
-            # a new connection has been established
-            conn = self.incoming_queue.get()
-            mailbox = MailboxConnection(conn, inbox=self.forwarded)
-            self.mailboxes[conn] = mailbox
-            mailbox.start()
+            try:
+                # a new connection has been established
+                conn = self.incoming_queue.get(True, 3)
+                mailbox = MailboxConnection(conn, inbox=self.forwarded)
+                self.mailboxes[conn] = mailbox
+                mailbox.start()
+            except Queue.Empty:
+                continue
 
         # cleanup
         for conn, box in self.mailboxes.iteritems():
             box.stop()
-
 
 
 inbox = Queue.Queue()
@@ -68,8 +73,11 @@ class RemoteActor(SuspendableThread):
         self._inbox = inbox
 
     def _run(self):
-        sender, msg = self._inbox.get()
-        self.receive(sender, msg)
+        try:
+            sender, msg = self._inbox.get(True, 3)
+            self.receive(sender, msg)
+        except Queue.Empty:
+            pass
 
     def receive(self, sender, msg):
         log.debug("Received sender %s msg %s", sender, msg)
@@ -80,4 +88,21 @@ class RemoteActor(SuspendableThread):
 
 act = RemoteActor(inbox)
 act.start()
+
+
+#remote = remote_start(JsonThreadedListeningServer, "localhost", 9990).register_actor(RemoteActor)
+
+
+
+import time
+try:
+    while 1:
+        time.sleep(10)
+except KeyboardInterrupt:
+    print "Interrupted"
+    act.stop()
+    incoming_bundler.stop()
+    s.stop()
+    endtimer = True
+
 

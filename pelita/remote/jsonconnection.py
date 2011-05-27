@@ -4,7 +4,7 @@ import threading
 
 import logging
 
-from Queue import Queue
+from Queue import Queue, Empty
 
 from pelita.actors.actor import SuspendableThread
 
@@ -67,7 +67,7 @@ class JsonSocketConnection(object):
             log.info("Got raw data %s", data)
         except socket.error:
             log.warning("Caught an error in recv")
-            raise
+            raise DeadConnection()
             data = ""
 
         if not data:
@@ -296,8 +296,8 @@ class JsonThreadedInbox(SuspendableThread):
             log.debug("socket.timeout: %s" % e)
             return
         except DeadConnection:
-            log.debug("Remote connection is dead, closing in %s", self)
-            self.connection.close()
+            log.debug("Remote connection is dead, closing mailbox in %s", self)
+            self.mailbox.stop()
             self.stop = False
             return
         self._queue.put( (self.mailbox, recv) )
@@ -315,9 +315,12 @@ class JsonThreadedOutbox(SuspendableThread):
         self.handle_outbox()
 
     def handle_outbox(self):
-        to_send = self._queue.get()
+        try:
+            to_send = self._queue.get(True, 3)
 #        log.info("Processing outbox %s", to_send)
-        self.connection.send(to_send)
+            self.connection.send(to_send)
+        except Empty:
+            pass
 
 class MailboxConnection(object):
     def __init__(self, connection, inbox=None, outbox=None):
