@@ -1,12 +1,11 @@
 import socket
 import json
-import threading
 
 import logging
 
-from Queue import Queue
+from Queue import Queue, Empty
 
-from pelita.actors.actor import SuspendableThread
+from pelita.actors import SuspendableThread, get_rpc, rpc_instances, Error
 
 log = logging.getLogger("jsonSocket")
 log.setLevel(logging.DEBUG)
@@ -19,6 +18,7 @@ import traceback
 
 
 class DeadConnection(Exception):
+    """Raised when the connection is lost."""
     pass
 
 class JsonSocketConnection(object):
@@ -65,9 +65,10 @@ class JsonSocketConnection(object):
         try:
             data = self.connection.recv(4096)
             log.info("Got raw data %s", data)
-        except socket.error:
+        except socket.error as e:
             log.warning("Caught an error in recv")
-            raise
+            log.warning(e)
+            raise DeadConnection()
             data = ""
 
         if not data:
@@ -103,7 +104,9 @@ class JsonSocketConnection(object):
 
     def read(self):
         # collect data until there is an object in buffer
+        print "TRYING TO READ"
         while not self.buffer:
+            print "READ"
             self._read()
 
         # get the first elemet
@@ -116,116 +119,16 @@ class JsonSocketConnection(object):
         self.connection.close()
 
 
-def get_rpc(json):
-    classes = [Message, Result, Error]
-    for cls in classes:
-        try:
-            return cls(**json)
-        except TypeError:
-            pass
-    raise ValueError("Wrong keys in JSON: {0}.".format(json))
-
-class Message(object):
-    def __init__(self, method, params, id=None):
-        self.method = method
-        self.params = params
-        self.id = id
-
-    @property
-    def rpc(self):
-        return {"method": self.method, "params": self.params, "id": self.id}
-
-class Result(object):
-    def __init__(self, result, id):
-        self.result = result
-        self.id = id
-
-    @property
-    def rpc(self):
-        return {"result": self.result, "id": self.id}
-
-class Error(object):
-    def __init__(self, error, id):
-        self.error = error
-        self.id = id
-
-    @property
-    def rpc(self):
-        return {"error": self.error, "id": self.id}
-
-
-class Request(object):
-    def __init__(self, id):
-        self.id = id
-        self._queue = Queue()
-
-    def get(self, timeout=0):
-        return self._queue.get(True)# , timeout)
-
-
-class Value():
-    def __init__(self, value):
-        self.value = value
-        self.mutex = threading.Lock()
-
-    def get(self):
-        self.mutex.acquire()
-        val = self.value
-        self.mutex.release()
-        return val
-
-    def put(self, value):
-        self.mutex.acquire()
-        self.value = value
-        self.mutex.release()
-        return val
-
-    def do(self, fun):
-        self.mutex.acquire()
-        self.value = fun(self.value)
-        val = self.value
-        self.mutex.release()
-        return val
-
-class Counter(Value):
-    def inc(self):
-        self.mutex.acquire()
-        self.value += 1
-        val = self.value
-        self.mutex.release()
-        return val
-
 class JsonRPCSocketConnection(JsonSocketConnection):
     """Implements a socket for JSON-RPC communication."""
     def __init__(self, connection):
         super(JsonRPCSocketConnection, self).__init__(connection)
-        self._requests = weakref.WeakValueDictionary()
-        self._counter = Counter(0)
 
-    def send(self, msg, check=True):
-        try:
-            get_rpc(msg)
-        except ValueError:
-            if check==True:
-                raise
-            else:
-                pass
-
-        super(JsonRPCSocketConnection, self).send(msg)
-
-    def request(self, msg):
-        """Requests an answer and returns a Request object."""
-
-        id = self._counter.inc()
-
-        # compile message
-        msg_obj = Message("msg", msg, id)
-        # send as json
-        self.send(msg_obj.rpc)
-
-        req_obj = Request(id)
-        self._requests[id] = req_obj
-        return req_obj
+    def send(self, rpc_obj):
+        if rpc_obj.__class__ in rpc_instances:
+            super(JsonRPCSocketConnection, self).send(rpc_obj.rpc)
+        else:
+            raise ValueError("Message %s is no rpc object." % rpc_obj)
 
     def read(self):
         obj = super(JsonRPCSocketConnection, self).read()
@@ -234,49 +137,8 @@ class JsonRPCSocketConnection(JsonSocketConnection):
             msg_obj = get_rpc(obj)
         except ValueError:
             msg_obj = Error("wrong input", None)
+
         return msg_obj
-        self.id += 1
-        try:
-            self._requests[self.id]._queue.put(json_data.toupper())
-            log.debug("Adding id to queue.")
-        except KeyError:
-            pass
-
-class JsonThreadedSocketConnection(threading.Thread, JsonRPCSocketConnection):
-    def __init__(self, connection):
-        threading.Thread.__init__(self)
-        JsonRPCSocketConnection.__init__(self, connection)
-
-#        self.connection.settimeout(3)
-        self.connection.setblocking(1)
-        self._running = False
-
-    def run(self):
-        while self._running:
-            try:
-                print "read"
-                obj = self.read()
-                print obj
-            except socket.timeout as e:
-                log.debug("socket.timeout: %s" % e)
-                continue
-            except DeadConnection:
-                self.close()
-                self._running = False
-            except Exception as e:
-                log.exception(e)
-                continue
-
-        log.info("End socket connection server.")
-
-    def start(self):
-        log.info("Start socket connection server.")
-        self._running = True
-        threading.Thread.start(self)
-
-    def stop(self):
-        self._running = False
-
 
 class JsonThreadedInbox(SuspendableThread):
     def __init__(self, mailbox, inbox=None):
@@ -284,7 +146,7 @@ class JsonThreadedInbox(SuspendableThread):
         self.mailbox = mailbox
         self.connection = mailbox.connection
 
-        self._queue = inbox or Queue()
+        self._queue = inbox
 
     def _run(self):
         self.handle_inbox()
@@ -293,12 +155,12 @@ class JsonThreadedInbox(SuspendableThread):
         try:
             recv = self.connection.read()
         except socket.timeout as e:
-            log.debug("socket.timeout: %s" % e)
+            log.debug("socket.timeout: %s (%s)" % (e, self))
             return
         except DeadConnection:
-            log.debug("Remote connection is dead, closing in %s", self)
-            self.connection.close()
-            self.stop = False
+            log.debug("Remote connection is dead, closing mailbox in %s", self)
+            self.mailbox.stop()
+            self._running = False
             return
         self._queue.put( (self.mailbox, recv) )
 
@@ -309,34 +171,49 @@ class JsonThreadedOutbox(SuspendableThread):
         self.mailbox = mailbox
         self.connection = mailbox.connection
 
-        self._queue = outbox or Queue()
+        self._queue = outbox
 
     def _run(self):
         self.handle_outbox()
 
     def handle_outbox(self):
-        to_send = self._queue.get()
-#        log.info("Processing outbox %s", to_send)
-        self.connection.send(to_send)
+        try:
+            to_send = self._queue.get(True, 3)
+
+            log.info("Processing outbox %s", to_send)
+            if to_send is None:
+                self.stop()
+                return
+
+            self.connection.send(to_send)
+        except Empty:
+            print "Nothing received, going on."
+            pass
 
 class MailboxConnection(object):
     def __init__(self, connection, inbox=None, outbox=None):
         self.connection = JsonRPCSocketConnection(connection)
 
-        self._inbox = JsonThreadedInbox(self, inbox)
-        self._outbox = JsonThreadedOutbox(self, outbox)
+        self.inbox = inbox or Queue()
+        self.outbox = outbox or Queue()
+
+        self._inbox = JsonThreadedInbox(self, self.inbox)
+        self._outbox = JsonThreadedOutbox(self, self.outbox)
 
     def start(self):
+        log.warning("Starting mailbox %s", self)
         self._inbox.start()
         self._outbox.start()
 
     def stop(self):
+        log.warning("Stopping mailbox %s", self)
         self._inbox.stop()
+        self.outbox.put(None) # I need to to this or the thread will not stop...
         self._outbox.stop()
 
     def put(self, msg, block=True, timeout=None):
-        self._outbox._queue.put(msg, block, timeout)
+        self.outbox.put(msg, block, timeout)
 
     def get(self, block=True, timeout=None):
-        return self._inbox._queue.get(block, timeout)
+        return self.inbox.get(block, timeout)
 

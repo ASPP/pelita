@@ -1,19 +1,7 @@
 import socket
-import json
-import threading
-
 import logging
 
-log = logging.getLogger("jsonSocket")
-log.setLevel(logging.DEBUG)
-FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
-logging.basicConfig(format=FORMAT)
-
-class DeadConnection(RuntimeError):
-    pass
-
-
-class JsonSocket(object):
+class TcpSocket(object):
     def __init__(self, address, port):
         self._address = address
         self._port = port
@@ -49,14 +37,15 @@ class JsonSocket(object):
         self._socket.connect( (self._address, self._port) )
 
 
-class JsonConnectingClient(JsonSocket):
-    def __init__(self, address="localhost", port=8881):
-        super(JsonConnectingClient, self).__init__(address, port)
+class TcpConnectingClient(TcpSocket):
+    def __init__(self, address="localhost", port=10881):
+        super(TcpConnectingClient, self).__init__(address, port)
         self.timeout = 3
 
     def handle_connect(self):
-        connection = self.connect()
-        return self.socket # JsonSocketConnection(self.socket)
+        self.connect()
+        self.timeout = 3
+        return self.socket #self.socket # JsonSocketConnection(self.socket)
 
 
 

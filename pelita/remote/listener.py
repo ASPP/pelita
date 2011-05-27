@@ -1,8 +1,8 @@
-from pelita.remote.rpcsocket import JsonSocket
+from pelita.remote import TcpSocket
 
 import Queue
 
-import threading
+from pelita.actors import SuspendableThread
 import logging
 import socket
 
@@ -14,32 +14,33 @@ FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
 logging.basicConfig(format=FORMAT)
 
 
-q_connections = Queue.Queue()
-
-class JsonListeningServer(JsonSocket):
+class TcpListeningSocket(TcpSocket):
     def __init__(self, address, port):
-        super(JsonListeningServer, self).__init__(address, port)
+        super(TcpListeningSocket, self).__init__(address, port)
         self.socket.bind( (self.address, self.port) )
         self.socket.listen(1)
 
     def handle_accept(self):
+        """Waits for a connection to be established and returns it."""
         connection, addr = self.socket.accept()
         log.info("Connection accepted.")
+        connection.settimeout(3)
+        return connection
 
-        q_connections.put(connection)
+class TcpThreadedListeningServer(SuspendableThread):
+    def __init__(self, incoming_connections, address="localhost", port=10881):
+        SuspendableThread.__init__(self)
 
-class JsonThreadedListeningServer(threading.Thread, JsonListeningServer):
-    def __init__(self, address="localhost", port=8881):
-        threading.Thread.__init__(self)
-        JsonListeningServer.__init__(self, address, port)
+        self.socket = TcpListeningSocket(address, port)
+        self.socket.timeout = 3
 
-#        self.socket.settimeout(3)
-        self._running = False
+        self.incoming_connections = incoming_connections
 
     def run(self):
         while self._running:
             try:
-                self.handle_accept()
+                connection = self.socket.handle_accept()
+                self.incoming_connections.put(connection)
             except socket.timeout as e:
                 log.debug("socket.timeout: %s" % e)
                 continue
@@ -47,11 +48,4 @@ class JsonThreadedListeningServer(threading.Thread, JsonListeningServer):
                 log.exception(e)
                 continue
 
-    def start(self):
-        log.info("Start listening server.")
-        self._running = True
-        threading.Thread.start(self)
-
-    def stop(self):
-        self._running = False
 
