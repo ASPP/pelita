@@ -115,9 +115,8 @@ class JsonSocketConnection(object):
     def close(self):
         self.connection.close()
 
-
-class Message(object):
-    def __init__(self, method, params, id=None):
+class Query(object):
+    def __init__(self, method, params, id):
         self.method = method
         self.params = params
         self.id = id
@@ -125,6 +124,15 @@ class Message(object):
     @property
     def rpc(self):
         return {"method": self.method, "params": self.params, "id": self.id}
+
+class Message(object):
+    def __init__(self, method, params):
+        self.method = method
+        self.params = params
+
+    @property
+    def rpc(self):
+        return {"method": self.method, "params": self.params}
 
 class Result(object):
     def __init__(self, result, id):
@@ -153,7 +161,7 @@ class Request(object):
         return self._queue.get(True)# , timeout)
 
 
-rpc_instances = [Message, Result, Error]
+rpc_instances = [Query, Message, Result, Error]
 
 def get_rpc(json):
     for cls in rpc_instances:
@@ -171,23 +179,27 @@ class JsonRPCSocketConnection(JsonSocketConnection):
         self._requests = weakref.WeakValueDictionary()
         self._counter = Counter(0)
 
-    def send(self, rpc_obj, check=True):
-        if rpc_obj in 
+    def send(self, rpc_obj):
+        if rpc_obj in rpc_instances:
+            super(JsonRPCSocketConnection, self).send(rpc_obj.rpc)
+        else:
+            raise ValueError("Message is no rpc object.")
 
-        super(JsonRPCSocketConnection, self).send(msg.rpc_obj)
-
-    def request(self, msg):
+    def request(self, rpc_obj):
         """Requests an answer and returns a Request object."""
 
-        id = self._counter.inc()
-
-        # compile message
-        msg_obj = Message("msg", msg, id)
-        # send as json
-        self.send(msg_obj.rpc)
+        if rpc_obj.id is None:
+            id = self._counter.inc()
+            rpc_obj.id = id
+        else:
+            log.info("Using existing id.")
 
         req_obj = Request(id)
         self._requests[id] = req_obj
+
+        # send as json
+        self.send(rpc_obj)
+
         return req_obj
 
     def read(self):
@@ -197,13 +209,13 @@ class JsonRPCSocketConnection(JsonSocketConnection):
             msg_obj = get_rpc(obj)
         except ValueError:
             msg_obj = Error("wrong input", None)
-        return msg_obj
-        self.id += 1
+
         try:
-            self._requests[self.id]._queue.put(json_data.toupper())
-            log.debug("Adding id to queue.")
+            result_obj = self._requests[msg_obj.id]
+            # TODO need to handle race conditions
+#            result_obj.
         except KeyError:
-            pass
+            return msg_obj
 
 class JsonThreadedInbox(SuspendableThread):
     def __init__(self, mailbox, inbox=None):
