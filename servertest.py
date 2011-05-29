@@ -1,7 +1,7 @@
 import yappi
 yappi.start() # start the profiler
 
-from pelita.remote.listening_server import JsonThreadedListeningServer, q_connections
+from pelita.remote import TcpThreadedListeningServer
 import threading
 
 import Queue
@@ -25,14 +25,10 @@ t = threading.Timer(5, show_num_threads)
 t.start()
 
 
-s = JsonThreadedListeningServer()
-s.start()
-
 
 #from actors.actor import Actor
-import threading
 
-from pelita.actors.actor import SuspendableThread
+from pelita.actors import SuspendableThread, RemoteActor
 
 from pelita.remote.jsonconnection import MailboxConnection
 
@@ -61,30 +57,18 @@ class IncomingConnectionsActor(SuspendableThread):
             box.stop()
 
 
+incoming_connections = Queue.Queue()
+
+s = TcpThreadedListeningServer(incoming_connections)
+s.start()
+
 inbox = Queue.Queue()
 
-incoming_bundler = IncomingConnectionsActor(q_connections, inbox)
+
+incoming_bundler = IncomingConnectionsActor(incoming_connections, inbox)
 incoming_bundler.start()
 
 
-class RemoteActor(SuspendableThread):
-    def __init__(self, inbox):
-        SuspendableThread.__init__(self)
-        self._inbox = inbox
-
-    def _run(self):
-        try:
-            sender, msg = self._inbox.get(True, 3)
-            self.receive(sender, msg)
-        except Queue.Empty:
-            pass
-
-    def receive(self, sender, msg):
-        log.debug("Received sender %s msg %s", sender, msg)
-        if sender == self:
-            print "SELF"
-        else:
-            sender.put({"method": "hello", "params": "12345"})
 
 act = RemoteActor(inbox)
 act.start()
@@ -92,6 +76,9 @@ act.start()
 
 #remote = remote_start(JsonThreadedListeningServer, "localhost", 9990).register_actor(RemoteActor)
 
+# get with a timeout seems to eat cpu
+# (http://blog.codedstructure.net/2011/02/concurrent-queueget-with-timeouts-eats.html)
+# maybe we should kill threads using a special input value from top to bottom
 
 
 import time

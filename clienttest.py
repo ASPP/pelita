@@ -1,44 +1,33 @@
-from pelita.remote.rpcsocket import JsonConnectingClient
-from pelita.remote.jsonconnection import JsonThreadedSocketConnection, MailboxConnection
+from pelita.remote import TcpConnectingClient
 
-
-
-sock = JsonConnectingClient()
+sock = TcpConnectingClient()
 conn = sock.handle_connect()
 
-#jsc = JsonThreadedSocketConnection(conn)
-#jsc.send("a")
-#jsc.send("a")
-#jsc.send("a")
-#jsc.send("a")
-#jsc.send("a", False)
-
 #from actors.actor import Actor
-import threading
 
-class RemoteActor(threading.Thread):
-    @property
-    def remote(self):
-        return self._remote
+# class RemoteActor(threading.Thread):
+    # @property
+    # def remote(self):
+        # return self._remote
 
-    @remote.setter
-    def remote(self, value):
-        self._remote = value
+    # @remote.setter
+    # def remote(self, value):
+        # self._remote = value
 
-    def start(self):
-        self.remote.start()
+    # def start(self):
+        # self.remote.start()
 
-    def stop(self):
-        self.remote.stop()
+    # def stop(self):
+        # self.remote.stop()
 
-    def send(self, msg):
-        self.remote.send(msg)
+    # def send(self, msg):
+        # self.remote.send(msg)
 
-    def request(self, msg):
-        return self.remote.request(msg)
+    # def request(self, msg):
+        # return self.remote.request(msg)
 
-    def request_recv(self, msg, timeout=0):
-        return self.request(msg).get(timeout)
+    # def request_recv(self, msg, timeout=0):
+        # return self.request(msg).get(timeout)
 
 #a = RemoteActor()
 #a.remote = JsonThreadedSocketConnection(conn)
@@ -48,17 +37,26 @@ from pelita.remote.jsonconnection import MailboxConnection
 a = MailboxConnection(conn)
 a.start()
 
+from pelita.actors import RemoteActor
+
+ac = RemoteActor(a.inbox)
+ac.start()
+
+from pelita.remote.jsonconnection import Message
+
+ac.send(a, Message("shutdown", None).rpc)
 
 
-import yappi
-yappi.start() # start the profiler
+from pelita.actors.actor import ProxyActor
+ap = ProxyActor(ac)
 
-a.put({"method": "shutdown", "params": None})
-a.put({"method": "shutdon", "params": None})
+ap.query
 
-print a.get()
+#a.put({"method": "shutdon", "params": None})
 
-print a._outbox._queue.qsize()
+#print a.get()
+
+#print a._outbox._queue.qsize()
 #print a.request_recv("Hello")
 
 #a._inbox._queue.join()
@@ -67,8 +65,9 @@ time.sleep(3)
 
 #yappi.print_stats()
 
-print a._outbox._queue.qsize()
+#print a._outbox._queue.qsize()
 
+ac.stop()
 a.stop()
 
 
