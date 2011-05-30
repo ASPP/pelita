@@ -68,9 +68,17 @@ inbox = Queue.Queue()
 incoming_bundler = IncomingConnectionsActor(incoming_connections, inbox)
 incoming_bundler.start()
 
+from pelita.remote.jsonconnection import Response
 
+class MyRemoteActor(RemoteActor):
+    def receive(self, sender, msg):
+        print msg.rpc
+        if msg.method == "multiply":
+            res = reduce(lambda x,y: x*y, msg.params)
+            print "Calculated", res
+            self.send(sender, Response(result=res, id=msg.id))
 
-act = RemoteActor(inbox)
+act = MyRemoteActor(inbox)
 act.start()
 
 

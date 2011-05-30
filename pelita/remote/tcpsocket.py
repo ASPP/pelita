@@ -38,13 +38,14 @@ class TcpSocket(object):
 
 
 class TcpConnectingClient(TcpSocket):
-    def __init__(self, address="localhost", port=8881):
+    def __init__(self, address="localhost", port=10881):
         super(TcpConnectingClient, self).__init__(address, port)
         self.timeout = 3
 
     def handle_connect(self):
-        connection = self.connect()
-        return self.socket # JsonSocketConnection(self.socket)
+        self.connect()
+        self.timeout = 3
+        return self.socket #self.socket # JsonSocketConnection(self.socket)
 
 
 

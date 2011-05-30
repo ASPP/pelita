@@ -24,11 +24,11 @@ class TcpListeningSocket(TcpSocket):
         """Waits for a connection to be established and returns it."""
         connection, addr = self.socket.accept()
         log.info("Connection accepted.")
-
+        connection.settimeout(3)
         return connection
 
 class TcpThreadedListeningServer(SuspendableThread):
-    def __init__(self, incoming_connections, address="localhost", port=8881):
+    def __init__(self, incoming_connections, address="localhost", port=10881):
         SuspendableThread.__init__(self)
 
         self.socket = TcpListeningSocket(address, port)

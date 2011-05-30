@@ -42,10 +42,13 @@ from pelita.actors import RemoteActor
 ac = RemoteActor(a.inbox)
 ac.start()
 
-from pelita.remote.jsonconnection import Message
+from pelita.remote.jsonconnection import Message, Query
 
-ac.send(a, Message("shutdown", None).rpc)
+ac.send(a, Message("shuown", None))
+res = ac.request(a, Query("multiply", [3, 4, 5], None))
+ac.send(a, Message("shutdown", None))
 
+print res.get_or_none()
 
 from pelita.actors.actor import ProxyActor
 ap = ProxyActor(ac)
@@ -63,8 +66,17 @@ ap.query
 import time
 time.sleep(3)
 
+print res.get_or_none()
+
+
+
+print ac.request(a, Query("multiply", [5, 5, 5], None)).get().result
+print ac.request(a, Query("multiply", [5, 5, 5], None)).get().result
+print ac.request(a, Query("multiply", [5, 5, 5], None)).get().result
+
 #yappi.print_stats()
 
+ac.send(a, Message("shutdown", None))
 #print a._outbox._queue.qsize()
 
 ac.stop()

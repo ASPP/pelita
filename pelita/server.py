@@ -10,7 +10,7 @@ class Remote(object):
 
 def remote_start(server, address, port):
     s = server(address, port)
-    
+
 
 remote_start(JsonThreadedListeningServer, "localhost", 9990).register_actor(HelloWorldActor)
 
