@@ -19,6 +19,9 @@ We use  the [gitflow](https://github.com/nvie/gitflow) model with the following 
   - Support branches? [support/]
   - Version tag prefix? [v]
 
+Only *feature/* branches are subject to rebase/rewind. All others should remain
+stable
+
 ### Commit Markers
 
 Commits should be marked. Declare both functionality and area.
