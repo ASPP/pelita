@@ -6,7 +6,7 @@ Autonomous agent environment for Python summerschool.
 
 ## Git-Repository
 
-### Layout and branch model
+### Layout and Branch Model
 
 We use  the [gitflow](https://github.com/nvie/gitflow) model with the following settings:
 
@@ -35,11 +35,11 @@ Commits should be marked. Declare both functionality and area.
   - FO  : code formatting (adding spaces etc.)
   - PL  : making pylint happier
 
-#### Code area markers
+#### Code Area Markers
 
   - DOC : documentation
   - UT  : unit tests
-  - BLD : build-system setup.py
+  - BLD : build-system, setup.py
   - GIT : repository mods, e.g. .gitconfig .gitattributes
 
 #### Example
