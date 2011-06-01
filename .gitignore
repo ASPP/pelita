@@ -1,0 +1,24 @@
+# We provide a set of user specific ignores here.
+# A pragmatic approach to preventing erroneous adding.
+
+# python ignores
+*.pyc
+*.pyo
+
+# eclipse
+.project
+.classpath
+.settings
+.metadata
+.pydevproject
+
+# other generic files to ignore
+*~
+*.lock
+*.DS_Store
+*.swp
+*.out
+
+# distutils
+build/
+
