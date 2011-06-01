@@ -5,7 +5,7 @@ import logging
 
 from Queue import Queue, Empty
 
-from pelita.actors import SuspendableThread
+from pelita.actors import SuspendableThread, get_rpc, rpc_instances, Error
 
 log = logging.getLogger("jsonSocket")
 log.setLevel(logging.DEBUG)

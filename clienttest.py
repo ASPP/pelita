@@ -1,11 +1,5 @@
 from pelita.remote import TcpConnectingClient
-
-sock = TcpConnectingClient()
-conn = sock.handle_connect()
-
 from pelita.remote.jsonconnection import MailboxConnection
-a = MailboxConnection(conn)
-a.start()
 
 from pelita.actors import RemoteActor
 from pelita.actors import Message, Query, Error
@@ -24,11 +18,16 @@ class ClientActor(RemoteActor):
         else:
             reply = Error("Message not found")
 
+sock = TcpConnectingClient()
+conn = sock.handle_connect()
 
-ac = ClientActor(a.inbox)
-ac.start()
+remote = MailboxConnection(conn)
+remote.start()
 
-ac.send(a, Message("hello", "Im there"))
+actor = ClientActor(remote.inbox)
+actor.start()
+
+actor.send(remote, Message("hello", "Im there"))
 
 
 import time
@@ -37,7 +36,7 @@ try:
         time.sleep(10)
 except KeyboardInterrupt:
     print "Interrupted"
-    ac.stop()
-    a.stop()
+    actor.stop()
+    remote.stop()
 
 
