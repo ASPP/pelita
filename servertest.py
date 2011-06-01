@@ -1,5 +1,4 @@
 import yappi
-yappi.start() # start the profiler
 
 from pelita.remote import TcpThreadedListeningServer
 import threading
@@ -68,18 +67,49 @@ inbox = Queue.Queue()
 incoming_bundler = IncomingConnectionsActor(incoming_connections, inbox)
 incoming_bundler.start()
 
-from pelita.remote.jsonconnection import Response
+from pelita.remote.jsonconnection import Response, Message
+
+players = []
 
 class MyRemoteActor(RemoteActor):
     def receive(self, sender, msg):
         print msg.rpc
-        if msg.method == "multiply":
+        if msg.method == "hello":
+            players.append(sender)
+            self.send(sender, Message("init", [0]))
+
+        elif msg.method == "multiply":
             res = reduce(lambda x,y: x*y, msg.params)
             print "Calculated", res
             self.send(sender, Response(result=res, id=msg.id))
 
 act = MyRemoteActor(inbox)
 act.start()
+
+import sys
+import traceback
+from pygments import highlight
+from pygments.lexers import PythonLexer
+from pygments.formatters import HtmlFormatter
+def stacktraces():
+    code = []
+    for threadId, stack in sys._current_frames().items():
+        code.append("\n# ThreadID: %s" % threadId)
+        for filename, lineno, name, line in traceback.extract_stack(stack):
+            code.append('File: "%s", line %d, in %s' % (filename, lineno, name))
+            if line:
+                code.append("  %s" % (line.strip()))
+
+    return "\n".join(code)
+
+
+import time
+while 1:
+    time.sleep(3)
+    if len(players) >= 1:
+        act.request(players[0], Message("next_move", {"state": []}))
+
+#    print stacktraces()
 
 
 #remote = remote_start(JsonThreadedListeningServer, "localhost", 9990).register_actor(RemoteActor)
@@ -89,10 +119,13 @@ act.start()
 # maybe we should kill threads using a special input value from top to bottom
 
 
-import time
+
 try:
     while 1:
         time.sleep(10)
+        yappi.start() # start the profiler
+        time.sleep(10)
+        yappi.print_stats()
 except KeyboardInterrupt:
     print "Interrupted"
     act.stop()

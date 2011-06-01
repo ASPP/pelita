@@ -3,9 +3,7 @@ import Queue
 import logging
 import weakref
 
-from pelita.actors import SuspendableThread, Counter
-
-from pelita.remote.jsonconnection import Response
+from pelita.actors import SuspendableThread, Counter, Response
 
 log = logging.getLogger("jsonSocket")
 log.setLevel(logging.DEBUG)
