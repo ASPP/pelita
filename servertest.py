@@ -6,9 +6,12 @@ import threading
 import Queue
 import logging
 
-log = logging.getLogger("jsonSocket")
+BLUE = '\033[94m'
+ENDC = '\033[0m'
+
+log = logging.getLogger("servertest")
 log.setLevel(logging.DEBUG)
-FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
+FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] '+BLUE+'%(message)s'+ENDC
 logging.basicConfig(format=FORMAT)
 
 endtimer = False
@@ -23,7 +26,7 @@ t.start()
 
 #from actors.actor import Actor
 
-from pelita.actors import SuspendableThread, RemoteActor, Response, Message
+from pelita.actors import SuspendableThread, RemoteActor, Response, Message, Query
 from pelita.remote.jsonconnection import MailboxConnection
 
 class IncomingConnectionsActor(SuspendableThread):
@@ -79,20 +82,55 @@ inbox = Queue.Queue()
 incoming_bundler = IncomingConnectionsActor(incoming_connections, inbox)
 incoming_bundler.start()
 
-act = MyRemoteActor(inbox)
-act.start()
+actor = MyRemoteActor(inbox)
+actor.start()
+
+def printcol(msg):
+    """Using a helper function to get coloured output (not working with logging...)"""
+    print BLUE+ msg +ENDC
+
+class EndSession(Exception):
+    pass
+
+NUM_NEEDED_ACTORS = 1
+
+MAX_NUMBER_PER_AC = 1000000
 
 import time
 try:
+    printcol("Waiting for actors to be available.")
     while 1:
         time.sleep(3)
-        if len(players) >= 1:
-            act.request(players[0], Message("next_move", {"state": []}))
-except KeyboardInterrupt:
+        if len(players) >= NUM_NEEDED_ACTORS:
+            answers = []
+
+            for ac_num in range(NUM_NEEDED_ACTORS):
+                player = players[ac_num]
+
+                start_val = MAX_NUMBER_PER_AC * ac_num
+                stop_val = MAX_NUMBER_PER_AC * (ac_num + 1) - 1
+                
+                # pi
+                answers.append( actor.request(player, Query("calculate_pi_for", [start_val, stop_val], id=None)) )
+
+                # slow series
+#                if start_val == 0:
+#                    start_val = 2
+#                answers.append( actor.request(player, Query("slow_series", [start_val, stop_val], id=None)) )
+            
+            res = 0
+            for answer in answers:
+                print answer
+                res += answer.get().result
+
+            printcol("Result: " + str(res))
+            raise EndSession
+
+except KeyboardInterrupt, EndSession:
     print "Interrupted"
-    act.stop()
+    actor.stop()
     incoming_bundler.stop()
-    s.stop()
+    listener.stop()
     endtimer = True
 
 #remote = remote_start(JsonThreadedListeningServer, "localhost", 9990).register_actor(RemoteActor)

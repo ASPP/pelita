@@ -9,6 +9,9 @@ class Query(object):
     def reply(self, result):
         return Response(result, self.id)
 
+    def error(self, error):
+        return Error(error, self.id)
+
     @property
     def rpc(self):
         return {"method": self.method, "params": self.params, "id": self.id}

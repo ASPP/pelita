@@ -68,7 +68,10 @@ class JsonSocketConnection(object):
         except socket.error as e:
             log.warning("Caught an error in recv")
             log.warning(e)
-            raise DeadConnection()
+            # Waiting a bit
+            import time
+            time.sleep(1)
+            return
             data = ""
 
         if not data:
