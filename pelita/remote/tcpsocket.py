@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
+
 import socket
 import logging
 
 class TcpSocket(object):
-    def __init__(self, address, port):
-        self._address = address
+    def __init__(self, host, port):
+        self._host = host
         self._port = port
         # a TCP socket
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -12,8 +14,8 @@ class TcpSocket(object):
         self._socket.setblocking(1)
 
     @property
-    def address(self):
-        return self._address
+    def host(self):
+        return self._host
 
     @property
     def port(self):
@@ -34,12 +36,12 @@ class TcpSocket(object):
 
     def connect(self):
         """Connects the socket with the provided address and return the connection."""
-        self._socket.connect( (self._address, self._port) )
+        self._socket.connect( (self._host, self._port) )
 
 
 class TcpConnectingClient(TcpSocket):
-    def __init__(self, address="localhost", port=10881):
-        super(TcpConnectingClient, self).__init__(address, port)
+    def __init__(self, host, port):
+        super(TcpConnectingClient, self).__init__(host, port)
         self.timeout = 3
 
     def handle_connect(self):

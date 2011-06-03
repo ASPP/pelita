@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+
 import yappi
 
 from pelita.remote import TcpThreadedListeningServer
@@ -9,9 +12,7 @@ import logging
 BLUE = '\033[94m'
 ENDC = '\033[0m'
 
-log = logging.getLogger("servertest")
-log.setLevel(logging.DEBUG)
-FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] '+BLUE+'%(message)s'+ENDC
+FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
 logging.basicConfig(format=FORMAT)
 
 endtimer = False
@@ -22,7 +23,6 @@ def show_num_threads():
     if not endtimer:
         t.start()
 t = threading.Timer(5, show_num_threads)
-t.start()
 
 #from actors.actor import Actor
 
@@ -74,7 +74,9 @@ class MyRemoteActor(RemoteActor):
 
 incoming_connections = Queue.Queue()
 
-listener = TcpThreadedListeningServer(incoming_connections)
+t.start()
+
+listener = TcpThreadedListeningServer(incoming_connections, host="", port=50007)
 listener.start()
 
 inbox = Queue.Queue()

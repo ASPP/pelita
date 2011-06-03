@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import Queue
 
 import logging
@@ -5,13 +7,12 @@ import weakref
 
 from pelita.actors import SuspendableThread, Counter, Response
 
-log = logging.getLogger("jsonSocket")
-log.setLevel(logging.DEBUG)
-FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
-logging.basicConfig(format=FORMAT)
+_logger = logging.getLogger("pelita.actor")
+_logger.setLevel(logging.DEBUG)
 
 
 class Request(object):
+    # pykka uses a deepcopy to add things to the queue…
     def __init__(self, id):
         self.id = id
         self._queue = Queue.Queue(maxsize=1)
@@ -58,7 +59,7 @@ class RemoteActor(SuspendableThread):
                 return # finish handling of messages here
 
             else:
-                log.warning("Received a response (%s) without a waiting future. Dropped response.", msg)
+                _logger.warning("Received a response (%s) without a waiting future. Dropped response.", msg)
                 return
 
         # default
@@ -72,7 +73,7 @@ class RemoteActor(SuspendableThread):
             id = self._counter.inc()
             msg.id = id
         else:
-            log.info("Using existing id.")
+            _logger.info("Using existing id.")
 
         req_obj = Request(id)
         self._requests[id] = req_obj
@@ -83,7 +84,7 @@ class RemoteActor(SuspendableThread):
         return req_obj
 
     def receive(self, sender, msg):
-        log.debug("Received sender %s msg %s", sender, msg)
+        _logger.debug("Received sender %s msg %s", sender, msg)
 
     def send(self, sender, msg):
         sender.put(msg)
