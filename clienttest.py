@@ -6,8 +6,8 @@ from pelita.actors import Message, Query, Error
 
 import logging
 
-log = logging.getLogger("jsonSocket")
-log.setLevel(logging.DEBUG)
+_log = logging.getLogger("jsonSocket")
+_log.setLevel(logging.DEBUG)
 FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
 logging.basicConfig(format=FORMAT)
 
@@ -46,9 +46,9 @@ class ClientActor(RemoteActor):
             try:
                 sender.put(message.error("Message not found"))
             except AttributeError:
-                log.warning("Message not found.")
+                _log.warning("Message not found.")
 
-sock = TcpConnectingClient()
+sock = TcpConnectingClient(address="hulos")
 conn = sock.handle_connect()
 
 remote = MailboxConnection(conn)

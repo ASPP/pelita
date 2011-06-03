@@ -9,8 +9,8 @@ import logging
 BLUE = '\033[94m'
 ENDC = '\033[0m'
 
-log = logging.getLogger("servertest")
-log.setLevel(logging.DEBUG)
+_log = logging.getLogger("servertest")
+_log.setLevel(logging.DEBUG)
 FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] '+BLUE+'%(message)s'+ENDC
 logging.basicConfig(format=FORMAT)
 

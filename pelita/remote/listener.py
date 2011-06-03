@@ -8,8 +8,8 @@ import socket
 
 import time
 
-log = logging.getLogger("jsonSocket")
-log.setLevel(logging.DEBUG)
+_log = logging.getLogger("jsonSocket")
+_log.setLevel(logging.DEBUG)
 FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
 logging.basicConfig(format=FORMAT)
 
@@ -23,7 +23,7 @@ class TcpListeningSocket(TcpSocket):
     def handle_accept(self):
         """Waits for a connection to be established and returns it."""
         connection, addr = self.socket.accept()
-        log.info("Connection accepted.")
+        _log.info("Connection accepted.")
         connection.settimeout(3)
         return connection
 
@@ -42,10 +42,10 @@ class TcpThreadedListeningServer(SuspendableThread):
                 connection = self.socket.handle_accept()
                 self.incoming_connections.put(connection)
             except socket.timeout as e:
-                log.debug("socket.timeout: %s" % e)
+                _log.debug("socket.timeout: %s" % e)
                 continue
             except Exception as e:
-                log.exception(e)
+                _log.exception(e)
                 continue
 
 

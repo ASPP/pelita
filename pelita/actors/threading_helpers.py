@@ -1,8 +1,8 @@
 import threading as _threading
 import logging
 
-log = logging.getLogger("threading")
-log.setLevel(logging.DEBUG)
+_log = logging.getLogger("threading")
+_log.setLevel(logging.DEBUG)
 FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
 logging.basicConfig(format=FORMAT)
 
@@ -27,22 +27,22 @@ class SuspendableThread(_threading.Thread):
             self._unpaused.wait()
             self._run()
 
-        log.debug("Ended thread %s", self)
+        _log.debug("Ended thread %s", self)
 
     def suspend(self):
-        log.debug("Suspending thread %s", self)
+        _log.debug("Suspending thread %s", self)
         self._unpaused.clear()
 
     def resume(self):
-        log.debug("Resuming thread %s", self)
+        _log.debug("Resuming thread %s", self)
         self._unpaused.set()
 
     def stop(self):
-        log.debug("Stopping thread %s", self)
+        _log.debug("Stopping thread %s", self)
         self._running = False
 
     def start(self):
-        log.debug("Starting thread %s", self)
+        _log.debug("Starting thread %s", self)
         self._running = True
         _threading.Thread.start(self)
 
