@@ -13,6 +13,9 @@ _logger.setLevel(logging.DEBUG)
 FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
 logging.basicConfig(format=FORMAT)
 
+from pelita.utils import ThreadInfoLogger
+ThreadInfoLogger(10).start()
+
 def init(*params):
     print params
 

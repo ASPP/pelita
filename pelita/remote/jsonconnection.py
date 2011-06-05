@@ -2,12 +2,13 @@
 
 import socket
 import json
+import errno
 
 import logging
 
 from Queue import Queue, Empty
-
-from pelita.actors import SuspendableThread, get_rpc, rpc_instances, Error, CloseThread, StopProcessing, DeadConnection
+from pelita.utils import SuspendableThread, CloseThread
+from pelita.actors import get_rpc, rpc_instances, Error, StopProcessing, DeadConnection
 
 _logger = logging.getLogger("pelita.jsonSocket")
 _logger.setLevel(logging.DEBUG)
@@ -61,14 +62,21 @@ class JsonSocketConnection(object):
         try:
             data = self.connection.recv(4096)
             _logger.info("Got raw data %s", data)
-        except socket.error as e:
-            _logger.warning("Caught an error in recv")
+        except socket.timeout:
+            _logger.info("Socket timed out, repeating.")
+            return
+        except socket.error as e: # shouldn't that be errno, errmsg?
+            if e.args[0] in (errno.EBADF,):
+                # close
+                _logger.info("Connection is dead.")
+                raise DeadConnection()
+
+            _logger.warning("Caught an unknown error in recv. Sleep and try to repeat.")
             _logger.warning(e)
             # Waiting a bit
             import time
             time.sleep(1)
             return
-            data = ""
 
         if not data:
             # this connection seems to be dead
@@ -103,9 +111,7 @@ class JsonSocketConnection(object):
 
     def read(self):
         # collect data until there is an object in buffer
-        print "TRYING TO READ"
         while not self.buffer:
-            print "READ"
             self._read()
 
         # get the first elemet
@@ -158,7 +164,6 @@ class JsonThreadedInbox(SuspendableThread):
             return
         except DeadConnection:
             _logger.debug("Remote connection is dead, closing mailbox in %s", self)
-            self._queue.put(StopProcessing)
             self.mailbox.stop()
             raise CloseThread
 
@@ -189,10 +194,10 @@ class JsonThreadedOutbox(SuspendableThread):
 
             self.connection.send(to_send)
         except Empty:
-            print "Nothing received, going on."
             pass
 
 class MailboxConnection(object):
+    """A mailbox bundles an incoming and an outgoing connection."""
     def __init__(self, connection, inbox=None, outbox=None):
         self.connection = JsonRPCSocketConnection(connection)
 
@@ -209,9 +214,11 @@ class MailboxConnection(object):
 
     def stop(self):
         _logger.warning("Stopping mailbox %s", self)
-        self._inbox.stop()
+        self.inbox.put(StopProcessing)
         self.outbox.put(StopProcessing) # I need to to this or the thread will not stop...
+        self._inbox.stop()
         self._outbox.stop()
+        self.connection.close()
 
     def put(self, msg, block=True, timeout=None):
         self.outbox.put(msg, block, timeout)

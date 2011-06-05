@@ -5,23 +5,20 @@ import threading
 import Queue
 import logging
 
-BLUE = '\033[94m'
-ENDC = '\033[0m'
+BLUE_C = '\033[94m'
+END_C = '\033[0m'
 
 FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
 logging.basicConfig(format=FORMAT)
 
-def show_num_threads(delay):
-    print "%d threads alive (including this one)" % threading.active_count()
-    timer = threading.Timer(delay, show_num_threads, [delay])
-    # put thread in daemon state so we don’t need to care about closing it
-    timer.daemon = True
-    timer.start()
-show_num_threads(5)
+from pelita.utils.debug import ThreadInfoLogger
+ThreadInfoLogger(10).start()
 
 #from actors.actor import Actor
 
-from pelita.actors import SuspendableThread, RemoteActor, Response, Message, Query
+from pelita.utils import SuspendableThread
+
+from pelita.actors import RemoteActor, Response, Message, Query
 from pelita.remote.jsonconnection import MailboxConnection
 
 class IncomingConnectionsActor(SuspendableThread):
@@ -82,14 +79,14 @@ actor.start()
 
 def printcol(msg):
     """Using a helper function to get coloured output (not working with logging...)"""
-    print BLUE+ msg +ENDC
+    print BLUE_C + msg + END_C
 
 class EndSession(Exception):
     pass
 
 NUM_NEEDED_ACTORS = 1
 
-MAX_NUMBER_PER_AC = 1000000
+MAX_NUMBER_PER_AC = 10000000
 
 import time
 try:
@@ -97,6 +94,7 @@ try:
     while 1:
         time.sleep(3)
         if len(players) >= NUM_NEEDED_ACTORS:
+            printcol("Actors are available.")
             answers = []
 
             for ac_num in range(NUM_NEEDED_ACTORS):
