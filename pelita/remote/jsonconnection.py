@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import socket
 import json
 
@@ -7,10 +9,8 @@ from Queue import Queue, Empty
 
 from pelita.actors import SuspendableThread, get_rpc, rpc_instances, Error
 
-_log = logging.getLogger("jsonSocket")
-_log.setLevel(logging.DEBUG)
-FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
-logging.basicConfig(format=FORMAT)
+_logger = logging.getLogger("pelita.jsonSocket")
+_logger.setLevel(logging.DEBUG)
 
 import weakref
 
@@ -58,16 +58,16 @@ class JsonSocketConnection(object):
 
         sent_bytes = 0
         while sent_bytes < len(data):
-            _log.info("Sending raw data %s", data[sent_bytes:])
+            _logger.info("Sending raw data %s", data[sent_bytes:])
             sent_bytes += self.connection.send(data[sent_bytes:])
 
     def _read(self):
         try:
             data = self.connection.recv(4096)
-            _log.info("Got raw data %s", data)
+            _logger.info("Got raw data %s", data)
         except socket.error as e:
-            _log.warning("Caught an error in recv")
-            _log.warning(e)
+            _logger.warning("Caught an error in recv")
+            _logger.warning(e)
             # Waiting a bit
             import time
             time.sleep(1)
@@ -115,7 +115,7 @@ class JsonSocketConnection(object):
         # get the first elemet
         data = self.buffer.pop(0)
         json_data = json.loads(data)
-        _log.debug("Data read %s", json_data)
+        _logger.debug("Data read %s", json_data)
         return json_data
 
     def close(self):
@@ -135,7 +135,7 @@ class JsonRPCSocketConnection(JsonSocketConnection):
 
     def read(self):
         obj = super(JsonRPCSocketConnection, self).read()
-        _log.debug("Received: %s", obj)
+        _logger.debug("Received: %s", obj)
         try:
             msg_obj = get_rpc(obj)
         except ValueError:
@@ -158,10 +158,10 @@ class JsonThreadedInbox(SuspendableThread):
         try:
             recv = self.connection.read()
         except socket.timeout as e:
-            _log.debug("socket.timeout: %s (%s)" % (e, self))
+            _logger.debug("socket.timeout: %s (%s)" % (e, self))
             return
         except DeadConnection:
-            _log.debug("Remote connection is dead, closing mailbox in %s", self)
+            _logger.debug("Remote connection is dead, closing mailbox in %s", self)
             self.mailbox.stop()
             self._running = False
             return
@@ -183,7 +183,7 @@ class JsonThreadedOutbox(SuspendableThread):
         try:
             to_send = self._queue.get(True, 3)
 
-            _log.info("Processing outbox %s", to_send)
+            _logger.info("Processing outbox %s", to_send)
             if to_send is None:
                 self.stop()
                 return
@@ -204,12 +204,12 @@ class MailboxConnection(object):
         self._outbox = JsonThreadedOutbox(self, self.outbox)
 
     def start(self):
-        _log.warning("Starting mailbox %s", self)
+        _logger.warning("Starting mailbox %s", self)
         self._inbox.start()
         self._outbox.start()
 
     def stop(self):
-        _log.warning("Stopping mailbox %s", self)
+        _logger.warning("Stopping mailbox %s", self)
         self._inbox.stop()
         self.outbox.put(None) # I need to to this or the thread will not stop...
         self._outbox.stop()

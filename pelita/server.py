@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from actors.actor import Actor
 
 class HelloWorldActor(Actor):

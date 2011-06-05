@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import Queue
 
 import logging
@@ -5,10 +7,8 @@ import weakref
 
 from pelita.actors import SuspendableThread, Counter, Response
 
-_log = logging.getLogger("jsonSocket")
-_log.setLevel(logging.DEBUG)
-FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
-logging.basicConfig(format=FORMAT)
+_logger = logging.getLogger("pelita.actor")
+_logger.setLevel(logging.DEBUG)
 
 
 class Request(object):
@@ -59,7 +59,7 @@ class RemoteActor(SuspendableThread):
                 return # finish handling of messages here
 
             else:
-                _log.warning("Received a response (%s) without a waiting future. Dropped response.", msg)
+                _logger.warning("Received a response (%s) without a waiting future. Dropped response.", msg)
                 return
 
         # default
@@ -73,7 +73,7 @@ class RemoteActor(SuspendableThread):
             id = self._counter.inc()
             msg.id = id
         else:
-            _log.info("Using existing id.")
+            _logger.info("Using existing id.")
 
         req_obj = Request(id)
         self._requests[id] = req_obj
@@ -84,7 +84,7 @@ class RemoteActor(SuspendableThread):
         return req_obj
 
     def receive(self, sender, msg):
-        _log.debug("Received sender %s msg %s", sender, msg)
+        _logger.debug("Received sender %s msg %s", sender, msg)
 
     def send(self, sender, msg):
         sender.put(msg)

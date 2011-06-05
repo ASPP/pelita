@@ -1,11 +1,10 @@
+# -*- coding: utf-8 -*-
+
 import threading as _threading
 import logging
 
-_log = logging.getLogger("threading")
-_log.setLevel(logging.DEBUG)
-FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
-logging.basicConfig(format=FORMAT)
-
+_logger = logging.getLogger("pelita.threading")
+_logger.setLevel(logging.DEBUG)
 
 class SuspendableThread(_threading.Thread):
     """Base class for a thread which may be suspended."""
@@ -27,22 +26,22 @@ class SuspendableThread(_threading.Thread):
             self._unpaused.wait()
             self._run()
 
-        _log.debug("Ended thread %s", self)
+        _logger.debug("Ended thread %s", self)
 
     def suspend(self):
-        _log.debug("Suspending thread %s", self)
+        _logger.debug("Suspending thread %s", self)
         self._unpaused.clear()
 
     def resume(self):
-        _log.debug("Resuming thread %s", self)
+        _logger.debug("Resuming thread %s", self)
         self._unpaused.set()
 
     def stop(self):
-        _log.debug("Stopping thread %s", self)
+        _logger.debug("Stopping thread %s", self)
         self._running = False
 
     def start(self):
-        _log.debug("Starting thread %s", self)
+        _logger.debug("Starting thread %s", self)
         self._running = True
         _threading.Thread.start(self)
 
