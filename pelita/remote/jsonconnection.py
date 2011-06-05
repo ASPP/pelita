@@ -7,7 +7,7 @@ import logging
 
 from Queue import Queue, Empty
 
-from pelita.actors import SuspendableThread, get_rpc, rpc_instances, Error
+from pelita.actors import SuspendableThread, get_rpc, rpc_instances, Error, CloseThread, StopProcessing, DeadConnection
 
 _logger = logging.getLogger("pelita.jsonSocket")
 _logger.setLevel(logging.DEBUG)
@@ -16,10 +16,6 @@ import weakref
 
 import traceback
 
-
-class DeadConnection(Exception):
-    """Raised when the connection is lost."""
-    pass
 
 class JsonSocketConnection(object):
     """Implements a socket for JSON communication."""
@@ -162,10 +158,14 @@ class JsonThreadedInbox(SuspendableThread):
             return
         except DeadConnection:
             _logger.debug("Remote connection is dead, closing mailbox in %s", self)
+            self._queue.put(StopProcessing)
             self.mailbox.stop()
-            self._running = False
-            return
-        self._queue.put( (self.mailbox, recv) )
+            raise CloseThread
+
+        message = recv
+        # add the mailbox to the message
+        message.mailbox = self.mailbox
+        self._queue.put(message)
 
 
 class JsonThreadedOutbox(SuspendableThread):
@@ -184,9 +184,8 @@ class JsonThreadedOutbox(SuspendableThread):
             to_send = self._queue.get(True, 3)
 
             _logger.info("Processing outbox %s", to_send)
-            if to_send is None:
-                self.stop()
-                return
+            if to_send is StopProcessing:
+                raise CloseThread
 
             self.connection.send(to_send)
         except Empty:
@@ -211,7 +210,7 @@ class MailboxConnection(object):
     def stop(self):
         _logger.warning("Stopping mailbox %s", self)
         self._inbox.stop()
-        self.outbox.put(None) # I need to to this or the thread will not stop...
+        self.outbox.put(StopProcessing) # I need to to this or the thread will not stop...
         self._outbox.stop()
 
     def put(self, msg, block=True, timeout=None):
