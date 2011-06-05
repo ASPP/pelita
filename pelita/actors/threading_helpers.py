@@ -6,6 +6,9 @@ import logging
 _logger = logging.getLogger("pelita.threading")
 _logger.setLevel(logging.DEBUG)
 
+class CloseThread(Exception):
+    """May be raised from inside the _run method to close the thread."""
+
 class SuspendableThread(_threading.Thread):
     """Base class for a thread which may be suspended."""
     def __init__(self):
@@ -13,8 +16,8 @@ class SuspendableThread(_threading.Thread):
         self._running = False
 
         # Define a special event which can be flagged to wait.
-        self._unpaused = _threading.Event()
-        self._unpaused.set()
+        self._unsuspended = _threading.Event()
+        self._unsuspended.set()
 
     def run(self):
         """Executes the thread.
@@ -23,18 +26,21 @@ class SuspendableThread(_threading.Thread):
         In many cases, it is sufficient to override _run().
         """
         while self._running:
-            self._unpaused.wait()
-            self._run()
+            self._unsuspended.wait()
+            try:
+                self._run()
+            except CloseThread:
+                self.stop()
 
         _logger.debug("Ended thread %s", self)
 
     def suspend(self):
         _logger.debug("Suspending thread %s", self)
-        self._unpaused.clear()
+        self._unsuspended.clear()
 
     def resume(self):
         _logger.debug("Resuming thread %s", self)
-        self._unpaused.set()
+        self._unsuspended.set()
 
     def stop(self):
         _logger.debug("Stopping thread %s", self)

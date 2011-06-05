@@ -30,7 +30,7 @@ def slow_series(start, number_of_elems):
     return acc
 
 class ClientActor(RemoteActor):
-    def receive(self, sender, message):
+    def receive(self, message):
         if message.method == "init":
             reply = init(*message.params)
 
@@ -39,14 +39,14 @@ class ClientActor(RemoteActor):
 
         elif message.method == "calculate_pi_for":
             res = calculate_pi_for(*message.params)
-            sender.put(message.reply(res))
+            message.reply(res)
 
         elif message.method == "slow_series":
             res = slow_series(*message.params)
-            sender.put(message.reply(res))
+            message.reply(res)
         else:
             try:
-                sender.put(message.error("Message not found"))
+                message.reply_error("Message not found")
             except AttributeError:
                 _logger.warning("Message not found.")
 

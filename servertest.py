@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
-import yappi
-
 from pelita.remote import TcpThreadedListeningServer
 import threading
 
@@ -15,14 +11,13 @@ ENDC = '\033[0m'
 FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
 logging.basicConfig(format=FORMAT)
 
-endtimer = False
-
-def show_num_threads():
-    print "%d threads alive" % threading.active_count()
-    t = threading.Timer(5, show_num_threads)
-    if not endtimer:
-        t.start()
-t = threading.Timer(5, show_num_threads)
+def show_num_threads(delay):
+    print "%d threads alive (including this one)" % threading.active_count()
+    timer = threading.Timer(delay, show_num_threads, [delay])
+    # put thread in daemon state so we don’t need to care about closing it
+    timer.daemon = True
+    timer.start()
+show_num_threads(5)
 
 #from actors.actor import Actor
 
@@ -60,21 +55,19 @@ players = []
 
 class MyRemoteActor(RemoteActor):
 
-    def receive(self, sender, msg):
+    def receive(self, msg):
         print msg.rpc
         if msg.method == "hello":
-            players.append(sender)
-            self.send(sender, Message("init", [0]))
+            players.append(msg.mailbox)
+            self.send(msg.mailbox, Message("init", [0]))
 
         elif msg.method == "multiply":
             res = reduce(lambda x,y: x*y, msg.params)
             print "Calculated", res
-            self.send(sender, Response(result=res, id=msg.id))
+            msg.reply(res)
 
 
 incoming_connections = Queue.Queue()
-
-t.start()
 
 listener = TcpThreadedListeningServer(incoming_connections, host="", port=50007)
 listener.start()
@@ -113,12 +106,12 @@ try:
                 stop_val = MAX_NUMBER_PER_AC * (ac_num + 1) - 1
                 
                 # pi
-                answers.append( actor.request(player, Query("calculate_pi_for", [start_val, stop_val], id=None)) )
+                answers.append( actor.request(player, "calculate_pi_for", [start_val, stop_val]) )
 
                 # slow series
 #                if start_val == 0:
 #                    start_val = 2
-#                answers.append( actor.request(player, Query("slow_series", [start_val, stop_val], id=None)) )
+#                answers.append( actor.request(player, "slow_series", [start_val, stop_val]) )
             
             res = 0
             for answer in answers:
@@ -133,7 +126,6 @@ except KeyboardInterrupt, EndSession:
     actor.stop()
     incoming_bundler.stop()
     listener.stop()
-    endtimer = True
 
 #remote = remote_start(JsonThreadedListeningServer, "localhost", 9990).register_actor(RemoteActor)
 

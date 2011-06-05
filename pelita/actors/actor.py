@@ -5,11 +5,17 @@ import Queue
 import logging
 import weakref
 
-from pelita.actors import SuspendableThread, Counter, Response
+from pelita.actors import SuspendableThread, Counter, Response, CloseThread, Query
 
 _logger = logging.getLogger("pelita.actor")
 _logger.setLevel(logging.DEBUG)
 
+
+class DeadConnection(Exception):
+    """Raised when the connection is lost."""
+
+class StopProcessing(object):
+    """If a thread encounters this value in a queue, it is advised to stop processing."""
 
 class Request(object):
     # pykka uses a deepcopy to add things to the queue…
@@ -46,14 +52,17 @@ class RemoteActor(SuspendableThread):
 
     def _run(self):
         try:
-            sender, msg = self._inbox.get(True, 3)
+            message = self._inbox.get(True, 3)
         except Queue.Empty:
             return
 
-        if isinstance(msg, Response):
-            awaiting_result = self._requests.get(msg.id, None)
+        if message is StopProcessing:
+            raise CloseThread
+
+        if isinstance(message, Response):
+            awaiting_result = self._requests.get(message.id, None)
             if awaiting_result is not None:
-                awaiting_result._queue.put(msg)
+                awaiting_result._queue.put(message)
                 # TODO need to handle race conditions
 
                 return # finish handling of messages here
@@ -63,31 +72,30 @@ class RemoteActor(SuspendableThread):
                 return
 
         # default
-        self.receive(sender, msg)
+        self.receive(message)
 
-
-    def request(self, sender, msg):
+    def request(self, sender, method, params, id=None):
         """Requests an answer and returns a Request object."""
 
-        if getattr(msg, "id", None) is None:
+        if id is None:
             id = self._counter.inc()
-            msg.id = id
         else:
             _logger.info("Using existing id.")
+
+        query = Query(method, params, id)
 
         req_obj = Request(id)
         self._requests[id] = req_obj
 
         # send as json
-        self.send(sender, msg)
-
+        self.send(sender, query)
         return req_obj
 
-    def receive(self, sender, msg):
-        _logger.debug("Received sender %s msg %s", sender, msg)
+    def receive(self, message):
+        _logger.debug("Received message %s.", message)
 
-    def send(self, sender, msg):
-        sender.put(msg)
+    def send(self, sender, message):
+        sender.put(message)
 
 
 class ProxyActor(object):
