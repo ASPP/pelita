@@ -67,8 +67,7 @@ actor.send(remote, Message("hello", "Im there"))
 
 import time
 try:
-    while 1:
-        time.sleep(10)
+    actor.join()
 except KeyboardInterrupt:
     print "Interrupted"
     actor.stop()
