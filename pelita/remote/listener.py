@@ -4,11 +4,12 @@ from pelita.remote import TcpSocket
 
 import Queue
 
-from pelita.actors import SuspendableThread
 import logging
 import socket
 
 import time
+
+from pelita.utils import SuspendableThread
 
 _logger = logging.getLogger("jsonSocket")
 _logger.setLevel(logging.DEBUG)
