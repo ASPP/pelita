@@ -10,8 +10,8 @@ import logging
 
 _logger = logging.getLogger("clientActor")
 _logger.setLevel(logging.DEBUG)
-FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
-logging.basicConfig(format=FORMAT)
+FORMAT = '[%(asctime)s,%(msecs)d][%(name)s][%(levelname)s][%(funcName)s] %(message)s'
+logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S")
 
 from pelita.utils import ThreadInfoLogger
 ThreadInfoLogger(10).start()
