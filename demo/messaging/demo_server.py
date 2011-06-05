@@ -8,8 +8,8 @@ import logging
 BLUE_C = '\033[94m'
 END_C = '\033[0m'
 
-FORMAT = '[%(asctime)-15s][%(levelname)s][%(funcName)s] %(message)s'
-logging.basicConfig(format=FORMAT)
+FORMAT = '[%(asctime)s,%(msecs)d][%(name)s][%(levelname)s][%(funcName)s] %(message)s'
+logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S")
 
 from pelita.utils.debug import ThreadInfoLogger
 ThreadInfoLogger(10).start()
@@ -117,9 +117,9 @@ try:
                 res += answer.get().result
 
             printcol("Result: " + str(res))
-            raise EndSession
+            raise EndSession()
 
-except KeyboardInterrupt, EndSession:
+except (KeyboardInterrupt, EndSession):
     print "Interrupted"
     actor.stop()
     incoming_bundler.stop()
