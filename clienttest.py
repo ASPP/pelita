@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from pelita.remote import TcpConnectingClient
-from pelita.remote.jsonconnection import MailboxConnection
+from pelita.remote.mailbox import MailboxConnection
 
-from pelita.actors import RemoteActor
+from pelita.actors import Actor
 from pelita.actors import Message, Query, Error
 
 import logging
@@ -32,7 +32,7 @@ def slow_series(start, number_of_elems):
         acc += 1.0 / (i * (math.log(i)*math.log(i)))
     return acc
 
-class ClientActor(RemoteActor):
+class ClientActor(Actor):
     def receive(self, message):
         if message.method == "init":
             reply = init(*message.params)

@@ -18,8 +18,8 @@ ThreadInfoLogger(10).start()
 
 from pelita.utils import SuspendableThread
 
-from pelita.actors import RemoteActor, Response, Message, Query
-from pelita.remote.jsonconnection import MailboxConnection
+from pelita.actors import Actor, Response, Message, Query
+from pelita.remote.mailbox import MailboxConnection
 
 class IncomingConnectionsActor(SuspendableThread):
     """This class merges the incoming messages of the forwarded connections."""
@@ -50,7 +50,7 @@ class IncomingConnectionsActor(SuspendableThread):
 
 players = []
 
-class MyRemoteActor(RemoteActor):
+class MyActor(Actor):
 
     def receive(self, msg):
         print msg.rpc
@@ -74,12 +74,12 @@ inbox = Queue.Queue()
 incoming_bundler = IncomingConnectionsActor(incoming_connections, inbox)
 incoming_bundler.start()
 
-actor = MyRemoteActor(inbox)
+actor = MyActor(inbox)
 actor.start()
 
 def printcol(msg):
     """Using a helper function to get coloured output (not working with logging...)"""
-    print BLUE_C + msg + END_C
+    print BLUE_C + str(msg) + END_C
 
 class EndSession(Exception):
     pass
@@ -104,7 +104,9 @@ try:
                 stop_val = MAX_NUMBER_PER_AC * (ac_num + 1) - 1
                 
                 # pi
-                answers.append( actor.request(player, "calculate_pi_for", [start_val, stop_val]) )
+                req = actor.request(player, "calculate_pi_for", [start_val, stop_val])
+                printcol(req)
+                answers.append( req )
 
                 # slow series
 #                if start_val == 0:
