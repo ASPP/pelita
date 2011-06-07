@@ -56,6 +56,7 @@ class ServerActor(Actor):
 
     def receive(self, message):
         super(ServerActor, self).receive(message)
+
         print message.rpc
         if message.method == "hello":
             self.players.append(message.mailbox)
@@ -69,9 +70,20 @@ class ServerActor(Actor):
         elif message.method == "stop":
             message.reply_error("Ignored stopping")
 
-        if message.method == "players":
+        elif message.method == "players":
             message.reply(list(self.players))
 #            self.stop()
+
+        else:
+            # call method directly on actor (unsafe)
+            method = message.method
+            params = message.params
+            if params is None:
+                res = getattr(self, method)
+            else:
+                res = getattr(self, method)(*params)
+            if hasattr(message, "reply"):
+                message.reply(res)
 
 
 incoming_connections = Queue.Queue()
@@ -134,6 +146,7 @@ try:
 
 except (KeyboardInterrupt, EndSession):
     print "Interrupted"
+
     req =  actor.request("stop").get()
     try:
         print req.result
