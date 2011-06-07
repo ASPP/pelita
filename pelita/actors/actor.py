@@ -103,7 +103,6 @@ class Actor(SuspendableThread):
         self.receive(message)
 
 
-# TODO implement ActorFutures for Non-Remote actors
     def request(self, method, params=None, id=None):
         """Requests an answer and returns a Request object."""
         query = Query(method, params, id)

@@ -48,15 +48,17 @@ class IncomingConnectionsActor(SuspendableThread):
 
 
 
-players = []
 
-class MyActor(Actor):
+class ServerActor(Actor):
+    def __init__(self, inbox):
+        super(ServerActor, self).__init__(inbox)
+        self.players = []
 
     def receive(self, message):
-        super(MyActor, self).receive(message)
+        super(ServerActor, self).receive(message)
         print message.rpc
         if message.method == "hello":
-            players.append(message.mailbox)
+            self.players.append(message.mailbox)
             message.mailbox.put(Message("init", [0]))
 
         elif message.method == "multiply":
@@ -66,6 +68,9 @@ class MyActor(Actor):
 
         elif message.method == "stop":
             message.reply_error("Ignored stopping")
+
+        if message.method == "players":
+            message.reply(list(self.players))
 #            self.stop()
 
 
@@ -79,7 +84,7 @@ inbox = Queue.Queue()
 incoming_bundler = IncomingConnectionsActor(incoming_connections, inbox)
 incoming_bundler.start()
 
-actor = MyActor(inbox)
+actor = ServerActor(inbox)
 actor.start()
 
 def printcol(msg):
@@ -98,6 +103,7 @@ try:
     printcol("Waiting for actors to be available.")
     while 1:
         time.sleep(3)
+        players = actor.request("players").get().result
         if len(players) >= NUM_NEEDED_ACTORS:
             printcol("Actors are available.")
             answers = []
