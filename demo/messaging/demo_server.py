@@ -65,7 +65,8 @@ class MyActor(Actor):
             message.reply(res)
 
         elif message.method == "stop":
-            self.stop()
+            message.reply_error("Ignored stopping")
+#            self.stop()
 
 
 incoming_connections = Queue.Queue()
@@ -127,7 +128,12 @@ try:
 
 except (KeyboardInterrupt, EndSession):
     print "Interrupted"
-    actor.send("stop") # actor.stop()
+    req =  actor.request("stop").get()
+    try:
+        print req.result
+    except AttributeError:
+        print req.error
+     # actor.stop()
     incoming_bundler.stop()
     listener.stop()
 

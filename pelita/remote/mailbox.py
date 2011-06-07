@@ -10,33 +10,8 @@ _logger.setLevel(logging.DEBUG)
 
 from pelita.utils import SuspendableThread, Counter, CloseThread
 from pelita.remote.jsonconnection import JsonRPCSocketConnection
-from pelita.actors import StopProcessing, DeadConnection, Response, Query
+from pelita.actors import StopProcessing, DeadConnection, Response, Query, Request
 
-
-class Request(object):
-    # pykka uses a deepcopy to add things to the queue…
-    def __init__(self, id):
-        self.id = id
-        self._queue = Queue.Queue(maxsize=1)
-
-    def get(self, block=True, timeout=None):
-        return self._queue.get(block, timeout)
-
-    def get_or_none(self):
-        """Returns the result or None, if the value is not available."""
-        try:
-            return self._queue.get(False).result
-        except Queue.Empty:
-            return None
-
-    def has_result(self):
-        """Checks whether a result is available.
-        
-        This method does not guarantee that a subsequent call of Request.get() will succeed.
-        However, unless there is code which calls get() in the background, this method
-        should be save to use.
-        """
-        return self._queue.full()
 
 class JsonThreadedInbox(SuspendableThread):
     def __init__(self, mailbox, inbox):
