@@ -8,7 +8,7 @@ import logging
 BLUE_C = '\033[94m'
 END_C = '\033[0m'
 
-FORMAT = '[%(asctime)s,%(msecs)d][%(name)s][%(levelname)s][%(funcName)s] %(message)s'
+FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s] %(message)s'
 logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S")
 
 from pelita.utils.debug import ThreadInfoLogger
@@ -18,7 +18,7 @@ ThreadInfoLogger(10).start()
 
 from pelita.utils import SuspendableThread
 
-from pelita.actors import Actor, Response, Message, Query
+from pelita.actors import Actor, RemoteActor, Response, Message, Query
 from pelita.remote.mailbox import MailboxConnection
 
 class IncomingConnectionsActor(SuspendableThread):
@@ -52,16 +52,20 @@ players = []
 
 class MyActor(Actor):
 
-    def receive(self, msg):
-        print msg.rpc
-        if msg.method == "hello":
-            players.append(msg.mailbox)
-            self.send(msg.mailbox, Message("init", [0]))
+    def receive(self, message):
+        super(MyActor, self).receive(message)
+        print message.rpc
+        if message.method == "hello":
+            players.append(message.mailbox)
+            message.mailbox.put(Message("init", [0]))
 
-        elif msg.method == "multiply":
-            res = reduce(lambda x,y: x*y, msg.params)
+        elif message.method == "multiply":
+            res = reduce(lambda x,y: x*y, message.params)
             print "Calculated", res
-            msg.reply(res)
+            message.reply(res)
+
+        elif message.method == "stop":
+            self.stop()
 
 
 incoming_connections = Queue.Queue()
@@ -98,21 +102,21 @@ try:
             answers = []
 
             for ac_num in range(NUM_NEEDED_ACTORS):
-                player = players[ac_num]
+                player = RemoteActor(players[ac_num])
 
                 start_val = MAX_NUMBER_PER_AC * ac_num
                 stop_val = MAX_NUMBER_PER_AC * (ac_num + 1) - 1
-                
+
                 # pi
-                req = actor.request(player, "calculate_pi_for", [start_val, stop_val])
+                req = player.request("calculate_pi_for", [start_val, stop_val])
                 printcol(req)
                 answers.append( req )
 
                 # slow series
 #                if start_val == 0:
 #                    start_val = 2
-#                answers.append( actor.request(player, "slow_series", [start_val, stop_val]) )
-            
+#                answers.append( player.request("slow_series", [start_val, stop_val]) )
+
             res = 0
             for answer in answers:
                 print answer
@@ -123,7 +127,7 @@ try:
 
 except (KeyboardInterrupt, EndSession):
     print "Interrupted"
-    actor.stop()
+    actor.send("stop") # actor.stop()
     incoming_bundler.stop()
     listener.stop()
 

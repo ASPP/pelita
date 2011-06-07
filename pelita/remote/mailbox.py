@@ -138,6 +138,7 @@ class MailboxConnection(object):
         return self.inbox.get(block, timeout)
 
     def request(self, message):
+        """Put a query into the outbox and return the Request object."""
         if isinstance(message, Query):
             # save the id to the _requests dict
             if message.id is None:

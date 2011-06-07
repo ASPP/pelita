@@ -3,14 +3,14 @@
 from pelita.remote import TcpConnectingClient
 from pelita.remote.mailbox import MailboxConnection
 
-from pelita.actors import Actor
+from pelita.actors import Actor, RemoteActor
 from pelita.actors import Message, Query, Error
 
 import logging
 
 _logger = logging.getLogger("clientActor")
 _logger.setLevel(logging.DEBUG)
-FORMAT = '[%(asctime)s,%(msecs)d][%(name)s][%(levelname)s][%(funcName)s] %(message)s'
+FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s] %(message)s'
 logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S")
 
 from pelita.utils import ThreadInfoLogger
@@ -34,6 +34,7 @@ def slow_series(start, number_of_elems):
 
 class ClientActor(Actor):
     def receive(self, message):
+        super(ClientActor, self).receive(message)
         if message.method == "init":
             reply = init(*message.params)
 
@@ -62,7 +63,8 @@ remote.start()
 actor = ClientActor(remote.inbox)
 actor.start()
 
-actor.send(remote, Message("hello", "Im there"))
+remote_actor = RemoteActor(remote)
+remote_actor.send("hello", "Im there")
 
 
 import time

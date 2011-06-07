@@ -79,6 +79,7 @@ class JsonSocketConnection(object):
             return
 
         if not data:
+            # recv returns "", if the connection has been closed
             # this connection seems to be dead
             raise DeadConnection()
 
