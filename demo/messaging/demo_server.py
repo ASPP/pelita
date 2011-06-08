@@ -62,11 +62,6 @@ class ServerActor(Actor):
             self.players.append(message.mailbox)
             message.mailbox.put(Message("init", [0]))
 
-        elif message.method == "multiply":
-            res = reduce(lambda x,y: x*y, message.params)
-            print "Calculated", res
-            message.reply(res)
-
         elif message.method == "stop":
             message.reply_error("Ignored stopping")
 
@@ -75,16 +70,33 @@ class ServerActor(Actor):
 #            self.stop()
 
         else:
-            # call method directly on actor (unsafe)
-            method = message.method
-            params = message.params
-            if params is None:
-                res = getattr(self, method)
-            else:
-                res = getattr(self, method)(*params)
-            if hasattr(message, "reply"):
-                message.reply(res)
+            self._handle_default(message)
 
+    def _handle_default(self, message):
+        # call method directly on actor (unsafe)
+        method = message.method
+        params = message.params
+
+        try:
+            meth = getattr(self, method)
+        except AttributeError:
+            try:
+                message.error("Not found")
+                return
+            except AttributeError:
+                return
+
+        if params is None:
+            res = meth()
+        else:
+            res = meth(*params)
+        if hasattr(message, "reply"):
+            message.reply(res)
+
+    def multiply(self, *args):
+        res = reduce(lambda x,y: x*y, args)
+        print "Calculated", res
+        return res
 
 incoming_connections = Queue.Queue()
 
@@ -111,6 +123,26 @@ NUM_NEEDED_ACTORS = 1
 MAX_NUMBER_PER_AC = 10000000
 
 import time
+time.sleep(3)
+
+import json
+while True:
+    inp = raw_input("> ")
+    splitted_inp = inp.partition(" ")
+    method = splitted_inp[0]
+    try:
+        params = json.loads(splitted_inp[2])
+    except ValueError:
+        params = []
+
+    if len(params):
+        req = actor.request(method, params)
+    else:
+        req = actor.request(method)
+
+    print req.get().result
+
+
 try:
     printcol("Waiting for actors to be available.")
     while 1:

@@ -69,6 +69,7 @@ class RemoteActor(AbstractActor):
         self.mailbox.put(message)
 
 class Actor(SuspendableThread):
+    # TODO Handle messages not replied to – else the queue is waiting forever
     def __init__(self, inbox):
         SuspendableThread.__init__(self)
         self._inbox = inbox
