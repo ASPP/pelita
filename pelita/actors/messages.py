@@ -7,6 +7,8 @@ class Query(object):
         self.params = params
         self.id = id
 
+        self.mailbox = None # this specifies the mailbox used to reply; needs a put method
+
     def response(self, result):
         return Response(result, self.id)
 

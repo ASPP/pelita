@@ -94,12 +94,12 @@ class MailboxConnection(object):
         self._counter = Counter(0)
 
     def start(self):
-        _logger.warning("Starting mailbox %s", self)
+        _logger.info("Starting mailbox %s", self)
         self._inbox.start()
         self._outbox.start()
 
     def stop(self):
-        _logger.warning("Stopping mailbox %s", self)
+        _logger.info("Stopping mailbox %s", self)
         self.inbox.put(StopProcessing)
         self.outbox.put(StopProcessing) # I need to to this or the thread will not stop...
         self._inbox.stop()

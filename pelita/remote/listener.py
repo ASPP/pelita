@@ -11,8 +11,8 @@ import time
 
 from pelita.utils import SuspendableThread
 
-_logger = logging.getLogger("jsonSocket")
-_logger.setLevel(logging.DEBUG)
+_logger = logging.getLogger("pelita.listener")
+_logger.setLevel(logging.INFO)
 
 class TcpListeningSocket(TcpSocket):
     def __init__(self, host, port):

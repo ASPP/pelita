@@ -123,7 +123,7 @@ class Actor(SuspendableThread):
             req_obj = Request(message.id)
             self._requests[message.id] = req_obj
 
-            message.mailbox = self._inbox
+            message.mailbox = self
 
             self.put(message)
             return req_obj
