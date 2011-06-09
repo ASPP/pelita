@@ -11,7 +11,7 @@ from pelita.utils import SuspendableThread, CloseThread
 from pelita.actors import get_rpc, rpc_instances, Error, StopProcessing, DeadConnection
 
 _logger = logging.getLogger("pelita.jsonSocket")
-_logger.setLevel(logging.DEBUG)
+_logger.setLevel(logging.INFO)
 
 import weakref
 
@@ -61,9 +61,9 @@ class JsonSocketConnection(object):
     def _read(self):
         try:
             data = self.connection.recv(4096)
-            _logger.info("Got raw data %s", data)
+            _logger.debug("Got raw data %s", data)
         except socket.timeout:
-            _logger.info("Socket timed out, repeating.")
+            _logger.debug("Socket timed out, repeating.")
             return
         except socket.error as e: # shouldn't that be errno, errmsg?
             if e.args[0] in (errno.EBADF,):
