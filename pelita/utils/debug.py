@@ -21,7 +21,7 @@ class ThreadInfoLogger(SuspendableThread):
 
     def _run(self):
         self._wait.wait(self.interval)
-        _logger.log(self.lvl, "%d threads alive (including this one)" % threading.active_count())
+        _logger.log(self.lvl, "%d threads alive (including this logger)" % threading.active_count())
         if self.show_threads:
             _logger.log(self.lvl, ", ".join(str(t) for t in threading.enumerate()))
 
