@@ -58,6 +58,9 @@ class TcpThreadedListeningServer(SuspendableThread):
                 _logger.exception(e)
                 continue
 
+    def on_accept(self, connection):
+        raise NotImplementedError
+
     def stop(self):
         SuspendableThread.stop(self)
 
@@ -66,5 +69,14 @@ class TcpThreadedListeningServer(SuspendableThread):
         dummy = socket.socket()
         dummy.connect((self.socket.host, self.socket.port))
         dummy.close()
+
+class TcpThreadedListeningServerQueuer(TcpThreadedListeningServer):
+    def __init__(self, incoming_connections, host, port):
+        TcpThreadedListeningServer.__init__(host, port)
+
+        self.incoming_connections = incoming_connections
+
+    def on_accept(self, connection):
+        self.incoming_connections.put(connection)
 
 

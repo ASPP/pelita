@@ -70,9 +70,9 @@ class RemoteActor(AbstractActor):
 
 class Actor(SuspendableThread):
     # TODO Handle messages not replied to – else the queue is waiting forever
-    def __init__(self, inbox):
+    def __init__(self, inbox=None):
         SuspendableThread.__init__(self)
-        self._inbox = inbox
+        self._inbox = inbox or Queue.Queue()
 
         self._requests = weakref.WeakValueDictionary()
         self._counter = Counter(0)
