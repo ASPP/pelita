@@ -38,6 +38,10 @@ class TcpSocket(object):
         """Connects the socket with the provided address and return the connection."""
         self._socket.connect( (self._host, self._port) )
 
+    def close(self):
+        """Closes the socket"""
+        self._socket.close()
+
 
 class TcpConnectingClient(TcpSocket):
     def __init__(self, host, port):

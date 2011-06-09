@@ -55,6 +55,14 @@ class JsonThreadedInbox(SuspendableThread):
         message.mailbox = self.mailbox
         return message
 
+# TODO Not in use now, we rely on timeout until we know better
+#    def stop(self):
+#        SuspendableThread.stop(self)
+#
+#        self.connection.connection.shutdown(socket.SHUT_RDWR)
+#        self.connection.close()
+
+
 
 class JsonThreadedOutbox(SuspendableThread):
     def __init__(self, mailbox, outbox):
