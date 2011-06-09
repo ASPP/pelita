@@ -23,6 +23,9 @@ class JsonSocketConnection(object):
     def __init__(self, connection):
         self.connection = connection
 
+        # Set a timeout so that it is possible to interact with the socket
+        self.connection.settimeout(3)
+
         # Our terminator must never be included in our JSON strings
         # also, it must be a one-byte character for easier parsing
         self._terminator = "\x04" # End of transmission
