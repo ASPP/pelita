@@ -13,7 +13,8 @@ _logger.setLevel(logging.DEBUG)
 
 
 class Request(object):
-    # pykka uses a deepcopy to add things to the queue…
+    # TODO: Need to make messages immutable to avoid synchronisation errors
+    # eg. pykka uses a deepcopy to add things to the queue…
     def __init__(self, id):
         self.id = id
         self._queue = Queue.Queue(maxsize=1)

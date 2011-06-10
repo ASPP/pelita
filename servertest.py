@@ -22,8 +22,6 @@ from pelita.actors import Actor, RemoteActor, Response, Message, Query
 from pelita.remote.mailbox import MailboxConnection
 
 
-from functools import wraps
-
 def sendable(fun):
     fun.sendable = True
     return fun
@@ -184,7 +182,7 @@ try:
 
         try:
             print req.result
-        except:
+        except AttributeError:
             print req.error
 
 except (KeyboardInterrupt, EndSession):

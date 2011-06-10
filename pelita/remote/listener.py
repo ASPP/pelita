@@ -72,7 +72,7 @@ class TcpThreadedListeningServer(SuspendableThread):
 
 class TcpThreadedListeningServerQueuer(TcpThreadedListeningServer):
     def __init__(self, incoming_connections, host, port):
-        TcpThreadedListeningServer.__init__(host, port)
+        TcpThreadedListeningServer.__init__(self, host, port)
 
         self.incoming_connections = incoming_connections
 
