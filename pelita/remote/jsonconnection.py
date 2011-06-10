@@ -118,7 +118,7 @@ class JsonSocketConnection(object):
         while not self.buffer:
             self._read()
 
-        # get the first elemet
+        # get the first element
         data = self.buffer.pop(0)
         json_data = json.loads(data)
         _logger.debug("Data read %s", json_data)
