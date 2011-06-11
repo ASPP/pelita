@@ -4,7 +4,6 @@ from pelita.remote import TcpConnectingClient
 from pelita.remote.mailbox import MailboxConnection
 
 from pelita.actors import Actor, RemoteActor
-from pelita.actors import Message, Query, Error
 
 import logging
 

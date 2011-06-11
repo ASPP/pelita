@@ -3,19 +3,12 @@
 import socket
 import json
 import errno
-
 import logging
 
-from Queue import Queue, Empty
-from pelita.utils import SuspendableThread, CloseThread
-from pelita.actors import get_rpc, rpc_instances, Error, StopProcessing, DeadConnection
+from pelita.actors import get_rpc, rpc_instances, Error, DeadConnection
 
 _logger = logging.getLogger("pelita.jsonSocket")
 _logger.setLevel(logging.INFO)
-
-import weakref
-
-import traceback
 
 
 class JsonSocketConnection(object):
