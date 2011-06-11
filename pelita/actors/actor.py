@@ -141,6 +141,100 @@ class Actor(SuspendableThread):
     def put(self, message):
         self._inbox.put(message)
 
+def dispatch(method=None, name=None):
+    if name and not method:
+        return lambda fun: dispatch(fun, name)
+    method.__dispatch = True
+    method.__dispatch_as = name
+    return method
+
+class DispatchingActor(Actor):
+    """The DispatchingActor allows methods of the form
+
+    @dispatch
+    def some_action(self, method, *args)
+
+    which may be called as
+
+    actor = DispatchingActor()
+    actor.send("some_action", params)
+
+    An alternative form which allows for calling with a different name
+    is available
+
+    @dispatch(name="action")
+    def some_action(self, method, *args)
+
+    actor.send("action", params)
+    """
+    def __init__(self, inbox=None):
+        super(DispatchingActor, self).__init__(inbox)
+
+        self._dispatch_db = {}
+        self._init_dispatch_db()
+        print self._dispatch_db
+
+    def _init_dispatch_db(self):
+        for member_name in dir(self):
+            member = getattr(self, member_name)
+            if getattr(member, "__dispatch", False):
+                print member_name
+                name = getattr(member, "__dispatch_as", None)
+                if not name:
+                    name = member_name
+                self._dispatch_db[name] = member_name
+
+    def _dispatch(self, message):
+
+        # call method directly on actor (unsafe)
+        method = message.method
+        params = message.params
+
+        def reply_error(msg):
+            try:
+                message.reply_error(msg)
+            except AttributeError:
+                pass
+
+        wants_doc = False
+        if method[0] == "?":
+            method = method[1:]
+            wants_doc = True
+
+        method_name = self._dispatch_db.get(method)
+        if not method_name:
+            reply_error("Not found: method '{0}'".format(message.method))
+            return
+
+        meth = getattr(self, method_name, None)
+        if not meth:
+            reply_error("Not found: method '{0}'".format(message.method))
+            return
+
+        if wants_doc:
+            if hasattr(message, "reply"):
+                res = meth.__doc__
+                message.reply(res)
+            return
+
+        if params is None:
+            params = []
+
+        try:
+            res = meth(message, *params)
+        except TypeError:
+            reply_error("Type Error: method '{0}'".format(message.method))
+            return
+
+        if hasattr(message, "reply"):
+            message.reply(res)
+
+    def receive(self, message):
+        super(DispatchingActor, self).receive(message)
+        self._dispatch(message)
+
+
+
 
 class ProxyActor(object):
     def __init__(self, actor):

@@ -14,68 +14,15 @@ ThreadInfoLogger(10).start()
 
 #from actors.actor import Actor
 
-from pelita.actors import Actor, RemoteActor, Message
+from pelita.actors import Actor, RemoteActor, Message, DispatchingActor, dispatch
 from pelita.remote.mailbox import MailboxConnection
 
-
-def sendable(fun):
-    fun.sendable = True
-    return fun
-
-class ServerActor(Actor):
+class ServerActor(DispatchingActor):
     def __init__(self):
         super(ServerActor, self).__init__()
 
         self.mailboxes = {}
         self.players = []
-
-    def receive(self, message):
-        super(ServerActor, self).receive(message)
-
-        self._dispatcher(message)
-
-    def _dispatcher(self, message):
-        # call method directly on actor (unsafe)
-        method = message.method
-        params = message.params
-
-        def reply_error(msg):
-            try:
-                message.reply_error(msg)
-            except AttributeError:
-                pass
-
-        wants_doc = False
-        if method[0] == "?":
-            method = method[1:]
-            wants_doc = True
-
-        meth = getattr(self, method, None)
-        if not meth:
-            reply_error("Not found: method '{0}'".format(message.method))
-            return
-
-        if not getattr(meth, "sendable", False):
-            reply_error("Not sendable: method '{0}'".format(message.method))
-            return
-
-        if wants_doc:
-            if hasattr(message, "reply"):
-                res = meth.__doc__
-                message.reply(res)
-            return
-
-        if params is None:
-            params = []
-
-        try:
-            res = meth(message, *params)
-        except TypeError:
-            reply_error("Type Error: method '{0}'".format(message.method))
-            return
-
-        if hasattr(message, "reply"):
-            message.reply(res)
 
     def stop_mailboxes(self):
         for conn, box in self.mailboxes.iteritems():
@@ -106,31 +53,35 @@ class ServerActor(Actor):
 #   use inner functions inside receive()
 #
 
-    @sendable
+    @dispatch
     def add_mailbox(self, message, conn):
         # a new connection has been established
         mailbox = MailboxConnection(conn, inbox=self) # TODO or self._inbox?
         self.mailboxes[conn] = mailbox
         mailbox.start()
 
-    @sendable
-    def stop(self, message=None):
+    @dispatch(name="stop")
+    def _stop(self, message=None):
+        """Stops the actor."""
+        self.stop()
+
+    def stop(self):
         self.stop_mailboxes()
         super(ServerActor, self).stop()
 
-    @sendable
+    @dispatch
     def multiply(self, message, *args):
         """Multiplies the argument list."""
         res = reduce(lambda x,y: x*y, args)
         print "Calculated", res
         return res
 
-    @sendable
+    @dispatch
     def hello(self, message, *args):
         self.players.append(message.mailbox)
         message.mailbox.put(Message("init", [0]))
 
-    @sendable
+    @dispatch
     def players(self, message, *args):
         message.reply(list(self.players))
 
