@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from pelita.remote import TcpSocket
-
-import Queue
-
 import logging
 import socket
 
-import time
-
+from pelita.remote import TcpSocket
 from pelita.utils import SuspendableThread
 
 _logger = logging.getLogger("pelita.listener")

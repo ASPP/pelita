@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-from pelita.remote import TcpThreadedListeningServer
-import threading
 
-import Queue
+from pelita.remote import TcpThreadedListeningServer
 import logging
 
 import colorama
@@ -16,9 +14,7 @@ ThreadInfoLogger(10).start()
 
 #from actors.actor import Actor
 
-from pelita.utils import SuspendableThread
-
-from pelita.actors import Actor, RemoteActor, Response, Message, Query
+from pelita.actors import Actor, RemoteActor, Message
 from pelita.remote.mailbox import MailboxConnection
 
 

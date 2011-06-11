@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import socket
-import logging
 
 class TcpSocket(object):
     def __init__(self, host, port):
