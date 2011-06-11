@@ -170,18 +170,18 @@ class DispatchingActor(Actor):
     def __init__(self, inbox=None):
         super(DispatchingActor, self).__init__(inbox)
 
-        self._dispatch_db = {}
         self._init_dispatch_db()
-        print self._dispatch_db
 
     def _init_dispatch_db(self):
+        self._dispatch_db = {}
         for member_name in dir(self):
             member = getattr(self, member_name)
             if getattr(member, "__dispatch", False):
-                print member_name
                 name = getattr(member, "__dispatch_as", None)
                 if not name:
                     name = member_name
+                if name in self._dispatch_db:
+                    raise ValueError("Dispatcher name '{0}' defined twice".format(name))
                 self._dispatch_db[name] = member_name
 
     def _dispatch(self, message):
