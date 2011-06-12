@@ -167,6 +167,32 @@ class DispatchingActor(Actor):
 
     actor.send("action", params)
     """
+
+#
+# Messages we accept
+# TODO: It is still unclear where to put the arguments 
+# and where to put the sender/message object
+#
+# a)
+#   def method(self, message, arg1, *args):
+#       sender = message.sender
+#       message.reply(...)
+#
+# b)
+#   def method(self, arg1, *args):
+#       self.sender         # set in the loop before, quasi global
+#       self.reply(...)     # set in the loop before, quasi global
+#
+# c)
+#   def method(self, message):
+#       args = message.params
+#       sender = message.sender
+#       message.reply(...)
+#
+# d)
+#   use inner functions inside receive()
+#
+
     def __init__(self, inbox=None):
         super(DispatchingActor, self).__init__(inbox)
 
@@ -174,6 +200,7 @@ class DispatchingActor(Actor):
 
     def _init_dispatch_db(self):
         self._dispatch_db = {}
+        # search all attributes of this class
         for member_name in dir(self):
             member = getattr(self, member_name)
             if getattr(member, "__dispatch", False):

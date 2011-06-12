@@ -28,31 +28,6 @@ class ServerActor(DispatchingActor):
         for conn, box in self.mailboxes.iteritems():
             box.stop()
 
-#
-# Messages we accept
-# TODO: It is still unclear where to put the arguments 
-# and where to put the sender/message object
-#
-# a)
-#   def method(self, message, arg1, *args):
-#       sender = message.sender
-#       message.reply(...)
-#
-# b)
-#   def method(self, arg1, *args):
-#       self.sender         # set in the loop before, quasi global
-#       self.reply(...)     # set in the loop before, quasi global
-#
-# c)
-#   def method(self, message):
-#       args = message.params
-#       sender = message.sender
-#       message.reply(...)
-#
-# d)
-#   use inner functions inside receive()
-#
-
     @dispatch
     def add_mailbox(self, message, conn):
         # a new connection has been established
