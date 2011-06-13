@@ -56,9 +56,40 @@ class ServerActor(DispatchingActor):
         self.players.append(message.mailbox)
         message.mailbox.put(Message("init", [0]))
 
-    @dispatch
-    def players(self, message, *args):
+    @dispatch(name="players")
+    def _players(self, message, *args):
         message.reply(list(self.players))
+
+
+    @dispatch
+    def calc(self, message, num_clients=1, iterations=10000):
+        if len(list(self.players)) < num_clients:
+            message.reply_error("Not enough clients connected")
+            return
+
+        answers = []
+
+        for ac_num in range(num_clients):
+            player = RemoteActor(self.players[ac_num])
+
+            start_val = iterations * ac_num
+            stop_val = iterations * (ac_num + 1) - 1
+
+            # pi
+            req = player.request("calculate_pi_for", [start_val, stop_val])
+            printcol(req)
+            answers.append( req )
+
+            # slow series
+#           if start_val == 0:
+#               start_val = 2
+#           answers.append( player.request("slow_series", [start_val, stop_val]) )
+
+        res = 0
+        for answer in answers:
+            res += answer.get().result
+        message.reply(res)
+
 
 actor = ServerActor()
 actor.start()
@@ -74,17 +105,11 @@ listener.start()
 #incoming_bundler.start()
 
 def printcol(msg):
-    """Using a helper function to get coloured output (not working with logging...)"""
+    """Using a helper function to get coloured output"""
     print colorama.Fore.BLUE + str(msg) + colorama.Fore.RESET
 
 class EndSession(Exception):
     pass
-
-NUM_NEEDED_ACTORS = 1
-
-MAX_NUMBER_PER_AC = 10000000
-
-import time
 
 import json
 try:
@@ -115,50 +140,6 @@ except (KeyboardInterrupt, EndSession):
     listener.stop()
     import sys
     sys.exit()
-
-try:
-    printcol("Waiting for actors to be available.")
-    while 1:
-        time.sleep(3)
-        players = actor.request("players").get().result
-        if len(players) >= NUM_NEEDED_ACTORS:
-            printcol("Actors are available.")
-            answers = []
-
-            for ac_num in range(NUM_NEEDED_ACTORS):
-                player = RemoteActor(players[ac_num])
-
-                start_val = MAX_NUMBER_PER_AC * ac_num
-                stop_val = MAX_NUMBER_PER_AC * (ac_num + 1) - 1
-
-                # pi
-                req = player.request("calculate_pi_for", [start_val, stop_val])
-                printcol(req)
-                answers.append( req )
-
-                # slow series
-#                if start_val == 0:
-#                    start_val = 2
-#                answers.append( player.request("slow_series", [start_val, stop_val]) )
-
-            res = 0
-            for answer in answers:
-                print answer
-                res += answer.get().result
-
-            printcol("Result: " + str(res))
-            raise EndSession()
-
-except (KeyboardInterrupt, EndSession):
-    print "Interrupted"
-
-    req =  actor.request("stop").get()
-    try:
-        print req.result
-    except AttributeError:
-        print req.error
-    actor.stop()
-    listener.stop()
 
 #remote = remote_start(JsonThreadedListeningServer, "localhost", 9990).register_actor(RemoteActor)
 
