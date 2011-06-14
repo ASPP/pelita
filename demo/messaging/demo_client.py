@@ -3,7 +3,7 @@
 from pelita.remote import TcpConnectingClient
 from pelita.remote.mailbox import MailboxConnection
 
-from pelita.actors import Actor, RemoteActor
+from pelita.actors import Actor, RemoteActor, DispatchingActor, dispatch
 
 import logging
 
@@ -31,27 +31,29 @@ def slow_series(start, number_of_elems):
         acc += 1.0 / (i * (math.log(i)*math.log(i)))
     return acc
 
-class ClientActor(Actor):
-    def receive(self, message):
-        super(ClientActor, self).receive(message)
-        if message.method == "init":
-            reply = init(*message.params)
+class ClientActor(DispatchingActor):
+    @dispatch
+    def init(self, message, *params):
+        init(*params)
 
-        elif message.method == "statechanged":
-            sender.put(message.reply("NORTH"))
+    @dispatch
+    def statechanged(self, message):
+        message.reply("NORTH")
 
-        elif message.method == "calculate_pi_for":
-            res = calculate_pi_for(*message.params)
-            message.reply(res)
+    @dispatch
+    def calculate_pi_for(self, message, *params):
+        res = calculate_pi_for(*params)
+        message.reply(res)
 
-        elif message.method == "slow_series":
-            res = slow_series(*message.params)
-            message.reply(res)
-        else:
-            try:
-                message.reply_error("Message not found")
-            except AttributeError:
-                _logger.warning("Message not found.")
+    @dispatch
+    def slow_series(self, message, *params):
+        res = slow_series(*params)
+        message.reply(res)
+
+    @dispatch
+    def random_int(self, message):
+        import random
+        message.reply(random.randint(0, 10))
 
 sock = TcpConnectingClient(host="", port=50007)
 conn = sock.handle_connect()

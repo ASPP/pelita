@@ -90,6 +90,28 @@ class ServerActor(DispatchingActor):
             res += answer.get().result
         message.reply(res)
 
+    @dispatch
+    def minigame(self, message):
+        """Demoes a small game."""
+        if len(self.players) != 2:
+            message.reply_error("Need two players.")
+            return
+
+        reqs = []
+
+        for player in self.players:
+            player = RemoteActor(player)
+            reqs.append( player.request("random_int", []) )
+
+        res = 0
+        for answer in reqs:
+            res += answer.get().result
+
+        if res % 2 != 0:
+            message.reply("Player 1 wins")
+        else:
+            message.reply("Player 2 wins")
+
 
 
 actor = ServerActor()

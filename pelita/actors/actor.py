@@ -254,12 +254,14 @@ class DispatchingActor(Actor):
 
             else:
                 res = meth(message, *params)
-        except TypeError:
-            reply_error("Type Error: method '{0}'".format(message.method))
+        except TypeError, e:
+            reply_error("Type Error: method '{0}'\n{1}".format(message.method, e))
             return
 
-        if hasattr(message, "reply"):
-            message.reply(res)
+# TODO: Need to consider, if we want to automatically reply the result
+#
+#        if hasattr(message, "reply"):
+#            message.reply(res)
 
     def receive(self, message):
         super(DispatchingActor, self).receive(message)

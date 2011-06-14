@@ -51,6 +51,7 @@ class JsonThreadedInbox(SuspendableThread):
             raise CloseThread
 
         message = recv
+        _logger.info("Processing inbox %s", message.rpc)
         # add the mailbox to the message
         message.mailbox = self.mailbox
         return message
