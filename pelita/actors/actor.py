@@ -244,11 +244,16 @@ class DispatchingActor(Actor):
                 message.reply(res)
             return
 
-        if params is None:
-            params = []
 
         try:
-            res = meth(message, *params)
+            if params is None:
+                res = meth(message)
+
+            elif isinstance(params, dict):
+                res = meth(message, **params)
+
+            else:
+                res = meth(message, *params)
         except TypeError:
             reply_error("Type Error: method '{0}'".format(message.method))
             return

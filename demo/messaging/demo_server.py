@@ -91,6 +91,7 @@ class ServerActor(DispatchingActor):
         message.reply(res)
 
 
+
 actor = ServerActor()
 actor.start()
 
@@ -117,15 +118,27 @@ try:
         inp = raw_input("> ")
         splitted_inp = inp.partition(" ")
         method = splitted_inp[0]
-        try:
-            params = json.loads(splitted_inp[2])
-        except ValueError:
-            params = []
+        json_params = splitted_inp[2].strip()
 
-        if len(params):
-            req = actor.request(method, params).get()
-        else:
-            req = actor.request(method).get()
+        if not method.strip():
+            continue
+
+        try:
+            if json_params:
+                params = json.loads(json_params)
+            else:
+                params = []
+        except ValueError:
+            print "value error"
+            continue
+
+        try:
+            if len(params):
+                req = actor.request(method, params).get()
+            else:
+                req = actor.request(method).get()
+        except TypeError:
+            print "Need to get list"
 
         try:
             print req.result

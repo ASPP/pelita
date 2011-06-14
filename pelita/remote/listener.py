@@ -11,6 +11,10 @@ _logger.setLevel(logging.INFO)
 
 class TcpListeningSocket(TcpSocket):
     def __init__(self, host, port):
+        """Openes a socket with respective host and port
+        and listenes for an incoming connection.
+        """
+
         super(TcpListeningSocket, self).__init__(host, port)
 
         self.socket.bind( (self.host, self.port) )
@@ -25,6 +29,13 @@ class TcpListeningSocket(TcpSocket):
 
 class TcpThreadedListeningServer(SuspendableThread):
     def __init__(self, host, port):
+        """Openes a socket with respective host and port
+        and listenes for an incoming connection.
+
+        Each instantiation must supply its own on_accept()
+        method which specifies what action needs to be done
+        when a new connection is established.
+        """
         SuspendableThread.__init__(self)
 
         self.socket = TcpListeningSocket(host, port)
@@ -38,6 +49,7 @@ class TcpThreadedListeningServer(SuspendableThread):
                 connection = self.socket.handle_accept()
 
                 # we waited so long, we need to see we're still alive
+                # if it was a dummy connection, we will return now
                 if not self._running:
                     return
 
