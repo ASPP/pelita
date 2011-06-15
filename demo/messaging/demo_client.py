@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pelita.messaging.remote import TcpConnectingClient
-from pelita.messaging.remote.mailbox import MailboxConnection
+from pelita.messaging.mailbox import MailboxConnection
 
 from pelita.messaging import Actor, RemoteActor, DispatchingActor, dispatch
 

@@ -15,7 +15,7 @@ ThreadInfoLogger(10).start()
 #from actors.actor import Actor
 
 from pelita.messaging import Actor, RemoteActor, Message, DispatchingActor, dispatch
-from pelita.messaging.remote.mailbox import MailboxConnection
+from pelita.messaging.mailbox import MailboxConnection
 
 class ServerActor(DispatchingActor):
     def __init__(self):
