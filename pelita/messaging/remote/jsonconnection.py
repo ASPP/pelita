@@ -5,7 +5,7 @@ import json
 import errno
 import logging
 
-from pelita.actors import get_rpc, rpc_instances, Error, DeadConnection
+from pelita.messaging import get_rpc, rpc_instances, Error, DeadConnection
 
 _logger = logging.getLogger("pelita.jsonSocket")
 _logger.setLevel(logging.INFO)

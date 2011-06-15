@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from pelita.remote import TcpConnectingClient
-from pelita.remote.mailbox import MailboxConnection
+from pelita.messaging.remote import TcpConnectingClient
+from pelita.messaging.remote.mailbox import MailboxConnection
 
-from pelita.actors import Actor, RemoteActor, DispatchingActor, dispatch
+from pelita.messaging import Actor, RemoteActor, DispatchingActor, dispatch
 
 import logging
 
@@ -12,7 +12,7 @@ _logger.setLevel(logging.DEBUG)
 FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s] %(message)s'
 logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S")
 
-from pelita.utils import ThreadInfoLogger
+from pelita.messaging.utils import ThreadInfoLogger
 ThreadInfoLogger(10).start()
 
 def init(*params):

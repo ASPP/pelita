@@ -8,9 +8,9 @@ import logging
 _logger = logging.getLogger("pelita.mailbox")
 _logger.setLevel(logging.DEBUG)
 
-from pelita.utils import SuspendableThread, Counter, CloseThread
-from pelita.remote.jsonconnection import JsonRPCSocketConnection
-from pelita.actors import StopProcessing, DeadConnection, Response, Query, Request
+from pelita.messaging.utils import SuspendableThread, Counter, CloseThread
+from pelita.messaging.remote.jsonconnection import JsonRPCSocketConnection
+from pelita.messaging import StopProcessing, DeadConnection, Response, Query, Request
 
 
 class JsonThreadedInbox(SuspendableThread):

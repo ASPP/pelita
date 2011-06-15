@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from pelita.remote import TcpThreadedListeningServer
+from pelita.messaging.remote import TcpThreadedListeningServer
 import logging
 
 import colorama
@@ -9,13 +9,13 @@ colorama.init()
 FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s]' + colorama.Fore.MAGENTA + ' %(message)s' + colorama.Fore.RESET
 logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S")
 
-from pelita.utils.debug import ThreadInfoLogger
+from pelita.messaging.utils.debug import ThreadInfoLogger
 ThreadInfoLogger(10).start()
 
 #from actors.actor import Actor
 
-from pelita.actors import Actor, RemoteActor, Message, DispatchingActor, dispatch
-from pelita.remote.mailbox import MailboxConnection
+from pelita.messaging import Actor, RemoteActor, Message, DispatchingActor, dispatch
+from pelita.messaging.remote.mailbox import MailboxConnection
 
 class ServerActor(DispatchingActor):
     def __init__(self):

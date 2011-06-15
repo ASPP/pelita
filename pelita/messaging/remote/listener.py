@@ -3,8 +3,8 @@
 import logging
 import socket
 
-from pelita.remote import TcpSocket
-from pelita.utils import SuspendableThread
+from pelita.messaging.remote import TcpSocket
+from pelita.messaging.utils import SuspendableThread
 
 _logger = logging.getLogger("pelita.listener")
 _logger.setLevel(logging.INFO)

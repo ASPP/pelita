@@ -4,8 +4,8 @@ import Queue
 import weakref
 
 import logging
-from pelita.utils import SuspendableThread, Counter, CloseThread
-from pelita.actors import Query, Message, Response, Error
+from pelita.messaging.utils import SuspendableThread, Counter, CloseThread
+from pelita.messaging import Query, Message, Response, Error
 
 
 _logger = logging.getLogger("pelita.actor")
