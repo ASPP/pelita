@@ -138,9 +138,9 @@ import json
 try:
     while True:
         inp = raw_input("> ")
-        splitted_inp = inp.partition(" ")
-        method = splitted_inp[0]
-        json_params = splitted_inp[2].strip()
+        split_inp = inp.partition(" ")
+        method = split_inp[0]
+        json_params = split_inp[2].strip()
 
         if not method.strip():
             continue
