@@ -30,11 +30,11 @@ class TestLayoutChecks(unittest.TestCase):
 
     def test_not_enough_bots(self):
         not_enough_bots = (
-        """#######
-           #1    #
-           #  2  #
-           #    3#
-           #######""")
+        """ #######
+            #1    #
+            #  2  #
+            #    3#
+            ####### """)
         self.assertRaises(LayoutEncodingException, check_layout,
                 strip_layout(not_enough_bots), 5)
 
@@ -54,7 +54,7 @@ class TestLayoutChecks(unittest.TestCase):
             #  #
             #   #
             #    #
-            ###### """)
+            ######  """)
         self.assertRaises(LayoutEncodingException, check_layout,
                 strip_layout(wrong_shape), 3)
 
