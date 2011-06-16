@@ -86,11 +86,11 @@ def layout_shape(layout_str):
 
     Returns
     -------
-    width : int
     height : int
+    width : int
 
     """
-    return (layout_str.find('\n'), len(layout_str.split('\n'))-1)
+    return (len(layout_str.split('\n'))-1, layout_str.find('\n'))
 
 def convert_to_grid(layout_str):
     """ Convert a layout string to a list of lists.

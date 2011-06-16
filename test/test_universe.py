@@ -73,7 +73,7 @@ class TestLayoutOps(unittest.TestCase):
             #     #
             #     #
             ####### """)
-        self.assertEqual(layout_shape(strip_layout(large_shape)), (7,5))
+        self.assertEqual(layout_shape(strip_layout(large_shape)), (5,7))
 
     def test_convert_to_grid(self):
         test_layout = (
