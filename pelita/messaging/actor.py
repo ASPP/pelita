@@ -7,10 +7,8 @@ import logging
 from pelita.messaging.utils import SuspendableThread, Counter, CloseThread
 from pelita.messaging import Query, Notification, BaseMessage
 
-
 _logger = logging.getLogger("pelita.actor")
 _logger.setLevel(logging.DEBUG)
-
 
 class Request(object):
     # TODO: Need to make messages immutable to avoid synchronisation errors
@@ -242,7 +240,6 @@ class DispatchingActor(Actor):
                 res = meth.__doc__
                 message.reply(res)
             return
-
 
         try:
             if params is None:

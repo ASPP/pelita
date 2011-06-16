@@ -10,7 +10,7 @@ _logger.setLevel(logging.DEBUG)
 
 from pelita.messaging.utils import SuspendableThread, Counter, CloseThread
 from pelita.messaging.remote import MessageSocketConnection
-from pelita.messaging import StopProcessing, DeadConnection, Response, Query, Request
+from pelita.messaging import StopProcessing, DeadConnection, BaseMessage, Query, Request
 
 
 class JsonThreadedInbox(SuspendableThread):
@@ -24,7 +24,7 @@ class JsonThreadedInbox(SuspendableThread):
     def _run(self):
         message = self.handle_inbox()
 
-        if isinstance(message, Response):
+        if isinstance(message, BaseMessage) and message.is_response:
 
             awaiting_result = self.mailbox._requests.get(message.id, None)
             if awaiting_result is not None:
