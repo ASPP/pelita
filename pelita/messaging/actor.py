@@ -207,7 +207,7 @@ class DispatchingActor(Actor):
                 if not name:
                     name = member_name
                 if name in self._dispatch_db:
-                    raise ValueError("Dispatcher name '{0}' defined twice".format(name))
+                    raise ValueError("Dispatcher name '%s' defined twice", name)
                 self._dispatch_db[name] = member_name
 
     def _dispatch(self, message):
@@ -229,12 +229,12 @@ class DispatchingActor(Actor):
 
         method_name = self._dispatch_db.get(method)
         if not method_name:
-            reply_error("Not found: method '{0}'".format(message.method))
+            reply_error("Not found: method '%s'", message.method)
             return
 
         meth = getattr(self, method_name, None)
         if not meth:
-            reply_error("Not found: method '{0}'".format(message.method))
+            reply_error("Not found: method '%s'", message.method)
             return
 
         if wants_doc:
@@ -254,7 +254,7 @@ class DispatchingActor(Actor):
             else:
                 res = meth(message, *params)
         except TypeError, e:
-            reply_error("Type Error: method '{0}'\n{1}".format(message.method, e))
+            reply_error("Type Error: method '%s'\n%s" % (message.method, e))
             return
 
 # TODO: Need to consider, if we want to automatically reply the result
@@ -265,16 +265,4 @@ class DispatchingActor(Actor):
     def receive(self, message):
         super(DispatchingActor, self).receive(message)
         self._dispatch(message)
-
-
-
-
-class ProxyActor(object):
-    def __init__(self, actor):
-        self._actor = actor
-
-    def query(self, remote, method, params):
-        self._actor.request(remote, Query(method, params, None))
-
-
 

@@ -153,4 +153,4 @@ def _load_message(dict):
                 return cls(**dict)
             except TypeError:
                 pass
-        raise ValueError("Cannot convert JSON {0} to RPC object.".format(dict))
+        raise ValueError("Cannot convert object %s to Message." % dict)

@@ -128,10 +128,9 @@ class JsonRPCSocketConnection(JsonSocketConnection):
 
     def send(self, message):
         if not isinstance(message, BaseMessage):
-            raise ValueError("{0} is no Message object.".format(message))
+            raise ValueError("'%s' is no Message object." % message)
 
         super(JsonRPCSocketConnection, self).send(message.dict)
-
 
     def read(self):
         obj = super(JsonRPCSocketConnection, self).read()
