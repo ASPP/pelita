@@ -4,6 +4,12 @@
 
 Autonomous agent environment for Python summerschool.
 
+## Coding conventions
+
+  - Docstrings should follow the [Numpy convention](https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt)
+  - Use old-style `print` statement (not the function)
+  - Use old-style format-string, i.e. `"%s" % (val))` instead of `"{0}".format(val)`
+
 ## Git-Repository
 
 ### Layout and Branch Model
