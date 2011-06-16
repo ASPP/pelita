@@ -58,6 +58,39 @@ class TestLayoutChecks(unittest.TestCase):
         self.assertRaises(LayoutEncodingException, check_layout,
                 strip_layout(wrong_shape), 3)
 
+class TestLayoutOps(unittest.TestCase):
+
+    def test_layout_shape(self):
+        small_shape = (
+        """ ###
+            # #
+            ### """)
+        self.assertEqual(layout_shape(strip_layout(small_shape)), (3,3))
+
+        large_shape = (
+        """ #######
+            #     #
+            #     #
+            #     #
+            ####### """)
+        self.assertEqual(layout_shape(strip_layout(large_shape)), (7,5))
+
+    def test_convert_to_grid(self):
+        test_layout = (
+        """ #######
+            #c    #
+            #  .  #
+            #    o#
+            ####### """)
+        converted = convert_to_grid(strip_layout(test_layout))
+        print converted
+        target = [['#', '#', '#', '#', '#', '#', '#'],
+                  ['#', 'c', ' ', ' ', ' ', ' ', '#'],
+                  ['#', ' ', ' ', '.', ' ', ' ', '#'],
+                  ['#', ' ', ' ', ' ', ' ', 'o', '#'],
+                  ['#', '#', '#', '#', '#', '#', '#']]
+        self.assertEqual(converted, target)
+
 if __name__ == '__main__':
     unittest.main()
 

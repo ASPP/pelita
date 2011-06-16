@@ -76,6 +76,36 @@ def strip_layout(layout_str):
     """
     return ''.join([line.strip()+'\n' for line in layout_str.split('\n')])
 
+def layout_shape(layout_str):
+    """ Determine shape of layout.
+
+    Parameters
+    ----------
+    layout_str : str
+        a checked layout string
+
+    Returns
+    -------
+    width : int
+    height : int
+
+    """
+    return (layout_str.find('\n'), len(layout_str.split('\n'))-1)
+
+def convert_to_grid(layout_str):
+    """ Convert a layout string to a list of lists.
+
+    Parameters
+    ----------
+    layout_str : str
+        a checked layout string
+
+    Returns
+    -------
+    layout : list of lists of chars
+    """
+    return [[c for c in l.strip()] for l in layout_str.split('\n')[:-1]]
+
 class Universe(object):
 
     def __init__():
