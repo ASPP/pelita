@@ -61,7 +61,7 @@ def check_layout(layout_str, number_bots):
                 % (i, len(lines[i]), len(lines[0])))
 
 def strip_layout(layout_str):
-    """ Remove whitespace from a string encoded layout
+    """ Remove leading and trailing whitespace from a string encoded layout.
 
     Parameters
     ----------
