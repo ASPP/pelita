@@ -74,12 +74,6 @@ class Universe(object):
     def __init__():
         pass
 
-    def set_layout(layout):
-        self.layout = layout
-
-    def get_layout():
-        return self.layout
-
     def init_bots():
         pass
 
