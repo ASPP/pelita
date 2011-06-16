@@ -52,7 +52,7 @@ def check_layout(layout_str, number_bots):
         raise LayoutEncodingException(
             'Layout is invalid for %i Bots, The following IDs were missing: %s '
             % (number_bots, missing))
-    lines = layout_str.split('\n')
+    lines = layout_str.split('\n')[:-1]
     for i in range(len(lines)):
         if len(lines[i]) != len(lines[0]):
             raise LayoutEncodingException(
