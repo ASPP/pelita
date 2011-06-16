@@ -12,7 +12,7 @@ _logger.setLevel(logging.INFO)
 
 
 class JsonSocketConnection(object):
-    """ Implements a socket for JSON communication.
+    """ Implements JSON communication over a socket.
 
     The socket may send any object which can be (trivially)
     converted to a JSON string by calling `json.dumps(obj)`.
@@ -23,11 +23,11 @@ class JsonSocketConnection(object):
     By default, this character is EOT (= End of transmission, \x04),
     which of course must never occur in a JSON string.
     """
-    def __init__(self, connection):
-        self.connection = connection
+    def __init__(self, socket):
+        self.socket = socket
 
         # Set a timeout so that it is possible to interact with the socket
-        self.connection.settimeout(3)
+        self.socket.settimeout(3)
 
         # Our terminator must never be included in our JSON strings
         # also, it must be a one-byte character for easier parsing
@@ -54,7 +54,7 @@ class JsonSocketConnection(object):
     def send(self, obj):
         """ Converts `obj` to a json string and sends it.
         """
-        if self.connection:
+        if self.socket:
             json_string = json.dumps(obj)
             self._send(json_string)
         else:
@@ -72,7 +72,7 @@ class JsonSocketConnection(object):
         sent_bytes = 0
         while sent_bytes < len(data):
             _logger.info("Sending raw data %s", data[sent_bytes:])
-            sent_bytes += self.connection.send(data[sent_bytes:])
+            sent_bytes += self.socket.send(data[sent_bytes:])
 
     def read(self):
         """ This method waits until new data is available at the connection
@@ -98,7 +98,7 @@ class JsonSocketConnection(object):
         and processes it.
         """
         try:
-            data = self.connection.recv(4096)
+            data = self.socket.recv(4096)
             _logger.debug("Got raw data %s", data)
         except socket.timeout:
             _logger.debug("Socket timed out, repeating.")
@@ -149,7 +149,7 @@ class JsonSocketConnection(object):
         self.incoming += incomplete
 
     def close(self):
-        self.connection.close()
+        self.socket.close()
 
 
 class MessageSocketConnection(JsonSocketConnection):

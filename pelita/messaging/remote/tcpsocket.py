@@ -3,6 +3,11 @@
 import socket
 
 class TcpSocket(object):
+    """ Wraps a socket for a TCP connection.
+
+    The socket is initially set to blocking. This may be changed using
+     the `timeout` property.
+    """
     def __init__(self, host, port):
         self._host = host
         self._port = port
@@ -50,7 +55,7 @@ class TcpConnectingClient(TcpSocket):
     def handle_connect(self):
         self.connect()
         self.timeout = 3
-        return self.socket #self.socket # JsonSocketConnection(self.socket)
+        return self.socket # or JsonSocketConnection(self.socket) ?
 
 
 
