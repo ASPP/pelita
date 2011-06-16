@@ -83,7 +83,6 @@ class TestLayoutOps(unittest.TestCase):
             #    o#
             ####### """)
         converted = convert_to_grid(strip_layout(test_layout))
-        print converted
         target = [['#', '#', '#', '#', '#', '#', '#'],
                   ['#', 'c', ' ', ' ', ' ', ' ', '#'],
                   ['#', ' ', ' ', '.', ' ', ' ', '#'],
