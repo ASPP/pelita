@@ -50,7 +50,7 @@ def check_layout(layout_str, number_bots):
         missing = [str(i) for i in set(bot_ids).difference(set(existing_bots))]
         missing.sort()
         raise LayoutEncodingException(
-            'Layout is invalid for %i Bots, The following IDs were missing: %s '
+            'Layout is invalid for %i bots, The following IDs were missing: %s '
             % (number_bots, missing))
     lines = layout_str.split('\n')
     for i in range(len(lines)):
