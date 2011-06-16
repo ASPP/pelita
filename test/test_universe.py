@@ -90,6 +90,38 @@ class TestLayoutOps(unittest.TestCase):
                   ['#', '#', '#', '#', '#', '#', '#']]
         self.assertEqual(converted, target)
 
+    def test_get_initial_positions(self):
+        test_layout = (
+        """ #######
+            #1    #
+            #  2  #
+            #    3#
+            ####### """)
+        number_bots = 3
+        stripped = strip_layout(test_layout)
+        check_layout(stripped, number_bots)
+        shape = layout_shape(stripped)
+        grid = convert_to_grid(stripped)
+        initial_pos = initial_positions(grid, shape, number_bots)
+        target = [(1, 1), (2,3), (3,5)]
+        self.assertEqual(target, initial_pos)
+
+        # now for a somewhat more realistic example
+        test_layout2 = (
+        """ ##################
+            #1#      #       #
+            #2#####    #####3#
+            #       #      #4#
+            ################## """)
+        number_bots = 4
+        stripped = strip_layout(test_layout2)
+        check_layout(stripped, number_bots)
+        shape = layout_shape(stripped)
+        grid = convert_to_grid(stripped)
+        initial_pos = initial_positions(grid, shape, number_bots)
+        target = [(1, 1), (2, 1), (2, 16), (3, 16)]
+        self.assertEqual(target, initial_pos)
+
 if __name__ == '__main__':
     unittest.main()
 

@@ -106,6 +106,31 @@ def convert_to_grid(layout_str):
     """
     return [[c for c in l.strip()] for l in layout_str.split('\n')[:-1]]
 
+def initial_positions(layout_grid, shape, number_bots):
+    """ Extract initial positions from layout.
+
+    Parameters
+    ----------
+    layout_grid : list of list of chars
+        the layout in grid format
+    shape : int, int
+        height and width of the grid
+    number_bots : int
+        the number of bots for which to find initial positions
+
+    Returns
+    -------
+    initial pos : list of tuples
+        the initial positions for all the bots
+    """
+    bot_ids = [str(i) for i in range(1, number_bots+1)]
+    start = [(0, 0)] * number_bots
+    height, width = shape[0], shape[1]
+    for (h,w) in ((h,w) for h in range(height) for w in range(width)):
+        if layout_grid[h][w] in bot_ids:
+            start[int(layout_grid[h][w])-1] = (h,w)
+    return start
+
 class Universe(object):
 
     def __init__():
