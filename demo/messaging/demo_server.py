@@ -14,7 +14,7 @@ ThreadInfoLogger(10).start()
 
 #from actors.actor import Actor
 
-from pelita.messaging import Actor, RemoteActor, Message, DispatchingActor, dispatch
+from pelita.messaging import Actor, RemoteActor, Notification, DispatchingActor, dispatch
 from pelita.messaging.mailbox import MailboxConnection
 
 class ServerActor(DispatchingActor):
@@ -54,7 +54,7 @@ class ServerActor(DispatchingActor):
     @dispatch
     def hello(self, message, *args):
         self.players.append(message.mailbox)
-        message.mailbox.put(Message("init", [0]))
+        message.mailbox.put(Notification("init", [0]))
 
     @dispatch(name="players")
     def _players(self, message, *args):
@@ -92,7 +92,7 @@ class ServerActor(DispatchingActor):
 
     @dispatch
     def minigame(self, message):
-        """Demoes a small game."""
+        """Demos a small game."""
         if len(self.players) != 2:
             message.reply_error("Need two players.")
             return
@@ -161,6 +161,7 @@ try:
                 req = actor.request(method).get()
         except TypeError:
             print "Need to get list"
+            continue
 
         try:
             print req.result

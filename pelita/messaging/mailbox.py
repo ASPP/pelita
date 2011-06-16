@@ -34,7 +34,7 @@ class JsonThreadedInbox(SuspendableThread):
                 return # finish handling of messages here
 
             else:
-                _logger.warning("Received a response (%s) without a waiting future. Dropped response.", message.rpc)
+                _logger.warning("Received a response (%s) without a waiting future. Dropped response.", message.dict)
                 return
 
         self._queue.put(message)
@@ -51,7 +51,7 @@ class JsonThreadedInbox(SuspendableThread):
             raise CloseThread
 
         message = recv
-        _logger.info("Processing inbox %s", message.rpc)
+        _logger.info("Processing inbox %s", message.dict)
         # add the mailbox to the message
         message.mailbox = self.mailbox
         return message

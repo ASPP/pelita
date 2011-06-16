@@ -5,7 +5,7 @@ import weakref
 
 import logging
 from pelita.messaging.utils import SuspendableThread, Counter, CloseThread
-from pelita.messaging import Query, Message, Response, Error
+from pelita.messaging import Query, Notification, BaseMessage
 
 
 _logger = logging.getLogger("pelita.actor")
@@ -31,7 +31,7 @@ class Request(object):
 
     def has_result(self):
         """Checks whether a result is available.
-        
+
         This method does not guarantee that a subsequent call of Request.get() will succeed.
         However, unless there is code which calls get() in the background, this method
         should be save to use.
@@ -66,7 +66,7 @@ class RemoteActor(AbstractActor):
         return self.mailbox.request(query)
 
     def send(self, method, params=None):
-        message = Message(method, params)
+        message = Notification(method, params)
         self.mailbox.put(message)
 
 class Actor(SuspendableThread):
@@ -84,8 +84,7 @@ class Actor(SuspendableThread):
         except Queue.Empty:
             return
 
-        if isinstance(message, Response) or \
-                (isinstance(message, Error) and message.id is not None):
+        if isinstance(message, BaseMessage) and message.is_response:
 
             awaiting_result = self._requests.get(message.id, None)
             if awaiting_result is not None:
@@ -95,7 +94,7 @@ class Actor(SuspendableThread):
                 return # finish handling of messages here
 
             else:
-                _logger.warning("Received a response (%s) without a waiting future. Dropped response.", message.rpc)
+                _logger.warning("Received a response (%s) without a waiting future. Dropped response.", message.dict)
                 return
 
         if message is StopProcessing:
@@ -135,7 +134,7 @@ class Actor(SuspendableThread):
         _logger.debug("Received message %s.", message)
 
     def send(self, method, params=None):
-        message = Message(method, params)
+        message = Notification(method, params)
         self.put(message)
 
     def put(self, message):
@@ -170,7 +169,7 @@ class DispatchingActor(Actor):
 
 #
 # Messages we accept
-# TODO: It is still unclear where to put the arguments 
+# TODO: It is still unclear where to put the arguments
 # and where to put the sender/message object
 #
 # a)

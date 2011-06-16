@@ -5,7 +5,7 @@ import json
 import errno
 import logging
 
-from pelita.messaging import get_rpc, rpc_instances, Error, DeadConnection
+from pelita.messaging import Error, DeadConnection, BaseMessage
 
 _logger = logging.getLogger("pelita.jsonSocket")
 _logger.setLevel(logging.INFO)
@@ -126,17 +126,18 @@ class JsonRPCSocketConnection(JsonSocketConnection):
     def __init__(self, connection):
         super(JsonRPCSocketConnection, self).__init__(connection)
 
-    def send(self, rpc_obj):
-        if rpc_obj.__class__ in rpc_instances:
-            super(JsonRPCSocketConnection, self).send(rpc_obj.rpc)
-        else:
-            raise ValueError("Message %s is no rpc object." % rpc_obj)
+    def send(self, message):
+        if not isinstance(message, BaseMessage):
+            raise ValueError("{0} is no Message object.".format(message))
+
+        super(JsonRPCSocketConnection, self).send(message.dict)
+
 
     def read(self):
         obj = super(JsonRPCSocketConnection, self).read()
         _logger.debug("Received: %s", obj)
         try:
-            msg_obj = get_rpc(obj)
+            msg_obj = BaseMessage.load(obj)
         except ValueError:
             msg_obj = Error("wrong input", None)
 
