@@ -52,7 +52,7 @@ def check_layout(layout_str, number_bots):
         raise LayoutEncodingException(
             'Layout is invalid for %i Bots, The following IDs were missing: %s '
             % (number_bots, missing))
-    lines = layout_str.split('\n')[:-1]
+    lines = layout_str.split('\n')
     for i in range(len(lines)):
         if len(lines[i]) != len(lines[0]):
             raise LayoutEncodingException(
@@ -74,7 +74,7 @@ def strip_layout(layout_str):
         the layout with whitespace removed
 
     """
-    return ''.join([line.strip()+'\n' for line in layout_str.split('\n')])
+    return '\n'.join([line.strip() for line in layout_str.split('\n')])
 
 def layout_shape(layout_str):
     """ Determine shape of layout.
@@ -90,7 +90,7 @@ def layout_shape(layout_str):
     width : int
 
     """
-    return (len(layout_str.split('\n'))-1, layout_str.find('\n'))
+    return (len(layout_str.split('\n')), layout_str.find('\n'))
 
 def convert_to_grid(layout_str):
     """ Convert a layout string to a list of lists.
@@ -104,7 +104,7 @@ def convert_to_grid(layout_str):
     -------
     layout : list of lists of chars
     """
-    return [[c for c in l.strip()] for l in layout_str.split('\n')[:-1]]
+    return [[c for c in l.strip()] for l in layout_str.split('\n')]
 
 def initial_positions(layout_grid, shape, number_bots):
     """ Extract initial positions from layout.

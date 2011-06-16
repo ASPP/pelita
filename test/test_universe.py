@@ -15,7 +15,7 @@ class TestLayoutChecks(unittest.TestCase):
                   '#', 'c', ' ', ' ', ' ', ' ', '#', '\n',
                   '#', ' ', ' ', '.', ' ', ' ', '#', '\n',
                   '#', ' ', ' ', ' ', ' ', 'o', '#', '\n',
-                  '#', '#', '#', '#', '#', '#', '#', '\n']
+                  '#', '#', '#', '#', '#', '#', '#']
         self.assertEqual(stripped, target)
 
     def test_illegal_character(self):
