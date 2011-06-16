@@ -9,7 +9,7 @@ _logger = logging.getLogger("pelita.mailbox")
 _logger.setLevel(logging.DEBUG)
 
 from pelita.messaging.utils import SuspendableThread, Counter, CloseThread
-from pelita.messaging.remote.jsonconnection import JsonRPCSocketConnection
+from pelita.messaging.remote import MessageSocketConnection
 from pelita.messaging import StopProcessing, DeadConnection, Response, Query, Request
 
 
@@ -91,7 +91,7 @@ class JsonThreadedOutbox(SuspendableThread):
 class MailboxConnection(object):
     """A mailbox bundles an incoming and an outgoing connection."""
     def __init__(self, connection, inbox=None, outbox=None):
-        self.connection = JsonRPCSocketConnection(connection)
+        self.connection = MessageSocketConnection(connection)
 
         self.inbox = inbox or Queue.Queue()
         self.outbox = outbox or Queue.Queue()
