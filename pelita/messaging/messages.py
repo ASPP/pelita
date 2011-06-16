@@ -32,11 +32,16 @@ class BaseMessage(object):
     def __repr__(self):
         return self.__class__.__name__ + "(" + repr(self.dict) + ")"
 
+    # TODO: is_response might be replaced by a check
+    #   if (isinstance(msg, Response) or isinstance(msg, Error)) and \
+    #       msg.id is not None
     @property
     def is_response(self):
         """This flag is set to true, if this message is of a response type."""
         raise NotImplementedError
 
+    # TODO: wants_response might be replaced by a check
+    #   if isinstance(msg, Query)
     @property
     def wants_response(self):
         """This flag is set to true, if this message awaits a response."""
