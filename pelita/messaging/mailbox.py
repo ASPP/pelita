@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import Queue
-import weakref
 import socket
 
 import logging
 _logger = logging.getLogger("pelita.mailbox")
 _logger.setLevel(logging.DEBUG)
 
-from pelita.messaging.utils import SuspendableThread, Counter, CloseThread
+from pelita.messaging.utils import SuspendableThread, CloseThread
 from pelita.messaging.remote import MessageSocketConnection
-from pelita.messaging import StopProcessing, DeadConnection, BaseMessage, Query, Request
+from pelita.messaging import StopProcessing, DeadConnection, BaseMessage, Query, Request, RequestDB
 
 
 class JsonThreadedInbox(SuspendableThread):
@@ -26,7 +25,7 @@ class JsonThreadedInbox(SuspendableThread):
 
         if isinstance(message, BaseMessage) and message.is_response:
 
-            awaiting_result = self.mailbox._requests.get(message.id, None)
+            awaiting_result = self.mailbox._requests.get_request(message.id)
             if awaiting_result is not None:
                 awaiting_result._queue.put(message)
                 # TODO need to handle race conditions
@@ -99,8 +98,7 @@ class MailboxConnection(object):
         self._inbox = JsonThreadedInbox(self, self.inbox)
         self._outbox = JsonThreadedOutbox(self, self.outbox)
 
-        self._requests = weakref.WeakValueDictionary()
-        self._counter = Counter(0)
+        self._requests = RequestDB()
 
     def start(self):
         _logger.info("Starting mailbox %s", self)
@@ -124,17 +122,16 @@ class MailboxConnection(object):
     def request(self, message):
         """Put a query into the outbox and return the Request object."""
         if isinstance(message, Query):
-            # save the id to the _requests dict
-            if message.id is None:
-                message.id = self._counter.inc()
-            else:
-                _logger.info("Using existing id.")
+            # Update the message.id
+            message.id = self._requests.create_id(message.id)
 
             req_obj = Request(message.id)
-            self._requests[message.id] = req_obj
+            # save the id to the _requests dict
+            self._requests.add_request(req_obj)
+
+            message.mailbox = self
 
             self.put(message)
             return req_obj
         else:
             raise ValueError
-

@@ -2,8 +2,8 @@
 
 import Queue
 import weakref
-
 import logging
+
 from pelita.messaging.utils import SuspendableThread, Counter, CloseThread
 from pelita.messaging import Query, Notification, BaseMessage
 
@@ -67,14 +67,45 @@ class RemoteActor(AbstractActor):
         message = Notification(method, params)
         self.mailbox.put(message)
 
+class RequestDB(object):
+    """ Class which holds weak references to all issued requests.
+    """
+    def __init__(self):
+        self._db = weakref.WeakValueDictionary()
+        self._counter = Counter(0)
+
+    def get_request(self, id, default=None):
+        """ Return the `Request` object with the specified `id`.
+        """
+        return self._db.get(id, default)
+
+    def add_request(self, request):
+        """ Add a new `Request` object to the database.
+
+         The object is only referenced weakly, so if the main
+         reference is deleted, it may be removed automatically
+         from the database as well.
+        """
+        self._db[request.id] = request
+
+    def create_id(self, id=None):
+        """ Create a new and hopefully unique id for this database.
+        """
+        if id is None:
+            return self._counter.inc()
+        else:
+            _logger.info("Using existing id.")
+            return id
+
+
+
 class Actor(SuspendableThread):
     # TODO Handle messages not replied to – else the queue is waiting forever
     def __init__(self, inbox=None):
         SuspendableThread.__init__(self)
         self._inbox = inbox or Queue.Queue()
 
-        self._requests = weakref.WeakValueDictionary()
-        self._counter = Counter(0)
+        self._requests = RequestDB()
 
     def _run(self):
         try:
@@ -84,7 +115,7 @@ class Actor(SuspendableThread):
 
         if isinstance(message, BaseMessage) and message.is_response:
 
-            awaiting_result = self._requests.get(message.id, None)
+            awaiting_result = self._requests.get_request(message.id, None)
             if awaiting_result is not None:
                 awaiting_result._queue.put(message)
                 # TODO need to handle race conditions
@@ -112,14 +143,12 @@ class Actor(SuspendableThread):
     def _request(self, message):
         """Put a query into the outbox and return the Request object."""
         if isinstance(message, Query):
-            # save the id to the _requests dict
-            if message.id is None:
-                message.id = self._counter.inc()
-            else:
-                _logger.info("Using existing id.")
+            # Update the message.id
+            message.id = self._requests.create_id(message.id)
 
             req_obj = Request(message.id)
-            self._requests[message.id] = req_obj
+            # save the id to the _requests dict
+            self._requests.add_request(req_obj)
 
             message.mailbox = self
 
