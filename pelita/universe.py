@@ -52,6 +52,13 @@ def check_layout(layout_str, number_bots):
         raise LayoutEncodingException(
             'Layout is invalid for %i Bots, The following IDs were missing: %s '
             % (number_bots, missing))
+    lines = layout_str.split('\n')
+    for i in range(len(lines)):
+        if len(lines[i]) != len(lines[0]):
+            raise LayoutEncodingException(
+                'The layout must be rectangular,'+\
+                'line %i has length %i instead of %i'
+                % (i, len(lines[i]), len(lines[0])))
 
 def strip_layout(layout_str):
     """ Remove whitespace from a string encoded layout
@@ -121,5 +128,15 @@ if __name__ == "__main__":
                        #######"""
     try:
         check_layout(strip_layout(too_many_bots), 3)
+    except Exception, e:
+        print e
+
+    wrong_shape = """#######
+                     #  #
+                     #   #
+                     #    #
+                     ######"""
+    try:
+        check_layout(strip_layout(wrong_shape), 0)
     except Exception, e:
         print e
