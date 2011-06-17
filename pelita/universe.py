@@ -250,7 +250,7 @@ def initial_positions(layout_grid, shape, number_bots):
     for (h, w) in ((h, w) for h in range(height) for w in range(width)):
         if layout_grid[h][w] in bot_ids:
             start[int(layout_grid[h][w])] = (h, w)
-            layout_grid[h][w] = ' '
+            layout_grid[h][w] = free
     return start
 
 def extract_food(layout_grid, shape):
@@ -275,7 +275,7 @@ def extract_food(layout_grid, shape):
     for (h, w) in ((h, w) for h in range(height) for w in range(width)):
         if layout_grid[h][w] == food:
             food_grid[h][w] = True
-            layout_grid[h][w] = ' '
+            layout_grid[h][w] = free
     return food_grid
 
 class Universe(object):
