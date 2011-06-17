@@ -186,7 +186,7 @@ class Mesh(Mapping):
         elif index[1] >= self.width or index[1] < 0:
             raise IndexError(
                     'Mesh indexing error, requested column: %i, but width is: %i'
-                    % (index[1], self.height))
+                    % (index[1], self.width))
 
     def __getitem__(self, index):
         self._check_index(index)
