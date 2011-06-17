@@ -177,7 +177,7 @@ def extract_food(layout_grid, shape):
 
     """
     height, width = shape[0], shape[1]
-    food_grid = [[False] * width] * height
+    food_grid = [[False for i in range(width)] for j in range(height)]
     for (h,w) in ((h,w) for h in range(height) for w in range(width)):
         if layout_grid[h][w] == food:
             food_grid[h][w] = True

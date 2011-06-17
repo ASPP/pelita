@@ -146,11 +146,12 @@ class TestLayoutOps(unittest.TestCase):
         shape = layout_shape(stripped)
         grid = convert_to_grid(stripped)
         food_grid = extract_food(grid, shape)
-        target = [[False, True, True, True, True, True, False],
-                  [False, True, True, True, True, True, False],
-                  [False, True, True, True, True, True, False],
-                  [False, True, True, True, True, True, False],
-                  [False, True, True, True, True, True, False]]
+        target = [
+            [False, False, False, False, False, False, False],
+            [False, True , False, False, True , False, False],
+            [False, False, False, True , False, False, False],
+            [False, False, True , False, False, True , False],
+            [False, False, False, False, False, False, False]]
 
         self.assertEqual(target, food_grid)
 
