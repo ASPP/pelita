@@ -2,8 +2,9 @@ wall   = '#'
 food   = '.'
 harvester = 'c'
 destroyer = 'o'
+free   = ' '
 
-layout_chars = [wall, food, harvester, destroyer]
+layout_chars = [wall, food, harvester, destroyer, free]
 
 north = 'NORTH'
 south = 'SOUTH'
@@ -35,7 +36,7 @@ def check_layout(layout_str, number_bots):
     """
     bot_ids = [str(i) for i in range(1, number_bots+1)]
     existing_bots = []
-    legal = layout_chars + bot_ids  + [' ', '\n']
+    legal = layout_chars + bot_ids  + ['\n']
     for c in layout_str:
         if c not in legal:
             raise LayoutEncodingException(
