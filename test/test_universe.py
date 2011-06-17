@@ -122,6 +122,26 @@ class TestLayoutOps(unittest.TestCase):
         target = [(1, 1), (2, 1), (2, 16), (3, 16)]
         self.assertEqual(target, initial_pos)
 
+    def test_extract_food(self):
+        food_layout = (
+        """ #######
+            #.  . #
+            #  .  #
+            # .  .#
+            ####### """)
+        stripped = strip_layout(food_layout)
+        check_layout(stripped, 0)
+        shape = layout_shape(stripped)
+        grid = convert_to_grid(stripped)
+        food_grid = extract_food(grid, shape)
+        target = [[False, True, True, True, True, True, False],
+                  [False, True, True, True, True, True, False],
+                  [False, True, True, True, True, True, False],
+                  [False, True, True, True, True, True, False],
+                  [False, True, True, True, True, True, False]]
+
+        self.assertEqual(target, food_grid)
+
 if __name__ == '__main__':
     unittest.main()
 

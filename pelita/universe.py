@@ -135,6 +135,31 @@ def initial_positions(layout_grid, shape, number_bots):
             layout_grid[h][w] = ' '
     return start
 
+def extract_food(layout_grid, shape):
+    """ Extract positions of food.
+
+    Also replaces the food positions with free spaces.
+
+    Parameters
+    ----------
+    layout_grid : list of list of chars
+        the layout in grid format
+    shape : int, int
+        height and width of the grid
+
+    Returns
+    -------
+    food : list of list of booleans
+
+    """
+    height, width = shape[0], shape[1]
+    food_grid = [[False] * width] * height
+    for (h,w) in ((h,w) for h in range(height) for w in range(width)):
+        if layout_grid[h][w] == food:
+            food_grid[h][w] = True
+            layout_grid[h][w] = ' '
+    return food_grid
+
 class Universe(object):
 
     def __init__():
