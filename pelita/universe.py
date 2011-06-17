@@ -26,8 +26,8 @@ def new_positions(current):
 
     Returns
     -------
-    new_pos : dict 
-        mapping of moves (str) to new_positions (int,int)
+    new_pos : dict
+        mapping of moves (str) to new_positions (int, int)
 
     """
     return {
@@ -83,7 +83,7 @@ def check_layout(layout_str, number_bots):
     for i in range(len(lines)):
         if len(lines[i]) != len(lines[0]):
             raise LayoutEncodingException(
-                'The layout must be rectangular,'+\
+                'The layout must be rectangular, '+\
                 'line %i has length %i instead of %i'
                 % (i, len(lines[i]), len(lines[0])))
 
@@ -151,17 +151,17 @@ class Mesh(Mapping):
 
     Examples
     --------
-    >>> m = Mesh(2,2)
+    >>> m = Mesh(2, 2)
     >>> print m
     [None, None]
     [None, None]
-    >>> m[0,0] = True
-    >>> m[1,1] = True
+    >>> m[0, 0] = True
+    >>> m[1, 1] = True
     >>> print m
     [True, None]
     [None, True]
-    >>> m[0,1] = 'one'
-    >>> m[1,0] = 1
+    >>> m[0, 1] = 'one'
+    >>> m[1, 0] = 1
     >>> print m
     [True, 'one']
     [1, True]
@@ -247,9 +247,9 @@ def initial_positions(layout_grid, shape, number_bots):
     bot_ids = [str(i) for i in range(number_bots)]
     start = [(0, 0)] * number_bots
     height, width = shape[0], shape[1]
-    for (h,w) in ((h,w) for h in range(height) for w in range(width)):
+    for (h, w) in ((h, w) for h in range(height) for w in range(width)):
         if layout_grid[h][w] in bot_ids:
-            start[int(layout_grid[h][w])] = (h,w)
+            start[int(layout_grid[h][w])] = (h, w)
             layout_grid[h][w] = ' '
     return start
 
@@ -272,7 +272,7 @@ def extract_food(layout_grid, shape):
     """
     height, width = shape[0], shape[1]
     food_grid = [[False for i in range(width)] for j in range(height)]
-    for (h,w) in ((h,w) for h in range(height) for w in range(width)):
+    for (h, w) in ((h, w) for h in range(height) for w in range(width)):
         if layout_grid[h][w] == food:
             food_grid[h][w] = True
             layout_grid[h][w] = ' '

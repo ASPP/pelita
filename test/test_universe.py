@@ -77,7 +77,7 @@ class TestLayoutOps(unittest.TestCase):
         """ ###
             # #
             ### """)
-        self.assertEqual(layout_shape(strip_layout(small_shape)), (3,3))
+        self.assertEqual(layout_shape(strip_layout(small_shape)), (3, 3))
 
         large_shape = (
         """ #######
@@ -85,7 +85,7 @@ class TestLayoutOps(unittest.TestCase):
             #     #
             #     #
             ####### """)
-        self.assertEqual(layout_shape(strip_layout(large_shape)), (5,7))
+        self.assertEqual(layout_shape(strip_layout(large_shape)), (5, 7))
 
     def test_convert_to_grid(self):
         test_layout = (
@@ -115,7 +115,7 @@ class TestLayoutOps(unittest.TestCase):
         shape = layout_shape(stripped)
         grid = convert_to_grid(stripped)
         initial_pos = initial_positions(grid, shape, number_bots)
-        target = [(1, 1), (2,3), (3,5)]
+        target = [(1, 1), (2, 3), (3, 5)]
         self.assertEqual(target, initial_pos)
 
         # now for a somewhat more realistic example
@@ -158,54 +158,54 @@ class TestLayoutOps(unittest.TestCase):
 class TestMesh(unittest.TestCase):
 
     def test_init(self):
-        m = Mesh(2,2)
+        m = Mesh(2, 2)
         self.assertEqual(m._data, [None, None, None, None])
-        self.assertEqual(m.shape, (2,2))
-        m = Mesh(0,0)
+        self.assertEqual(m.shape, (2, 2))
+        m = Mesh(0, 0)
         self.assertEqual(m._data, [])
-        self.assertEqual(m.shape, (0,0))
-        m = Mesh(1,4)
+        self.assertEqual(m.shape, (0, 0))
+        m = Mesh(1, 4)
         self.assertEqual(m._data, [None, None, None, None])
-        self.assertEqual(m.shape, (1,4))
-        m = Mesh(4,1)
+        self.assertEqual(m.shape, (1, 4))
+        m = Mesh(4, 1)
         self.assertEqual(m._data, [None, None, None, None])
-        self.assertEqual(m.shape, (4,1))
+        self.assertEqual(m.shape, (4, 1))
 
     def test_getitem(self):
-        m = Mesh(2,2)
-        m._data = [1,2,3,4]
-        self.assertEqual(m[0,0], 1)
-        self.assertEqual(m[0,1], 2)
-        self.assertEqual(m[1,0], 3)
-        self.assertEqual(m[1,1], 4)
-        self.assertRaises(IndexError, m.__getitem__, (3,0))
-        self.assertRaises(IndexError, m.__getitem__, (-1,0))
-        self.assertRaises(IndexError, m.__getitem__, (0,3))
-        self.assertRaises(IndexError, m.__getitem__, (0,-1))
+        m = Mesh(2, 2)
+        m._data = [1, 2, 3, 4]
+        self.assertEqual(m[0, 0], 1)
+        self.assertEqual(m[0, 1], 2)
+        self.assertEqual(m[1, 0], 3)
+        self.assertEqual(m[1, 1], 4)
+        self.assertRaises(IndexError, m.__getitem__, (3, 0))
+        self.assertRaises(IndexError, m.__getitem__, (-1, 0))
+        self.assertRaises(IndexError, m.__getitem__, (0, 3))
+        self.assertRaises(IndexError, m.__getitem__, (0, -1))
 
     def test_setitem(self):
-        m = Mesh(2,2)
-        m[0,0] = 1
-        m[0,1] = 2
-        m[1,0] = 3
-        m[1,1] = 4
+        m = Mesh(2, 2)
+        m[0, 0] = 1
+        m[0, 1] = 2
+        m[1, 0] = 3
+        m[1, 1] = 4
         self.assertEqual(m._data, [1, 2, 3, 4])
-        self.assertRaises(IndexError, m.__setitem__, (3,0), 1)
-        self.assertRaises(IndexError, m.__setitem__, (-1,0), 1)
-        self.assertRaises(IndexError, m.__setitem__, (0,3), 1)
-        self.assertRaises(IndexError, m.__setitem__, (0,-1), 1)
+        self.assertRaises(IndexError, m.__setitem__, (3, 0), 1)
+        self.assertRaises(IndexError, m.__setitem__, (-1, 0), 1)
+        self.assertRaises(IndexError, m.__setitem__, (0, 3), 1)
+        self.assertRaises(IndexError, m.__setitem__, (0, -1), 1)
 
     def test_iter(self):
-        m = Mesh(2,2)
+        m = Mesh(2, 2)
         self.assertEqual([i for i in m], [None, None, None, None])
 
     def test_len(self):
-        m = Mesh(2,2)
+        m = Mesh(2, 2)
         self.assertEqual(len(m), 4)
 
     def test_str(self):
-        m = Mesh(2,2)
-        m._data = [1,2,3,4]
+        m = Mesh(2, 2)
+        m._data = [1, 2, 3, 4]
         self.assertEqual(str(m), '[1, 2]\n[3, 4]\n')
 
 class TestUniverse(unittest.TestCase):
