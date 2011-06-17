@@ -34,7 +34,7 @@ def check_layout(layout_str, number_bots):
         if a bot-id is specified twice
 
     """
-    bot_ids = [str(i) for i in range(1, number_bots+1)]
+    bot_ids = [str(i) for i in range(number_bots)]
     existing_bots = []
     legal = layout_chars + bot_ids  + ['\n']
     for c in layout_str:
@@ -126,12 +126,12 @@ def initial_positions(layout_grid, shape, number_bots):
     initial pos : list of tuples
         the initial positions for all the bots
     """
-    bot_ids = [str(i) for i in range(1, number_bots+1)]
+    bot_ids = [str(i) for i in range(number_bots)]
     start = [(0, 0)] * number_bots
     height, width = shape[0], shape[1]
     for (h,w) in ((h,w) for h in range(height) for w in range(width)):
         if layout_grid[h][w] in bot_ids:
-            start[int(layout_grid[h][w])-1] = (h,w)
+            start[int(layout_grid[h][w])] = (h,w)
             layout_grid[h][w] = ' '
     return start
 

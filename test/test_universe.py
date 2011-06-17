@@ -31,9 +31,9 @@ class TestLayoutChecks(unittest.TestCase):
     def test_not_enough_bots(self):
         not_enough_bots = (
         """ #######
-            #1    #
-            #  2  #
-            #    3#
+            #0    #
+            #  1  #
+            #    2#
             ####### """)
         self.assertRaises(LayoutEncodingException, check_layout,
                 strip_layout(not_enough_bots), 5)
@@ -41,9 +41,9 @@ class TestLayoutChecks(unittest.TestCase):
     def test_too_many_bots(self):
         too_many_bots = (
         """ #######
-            #1    #
-            #  1  #
-            #    3#
+            #0    #
+            #  0  #
+            #    2#
             ####### """)
         self.assertRaises(LayoutEncodingException, check_layout,
                 strip_layout(too_many_bots), 3)
@@ -93,9 +93,9 @@ class TestLayoutOps(unittest.TestCase):
     def test_get_initial_positions(self):
         test_layout = (
         """ #######
-            #1    #
-            #  2  #
-            #    3#
+            #0    #
+            #  1  #
+            #    2#
             ####### """)
         number_bots = 3
         stripped = strip_layout(test_layout)
@@ -109,9 +109,9 @@ class TestLayoutOps(unittest.TestCase):
         # now for a somewhat more realistic example
         test_layout2 = (
         """ ##################
-            #1#      #       #
-            #2#####    #####3#
-            #       #      #4#
+            #0#      #       #
+            #1#####    #####2#
+            #       #      #3#
             ################## """)
         number_bots = 4
         stripped = strip_layout(test_layout2)
