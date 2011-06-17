@@ -303,7 +303,7 @@ class Universe(object):
     height : int
         height (nuber rows)
     shape : int, int
-        width and height (in that order)
+        height and width (in that order)
     layout : list of lists of characters
         static layout (free spaces and walls only)
     initial_pos : list of (int, int)
