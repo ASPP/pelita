@@ -155,6 +155,37 @@ class TestLayoutOps(unittest.TestCase):
 
         self.assertEqual(target, food_grid)
 
+class TestUniverse(unittest.TestCase):
+
+    def test_init(self):
+        test_layout3 = (
+        """ ##################
+            #0#.  .  # .     #
+            #1#####    #####2#
+            #     . #  .  .#3#
+            ################## """)
+        number_bots = 4
+        universe = Universe(test_layout3, 4)
+        self.assertEqual(universe.shape, (5, 18))
+        self.assertEqual(universe.initial_pos,
+                [(1, 1), (2, 1), (2, 16), (3, 16)])
+        # this checks that the methods extracts the food, and the initial
+        # positions from the raw layout
+        target_layout = [
+             ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
+             ['#', ' ', '#', ' ', ' ', ' ', ' ', ' ', ' ', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'],
+             ['#', ' ', '#', '#', '#', '#', '#', ' ', ' ', ' ', ' ', '#', '#', '#', '#', '#', ' ', '#'],
+             ['#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#', ' ', ' ', ' ', ' ', ' ', ' ', '#', ' ', '#'],
+             ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#']]
+        self.assertEqual(target_layout, universe.layout)
+        target_food_pos = [
+            [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False],
+            [False, False, False, True,  False, False, True,  False, False, False, False, True,  False, False, False, False, False, False],
+            [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False],
+            [False, False, False, False, False, False, True,  False, False, False, False, True,  False, False, True,  False, False, False],
+            [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False]]
+        self.assertEqual(target_food_pos, universe.food_positions)
+
 if __name__ == '__main__':
     unittest.main()
 

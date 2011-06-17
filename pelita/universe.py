@@ -195,8 +195,47 @@ class Universe(object):
     def get_number_bots():
         pass
 
-    def move_bot(index, move):
-        pass
+class Universe(object):
+    """ The Universe: representation of the game state.
+
+    Attributes
+    ----------
+    initial_layout : str
+        initial layout with food and agent positions
+    number_bots : int
+        total number of bots
+    width : int
+        width (number of columns)
+    height : int
+        height (nuber rows)
+    shape : int, int
+        width and height (in that order)
+    layout : list of lists of characters
+        static layout (free spaces and walls only)
+    initial_pos : list of (int, int)
+        the initial positions for the bots
+    bot_positions : list of (int, int)
+        the current positions of the bots
+    food_positions : list of lists of booleans
+        the current food positions
+
+    Parameters
+    ----------
+    layout_str : str
+        the layout for this universe
+    number_bots : int
+        the number of bots for this universe
+    """
+    def __init__(self, layout_str, number_bots):
+        self.initial_layout = strip_layout(layout_str)
+        self.number_bots = number_bots
+        check_layout(self.initial_layout, self.number_bots)
+        self.width, self.height = layout_shape(self.initial_layout)
+        self.shape = (self.width, self.height)
+        self.layout = convert_to_grid(self.initial_layout)
+        self.initial_pos = initial_positions(self.layout, self.shape, self.number_bots)
+        self.bot_positions = self.initial_pos
+        self.food_positions = extract_food(self.layout, self.shape)
 
     def reset_bot(index):
         pass
