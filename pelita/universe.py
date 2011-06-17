@@ -1,3 +1,5 @@
+from collections import Mapping
+
 wall   = '#'
 food   = '.'
 harvester = 'c'
@@ -116,6 +118,98 @@ def layout_shape(layout_str):
 
     """
     return (len(layout_str.split('\n')), layout_str.find('\n'))
+
+class Mesh(Mapping):
+    """ More or less a Matrix.
+
+    Using a list of lists to represent a matrix is memory inefficient and slow
+    (and ugly). Instead we store the matrix data in a single list and provide
+    accessors methods (__getitem__() and __setitem__()) to access the elements
+    in a matrixy style.
+
+    Attributes
+    ----------
+    height : int
+    width : int
+    shape : (int, int)
+
+    Parameters
+    ----------
+    height : int
+    width : int
+
+    Notes
+    -----
+    Once the container has been allocated, it cannot be resized.
+
+    The container can store arbitrary type objects and even mix types.
+
+    The constructor will preallocate a container with an appropriate shape, and
+    populate this with `None`.
+
+    The container cannot be sliced.
+
+    Examples
+    --------
+    >>> m = Mesh(2,2)
+    >>> print m
+    [None, None]
+    [None, None]
+    >>> m[0,0] = True
+    >>> m[1,1] = True
+    >>> print m
+    [True, None]
+    [None, True]
+    >>> m[0,1] = 'one'
+    >>> m[1,0] = 1
+    >>> print m
+    [True, 'one']
+    [1, True]
+    >>> for i in m: print i
+    True
+    one
+    1
+    True
+    """
+
+    def __init__(self, height, width):
+        self.height = height
+        self.width = width
+        self.shape = (height, width)
+        self._data = [None for i in range(self.width * self.height)]
+
+    def _check_index(self, index):
+        if index[0] >= self.height or index[0] < 0:
+            raise IndexError(
+                    'Mesh indexing error, requested row: %i, but height is: %i'
+                    % (index[0], self.height))
+        elif index[1] >= self.width or index[1] < 0:
+            raise IndexError(
+                    'Mesh indexing error, requested column: %i, but width is: %i'
+                    % (index[1], self.height))
+
+    def __getitem__(self, index):
+        self._check_index(index)
+        return self._data[index[0] * self.width + index[1]]
+
+    def __setitem__(self, index, item):
+        self._check_index(index)
+        self._data[index[0] * self.width + index[1]] = item
+
+    def __iter__(self):
+        return self._data.__iter__()
+
+    def __len__(self):
+        return self.height * self.width
+
+    def __str__(self):
+        output = str()
+        for i in range(self.height):
+            start = i*self.width
+            end = start + self.width
+            output += str(self._data[start:end])
+            output += '\n'
+        return output
 
 def convert_to_grid(layout_str):
     """ Convert a layout string to a list of lists.

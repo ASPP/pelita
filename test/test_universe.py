@@ -155,6 +155,59 @@ class TestLayoutOps(unittest.TestCase):
 
         self.assertEqual(target, food_grid)
 
+class TestMesh(unittest.TestCase):
+
+    def test_init(self):
+        m = Mesh(2,2)
+        self.assertEqual(m._data, [None, None, None, None])
+        self.assertEqual(m.shape, (2,2))
+        m = Mesh(0,0)
+        self.assertEqual(m._data, [])
+        self.assertEqual(m.shape, (0,0))
+        m = Mesh(1,4)
+        self.assertEqual(m._data, [None, None, None, None])
+        self.assertEqual(m.shape, (1,4))
+        m = Mesh(4,1)
+        self.assertEqual(m._data, [None, None, None, None])
+        self.assertEqual(m.shape, (4,1))
+
+    def test_getitem(self):
+        m = Mesh(2,2)
+        m._data = [1,2,3,4]
+        self.assertEqual(m[0,0], 1)
+        self.assertEqual(m[0,1], 2)
+        self.assertEqual(m[1,0], 3)
+        self.assertEqual(m[1,1], 4)
+        self.assertRaises(IndexError, m.__getitem__, (3,0))
+        self.assertRaises(IndexError, m.__getitem__, (-1,0))
+        self.assertRaises(IndexError, m.__getitem__, (0,3))
+        self.assertRaises(IndexError, m.__getitem__, (0,-1))
+
+    def test_setitem(self):
+        m = Mesh(2,2)
+        m[0,0] = 1
+        m[0,1] = 2
+        m[1,0] = 3
+        m[1,1] = 4
+        self.assertEqual(m._data, [1, 2, 3, 4])
+        self.assertRaises(IndexError, m.__setitem__, (3,0), 1)
+        self.assertRaises(IndexError, m.__setitem__, (-1,0), 1)
+        self.assertRaises(IndexError, m.__setitem__, (0,3), 1)
+        self.assertRaises(IndexError, m.__setitem__, (0,-1), 1)
+
+    def test_iter(self):
+        m = Mesh(2,2)
+        self.assertEqual([i for i in m], [None, None, None, None])
+
+    def test_len(self):
+        m = Mesh(2,2)
+        self.assertEqual(len(m), 4)
+
+    def test_str(self):
+        m = Mesh(2,2)
+        m._data = [1,2,3,4]
+        self.assertEqual(str(m), '[1, 2]\n[3, 4]\n')
+
 class TestUniverse(unittest.TestCase):
 
     def test_init(self):
