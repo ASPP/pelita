@@ -110,6 +110,8 @@ def convert_to_grid(layout_str):
 def initial_positions(layout_grid, shape, number_bots):
     """ Extract initial positions from layout.
 
+    Also replaces the initial positions with free spaces.
+
     Parameters
     ----------
     layout_grid : list of list of chars
@@ -130,6 +132,7 @@ def initial_positions(layout_grid, shape, number_bots):
     for (h,w) in ((h,w) for h in range(height) for w in range(width)):
         if layout_grid[h][w] in bot_ids:
             start[int(layout_grid[h][w])-1] = (h,w)
+            layout_grid[h][w] = ' '
     return start
 
 class Universe(object):
