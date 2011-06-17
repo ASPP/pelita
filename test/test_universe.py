@@ -1,6 +1,18 @@
 import unittest
 from pelita.universe import *
 
+class TestNewPositions(unittest.TestCase):
+
+    def test_new_positions(self):
+        current_position = (1, 1)
+        new = new_positions(current_position)
+        target = { north : (0, 1),
+                    south : (2, 1),
+                    west  : (1, 0),
+                    east  : (1, 2),
+                    stop  : (1, 1) }
+        self.assertEqual(target, new)
+
 class TestLayoutChecks(unittest.TestCase):
 
     def test_strip_layout(self):

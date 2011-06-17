@@ -10,6 +10,30 @@ north = 'NORTH'
 south = 'SOUTH'
 west  = 'WEST'
 east  = 'EAST'
+stop  = 'STOP'
+
+move_ids = [north, south, east, west, stop]
+
+def new_positions(current):
+    """ Determine where a move will lead.
+
+    Parameters
+    ----------
+    current : int, int
+        current position
+
+    Returns
+    -------
+    new_pos : dict 
+        mapping of moves (str) to new_positions (int,int)
+
+    """
+    return {
+        north : (current[0]-1, current[1]),
+        south : (current[0]+1, current[1]),
+        west  : (current[0], current[1]-1),
+        east  : (current[0], current[1]+1),
+        stop  : (current[0], current[1])}
 
 class LayoutEncodingException(Exception):
     pass
