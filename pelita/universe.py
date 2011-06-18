@@ -120,7 +120,7 @@ class Layout(object):
         Parameters
         ----------
         layout_str : str
-            a checked layout string
+            a checked and stripped layout string
 
         Returns
         -------
