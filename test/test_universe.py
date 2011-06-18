@@ -269,6 +269,19 @@ class TestCTFUniverse(unittest.TestCase):
             False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False])
         self.assertEqual(target, universe.food_positions)
 
+        odd_layout = (
+            """ #####
+                #0 1#
+                ##### """)
+        self.assertRaises(UniverseException, CTFUniverse, odd_layout, 2)
+
+        odd_bots = (
+            """ ####
+                #01#
+                #2 #
+                #### """)
+        self.assertRaises(UniverseException, CTFUniverse, odd_bots, 3)
+
 if __name__ == '__main__':
     unittest.main()
 
