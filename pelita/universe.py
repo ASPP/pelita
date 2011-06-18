@@ -196,13 +196,18 @@ class Mesh(Mapping):
                 'Mesh indexing error, requested column: %i, but width is: %i'
                 % (index[1], self.width))
 
+    def _index_linear_to_tuple(self, index_linear):
+        return (index_linear//self.width, index_linear%self.width)
+
+    def _index_tuple_to_linear(self, index_tuple):
+        self._check_index(index_tuple)
+        return index_tuple[0] * self.width + index_tuple[1]
+
     def __getitem__(self, index):
-        self._check_index(index)
-        return self._data[index[0] * self.width + index[1]]
+        return self._data[self._index_tuple_to_linear(index)]
 
     def __setitem__(self, index, item):
-        self._check_index(index)
-        self._data[index[0] * self.width + index[1]] = item
+        self._data[self._index_tuple_to_linear(index)] = item
 
     def __iter__(self):
         return self._data.__iter__()

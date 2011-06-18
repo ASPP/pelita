@@ -176,6 +176,16 @@ class TestMesh(unittest.TestCase):
         target = [(0,0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
         self.assertEqual(target, [i for i in m.indices])
 
+    def test_index_linear_to_tuple(self):
+        m = Mesh(3,4)
+        for (i,(h,w)) in enumerate(m.indices):
+            self.assertEqual(m._index_linear_to_tuple(i), (h,w))
+
+    def test_index_tuple_to_linear(self):
+        m = Mesh(3,4)
+        for (i,(h,w)) in enumerate(m.indices):
+            self.assertEqual(m._index_tuple_to_linear((h,w)), i)
+
     def test_getitem(self):
         m = Mesh(2, 2)
         m._data = [1, 2, 3, 4]
