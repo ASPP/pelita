@@ -63,6 +63,43 @@ class Bot(object):
     def is_harvester(self):
         return not self.is_destroyer
 
+class MazeComponent(object):
+    pass
+
+class Free(MazeComponent):
+    pass
+
+class Wall(MazeComponent):
+    pass
+
+class Food(MazeComponent):
+    pass
+
+def create_maze(layout_mesh):
+    """ Transforms a layout_mesh into a maze_mesh.
+
+    Parameters
+    ----------
+    layout_mesh : Mesh of single char strings
+        Mesh of single character strings describing the layout
+
+    Returns
+    -------
+    maze_mesh : Mesh of lists
+        Mesh of lists of MazeComponents
+
+    """
+    maze_mesh = Mesh(layout_mesh.height, layout_mesh.width,
+            data=[[] for i in range(len(layout_mesh))])
+    for index in maze_mesh.iterkeys():
+        if layout_mesh[index] == CTFUniverse.wall:
+            maze_mesh[index].append(Wall())
+        else:
+            maze_mesh[index].append(Free())
+        if layout_mesh[index] == CTFUniverse.food:
+            maze_mesh[index].append(Food())
+    return maze_mesh
+
 
 class UniverseException(Exception):
     pass
@@ -79,7 +116,7 @@ class CTFUniverse(object):
         total number of bots
     layout : Layout
         initial layout with food and agent positions
-    mesh : Mesh of single char strings
+    maze_mesh : Mesh of single char strings
         static layout (free spaces and walls only)
     team_bots : dict of str to list of int
         the indices of the bots on each team
@@ -115,11 +152,13 @@ class CTFUniverse(object):
                 "Number of bots in CTF must be even, is: %i"
                 % self.number_bots)
         self.layout = Layout(layout_str, CTFUniverse.layout_chars, number_bots)
-        self.mesh = self.layout.as_mesh()
-        if self.mesh.width % 2 != 0:
+        layout_mesh = self.layout.as_mesh()
+        initial_pos = CTFUniverse.extract_initial_positions(layout_mesh, self.number_bots)
+        self.maze_mesh = create_maze(layout_mesh)
+        if self.maze_mesh.width % 2 != 0:
             raise UniverseException(
                 "Width of a layout for CTF must be even, is: %i"
-                % self.mesh.width)
+                % self.maze_mesh.width)
 
         team_names = ['black', 'white']
 
@@ -128,14 +167,13 @@ class CTFUniverse(object):
         self.team_score = {team_names[0] : 0, team_names[1] : 0}
         self.bots = []
 
-        homezones = [(0, self.mesh.width//2-1), (self.mesh.width//2, self.mesh.width-1)]
-        initial_pos = CTFUniverse.extract_initial_positions(self.mesh, self.number_bots)
+        homezones = [(0, self.maze_mesh.width//2-1), (self.maze_mesh.width//2,
+            self.maze_mesh.width-1)]
         for bot_index in range(self.number_bots):
                 team_index = bot_index%2
                 bot =  Bot(bot_index, initial_pos[bot_index],
                         team_names[team_index], homezones[team_index])
                 self.bots.append(bot)
-        self.food_mesh = CTFUniverse.extract_food_mesh(self.mesh)
 
     @property
     def bot_positions(self):
