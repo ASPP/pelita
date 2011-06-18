@@ -214,14 +214,22 @@ class TestMesh(unittest.TestCase):
         m = Mesh(2, 2)
         self.assertEqual([i for i in m], [(0,0), (0, 1), (1, 0), (1, 1)])
 
+    def test_set_data(self):
+        m = Mesh(2, 2)
+        m._set_data([1, 2, 3, 4])
+        self.assertEqual(m.values(), [1,2,3,4])
+        self.assertRaises(TypeError, m._set_data, 'abcd')
+        self.assertRaises(ValueError, m._set_data, [1,2,3])
+
     def test_len(self):
         m = Mesh(2, 2)
         self.assertEqual(len(m), 4)
 
     def test_str(self):
         m = Mesh(2, 2)
-        m._data = [1, 2, 3, 4]
+        m._set_data([1, 2, 3, 4])
         self.assertEqual(str(m), '[1, 2]\n[3, 4]\n')
+
 
 
 class TestUniverse(unittest.TestCase):

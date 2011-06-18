@@ -171,6 +171,10 @@ class Mesh(Mapping):
         * itervalues()
         * iteritems()
 
+    The method `_set_data` is semi-public api. You can use it to modify the
+    underlying data inside this conatiner if you know what you are doing. The
+    method has some additional checks for type and length of the new data and
+    should therefore be safer than just modifying the _data member directly.
 
     Examples
     --------
@@ -221,6 +225,18 @@ class Mesh(Mapping):
     def _index_tuple_to_linear(self, index_tuple):
         self._check_index(index_tuple)
         return index_tuple[0] * self.width + index_tuple[1]
+
+    def _set_data(self, new_data):
+        if type(new_data) != list:
+            raise TypeError(
+                    'The new_data has the wrong type: %s, ' % type(new_data) +\
+                    'currently only lists are supported.')
+        if len(new_data) != len(self):
+            raise ValueError(
+                'The new_data has wrong length: %i, expected: %i'
+                % (len(new_data), len(self)))
+        else:
+            self._data = new_data
 
     def __getitem__(self, index):
         return self._data[self._index_tuple_to_linear(index)]
