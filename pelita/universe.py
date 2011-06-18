@@ -221,7 +221,7 @@ class Mesh(Mapping):
         self._data[self._index_tuple_to_linear(index)] = item
 
     def __iter__(self):
-        return self._data.__iter__()
+        return self.indices.__iter__()
 
     def __len__(self):
         return self.height * self.width

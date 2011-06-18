@@ -212,7 +212,7 @@ class TestMesh(unittest.TestCase):
 
     def test_iter(self):
         m = Mesh(2, 2)
-        self.assertEqual([i for i in m], [None, None, None, None])
+        self.assertEqual([i for i in m], [(0,0), (0, 1), (1, 0), (1, 1)])
 
     def test_len(self):
         m = Mesh(2, 2)
