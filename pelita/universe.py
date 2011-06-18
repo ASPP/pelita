@@ -362,12 +362,16 @@ class CTFUniverse(object):
             raise UniverseException(
                 "Number of bots in CTF must be even, is: %i"
                 % self.number_bots)
+        self.red_team = range(0,self.number_bots,2)
+        self.blue_team = range(1,self.number_bots,2)
         self.layout = Layout(layout_str, number_bots)
         self.mesh = self.layout.as_mesh()
         if self.mesh.width%2 != 0:
             raise UniverseException(
                 "Width of a layout for CTF must be even, is: %i"
                 % self.mesh.width)
+        self.red_zone = (0, self.mesh.width//2-1)
+        self.blue_zone = (self.mesh.width//2, self.mesh.width-1)
         self.initial_pos = initial_positions(self.mesh,
                 self.number_bots)
         self.food_positions = extract_food(self.mesh)

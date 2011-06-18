@@ -281,6 +281,19 @@ class TestCTFUniverse(unittest.TestCase):
                 #### """)
         self.assertRaises(UniverseException, CTFUniverse, odd_bots, 3)
 
+        test_layout4 = (
+            """ ######
+                #0  1#
+                #2  3#
+                ###### """)
+        universe = CTFUniverse(test_layout4, 4)
+        self.assertEqual(universe.red_team, [0,2])
+        self.assertEqual(universe.blue_team, [1,3])
+        self.assertEqual(universe.red_zone, (0, 2))
+        self.assertEqual(universe.blue_zone, (3, 5))
+
+
+
 if __name__ == '__main__':
     unittest.main()
 
