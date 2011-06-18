@@ -1,5 +1,8 @@
 from collections import Mapping
 
+
+__docformat__ = "restructuredtext"
+
 wall   = '#'
 food   = '.'
 harvester = 'c'
