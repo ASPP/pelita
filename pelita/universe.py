@@ -134,7 +134,7 @@ class Layout(object):
         return self.stripped
 
     def as_mesh(self):
-        mesh = Mesh(self.shape[0], self.shape[1])
+        mesh = Mesh(*self.shape)
         mesh._set_data(list(''.join(self.stripped.split('\n'))))
         return mesh
 
