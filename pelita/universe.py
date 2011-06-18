@@ -282,13 +282,13 @@ def convert_to_grid(layout_str):
     return [[c for c in l.strip()] for l in layout_str.split('\n')]
 
 def initial_positions(mesh, number_bots):
-    """ Extract initial positions from layout.
+    """ Extract initial positions from mesh.
 
-    Also replaces the initial positions with free spaces.
+    Also replaces the initial positions in the mesh with free spaces.
 
     Parameters
     ----------
-    layout_grid : mesh
+    mesh : Mesh
         the layout in mesh format
     number_bots : int
         the number of bots for which to find initial positions
