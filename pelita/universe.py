@@ -151,6 +151,8 @@ class Mesh(Mapping):
 
     The container cannot be sliced.
 
+    The items are stored row-based (C-order).
+
     Examples
     --------
     >>> m = Mesh(2, 2)
