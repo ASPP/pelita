@@ -137,6 +137,10 @@ class TestLayoutOps(unittest.TestCase):
         initial_pos = initial_positions(mesh, number_bots)
         target = [(1, 1), (2, 3), (3, 5)]
         self.assertEqual(target, initial_pos)
+        # also test the side-effect of initial_positions()
+        target = Mesh(5, 7)
+        target._set_data(list('########     ##     ##     ########'))
+        self.assertEqual(target, mesh)
 
         # now for a somewhat more realistic example
         test_layout2 = (
@@ -151,6 +155,12 @@ class TestLayoutOps(unittest.TestCase):
         initial_pos = initial_positions(mesh, number_bots)
         target = [(1, 1), (2, 1), (2, 16), (3, 16)]
         self.assertEqual(target, initial_pos)
+        # also test the side-effect of initial_positions()
+        target = Mesh(5, 18)
+        target._set_data(list('################### #      #       #'+\
+                '# #####    ##### ##       #      # ###################'))
+
+        self.assertEqual(target, mesh)
 
     def test_extract_food(self):
         food_layout = (
