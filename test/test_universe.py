@@ -242,9 +242,7 @@ class TestMesh(unittest.TestCase):
         m._set_data([1, 2, 3, 4])
         self.assertEqual(str(m), '[1, 2]\n[3, 4]\n')
 
-
-
-class TestUniverse(unittest.TestCase):
+class TestCTFUniverse(unittest.TestCase):
 
     def test_init(self):
         test_layout3 = (
@@ -254,7 +252,7 @@ class TestUniverse(unittest.TestCase):
             #     . #  .  .#3#
             ################## """)
         number_bots = 4
-        universe = Universe(test_layout3, 4)
+        universe = CTFUniverse(test_layout3, 4)
         self.assertEqual(universe.initial_pos,
                 [(1, 1), (2, 1), (2, 16), (3, 16)])
         # this checks that the methods extracts the food, and the initial
