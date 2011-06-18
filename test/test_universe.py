@@ -70,6 +70,21 @@ class TestLayoutChecks(unittest.TestCase):
         self.assertRaises(LayoutEncodingException, Layout.check_layout,
                 Layout.strip_layout(wrong_shape), 3)
 
+    def test_layout_shape(self):
+        small_shape = (
+        """ ###
+            # #
+            ### """)
+        self.assertEqual(Layout.layout_shape(Layout.strip_layout(small_shape)), (3, 3))
+
+        large_shape = (
+        """ #######
+            #     #
+            #     #
+            #     #
+            ####### """)
+        self.assertEqual(Layout.layout_shape(Layout.strip_layout(large_shape)), (5, 7))
+
     def test_str(self):
         simple_layout = (
             """ ####
@@ -94,20 +109,6 @@ class TestLayoutChecks(unittest.TestCase):
 
 class TestLayoutOps(unittest.TestCase):
 
-    def test_layout_shape(self):
-        small_shape = (
-        """ ###
-            # #
-            ### """)
-        self.assertEqual(Layout.layout_shape(Layout.strip_layout(small_shape)), (3, 3))
-
-        large_shape = (
-        """ #######
-            #     #
-            #     #
-            #     #
-            ####### """)
-        self.assertEqual(Layout.layout_shape(Layout.strip_layout(large_shape)), (5, 7))
 
     def test_get_initial_positions(self):
         test_layout = (
