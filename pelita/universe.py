@@ -325,8 +325,13 @@ def extract_food(mesh):
             food_mesh[k] = False
     return food_mesh
 
+class UniverseException(Exception):
+    pass
 
-class Universe(object):
+class IllegalMoveException(Exception):
+    pass
+
+class CTFUniverse(object):
     """ The Universe: representation of the game state.
 
     Attributes
@@ -359,6 +364,32 @@ class Universe(object):
                 self.number_bots)
         self.food_positions = extract_food(self.mesh)
         self.bot_positions = self.initial_pos
+
+    def move_bots(self, move_list):
+        if len(move_list) != self.number_bots:
+            raise UniverseException(
+                'Move list too long, length: %i, should be: %i'
+                % (len(move_list), number_bots))
+        for (bot_id,move) in enumerate(move_list):
+            if move not in move_ids:
+                raise IllegalMoveException(
+                    'Illegal move_id from bot %i: %s' % (bot_id, move))
+            bot_pos = bot_positions[i]
+            legal_moves_dict = get_legal_moves(bot_pos)
+            if move not in legal_moves().keys():
+                raise IllegalMoveException(
+                    'Illegal move from bot %i at %s: %s'
+                    % (bot_id, str(bot_pos), move))
+            # all checks have passed, move the bot
+            self.bot_positions[bot_id] = legal_moves_dict[move]
+        # all bots have moved
+
+    def get_legal_moves(self, position):
+        legal_moves_dict = {}
+        for move,new_pos in new_positions(position).items:
+            if self.layout[new_pos[0]][new_pos[1]] == free:
+                legal_moves_dict[move] = new_pos
+        return legal_moves_dict
 
     def reset_bot(index):
         pass
