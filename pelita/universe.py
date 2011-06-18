@@ -143,8 +143,6 @@ class Mesh(Mapping):
     height : int
     width : int
     shape : (int, int)
-    indices : list of (int, int)
-        the row-order indices for the container
 
     Parameters
     ----------
@@ -164,6 +162,16 @@ class Mesh(Mapping):
 
     The items are stored row-based (C-order).
 
+    Since this container inherits from `collections.Mapping` you can use methods
+    similar to those of the dictionary:
+        * keys()
+        * values()
+        * items()
+        * iterkeys()
+        * itervalues()
+        * iteritems()
+
+
     Examples
     --------
     >>> m = Mesh(2, 2)
@@ -180,12 +188,12 @@ class Mesh(Mapping):
     >>> print m
     [True, 'one']
     [1, True]
-    >>> for i in m: print i
+    >>> m.values()
     True
     one
     1
     True
-    >>> print m.indices
+    >>> m.keys()
     [(0, 0), (0, 1), (1, 0), (1, 1)]
     """
 
@@ -194,7 +202,7 @@ class Mesh(Mapping):
         self.width = width
         self.shape = (height, width)
         self._data = [None for i in range(self.width * self.height)]
-        self.indices = [(h, w) for h in range(self.height)
+        self._keys = [(h, w) for h in range(self.height)
                        for w in range(self.width)]
 
     def _check_index(self, index):
@@ -221,7 +229,7 @@ class Mesh(Mapping):
         self._data[self._index_tuple_to_linear(index)] = item
 
     def __iter__(self):
-        return self.indices.__iter__()
+        return self._keys.__iter__()
 
     def __len__(self):
         return self.height * self.width
