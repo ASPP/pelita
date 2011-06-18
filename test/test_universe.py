@@ -17,11 +17,11 @@ class TestLayoutChecks(unittest.TestCase):
 
     def test_strip_layout(self):
         test_layout = (
-        """ #######
-            #c    #
-            #  .  #
-            #    o#
-            ####### """)
+            """ #######
+                #c    #
+                #  .  #
+                #    o#
+                ####### """)
         stripped = [c for c in Layout.strip_layout(test_layout)]
         target = ['#', '#', '#', '#', '#', '#', '#', '\n',
                   '#', 'c', ' ', ' ', ' ', ' ', '#', '\n',
@@ -32,57 +32,57 @@ class TestLayoutChecks(unittest.TestCase):
 
     def test_illegal_character(self):
         illeagal_layout = (
-        """ #######
-            #c    #
-            #  f  #
-            #    o#
-            ####### """)
+            """ #######
+                #c    #
+                #  f  #
+                #    o#
+                ####### """)
         self.assertRaises(LayoutEncodingException, Layout.check_layout,
                 Layout.strip_layout(illeagal_layout), 0)
 
     def test_not_enough_bots(self):
         not_enough_bots = (
-        """ #######
-            #0    #
-            #  1  #
-            #    2#
-            ####### """)
+            """ #######
+                #0    #
+                #  1  #
+                #    2#
+                ####### """)
         self.assertRaises(LayoutEncodingException, Layout.check_layout,
                 Layout.strip_layout(not_enough_bots), 5)
 
     def test_too_many_bots(self):
         too_many_bots = (
-        """ #######
-            #0    #
-            #  0  #
-            #    2#
-            ####### """)
+            """ #######
+                #0    #
+                #  0  #
+                #    2#
+                ####### """)
         self.assertRaises(LayoutEncodingException, Layout.check_layout,
                 Layout.strip_layout(too_many_bots), 3)
 
     def test_wrong_shape(self):
         wrong_shape = (
-        """ #######
-            #  #
-            #   #
-            #    #
-            ######  """)
+            """ #######
+                #  #
+                #   #
+                #    #
+                ######  """)
         self.assertRaises(LayoutEncodingException, Layout.check_layout,
                 Layout.strip_layout(wrong_shape), 3)
 
     def test_layout_shape(self):
         small_shape = (
-        """ ###
-            # #
-            ### """)
+            """ ###
+                # #
+                ### """)
         self.assertEqual(Layout.layout_shape(Layout.strip_layout(small_shape)), (3, 3))
 
         large_shape = (
-        """ #######
-            #     #
-            #     #
-            #     #
-            ####### """)
+            """ #######
+                #     #
+                #     #
+                #     #
+                ####### """)
         self.assertEqual(Layout.layout_shape(Layout.strip_layout(large_shape)), (5, 7))
 
     def test_str(self):
@@ -112,11 +112,11 @@ class TestLayoutOps(unittest.TestCase):
 
     def test_get_initial_positions(self):
         test_layout = (
-        """ #######
-            #0    #
-            #  1  #
-            #    2#
-            ####### """)
+            """ #######
+                #0    #
+                #  1  #
+                #    2#
+                ####### """)
         number_bots = 3
         layout = Layout(test_layout, number_bots)
         mesh = layout.as_mesh()
@@ -130,11 +130,11 @@ class TestLayoutOps(unittest.TestCase):
 
         # now for a somewhat more realistic example
         test_layout2 = (
-        """ ##################
-            #0#      #       #
-            #1#####    #####2#
-            #       #      #3#
-            ################## """)
+            """ ##################
+                #0#      #       #
+                #1#####    #####2#
+                #       #      #3#
+                ################## """)
         number_bots = 4
         layout = Layout(test_layout2, number_bots)
         mesh = layout.as_mesh()
@@ -150,11 +150,11 @@ class TestLayoutOps(unittest.TestCase):
 
     def test_extract_food(self):
         food_layout = (
-        """ #######
-            #.  . #
-            #  .  #
-            # .  .#
-            ####### """)
+            """ #######
+                #.  . #
+                #  .  #
+                # .  .#
+                ####### """)
         layout = Layout(food_layout, 0)
         mesh = layout.as_mesh()
         food_mesh = extract_food(mesh)
