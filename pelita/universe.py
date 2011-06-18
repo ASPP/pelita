@@ -135,7 +135,7 @@ class Mesh(Mapping):
 
     Using a list of lists to represent a matrix is memory inefficient and slow
     (and ugly). Instead we store the matrix data in a single list and provide
-    accessors methods (__getitem__() and __setitem__()) to access the elements
+    accessors methods (`__getitem__()` and `__setitem__()`) to access the elements
     in a matrixy style.
 
     Attributes
