@@ -267,20 +267,6 @@ class Mesh(Mapping):
             output += '\n'
         return output
 
-def convert_to_grid(layout_str):
-    """ Convert a layout string to a list of lists.
-
-    Parameters
-    ----------
-    layout_str : str
-        a checked layout string
-
-    Returns
-    -------
-    layout : list of lists of chars
-    """
-    return [[c for c in l.strip()] for l in layout_str.split('\n')]
-
 def initial_positions(mesh, number_bots):
     """ Extract initial positions from mesh.
 

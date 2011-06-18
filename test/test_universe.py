@@ -109,21 +109,6 @@ class TestLayoutOps(unittest.TestCase):
             ####### """)
         self.assertEqual(Layout.layout_shape(Layout.strip_layout(large_shape)), (5, 7))
 
-    def test_convert_to_grid(self):
-        test_layout = (
-        """ #######
-            #c    #
-            #  .  #
-            #    o#
-            ####### """)
-        converted = convert_to_grid(Layout.strip_layout(test_layout))
-        target = [['#', '#', '#', '#', '#', '#', '#'],
-                  ['#', 'c', ' ', ' ', ' ', ' ', '#'],
-                  ['#', ' ', ' ', '.', ' ', ' ', '#'],
-                  ['#', ' ', ' ', ' ', ' ', 'o', '#'],
-                  ['#', '#', '#', '#', '#', '#', '#']]
-        self.assertEqual(converted, target)
-
     def test_get_initial_positions(self):
         test_layout = (
         """ #######
