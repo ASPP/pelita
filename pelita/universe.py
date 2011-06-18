@@ -306,41 +306,30 @@ def initial_positions(mesh, number_bots):
             mesh[k] = free
     return start
 
-def extract_food(layout_grid, shape):
-    """ Extract positions of food.
+def extract_food(mesh):
+    """ Extract positions of food in the mesh.
 
-    Also replaces the food positions with free spaces.
+    Also replaces the food positions in the mesh with free spaces.
 
     Parameters
     ----------
-    layout_grid : list of list of chars
-        the layout in grid format
-    shape : int, int
-        height and width of the grid
+    mesh : Mesh
+        the layout in mesh format
 
     Returns
     -------
-    food : list of list of booleans
+    food_mesh : Mesh of booleans
 
     """
-    height, width = shape[0], shape[1]
-    food_grid = [[False for i in range(width)] for j in range(height)]
-    for (h, w) in ((h, w) for h in range(height) for w in range(width)):
-        if layout_grid[h][w] == food:
-            food_grid[h][w] = True
-            layout_grid[h][w] = free
-    return food_grid
+    food_mesh = Mesh(*mesh.shape)
+    for k,v in mesh.iteritems():
+        if v == food:
+            food_mesh[k] = True
+            mesh[k] = free
+        else:
+            food_mesh[k] = False
+    return food_mesh
 
-class Universe(object):
-
-    def __init__():
-        pass
-
-    def init_bots():
-        pass
-
-    def get_number_bots():
-        pass
 
 class Universe(object):
     """ The Universe: representation of the game state.

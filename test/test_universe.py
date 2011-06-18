@@ -169,19 +169,17 @@ class TestLayoutOps(unittest.TestCase):
             #  .  #
             # .  .#
             ####### """)
-        stripped = Layout.strip_layout(food_layout)
-        Layout.check_layout(stripped, 0)
-        shape = Layout.layout_shape(stripped)
-        grid = convert_to_grid(stripped)
-        food_grid = extract_food(grid, shape)
-        target = [
-            [False, False, False, False, False, False, False],
-            [False, True , False, False, True , False, False],
-            [False, False, False, True , False, False, False],
-            [False, False, True , False, False, True , False],
-            [False, False, False, False, False, False, False]]
-
-        self.assertEqual(target, food_grid)
+        layout = Layout(food_layout, 0)
+        mesh = layout.as_mesh()
+        food_mesh = extract_food(mesh)
+        target = Mesh(5,7)
+        target._set_data([
+            False, False, False, False, False, False, False,
+            False, True , False, False, True , False, False,
+            False, False, False, True , False, False, False,
+            False, False, True , False, False, True , False,
+            False, False, False, False, False, False, False])
+        self.assertEqual(target, food_mesh)
 
 class TestMesh(unittest.TestCase):
 
