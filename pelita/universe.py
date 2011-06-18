@@ -388,6 +388,12 @@ class CTFUniverse(object):
         pos = self.bot_positions[bot_index][1]
         return zone[0] <= pos <= zone[1]
 
+    def on_red_team(self, bot_index):
+        return bot_index in self.red_team
+
+    def on_blue_team(self, bot_index):
+        return bot_index in self.blue_team
+
     def move_bots(self, move_list):
         if len(move_list) != self.number_bots:
             raise UniverseException(

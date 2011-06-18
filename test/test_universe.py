@@ -303,13 +303,14 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertEqual(universe.red_zone, (0, 2))
         self.assertEqual(universe.blue_zone, (3, 5))
 
-    def test_in_zone(self):
+    def test_in_zone_on_team(self):
         test_layout4 = (
             """ ######
                 #0  1#
                 #2  3#
                 ###### """)
         universe = CTFUniverse(test_layout4, 4)
+
         self.assertTrue(universe.in_red_zone(0))
         self.assertTrue(universe.in_red_zone(2))
         self.assertTrue(universe.in_blue_zone(1))
@@ -318,6 +319,15 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertFalse(universe.in_red_zone(3))
         self.assertFalse(universe.in_blue_zone(0))
         self.assertFalse(universe.in_blue_zone(2))
+
+        self.assertTrue(universe.on_red_team(0))
+        self.assertTrue(universe.on_red_team(2))
+        self.assertTrue(universe.on_blue_team(1))
+        self.assertTrue(universe.on_blue_team(3))
+        self.assertFalse(universe.on_red_team(1))
+        self.assertFalse(universe.on_red_team(3))
+        self.assertFalse(universe.on_blue_team(0))
+        self.assertFalse(universe.on_blue_team(2))
 
 
 if __name__ == '__main__':
