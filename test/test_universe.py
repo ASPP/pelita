@@ -329,6 +329,23 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertFalse(universe.on_blue_team(0))
         self.assertFalse(universe.on_blue_team(2))
 
+    def test_is_harvester_is_destroyer(self):
+        test_layout4 = (
+            """ ######
+                #0 2 #
+                # 1 3#
+                ###### """)
+        universe = CTFUniverse(test_layout4, 4)
+        self.assertTrue(universe.is_harvester(1))
+        self.assertTrue(universe.is_harvester(2))
+        self.assertFalse(universe.is_harvester(0))
+        self.assertFalse(universe.is_harvester(3))
+
+        self.assertTrue(universe.is_destroyer(0))
+        self.assertTrue(universe.is_destroyer(3))
+        self.assertFalse(universe.is_destroyer(1))
+        self.assertFalse(universe.is_destroyer(2))
+
 
 if __name__ == '__main__':
     unittest.main()

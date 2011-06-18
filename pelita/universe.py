@@ -394,6 +394,15 @@ class CTFUniverse(object):
     def on_blue_team(self, bot_index):
         return bot_index in self.blue_team
 
+    def is_harvester(self, bot_index):
+        if self.on_red_team(bot_index):
+            return self.in_blue_zone(bot_index)
+        elif self.on_blue_team(bot_index):
+            return self.in_red_zone(bot_index)
+
+    def is_destroyer(self, bot_index):
+        return not self.is_harvester(bot_index)
+
     def move_bots(self, move_list):
         if len(move_list) != self.number_bots:
             raise UniverseException(
