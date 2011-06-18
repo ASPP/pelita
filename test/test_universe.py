@@ -70,6 +70,28 @@ class TestLayoutChecks(unittest.TestCase):
         self.assertRaises(LayoutEncodingException, Layout.check_layout,
                 Layout.strip_layout(wrong_shape), 3)
 
+    def test_str(self):
+        simple_layout = (
+            """ ####
+                #. #
+                #### """)
+        layout = Layout(simple_layout, 0)
+        target = '####\n'+\
+                 '#. #\n'+\
+                 '####'
+        self.assertEqual(target, str(layout))
+
+    def test_as_mesh(self):
+        simple_layout = (
+            """ ####
+                #. #
+                #### """)
+        layout = Layout(simple_layout, 0)
+        mesh = layout.as_mesh()
+        target = Mesh(3,4)
+        target._set_data(list('#####. #####'))
+        self.assertEqual(target, mesh)
+
 class TestLayoutOps(unittest.TestCase):
 
     def test_layout_shape(self):

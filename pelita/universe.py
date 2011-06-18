@@ -130,6 +130,14 @@ class Layout(object):
         """
         return (len(layout_str.split('\n')), layout_str.find('\n'))
 
+    def __str__(self):
+        return self.stripped
+
+    def as_mesh(self):
+        mesh = Mesh(self.shape[0], self.shape[1])
+        mesh._set_data(list(''.join(self.stripped.split('\n'))))
+        return mesh
+
 class Mesh(Mapping):
     """ More or less a Matrix.
 
