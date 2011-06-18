@@ -85,6 +85,17 @@ class TestLayoutChecks(unittest.TestCase):
                 ####### """)
         self.assertEqual(Layout.layout_shape(Layout.strip_layout(large_shape)), (5, 7))
 
+    def test_wrong_bot_order(self):
+        unordered = (
+            """ #######
+                #3    #
+                #2 0  #
+                #    1#
+                ####### """)
+        # this should not raise an exception, unfortunately there isn't such a
+        # thing in unittest
+        l = Layout(unordered, 4)
+
     def test_str(self):
         simple_layout = (
             """ ####

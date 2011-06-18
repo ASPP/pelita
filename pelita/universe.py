@@ -103,6 +103,7 @@ class Layout(object):
                         "Bot-ID: '%c' was specified twice" % c)
                 else:
                     existing_bots.append(c)
+        existing_bots.sort()
         if bot_ids != existing_bots:
             missing = [str(i) for i in set(bot_ids).difference(set(existing_bots))]
             missing.sort()
