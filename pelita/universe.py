@@ -132,6 +132,8 @@ class Mesh(Mapping):
     height : int
     width : int
     shape : (int, int)
+    indices : list of (int, int)
+        the row-order indices for the container
 
     Parameters
     ----------
@@ -170,6 +172,8 @@ class Mesh(Mapping):
     one
     1
     True
+    >>> print m.indices
+    [(0, 0), (0, 1), (1, 0), (1, 1)]
     """
 
     def __init__(self, height, width):
@@ -177,6 +181,8 @@ class Mesh(Mapping):
         self.width = width
         self.shape = (height, width)
         self._data = [None for i in range(self.width * self.height)]
+        self.indices = [(h, w) for h in range(self.height)
+                       for w in range(self.width)]
 
     def _check_index(self, index):
         if index[0] >= self.height or index[0] < 0:

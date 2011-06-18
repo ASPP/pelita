@@ -171,6 +171,11 @@ class TestMesh(unittest.TestCase):
         self.assertEqual(m._data, [None, None, None, None])
         self.assertEqual(m.shape, (4, 1))
 
+    def test_indices(self):
+        m = Mesh(2,3)
+        target = [(0,0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
+        self.assertEqual(target, [i for i in m.indices])
+
     def test_getitem(self):
         m = Mesh(2, 2)
         m._data = [1, 2, 3, 4]
