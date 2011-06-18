@@ -251,7 +251,6 @@ class TestCTFUniverse(unittest.TestCase):
             #1#####    #####2#
             #     . #  .  .#3#
             ################## """)
-        number_bots = 4
         universe = CTFUniverse(test_layout3, 4)
         self.assertEqual(universe.initial_pos,
                 [(1, 1), (2, 1), (2, 16), (3, 16)])
