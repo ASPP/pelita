@@ -377,6 +377,16 @@ class CTFUniverse(object):
         self.food_positions = extract_food(self.mesh)
         self.bot_positions = self.initial_pos
 
+    def in_blue_zone(self, bot_index):
+        return self._in_zone(bot_index, self.blue_zone)
+
+    def in_red_zone(self, bot_index):
+        return self._in_zone(bot_index, self.red_zone)
+
+    def _in_zone(self, bot_index, zone):
+        pos = self.bot_positions[bot_index][1]
+        return zone[0] <= pos <= zone[1]
+
     def move_bots(self, move_list):
         if len(move_list) != self.number_bots:
             raise UniverseException(
