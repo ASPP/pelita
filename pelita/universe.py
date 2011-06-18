@@ -340,7 +340,9 @@ class Universe(object):
         self.width, self.height = layout_shape(self.initial_layout)
         self.shape = (self.width, self.height)
         self.layout = convert_to_grid(self.initial_layout)
-        self.initial_pos = initial_positions(self.layout, self.shape, self.number_bots)
+        self.initial_pos = initial_positions(self.layout,
+                self.shape,
+                self.number_bots)
         self.bot_positions = self.initial_pos
         self.food_positions = extract_food(self.layout, self.shape)
 
