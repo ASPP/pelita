@@ -152,13 +152,18 @@ class Mesh(Mapping):
     Attributes
     ----------
     height : int
+        height of the Mesh
     width : int
+        width of the Mesh
     shape : (int, int)
+        tuple of height and width
 
     Parameters
     ----------
     height : int
+        desired height for Mesh
     width : int
+        desired width for Mesh
 
     Notes
     -----
@@ -175,12 +180,13 @@ class Mesh(Mapping):
 
     Since this container inherits from `collections.Mapping` you can use methods
     similar to those of the dictionary:
-        * keys()
-        * values()
-        * items()
-        * iterkeys()
-        * itervalues()
-        * iteritems()
+
+    * `keys()`
+    * `values()`
+    * `items()`
+    * `iterkeys()`
+    * `itervalues()`
+    * `iteritems()`
 
     The method `_set_data` is semi-public api. You can use it to modify the
     underlying data inside this conatiner if you know what you are doing. The
