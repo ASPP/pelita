@@ -281,17 +281,15 @@ def convert_to_grid(layout_str):
     """
     return [[c for c in l.strip()] for l in layout_str.split('\n')]
 
-def initial_positions(layout_grid, shape, number_bots):
+def initial_positions(mesh, number_bots):
     """ Extract initial positions from layout.
 
     Also replaces the initial positions with free spaces.
 
     Parameters
     ----------
-    layout_grid : list of list of chars
-        the layout in grid format
-    shape : int, int
-        height and width of the grid
+    layout_grid : mesh
+        the layout in mesh format
     number_bots : int
         the number of bots for which to find initial positions
 
@@ -302,11 +300,10 @@ def initial_positions(layout_grid, shape, number_bots):
     """
     bot_ids = [str(i) for i in range(number_bots)]
     start = [(0, 0)] * number_bots
-    height, width = shape[0], shape[1]
-    for (h, w) in ((h, w) for h in range(height) for w in range(width)):
-        if layout_grid[h][w] in bot_ids:
-            start[int(layout_grid[h][w])] = (h, w)
-            layout_grid[h][w] = free
+    for k,v in mesh.iteritems():
+        if v in bot_ids:
+            start[int(v)] = k
+            mesh[k] = free
     return start
 
 def extract_food(layout_grid, shape):

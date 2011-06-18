@@ -132,11 +132,9 @@ class TestLayoutOps(unittest.TestCase):
             #    2#
             ####### """)
         number_bots = 3
-        stripped = Layout.strip_layout(test_layout)
-        Layout.check_layout(stripped, number_bots)
-        shape = Layout.layout_shape(stripped)
-        grid = convert_to_grid(stripped)
-        initial_pos = initial_positions(grid, shape, number_bots)
+        layout = Layout(test_layout, number_bots)
+        mesh = layout.as_mesh()
+        initial_pos = initial_positions(mesh, number_bots)
         target = [(1, 1), (2, 3), (3, 5)]
         self.assertEqual(target, initial_pos)
 
@@ -148,11 +146,9 @@ class TestLayoutOps(unittest.TestCase):
             #       #      #3#
             ################## """)
         number_bots = 4
-        stripped = Layout.strip_layout(test_layout2)
-        Layout.check_layout(stripped, number_bots)
-        shape = Layout.layout_shape(stripped)
-        grid = convert_to_grid(stripped)
-        initial_pos = initial_positions(grid, shape, number_bots)
+        layout = Layout(test_layout2, number_bots)
+        mesh = layout.as_mesh()
+        initial_pos = initial_positions(mesh, number_bots)
         target = [(1, 1), (2, 1), (2, 16), (3, 16)]
         self.assertEqual(target, initial_pos)
 
