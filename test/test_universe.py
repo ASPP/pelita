@@ -159,16 +159,16 @@ class TestMesh(unittest.TestCase):
 
     def test_init(self):
         m = Mesh(2, 2)
-        self.assertEqual(m._data, [None, None, None, None])
+        self.assertEqual(m.values(), [None, None, None, None])
         self.assertEqual(m.shape, (2, 2))
         m = Mesh(0, 0)
-        self.assertEqual(m._data, [])
+        self.assertEqual(m.values(), [])
         self.assertEqual(m.shape, (0, 0))
         m = Mesh(1, 4)
-        self.assertEqual(m._data, [None, None, None, None])
+        self.assertEqual(m.values(), [None, None, None, None])
         self.assertEqual(m.shape, (1, 4))
         m = Mesh(4, 1)
-        self.assertEqual(m._data, [None, None, None, None])
+        self.assertEqual(m.values(), [None, None, None, None])
         self.assertEqual(m.shape, (4, 1))
 
     def test_indices(self):
