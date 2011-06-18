@@ -288,7 +288,7 @@ def initial_positions(mesh, number_bots):
 
     Parameters
     ----------
-    mesh : Mesh
+    mesh : Mesh of characters
         the layout in mesh format
     number_bots : int
         the number of bots for which to find initial positions
@@ -313,7 +313,7 @@ def extract_food(mesh):
 
     Parameters
     ----------
-    mesh : Mesh
+    mesh : Mesh of characters
         the layout in mesh format
 
     Returns
