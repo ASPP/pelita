@@ -336,23 +336,17 @@ class Universe(object):
 
     Attributes
     ----------
-    initial_layout : str
+    layout : Layout
         initial layout with food and agent positions
     number_bots : int
         total number of bots
-    width : int
-        width (number of columns)
-    height : int
-        height (nuber rows)
-    shape : int, int
-        height and width (in that order)
-    layout : list of lists of characters
+    mesh : Mesh of characters
         static layout (free spaces and walls only)
     initial_pos : list of (int, int)
         the initial positions for the bots
     bot_positions : list of (int, int)
         the current positions of the bots
-    food_positions : list of lists of booleans
+    food_positions : Mesh of booleans
         the current food positions
 
     Parameters
@@ -363,17 +357,13 @@ class Universe(object):
         the number of bots for this universe
     """
     def __init__(self, layout_str, number_bots):
-        self.initial_layout = Layout.strip_layout(layout_str)
         self.number_bots = number_bots
-        Layout.check_layout(self.initial_layout, self.number_bots)
-        self.width, self.height = Layout.layout_shape(self.initial_layout)
-        self.shape = (self.width, self.height)
-        self.layout = convert_to_grid(self.initial_layout)
-        self.initial_pos = initial_positions(self.layout,
-                self.shape,
+        self.layout = Layout(layout_str, number_bots)
+        self.mesh = self.layout.as_mesh()
+        self.initial_pos = initial_positions(self.mesh,
                 self.number_bots)
+        self.food_positions = extract_food(self.mesh)
         self.bot_positions = self.initial_pos
-        self.food_positions = extract_food(self.layout, self.shape)
 
     def reset_bot(index):
         pass
