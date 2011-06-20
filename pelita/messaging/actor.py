@@ -109,7 +109,7 @@ class Actor(SuspendableThread):
 
     def _run(self):
         try:
-            message = self._inbox.get(True, 3)
+            message = self.handle_inbox()
         except Queue.Empty:
             return
 
@@ -131,6 +131,9 @@ class Actor(SuspendableThread):
 
         # default
         self.receive(message)
+
+    def handle_inbox(self):
+        return self._inbox.get(True, 3)
 
 
     def request(self, method, params=None, id=None):
