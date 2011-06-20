@@ -43,6 +43,11 @@ class JsonSocketConnection(object):
 
     @property
     def terminator(self):
+        """ Accessor for the JSON termination character.
+
+        The character must be a single character and must not be
+        included in the submitted JSON string.
+        """
         return self._terminator
 
     @terminator.setter
@@ -96,6 +101,12 @@ class JsonSocketConnection(object):
     def _read(self):
         """ Waits until the next chunk of data can be received
         and processes it.
+
+        We can only receive a small chunk of the data at once.
+        Even though TCP guarantees, that all chunks follow in order
+        and no chunk of data is lost, the data may have been split
+        on its way here.
+        This is why we are collecting it in our buffers.
         """
         try:
             data = self.socket.recv(4096)
@@ -109,7 +120,7 @@ class JsonSocketConnection(object):
                 _logger.info("Connection is dead.")
                 raise DeadConnection()
 
-            _logger.warning("Caught an unknown error in recv. Sleep and try to repeat.")
+            _logger.warning("Caught an unknown error in socket.recv. Sleep and try to repeat.")
             _logger.warning(e)
             # Waiting a bit
             import time
@@ -153,7 +164,9 @@ class JsonSocketConnection(object):
 
 
 class MessageSocketConnection(JsonSocketConnection):
-    """ Implements a socket for JSON-RPC communication with pre-defined messages."""
+    """ Implements a socket for JSON-RPC communication with pre-defined messages.
+
+    """
     def send(self, message):
         if not isinstance(message, BaseMessage):
             raise ValueError("'%s' is no Message object." % message)
