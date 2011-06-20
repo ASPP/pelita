@@ -244,6 +244,12 @@ class TestMesh(unittest.TestCase):
         self.assertRaises(TypeError, m._set_data, 'abcd')
         self.assertRaises(ValueError, m._set_data, [1,2,3])
 
+    def test_init_data(self):
+        m = Mesh(2, 2, data=[1, 2, 3, 4])
+        self.assertEqual(m.values(), [1,2,3,4])
+        self.assertRaises(TypeError, Mesh, 2, 2, data='abcd')
+        self.assertRaises(ValueError, Mesh, 2, 2, data=[1,2,3])
+
     def test_len(self):
         m = Mesh(2, 2)
         self.assertEqual(len(m), 4)
@@ -252,6 +258,12 @@ class TestMesh(unittest.TestCase):
         m = Mesh(2, 2)
         m._set_data([1, 2, 3, 4])
         self.assertEqual(str(m), '[1, 2]\n[3, 4]\n')
+
+    def test_repr(self):
+        m = Mesh(2, 2, data=[1, 2, 3,4])
+        rep = m.__repr__()
+        m2 = eval(rep)
+        self.assertEqual(m, m2)
 
 class TestCTFUniverse(unittest.TestCase):
 

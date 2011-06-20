@@ -165,6 +165,8 @@ class Mesh(Mapping):
         desired height for Mesh
     width : int
         desired width for Mesh
+    data : list, optional
+        if given, will try to set this as contents
 
     Notes
     -----
@@ -219,11 +221,14 @@ class Mesh(Mapping):
     [(0, 0), (0, 1), (1, 0), (1, 1)]
     """
 
-    def __init__(self, height, width):
+    def __init__(self, height, width, data=None):
         self.height = height
         self.width = width
         self.shape = (height, width)
-        self._data = [None for i in range(self.width * self.height)]
+        if data:
+            self._set_data(data)
+        else:
+            self._data = [None for i in range(self.width * self.height)]
         self._keys = [(h, w) for h in range(self.height)
                        for w in range(self.width)]
 
@@ -268,6 +273,10 @@ class Mesh(Mapping):
     def __len__(self):
         return self.height * self.width
 
+    def __repr__(self):
+        return ('Mesh(%i, %i, data=%s)'
+            % (self.height, self.width, str(self._data)))
+
     def __str__(self):
         output = str()
         for i in range(self.height):
@@ -276,6 +285,7 @@ class Mesh(Mapping):
             output += str(self._data[start:end])
             output += '\n'
         return output
+
 
 def initial_positions(mesh, number_bots):
     """ Extract initial positions from mesh.
