@@ -123,7 +123,7 @@ class Actor(SuspendableThread):
                 return # finish handling of messages here
 
             else:
-                _logger.warning("Received a response (%s) without a waiting future. Dropped response.", message.dict)
+                _logger.warning("Received a response (%r) without a waiting future. Dropped response.", message.dict)
                 return
 
         if message is StopProcessing:
@@ -161,7 +161,7 @@ class Actor(SuspendableThread):
             raise ValueError
 
     def receive(self, message):
-        _logger.debug("Received message %s.", message)
+        _logger.debug("Received message %r.", message)
 
     def send(self, method, params=None):
         message = Notification(method, params)
@@ -237,7 +237,7 @@ class DispatchingActor(Actor):
                 if not name:
                     name = member_name
                 if name in self._dispatch_db:
-                    raise ValueError("Dispatcher name '%s' defined twice", name)
+                    raise ValueError("Dispatcher name '%r' defined twice", name)
                 self._dispatch_db[name] = member_name
 
     def _dispatch(self, message):
@@ -259,12 +259,12 @@ class DispatchingActor(Actor):
 
         method_name = self._dispatch_db.get(method)
         if not method_name:
-            reply_error("Not found: method '%s'", message.method)
+            reply_error("Not found: method '%r'", message.method)
             return
 
         meth = getattr(self, method_name, None)
         if not meth:
-            reply_error("Not found: method '%s'", message.method)
+            reply_error("Not found: method '%r'", message.method)
             return
 
         if wants_doc:
@@ -283,7 +283,7 @@ class DispatchingActor(Actor):
             else:
                 res = meth(message, *params)
         except TypeError, e:
-            reply_error("Type Error: method '%s'\n%s" % (message.method, e))
+            reply_error("Type Error: method '%r'\n%r" % (message.method, e))
             return
 
 # TODO: Need to consider, if we want to automatically reply the result

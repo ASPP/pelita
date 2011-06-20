@@ -76,7 +76,7 @@ class JsonSocketConnection(object):
 
         sent_bytes = 0
         while sent_bytes < len(data):
-            _logger.info("Sending raw data %s", data[sent_bytes:])
+            _logger.info("Sending raw data %r", data[sent_bytes:])
             sent_bytes += self.socket.send(data[sent_bytes:])
 
     def read(self):
@@ -91,9 +91,9 @@ class JsonSocketConnection(object):
         data = self.buffer.pop(0)
         try:
             json_data = json.loads(data)
-            _logger.debug("Data read %s", json_data)
+            _logger.debug("Data read %r", json_data)
         except ValueError:
-            _logger.warning("Could not decode data %s", data)
+            _logger.warning("Could not decode data %r", data)
             raise
 
         return json_data
@@ -110,7 +110,7 @@ class JsonSocketConnection(object):
         """
         try:
             data = self.socket.recv(4096)
-            _logger.debug("Got raw data %s", data)
+            _logger.debug("Got raw data %r", data)
         except socket.timeout:
             _logger.debug("Socket timed out, repeating.")
             return
@@ -169,14 +169,14 @@ class MessageSocketConnection(JsonSocketConnection):
     """
     def send(self, message):
         if not isinstance(message, BaseMessage):
-            raise ValueError("'%s' is no Message object." % message)
+            raise ValueError("'%r' is no Message object." % message)
 
         super(MessageSocketConnection, self).send(message.dict)
 
     def read(self):
         try:
             obj = super(MessageSocketConnection, self).read()
-            _logger.debug("Received: %s", obj)
+            _logger.debug("Received: %r", obj)
         except ValueError:
             # Reply an error code -32700
             error_msg = {"message": "Parse Error",

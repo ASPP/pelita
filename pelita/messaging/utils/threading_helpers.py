@@ -21,7 +21,7 @@ class SuspendableThread(_threading.Thread):
 
     def run(self):
         """Executes the thread.
-        
+
         This needs only be overriden, if a special running behaviour is needed.
         In many cases, it is sufficient to override _run().
         """
@@ -32,22 +32,22 @@ class SuspendableThread(_threading.Thread):
             except CloseThread:
                 self.stop()
 
-        _logger.debug("Ended thread %s", self)
+        _logger.debug("Ended thread %r", self)
 
     def suspend(self):
-        _logger.debug("Suspending thread %s", self)
+        _logger.debug("Suspending thread %r", self)
         self._unsuspended.clear()
 
     def resume(self):
-        _logger.debug("Resuming thread %s", self)
+        _logger.debug("Resuming thread %r", self)
         self._unsuspended.set()
 
     def stop(self):
-        _logger.debug("Stopping thread %s", self)
+        _logger.debug("Stopping thread %r", self)
         self._running = False
 
     def start(self):
-        _logger.debug("Starting thread %s", self)
+        _logger.debug("Starting thread %r", self)
         self._running = True
         _threading.Thread.start(self)
 

@@ -33,7 +33,7 @@ class JsonThreadedInbox(SuspendableThread):
                 return # finish handling of messages here
 
             else:
-                _logger.warning("Received a response (%s) without a waiting future. Dropped response.", message.dict)
+                _logger.warning("Received a response (%r) without a waiting future. Dropped response.", message.dict)
                 return
 
         self._queue.put(message)
@@ -42,15 +42,15 @@ class JsonThreadedInbox(SuspendableThread):
         try:
             recv = self.connection.read()
         except socket.timeout as e:
-            _logger.debug("socket.timeout: %s (%s)" % (e, self))
+            _logger.debug("socket.timeout: %r (%r)" % (e, self))
             return
         except DeadConnection:
-            _logger.debug("Remote connection is dead, closing mailbox in %s", self)
+            _logger.debug("Remote connection is dead, closing mailbox in %r", self)
             self.mailbox.stop()
             raise CloseThread
 
         message = recv
-        _logger.info("Processing inbox %s", message.dict)
+        _logger.info("Processing inbox %r", message.dict)
         # add the mailbox to the message
         message.mailbox = self.mailbox
         return message
@@ -79,7 +79,7 @@ class JsonThreadedOutbox(SuspendableThread):
         try:
             to_send = self._queue.get(True, 3)
 
-            _logger.info("Processing outbox %s", to_send)
+            _logger.info("Processing outbox %r", to_send)
             if to_send is StopProcessing:
                 raise CloseThread
 
@@ -101,12 +101,12 @@ class MailboxConnection(object):
         self._requests = RequestDB()
 
     def start(self):
-        _logger.info("Starting mailbox %s", self)
+        _logger.info("Starting mailbox %r", self)
         self._inbox.start()
         self._outbox.start()
 
     def stop(self):
-        _logger.info("Stopping mailbox %s", self)
+        _logger.info("Stopping mailbox %r", self)
         self.inbox.put(StopProcessing)
         self.outbox.put(StopProcessing) # I need to to this or the thread will not stop...
         self._inbox.stop()

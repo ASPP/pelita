@@ -57,7 +57,7 @@ class TcpThreadedListeningServer(SuspendableThread):
                 self.on_accept(connection)
 
             except socket.timeout as e:
-                _logger.debug("socket.timeout: %s" % e)
+                _logger.debug("socket.timeout: %r" % e)
                 continue
 
             except Exception as e:
