@@ -228,11 +228,11 @@ class Mesh(Mapping):
                        for w in range(self.width)]
 
     def _check_index(self, index):
-        if index[0] >= self.height or index[0] < 0:
+        if not 0 <= index[0] < self.height:
             raise IndexError(
                 'Mesh indexing error, requested row: %i, but height is: %i'
                 % (index[0], self.height))
-        elif index[1] >= self.width or index[1] < 0:
+        elif not 0 <= index[1] < self.width:
             raise IndexError(
                 'Mesh indexing error, requested column: %i, but width is: %i'
                 % (index[1], self.width))
