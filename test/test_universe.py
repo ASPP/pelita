@@ -442,6 +442,29 @@ class TestCTFUniverseRules(unittest.TestCase):
                   stop  : (3,4)}
         self.assertEqual(target, legal_moves_3_4)
 
+    def test_move_bot_exceptions(self):
+        test_move_bot = (
+            """ ######
+                #  #0#
+                # 3 ##
+                #2  1#
+                ###### """)
+        universe = CTFUniverse(test_move_bot, 4)
+
+        self.assertRaises(IllegalMoveException, universe.move_bot, 0, 'FOOBAR')
+
+        self.assertRaises(IllegalMoveException, universe.move_bot, 0, north)
+        self.assertRaises(IllegalMoveException, universe.move_bot, 0, west)
+        self.assertRaises(IllegalMoveException, universe.move_bot, 0, south)
+        self.assertRaises(IllegalMoveException, universe.move_bot, 0, east)
+
+        self.assertRaises(IllegalMoveException, universe.move_bot, 1, north)
+        self.assertRaises(IllegalMoveException, universe.move_bot, 1, east)
+        self.assertRaises(IllegalMoveException, universe.move_bot, 1, south)
+
+        self.assertRaises(IllegalMoveException, universe.move_bot, 2, west)
+        self.assertRaises(IllegalMoveException, universe.move_bot, 2, south)
+
     def test_one(self):
 
         test_start = (
