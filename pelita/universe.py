@@ -363,7 +363,7 @@ class CTFUniverse(object):
         the initial positions for the bots
     bot_positions : list of (int, int)
         the current positions of the bots
-    food_positions : Mesh of booleans
+    food_mesh : Mesh of booleans
         the current food positions
 
     Parameters
@@ -391,7 +391,7 @@ class CTFUniverse(object):
         self.blue_zone = (self.mesh.width//2, self.mesh.width-1)
         self.initial_pos = initial_positions(self.mesh,
                 self.number_bots)
-        self.food_positions = extract_food(self.mesh)
+        self.food_mesh = extract_food(self.mesh)
         self.bot_positions = self.initial_pos
 
     def in_blue_zone(self, bot_index):
