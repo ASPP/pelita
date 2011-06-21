@@ -434,6 +434,35 @@ class CTFUniverse(object):
         elif self.on_blue_team(bot_index):
             self.blue_score += 1
 
+    def move_bot(self, bot_id, move):
+        # check legality of the move
+        if move not in move_ids:
+            raise IllegalMoveException(
+                'Illegal move_id from bot %i: %s' % (bot_id, move))
+        bot_pos = self.bot_positions[bot_id]
+        legal_moves_dict = self.get_legal_moves(bot_pos)
+        if move not in legal_moves_dict.keys():
+            raise IllegalMoveException(
+                'Illegal move from bot %i at %s: %s'
+                % (bot_id, str(bot_pos), move))
+        # move bot
+        bot_pos = self.bot_positions[bot_id] = legal_moves_dict[move]
+        # check for destruction
+        for i in self.opposite_team(bot_id):
+            if self.bot_positions[i] == bot_pos:
+                (self.reset_bot(bot_id) if self.is_harvester(bot_id) else
+                self.reset_bot(i))
+        # check for food being eaten
+        if self.food_mesh[bot_pos]:
+            self.food_mesh[bot_pos] = False
+            self.score(bot_id)
+
+        # TODO:
+        # check for state change
+        # generate a list of events
+        # propagate those events to observers
+        # callbacks for the bots
+
     def move_bots(self, move_list):
         new_positions = [i for i in range(self.number_bots)]
         if len(move_list) != self.number_bots:
@@ -461,8 +490,8 @@ class CTFUniverse(object):
                 legal_moves_dict[move] = new_pos
         return legal_moves_dict
 
-    def reset_bot(index):
-        pass
+    def reset_bot(self, bot_id):
+        self.bot_positions[bot_id] = self.initial_pos[bot_id]
 
 if __name__ == "__main__":
     pass
