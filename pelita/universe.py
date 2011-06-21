@@ -290,6 +290,8 @@ class Mesh(Mapping):
             output += '\n'
         return output
 
+    def copy(self):
+        return eval(self.__repr__())
 
 def initial_positions(mesh, number_bots):
     """ Extract initial positions from mesh.

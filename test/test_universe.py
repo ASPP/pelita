@@ -276,6 +276,14 @@ class TestMesh(unittest.TestCase):
         m2 = eval(rep)
         self.assertEqual(m, m2)
 
+    def test_copy(self):
+        m = Mesh(2,2)
+        m2 = m
+        m3 = m.copy()
+        m[1,1] = True
+        self.assertTrue(m2[1,1])
+        self.assertFalse(m3[1,1])
+
 class TestCTFUniverse(unittest.TestCase):
 
     def test_init(self):
