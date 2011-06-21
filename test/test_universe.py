@@ -79,7 +79,7 @@ class TestLayoutChecks(unittest.TestCase):
                 #    #
                 ######  """)
         self.assertRaises(LayoutEncodingException, Layout.check_layout,
-                Layout.strip_layout(wrong_shape), 3)
+                Layout.strip_layout(wrong_shape), 0)
 
     def test_layout_shape(self):
         small_shape = (
