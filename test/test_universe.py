@@ -16,13 +16,13 @@ class TestNewPositions(unittest.TestCase):
 class TestIsAdjacent(unittest.TestCase):
 
     def test_is_adjacent(self):
-        self.assertTrue(is_adjacent((0,0), (1,0)))
-        self.assertTrue(is_adjacent((0,0), (0,1)))
-        self.assertFalse(is_adjacent((0,0), (1,1)))
+        self.assertTrue(is_adjacent((0, 0), (1, 0)))
+        self.assertTrue(is_adjacent((0, 0), (0, 1)))
+        self.assertFalse(is_adjacent((0, 0), (1, 1)))
 
-        self.assertTrue(is_adjacent((1,0), (0,0)))
-        self.assertTrue(is_adjacent((0,1), (0,0)))
-        self.assertFalse(is_adjacent((1,1), (0,0)))
+        self.assertTrue(is_adjacent((1, 0), (0, 0)))
+        self.assertTrue(is_adjacent((0, 1), (0, 0)))
+        self.assertFalse(is_adjacent((1, 1), (0, 0)))
 
 class TestLayoutChecks(unittest.TestCase):
 
@@ -125,7 +125,7 @@ class TestLayoutChecks(unittest.TestCase):
                 #### """)
         layout = Layout(simple_layout, 0)
         mesh = layout.as_mesh()
-        target = Mesh(3,4)
+        target = Mesh(3, 4)
         target._set_data(list('#####. #####'))
         self.assertEqual(target, mesh)
 
@@ -180,7 +180,7 @@ class TestLayoutOps(unittest.TestCase):
         layout = Layout(food_layout, 0)
         mesh = layout.as_mesh()
         food_mesh = extract_food(mesh)
-        target = Mesh(5,7)
+        target = Mesh(5, 7)
         target._set_data([
             False, False, False, False, False, False, False,
             False, True , False, False, True , False, False,
@@ -206,19 +206,19 @@ class TestMesh(unittest.TestCase):
         self.assertEqual(m.shape, (4, 1))
 
     def test_indices(self):
-        m = Mesh(2,3)
-        target = [(0,0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
+        m = Mesh(2, 3)
+        target = [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
         self.assertEqual(target, m.keys())
 
     def test_index_linear_to_tuple(self):
-        m = Mesh(3,4)
-        for (i,(h,w)) in enumerate(m.iterkeys()):
-            self.assertEqual(m._index_linear_to_tuple(i), (h,w))
+        m = Mesh(3, 4)
+        for (i, (h, w)) in enumerate(m.iterkeys()):
+            self.assertEqual(m._index_linear_to_tuple(i), (h, w))
 
     def test_index_tuple_to_linear(self):
-        m = Mesh(3,4)
-        for (i,(h,w)) in enumerate(m.iterkeys()):
-            self.assertEqual(m._index_tuple_to_linear((h,w)), i)
+        m = Mesh(3, 4)
+        for (i, (h, w)) in enumerate(m.iterkeys()):
+            self.assertEqual(m._index_tuple_to_linear((h, w)), i)
 
     def test_getitem(self):
         m = Mesh(2, 2)
@@ -246,20 +246,20 @@ class TestMesh(unittest.TestCase):
 
     def test_iter(self):
         m = Mesh(2, 2)
-        self.assertEqual([i for i in m], [(0,0), (0, 1), (1, 0), (1, 1)])
+        self.assertEqual([i for i in m], [(0, 0), (0, 1), (1, 0), (1, 1)])
 
     def test_set_data(self):
         m = Mesh(2, 2)
         m._set_data([1, 2, 3, 4])
-        self.assertEqual(m.values(), [1,2,3,4])
+        self.assertEqual(m.values(), [1, 2, 3, 4])
         self.assertRaises(TypeError, m._set_data, 'abcd')
-        self.assertRaises(ValueError, m._set_data, [1,2,3])
+        self.assertRaises(ValueError, m._set_data, [1, 2, 3])
 
     def test_init_data(self):
         m = Mesh(2, 2, data=[1, 2, 3, 4])
-        self.assertEqual(m.values(), [1,2,3,4])
+        self.assertEqual(m.values(), [1, 2, 3, 4])
         self.assertRaises(TypeError, Mesh, 2, 2, data='abcd')
-        self.assertRaises(ValueError, Mesh, 2, 2, data=[1,2,3])
+        self.assertRaises(ValueError, Mesh, 2, 2, data=[1, 2, 3])
 
     def test_len(self):
         m = Mesh(2, 2)
@@ -271,18 +271,18 @@ class TestMesh(unittest.TestCase):
         self.assertEqual(str(m), '[1, 2]\n[3, 4]\n')
 
     def test_repr(self):
-        m = Mesh(2, 2, data=[1, 2, 3,4])
+        m = Mesh(2, 2, data=[1, 2, 3, 4])
         rep = m.__repr__()
         m2 = eval(rep)
         self.assertEqual(m, m2)
 
     def test_copy(self):
-        m = Mesh(2,2)
+        m = Mesh(2, 2)
         m2 = m
         m3 = m.copy()
-        m[1,1] = True
-        self.assertTrue(m2[1,1])
-        self.assertFalse(m3[1,1])
+        m[1, 1] = True
+        self.assertTrue(m2[1, 1])
+        self.assertFalse(m3[1, 1])
 
 class TestCTFUniverse(unittest.TestCase):
 
@@ -309,7 +309,7 @@ class TestCTFUniverse(unittest.TestCase):
             False, False, False, False, False, False, True,  False, False, False, False, True,  False, False, True,  False, False, False,
             False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False])
         self.assertEqual(target, universe.food_mesh)
-        target_food_list = [(1, 3), (1, 6), (1, 11), (3, 6), (3,11), (3, 14),  ]
+        target_food_list = [(1, 3), (1, 6), (1, 11), (3, 6), (3, 11), (3, 14),  ]
         self.assertEqual(target_food_list, universe.food_list)
 
         odd_layout = (
@@ -331,8 +331,8 @@ class TestCTFUniverse(unittest.TestCase):
                 #2  3#
                 ###### """)
         universe = CTFUniverse(test_layout4, 4)
-        self.assertEqual(universe.red_team, [0,2])
-        self.assertEqual(universe.blue_team, [1,3])
+        self.assertEqual(universe.red_team, [0, 2])
+        self.assertEqual(universe.blue_team, [1, 3])
         self.assertEqual(universe.red_zone, (0, 2))
         self.assertEqual(universe.blue_zone, (3, 5))
 
@@ -394,52 +394,52 @@ class TestCTFUniverseRules(unittest.TestCase):
                 #    #
                 ###### """)
         universe = CTFUniverse(test_legal, 0)
-        legal_moves_1_1 = universe.get_legal_moves((1,1))
-        target = {east  : (1,2),
-                  south : (2,1),
-                  stop  : (1,1)}
+        legal_moves_1_1 = universe.get_legal_moves((1, 1))
+        target = {east  : (1, 2),
+                  south : (2, 1),
+                  stop  : (1, 1)}
         self.assertEqual(target, legal_moves_1_1)
-        legal_moves_1_2 = universe.get_legal_moves((1,2))
-        target = {west  : (1,1),
-                  south : (2,2),
-                  stop  : (1,2)}
+        legal_moves_1_2 = universe.get_legal_moves((1, 2))
+        target = {west  : (1, 1),
+                  south : (2, 2),
+                  stop  : (1, 2)}
         self.assertEqual(target, legal_moves_1_2)
-        legal_moves_1_4 = universe.get_legal_moves((1,4))
-        target = { stop  : (1,4)}
+        legal_moves_1_4 = universe.get_legal_moves((1, 4))
+        target = { stop  : (1, 4)}
         self.assertEqual(target, legal_moves_1_4)
-        legal_moves_2_1 = universe.get_legal_moves((2,1))
-        target = {north  : (1,1),
-                  east  : (2,2),
-                  south : (3,1),
-                  stop  : (2,1)}
+        legal_moves_2_1 = universe.get_legal_moves((2, 1))
+        target = {north  : (1, 1),
+                  east  : (2, 2),
+                  south : (3, 1),
+                  stop  : (2, 1)}
         self.assertEqual(target, legal_moves_2_1)
-        legal_moves_2_2 = universe.get_legal_moves((2,2))
-        target = {north  : (1,2),
-                  east  : (2,3),
-                  south : (3,2),
-                  west : (2,1),
-                  stop  : (2,2)}
+        legal_moves_2_2 = universe.get_legal_moves((2, 2))
+        target = {north  : (1, 2),
+                  east  : (2, 3),
+                  south : (3, 2),
+                  west : (2, 1),
+                  stop  : (2, 2)}
         self.assertEqual(target, legal_moves_2_2)
-        legal_moves_2_3 = universe.get_legal_moves((2,3))
-        target = { south : (3,3),
-                  west : (2,2),
-                  stop  : (2,3)}
+        legal_moves_2_3 = universe.get_legal_moves((2, 3))
+        target = { south : (3, 3),
+                  west : (2, 2),
+                  stop  : (2, 3)}
         self.assertEqual(target, legal_moves_2_3)
-        legal_moves_3_1 = universe.get_legal_moves((3,1))
-        target = {north  : (2,1),
-                  east  : (3,2),
-                  stop  : (3,1)}
+        legal_moves_3_1 = universe.get_legal_moves((3, 1))
+        target = {north  : (2, 1),
+                  east  : (3, 2),
+                  stop  : (3, 1)}
         self.assertEqual(target, legal_moves_3_1)
-        legal_moves_3_2 = universe.get_legal_moves((3,2))
-        target = {north  : (2,2),
-                  east  : (3,3),
-                  west : (3,1),
-                  stop  : (3,2)}
+        legal_moves_3_2 = universe.get_legal_moves((3, 2))
+        target = {north  : (2, 2),
+                  east  : (3, 3),
+                  west : (3, 1),
+                  stop  : (3, 2)}
         self.assertEqual(target, legal_moves_3_2)
-        # 3,3 has the same options as 3,2
-        legal_moves_3_4 = universe.get_legal_moves((3,4))
-        target = {west  : (3,3),
-                  stop  : (3,4)}
+        # 3, 3 has the same options as 3, 2
+        legal_moves_3_4 = universe.get_legal_moves((3, 4))
+        target = {west  : (3, 3),
+                  stop  : (3, 4)}
         self.assertEqual(target, legal_moves_3_4)
 
     def test_move_bot_exceptions(self):

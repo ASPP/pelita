@@ -312,7 +312,7 @@ def initial_positions(mesh, number_bots):
     """
     bot_ids = [str(i) for i in range(number_bots)]
     start = [(0, 0)] * number_bots
-    for k,v in mesh.iteritems():
+    for k, v in mesh.iteritems():
         if v in bot_ids:
             start[int(v)] = k
             mesh[k] = free
@@ -334,7 +334,7 @@ def extract_food(mesh):
 
     """
     food_mesh = Mesh(*mesh.shape)
-    for k,v in mesh.iteritems():
+    for k, v in mesh.iteritems():
         if v == food:
             food_mesh[k] = True
             mesh[k] = free
@@ -389,8 +389,8 @@ class CTFUniverse(object):
             raise UniverseException(
                 "Number of bots in CTF must be even, is: %i"
                 % self.number_bots)
-        self.red_team = range(0,self.number_bots,2)
-        self.blue_team = range(1,self.number_bots,2)
+        self.red_team = range(0, self.number_bots, 2)
+        self.blue_team = range(1, self.number_bots, 2)
         self.layout = Layout(layout_str, number_bots)
         self.mesh = self.layout.as_mesh()
         if self.mesh.width%2 != 0:
@@ -436,7 +436,7 @@ class CTFUniverse(object):
 
     @property
     def food_list(self):
-        return [key for (key,value) in self.food_mesh.iteritems() if value]
+        return [key for (key, value) in self.food_mesh.iteritems() if value]
 
     def score(self, bot_index):
         if self.on_red_team(bot_index):
@@ -475,7 +475,7 @@ class CTFUniverse(object):
 
     def get_legal_moves(self, position):
         legal_moves_dict = {}
-        for move,new_pos in new_positions(position).items():
+        for move, new_pos in new_positions(position).items():
             if self.mesh[new_pos] == free:
                 legal_moves_dict[move] = new_pos
         return legal_moves_dict
