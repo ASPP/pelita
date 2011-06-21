@@ -35,7 +35,7 @@ class TcpThreadedListeningServer(SuspendableThread):
         method which specifies what action needs to be done
         when a new connection is established.
         """
-        SuspendableThread.__init__(self)
+        super(TcpThreadedListeningServer, self).__init__()
 
         self.socket = TcpListeningSocket(host, port)
 
@@ -68,7 +68,7 @@ class TcpThreadedListeningServer(SuspendableThread):
         raise NotImplementedError
 
     def stop(self):
-        SuspendableThread.stop(self)
+        super(TcpThreadedListeningServer, self).stop()
 
         # To stop listening, we create a dummy connection
         # and close it immediately
@@ -78,7 +78,7 @@ class TcpThreadedListeningServer(SuspendableThread):
 
 class TcpThreadedListeningServerQueuer(TcpThreadedListeningServer):
     def __init__(self, incoming_connections, host, port):
-        TcpThreadedListeningServer.__init__(self, host, port)
+        super(TcpThreadedListeningServerQueuer, self).__init__(host, port)
 
         self.incoming_connections = incoming_connections
 

@@ -9,10 +9,10 @@ _logger = logging.getLogger("pelita.threading")
 class CloseThread(Exception):
     """May be raised from inside the _run method to close the thread."""
 
-class SuspendableThread(_threading.Thread):
+class SuspendableThread(object):
     """Base class for a thread which may be suspended."""
     def __init__(self):
-        _threading.Thread.__init__(self)
+        self._thread = _threading.Thread(target=self.run)
         self._running = False
 
         # Define a special event which can be flagged to wait.
@@ -34,13 +34,22 @@ class SuspendableThread(_threading.Thread):
 
         _logger.debug("Ended thread %r", self)
 
-    def suspend(self):
-        _logger.debug("Suspending thread %r", self)
-        self._unsuspended.clear()
+    @property
+    def thread(self):
+        return self._thread
 
-    def resume(self):
-        _logger.debug("Resuming thread %r", self)
-        self._unsuspended.set()
+    @property
+    def paused(self):
+        return not self._unsuspended.is_set
+
+    @paused.setter
+    def paused(self, value):
+        if value:
+            _logger.debug("Suspending thread %r", self)
+            self._unsuspended.clear()
+        else:
+            _logger.debug("Resuming thread %r", self)
+            self._unsuspended.set()
 
     def stop(self):
         _logger.debug("Stopping thread %r", self)
@@ -49,7 +58,7 @@ class SuspendableThread(_threading.Thread):
     def start(self):
         _logger.debug("Starting thread %r", self)
         self._running = True
-        _threading.Thread.start(self)
+        self._thread.start()
 
     def _run(self):
         """This method will be executed in a while loop as long as the thread runs."""

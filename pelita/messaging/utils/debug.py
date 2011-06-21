@@ -11,12 +11,12 @@ _logger.setLevel(logging.DEBUG)
 
 class ThreadInfoLogger(SuspendableThread):
     def __init__(self, interval, show_threads=True):
-        SuspendableThread.__init__(self)
+        super(ThreadInfoLogger, self).__init__()
         self.lvl = logging.DEBUG
         self.interval = interval
         self.show_threads = show_threads
 
-        self.daemon = True
+        self.thread.daemon = True
         self._wait = threading.Event()
 
     def _run(self):

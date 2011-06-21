@@ -106,7 +106,7 @@ class RequestDB(object):
 class Actor(SuspendableThread):
     # TODO Handle messages not replied to – else the queue is waiting forever
     def __init__(self, inbox=None):
-        SuspendableThread.__init__(self)
+        super(Actor, self).__init__()
         self._inbox = inbox or Queue.Queue()
 
         self._requests = RequestDB()

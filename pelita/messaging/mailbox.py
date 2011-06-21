@@ -14,7 +14,7 @@ from pelita.messaging import StopProcessing, DeadConnection, BaseMessage, Query,
 
 class JsonThreadedInbox(SuspendableThread):
     def __init__(self, mailbox, inbox):
-        SuspendableThread.__init__(self)
+        super(JsonThreadedInbox, self).__init__()
         self.mailbox = mailbox
         self.connection = mailbox.connection
 
@@ -66,7 +66,7 @@ class JsonThreadedInbox(SuspendableThread):
 
 class JsonThreadedOutbox(SuspendableThread):
     def __init__(self, mailbox, outbox):
-        SuspendableThread.__init__(self)
+        super(JsonThreadedOutbox, self).__init__()
         self.mailbox = mailbox
         self.connection = mailbox.connection
 
