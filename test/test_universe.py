@@ -336,7 +336,7 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertEqual(universe.red_zone, (0, 2))
         self.assertEqual(universe.blue_zone, (3, 5))
 
-    def test_in_zone_on_team(self):
+    def test_in_zone_on_team_opposite(self):
         test_layout4 = (
             """ ######
                 #0  1#
@@ -361,6 +361,11 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertFalse(universe.on_red_team(3))
         self.assertFalse(universe.on_blue_team(0))
         self.assertFalse(universe.on_blue_team(2))
+
+        self.assertEqual(universe.opposite_team(0), [1, 3])
+        self.assertEqual(universe.opposite_team(2), [1, 3])
+        self.assertEqual(universe.opposite_team(1), [0, 2])
+        self.assertEqual(universe.opposite_team(3), [0, 2])
 
     def test_is_harvester_is_destroyer(self):
         test_layout4 = (
