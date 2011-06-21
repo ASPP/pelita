@@ -13,6 +13,17 @@ class TestNewPositions(unittest.TestCase):
                     stop  : (1, 1) }
         self.assertEqual(target, new)
 
+class TestIsAdjacent(unittest.TestCase):
+
+    def test_is_adjacent(self):
+        self.assertTrue(is_adjacent((0,0), (1,0)))
+        self.assertTrue(is_adjacent((0,0), (0,1)))
+        self.assertFalse(is_adjacent((0,0), (1,1)))
+
+        self.assertTrue(is_adjacent((1,0), (0,0)))
+        self.assertTrue(is_adjacent((0,1), (0,0)))
+        self.assertFalse(is_adjacent((1,1), (0,0)))
+
 class TestLayoutChecks(unittest.TestCase):
 
     def test_strip_layout(self):

@@ -40,6 +40,10 @@ def new_positions(current):
         east  : (current[0], current[1]+1),
         stop  : (current[0], current[1])}
 
+def is_adjacent(pos1, pos2):
+    return (pos1[0] == pos2[0] and abs(pos1[1] - pos2[1]) == 1 or
+           pos1[1] == pos2[1] and abs(pos1[0] - pos2[0]) == 1)
+
 class LayoutEncodingException(Exception):
     pass
 
