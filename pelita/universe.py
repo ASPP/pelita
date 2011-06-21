@@ -492,5 +492,3 @@ class CTFUniverse(object):
             out[food_id] = food
         return str(out)
 
-if __name__ == "__main__":
-    pass
