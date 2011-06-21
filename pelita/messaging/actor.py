@@ -69,6 +69,10 @@ class RemoteActor(AbstractActor):
 
 class RequestDB(object):
     """ Class which holds weak references to all issued requests.
+
+    It is important to use weak references here, so that they are
+    automatically removed from this class, whenever the original
+    `Request` object is deleted and garbage collected.
     """
     def __init__(self):
         self._db = weakref.WeakValueDictionary()
@@ -82,9 +86,9 @@ class RequestDB(object):
     def add_request(self, request):
         """ Add a new `Request` object to the database.
 
-         The object is only referenced weakly, so if the main
-         reference is deleted, it may be removed automatically
-         from the database as well.
+        The object is only referenced weakly, so if the main
+        reference is deleted, it may be removed automatically
+        from the database as well.
         """
         self._db[request.id] = request
 
