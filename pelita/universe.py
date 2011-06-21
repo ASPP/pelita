@@ -426,10 +426,9 @@ class CTFUniverse(object):
         return self.blue_team if self.on_red_team(bot_index) else self.red_team
 
     def is_harvester(self, bot_index):
-        if self.on_red_team(bot_index):
-            return self.in_blue_zone(bot_index)
-        elif self.on_blue_team(bot_index):
-            return self.in_red_zone(bot_index)
+        return self.in_blue_zone(bot_index) \
+                if self.on_red_team(bot_index) \
+                else self.in_red_zone(bot_index)
 
     def is_destroyer(self, bot_index):
         return not self.is_harvester(bot_index)
