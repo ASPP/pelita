@@ -488,7 +488,7 @@ class CTFUniverse(object):
         out = self.mesh.copy()
         for i in range(self.number_bots):
             out[self.bot_positions[i]] = str(i)
-        for food_id in [pos for (pos, value) in self.food_mesh.iteritems() if value ]:
-            out[food_id] = food
+        for food_index in self.food_list:
+            out[food_index] = food
         return str(out)
 
