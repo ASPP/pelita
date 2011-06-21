@@ -309,6 +309,8 @@ class TestCTFUniverse(unittest.TestCase):
             False, False, False, False, False, False, True,  False, False, False, False, True,  False, False, True,  False, False, False,
             False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False])
         self.assertEqual(target, universe.food_mesh)
+        target_food_list = [(1, 3), (1, 6), (1, 11), (3, 6), (3,11), (3, 14),  ]
+        self.assertEqual(target_food_list, universe.food_list)
 
         odd_layout = (
             """ #####
