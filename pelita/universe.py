@@ -463,26 +463,6 @@ class CTFUniverse(object):
         # propagate those events to observers
         # callbacks for the bots
 
-    def move_bots(self, move_list):
-        new_positions = [i for i in range(self.number_bots)]
-        if len(move_list) != self.number_bots:
-            raise UniverseException(
-                'Move list too long, length: %i, should be: %i'
-                % (len(move_list), number_bots))
-        for (bot_id,move) in enumerate(move_list):
-            if move not in move_ids:
-                raise IllegalMoveException(
-                    'Illegal move_id from bot %i: %s' % (bot_id, move))
-            bot_pos = self.bot_positions[bot_id]
-            legal_moves_dict = self.get_legal_moves(bot_pos)
-            if move not in legal_moves_dict.keys():
-                raise IllegalMoveException(
-                    'Illegal move from bot %i at %s: %s'
-                    % (bot_id, str(bot_pos), move))
-            # all checks have passed, move the bot
-            self.bot_positions[bot_id] = legal_moves_dict[move]
-        # all bots have moved
-
     def get_legal_moves(self, position):
         legal_moves_dict = {}
         for move,new_pos in new_positions(position).items():
