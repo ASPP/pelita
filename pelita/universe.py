@@ -428,6 +428,7 @@ class CTFUniverse(object):
             self.blue_score += 1
 
     def move_bots(self, move_list):
+        new_positions = [i for i in range(self.number_bots)]
         if len(move_list) != self.number_bots:
             raise UniverseException(
                 'Move list too long, length: %i, should be: %i'
@@ -436,9 +437,9 @@ class CTFUniverse(object):
             if move not in move_ids:
                 raise IllegalMoveException(
                     'Illegal move_id from bot %i: %s' % (bot_id, move))
-            bot_pos = bot_positions[i]
-            legal_moves_dict = get_legal_moves(bot_pos)
-            if move not in legal_moves().keys():
+            bot_pos = self.bot_positions[bot_id]
+            legal_moves_dict = self.get_legal_moves(bot_pos)
+            if move not in legal_moves_dict.keys():
                 raise IllegalMoveException(
                     'Illegal move from bot %i at %s: %s'
                     % (bot_id, str(bot_pos), move))
@@ -448,8 +449,8 @@ class CTFUniverse(object):
 
     def get_legal_moves(self, position):
         legal_moves_dict = {}
-        for move,new_pos in new_positions(position).items:
-            if self.layout[new_pos[0]][new_pos[1]] == free:
+        for move,new_pos in new_positions(position).items():
+            if self.mesh[new_pos] == free:
                 legal_moves_dict[move] = new_pos
         return legal_moves_dict
 
