@@ -1,5 +1,5 @@
 from pelita.messaging.messages import Query, Notification, Response, Error, BaseMessage
-from pelita.messaging.actor import Actor, RemoteActor, DispatchingActor, dispatch, DeadConnection, StopProcessing, Request, RequestDB
+from pelita.messaging.actor import Actor, IncomingActor, ActorProxy, DispatchingActor, dispatch, DeadConnection, StopProcessing, Request, RequestDB
 
 
 

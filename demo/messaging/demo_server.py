@@ -14,7 +14,7 @@ ThreadInfoLogger(10).start()
 
 #from actors.actor import Actor
 
-from pelita.messaging import Actor, RemoteActor, Notification, DispatchingActor, dispatch
+from pelita.messaging import Actor, Notification, DispatchingActor, dispatch, ActorProxy
 from pelita.messaging.mailbox import MailboxConnection
 
 class ServerActor(DispatchingActor):
@@ -70,13 +70,13 @@ class ServerActor(DispatchingActor):
         answers = []
 
         for ac_num in range(num_clients):
-            player = RemoteActor(self.players[ac_num])
+            player = ActorProxy(self.players[ac_num])
 
             start_val = iterations * ac_num
             stop_val = iterations * (ac_num + 1) - 1
 
             # pi
-            req = player.request("calculate_pi_for", [start_val, stop_val])
+            req = player.query("calculate_pi_for", [start_val, stop_val])
             printcol(req)
             answers.append( req )
 
@@ -100,8 +100,8 @@ class ServerActor(DispatchingActor):
         reqs = []
 
         for player in self.players:
-            player = RemoteActor(player)
-            reqs.append( player.request("random_int", []) )
+            player = ActorProxy(player)
+            reqs.append( player.query("random_int", []) )
 
         res = 0
         for answer in reqs:
@@ -117,9 +117,11 @@ class ServerActor(DispatchingActor):
 actor = ServerActor()
 actor.start()
 
+p_actor = ActorProxy(actor)
+
 listener = TcpThreadedListeningServer(host="", port=50007)
 def accepter(connection):
-    actor.send("add_mailbox", [connection])
+    p_actor.notify("add_mailbox", [connection])
 listener.on_accept = accepter
 listener.start()
 
@@ -156,9 +158,9 @@ try:
 
         try:
             if len(params):
-                req = actor.request(method, params).get()
+                req = p_actor.query(method, params).get()
             else:
-                req = actor.request(method).get()
+                req = p_actor.query(method).get()
         except TypeError:
             print "Need to get list"
             continue
@@ -171,7 +173,7 @@ try:
 except (KeyboardInterrupt, EndSession):
     print "Interrupted"
 
-    req =  actor.request("stop")
+    req =  p_actor.query("stop")
 #    actor.stop()
     listener.stop()
     import sys

@@ -52,21 +52,6 @@ class AbstractActor(object):
     def send(self, method, params=None):
         raise NotImplementedError
 
-class RemoteActor(AbstractActor):
-    def __init__(self, mailbox):
-        self.mailbox = mailbox
-
-    def request(self, method, params, id=None):
-        """Requests an answer and returns a Request object."""
-        query = Query(method, params, id)
-
-        # send as json
-        return self.mailbox.request(query)
-
-    def send(self, method, params=None):
-        message = Notification(method, params)
-        self.mailbox.put(message)
-
 class RequestDB(object):
     """ Class which holds weak references to all issued requests.
 
@@ -101,15 +86,11 @@ class RequestDB(object):
             _logger.info("Using existing id.")
             return id
 
+class IncomingActor(SuspendableThread):
+    def __init__(self, request_db, **kwargs):
+        super(IncomingActor, self).__init__(**kwargs)
 
-
-class Actor(SuspendableThread):
-    # TODO Handle messages not replied to – else the queue is waiting forever
-    def __init__(self, inbox=None):
-        super(Actor, self).__init__()
-        self._inbox = inbox or Queue.Queue()
-
-        self._requests = RequestDB()
+        self.request_db = request_db
 
     def _run(self):
         try:
@@ -118,61 +99,80 @@ class Actor(SuspendableThread):
             return
 
         if isinstance(message, BaseMessage) and message.is_response:
-
-            awaiting_result = self._requests.get_request(message.id, None)
-            if awaiting_result is not None:
-                awaiting_result._queue.put(message)
-                # TODO need to handle race conditions
-
-                return # finish handling of messages here
-
-            else:
-                _logger.warning("Received a response (%r) without a waiting future. Dropped response.", message.dict)
-                return
+            self.handle_response(message)
+            return
 
         if message is StopProcessing:
             raise CloseThread()
 
         # default
-        self.receive(message)
+        self.on_receive(message)
+
+    def on_receive(self, message):
+        pass
+
+    def handle_inbox(self):
+        pass
+
+    def handle_response(self, message):
+        awaiting_result = self.request_db.get_request(message.id, None)
+        if awaiting_result is not None:
+            awaiting_result._queue.put(message)
+            # TODO need to handle race conditions
+
+            return # finish handling of messages here
+
+        else:
+            _logger.warning("Received a response (%r) without a waiting future. Dropped response.", message.dict)
+            return
+
+class Actor(IncomingActor):
+    # TODO Handle messages not replied to – else the queue is waiting forever
+    def __init__(self, inbox=None):
+        requests = RequestDB()
+        super(Actor, self).__init__(request_db=requests)
+
+        self._inbox = inbox or Queue.Queue()
 
     def handle_inbox(self):
         return self._inbox.get(True, 3)
 
-
-    def request(self, method, params=None, id=None):
-        """Requests an answer and returns a Request object."""
-        query = Query(method, params, id)
-
-        # send as json
-        return self._request(query)
-
-    def _request(self, message):
-        """Put a query into the outbox and return the Request object."""
-        if isinstance(message, Query):
-            # Update the message.id
-            message.id = self._requests.create_id(message.id)
-
-            req_obj = Request(message.id)
-            # save the id to the _requests dict
-            self._requests.add_request(req_obj)
-
-            message.mailbox = self
-
-            self.put(message)
-            return req_obj
-        else:
-            raise ValueError
+    def on_receive(self, message):
+        self.receive(message)
 
     def receive(self, message):
         _logger.debug("Received message %r.", message)
 
-    def send(self, method, params=None):
-        message = Notification(method, params)
-        self.put(message)
-
     def put(self, message):
         self._inbox.put(message)
+
+    def put_query(self, message):
+        # Update the message.id
+        message.id = self.request_db.create_id(message.id)
+
+        req_obj = Request(message.id)
+        # save the id to the _requests dict
+        self.request_db.add_request(req_obj)
+        message.mailbox = self
+        self.put(message)
+
+        return req_obj
+
+
+class ActorProxy(object):
+    def __init__(self, actor):
+        """ Helper class to send messages to an actor.
+        """
+        self.actor = actor
+
+    def notify(self, method, params=None):
+        message = Notification(method, params)
+        self.actor.put(message)
+
+    def query(self, method, params=None, id=None):
+        query = Query(method, params, id)
+        return self.actor.put_query(query)
+
 
 def dispatch(method=None, name=None):
     if name and not method:
@@ -182,7 +182,7 @@ def dispatch(method=None, name=None):
     return method
 
 class DispatchingActor(Actor):
-    """The DispatchingActor allows methods of the form
+    """ The DispatchingActor allows methods of the form
 
     @dispatch
     def some_action(self, method, *args)
@@ -245,8 +245,6 @@ class DispatchingActor(Actor):
                 self._dispatch_db[name] = member_name
 
     def _dispatch(self, message):
-
-        # call method directly on actor (unsafe)
         method = message.method
         params = message.params
 

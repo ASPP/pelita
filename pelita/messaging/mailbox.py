@@ -9,34 +9,17 @@ _logger.setLevel(logging.DEBUG)
 
 from pelita.messaging.utils import SuspendableThread, CloseThread
 from pelita.messaging.remote import MessageSocketConnection
-from pelita.messaging import StopProcessing, DeadConnection, BaseMessage, Query, Request, RequestDB
+from pelita.messaging import StopProcessing, DeadConnection, BaseMessage, Query, Request, RequestDB, IncomingActor
 
 
-class JsonThreadedInbox(SuspendableThread):
-    def __init__(self, mailbox, inbox):
-        super(JsonThreadedInbox, self).__init__()
+class JsonThreadedInbox(IncomingActor):
+    def __init__(self, mailbox, inbox, **kwargs):
         self.mailbox = mailbox
         self.connection = mailbox.connection
 
         self._queue = inbox
 
-    def _run(self):
-        message = self.handle_inbox()
-
-        if isinstance(message, BaseMessage) and message.is_response:
-
-            awaiting_result = self.mailbox._requests.get_request(message.id)
-            if awaiting_result is not None:
-                awaiting_result._queue.put(message)
-                # TODO need to handle race conditions
-
-                return # finish handling of messages here
-
-            else:
-                _logger.warning("Received a response (%r) without a waiting future. Dropped response.", message.dict)
-                return
-
-        self._queue.put(message)
+        super(JsonThreadedInbox, self).__init__(**kwargs)
 
     def handle_inbox(self):
         try:
@@ -55,14 +38,15 @@ class JsonThreadedInbox(SuspendableThread):
         message.mailbox = self.mailbox
         return message
 
+    def on_receive(self, message):
+        self._queue.put(message)
+
 # TODO Not in use now, we rely on timeout until we know better
 #    def stop(self):
 #        SuspendableThread.stop(self)
 #
 #        self.connection.connection.shutdown(socket.SHUT_RDWR)
 #        self.connection.close()
-
-
 
 class JsonThreadedOutbox(SuspendableThread):
     def __init__(self, mailbox, outbox):
@@ -95,10 +79,11 @@ class MailboxConnection(object):
         self.inbox = inbox or Queue.Queue()
         self.outbox = outbox or Queue.Queue()
 
-        self._inbox = JsonThreadedInbox(self, self.inbox)
+        self._requests = RequestDB()
+
+        self._inbox = JsonThreadedInbox(self, self.inbox, request_db=self._requests)
         self._outbox = JsonThreadedOutbox(self, self.outbox)
 
-        self._requests = RequestDB()
 
     def start(self):
         _logger.info("Starting mailbox %r", self)
@@ -119,7 +104,7 @@ class MailboxConnection(object):
     def get(self, block=True, timeout=None):
         return self.inbox.get(block, timeout)
 
-    def request(self, message):
+    def put_query(self, message):
         """Put a query into the outbox and return the Request object."""
         if isinstance(message, Query):
             # Update the message.id

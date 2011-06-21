@@ -3,7 +3,7 @@
 from pelita.messaging.remote import TcpConnectingClient
 from pelita.messaging.mailbox import MailboxConnection
 
-from pelita.messaging import Actor, RemoteActor, DispatchingActor, dispatch
+from pelita.messaging import Actor, ActorProxy, DispatchingActor, dispatch
 
 import logging
 
@@ -64,11 +64,9 @@ remote.start()
 actor = ClientActor(remote.inbox)
 actor.start()
 
-remote_actor = RemoteActor(remote)
-remote_actor.send("hello", "Im there")
+remote_actor = ActorProxy(remote)
+remote_actor.notify("hello", "Im there")
 
-
-import time
 try:
     while actor.thread.is_alive():
         actor.thread.join(1)
