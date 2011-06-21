@@ -392,7 +392,7 @@ class CTFUniverse(object):
         self.initial_pos = initial_positions(self.mesh,
                 self.number_bots)
         self.food_mesh = extract_food(self.mesh)
-        self.bot_positions = self.initial_pos
+        self.bot_positions = self.initial_pos[:]
         self.red_score = 0
         self.blue_score = 0
 
