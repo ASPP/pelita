@@ -125,8 +125,7 @@ class TestLayoutChecks(unittest.TestCase):
                 #### """)
         layout = Layout(simple_layout, 0)
         mesh = layout.as_mesh()
-        target = Mesh(3, 4)
-        target._set_data(list('#####. #####'))
+        target = Mesh(3, 4, data = list('#####. #####'))
         self.assertEqual(target, mesh)
 
 class TestLayoutOps(unittest.TestCase):
@@ -146,8 +145,7 @@ class TestLayoutOps(unittest.TestCase):
         target = [(1, 1), (2, 3), (3, 5)]
         self.assertEqual(target, initial_pos)
         # also test the side-effect of initial_positions()
-        target = Mesh(5, 7)
-        target._set_data(list('########     ##     ##     ########'))
+        target = Mesh(5, 7, data =list('########     ##     ##     ########'))
         self.assertEqual(target, mesh)
 
         # now for a somewhat more realistic example
@@ -164,10 +162,8 @@ class TestLayoutOps(unittest.TestCase):
         target = [(1, 1), (2, 1), (2, 16), (3, 16)]
         self.assertEqual(target, initial_pos)
         # also test the side-effect of initial_positions()
-        target = Mesh(5, 18)
-        target._set_data(list('################### #      #       #'+\
+        target = Mesh(5, 18, data = list('################### #      #       #'+\
                 '# #####    ##### ##       #      # ###################'))
-
         self.assertEqual(target, mesh)
 
     def test_extract_food(self):
@@ -180,8 +176,7 @@ class TestLayoutOps(unittest.TestCase):
         layout = Layout(food_layout, 0)
         mesh = layout.as_mesh()
         food_mesh = extract_food(mesh)
-        target = Mesh(5, 7)
-        target._set_data([
+        target = Mesh(5, 7, data=[
             False, False, False, False, False, False, False,
             False, True , False, False, True , False, False,
             False, False, False, True , False, False, False,
@@ -266,8 +261,7 @@ class TestMesh(unittest.TestCase):
         self.assertEqual(len(m), 4)
 
     def test_str(self):
-        m = Mesh(2, 2)
-        m._set_data([1, 2, 3, 4])
+        m = Mesh(2, 2, data=[1, 2, 3, 4])
         self.assertEqual(str(m), '[1, 2]\n[3, 4]\n')
 
     def test_repr(self):
@@ -298,17 +292,16 @@ class TestCTFUniverse(unittest.TestCase):
                 [(1, 1), (2, 1), (2, 16), (3, 16)])
         # this checks that the methods extracts the food, and the initial
         # positions from the raw layout
-        target = Mesh(5, 18)
-        target._set_data(list('################### #      #       #'+\
+        target_mesh = Mesh(5, 18, data = list('################### #      #       #'+\
                 '# #####    ##### ##       #      # ###################'))
-        self.assertEqual(target, universe.mesh)
-        target._set_data([
+        self.assertEqual(target_mesh, universe.mesh)
+        target_food_list = Mesh(5, 18, data=[
             False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False,
             False, False, False, True,  False, False, True,  False, False, False, False, True,  False, False, False, False, False, False,
             False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False,
             False, False, False, False, False, False, True,  False, False, False, False, True,  False, False, True,  False, False, False,
             False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False])
-        self.assertEqual(target, universe.food_mesh)
+        self.assertEqual(target_food_list, universe.food_mesh)
         target_food_list = [(1, 3), (1, 6), (1, 11), (3, 6), (3, 11), (3, 14),  ]
         self.assertEqual(target_food_list, universe.food_list)
 
