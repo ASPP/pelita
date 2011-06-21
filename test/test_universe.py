@@ -465,6 +465,36 @@ class TestCTFUniverseRules(unittest.TestCase):
         self.assertRaises(IllegalMoveException, universe.move_bot, 2, west)
         self.assertRaises(IllegalMoveException, universe.move_bot, 2, south)
 
+    def test_reset_bot(self):
+        test_reset_bot = (
+            """ ########
+                #0     #
+                #2    3#
+                #     1#
+                ######## """)
+        number_bots = 4
+        universe = CTFUniverse(test_reset_bot, number_bots)
+        self.assertEqual(str(universe),
+                str(Layout(test_reset_bot, number_bots).as_mesh()))
+        test_shuffle = (
+            """ ########
+                #   0 3#
+                # 1    #
+                # 2    #
+                ######## """)
+        universe.bot_positions[0] = (1, 4)
+        universe.bot_positions[1] = (2, 2)
+        universe.bot_positions[2] = (3, 2)
+        universe.bot_positions[3] = (1, 6)
+        self.assertEqual(str(universe),
+                str(Layout(test_shuffle, number_bots).as_mesh()))
+        universe.reset_bot(0)
+        universe.reset_bot(1)
+        universe.reset_bot(2)
+        universe.reset_bot(3)
+        self.assertEqual(str(universe),
+                str(Layout(test_reset_bot, number_bots).as_mesh()))
+
     def test_one(self):
 
         test_start = (
