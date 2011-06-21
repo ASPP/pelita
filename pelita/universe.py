@@ -393,6 +393,8 @@ class CTFUniverse(object):
                 self.number_bots)
         self.food_mesh = extract_food(self.mesh)
         self.bot_positions = self.initial_pos
+        self.red_score = 0
+        self.blue_score = 0
 
     def in_blue_zone(self, bot_index):
         return self._in_zone(bot_index, self.blue_zone)
@@ -418,6 +420,12 @@ class CTFUniverse(object):
 
     def is_destroyer(self, bot_index):
         return not self.is_harvester(bot_index)
+
+    def score(self, bot_index):
+        if self.on_red_team(bot_index):
+            self.red_score += 1
+        elif self.on_blue_team(bot_index):
+            self.blue_score += 1
 
     def move_bots(self, move_list):
         if len(move_list) != self.number_bots:
