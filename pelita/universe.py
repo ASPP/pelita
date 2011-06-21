@@ -493,5 +493,14 @@ class CTFUniverse(object):
     def reset_bot(self, bot_id):
         self.bot_positions[bot_id] = self.initial_pos[bot_id]
 
+    def __str__(self):
+        # TODO what about bots on the same space?
+        out = self.mesh.copy()
+        for i in range(self.number_bots):
+            out[self.bot_positions[i]] = str(i)
+        for food_id in [pos for (pos, value) in self.food_mesh.iteritems() if value ]:
+            out[food_id] = food
+        return str(out)
+
 if __name__ == "__main__":
     pass
