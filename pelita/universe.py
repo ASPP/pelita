@@ -424,6 +424,10 @@ class CTFUniverse(object):
     def is_destroyer(self, bot_index):
         return not self.is_harvester(bot_index)
 
+    @property
+    def food_list(self):
+        return [key for (key,value) in self.food_mesh.iteritems() if value]
+
     def score(self, bot_index):
         if self.on_red_team(bot_index):
             self.red_score += 1
