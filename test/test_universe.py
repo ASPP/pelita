@@ -435,6 +435,50 @@ class TestCTFUniverseRules(unittest.TestCase):
                   stop  : (3,4)}
         self.assertEqual(target, legal_moves_3_4)
 
+    def test_one(self):
+
+        test_start = (
+            """ ######
+                #0   #
+                #.  1#
+                ###### """)
+        number_bots = 2
+        universe = CTFUniverse(test_start, number_bots)
+        universe.move_bot(1, west)
+        test_first_move = (
+            """ ######
+                #0   #
+                #. 1 #
+                ###### """)
+        self.assertEqual(str(universe),
+                str(Layout(test_first_move, number_bots).as_mesh()))
+        test_second_move = (
+            """ ######
+                #0   #
+                #.1  #
+                ###### """)
+        universe.move_bot(1, west)
+        self.assertEqual(str(universe),
+                str(Layout(test_second_move, number_bots).as_mesh()))
+        test_eat_food = (
+            """ ######
+                #0   #
+                #1   #
+                ###### """)
+        universe.move_bot(1, west)
+        self.assertEqual(str(universe),
+                str(Layout(test_eat_food, number_bots).as_mesh()))
+        self.assertEqual(universe.food_list, [])
+        self.assertEqual(universe.blue_score, 1)
+        test_destruction = (
+            """ ######
+                #    #
+                #0  1#
+                ###### """)
+        universe.move_bot(0, south)
+        self.assertEqual(str(universe),
+                str(Layout(test_destruction, number_bots).as_mesh()))
+
 
 if __name__ == '__main__':
     unittest.main()
