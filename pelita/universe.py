@@ -15,6 +15,46 @@ class LayoutEncodingException(Exception):
     pass
 
 class Layout(object):
+    """ Auxiliary class to parse string encodings of mazes.
+
+    Basically a parser for string encoded maze representations. This class can
+    strip such strings, determine the maze shape, check their validity based on
+    set of legal encoding characters and covert to a `Mesh`.
+
+    When initialised through the constructor we first strip leading and trailing
+    whitespace (mainly space and newline chars). Then we perform several check
+    on the data to see if it is rectangular, if it contains the correct number of
+    bot_positions and if it is composed of legal characters only. Lastly you can
+    use `as_mesh()` to convert the layout into a Mesh of characters.
+
+    The class provides much of its functionality via staticmethods so that reuse
+    of these code-parts is easy if needed. Also you can subclass it in case you
+    need additional checks for example for mazes that need to be not only
+    rectangular, but also square.
+
+    Attributes
+    ----------
+    original : str
+        the original string given in the constructor
+    number_bots : int
+        the number of bots to look for
+    layout_chars : list of str
+        the list of legal characters to use
+    stripped : str
+        the whitespace stripped version
+    shape : tuple of two ints
+        height and width of the layout
+
+    Parameters
+    ----------
+    layout_str : str
+        the layout to work on
+    layout_chars : list of str
+        the list of legal characters
+    number_bots : int
+        the number of bots to look for
+
+    """
 
     def __init__(self, layout_str, layout_chars ,number_bots):
         self.original = layout_str
