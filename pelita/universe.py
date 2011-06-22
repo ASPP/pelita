@@ -11,31 +11,6 @@ stop  = 'STOP'
 
 move_ids = [north, south, east, west, stop]
 
-def new_positions(current):
-    """ Determine where a move will lead.
-
-    Parameters
-    ----------
-    current : int, int
-        current position
-
-    Returns
-    -------
-    new_pos : dict
-        mapping of moves (str) to new_positions (int, int)
-
-    """
-    return {
-        north : (current[0]-1, current[1]),
-        south : (current[0]+1, current[1]),
-        west  : (current[0], current[1]-1),
-        east  : (current[0], current[1]+1),
-        stop  : (current[0], current[1])}
-
-def is_adjacent(pos1, pos2):
-    return (pos1[0] == pos2[0] and abs(pos1[1] - pos2[1]) == 1 or
-           pos1[1] == pos2[1] and abs(pos1[0] - pos2[0]) == 1)
-
 class LayoutEncodingException(Exception):
     pass
 
@@ -429,7 +404,7 @@ class CTFUniverse(object):
 
     def get_legal_moves(self, position):
         legal_moves_dict = {}
-        for move, new_pos in new_positions(position).items():
+        for move, new_pos in CTFUniverse.new_positions(position).items():
             if self.mesh[new_pos] == CTFUniverse.free:
                 legal_moves_dict[move] = new_pos
         return legal_moves_dict
@@ -496,3 +471,30 @@ class CTFUniverse(object):
             else:
                 food_mesh[k] = False
         return food_mesh
+
+    @staticmethod
+    def new_positions(current):
+        """ Determine where a move will lead.
+
+        Parameters
+        ----------
+        current : int, int
+            current position
+
+        Returns
+        -------
+        new_pos : dict
+            mapping of moves (str) to new_positions (int, int)
+
+        """
+        return {
+            north : (current[0]-1, current[1]),
+            south : (current[0]+1, current[1]),
+            west  : (current[0], current[1]-1),
+            east  : (current[0], current[1]+1),
+            stop  : (current[0], current[1])}
+
+    @staticmethod
+    def is_adjacent(pos1, pos2):
+        return (pos1[0] == pos2[0] and abs(pos1[1] - pos2[1]) == 1 or
+            pos1[1] == pos2[1] and abs(pos1[0] - pos2[0]) == 1)

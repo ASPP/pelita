@@ -1,29 +1,6 @@
 import unittest
 from pelita.universe import *
 
-class TestNewPositions(unittest.TestCase):
-
-    def test_new_positions(self):
-        current_position = (1, 1)
-        new = new_positions(current_position)
-        target = { north : (0, 1),
-                    south : (2, 1),
-                    west  : (1, 0),
-                    east  : (1, 2),
-                    stop  : (1, 1) }
-        self.assertEqual(target, new)
-
-class TestIsAdjacent(unittest.TestCase):
-
-    def test_is_adjacent(self):
-        self.assertTrue(is_adjacent((0, 0), (1, 0)))
-        self.assertTrue(is_adjacent((0, 0), (0, 1)))
-        self.assertFalse(is_adjacent((0, 0), (1, 1)))
-
-        self.assertTrue(is_adjacent((1, 0), (0, 0)))
-        self.assertTrue(is_adjacent((0, 1), (0, 0)))
-        self.assertFalse(is_adjacent((1, 1), (0, 0)))
-
 class TestLayoutChecks(unittest.TestCase):
 
     # we replicate the CTUniverse layout_chars here
@@ -196,6 +173,26 @@ class TestCTFUniverseStaticmethods(unittest.TestCase):
             False, False, True , False, False, True , False,
             False, False, False, False, False, False, False])
         self.assertEqual(target, food_mesh)
+
+
+    def test_new_positions(self):
+        current_position = (1, 1)
+        new = CTFUniverse.new_positions(current_position)
+        target = { north : (0, 1),
+                    south : (2, 1),
+                    west  : (1, 0),
+                    east  : (1, 2),
+                    stop  : (1, 1) }
+        self.assertEqual(target, new)
+
+    def test_is_adjacent(self):
+        self.assertTrue(CTFUniverse.is_adjacent((0, 0), (1, 0)))
+        self.assertTrue(CTFUniverse.is_adjacent((0, 0), (0, 1)))
+        self.assertFalse(CTFUniverse.is_adjacent((0, 0), (1, 1)))
+
+        self.assertTrue(CTFUniverse.is_adjacent((1, 0), (0, 0)))
+        self.assertTrue(CTFUniverse.is_adjacent((0, 1), (0, 0)))
+        self.assertFalse(CTFUniverse.is_adjacent((1, 1), (0, 0)))
 
 class TestMesh(unittest.TestCase):
 
