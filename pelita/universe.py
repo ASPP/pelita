@@ -12,6 +12,28 @@ stop  = 'STOP'
 
 move_ids = [north, south, east, west, stop]
 
+class Team(object):
+
+    def __init__(self, color, zone):
+        pass
+
+    def add_bot(self, bot):
+        pass
+
+class Bot(object):
+
+    def __init__(self, index, initial_position, team, state,
+            current_position=None):
+        pass
+
+class State(object):
+    pass
+
+class Harvester(State):
+    pass
+
+class Destroyer(State):
+    pass
 
 class UniverseException(Exception):
     pass
