@@ -26,6 +26,15 @@ class TestIsAdjacent(unittest.TestCase):
 
 class TestLayoutChecks(unittest.TestCase):
 
+    # we replicate the CTUniverse layout_chars here
+    wall   = '#'
+    food   = '.'
+    harvester = 'c'
+    destroyer = 'o'
+    free   = ' '
+
+    layout_chars = [wall, food, harvester, destroyer, free]
+
     def test_strip_layout(self):
         test_layout = (
             """ #######
@@ -49,7 +58,8 @@ class TestLayoutChecks(unittest.TestCase):
                 #    o#
                 ####### """)
         self.assertRaises(LayoutEncodingException, Layout.check_layout,
-                Layout.strip_layout(illeagal_layout), 0)
+                Layout.strip_layout(illeagal_layout),
+                TestLayoutChecks.layout_chars, 0)
 
     def test_not_enough_bots(self):
         not_enough_bots = (
@@ -59,7 +69,8 @@ class TestLayoutChecks(unittest.TestCase):
                 #    2#
                 ####### """)
         self.assertRaises(LayoutEncodingException, Layout.check_layout,
-                Layout.strip_layout(not_enough_bots), 5)
+                Layout.strip_layout(not_enough_bots),
+                TestLayoutChecks.layout_chars, 5)
 
     def test_too_many_bots(self):
         too_many_bots = (
@@ -69,7 +80,8 @@ class TestLayoutChecks(unittest.TestCase):
                 #    2#
                 ####### """)
         self.assertRaises(LayoutEncodingException, Layout.check_layout,
-                Layout.strip_layout(too_many_bots), 3)
+                Layout.strip_layout(too_many_bots),
+                TestLayoutChecks.layout_chars, 3)
 
     def test_wrong_shape(self):
         wrong_shape = (
@@ -79,7 +91,8 @@ class TestLayoutChecks(unittest.TestCase):
                 #    #
                 ######  """)
         self.assertRaises(LayoutEncodingException, Layout.check_layout,
-                Layout.strip_layout(wrong_shape), 0)
+                Layout.strip_layout(wrong_shape),
+                TestLayoutChecks.layout_chars, 0)
 
     def test_layout_shape(self):
         small_shape = (
@@ -105,14 +118,15 @@ class TestLayoutChecks(unittest.TestCase):
                 ####### """)
         # this should not raise an exception, unfortunately there isn't such a
         # thing in unittest
-        l = Layout(unordered, 4)
+        l = Layout(unordered,
+                TestLayoutChecks.layout_chars, 4)
 
     def test_str(self):
         simple_layout = (
             """ ####
                 #. #
                 #### """)
-        layout = Layout(simple_layout, 0)
+        layout = Layout(simple_layout, TestLayoutChecks.layout_chars, 0)
         target = '####\n'+\
                  '#. #\n'+\
                  '####'
@@ -123,13 +137,12 @@ class TestLayoutChecks(unittest.TestCase):
             """ ####
                 #. #
                 #### """)
-        layout = Layout(simple_layout, 0)
+        layout = Layout(simple_layout, TestLayoutChecks.layout_chars, 0)
         mesh = layout.as_mesh()
         target = Mesh(3, 4, data = list('#####. #####'))
         self.assertEqual(target, mesh)
 
-class TestLayoutOps(unittest.TestCase):
-
+class TestCTFUniverseStaticmethods(unittest.TestCase):
 
     def test_get_initial_positions(self):
         test_layout = (
@@ -139,9 +152,9 @@ class TestLayoutOps(unittest.TestCase):
                 #    2#
                 ####### """)
         number_bots = 3
-        layout = Layout(test_layout, number_bots)
+        layout = Layout(test_layout, CTFUniverse.layout_chars, number_bots)
         mesh = layout.as_mesh()
-        initial_pos = initial_positions(mesh, number_bots)
+        initial_pos = CTFUniverse.initial_positions(mesh, number_bots)
         target = [(1, 1), (2, 3), (3, 5)]
         self.assertEqual(target, initial_pos)
         # also test the side-effect of initial_positions()
@@ -156,9 +169,9 @@ class TestLayoutOps(unittest.TestCase):
                 #       #      #3#
                 ################## """)
         number_bots = 4
-        layout = Layout(test_layout2, number_bots)
+        layout = Layout(test_layout2, CTFUniverse.layout_chars, number_bots)
         mesh = layout.as_mesh()
-        initial_pos = initial_positions(mesh, number_bots)
+        initial_pos = CTFUniverse.initial_positions(mesh, number_bots)
         target = [(1, 1), (2, 1), (2, 16), (3, 16)]
         self.assertEqual(target, initial_pos)
         # also test the side-effect of initial_positions()
@@ -173,9 +186,9 @@ class TestLayoutOps(unittest.TestCase):
                 #  .  #
                 # .  .#
                 ####### """)
-        layout = Layout(food_layout, 0)
+        layout = Layout(food_layout, CTFUniverse.layout_chars, 0)
         mesh = layout.as_mesh()
-        food_mesh = extract_food(mesh)
+        food_mesh = CTFUniverse.extract_food(mesh)
         target = Mesh(5, 7, data=[
             False, False, False, False, False, False, False,
             False, True , False, False, True , False, False,
@@ -468,7 +481,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         number_bots = 4
         universe = CTFUniverse(test_reset_bot, number_bots)
         self.assertEqual(str(universe),
-                str(Layout(test_reset_bot, number_bots).as_mesh()))
+                str(Layout(test_reset_bot, CTFUniverse.layout_chars, number_bots).as_mesh()))
         test_shuffle = (
             """ ########
                 #   0 3#
@@ -480,13 +493,13 @@ class TestCTFUniverseRules(unittest.TestCase):
         universe.bot_positions[2] = (3, 2)
         universe.bot_positions[3] = (1, 6)
         self.assertEqual(str(universe),
-                str(Layout(test_shuffle, number_bots).as_mesh()))
+                str(Layout(test_shuffle, CTFUniverse.layout_chars, number_bots).as_mesh()))
         universe.reset_bot(0)
         universe.reset_bot(1)
         universe.reset_bot(2)
         universe.reset_bot(3)
         self.assertEqual(str(universe),
-                str(Layout(test_reset_bot, number_bots).as_mesh()))
+                str(Layout(test_reset_bot, CTFUniverse.layout_chars, number_bots).as_mesh()))
 
     def test_one(self):
 
@@ -504,7 +517,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 #. 1 #
                 ###### """)
         self.assertEqual(str(universe),
-                str(Layout(test_first_move, number_bots).as_mesh()))
+                str(Layout(test_first_move, CTFUniverse.layout_chars, number_bots).as_mesh()))
         test_second_move = (
             """ ######
                 #0 . #
@@ -512,7 +525,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 ###### """)
         universe.move_bot(1, west)
         self.assertEqual(str(universe),
-                str(Layout(test_second_move, number_bots).as_mesh()))
+                str(Layout(test_second_move, CTFUniverse.layout_chars, number_bots).as_mesh()))
         test_eat_food = (
             """ ######
                 #0 . #
@@ -521,7 +534,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         self.assertEqual(universe.food_list, [(1, 3), (2, 1)])
         universe.move_bot(1, west)
         self.assertEqual(str(universe),
-                str(Layout(test_eat_food, number_bots).as_mesh()))
+                str(Layout(test_eat_food, CTFUniverse.layout_chars, number_bots).as_mesh()))
         self.assertEqual(universe.food_list, [(1, 3)])
         self.assertEqual(universe.blue_score, 1)
         test_destruction = (
@@ -531,7 +544,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 ###### """)
         universe.move_bot(0, south)
         self.assertEqual(str(universe),
-                str(Layout(test_destruction, number_bots).as_mesh()))
+                str(Layout(test_destruction, CTFUniverse.layout_chars ,number_bots).as_mesh()))
         test_red_score = (
             """ ######
                 #  0 #
@@ -541,7 +554,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         universe.move_bot(0, east)
         universe.move_bot(0, east)
         self.assertEqual(str(universe),
-                str(Layout(test_red_score, number_bots).as_mesh()))
+                str(Layout(test_red_score, CTFUniverse.layout_chars, number_bots).as_mesh()))
         self.assertEqual(universe.food_list, [])
         self.assertEqual(universe.blue_score, 1)
 

@@ -1,15 +1,7 @@
 from collections import Mapping
 
-
 __docformat__ = "restructuredtext"
 
-wall   = '#'
-food   = '.'
-harvester = 'c'
-destroyer = 'o'
-free   = ' '
-
-layout_chars = [wall, food, harvester, destroyer, free]
 
 north = 'NORTH'
 south = 'SOUTH'
@@ -49,11 +41,12 @@ class LayoutEncodingException(Exception):
 
 class Layout(object):
 
-    def __init__(self, layout_str, number_bots):
+    def __init__(self, layout_str, layout_chars ,number_bots):
         self.original = layout_str
         self.number_bots = number_bots
+        self.layout_chars = layout_chars
         self.stripped = self.strip_layout(self.original)
-        self.check_layout(self.stripped, self.number_bots)
+        self.check_layout(self.stripped, self.layout_chars, self.number_bots)
         self.shape = self.layout_shape(self.stripped)
 
     @staticmethod
@@ -74,7 +67,7 @@ class Layout(object):
         return '\n'.join([line.strip() for line in layout_str.split('\n')])
 
     @staticmethod
-    def check_layout(layout_str, number_bots):
+    def check_layout(layout_str, layout_chars, number_bots):
         """ Check the legality of the layout string.
 
         Parameters
@@ -293,54 +286,7 @@ class Mesh(Mapping):
     def copy(self):
         return eval(self.__repr__())
 
-def initial_positions(mesh, number_bots):
-    """ Extract initial positions from mesh.
 
-    Also replaces the initial positions in the mesh with free spaces.
-
-    Parameters
-    ----------
-    mesh : Mesh of characters
-        the layout in mesh format
-    number_bots : int
-        the number of bots for which to find initial positions
-
-    Returns
-    -------
-    initial pos : list of tuples
-        the initial positions for all the bots
-    """
-    bot_ids = [str(i) for i in range(number_bots)]
-    start = [(0, 0)] * number_bots
-    for k, v in mesh.iteritems():
-        if v in bot_ids:
-            start[int(v)] = k
-            mesh[k] = free
-    return start
-
-def extract_food(mesh):
-    """ Extract positions of food in the mesh.
-
-    Also replaces the food positions in the mesh with free spaces.
-
-    Parameters
-    ----------
-    mesh : Mesh of characters
-        the layout in mesh format
-
-    Returns
-    -------
-    food_mesh : Mesh of booleans
-
-    """
-    food_mesh = Mesh(*mesh.shape)
-    for k, v in mesh.iteritems():
-        if v == food:
-            food_mesh[k] = True
-            mesh[k] = free
-        else:
-            food_mesh[k] = False
-    return food_mesh
 
 class UniverseException(Exception):
     pass
@@ -383,6 +329,15 @@ class CTFUniverse(object):
     number_bots : int
         the number of bots for this universe
     """
+
+    wall   = '#'
+    food   = '.'
+    harvester = 'c'
+    destroyer = 'o'
+    free   = ' '
+
+    layout_chars = [wall, food, harvester, destroyer, free]
+
     def __init__(self, layout_str, number_bots):
         self.number_bots = number_bots
         if self.number_bots%2 != 0:
@@ -391,7 +346,7 @@ class CTFUniverse(object):
                 % self.number_bots)
         self.red_team = range(0, self.number_bots, 2)
         self.blue_team = range(1, self.number_bots, 2)
-        self.layout = Layout(layout_str, number_bots)
+        self.layout = Layout(layout_str, CTFUniverse.layout_chars, number_bots)
         self.mesh = self.layout.as_mesh()
         if self.mesh.width%2 != 0:
             raise UniverseException(
@@ -399,9 +354,9 @@ class CTFUniverse(object):
                 % self.mesh.width)
         self.red_zone = (0, self.mesh.width//2-1)
         self.blue_zone = (self.mesh.width//2, self.mesh.width-1)
-        self.initial_pos = initial_positions(self.mesh,
+        self.initial_pos = CTFUniverse.initial_positions(self.mesh,
                 self.number_bots)
-        self.food_mesh = extract_food(self.mesh)
+        self.food_mesh = CTFUniverse.extract_food(self.mesh)
         self.bot_positions = self.initial_pos[:]
         self.red_score = 0
         self.blue_score = 0
@@ -475,7 +430,7 @@ class CTFUniverse(object):
     def get_legal_moves(self, position):
         legal_moves_dict = {}
         for move, new_pos in new_positions(position).items():
-            if self.mesh[new_pos] == free:
+            if self.mesh[new_pos] == CTFUniverse.free:
                 legal_moves_dict[move] = new_pos
         return legal_moves_dict
 
@@ -488,6 +443,56 @@ class CTFUniverse(object):
         for i in range(self.number_bots):
             out[self.bot_positions[i]] = str(i)
         for food_index in self.food_list:
-            out[food_index] = food
+            out[food_index] = CTFUniverse.food
         return str(out)
 
+    @staticmethod
+    def initial_positions(mesh, number_bots):
+        """ Extract initial positions from mesh.
+
+        Also replaces the initial positions in the mesh with free spaces.
+
+        Parameters
+        ----------
+        mesh : Mesh of characters
+            the layout in mesh format
+        number_bots : int
+            the number of bots for which to find initial positions
+
+        Returns
+        -------
+        initial pos : list of tuples
+            the initial positions for all the bots
+        """
+        bot_ids = [str(i) for i in range(number_bots)]
+        start = [(0, 0)] * number_bots
+        for k, v in mesh.iteritems():
+            if v in bot_ids:
+                start[int(v)] = k
+                mesh[k] = CTFUniverse.free
+        return start
+
+    @staticmethod
+    def extract_food(mesh):
+        """ Extract positions of food in the mesh.
+
+        Also replaces the food positions in the mesh with free spaces.
+
+        Parameters
+        ----------
+        mesh : Mesh of characters
+            the layout in mesh format
+
+        Returns
+        -------
+        food_mesh : Mesh of booleans
+
+        """
+        food_mesh = Mesh(*mesh.shape)
+        for k, v in mesh.iteritems():
+            if v == CTFUniverse.food:
+                food_mesh[k] = True
+                mesh[k] = CTFUniverse.free
+            else:
+                food_mesh[k] = False
+        return food_mesh
