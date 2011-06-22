@@ -154,7 +154,7 @@ class TestCTFUniverseStaticmethods(unittest.TestCase):
         number_bots = 3
         layout = Layout(test_layout, CTFUniverse.layout_chars, number_bots)
         mesh = layout.as_mesh()
-        initial_pos = CTFUniverse.initial_positions(mesh, number_bots)
+        initial_pos = CTFUniverse.extract_initial_positions(mesh, number_bots)
         target = [(1, 1), (2, 3), (3, 5)]
         self.assertEqual(target, initial_pos)
         # also test the side-effect of initial_positions()
@@ -171,7 +171,7 @@ class TestCTFUniverseStaticmethods(unittest.TestCase):
         number_bots = 4
         layout = Layout(test_layout2, CTFUniverse.layout_chars, number_bots)
         mesh = layout.as_mesh()
-        initial_pos = CTFUniverse.initial_positions(mesh, number_bots)
+        initial_pos = CTFUniverse.extract_initial_positions(mesh, number_bots)
         target = [(1, 1), (2, 1), (2, 16), (3, 16)]
         self.assertEqual(target, initial_pos)
         # also test the side-effect of initial_positions()
@@ -188,7 +188,7 @@ class TestCTFUniverseStaticmethods(unittest.TestCase):
                 ####### """)
         layout = Layout(food_layout, CTFUniverse.layout_chars, 0)
         mesh = layout.as_mesh()
-        food_mesh = CTFUniverse.extract_food(mesh)
+        food_mesh = CTFUniverse.extract_food_mesh(mesh)
         target = Mesh(5, 7, data=[
             False, False, False, False, False, False, False,
             False, True , False, False, True , False, False,

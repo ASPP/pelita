@@ -354,9 +354,9 @@ class CTFUniverse(object):
                 % self.mesh.width)
         self.red_zone = (0, self.mesh.width//2-1)
         self.blue_zone = (self.mesh.width//2, self.mesh.width-1)
-        self.initial_pos = CTFUniverse.initial_positions(self.mesh,
+        self.initial_pos = CTFUniverse.extract_initial_positions(self.mesh,
                 self.number_bots)
-        self.food_mesh = CTFUniverse.extract_food(self.mesh)
+        self.food_mesh = CTFUniverse.extract_food_mesh(self.mesh)
         self.bot_positions = self.initial_pos[:]
         self.red_score = 0
         self.blue_score = 0
@@ -447,7 +447,7 @@ class CTFUniverse(object):
         return str(out)
 
     @staticmethod
-    def initial_positions(mesh, number_bots):
+    def extract_initial_positions(mesh, number_bots):
         """ Extract initial positions from mesh.
 
         Also replaces the initial positions in the mesh with free spaces.
@@ -473,7 +473,7 @@ class CTFUniverse(object):
         return start
 
     @staticmethod
-    def extract_food(mesh):
+    def extract_food_mesh(mesh):
         """ Extract positions of food in the mesh.
 
         Also replaces the food positions in the mesh with free spaces.
