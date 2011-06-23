@@ -343,7 +343,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         self.assertEqual(str(universe),
                 str(Layout(test_red_score, CTFUniverse.layout_chars, number_bots).as_mesh()))
         self.assertEqual(universe.food_list, [])
-        self.assertEqual(universe.blue_score, 1)
+        self.assertEqual(universe.red_score, 1)
 
 
 if __name__ == '__main__':
