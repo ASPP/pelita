@@ -109,6 +109,25 @@ class TestLayoutChecks(unittest.TestCase):
                  '####'
         self.assertEqual(target, str(layout))
 
+    def test_eq(self):
+        eq_test = (
+            """ ########
+                #0  .  #
+                #2    1#
+                #  .  3#
+                ######## """)
+        layout = Layout(eq_test, TestLayoutChecks.layout_chars, 4)
+        layout2 = Layout(eq_test, TestLayoutChecks.layout_chars, 4)
+        self.assertEqual(layout, layout2)
+        neq_test = (
+            """ ######
+                #0   #
+                #    #
+                #   1#
+                ###### """)
+        layout3 = Layout(neq_test, TestLayoutChecks.layout_chars, 2)
+        self.assertNotEqual(layout, layout3)
+
     def test_as_mesh(self):
         simple_layout = (
             """ ####

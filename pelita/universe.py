@@ -146,6 +146,9 @@ class Layout(object):
         """
         return (len(layout_str.split('\n')), layout_str.find('\n'))
 
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
     def __str__(self):
         return self.stripped
 
