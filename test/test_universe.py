@@ -88,8 +88,6 @@ class TestCTFUniverse(unittest.TestCase):
             #     . #  .  .#3#
             ################## """)
         universe = CTFUniverse(test_layout3, 4)
-        self.assertEqual(universe.initial_pos,
-                [(1, 1), (1, 2), (16, 2), (16, 3)])
         # this checks that the methods extracts the food, and the initial
         # positions from the raw layout
         target_mesh = Mesh(18, 5, data = list('################### #      #       #'+\
@@ -105,6 +103,9 @@ class TestCTFUniverse(unittest.TestCase):
         target_food_list = [(3, 1), (6, 1), (11, 1), (6, 3), (11, 3), (14, 3),  ]
         self.assertEqual(target_food_list, universe.food_list)
 
+        self.assertEqual([b.initial_position for b in universe.bots],
+                [(1, 1), (1, 2), (16, 2), (16, 3)]
+
         odd_layout = (
             """ #####
                 #0 1#
@@ -118,18 +119,8 @@ class TestCTFUniverse(unittest.TestCase):
                 #### """)
         self.assertRaises(UniverseException, CTFUniverse, odd_bots, 3)
 
-        test_layout4 = (
-            """ ######
-                #0  1#
-                #2  3#
-                ###### """)
-        universe = CTFUniverse(test_layout4, 4)
-        self.assertEqual(universe.red_team, [0, 2])
-        self.assertEqual(universe.blue_team, [1, 3])
-        self.assertEqual(universe.red_zone, (0, 2))
-        self.assertEqual(universe.blue_zone, (3, 5))
+    def test_bot_teams(self):
 
-    def test_in_zone_on_team_opposite(self):
         test_layout4 = (
             """ ######
                 #0  1#
@@ -137,45 +128,54 @@ class TestCTFUniverse(unittest.TestCase):
                 ###### """)
         universe = CTFUniverse(test_layout4, 4)
 
-        self.assertTrue(universe.in_red_zone(0))
-        self.assertTrue(universe.in_red_zone(2))
-        self.assertTrue(universe.in_blue_zone(1))
-        self.assertTrue(universe.in_blue_zone(3))
-        self.assertFalse(universe.in_red_zone(1))
-        self.assertFalse(universe.in_red_zone(3))
-        self.assertFalse(universe.in_blue_zone(0))
-        self.assertFalse(universe.in_blue_zone(2))
+        red_team = Team('red', (0, 2))
+        blue_team = Team('blue', (3, 5))
+        red_team.add_bot(Bot(0, (1, 1), red_team))
+        red_team.add_bot(Bot(2, (2, 1), red_team))
+        blue_team.add_bot(Bot(1,(1, 4), blue_team))
+        blue_team.add_bot(Bot(3,(2, 4), blue_team))
 
-        self.assertTrue(universe.on_red_team(0))
-        self.assertTrue(universe.on_red_team(2))
-        self.assertTrue(universe.on_blue_team(1))
-        self.assertTrue(universe.on_blue_team(3))
-        self.assertFalse(universe.on_red_team(1))
-        self.assertFalse(universe.on_red_team(3))
-        self.assertFalse(universe.on_blue_team(0))
-        self.assertFalse(universe.on_blue_team(2))
+        # since the Team and Bot objects are mutually composite
+        # calling Team.__eq__() inherently also calls Bot.__eq__()
+        self.assertEqual(universe.teams[0], red_team)
+        self.assertEqual(universe.teams[1], blue_team)
 
-        self.assertEqual(universe.opposite_team(0), [1, 3])
-        self.assertEqual(universe.opposite_team(2), [1, 3])
-        self.assertEqual(universe.opposite_team(1), [0, 2])
-        self.assertEqual(universe.opposite_team(3), [0, 2])
+        self.assertEqual(universe.bots[0].team, red_team)
+        self.assertEqual(universe.bots[2].team, red_team)
+        self.assertEqual(universe.bots[1].team, blue_team)
+        self.assertEqual(universe.bots[3].team, blue_team)
 
-    def test_is_harvester_is_destroyer(self):
+        self.assertTrue(universe.bots[0].in_own_zone)
+        self.assertTrue(universe.bots[1].in_own_zone)
+        self.assertTrue(universe.bots[2].in_own_zone)
+        self.assertTrue(universe.bots[3].in_own_zone)
+
+        test_layout4 = (
+            """ ######
+                #1  0#
+                #3  2#
+                ###### """)
+        universe = CTFUniverse(test_layout4, 4)
+
+        self.assertFalse(universe.bots[0].in_own_zone)
+        self.assertFalse(universe.bots[1].in_own_zone)
+        self.assertFalse(universe.bots[2].in_own_zone)
+        self.assertFalse(universe.bots[3].in_own_zone)
+
         test_layout4 = (
             """ ######
                 #0 2 #
                 # 1 3#
                 ###### """)
         universe = CTFUniverse(test_layout4, 4)
-        self.assertTrue(universe.is_harvester(1))
-        self.assertTrue(universe.is_harvester(2))
-        self.assertFalse(universe.is_harvester(0))
-        self.assertFalse(universe.is_harvester(3))
-
-        self.assertTrue(universe.is_destroyer(0))
-        self.assertTrue(universe.is_destroyer(3))
-        self.assertFalse(universe.is_destroyer(1))
-        self.assertFalse(universe.is_destroyer(2))
+        self.assertTrue(universe.bots[1].is_harvester)
+        self.assertTrue(universe.bots[2].is_harvester)
+        self.assertFalse(universe.bots[0].is_harvester)
+        self.assertFalse(universe.bots[3].is_harvester)
+        self.assertFalse(universe.bots[1].is_destroyer)
+        self.assertFalse(universe.bots[2].is_destroyer)
+        self.assertTrue(universe.bots[0].is_destroyer)
+        self.assertTrue(universe.bots[3].is_destroyer)
 
 class TestCTFUniverseRules(unittest.TestCase):
 
@@ -275,16 +275,16 @@ class TestCTFUniverseRules(unittest.TestCase):
                 # 1    #
                 # 2    #
                 ######## """)
-        universe.bot_positions[0] = (4, 1)
-        universe.bot_positions[1] = (2, 2)
-        universe.bot_positions[2] = (2, 3)
-        universe.bot_positions[3] = (6, 1)
+        universe.bots[0].move((4, 1))
+        universe.bots[1].move((2, 2))
+        universe.bots[2].move((2, 3))
+        universe.bots[3].move((6, 1))
         self.assertEqual(str(universe),
                 str(Layout(test_shuffle, CTFUniverse.layout_chars, number_bots).as_mesh()))
-        universe.reset_bot(0)
-        universe.reset_bot(1)
-        universe.reset_bot(2)
-        universe.reset_bot(3)
+        universe.bots[0].reset()
+        universe.bots[1].reset()
+        universe.bots[2].reset()
+        universe.bots[3].reset()
         self.assertEqual(str(universe),
                 str(Layout(test_reset_bot, CTFUniverse.layout_chars, number_bots).as_mesh()))
 
@@ -323,7 +323,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         self.assertEqual(str(universe),
                 str(Layout(test_eat_food, CTFUniverse.layout_chars, number_bots).as_mesh()))
         self.assertEqual(universe.food_list, [(3, 1)])
-        self.assertEqual(universe.blue_score, 1)
+        self.assertEqual(universe.teams[1].score, 1)
         test_destruction = (
             """ ######
                 #  . #
@@ -343,8 +343,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         self.assertEqual(str(universe),
                 str(Layout(test_red_score, CTFUniverse.layout_chars, number_bots).as_mesh()))
         self.assertEqual(universe.food_list, [])
-        self.assertEqual(universe.red_score, 1)
-
+        self.assertEqual(universe.teams[0].score, 1)
 
 if __name__ == '__main__':
     unittest.main()

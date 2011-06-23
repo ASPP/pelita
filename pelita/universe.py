@@ -14,42 +14,90 @@ move_ids = [north, south, east, west, stop]
 
 class Team(object):
 
-    def __init__(self, color, zone, score=0):
-        self.color = color
+    def __init__(self, name, zone, score=0, bots=None):
+        self.name = name
         self.zone = zone
-        self.bots = []
+        self.score = score
+        # we can't use a keyword argument here, because that would create a
+        # single list object for all our Teams.
+        if not bots:
+            self.bots = []
+        else:
+            self.bots = bots
+
 
     def add_bot(self, bot):
         self.bots.append(bot)
 
     def in_zone(self, position):
-        return self.zone[0] <= position <= self.zone[1]
+        return self.zone[0] <= position[0] <= self.zone[1]
+
+    def score_point(self):
+        self.score += 1
+
+    def __repr__(self):
+        return ('Team(%r, %s, score=%i, bots=%r)' %
+                (self.name, self.zone, self.score, self.bots))
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
 
 class Bot(object):
 
-    def __init__(self, index, initial_position, team, state,
+    def __init__(self, index, initial_position, team,
             current_position=None):
         self.index = index
-        self.initial_position =initial_position
+        self.initial_position = initial_position
         self.team = team
-        self.state = state
-        self.current_position = initial_position
+        self.current_position = self.initial_position
+        if not current_position:
+            self.current_position = self.initial_position
+        else:
+            self.current_position = current_position
+        if self.in_own_zone:
+            self.is_destroyer = True
+        else:
+            self.is_destroyer = False
 
     @property
     def in_own_zone(self):
         return self.team.in_zone(self.current_position)
 
+    def move(self, new_pos):
+        self.current_position = new_pos
+        if self.is_destroyer:
+            if not self.team.in_zone(new_pos):
+                self.is_destroyer = False
+        elif self.is_harvester:
+            if self.team.in_zone(new_pos):
+                self.is_destroyer = True
+
+    def reset(self):
+        self.current_position = self.initial_position
+
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        return (self.index == other.index and
+                self.initial_position == other.initial_position and
+                self.team.name == other.team.name and
+                self.is_destroyer == other.is_destroyer and
+                self.current_position == other.current_position)
 
-class State(object):
-    pass
+    def __cmp__(self, other):
+        if self == other:
+            return 0
+        else:
+            return self.index.__cmp__(other.index)
 
-class Harvester(State):
-    pass
+    def __repr__(self):
+        return ('Bot(%i, %s, %s, destroyer=%r, current_position=%s)' %
+                (self.index, self.initial_position, self.team.name,
+                self.is_destroyer, self.current_position))
 
-class Destroyer(State):
-    pass
+    @property
+    def is_harvester(self):
+        return not self.is_destroyer
+
 
 class UniverseException(Exception):
     pass
@@ -107,49 +155,29 @@ class CTFUniverse(object):
             raise UniverseException(
                 "Number of bots in CTF must be even, is: %i"
                 % self.number_bots)
-        self.red_team = range(0, self.number_bots, 2)
-        self.blue_team = range(1, self.number_bots, 2)
         self.layout = Layout(layout_str, CTFUniverse.layout_chars, number_bots)
         self.mesh = self.layout.as_mesh()
         if self.mesh.width % 2 != 0:
             raise UniverseException(
                 "Width of a layout for CTF must be even, is: %i"
                 % self.mesh.width)
-        self.red_zone = (0, self.mesh.width // 2 - 1)
-        self.blue_zone = (self.mesh.width // 2, self.mesh.width - 1)
-        self.initial_pos = CTFUniverse.extract_initial_positions(self.mesh,
-                self.number_bots)
+
+        self.teams = []
+        self.bots = []
+        self.teams.append(Team('red', (0, self.mesh.width//2-1)))
+        self.teams.append(Team('blue', (self.mesh.width//2, self.mesh.width-1)))
+        initial_pos = CTFUniverse.extract_initial_positions(self.mesh, self.number_bots)
+        for bot_index in range(self.number_bots):
+                team_index = bot_index%2
+                bot =  Bot(bot_index, initial_pos[bot_index],
+                    self.teams[team_index])
+                self.teams[team_index].add_bot(bot)
+                self.bots.append(bot)
         self.food_mesh = CTFUniverse.extract_food_mesh(self.mesh)
-        self.bot_positions = self.initial_pos[:]
-        self.red_score = 0
-        self.blue_score = 0
 
-    def in_blue_zone(self, bot_index):
-        return self._in_zone(bot_index, self.blue_zone)
-
-    def in_red_zone(self, bot_index):
-        return self._in_zone(bot_index, self.red_zone)
-
-    def _in_zone(self, bot_index, zone):
-        pos = self.bot_positions[bot_index][0] # 0 extracts the x-coordinate
-        return zone[0] <= pos <= zone[1]
-
-    def on_red_team(self, bot_index):
-        return bot_index in self.red_team
-
-    def on_blue_team(self, bot_index):
-        return bot_index in self.blue_team
-
-    def opposite_team(self, bot_index):
-        return self.blue_team if self.on_red_team(bot_index) else self.red_team
-
-    def is_harvester(self, bot_index):
-        return self.in_blue_zone(bot_index) \
-                if self.on_red_team(bot_index) \
-                else self.in_red_zone(bot_index)
-
-    def is_destroyer(self, bot_index):
-        return not self.is_harvester(bot_index)
+    @property
+    def bot_positions(self):
+        return [bot.current_position for bot in self.bots]
 
     @property
     def food_list(self):
@@ -166,23 +194,26 @@ class CTFUniverse(object):
         if move not in move_ids:
             raise IllegalMoveException(
                 'Illegal move_id from bot %i: %s' % (bot_id, move))
-        bot_pos = self.bot_positions[bot_id]
-        legal_moves_dict = self.get_legal_moves(bot_pos)
+        bot = self.bots[bot_id]
+        legal_moves_dict = self.get_legal_moves(bot.current_position)
         if move not in legal_moves_dict.keys():
             raise IllegalMoveException(
                 'Illegal move from bot %i at %s: %s'
-                % (bot_id, str(bot_pos), move))
-        # move bot
-        bot_pos = self.bot_positions[bot_id] = legal_moves_dict[move]
+                % (bot_id, str(bot.current_position), move))
+        bot.move(legal_moves_dict[move])
         # check for destruction
-        for i in self.opposite_team(bot_id):
-            if self.bot_positions[i] == bot_pos:
-                (self.reset_bot(bot_id) if self.is_harvester(bot_id) else
-                self.reset_bot(i))
+        other_teams = self.teams[:]
+        other_teams.remove(bot.team)
+        for enemy in other_teams[0].bots:
+            if enemy.current_position == bot.current_position:
+                if enemy.is_destroyer and bot.is_harvester:
+                    bot.reset()
+                elif enemy.is_harvester and bot.is_destroyer:
+                    enemy.reset()
         # check for food being eaten
-        if self.food_mesh[bot_pos]:
-            self.food_mesh[bot_pos] = False
-            self.score(bot_id)
+        if self.food_mesh[bot.current_position]:
+            self.food_mesh[bot.current_position] = False
+            bot.team.score_point()
 
         # TODO:
         # check for state change
@@ -196,9 +227,6 @@ class CTFUniverse(object):
             if self.mesh[new_pos] == CTFUniverse.free:
                 legal_moves_dict[move] = new_pos
         return legal_moves_dict
-
-    def reset_bot(self, bot_id):
-        self.bot_positions[bot_id] = self.initial_pos[bot_id]
 
     def __str__(self):
         # TODO what about bots on the same space?
