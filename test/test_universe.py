@@ -3,7 +3,7 @@ from pelita.universe import *
 
 class TestLayoutChecks(unittest.TestCase):
 
-    # we replicate the CTUniverse layout_chars here
+    # we replicate the CTFUniverse layout_chars here
     wall   = '#'
     food   = '.'
     harvester = 'c'
