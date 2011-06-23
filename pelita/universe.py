@@ -14,17 +14,33 @@ move_ids = [north, south, east, west, stop]
 
 class Team(object):
 
-    def __init__(self, color, zone):
-        pass
+    def __init__(self, color, zone, score=0):
+        self.color = color
+        self.zone = zone
+        self.bots = []
 
     def add_bot(self, bot):
-        pass
+        self.bots.append(bot)
+
+    def in_zone(self, position):
+        return self.zone[0] <= position <= self.zone[1]
 
 class Bot(object):
 
     def __init__(self, index, initial_position, team, state,
             current_position=None):
-        pass
+        self.index = index
+        self.initial_position =initial_position
+        self.team = team
+        self.state = state
+        self.current_position = initial_position
+
+    @property
+    def in_own_zone(self):
+        return self.team.in_zone(self.current_position)
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
 
 class State(object):
     pass
