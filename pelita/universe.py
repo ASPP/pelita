@@ -152,6 +152,10 @@ class Layout(object):
     def __str__(self):
         return self.stripped
 
+    def __repr__(self):
+        return ("Layout(%r, %s, %i)"
+            % (self.original, self.layout_chars, self.number_bots))
+
     def as_mesh(self):
         mesh = Mesh(*self.shape)
         mesh._set_data(list(''.join(self.stripped.split('\n'))))

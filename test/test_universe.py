@@ -128,6 +128,17 @@ class TestLayoutChecks(unittest.TestCase):
         layout3 = Layout(neq_test, TestLayoutChecks.layout_chars, 2)
         self.assertNotEqual(layout, layout3)
 
+    def test_repr(self):
+        repr_test = (
+            """ ########
+                #0  .  #
+                #2    1#
+                #  .  3#
+                ######## """)
+        layout = Layout(repr_test, TestLayoutChecks.layout_chars, 4)
+        layout2 = eval(layout.__repr__())
+        self.assertEqual(layout, layout2)
+
     def test_as_mesh(self):
         simple_layout = (
             """ ####
