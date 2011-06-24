@@ -58,11 +58,11 @@ class ClientActor(DispatchingActor):
 sock = TcpConnectingClient(host="", port=50007)
 conn = sock.handle_connect()
 
-remote = MailboxConnection(conn)
-remote.start()
-
-actor = ClientActor(remote.inbox)
+actor = ClientActor()
 actor.start()
+
+remote = MailboxConnection(conn, actor)
+remote.start()
 
 remote_actor = ActorProxy(remote)
 remote_actor.notify("hello", "Im there")

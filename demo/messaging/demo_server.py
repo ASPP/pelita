@@ -31,7 +31,7 @@ class ServerActor(DispatchingActor):
     @dispatch
     def add_mailbox(self, message, conn):
         # a new connection has been established
-        mailbox = MailboxConnection(conn, inbox=self) # TODO or self._inbox?
+        mailbox = MailboxConnection(conn, main_actor=self) # TODO or self._inbox?
         self.mailboxes[conn] = mailbox
         mailbox.start()
 
