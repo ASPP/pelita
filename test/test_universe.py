@@ -105,10 +105,23 @@ class TestBot(unittest.TestCase):
         white = Bot(1, (6,6), 'white', (3,6), current_pos = (1,1))
         self.assertNotEqual(black, white)
         self.assertEqual(black, black2)
-        print black.__repr__()
         black3 = eval(black.__repr__())
-        print black3
         self.assertEqual(black, black3)
+
+    def test_move_reset(self):
+        black = Bot(0, (1,1), 'black', (0,3))
+        white = Bot(1, (6,6), 'white', (3,6), current_pos = (1,1))
+        self.assertTrue(black.is_destroyer)
+        black.move((1,4))
+        self.assertEqual(black.current_pos, (1,4))
+        self.assertTrue(black.is_harvester)
+        self.assertTrue(white.is_harvester)
+        black.reset()
+        white.reset()
+        self.assertEqual(black.current_pos, (1,1))
+        self.assertTrue(black.is_destroyer)
+        self.assertEqual(white.current_pos, (6,6))
+        self.assertTrue(white.is_destroyer)
 
 class TestCTFUniverse(unittest.TestCase):
 
