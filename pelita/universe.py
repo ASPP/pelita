@@ -45,16 +45,16 @@ class Team(object):
 
 class Bot(object):
 
-    def __init__(self, index, initial_position, team,
-            current_position=None):
+    def __init__(self, index, initial_pos, team,
+            current_pos=None):
         self.index = index
-        self.initial_position = initial_position
+        self.initial_pos = initial_pos
         self.team = team
-        self.current_position = self.initial_position
-        if not current_position:
-            self.current_position = self.initial_position
+        self.current_pos = self.initial_pos
+        if not current_pos:
+            self.current_pos = self.initial_pos
         else:
-            self.current_position = current_position
+            self.current_pos = current_pos
         if self.in_own_zone:
             self.is_destroyer = True
         else:
@@ -62,10 +62,10 @@ class Bot(object):
 
     @property
     def in_own_zone(self):
-        return self.team.in_zone(self.current_position)
+        return self.team.in_zone(self.current_pos)
 
     def move(self, new_pos):
-        self.current_position = new_pos
+        self.current_pos = new_pos
         if self.is_destroyer:
             if not self.team.in_zone(new_pos):
                 self.is_destroyer = False
@@ -74,14 +74,14 @@ class Bot(object):
                 self.is_destroyer = True
 
     def reset(self):
-        self.current_position = self.initial_position
+        self.current_pos = self.initial_pos
 
     def __eq__(self, other):
         return (self.index == other.index and
-                self.initial_position == other.initial_position and
+                self.initial_pos == other.initial_pos and
                 self.team.name == other.team.name and
                 self.is_destroyer == other.is_destroyer and
-                self.current_position == other.current_position)
+                self.current_pos == other.current_pos)
 
     def __cmp__(self, other):
         if self == other:
@@ -91,8 +91,8 @@ class Bot(object):
 
     def __repr__(self):
         return ('Bot(%i, %s, %s, destroyer=%r, current_position=%s)' %
-                (self.index, self.initial_position, self.team.name,
-                self.is_destroyer, self.current_position))
+                (self.index, self.initial_pos, self.team.name,
+                self.is_destroyer, self.current_pos))
 
     @property
     def is_harvester(self):
@@ -177,7 +177,7 @@ class CTFUniverse(object):
 
     @property
     def bot_positions(self):
-        return [bot.current_position for bot in self.bots]
+        return [bot.current_pos for bot in self.bots]
 
     @property
     def food_list(self):
@@ -195,24 +195,24 @@ class CTFUniverse(object):
             raise IllegalMoveException(
                 'Illegal move_id from bot %i: %s' % (bot_id, move))
         bot = self.bots[bot_id]
-        legal_moves_dict = self.get_legal_moves(bot.current_position)
+        legal_moves_dict = self.get_legal_moves(bot.current_pos)
         if move not in legal_moves_dict.keys():
             raise IllegalMoveException(
                 'Illegal move from bot %i at %s: %s'
-                % (bot_id, str(bot.current_position), move))
+                % (bot_id, str(bot.current_pos), move))
         bot.move(legal_moves_dict[move])
         # check for destruction
         other_teams = self.teams[:]
         other_teams.remove(bot.team)
         for enemy in other_teams[0].bots:
-            if enemy.current_position == bot.current_position:
+            if enemy.current_pos == bot.current_pos:
                 if enemy.is_destroyer and bot.is_harvester:
                     bot.reset()
                 elif enemy.is_harvester and bot.is_destroyer:
                     enemy.reset()
         # check for food being eaten
-        if self.food_mesh[bot.current_position]:
-            self.food_mesh[bot.current_position] = False
+        if self.food_mesh[bot.current_pos]:
+            self.food_mesh[bot.current_pos] = False
             bot.team.score_point()
 
         # TODO:

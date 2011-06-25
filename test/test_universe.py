@@ -103,7 +103,7 @@ class TestCTFUniverse(unittest.TestCase):
         target_food_list = [(3, 1), (6, 1), (11, 1), (6, 3), (11, 3), (14, 3),  ]
         self.assertEqual(target_food_list, universe.food_list)
 
-        self.assertEqual([b.initial_position for b in universe.bots],
+        self.assertEqual([b.initial_pos for b in universe.bots],
                 [(1, 1), (1, 2), (16, 2), (16, 3)]
 
         odd_layout = (
