@@ -181,12 +181,6 @@ class CTFUniverse(object):
     def food_list(self):
         return [key for (key, value) in self.food_mesh.iteritems() if value]
 
-    def score(self, bot_index):
-        if self.on_red_team(bot_index):
-            self.red_score += 1
-        elif self.on_blue_team(bot_index):
-            self.blue_score += 1
-
     def move_bot(self, bot_id, move):
         # check legality of the move
         if move not in move_ids:
