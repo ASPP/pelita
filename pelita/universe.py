@@ -31,7 +31,7 @@ class Bot(object):
 
     @property
     def in_own_zone(self):
-        return self.homezone[0] <= self.current_pos[1] <= self.homezone[1]
+        return self.homezone[0] <= self.current_pos[0] <= self.homezone[1]
 
     def move(self, new_pos):
         self.current_pos = new_pos
