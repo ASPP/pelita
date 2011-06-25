@@ -197,7 +197,7 @@ class CTFUniverse(object):
 
     @property
     def food_list(self):
-        return [key for (key, value) in self.food_mesh.iteritems() if value]
+        return [key for (key, value) in self.maze_mesh.iteritems() if Food() in value]
 
     def move_bot(self, bot_id, move):
         # check legality of the move
@@ -274,31 +274,6 @@ class CTFUniverse(object):
                 start[int(v)] = k
                 mesh[k] = CTFUniverse.free
         return start
-
-    @staticmethod
-    def extract_food_mesh(mesh):
-        """ Extract positions of food in the mesh.
-
-        Also replaces the food positions in the mesh with free spaces.
-
-        Parameters
-        ----------
-        mesh : Mesh of characters
-            the layout in mesh format
-
-        Returns
-        -------
-        food_mesh : Mesh of booleans
-
-        """
-        food_mesh = Mesh(*mesh.shape)
-        for k, v in mesh.iteritems():
-            if v == CTFUniverse.food:
-                food_mesh[k] = True
-                mesh[k] = CTFUniverse.free
-            else:
-                food_mesh[k] = False
-        return food_mesh
 
     @staticmethod
     def new_positions(current):

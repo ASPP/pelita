@@ -40,25 +40,6 @@ class TestCTFUniverseStaticmethods(unittest.TestCase):
                 '# #####    ##### ##       #      # ###################'))
         self.assertEqual(target, mesh)
 
-    def test_extract_food(self):
-        food_layout = (
-            """ #######
-                #.  . #
-                #  .  #
-                # .  .#
-                ####### """)
-        layout = Layout(food_layout, CTFUniverse.layout_chars, 0)
-        mesh = layout.as_mesh()
-        food_mesh = CTFUniverse.extract_food_mesh(mesh)
-        target = Mesh(7, 5, data=[
-            False, False, False, False, False, False, False,
-            False, True , False, False, True , False, False,
-            False, False, False, True , False, False, False,
-            False, False, True , False, False, True , False,
-            False, False, False, False, False, False, False])
-        self.assertEqual(target, food_mesh)
-
-
     def test_new_positions(self):
         current_position = (1, 1)
         new = CTFUniverse.new_positions(current_position)
@@ -137,17 +118,10 @@ class TestCTFUniverse(unittest.TestCase):
         universe = CTFUniverse(test_layout3, 4)
         # this checks that the methods extracts the food, and the initial
         # positions from the raw layout
-        target_mesh = Mesh(18, 5, data = list('################### #      #       #'+\
-                '# #####    ##### ##       #      # ###################'))
+        target_mesh = Mesh(18, 5, data = list('################### #.  .  # .     #'+\
+                '# #####    ##### ##     . #  .  .# ###################'))
         target_mesh = create_maze(target_mesh)
         self.assertEqual(target_mesh, universe.maze_mesh)
-        target_food_list = Mesh(18, 5, data=[
-            False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False,
-            False, False, False, True,  False, False, True,  False, False, False, False, True,  False, False, False, False, False, False,
-            False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False, True,  False, False, False, False, True,  False, False, True,  False, False, False,
-            False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False])
-        self.assertEqual(target_food_list, universe.food_mesh)
         target_food_list = [(3, 1), (6, 1), (11, 1), (6, 3), (11, 3), (14, 3),  ]
         self.assertEqual(target_food_list, universe.food_list)
 
