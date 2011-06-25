@@ -99,6 +99,17 @@ class TestBot(unittest.TestCase):
         self.assertFalse(bot.is_destroyer)
         self.assertTrue(bot.is_harvester)
 
+    def test_eq_repr(self):
+        black = Bot(0, (1,1), 'black', (0,3))
+        black2 = Bot(0, (1,1), 'black', (0,3))
+        white = Bot(1, (6,6), 'white', (3,6), current_pos = (1,1))
+        self.assertNotEqual(black, white)
+        self.assertEqual(black, black2)
+        print black.__repr__()
+        black3 = eval(black.__repr__())
+        print black3
+        self.assertEqual(black, black3)
+
 class TestCTFUniverse(unittest.TestCase):
 
     def test_init(self):

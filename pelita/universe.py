@@ -86,9 +86,9 @@ class Bot(object):
             return self.index.__cmp__(other.index)
 
     def __repr__(self):
-        return ('Bot(%i, %s, %s, destroyer=%r, current_position=%s)' %
-                (self.index, self.initial_pos, self.team.name,
-                self.is_destroyer, self.current_pos))
+        return ('Bot(%i, %s, %r, %s ,current_pos=%s)' %
+                (self.index, self.initial_pos, self.team,
+                    self.homezone, self.current_pos))
 
     @property
     def is_harvester(self):
