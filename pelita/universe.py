@@ -65,7 +65,7 @@ class CTFUniverse(object):
 
     def __init__(self, layout_str, number_bots):
         self.number_bots = number_bots
-        if self.number_bots%2 != 0:
+        if self.number_bots % 2 != 0:
             raise UniverseException(
                 "Number of bots in CTF must be even, is: %i"
                 % self.number_bots)
@@ -73,12 +73,12 @@ class CTFUniverse(object):
         self.blue_team = range(1, self.number_bots, 2)
         self.layout = Layout(layout_str, CTFUniverse.layout_chars, number_bots)
         self.mesh = self.layout.as_mesh()
-        if self.mesh.width%2 != 0:
+        if self.mesh.width % 2 != 0:
             raise UniverseException(
                 "Width of a layout for CTF must be even, is: %i"
                 % self.mesh.width)
-        self.red_zone = (0, self.mesh.width//2-1)
-        self.blue_zone = (self.mesh.width//2, self.mesh.width-1)
+        self.red_zone = (0, self.mesh.width // 2 - 1)
+        self.blue_zone = (self.mesh.width // 2, self.mesh.width - 1)
         self.initial_pos = CTFUniverse.extract_initial_positions(self.mesh,
                 self.number_bots)
         self.food_mesh = CTFUniverse.extract_food_mesh(self.mesh)
@@ -93,7 +93,7 @@ class CTFUniverse(object):
         return self._in_zone(bot_index, self.red_zone)
 
     def _in_zone(self, bot_index, zone):
-        pos = self.bot_positions[bot_index][1]
+        pos = self.bot_positions[bot_index][0] # 0 extracts the x-coordinate
         return zone[0] <= pos <= zone[1]
 
     def on_red_team(self, bot_index):
@@ -238,10 +238,10 @@ class CTFUniverse(object):
 
         """
         return {
-            north : (current[0]-1, current[1]),
-            south : (current[0]+1, current[1]),
-            west  : (current[0], current[1]-1),
-            east  : (current[0], current[1]+1),
+            north : (current[0], current[1] - 1),
+            south : (current[0], current[1] + 1),
+            west  : (current[0] - 1, current[1]),
+            east  : (current[0] + 1, current[1]),
             stop  : (current[0], current[1])}
 
     @staticmethod

@@ -85,7 +85,7 @@ class TestLayoutChecks(unittest.TestCase):
                 #     #
                 #     #
                 ####### """)
-        self.assertEqual(Layout.layout_shape(Layout.strip_layout(large_shape)), (5, 7))
+        self.assertEqual(Layout.layout_shape(Layout.strip_layout(large_shape)), (7, 5))
 
     def test_wrong_bot_order(self):
         unordered = (
@@ -147,5 +147,14 @@ class TestLayoutChecks(unittest.TestCase):
                 #### """)
         layout = Layout(simple_layout, TestLayoutChecks.layout_chars, 0)
         mesh = layout.as_mesh()
-        target = Mesh(3, 4, data = list('#####. #####'))
+        target = Mesh(4, 3, data = list('#####. #####'))
         self.assertEqual(target, mesh)
+
+    def test_mesh_shape(self):
+        simple_layout = (
+            """ ####
+                #. #
+                #### """)
+        layout = Layout(simple_layout, TestLayoutChecks.layout_chars, 0)
+        mesh = layout.as_mesh()
+        self.assertEqual(mesh.shape, (4, 3))

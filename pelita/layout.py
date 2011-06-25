@@ -131,11 +131,11 @@ class Layout(object):
 
         Returns
         -------
-        height : int
         width : int
+        height : int
 
         """
-        return (len(layout_str.split('\n')), layout_str.find('\n'))
+        return (layout_str.find('\n'), len(layout_str.split('\n')))
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
