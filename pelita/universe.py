@@ -154,8 +154,8 @@ class CTFUniverse(object):
         legal_moves_dict = self.get_legal_moves(bot.current_pos)
         if move not in legal_moves_dict.keys():
             raise IllegalMoveException(
-                'Illegal move from bot %i at %s: %s'
-                % (bot_id, str(bot.current_pos), move))
+                'Illegal move from bot %r: %s'
+                % (bot, move))
         bot.move(legal_moves_dict[move])
         # check for destruction
         other_team_names = [team for team in self.team_bots.keys() if not team == bot.team]
