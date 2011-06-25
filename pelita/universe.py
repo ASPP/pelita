@@ -243,11 +243,28 @@ class CTFUniverse(object):
     def __str__(self):
         # TODO what about bots on the same space?
         out = self.maze_mesh.copy()
-        for i in range(self.number_bots):
-            out[self.bot_positions[i]] = str(i)
-        for food_index in self.food_list:
-            out[food_index] = CTFUniverse.food
+
+        for (key, value) in self.maze_mesh.iteritems():
+            if Wall() in value:
+                out[key] = CTFUniverse.wall
+            elif Food() in value:
+                out[key] = CTFUniverse.food
+            elif Free() in value:
+                out[key] = CTFUniverse.free
+        for bot in self.bots:
+            out[bot.current_pos] = str(bot.index)
         return str(out)
+
+    def as_str(self):
+        output = str()
+        for i in range(self.height):
+            start = i * self.width
+            end = start + self.width
+            output += '['
+            output += ', '.join((str(i) for i in  self._data[start:end]))
+            output += ']'
+            output += '\n'
+        return output
 
     @staticmethod
     def extract_initial_positions(mesh, number_bots):
