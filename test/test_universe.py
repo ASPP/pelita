@@ -80,7 +80,7 @@ class TestCTFUniverseStaticmethods(unittest.TestCase):
 
 class TestBot(unittest.TestCase):
 
-    def test_init(self):
+    def test_init_in_own_zone_is_harvester(self):
         bot = Bot(0, (1,1), 'black', (0,3))
         self.assertEqual(bot.index, 0)
         self.assertEqual(bot.initial_pos, (1,1))
@@ -89,6 +89,7 @@ class TestBot(unittest.TestCase):
         self.assertEqual(bot.homezone, (0,3))
         self.assertTrue(bot.is_destroyer)
         self.assertFalse(bot.is_harvester)
+        self.assertTrue(bot.in_own_zone)
 
         bot = Bot(1, (6,6), 'white', (3,6), current_pos = (1,1))
         self.assertEqual(bot.index, 1)
@@ -98,6 +99,7 @@ class TestBot(unittest.TestCase):
         self.assertEqual(bot.homezone, (3,6))
         self.assertFalse(bot.is_destroyer)
         self.assertTrue(bot.is_harvester)
+        self.assertFalse(bot.in_own_zone)
 
     def test_eq_repr(self):
         black = Bot(0, (1,1), 'black', (0,3))
