@@ -148,9 +148,9 @@ class Mesh(Mapping):
 
     def __str__(self):
         output = str()
-        for i in range(self.width):
-            start = i * self.height
-            end = start + self.height
+        for i in range(self.height):
+            start = i * self.width
+            end = start + self.width
             output += str(self._data[start:end])
             output += '\n'
         return output

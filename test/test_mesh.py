@@ -78,8 +78,8 @@ class TestMesh(unittest.TestCase):
         self.assertEqual(len(m), 4)
 
     def test_str(self):
-        m = Mesh(2, 2, data=[1, 2, 3, 4])
-        self.assertEqual(str(m), '[1, 2]\n[3, 4]\n')
+        m = Mesh(2, 3, data=[1, 2, 3, 4, 5, 6])
+        self.assertEqual(str(m), '[1, 2]\n[3, 4]\n[5, 6]\n')
 
     def test_repr(self):
         m = Mesh(2, 2, data=[1, 2, 3, 4])
