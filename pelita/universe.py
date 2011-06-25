@@ -121,21 +121,19 @@ class CTFUniverse(object):
                 "Width of a layout for CTF must be even, is: %i"
                 % self.mesh.width)
 
-        team_one_name = 'black'
-        team_two_name = 'white'
+        team_names = ['black', 'white']
 
-        self.team_bots = {team_one_name : range(0, self.number_bots, 2),
-                          team_two_name : range(1, self.number_bots, 2)}
-        self.team_score = {team_one_name : 0, team_two_name : 0}
+        self.team_bots = {team_names[0] : range(0, self.number_bots, 2),
+                          team_names[1] : range(1, self.number_bots, 2)}
+        self.team_score = {team_names[0] : 0, team_names[1] : 0}
         self.bots = []
 
         homezones = [(0, self.mesh.width//2-1), (self.mesh.width//2, self.mesh.width-1)]
-        names = [team_one_name, team_two_name]
         initial_pos = CTFUniverse.extract_initial_positions(self.mesh, self.number_bots)
         for bot_index in range(self.number_bots):
                 team_index = bot_index%2
                 bot =  Bot(bot_index, initial_pos[bot_index],
-                        names[team_index], homezones[team_index])
+                        team_names[team_index], homezones[team_index])
                 self.bots.append(bot)
         self.food_mesh = CTFUniverse.extract_food_mesh(self.mesh)
 
