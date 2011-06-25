@@ -45,12 +45,12 @@ class Team(object):
 
 class Bot(object):
 
-    def __init__(self, index, initial_pos, team,
+    def __init__(self, index, initial_pos, team, homezone,
             current_pos=None):
         self.index = index
         self.initial_pos = initial_pos
         self.team = team
-        self.current_pos = self.initial_pos
+        self.homezone = homezone
         if not current_pos:
             self.current_pos = self.initial_pos
         else:
@@ -62,26 +62,22 @@ class Bot(object):
 
     @property
     def in_own_zone(self):
-        return self.team.in_zone(self.current_pos)
+        return self.homezone[0] <= self.current_pos[1] <= self.homezone[1]
 
     def move(self, new_pos):
         self.current_pos = new_pos
         if self.is_destroyer:
-            if not self.team.in_zone(new_pos):
+            if not self.in_own_zone:
                 self.is_destroyer = False
         elif self.is_harvester:
-            if self.team.in_zone(new_pos):
+            if self.in_own_zone:
                 self.is_destroyer = True
 
     def reset(self):
         self.current_pos = self.initial_pos
 
     def __eq__(self, other):
-        return (self.index == other.index and
-                self.initial_pos == other.initial_pos and
-                self.team.name == other.team.name and
-                self.is_destroyer == other.is_destroyer and
-                self.current_pos == other.current_pos)
+        return self.__dict__ == other.__dict__
 
     def __cmp__(self, other):
         if self == other:
@@ -166,11 +162,13 @@ class CTFUniverse(object):
         self.bots = []
         self.teams.append(Team('red', (0, self.mesh.width//2-1)))
         self.teams.append(Team('blue', (self.mesh.width//2, self.mesh.width-1)))
+
+        homezones = [(0, self.mesh.width//2-1), (self.mesh.width//2, self.mesh.width-1)]
         initial_pos = CTFUniverse.extract_initial_positions(self.mesh, self.number_bots)
         for bot_index in range(self.number_bots):
                 team_index = bot_index%2
                 bot =  Bot(bot_index, initial_pos[bot_index],
-                    self.teams[team_index])
+                        self.teams[team_index].name, homezones[team_index])
                 self.teams[team_index].add_bot(bot)
                 self.bots.append(bot)
         self.food_mesh = CTFUniverse.extract_food_mesh(self.mesh)
@@ -203,7 +201,8 @@ class CTFUniverse(object):
         bot.move(legal_moves_dict[move])
         # check for destruction
         other_teams = self.teams[:]
-        other_teams.remove(bot.team)
+        other_teams = [t for t in self.teams if not t.name == bot.team]
+        my_team = [t for t in self.teams if t.name == bot.team][0]
         for enemy in other_teams[0].bots:
             if enemy.current_pos == bot.current_pos:
                 if enemy.is_destroyer and bot.is_harvester:
@@ -213,7 +212,7 @@ class CTFUniverse(object):
         # check for food being eaten
         if self.food_mesh[bot.current_pos]:
             self.food_mesh[bot.current_pos] = False
-            bot.team.score_point()
+            my_team.score_point()
 
         # TODO:
         # check for state change
