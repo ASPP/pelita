@@ -62,38 +62,38 @@ class TestCTFUniverseStaticmethods(unittest.TestCase):
 class TestBot(unittest.TestCase):
 
     def test_init_in_own_zone_is_harvester(self):
-        bot = Bot(0, (1,1), 'black', (0,3))
+        bot = Bot(0, (1,1), 0, (0,3))
         self.assertEqual(bot.index, 0)
         self.assertEqual(bot.initial_pos, (1,1))
         self.assertEqual(bot.current_pos, (1,1))
-        self.assertEqual(bot.team, 'black')
+        self.assertEqual(bot.team_index, 0)
         self.assertEqual(bot.homezone, (0,3))
         self.assertTrue(bot.is_destroyer)
         self.assertFalse(bot.is_harvester)
         self.assertTrue(bot.in_own_zone)
 
-        bot = Bot(1, (6,6), 'white', (3,6), current_pos = (1,1))
+        bot = Bot(1, (6,6), 1, (3,6), current_pos = (1,1))
         self.assertEqual(bot.index, 1)
         self.assertEqual(bot.initial_pos, (6,6))
         self.assertEqual(bot.current_pos, (1,1))
-        self.assertEqual(bot.team, 'white')
+        self.assertEqual(bot.team_index, 1)
         self.assertEqual(bot.homezone, (3,6))
         self.assertFalse(bot.is_destroyer)
         self.assertTrue(bot.is_harvester)
         self.assertFalse(bot.in_own_zone)
 
     def test_eq_repr(self):
-        black = Bot(0, (1,1), 'black', (0,3))
-        black2 = Bot(0, (1,1), 'black', (0,3))
-        white = Bot(1, (6,6), 'white', (3,6), current_pos = (1,1))
+        black = Bot(0, (1,1), 0, (0,3))
+        black2 = Bot(0, (1,1), 0, (0,3))
+        white = Bot(1, (6,6), 1, (3,6), current_pos = (1,1))
         self.assertNotEqual(black, white)
         self.assertEqual(black, black2)
         black3 = eval(black.__repr__())
         self.assertEqual(black, black3)
 
     def test_move_reset(self):
-        black = Bot(0, (1,1), 'black', (0,3))
-        white = Bot(1, (6,6), 'white', (3,6), current_pos = (1,1))
+        black = Bot(0, (1,1), 0, (0,3))
+        white = Bot(1, (6,6), 1, (3,6), current_pos = (1,1))
         self.assertTrue(black.is_destroyer)
         black.move((4,1))
         self.assertEqual(black.current_pos, (4,1))
@@ -150,13 +150,16 @@ class TestCTFUniverse(unittest.TestCase):
                 ###### """)
         universe = CTFUniverse(test_layout4, 4)
 
-        self.assertEqual(universe.team_bots['black'], [0, 2])
-        self.assertEqual(universe.team_bots['white'], [1, 3])
+        team_black = Team(0, 'black', (0, 2), bots=[0, 2])
+        team_white = Team(1, 'white', (3, 5), bots=[1, 3])
 
-        self.assertEqual(universe.bots[0].team, 'black')
-        self.assertEqual(universe.bots[2].team, 'black')
-        self.assertEqual(universe.bots[1].team, 'white')
-        self.assertEqual(universe.bots[3].team, 'white')
+        self.assertEqual(universe.teams[0], team_black)
+        self.assertEqual(universe.teams[1], team_white)
+
+        self.assertEqual(universe.bots[0].team_index, 0)
+        self.assertEqual(universe.bots[2].team_index, 0)
+        self.assertEqual(universe.bots[1].team_index, 1)
+        self.assertEqual(universe.bots[3].team_index, 1)
 
         self.assertTrue(universe.bots[0].in_own_zone)
         self.assertTrue(universe.bots[1].in_own_zone)
@@ -336,7 +339,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         self.assertEqual(str(universe),
                 str(Layout(test_eat_food, CTFUniverse.layout_chars, number_bots).as_mesh()))
         self.assertEqual(universe.food_list, [(3, 1)])
-        self.assertEqual(universe.team_score['white'], 1)
+        self.assertEqual(universe.teams[1].score, 1)
         test_destruction = (
             """ ######
                 #  . #
@@ -356,7 +359,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         self.assertEqual(str(universe),
                 str(Layout(test_red_score, CTFUniverse.layout_chars, number_bots).as_mesh()))
         self.assertEqual(universe.food_list, [])
-        self.assertEqual(universe.team_score['black'], 1)
+        self.assertEqual(universe.teams[0].score, 1)
 
 if __name__ == '__main__':
     unittest.main()

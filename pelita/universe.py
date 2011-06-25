@@ -12,13 +12,43 @@ stop  = 'STOP'
 
 move_ids = [north, south, east, west, stop]
 
+class Team(object):
+
+    def __init__(self, index, name, zone, score=0, bots=None):
+        self.index = index
+        self.name = name
+        self.score = score
+        self.zone = zone
+        # we can't use a keyword argument here, because that would create a
+        # single list object for all our Teams.
+        if not bots:
+            self.bots = []
+        else:
+            self.bots = bots
+
+    def add_bot(self, bot):
+        self.bots.append(bot)
+
+    def in_zone(self, position):
+        return self.zone[0] <= position[0] <= self.zone[1]
+
+    def score_point(self):
+        self.score += 1
+
+    def __repr__(self):
+        return ('Team(%i, %s, %s, score=%i, bots=%r)' %
+                (self.index, self.name, self.zone, self.score, self.bots))
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
 class Bot(object):
 
-    def __init__(self, index, initial_pos, team, homezone,
+    def __init__(self, index, initial_pos, team_index, homezone,
             current_pos=None):
         self.index = index
         self.initial_pos = initial_pos
-        self.team = team
+        self.team_index = team_index
         self.homezone = homezone
         if not current_pos:
             self.current_pos = self.initial_pos
@@ -55,8 +85,8 @@ class Bot(object):
             return self.index.__cmp__(other.index)
 
     def __repr__(self):
-        return ('Bot(%i, %s, %r, %s ,current_pos=%s)' %
-                (self.index, self.initial_pos, self.team,
+        return ('Bot(%i, %s, %i, %s ,current_pos=%s)' %
+                (self.index, self.initial_pos, self.team_index,
                     self.homezone, self.current_pos))
 
     @property
@@ -175,20 +205,21 @@ class CTFUniverse(object):
             raise UniverseException(
                 "Width of a layout for CTF must be even, is: %i"
                 % self.maze_mesh.width)
-
-        team_names = ['black', 'white']
-
-        self.team_bots = {team_names[0] : range(0, self.number_bots, 2),
-                          team_names[1] : range(1, self.number_bots, 2)}
-        self.team_score = {team_names[0] : 0, team_names[1] : 0}
-        self.bots = []
-
         homezones = [(0, self.maze_mesh.width//2-1), (self.maze_mesh.width//2,
             self.maze_mesh.width-1)]
+
+        self.teams = []
+        self.teams.append(Team(0, 'black', homezones[0], bots=range(0,
+            self.number_bots, 2)))
+        self.teams.append(Team(1, 'white', homezones[1], bots=range(1,
+            self.number_bots, 2)))
+
+        self.bots = []
+
         for bot_index in range(self.number_bots):
                 team_index = bot_index%2
                 bot =  Bot(bot_index, initial_pos[bot_index],
-                        team_names[team_index], homezones[team_index])
+                        team_index, homezones[team_index])
                 self.bots.append(bot)
 
     @property
@@ -212,10 +243,11 @@ class CTFUniverse(object):
                 % (bot, move))
         bot.move(legal_moves_dict[move])
         # check for destruction
-        other_team_names = [team for team in self.team_bots.keys() if not team == bot.team]
+        other_teams = self.teams[:]
+        other_teams.remove(self.teams[bot.team_index])
         other_team_bots = []
-        for team_name in other_team_names:
-            other_team_bots.extend(self.team_bots[team_name])
+        for t in other_teams:
+            other_team_bots.extend(t.bots)
         for enemy in [self.bots[i] for i in other_team_bots]:
             if enemy.current_pos == bot.current_pos:
                 if enemy.is_destroyer and bot.is_harvester:
@@ -225,7 +257,7 @@ class CTFUniverse(object):
         # check for food being eaten
         if Food() in self.maze_mesh[bot.current_pos]:
             self.maze_mesh[bot.current_pos].remove(Food())
-            self.team_score[bot.team] += 1
+            self.teams[bot.team_index].score_point()
 
         # TODO:
         # check for state change
