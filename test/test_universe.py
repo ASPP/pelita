@@ -139,7 +139,8 @@ class TestCTFUniverse(unittest.TestCase):
         # positions from the raw layout
         target_mesh = Mesh(18, 5, data = list('################### #      #       #'+\
                 '# #####    ##### ##       #      # ###################'))
-        self.assertEqual(target_mesh, universe.mesh)
+        target_mesh = create_maze(target_mesh)
+        self.assertEqual(target_mesh, universe.maze_mesh)
         target_food_list = Mesh(18, 5, data=[
             False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False,
             False, False, False, True,  False, False, True,  False, False, False, False, True,  False, False, False, False, False, False,

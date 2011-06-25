@@ -64,16 +64,32 @@ class Bot(object):
         return not self.is_destroyer
 
 class MazeComponent(object):
-    pass
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__)
 
 class Free(MazeComponent):
-    pass
+
+    def __str__(self):
+        return CTFUniverse.free
+
+    def __repr__(self):
+        return 'Free()'
 
 class Wall(MazeComponent):
-    pass
+
+    def __str__(self):
+        return CTFUniverse.wall
+
+    def __repr__(self):
+        return 'Wall()'
 
 class Food(MazeComponent):
-    pass
+    def __str__(self):
+        return CTFUniverse.food
+
+    def __repr__(self):
+        return 'Food()'
 
 def create_maze(layout_mesh):
     """ Transforms a layout_mesh into a maze_mesh.
@@ -220,13 +236,13 @@ class CTFUniverse(object):
     def get_legal_moves(self, position):
         legal_moves_dict = {}
         for move, new_pos in CTFUniverse.new_positions(position).items():
-            if self.mesh[new_pos] == CTFUniverse.free:
+            if self.maze_mesh[new_pos] == Free():
                 legal_moves_dict[move] = new_pos
         return legal_moves_dict
 
     def __str__(self):
         # TODO what about bots on the same space?
-        out = self.mesh.copy()
+        out = self.maze_mesh.copy()
         for i in range(self.number_bots):
             out[self.bot_positions[i]] = str(i)
         for food_index in self.food_list:
