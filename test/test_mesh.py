@@ -19,25 +19,25 @@ class TestMesh(unittest.TestCase):
 
     def test_indices(self):
         m = Mesh(2, 3)
-        target = [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
+        target = [(0, 0), (1, 0), (0, 1), (1, 1), (0, 2), (1, 2)]
         self.assertEqual(target, m.keys())
 
     def test_index_linear_to_tuple(self):
         m = Mesh(3, 4)
-        for (i, (h, w)) in enumerate(m.iterkeys()):
-            self.assertEqual(m._index_linear_to_tuple(i), (h, w))
+        for (i, (x, y)) in enumerate(m.iterkeys()):
+            self.assertEqual(m._index_linear_to_tuple(i), (x, y))
 
     def test_index_tuple_to_linear(self):
         m = Mesh(3, 4)
-        for (i, (h, w)) in enumerate(m.iterkeys()):
-            self.assertEqual(m._index_tuple_to_linear((h, w)), i)
+        for (i, (x, y)) in enumerate(m.iterkeys()):
+            self.assertEqual(m._index_tuple_to_linear((x, y)), i)
 
     def test_getitem(self):
         m = Mesh(2, 2)
         m._data = [1, 2, 3, 4]
         self.assertEqual(m[0, 0], 1)
-        self.assertEqual(m[0, 1], 2)
-        self.assertEqual(m[1, 0], 3)
+        self.assertEqual(m[1, 0], 2)
+        self.assertEqual(m[0, 1], 3)
         self.assertEqual(m[1, 1], 4)
         self.assertRaises(IndexError, m.__getitem__, (3, 0))
         self.assertRaises(IndexError, m.__getitem__, (-1, 0))
@@ -47,8 +47,8 @@ class TestMesh(unittest.TestCase):
     def test_setitem(self):
         m = Mesh(2, 2)
         m[0, 0] = 1
-        m[0, 1] = 2
-        m[1, 0] = 3
+        m[1, 0] = 2
+        m[0, 1] = 3
         m[1, 1] = 4
         self.assertEqual(m._data, [1, 2, 3, 4])
         self.assertRaises(IndexError, m.__setitem__, (3, 0), 1)
@@ -57,8 +57,8 @@ class TestMesh(unittest.TestCase):
         self.assertRaises(IndexError, m.__setitem__, (0, -1), 1)
 
     def test_iter(self):
-        m = Mesh(2, 2)
-        self.assertEqual([i for i in m], [(0, 0), (0, 1), (1, 0), (1, 1)])
+        m = Mesh(2, 3)
+        self.assertEqual([i for i in m], [(0, 0), (1, 0), (0, 1), (1, 1), (0, 2), (1, 2)])
 
     def test_set_data(self):
         m = Mesh(2, 2)
@@ -86,6 +86,15 @@ class TestMesh(unittest.TestCase):
         rep = m.__repr__()
         m2 = eval(rep)
         self.assertEqual(m, m2)
+
+    def test_repr_2(self):
+        # check that types work
+        data=["1", 2.0, 3, 4]
+        m = Mesh(2, 2, data=list(data))
+        rep = m.__repr__()
+        m2 = eval(rep)
+        self.assertEqual(m, m2)
+        self.assertEqual(data, m2._data)
 
     def test_copy(self):
         m = Mesh(2, 2)
