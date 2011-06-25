@@ -49,41 +49,53 @@ class TkSprite(object):
     def move(self, canvas, dx, dy):
         canvas.move(self.tag, dx, dy)
 
+class BotSprite(TkSprite):
+    def draw_bot(self, canvas, outer_col, eye_col, central_col=col(235, 235, 50)):
 
-class Harvester(TkSprite):
-    def draw(self, canvas):
         bounding_box = self.box()
         scale = self.scale
 
         direction = 110
         rot = lambda x: rotate(x, direction)
 
-        canvas.create_arc(bounding_box, start=rot(30), extent=300, style="arc", width=0.2 * scale, outline=col(94, 158, 217), tag=self.tag)
-        canvas.create_arc(bounding_box, start=rot(-20), extent=15, style="arc", width=0.2 * scale, outline=col(94, 158, 217), tag=self.tag)
-        canvas.create_arc(bounding_box, start=rot(5), extent=15, style="arc", width=0.2 * scale, outline=col(94, 158, 217), tag=self.tag)
+        canvas.create_arc(bounding_box, start=rot(30), extent=300, style="arc", width=0.2 * scale, outline=outer_col, tag=self.tag)
+        canvas.create_arc(bounding_box, start=rot(-20), extent=15, style="arc", width=0.2 * scale, outline=outer_col, tag=self.tag)
+        canvas.create_arc(bounding_box, start=rot(5), extent=15, style="arc", width=0.2 * scale, outline=outer_col, tag=self.tag)
 
-        canvas.create_arc(bounding_box, start=rot(-30), extent=10, style="arc", width=0.2 * scale, outline=col(235, 60, 60), tag=self.tag)
-        canvas.create_arc(bounding_box, start=rot(20), extent=10, style="arc", width=0.2 * scale, outline=col(235, 60, 60), tag=self.tag)
+        canvas.create_arc(bounding_box, start=rot(-30), extent=10, style="arc", width=0.2 * scale, outline=eye_col, tag=self.tag)
+        canvas.create_arc(bounding_box, start=rot(20), extent=10, style="arc", width=0.2 * scale, outline=eye_col, tag=self.tag)
 
-        canvas.create_arc(bounding_box, start=rot(-5), extent=10, style="arc", width=0.2 * scale, outline=col(235, 235, 50), tag=self.tag)
+        canvas.create_arc(bounding_box, start=rot(-5), extent=10, style="arc", width=0.2 * scale, outline=central_col, tag=self.tag)
+
+        score = 2
+        canvas.create_text(self.x, self.y, text=score, font=(None, int(0.5 * self.scale)))
 
 
-class Destroyer(TkSprite):
+class Harvester(BotSprite):
     def draw(self, canvas):
-        bounding_box = self.box()
-        scale = self.scale
+        self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col=col(235, 60, 60))
 
+class Destroyer(BotSprite):
+    def draw(self, canvas):
+        self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col=col(94, 158, 217))
+        self.draw_polygon(canvas)
+
+    def draw_polygon(self, canvas):
         direction = 110
-        rot = lambda x: rotate(x, direction)
 
-        canvas.create_arc(bounding_box, start=rot(30), extent=300, style="arc", width=0.2 * scale, outline=col(235, 90, 90), tag=self.tag)
-        canvas.create_arc(bounding_box, start=rot(-20), extent=15, style="arc", width=0.2 * scale, outline=col(235, 90, 90), tag=self.tag)
-        canvas.create_arc(bounding_box, start=rot(5), extent=15, style="arc", width=0.2 * scale, outline=col(235, 90, 90), tag=self.tag)
+        penta_arcs = range(0 - direction, 360 - direction, 360 / 5)
+        penta_arcs_inner = [arc + 360 / 5 / 2.0 for arc in penta_arcs]
 
-        canvas.create_arc(bounding_box, start=rot(-30), extent=10, style="arc", width=0.2 * scale, outline=col(94, 158, 217), tag=self.tag)
-        canvas.create_arc(bounding_box, start=rot(20), extent=10, style="arc", width=0.2 * scale, outline=col(94, 158, 217), tag=self.tag)
+        import cmath, math
 
-        canvas.create_arc(bounding_box, start=rot(-5), extent=10, style="arc", width=0.2 * scale, outline=col(235, 235, 50), tag=self.tag)
+        coords = []
+        for a, i in zip(penta_arcs, penta_arcs_inner):
+            n = cmath.rect(self.scale * 0.85, a * math.pi / 180.0)
+            coords.append((n.real + self.x, n.imag + self.y))
+            n = cmath.rect(self.scale * 0.3, i * math.pi / 180.0)
+            coords.append((n.real + self.x, n.imag + self.y))
+
+        canvas.create_polygon(width=0.05 * self.scale, fill="", outline=col(94, 158, 217), *coords)
 
 class Wall(TkSprite):
     def draw(self, canvas):
