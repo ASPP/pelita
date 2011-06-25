@@ -223,8 +223,8 @@ class CTFUniverse(object):
                 elif enemy.is_harvester and bot.is_destroyer:
                     enemy.reset()
         # check for food being eaten
-        if self.food_mesh[bot.current_pos]:
-            self.food_mesh[bot.current_pos] = False
+        if Food() in self.maze_mesh[bot.current_pos]:
+            self.maze_mesh[bot.current_pos].remove(Food())
             self.team_score[bot.team] += 1
 
         # TODO:
@@ -236,7 +236,7 @@ class CTFUniverse(object):
     def get_legal_moves(self, position):
         legal_moves_dict = {}
         for move, new_pos in CTFUniverse.new_positions(position).items():
-            if self.maze_mesh[new_pos] == Free():
+            if Free() in self.maze_mesh[new_pos]:
                 legal_moves_dict[move] = new_pos
         return legal_moves_dict
 
