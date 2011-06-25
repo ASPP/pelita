@@ -75,24 +75,18 @@ class CTFUniverse(object):
 
     Attributes
     ----------
-    red_team : list of int
-        bot indices of the read team (left)
-    blue_team : list of int
-        bot indices of the blue team (left)
-    layout : Layout
-        initial layout with food and agent positions
     number_bots : int
         total number of bots
+    layout : Layout
+        initial layout with food and agent positions
     mesh : Mesh of single char strings
         static layout (free spaces and walls only)
-    red_zone: tuple of int
-        beginning and end index of the red zone (width)
-    blue_zone: tuple of int
-        beginning and end index of the blue zone (width)
-    initial_pos : list of (int, int)
-        the initial positions for the bots
-    bot_positions : list of (int, int)
-        the current positions of the bots
+    team_bots : dict of str to list of int
+        the indices of the bots on each team
+    team_score : dict of str to int
+        the score of each team
+    bots : lits of Bot objects
+        all the bots in this universe
     food_mesh : Mesh of booleans
         the current food positions
     food_list : list of tuples, property
