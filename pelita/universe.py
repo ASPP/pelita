@@ -105,7 +105,7 @@ def create_maze(layout_mesh):
         Mesh of lists of MazeComponents
 
     """
-    maze_mesh = Mesh(layout_mesh.height, layout_mesh.width,
+    maze_mesh = Mesh(layout_mesh.width, layout_mesh.height,
             data=[[] for i in range(len(layout_mesh))])
     for index in maze_mesh.iterkeys():
         if layout_mesh[index] == CTFUniverse.wall:
