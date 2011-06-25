@@ -12,37 +12,6 @@ stop  = 'STOP'
 
 move_ids = [north, south, east, west, stop]
 
-class Team(object):
-
-    def __init__(self, name, zone, score=0, bots=None):
-        self.name = name
-        self.zone = zone
-        self.score = score
-        # we can't use a keyword argument here, because that would create a
-        # single list object for all our Teams.
-        if not bots:
-            self.bots = []
-        else:
-            self.bots = bots
-
-
-    def add_bot(self, bot):
-        self.bots.append(bot)
-
-    def in_zone(self, position):
-        return self.zone[0] <= position[0] <= self.zone[1]
-
-    def score_point(self):
-        self.score += 1
-
-    def __repr__(self):
-        return ('Team(%r, %s, score=%i, bots=%r)' %
-                (self.name, self.zone, self.score, self.bots))
-
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
-
-
 class Bot(object):
 
     def __init__(self, index, initial_pos, team, homezone,
@@ -158,18 +127,21 @@ class CTFUniverse(object):
                 "Width of a layout for CTF must be even, is: %i"
                 % self.mesh.width)
 
-        self.teams = []
+        team_one_name = 'black'
+        team_two_name = 'white'
+
+        self.team_bots = {team_one_name : range(0, self.number_bots, 2),
+                          team_two_name : range(1, self.number_bots, 2)}
+        self.team_score = {team_one_name : 0, team_two_name : 0}
         self.bots = []
-        self.teams.append(Team('red', (0, self.mesh.width//2-1)))
-        self.teams.append(Team('blue', (self.mesh.width//2, self.mesh.width-1)))
 
         homezones = [(0, self.mesh.width//2-1), (self.mesh.width//2, self.mesh.width-1)]
+        names = [team_one_name, team_two_name]
         initial_pos = CTFUniverse.extract_initial_positions(self.mesh, self.number_bots)
         for bot_index in range(self.number_bots):
                 team_index = bot_index%2
                 bot =  Bot(bot_index, initial_pos[bot_index],
-                        self.teams[team_index].name, homezones[team_index])
-                self.teams[team_index].add_bot(bot)
+                        names[team_index], homezones[team_index])
                 self.bots.append(bot)
         self.food_mesh = CTFUniverse.extract_food_mesh(self.mesh)
 
@@ -194,10 +166,11 @@ class CTFUniverse(object):
                 % (bot_id, str(bot.current_pos), move))
         bot.move(legal_moves_dict[move])
         # check for destruction
-        other_teams = self.teams[:]
-        other_teams = [t for t in self.teams if not t.name == bot.team]
-        my_team = [t for t in self.teams if t.name == bot.team][0]
-        for enemy in other_teams[0].bots:
+        other_team_names = [team for team in self.team_bots.keys() if not team == bot.team]
+        other_team_bots = []
+        for team_name in other_team_names:
+            other_team_bots.extend(self.team_bots[team_name])
+        for enemy in [self.bots[i] for i in other_team_bots]:
             if enemy.current_pos == bot.current_pos:
                 if enemy.is_destroyer and bot.is_harvester:
                     bot.reset()
@@ -206,7 +179,7 @@ class CTFUniverse(object):
         # check for food being eaten
         if self.food_mesh[bot.current_pos]:
             self.food_mesh[bot.current_pos] = False
-            my_team.score_point()
+            self.team_score[bot.team] += 1
 
         # TODO:
         # check for state change

@@ -175,22 +175,13 @@ class TestCTFUniverse(unittest.TestCase):
                 ###### """)
         universe = CTFUniverse(test_layout4, 4)
 
-        red_team = Team('red', (0, 2))
-        blue_team = Team('blue', (3, 5))
-        red_team.add_bot(Bot(0, (1, 1), red_team.name, (0, 2)))
-        red_team.add_bot(Bot(2, (2, 1), red_team.name, (0, 2)))
-        blue_team.add_bot(Bot(1,(1, 4), blue_team.name, (3, 5)))
-        blue_team.add_bot(Bot(3,(2, 4), blue_team.name, (3, 5)))
+        self.assertEqual(universe.team_bots['black'], [0, 2])
+        self.assertEqual(universe.team_bots['white'], [1, 3])
 
-        # since the Team and Bot objects are mutually composite
-        # calling Team.__eq__() inherently also calls Bot.__eq__()
-        self.assertEqual(universe.teams[0], red_team)
-        self.assertEqual(universe.teams[1], blue_team)
-
-        self.assertEqual(universe.bots[0].team, red_team.name)
-        self.assertEqual(universe.bots[2].team, red_team.name)
-        self.assertEqual(universe.bots[1].team, blue_team.name)
-        self.assertEqual(universe.bots[3].team, blue_team.name)
+        self.assertEqual(universe.bots[0].team, 'black')
+        self.assertEqual(universe.bots[2].team, 'black')
+        self.assertEqual(universe.bots[1].team, 'white')
+        self.assertEqual(universe.bots[3].team, 'white')
 
         self.assertTrue(universe.bots[0].in_own_zone)
         self.assertTrue(universe.bots[1].in_own_zone)
@@ -370,7 +361,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         self.assertEqual(str(universe),
                 str(Layout(test_eat_food, CTFUniverse.layout_chars, number_bots).as_mesh()))
         self.assertEqual(universe.food_list, [(3, 1)])
-        self.assertEqual(universe.teams[1].score, 1)
+        self.assertEqual(universe.team_score['white'], 1)
         test_destruction = (
             """ ######
                 #  . #
@@ -390,7 +381,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         self.assertEqual(str(universe),
                 str(Layout(test_red_score, CTFUniverse.layout_chars, number_bots).as_mesh()))
         self.assertEqual(universe.food_list, [])
-        self.assertEqual(universe.teams[0].score, 1)
+        self.assertEqual(universe.team_score['black'], 1)
 
 if __name__ == '__main__':
     unittest.main()
