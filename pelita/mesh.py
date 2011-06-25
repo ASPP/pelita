@@ -156,4 +156,4 @@ class Mesh(Mapping):
         return output
 
     def copy(self):
-        return eval(self.__repr__())
+        return Mesh(self.width, self.height, list(self._data))
