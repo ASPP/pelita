@@ -74,7 +74,7 @@ class Bot(object):
                 self.is_destroyer = True
 
     def reset(self):
-        self.current_pos = self.initial_pos
+        self.move(self.initial_pos)
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
