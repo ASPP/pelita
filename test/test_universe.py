@@ -78,6 +78,27 @@ class TestCTFUniverseStaticmethods(unittest.TestCase):
         self.assertTrue(CTFUniverse.is_adjacent((0, 1), (0, 0)))
         self.assertFalse(CTFUniverse.is_adjacent((1, 1), (0, 0)))
 
+class TestBot(unittest.TestCase):
+
+    def test_init(self):
+        bot = Bot(0, (1,1), 'black', (0,3))
+        self.assertEqual(bot.index, 0)
+        self.assertEqual(bot.initial_pos, (1,1))
+        self.assertEqual(bot.current_pos, (1,1))
+        self.assertEqual(bot.team, 'black')
+        self.assertEqual(bot.homezone, (0,3))
+        self.assertTrue(bot.is_destroyer)
+        self.assertFalse(bot.is_harvester)
+
+        bot = Bot(1, (6,6), 'white', (3,6), current_pos = (1,1))
+        self.assertEqual(bot.index, 1)
+        self.assertEqual(bot.initial_pos, (6,6))
+        self.assertEqual(bot.current_pos, (1,1))
+        self.assertEqual(bot.team, 'white')
+        self.assertEqual(bot.homezone, (3,6))
+        self.assertFalse(bot.is_destroyer)
+        self.assertTrue(bot.is_harvester)
+
 class TestCTFUniverse(unittest.TestCase):
 
     def test_init(self):
