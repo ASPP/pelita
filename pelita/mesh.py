@@ -71,15 +71,15 @@ class Mesh(Mapping):
     >>> m[0, 1] = 'one'
     >>> m[1, 0] = 1
     >>> print m
-    [True, 'one']
-    [1, True]
+    [True, 1]
+    ['one', True]
     >>> m.values()
     True
-    one
     1
+    one
     True
     >>> m.keys()
-    [(0, 0), (0, 1), (1, 0), (1, 1)]
+    [(0, 0), (1, 0), (0, 1), (1, 1)]
     """
 
     def __init__(self,  width, height, data=None):
