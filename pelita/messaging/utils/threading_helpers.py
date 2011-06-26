@@ -40,7 +40,7 @@ class SuspendableThread(object):
 
     @property
     def paused(self):
-        return not self._unsuspended.is_set
+        return not self._unsuspended.is_set()
 
     @paused.setter
     def paused(self, value):
