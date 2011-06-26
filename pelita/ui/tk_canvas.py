@@ -204,7 +204,7 @@ class Animation(threading.Thread):
 
     @classmethod
     def rotate(cls, canvas, item, arc, delay=0.5, step_len=0.1):
-        anim = Animation(delay, step_len)
+        anim = cls(delay, step_len)
         step_arc = float(arc) / anim.num_steps
         def rotation():
             item.rotate(step_arc)
@@ -215,14 +215,24 @@ class Animation(threading.Thread):
 
     @classmethod
     def move(cls, canvas, item, transpos, delay=0.5, step_len=0.1):
-        anim = Animation(delay, step_len)
+        anim = cls(delay, step_len)
         dx = float(transpos[0]) / anim.num_steps
         dy = float(transpos[1]) / anim.num_steps
         def translation():
             canvas.move(item, dx, dy)
-            item.redraw(canvas.canvas)
+            #item.redraw(canvas.canvas)
 
         anim.step = translation
+        return anim
+
+    @classmethod
+    def sequence(cls, *anims):
+        def seq():
+            for anim in anims:
+                anim.start()
+                anim.join()
+        anim = threading.Thread(target=seq)
+        anim.setDaemon(True)
         return anim
 
 
@@ -252,10 +262,10 @@ if __name__ == "__main__":
     thread.setDaemon(True)
     #thread.start()
 
-    rot = Animation.rotate(canvas, canvas.registered_items[9], 90)
-    rot.start()
-
-    trans = Animation.move(canvas, canvas.registered_items[9], (1, 2), delay=5, step_len=0.1)
-    trans.start()
+    anim_seq = Animation.sequence(
+        Animation.rotate(canvas, canvas.registered_items[9], 90),
+        Animation.move(canvas, canvas.registered_items[9], (1, 2), delay=5, step_len=0.1),
+        )
+    anim_seq.start()
 
     mainloop()
