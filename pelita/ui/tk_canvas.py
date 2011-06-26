@@ -90,6 +90,7 @@ class Destroyer(BotSprite):
 
         coords = []
         for a, i in zip(penta_arcs, penta_arcs_inner):
+            # we rotate with the help of complex numbers
             n = cmath.rect(self.scale * 0.85, a * math.pi / 180.0)
             coords.append((n.real + self.x, n.imag + self.y))
             n = cmath.rect(self.scale * 0.3, i * math.pi / 180.0)
@@ -125,6 +126,14 @@ class UiCanvas(object):
         self.canvas = Canvas(self.master, width=self.width, height=self.height)
         self.canvas.pack()
 
+        self.registered_items = []
+        self.mapping = {
+            "c": Harvester,
+            "o": Destroyer,
+            "#": Wall,
+            ".": Food
+        }
+
     def translate_x(self, x):
         return self.offset_x + x * self.square_size[0]
 
@@ -132,31 +141,22 @@ class UiCanvas(object):
         return self.offset_y + y * self.square_size[1]
 
     def draw_mesh(self, mesh):
-        for position, item in mesh.iteritems():
+        for position, char in mesh.iteritems():
             x, y = position
-            self.draw_item(item, x, y)
+            self.draw_item(char, x, y)
 
-    def draw_item(self, item, x, y):
-        i = None
-        if item == "c":
-            i = Harvester(self.halfscale)
-        if item == "o":
-            i = Destroyer(self.halfscale)
-        if item == "#":
-            i = Wall(self.halfscale)
-        if item == ".":
-            i = Food(self.halfscale)
-            dx = (i.x - i.position[0]) * self.width
-            dy = (i.y - i.position[1]) * self.height
-            i.move(self.canvas, dx, dy)
-
-        if not i:
+    def draw_item(self, char, x, y):
+        item_class = self.mapping.get(char)
+        if not item_class:
             return
 
-        i.position = self.translate_x(x), self.translate_y(y)
+        item = item_class(self.halfscale)
+        self.registered_items.append(item)
 
-        i.show()
-        i.draw(self.canvas)
+        item.position = self.translate_x(x), self.translate_y(y)
+
+        item.show()
+        item.draw(self.canvas)
 
 
 if __name__ == "__main__":
