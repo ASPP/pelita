@@ -111,6 +111,13 @@ class IncomingActor(SuspendableThread):
     def on_receive(self, message):
         pass
 
+    def on_stop(self):
+        pass
+
+    def stop(self):
+        self.on_stop()
+        super(IncomingActor, self).stop()
+
     def handle_inbox(self):
         pass
 

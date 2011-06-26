@@ -44,6 +44,9 @@ class ForwardingActor(object):
     def on_receive(self, message):
         self.forward_to.put(message)
 
+    def on_stop(self):
+        self.forward_to.put(StopProcessing)
+
 class ForwardingInbox(ForwardingActor, JsonThreadedInbox):
     pass
 
