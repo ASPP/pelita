@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from Tkinter import *
 from pelita.universe import CTFUniverse
 from pelita.layout import Layout
@@ -35,8 +37,8 @@ class TkSprite(object):
     def show(self):
         self.is_hidden = False
 
-    def draw(self):
-        pass
+    def draw(self, canvas):
+        raise NotImplementedError
 
     def box(self, factor=1.0):
         return ((self.x) - self.width * factor * self.scale, (self.y) - self.height * factor * self.scale,
@@ -47,15 +49,30 @@ class TkSprite(object):
         return "tag" + str(id(self))
 
     def move(self, canvas, dx, dy):
+        self.x += dx
+        self.y += dy
         canvas.move(self.tag, dx, dy)
 
+    def redraw(self, canvas):
+        canvas.delete(self.tag)
+        self.draw(canvas)
+
 class BotSprite(TkSprite):
+    def __init__(self, scale):
+        super(BotSprite, self).__init__(scale)
+        self.direction = 0
+        self.score = 0
+
+    def rotate(self, darc):
+        self.direction += darc
+        self.direction %= 360
+
     def draw_bot(self, canvas, outer_col, eye_col, central_col=col(235, 235, 50)):
 
         bounding_box = self.box()
         scale = self.scale
 
-        direction = 110
+        direction = self.direction
         rot = lambda x: rotate(x, direction)
 
         canvas.create_arc(bounding_box, start=rot(30), extent=300, style="arc", width=0.2 * scale, outline=outer_col, tag=self.tag)
@@ -67,8 +84,8 @@ class BotSprite(TkSprite):
 
         canvas.create_arc(bounding_box, start=rot(-5), extent=10, style="arc", width=0.2 * scale, outline=central_col, tag=self.tag)
 
-        score = 2
-        canvas.create_text(self.x, self.y, text=score, font=(None, int(0.5 * self.scale)))
+        score = self.score
+        canvas.create_text(self.x, self.y, text=score, font=(None, int(0.5 * self.scale)), tag=self.tag)
 
 
 class Harvester(BotSprite):
@@ -161,8 +178,55 @@ class UiCanvas(object):
     def move(self, item, x, y):
         item.move(self.canvas, x * self.scale, y * self.scale)
 
-if __name__ == "__main__":
+import threading
+import time
 
+class Animation(threading.Thread):
+    def __init__(self, delay, step_len=0.1):
+        threading.Thread.__init__(self)
+        # because we’re no more but a floating ghost, we become daemonic
+        # so python does not wait for us when it wants to exit
+        self.setDaemon(True)
+        self.delay = delay
+        self.step_len = 0.1
+
+    @property
+    def num_steps(self):
+        return int(self.delay / self.step_len)
+
+    def run(self):
+        for step in range(self.num_steps):
+            time.sleep(self.step_len)
+            self.step()
+
+    def step(self):
+        raise NotImplementedError
+
+    @classmethod
+    def rotate(cls, canvas, item, arc, delay=0.5, step_len=0.1):
+        anim = Animation(delay, step_len)
+        step_arc = float(arc) / anim.num_steps
+        def rotation():
+            item.rotate(step_arc)
+            item.redraw(canvas.canvas)
+
+        anim.step = rotation
+        return anim
+
+    @classmethod
+    def move(cls, canvas, item, transpos, delay=0.5, step_len=0.1):
+        anim = Animation(delay, step_len)
+        dx = float(transpos[0]) / anim.num_steps
+        dy = float(transpos[1]) / anim.num_steps
+        def translation():
+            canvas.move(item, dx, dy)
+            item.redraw(canvas.canvas)
+
+        anim.step = translation
+        return anim
+
+
+if __name__ == "__main__":
     test_layout = (
             """ ########
                 #c     #
@@ -177,14 +241,21 @@ if __name__ == "__main__":
 
     canvas.draw_mesh(mesh)
 
-    import time
     def move():
         time.sleep(3)
         canvas.move(canvas.registered_items[4], 2, 1)
+        canvas.move(canvas.registered_items[9], 2, 1)
+        canvas.registered_items[9].rotate(30)
+        canvas.registered_items[9].redraw(canvas.canvas)
 
-    import threading
     thread = threading.Thread(target=move)
     thread.setDaemon(True)
-    thread.start()
+    #thread.start()
+
+    rot = Animation.rotate(canvas, canvas.registered_items[9], 90)
+    rot.start()
+
+    trans = Animation.move(canvas, canvas.registered_items[9], (1, 2), delay=5, step_len=0.1)
+    trans.start()
 
     mainloop()
