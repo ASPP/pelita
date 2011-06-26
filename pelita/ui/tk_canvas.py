@@ -158,6 +158,8 @@ class UiCanvas(object):
         item.show()
         item.draw(self.canvas)
 
+    def move(self, item, x, y):
+        item.move(self.canvas, x * self.scale, y * self.scale)
 
 if __name__ == "__main__":
 
@@ -174,5 +176,15 @@ if __name__ == "__main__":
     mesh[3,3] = "."
 
     canvas.draw_mesh(mesh)
+
+    import time
+    def move():
+        time.sleep(3)
+        canvas.move(canvas.registered_items[4], 2, 1)
+
+    import threading
+    thread = threading.Thread(target=move)
+    thread.setDaemon(True)
+    thread.start()
 
     mainloop()
