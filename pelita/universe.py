@@ -35,6 +35,9 @@ class Team(object):
     def score_point(self):
         self.score += 1
 
+    def __str__(self):
+        return self.name
+
     def __repr__(self):
         return ('Team(%i, %r, %s, score=%i, bots=%r)' %
                 (self.index, self.name, self.zone, self.score, self.bots))
