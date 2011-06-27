@@ -106,6 +106,41 @@ class TestBot(unittest.TestCase):
         self.assertEqual(white.current_pos, (6,6))
         self.assertTrue(white.is_destroyer)
 
+class TestTeam(unittest.TestCase):
+
+    def test_init(self):
+        team_black = Team(0, 'black', (0, 2))
+        team_white = Team(1, 'white', (3, 6), score=5, bots=[1, 3, 5])
+
+        self.assertEqual(team_black.index, 0)
+        self.assertEqual(team_black.name, 'black')
+        self.assertEqual(team_black.score, 0)
+        self.assertEqual(team_black.zone, (0, 2))
+        self.assertEqual(team_black.bots, [])
+
+        self.assertEqual(team_white.index, 1)
+        self.assertEqual(team_white.name, 'white')
+        self.assertEqual(team_white.score, 5)
+        self.assertEqual(team_white.zone, (3, 6))
+        self.assertEqual(team_white.bots, [1, 3, 5])
+
+    def test_methods(self):
+        team_black = Team(0, 'black', (0, 2))
+        team_white = Team(1, 'white', (3, 6), score=5, bots=[1, 3, 5])
+
+        team_black.add_bot(0)
+        self.assertEqual(team_black.bots, [0])
+        team_white.add_bot(7)
+        self.assertEqual(team_white.bots, [1, 3, 5, 7])
+        self.assertTrue(team_black.in_zone((1, 5)))
+        self.assertFalse(team_black.in_zone((5, 1)))
+        self.assertTrue(team_white.in_zone((5, 1)))
+        self.assertFalse(team_white.in_zone((1, 5)))
+        team_black.score_point()
+        self.assertEqual(team_black.score, 1)
+        team_white.score_point()
+        self.assertEqual(team_white.score, 6)
+
 class TestCTFUniverse(unittest.TestCase):
 
     def test_init(self):
