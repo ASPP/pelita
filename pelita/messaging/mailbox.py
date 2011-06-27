@@ -9,8 +9,7 @@ _logger.setLevel(logging.DEBUG)
 
 from pelita.messaging.utils import SuspendableThread, CloseThread
 from pelita.messaging.remote import MessageSocketConnection
-from pelita.messaging import StopProcessing, DeadConnection, BaseMessage, Query, Request, RequestDB, IncomingActor
-
+from pelita.messaging import StopProcessing, DeadConnection, ForwardingActor, Query, Request, RequestDB, IncomingActor
 
 class JsonThreadedInbox(IncomingActor):
     def __init__(self, mailbox, **kwargs):
@@ -36,26 +35,15 @@ class JsonThreadedInbox(IncomingActor):
         message.mailbox = self.mailbox
         return message
 
-class ForwardingActor(object):
-    """ This is a mix-in which simply forwards all messages to another actor.
-
-    When using it, the variable `self.forward_to` needs to be set.
-    """
-    def on_receive(self, message):
-        self.forward_to.put(message)
-
-    def on_stop(self):
-        self.forward_to.put(StopProcessing)
-
-class ForwardingInbox(ForwardingActor, JsonThreadedInbox):
-    pass
-
 # TODO Not in use now, we rely on timeout until we know better
 #    def stop(self):
 #        SuspendableThread.stop(self)
 #
 #        self.connection.connection.shutdown(socket.SHUT_RDWR)
 #        self.connection.close()
+
+class ForwardingInbox(ForwardingActor, JsonThreadedInbox):
+    pass
 
 class JsonThreadedOutbox(SuspendableThread):
     def __init__(self, connection):

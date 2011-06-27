@@ -165,6 +165,16 @@ class Actor(IncomingActor):
 
         return req_obj
 
+class ForwardingActor(object):
+    """ This is a mix-in which simply forwards all messages to another actor.
+
+    When using it, the variable `self.forward_to` needs to be set.
+    """
+    def on_receive(self, message):
+        self.forward_to.put(message)
+
+    def on_stop(self):
+        self.forward_to.put(StopProcessing)
 
 class ActorProxy(object):
     def __init__(self, actor):
