@@ -36,7 +36,7 @@ class Team(object):
         self.score += 1
 
     def __repr__(self):
-        return ('Team(%i, %s, %s, score=%i, bots=%r)' %
+        return ('Team(%i, %r, %s, score=%i, bots=%r)' %
                 (self.index, self.name, self.zone, self.score, self.bots))
 
     def __eq__(self, other):

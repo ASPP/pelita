@@ -141,6 +141,19 @@ class TestTeam(unittest.TestCase):
         team_white.score_point()
         self.assertEqual(team_white.score, 6)
 
+    def test_repr_eq(self):
+        team_black = Team(0, 'black', (0, 2))
+        team_white = Team(1, 'white', (3, 6), score=5, bots=[1, 3, 5])
+        team_black2 = Team(0, 'black', (0, 2))
+        self.assertEqual(team_black, team_black)
+        self.assertEqual(team_black, team_black2)
+        self.assertNotEqual(team_black, team_white)
+        team_black3 = eval(team_black.__repr__())
+        self.assertEqual(team_black, team_black3)
+        team_white2 = eval(team_white.__repr__())
+        self.assertEqual(team_white, team_white3)
+
+
 class TestCTFUniverse(unittest.TestCase):
 
     def test_init(self):
