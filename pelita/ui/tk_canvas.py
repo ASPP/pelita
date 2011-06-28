@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from Tkinter import *
+
+import cmath
+
 from pelita.universe import CTFUniverse
 from pelita.layout import Layout
 
@@ -67,13 +70,18 @@ class BotSprite(TkSprite):
         self.direction += darc
         self.direction %= 360
 
-    def draw_bot(self, canvas, outer_col, eye_col, central_col=col(235, 235, 50)):
+    def rotate_to(self, arc):
+        self.direction = arc % 360
+        print self.direction
 
+    def draw_bot(self, canvas, outer_col, eye_col, central_col=col(235, 235, 50)):
         bounding_box = self.box()
         scale = self.scale
 
         direction = self.direction
         rot = lambda x: rotate(x, direction)
+
+        #canvas.create_oval(self.box(1.1), width=0.25 * scale, outline="black", tag=self.tag)
 
         canvas.create_arc(bounding_box, start=rot(30), extent=300, style="arc", width=0.2 * scale, outline=outer_col, tag=self.tag)
         canvas.create_arc(bounding_box, start=rot(-20), extent=15, style="arc", width=0.2 * scale, outline=outer_col, tag=self.tag)
@@ -103,14 +111,12 @@ class Destroyer(BotSprite):
         penta_arcs = range(0 - direction, 360 - direction, 360 / 5)
         penta_arcs_inner = [arc + 360 / 5 / 2.0 for arc in penta_arcs]
 
-        import cmath, math
-
         coords = []
         for a, i in zip(penta_arcs, penta_arcs_inner):
             # we rotate with the help of complex numbers
-            n = cmath.rect(self.scale * 0.85, a * math.pi / 180.0)
+            n = cmath.rect(self.scale * 0.85, a * cmath.pi / 180.0)
             coords.append((n.real + self.x, n.imag + self.y))
-            n = cmath.rect(self.scale * 0.3, i * math.pi / 180.0)
+            n = cmath.rect(self.scale * 0.3, i * cmath.pi / 180.0)
             coords.append((n.real + self.x, n.imag + self.y))
 
         canvas.create_polygon(width=0.05 * self.scale, fill="", outline=col(94, 158, 217), *coords)
@@ -214,6 +220,19 @@ class Animation(threading.Thread):
         return anim
 
     @classmethod
+    def rotate_to(cls, canvas, item, arc, delay=0.5, step_len=0.1):
+        anim = cls(delay, step_len)
+        s_arc = (item.direction - arc) % 360 - 180
+
+        step_arc = float(s_arc) / anim.num_steps
+        def rotation():
+            item.rotate(step_arc)
+            item.redraw(canvas.canvas)
+
+        anim.step = rotation
+        return anim
+
+    @classmethod
     def move(cls, canvas, item, transpos, delay=0.5, step_len=0.1):
         anim = cls(delay, step_len)
         dx = float(transpos[0]) / anim.num_steps
@@ -234,6 +253,29 @@ class Animation(threading.Thread):
         anim = threading.Thread(target=seq)
         anim.setDaemon(True)
         return anim
+
+from pelita.messaging import Notification
+from pelita.messaging import DispatchingActor, dispatch, ActorProxy
+
+class CanvasActor(DispatchingActor):
+    @dispatch
+    def go_to(self, message, direction):
+        pos = complex(direction[0], - direction[1])
+        arc = int(cmath.phase(pos) / cmath.pi * 180)
+
+        anim_seq = Animation.sequence(
+            Animation.rotate_to(canvas, canvas.registered_items[9], arc),
+            Animation.move(canvas, canvas.registered_items[9], direction, step_len=0.1),
+        )
+        anim_seq.start()
+        anim_seq.join()
+
+        print direction
+
+East = Notification("go_to", [(1, 0)])
+West = Notification("go_to", [(-1, 0)])
+South = Notification("go_to", [(0, 1)])
+North = Notification("go_to", [(0, -1)])
 
 
 if __name__ == "__main__":
@@ -262,10 +304,17 @@ if __name__ == "__main__":
     thread.setDaemon(True)
     #thread.start()
 
+    actor = CanvasActor()
+    actor.start()
+    actor.put(South)
+    actor.put(East)
+    actor.put(North)
+    actor.put(West)
+
     anim_seq = Animation.sequence(
         Animation.rotate(canvas, canvas.registered_items[9], 90),
         Animation.move(canvas, canvas.registered_items[9], (1, 2), delay=5, step_len=0.1),
         )
-    anim_seq.start()
+    #anim_seq.start()
 
     mainloop()
