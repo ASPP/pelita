@@ -98,7 +98,42 @@ class Team(object):
         return self.__dict__ == other.__dict__
 
 class Bot(object):
+    """ A bot on a team.
 
+    Attributes
+    ----------
+    index : int
+        the index of this bot within the Universe
+    initial_pos : tuple of int (x, y)
+        the initial position for this bot
+    team_index : int
+        the index of the team that this bot is on
+    homezone : tuple of int (x_min, x_max)
+        the homezone of this team
+    current_pos : tuple of int (x, y)
+        the current position of this bot
+    in_own_zone : boolean, property
+        True if in its own homezone and False otherwise
+    is_destroyer : boolean
+        True if a destroyer, False otherwise
+    is_harvester : boolean, property
+        not is_destroyer
+
+    Parameters
+    ----------
+    index : int
+        the index of this bot within the Universe
+    initial_pos : tuple of int (x, y)
+        the initial position for this bot
+    team_index : int
+        the index of the team that this bot is on
+    homezone : tuple of int (x_min, x_max)
+        the homezone of this team
+    current_pos : tuple of int (x, y), optional
+        the current position of this bot
+        default = None (will be set to initial_pos)
+
+    """
     def __init__(self, index, initial_pos, team_index, homezone,
             current_pos=None):
         self.index = index
@@ -118,7 +153,22 @@ class Bot(object):
     def in_own_zone(self):
         return self.homezone[0] <= self.current_pos[0] <= self.homezone[1]
 
+    @property
+    def is_harvester(self):
+        return not self.is_destroyer
+
     def move(self, new_pos):
+        """ Move this bot to a new location.
+
+        Its state (harvester or destroyer) will be automatically updated.
+        Whoever moves the bot is responsible for checking the legality of the
+        new position.
+
+        Parameters
+        ----------
+        new_pos : tuple of int (x, y)
+            the new position for this bot
+        """
         self.current_pos = new_pos
         if self.is_destroyer:
             if not self.in_own_zone:
@@ -128,6 +178,7 @@ class Bot(object):
                 self.is_destroyer = True
 
     def reset(self):
+        """ Reset this bot to its initial position. """
         self.move(self.initial_pos)
 
     def __eq__(self, other):
@@ -144,9 +195,6 @@ class Bot(object):
                 (self.index, self.initial_pos, self.team_index,
                     self.homezone, self.current_pos))
 
-    @property
-    def is_harvester(self):
-        return not self.is_destroyer
 
 class MazeComponent(object):
 
