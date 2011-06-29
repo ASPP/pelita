@@ -158,6 +158,33 @@ class TestTeam(unittest.TestCase):
         team_white2 = eval(team_white.__repr__())
         self.assertEqual(team_white, team_white2)
 
+class TestMazeComponents(unittest.TestCase):
+
+    def test_init_str_eq_repr(self):
+        wall = Wall()
+        wall2 = Wall()
+        free = Free()
+        free2 = Free()
+        food = Food()
+        food2 = Food()
+        self.assertEqual(wall, wall2)
+        self.assertNotEqual(wall, free)
+        self.assertNotEqual(wall, food)
+        self.assertEqual(free, free2)
+        self.assertNotEqual(free, wall)
+        self.assertNotEqual(free, food)
+        self.assertEqual(food, food2)
+        self.assertNotEqual(food, wall)
+        self.assertNotEqual(food, free)
+        self.assertEqual(wall.__str__(), '#')
+        self.assertEqual(free.__str__(), ' ')
+        self.assertEqual(food.__str__(), '.')
+        wall3 = eval(wall.__repr__())
+        free3 = eval(free.__repr__())
+        food3 = eval(food.__repr__())
+        self.assertEqual(wall, wall3)
+        self.assertEqual(free, free3)
+        self.assertEqual(food, food3)
 
 class TestCTFUniverse(unittest.TestCase):
 
