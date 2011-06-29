@@ -354,7 +354,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         self.assertRaises(IllegalMoveException, universe.move_bot, 2, west)
         self.assertRaises(IllegalMoveException, universe.move_bot, 2, south)
 
-    def test_reset_bot(self):
+    def test_reset_bot_bot_positions(self):
         test_reset_bot = (
             """ ########
                 #0     #
@@ -365,6 +365,8 @@ class TestCTFUniverseRules(unittest.TestCase):
         universe = CTFUniverse(test_reset_bot, number_bots)
         self.assertEqual(str(universe),
                 str(Layout(test_reset_bot, CTFUniverse.layout_chars, number_bots).as_mesh()))
+        self.assertEqual(universe.bot_positions,
+                [(1, 1), (6, 3), (1, 2), (6, 2)])
         test_shuffle = (
             """ ########
                 #   0 3#
@@ -375,6 +377,8 @@ class TestCTFUniverseRules(unittest.TestCase):
         universe.bots[1].move((2, 2))
         universe.bots[2].move((2, 3))
         universe.bots[3].move((6, 1))
+        self.assertEqual(universe.bot_positions,
+                [(4, 1), (2, 2), (2, 3), (6, 1)])
         self.assertEqual(str(universe),
                 str(Layout(test_shuffle, CTFUniverse.layout_chars, number_bots).as_mesh()))
         universe.bots[0].reset()
@@ -383,6 +387,8 @@ class TestCTFUniverseRules(unittest.TestCase):
         universe.bots[3].reset()
         self.assertEqual(str(universe),
                 str(Layout(test_reset_bot, CTFUniverse.layout_chars, number_bots).as_mesh()))
+        self.assertEqual(universe.bot_positions,
+                [(1, 1), (6, 3), (1, 2), (6, 2)])
 
     def test_one(self):
 
