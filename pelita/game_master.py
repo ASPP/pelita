@@ -18,12 +18,12 @@ class GameMaster(object):
         self.viewers.append(viewer)
 
     def play(self):
-        for i in range(self.game_time):
+        for gt in range(self.game_time):
             for i,p in enumerate(self.players):
                 move = p.get_move(self.universe)
                 self.universe.move_bot(i, move)
                 for v in self.viewers:
-                    v.observe(i, self.universe)
+                    v.observe(gt, i, self.universe)
             # TODO check for victory
 
 class AsciiViewer(object):
@@ -31,8 +31,9 @@ class AsciiViewer(object):
     def __init__(self):
         pass
 
-    def observe(self, turn, universe):
-        print "Turn: %i Score: %i:%i" % (turn, universe.teams[0].score, universe.teams[1].score)
+    def observe(self, round_, turn, universe):
+        print ("Round: %i Turn: %i Score: %i:%i"
+        % (round_, turn, universe.teams[0].score, universe.teams[1].score))
         print universe.as_str()
 
 class RandomPlayer(object):
