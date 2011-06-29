@@ -267,11 +267,9 @@ class CTFUniverse(object):
         initial layout with food and agent positions
     maze_mesh : Mesh of single char strings
         static layout (free spaces and walls only)
-    team_bots : dict of str to list of int
-        the indices of the bots on each team
-    team_score : dict of str to int
-        the score of each team
-    bots : lits of Bot objects
+    teams : lits of Team objects
+        the teams in this universe
+    bots : list of Bot objects
         all the bots in this universe
     food_mesh : Mesh of booleans
         the current food positions
