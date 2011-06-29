@@ -56,7 +56,7 @@ class Team(object):
         else:
             self.bots = bots
 
-    def add_bot(self, bot):
+    def _add_bot(self, bot):
         """ Add a bot to this team.
 
         Parameters
@@ -83,7 +83,7 @@ class Team(object):
         """
         return self.zone[0] <= position[0] <= self.zone[1]
 
-    def score_point(self):
+    def _score_point(self):
         """ Score a single point. """
         self.score += 1
 
@@ -360,7 +360,7 @@ class CTFUniverse(object):
         # check for food being eaten
         if Food() in self.maze_mesh[bot.current_pos]:
             self.maze_mesh[bot.current_pos].remove(Food())
-            self.teams[bot.team_index].score_point()
+            self.teams[bot.team_index]._score_point()
 
         # TODO:
         # check for state change

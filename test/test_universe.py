@@ -131,17 +131,17 @@ class TestTeam(unittest.TestCase):
         team_black = Team(0, 'black', (0, 2))
         team_white = Team(1, 'white', (3, 6), score=5, bots=[1, 3, 5])
 
-        team_black.add_bot(0)
+        team_black._add_bot(0)
         self.assertEqual(team_black.bots, [0])
-        team_white.add_bot(7)
+        team_white._add_bot(7)
         self.assertEqual(team_white.bots, [1, 3, 5, 7])
         self.assertTrue(team_black.in_zone((1, 5)))
         self.assertFalse(team_black.in_zone((5, 1)))
         self.assertTrue(team_white.in_zone((5, 1)))
         self.assertFalse(team_white.in_zone((1, 5)))
-        team_black.score_point()
+        team_black._score_point()
         self.assertEqual(team_black.score, 1)
-        team_white.score_point()
+        team_white._score_point()
         self.assertEqual(team_white.score, 6)
 
     def test_str_repr_eq(self):
