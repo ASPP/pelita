@@ -9,8 +9,6 @@ harvester = 'c'
 destroyer = 'o'
 free   = ' '
 
-layout_chars = [wall, food, harvester, destroyer, free]
-
 north = 'NORTH'
 south = 'SOUTH'
 west  = 'WEST'
@@ -211,7 +209,7 @@ class MazeComponent(object):
 class Free(MazeComponent):
 
     def __str__(self):
-        return CTFUniverse.free
+        return free
 
     def __repr__(self):
         return 'Free()'
@@ -219,14 +217,14 @@ class Free(MazeComponent):
 class Wall(MazeComponent):
 
     def __str__(self):
-        return CTFUniverse.wall
+        return wall
 
     def __repr__(self):
         return 'Wall()'
 
 class Food(MazeComponent):
     def __str__(self):
-        return CTFUniverse.food
+        return food
 
     def __repr__(self):
         return 'Food()'
@@ -248,16 +246,18 @@ def create_maze(layout_mesh):
     maze_mesh = Mesh(layout_mesh.width, layout_mesh.height,
             data=[[] for i in range(len(layout_mesh))])
     for index in maze_mesh.iterkeys():
-        if layout_mesh[index] == CTFUniverse.wall:
+        if layout_mesh[index] == wall:
             maze_mesh[index].append(Wall())
         else:
             maze_mesh[index].append(Free())
-        if layout_mesh[index] == CTFUniverse.food:
+        if layout_mesh[index] == food:
             maze_mesh[index].append(Food())
     return maze_mesh
 
 def create_CTFUniverse(layout_str, number_bots,
         team_names=['black', 'white']):
+
+    layout_chars = [wall, food, harvester, destroyer, free]
 
     if number_bots % 2 != 0:
         raise UniverseException(
@@ -325,14 +325,6 @@ class CTFUniverse(object):
         the number of bots for this universe
     """
 
-    wall   = '#'
-    food   = '.'
-    harvester = 'c'
-    destroyer = 'o'
-    free   = ' '
-
-    layout_chars = [wall, food, harvester, destroyer, free]
-
     def __init__(self, number_bots, layout, maze_mesh, teams, bots):
         self.number_bots = number_bots
         self.layout = layout
@@ -396,11 +388,11 @@ class CTFUniverse(object):
 
         for (key, value) in self.maze_mesh.iteritems():
             if Wall() in value:
-                out[key] = CTFUniverse.wall
+                out[key] = wall
             elif Food() in value:
-                out[key] = CTFUniverse.food
+                out[key] = food
             elif Free() in value:
-                out[key] = CTFUniverse.free
+                out[key] = free
         for bot in self.bots:
             out[bot.current_pos] = str(bot.index)
         return str(out)
@@ -439,7 +431,7 @@ class CTFUniverse(object):
         for k, v in mesh.iteritems():
             if v in bot_ids:
                 start[int(v)] = k
-                mesh[k] = CTFUniverse.free
+                mesh[k] = free
         return start
 
     @staticmethod
