@@ -325,25 +325,27 @@ class CTFUniverse(object):
 
     Attributes
     ----------
-    number_bots : int
-        total number of bots
-    layout : Layout
-        initial layout with food and agent positions
-    maze_mesh : Mesh of single char strings
-        static layout (free spaces and walls only)
-    team_bots : dict of str to list of int
-        the indices of the bots on each team
-    team_score : dict of str to int
-        the score of each team
+    maze_mesh : mesh of lists of MazeComponent objects
+        the maze
+    teams : list of Team objects
+        the teams
     bots : lits of Bot objects
-        all the bots in this universe
-    food_mesh : Mesh of booleans
-        the current food positions
-    food_list : list of tuples, property
-        indices of the remaining food
+        the bots
+    bot_positions : list of tuple of ints (x, y), property
+        the current position of all bots
+    food_list : list of typle of ints (x, y), property
+        the positions of all edible food
+
+    Parameters
+    ----------
+    maze_mesh : mesh of lists of MazeComponent objects
+        the maze
+    teams : list of Team objects
+        the teams
+    bots : lits of Bot objects
+        the bots
 
     """
-
     def __init__(self, maze_mesh, teams, bots):
         self.maze_mesh = maze_mesh
         # TODO make a deepcopy here, so that we can big_bang
