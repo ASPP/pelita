@@ -456,15 +456,17 @@ class CTFUniverse(object):
         return str(out)
 
     def as_str(self):
-        output = str()
-        for i in range(self.height):
-            start = i * self.width
-            end = start + self.width
-            output += '['
-            output += ', '.join((str(i) for i in  self._data[start:end]))
-            output += ']'
-            output += '\n'
-        return output
+        out = self.maze_mesh.copy()
+        for (key, value) in self.maze_mesh.iteritems():
+            if Wall() in value:
+                out[key] = wall
+            elif Food() in value:
+                out[key] = food
+            elif Free() in value:
+                out[key] = free
+        for bot in self.bots:
+            out[bot.current_pos] = str(bot.index)
+        return out.as_str()
 
     @staticmethod
     def new_positions(current):
