@@ -300,9 +300,9 @@ def create_CTFUniverse(layout_str, number_bots,
         maze_mesh.width-1)]
 
     teams = []
-    teams.append(Team(0, 'black', homezones[0], bots=range(0,
+    teams.append(Team(0, team_names[0], homezones[0], bots=range(0,
         number_bots, 2)))
-    teams.append(Team(1, 'white', homezones[1], bots=range(1,
+    teams.append(Team(1, team_names[1], homezones[1], bots=range(1,
         number_bots, 2)))
 
     bots = []
