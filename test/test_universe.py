@@ -3,7 +3,7 @@ from pelita.layout import Layout
 from pelita.mesh import Mesh
 from pelita.universe import *
 
-class TestCTFUniverseStaticmethods(unittest.TestCase):
+class TestStaticmethods(unittest.TestCase):
 
     def test_get_initial_positions(self):
 
@@ -18,7 +18,7 @@ class TestCTFUniverseStaticmethods(unittest.TestCase):
         number_bots = 3
         layout = Layout(test_layout, layout_chars, number_bots)
         mesh = layout.as_mesh()
-        initial_pos = CTFUniverse.extract_initial_positions(mesh, number_bots)
+        initial_pos = extract_initial_positions(mesh, number_bots)
         target = [(1, 1), (3, 2), (5, 3)]
         self.assertEqual(target, initial_pos)
         # also test the side-effect of initial_positions()
@@ -35,7 +35,7 @@ class TestCTFUniverseStaticmethods(unittest.TestCase):
         number_bots = 4
         layout = Layout(test_layout2, layout_chars, number_bots)
         mesh = layout.as_mesh()
-        initial_pos = CTFUniverse.extract_initial_positions(mesh, number_bots)
+        initial_pos = extract_initial_positions(mesh, number_bots)
         target = [(1, 1), (1, 2), (16, 2), (16, 3)]
         self.assertEqual(target, initial_pos)
         # also test the side-effect of initial_positions()

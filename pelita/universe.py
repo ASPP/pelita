@@ -254,6 +254,31 @@ def create_maze(layout_mesh):
             maze_mesh[index].append(Food())
     return maze_mesh
 
+def extract_initial_positions(mesh, number_bots):
+    """ Extract initial positions from mesh.
+
+    Also replaces the initial positions in the mesh with free spaces.
+
+    Parameters
+    ----------
+    mesh : Mesh of characters
+        the layout in mesh format
+    number_bots : int
+        the number of bots for which to find initial positions
+
+    Returns
+    -------
+    initial pos : list of tuples
+        the initial positions for all the bots
+    """
+    bot_ids = [str(i) for i in range(number_bots)]
+    start = [(0, 0)] * number_bots
+    for k, v in mesh.iteritems():
+        if v in bot_ids:
+            start[int(v)] = k
+            mesh[k] = free
+    return start
+
 def create_CTFUniverse(layout_str, number_bots,
         team_names=['black', 'white']):
 
@@ -265,7 +290,7 @@ def create_CTFUniverse(layout_str, number_bots,
             % number_bots)
     layout = Layout(layout_str, layout_chars, number_bots)
     layout_mesh = layout.as_mesh()
-    initial_pos = CTFUniverse.extract_initial_positions(layout_mesh, number_bots)
+    initial_pos = extract_initial_positions(layout_mesh, number_bots)
     maze_mesh = create_maze(layout_mesh)
     if maze_mesh.width % 2 != 0:
         raise UniverseException(
@@ -407,32 +432,6 @@ class CTFUniverse(object):
             output += ']'
             output += '\n'
         return output
-
-    @staticmethod
-    def extract_initial_positions(mesh, number_bots):
-        """ Extract initial positions from mesh.
-
-        Also replaces the initial positions in the mesh with free spaces.
-
-        Parameters
-        ----------
-        mesh : Mesh of characters
-            the layout in mesh format
-        number_bots : int
-            the number of bots for which to find initial positions
-
-        Returns
-        -------
-        initial pos : list of tuples
-            the initial positions for all the bots
-        """
-        bot_ids = [str(i) for i in range(number_bots)]
-        start = [(0, 0)] * number_bots
-        for k, v in mesh.iteritems():
-            if v in bot_ids:
-                start[int(v)] = k
-                mesh[k] = free
-        return start
 
     @staticmethod
     def new_positions(current):
