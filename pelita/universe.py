@@ -312,7 +312,7 @@ def create_CTFUniverse(layout_str, number_bots,
                 team_index, homezones[team_index])
         bots.append(bot)
 
-    return CTFUniverse(number_bots, maze_mesh, teams, bots)
+    return CTFUniverse(maze_mesh, teams, bots)
 
 class UniverseException(Exception):
     pass
@@ -344,9 +344,9 @@ class CTFUniverse(object):
 
     """
 
-    def __init__(self, number_bots, maze_mesh, teams, bots):
-        self.number_bots = number_bots
+    def __init__(self, maze_mesh, teams, bots):
         self.maze_mesh = maze_mesh
+        # TODO make a deepcopy here, so that we can big_bang
         self.teams = teams
         self.bots = bots
 
