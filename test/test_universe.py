@@ -62,48 +62,48 @@ class TestCTFUniverseStaticmethods(unittest.TestCase):
 class TestBot(unittest.TestCase):
 
     def test_init_in_own_zone_is_harvester(self):
-        bot = Bot(0, (1,1), 0, (0,3))
+        bot = Bot(0, (1, 1), 0, (0, 3))
         self.assertEqual(bot.index, 0)
-        self.assertEqual(bot.initial_pos, (1,1))
-        self.assertEqual(bot.current_pos, (1,1))
+        self.assertEqual(bot.initial_pos, (1, 1))
+        self.assertEqual(bot.current_pos, (1, 1))
         self.assertEqual(bot.team_index, 0)
-        self.assertEqual(bot.homezone, (0,3))
+        self.assertEqual(bot.homezone, (0, 3))
         self.assertTrue(bot.is_destroyer)
         self.assertFalse(bot.is_harvester)
         self.assertTrue(bot.in_own_zone)
 
-        bot = Bot(1, (6,6), 1, (3,6), current_pos = (1,1))
+        bot = Bot(1, (6, 6), 1, (3, 6), current_pos = (1, 1))
         self.assertEqual(bot.index, 1)
-        self.assertEqual(bot.initial_pos, (6,6))
-        self.assertEqual(bot.current_pos, (1,1))
+        self.assertEqual(bot.initial_pos, (6, 6))
+        self.assertEqual(bot.current_pos, (1, 1))
         self.assertEqual(bot.team_index, 1)
-        self.assertEqual(bot.homezone, (3,6))
+        self.assertEqual(bot.homezone, (3, 6))
         self.assertFalse(bot.is_destroyer)
         self.assertTrue(bot.is_harvester)
         self.assertFalse(bot.in_own_zone)
 
     def test_eq_repr(self):
-        black = Bot(0, (1,1), 0, (0,3))
-        black2 = Bot(0, (1,1), 0, (0,3))
-        white = Bot(1, (6,6), 1, (3,6), current_pos = (1,1))
+        black = Bot(0, (1, 1), 0, (0, 3))
+        black2 = Bot(0, (1, 1), 0, (0, 3))
+        white = Bot(1, (6, 6), 1, (3, 6), current_pos = (1, 1))
         self.assertNotEqual(black, white)
         self.assertEqual(black, black2)
         black3 = eval(black.__repr__())
         self.assertEqual(black, black3)
 
     def test_move_reset(self):
-        black = Bot(0, (1,1), 0, (0,3))
-        white = Bot(1, (6,6), 1, (3,6), current_pos = (1,1))
+        black = Bot(0, (1, 1), 0, (0, 3))
+        white = Bot(1, (6, 6), 1, (3, 6), current_pos = (1, 1))
         self.assertTrue(black.is_destroyer)
-        black.move((4,1))
-        self.assertEqual(black.current_pos, (4,1))
+        black.move((4, 1))
+        self.assertEqual(black.current_pos, (4, 1))
         self.assertTrue(black.is_harvester)
         self.assertTrue(white.is_harvester)
         black.reset()
         white.reset()
-        self.assertEqual(black.current_pos, (1,1))
+        self.assertEqual(black.current_pos, (1, 1))
         self.assertTrue(black.is_destroyer)
-        self.assertEqual(white.current_pos, (6,6))
+        self.assertEqual(white.current_pos, (6, 6))
         self.assertTrue(white.is_destroyer)
 
 class TestTeam(unittest.TestCase):
@@ -397,7 +397,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 ###### """)
         universe.move_bot(0, south)
         self.assertEqual(str(universe),
-                str(Layout(test_destruction, CTFUniverse.layout_chars ,number_bots).as_mesh()))
+                str(Layout(test_destruction, CTFUniverse.layout_chars , number_bots).as_mesh()))
         test_red_score = (
             """ ######
                 #  0 #

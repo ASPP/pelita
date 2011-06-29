@@ -191,7 +191,7 @@ class Bot(object):
             return self.index.__cmp__(other.index)
 
     def __repr__(self):
-        return ('Bot(%i, %s, %i, %s ,current_pos=%s)' %
+        return ('Bot(%i, %s, %i, %s , current_pos=%s)' %
                 (self.index, self.initial_pos, self.team_index,
                     self.homezone, self.current_pos))
 
