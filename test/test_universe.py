@@ -188,14 +188,14 @@ class TestMazeComponents(unittest.TestCase):
 
 class TestCTFUniverse(unittest.TestCase):
 
-    def test_init(self):
+    def test_factory(self):
         test_layout3 = (
         """ ##################
             #0#.  .  # .     #
             #1#####    #####2#
             #     . #  .  .#3#
             ################## """)
-        universe = CTFUniverse(test_layout3, 4)
+        universe = create_CTFUniverse(test_layout3, 4)
         # this checks that the methods extracts the food, and the initial
         # positions from the raw layout
         target_mesh = Mesh(18, 5, data = list('################### #.  .  # .     #'+\
@@ -212,14 +212,14 @@ class TestCTFUniverse(unittest.TestCase):
             """ #####
                 #0 1#
                 ##### """)
-        self.assertRaises(UniverseException, CTFUniverse, odd_layout, 2)
+        self.assertRaises(UniverseException, create_CTFUniverse, odd_layout, 2)
 
         odd_bots = (
             """ ####
                 #01#
                 #2 #
                 #### """)
-        self.assertRaises(UniverseException, CTFUniverse, odd_bots, 3)
+        self.assertRaises(UniverseException, create_CTFUniverse, odd_bots, 3)
 
     def test_bot_teams(self):
 
@@ -228,7 +228,7 @@ class TestCTFUniverse(unittest.TestCase):
                 #0  1#
                 #2  3#
                 ###### """)
-        universe = CTFUniverse(test_layout4, 4)
+        universe = create_CTFUniverse(test_layout4, 4)
 
         team_black = Team(0, 'black', (0, 2), bots=[0, 2])
         team_white = Team(1, 'white', (3, 5), bots=[1, 3])
@@ -251,7 +251,7 @@ class TestCTFUniverse(unittest.TestCase):
                 #1  0#
                 #3  2#
                 ###### """)
-        universe = CTFUniverse(test_layout4, 4)
+        universe = create_CTFUniverse(test_layout4, 4)
 
         self.assertFalse(universe.bots[0].in_own_zone)
         self.assertFalse(universe.bots[1].in_own_zone)
@@ -263,7 +263,7 @@ class TestCTFUniverse(unittest.TestCase):
                 #0 2 #
                 # 1 3#
                 ###### """)
-        universe = CTFUniverse(test_layout4, 4)
+        universe = create_CTFUniverse(test_layout4, 4)
         self.assertTrue(universe.bots[1].is_harvester)
         self.assertTrue(universe.bots[2].is_harvester)
         self.assertFalse(universe.bots[0].is_harvester)
@@ -282,7 +282,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 #   ##
                 #    #
                 ###### """)
-        universe = CTFUniverse(test_legal, 0)
+        universe = create_CTFUniverse(test_legal, 0)
         legal_moves_1_1 = universe.get_legal_moves((1, 1))
         target = {east  : (2, 1),
                   south : (1, 2),
@@ -338,7 +338,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 # 3 ##
                 #2  1#
                 ###### """)
-        universe = CTFUniverse(test_move_bot, 4)
+        universe = create_CTFUniverse(test_move_bot, 4)
 
         self.assertRaises(IllegalMoveException, universe.move_bot, 0, 'FOOBAR')
 
@@ -362,7 +362,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 #     1#
                 ######## """)
         number_bots = 4
-        universe = CTFUniverse(test_reset_bot, number_bots)
+        universe = create_CTFUniverse(test_reset_bot, number_bots)
         self.assertEqual(str(universe),
                 str(Layout(test_reset_bot, CTFUniverse.layout_chars, number_bots).as_mesh()))
         self.assertEqual(universe.bot_positions,
@@ -398,7 +398,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 #.  1#
                 ###### """)
         number_bots = 2
-        universe = CTFUniverse(test_start, number_bots)
+        universe = create_CTFUniverse(test_start, number_bots)
         universe.move_bot(1, west)
         test_first_move = (
             """ ######

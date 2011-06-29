@@ -3,6 +3,13 @@ from pelita.mesh import Mesh
 
 __docformat__ = "restructuredtext"
 
+wall   = '#'
+food   = '.'
+harvester = 'c'
+destroyer = 'o'
+free   = ' '
+
+layout_chars = [wall, food, harvester, destroyer, free]
 
 north = 'NORTH'
 south = 'SOUTH'
@@ -249,6 +256,38 @@ def create_maze(layout_mesh):
             maze_mesh[index].append(Food())
     return maze_mesh
 
+def create_CTFUniverse(layout_str, number_bots,
+        team_names=['black', 'white']):
+
+    if number_bots % 2 != 0:
+        raise UniverseException(
+            "Number of bots in CTF must be even, is: %i"
+            % number_bots)
+    layout = Layout(layout_str, layout_chars, number_bots)
+    layout_mesh = layout.as_mesh()
+    initial_pos = CTFUniverse.extract_initial_positions(layout_mesh, number_bots)
+    maze_mesh = create_maze(layout_mesh)
+    if maze_mesh.width % 2 != 0:
+        raise UniverseException(
+            "Width of a layout for CTF must be even, is: %i"
+            % maze_mesh.width)
+    homezones = [(0, maze_mesh.width//2-1), (maze_mesh.width//2,
+        maze_mesh.width-1)]
+
+    teams = []
+    teams.append(Team(0, 'black', homezones[0], bots=range(0,
+        number_bots, 2)))
+    teams.append(Team(1, 'white', homezones[1], bots=range(1,
+        number_bots, 2)))
+
+    bots = []
+    for bot_index in range(number_bots):
+        team_index = bot_index%2
+        bot =  Bot(bot_index, initial_pos[bot_index],
+                team_index, homezones[team_index])
+        bots.append(bot)
+
+    return CTFUniverse(number_bots, layout, maze_mesh, teams, bots)
 
 class UniverseException(Exception):
     pass
@@ -294,36 +333,12 @@ class CTFUniverse(object):
 
     layout_chars = [wall, food, harvester, destroyer, free]
 
-    def __init__(self, layout_str, number_bots):
+    def __init__(self, number_bots, layout, maze_mesh, teams, bots):
         self.number_bots = number_bots
-        if self.number_bots % 2 != 0:
-            raise UniverseException(
-                "Number of bots in CTF must be even, is: %i"
-                % self.number_bots)
-        self.layout = Layout(layout_str, CTFUniverse.layout_chars, number_bots)
-        layout_mesh = self.layout.as_mesh()
-        initial_pos = CTFUniverse.extract_initial_positions(layout_mesh, self.number_bots)
-        self.maze_mesh = create_maze(layout_mesh)
-        if self.maze_mesh.width % 2 != 0:
-            raise UniverseException(
-                "Width of a layout for CTF must be even, is: %i"
-                % self.maze_mesh.width)
-        homezones = [(0, self.maze_mesh.width//2-1), (self.maze_mesh.width//2,
-            self.maze_mesh.width-1)]
-
-        self.teams = []
-        self.teams.append(Team(0, 'black', homezones[0], bots=range(0,
-            self.number_bots, 2)))
-        self.teams.append(Team(1, 'white', homezones[1], bots=range(1,
-            self.number_bots, 2)))
-
-        self.bots = []
-
-        for bot_index in range(self.number_bots):
-            team_index = bot_index%2
-            bot =  Bot(bot_index, initial_pos[bot_index],
-                    team_index, homezones[team_index])
-            self.bots.append(bot)
+        self.layout = layout
+        self.maze_mesh = maze_mesh
+        self.teams = teams
+        self.bots = bots
 
     @property
     def bot_positions(self):
