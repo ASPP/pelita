@@ -320,10 +320,10 @@ class CTFUniverse(object):
         self.bots = []
 
         for bot_index in range(self.number_bots):
-                team_index = bot_index%2
-                bot =  Bot(bot_index, initial_pos[bot_index],
-                        team_index, homezones[team_index])
-                self.bots.append(bot)
+            team_index = bot_index%2
+            bot =  Bot(bot_index, initial_pos[bot_index],
+                    team_index, homezones[team_index])
+            self.bots.append(bot)
 
     @property
     def bot_positions(self):
