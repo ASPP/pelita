@@ -446,6 +446,15 @@ class TestCTFUniverseRules(unittest.TestCase):
                 str(Layout(test_red_score, CTFUniverse.layout_chars, number_bots).as_mesh()))
         self.assertEqual(universe.food_list, [])
         self.assertEqual(universe.teams[0].score, 1)
+        test_bot_suicide = (
+            """ ######
+                #0   #
+                #   1#
+                ###### """)
+        universe.move_bot(0, east)
+        universe.move_bot(0, south)
+        self.assertEqual(str(universe),
+                str(Layout(test_bot_suicide, CTFUniverse.layout_chars, number_bots).as_mesh()))
 
 if __name__ == '__main__':
     unittest.main()
