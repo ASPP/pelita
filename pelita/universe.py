@@ -385,7 +385,7 @@ class CTFUniverse(object):
                 elif enemy.is_harvester and bot.is_destroyer:
                     enemy._reset()
         # check for food being eaten
-        if Food() in self.maze_mesh[bot.current_pos]:
+        if Food() in self.maze_mesh[bot.current_pos] and not bot.in_own_zone:
             self.maze_mesh[bot.current_pos].remove(Food())
             self.teams[bot.team_index]._score_point()
 

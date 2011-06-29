@@ -468,6 +468,19 @@ class TestCTFUniverseRules(unittest.TestCase):
         self.assertEqual(str(universe),
                 str(Layout(test_bot_suicide, layout_chars, number_bots).as_mesh()))
 
+    def test_no_eat_own_food(self):
+        test_start = (
+            """ ######
+                #0 . #
+                #.  1#
+                ###### """)
+        number_bots = 2
+        universe = create_CTFUniverse(test_start, number_bots)
+        universe.move_bot(1, north)
+        universe.move_bot(1, west)
+        self.assertEqual(universe.food_list, [(3, 1), (1, 2)])
+
+
 if __name__ == '__main__':
     unittest.main()
 
