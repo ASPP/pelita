@@ -312,7 +312,7 @@ def create_CTFUniverse(layout_str, number_bots,
                 team_index, homezones[team_index])
         bots.append(bot)
 
-    return CTFUniverse(number_bots, layout, maze_mesh, teams, bots)
+    return CTFUniverse(number_bots, maze_mesh, teams, bots)
 
 class UniverseException(Exception):
     pass
@@ -342,17 +342,10 @@ class CTFUniverse(object):
     food_list : list of tuples, property
         indices of the remaining food
 
-    Parameters
-    ----------
-    layout_str : str
-        the layout for this universe
-    number_bots : int
-        the number of bots for this universe
     """
 
-    def __init__(self, number_bots, layout, maze_mesh, teams, bots):
+    def __init__(self, number_bots, maze_mesh, teams, bots):
         self.number_bots = number_bots
-        self.layout = layout
         self.maze_mesh = maze_mesh
         self.teams = teams
         self.bots = bots
