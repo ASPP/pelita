@@ -3,6 +3,11 @@ from pelita.mesh import Mesh
 
 __docformat__ = "restructuredtext"
 
+wall   = '#'
+food   = '.'
+harvester = 'c'
+destroyer = 'o'
+free   = ' '
 
 north = 'NORTH'
 south = 'SOUTH'
@@ -204,7 +209,7 @@ class MazeComponent(object):
 class Free(MazeComponent):
 
     def __str__(self):
-        return CTFUniverse.free
+        return free
 
     def __repr__(self):
         return 'Free()'
@@ -212,14 +217,14 @@ class Free(MazeComponent):
 class Wall(MazeComponent):
 
     def __str__(self):
-        return CTFUniverse.wall
+        return wall
 
     def __repr__(self):
         return 'Wall()'
 
 class Food(MazeComponent):
     def __str__(self):
-        return CTFUniverse.food
+        return food
 
     def __repr__(self):
         return 'Food()'
@@ -241,14 +246,73 @@ def create_maze(layout_mesh):
     maze_mesh = Mesh(layout_mesh.width, layout_mesh.height,
             data=[[] for i in range(len(layout_mesh))])
     for index in maze_mesh.iterkeys():
-        if layout_mesh[index] == CTFUniverse.wall:
+        if layout_mesh[index] == wall:
             maze_mesh[index].append(Wall())
         else:
             maze_mesh[index].append(Free())
-        if layout_mesh[index] == CTFUniverse.food:
+        if layout_mesh[index] == food:
             maze_mesh[index].append(Food())
     return maze_mesh
 
+def extract_initial_positions(mesh, number_bots):
+    """ Extract initial positions from mesh.
+
+    Also replaces the initial positions in the mesh with free spaces.
+
+    Parameters
+    ----------
+    mesh : Mesh of characters
+        the layout in mesh format
+    number_bots : int
+        the number of bots for which to find initial positions
+
+    Returns
+    -------
+    initial pos : list of tuples
+        the initial positions for all the bots
+    """
+    bot_ids = [str(i) for i in range(number_bots)]
+    start = [(0, 0)] * number_bots
+    for k, v in mesh.iteritems():
+        if v in bot_ids:
+            start[int(v)] = k
+            mesh[k] = free
+    return start
+
+def create_CTFUniverse(layout_str, number_bots,
+        team_names=['black', 'white']):
+
+    layout_chars = [wall, food, harvester, destroyer, free]
+
+    if number_bots % 2 != 0:
+        raise UniverseException(
+            "Number of bots in CTF must be even, is: %i"
+            % number_bots)
+    layout = Layout(layout_str, layout_chars, number_bots)
+    layout_mesh = layout.as_mesh()
+    initial_pos = extract_initial_positions(layout_mesh, number_bots)
+    maze_mesh = create_maze(layout_mesh)
+    if maze_mesh.width % 2 != 0:
+        raise UniverseException(
+            "Width of a layout for CTF must be even, is: %i"
+            % maze_mesh.width)
+    homezones = [(0, maze_mesh.width//2-1), (maze_mesh.width//2,
+        maze_mesh.width-1)]
+
+    teams = []
+    teams.append(Team(0, team_names[0], homezones[0], bots=range(0,
+        number_bots, 2)))
+    teams.append(Team(1, team_names[1], homezones[1], bots=range(1,
+        number_bots, 2)))
+
+    bots = []
+    for bot_index in range(number_bots):
+        team_index = bot_index%2
+        bot =  Bot(bot_index, initial_pos[bot_index],
+                team_index, homezones[team_index])
+        bots.append(bot)
+
+    return CTFUniverse(maze_mesh, teams, bots)
 
 class UniverseException(Exception):
     pass
@@ -261,67 +325,32 @@ class CTFUniverse(object):
 
     Attributes
     ----------
-    number_bots : int
-        total number of bots
-    layout : Layout
-        initial layout with food and agent positions
-    maze_mesh : Mesh of single char strings
-        static layout (free spaces and walls only)
-    teams : lits of Team objects
-        the teams in this universe
-    bots : list of Bot objects
-        all the bots in this universe
-    food_mesh : Mesh of booleans
-        the current food positions
-    food_list : list of tuples, property
-        indices of the remaining food
+    maze_mesh : mesh of lists of MazeComponent objects
+        the maze
+    teams : list of Team objects
+        the teams
+    bots : lits of Bot objects
+        the bots
+    bot_positions : list of tuple of ints (x, y), property
+        the current position of all bots
+    food_list : list of typle of ints (x, y), property
+        the positions of all edible food
 
     Parameters
     ----------
-    layout_str : str
-        the layout for this universe
-    number_bots : int
-        the number of bots for this universe
+    maze_mesh : mesh of lists of MazeComponent objects
+        the maze
+    teams : list of Team objects
+        the teams
+    bots : lits of Bot objects
+        the bots
+
     """
-
-    wall   = '#'
-    food   = '.'
-    harvester = 'c'
-    destroyer = 'o'
-    free   = ' '
-
-    layout_chars = [wall, food, harvester, destroyer, free]
-
-    def __init__(self, layout_str, number_bots):
-        self.number_bots = number_bots
-        if self.number_bots % 2 != 0:
-            raise UniverseException(
-                "Number of bots in CTF must be even, is: %i"
-                % self.number_bots)
-        self.layout = Layout(layout_str, CTFUniverse.layout_chars, number_bots)
-        layout_mesh = self.layout.as_mesh()
-        initial_pos = CTFUniverse.extract_initial_positions(layout_mesh, self.number_bots)
-        self.maze_mesh = create_maze(layout_mesh)
-        if self.maze_mesh.width % 2 != 0:
-            raise UniverseException(
-                "Width of a layout for CTF must be even, is: %i"
-                % self.maze_mesh.width)
-        homezones = [(0, self.maze_mesh.width//2-1), (self.maze_mesh.width//2,
-            self.maze_mesh.width-1)]
-
-        self.teams = []
-        self.teams.append(Team(0, 'black', homezones[0], bots=range(0,
-            self.number_bots, 2)))
-        self.teams.append(Team(1, 'white', homezones[1], bots=range(1,
-            self.number_bots, 2)))
-
-        self.bots = []
-
-        for bot_index in range(self.number_bots):
-            team_index = bot_index%2
-            bot =  Bot(bot_index, initial_pos[bot_index],
-                    team_index, homezones[team_index])
-            self.bots.append(bot)
+    def __init__(self, maze_mesh, teams, bots):
+        self.maze_mesh = maze_mesh
+        # TODO make a deepcopy here, so that we can big_bang
+        self.teams = teams
+        self.bots = bots
 
     @property
     def bot_positions(self):
@@ -356,7 +385,7 @@ class CTFUniverse(object):
                 elif enemy.is_harvester and bot.is_destroyer:
                     enemy._reset()
         # check for food being eaten
-        if Food() in self.maze_mesh[bot.current_pos]:
+        if Food() in self.maze_mesh[bot.current_pos] and not bot.in_own_zone:
             self.maze_mesh[bot.current_pos].remove(Food())
             self.teams[bot.team_index]._score_point()
 
@@ -379,11 +408,11 @@ class CTFUniverse(object):
 
         for (key, value) in self.maze_mesh.iteritems():
             if Wall() in value:
-                out[key] = CTFUniverse.wall
+                out[key] = wall
             elif Food() in value:
-                out[key] = CTFUniverse.food
+                out[key] = food
             elif Free() in value:
-                out[key] = CTFUniverse.free
+                out[key] = free
         for bot in self.bots:
             out[bot.current_pos] = str(bot.index)
         return str(out)
@@ -398,32 +427,6 @@ class CTFUniverse(object):
             output += ']'
             output += '\n'
         return output
-
-    @staticmethod
-    def extract_initial_positions(mesh, number_bots):
-        """ Extract initial positions from mesh.
-
-        Also replaces the initial positions in the mesh with free spaces.
-
-        Parameters
-        ----------
-        mesh : Mesh of characters
-            the layout in mesh format
-        number_bots : int
-            the number of bots for which to find initial positions
-
-        Returns
-        -------
-        initial pos : list of tuples
-            the initial positions for all the bots
-        """
-        bot_ids = [str(i) for i in range(number_bots)]
-        start = [(0, 0)] * number_bots
-        for k, v in mesh.iteritems():
-            if v in bot_ids:
-                start[int(v)] = k
-                mesh[k] = CTFUniverse.free
-        return start
 
     @staticmethod
     def new_positions(current):
