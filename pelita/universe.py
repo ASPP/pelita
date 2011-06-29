@@ -157,7 +157,7 @@ class Bot(object):
     def is_harvester(self):
         return not self.is_destroyer
 
-    def move(self, new_pos):
+    def _move(self, new_pos):
         """ Move this bot to a new location.
 
         Its state (harvester or destroyer) will be automatically updated.
@@ -177,9 +177,9 @@ class Bot(object):
             if self.in_own_zone:
                 self.is_destroyer = True
 
-    def reset(self):
+    def _reset(self):
         """ Reset this bot to its initial position. """
-        self.move(self.initial_pos)
+        self._move(self.initial_pos)
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -344,7 +344,7 @@ class CTFUniverse(object):
             raise IllegalMoveException(
                 'Illegal move from bot %r: %s'
                 % (bot, move))
-        bot.move(legal_moves_dict[move])
+        bot._move(legal_moves_dict[move])
         # check for destruction
         other_teams = self.teams[:]
         other_teams.remove(self.teams[bot.team_index])
@@ -354,9 +354,9 @@ class CTFUniverse(object):
         for enemy in [self.bots[i] for i in other_team_bots]:
             if enemy.current_pos == bot.current_pos:
                 if enemy.is_destroyer and bot.is_harvester:
-                    bot.reset()
+                    bot._reset()
                 elif enemy.is_harvester and bot.is_destroyer:
-                    enemy.reset()
+                    enemy._reset()
         # check for food being eaten
         if Food() in self.maze_mesh[bot.current_pos]:
             self.maze_mesh[bot.current_pos].remove(Food())

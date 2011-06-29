@@ -98,12 +98,12 @@ class TestBot(unittest.TestCase):
         black = Bot(0, (1, 1), 0, (0, 3))
         white = Bot(1, (6, 6), 1, (3, 6), current_pos = (1, 1))
         self.assertTrue(black.is_destroyer)
-        black.move((4, 1))
+        black._move((4, 1))
         self.assertEqual(black.current_pos, (4, 1))
         self.assertTrue(black.is_harvester)
         self.assertTrue(white.is_harvester)
-        black.reset()
-        white.reset()
+        black._reset()
+        white._reset()
         self.assertEqual(black.current_pos, (1, 1))
         self.assertTrue(black.is_destroyer)
         self.assertEqual(white.current_pos, (6, 6))
@@ -373,18 +373,18 @@ class TestCTFUniverseRules(unittest.TestCase):
                 # 1    #
                 # 2    #
                 ######## """)
-        universe.bots[0].move((4, 1))
-        universe.bots[1].move((2, 2))
-        universe.bots[2].move((2, 3))
-        universe.bots[3].move((6, 1))
+        universe.bots[0]._move((4, 1))
+        universe.bots[1]._move((2, 2))
+        universe.bots[2]._move((2, 3))
+        universe.bots[3]._move((6, 1))
         self.assertEqual(universe.bot_positions,
                 [(4, 1), (2, 2), (2, 3), (6, 1)])
         self.assertEqual(str(universe),
                 str(Layout(test_shuffle, CTFUniverse.layout_chars, number_bots).as_mesh()))
-        universe.bots[0].reset()
-        universe.bots[1].reset()
-        universe.bots[2].reset()
-        universe.bots[3].reset()
+        universe.bots[0]._reset()
+        universe.bots[1]._reset()
+        universe.bots[2]._reset()
+        universe.bots[3]._reset()
         self.assertEqual(str(universe),
                 str(Layout(test_reset_bot, CTFUniverse.layout_chars, number_bots).as_mesh()))
         self.assertEqual(universe.bot_positions,
