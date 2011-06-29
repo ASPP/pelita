@@ -13,12 +13,42 @@ stop  = 'STOP'
 move_ids = [north, south, east, west, stop]
 
 class Team(object):
+    """ A team of bots.
 
+    Attributes
+    ----------
+    index : int
+        the index of the team within the Universe
+    name : str
+        the name of the team
+    zone : tuple of int (x_min, x_max)
+        the homezone of this team
+    score : int
+        the score of this team
+    bots : list of int
+        the bot indices that belong to this team
+
+    Parameters
+    ----------
+    index : int
+        the index of the team within the Universe
+    index : int
+        the index of the team within the Universe
+    name : str
+        the name of the team
+    zone : tuple of int
+        the homezone of this team
+    score : int, optional, default = 0
+        the score of this team
+    bots : list of int, optional, default = None (creates an empty list)
+        the bot indices that belong to this team
+
+    """
     def __init__(self, index, name, zone, score=0, bots=None):
         self.index = index
         self.name = name
-        self.score = score
         self.zone = zone
+        self.score = score
         # we can't use a keyword argument here, because that would create a
         # single list object for all our Teams.
         if not bots:
@@ -27,12 +57,34 @@ class Team(object):
             self.bots = bots
 
     def add_bot(self, bot):
+        """ Add a bot to this team.
+
+        Parameters
+        ----------
+        bot : int
+            the index of the bot to add
+
+        """
         self.bots.append(bot)
 
     def in_zone(self, position):
+        """ Check if a position is within the zone
+
+        Parameters
+        ----------
+        position : tuple of int (x, y)
+            the position to check
+
+        Returns
+        -------
+        is_in_zone : boolean
+            True if the position is in the homezone and False otherwise
+
+        """
         return self.zone[0] <= position[0] <= self.zone[1]
 
     def score_point(self):
+        """ Score a single point. """
         self.score += 1
 
     def __str__(self):
