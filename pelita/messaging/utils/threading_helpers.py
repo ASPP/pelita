@@ -12,7 +12,10 @@ class CloseThread(Exception):
 class SuspendableThread(object):
     """Base class for a thread which may be suspended."""
     def __init__(self):
-        self._thread = _threading.Thread(target=self.run)
+        # get a (unique?) name for the thread
+        # we add the class name, so we know who started the thread
+        threadname = _threading._newname("Thread-" + self.__class__.__name__ + "-%d")
+        self._thread = _threading.Thread(target=self.run, name=threadname)
         self._running = False
 
         # Define a special event which can be flagged to wait.
