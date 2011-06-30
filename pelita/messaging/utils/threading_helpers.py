@@ -6,6 +6,13 @@ import logging
 _logger = logging.getLogger("pelita.threading")
 #_logger.setLevel(logging.DEBUG)
 
+# Helper to generate new thread names
+_counter = 0
+def _newname(cls, template="Thread-%s-%d"):
+    global _counter
+    _counter = _counter + 1
+    return template % (cls.__name__, _counter)
+
 class CloseThread(Exception):
     """May be raised from inside the _run method to close the thread."""
 
@@ -14,8 +21,7 @@ class SuspendableThread(object):
     def __init__(self):
         # get a (unique?) name for the thread
         # we add the class name, so we know who started the thread
-        threadname = _threading._newname("Thread-" + self.__class__.__name__ + "-%d")
-        self._thread = _threading.Thread(target=self.run, name=threadname)
+        self._thread = _threading.Thread(target=self.run, name=_newname(self.__class__))
         self._running = False
 
         # Define a special event which can be flagged to wait.
