@@ -22,7 +22,7 @@ class SuspendableThread(object):
     def run(self):
         """Executes the thread.
 
-        This needs only be overriden, if a special running behaviour is needed.
+        This needs only be overridden, if a special running behaviour is needed.
         In many cases, it is sufficient to override _run().
         """
         while self._running:

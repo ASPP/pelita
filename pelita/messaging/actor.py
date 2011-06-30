@@ -42,6 +42,11 @@ class DeadConnection(Exception):
 class StopProcessing(object):
     """If a thread encounters this value in a queue, it is advised to stop processing."""
 
+class Exit(object):
+    def __init__(self, sender, reason):
+        self.sender = sender
+        self.reason = reason
+
 class AbstractActor(object):
     def request(self, method, params=None, id=None):
         raise NotImplementedError
@@ -92,6 +97,7 @@ class IncomingActor(SuspendableThread):
 
         self.request_db = request_db
 
+        self.trap_exit = False
         self.linked_actors = []
 
     def _run(self):
@@ -104,20 +110,28 @@ class IncomingActor(SuspendableThread):
             self.handle_response(message)
             return
 
+        if isinstance(message, Exit):
+            if not self.trap_exit:
+                self.exit_linked(message)
+                _logger.info("Exiting because of %r", message)
+                raise CloseThread()
+
         if message is StopProcessing:
-            while self.linked_actors:
-                linked = self.linked_actors[0]
-                self.unlink(linked)
-                linked.put(StopProcessing)
             raise CloseThread()
 
         # default
         try:
             self.on_receive(message)
         except Exception as e:
-            for linked in self.linked_actors:
-                linked.put(StopProcessing)
+            exit_msg = Exit(self, e)
+            self.exit_linked(exit_msg)
             raise
+
+    def exit_linked(self, exit_msg):
+        while self.linked_actors:
+            linked = self.linked_actors[0]
+            self.unlink(linked)
+            linked.put(exit_msg)
 
     def link(self, other):
         """ Links this actor to another actor and vice versa.
