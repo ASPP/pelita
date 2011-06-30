@@ -6,13 +6,6 @@ import logging
 _logger = logging.getLogger("pelita.threading")
 #_logger.setLevel(logging.DEBUG)
 
-# Helper to generate new thread names
-_counter = 0
-def _newname(cls, template="Thread-%s-%d"):
-    global _counter
-    _counter = _counter + 1
-    return template % (cls.__name__, _counter)
-
 class CloseThread(Exception):
     """May be raised from inside the _run method to close the thread."""
 
@@ -105,4 +98,8 @@ class Counter(Value):
             self.value += 1
             return self.value
 
-
+# Helper to generate new thread names
+_counter = Counter(0)
+def _newname(cls, template="Thread-%s-%d"):
+    value = _counter.inc()
+    return template % (cls.__name__, value)
