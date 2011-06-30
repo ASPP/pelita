@@ -92,6 +92,8 @@ class IncomingActor(SuspendableThread):
 
         self.request_db = request_db
 
+        self.linked_actors = []
+
     def _run(self):
         try:
             message = self.handle_inbox()
@@ -103,10 +105,43 @@ class IncomingActor(SuspendableThread):
             return
 
         if message is StopProcessing:
+            while self.linked_actors:
+                linked = self.linked_actors[0]
+                self.unlink(linked)
+                linked.put(StopProcessing)
             raise CloseThread()
 
         # default
-        self.on_receive(message)
+        try:
+            self.on_receive(message)
+        except Exception as e:
+            for linked in self.linked_actors:
+                linked.put(StopProcessing)
+            raise
+
+    def link(self, other):
+        """ Links this actor to another actor and vice versa.
+
+        When an actor exits (due to an Exception or because of a normal exit),
+        it sends a StopProcessing message to all linked actors which will then do
+        the same.
+
+        This means that it is possible to notify other actors when one actor closes.
+        """
+        self.link_to(other)
+        other.link_to(self)
+
+    def unlink(self, other):
+        self.unlink_from(other)
+        other.unlink_from(self)
+
+    def link_to(self, other):
+        if not other in self.linked_actors:
+            self.linked_actors.append(other)
+
+    def unlink_from(self, other):
+        while other in self.linked_actors:
+            self.linked_actors.remove(other)
 
     def on_receive(self, message):
         pass
