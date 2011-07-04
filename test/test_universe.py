@@ -189,6 +189,19 @@ class TestMazeComponents(unittest.TestCase):
         self.assertEqual(free, free3)
         self.assertEqual(food, food3)
 
+class TestUniverseEvent(unittest.TestCase):
+
+    def test_eq_repr(self):
+        bot_moves = BotMoves(0)
+        self.assertEqual(bot_moves, BotMoves(0))
+        self.assertEqual(bot_moves, eval(repr(bot_moves)))
+        bot_eats = BotEats(1)
+        self.assertEqual(bot_eats, BotEats(1))
+        self.assertEqual(bot_eats, eval(repr(bot_eats)))
+        bot_destroyed = BotDestoryed(0, 1)
+        self.assertEqual(bot_destroyed, BotDestoryed(0, 1))
+        self.assertEqual(bot_destroyed, eval(repr(bot_destroyed)))
+
 class TestCTFUniverse(unittest.TestCase):
 
     def test_factory(self):
@@ -411,7 +424,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 ###### """)
         number_bots = 2
         universe = create_CTFUniverse(test_start, number_bots)
-        universe.move_bot(1, west)
+        events = universe.move_bot(1, west)
         test_first_move = (
             """ ######
                 #0 . #
@@ -419,33 +432,37 @@ class TestCTFUniverseRules(unittest.TestCase):
                 ###### """)
         self.assertEqual(str(universe),
                 str(Layout(test_first_move, layout_chars, number_bots).as_mesh()))
+        self.assertEqual(events, [BotMoves(1)])
         test_second_move = (
             """ ######
                 #0 . #
                 #.1  #
                 ###### """)
-        universe.move_bot(1, west)
+        events = universe.move_bot(1, west)
         self.assertEqual(str(universe),
                 str(Layout(test_second_move, layout_chars, number_bots).as_mesh()))
+        self.assertEqual(events, [BotMoves(1)])
         test_eat_food = (
             """ ######
                 #0 . #
                 #1   #
                 ###### """)
         self.assertEqual(universe.food_list, [(3, 1), (1, 2)])
-        universe.move_bot(1, west)
+        events = universe.move_bot(1, west)
         self.assertEqual(str(universe),
                 str(Layout(test_eat_food, layout_chars, number_bots).as_mesh()))
         self.assertEqual(universe.food_list, [(3, 1)])
         self.assertEqual(universe.teams[1].score, 1)
+        self.assertEqual(events, [BotMoves(1), BotEats(1)])
         test_destruction = (
             """ ######
                 #  . #
                 #0  1#
                 ###### """)
-        universe.move_bot(0, south)
+        events = universe.move_bot(0, south)
         self.assertEqual(str(universe),
                 str(Layout(test_destruction, layout_chars , number_bots).as_mesh()))
+        self.assertEqual(events, [BotMoves(0), BotDestoryed(1, 0)])
         test_red_score = (
             """ ######
                 #  0 #
@@ -453,20 +470,22 @@ class TestCTFUniverseRules(unittest.TestCase):
                 ###### """)
         universe.move_bot(0, north)
         universe.move_bot(0, east)
-        universe.move_bot(0, east)
+        events = universe.move_bot(0, east)
         self.assertEqual(str(universe),
                 str(Layout(test_red_score, layout_chars, number_bots).as_mesh()))
         self.assertEqual(universe.food_list, [])
         self.assertEqual(universe.teams[0].score, 1)
+        self.assertEqual(events, [BotMoves(0), BotEats(0)])
         test_bot_suicide = (
             """ ######
                 #0   #
                 #   1#
                 ###### """)
         universe.move_bot(0, east)
-        universe.move_bot(0, south)
+        events = universe.move_bot(0, south)
         self.assertEqual(str(universe),
                 str(Layout(test_bot_suicide, layout_chars, number_bots).as_mesh()))
+        self.assertEqual(events, [BotMoves(0), BotDestoryed(0, 1)])
 
     def test_no_eat_own_food(self):
         test_start = (
@@ -477,8 +496,9 @@ class TestCTFUniverseRules(unittest.TestCase):
         number_bots = 2
         universe = create_CTFUniverse(test_start, number_bots)
         universe.move_bot(1, north)
-        universe.move_bot(1, west)
+        events = universe.move_bot(1, west)
         self.assertEqual(universe.food_list, [(3, 1), (1, 2)])
+        self.assertEqual(events, [BotMoves(1)])
 
 
 if __name__ == '__main__':
