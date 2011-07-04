@@ -201,6 +201,37 @@ class Bot(object):
                     self.homezone, self.current_pos))
 
 
+class UniverseEvent(object):
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
+class BotMoves(UniverseEvent):
+
+    def __init__(self, bot_index):
+        self.bot_index = bot_index
+
+    def __repr__(self):
+        return 'BotMoves(%i)' % self.bot_index
+
+class BotEats(UniverseEvent):
+
+    def __init__(self, bot_index):
+        self.bot_index = bot_index
+
+    def __repr__(self):
+        return 'BotEats(%i)' % self.bot_index
+
+class BotDestoryed(UniverseEvent):
+
+    def __init__(self, harvester_index, destroyer_index):
+        self.harvester_index = harvester_index
+        self.destroyer_index = destroyer_index
+
+    def __repr__(self):
+        return ('BotDestoryed(%i, %i)'
+    % (self.harvester_index, self.destroyer_index))
+
 class MazeComponent(object):
 
     def __eq__(self, other):
@@ -361,6 +392,7 @@ class CTFUniverse(object):
         return [key for (key, value) in self.maze_mesh.iteritems() if Food() in value]
 
     def move_bot(self, bot_id, move):
+        events = []
         # check legality of the move
         if move not in move_ids:
             raise IllegalMoveException(
@@ -372,6 +404,7 @@ class CTFUniverse(object):
                 'Illegal move from bot %r: %s'
                 % (bot, move))
         bot._move(legal_moves_dict[move])
+        events.append(BotMoves(bot_id))
         # check for destruction
         other_teams = self.teams[:]
         other_teams.remove(self.teams[bot.team_index])
@@ -382,12 +415,17 @@ class CTFUniverse(object):
             if enemy.current_pos == bot.current_pos:
                 if enemy.is_destroyer and bot.is_harvester:
                     bot._reset()
+                    events.append(BotDestoryed(bot.index, enemy.index))
                 elif enemy.is_harvester and bot.is_destroyer:
                     enemy._reset()
+                    events.append(BotDestoryed(enemy.index, bot.index))
         # check for food being eaten
         if Food() in self.maze_mesh[bot.current_pos] and not bot.in_own_zone:
             self.maze_mesh[bot.current_pos].remove(Food())
             self.teams[bot.team_index]._score_point()
+            events.append(BotEats(bot_id))
+
+        return events
 
         # TODO:
         # check for state change
