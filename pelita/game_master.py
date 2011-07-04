@@ -10,32 +10,50 @@ class GameMaster(object):
         self.viewers = []
 
     def register_player(self,index, player):
+        if player.__class__.get_move.__func__ == \
+            AbstractPlayer.get_move.__func__:
+                raise TypeError("Player %s does not override 'get_move()'."
+                        % player.__class__)
         self.players[index] = player
         player.set_initial(self.universe)
 
     def register_viewer(self, viewer):
+        if viewer.__class__.observe.__func__ == \
+            AbstractViewer.observe.__func__:
+                raise TypeError("Viewer %s does not override 'observe()'."
+                        % viewer.__class__)
         self.viewers.append(viewer)
 
     def play(self):
         for gt in range(self.game_time):
             for i,p in enumerate(self.players):
                 move = p.get_move(self.universe)
-                self.universe.move_bot(i, move)
+                events = self.universe.move_bot(i, move)
                 for v in self.viewers:
-                    v.observe(gt, i, self.universe)
+                    v.observe(gt, i, self.universe, events)
             # TODO check for victory
 
-class AsciiViewer(object):
+class AbstractViewer(object):
 
-    def __init__(self):
-        pass
+    def observe(self, round_, turn, universe, events):
+        raise NotImplementedError(
+                "You must override the 'observe' method in your viewer")
 
-    def observe(self, round_, turn, universe):
+class AsciiViewer(AbstractViewer):
+
+    def observe(self, round_, turn, universe, events):
         print ("Round: %i Turn: %i Score: %i:%i"
         % (round_, turn, universe.teams[0].score, universe.teams[1].score))
+        print ("Events: %r" % events)
         print universe.as_str()
 
-class RandomPlayer(object):
+class AbstractPlayer(object):
+
+    def get_move(self, universe):
+        raise NotImplementedError(
+                "You must override the 'get_move' method in your player")
+
+class RandomPlayer(AbstractPlayer):
 
     def __init__(self, index):
         self.index = index
