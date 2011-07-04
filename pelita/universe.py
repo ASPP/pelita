@@ -230,7 +230,16 @@ class BotDestoryed(UniverseEvent):
 
     def __repr__(self):
         return ('BotDestoryed(%i, %i)'
-    % (self.harvester_index, self.destroyer_index))
+            % (self.harvester_index, self.destroyer_index))
+
+class TeamWins(UniverseEvent):
+
+    def __init__(self, winning_team_index):
+        self.winning_team_index = winning_team_index
+
+    def __repr__(self):
+        return ("TeamWins(%i)" 
+            % self.winning_team_index)
 
 class MazeComponent(object):
 
@@ -391,6 +400,14 @@ class CTFUniverse(object):
     def food_list(self):
         return [key for (key, value) in self.maze_mesh.iteritems() if Food() in value]
 
+    def team_food(self, team_index):
+        return [key for (key, value) in self.maze_mesh.iteritems() if Food() in
+                value and self.teams[team_index].in_zone(key)]
+
+    def enemy_food(self, team_index):
+        return [key for (key, value) in self.maze_mesh.iteritems() if Food() in
+                value and not self.teams[team_index].in_zone(key)]
+
     def move_bot(self, bot_id, move):
         events = []
         # check legality of the move
@@ -424,6 +441,8 @@ class CTFUniverse(object):
             self.maze_mesh[bot.current_pos].remove(Food())
             self.teams[bot.team_index]._score_point()
             events.append(BotEats(bot_id))
+            if not self.enemy_food(bot.team_index):
+                events.append(TeamWins(bot.team_index))
 
         return events
 
