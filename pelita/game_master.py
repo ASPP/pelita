@@ -1,5 +1,4 @@
 import pelita.universe as uni
-import itertools
 import random
 
 class GameMaster(object):
