@@ -83,16 +83,14 @@ class TestMesh(unittest.TestCase):
 
     def test_repr(self):
         m = Mesh(2, 2, data=[1, 2, 3, 4])
-        rep = m.__repr__()
-        m2 = eval(rep)
+        m2 = eval(repr(m))
         self.assertEqual(m, m2)
 
     def test_repr_2(self):
         # check that types work
         data=["1", 2.0, 3, 4]
         m = Mesh(2, 2, data=list(data))
-        rep = m.__repr__()
-        m2 = eval(rep)
+        m2 = eval(repr(m))
         self.assertEqual(m, m2)
         self.assertEqual(data, m2._data)
 
