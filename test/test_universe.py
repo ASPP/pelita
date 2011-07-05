@@ -506,7 +506,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         events = universe.move_bot(0, south)
         self.assertEqual(create_TestUniverse(test_destruction), universe)
         self.assertEqual(events, [BotMoves(0), BotDestoryed(1, 0)])
-        test_red_score = (
+        test_black_score = (
             """ ######
                 #  0 #
                 #   1#
@@ -514,7 +514,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         universe.move_bot(0, north)
         universe.move_bot(0, east)
         events = universe.move_bot(0, east)
-        self.assertEqual(create_TestUniverse(test_red_score), universe)
+        self.assertEqual(create_TestUniverse(test_black_score), universe)
         self.assertEqual(universe.food_list, [])
         self.assertEqual(universe.teams[0].score, 1)
         self.assertEqual(events, [BotMoves(0), BotEats(0), TeamWins(0)])
