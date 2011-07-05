@@ -377,7 +377,7 @@ def create_CTFUniverse(layout_str, number_bots,
 
     bots = []
     for bot_index in range(number_bots):
-        team_index = bot_index%2
+        team_index = bot_index % 2
         bot =  Bot(bot_index, initial_pos[bot_index],
                 team_index, homezones[team_index])
         bots.append(bot)
@@ -424,7 +424,8 @@ class CTFUniverse(object):
 
     @property
     def food_list(self):
-        return [key for (key, value) in self.maze_mesh.iteritems() if Food() in value]
+        return [key for (key, value) in self.maze_mesh.iteritems()
+                if Food() in value]
 
     def team_food(self, team_index):
         return [key for (key, value) in self.maze_mesh.iteritems() if Food() in
