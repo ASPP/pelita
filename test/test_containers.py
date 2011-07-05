@@ -1,5 +1,5 @@
 import unittest
-from pelita.mesh import Mesh
+from pelita.containers import Mesh
 
 class TestMesh(unittest.TestCase):
 

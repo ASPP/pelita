@@ -1,5 +1,5 @@
 from pelita.layout import Layout
-from pelita.mesh import Mesh
+from pelita.containers import Mesh
 
 __docformat__ = "restructuredtext"
 
