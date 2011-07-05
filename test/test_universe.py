@@ -251,22 +251,22 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertEqual(universe.teams[1].name, 'purple')
 
     def test_repr_eq(self):
-        test_layout = (
+        test_layout3 = (
         """ ##################
             #0#.  .  # .     #
             #1#####    #####2#
             #     . #  .  .#3#
             ################## """)
 
-        test_layout2 = (
+        test_layout3_2 = (
         """ ##################
             #0#.  .  # .     #
             #1#####    #####2#
             #     . #  .  .#3#
             ################## """)
 
-        self.assertEqual(test_layout, test_layout2)
-        self.assertEqual(test_layout, eval(repr(test_layout)))
+        self.assertEqual(test_layout3, test_layout3_2)
+        self.assertEqual(test_layout3, eval(repr(test_layout3)))
 
     def test_bot_teams(self):
 
@@ -443,13 +443,33 @@ class TestCTFUniverseRules(unittest.TestCase):
     def test_one(self):
 
         layout_chars = [wall, food, harvester, destroyer, free]
+        number_bots = 2
+
+        # The problem here is that the layout does not allow us to specify a
+        # different inital position and current position. When testing universe
+        # equality by comparing its string representation, this does not matter.
+        # But if we want to compare using the __eq__ method, but specify the
+        # target as ascii encoded maze/layout we need to convert the layout to a
+        # CTFUniverse and then modify the initial positions. For this we define
+        # a closure here to quickly generate a target universe to compare to.
+        # Also we adapt the score, in case food has been eaten
+
+        def create_TestUniverse(layout):
+            initial_pos = [(1, 1), (4, 2)]
+            universe = create_CTFUniverse(layout, number_bots)
+            for i,pos in enumerate(initial_pos):
+                universe.bots[i].initial_pos = pos
+            if not Food() in universe.maze_mesh[1, 2]:
+                universe.teams[1]._score_point()
+            if not Food() in universe.maze_mesh[3, 1]:
+                universe.teams[0]._score_point()
+            return universe
 
         test_start = (
             """ ######
                 #0 . #
                 #.  1#
                 ###### """)
-        number_bots = 2
         universe = create_CTFUniverse(test_start, number_bots)
         events = universe.move_bot(1, west)
         test_first_move = (
@@ -457,8 +477,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 #0 . #
                 #. 1 #
                 ###### """)
-        self.assertEqual(str(universe),
-                str(Layout(test_first_move, layout_chars, number_bots).as_mesh()))
+        self.assertEqual(create_TestUniverse(test_first_move), universe)
         self.assertEqual(events, [BotMoves(1)])
         test_second_move = (
             """ ######
@@ -466,8 +485,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 #.1  #
                 ###### """)
         events = universe.move_bot(1, west)
-        self.assertEqual(str(universe),
-                str(Layout(test_second_move, layout_chars, number_bots).as_mesh()))
+        self.assertEqual(create_TestUniverse(test_second_move), universe)
         self.assertEqual(events, [BotMoves(1)])
         test_eat_food = (
             """ ######
@@ -476,8 +494,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 ###### """)
         self.assertEqual(universe.food_list, [(3, 1), (1, 2)])
         events = universe.move_bot(1, west)
-        self.assertEqual(str(universe),
-                str(Layout(test_eat_food, layout_chars, number_bots).as_mesh()))
+        self.assertEqual(create_TestUniverse(test_eat_food), universe)
         self.assertEqual(universe.food_list, [(3, 1)])
         self.assertEqual(universe.teams[1].score, 1)
         self.assertEqual(events, [BotMoves(1), BotEats(1), TeamWins(1)])
@@ -487,8 +504,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 #0  1#
                 ###### """)
         events = universe.move_bot(0, south)
-        self.assertEqual(str(universe),
-                str(Layout(test_destruction, layout_chars , number_bots).as_mesh()))
+        self.assertEqual(create_TestUniverse(test_destruction), universe)
         self.assertEqual(events, [BotMoves(0), BotDestoryed(1, 0)])
         test_red_score = (
             """ ######
@@ -498,8 +514,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         universe.move_bot(0, north)
         universe.move_bot(0, east)
         events = universe.move_bot(0, east)
-        self.assertEqual(str(universe),
-                str(Layout(test_red_score, layout_chars, number_bots).as_mesh()))
+        self.assertEqual(create_TestUniverse(test_red_score), universe)
         self.assertEqual(universe.food_list, [])
         self.assertEqual(universe.teams[0].score, 1)
         self.assertEqual(events, [BotMoves(0), BotEats(0), TeamWins(0)])
@@ -510,8 +525,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 ###### """)
         universe.move_bot(0, east)
         events = universe.move_bot(0, south)
-        self.assertEqual(str(universe),
-                str(Layout(test_bot_suicide, layout_chars, number_bots).as_mesh()))
+        self.assertEqual(create_TestUniverse(test_bot_suicide), universe)
         self.assertEqual(events, [BotMoves(0), BotDestoryed(0, 1)])
 
     def test_no_eat_own_food(self):
@@ -526,7 +540,6 @@ class TestCTFUniverseRules(unittest.TestCase):
         events = universe.move_bot(1, west)
         self.assertEqual(universe.food_list, [(3, 1), (1, 2)])
         self.assertEqual(events, [BotMoves(1)])
-
 
 if __name__ == '__main__':
     unittest.main()
