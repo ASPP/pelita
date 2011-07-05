@@ -33,6 +33,9 @@ class SuspendableThread(object):
                 self._run()
             except CloseThread:
                 self.stop()
+            except Exception as e:
+                _logger.error("Unhandled exception %r in thread %r. Stopping.", e, self)
+                self.stop()
 
         _logger.debug("Ended thread %r", self)
 
