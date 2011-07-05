@@ -155,5 +155,14 @@ class Mesh(Mapping):
             output += '\n'
         return output
 
+    def as_str(self):
+        output = str()
+        for i in range(self.height):
+            start = i * self.width
+            end = start + self.width
+            output += ''.join([i.__str__() for i in self._data[start:end]])
+            output += '\n'
+        return output
+
     def copy(self):
         return Mesh(self.width, self.height, list(self._data))

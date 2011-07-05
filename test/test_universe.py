@@ -201,6 +201,9 @@ class TestUniverseEvent(unittest.TestCase):
         bot_destroyed = BotDestoryed(0, 1)
         self.assertEqual(bot_destroyed, BotDestoryed(0, 1))
         self.assertEqual(bot_destroyed, eval(repr(bot_destroyed)))
+        team_wins = TeamWins(0)
+        self.assertEqual(team_wins, TeamWins(0))
+        self.assertEqual(team_wins, eval(repr(team_wins)))
 
 class TestCTFUniverse(unittest.TestCase):
 
@@ -220,6 +223,12 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertEqual(target_mesh, universe.maze_mesh)
         target_food_list = [(3, 1), (6, 1), (11, 1), (6, 3), (11, 3), (14, 3),  ]
         self.assertEqual(target_food_list, universe.food_list)
+        team_black_food = [(3, 1), (6, 1), (6, 3)]
+        team_white_food = [(11, 1), (11, 3), (14, 3)]
+        self.assertEqual(universe.team_food(0), team_black_food)
+        self.assertEqual(universe.enemy_food(0), team_white_food)
+        self.assertEqual(universe.team_food(1), team_white_food)
+        self.assertEqual(universe.enemy_food(1), team_black_food)
 
         self.assertEqual([b.initial_pos for b in universe.bots],
                 [(1, 1), (1, 2), (16, 2), (16, 3)])
@@ -453,7 +462,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 str(Layout(test_eat_food, layout_chars, number_bots).as_mesh()))
         self.assertEqual(universe.food_list, [(3, 1)])
         self.assertEqual(universe.teams[1].score, 1)
-        self.assertEqual(events, [BotMoves(1), BotEats(1)])
+        self.assertEqual(events, [BotMoves(1), BotEats(1), TeamWins(1)])
         test_destruction = (
             """ ######
                 #  . #
@@ -475,7 +484,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 str(Layout(test_red_score, layout_chars, number_bots).as_mesh()))
         self.assertEqual(universe.food_list, [])
         self.assertEqual(universe.teams[0].score, 1)
-        self.assertEqual(events, [BotMoves(0), BotEats(0)])
+        self.assertEqual(events, [BotMoves(0), BotEats(0), TeamWins(0)])
         test_bot_suicide = (
             """ ######
                 #0   #
