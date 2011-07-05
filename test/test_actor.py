@@ -42,7 +42,7 @@ class TestActor(unittest.TestCase):
         actor.stop()
 
 class RaisingActor(Actor):
-    def receive(self, message):
+    def on_receive(self, message):
         raise NotImplementedError
 
 class CollectingActor(Actor):
@@ -50,7 +50,7 @@ class CollectingActor(Actor):
         super(CollectingActor, self).__init__()
         self.received_exit = None
 
-    def receive(self, message):
+    def on_receive(self, message):
         if isinstance(message, Exit):
             self.received_exit = message
 

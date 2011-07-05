@@ -121,6 +121,7 @@ class IncomingActor(SuspendableThread):
 
         # default
         try:
+            _logger.debug("Received message %r.", message)
             self.on_receive(message)
         except Exception as e:
             exit_msg = Exit(self, e)
@@ -157,15 +158,31 @@ class IncomingActor(SuspendableThread):
         while other in self.linked_actors:
             self.linked_actors.remove(other)
 
+    def on_start(self):
+        """
+        This method is called *before* an actor is started.
+        """
+        pass
+
     def on_receive(self, message):
+        """
+        This method is called, whenever a new message is received.
+        """
         pass
 
     def on_stop(self):
+        """
+        This method is called *after* an actor is stopped.
+        """
         pass
 
+    def start(self):
+        self.on_start()
+        super(IncomingActor, self).start()
+
     def stop(self):
-        self.on_stop()
         super(IncomingActor, self).stop()
+        self.on_stop()
 
     def handle_inbox(self):
         pass
@@ -192,12 +209,6 @@ class Actor(IncomingActor):
 
     def handle_inbox(self):
         return self._inbox.get(True, 3)
-
-    def on_receive(self, message):
-        self.receive(message)
-
-    def receive(self, message):
-        _logger.debug("Received message %r.", message)
 
     def put(self, message):
         self._inbox.put(message)
@@ -327,12 +338,12 @@ class DispatchingActor(Actor):
 
         method_name = self._dispatch_db.get(method)
         if not method_name:
-            reply_error("Not found: method '%r'", message.method)
+            self.on_unhandled(message)
             return
 
         meth = getattr(self, method_name, None)
         if not meth:
-            reply_error("Not found: method '%r'", message.method)
+            self.on_unhandled(message)
             return
 
         if wants_doc:
@@ -359,7 +370,17 @@ class DispatchingActor(Actor):
 #        if hasattr(message, "reply"):
 #            message.reply(res)
 
-    def receive(self, message):
-        super(DispatchingActor, self).receive(message)
+    def on_receive(self, message):
         self._dispatch(message)
 
+    def on_unhandled(self, message):
+        """ Called when no method fits the message.
+
+        This method may be overridden to include other error handling mechanisms.
+        """
+        def reply_error(msg):
+            try:
+                message.reply_error(msg)
+            except AttributeError:
+                pass
+        reply_error("Not found: method '%r'", message.method)
