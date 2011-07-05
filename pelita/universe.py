@@ -178,12 +178,20 @@ class Bot(object):
 
 
 class UniverseEvent(object):
+    """ Base class for all events in a Universe. """
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
 class BotMoves(UniverseEvent):
+    """ Signifies that a bot has moved.
 
+    Parameters
+    ----------
+    bot_index : int
+        index of the bot
+
+    """
     def __init__(self, bot_index):
         self.bot_index = bot_index
 
@@ -191,7 +199,14 @@ class BotMoves(UniverseEvent):
         return 'BotMoves(%i)' % self.bot_index
 
 class BotEats(UniverseEvent):
+    """ Signifies that a bot has eaten food.
 
+    Parameters
+    ----------
+    bot_index : int
+        index of the bot
+
+    """
     def __init__(self, bot_index):
         self.bot_index = bot_index
 
@@ -199,7 +214,16 @@ class BotEats(UniverseEvent):
         return 'BotEats(%i)' % self.bot_index
 
 class BotDestoryed(UniverseEvent):
+    """ Signifies that a bot has been destoryed.
 
+    Parameters
+    ----------
+    harvester_index : int
+        index of the destoryed bot
+    destroyer_index : int
+        index of the destorying bot
+
+    """
     def __init__(self, harvester_index, destroyer_index):
         self.harvester_index = harvester_index
         self.destroyer_index = destroyer_index
@@ -209,7 +233,14 @@ class BotDestoryed(UniverseEvent):
             % (self.harvester_index, self.destroyer_index))
 
 class TeamWins(UniverseEvent):
+    """ Signify that a team has eaten all enemy food.
 
+    Parameters
+    ----------
+    winning_team_index : int
+        index of the winning team
+
+    """
     def __init__(self, winning_team_index):
         self.winning_team_index = winning_team_index
 
