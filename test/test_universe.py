@@ -3,11 +3,14 @@ from pelita.layout import Layout
 from pelita.containers import Mesh
 from pelita.universe import *
 
+# the legal chars for a basic CTFUniverse
+# see also: create_CTFUniverse factory.
+layout_chars = [cls.char for cls in [Wall, Free, Food]]
+
 class TestStaticmethods(unittest.TestCase):
 
     def test_get_initial_positions(self):
 
-        layout_chars = [wall, food, harvester, destroyer, free]
 
         test_layout = (
             """ #######
@@ -179,9 +182,9 @@ class TestMazeComponents(unittest.TestCase):
         self.assertEqual(food, food2)
         self.assertNotEqual(food, wall)
         self.assertNotEqual(food, free)
-        self.assertEqual(wall.__str__(), '#')
-        self.assertEqual(free.__str__(), ' ')
-        self.assertEqual(food.__str__(), '.')
+        self.assertEqual(str(wall), '#')
+        self.assertEqual(str(free), ' ')
+        self.assertEqual(str(food), '.')
         wall3 = eval(repr(wall))
         free3 = eval(repr(free))
         food3 = eval(repr(food))
@@ -405,8 +408,6 @@ class TestCTFUniverseRules(unittest.TestCase):
 
     def test_reset_bot_bot_positions(self):
 
-        layout_chars = [wall, food, harvester, destroyer, free]
-
         test_reset_bot = (
             """ ########
                 #0     #
@@ -444,7 +445,6 @@ class TestCTFUniverseRules(unittest.TestCase):
 
     def test_one(self):
 
-        layout_chars = [wall, food, harvester, destroyer, free]
         number_bots = 2
 
         # The problem here is that the layout does not allow us to specify a

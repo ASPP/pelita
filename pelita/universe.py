@@ -3,12 +3,6 @@ from pelita.containers import Mesh
 
 __docformat__ = "restructuredtext"
 
-wall   = '#'
-food   = '.'
-harvester = 'c'
-destroyer = 'o'
-free   = ' '
-
 north = 'NORTH'
 south = 'SOUTH'
 west  = 'WEST'
@@ -251,14 +245,16 @@ class TeamWins(UniverseEvent):
 class MazeComponent(object):
     """ Base class for all items inside a maze. """
 
+    def __str__(self):
+        return self.__class__.char
+
     def __eq__(self, other):
         return isinstance(other, self.__class__)
 
 class Free(MazeComponent):
     """ Object to represent a free space. """
 
-    def __str__(self):
-        return free
+    char = ' '
 
     def __repr__(self):
         return 'Free()'
@@ -266,8 +262,7 @@ class Free(MazeComponent):
 class Wall(MazeComponent):
     """ Object to represent a wall. """
 
-    def __str__(self):
-        return wall
+    char = '#'
 
     def __repr__(self):
         return 'Wall()'
@@ -275,8 +270,7 @@ class Wall(MazeComponent):
 class Food(MazeComponent):
     """ Object to represent a food item. """
 
-    def __str__(self):
-        return food
+    char = '.'
 
     def __repr__(self):
         return 'Food()'
@@ -298,11 +292,11 @@ def create_maze(layout_mesh):
     maze_mesh = Mesh(layout_mesh.width, layout_mesh.height,
             data=[[] for i in range(len(layout_mesh))])
     for index in maze_mesh.iterkeys():
-        if layout_mesh[index] == wall:
+        if layout_mesh[index] == Wall.char:
             maze_mesh[index].append(Wall())
         else:
             maze_mesh[index].append(Free())
-        if layout_mesh[index] == food:
+        if layout_mesh[index] == Food.char:
             maze_mesh[index].append(Food())
     return maze_mesh
 
@@ -328,7 +322,7 @@ def extract_initial_positions(mesh, number_bots):
     for k, v in mesh.iteritems():
         if v in bot_ids:
             start[int(v)] = k
-            mesh[k] = free
+            mesh[k] = Free.char
     return start
 
 def create_CTFUniverse(layout_str, number_bots,
@@ -352,7 +346,7 @@ def create_CTFUniverse(layout_str, number_bots,
         if there is something wrong with the layout_str, see `Layout()`
 
     """
-    layout_chars = [wall, food, harvester, destroyer, free]
+    layout_chars = [cls.char for cls in [Wall, Free, Food]]
 
     if number_bots % 2 != 0:
         raise UniverseException(
@@ -541,33 +535,26 @@ class CTFUniverse(object):
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
+    @property
+    def _char_mesh(self):
+        out = self.maze_mesh.copy()
+        for (key, value) in self.maze_mesh.iteritems():
+            if Wall() in value:
+                out[key] = Wall.char
+            elif Food() in value:
+                out[key] = Food.char
+            elif Free() in value:
+                out[key] = Free.char
+        for bot in self.bots:
+            out[bot.current_pos] = str(bot.index)
+        return out
+
     def __str__(self):
         # TODO what about bots on the same space?
-        out = self.maze_mesh.copy()
-
-        for (key, value) in self.maze_mesh.iteritems():
-            if Wall() in value:
-                out[key] = wall
-            elif Food() in value:
-                out[key] = food
-            elif Free() in value:
-                out[key] = free
-        for bot in self.bots:
-            out[bot.current_pos] = str(bot.index)
-        return str(out)
+        return str(self._char_mesh)
 
     def as_str(self):
-        out = self.maze_mesh.copy()
-        for (key, value) in self.maze_mesh.iteritems():
-            if Wall() in value:
-                out[key] = wall
-            elif Food() in value:
-                out[key] = food
-            elif Free() in value:
-                out[key] = free
-        for bot in self.bots:
-            out[bot.current_pos] = str(bot.index)
-        return out.as_str()
+        return self._char_mesh.as_str()
 
     def pretty_print(self):
         out = str()
