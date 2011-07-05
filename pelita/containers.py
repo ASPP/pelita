@@ -209,6 +209,7 @@ class TypeAwareList(list):
             for i,x in enumerate(self):
                 if isinstance(x, item):
                     return i
+            raise ValueError("list.index(x): x not in list")
         else:
             return super(TypeAwareList, self).index(item)
 

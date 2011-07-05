@@ -1,5 +1,5 @@
 import unittest
-from pelita.containers import Mesh
+from pelita.containers import Mesh, TypeAwareList
 
 class TestMesh(unittest.TestCase):
 
@@ -104,3 +104,26 @@ class TestMesh(unittest.TestCase):
         self.assertTrue(m2[1, 1])
         self.assertFalse(m3[1, 1])
 
+class TestTypeAwareList(unittest.TestCase):
+
+    def test_contains(self):
+        tal = TypeAwareList([1, [], {}])
+        self.assertTrue(1 in tal)
+        self.assertTrue(int in tal)
+        self.assertTrue([] in tal)
+        self.assertTrue(list in tal)
+        self.assertTrue({} in tal)
+        self.assertTrue(dict in tal)
+        self.assertFalse(set() in tal)
+        self.assertFalse(set in tal)
+
+    def test_index(self):
+        tal = TypeAwareList([1, [], {}])
+        self.assertEqual(tal.index(1), 0)
+        self.assertEqual(tal.index(int), 0)
+        self.assertEqual(tal.index([]), 1)
+        self.assertEqual(tal.index(list), 1)
+        self.assertEqual(tal.index({}), 2)
+        self.assertEqual(tal.index(dict), 2)
+        self.assertRaises(ValueError, tal.index, set)
+        self.assertRaises(ValueError, tal.index, set())
