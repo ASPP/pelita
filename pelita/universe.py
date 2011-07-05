@@ -90,25 +90,6 @@ class Team(object):
 class Bot(object):
     """ A bot on a team.
 
-    Attributes
-    ----------
-    index : int
-        the index of this bot within the Universe
-    initial_pos : tuple of int (x, y)
-        the initial position for this bot
-    team_index : int
-        the index of the team that this bot is on
-    homezone : tuple of int (x_min, x_max)
-        the homezone of this team
-    current_pos : tuple of int (x, y)
-        the current position of this bot
-    in_own_zone : boolean, property
-        True if in its own homezone and False otherwise
-    is_destroyer : boolean
-        True if a destroyer, False otherwise
-    is_harvester : boolean, property
-        not is_destroyer
-
     Parameters
     ----------
     index : int
@@ -122,6 +103,15 @@ class Bot(object):
     current_pos : tuple of int (x, y), optional
         the current position of this bot
         default = None (will be set to initial_pos)
+
+    Attributes
+    ----------
+    in_own_zone : boolean, property
+        True if in its own homezone and False otherwise
+    is_destroyer : boolean
+        True if a destroyer, False otherwise
+    is_harvester : boolean, property
+        not is_destroyer
 
     """
     def __init__(self, index, initial_pos, team_index, homezone,
@@ -158,6 +148,7 @@ class Bot(object):
         ----------
         new_pos : tuple of int (x, y)
             the new position for this bot
+
         """
         self.current_pos = new_pos
         if self.is_destroyer:
