@@ -459,6 +459,13 @@ class CTFUniverse(object):
                 legal_moves_dict[move] = new_pos
         return legal_moves_dict
 
+    def __repr__(self):
+        return ("CTFUniverse(%r, %r, %r)" %
+            (self.maze_mesh, self.teams, self.bots))
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
     def __str__(self):
         # TODO what about bots on the same space?
         out = self.maze_mesh.copy()

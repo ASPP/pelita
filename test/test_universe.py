@@ -250,6 +250,24 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertEqual(universe.teams[0].name, 'orange')
         self.assertEqual(universe.teams[1].name, 'purple')
 
+    def test_repr_eq(self):
+        test_layout = (
+        """ ##################
+            #0#.  .  # .     #
+            #1#####    #####2#
+            #     . #  .  .#3#
+            ################## """)
+
+        test_layout2 = (
+        """ ##################
+            #0#.  .  # .     #
+            #1#####    #####2#
+            #     . #  .  .#3#
+            ################## """)
+
+        self.assertEqual(test_layout, test_layout2)
+        self.assertEqual(test_layout, eval(repr(test_layout)))
+
     def test_bot_teams(self):
 
         test_layout4 = (
