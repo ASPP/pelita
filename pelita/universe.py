@@ -3,12 +3,6 @@ from pelita.containers import Mesh
 
 __docformat__ = "restructuredtext"
 
-wall   = '#'
-food   = '.'
-harvester = 'c'
-destroyer = 'o'
-free   = ' '
-
 north = 'NORTH'
 south = 'SOUTH'
 west  = 'WEST'
@@ -20,28 +14,13 @@ move_ids = [north, south, east, west, stop]
 class Team(object):
     """ A team of bots.
 
-    Attributes
+    Parameters
     ----------
     index : int
         the index of the team within the Universe
     name : str
         the name of the team
     zone : tuple of int (x_min, x_max)
-        the homezone of this team
-    score : int
-        the score of this team
-    bots : list of int
-        the bot indices that belong to this team
-
-    Parameters
-    ----------
-    index : int
-        the index of the team within the Universe
-    index : int
-        the index of the team within the Universe
-    name : str
-        the name of the team
-    zone : tuple of int
         the homezone of this team
     score : int, optional, default = 0
         the score of this team
@@ -105,25 +84,6 @@ class Team(object):
 class Bot(object):
     """ A bot on a team.
 
-    Attributes
-    ----------
-    index : int
-        the index of this bot within the Universe
-    initial_pos : tuple of int (x, y)
-        the initial position for this bot
-    team_index : int
-        the index of the team that this bot is on
-    homezone : tuple of int (x_min, x_max)
-        the homezone of this team
-    current_pos : tuple of int (x, y)
-        the current position of this bot
-    in_own_zone : boolean, property
-        True if in its own homezone and False otherwise
-    is_destroyer : boolean
-        True if a destroyer, False otherwise
-    is_harvester : boolean, property
-        not is_destroyer
-
     Parameters
     ----------
     index : int
@@ -137,6 +97,15 @@ class Bot(object):
     current_pos : tuple of int (x, y), optional
         the current position of this bot
         default = None (will be set to initial_pos)
+
+    Attributes
+    ----------
+    in_own_zone : boolean, property
+        True if in its own homezone and False otherwise
+    is_destroyer : boolean
+        True if a destroyer, False otherwise
+    is_harvester : boolean, property
+        not is_destroyer
 
     """
     def __init__(self, index, initial_pos, team_index, homezone,
@@ -173,6 +142,7 @@ class Bot(object):
         ----------
         new_pos : tuple of int (x, y)
             the new position for this bot
+
         """
         self.current_pos = new_pos
         if self.is_destroyer:
@@ -202,12 +172,20 @@ class Bot(object):
 
 
 class UniverseEvent(object):
+    """ Base class for all events in a Universe. """
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
 class BotMoves(UniverseEvent):
+    """ Signifies that a bot has moved.
 
+    Parameters
+    ----------
+    bot_index : int
+        index of the bot
+
+    """
     def __init__(self, bot_index):
         self.bot_index = bot_index
 
@@ -215,7 +193,14 @@ class BotMoves(UniverseEvent):
         return 'BotMoves(%i)' % self.bot_index
 
 class BotEats(UniverseEvent):
+    """ Signifies that a bot has eaten food.
 
+    Parameters
+    ----------
+    bot_index : int
+        index of the bot
+
+    """
     def __init__(self, bot_index):
         self.bot_index = bot_index
 
@@ -223,7 +208,16 @@ class BotEats(UniverseEvent):
         return 'BotEats(%i)' % self.bot_index
 
 class BotDestoryed(UniverseEvent):
+    """ Signifies that a bot has been destoryed.
 
+    Parameters
+    ----------
+    harvester_index : int
+        index of the destoryed bot
+    destroyer_index : int
+        index of the destorying bot
+
+    """
     def __init__(self, harvester_index, destroyer_index):
         self.harvester_index = harvester_index
         self.destroyer_index = destroyer_index
@@ -233,7 +227,14 @@ class BotDestoryed(UniverseEvent):
             % (self.harvester_index, self.destroyer_index))
 
 class TeamWins(UniverseEvent):
+    """ Signify that a team has eaten all enemy food.
 
+    Parameters
+    ----------
+    winning_team_index : int
+        index of the winning team
+
+    """
     def __init__(self, winning_team_index):
         self.winning_team_index = winning_team_index
 
@@ -242,29 +243,34 @@ class TeamWins(UniverseEvent):
             % self.winning_team_index)
 
 class MazeComponent(object):
+    """ Base class for all items inside a maze. """
+
+    def __str__(self):
+        return self.__class__.char
 
     def __eq__(self, other):
         return isinstance(other, self.__class__)
 
 class Free(MazeComponent):
+    """ Object to represent a free space. """
 
-    def __str__(self):
-        return free
+    char = ' '
 
     def __repr__(self):
         return 'Free()'
 
 class Wall(MazeComponent):
+    """ Object to represent a wall. """
 
-    def __str__(self):
-        return wall
+    char = '#'
 
     def __repr__(self):
         return 'Wall()'
 
 class Food(MazeComponent):
-    def __str__(self):
-        return food
+    """ Object to represent a food item. """
+
+    char = '.'
 
     def __repr__(self):
         return 'Food()'
@@ -286,11 +292,11 @@ def create_maze(layout_mesh):
     maze_mesh = Mesh(layout_mesh.width, layout_mesh.height,
             data=[[] for i in range(len(layout_mesh))])
     for index in maze_mesh.iterkeys():
-        if layout_mesh[index] == wall:
+        if layout_mesh[index] == Wall.char:
             maze_mesh[index].append(Wall())
         else:
             maze_mesh[index].append(Free())
-        if layout_mesh[index] == food:
+        if layout_mesh[index] == Food.char:
             maze_mesh[index].append(Food())
     return maze_mesh
 
@@ -316,13 +322,31 @@ def extract_initial_positions(mesh, number_bots):
     for k, v in mesh.iteritems():
         if v in bot_ids:
             start[int(v)] = k
-            mesh[k] = free
+            mesh[k] = Free.char
     return start
 
 def create_CTFUniverse(layout_str, number_bots,
         team_names=['black', 'white']):
+    """ Factory to create a 2-Player Capture The Flag Universe.
 
-    layout_chars = [wall, food, harvester, destroyer, free]
+    Parameters
+    ----------
+    layout_str : str
+        the string encoding the maze layout
+    number_bots : int
+        the number of bots in the game
+    team_names : length 2 list of strings, optional default = ['black', 'white']
+        the names of the playing teams
+
+    Raises
+    ------
+    UniverseException
+        if the number of bots or layout width are odd
+    LayoutEncodingException
+        if there is something wrong with the layout_str, see `Layout()`
+
+    """
+    layout_chars = [cls.char for cls in [Wall, Free, Food]]
 
     if number_bots % 2 != 0:
         raise UniverseException(
@@ -347,7 +371,7 @@ def create_CTFUniverse(layout_str, number_bots,
 
     bots = []
     for bot_index in range(number_bots):
-        team_index = bot_index%2
+        team_index = bot_index % 2
         bot =  Bot(bot_index, initial_pos[bot_index],
                 team_index, homezones[team_index])
         bots.append(bot)
@@ -355,26 +379,15 @@ def create_CTFUniverse(layout_str, number_bots,
     return CTFUniverse(maze_mesh, teams, bots)
 
 class UniverseException(Exception):
+    """ Standard error in the Universe. """
     pass
 
 class IllegalMoveException(Exception):
+    """ Raised when a bot attempts to make an illegal move. """
     pass
 
 class CTFUniverse(object):
     """ The Universe: representation of the game state.
-
-    Attributes
-    ----------
-    maze_mesh : mesh of lists of MazeComponent objects
-        the maze
-    teams : list of Team objects
-        the teams
-    bots : lits of Bot objects
-        the bots
-    bot_positions : list of tuple of ints (x, y), property
-        the current position of all bots
-    food_list : list of typle of ints (x, y), property
-        the positions of all edible food
 
     Parameters
     ----------
@@ -384,6 +397,13 @@ class CTFUniverse(object):
         the teams
     bots : lits of Bot objects
         the bots
+
+    Attributes
+    ----------
+    bot_positions : list of tuple of ints (x, y), property
+        the current position of all bots
+    food_list : list of typle of ints (x, y), property
+        the positions of all edible food
 
     """
     def __init__(self, maze_mesh, teams, bots):
@@ -398,7 +418,8 @@ class CTFUniverse(object):
 
     @property
     def food_list(self):
-        return [key for (key, value) in self.maze_mesh.iteritems() if Food() in value]
+        return [key for (key, value) in self.maze_mesh.iteritems()
+                if Food() in value]
 
     def team_food(self, team_index):
         return [key for (key, value) in self.maze_mesh.iteritems() if Food() in
@@ -408,7 +429,47 @@ class CTFUniverse(object):
         return [key for (key, value) in self.maze_mesh.iteritems() if Food() in
                 value and not self.teams[team_index].in_zone(key)]
 
+    def enemy_bots(self, team_index):
+        """ Obtain enemy bot objects.
+
+        Parameters
+        ----------
+        team_index : int
+            the index of the 'friendly' team
+
+        Returns
+        -------
+        enemy_bots : list of Bot objects
+
+        """
+        other_teams = self.teams[:]
+        other_teams.remove(self.teams[team_index])
+        other_team_bots = []
+        for t in other_teams:
+            other_team_bots.extend(t.bots)
+        return [self.bots[i] for i in other_team_bots]
+
     def move_bot(self, bot_id, move):
+        """ Move a bot in certain direction.
+
+        Parameters
+        ----------
+        bot_id : int
+            index of the bot
+        move : string
+            direction to move in
+
+        Returns
+        -------
+        events : list of UniverseEvent objects
+            the events that happend during the move
+
+        Raises
+        ------
+        IllegalMoveException
+            if the string is an invalid or the move not possible
+
+        """
         events = []
         # check legality of the move
         if move not in move_ids:
@@ -423,12 +484,7 @@ class CTFUniverse(object):
         bot._move(legal_moves_dict[move])
         events.append(BotMoves(bot_id))
         # check for destruction
-        other_teams = self.teams[:]
-        other_teams.remove(self.teams[bot.team_index])
-        other_team_bots = []
-        for t in other_teams:
-            other_team_bots.extend(t.bots)
-        for enemy in [self.bots[i] for i in other_team_bots]:
+        for enemy in self.enemy_bots(bot.team_index):
             if enemy.current_pos == bot.current_pos:
                 if enemy.is_destroyer and bot.is_harvester:
                     bot._reset()
@@ -453,61 +509,81 @@ class CTFUniverse(object):
         # callbacks for the bots
 
     def get_legal_moves(self, position):
+        """ Obtain legal moves and where they lead.
+
+        Parameters
+        ----------
+        position : tuple of int (x, y)
+            the position to start at
+
+        Returns
+        -------
+        legal_moves_dict : dict mapping strings (moves) to positions (x, y)
+            the legal moves and where they would lead.
+
+        """
         legal_moves_dict = {}
         for move, new_pos in CTFUniverse.new_positions(position).items():
             if Free() in self.maze_mesh[new_pos]:
                 legal_moves_dict[move] = new_pos
         return legal_moves_dict
 
+    def __repr__(self):
+        return ("CTFUniverse(%r, %r, %r)" %
+            (self.maze_mesh, self.teams, self.bots))
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
+    @property
+    def _char_mesh(self):
+        out = self.maze_mesh.copy()
+        for (key, value) in self.maze_mesh.iteritems():
+            if Wall() in value:
+                out[key] = Wall.char
+            elif Food() in value:
+                out[key] = Food.char
+            elif Free() in value:
+                out[key] = Free.char
+        for bot in self.bots:
+            out[bot.current_pos] = str(bot.index)
+        return out
+
     def __str__(self):
         # TODO what about bots on the same space?
-        out = self.maze_mesh.copy()
-
-        for (key, value) in self.maze_mesh.iteritems():
-            if Wall() in value:
-                out[key] = wall
-            elif Food() in value:
-                out[key] = food
-            elif Free() in value:
-                out[key] = free
-        for bot in self.bots:
-            out[bot.current_pos] = str(bot.index)
-        return str(out)
+        return str(self._char_mesh)
 
     def as_str(self):
-        out = self.maze_mesh.copy()
-        for (key, value) in self.maze_mesh.iteritems():
-            if Wall() in value:
-                out[key] = wall
-            elif Food() in value:
-                out[key] = food
-            elif Free() in value:
-                out[key] = free
-        for bot in self.bots:
-            out[bot.current_pos] = str(bot.index)
-        return out.as_str()
+        return self._char_mesh.as_str()
+
+    def pretty_print(self):
+        out = str()
+        out += str(self)
+        out += repr(self.teams)
+        out += repr(self.bots)
+        print out
 
     @staticmethod
-    def new_positions(current):
+    def new_positions(position):
         """ Determine where a move will lead.
 
         Parameters
         ----------
-        current : int, int
+        position : tuple of int (x, y)
             current position
 
         Returns
         -------
         new_pos : dict
-            mapping of moves (str) to new_positions (int, int)
+            mapping of moves (str) to new positions (x, y)
 
         """
         return {
-            north : (current[0], current[1] - 1),
-            south : (current[0], current[1] + 1),
-            west  : (current[0] - 1, current[1]),
-            east  : (current[0] + 1, current[1]),
-            stop  : (current[0], current[1])}
+            north : (position[0], position[1] - 1),
+            south : (position[0], position[1] + 1),
+            west  : (position[0] - 1, position[1]),
+            east  : (position[0] + 1, position[1]),
+            stop  : (position[0], position[1])}
 
     @staticmethod
     def is_adjacent(pos1, pos2):
