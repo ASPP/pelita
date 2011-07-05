@@ -199,12 +199,15 @@ class TypeAwareList(list):
     """
 
     def __contains__(self, item):
+        """ y in x or instance of y in x """
         if type(item) == type:
             return any([isinstance(x, item) for x in self])
         else:
             return super(TypeAwareList, self).__contains__(item)
 
     def index(self, item):
+        """ L.index(value, [start, [stop]]) -> integer -- return first index of
+        value or instance of value"""
         if type(item) == type:
             for i,x in enumerate(self):
                 if isinstance(x, item):
