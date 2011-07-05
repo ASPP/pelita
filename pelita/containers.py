@@ -1,5 +1,7 @@
 from collections import Mapping
 
+""" Advanced container classes. """
+
 __docformat__ = "restructuredtext"
 
 class Mesh(Mapping):
@@ -166,3 +168,51 @@ class Mesh(Mapping):
 
     def copy(self):
         return Mesh(self.width, self.height, list(self._data))
+
+class TypeAwareList(list):
+    """ List that is aware of `type`.
+
+    This is a special type of list that knows about the types of its contents
+    thus allowing you to check if an object of a certain type is in the list. It
+    inherits from list, thus supporting all the usual operations on list. The
+    two methods `__contains__()` and `index()` have been overridden.
+
+    Examples
+    --------
+    >>> tal = TypeAwareList([Free(), Food()])
+    >>> Food in tal
+    True
+    >>> Food() in tal
+    True
+    >>> Wall in tal
+    False
+    >>> Wall() in tal
+    False
+    >>> tal.index(Food)
+    1
+    >>> tal.index(Food())
+    1
+    >>> tal.index(Free)
+    0
+    >>> tal.index(Free())
+    0
+    """
+
+    def __contains__(self, item):
+        """ y in x or instance of y in x """
+        if type(item) == type:
+            return any([isinstance(x, item) for x in self])
+        else:
+            return super(TypeAwareList, self).__contains__(item)
+
+    def index(self, item):
+        """ L.index(value, [start, [stop]]) -> integer -- return first index of
+        value or instance of value"""
+        if type(item) == type:
+            for i,x in enumerate(self):
+                if isinstance(x, item):
+                    return i
+            raise ValueError("list.index(x): x not in list")
+        else:
+            return super(TypeAwareList, self).index(item)
+

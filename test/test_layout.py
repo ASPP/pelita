@@ -1,5 +1,5 @@
 import unittest
-from pelita.mesh import Mesh
+from pelita.containers import Mesh
 from pelita.layout import *
 
 class TestLayoutChecks(unittest.TestCase):

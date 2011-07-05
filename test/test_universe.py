@@ -1,6 +1,6 @@
 import unittest
 from pelita.layout import Layout
-from pelita.mesh import Mesh
+from pelita.containers import Mesh
 from pelita.universe import *
 
 class TestStaticmethods(unittest.TestCase):
