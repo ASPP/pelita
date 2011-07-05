@@ -20,26 +20,13 @@ move_ids = [north, south, east, west, stop]
 class Team(object):
     """ A team of bots.
 
-    Attributes
-    ----------
-    index : int
-        the index of the team within the Universe
-    name : str
-        the name of the team
-    zone : tuple of int (x_min, x_max)
-        the homezone of this team
-    score : int
-        the score of this team
-    bots : list of int
-        the bot indices that belong to this team
-
     Parameters
     ----------
     index : int
         the index of the team within the Universe
     name : str
         the name of the team
-    zone : tuple of int
+    zone : tuple of int (x_min, x_max)
         the homezone of this team
     score : int, optional, default = 0
         the score of this team
