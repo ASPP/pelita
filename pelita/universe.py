@@ -37,8 +37,6 @@ class Team(object):
     ----------
     index : int
         the index of the team within the Universe
-    index : int
-        the index of the team within the Universe
     name : str
         the name of the team
     zone : tuple of int
