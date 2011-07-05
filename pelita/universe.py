@@ -554,6 +554,13 @@ class CTFUniverse(object):
             out[bot.current_pos] = str(bot.index)
         return out.as_str()
 
+    def pretty_print(self):
+        out = str()
+        out += str(self)
+        out += repr(self.teams)
+        out += repr(self.bots)
+        print out
+
     @staticmethod
     def new_positions(position):
         """ Determine where a move will lead.
