@@ -249,11 +249,13 @@ class TeamWins(UniverseEvent):
             % self.winning_team_index)
 
 class MazeComponent(object):
+    """ Base class for all items inside a maze. """
 
     def __eq__(self, other):
         return isinstance(other, self.__class__)
 
 class Free(MazeComponent):
+    """ Object to represent a free space. """
 
     def __str__(self):
         return free
@@ -262,6 +264,7 @@ class Free(MazeComponent):
         return 'Free()'
 
 class Wall(MazeComponent):
+    """ Object to represent a wall. """
 
     def __str__(self):
         return wall
@@ -270,6 +273,8 @@ class Wall(MazeComponent):
         return 'Wall()'
 
 class Food(MazeComponent):
+    """ Object to represent a food item. """
+
     def __str__(self):
         return food
 
