@@ -435,6 +435,26 @@ class CTFUniverse(object):
         return [key for (key, value) in self.maze_mesh.iteritems() if Food() in
                 value and not self.teams[team_index].in_zone(key)]
 
+    def enemy_bots(self, team_index):
+        """ Obtain enemy bot objects.
+
+        Parameters
+        ----------
+        team_index : int
+            the index of the 'friendly' team
+
+        Returns
+        -------
+        enemy_bots : list of Bot objects
+
+        """
+        other_teams = self.teams[:]
+        other_teams.remove(self.teams[team_index])
+        other_team_bots = []
+        for t in other_teams:
+            other_team_bots.extend(t.bots)
+        return [self.bots[i] for i in other_team_bots]
+
     def move_bot(self, bot_id, move):
         """ Move a bot in certain direction.
 
@@ -470,12 +490,7 @@ class CTFUniverse(object):
         bot._move(legal_moves_dict[move])
         events.append(BotMoves(bot_id))
         # check for destruction
-        other_teams = self.teams[:]
-        other_teams.remove(self.teams[bot.team_index])
-        other_team_bots = []
-        for t in other_teams:
-            other_team_bots.extend(t.bots)
-        for enemy in [self.bots[i] for i in other_team_bots]:
+        for enemy in self.enemy_bots(bot.team_index):
             if enemy.current_pos == bot.current_pos:
                 if enemy.is_destroyer and bot.is_harvester:
                     bot._reset()
