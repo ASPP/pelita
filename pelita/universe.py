@@ -385,9 +385,11 @@ def create_CTFUniverse(layout_str, number_bots,
     return CTFUniverse(maze_mesh, teams, bots)
 
 class UniverseException(Exception):
+    """ Standard error in the Universe. """
     pass
 
 class IllegalMoveException(Exception):
+    """ Raised when a bot attempts to make an illegal move. """
     pass
 
 class CTFUniverse(object):
