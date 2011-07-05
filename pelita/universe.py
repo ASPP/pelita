@@ -395,19 +395,6 @@ class IllegalMoveException(Exception):
 class CTFUniverse(object):
     """ The Universe: representation of the game state.
 
-    Attributes
-    ----------
-    maze_mesh : mesh of lists of MazeComponent objects
-        the maze
-    teams : list of Team objects
-        the teams
-    bots : lits of Bot objects
-        the bots
-    bot_positions : list of tuple of ints (x, y), property
-        the current position of all bots
-    food_list : list of typle of ints (x, y), property
-        the positions of all edible food
-
     Parameters
     ----------
     maze_mesh : mesh of lists of MazeComponent objects
@@ -416,6 +403,13 @@ class CTFUniverse(object):
         the teams
     bots : lits of Bot objects
         the bots
+
+    Attributes
+    ----------
+    bot_positions : list of tuple of ints (x, y), property
+        the current position of all bots
+    food_list : list of typle of ints (x, y), property
+        the positions of all edible food
 
     """
     def __init__(self, maze_mesh, teams, bots):
@@ -441,6 +435,26 @@ class CTFUniverse(object):
                 value and not self.teams[team_index].in_zone(key)]
 
     def move_bot(self, bot_id, move):
+        """ Move a bot in certain direction.
+
+        Parameters
+        ----------
+        bot_id : int
+            index of the bot
+        move : string
+            direction to move in
+
+        Returns
+        -------
+        events : list of UniverseEvent objects
+            the events that happend during the move
+
+        Raises
+        ------
+        IllegalMoveException
+            if the string is an invalid or the move not possible
+
+        """
         events = []
         # check legality of the move
         if move not in move_ids:
@@ -485,6 +499,19 @@ class CTFUniverse(object):
         # callbacks for the bots
 
     def get_legal_moves(self, position):
+        """ Obtain legal moves and where they lead.
+
+        Parameters
+        ----------
+        position : tuple of int (x, y)
+            the position to start at
+
+        Returns
+        -------
+        legal_moves_dict : dict mapping strings (moves) to positions (x, y)
+            the legal moves and where they would lead.
+
+        """
         legal_moves_dict = {}
         for move, new_pos in CTFUniverse.new_positions(position).items():
             if Free() in self.maze_mesh[new_pos]:
@@ -527,26 +554,26 @@ class CTFUniverse(object):
         return out.as_str()
 
     @staticmethod
-    def new_positions(current):
+    def new_positions(position):
         """ Determine where a move will lead.
 
         Parameters
         ----------
-        current : int, int
+        position : tuple of int (x, y)
             current position
 
         Returns
         -------
         new_pos : dict
-            mapping of moves (str) to new_positions (int, int)
+            mapping of moves (str) to new positions (x, y)
 
         """
         return {
-            north : (current[0], current[1] - 1),
-            south : (current[0], current[1] + 1),
-            west  : (current[0] - 1, current[1]),
-            east  : (current[0] + 1, current[1]),
-            stop  : (current[0], current[1])}
+            north : (position[0], position[1] - 1),
+            south : (position[0], position[1] + 1),
+            west  : (position[0] - 1, position[1]),
+            east  : (position[0] + 1, position[1]),
+            stop  : (position[0], position[1])}
 
     @staticmethod
     def is_adjacent(pos1, pos2):
