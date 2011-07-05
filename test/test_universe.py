@@ -257,6 +257,7 @@ class TestCTFUniverse(unittest.TestCase):
             #1#####    #####2#
             #     . #  .  .#3#
             ################## """)
+        universe = create_CTFUniverse(test_layout3, 4)
 
         test_layout3_2 = (
         """ ##################
@@ -264,9 +265,10 @@ class TestCTFUniverse(unittest.TestCase):
             #1#####    #####2#
             #     . #  .  .#3#
             ################## """)
+        universe2 = create_CTFUniverse(test_layout3_2, 4)
 
-        self.assertEqual(test_layout3, test_layout3_2)
-        self.assertEqual(test_layout3, eval(repr(test_layout3)))
+        self.assertEqual(universe, universe2)
+        self.assertEqual(universe, eval(repr(universe)))
 
     def test_bot_teams(self):
 
