@@ -3,7 +3,7 @@
 from pelita.messaging.remote import TcpConnectingClient
 from pelita.messaging.mailbox import MailboxConnection
 
-from pelita.messaging import Actor, ActorProxy, DispatchingActor, dispatch
+from pelita.messaging import Actor, RemoteActorProxy, DispatchingActor, dispatch
 
 import logging
 
@@ -64,7 +64,7 @@ actor.start()
 remote = MailboxConnection(conn, actor)
 remote.start()
 
-remote_actor = ActorProxy(remote)
+remote_actor = RemoteActorProxy(remote)
 remote_actor.notify("hello", "Im there")
 
 try:

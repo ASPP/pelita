@@ -9,16 +9,16 @@ _logger.setLevel(logging.DEBUG)
 
 from pelita.messaging.utils import SuspendableThread, CloseThread
 from pelita.messaging.remote import MessageSocketConnection
-from pelita.messaging import StopProcessing, DeadConnection, ForwardingActor, Query, Request, RequestDB, IncomingActor
+from pelita.messaging import Actor, StopProcessing, DeadConnection, ForwardingActor, Query, Request, RequestDB
 
-class JsonThreadedInbox(IncomingActor):
+class JsonThreadedInbox(SuspendableThread):
     def __init__(self, mailbox, **kwargs):
         self.mailbox = mailbox
         self.connection = mailbox.connection
 
         super(JsonThreadedInbox, self).__init__(**kwargs)
 
-    def handle_inbox(self):
+    def _run(self):
         try:
             recv = self.connection.read()
         except socket.timeout as e:
@@ -33,7 +33,10 @@ class JsonThreadedInbox(IncomingActor):
         _logger.info("Processing inbox %r", message.dict)
         # add the mailbox to the message
         message.mailbox = self.mailbox
-        return message
+        self.forward_message(message)
+
+    def forward_message(self, message):
+        self.mailbox.put(message)
 
 # TODO Not in use now, we rely on timeout until we know better
 #    def stop(self):
@@ -41,6 +44,9 @@ class JsonThreadedInbox(IncomingActor):
 #
 #        self.connection.connection.shutdown(socket.SHUT_RDWR)
 #        self.connection.close()
+
+class IncomingActor(Actor):
+    pass
 
 class ForwardingInbox(ForwardingActor, JsonThreadedInbox):
     pass
@@ -67,47 +73,56 @@ class JsonThreadedOutbox(SuspendableThread):
         except Queue.Empty:
             pass
 
-class MailboxConnection(object):
+class MailboxConnection(Actor):
     """A mailbox bundles an incoming and an outgoing connection."""
-    def __init__(self, connection, main_actor):
+    def __init__(self, connection, main_actor, **kwargs):
+        super(MailboxConnection, self).__init__(**kwargs)
         self.connection = MessageSocketConnection(connection)
 
-        self._requests = RequestDB()
+#        self.inbox = ForwardingInbox(self, request_db=self._requests)
+#        self.inbox.forward_to = main_actor
 
-        self.inbox = ForwardingInbox(self, request_db=self._requests)
-        self.inbox.forward_to = main_actor
+        self.main_actor = main_actor
 
+        self.inbox = JsonThreadedInbox(self)
         self.outbox = JsonThreadedOutbox(self.connection)
 
-    def start(self):
+#        main_actor.link(self.inbox)
+
+    def on_receive(self, message):
+        print "Forwarding"
+        self.main_actor.forward(message)
+
+    def on_start(self):
         _logger.info("Starting mailbox %r", self)
         self.inbox.start()
         self.outbox.start()
 
-    def stop(self):
+    def on_stop(self):
         _logger.info("Stopping mailbox %r", self)
         #self.inbox._queue.put(StopProcessing)
         self.outbox._queue.put(StopProcessing) # I need to to this or the thread will not stop...
         self.inbox.stop()
         self.outbox.stop()
         self.connection.close()
-
-    def put(self, message, block=True, timeout=None):
+    
+    def put_remote(self, message, block=True, timeout=None):
         self.outbox._queue.put(message, block, timeout)
 
-    def put_query(self, message):
+    def put_query_remote(self, message):
+        print "query", message
         """Put a query into the outbox and return the Request object."""
         if isinstance(message, Query):
             # Update the message.id
-            message.id = self._requests.create_id(message.id)
+            message.id = self.request_db.create_id(message.id)
 
             req_obj = Request(message.id)
             # save the id to the _requests dict
-            self._requests.add_request(req_obj)
+            self.request_db.add_request(req_obj)
 
             message.mailbox = self
 
-            self.put(message)
+            self.put_remote(message)
             return req_obj
         else:
             raise ValueError

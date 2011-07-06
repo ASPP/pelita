@@ -14,7 +14,7 @@ ThreadInfoLogger(10).start()
 
 #from actors.actor import Actor
 
-from pelita.messaging import Actor, Notification, DispatchingActor, dispatch, ActorProxy
+from pelita.messaging import Actor, Notification, DispatchingActor, dispatch, RemoteActorProxy, ActorProxy
 from pelita.messaging.mailbox import MailboxConnection
 
 class ServerActor(DispatchingActor):
@@ -40,7 +40,7 @@ class ServerActor(DispatchingActor):
         """Stops the actor."""
         self.stop()
 
-    def stop(self):
+    def on_stop(self):
         self.stop_mailboxes()
         super(ServerActor, self).stop()
 
@@ -70,7 +70,7 @@ class ServerActor(DispatchingActor):
         answers = []
 
         for ac_num in range(num_clients):
-            player = ActorProxy(self.players[ac_num])
+            player = RemoteActorProxy(self.players[ac_num])
 
             start_val = iterations * ac_num
             stop_val = iterations * (ac_num + 1) - 1
@@ -100,7 +100,7 @@ class ServerActor(DispatchingActor):
         reqs = []
 
         for player in self.players:
-            player = ActorProxy(player)
+            player = RemoteActorProxy(player)
             reqs.append( player.query("random_int", []) )
 
         res = 0

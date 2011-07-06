@@ -91,9 +91,11 @@ class RequestDB(object):
             _logger.info("Using existing id.")
             return id
 
-class IncomingActor(SuspendableThread):
+class BaseActor(SuspendableThread):
+    """ BaseActor is an actor with no pre-defined queue.
+    """
     def __init__(self, request_db, **kwargs):
-        super(IncomingActor, self).__init__(**kwargs)
+        super(BaseActor, self).__init__(**kwargs)
 
         self.request_db = request_db
 
@@ -178,10 +180,10 @@ class IncomingActor(SuspendableThread):
 
     def start(self):
         self.on_start()
-        super(IncomingActor, self).start()
+        super(BaseActor, self).start()
 
     def stop(self):
-        super(IncomingActor, self).stop()
+        super(BaseActor, self).stop()
         self.on_stop()
 
     def handle_inbox(self):
@@ -199,7 +201,7 @@ class IncomingActor(SuspendableThread):
             _logger.warning("Received a response (%r) without a waiting future. Dropped response.", message.dict)
             return
 
-class Actor(IncomingActor):
+class Actor(BaseActor):
     # TODO Handle messages not replied to – else the queue is waiting forever
     def __init__(self, inbox=None):
         requests = RequestDB()
@@ -209,6 +211,9 @@ class Actor(IncomingActor):
 
     def handle_inbox(self):
         return self._inbox.get(True, 3)
+
+    def forward(self, message):
+        self._inbox.put(message)
 
     def put(self, message):
         self._inbox.put(message)
@@ -250,6 +255,20 @@ class ActorProxy(object):
         query = Query(method, params, id)
         return self.actor.put_query(query)
 
+
+class RemoteActorProxy(object):
+    def __init__(self, actor):
+        """ Helper class to send messages to an actor.
+        """
+        self.actor = actor
+
+    def notify(self, method, params=None):
+        message = Notification(method, params)
+        self.actor.put_remote(message)
+
+    def query(self, method, params=None, id=None):
+        query = Query(method, params, id)
+        return self.actor.put_query_remote(query)
 
 def dispatch(method=None, name=None):
     if name and not method:
@@ -383,4 +402,4 @@ class DispatchingActor(Actor):
                 message.reply_error(msg)
             except AttributeError:
                 pass
-        reply_error("Not found: method '%r'", message.method)
+        reply_error("Not found: method '%r'" % message.method)
