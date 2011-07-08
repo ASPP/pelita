@@ -94,10 +94,10 @@ class RequestDB(object):
 class BaseActor(SuspendableThread):
     """ BaseActor is an actor with no pre-defined queue.
     """
-    def __init__(self, request_db, **kwargs):
+    def __init__(self, **kwargs):
         super(BaseActor, self).__init__(**kwargs)
 
-        self.request_db = request_db
+        self.ref = None
 
         self.trap_exit = False
         self.linked_actors = []
@@ -190,7 +190,8 @@ class BaseActor(SuspendableThread):
         pass
 
     def handle_response(self, message):
-        awaiting_result = self.request_db.get_request(message.id, None)
+        # check if there is a waiting request in the ref’s database
+        awaiting_result = self.ref.request_db.get_request(message.id, None)
         if awaiting_result is not None:
             awaiting_result._queue.put(message)
             # TODO need to handle race conditions
@@ -204,8 +205,7 @@ class BaseActor(SuspendableThread):
 class Actor(BaseActor):
     # TODO Handle messages not replied to – else the queue is waiting forever
     def __init__(self, inbox=None):
-        requests = RequestDB()
-        super(Actor, self).__init__(request_db=requests)
+        super(Actor, self).__init__()
 
         self._inbox = inbox or Queue.Queue()
 
@@ -217,18 +217,6 @@ class Actor(BaseActor):
 
     def put(self, message):
         self._inbox.put(message)
-
-    def put_query(self, message):
-        # Update the message.id
-        message.id = self.request_db.create_id(message.id)
-
-        req_obj = Request(message.id)
-        # save the id to the _requests dict
-        self.request_db.add_request(req_obj)
-        message.mailbox = self
-        self.put(message)
-
-        return req_obj
 
 class ForwardingActor(object):
     """ This is a mix-in which simply forwards all messages to another actor.
@@ -247,13 +235,32 @@ class ActorProxy(object):
         """
         self.actor = actor
 
+        self.request_db = RequestDB()
+
+    def start(self):
+        self.actor.start()
+
+    def stop(self):
+        self.notify("stop")
+
     def notify(self, method, params=None):
         message = Notification(method, params)
         self.actor.put(message)
 
     def query(self, method, params=None, id=None):
+        # Update the query.id
+        if not id:
+            id = self.request_db.create_id(id)
+
         query = Query(method, params, id)
-        return self.actor.put_query(query)
+        req_obj = Request(query.id)
+
+        # save the id to the _requests dict
+        self.request_db.add_request(req_obj)
+        query.mailbox = self.actor
+        self.actor.put(query)
+
+        return req_obj
 
 
 class RemoteActorProxy(object):

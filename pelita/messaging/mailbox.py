@@ -105,7 +105,7 @@ class MailboxConnection(Actor):
         self.inbox.stop()
         self.outbox.stop()
         self.connection.close()
-    
+
     def put_remote(self, message, block=True, timeout=None):
         self.outbox._queue.put(message, block, timeout)
 

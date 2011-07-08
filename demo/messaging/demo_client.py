@@ -64,6 +64,12 @@ actor.start()
 remote = MailboxConnection(conn, actor)
 remote.start()
 
+def actorFor(connection):
+    # need access to a bidirectional dispatcher mailbox
+    return RemoteActorProxy()
+
+remote_actor = actorFor(conn)
+
 remote_actor = RemoteActorProxy(remote)
 remote_actor.notify("hello", "Im there")
 

@@ -42,7 +42,6 @@ class ServerActor(DispatchingActor):
 
     def on_stop(self):
         self.stop_mailboxes()
-        super(ServerActor, self).stop()
 
     @dispatch
     def multiply(self, message, *args):
@@ -112,16 +111,19 @@ class ServerActor(DispatchingActor):
         else:
             message.reply("Player 2 wins")
 
+import inspect
 
+def actorOf(actor):
+    if inspect.isclass(actor):
+        actor = actor()
+    return ActorProxy(actor)
 
-actor = ServerActor()
-actor.start()
-
-p_actor = ActorProxy(actor)
+actor_ref = actorOf(ServerActor)
+actor_ref.start()
 
 listener = TcpThreadedListeningServer(host="", port=50007)
 def accepter(connection):
-    p_actor.notify("add_mailbox", [connection])
+    actor_ref.notify("add_mailbox", [connection])
 listener.on_accept = accepter
 listener.start()
 
@@ -158,9 +160,9 @@ try:
 
         try:
             if len(params):
-                req = p_actor.query(method, params).get()
+                req = actor_ref.query(method, params).get()
             else:
-                req = p_actor.query(method).get()
+                req = actor_ref.query(method).get()
         except TypeError:
             print "Need to get list"
             continue
@@ -173,7 +175,7 @@ try:
 except (KeyboardInterrupt, EndSession):
     print "Interrupted"
 
-    req =  p_actor.query("stop")
+    req =  actor_ref.stop()
 #    actor.stop()
     listener.stop()
     import sys
