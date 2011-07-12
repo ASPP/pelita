@@ -214,7 +214,7 @@ class TestCTFUniverse(unittest.TestCase):
         target_mesh = Mesh(18, 5, data = list('################### #.  .  # .     #'+\
                 '# #####    ##### ##     . #  .  .# ###################'))
         target_mesh = create_maze(target_mesh)
-        self.assertEqual(target_mesh, universe.maze_mesh)
+        self.assertEqual(target_mesh, universe.maze)
         target_food_list = [(3, 1), (6, 1), (11, 1), (6, 3), (11, 3), (14, 3),  ]
         self.assertEqual(target_food_list, universe.food_list)
         team_black_food = [(3, 1), (6, 1), (6, 3)]
@@ -470,9 +470,9 @@ class TestCTFUniverseRules(unittest.TestCase):
             universe = create_CTFUniverse(layout, number_bots)
             for i,pos in enumerate(initial_pos):
                 universe.bots[i].initial_pos = pos
-            if not Food() in universe.maze_mesh[1, 2]:
+            if not universe.maze.has_at(Food, (1, 2)):
                 universe.teams[1]._score_point()
-            if not Food() in universe.maze_mesh[3, 1]:
+            if not universe.maze.has_at(Food, (3, 1)):
                 universe.teams[0]._score_point()
             return universe
 

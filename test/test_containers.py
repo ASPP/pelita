@@ -10,6 +10,7 @@ class TestNewPos(unittest.TestCase):
         self.assertEqual(new_pos((1,1), (1,0)), (2,1))
         self.assertEqual(new_pos((1,1), (0,0)), (1,1))
 
+
 class TestMesh(unittest.TestCase):
 
     def test_init(self):
