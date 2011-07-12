@@ -31,7 +31,7 @@ class GameMaster(object):
                 events = self.universe.move_bot(i, move)
                 for v in self.viewers:
                     v.observe(gt, i, self.universe, events)
-                if any([isinstance(e, uni.TeamWins) for e in events]):
+                if any(isinstance(e, uni.TeamWins) for e in events):
                     return
 
 class AbstractViewer(object):
@@ -47,7 +47,7 @@ class AsciiViewer(AbstractViewer):
         % (round_, turn, universe.teams[0].score, universe.teams[1].score))
         print ("Events: %r" % events)
         print universe.as_str()
-        if any([isinstance(e, uni.TeamWins) for e in events]):
+        if any(isinstance(e, uni.TeamWins) for e in events):
             team_wins_event = filter(lambda x: isinstance(x, uni.TeamWins), events)[0]
             print ("Game Over: Team: '%s' wins!" %
             universe.teams[team_wins_event.winning_team_index].name)

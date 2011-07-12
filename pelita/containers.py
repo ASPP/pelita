@@ -201,7 +201,7 @@ class TypeAwareList(list):
     def __contains__(self, item):
         """ y in x or instance of y in x """
         if type(item) == type:
-            return any([isinstance(x, item) for x in self])
+            return any(isinstance(x, item) for x in self)
         else:
             return super(TypeAwareList, self).__contains__(item)
 
