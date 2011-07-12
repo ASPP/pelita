@@ -9,7 +9,6 @@ west  = (-1, 0)
 east  = (1, 0)
 stop  = (0, 0)
 
-move_ids = [north, south, east, west, stop]
 
 class Team(object):
     """ A team of bots.
@@ -406,6 +405,9 @@ class CTFUniverse(object):
         the positions of all edible food
 
     """
+
+    move_ids = [north, south, east, west, stop]
+
     def __init__(self, maze_mesh, teams, bots):
         self.maze_mesh = maze_mesh
         # TODO make a deepcopy here, so that we can big_bang
@@ -472,7 +474,7 @@ class CTFUniverse(object):
         """
         events = []
         # check legality of the move
-        if move not in move_ids:
+        if move not in self.move_ids:
             raise IllegalMoveException(
                 'Illegal move_id from bot %i: %s' % (bot_id, move))
         bot = self.bots[bot_id]
@@ -600,7 +602,8 @@ class CTFUniverse(object):
             mapping of moves to new positions (x, y)
 
         """
-        return dict([(move, CTFUniverse._calc_new_position(position, move)) for move in move_ids])
+        return dict([(move, CTFUniverse._calc_new_position(position, move)) for
+            move in self.move_ids])
 
     @staticmethod
     def is_adjacent(pos1, pos2):
