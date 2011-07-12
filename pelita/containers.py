@@ -184,7 +184,7 @@ class Mesh(Mapping):
         for i in range(self.height):
             start = i * self.width
             end = start + self.width
-            output += ''.join([i.__str__() for i in self._data[start:end]])
+            output += ''.join([str(i) for i in self._data[start:end]])
             output += '\n'
         return output
 
