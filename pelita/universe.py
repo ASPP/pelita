@@ -525,7 +525,7 @@ class CTFUniverse(object):
 
         """
         legal_moves_dict = {}
-        for move, new_pos in CTFUniverse.new_positions(position).items():
+        for move, new_pos in self.neighbourhood(position).items():
             if Free() in self.maze_mesh[new_pos]:
                 legal_moves_dict[move] = new_pos
         return legal_moves_dict
@@ -587,8 +587,7 @@ class CTFUniverse(object):
         pos_y = position[1] + move[1]
         return (pos_x, pos_y)
 
-    @staticmethod
-    def new_positions(position):
+    def neighbourhood(self, position):
         """ Determine where a move will lead.
 
         Parameters

@@ -46,15 +46,6 @@ class TestStaticmethods(unittest.TestCase):
                 '# #####    ##### ##       #      # ###################'))
         self.assertEqual(target, mesh)
 
-    def test_new_positions(self):
-        current_position = (1, 1)
-        new = CTFUniverse.new_positions(current_position)
-        target = { north : (1, 0),
-                    south : (1, 2),
-                    west  : (0, 1),
-                    east  : (2, 1),
-                    stop  : (1, 1) }
-        self.assertEqual(target, new)
 
     def test_is_adjacent(self):
         self.assertTrue(CTFUniverse.is_adjacent((0, 0), (1, 0)))
@@ -252,6 +243,23 @@ class TestCTFUniverse(unittest.TestCase):
         universe = create_CTFUniverse(test_layout3, 4, team_names=['orange', 'purple'])
         self.assertEqual(universe.teams[0].name, 'orange')
         self.assertEqual(universe.teams[1].name, 'purple')
+
+    def test_neighbourhood(self):
+        test_layout = (
+            """ ######
+                #    #
+                #    #
+                #    #
+                ###### """)
+        universe = create_CTFUniverse(test_layout, 0)
+        current_position = (2, 2)
+        new = universe.neighbourhood(current_position)
+        target = { north : (2, 1),
+                    south : (2, 3),
+                    west  : (1, 2),
+                    east  : (3, 2),
+                    stop  : (2, 2) }
+        self.assertEqual(target, new)
 
     def test_repr_eq(self):
         test_layout3 = (
