@@ -393,6 +393,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         universe = create_CTFUniverse(test_move_bot, 4)
 
         self.assertRaises(IllegalMoveException, universe.move_bot, 0, 'FOOBAR')
+        self.assertRaises(IllegalMoveException, universe.move_bot, 0, (0, 2))
 
         self.assertRaises(IllegalMoveException, universe.move_bot, 0, north)
         self.assertRaises(IllegalMoveException, universe.move_bot, 0, west)

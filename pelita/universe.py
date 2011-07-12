@@ -597,7 +597,7 @@ class CTFUniverse(object):
         Returns
         -------
         new_pos : dict
-            mapping of moves (str) to new positions (x, y)
+            mapping of moves to new positions (x, y)
 
         """
         return dict([(move, CTFUniverse._calc_new_position(position, move)) for move in move_ids])
