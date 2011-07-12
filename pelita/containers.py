@@ -179,7 +179,35 @@ class Mesh(Mapping):
             output += '\n'
         return output
 
-    def as_str(self):
+    @property
+    def compact_str(self):
+        """ Return a compact string representation of the mesh.
+
+        This is useful in case the maze contains components that can be
+        represented with single character strings. See the following examples
+        for details.
+
+        Non-compact string:
+
+            ['#', '#', '#', '#', '#', '#']
+            ['#', ' ', ' ', '#', '0', '#']
+            ['#', ' ', '3', ' ', '#', '#']
+            ['#', '2', ' ', ' ', '1', '#']
+            ['#', '#', '#', '#', '#', '#']
+
+        Compact string:
+            ######
+            #  #0#
+            # 3 ##
+            #2  1#
+            ######
+
+        Returns
+        -------
+        compact : str
+            compact string representation
+
+        """
         output = str()
         for i in range(self.height):
             start = i * self.width

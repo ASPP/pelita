@@ -90,6 +90,10 @@ class TestMesh(unittest.TestCase):
         m = Mesh(2, 3, data=[1, 2, 3, 4, 5, 6])
         self.assertEqual(str(m), '[1, 2]\n[3, 4]\n[5, 6]\n')
 
+    def test_compact_str(self):
+        m = Mesh(2, 3, data=[1, 2, 3, 4, 5, 6])
+        self.assertEqual(m.compact_str, '12\n34\n56\n')
+
     def test_repr(self):
         m = Mesh(2, 2, data=[1, 2, 3, 4])
         m2 = eval(repr(m))
