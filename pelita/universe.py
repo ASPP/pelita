@@ -207,15 +207,15 @@ class BotEats(UniverseEvent):
     def __repr__(self):
         return 'BotEats(%i)' % self.bot_index
 
-class BotDestoryed(UniverseEvent):
-    """ Signifies that a bot has been destoryed.
+class BotDestroyed(UniverseEvent):
+    """ Signifies that a bot has been destroyed.
 
     Parameters
     ----------
     harvester_index : int
-        index of the destoryed bot
+        index of the destroyed bot
     destroyer_index : int
-        index of the destorying bot
+        index of the destroying bot
 
     """
     def __init__(self, harvester_index, destroyer_index):
@@ -223,7 +223,7 @@ class BotDestoryed(UniverseEvent):
         self.destroyer_index = destroyer_index
 
     def __repr__(self):
-        return ('BotDestoryed(%i, %i)'
+        return ('BotDestroyed(%i, %i)'
             % (self.harvester_index, self.destroyer_index))
 
 class TeamWins(UniverseEvent):
@@ -488,10 +488,10 @@ class CTFUniverse(object):
             if enemy.current_pos == bot.current_pos:
                 if enemy.is_destroyer and bot.is_harvester:
                     bot._reset()
-                    events.append(BotDestoryed(bot.index, enemy.index))
+                    events.append(BotDestroyed(bot.index, enemy.index))
                 elif enemy.is_harvester and bot.is_destroyer:
                     enemy._reset()
-                    events.append(BotDestoryed(enemy.index, bot.index))
+                    events.append(BotDestroyed(enemy.index, bot.index))
         # check for food being eaten
         if Food() in self.maze_mesh[bot.current_pos] and not bot.in_own_zone:
             self.maze_mesh[bot.current_pos].remove(Food())
