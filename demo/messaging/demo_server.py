@@ -28,13 +28,6 @@ class ServerActor(DispatchingActor):
         for conn, box in self.mailboxes.iteritems():
             box.stop()
 
-    @dispatch
-    def add_mailbox(self, message, conn):
-        # a new connection has been established
-        mailbox = MailboxConnection(conn, main_actor=self) # TODO or self._inbox?
-        self.mailboxes[conn] = mailbox
-        mailbox.start()
-
     @dispatch(name="stop")
     def _stop(self, message=None):
         """Stops the actor."""
@@ -122,10 +115,41 @@ actor_ref = actorOf(ServerActor)
 actor_ref.start()
 
 listener = TcpThreadedListeningServer(host="", port=50007)
+
+mailboxes = []
+
 def accepter(connection):
-    actor_ref.notify("add_mailbox", [connection])
+    # a new connection has been established
+    mailbox = MailboxConnection(connection, main_actor=actor_ref) # which actor?
+    mailboxes[connection] = mailbox
+    mailbox.start()
+
 listener.on_accept = accepter
 listener.start()
+
+class Remote(object):
+    def __init__(self):
+        self.listener = None
+
+        self.reg = {}
+
+    def start_listener(self, host, port):
+        self.listener = TcpThreadedListeningServer(host=host, port=port)
+        return self
+
+    def register(self, actor_name, actor_ref):
+        self.reg[actor_name] = actor_ref
+        return self
+
+    def start_all(self):
+        for ref in self.reg.values():
+            ref.start()
+
+
+remote = Remote().start_listener("localhost", 9999)
+
+remote.register("main-actor", actorOf(ServerActor))
+remote.start_all()
 
 
 #incoming_bundler = IncomingConnectionsActor(incoming_connections, inbox)

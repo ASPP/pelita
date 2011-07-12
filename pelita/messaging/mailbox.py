@@ -58,6 +58,8 @@ class JsonThreadedOutbox(SuspendableThread):
         self.connection = connection
         self._queue = Queue.Queue()
 
+        self.put = self._queue.put
+
     def _run(self):
         self.handle_outbox()
 
@@ -105,24 +107,3 @@ class MailboxConnection(Actor):
         self.inbox.stop()
         self.outbox.stop()
         self.connection.close()
-
-    def put_remote(self, message, block=True, timeout=None):
-        self.outbox._queue.put(message, block, timeout)
-
-    def put_query_remote(self, message):
-        print "query", message
-        """Put a query into the outbox and return the Request object."""
-        if isinstance(message, Query):
-            # Update the message.id
-            message.id = self.request_db.create_id(message.id)
-
-            req_obj = Request(message.id)
-            # save the id to the _requests dict
-            self.request_db.add_request(req_obj)
-
-            message.mailbox = self
-
-            self.put_remote(message)
-            return req_obj
-        else:
-            raise ValueError

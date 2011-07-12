@@ -97,7 +97,7 @@ class BaseActor(SuspendableThread):
     def __init__(self, **kwargs):
         super(BaseActor, self).__init__(**kwargs)
 
-        self.ref = None
+        self.request_db = RequestDB()
 
         self.trap_exit = False
         self.linked_actors = []
@@ -191,7 +191,7 @@ class BaseActor(SuspendableThread):
 
     def handle_response(self, message):
         # check if there is a waiting request in the ref’s database
-        awaiting_result = self.ref.request_db.get_request(message.id, None)
+        awaiting_result = self.request_db.get_request(message.id, None)
         if awaiting_result is not None:
             awaiting_result._queue.put(message)
             # TODO need to handle race conditions
@@ -235,13 +235,11 @@ class ActorProxy(object):
         """
         self.actor = actor
 
-        self.request_db = RequestDB()
-
     def start(self):
         self.actor.start()
 
     def stop(self):
-        self.notify("stop")
+        self.actor.put(StopProcessing)
 
     def notify(self, method, params=None):
         message = Notification(method, params)
@@ -250,13 +248,13 @@ class ActorProxy(object):
     def query(self, method, params=None, id=None):
         # Update the query.id
         if not id:
-            id = self.request_db.create_id(id)
+            id = self.actor.request_db.create_id(id)
 
         query = Query(method, params, id)
         req_obj = Request(query.id)
 
         # save the id to the _requests dict
-        self.request_db.add_request(req_obj)
+        self.actor.request_db.add_request(req_obj)
         query.mailbox = self.actor
         self.actor.put(query)
 
@@ -269,13 +267,30 @@ class RemoteActorProxy(object):
         """
         self.actor = actor
 
+    def start(self):
+        self.actor.start()
+
+    def stop(self):
+        self.notify("stop")
+
     def notify(self, method, params=None):
         message = Notification(method, params)
-        self.actor.put_remote(message)
+        self.actor.outbox.put(message)
 
     def query(self, method, params=None, id=None):
+        # Update the query.id
+        if not id:
+            id = self.actor.request_db.create_id(id)
+
         query = Query(method, params, id)
-        return self.actor.put_query_remote(query)
+        req_obj = Request(query.id)
+
+        # save the id to the _requests dict
+        self.actor.request_db.add_request(req_obj)
+        query.mailbox = self.actor
+        self.actor.outbox.put(query)
+
+        return req_obj
 
 def dispatch(method=None, name=None):
     if name and not method:
@@ -410,3 +425,22 @@ class DispatchingActor(Actor):
             except AttributeError:
                 pass
         reply_error("Not found: method '%r'" % message.method)
+
+
+def actor_of(actor):
+    return actor_registry.register(actor)
+
+
+import inspect
+class ActorRegistry(object):
+    def __init__(self):
+        self._reg = {}
+
+    def register(self, actor):
+        if inspect.isclass(actor):
+            actor = actor()
+        return ActorProxy(actor)
+
+
+actor_registry = ActorRegistry()
+

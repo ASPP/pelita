@@ -66,7 +66,7 @@ remote.start()
 
 def actorFor(connection):
     # need access to a bidirectional dispatcher mailbox
-    return RemoteActorProxy()
+    return RemoteActorProxy(connection)
 
 remote_actor = actorFor(conn)
 

@@ -1,6 +1,6 @@
 import unittest
 import time
-from pelita.messaging import DispatchingActor, dispatch, ActorProxy, Actor
+from pelita.messaging import DispatchingActor, dispatch, ActorProxy, Actor, actor_of
 from pelita.messaging.actor import Exit
 
 class Dispatcher(DispatchingActor):
@@ -107,6 +107,23 @@ class TestActorFailure(unittest.TestCase):
 
         self.assertEqual(collectingActor3.thread.is_alive(), False)
 
+class MultiplyingActor(Actor):
+    def on_receive(self, message):
+        if message.method == "mult":
+            params = message.params
+            res = reduce(lambda x,y: x*y, params)
+            message.reply(res)
+
+
+class TestActorReply(unittest.TestCase):
+    def test_simply_reply(self):
+        actor_ref = actor_of(MultiplyingActor)
+        actor_ref.start()
+
+        res = actor_ref.query("mult", [1, 2, 3, 4])
+        self.assertEqual(res.get(timeout=3).result, 24)
+        actor_ref.stop()
+        #assert False
 
 if __name__ == '__main__':
     unittest.main()
