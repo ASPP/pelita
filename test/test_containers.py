@@ -1,5 +1,5 @@
 import unittest
-from pelita.containers import Mesh, TypeAwareList, new_pos
+from pelita.containers import *
 
 class TestNewPos(unittest.TestCase):
 
@@ -114,6 +114,60 @@ class TestMesh(unittest.TestCase):
         m[1, 1] = True
         self.assertTrue(m2[1, 1])
         self.assertFalse(m3[1, 1])
+
+class TestMaze(unittest.TestCase):
+
+    def test_init(self):
+        # check we get errors with wrong stuff
+        self.assertRaises(TypeError, Maze, 1,1, data=[1])
+        self.assertRaises(ValueError, Maze, 1,1, data=[TypeAwareList(),
+            TypeAwareList()])
+
+    def test_has_at(self):
+        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
+                           TypeAwareList(['', '', '', '', '', '', '',])])
+        self.assertTrue(maze.has_at(int, (0,0)))
+        self.assertTrue(maze.has_at(list, (0,0)))
+        self.assertTrue(maze.has_at(dict, (0,0)))
+        self.assertTrue(maze.has_at(str, (1,0)))
+        self.assertFalse(maze.has_at(set, (0,0)))
+        self.assertFalse(maze.has_at(int, (1,0)))
+        self.assertFalse(maze.has_at(list, (1,0)))
+        self.assertFalse(maze.has_at(dict, (1,0)))
+        self.assertFalse(maze.has_at(set, (1,0)))
+
+    def test_get_at(self):
+        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
+                           TypeAwareList(['', '', '', '', '', '', '',])])
+        self.assertEqual(maze.get_at(int, (0,0)), [1, 2, 1, 3])
+        self.assertEqual(maze.get_at(list, (0,0)), [[], []])
+        self.assertEqual(maze.get_at(int, (1,0)), [])
+        self.assertEqual(maze.get_at(str, (1,0)), ['', '', '', '', '', '', '',])
+
+        self.assertRaises(IndexError, maze.get_at, int, (0,1))
+
+    def test_remove_at(self):
+        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
+                           TypeAwareList(['', '', '', '', '', '', '',])])
+        maze.remove_at(int, (0,0))
+        self.assertEqual(maze[0,0], [[], {}, []])
+
+        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
+                           TypeAwareList(['', '', '', '', '', '', '',])])
+        maze.remove_at(list, (0,0))
+        self.assertEqual(maze[0,0], [1, 2, {}, 1, 3] )
+
+        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
+                           TypeAwareList(['', '', '', '', '', '', '',])])
+        maze.remove_at(int, (0,0))
+        self.assertEqual(maze[0,0], [[], {}, []] )
+        maze.remove_at(str, (1,0))
+        self.assertEqual(maze[1,0], [] )
+
+    def test_positions(self):
+        maze = Maze(5,5)
+        self.assertEqual([(x, y) for y in range(5) for x in range(5)],
+                maze.positions)
 
 class TestTypeAwareList(unittest.TestCase):
 

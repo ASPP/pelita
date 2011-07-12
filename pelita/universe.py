@@ -1,5 +1,5 @@
 from pelita.layout import Layout
-from pelita.containers import Mesh, new_pos
+from pelita.containers import Mesh, new_pos, MazeComponent, Maze
 
 __docformat__ = "restructuredtext"
 
@@ -240,15 +240,6 @@ class TeamWins(UniverseEvent):
     def __repr__(self):
         return ("TeamWins(%i)"
             % self.winning_team_index)
-
-class MazeComponent(object):
-    """ Base class for all items inside a maze. """
-
-    def __str__(self):
-        return self.__class__.char
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__)
 
 class Free(MazeComponent):
     """ Object to represent a free space. """
