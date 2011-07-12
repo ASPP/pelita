@@ -3,11 +3,11 @@ from pelita.containers import Mesh
 
 __docformat__ = "restructuredtext"
 
-north = 'NORTH'
-south = 'SOUTH'
-west  = 'WEST'
-east  = 'EAST'
-stop  = 'STOP'
+north = (0, -1)
+south = (0, 1)
+west  = (-1, 0)
+east  = (1, 0)
+stop  = (0, 0)
 
 move_ids = [north, south, east, west, stop]
 
@@ -239,7 +239,7 @@ class TeamWins(UniverseEvent):
         self.winning_team_index = winning_team_index
 
     def __repr__(self):
-        return ("TeamWins(%i)" 
+        return ("TeamWins(%i)"
             % self.winning_team_index)
 
 class MazeComponent(object):
@@ -564,6 +564,28 @@ class CTFUniverse(object):
         print out
 
     @staticmethod
+    def _calc_new_position(position, move):
+        """ Adds a position tuple and a move.
+
+        Parameters
+        ----------
+        position : tuple of int (x, y)
+            current position
+
+        move : tuple of int (x, y)
+            direction vector
+
+        Returns
+        -------
+        new_pos : tuple of int (x, y)
+            new position coordinates
+
+        """
+        pos_x = position[0] + move[0]
+        pos_y = position[1] + move[1]
+        return (pos_x, pos_y)
+
+    @staticmethod
     def new_positions(position):
         """ Determine where a move will lead.
 
@@ -578,12 +600,7 @@ class CTFUniverse(object):
             mapping of moves (str) to new positions (x, y)
 
         """
-        return {
-            north : (position[0], position[1] - 1),
-            south : (position[0], position[1] + 1),
-            west  : (position[0] - 1, position[1]),
-            east  : (position[0] + 1, position[1]),
-            stop  : (position[0], position[1])}
+        return dict([(move, CTFUniverse._calc_new_position(position, move)) for move in move_ids])
 
     @staticmethod
     def is_adjacent(pos1, pos2):
