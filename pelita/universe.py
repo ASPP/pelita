@@ -1,5 +1,5 @@
 from pelita.layout import Layout
-from pelita.containers import Mesh, new_pos
+from pelita.containers import Mesh, new_pos, MazeComponent, Maze
 
 __docformat__ = "restructuredtext"
 
@@ -241,15 +241,6 @@ class TeamWins(UniverseEvent):
         return ("TeamWins(%i)"
             % self.winning_team_index)
 
-class MazeComponent(object):
-    """ Base class for all items inside a maze. """
-
-    def __str__(self):
-        return self.__class__.char
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__)
-
 class Free(MazeComponent):
     """ Object to represent a free space. """
 
@@ -275,7 +266,7 @@ class Food(MazeComponent):
         return 'Food()'
 
 def create_maze(layout_mesh):
-    """ Transforms a layout_mesh into a maze_mesh.
+    """ Transforms a layout_mesh into a Maze.
 
     Parameters
     ----------
@@ -284,20 +275,19 @@ def create_maze(layout_mesh):
 
     Returns
     -------
-    maze_mesh : Mesh of lists
-        Mesh of lists of MazeComponents
+    maze : Maze 
+        the Maze
 
     """
-    maze_mesh = Mesh(layout_mesh.width, layout_mesh.height,
-            data=[[] for i in range(len(layout_mesh))])
-    for index in maze_mesh.iterkeys():
+    maze = Maze(layout_mesh.width, layout_mesh.height)
+    for index in maze.iterkeys():
         if layout_mesh[index] == Wall.char:
-            maze_mesh[index].append(Wall())
+            maze[index].append(Wall())
         else:
-            maze_mesh[index].append(Free())
+            maze[index].append(Free())
         if layout_mesh[index] == Food.char:
-            maze_mesh[index].append(Food())
-    return maze_mesh
+            maze[index].append(Food())
+    return maze
 
 def extract_initial_positions(mesh, number_bots):
     """ Extract initial positions from mesh.
@@ -354,13 +344,13 @@ def create_CTFUniverse(layout_str, number_bots,
     layout = Layout(layout_str, layout_chars, number_bots)
     layout_mesh = layout.as_mesh()
     initial_pos = extract_initial_positions(layout_mesh, number_bots)
-    maze_mesh = create_maze(layout_mesh)
-    if maze_mesh.width % 2 != 0:
+    maze = create_maze(layout_mesh)
+    if maze.width % 2 != 0:
         raise UniverseException(
             "Width of a layout for CTF must be even, is: %i"
-            % maze_mesh.width)
-    homezones = [(0, maze_mesh.width//2-1), (maze_mesh.width//2,
-        maze_mesh.width-1)]
+            % maze.width)
+    homezones = [(0, maze.width//2-1), (maze.width//2,
+        maze.width-1)]
 
     teams = []
     teams.append(Team(0, team_names[0], homezones[0], bots=range(0,
@@ -375,7 +365,7 @@ def create_CTFUniverse(layout_str, number_bots,
                 team_index, homezones[team_index])
         bots.append(bot)
 
-    return CTFUniverse(maze_mesh, teams, bots)
+    return CTFUniverse(maze, teams, bots)
 
 class UniverseException(Exception):
     """ Standard error in the Universe. """
@@ -390,26 +380,26 @@ class CTFUniverse(object):
 
     Parameters
     ----------
-    maze_mesh : mesh of lists of MazeComponent objects
+    maze : mesh of lists of MazeComponent objects
         the maze
     teams : list of Team objects
         the teams
-    bots : list of Bot objects
+    bots : lits of Bot objects
         the bots
 
     Attributes
     ----------
     bot_positions : list of tuple of ints (x, y), property
         the current position of all bots
-    food_list : list of tuple of ints (x, y), property
+    food_list : list of typle of ints (x, y), property
         the positions of all edible food
 
     """
 
     move_ids = [north, south, east, west, stop]
 
-    def __init__(self, maze_mesh, teams, bots):
-        self.maze_mesh = maze_mesh
+    def __init__(self, maze, teams, bots):
+        self.maze = maze
         # TODO make a deepcopy here, so that we can big_bang
         self.teams = teams
         self.bots = bots
@@ -420,16 +410,18 @@ class CTFUniverse(object):
 
     @property
     def food_list(self):
-        return [key for (key, value) in self.maze_mesh.iteritems()
-                if Food() in value]
+        return [pos for pos in self.maze.iterkeys()
+                if self.maze.has_at(Food, pos)]
 
     def team_food(self, team_index):
-        return [key for (key, value) in self.maze_mesh.iteritems() if Food() in
-                value and self.teams[team_index].in_zone(key)]
+        return [pos for pos in self.maze.iterkeys()
+                if self.maze.has_at(Food, pos) and
+                self.teams[team_index].in_zone(pos)]
 
     def enemy_food(self, team_index):
-        return [key for (key, value) in self.maze_mesh.iteritems() if Food() in
-                value and not self.teams[team_index].in_zone(key)]
+        return [pos for pos in self.maze.iterkeys()
+                if self.maze.has_at(Food, pos) and
+                not self.teams[team_index].in_zone(pos)]
 
     def enemy_bots(self, team_index):
         """ Obtain enemy bot objects.
@@ -495,8 +487,8 @@ class CTFUniverse(object):
                     enemy._reset()
                     events.append(BotDestroyed(enemy.index, bot.index))
         # check for food being eaten
-        if Food() in self.maze_mesh[bot.current_pos] and not bot.in_own_zone:
-            self.maze_mesh[bot.current_pos].remove(Food())
+        if self.maze.has_at(Food, bot.current_pos) and not bot.in_own_zone:
+            self.maze.remove_at(Food, bot.current_pos)
             self.teams[bot.team_index]._score_point()
             events.append(BotEats(bot_id))
             if not self.enemy_food(bot.team_index):
@@ -526,30 +518,46 @@ class CTFUniverse(object):
         """
         legal_moves_dict = {}
         for move, new_pos in self.neighbourhood(position).items():
-            if Free() in self.maze_mesh[new_pos]:
+            if self.maze.has_at(Free, new_pos):
                 legal_moves_dict[move] = new_pos
         return legal_moves_dict
 
     def __repr__(self):
         return ("CTFUniverse(%r, %r, %r)" %
-            (self.maze_mesh, self.teams, self.bots))
+            (self.maze, self.teams, self.bots))
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
     @property
+    def json_dict(self):
+        return {"type": self.__class__.__name__,
+                "mesh": self.maze,
+                "bots": [bot.json_dict for bot in self.bots],
+                "teams": [team.json_dict for team in self.teams]}
+
+    @classmethod
+    def from_json_dict(cls, json_dict):
+        if json_dict["type"] == cls.__name__:
+            del json_dict["type"]
+            return cls(**json_dict)
+        else:
+            raise ValueError("Cannot load object.")
+
+
+    @property
     def _char_mesh(self):
-        out = self.maze_mesh.copy()
-        for (key, value) in self.maze_mesh.iteritems():
-            if Wall() in value:
-                out[key] = Wall.char
-            elif Food() in value:
-                out[key] = Food.char
-            elif Free() in value:
-                out[key] = Free.char
+        char_mesh = Mesh(self.maze.width, self.maze.height)
+        for pos in self.maze.positions:
+            if self.maze.has_at(Wall, pos):
+                char_mesh[pos] = Wall.char
+            elif self.maze.has_at(Food, pos):
+                char_mesh[pos] = Food.char
+            elif self.maze.has_at(Free, pos):
+                char_mesh[pos] = Free.char
         for bot in self.bots:
-            out[bot.current_pos] = str(bot.index)
-        return out
+            char_mesh[bot.current_pos] = str(bot.index)
+        return char_mesh
 
     def __str__(self):
         # TODO what about bots on the same space?

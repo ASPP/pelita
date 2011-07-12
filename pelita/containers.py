@@ -219,6 +219,52 @@ class Mesh(Mapping):
     def copy(self):
         return Mesh(self.width, self.height, list(self._data))
 
+
+class Maze(Mesh):
+    """ A Mesh of TypeAwareLists of MazeComponents.
+
+    This is a container class to represent a game maze. It is a two-dimensional
+    structure (Mesh) which contains a special list (TypeAwareList) at each
+    position. Further each TypeAwareList may contain only MazeComponent.
+
+    """
+
+    def __init__(self, width, height, data=None):
+        if not data:
+            data = [TypeAwareList() for i in range(width * height)]
+        elif any([not isinstance(x, TypeAwareList) for x in data]):
+            raise TypeError("Maze keyword argument 'data' should be list of"\
+                    "TypeAwareList objects, not: %r" % data)
+        super(Maze, self).__init__(width, height, data)
+
+    def has_at(self, type_, pos):
+        return type_ in self[pos]
+
+    def get_at(self, type_, pos):
+        return self[pos].filter_type(type_)
+
+    def remove_at(self, type_, pos):
+        self[pos].remove_type(type_)
+
+    @property
+    def positions(self):
+        return self.keys()
+
+
+
+class MazeComponent(object):
+    """ Base class for all items inside a maze. """
+
+    def __str__(self):
+        return self.__class__.char
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__)
+
+
+
+
+
 class TypeAwareList(list):
     """ List that is aware of `type`.
 
