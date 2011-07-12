@@ -1,5 +1,14 @@
 import unittest
-from pelita.containers import Mesh, TypeAwareList
+from pelita.containers import Mesh, TypeAwareList, new_pos
+
+class TestNewPos(unittest.TestCase):
+
+    def test_func(self):
+        self.assertEqual(new_pos((1,1), (0,-1)), (1,0))
+        self.assertEqual(new_pos((1,1), (0,1)), (1,2))
+        self.assertEqual(new_pos((1,1), (-1,0)), (0,1))
+        self.assertEqual(new_pos((1,1), (1,0)), (2,1))
+        self.assertEqual(new_pos((1,1), (0,0)), (1,1))
 
 class TestMesh(unittest.TestCase):
 

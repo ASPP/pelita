@@ -1,5 +1,5 @@
 from pelita.layout import Layout
-from pelita.containers import Mesh
+from pelita.containers import Mesh, new_pos
 
 __docformat__ = "restructuredtext"
 
@@ -565,27 +565,6 @@ class CTFUniverse(object):
         out += repr(self.bots)
         print out
 
-    @staticmethod
-    def _calc_new_position(position, move):
-        """ Adds a position tuple and a move.
-
-        Parameters
-        ----------
-        position : tuple of int (x, y)
-            current position
-
-        move : tuple of int (x, y)
-            direction vector
-
-        Returns
-        -------
-        new_pos : tuple of int (x, y)
-            new position coordinates
-
-        """
-        pos_x = position[0] + move[0]
-        pos_y = position[1] + move[1]
-        return (pos_x, pos_y)
 
     def neighbourhood(self, position):
         """ Determine where a move will lead.
@@ -601,7 +580,7 @@ class CTFUniverse(object):
             mapping of moves to new positions (x, y)
 
         """
-        return dict([(move, CTFUniverse._calc_new_position(position, move)) for
+        return dict([(move, new_pos(position, move)) for
             move in self.move_ids])
 
     @staticmethod
