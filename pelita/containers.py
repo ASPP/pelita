@@ -1,4 +1,5 @@
 from collections import Mapping
+import inspect
 
 """ Advanced container classes. """
 
@@ -221,7 +222,7 @@ class TypeAwareList(list):
 
     def __contains__(self, item):
         """ y in x or instance of y in x """
-        if type(item) == type:
+        if inspect.isclass(item):
             return any(isinstance(x, item) for x in self)
         else:
             return super(TypeAwareList, self).__contains__(item)
@@ -229,7 +230,7 @@ class TypeAwareList(list):
     def index(self, item):
         """ L.index(value, [start, [stop]]) -> integer -- return first index of
         value or instance of value"""
-        if type(item) == type:
+        if inspect.isclass(item):
             for i,x in enumerate(self):
                 if isinstance(x, item):
                     return i
