@@ -151,19 +151,19 @@ class TestMaze(unittest.TestCase):
         maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
                            TypeAwareList(['', '', '', '', '', '', '',])])
         maze.remove_at(int, (0,0))
-        self.assertEqual(maze[0,0], [[], {}, []])
+        self.assertEqual(list(maze[0,0]), [[], {}, []])
 
         maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
                            TypeAwareList(['', '', '', '', '', '', '',])])
         maze.remove_at(list, (0,0))
-        self.assertEqual(maze[0,0], [1, 2, {}, 1, 3] )
+        self.assertEqual(list(maze[0,0]), [1, 2, {}, 1, 3] )
 
         maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
                            TypeAwareList(['', '', '', '', '', '', '',])])
         maze.remove_at(int, (0,0))
-        self.assertEqual(maze[0,0], [[], {}, []] )
+        self.assertEqual(list(maze[0,0]), [[], {}, []] )
         maze.remove_at(str, (1,0))
-        self.assertEqual(maze[1,0], [] )
+        self.assertEqual(list(maze[1,0]), [] )
 
     def test_positions(self):
         maze = Maze(5,5)
@@ -212,23 +212,23 @@ class TestTypeAwareList(unittest.TestCase):
     def test_remove_types(self):
         tal = TypeAwareList([1, 2, [], {}, 1, [], 3])
         tal.remove_type(int)
-        self.assertEqual(tal, [[], {}, []])
+        self.assertEqual(list(tal), [[], {}, []])
 
         tal = TypeAwareList([1, 2, [], {}, 1, [], 3])
         tal.remove_type(list)
-        self.assertEqual(tal, [1, 2, {}, 1, 3])
+        self.assertEqual(list(tal), [1, 2, {}, 1, 3])
 
         tal = TypeAwareList([1, 2, [], {}, 1, [], 3])
         tal.remove_type(dict)
-        self.assertEqual(tal, [1, 2, [], 1, [], 3])
+        self.assertEqual(list(tal), [1, 2, [], 1, [], 3])
 
         tal = TypeAwareList([1, 2, [], {}, 1, [], 3])
         tal.remove_type(set)
-        self.assertEqual(tal, [1, 2, [], {}, 1, [], 3])
+        self.assertEqual(list(tal), [1, 2, [], {}, 1, [], 3])
 
         tal = TypeAwareList([])
         tal.remove_type(int)
-        self.assertEqual(tal, [])
+        self.assertEqual(list(tal), [])
 
         tal = TypeAwareList([1, 2, [], {}, 1, [], 3])
         self.assertRaises(TypeError, tal.remove_type, 1)
@@ -237,3 +237,36 @@ class TestTypeAwareList(unittest.TestCase):
         tal = TypeAwareList([])
         self.assertRaises(TypeError, tal.remove_type, 1)
         self.assertRaises(TypeError, tal.remove_type, list())
+
+    def test_insert_types(self):
+        class A(object):
+            pass
+
+        class B(A):
+            pass
+
+        class C(B):
+            pass
+
+        class D(object):
+            pass
+
+        tal = TypeAwareList(base_class=A)
+        a, b, c, d = A(), B(), C(), D()
+        tal.append(a)
+        tal.append(b)
+        tal.append(c)
+
+        self.assertRaises(ValueError, tal.append, 1)
+        self.assertRaises(ValueError, tal.append, d)
+
+        self.assertEqual(list(tal), [a, b, c])
+
+    def test_base_class(self):
+        self.assertRaises(TypeError, TypeAwareList, base_class=1)
+        self.assertRaises(TypeError, TypeAwareList, base_class=list())
+
+        tal = TypeAwareList([1, 2, 3], base_class=int)
+        self.assertEqual(list(tal), [1, 2, 3])
+
+        self.assertRaises(ValueError, TypeAwareList, [1, []], base_class=list)

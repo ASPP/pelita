@@ -1,5 +1,5 @@
 from pelita.layout import Layout
-from pelita.containers import Mesh, new_pos, MazeComponent, Maze
+from pelita.containers import Mesh, new_pos, MazeComponent, Maze, TypeAwareList
 
 __docformat__ = "restructuredtext"
 
@@ -275,7 +275,7 @@ def create_maze(layout_mesh):
 
     Returns
     -------
-    maze : Maze 
+    maze : Maze
         the Maze
 
     """

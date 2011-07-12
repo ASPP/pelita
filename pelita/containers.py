@@ -1,4 +1,4 @@
-from collections import Mapping
+from collections import Mapping, MutableSequence
 import inspect
 
 """ Advanced container classes. """
@@ -219,7 +219,6 @@ class Mesh(Mapping):
     def copy(self):
         return Mesh(self.width, self.height, list(self._data))
 
-
 class Maze(Mesh):
     """ A Mesh of TypeAwareLists of MazeComponents.
 
@@ -250,8 +249,6 @@ class Maze(Mesh):
     def positions(self):
         return self.keys()
 
-
-
 class MazeComponent(object):
     """ Base class for all items inside a maze. """
 
@@ -261,17 +258,16 @@ class MazeComponent(object):
     def __eq__(self, other):
         return isinstance(other, self.__class__)
 
-
-
-
-
-class TypeAwareList(list):
+class TypeAwareList(MutableSequence):
     """ List that is aware of `type`.
 
     This is a special type of list that knows about the types of its contents
-    thus allowing you to check if an object of a certain type is in the list. It
-    inherits from list, thus supporting all the usual operations on list. The
-    two methods `__contains__()` and `index()` have been overridden.
+    thus allowing you to check if an object of a certain type is in the list.
+    It also allows for specifying a base_class which ensures that all items
+    in the list must be instances of this base_class or one of its subclasses.
+
+    It inherits from MutableSequence, thus supporting all the usual operations on list.
+    One difference is, that for list equality the `list` method must be called.
 
     Examples
     --------
@@ -292,25 +288,69 @@ class TypeAwareList(list):
     0
     >>> tal.index(Free())
     0
+    >>> tal = TypeAwareList([1, 2, 3], base_class=int)
+    >>> tal.append("string")
+    ValueError: Value ''a'' is no instance of base '<type 'int'>'.
+    >>> list(tal)
+    [1, 2, 3]
     """
+
+    def __init__(self, iterable=None, base_class=None):
+        """ Creates a new TypeAwareList which may only contain
+
+        Parameters
+        ----------
+        iterable : iterable
+            Values to insert into the TypeAwareList
+        base_class : type
+            The base class which all items must be direct or indirect instances of
+
+        """
+        if base_class is not None and not inspect.isclass(base_class):
+            raise TypeError("Wrong type '%r' for 'base_class'. Need 'type'." % base_class)
+
+        self.base_class = base_class
+        self._items = []
+        if iterable is not None:
+            self.extend(iterable)
+
+    def __getitem__(self, key):
+        return self._items[key]
+
+    def __setitem__(self, key, value):
+        # checks that value is an instance of self.base_class
+        if self.base_class and not isinstance(value, self.base_class):
+            raise ValueError("Value '%r' is no instance of base '%r'." % (value, self.base_class))
+        self._items[key] = value
+
+    def __delitem__(self, key):
+        del self._items[key]
+
+    def insert(self, index, value):
+        if self.base_class and not isinstance(value, self.base_class):
+            raise ValueError("Value '%r' is no instance of base '%r'." % (value, self.base_class))
+        self._items.insert(index, value)
+
+    def __len__(self):
+        return len(self._items)
 
     def __contains__(self, item):
         """ y in x or instance of y in x """
         if inspect.isclass(item):
             return any(isinstance(x, item) for x in self)
         else:
-            return super(TypeAwareList, self).__contains__(item)
+            return item in self._items
 
     def index(self, item):
         """ L.index(value, [start, [stop]]) -> integer -- return first index of
         value or instance of value"""
         if inspect.isclass(item):
-            for i,x in enumerate(self):
+            for i, x in enumerate(self):
                 if isinstance(x, item):
                     return i
             raise ValueError("list.index(x): x not in list")
         else:
-            return super(TypeAwareList, self).index(item)
+            return self._items.index(item)
 
     def filter_type(self, type_):
         """ Returns the subset of self which is an instance of `type_`.
@@ -333,3 +373,8 @@ class TypeAwareList(list):
         for item in self.filter_type(type_):
             self.remove(item)
 
+    def __eq__(self, other):
+        return self._items == other._items and self.base_class == other.base_class
+
+    def __repr__(self):
+        return 'TypeAwareList(%r, base_class=%r)' % (self._items, self.base_class)
