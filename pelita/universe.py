@@ -394,14 +394,14 @@ class CTFUniverse(object):
         the maze
     teams : list of Team objects
         the teams
-    bots : lits of Bot objects
+    bots : list of Bot objects
         the bots
 
     Attributes
     ----------
     bot_positions : list of tuple of ints (x, y), property
         the current position of all bots
-    food_list : list of typle of ints (x, y), property
+    food_list : list of tuple of ints (x, y), property
         the positions of all edible food
 
     """
