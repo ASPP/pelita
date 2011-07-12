@@ -266,3 +266,24 @@ class TypeAwareList(list):
         else:
             return super(TypeAwareList, self).index(item)
 
+    def filter_type(self, type_):
+        """ Returns the subset of self which is an instance of `type_`.
+
+        Returns
+        -------
+        filtered_items : list
+            items which are instances of `type_`
+        """
+        if not inspect.isclass(type_):
+            raise TypeError("Wrong type '%r' for 'filter_type'. Need 'type'." % type_)
+        return [item for item in self if isinstance(item, type_)]
+
+    def remove_type(self, type_):
+        """ Removes all items which is are instances of `type_`.
+
+        """
+        if not inspect.isclass(type_):
+            raise TypeError("Wrong type '%r' for 'remove_type'. Need 'type'." % type_)
+        for item in self.filter_type(type_):
+            self.remove(item)
+

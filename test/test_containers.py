@@ -138,3 +138,47 @@ class TestTypeAwareList(unittest.TestCase):
         self.assertEqual(tal.index(dict), 2)
         self.assertRaises(ValueError, tal.index, set)
         self.assertRaises(ValueError, tal.index, set())
+
+    def test_filter_types(self):
+        tal = TypeAwareList([1, 2, [], {}, 1, [], 3])
+        self.assertEqual(tal.filter_type(int), [1, 2, 1, 3])
+        self.assertEqual(tal.filter_type(list), [[], []])
+        self.assertEqual(tal.filter_type(dict), [{}])
+        self.assertEqual(tal.filter_type(set), [])
+
+        self.assertRaises(TypeError, tal.filter_type, 1)
+        self.assertRaises(TypeError, tal.filter_type, list())
+
+        # needs to raise for empty list as well
+        tal = TypeAwareList([])
+        self.assertRaises(TypeError, tal.filter_type, 1)
+        self.assertRaises(TypeError, tal.filter_type, list())
+
+    def test_remove_types(self):
+        tal = TypeAwareList([1, 2, [], {}, 1, [], 3])
+        tal.remove_type(int)
+        self.assertEqual(tal, [[], {}, []])
+
+        tal = TypeAwareList([1, 2, [], {}, 1, [], 3])
+        tal.remove_type(list)
+        self.assertEqual(tal, [1, 2, {}, 1, 3])
+
+        tal = TypeAwareList([1, 2, [], {}, 1, [], 3])
+        tal.remove_type(dict)
+        self.assertEqual(tal, [1, 2, [], 1, [], 3])
+
+        tal = TypeAwareList([1, 2, [], {}, 1, [], 3])
+        tal.remove_type(set)
+        self.assertEqual(tal, [1, 2, [], {}, 1, [], 3])
+
+        tal = TypeAwareList([])
+        tal.remove_type(int)
+        self.assertEqual(tal, [])
+
+        tal = TypeAwareList([1, 2, [], {}, 1, [], 3])
+        self.assertRaises(TypeError, tal.remove_type, 1)
+        self.assertRaises(TypeError, tal.remove_type, list())
+
+        tal = TypeAwareList([])
+        self.assertRaises(TypeError, tal.remove_type, 1)
+        self.assertRaises(TypeError, tal.remove_type, list())
