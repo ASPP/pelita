@@ -259,8 +259,11 @@ class TestTypeAwareList(unittest.TestCase):
 
         self.assertRaises(ValueError, tal.append, 1)
         self.assertRaises(ValueError, tal.append, d)
+        self.assertRaises(ValueError, tal.__setitem__, 0, d)
 
         self.assertEqual(list(tal), [a, b, c])
+        tal[0] = b
+        self.assertEqual(list(tal), [b, b, c])
 
     def test_base_class(self):
         self.assertRaises(TypeError, TypeAwareList, base_class=1)
