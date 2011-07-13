@@ -481,7 +481,4 @@ class TypeAwareList(MutableSequence):
 
     def __repr__(self):
         return 'TypeAwareList(%r, base_class=%r)' % (self._items, self.base_class)
-<<<<<<< HEAD
 
-=======
->>>>>>> ENH/DOC: improve docstring of Mesh
