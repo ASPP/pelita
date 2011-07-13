@@ -281,6 +281,29 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertEqual(universe, universe2)
         self.assertEqual(universe, eval(repr(universe)))
 
+    def test_str_compact_str(self):
+        test_layout3 = (
+        """ ##################
+            #0#.  .  # .     #
+            #1#####    #####2#
+            #     . #  .  .#3#
+            ################## """)
+        universe = create_CTFUniverse(test_layout3, 4)
+        compact_str_target = (
+            '##################\n'
+            '#0#.  .  # .     #\n'
+            '#1#####    #####2#\n'
+            '#     . #  .  .#3#\n'
+            '##################\n')
+        self.assertEqual(compact_str_target, universe.compact_str)
+        str_target = (
+        "['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#']\n"
+        "['#', '0', '#', '.', ' ', ' ', '.', ' ', ' ', '#', ' ', '.', ' ', ' ', ' ', ' ', ' ', '#']\n"
+        "['#', '1', '#', '#', '#', '#', '#', ' ', ' ', ' ', ' ', '#', '#', '#', '#', '#', '2', '#']\n"
+        "['#', ' ', ' ', ' ', ' ', ' ', '.', ' ', '#', ' ', ' ', '.', ' ', ' ', '.', '#', '3', '#']\n"
+        "['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#']\n")
+        self.assertEqual(str_target, str(universe))
+
     def test_bot_teams(self):
 
         test_layout4 = (

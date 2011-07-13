@@ -547,6 +547,7 @@ class CTFUniverse(object):
         # TODO what about bots on the same space?
         return str(self._char_mesh)
 
+    @property
     def compact_str(self):
         return self._char_mesh.compact_str
 
