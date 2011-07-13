@@ -304,6 +304,20 @@ class TestCTFUniverse(unittest.TestCase):
         "['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#']\n")
         self.assertEqual(str_target, str(universe))
 
+        pretty_target = (
+            "##################\n"
+            "#0#.  .  # .     #\n"
+            "#1#####    #####2#\n"
+            "#     . #  .  .#3#\n"
+            "##################\n"
+            "Team(0, 'black', (0, 8), score=0, bots=[0, 2])\n"
+            "\tBot(0, (1, 1), 0, (0, 8) , current_pos=(1, 1))\n"
+            "\tBot(2, (16, 2), 0, (0, 8) , current_pos=(16, 2))\n"
+            "Team(1, 'white', (9, 17), score=0, bots=[1, 3])\n"
+            "\tBot(1, (1, 2), 1, (9, 17) , current_pos=(1, 2))\n"
+            "\tBot(3, (16, 3), 1, (9, 17) , current_pos=(16, 3))\n")
+        self.assertEqual(pretty_target, universe.pretty)
+
     def test_bot_teams(self):
 
         test_layout4 = (

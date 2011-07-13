@@ -540,24 +540,51 @@ class CTFUniverse(object):
             elif self.maze.has_at(Free, pos):
                 char_mesh[pos] = Free.char
         for bot in self.bots:
+            # TODO what about bots on the same space?
             char_mesh[bot.current_pos] = str(bot.index)
         return char_mesh
 
     def __str__(self):
-        # TODO what about bots on the same space?
         return str(self._char_mesh)
 
     @property
     def compact_str(self):
         return self._char_mesh.compact_str
 
-    def pretty_print(self):
-        out = str()
-        out += str(self)
-        out += repr(self.teams)
-        out += repr(self.bots)
-        print out
+    @property
+    def pretty(self):
+        """ Provide detailed info about universe state.
 
+        Returns
+        -------
+        pretty : str
+            detailed, readable string version of this universe
+
+        Examples
+        --------
+        >>> univere.pretty
+        ##################
+        #0#.  .  # .     #
+        #1#####    #####2#
+        #     . #  .  .#3#
+        ##################
+        Team(0, 'black', (0, 8), score=0, bots=[0, 2])
+            Bot(0, (1, 1), 0, (0, 8) , current_pos=(1, 1))
+            Bot(2, (16, 2), 0, (0, 8) , current_pos=(16, 2))
+        Team(1, 'white', (9, 17), score=0, bots=[1, 3])
+            Bot(1, (1, 2), 1, (9, 17) , current_pos=(1, 2))
+            Bot(3, (16, 3), 1, (9, 17) , current_pos=(16, 3))
+
+        """
+        out = str()
+        out += self.compact_str
+        for team in self.teams:
+            out += repr(team)
+            out += '\n'
+            for i in team.bots:
+                out += '\t'+repr(self.bots[i])
+                out += '\n'
+        return out
 
     def neighbourhood(self, position):
         """ Determine where a move will lead.
