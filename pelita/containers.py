@@ -143,7 +143,7 @@ class Mesh(Mapping):
         return index_tuple[0] + index_tuple[1] * self.width
 
     def _set_data(self, new_data):
-        if type(new_data) != list:
+        if not isinstance(new_data, list):
             raise TypeError(
                     'The new_data has the wrong type: %s, ' % type(new_data) +\
                     'currently only lists are supported.')
@@ -378,3 +378,4 @@ class TypeAwareList(MutableSequence):
 
     def __repr__(self):
         return 'TypeAwareList(%r, base_class=%r)' % (self._items, self.base_class)
+
