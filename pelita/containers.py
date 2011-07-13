@@ -35,14 +35,6 @@ class Mesh(Mapping):
     mutator methods (`__getitem__()` and `__setitem__()`) to access the elements
     in a matrixy style.
 
-    Attributes
-    ----------
-    width : int
-        width of the Mesh
-    height : int
-        height of the Mesh
-    shape : (int, int)
-        tuple of width and height
 
     Parameters
     ----------
@@ -51,7 +43,14 @@ class Mesh(Mapping):
     height : int
         desired height for Mesh
     data : list, optional
-        if given, will try to set this as contents
+        If given, will try to set this as contents, using the width and height.
+        May raise a `ValueError` or a `TypeError`, see `_set_data()` for
+        details.
+
+    Attributes
+    ----------
+    shape : (int, int)
+        tuple of width and height
 
     Notes
     -----
@@ -76,7 +75,7 @@ class Mesh(Mapping):
     * `itervalues()`
     * `iteritems()`
 
-    The method `_set_data` is semi-public api. You can use it to modify the
+    The method `_set_data()` is semi-public API. You can use it to modify the
     underlying data inside this container if you know what you are doing. The
     method has some additional checks for type and length of the new data and
     should therefore be safer than just modifying the _data member directly.
@@ -105,7 +104,6 @@ class Mesh(Mapping):
     >>> m.keys()
     [(0, 0), (1, 0), (0, 1), (1, 1)]
     """
-
     def __init__(self,  width, height, data=None):
         self.width = width
         self.height = height
@@ -117,12 +115,28 @@ class Mesh(Mapping):
 
     @property
     def shape(self):
-        """ Returns a tuple (width, height)
+        """ The shape (width, height of the Mesh.
+
+        Returns
+        -------
+        shape : tuple of (int, int)
+            shape of the Mesh
         """
         return (self.width, self.height)
 
     def _check_index(self, index):
         """ Checks that `index` is inside the boundaries.
+
+        Parameters
+        ----------
+        index : tuple of (int, int)
+            index (x, y) into the Mesh
+
+        Raises
+        ------
+        IndexError
+            if the index is not within the range of the Mesh
+
         """
         if not 0 <= index[0] < self.width:
             raise IndexError(
@@ -134,15 +148,56 @@ class Mesh(Mapping):
                 % (index[1], self.height))
 
     def _index_linear_to_tuple(self, index_linear):
+        """ Convert a linear index to a tuple.
+
+        Parameters
+        ----------
+        index_linear : int
+            index into the underlying list
+
+        Returns
+        -------
+        index_tuple : tuple of (int, int)
+            index in two dimensional space (x, y)
+
+        """
         x = index_linear % self.width
         y = index_linear // self.width
         return (x, y)
 
     def _index_tuple_to_linear(self, index_tuple):
+        """ Convert a tuple index to linear index
+
+        Parameters
+        ----------
+        index_tuple : tuple of (int, int)
+            index in two dimensional space (x, y)
+
+        Returns
+        -------
+        index_linear : int
+            index into the underlying list
+
+        """
         self._check_index(index_tuple)
         return index_tuple[0] + index_tuple[1] * self.width
 
     def _set_data(self, new_data):
+        """ Set the underlying data for this container.
+
+        Parameters
+        ----------
+        new_data : list of appropriate length
+            the new data
+
+        Raises
+        ------
+        TypeError
+            if new_data is not a list
+        ValueError
+            if new_data has inappropriate length
+
+        """
         if not isinstance(new_data, list):
             raise TypeError(
                     'The new_data has the wrong type: %s, ' % type(new_data) +\
@@ -181,7 +236,7 @@ class Mesh(Mapping):
 
     @property
     def compact_str(self):
-        """ Return a compact string representation of the mesh.
+        """ Return a compact string representation of the Mesh.
 
         This is useful in case the maze contains components that can be
         represented with single character strings. See the following examples
@@ -237,20 +292,68 @@ class Maze(Mesh):
         super(Maze, self).__init__(width, height, data)
 
     def has_at(self, type_, pos):
+        """ Check if objects of a given type are present at position.
+
+        Parameters
+        ----------
+        type_ : type
+            the type of objects to look for
+        pos : tuple of (int, int)
+            the position to look at
+
+        Returns
+        -------
+        object_present : boolean
+            True if objects of the given type are present and False otherwise.
+
+        """
         return type_ in self[pos]
 
     def get_at(self, type_, pos):
+        """ Get all objects of a given type at certain position.
+
+        Parameters
+        ----------
+        type_ : type
+            the type of objects to look for
+        pos : tuple of (int, int)
+            the position to look at
+
+        Returns
+        -------
+        objs : list
+            the objects at that position
+
+        """
         return self[pos].filter_type(type_)
 
     def remove_at(self, type_, pos):
+        """ Remove all objects of a given type at a certain position.
+
+        Parameters
+        ----------
+        type_ : type
+            the type of objects to look for
+        pos : tuple of (int, int)
+            the position to look at
+
+        """
         self[pos].remove_type(type_)
 
     @property
     def positions(self):
+        """ The indices of positions in the Maze.
+
+        Returns
+        -------
+        positions : list of tuple of (int, int)
+            the positions (x, y) in the Maze
+
+        """
         return self.keys()
 
 class MazeComponent(object):
-    """ Base class for all items inside a maze. """
+    """ Base class for all items inside a Maze. """
 
     def __str__(self):
         return self.__class__.char
@@ -378,4 +481,7 @@ class TypeAwareList(MutableSequence):
 
     def __repr__(self):
         return 'TypeAwareList(%r, base_class=%r)' % (self._items, self.base_class)
+<<<<<<< HEAD
 
+=======
+>>>>>>> ENH/DOC: improve docstring of Mesh
