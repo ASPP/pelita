@@ -3,6 +3,7 @@ from pelita.containers import Mesh
 __docformat__ = "restructuredtext"
 
 class LayoutEncodingException(Exception):
+    """ Signifies a problem with the encoding of a layout. """
     pass
 
 class Layout(object):
@@ -23,19 +24,6 @@ class Layout(object):
     need additional checks for example for mazes that need to be not only
     rectangular, but also square.
 
-    Attributes
-    ----------
-    original : str
-        the original string given in the constructor
-    number_bots : int
-        the number of bots to look for
-    layout_chars : list of str
-        the list of legal characters to use
-    stripped : str
-        the whitespace stripped version
-    shape : tuple of two ints
-        height and width of the layout
-
     Parameters
     ----------
     layout_str : str
@@ -45,8 +33,18 @@ class Layout(object):
     number_bots : int
         the number of bots to look for
 
-    """
+    Attributes
+    ----------
+    original : str
+        the original string given in the constructor (`layout_str`)
+    layout_chars : list of str
+        the list of legal characters to use
+    stripped : str
+        the whitespace stripped version
+    shape : tuple of two ints
+        height and width of the layout
 
+    """
     def __init__(self, layout_str, layout_chars ,number_bots):
         self.original = layout_str
         self.number_bots = number_bots
@@ -148,6 +146,14 @@ class Layout(object):
             % (self.original, self.layout_chars, self.number_bots))
 
     def as_mesh(self):
+        """ Convert to a Mesh.
+
+        Returns
+        -------
+        mesh : Mesh
+            this layout as a Mesh
+
+        """
         mesh = Mesh(*self.shape)
         mesh._set_data(list(''.join(self.stripped.split('\n'))))
         return mesh
