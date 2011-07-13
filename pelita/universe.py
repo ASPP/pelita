@@ -530,22 +530,6 @@ class CTFUniverse(object):
         return self.__dict__ == other.__dict__
 
     @property
-    def json_dict(self):
-        return {"type": self.__class__.__name__,
-                "mesh": self.maze,
-                "bots": [bot.json_dict for bot in self.bots],
-                "teams": [team.json_dict for team in self.teams]}
-
-    @classmethod
-    def from_json_dict(cls, json_dict):
-        if json_dict["type"] == cls.__name__:
-            del json_dict["type"]
-            return cls(**json_dict)
-        else:
-            raise ValueError("Cannot load object.")
-
-
-    @property
     def _char_mesh(self):
         char_mesh = Mesh(self.maze.width, self.maze.height)
         for pos in self.maze.positions:
