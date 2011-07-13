@@ -292,20 +292,68 @@ class Maze(Mesh):
         super(Maze, self).__init__(width, height, data)
 
     def has_at(self, type_, pos):
+        """ Check if objects of a given type are present at position.
+
+        Parameters
+        ----------
+        type_ : type
+            the type of objects to look for
+        pos : tuple of (int, int)
+            the position to look at
+
+        Returns
+        -------
+        object_present : boolean
+            True if objects of the given type are present and False otherwise.
+
+        """
         return type_ in self[pos]
 
     def get_at(self, type_, pos):
+        """ Get all objects of a given type at certain position.
+
+        Parameters
+        ----------
+        type_ : type
+            the type of objects to look for
+        pos : tuple of (int, int)
+            the position to look at
+
+        Returns
+        -------
+        objs : list
+            the objects at that position
+
+        """
         return self[pos].filter_type(type_)
 
     def remove_at(self, type_, pos):
+        """ Remove all objects of a given type at a certain position.
+
+        Parameters
+        ----------
+        type_ : type
+            the type of objects to look for
+        pos : tuple of (int, int)
+            the position to look at
+
+        """
         self[pos].remove_type(type_)
 
     @property
     def positions(self):
+        """ The indices of positions in the Maze.
+
+        Returns
+        -------
+        positions : list of tuple of (int, int)
+            the positions (x, y) in the Maze
+
+        """
         return self.keys()
 
 class MazeComponent(object):
-    """ Base class for all items inside a maze. """
+    """ Base class for all items inside a Maze. """
 
     def __str__(self):
         return self.__class__.char
