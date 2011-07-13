@@ -94,6 +94,8 @@ class TestMesh(unittest.TestCase):
     def test_compact_str(self):
         m = Mesh(2, 3, data=[1, 2, 3, 4, 5, 6])
         self.assertEqual(m.compact_str, '12\n34\n56\n')
+        m = Mesh(3, 2, data=[1, 2, 3, 4, 5, 6])
+        self.assertEqual(m.compact_str, '123\n456\n')
 
     def test_repr(self):
         m = Mesh(2, 2, data=[1, 2, 3, 4])
