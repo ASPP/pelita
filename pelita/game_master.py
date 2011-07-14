@@ -17,6 +17,8 @@ class GameMaster(object):
         the game state
     game_time : int
         the total permitted number of rounds
+    number_bots : int
+        the total number of bots
     players : list of subclasses of AbstractPlayer
         the player implementations
     viewers : list of subclasses of AbstractViewer
@@ -26,6 +28,7 @@ class GameMaster(object):
     def __init__(self, layout, number_bots, game_time):
         self.universe = uni.create_CTFUniverse(layout, number_bots)
         self.game_time = game_time
+        self.number_bots = number_bots
         self.players = []
         self.viewers = []
 
@@ -64,6 +67,10 @@ class GameMaster(object):
 
     def play(self):
         """ Play a whole game. """
+        if self.number_bots != len(self.players):
+            raise IndexError(
+                "GameMaster is configured for %i players, but only %i are registerd " 
+                % (self.number_bots, len(self.players)))
         for gt in range(self.game_time):
             if not self.play_round(gt):
                 return
