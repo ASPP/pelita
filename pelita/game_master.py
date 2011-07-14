@@ -34,7 +34,7 @@ class GameMaster(object):
                 return
 
     def play_round(self, current_game_time):
-        for i,p in enumerate(self.players):
+        for i, p in enumerate(self.players):
             move = p.get_move(self.universe)
             events = self.universe.move_bot(i, move)
             for v in self.viewers:

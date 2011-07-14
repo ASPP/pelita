@@ -59,7 +59,7 @@ class TestGame(unittest.TestCase):
         def create_TestUniverse(layout):
             initial_pos = [(1, 1), (4, 2)]
             universe = create_CTFUniverse(layout, number_bots)
-            for i,pos in enumerate(initial_pos):
+            for i, pos in enumerate(initial_pos):
                 universe.bots[i].initial_pos = pos
             if not universe.maze.has_at(Food, (1, 2)):
                 universe.teams[1]._score_point()
