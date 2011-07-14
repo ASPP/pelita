@@ -1,9 +1,11 @@
+""" Advanced container classes. """
+
 from collections import Mapping, MutableSequence
 import inspect
 
-""" Advanced container classes. """
 
 __docformat__ = "restructuredtext"
+
 
 def new_pos(position, move):
     """ Adds a position tuple and a move tuple.
@@ -26,15 +28,15 @@ def new_pos(position, move):
     pos_y = position[1] + move[1]
     return (pos_x, pos_y)
 
+
 class Mesh(Mapping):
     """ A mapping from a two-dimensional coordinate system into object space.
 
     Using a list of lists to represent a matrix is memory inefficient, slow,
-    (ugly) and requires much effort to keep all lists the same length.
-    Instead we store the matrix data in a single list and provide accessor and
-    mutator methods (`__getitem__()` and `__setitem__()`) to access the elements
-    in a matrixy style.
-
+    (ugly) and requires much effort to keep all lists the same length.  Instead
+    we store the matrix data in a single list and provide accessor and mutator
+    methods (`__getitem__()` and `__setitem__()`) to access the elements in a
+    matrixy style.
 
     Parameters
     ----------
@@ -65,8 +67,8 @@ class Mesh(Mapping):
 
     The items are stored row-based (C-order).
 
-    Since this container inherits from `collections.Mapping` you can use methods
-    similar to those of the dictionary:
+    Since this container inherits from `collections.Mapping` you can use
+    methods similar to those of the dictionary:
 
     * `keys()`
     * `values()`
@@ -216,7 +218,8 @@ class Mesh(Mapping):
         self._data[self._index_tuple_to_linear(index)] = item
 
     def __iter__(self):
-        return iter(self._index_linear_to_tuple(idx) for idx in range(len(self)))
+        return iter(self._index_linear_to_tuple(idx)
+                for idx in range(len(self)))
 
     def __len__(self):
         return self.width * self.height
@@ -273,6 +276,7 @@ class Mesh(Mapping):
 
     def copy(self):
         return Mesh(self.width, self.height, list(self._data))
+
 
 class Maze(Mesh):
     """ A Mesh of TypeAwareLists of MazeComponents.
@@ -352,6 +356,7 @@ class Maze(Mesh):
         """
         return self.keys()
 
+
 class MazeComponent(object):
     """ Base class for all items inside a Maze. """
 
@@ -360,6 +365,7 @@ class MazeComponent(object):
 
     def __eq__(self, other):
         return isinstance(other, self.__class__)
+
 
 class TypeAwareList(MutableSequence):
     """ List that is aware of `type`.
@@ -410,7 +416,8 @@ class TypeAwareList(MutableSequence):
 
         """
         if base_class is not None and not inspect.isclass(base_class):
-            raise TypeError("Wrong type '%r' for 'base_class'. Need 'type'." % base_class)
+            raise TypeError("Wrong type '%r' for 'base_class'. Need 'type'."
+                    % base_class)
 
         self.base_class = base_class
         self._items = []
@@ -423,7 +430,8 @@ class TypeAwareList(MutableSequence):
     def __setitem__(self, key, value):
         # checks that value is an instance of self.base_class
         if self.base_class and not isinstance(value, self.base_class):
-            raise ValueError("Value '%r' is no instance of base '%r'." % (value, self.base_class))
+            raise ValueError("Value '%r' is no instance of base '%r'."
+                    % (value, self.base_class))
         self._items[key] = value
 
     def __delitem__(self, key):
@@ -431,7 +439,8 @@ class TypeAwareList(MutableSequence):
 
     def insert(self, index, value):
         if self.base_class and not isinstance(value, self.base_class):
-            raise ValueError("Value '%r' is no instance of base '%r'." % (value, self.base_class))
+            raise ValueError("Value '%r' is no instance of base '%r'."
+                    % (value, self.base_class))
         self._items.insert(index, value)
 
     def __len__(self):
@@ -464,7 +473,8 @@ class TypeAwareList(MutableSequence):
             items which are instances of `type_`
         """
         if not inspect.isclass(type_):
-            raise TypeError("Wrong type '%r' for 'filter_type'. Need 'type'." % type_)
+            raise TypeError("Wrong type '%r' for 'filter_type'. Need 'type'."
+                    % type_)
         return [item for item in self if isinstance(item, type_)]
 
     def remove_type(self, type_):
@@ -472,13 +482,15 @@ class TypeAwareList(MutableSequence):
 
         """
         if not inspect.isclass(type_):
-            raise TypeError("Wrong type '%r' for 'remove_type'. Need 'type'." % type_)
+            raise TypeError("Wrong type '%r' for 'remove_type'. Need 'type'."
+                    % type_)
         for item in self.filter_type(type_):
             self.remove(item)
 
     def __eq__(self, other):
-        return self._items == other._items and self.base_class == other.base_class
+        return (self._items == other._items and
+            self.base_class == other.base_class)
 
     def __repr__(self):
-        return 'TypeAwareList(%r, base_class=%r)' % (self._items, self.base_class)
-
+        return ('TypeAwareList(%r, base_class=%r)'
+            % (self._items, self.base_class))
