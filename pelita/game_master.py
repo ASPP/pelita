@@ -1,6 +1,9 @@
+""" The controller """
+
 import pelita.universe as uni
 from pelita.player import AbstractPlayer
 from pelita.viewer import AbstractViewer
+
 
 class GameMaster(object):
     """ Controller of player moves and universe updates.
@@ -35,10 +38,10 @@ class GameMaster(object):
             the concrete player implementation
 
         """
-        if player.__class__.get_move.__func__ == \
-            AbstractPlayer.get_move.__func__:
-                raise TypeError("Player %s does not override 'get_move()'."
-                        % player.__class__)
+        if (player.__class__.get_move.__func__ ==
+                AbstractPlayer.get_move.__func__):
+            raise TypeError("Player %s does not override 'get_move()'."
+                % player.__class__)
         self.players.append(player)
         player._set_index(len(self.players) - 1)
         player._set_initial(self.universe)
@@ -51,10 +54,10 @@ class GameMaster(object):
         viewer : subclass of AbstractViewer
 
         """
-        if viewer.__class__.observe.__func__ == \
-            AbstractViewer.observe.__func__:
-                raise TypeError("Viewer %s does not override 'observe()'."
-                        % viewer.__class__)
+        if (viewer.__class__.observe.__func__ ==
+                AbstractViewer.observe.__func__):
+            raise TypeError("Viewer %s does not override 'observe()'."
+                    % viewer.__class__)
         self.viewers.append(viewer)
 
     # TODO the game winning detection should be refactored
@@ -84,4 +87,3 @@ class GameMaster(object):
             if any(isinstance(e, uni.TeamWins) for e in events):
                 return False
         return True
-
