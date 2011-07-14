@@ -1,5 +1,6 @@
 import pelita.universe as uni
-import random
+from pelita.player import AbstractPlayer
+from pelita.viewer import AbstractViewer
 
 class GameMaster(object):
 
@@ -9,12 +10,13 @@ class GameMaster(object):
         self.players = [None] * number_bots
         self.viewers = []
 
-    def register_player(self,index, player):
+    def register_player(self, player):
         if player.__class__.get_move.__func__ == \
             AbstractPlayer.get_move.__func__:
                 raise TypeError("Player %s does not override 'get_move()'."
                         % player.__class__)
-        self.players[index] = player
+        self.players.append(player)
+        player._set_index(len(self.players) -1 )
         player._set_initial(self.universe)
 
     def register_viewer(self, viewer):

@@ -1,4 +1,6 @@
 from pelita.game_master import *
+from pelita.player import *
+from pelita.viewer import *
 import unittest
 
 class TestGameMaster(unittest.TestCase):

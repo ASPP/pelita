@@ -1,12 +1,13 @@
 from universe import stop
+import random
 
 class AbstractPlayer(object):
 
-    def __init__(self, index):
-        self.index = index
-        self.universe_states = []
+    def _set_index(self, index):
+        self._index = index
 
     def _set_initial(self, universe):
+        self.universe_states = []
         self.universe_states.append(universe)
 
     def set_initial(self, universe):
