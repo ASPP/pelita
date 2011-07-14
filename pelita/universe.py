@@ -1,7 +1,7 @@
 """ The datamodel. """
 
 from pelita.layout import Layout
-from pelita.containers import Mesh, new_pos, MazeComponent, Maze
+from pelita.containers import Mesh, new_pos, MazeComponent, Maze, TypeAwareList
 
 __docformat__ = "restructuredtext"
 
