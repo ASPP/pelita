@@ -29,6 +29,6 @@ class StoppingPlayer(AbstractPlayer):
 class RandomPlayer(AbstractPlayer):
 
     def get_move(self, universe):
-        legal_moves = universe.get_legal_moves(universe.bots[self.index].current_pos)
+        legal_moves = universe.get_legal_moves(universe.bots[self._index].current_pos)
         return random.choice(legal_moves.keys())
 

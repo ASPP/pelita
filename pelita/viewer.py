@@ -1,3 +1,4 @@
+import pelita.universe as uni
 
 class AbstractViewer(object):
 
@@ -11,7 +12,7 @@ class AsciiViewer(AbstractViewer):
         print ("Round: %i Turn: %i Score: %i:%i"
         % (round_, turn, universe.teams[0].score, universe.teams[1].score))
         print ("Events: %r" % events)
-        print universe.as_str()
+        print universe.compact_str
         if any(isinstance(e, uni.TeamWins) for e in events):
             team_wins_event = filter(lambda x: isinstance(x, uni.TeamWins), events)[0]
             print ("Game Over: Team: '%s' wins!" %

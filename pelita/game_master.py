@@ -7,7 +7,7 @@ class GameMaster(object):
     def __init__(self, layout, number_bots, game_time):
         self.universe = uni.create_CTFUniverse(layout, number_bots)
         self.game_time = game_time
-        self.players = [None] * number_bots
+        self.players = []
         self.viewers = []
 
     def register_player(self, player):
@@ -16,7 +16,7 @@ class GameMaster(object):
                 raise TypeError("Player %s does not override 'get_move()'."
                         % player.__class__)
         self.players.append(player)
-        player._set_index(len(self.players) -1 )
+        player._set_index(len(self.players) - 1)
         player._set_initial(self.universe)
 
     def register_viewer(self, viewer):
