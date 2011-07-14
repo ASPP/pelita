@@ -74,7 +74,7 @@ class AbstractPlayer(object):
             the bot controlled by this player
 
         """
-        self.current_uni.bots[self._index]
+        return self.current_uni.bots[self._index]
 
     @property
     def team_bots(self):
@@ -87,7 +87,7 @@ class AbstractPlayer(object):
 
         """
         this_team = [self.current_uni.bots[i] for i in
-            self.current_uni.teams[me._index].bots]
+            self.current_uni.teams[self._index].bots]
         this_team.pop(self._index)
         return this_team
 
@@ -123,7 +123,7 @@ class AbstractPlayer(object):
             the initial position (x, y) of this bot
 
         """
-        return me.initial_pos
+        return self.me.initial_pos
 
 class StoppingPlayer(AbstractPlayer):
     """ A Player that just stands still. """
