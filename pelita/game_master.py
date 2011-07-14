@@ -26,6 +26,8 @@ class GameMaster(object):
                         % viewer.__class__)
         self.viewers.append(viewer)
 
+    # TODO the game winning detection should be refactored
+
     def play(self):
         for gt in range(self.game_time):
             if not self.play_round(gt):
