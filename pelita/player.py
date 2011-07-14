@@ -1,5 +1,8 @@
-from universe import stop
+""" Base classes for player implementations. """
+
+from pelita.universe import stop
 import random
+
 
 class AbstractPlayer(object):
 
@@ -21,14 +24,16 @@ class AbstractPlayer(object):
         raise NotImplementedError(
                 "You must override the 'get_move' method in your player")
 
+
 class StoppingPlayer(AbstractPlayer):
 
     def get_move(self, universe):
         return stop
 
+
 class RandomPlayer(AbstractPlayer):
 
     def get_move(self, universe):
-        legal_moves = universe.get_legal_moves(universe.bots[self._index].current_pos)
+        legal_moves = universe.get_legal_moves(
+                universe.bots[self._index].current_pos)
         return random.choice(legal_moves.keys())
-
