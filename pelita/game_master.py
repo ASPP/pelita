@@ -15,7 +15,7 @@ class GameMaster(object):
                 raise TypeError("Player %s does not override 'get_move()'."
                         % player.__class__)
         self.players[index] = player
-        player.set_initial(self.universe)
+        player._set_initial(self.universe)
 
     def register_viewer(self, viewer):
         if viewer.__class__.observe.__func__ == \
