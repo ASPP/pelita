@@ -1,10 +1,14 @@
+""" Maze layout parsing. """
+
 from pelita.containers import Mesh
 
 __docformat__ = "restructuredtext"
 
+
 class LayoutEncodingException(Exception):
     """ Signifies a problem with the encoding of a layout. """
     pass
+
 
 class Layout(object):
     """ Auxiliary class to parse string encodings of mazes.
@@ -45,7 +49,7 @@ class Layout(object):
         height and width of the layout
 
     """
-    def __init__(self, layout_str, layout_chars ,number_bots):
+    def __init__(self, layout_str, layout_chars, number_bots):
         self.original = layout_str
         self.number_bots = number_bots
         self.layout_chars = layout_chars
@@ -93,7 +97,7 @@ class Layout(object):
         """
         bot_ids = [str(i) for i in range(number_bots)]
         existing_bots = []
-        legal = layout_chars + bot_ids  + ['\n']
+        legal = layout_chars + bot_ids + ['\n']
         for c in layout_str:
             if c not in legal:
                 raise LayoutEncodingException(
@@ -115,9 +119,10 @@ class Layout(object):
         for i in range(len(lines)):
             if len(lines[i]) != len(lines[0]):
                 raise LayoutEncodingException(
-                    'The layout must be rectangular, '+\
+                    'The layout must be rectangular, ' +\
                     'line %i has length %i instead of %i'
                     % (i, len(lines[i]), len(lines[0])))
+
     @staticmethod
     def layout_shape(layout_str):
         """ Determine shape of layout.
