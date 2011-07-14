@@ -70,23 +70,15 @@ class TestGame(unittest.TestCase):
             return universe
 
         class TestPlayer(AbstractPlayer):
+            def __init__(self, moves):
+                self.moves = moves
 
             def get_move(self, universe):
                 return self.moves.pop()
 
-        class TestPlayerZero(TestPlayer):
-
-            def __init__(self):
-                self.moves = [east, east, east, south, stop, east]
-
-        class TestPlayerOne(TestPlayer):
-
-            def __init__(self):
-                self.moves = [west, west, west, stop, west, west]
-
         gm = GameMaster(test_start, number_bots, 200)
-        gm.register_player(TestPlayerZero())
-        gm.register_player(TestPlayerOne())
+        gm.register_player(TestPlayer([east, east, east, south, stop, east]))
+        gm.register_player(TestPlayer([west, west, west, stop, west, west]))
 
         gm.play_round(0)
         test_first_round = (
@@ -139,8 +131,8 @@ class TestGame(unittest.TestCase):
 
         # now play the full game
         gm = GameMaster(test_start, number_bots, 200)
-        gm.register_player(TestPlayerZero())
-        gm.register_player(TestPlayerOne())
+        gm.register_player(TestPlayer([east, east, east, south, stop, east]))
+        gm.register_player(TestPlayer([west, west, west, stop, west, west]))
         gm.play()
         test_sixth_round = (
             """ ######
