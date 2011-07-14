@@ -1,5 +1,7 @@
 #!/usr/bin/python
-from pelita.game_master import GameMaster, RandomPlayer, AsciiViewer
+from pelita.game_master import GameMaster
+from pelita.player import RandomPlayer
+from pelita.viewer import AsciiViewer
 
 if __name__ == '__main__':
     layout = (
@@ -9,9 +11,9 @@ if __name__ == '__main__':
             #     . #  .  .#3#
             ################## """)
     gm = GameMaster(layout, 4, 200)
-    gm.register_player(0, RandomPlayer(0))
-    gm.register_player(1, RandomPlayer(1))
-    gm.register_player(2, RandomPlayer(2))
-    gm.register_player(3, RandomPlayer(3))
+    gm.register_player(RandomPlayer())
+    gm.register_player(RandomPlayer())
+    gm.register_player(RandomPlayer())
+    gm.register_player(RandomPlayer())
     gm.register_viewer(AsciiViewer())
     gm.play()

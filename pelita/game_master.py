@@ -1,72 +1,87 @@
 import pelita.universe as uni
-import random
+from pelita.player import AbstractPlayer
+from pelita.viewer import AbstractViewer
 
 class GameMaster(object):
+    """ Controller of player moves and universe updates.
 
+    This object coordinates the moves of the player implementations with the
+    updating of the universe.
+
+    Parameters
+    ----------
+    universe : Universe
+        the game state
+    game_time : int
+        the total permitted number of rounds
+    players : list of subclasses of AbstractPlayer
+        the player implementations
+    viewers : list of subclasses of AbstractViewer
+        the viewers that are observing this game
+
+    """
     def __init__(self, layout, number_bots, game_time):
         self.universe = uni.create_CTFUniverse(layout, number_bots)
         self.game_time = game_time
-        self.players = [None] * number_bots
+        self.players = []
         self.viewers = []
 
-    def register_player(self,index, player):
+    def register_player(self, player):
+        """ Register a client player implementation.
+
+        Parameters
+        ----------
+        player : subclass of AbstractPlayer
+            the concrete player implementation
+
+        """
         if player.__class__.get_move.__func__ == \
             AbstractPlayer.get_move.__func__:
                 raise TypeError("Player %s does not override 'get_move()'."
                         % player.__class__)
-        self.players[index] = player
-        player.set_initial(self.universe)
+        self.players.append(player)
+        player._set_index(len(self.players) - 1)
+        player._set_initial(self.universe)
 
     def register_viewer(self, viewer):
+        """ Register a viewer to display the game state as it progresses.
+
+        Parameters
+        ----------
+        viewer : subclass of AbstractViewer
+
+        """
         if viewer.__class__.observe.__func__ == \
             AbstractViewer.observe.__func__:
                 raise TypeError("Viewer %s does not override 'observe()'."
                         % viewer.__class__)
         self.viewers.append(viewer)
 
+    # TODO the game winning detection should be refactored
+
     def play(self):
+        """ Play a whole game. """
         for gt in range(self.game_time):
-            for i,p in enumerate(self.players):
-                move = p.get_move(self.universe)
-                events = self.universe.move_bot(i, move)
-                for v in self.viewers:
-                    v.observe(gt, i, self.universe, events)
-                if any(isinstance(e, uni.TeamWins) for e in events):
-                    return
+            if not self.play_round(gt):
+                return
 
-class AbstractViewer(object):
+    def play_round(self, current_game_time):
+        """ Play only a single round.
 
-    def observe(self, round_, turn, universe, events):
-        raise NotImplementedError(
-                "You must override the 'observe' method in your viewer")
+        A single round is defined as all bots moving once.
 
-class AsciiViewer(AbstractViewer):
+        Parameters
+        ----------
+        current_game_time : int
+            the number of this round
 
-    def observe(self, round_, turn, universe, events):
-        print ("Round: %i Turn: %i Score: %i:%i"
-        % (round_, turn, universe.teams[0].score, universe.teams[1].score))
-        print ("Events: %r" % events)
-        print universe.as_str()
-        if any(isinstance(e, uni.TeamWins) for e in events):
-            team_wins_event = filter(lambda x: isinstance(x, uni.TeamWins), events)[0]
-            print ("Game Over: Team: '%s' wins!" %
-            universe.teams[team_wins_event.winning_team_index].name)
-
-class AbstractPlayer(object):
-
-    def get_move(self, universe):
-        raise NotImplementedError(
-                "You must override the 'get_move' method in your player")
-
-class RandomPlayer(AbstractPlayer):
-
-    def __init__(self, index):
-        self.index = index
-
-    def set_initial(self, universe):
-        pass
-
-    def get_move(self, universe):
-        legal_moves = universe.get_legal_moves(universe.bots[self.index].current_pos)
-        return random.choice(legal_moves.keys())
+        """
+        for i, p in enumerate(self.players):
+            move = p.get_move(self.universe)
+            events = self.universe.move_bot(i, move)
+            for v in self.viewers:
+                v.observe(current_game_time, i, self.universe, events)
+            if any(isinstance(e, uni.TeamWins) for e in events):
+                return False
+        return True
 
