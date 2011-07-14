@@ -5,6 +5,9 @@
 *.pyc
 *.pyo
 
+# coverage ignore
+.coverage
+
 # eclipse
 .project
 .classpath
