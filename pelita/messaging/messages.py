@@ -65,7 +65,7 @@ class Query(BaseMessage):
         self.params = params
         self.id = id
 
-        self.mailbox = None # this specifies the mailbox used to reply; needs a put method
+        self.channel = None # this specifies the channel used to reply; needs a put method
 
     @property
     def is_response(self):
@@ -79,13 +79,13 @@ class Query(BaseMessage):
         return Response(result, self.id)
 
     def reply(self, result):
-        return self.mailbox.put(self.response(result))
+        return self.channel.put(self.response(result))
 
     def error_msg(self, error):
         return Error(error, self.id)
 
     def reply_error(self, error):
-        return self.mailbox.put(self.error_msg(error))
+        return self.channel.put(self.error_msg(error))
 
     @property
     def dict(self):

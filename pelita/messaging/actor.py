@@ -10,14 +10,23 @@ from pelita.messaging import Query, Notification, BaseMessage
 _logger = logging.getLogger("pelita.actor")
 _logger.setLevel(logging.DEBUG)
 
-class Request(object):
+
+class Channel(object):
+    def put(self, message, sender=None):
+        raise NotImplementedError
+
+
+class Request(Channel):
     # TODO: Need to make messages immutable to avoid synchronisation errors
     # eg. pykka uses a deepcopy to add things to the queue…
     def __init__(self, id):
         self.id = id
         self._queue = Queue.Queue(maxsize=1)
 
-    def get(self, block=True, timeout=None):
+    def put(self, message, sender=None):
+        self._queue.put(message)
+
+    def get(self, block=True, timeout=3):
         return self._queue.get(block, timeout)
 
     def get_or_none(self):
@@ -97,8 +106,6 @@ class BaseActor(SuspendableThread):
     def __init__(self, **kwargs):
         super(BaseActor, self).__init__(**kwargs)
 
-        self.request_db = RequestDB()
-
         self.trap_exit = False
         self.linked_actors = []
 
@@ -109,7 +116,7 @@ class BaseActor(SuspendableThread):
             return
 
         if isinstance(message, BaseMessage) and message.is_response:
-            self.handle_response(message)
+            _logger.warning("Received a response (%r) without a waiting future. Dropped response.", message.dict)
             return
 
         if isinstance(message, Exit):
@@ -189,19 +196,6 @@ class BaseActor(SuspendableThread):
     def handle_inbox(self):
         pass
 
-    def handle_response(self, message):
-        # check if there is a waiting request in the ref’s database
-        awaiting_result = self.request_db.get_request(message.id, None)
-        if awaiting_result is not None:
-            awaiting_result._queue.put(message)
-            # TODO need to handle race conditions
-
-            return # finish handling of messages here
-
-        else:
-            _logger.warning("Received a response (%r) without a waiting future. Dropped response.", message.dict)
-            return
-
 class Actor(BaseActor):
     # TODO Handle messages not replied to – else the queue is waiting forever
     def __init__(self, inbox=None):
@@ -246,16 +240,10 @@ class ActorProxy(object):
         self.actor.put(message)
 
     def query(self, method, params=None, id=None):
-        # Update the query.id
-        if not id:
-            id = self.actor.request_db.create_id(id)
-
         query = Query(method, params, id)
         req_obj = Request(query.id)
 
-        # save the id to the _requests dict
-        self.actor.request_db.add_request(req_obj)
-        query.mailbox = self.actor
+        query.channel = req_obj
         self.actor.put(query)
 
         return req_obj
