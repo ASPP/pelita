@@ -19,11 +19,11 @@ class TcpSocket(object):
 
     @property
     def host(self):
-        return self._host
+        return self._socket.getsockname()[0]
 
     @property
     def port(self):
-        return self._port
+        return self._socket.getsockname()[1]
 
     @property
     def socket(self):
