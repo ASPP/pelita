@@ -77,12 +77,12 @@ class TestGame(unittest.TestCase):
         class TestPlayerZero(TestPlayer):
 
             def __init__(self):
-                self.moves = [stop, east]
+                self.moves = [east, east, east, south, stop, east]
 
         class TestPlayerOne(TestPlayer):
 
             def __init__(self):
-                self.moves = [west, west]
+                self.moves = [west, west, west, stop, west, west]
 
         gm = GameMaster(test_start, number_bots, 200)
         gm.register_player(TestPlayerZero())
@@ -95,4 +95,44 @@ class TestGame(unittest.TestCase):
                 #..1 #
                 ###### """)
         self.assertEqual(create_TestUniverse(test_first_round), gm.universe)
+
+        gm.play_round(1)
+        test_second_round = (
+            """ ######
+                # 0. #
+                #.1  #
+                ###### """)
+        self.assertEqual(create_TestUniverse(test_second_round), gm.universe)
+
+        gm.play_round(2)
+        test_third_round = (
+            """ ######
+                #  . #
+                #.0 1#
+                ###### """)
+        self.assertEqual(create_TestUniverse(test_third_round), gm.universe)
+
+        gm.play_round(3)
+        test_fourth_round = (
+            """ ######
+                #0 . #
+                #. 1 #
+                ###### """)
+        self.assertEqual(create_TestUniverse(test_fourth_round), gm.universe)
+
+        gm.play_round(4)
+        test_fifth_round = (
+            """ ######
+                # 0. #
+                #.1  #
+                ###### """)
+        self.assertEqual(create_TestUniverse(test_fifth_round), gm.universe)
+
+        gm.play_round(5)
+        test_sixth_round = (
+            """ ######
+                #  0 #
+                #.1  #
+                ###### """)
+        self.assertEqual(create_TestUniverse(test_sixth_round), gm.universe)
 

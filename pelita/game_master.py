@@ -38,3 +38,4 @@ class GameMaster(object):
                 v.observe(current_game_time, i, self.universe, events)
             if any(isinstance(e, uni.TeamWins) for e in events):
                 return
+
