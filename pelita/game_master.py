@@ -28,7 +28,8 @@ class GameMaster(object):
 
     def play(self):
         for gt in range(self.game_time):
-            self.play_round(gt)
+            if not self.play_round(gt):
+                return
 
     def play_round(self, current_game_time):
         for i,p in enumerate(self.players):
@@ -37,5 +38,6 @@ class GameMaster(object):
             for v in self.viewers:
                 v.observe(current_game_time, i, self.universe, events)
             if any(isinstance(e, uni.TeamWins) for e in events):
-                return
+                return False
+        return True
 

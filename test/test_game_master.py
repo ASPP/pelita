@@ -136,3 +136,15 @@ class TestGame(unittest.TestCase):
                 ###### """)
         self.assertEqual(create_TestUniverse(test_sixth_round), gm.universe)
 
+
+        # now play the full game
+        gm = GameMaster(test_start, number_bots, 200)
+        gm.register_player(TestPlayerZero())
+        gm.register_player(TestPlayerOne())
+        gm.play()
+        test_sixth_round = (
+            """ ######
+                #  0 #
+                #.1  #
+                ###### """)
+        self.assertEqual(create_TestUniverse(test_sixth_round), gm.universe)
