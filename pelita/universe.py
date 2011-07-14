@@ -1,5 +1,7 @@
+""" The datamodel. """
+
 from pelita.layout import Layout
-from pelita.containers import Mesh, new_pos, MazeComponent, Maze, TypeAwareList
+from pelita.containers import Mesh, new_pos, MazeComponent, Maze
 
 __docformat__ = "restructuredtext"
 
@@ -79,6 +81,7 @@ class Team(object):
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
+
 
 class Bot(object):
     """ A bot on a team.
@@ -176,6 +179,7 @@ class UniverseEvent(object):
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
+
 class BotMoves(UniverseEvent):
     """ Signifies that a bot has moved.
 
@@ -191,6 +195,7 @@ class BotMoves(UniverseEvent):
     def __repr__(self):
         return 'BotMoves(%i)' % self.bot_index
 
+
 class BotEats(UniverseEvent):
     """ Signifies that a bot has eaten food.
 
@@ -205,6 +210,7 @@ class BotEats(UniverseEvent):
 
     def __repr__(self):
         return 'BotEats(%i)' % self.bot_index
+
 
 class BotDestroyed(UniverseEvent):
     """ Signifies that a bot has been destroyed.
@@ -225,6 +231,7 @@ class BotDestroyed(UniverseEvent):
         return ('BotDestroyed(%i, %i)'
             % (self.harvester_index, self.destroyer_index))
 
+
 class TeamWins(UniverseEvent):
     """ Signify that a team has eaten all enemy food.
 
@@ -241,6 +248,7 @@ class TeamWins(UniverseEvent):
         return ("TeamWins(%i)"
             % self.winning_team_index)
 
+
 class Free(MazeComponent):
     """ Object to represent a free space. """
 
@@ -248,6 +256,7 @@ class Free(MazeComponent):
 
     def __repr__(self):
         return 'Free()'
+
 
 class Wall(MazeComponent):
     """ Object to represent a wall. """
@@ -257,6 +266,7 @@ class Wall(MazeComponent):
     def __repr__(self):
         return 'Wall()'
 
+
 class Food(MazeComponent):
     """ Object to represent a food item. """
 
@@ -264,6 +274,7 @@ class Food(MazeComponent):
 
     def __repr__(self):
         return 'Food()'
+
 
 def create_maze(layout_mesh):
     """ Transforms a layout_mesh into a Maze.
@@ -289,6 +300,7 @@ def create_maze(layout_mesh):
             maze[index].append(Food())
     return maze
 
+
 def extract_initial_positions(mesh, number_bots):
     """ Extract initial positions from mesh.
 
@@ -313,6 +325,7 @@ def extract_initial_positions(mesh, number_bots):
             start[int(v)] = k
             mesh[k] = Free.char
     return start
+
 
 def create_CTFUniverse(layout_str, number_bots,
         team_names=['black', 'white']):
@@ -349,8 +362,8 @@ def create_CTFUniverse(layout_str, number_bots,
         raise UniverseException(
             "Width of a layout for CTF must be even, is: %i"
             % maze.width)
-    homezones = [(0, maze.width//2-1), (maze.width//2,
-        maze.width-1)]
+    homezones = [(0, maze.width // 2 - 1),
+            (maze.width // 2, maze.width - 1)]
 
     teams = []
     teams.append(Team(0, team_names[0], homezones[0], bots=range(0,
@@ -361,19 +374,22 @@ def create_CTFUniverse(layout_str, number_bots,
     bots = []
     for bot_index in range(number_bots):
         team_index = bot_index % 2
-        bot =  Bot(bot_index, initial_pos[bot_index],
+        bot = Bot(bot_index, initial_pos[bot_index],
                 team_index, homezones[team_index])
         bots.append(bot)
 
     return CTFUniverse(maze, teams, bots)
 
+
 class UniverseException(Exception):
     """ Standard error in the Universe. """
     pass
 
+
 class IllegalMoveException(Exception):
     """ Raised when a bot attempts to make an illegal move. """
     pass
+
 
 class CTFUniverse(object):
     """ The Universe: representation of the game state.
@@ -582,7 +598,7 @@ class CTFUniverse(object):
             out += repr(team)
             out += '\n'
             for i in team.bots:
-                out += '\t'+repr(self.bots[i])
+                out += '\t' + repr(self.bots[i])
                 out += '\n'
         return out
 
