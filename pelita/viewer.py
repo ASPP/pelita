@@ -1,10 +1,14 @@
+""" The observers. """
+
 import pelita.universe as uni
+
 
 class AbstractViewer(object):
 
     def observe(self, round_, turn, universe, events):
         raise NotImplementedError(
                 "You must override the 'observe' method in your viewer")
+
 
 class AsciiViewer(AbstractViewer):
 
@@ -17,4 +21,3 @@ class AsciiViewer(AbstractViewer):
             team_wins_event = filter(lambda x: isinstance(x, uni.TeamWins), events)[0]
             print ("Game Over: Team: '%s' wins!" %
             universe.teams[team_wins_event.winning_team_index].name)
-
