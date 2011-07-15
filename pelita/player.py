@@ -181,7 +181,7 @@ class BFSPlayer(AbstractPlayer):
         # Here we use a generator on a dictionary to create adjacency list.
         self.adjacency = dict((pos, self.current_uni.get_legal_moves(pos).values())
                 for pos in free_pos)
-        self.current_path = []
+        self.current_path = self.bfs_food()
 
     def bfs_food(self):
         """ Breadth first search for food.
