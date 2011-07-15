@@ -143,6 +143,23 @@ class MailboxConnection(Actor):
         self.connection.close()
 
 
+class RemoteConnections(DispatchingActor):
+    def __init__(self, *args, **kwargs):
+        super(RemoteConnections, self).__init__(*args, **kwargs)
+        self.connections = {}
+
+    @dispatch
+    def add_connection(message, connection):
+        self.connections.append(connection)
+
+    @dispatch
+    def remove_connection():
+        self.connections.remove(connection)
+
+    @dispatch
+    def get_connections():
+        pass
+
 from pelita.messaging.remote import TcpThreadedListeningServer
 class Remote(object):
     def __init__(self):
