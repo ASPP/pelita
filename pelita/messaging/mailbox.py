@@ -9,7 +9,7 @@ _logger.setLevel(logging.DEBUG)
 
 from pelita.messaging.utils import SuspendableThread, CloseThread
 from pelita.messaging.remote import MessageSocketConnection
-from pelita.messaging import Actor, StopProcessing, DeadConnection, ForwardingActor, Query, Request
+from pelita.messaging import Actor, StopProcessing, DeadConnection, ForwardingActor, Query, Request, DispatchingActor, dispatch
 
 class RequestDB(object):
     """ Class which holds weak references to all issued requests.
@@ -149,20 +149,24 @@ class RemoteConnections(DispatchingActor):
         self.connections = {}
 
     @dispatch
-    def add_connection(message, connection):
-        self.connections.append(connection)
+    def add_connection(self, message, connection):
+        mailbox = MailboxConnection(connection, main_actor=actor_ref) # which actor?
+        self.connections[connection] = mailbox
+        mailbox.start()
 
     @dispatch
-    def remove_connection():
-        self.connections.remove(connection)
+    def remove_connection(self, message, connection):
+        del self.connections[connection]
 
     @dispatch
-    def get_connections():
-        pass
+    def get_connections(self, message):
+        message.reply(self.connections)
 
-from pelita.messaging.remote import TcpThreadedListeningServer
+from pelita.messaging.remote import TcpThreadedListeningServer, TcpConnectingClient
+from pelita.messaging.actor import actor_of
 class Remote(object):
     def __init__(self):
+        self.remote_ref= actor_of(Remote)
         self.listener = None
 
         self.reg = {}
@@ -170,19 +174,39 @@ class Remote(object):
     def start_listener(self, host, port):
         self.listener = TcpThreadedListeningServer(host=host, port=port)
 
-        mailboxes = []
-
         def accepter(connection):
         # a new connection has been established
-            mailbox = MailboxConnection(connection, main_actor=actor_ref) # which actor?
-            mailboxes[connection] = mailbox
-            mailbox.start()
+            self.remote_ref.notify("add_connection", connection)
 
         self.listener.on_accept = accepter
         self.listener.start()
 
 
         return self
+
+    def actor_for(self, name, host, port):
+        sock = TcpConnectingClient(host=host, port=port)
+        conn = sock.handle_connect()
+
+        actor = ClientActor()
+        actor.start()
+
+        remote = MailboxConnection(conn, actor)
+        remote.start()
+
+        return remote
+
+        def actorFor(connection):
+            # need access to a bidirectional dispatcher mailbox
+            return RemoteActorProxy(connection)
+
+        remote_actor = actorFor(conn)
+
+        remote_actor = RemoteActorProxy(remote)
+        remote_actor.notify("hello", "Im there")
+
+
+
 
     def register(self, actor_name, actor_ref):
         self.reg[actor_name] = actor_ref

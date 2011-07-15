@@ -132,7 +132,7 @@ class TestRemoteActor(unittest.TestCase):
         remote.register("main-actor", actor_of(MultiplyingActor))
         remote.start_all()
 
-        port = remote.port
+        port = remote.listener.socket.port
 
         client1 = Remote().actor_for("main-actor", "localhost", port)
         res = client1.query("mult", [1, 2, 3, 4])
