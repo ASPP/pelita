@@ -20,7 +20,7 @@ echo "  for test/                 : "$test_score
 echo "  for both/                 : "$both_score
 echo ""
 echo "Running tests... please stand by!"
-test_stats=$( nosetests --with-coverage 2>&1 >/dev/null)
+test_stats=$( nosetests --with-coverage --cover-package pelita 2>&1 >/dev/null)
 echo "  Total number of tests     : "$( echo $test_stats | grep 'Ran' | sed 's/Ran\ \(.*\)\ tests.*/\1/' )
 echo "  # assert statements       : "$( grep 'assert' -c test/**/*.py | sed 's/.*://' | \
      python -c "import sys; print sum(int(l) for l in sys.stdin)" )
