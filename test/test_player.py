@@ -1,7 +1,8 @@
 import unittest
-from pelita.player import AbstractPlayer, StoppingPlayer
+from pelita.player import AbstractPlayer, StoppingPlayer, BFSPlayer
 from pelita.universe import create_CTFUniverse
 from pelita.game_master import GameMaster
+from pelita.viewer import AsciiViewer
 
 class TestAbstractPlayer(unittest.TestCase):
 
@@ -35,3 +36,23 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual([universe.bots[i] for i in (1, 3)], player_0.enemy_bots)
         self.assertEqual(universe.bots[1].current_pos, player_1.current_pos)
         self.assertEqual(universe.bots[1].initial_pos, player_1.initial_pos)
+
+class TestBFS_Player(unittest.TestCase):
+
+    def test_adjacency(self):
+        test_layout = (
+        """ ##################
+            #0#.  .  # .     #
+            # #####    ##### #
+            #     . #  .  .#1#
+            ################## """)
+
+        game_master = GameMaster(test_layout, 2, 200)
+        bfs = BFSPlayer()
+        stopping = StoppingPlayer()
+        game_master.register_player(bfs)
+        game_master.register_player(stopping)
+        game_master.register_viewer(AsciiViewer())
+        for k,v in bfs.adjacency.items():
+            print k, v
+        print bfs.bfs_food()

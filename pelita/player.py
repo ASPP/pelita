@@ -1,10 +1,12 @@
 """ Base classes for player implementations. """
 
-from pelita.universe import stop
+from pelita.universe import stop, Free
+from collections import deque
 import random
 
 
 class AbstractPlayer(object):
+    """ Base class for all user implemented Players. """
 
     def _set_index(self, index):
         """ Called by the GameMaster to set this Players index.
@@ -28,8 +30,9 @@ class AbstractPlayer(object):
         """
         self.universe_states = []
         self.universe_states.append(universe)
+        self.set_initial()
 
-    def set_initial(self, universe):
+    def set_initial(self):
         """ Subclasses can override this if desired. """
         pass
 
@@ -92,6 +95,10 @@ class AbstractPlayer(object):
         return this_team
 
     @property
+    def enemy_food(self):
+        return self.current_uni.enemy_food(self.me.team_index)
+
+    @property
     def enemy_bots(self):
         """ A list of enemy Bots.
 
@@ -139,3 +146,79 @@ class RandomPlayer(AbstractPlayer):
         legal_moves = universe.get_legal_moves(
                 universe.bots[self._index].current_pos)
         return random.choice(legal_moves.keys())
+
+class BFSPlayer(AbstractPlayer):
+    """ This player uses breadth first search to always go to the closest food.
+    """
+
+    @staticmethod
+    def free_positions(maze):
+        free_pos = []
+        for pos in maze.positions:
+            if maze.has_at(Free, pos):
+                free_pos.append(pos)
+        return free_pos
+
+    def set_initial(self):
+        free_pos = self.free_positions(self.current_uni.maze)
+        self.adjacency = dict((pos, self.current_uni.get_legal_moves(pos).values())
+                for pos in free_pos)
+        self.current_path = []
+
+    def bfs_food(self):
+        """ Breadth first search for food.
+
+        Returns
+        -------
+        path : a lits of tuples (int, int)
+            The positions (x, y) in the path furthest to closest. The first
+            element is the final destination.
+
+        """
+        # Initialise `to_visit` of type `deque` with current position.
+        # We use a `deque` since we need to extend to the right
+        # but pop from the left, i.e. its a fifo queue.
+        to_visit = deque([self.current_pos])
+        # `seen` is a list of nodes we have seen already
+        # We append to right and later pop from right, so a list will do.
+        # Order is important for the back-track later on, so don't use a set.
+        seen = []
+        while to_visit:
+            current = to_visit.popleft()
+            if current in seen:
+                # This node has been seen, ignore it.
+                continue
+            elif current in self.enemy_food:
+                # We found some food, break and back-track path.
+                break
+            else:
+                # Otherwise keep going, i.e. add adjacent nodes to seen list.
+                seen.append(current)
+                to_visit.extend(self.adjacency[current])
+        # Now back-track using seen to determine how we got here.
+        # Initialise the path with current node, i.e. position of food.
+        path = [current]
+        while seen:
+            # Pop the latest node in seen
+            next_ = seen.pop()
+            # If thats adjacent to the current node
+            # its in the path
+            if next_ in self.adjacency[current]:
+                # So add it to the path
+                path.append(next_)
+                # And continue back-tracking from there
+                current = next_
+        # The last element is the current position, we don't need that in our
+        # path, so don't include it.
+        return path[:-1]
+
+    @staticmethod
+    def pos_diff(pos1, pos2):
+        # TODO assert for adjacency
+        return (pos2[0]-pos1[0], pos2[1]-pos1[1])
+
+    def get_move(self, universe):
+        if not self.current_path:
+            self.current_path = self.bfs_food()
+        new_pos = self.current_path.pop()
+        return self.pos_diff(self.current_pos, new_pos)
