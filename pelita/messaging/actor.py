@@ -4,7 +4,7 @@ import Queue
 import weakref
 import logging
 
-from pelita.messaging.utils import SuspendableThread, Counter, CloseThread
+from pelita.messaging.utils import SuspendableThread, CloseThread
 from pelita.messaging import Query, Notification, BaseMessage
 
 _logger = logging.getLogger("pelita.actor")
@@ -65,40 +65,6 @@ class AbstractActor(object):
 
     def send(self, method, params=None):
         raise NotImplementedError
-
-class RequestDB(object):
-    """ Class which holds weak references to all issued requests.
-
-    It is important to use weak references here, so that they are
-    automatically removed from this class, whenever the original
-    `Request` object is deleted and garbage collected.
-    """
-    def __init__(self):
-        self._db = weakref.WeakValueDictionary()
-        self._counter = Counter(0)
-
-    def get_request(self, id, default=None):
-        """ Return the `Request` object with the specified `id`.
-        """
-        return self._db.get(id, default)
-
-    def add_request(self, request):
-        """ Add a new `Request` object to the database.
-
-        The object is only referenced weakly, so if the main
-        reference is deleted, it may be removed automatically
-        from the database as well.
-        """
-        self._db[request.id] = request
-
-    def create_id(self, id=None):
-        """ Create a new and hopefully unique id for this database.
-        """
-        if id is None:
-            return self._counter.inc()
-        else:
-            _logger.info("Using existing id.")
-            return id
 
 class BaseActor(SuspendableThread):
     """ BaseActor is an actor with no pre-defined queue.

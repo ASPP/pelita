@@ -2,6 +2,7 @@ import unittest
 import time
 from pelita.messaging import DispatchingActor, dispatch, ActorProxy, Actor, actor_of
 from pelita.messaging.actor import Exit
+from pelita.messaging.mailbox import Remote
 
 class Dispatcher(DispatchingActor):
     def __init__(self):
@@ -124,6 +125,19 @@ class TestActorReply(unittest.TestCase):
         self.assertEqual(res.get(timeout=3).result, 24)
         actor_ref.stop()
         #assert False
+
+class TestRemoteActor(unittest.TestCase):
+    def test_remote(self):
+        remote = Remote().start_listener("localhost", 0)
+        remote.register("main-actor", actor_of(MultiplyingActor))
+        remote.start_all()
+
+        port = remote.port
+
+        client1 = Remote().actor_for("main-actor", "localhost", port)
+        res = client1.query("mult", [1, 2, 3, 4])
+        self.assertEqual(res.get(timeout=3).result, 24)
+
 
 if __name__ == '__main__':
     unittest.main()

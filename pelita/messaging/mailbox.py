@@ -9,7 +9,41 @@ _logger.setLevel(logging.DEBUG)
 
 from pelita.messaging.utils import SuspendableThread, CloseThread
 from pelita.messaging.remote import MessageSocketConnection
-from pelita.messaging import Actor, StopProcessing, DeadConnection, ForwardingActor, Query, Request, RequestDB
+from pelita.messaging import Actor, StopProcessing, DeadConnection, ForwardingActor, Query, Request
+
+class RequestDB(object):
+    """ Class which holds weak references to all issued requests.
+
+    It is important to use weak references here, so that they are
+    automatically removed from this class, whenever the original
+    `Request` object is deleted and garbage collected.
+    """
+    def __init__(self):
+        self._db = weakref.WeakValueDictionary()
+        self._counter = Counter(0)
+
+    def get_request(self, id, default=None):
+        """ Return the `Request` object with the specified `id`.
+        """
+        return self._db.get(id, default)
+
+    def add_request(self, request):
+        """ Add a new `Request` object to the database.
+
+        The object is only referenced weakly, so if the main
+        reference is deleted, it may be removed automatically
+        from the database as well.
+        """
+        self._db[request.id] = request
+
+    def create_id(self, id=None):
+        """ Create a new and hopefully unique id for this database.
+        """
+        if id is None:
+            return self._counter.inc()
+        else:
+            _logger.info("Using existing id.")
+            return id
 
 class JsonThreadedInbox(SuspendableThread):
     def __init__(self, mailbox, **kwargs):
@@ -107,3 +141,36 @@ class MailboxConnection(Actor):
         self.inbox.stop()
         self.outbox.stop()
         self.connection.close()
+
+
+from pelita.messaging.remote import TcpThreadedListeningServer
+class Remote(object):
+    def __init__(self):
+        self.listener = None
+
+        self.reg = {}
+
+    def start_listener(self, host, port):
+        self.listener = TcpThreadedListeningServer(host=host, port=port)
+
+        mailboxes = []
+
+        def accepter(connection):
+        # a new connection has been established
+            mailbox = MailboxConnection(connection, main_actor=actor_ref) # which actor?
+            mailboxes[connection] = mailbox
+            mailbox.start()
+
+        self.listener.on_accept = accepter
+        self.listener.start()
+
+
+        return self
+
+    def register(self, actor_name, actor_ref):
+        self.reg[actor_name] = actor_ref
+        return self
+
+    def start_all(self):
+        for ref in self.reg.values():
+            ref.start()
