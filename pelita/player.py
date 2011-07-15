@@ -149,10 +149,26 @@ class RandomPlayer(AbstractPlayer):
 
 class BFSPlayer(AbstractPlayer):
     """ This player uses breadth first search to always go to the closest food.
-    """
 
+    This player uses an adjacency list [1] to store the topology of the
+    maze. It will then do a breadth first search [2] to search for the
+    closest food. When found, it will follow the determined path until it
+    reaches the food. This continues until all food has been eaten or the
+    enemy wins.
+
+    [1] http://en.wikipedia.org/wiki/Adjacency_list
+    [2] http://en.wikipedia.org/wiki/Breadth-first_search
+
+    """
     @staticmethod
     def free_positions(maze):
+        """ Get a list of all free positions in the Maze.
+
+        Returns
+        -------
+        free_pos : list of tuples (int, int)
+            all free positions in the Maze
+        """
         free_pos = []
         for pos in maze.positions:
             if maze.has_at(Free, pos):
@@ -160,7 +176,9 @@ class BFSPlayer(AbstractPlayer):
         return free_pos
 
     def set_initial(self):
+        # Before the game starts we initialise our adjacency list.
         free_pos = self.free_positions(self.current_uni.maze)
+        # Here we use a generator on a dictionary to create adjacency list.
         self.adjacency = dict((pos, self.current_uni.get_legal_moves(pos).values())
                 for pos in free_pos)
         self.current_path = []
