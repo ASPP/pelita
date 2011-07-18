@@ -426,18 +426,15 @@ class CTFUniverse(object):
 
     @property
     def food_list(self):
-        return [pos for pos in self.maze.iterkeys()
-                if self.maze.has_at(Food, pos)]
+        return self.maze.pos_of(Food)
 
     def team_food(self, team_index):
-        return [pos for pos in self.maze.iterkeys()
-                if self.maze.has_at(Food, pos) and
-                self.teams[team_index].in_zone(pos)]
+        return [pos for pos in self.food_list
+                if self.teams[team_index].in_zone(pos)]
 
     def enemy_food(self, team_index):
-        return [pos for pos in self.maze.iterkeys()
-                if self.maze.has_at(Food, pos) and
-                not self.teams[team_index].in_zone(pos)]
+        return [pos for pos in self.food_list
+                if not self.teams[team_index].in_zone(pos)]
 
     def enemy_bots(self, team_index):
         """ Obtain enemy bot objects.

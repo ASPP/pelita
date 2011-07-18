@@ -357,6 +357,10 @@ class Maze(Mesh):
         """
         return self.keys()
 
+    def pos_of(self, type_):
+        """ The indices of positions which have a MazeComponent. """
+        return [pos for pos in self.positions if self.has_at(type_, pos)]
+
 
 class MazeComponent(object):
     """ Base class for all items inside a Maze. """
