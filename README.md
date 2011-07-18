@@ -55,3 +55,23 @@ Commits should be marked. Declare both functionality and area.
 #### Example
 
   - DOC/ENH: add initial README.md
+
+## Website
+
+We use a combination of [Sphinx](http://sphinx.pocoo.org/) and
+[github-pages](http://pages.github.com/) to host the project website:
+[http://debilski.github.com/pelita/](http://debilski.github.com/pelita/).
+
+To regenerate the project website:
+
+    <edit the documentation>
+    $ cd doc
+    $ make
+    $ git checkout gh-pages
+    $ cp -r doc/build/html/* .
+    $ git add -u
+    $ git commit -m "sphinx generated doc from XXXXXXX"
+
+Where `XXXXXXX` is the SHA-1 prefix of the commit the documentation was
+generated from.
+
