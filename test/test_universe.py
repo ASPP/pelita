@@ -1,7 +1,7 @@
 import unittest
 from pelita.layout import Layout
 from pelita.containers import Mesh
-from pelita.universe import *
+from pelita.datamodel import *
 
 # the legal chars for a basic CTFUniverse
 # see also: create_CTFUniverse factory.

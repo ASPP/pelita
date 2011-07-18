@@ -1,4 +1,4 @@
-from pelita.universe import *
+from pelita.datamodel import *
 from pelita.game_master import *
 from pelita.player import *
 from pelita.viewer import *

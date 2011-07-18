@@ -1,6 +1,6 @@
 import unittest
 from pelita.player import AbstractPlayer, StoppingPlayer, BFSPlayer
-from pelita.universe import create_CTFUniverse
+from pelita.datamodel import create_CTFUniverse
 from pelita.game_master import GameMaster
 from pelita.viewer import AsciiViewer
 

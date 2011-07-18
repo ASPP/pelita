@@ -1,6 +1,6 @@
 """ The controller """
 
-import pelita.universe as uni
+import pelita.datamodel as uni
 from pelita.player import AbstractPlayer
 from pelita.viewer import AbstractViewer
 

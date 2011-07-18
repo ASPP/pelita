@@ -1,6 +1,6 @@
 """ Base classes for player implementations. """
 
-from pelita.universe import stop, Free
+from pelita.datamodel import stop, Free
 from collections import deque
 import random
 

@@ -1,6 +1,6 @@
 """ The observers. """
 
-import pelita.universe as uni
+import pelita.datamodel as uni
 
 
 class AbstractViewer(object):
