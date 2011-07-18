@@ -289,7 +289,8 @@ class Maze(Mesh):
 
     def __init__(self, width, height, data=None):
         if not data:
-            data = [TypeAwareList() for i in range(width * height)]
+            data = [TypeAwareList(base_class=MazeComponent)
+                    for i in range(width * height)]
         elif any([not isinstance(x, TypeAwareList) for x in data]):
             raise TypeError("Maze keyword argument 'data' should be list of"\
                     "TypeAwareList objects, not: %r" % data)
@@ -489,5 +490,5 @@ class TypeAwareList(MutableSequence):
             self.base_class == other.base_class)
 
     def __repr__(self):
-        return ('TypeAwareList(%r, base_class=%r)'
-            % (self._items, self.base_class))
+        return ('TypeAwareList(%r, base_class=%s)'
+            % (self._items, self.base_class.__name__))
