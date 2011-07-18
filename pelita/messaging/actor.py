@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import Queue
-import weakref
 import logging
 
 from pelita.messaging.utils import SuspendableThread, CloseThread
@@ -216,7 +215,7 @@ class ActorProxy(object):
 
 
 class RemoteActorProxy(object):
-    def __init__(self, actor):
+    def __init__(self, name, actor):
         """ Helper class to send messages to an actor.
         """
         self.actor = actor
@@ -393,7 +392,9 @@ class ActorRegistry(object):
     def register(self, actor):
         if inspect.isclass(actor):
             actor = actor()
-        return ActorProxy(actor)
+        proxy = ActorProxy(actor)
+        actor.ref = proxy
+        return proxy
 
 
 actor_registry = ActorRegistry()

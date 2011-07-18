@@ -7,9 +7,11 @@ import logging
 _logger = logging.getLogger("pelita.mailbox")
 _logger.setLevel(logging.DEBUG)
 
-from pelita.messaging.utils import SuspendableThread, CloseThread
+from pelita.messaging.utils import SuspendableThread, CloseThread, Counter
 from pelita.messaging.remote import MessageSocketConnection
 from pelita.messaging import Actor, StopProcessing, DeadConnection, ForwardingActor, Query, Request, DispatchingActor, dispatch
+
+import weakref
 
 class RequestDB(object):
     """ Class which holds weak references to all issued requests.
@@ -111,12 +113,13 @@ class JsonThreadedOutbox(SuspendableThread):
 
 class MailboxConnection(Actor):
     """A mailbox bundles an incoming and an outgoing connection."""
-    def __init__(self, connection, main_actor, **kwargs):
+    def __init__(self, connection, main_actor=None, **kwargs):
         super(MailboxConnection, self).__init__(**kwargs)
         self.connection = MessageSocketConnection(connection)
 
 #        self.inbox = ForwardingInbox(self, request_db=self._requests)
 #        self.inbox.forward_to = main_actor
+        self.request_db = RequestDB()
 
         self.main_actor = main_actor
 
@@ -150,7 +153,7 @@ class RemoteConnections(DispatchingActor):
 
     @dispatch
     def add_connection(self, message, connection):
-        mailbox = MailboxConnection(connection, main_actor=actor_ref) # which actor?
+        mailbox = MailboxConnection(connection, main_actor=self.ref) # which actor?
         self.connections[connection] = mailbox
         mailbox.start()
 
@@ -162,11 +165,16 @@ class RemoteConnections(DispatchingActor):
     def get_connections(self, message):
         message.reply(self.connections)
 
+    @dispatch
+    def register(self, message, actor_name, actor_ref):
+        pass
+
+
 from pelita.messaging.remote import TcpThreadedListeningServer, TcpConnectingClient
-from pelita.messaging.actor import actor_of
+from pelita.messaging.actor import actor_of, RemoteActorProxy
 class Remote(object):
     def __init__(self):
-        self.remote_ref= actor_of(Remote)
+        self.remote_ref= actor_of(RemoteConnections)
         self.listener = None
 
         self.reg = {}
@@ -181,35 +189,25 @@ class Remote(object):
         self.listener.on_accept = accepter
         self.listener.start()
 
-
         return self
 
     def actor_for(self, name, host, port):
         sock = TcpConnectingClient(host=host, port=port)
         conn = sock.handle_connect()
 
-        actor = ClientActor()
-        actor.start()
+        remote = MailboxConnection(conn)
 
-        remote = MailboxConnection(conn, actor)
-        remote.start()
-
-        return remote
-
-        def actorFor(connection):
+        def actor_for(name, connection):
             # need access to a bidirectional dispatcher mailbox
-            return RemoteActorProxy(connection)
+            return RemoteActorProxy(name, connection)
 
-        remote_actor = actorFor(conn)
+        remote_actor = actor_for(name, remote)
+        return remote_actor
 
-        remote_actor = RemoteActorProxy(remote)
-        remote_actor.notify("hello", "Im there")
-
-
-
+        #remote_actor.notify("hello", "Im there")
 
     def register(self, actor_name, actor_ref):
-        self.reg[actor_name] = actor_ref
+        self.remote_ref.notify("register", [actor_name, actor_ref])
         return self
 
     def start_all(self):
