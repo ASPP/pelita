@@ -62,24 +62,47 @@ We use a combination of [Sphinx](http://sphinx.pocoo.org/) and
 [github-pages](http://pages.github.com/) to host the project website:
 [http://debilski.github.com/pelita/](http://debilski.github.com/pelita/).
 
-To regenerate the project website:
+This means the sphinx generated content is keept in a seperate branch in the
+source code repository `gh-pages`. This branch has its own root commit and is
+hence disconnected from the commits that track the project code and also the
+documentation source code.
+
+#### To regenerate the project website:
+
+Move to the `doc` directory:
 
     $ cd doc
-    # edit the documentation
+
+Edit the documentation:
+
     $ vim source/<file>.rst
-    # generate html
+
+Generate html
+
     $ make html
-    # switch to the documentation branch
+
+Switch to the documentation branch:
+
     $ git checkout gh-pages
-    # move to the root directory
+
+Move back up to the root directory:
+
     $ cd ..
-    # copy the generate documentation here
+
+Copy the generate documentation here:
+
     $ cp -r doc/build/html/* .
-    # add all tracked files
+
+Add all tracked files that have been changed:
+
     $ git add -u
-    # add possibly new files
+
+Add possibly new files:
+
     $ git add <new pages>.html
-    # make a commit message where `XXXXXXX` is the SHA-1
-    # prefix of the commit the documentation was # generated from.
+
+Make a commit message where `XXXXXXX` is the SHA-1
+prefix of the commit the documentation was # generated from:
+
     $ git commit -m "sphinx generated doc from XXXXXXX"
 
