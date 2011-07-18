@@ -480,7 +480,7 @@ class CTFUniverse(object):
             if the string is an invalid or the move not possible
 
         """
-        events = []
+        events = TypeAwareList(base_class=UniverseEvent)
         # check legality of the move
         if move not in self.move_ids:
             raise IllegalMoveException(

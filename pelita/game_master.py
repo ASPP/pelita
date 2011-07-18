@@ -91,6 +91,6 @@ class GameMaster(object):
             events = self.universe.move_bot(i, move)
             for v in self.viewers:
                 v.observe(current_game_time, i, self.universe, events)
-            if any(isinstance(e, uni.TeamWins) for e in events):
+            if uni.TeamWins in events:
                 return False
         return True
