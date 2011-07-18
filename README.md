@@ -64,14 +64,22 @@ We use a combination of [Sphinx](http://sphinx.pocoo.org/) and
 
 To regenerate the project website:
 
-    <edit the documentation>
     $ cd doc
-    $ make
+    # edit the documentation
+    $ vim source/<file>.rst
+    # generate html
+    $ make html
+    # switch to the documentation branch
     $ git checkout gh-pages
+    # move to the root directory
+    $ cd ..
+    # copy the generate documentation here
     $ cp -r doc/build/html/* .
+    # add all tracked files
     $ git add -u
+    # add possibly new files
+    $ git add <new pages>.html
+    # make a commit message where `XXXXXXX` is the SHA-1
+    # prefix of the commit the documentation was # generated from.
     $ git commit -m "sphinx generated doc from XXXXXXX"
-
-Where `XXXXXXX` is the SHA-1 prefix of the commit the documentation was
-generated from.
 
