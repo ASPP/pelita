@@ -1,4 +1,5 @@
 import unittest
+from numbers import Number
 from pelita.containers import *
 
 class TestNewPos(unittest.TestCase):
@@ -173,6 +174,14 @@ class TestMaze(unittest.TestCase):
                 maze.positions)
 
 class TestTypeAwareList(unittest.TestCase):
+
+    def test_eq_repr(self):
+        tal = TypeAwareList([1, 2.0, 3+1j], base_class=Number)
+        tal2 = TypeAwareList([1, 2.0, 3+1j], base_class=Number)
+        tal3 = TypeAwareList([], base_class=Number)
+        self.assertEqual(tal, tal2)
+        self.assertEqual(tal, eval(repr(tal)))
+        self.assertNotEqual(tal, tal3)
 
     def test_contains(self):
         tal = TypeAwareList([1, [], {}])
