@@ -370,6 +370,13 @@ class MazeComponent(object):
 class TypeAwareList(MutableSequence):
     """ List that is aware of `type`.
 
+    Parameters
+    ----------
+    iterable : iterable, optional, deafult=None
+        Values to insert into the TypeAwareList
+    base_class : type, , optional, deafult=None
+        The base class which all items must be direct or indirect instances of
+
     This is a special type of list that knows about the types of its contents
     thus allowing you to check if an object of a certain type is in the list.
     It also allows for specifying a base_class which ensures that all items
@@ -405,16 +412,6 @@ class TypeAwareList(MutableSequence):
     """
 
     def __init__(self, iterable=None, base_class=None):
-        """ Creates a new TypeAwareList which may only contain
-
-        Parameters
-        ----------
-        iterable : iterable
-            Values to insert into the TypeAwareList
-        base_class : type
-            The base class which all items must be direct or indirect instances of
-
-        """
         if base_class is not None and not inspect.isclass(base_class):
             raise TypeError("Wrong type '%r' for 'base_class'. Need 'type'."
                     % base_class)
