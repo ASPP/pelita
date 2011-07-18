@@ -55,3 +55,54 @@ Commits should be marked. Declare both functionality and area.
 #### Example
 
   - DOC/ENH: add initial README.md
+
+## Website
+
+We use a combination of [Sphinx](http://sphinx.pocoo.org/) and
+[github-pages](http://pages.github.com/) to host the project website:
+[http://debilski.github.com/pelita/](http://debilski.github.com/pelita/).
+
+This means the sphinx generated content is keept in a seperate branch in the
+source code repository `gh-pages`. This branch has its own root commit and is
+hence disconnected from the commits that track the project code and also the
+documentation source code.
+
+#### To regenerate the project website:
+
+Move to the `doc` directory:
+
+    $ cd doc
+
+Edit the documentation:
+
+    $ vim source/<file>.rst
+
+Generate html
+
+    $ make html
+
+Switch to the documentation branch:
+
+    $ git checkout gh-pages
+
+Move back up to the root directory:
+
+    $ cd ..
+
+Copy the generate documentation here:
+
+    $ cp -r doc/build/html/* .
+
+Add all tracked files that have been changed:
+
+    $ git add -u
+
+Add possibly new files:
+
+    $ git add <new pages>.html
+
+Make a commit message where `XXXXXXX` is the SHA-1
+prefix of the commit the documentation was # generated from:
+
+    $ git commit -m "sphinx generated doc from XXXXXXX"
+
