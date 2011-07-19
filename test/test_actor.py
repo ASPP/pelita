@@ -122,6 +122,7 @@ class MultiplyingActor(Actor):
         if message.get("method") == "mult":
             params = message.get("params")
             res = reduce(lambda x,y: x*y, params)
+
             self.ref.reply(res)
 
 
@@ -145,7 +146,10 @@ class TestRemoteActor(unittest.TestCase):
 
         client1 = Remote().actor_for("main-actor", "localhost", port)
         res = client1.query("mult", [1, 2, 3, 4])
-        self.assertEqual(res.get(timeout=3).result, 24)
+        self.assertEqual(res.get(timeout=3), 24)
+
+        remote.stop()
+        client1.stop()
 
 
 if __name__ == '__main__':

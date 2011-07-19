@@ -169,7 +169,7 @@ class ForwardingActor(object):
     def on_stop(self):
         self.forward_to.put(StopProcessing)
 
-class ActorProxy(object):
+class ActorProxy(Channel):
     def __init__(self, actor):
         """ Helper class to send messages to an actor.
         """
@@ -195,10 +195,14 @@ class ActorProxy(object):
     def reply(self, value):
         self.channel.put(value, self)
 
-    def put(self, value, channel=None):
+    def put(self, value, sender=None):
         """ Puts a raw value into the actor’s inbox
         """
-        self.actor.put(value, channel)
+        if not self.is_running:
+            raise RuntimeError("Actor '%r' not running." % self.actor)
+
+        _logger.debug("Putting '%r' into '%r' (channel: %r)" % (value, self.actor, sender))
+        self.actor.put(value, sender)
 
     def notify(self, method, params=None):
         message = {"method": method,
@@ -429,22 +433,34 @@ class DispatchingActor(Actor):
         reply_error("Not found: method '%r'" % message.get("method"))
 
 
-def actor_of(actor):
-    return actor_registry.register(actor)
+def actor_of(actor, name=None):
+    return actor_registry.register(actor, name)
 
 
 import inspect
+from threading import Lock
+
+_registry_lock = Lock()
+
 class ActorRegistry(object):
     def __init__(self):
         self._reg = {}
 
-    def register(self, actor):
-        if inspect.isclass(actor):
-            actor = actor()
-        proxy = ActorProxy(actor)
-        actor.ref = proxy
-        return proxy
+    def register(self, actor, name=None):
+        with _registry_lock:
+            if inspect.isclass(actor):
+                actor = actor()
+            proxy = ActorProxy(actor)
+            actor.ref = proxy
 
+            if name:
+                self._reg[name] = proxy
+
+            return proxy
+
+    def get_by_name(self, name):
+        with _registry_lock:
+            return self._reg.get(name)
 
 actor_registry = ActorRegistry()
 
