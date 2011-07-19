@@ -67,8 +67,14 @@ class BaseActor(SuspendableThread):
     def __init__(self, **kwargs):
         super(BaseActor, self).__init__(**kwargs)
 
-        self.trap_exit = False
-        self.linked_actors = []
+        self._ref = None
+
+        self._trap_exit = False
+        self._linked_actors = []
+
+    @property
+    def ref(self):
+        return self._ref
 
     def _run(self):
         try:
@@ -77,7 +83,7 @@ class BaseActor(SuspendableThread):
             return
 
         if isinstance(message, Exit):
-            if not self.trap_exit:
+            if not self._trap_exit:
                 self.exit_linked(message)
                 _logger.info("Exiting because of %r", message)
                 raise CloseThread()
@@ -101,8 +107,8 @@ class BaseActor(SuspendableThread):
             raise
 
     def exit_linked(self, exit_msg):
-        while self.linked_actors:
-            linked = self.linked_actors[0]
+        while self._linked_actors:
+            linked = self._linked_actors[0]
             self.ref.unlink(linked)
             linked.put(exit_msg)
 
@@ -141,7 +147,6 @@ class Actor(BaseActor):
         super(Actor, self).__init__()
 
         self._inbox = inbox or Queue.Queue()
-        self.ref = None
 
     def handle_inbox(self):
         msg = self._inbox.get(True, 3)
@@ -158,22 +163,11 @@ class Actor(BaseActor):
         }
         self._inbox.put(msg)
 
-class ForwardingActor(object):
-    """ This is a mix-in which simply forwards all messages to another actor.
-
-    When using it, the variable `self.forward_to` needs to be set.
-    """
-    def on_receive(self, message):
-        self.forward_to.put(message)
-
-    def on_stop(self):
-        self.forward_to.put(StopProcessing)
-
 class ActorProxy(Channel):
     def __init__(self, actor):
         """ Helper class to send messages to an actor.
         """
-        self.actor = actor
+        self._actor = actor
 
         self._channel = None
         self._current_message = None
@@ -184,13 +178,17 @@ class ActorProxy(Channel):
 
     @property
     def channel(self):
+        """ The channel is the sender of the current message. (If there is any.)
+
+        This may be an actor proxy or a waiting request.
+        """
         return self._channel
 
     def start(self):
-        self.actor.start()
+        self._actor.start()
 
     def stop(self):
-        self.actor.put(StopProcessing)
+        self._actor.put(StopProcessing)
 
     def reply(self, value):
         self.channel.put(value, self)
@@ -199,10 +197,10 @@ class ActorProxy(Channel):
         """ Puts a raw value into the actor’s inbox
         """
         if not self.is_running:
-            raise RuntimeError("Actor '%r' not running." % self.actor)
+            raise RuntimeError("Actor '%r' not running." % self._actor)
 
-        _logger.debug("Putting '%r' into '%r' (channel: %r)" % (value, self.actor, sender))
-        self.actor.put(value, sender)
+        _logger.debug("Putting '%r' into '%r' (channel: %r)" % (value, self._actor, sender))
+        self._actor.put(value, sender)
 
     def notify(self, method, params=None):
         message = {"method": method,
@@ -220,10 +218,10 @@ class ActorProxy(Channel):
 
     @property
     def is_running(self):
-        return self.actor._running
+        return self._actor._running
 
     def join(self, timeout):
-        return self.actor._thread.join(timeout)
+        return self._actor._thread.join(timeout)
 
     def link(self, other):
         """ Links this actor to another actor and vice versa.
@@ -242,55 +240,25 @@ class ActorProxy(Channel):
         other.unlink_from(self)
 
     def link_to(self, other):
-        if not other in self.actor.linked_actors:
-            self.actor.linked_actors.append(other)
+        if not other in self._actor._linked_actors:
+            self._actor._linked_actors.append(other)
 
     def unlink_from(self, other):
-        while other in self.actor.linked_actors:
-            self.actor.linked_actors.remove(other)
+        while other in self._actor._linked_actors:
+            self._actor._linked_actors.remove(other)
 
     @property
     def trap_exit(self):
-        return self.actor.trap_exit
+        return self._actor._trap_exit
 
     @trap_exit.setter
     def trap_exit(self, value):
-        self.actor.trap_exit = value
+        self._actor._trap_exit = value
 
     @property
     def is_alive(self):
-        return self.actor._thread.is_alive()
+        return self._actor._thread.is_alive()
 
-class RemoteActorProxy(object):
-    def __init__(self, name, actor):
-        """ Helper class to send messages to an actor.
-        """
-        self.actor = actor
-
-    def start(self):
-        self.actor.start()
-
-    def stop(self):
-        self.notify("stop")
-
-    def notify(self, method, params=None):
-        message = Notification(method, params)
-        self.actor.outbox.put(message)
-
-    def query(self, method, params=None, id=None):
-        # Update the query.id
-        if not id:
-            id = self.actor.request_db.create_id(id)
-
-        query = Query(method, params, id)
-        req_obj = Request(query.id)
-
-        # save the id to the _requests dict
-        self.actor.request_db.add_request(req_obj)
-        query.mailbox = self.actor
-        self.actor.outbox.put(query)
-
-        return req_obj
 
 def dispatch(method=None, name=None):
     if name and not method:
@@ -451,7 +419,7 @@ class ActorRegistry(object):
             if inspect.isclass(actor):
                 actor = actor()
             proxy = ActorProxy(actor)
-            actor.ref = proxy
+            actor._ref = proxy
 
             if name:
                 self._reg[name] = proxy

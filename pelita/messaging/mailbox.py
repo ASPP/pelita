@@ -9,7 +9,7 @@ _logger.setLevel(logging.DEBUG)
 
 from pelita.messaging.utils import SuspendableThread, CloseThread, Counter
 from pelita.messaging.remote import MessageSocketConnection, JsonSocketConnection
-from pelita.messaging import Actor, StopProcessing, DeadConnection, ForwardingActor, Query, Request, DispatchingActor, dispatch
+from pelita.messaging import Actor, StopProcessing, DeadConnection, DispatchingActor, dispatch
 
 import weakref
 
@@ -88,12 +88,6 @@ class JsonThreadedInbox(SuspendableThread):
 #
 #        self.connection.connection.shutdown(socket.SHUT_RDWR)
 #        self.connection.close()
-
-class IncomingActor(Actor):
-    pass
-
-class ForwardingInbox(ForwardingActor, JsonThreadedInbox):
-    pass
 
 class JsonThreadedOutbox(SuspendableThread):
     def __init__(self, mailbox):

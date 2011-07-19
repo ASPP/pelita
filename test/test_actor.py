@@ -102,10 +102,10 @@ class TestActorFailure(unittest.TestCase):
         self.assertEqual(collectingActor3.is_alive, True)
 
         # collectingActor3 should have received an Exit
-        self.assertEqual(collectingActor1.actor.received_exit, None)
-        self.assertEqual(collectingActor2.actor.received_exit, None)
-        self.assertNotEqual(collectingActor3.actor.received_exit, None)
-        self.assertEqual(collectingActor4.actor.received_exit, None)
+        self.assertEqual(collectingActor1._actor.received_exit, None)
+        self.assertEqual(collectingActor2._actor.received_exit, None)
+        self.assertNotEqual(collectingActor3._actor.received_exit, None)
+        self.assertEqual(collectingActor4._actor.received_exit, None)
 
         # TODO: who should be the sender of the exit notice?
         # self.assertEqual(collectingActor3.received_exit.sender, collectingActor2)
