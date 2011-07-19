@@ -4,7 +4,6 @@ import Queue
 import logging
 
 from pelita.messaging.utils import SuspendableThread, CloseThread
-from pelita.messaging import Query, Notification, BaseMessage
 
 _logger = logging.getLogger("pelita.actor")
 _logger.setLevel(logging.DEBUG)
@@ -16,10 +15,7 @@ class Channel(object):
 
 
 class Request(Channel):
-    # TODO: Need to make messages immutable to avoid synchronisation errors
-    # eg. pykka uses a deepcopy to add things to the queue…
-    def __init__(self, id):
-        self.id = id
+    def __init__(self):
         self._queue = Queue.Queue(maxsize=1)
 
     def put(self, message, sender=None):
@@ -78,10 +74,6 @@ class BaseActor(SuspendableThread):
         try:
             message, sender, priority = self.handle_inbox()
         except Queue.Empty:
-            return
-
-        if isinstance(message, BaseMessage) and message.is_response:
-            _logger.warning("Received a response (%r) without a waiting future. Dropped response.", message.dict)
             return
 
         if isinstance(message, Exit):
@@ -203,18 +195,22 @@ class ActorProxy(object):
     def reply(self, value):
         self.channel.put(value, self)
 
-    def put(self, value):
-        self.actor.put(value)
+    def put(self, value, channel=None):
+        """ Puts a raw value into the actor’s inbox
+        """
+        self.actor.put(value, channel)
 
     def notify(self, method, params=None):
-        message = Notification(method, params)
-        self.actor.put(message)
+        message = {"method": method,
+                   "params": params}
+        self.put(message)
 
-    def query(self, method, params=None, id=None):
-        query = Query(method, params, id)
-        req_obj = Request(query.id)
+    def query(self, method, params=None):
+        query = {"method": method,
+                 "params": params}
+        req_obj = Request()
 
-        self.actor.put(query, req_obj)
+        self.put(query, req_obj)
 
         return req_obj
 
@@ -368,8 +364,8 @@ class DispatchingActor(Actor):
                 cls._dispatch_db[name] = member_name
 
     def _dispatch(self, message):
-        method = message.method
-        params = message.params
+        method = message.get("method")
+        params = message.get("params")
 
         def reply_error(msg):
             try:
@@ -408,7 +404,7 @@ class DispatchingActor(Actor):
             else:
                 res = meth(message, *params)
         except TypeError, e:
-            reply_error("Type Error: method '%r'\n%r" % (message.method, e))
+            reply_error("Type Error: method '%r'\n%r" % (message.get("method"), e))
             return
 
 # TODO: Need to consider, if we want to automatically reply the result
@@ -429,7 +425,7 @@ class DispatchingActor(Actor):
                 message.reply_error(msg)
             except AttributeError:
                 pass
-        reply_error("Not found: method '%r'" % message.method)
+        reply_error("Not found: method '%r'" % message.get("method"))
 
 
 def actor_of(actor):

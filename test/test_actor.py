@@ -109,8 +109,8 @@ class TestActorFailure(unittest.TestCase):
 
 class MultiplyingActor(Actor):
     def on_receive(self, message):
-        if message.method == "mult":
-            params = message.params
+        if message.get("method") == "mult":
+            params = message.get("params")
             res = reduce(lambda x,y: x*y, params)
             self.ref.reply(res)
 
