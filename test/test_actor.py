@@ -15,31 +15,30 @@ class Dispatcher(DispatchingActor):
 
     @dispatch
     def get_param1(self, message):
-        message.reply(self.param1)
+        self.ref.reply(self.param1)
 
 
 class TestActor(unittest.TestCase):
     def test_running(self):
-        actor = Dispatcher()
+        actor = actor_of(Dispatcher)
         actor.start()
 
-        self.assertEqual(actor._running, True)
+        self.assertEqual(actor.is_running, True)
 
         actor.stop()
-        actor.thread.join(3)
-        self.assertEqual(actor._running, False)
+        actor.join(3)
+        self.assertEqual(actor.is_running, False)
 
     def test_messages(self):
-        actor = Dispatcher()
+        actor = actor_of(Dispatcher)
         actor.start()
 
-        remote = ActorProxy(actor)
-        remote.notify("set_param1", [12])
+        actor.notify("set_param1", [12])
 
-        request = remote.query("get_param1")
+        request = actor.query("get_param1")
         response = request.get()
 
-        self.assertEqual(response.result, 12)
+        self.assertEqual(response, 12)
         actor.stop()
 
 class RaisingActor(Actor):
@@ -58,45 +57,45 @@ class CollectingActor(Actor):
 
 class TestActorFailure(unittest.TestCase):
     def test_raise_no_trap_exit(self):
-        collectingActor1 = CollectingActor()
+        collectingActor1 = actor_of(CollectingActor)
         collectingActor1.trap_exit = False
         collectingActor1.start()
 
-        collectingActor2 = CollectingActor()
+        collectingActor2 = actor_of(CollectingActor)
         collectingActor2.trap_exit = False
         collectingActor2.start()
 
-        collectingActor3 = CollectingActor()
+        collectingActor3 = actor_of(CollectingActor)
         collectingActor3.trap_exit = True
         collectingActor3.start()
 
-        collectingActor4 = CollectingActor()
+        collectingActor4 = actor_of(CollectingActor)
         collectingActor4.trap_exit = True
         collectingActor4.start()
 
-        raisingActor = RaisingActor()
+        raisingActor = actor_of(RaisingActor)
         raisingActor.link(collectingActor1)
         collectingActor1.link(collectingActor2)
         collectingActor2.link(collectingActor3)
         collectingActor3.link(collectingActor4)
 
         raisingActor.start()
-        raisingActor.put("Msg")
+        raisingActor.notify("Msg")
 
         # wait for the messages to be sent
         time.sleep(1)
 
         # collectingActor2 should have closed automatically
-        self.assertEqual(collectingActor2.thread.is_alive(), False)
+        self.assertEqual(collectingActor2.is_alive, False)
 
         # collectingActor3 should still be alive
-        self.assertEqual(collectingActor3.thread.is_alive(), True)
+        self.assertEqual(collectingActor3.is_alive, True)
 
         # collectingActor3 should have received an Exit
-        self.assertEqual(collectingActor1.received_exit, None)
-        self.assertEqual(collectingActor2.received_exit, None)
-        self.assertNotEqual(collectingActor3.received_exit, None)
-        self.assertEqual(collectingActor4.received_exit, None)
+        self.assertEqual(collectingActor1.actor.received_exit, None)
+        self.assertEqual(collectingActor2.actor.received_exit, None)
+        self.assertNotEqual(collectingActor3.actor.received_exit, None)
+        self.assertEqual(collectingActor4.actor.received_exit, None)
 
         # TODO: who should be the sender of the exit notice?
         # self.assertEqual(collectingActor3.received_exit.sender, collectingActor2)
@@ -104,16 +103,16 @@ class TestActorFailure(unittest.TestCase):
         collectingActor3.stop()
         collectingActor4.stop()
         # wait for the messages to be sent
-        collectingActor3.thread.join(3)
+        collectingActor3.join(3)
 
-        self.assertEqual(collectingActor3.thread.is_alive(), False)
+        self.assertEqual(collectingActor3.is_alive, False)
 
 class MultiplyingActor(Actor):
     def on_receive(self, message):
         if message.method == "mult":
             params = message.params
             res = reduce(lambda x,y: x*y, params)
-            message.reply(res)
+            self.ref.reply(res)
 
 
 class TestActorReply(unittest.TestCase):
@@ -122,7 +121,7 @@ class TestActorReply(unittest.TestCase):
         actor_ref.start()
 
         res = actor_ref.query("mult", [1, 2, 3, 4])
-        self.assertEqual(res.get(timeout=3).result, 24)
+        self.assertEqual(res.get(timeout=3), 24)
         actor_ref.stop()
         #assert False
 

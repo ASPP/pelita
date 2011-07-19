@@ -65,8 +65,6 @@ class Query(BaseMessage):
         self.params = params
         self.id = id
 
-        self.channel = None # this specifies the channel used to reply; needs a put method
-
     @property
     def is_response(self):
         return False
@@ -74,18 +72,6 @@ class Query(BaseMessage):
     @property
     def wants_response(self):
         return True
-
-    def response(self, result):
-        return Response(result, self.id)
-
-    def reply(self, result):
-        return self.channel.put(self.response(result))
-
-    def error_msg(self, error):
-        return Error(error, self.id)
-
-    def reply_error(self, error):
-        return self.channel.put(self.error_msg(error))
 
     @property
     def dict(self):

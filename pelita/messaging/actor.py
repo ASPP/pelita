@@ -76,7 +76,7 @@ class BaseActor(SuspendableThread):
 
     def _run(self):
         try:
-            message = self.handle_inbox()
+            message, sender, priority = self.handle_inbox()
         except Queue.Empty:
             return
 
@@ -96,7 +96,13 @@ class BaseActor(SuspendableThread):
         # default
         try:
             _logger.debug("Received message %r.", message)
+            self.ref._current_message = message
+            self.ref._channel = sender
+
             self.on_receive(message)
+
+            self.ref._current_message = None
+            self.ref._channel = None
         except Exception as e:
             exit_msg = Exit(self, e)
             self.exit_linked(exit_msg)
@@ -105,32 +111,8 @@ class BaseActor(SuspendableThread):
     def exit_linked(self, exit_msg):
         while self.linked_actors:
             linked = self.linked_actors[0]
-            self.unlink(linked)
+            self.ref.unlink(linked)
             linked.put(exit_msg)
-
-    def link(self, other):
-        """ Links this actor to another actor and vice versa.
-
-        When an actor exits (due to an Exception or because of a normal exit),
-        it sends a StopProcessing message to all linked actors which will then do
-        the same.
-
-        This means that it is possible to notify other actors when one actor closes.
-        """
-        self.link_to(other)
-        other.link_to(self)
-
-    def unlink(self, other):
-        self.unlink_from(other)
-        other.unlink_from(self)
-
-    def link_to(self, other):
-        if not other in self.linked_actors:
-            self.linked_actors.append(other)
-
-    def unlink_from(self, other):
-        while other in self.linked_actors:
-            self.linked_actors.remove(other)
 
     def on_start(self):
         """
@@ -167,15 +149,22 @@ class Actor(BaseActor):
         super(Actor, self).__init__()
 
         self._inbox = inbox or Queue.Queue()
+        self.ref = None
 
     def handle_inbox(self):
-        return self._inbox.get(True, 3)
+        msg = self._inbox.get(True, 3)
+        return (msg.get("message"), msg.get("channel"), msg.get("priority"))
 
     def forward(self, message):
         self._inbox.put(message)
 
-    def put(self, message):
-        self._inbox.put(message)
+    def put(self, message, sender=None):
+        msg = {
+            "message": message,
+            "channel": sender,
+            "priority": 0
+        }
+        self._inbox.put(msg)
 
 class ForwardingActor(object):
     """ This is a mix-in which simply forwards all messages to another actor.
@@ -194,11 +183,28 @@ class ActorProxy(object):
         """
         self.actor = actor
 
+        self._channel = None
+        self._current_message = None
+
+    @property
+    def current_message(self):
+        return self._current_message
+
+    @property
+    def channel(self):
+        return self._channel
+
     def start(self):
         self.actor.start()
 
     def stop(self):
         self.actor.put(StopProcessing)
+
+    def reply(self, value):
+        self.channel.put(value, self)
+
+    def put(self, value):
+        self.actor.put(value)
 
     def notify(self, method, params=None):
         message = Notification(method, params)
@@ -208,11 +214,52 @@ class ActorProxy(object):
         query = Query(method, params, id)
         req_obj = Request(query.id)
 
-        query.channel = req_obj
-        self.actor.put(query)
+        self.actor.put(query, req_obj)
 
         return req_obj
 
+    @property
+    def is_running(self):
+        return self.actor._running
+
+    def join(self, timeout):
+        return self.actor._thread.join(timeout)
+
+    def link(self, other):
+        """ Links this actor to another actor and vice versa.
+
+        When an actor exits (due to an Exception or because of a normal exit),
+        it sends a StopProcessing message to all linked actors which will then do
+        the same.
+
+        This means that it is possible to notify other actors when one actor closes.
+        """
+        self.link_to(other)
+        other.link_to(self)
+
+    def unlink(self, other):
+        self.unlink_from(other)
+        other.unlink_from(self)
+
+    def link_to(self, other):
+        if not other in self.actor.linked_actors:
+            self.actor.linked_actors.append(other)
+
+    def unlink_from(self, other):
+        while other in self.actor.linked_actors:
+            self.actor.linked_actors.remove(other)
+
+    @property
+    def trap_exit(self):
+        return self.actor.trap_exit
+
+    @trap_exit.setter
+    def trap_exit(self, value):
+        self.actor.trap_exit = value
+
+    @property
+    def is_alive(self):
+        return self.actor._thread.is_alive()
 
 class RemoteActorProxy(object):
     def __init__(self, name, actor):
@@ -297,23 +344,28 @@ class DispatchingActor(Actor):
 #   use inner functions inside receive()
 #
 
+    def __new__(cls, *args, **kwargs):
+        cls._init_dispatch_db()
+        return super(DispatchingActor, cls).__new__(cls, *args, **kwargs)
+
     def __init__(self, inbox=None):
         super(DispatchingActor, self).__init__(inbox)
 
         self._init_dispatch_db()
 
-    def _init_dispatch_db(self):
-        self._dispatch_db = {}
+    @classmethod
+    def _init_dispatch_db(cls):
+        cls._dispatch_db = {}
         # search all attributes of this class
-        for member_name in dir(self):
-            member = getattr(self, member_name)
+        for member_name in dir(cls):
+            member = getattr(cls, member_name)
             if getattr(member, "__dispatch", False):
                 name = getattr(member, "__dispatch_as", None)
                 if not name:
                     name = member_name
-                if name in self._dispatch_db:
+                if name in cls._dispatch_db:
                     raise ValueError("Dispatcher name '%r' defined twice", name)
-                self._dispatch_db[name] = member_name
+                cls._dispatch_db[name] = member_name
 
     def _dispatch(self, message):
         method = message.method
