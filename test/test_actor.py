@@ -41,6 +41,16 @@ class TestActor(unittest.TestCase):
         self.assertEqual(response, 12)
         actor.stop()
 
+    def test_unhandled(self):
+        actor = actor_of(Dispatcher)
+        actor.start()
+
+        res = actor.query("unhandled")
+        self.assertEqual(type(res.get()), str)
+
+        actor.stop()
+
+
 class RaisingActor(Actor):
     def on_receive(self, message):
         raise NotImplementedError

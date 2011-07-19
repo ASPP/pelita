@@ -368,10 +368,10 @@ class DispatchingActor(Actor):
         params = message.get("params")
 
         def reply_error(msg):
-            try:
-                message.reply_error(msg)
-            except AttributeError:
-                pass
+            if self.ref.channel:
+                self.ref.reply(msg)
+            else:
+                _logger.warning(msg)
 
         wants_doc = False
         if method[0] == "?":
@@ -389,10 +389,11 @@ class DispatchingActor(Actor):
             return
 
         if wants_doc:
-            if hasattr(message, "reply"):
+            if self.ref.channel:
                 res = meth.__doc__
-                message.reply(res)
-            return
+                self.ref.reply(res)
+            else:
+                _logger.warning("Doc requested but no channel given.")
 
         try:
             if params is None:
@@ -421,10 +422,10 @@ class DispatchingActor(Actor):
         This method may be overridden to include other error handling mechanisms.
         """
         def reply_error(msg):
-            try:
-                message.reply_error(msg)
-            except AttributeError:
-                pass
+            if self.ref.channel:
+                self.ref.reply(msg)
+            else:
+                _logger.warning(msg)
         reply_error("Not found: method '%r'" % message.get("method"))
 
 
