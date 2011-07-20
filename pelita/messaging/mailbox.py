@@ -9,7 +9,7 @@ _logger.setLevel(logging.DEBUG)
 
 from pelita.messaging.utils import SuspendableThread, CloseThread, Counter
 from pelita.messaging.remote import MessageSocketConnection, JsonSocketConnection
-from pelita.messaging import Actor, StopProcessing, DeadConnection, DispatchingActor, dispatch
+from pelita.messaging import Actor, StopProcessing, DeadConnection, DispatchingActor, dispatch, BaseActorProxy, actor_registry
 
 import weakref
 
@@ -79,9 +79,12 @@ class JsonThreadedInbox(SuspendableThread):
         if channel is None:
             channel = self.mailbox.dispatcher(actor)
 
+        # if no channel can be found: create a new one which uses this connection.
+        # {from: uuid, to: uuid or actor_name, message: ... }
+
         print channel, type(channel)
 
-        proxy = ActorProxy(self.mailbox.outbox) # ???
+        proxy = BaseActorProxy(self.mailbox.outbox) # ???
         self.mailbox.outbox.ref = proxy
 
         channel.put(recv.get("message"), sender=proxy)
@@ -118,12 +121,13 @@ class JsonThreadedOutbox(SuspendableThread):
             pass
 
     def put(self, message, channel=None):
-        actor = "main-actor"
+        actor = self.mailbox.ref
+        uuid = str(actor.uuid)
         if channel:
             id = self.request_db.add_request(channel)
-            self._queue.put({"actor": actor, "message": message, "id": id})
+            self._queue.put({"actor": uuid, "message": message, "id": id})
         else:
-            self._queue.put({"actor": actor, "message": message})
+            self._queue.put({"actor": uuid, "message": message})
 
 class MailboxConnection(object):
     """A mailbox bundles an incoming and an outgoing connection."""
@@ -145,7 +149,7 @@ class MailboxConnection(object):
 
 #        main_actor.link(self.inbox)
     def dispatcher(self, actor):
-        return self.remote.reg[actor]
+        return actor_registry.get_by_uuid(actor) # self.remote.get_actor(actor)
 
     def on_receive(self, message):
         print "Forwarding"
@@ -178,6 +182,7 @@ class RemoteConnections(DispatchingActor):
 
     @dispatch
     def remove_connection(self, message, connection):
+        self.connections[connection].stop()
         del self.connections[connection]
 
     @dispatch
@@ -230,14 +235,21 @@ class Remote(object):
         return remote_actor
 
     def register(self, name, actor_ref):
-        self.reg[name] = actor_ref
+        self.reg[name] = actor_ref.uuid
+
+    def get_actor(self, name):
+        uuid = self.reg[name]
+        actor = actor_registry.get_by_uuid(uuid)
+        return actor
 
     def start_all(self):
-        for ref in self.reg.values():
+        for uuid in self.reg.values():
+            ref = actor_registry.get_by_uuid(uuid)
             ref.start()
 
     def stop(self):
-        for ref in self.reg.values():
+        for uuid in self.reg.values():
+            ref = actor_registry.get_by_uuid(uuid)
             ref.stop()
         if self.listener:
             self.listener.stop()

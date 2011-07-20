@@ -160,7 +160,7 @@ except (KeyboardInterrupt, EndSession):
 
     req =  actor_ref.stop()
 #    actor.stop()
-    listener.stop()
+    remote.stop()
     import sys
     sys.exit()
 

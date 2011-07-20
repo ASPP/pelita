@@ -2,6 +2,7 @@
 
 import Queue
 import logging
+import uuid
 
 from pelita.messaging.utils import SuspendableThread, CloseThread
 
@@ -163,19 +164,25 @@ class Actor(BaseActor):
         }
         self._inbox.put(msg)
 
-    # TODO
-    # Split ActorProxy in two: a local Reference and one for remote connections
-    # which only relies on put
-    # method checks should be done on _actor on init. hasattr(put)
-
-class ActorProxy(Channel):
+class BaseActorProxy(Channel):
     def __init__(self, actor):
         """ Helper class to send messages to an actor.
         """
+        self._uuid = uuid.uuid4()
+        self._id = self._uuid
+
         self._actor = actor
 
         self._channel = None
         self._current_message = None
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def uuid(self):
+        return self._uuid
 
     @property
     def current_message(self):
@@ -227,7 +234,14 @@ class ActorProxy(Channel):
 
     def join(self, timeout):
         return self._actor._thread.join(timeout)
+    @property
+    def is_alive(self):
+        return self._actor._thread.is_alive()
 
+    def __repr__(self):
+        return "%s(%s)" % (self.__class__, self._actor)
+
+class ActorProxy(BaseActorProxy):
     def link(self, other):
         """ Links this actor to another actor and vice versa.
 
@@ -260,12 +274,6 @@ class ActorProxy(Channel):
     def trap_exit(self, value):
         self._actor._trap_exit = value
 
-    @property
-    def is_alive(self):
-        return self._actor._thread.is_alive()
-
-    def __repr__(self):
-        return "ActorProxy(%s)" % self._actor
 
 
 def dispatch(method=None, name=None):
@@ -412,6 +420,10 @@ class DispatchingActor(Actor):
 def actor_of(actor, name=None):
     return actor_registry.register(actor, name)
 
+def _check_actor_correctness(actor):
+    methods = []
+    return all(hasattr(actor, meth) for meth in methods)
+
 
 import inspect
 from threading import Lock
@@ -426,17 +438,29 @@ class ActorRegistry(object):
         with _registry_lock:
             if inspect.isclass(actor):
                 actor = actor()
+
+            # We should check that our actor has all the methods, the ActorRef needs.
+            # This ensures (only a little) that our actor thread does not fail at
+            # runtime because it expects other methods.
+            assert _check_actor_correctness(actor), "Actor does not follow spec."
+
             proxy = ActorProxy(actor)
             actor._ref = proxy
 
             if name:
                 self._reg[name] = proxy
 
+            self._reg[proxy.uuid] = proxy
+
             return proxy
 
     def get_by_name(self, name):
         with _registry_lock:
             return self._reg.get(name)
+
+    def get_by_uuid(self, uuid):
+        with _registry_lock:
+            return self._reg.get(uuid)
 
 actor_registry = ActorRegistry()
 
