@@ -14,8 +14,8 @@ ThreadInfoLogger(10).start()
 
 #from actors.actor import Actor
 
-from pelita.messaging import Actor, Notification, DispatchingActor, dispatch, RemoteActorProxy, ActorProxy
-from pelita.messaging.mailbox import MailboxConnection
+from pelita.messaging import Actor, Notification, DispatchingActor, dispatch, actor_of
+from pelita.messaging.mailbox import MailboxConnection, Remote
 
 class ServerActor(DispatchingActor):
     def __init__(self):
@@ -41,28 +41,28 @@ class ServerActor(DispatchingActor):
         """Multiplies the argument list."""
         res = reduce(lambda x,y: x*y, args)
         print "Calculated", res
-        return res
+        self.ref.reply(res)
 
     @dispatch
     def hello(self, message, *args):
-        self.players.append(message.mailbox)
-        message.mailbox.put(Notification("init", [0]))
+        print self.ref.channel
+        self.players.append(self.ref.channel)
+        self.ref.channel.notify("init", [0])
 
     @dispatch(name="players")
     def _players(self, message, *args):
         message.reply(list(self.players))
 
-
     @dispatch
     def calc(self, message, num_clients=1, iterations=10000):
         if len(list(self.players)) < num_clients:
-            message.reply_error("Not enough clients connected")
+            self.ref.reply("Not enough clients connected")
             return
 
         answers = []
 
         for ac_num in range(num_clients):
-            player = RemoteActorProxy(self.players[ac_num])
+            player = self.players[ac_num]
 
             start_val = iterations * ac_num
             stop_val = iterations * (ac_num + 1) - 1
@@ -79,7 +79,7 @@ class ServerActor(DispatchingActor):
 
         res = 0
         for answer in answers:
-            res += answer.get().result
+            res += answer.get()
         message.reply(res)
 
     @dispatch
@@ -92,12 +92,11 @@ class ServerActor(DispatchingActor):
         reqs = []
 
         for player in self.players:
-            player = RemoteActorProxy(player)
             reqs.append( player.query("random_int", []) )
 
         res = 0
         for answer in reqs:
-            res += answer.get().result
+            res += answer.get()
 
         if res % 2 != 0:
             message.reply("Player 1 wins")
@@ -106,49 +105,9 @@ class ServerActor(DispatchingActor):
 
 import inspect
 
-def actorOf(actor):
-    if inspect.isclass(actor):
-        actor = actor()
-    return ActorProxy(actor)
-
-actor_ref = actorOf(ServerActor)
-actor_ref.start()
-
-listener = TcpThreadedListeningServer(host="", port=50007)
-
-mailboxes = []
-
-def accepter(connection):
-    # a new connection has been established
-    mailbox = MailboxConnection(connection, main_actor=actor_ref) # which actor?
-    mailboxes[connection] = mailbox
-    mailbox.start()
-
-listener.on_accept = accepter
-listener.start()
-
-class Remote(object):
-    def __init__(self):
-        self.listener = None
-
-        self.reg = {}
-
-    def start_listener(self, host, port):
-        self.listener = TcpThreadedListeningServer(host=host, port=port)
-        return self
-
-    def register(self, actor_name, actor_ref):
-        self.reg[actor_name] = actor_ref
-        return self
-
-    def start_all(self):
-        for ref in self.reg.values():
-            ref.start()
-
-
-remote = Remote().start_listener("localhost", 9999)
-
-remote.register("main-actor", actorOf(ServerActor))
+remote = Remote().start_listener("localhost", 50007)
+actor_ref = actor_of(ServerActor)
+remote.register("main-actor", actor_ref)
 remote.start_all()
 
 
@@ -191,10 +150,10 @@ try:
             print "Need to get list"
             continue
 
-        try:
-            print req.result
-        except AttributeError:
-            print req.error
+#        try:
+        print req
+#        except AttributeError:
+#            print req.error
 
 except (KeyboardInterrupt, EndSession):
     print "Interrupted"

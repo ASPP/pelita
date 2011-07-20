@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+from pelita.messaging.actor import actor_of
 
 from pelita.messaging.remote import TcpConnectingClient
-from pelita.messaging.mailbox import MailboxConnection
+from pelita.messaging.mailbox import MailboxConnection, Remote
 
-from pelita.messaging import Actor, RemoteActorProxy, DispatchingActor, dispatch
+from pelita.messaging import Actor, DispatchingActor, dispatch, actor_of
 
 import logging
 
@@ -55,30 +56,22 @@ class ClientActor(DispatchingActor):
         import random
         message.reply(random.randint(0, 10))
 
-sock = TcpConnectingClient(host="", port=50007)
-conn = sock.handle_connect()
+actor = actor_of(ClientActor)
 
-actor = ClientActor()
-actor.start()
+port = 50007
 
-remote = MailboxConnection(conn, actor)
-remote.start()
+remote_actor = Remote().actor_for("main-actor", "localhost", port)
+res = remote_actor.query("multiply", [1, 2, 3, 4])
+print res.get()
 
-def actorFor(connection):
-    # need access to a bidirectional dispatcher mailbox
-    return RemoteActorProxy(connection)
-
-remote_actor = actorFor(conn)
-
-remote_actor = RemoteActorProxy(remote)
-remote_actor.notify("hello", "Im there")
+remote_actor.notify("hello")
 
 try:
-    while actor.thread.is_alive():
-        actor.thread.join(1)
+    while actor.is_alive:
+        actor.join(1)
 except KeyboardInterrupt:
     print "Interrupted"
     actor.stop()
-    remote.stop()
+    remote_actor.stop()
 
 

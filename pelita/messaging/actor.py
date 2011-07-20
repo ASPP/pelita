@@ -163,6 +163,11 @@ class Actor(BaseActor):
         }
         self._inbox.put(msg)
 
+    # TODO
+    # Split ActorProxy in two: a local Reference and one for remote connections
+    # which only relies on put
+    # method checks should be done on _actor on init. hasattr(put)
+
 class ActorProxy(Channel):
     def __init__(self, actor):
         """ Helper class to send messages to an actor.
@@ -258,6 +263,9 @@ class ActorProxy(Channel):
     @property
     def is_alive(self):
         return self._actor._thread.is_alive()
+
+    def __repr__(self):
+        return "ActorProxy(%s)" % self._actor
 
 
 def dispatch(method=None, name=None):

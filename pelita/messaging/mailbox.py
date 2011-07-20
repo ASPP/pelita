@@ -80,7 +80,11 @@ class JsonThreadedInbox(SuspendableThread):
             channel = self.mailbox.dispatcher(actor)
 
         print channel, type(channel)
-        channel.put(recv.get("message"), sender=self.mailbox.outbox)
+
+        proxy = ActorProxy(self.mailbox.outbox) # ???
+        self.mailbox.outbox.ref = proxy
+
+        channel.put(recv.get("message"), sender=proxy)
 
 # TODO Not in use now, we rely on timeout until we know better
 #    def stop(self):
