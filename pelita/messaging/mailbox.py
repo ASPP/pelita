@@ -9,7 +9,7 @@ _logger.setLevel(logging.DEBUG)
 
 from pelita.messaging.utils import SuspendableThread, CloseThread, Counter
 from pelita.messaging.remote import MessageSocketConnection, JsonSocketConnection
-from pelita.messaging import Actor, StopProcessing, DeadConnection, DispatchingActor, dispatch, BaseActorProxy, actor_registry
+from pelita.messaging import Actor, RemoteProxy, StopProcessing, DeadConnection, DispatchingActor, dispatch, BaseActorProxy, actor_registry
 
 import weakref
 
@@ -36,7 +36,7 @@ class RequestDB(object):
         reference is deleted, it may be removed automatically
         from the database as well.
         """
-        id = self.create_id()
+        id = self.create_id(str(getattr(request, "uuid")))
         self._db[id] = request
         return id
 
@@ -71,10 +71,9 @@ class JsonThreadedInbox(SuspendableThread):
 
         _logger.info("Processing inbox %r", recv)
 
-        id = recv.get("id")
         actor = recv.get("actor")
 
-        channel = self.request_db.get_request(id)
+        channel = self.request_db.get_request(actor)
 
         if channel is None:
             channel = self.mailbox.dispatcher(actor)
@@ -84,10 +83,12 @@ class JsonThreadedInbox(SuspendableThread):
 
         print channel, type(channel)
 
-        proxy = BaseActorProxy(self.mailbox.outbox) # ???
-        self.mailbox.outbox.ref = proxy
-
-        channel.put(recv.get("message"), sender=proxy)
+        sender = recv.get("sender")
+        if sender:
+            proxy = self.mailbox.create_proxy(sender)
+            channel.put(recv.get("message"), sender=proxy, remote=self.mailbox)
+        else:
+            channel.put(recv.get("message"), remote=self.mailbox)
 
 # TODO Not in use now, we rely on timeout until we know better
 #    def stop(self):
@@ -120,14 +121,8 @@ class JsonThreadedOutbox(SuspendableThread):
         except Queue.Empty:
             pass
 
-    def put(self, message, channel=None):
-        actor = self.mailbox.ref
-        uuid = str(actor.uuid)
-        if channel:
-            id = self.request_db.add_request(channel)
-            self._queue.put({"actor": uuid, "message": message, "id": id})
-        else:
-            self._queue.put({"actor": uuid, "message": message})
+    def put(self, msg):
+        self._queue.put(msg)
 
 class MailboxConnection(object):
     """A mailbox bundles an incoming and an outgoing connection."""
@@ -138,8 +133,6 @@ class MailboxConnection(object):
 
         self.remote = remote
 
-#        self.inbox = ForwardingInbox(self, request_db=self._requests)
-#        self.inbox.forward_to = main_actor
         self.request_db = RequestDB()
 
         self.main_actor = main_actor
@@ -147,13 +140,17 @@ class MailboxConnection(object):
         self.inbox = JsonThreadedInbox(self)
         self.outbox = JsonThreadedOutbox(self)
 
-#        main_actor.link(self.inbox)
-    def dispatcher(self, actor):
-        return actor_registry.get_by_uuid(actor) # self.remote.get_actor(actor)
+    def create_proxy(self, sender):
+        proxy = RemoteProxy(self)
+        proxy.remote_name = sender
+        return proxy
 
-    def on_receive(self, message):
-        print "Forwarding"
-        self.main_actor.forward(message)
+    def dispatcher(self, actor):
+        try:
+            ref = self.remote.get_actor(actor)
+        except KeyError:
+            ref = actor_registry.get_by_uuid(actor)
+        return ref
 
     def start(self):
         _logger.info("Starting mailbox %r", self)
@@ -210,6 +207,7 @@ class Remote(object):
         def accepter(connection):
         # a new connection has been established
             mailbox = MailboxConnection(connection, self, main_actor=self.remote_ref)
+
             self.remote_ref.notify("add_connection", [connection, mailbox])
 
         self.listener.on_accept = accepter
@@ -227,8 +225,8 @@ class Remote(object):
         def actor_for(name, connection):
             # need access to a bidirectional dispatcher mailbox
 
-            proxy = ActorProxy(connection.outbox)
-            connection.ref = proxy
+            proxy = RemoteProxy(connection)
+            proxy.remote_name = name
             return proxy
 
         remote_actor = actor_for(name, remote)

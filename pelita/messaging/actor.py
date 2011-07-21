@@ -11,15 +11,23 @@ _logger.setLevel(logging.DEBUG)
 
 
 class Channel(object):
-    def put(self, message, sender=None):
+    def put(self, message, sender=None, remote=None):
         raise NotImplementedError
+
+    @property
+    def uuid(self):
+        # we use a string representation of the uuid
+        # to avoid errors when converting to json and back
+        if not hasattr(self, "_uuid"):
+            self._uuid = str(uuid.uuid4())
+        return self._uuid
 
 
 class Request(Channel):
     def __init__(self):
         self._queue = Queue.Queue(maxsize=1)
 
-    def put(self, message, sender=None):
+    def put(self, message, sender=None, remote=None):
         self._queue.put(message)
 
     def get(self, block=True, timeout=3):
@@ -79,7 +87,7 @@ class BaseActor(SuspendableThread):
 
     def _run(self):
         try:
-            message, sender, priority = self.handle_inbox()
+            message, sender, priority, remote = self.handle_inbox()
         except Queue.Empty:
             return
 
@@ -97,11 +105,13 @@ class BaseActor(SuspendableThread):
             _logger.debug("Received message %r.", message)
             self.ref._current_message = message
             self.ref._channel = sender
+            self.ref._remote = remote
 
             self.on_receive(message)
 
             self.ref._current_message = None
             self.ref._channel = None
+            self.ref._remote = None
         except Exception as e:
             exit_msg = Exit(self, e)
             self.exit_linked(exit_msg)
@@ -151,15 +161,16 @@ class Actor(BaseActor):
 
     def handle_inbox(self):
         msg = self._inbox.get(True, 3)
-        return (msg.get("message"), msg.get("channel"), msg.get("priority"))
+        return (msg.get("message"), msg.get("channel"), msg.get("priority"), msg.get("remote"))
 
     def forward(self, message):
         self._inbox.put(message)
 
-    def put(self, message, sender=None):
+    def put(self, message, sender=None, remote=None):
         msg = {
             "message": message,
             "channel": sender,
+            "remote": remote,
             "priority": 0
         }
         self._inbox.put(msg)
@@ -168,8 +179,7 @@ class BaseActorProxy(Channel):
     def __init__(self, actor):
         """ Helper class to send messages to an actor.
         """
-        self._uuid = uuid.uuid4()
-        self._id = self._uuid
+        self._id = self.uuid
 
         self._actor = actor
 
@@ -179,10 +189,6 @@ class BaseActorProxy(Channel):
     @property
     def id(self):
         return self._id
-
-    @property
-    def uuid(self):
-        return self._uuid
 
     @property
     def current_message(self):
@@ -196,23 +202,12 @@ class BaseActorProxy(Channel):
         """
         return self._channel
 
-    def start(self):
-        self._actor.start()
-
-    def stop(self):
-        self._actor.put(StopProcessing)
+    @property
+    def remote(self):
+        return self._remote
 
     def reply(self, value):
         self.channel.put(value, self)
-
-    def put(self, value, sender=None):
-        """ Puts a raw value into the actor’s inbox
-        """
-        if not self.is_running:
-            raise RuntimeError("Actor '%r' not running." % self._actor)
-
-        _logger.debug("Putting '%r' into '%r' (channel: %r)" % (value, self._actor, sender))
-        self._actor.put(value, sender)
 
     def notify(self, method, params=None):
         message = {"method": method,
@@ -228,20 +223,19 @@ class BaseActorProxy(Channel):
 
         return req_obj
 
-    @property
-    def is_running(self):
-        return self._actor._running
-
-    def join(self, timeout):
-        return self._actor._thread.join(timeout)
-    @property
-    def is_alive(self):
-        return self._actor._thread.is_alive()
-
     def __repr__(self):
         return "%s(%s)" % (self.__class__, self._actor)
 
 class ActorProxy(BaseActorProxy):
+    def put(self, value, sender=None, remote=None):
+        """ Puts a raw value into the actor’s inbox
+        """
+        if hasattr(self, "is_running") and not self.is_running:
+            raise RuntimeError("Actor '%r' not running." % self._actor)
+
+        _logger.debug("Putting '%r' into '%r' (channel: %r)" % (value, self._actor, sender))
+        self._actor.put(value, sender, remote)
+
     def link(self, other):
         """ Links this actor to another actor and vice versa.
 
@@ -274,6 +268,37 @@ class ActorProxy(BaseActorProxy):
     def trap_exit(self, value):
         self._actor._trap_exit = value
 
+    @property
+    def is_running(self):
+        return self._actor._running
+
+    def join(self, timeout):
+        return self._actor._thread.join(timeout)
+    @property
+    def is_alive(self):
+        return self._actor._thread.is_alive()
+
+    def start(self):
+        self._actor.start()
+
+    def stop(self):
+        self._actor.put(StopProcessing)
+
+class RemoteProxy(BaseActorProxy):
+    def __init__(self, actor):
+        super(RemoteProxy, self).__init__(actor)
+
+        self.remote_name = None
+
+    def put(self, message, channel=None, remote=None):
+        remote_name = self.remote_name
+        sender_info = repr(channel)
+
+        if channel:
+            uuid = self._actor.request_db.add_request(channel)
+            self._actor.outbox.put({"actor": remote_name, "sender": uuid, "message": message, "sender_info": sender_info})
+        else:
+            self._actor.outbox.put({"actor": remote_name, "message": message, "sender_info": sender_info})
 
 
 def dispatch(method=None, name=None):
