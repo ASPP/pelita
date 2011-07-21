@@ -149,7 +149,6 @@ class TestRemoteActor(unittest.TestCase):
         self.assertEqual(res.get(timeout=3), 24)
 
         remote.stop()
-        client1.stop()
 
 
 if __name__ == '__main__':
