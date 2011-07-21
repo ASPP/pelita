@@ -1,5 +1,6 @@
 import unittest
 import time
+
 from pelita.messaging import DispatchingActor, dispatch, ActorProxy, Actor, actor_of
 from pelita.messaging.actor import Exit
 from pelita.messaging.mailbox import Remote
@@ -17,8 +18,16 @@ class Dispatcher(DispatchingActor):
     def get_param1(self, message):
         self.ref.reply(self.param1)
 
+    @dispatch
+    def get_docstring(self, message):
+        """ This method has no content but a docstring. """
 
-class TestActor(unittest.TestCase):
+    @dispatch(name="renamed_method")
+    def fake_name(self, message):
+        self.ref.reply(12)
+
+
+class TestDispatchingActor(unittest.TestCase):
     def test_running(self):
         actor = actor_of(Dispatcher)
         actor.start()
@@ -47,6 +56,27 @@ class TestActor(unittest.TestCase):
 
         res = actor.query("unhandled")
         self.assertEqual(type(res.get()), str)
+
+        actor.stop()
+
+    def test_docstring_request(self):
+        actor = actor_of(Dispatcher)
+        actor.start()
+
+        res = actor.query("?get_docstring")
+        self.assertEqual(res.get(), " This method has no content but a docstring. ")
+
+        actor.stop()
+
+    def test_renamed_dispatch(self):
+        actor = actor_of(Dispatcher)
+        actor.start()
+
+        res = actor.query("renamed_method")
+        self.assertEqual(res.get(), 12)
+
+        res = actor.query("fake_name")
+        self.assertTrue(res.get().startswith("Not found")) # TODO: proper error handling
 
         actor.stop()
 
