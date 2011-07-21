@@ -16,6 +16,7 @@ class Channel(object):
 
     @property
     def uuid(self):
+        """ Returns a UUID for this Channel. """
         # we use a string representation of the uuid
         # to avoid errors when converting to json and back
         if not hasattr(self, "_uuid"):
@@ -28,6 +29,10 @@ class Request(Channel):
         self._queue = Queue.Queue(maxsize=1)
 
     def put(self, message, sender=None, remote=None):
+        """ Sets the result of the Request to `method`.
+
+        The other arguments will be discarded.
+        """
         self._queue.put(message)
 
     def get(self, block=True, timeout=3):
@@ -43,7 +48,9 @@ class Request(Channel):
     def has_result(self):
         """Checks whether a result is available.
 
-        This method does not guarantee that a subsequent call of Request.get() will succeed.
+        This method does not guarantee that a subsequent call of Request.get() will succeed,
+        because the result could have been removed by another thread.
+
         However, unless there is code which calls get() in the background, this method
         should be save to use.
         """
