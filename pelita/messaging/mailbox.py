@@ -126,16 +126,12 @@ class JsonThreadedOutbox(SuspendableThread):
 
 class MailboxConnection(object):
     """A mailbox bundles an incoming and an outgoing connection."""
-    def __init__(self, connection, remote, main_actor=None, **kwargs):
-        _logger.debug("Init new MailboxConnection %r" % self)
-        super(MailboxConnection, self).__init__(**kwargs)
+    def __init__(self, connection, remote):
         self.connection = JsonSocketConnection(connection)
 
         self.remote = remote
 
         self.request_db = RequestDB()
-
-        self.main_actor = main_actor
 
         self.inbox = JsonThreadedInbox(self)
         self.outbox = JsonThreadedOutbox(self)
@@ -206,7 +202,7 @@ class Remote(object):
 
         def accepter(connection):
         # a new connection has been established
-            mailbox = MailboxConnection(connection, self, main_actor=self.remote_ref)
+            mailbox = MailboxConnection(connection, self)
 
             self.remote_ref.notify("add_connection", [connection, mailbox])
 
