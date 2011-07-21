@@ -39,24 +39,25 @@ class ClientActor(DispatchingActor):
 
     @dispatch
     def statechanged(self, message):
-        message.reply("NORTH")
+        self.ref.reply("NORTH")
 
     @dispatch
     def calculate_pi_for(self, message, *params):
         res = calculate_pi_for(*params)
-        message.reply(res)
+        self.ref.reply(res)
 
     @dispatch
     def slow_series(self, message, *params):
         res = slow_series(*params)
-        message.reply(res)
+        self.ref.reply(res)
 
     @dispatch
     def random_int(self, message):
         import random
-        message.reply(random.randint(0, 10))
+        self.ref.reply(random.randint(0, 10))
 
 actor = actor_of(ClientActor)
+actor.start()
 
 port = 50007
 
@@ -64,14 +65,14 @@ remote_actor = Remote().actor_for("main-actor", "localhost", port)
 res = remote_actor.query("multiply", [1, 2, 3, 4])
 print res.get()
 
-remote_actor.notify("hello")
+remote_actor.notify("hello", [str(actor.uuid)])
 
 try:
     while actor.is_alive:
         actor.join(1)
+
 except KeyboardInterrupt:
     print "Interrupted"
     actor.stop()
-    remote_actor.stop()
 
 

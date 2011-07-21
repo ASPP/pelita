@@ -44,14 +44,16 @@ class ServerActor(DispatchingActor):
         self.ref.reply(res)
 
     @dispatch
-    def hello(self, message, *args):
-        print self.ref.channel
-        self.players.append(self.ref.channel)
-        self.ref.channel.notify("init", [0])
+    def hello(self, message, actor_uuid):
+
+        proxy = self.ref.remote.create_proxy(actor_uuid)
+        self.players.append(proxy)
+
+        proxy.notify("init", [0])
 
     @dispatch(name="players")
     def _players(self, message, *args):
-        message.reply(list(self.players))
+        self.ref.reply(list(self.players))
 
     @dispatch
     def calc(self, message, num_clients=1, iterations=10000):
@@ -80,13 +82,13 @@ class ServerActor(DispatchingActor):
         res = 0
         for answer in answers:
             res += answer.get()
-        message.reply(res)
+        self.ref.reply(res)
 
     @dispatch
     def minigame(self, message):
         """Demos a small game."""
         if len(self.players) != 2:
-            message.reply_error("Need two players.")
+            self.ref.reply_error("Need two players.")
             return
 
         reqs = []
@@ -99,9 +101,9 @@ class ServerActor(DispatchingActor):
             res += answer.get()
 
         if res % 2 != 0:
-            message.reply("Player 1 wins")
+            self.ref.reply("Player 1 wins")
         else:
-            message.reply("Player 2 wins")
+            self.ref.reply("Player 2 wins")
 
 import inspect
 
@@ -109,7 +111,6 @@ remote = Remote().start_listener("localhost", 50007)
 actor_ref = actor_of(ServerActor)
 remote.register("main-actor", actor_ref)
 remote.start_all()
-
 
 #incoming_bundler = IncomingConnectionsActor(incoming_connections, inbox)
 #incoming_bundler.start()
