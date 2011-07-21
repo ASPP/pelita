@@ -184,6 +184,7 @@ class BaseActorProxy(Channel):
         self._actor = actor
 
         self._channel = None
+        self._remote = None
         self._current_message = None
 
     @property
