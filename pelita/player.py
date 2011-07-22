@@ -52,6 +52,7 @@ class AbstractPlayer(object):
         return self.get_move(universe)
 
     def get_move(self, universe):
+        """ Subclasses _must_ override this. """
         raise NotImplementedError(
                 "You must override the 'get_move' method in your player")
 
@@ -96,6 +97,14 @@ class AbstractPlayer(object):
 
     @property
     def enemy_food(self):
+        """ Food owned by the enemy which can be eaten by this players bot.
+
+        Returns
+        -------
+        enemy_food : list of position tuples (int, int)
+            The positions (x, y) of edible food
+
+        """
         return self.current_uni.enemy_food(self.me.team_index)
 
     @property
