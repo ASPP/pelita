@@ -131,6 +131,9 @@ class MailboxConnection(object):
         self.outbox = JsonThreadedOutbox(self)
 
     def create_proxy(self, sender):
+        """ Creates a proxy which has a reference to this connection and 
+        an identifier of the sending actor.
+        """
         proxy = RemoteProxy(self)
         proxy.remote_name = sender
         return proxy
