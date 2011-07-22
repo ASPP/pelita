@@ -57,9 +57,32 @@ at random from the possible moves:
 .. literalinclude:: ../../pelita/player.py
    :pyobject: RandomPlayer
 
-TODO : describe how get_legal_moves works
+Here we can see the first convenience method: `legal_moves` which returns a
+dictionary mapping move tuples to position tuples. The randome player simply
+selects a move at random from the keys (moves) of this dictionary and then moves
+there. `legal_moves` always includes stop.
 
-TODO : NQRPlayer
+The next example if the not-quite random Player `NQRandomPlayer`. This ones
+does not move back to the position where it was on its last turn and does not
+ever stop in place:
+
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: NQRandomPlayer
+
+Here we can see the use of another convenience method: `previous_pos` which
+gives the position the Bot had in the previous round. Lets take a closer look at
+how this is implemented:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.previous_pos
+
+Importantly we see that the `AbstractPlayer` automatically maintains a stack of
+previous states of the Universe called `universe_states`. Here we look at the
+previous state and obtain the bots positions. The Universe maintains a list of
+Bots `bots` and each Player has an attribute `_index` which can be used to
+obatin the respective Bot instace controlled by the Player. Lastly we simply
+look at the `current_pos` property of the Bot to obtain the previous position.
 
 A somewhat more elaborate example is the `BFSPlayer` which uses breadth first
 search to find food:
