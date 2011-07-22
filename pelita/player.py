@@ -178,7 +178,7 @@ class RandomPlayer(AbstractPlayer):
 
 
 class NQRandomPlayer(AbstractPlayer):
-    """ A player that tries not to move back to where it just came from.  """
+    """ Not-Quite-RandomPlayer that will move randomly but not stop or reverse. """
 
     def get_move(self, universe):
         legal_moves = self.legal_moves
