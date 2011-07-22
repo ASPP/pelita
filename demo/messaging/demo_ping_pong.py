@@ -65,7 +65,7 @@ print pong.uuid
 remote_ping.notify("connect", [pong.uuid])
 remote_ping.notify("Start")
 
-pong.join(None)
+pong.join()
 
 remote.stop()
 pong.stop()

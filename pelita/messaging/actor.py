@@ -302,8 +302,18 @@ class ActorProxy(BaseActorProxy):
     def is_running(self):
         return self._actor._running
 
-    def join(self, timeout):
+    def join(self, timeout=None):
+        """ Blocks until the actor’s thread is completed or waits `timeout` seconds.
+        Whatever happens earlier.
+
+        Parameters
+        ----------
+        join : float, optional
+            the time in seconds to wait.
+            default = None (no timeout)
+        """
         return self._actor._thread.join(timeout)
+
     @property
     def is_alive(self):
         return self._actor._thread.is_alive()
