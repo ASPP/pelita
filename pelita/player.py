@@ -85,7 +85,7 @@ class AbstractPlayer(object):
 
         Returns
         -------
-        team_mates : list of Bot objects
+        team_bots : list of Bot objects
             the team mates
 
         """
