@@ -239,10 +239,10 @@ class BaseActorProxy(Channel):
     def reply(self, value):
         self.channel.put(value, self)
 
-    def notify(self, method, params=None):
+    def notify(self, method, params=None, channel=None):
         message = {"method": method,
                    "params": params}
-        self.put(message)
+        self.put(message, channel)
 
     def query(self, method, params=None):
         query = {"method": method,
@@ -322,7 +322,7 @@ class RemoteProxy(BaseActorProxy):
 
     def put(self, message, channel=None, remote=None):
         remote_name = self.remote_name
-        sender_info = repr(channel)
+        sender_info = repr(channel) # only used for debugging
 
         if channel:
             uuid = self._actor.request_db.add_request(channel)
