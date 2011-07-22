@@ -7,65 +7,65 @@ Autonomous agent environment in Python
 Glossary
 ========
 
-:Universe:
+:``Universe``:
     The game state.
 
-:Bot:
+:``Bot``:
     The datastructure used to store the agent.
 
-:Team:
+:``Team``:
     In capture-the-flag each Bot belongs to a Team.
 
-:Player:
+:``Player``:
     Your implementation of the *intelligence* for a Bot.
 
-:Mesh:
+:``Mesh``:
     A two-dimensional container mapping a position tuple to an object.
 
-:Maze:
+:``Maze``:
     Datastructre that stores the maze.
 
-:MazeComponent:
+:``MazeComponent``:
     Objects stored in the Maze.
 
-:Move:
+:``Move``:
     A tuple that indicates where a Bot should move.
 
 Writing a Player
 ================
 
 In order to write a Player you should subclass from
-`pelita.player.AbstractPlayer`. This is an abstract class which provides several
+``pelita.player.AbstractPlayer``. This is an abstract class which provides several
 convenience methods to interrogate the Universe including the Bot instance that this
 player controls but lacks the functions to actually control the Bot. In order to
 make your Player do something useful you must implement at least the method
-`get_move(self, universe)` to return a move. This can be one of:
+``get_move(self, universe)`` to return a move. This can be one of:
 
 .. literalinclude:: ../../pelita/datamodel.py
    :lines: 8-12
 
-The moves are provided by the `datamodel`, import them with::
+The moves are provided by the ``datamodel``, import them with::
 
     from pelita.datamodel import north, south, west, east, stop
 
-An example of such a player is the trivial `StoppingPlayer` which simply returns
-`stop`:
+An example of such a player is the trivial ``StoppingPlayer`` which simply returns
+``stop``:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: StoppingPlayer
 
-A slightly more useful example is the `RandomPlayer` which always selects a move
+A slightly more useful example is the ``RandomPlayer`` which always selects a move
 at random from the possible moves:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: RandomPlayer
 
-Here we can see the first convenience method: `legal_moves` which returns a
+Here we can see the first convenience method: ``legal_moves`` which returns a
 dictionary mapping move tuples to position tuples. The randome player simply
 selects a move at random from the keys (moves) of this dictionary and then moves
-there. `legal_moves` always includes stop.
+there. ``legal_moves`` always includes stop.
 
-The next example if the not-quite random Player `NQRandomPlayer`. This ones
+The next example if the not-quite random Player ``NQRandomPlayer``. This ones
 does not move back to the position where it was on its last turn and does not
 ever stop in place:
 
@@ -73,49 +73,49 @@ ever stop in place:
 .. literalinclude:: ../../pelita/player.py
    :pyobject: NQRandomPlayer
 
-Here we can see the use of another convenience method: `previous_pos` which
+Here we can see the use of another convenience method: ``previous_pos`` which
 gives the position the Bot had in the previous round. Lets take a closer look at
 how this is implemented:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer.previous_pos
 
-Importantly we see that the `AbstractPlayer` automatically maintains a stack of
-previous states of the Universe called `universe_states`. Here we look at the
+Importantly we see that the ``AbstractPlayer`` automatically maintains a stack of
+previous states of the Universe called ``universe_states``. Here we look at the
 previous state and obtain the bots positions. The Universe maintains a list of
-Bots `bots` and each Player has an attribute `_index` which can be used to
+Bots ``bots`` and each Player has an attribute ``_index`` which can be used to
 obatin the respective Bot instace controlled by the Player. Lastly we simply
-look at the `current_pos` property of the Bot to obtain the previous position.
+look at the ``current_pos`` property of the Bot to obtain the previous position.
 
-A somewhat more elaborate example is the `BFSPlayer` which uses breadth first
+A somewhat more elaborate example is the ``BFSPlayer`` which uses breadth first
 search to find food:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: BFSPlayer
 
 Here we can already see some more advanced concepts. The first thing to note is
-that any player can override the method `set_initial(self)` where `current_uni`
+that any player can override the method ``set_initial(self)`` where ``current_uni``
 is the starting state of the game. All food is still present and all Bots are at
 their initial position. In this method we initialise the adjacency list
-representation of the maze. Lets look as the implementation of `current_uni`:
+representation of the maze. Lets look as the implementation of ``current_uni``:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer.current_uni
 
-As we can see its simply the top element on the `universe_states` stack
-mentioned earlier. In order to obtain the positions of all `Free` the Universe
-provides a method `pos_of(maze_component)` which will return the positions of
-all `MazeComponent` type objects. We then use the method
-`get_legal_moves(self,pos)` for each of the free positions to build the
+As we can see its simply the top element on the ``universe_states`` stack
+mentioned earlier. In order to obtain the positions of all ``Free`` the Universe
+provides a method ``pos_of(maze_component)`` which will return the positions of
+all ``MazeComponent`` type objects. We then use the method
+``get_legal_moves(self,pos)`` for each of the free positions to build the
 adjacency list.
 
-The breadth-first search is implemented in the method `bfs_food` which returns a
+The breadth-first search is implemented in the method ``bfs_food`` which returns a
 path to closest food element. In this method we see some more convenience, for
-example `enemy_food` which returns a list of all food that we can eat.
+example ``enemy_food`` which returns a list of all food that we can eat.
 
-All example Players can be found in the module `pelita.player`.
+All example Players can be found in the module ``pelita.player``.
 
-Below is the complete code for the `AbstractPlayer` which shows you all of the
+Below is the complete code for the ``AbstractPlayer`` which shows you all of the
 convenience methods/properties and also some of the implementation details:
 
 .. literalinclude:: ../../pelita/player.py
