@@ -100,6 +100,12 @@ TODO : more description of this player
 
 All example Players can be found in the module `pelita.player`.
 
+Below is the complete code for the `AbstractPlayer` which shows you all of the
+convenience methods/properties and also some of the implementation details:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer
+
 Git-Repository
 ==============
 
