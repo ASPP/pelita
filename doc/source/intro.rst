@@ -14,10 +14,10 @@ Glossary
     The datastructure used to store the agent.
 
 :``Team``:
-    In capture-the-flag each Bot belongs to a Team.
+    In capture-the-flag each ``Bot`` belongs to a ``Team``.
 
 :``Player``:
-    Your implementation of the *intelligence* for a Bot.
+    Your implementation of the *intelligence* for a ``Bot``.
 
 :``Mesh``:
     A two-dimensional container mapping a position tuple to an object.
@@ -26,10 +26,22 @@ Glossary
     Datastructre that stores the maze.
 
 :``MazeComponent``:
-    Objects stored in the Maze.
+    Objects stored in the ``Maze``.
+
+:``GameMaster``:
+    Controller object that asks players for moves and updates the ``Universe``.
 
 :``Move``:
-    A tuple that indicates where a Bot should move.
+    A tuple that indicates where a ``Bot`` should move.
+
+The conections are as follows: A ``Universe`` contains a list of ``Bot``
+objects, a list of ``Team`` objects and a ``Maze`` object. The ``Maze`` object
+is implemented with a ``Mesh`` where a list of ``MazeComponent`` objects such as
+``Free``, ``Wall`` and ``Food`` are store at each position.  A ``Player``
+implements/controls the logic required to navigate a ``Bot``. The ``GameMaster``
+will forward the current state of the ``Universe`` to the ``Player`` and request
+a ``Move`` in return. Upon reciet of the next ``Move`` the ``GameMaster`` will
+update the ``Universe``.
 
 Writing a Player
 ================
