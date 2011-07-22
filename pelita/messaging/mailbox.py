@@ -54,7 +54,6 @@ class JsonThreadedInbox(SuspendableThread):
 
         self.mailbox = mailbox
         self.connection = mailbox.connection
-        self.request_db = mailbox.request_db
 
         super(JsonThreadedInbox, self).__init__(**kwargs)
 
@@ -65,23 +64,18 @@ class JsonThreadedInbox(SuspendableThread):
             _logger.debug("socket.timeout: %r (%r)" % (e, self))
             return
         except DeadConnection:
-            _logger.debug("Remote connection is dead, closing mailbox in %r", self)
+            _logger.debug("Remote connection is dead, closing mailbox in %r.", self)
             self.mailbox.stop()
             raise CloseThread
 
         _logger.info("Processing inbox %r", recv)
 
         actor = recv.get("actor")
+        channel = self.mailbox.dispatcher(actor)
 
-        channel = self.request_db.get_request(actor)
-
-        if channel is None:
-            channel = self.mailbox.dispatcher(actor)
-
-        # if no channel can be found: create a new one which uses this connection.
-        # {from: uuid, to: uuid or actor_name, message: ... }
-
-        print channel, type(channel)
+        if not channel:
+            _logger.warning("No channel found for message %r. Dropping." % recv)
+            return
 
         sender = recv.get("sender")
         if sender:
@@ -141,12 +135,20 @@ class MailboxConnection(object):
         proxy.remote_name = sender
         return proxy
 
-    def dispatcher(self, actor):
-        try:
-            ref = self.remote.get_actor(actor)
-        except KeyError:
-            ref = actor_registry.get_by_uuid(actor)
-        return ref
+    def dispatcher(self, actor_ref_id):
+        """ Tries to find the corresponding actor to the id. """
+        # first, see if it is in the request_db
+        channel = self.request_db.get_request(actor_ref_id, default=None)
+
+        # now, try to find if it is registered with the remote database
+        if not channel:
+            channel = self.remote.get_actor(actor_ref_id, default=None)
+
+        # fall back to the general uuid
+        if not channel:
+            channel = actor_registry.get_by_uuid(actor_ref_id, default=None)
+
+        return channel
 
     def start(self):
         _logger.info("Starting mailbox %r", self)
@@ -231,9 +233,12 @@ class Remote(object):
     def register(self, name, actor_ref):
         self.reg[name] = actor_ref.uuid
 
-    def get_actor(self, name):
-        uuid = self.reg[name]
-        actor = actor_registry.get_by_uuid(uuid)
+    def get_actor(self, name, default=None):
+        uuid = self.reg.get(name)
+        if not uuid:
+            return default
+
+        actor = actor_registry.get_by_uuid(uuid, default)
         return actor
 
     def start_all(self):

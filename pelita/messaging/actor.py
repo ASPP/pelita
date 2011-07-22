@@ -514,13 +514,13 @@ class ActorRegistry(object):
 
             return proxy
 
-    def get_by_name(self, name):
+    def get_by_name(self, name, default=None):
         with _registry_lock:
-            return self._reg.get(name)
+            return self._reg.get(name, default)
 
-    def get_by_uuid(self, uuid):
+    def get_by_uuid(self, uuid, default=None):
         with _registry_lock:
-            return self._reg.get(uuid)
+            return self._reg.get(uuid, default)
 
 actor_registry = ActorRegistry()
 
