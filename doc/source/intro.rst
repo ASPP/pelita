@@ -97,9 +97,21 @@ Here we can already see some more advanced concepts. The first thing to note is
 that any player can override the method `set_initial(self)` where `current_uni`
 is the starting state of the game. All food is still present and all Bots are at
 their initial position. In this method we initialise the adjacency list
-representation of the maze.
+representation of the maze. Lets look as the implementation of `current_uni`:
 
-TODO : more description of this player
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.current_uni
+
+As we can see its simply the top element on the `universe_states` stack
+mentioned earlier. In order to obtain the positions of all `Free` the Universe
+provides a method `pos_of(maze_component)` which will return the positions of
+all `MazeComponent` type objects. We then use the method
+`get_legal_moves(self,pos)` for each of the free positions to build the
+adjacency list.
+
+The breadth-first search is implemented in the method `bfs_food` which returns a
+path to closest food element. In this method we see some more convenience, for
+example `enemy_food` which returns a list of all food that we can eat.
 
 All example Players can be found in the module `pelita.player`.
 
