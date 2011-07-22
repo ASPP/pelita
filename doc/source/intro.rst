@@ -38,7 +38,7 @@ player controls but lacks the functions to actually control the Bot. In order to
 make your Player do something useful you must implement at least the method
 `get_move(self, universe)` to return a move. This can be one of:
 
-.. literalinclude:: ../../pelita/universe.py
+.. literalinclude:: ../../pelita/datamodel.py
    :lines: 8-12
 
 The moves are provided by the `datamodel`, import them with::
