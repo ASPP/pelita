@@ -25,6 +25,9 @@ Glossary
 :Maze:
     Datastructre that stores the maze.
 
+:MazeComponent:
+    Objects stored in the Maze.
+
 :Move:
     A tuple that indicates where a Bot should move.
 
