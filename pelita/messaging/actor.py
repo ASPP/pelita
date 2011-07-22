@@ -11,6 +11,10 @@ _logger.setLevel(logging.DEBUG)
 
 
 class Channel(object):
+    """ A `Channel` is an object which may be sent a message.
+
+    This is either a `Request` object or an `ActorProxy`.
+    """
     def put(self, message, sender=None, remote=None):
         raise NotImplementedError
 
@@ -25,6 +29,13 @@ class Channel(object):
 
 
 class Request(Channel):
+    """ A `Request` is an object which holds a future value.
+
+    A `Request` object is automatically created when doing a
+    query and a reference to it is passed to the `Actor`.
+
+    The `Actor` may then reply to the `Request` exactly once.
+    """
     def __init__(self):
         self._queue = Queue.Queue(maxsize=1)
 
@@ -168,7 +179,10 @@ class Actor(BaseActor):
 
     def handle_inbox(self):
         msg = self._inbox.get(True, 3)
-        return (msg.get("message"), msg.get("channel"), msg.get("priority"), msg.get("remote"))
+        return (msg.get("message"),
+                msg.get("channel"),
+                msg.get("priority", 0),
+                msg.get("remote"))
 
     def forward(self, message):
         self._inbox.put(message)
@@ -183,6 +197,14 @@ class Actor(BaseActor):
         self._inbox.put(msg)
 
 class BaseActorProxy(Channel):
+    """ An `ActorProxy` is used to send all requests and notifications
+    to the actor. It also holds the currently processed message and information
+    about the sender.
+
+    Every local `ActorProxy` has a 1:1 reference to an `Actor`.
+    The splitting is due to the fact that the `Actor` class must be
+    subclassed and thus we avoid some name clashes.
+    """
     def __init__(self, actor):
         """ Helper class to send messages to an actor.
         """
@@ -304,9 +326,14 @@ class RemoteProxy(BaseActorProxy):
 
         if channel:
             uuid = self._actor.request_db.add_request(channel)
-            self._actor.outbox.put({"actor": remote_name, "sender": uuid, "message": message, "sender_info": sender_info})
+            self._actor.outbox.put({"actor": remote_name,
+                                    "sender": uuid,
+                                    "message": message,
+                                    "sender_info": sender_info})
         else:
-            self._actor.outbox.put({"actor": remote_name, "message": message, "sender_info": sender_info})
+            self._actor.outbox.put({"actor": remote_name,
+                                    "message": message,
+                                    "sender_info": sender_info})
 
 
 def dispatch(method=None, name=None):
