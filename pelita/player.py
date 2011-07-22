@@ -121,6 +121,17 @@ class AbstractPlayer(object):
         return self.me.current_pos
 
     @property
+    def previous_pos(self):
+        """ The previous position of the bot.
+
+        Returns
+        -------
+        current_pos : tuple of (int, int)
+            the current position (x, y) of this bot
+        """
+        return self.universe_states[-2].bots[self._index].current_pos
+
+    @property
     def initial_pos(self):
         """ The initial_pos of this bot.
 
