@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pelita.messaging import DispatchingActor, dispatch, actor_of, actor_registry
+from pelita.messaging import DispatchingActor, dispatch, actor_of, actor_registry, StopProcessing
 from pelita.messaging.mailbox import Remote
 
 
@@ -29,14 +29,14 @@ class Ping(DispatchingActor):
 
     @dispatch
     def Pong(self, message):
-        if (self.pings_left % 100 == 0):
+        if self.pings_left % 100 == 0:
             print "Ping: pong from: " + str(self.ref.channel)
-        if (self.pings_left > 0):
+        if self.pings_left > 0:
             self.ref.notify("SendPing")
         else:
             print "Ping: Stop."
             self.pong.notify("Stop", channel=self.ref)
-            raise StopProcessing
+            self.ref.notify(StopProcessing)
 
 class Pong(DispatchingActor):
     def on_start(self):
@@ -45,7 +45,7 @@ class Pong(DispatchingActor):
 
     @dispatch
     def Ping(self, message):
-        if (self.pong_count % 100 == 0):
+        if self.pong_count % 100 == 0:
             delta = datetime.now() - self.old_time
             self.old_time = datetime.now()
             print "Pong: ping " + str(self.pong_count) + " from " + str(self.ref.channel) + \
@@ -57,7 +57,7 @@ class Pong(DispatchingActor):
     @dispatch
     def Stop(self, message):
         print "Pong: Stop."
-        raise StopProcessing
+        self.ref.notify(StopProcessing)
 
 import logging
 #logging.basicConfig()
@@ -74,7 +74,7 @@ if remote:
     ping = Remote().actor_for("ping", "localhost", port)
 else:
     ping = actor_of(Ping)
-    ping.start() 
+    ping.start()
 
 
 pong = actor_of(Pong)
