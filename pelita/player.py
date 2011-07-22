@@ -168,6 +168,20 @@ class RandomPlayer(AbstractPlayer):
         return random.choice(self.legal_moves.keys())
 
 
+class NQRandomPlayer(AbstractPlayer):
+    """ A player that tries not to move back to where it just came from.  """
+
+    def get_move(self, universe):
+        legal_moves = self.legal_moves
+        # now remove the move that would lead to the previous_position
+        for (k,v) in self.legal_moves.iteritems():
+            if v == self.previous_pos:
+                break
+        del legal_moves[k]
+        # and select a move at random
+        return random.choice(legal_moves.keys())
+
+
 class BFSPlayer(AbstractPlayer):
     """ This player uses breadth first search to always go to the closest food.
 
