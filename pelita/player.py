@@ -126,8 +126,8 @@ class AbstractPlayer(object):
 
         Returns
         -------
-        current_pos : tuple of (int, int)
-            the current position (x, y) of this bot
+        previous_pos : tuple of (int, int)
+            the previous position (x, y) of this bot
         """
         return self.universe_states[-2].bots[self._index].current_pos
 
