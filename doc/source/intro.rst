@@ -111,7 +111,24 @@ adjacency list.
 
 The breadth-first search is implemented in the method ``bfs_food`` which returns a
 path to closest food element. In this method we see some more convenience, for
-example ``enemy_food`` which returns a list of all food that we can eat.
+example ``enemy_food`` which returns a list of all food that we can eat. One of
+the convenience properties used here is ``current_pos`` which returns the
+current position. Let have a look at this:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.current_pos
+
+We see that this makes use of the ``me`` property which is defined as follows:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.me
+
+As you can see ``me`` will simply obtain the Bot instance controlled by this
+player from the current universe using the hidden ``_index`` attribute of the
+Player. In practice you should be able to avoid having to use the
+``_index`` directly but its good to know how this is implemented in case you
+wish to do something exotic.
+
 
 All example Players can be found in the module ``pelita.player``.
 
