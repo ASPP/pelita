@@ -3,6 +3,7 @@
 import Queue
 import socket
 import weakref
+from threading import Lock
 
 import logging
 _logger = logging.getLogger("pelita.mailbox")
@@ -22,12 +23,14 @@ class RequestDB(object):
     """
     def __init__(self):
         self._db = weakref.WeakValueDictionary()
+        self._db_lock = Lock()
         self._counter = Counter(0)
 
     def get_request(self, id, default=None):
         """ Return the `Request` object with the specified `id`.
         """
-        return self._db.get(id, default)
+        with self._db_lock:
+            return self._db.get(id, default)
 
     def add_request(self, request):
         """ Add a new `Request` object to the database.
@@ -36,9 +39,10 @@ class RequestDB(object):
         reference is deleted, it may be removed automatically
         from the database as well.
         """
-        id = self.create_id(str(getattr(request, "uuid")))
-        self._db[id] = request
-        return id
+        with self._db_lock:
+            id = self.create_id(str(getattr(request, "uuid")))
+            self._db[id] = request
+            return id
 
     def create_id(self, id=None):
         """ Create a new and hopefully unique id for this database.
