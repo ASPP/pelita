@@ -1,14 +1,20 @@
-from pelita.messaging import DispatchingActor, dispatch, actor_of
+from datetime import datetime
+
+from pelita.messaging import DispatchingActor, dispatch, actor_of, actor_registry
 from pelita.messaging.mailbox import Remote
+
 
 class Ping(DispatchingActor):
     def on_start(self):
         self.pong = None
-        self.pings_left = 1000
+        self.pings_left = 2000
 
     @dispatch
     def connect(self, message, actor_uuid):
-        self.pong = self.ref.remote.create_proxy(actor_uuid)
+        if self.ref.remote:
+            self.pong = self.ref.remote.create_proxy(actor_uuid)
+        else:
+            self.pong = actor_registry.get_by_uuid(actor_uuid)
 
     @dispatch
     def Start(self, message):
@@ -35,11 +41,15 @@ class Ping(DispatchingActor):
 class Pong(DispatchingActor):
     def on_start(self):
         self.pong_count = 0
+        self.old_time = datetime.now()
 
     @dispatch
     def Ping(self, message):
         if (self.pong_count % 100 == 0):
-            print "Pong: ping " + str(self.pong_count) + " from " + str(self.ref.channel)
+            delta = datetime.now() - self.old_time
+            self.old_time = datetime.now()
+            print "Pong: ping " + str(self.pong_count) + " from " + str(self.ref.channel) + \
+                    str(delta.seconds) + "." + str(delta.microseconds // 1000)
 
         self.ref.channel.notify("Pong", channel=self.ref)
         self.pong_count += 1
@@ -49,25 +59,37 @@ class Pong(DispatchingActor):
         print "Pong: Stop."
         raise StopProcessing
 
+import logging
+#logging.basicConfig()
 
-remote = Remote().start_listener("localhost", 0)
-remote.register("ping", actor_of(Ping))
-remote.start_all()
+remote = True
+if remote:
 
-port = remote.listener.socket.port
+    remote = Remote().start_listener("localhost", 0)
+    remote.register("ping", actor_of(Ping))
+    remote.start_all()
 
-remote_ping = Remote().actor_for("ping", "localhost", port)
+    port = remote.listener.socket.port
+
+    ping = Remote().actor_for("ping", "localhost", port)
+else:
+    ping = actor_of(Ping)
+    ping.start() 
+
+
 pong = actor_of(Pong)
 pong.start()
 
-print pong.uuid
-
-remote_ping.notify("connect", [pong.uuid])
-remote_ping.notify("Start")
+ping.notify("connect", [pong.uuid])
+ping.notify("Start")
 
 pong.join()
 
-remote.stop()
+if remote:
+    remote.stop()
+else:
+    ping.stop()
+
 pong.stop()
 
 
