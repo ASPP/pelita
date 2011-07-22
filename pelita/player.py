@@ -132,6 +132,17 @@ class AbstractPlayer(object):
         """
         return self.me.initial_pos
 
+    @property
+    def legal_moves(self):
+        """ The currently possible moves, and where they lead.
+
+        Returns
+        -------
+        legal_moves : dict mapping moves to positions
+            the currently legal moves
+        """
+        return self.current_uni.get_legal_moves(self.current_pos)
+
 class StoppingPlayer(AbstractPlayer):
     """ A Player that just stands still. """
 
@@ -143,9 +154,8 @@ class RandomPlayer(AbstractPlayer):
     """ A player that makes moves at random. """
 
     def get_move(self, universe):
-        legal_moves = universe.get_legal_moves(
-                universe.bots[self._index].current_pos)
-        return random.choice(legal_moves.keys())
+        return random.choice(self.legal_moves.keys())
+
 
 class BFSPlayer(AbstractPlayer):
     """ This player uses breadth first search to always go to the closest food.
