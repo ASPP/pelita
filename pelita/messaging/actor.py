@@ -3,12 +3,13 @@
 import Queue
 import logging
 import uuid
+import inspect
+from threading import Lock
 
 from pelita.messaging.utils import SuspendableThread, CloseThread
 
 _logger = logging.getLogger("pelita.actor")
 _logger.setLevel(logging.DEBUG)
-
 
 class Channel(object):
     """ A `Channel` is an object which may be sent a message.
@@ -493,10 +494,6 @@ def actor_of(actor, name=None):
 def _check_actor_correctness(actor):
     methods = []
     return all(hasattr(actor, meth) for meth in methods)
-
-
-import inspect
-from threading import Lock
 
 _registry_lock = Lock()
 

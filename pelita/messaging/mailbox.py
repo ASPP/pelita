@@ -2,16 +2,16 @@
 
 import Queue
 import socket
+import weakref
 
 import logging
 _logger = logging.getLogger("pelita.mailbox")
 _logger.setLevel(logging.DEBUG)
 
 from pelita.messaging.utils import SuspendableThread, CloseThread, Counter
-from pelita.messaging.remote import MessageSocketConnection, JsonSocketConnection
-from pelita.messaging import Actor, RemoteProxy, StopProcessing, DeadConnection, DispatchingActor, dispatch, BaseActorProxy, actor_registry
+from pelita.messaging.remote import JsonSocketConnection, TcpThreadedListeningServer, TcpConnectingClient
+from pelita.messaging import Actor, RemoteProxy, StopProcessing, DeadConnection, DispatchingActor, dispatch, BaseActorProxy, actor_registry, actor_of
 
-import weakref
 
 class RequestDB(object):
     """ Class which holds weak references to all issued requests.
@@ -166,7 +166,6 @@ class MailboxConnection(object):
         self.outbox.stop()
         self.connection.close()
 
-
 class RemoteConnections(DispatchingActor):
     def __init__(self, *args, **kwargs):
         super(RemoteConnections, self).__init__(*args, **kwargs)
@@ -191,9 +190,6 @@ class RemoteConnections(DispatchingActor):
         for box in self.connections.values():
             box.stop()
 
-
-from pelita.messaging.remote import TcpThreadedListeningServer, TcpConnectingClient
-from pelita.messaging.actor import actor_of, ActorProxy
 class Remote(object):
     def __init__(self):
         self.remote_ref = actor_of(RemoteConnections)
