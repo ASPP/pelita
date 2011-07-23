@@ -173,8 +173,8 @@ class BaseActor(SuspendableThread):
 
 class Actor(BaseActor):
     # TODO Handle messages not replied to – else the queue is waiting forever
-    def __init__(self, inbox=None):
-        super(Actor, self).__init__()
+    def __init__(self, inbox=None, **kwargs):
+        super(Actor, self).__init__(**kwargs)
 
         self._inbox = inbox or Queue.Queue()
 
@@ -333,7 +333,7 @@ def expose(method=None, name=None):
     return method
 
 class DispatchingActor(Actor):
-    """ The DispatchingActor allows methods of the form
+    """ The `DispatchingActor` allows methods of the form
 
     @expose
     def some_action(self, method, *args)
@@ -350,6 +350,8 @@ class DispatchingActor(Actor):
     def some_action(self, method, *args)
 
     actor.send("action", params)
+
+    Note that `DispatchingActor` overrides `on_receive`.
     """
 
 #
@@ -381,8 +383,8 @@ class DispatchingActor(Actor):
         cls._init_dispatch_db()
         return super(DispatchingActor, cls).__new__(cls, *args, **kwargs)
 
-    def __init__(self, inbox=None):
-        super(DispatchingActor, self).__init__(inbox)
+    def __init__(self, inbox=None, **kwargs):
+        super(DispatchingActor, self).__init__(inbox, **kwargs)
 
         self._init_dispatch_db()
 
