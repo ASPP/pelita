@@ -206,12 +206,10 @@ class BaseActorReference(Channel):
     The splitting is due to the fact that the `Actor` class must be
     subclassed and thus we avoid some name clashes.
     """
-    def __init__(self, actor):
+    def __init__(self, **kwargs):
         """ Helper class to send messages to an actor.
         """
         self._id = self.uuid
-
-        self._actor = actor
 
         self._channel = None
         self._remote = None
@@ -254,10 +252,10 @@ class BaseActorReference(Channel):
 
         return req_obj
 
-    def __repr__(self):
-        return "%s(%s)" % (self.__class__, self._actor)
-
 class ActorReference(BaseActorReference):
+    def __init__(self, actor, **kwargs):
+        self._actor = actor
+
     def put(self, value, sender=None, remote=None):
         """ Puts a raw value into the actor’s inbox
         """
@@ -324,6 +322,9 @@ class ActorReference(BaseActorReference):
 
     def stop(self):
         self._actor.put(StopProcessing)
+
+    def __repr__(self):
+        return "%s(%s)" % (self.__class__, self._actor)
 
 def expose(method=None, name=None):
     if name and not method:

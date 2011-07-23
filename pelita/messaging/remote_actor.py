@@ -144,8 +144,7 @@ class RemoteMailbox(object):
         """ Creates a proxy which has a reference to this connection and
         an identifier of the sending actor.
         """
-        proxy = RemoteActorReference(self)
-        proxy.remote_name = sender
+        proxy = RemoteActorReference(remote_mailbox=self, remote_name=sender)
         return proxy
 
     def dispatcher(self, actor_ref_id):
@@ -230,8 +229,7 @@ class RemoteConnection(object):
         def actor_for(name, connection):
             # need access to a bidirectional dispatcher mailbox
 
-            proxy = RemoteActorReference(connection)
-            proxy.remote_name = name
+            proxy = RemoteActorReference(remote_mailbox=connection, remote_name=name)
             return proxy
 
         remote_actor = actor_for(name, remote)
@@ -262,22 +260,23 @@ class RemoteConnection(object):
         self.remote_ref.shutdown()
 
 class RemoteActorReference(BaseActorReference):
-    def __init__(self, actor):
-        super(RemoteActorReference, self).__init__(actor)
+    def __init__(self, remote_mailbox, remote_name, **kwargs):
+        super(RemoteActorReference, self).__init__(**kwargs)
 
-        self.remote_name = None
+        self.remote_name = remote_name
+        self._remote_mailbox = remote_mailbox
 
     def put(self, message, channel=None, remote=None):
         remote_name = self.remote_name
         sender_info = repr(channel) # only used for debugging
 
         if channel:
-            uuid = self._actor.request_db.add_request(channel)
-            self._actor.outbox.put({"actor": remote_name,
-                                    "sender": uuid,
-                                    "message": message,
-                                    "sender_info": sender_info})
+            uuid = self._remote_mailbox.request_db.add_request(channel)
+            self._remote_mailbox.outbox.put({"actor": remote_name,
+                                             "sender": uuid,
+                                             "message": message,
+                                             "sender_info": sender_info})
         else:
-            self._actor.outbox.put({"actor": remote_name,
-                                    "message": message,
-                                    "sender_info": sender_info})
+            self._remote_mailbox.outbox.put({"actor": remote_name,
+                                             "message": message,
+                                             "sender_info": sender_info})
