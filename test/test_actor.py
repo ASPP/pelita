@@ -123,6 +123,7 @@ class TestActorFailure(unittest.TestCase):
         raisingActor.notify("Msg")
 
         # wait for the messages to be sent
+        # sorry, this is quite ugly
         time.sleep(1)
 
         # collectingActor2 should have closed automatically
