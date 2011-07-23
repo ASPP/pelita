@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
-from pelita.messaging.actor import actor_of
 
-from pelita.messaging.remote import TcpConnectingClient
-from pelita.messaging.mailbox import MailboxConnection, Remote
-
-from pelita.messaging import Actor, DispatchingActor, dispatch, actor_of
+from pelita.messaging import Actor, DispatchingActor, expose, actor_of, RemoteConnection
 
 import logging
 
@@ -37,25 +33,25 @@ def slow_series(start, number_of_elems):
     return acc
 
 class ClientActor(DispatchingActor):
-    @dispatch
+    @expose
     def init(self, message, *params):
         init(*params)
 
-    @dispatch
+    @expose
     def statechanged(self, message):
         self.ref.reply("NORTH")
 
-    @dispatch
+    @expose
     def calculate_pi_for(self, message, *params):
         res = calculate_pi_for(*params)
         self.ref.reply(res)
 
-    @dispatch
+    @expose
     def slow_series(self, message, *params):
         res = slow_series(*params)
         self.ref.reply(res)
 
-    @dispatch
+    @expose
     def random_int(self, message):
         import random
         self.ref.reply(random.randint(0, 10))
@@ -65,7 +61,7 @@ actor.start()
 
 port = 50007
 
-remote_actor = Remote().actor_for("main-actor", "localhost", port)
+remote_actor = RemoteConnection().actor_for("main-actor", "localhost", port)
 res = remote_actor.query("multiply", [1, 2, 3, 4])
 print res.get()
 

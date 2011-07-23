@@ -14,7 +14,7 @@ _logger.setLevel(logging.DEBUG)
 class Channel(object):
     """ A `Channel` is an object which may be sent a message.
 
-    This is either a `Request` object or an `ActorProxy`.
+    This is either a `Request` object or an `ActorReference`.
     """
     def put(self, message, sender=None, remote=None):
         raise NotImplementedError
@@ -197,12 +197,12 @@ class Actor(BaseActor):
         }
         self._inbox.put(msg)
 
-class BaseActorProxy(Channel):
-    """ An `ActorProxy` is used to send all requests and notifications
+class BaseActorReference(Channel):
+    """ An `ActorReference` is used to send all requests and notifications
     to the actor. It also holds the currently processed message and information
     about the sender.
 
-    Every local `ActorProxy` has a 1:1 reference to an `Actor`.
+    Every local `ActorReference` has a 1:1 reference to an `Actor`.
     The splitting is due to the fact that the `Actor` class must be
     subclassed and thus we avoid some name clashes.
     """
@@ -257,7 +257,7 @@ class BaseActorProxy(Channel):
     def __repr__(self):
         return "%s(%s)" % (self.__class__, self._actor)
 
-class ActorProxy(BaseActorProxy):
+class ActorReference(BaseActorReference):
     def put(self, value, sender=None, remote=None):
         """ Puts a raw value into the actor’s inbox
         """
@@ -325,39 +325,17 @@ class ActorProxy(BaseActorProxy):
     def stop(self):
         self._actor.put(StopProcessing)
 
-class RemoteProxy(BaseActorProxy):
-    def __init__(self, actor):
-        super(RemoteProxy, self).__init__(actor)
-
-        self.remote_name = None
-
-    def put(self, message, channel=None, remote=None):
-        remote_name = self.remote_name
-        sender_info = repr(channel) # only used for debugging
-
-        if channel:
-            uuid = self._actor.request_db.add_request(channel)
-            self._actor.outbox.put({"actor": remote_name,
-                                    "sender": uuid,
-                                    "message": message,
-                                    "sender_info": sender_info})
-        else:
-            self._actor.outbox.put({"actor": remote_name,
-                                    "message": message,
-                                    "sender_info": sender_info})
-
-
-def dispatch(method=None, name=None):
+def expose(method=None, name=None):
     if name and not method:
-        return lambda fun: dispatch(fun, name)
-    method.__dispatch = True
-    method.__dispatch_as = name
+        return lambda fun: expose(fun, name)
+    method.__expose = True
+    method.__expose_as = name
     return method
 
 class DispatchingActor(Actor):
     """ The DispatchingActor allows methods of the form
 
-    @dispatch
+    @expose
     def some_action(self, method, *args)
 
     which may be called as
@@ -368,7 +346,7 @@ class DispatchingActor(Actor):
     An alternative form which allows for calling with a different name
     is available
 
-    @dispatch(name="action")
+    @expose(name="action")
     def some_action(self, method, *args)
 
     actor.send("action", params)
@@ -414,8 +392,8 @@ class DispatchingActor(Actor):
         # search all attributes of this class
         for member_name in dir(cls):
             member = getattr(cls, member_name)
-            if getattr(member, "__dispatch", False):
-                name = getattr(member, "__dispatch_as", None)
+            if getattr(member, "__expose", False):
+                name = getattr(member, "__expose_as", None)
                 if not name:
                     name = member_name
                 if name in cls._dispatch_db:
@@ -495,9 +473,11 @@ def _check_actor_correctness(actor):
     methods = []
     return all(hasattr(actor, meth) for meth in methods)
 
+# the actor_registry should be unique,
+# so we’ll have a lock defined on module basis
 _registry_lock = Lock()
 
-class ActorRegistry(object):
+class _ActorRegistry(object):
     def __init__(self):
         self._reg = {}
 
@@ -511,7 +491,7 @@ class ActorRegistry(object):
             # runtime because it expects other methods.
             assert _check_actor_correctness(actor), "Actor does not follow spec."
 
-            proxy = ActorProxy(actor)
+            proxy = ActorReference(actor)
             actor._ref = proxy
 
             if name:
@@ -529,5 +509,5 @@ class ActorRegistry(object):
         with _registry_lock:
             return self._reg.get(uuid, default)
 
-actor_registry = ActorRegistry()
+actor_registry = _ActorRegistry()
 

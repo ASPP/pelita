@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from pelita.messaging.remote import TcpThreadedListeningServer
 import logging
 
 import colorama
@@ -12,10 +11,7 @@ logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S")
 from pelita.messaging.utils.debug import ThreadInfoLogger
 ThreadInfoLogger(10).start()
 
-#from actors.actor import Actor
-
-from pelita.messaging import Actor, Notification, DispatchingActor, dispatch, actor_of
-from pelita.messaging.mailbox import MailboxConnection, Remote
+from pelita.messaging import Actor, Notification, DispatchingActor, expose, actor_of, RemoteConnection
 
 class ServerActor(DispatchingActor):
     def __init__(self):
@@ -28,7 +24,7 @@ class ServerActor(DispatchingActor):
         for conn, box in self.mailboxes.iteritems():
             box.stop()
 
-    @dispatch(name="stop")
+    @expose(name="stop")
     def _stop(self, message=None):
         """Stops the actor."""
         self.stop()
@@ -36,14 +32,14 @@ class ServerActor(DispatchingActor):
     def on_stop(self):
         self.stop_mailboxes()
 
-    @dispatch
+    @expose
     def multiply(self, message, *args):
         """Multiplies the argument list."""
         res = reduce(lambda x,y: x*y, args)
         print "Calculated", res
         self.ref.reply(res)
 
-    @dispatch
+    @expose
     def hello(self, message, actor_uuid):
 
         proxy = self.ref.remote.create_proxy(actor_uuid)
@@ -51,11 +47,11 @@ class ServerActor(DispatchingActor):
 
         proxy.notify("init", [0])
 
-    @dispatch(name="players")
+    @expose(name="players")
     def _players(self, message, *args):
         self.ref.reply(list(self.players))
 
-    @dispatch
+    @expose
     def calc(self, message, num_clients=1, iterations=10000):
         if len(list(self.players)) < num_clients:
             self.ref.reply("Not enough clients connected")
@@ -84,7 +80,7 @@ class ServerActor(DispatchingActor):
             res += answer.get()
         self.ref.reply(res)
 
-    @dispatch
+    @expose
     def minigame(self, message):
         """Demos a small game."""
         if len(self.players) != 2:
@@ -105,9 +101,7 @@ class ServerActor(DispatchingActor):
         else:
             self.ref.reply("Player 2 wins")
 
-import inspect
-
-remote = Remote().start_listener("localhost", 50007)
+remote = RemoteConnection().start_listener("localhost", 50007)
 actor_ref = actor_of(ServerActor)
 remote.register("main-actor", actor_ref)
 remote.start_all()

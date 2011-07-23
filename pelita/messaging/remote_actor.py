@@ -11,7 +11,7 @@ _logger.setLevel(logging.DEBUG)
 
 from pelita.messaging.utils import SuspendableThread, CloseThread, Counter
 from pelita.messaging.remote import JsonSocketConnection, TcpThreadedListeningServer, TcpConnectingClient
-from pelita.messaging import Actor, RemoteProxy, StopProcessing, DeadConnection, DispatchingActor, dispatch, BaseActorProxy, actor_registry, actor_of
+from pelita.messaging.actor import StopProcessing, DeadConnection, actor_registry, BaseActorReference
 
 
 class RequestDB(object):
@@ -53,13 +53,16 @@ class RequestDB(object):
             _logger.info("Using existing id.")
             return id
 
-class JsonThreadedInbox(SuspendableThread):
+class RemoteInbox(SuspendableThread):
+    """ This class fetches all incoming messages from
+    `self.mailbox.connection` and dispatches them to the
+    specified actor.
+    """
     def __init__(self, mailbox, **kwargs):
-
         self.mailbox = mailbox
         self.connection = mailbox.connection
 
-        super(JsonThreadedInbox, self).__init__(**kwargs)
+        super(RemoteInbox, self).__init__(**kwargs)
 
     def _run(self):
         try:
@@ -95,9 +98,12 @@ class JsonThreadedInbox(SuspendableThread):
 #        self.connection.connection.shutdown(socket.SHUT_RDWR)
 #        self.connection.close()
 
-class JsonThreadedOutbox(SuspendableThread):
-    def __init__(self, mailbox):
-        super(JsonThreadedOutbox, self).__init__()
+class RemoteOutbox(SuspendableThread):
+    """ This class checks its outgoing queue for new messages and
+    sends them through the connection specified by `self.mailbox.connection`.
+    """
+    def __init__(self, mailbox, **kwargs):
+        super(RemoteOutbox, self).__init__(**kwargs)
 
         self.mailbox = mailbox
         self.connection = mailbox.connection
@@ -122,7 +128,7 @@ class JsonThreadedOutbox(SuspendableThread):
     def put(self, msg):
         self._queue.put(msg)
 
-class MailboxConnection(object):
+class RemoteMailbox(object):
     """A mailbox bundles an incoming and an outgoing connection."""
     def __init__(self, connection, remote):
         self.connection = JsonSocketConnection(connection)
@@ -131,14 +137,14 @@ class MailboxConnection(object):
 
         self.request_db = RequestDB()
 
-        self.inbox = JsonThreadedInbox(self)
-        self.outbox = JsonThreadedOutbox(self)
+        self.inbox = RemoteInbox(self)
+        self.outbox = RemoteOutbox(self)
 
     def create_proxy(self, sender):
-        """ Creates a proxy which has a reference to this connection and 
+        """ Creates a proxy which has a reference to this connection and
         an identifier of the sending actor.
         """
-        proxy = RemoteProxy(self)
+        proxy = RemoteActorReference(self)
         proxy.remote_name = sender
         return proxy
 
@@ -164,52 +170,50 @@ class MailboxConnection(object):
 
     def stop(self):
         _logger.info("Stopping mailbox %r", self)
-        #self.inbox._queue.put(StopProcessing)
         self.outbox._queue.put(StopProcessing) # I need to to this or the thread will not stop...
         self.inbox.stop()
         self.outbox.stop()
         self.connection.close()
 
-class RemoteConnections(DispatchingActor):
+class RemoteConnectionRegistry(object):
     def __init__(self, *args, **kwargs):
-        super(RemoteConnections, self).__init__(*args, **kwargs)
+        self._db_lock = Lock()
         self.connections = {}
 
-    @dispatch
-    def add_connection(self, message, connection, mailbox):
-        _logger.debug("Adding connection")
-        self.connections[connection] = mailbox
-        mailbox.start()
+    def add_connection(self, connection, mailbox):
+        with self._db_lock:
+            _logger.debug("Adding connection")
+            self.connections[connection] = mailbox
+            mailbox.start()
 
-    @dispatch
     def remove_connection(self, message, connection):
-        self.connections[connection].stop()
-        del self.connections[connection]
+        with self._db_lock:
+            self.connections[connection].stop()
+            del self.connections[connection]
 
-    @dispatch
     def get_connections(self, message):
-        message.reply(self.connections)
+        with self._db_lock:
+            return self.connections
 
-    def on_stop(self):
+    def shutdown(self):
         for box in self.connections.values():
             box.stop()
 
-class Remote(object):
+class RemoteConnection(object):
     def __init__(self):
-        self.remote_ref = actor_of(RemoteConnections)
+        self.remote_ref = RemoteConnectionRegistry()
         self.listener = None
 
         self.reg = {}
 
     def start_listener(self, host, port):
-        self.remote_ref.start()
         self.listener = TcpThreadedListeningServer(host=host, port=port)
 
         def accepter(connection):
         # a new connection has been established
-            mailbox = MailboxConnection(connection, self)
+            mailbox = RemoteMailbox(connection, self)
 
-            self.remote_ref.notify("add_connection", [connection, mailbox])
+            self.remote_ref.add_connection(connection, mailbox)
 
         self.listener.on_accept = accepter
         self.listener.start()
@@ -220,13 +224,13 @@ class Remote(object):
         sock = TcpConnectingClient(host=host, port=port)
         conn = sock.handle_connect()
 
-        remote = MailboxConnection(conn, self)
+        remote = RemoteMailbox(conn, self)
         remote.start()
 
         def actor_for(name, connection):
             # need access to a bidirectional dispatcher mailbox
 
-            proxy = RemoteProxy(connection)
+            proxy = RemoteActorReference(connection)
             proxy.remote_name = name
             return proxy
 
@@ -255,4 +259,25 @@ class Remote(object):
             ref.stop()
         if self.listener:
             self.listener.stop()
-        self.remote_ref.stop()
+        self.remote_ref.shutdown()
+
+class RemoteActorReference(BaseActorReference):
+    def __init__(self, actor):
+        super(RemoteActorReference, self).__init__(actor)
+
+        self.remote_name = None
+
+    def put(self, message, channel=None, remote=None):
+        remote_name = self.remote_name
+        sender_info = repr(channel) # only used for debugging
+
+        if channel:
+            uuid = self._actor.request_db.add_request(channel)
+            self._actor.outbox.put({"actor": remote_name,
+                                    "sender": uuid,
+                                    "message": message,
+                                    "sender_info": sender_info})
+        else:
+            self._actor.outbox.put({"actor": remote_name,
+                                    "message": message,
+                                    "sender_info": sender_info})

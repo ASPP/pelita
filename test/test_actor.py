@@ -1,28 +1,26 @@
 import unittest
 import time
 
-from pelita.messaging import DispatchingActor, dispatch, ActorProxy, Actor, actor_of
-from pelita.messaging.actor import Exit
-from pelita.messaging.mailbox import Remote
+from pelita.messaging import DispatchingActor, expose, Actor, actor_of, RemoteConnection, Exit
 
 class Dispatcher(DispatchingActor):
     def __init__(self):
         super(Dispatcher, self).__init__()
         self.param1 = None
 
-    @dispatch
+    @expose
     def set_param1(self, message, argument):
         self.param1 = argument
 
-    @dispatch
+    @expose
     def get_param1(self, message):
         self.ref.reply(self.param1)
 
-    @dispatch
+    @expose
     def get_docstring(self, message):
         """ This method has no content but a docstring. """
 
-    @dispatch(name="renamed_method")
+    @expose(name="renamed_method")
     def fake_name(self, message):
         self.ref.reply(12)
 
@@ -169,13 +167,13 @@ class TestActorReply(unittest.TestCase):
 
 class TestRemoteActor(unittest.TestCase):
     def test_remote(self):
-        remote = Remote().start_listener("localhost", 0)
+        remote = RemoteConnection().start_listener("localhost", 0)
         remote.register("main-actor", actor_of(MultiplyingActor))
         remote.start_all()
 
         port = remote.listener.socket.port
 
-        client1 = Remote().actor_for("main-actor", "localhost", port)
+        client1 = RemoteConnection().actor_for("main-actor", "localhost", port)
         res = client1.query("mult", [1, 2, 3, 4])
         self.assertEqual(res.get(timeout=3), 24)
 
