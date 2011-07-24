@@ -98,16 +98,6 @@ class Exit(object):
         self.sender = sender
         self.reason = reason
 
-class AbstractActor(object):
-    def request(self, method, params=None, id=None):
-        raise NotImplementedError
-
-    def request_timeout(self, method, params=None, id=None, timeout=None):
-        return self.request(method, params, id).get(True, timeout)
-
-    def send(self, method, params=None):
-        raise NotImplementedError
-
 class BaseActor(SuspendableThread):
     """ BaseActor is an actor with no pre-defined queue.
     """
