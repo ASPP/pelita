@@ -174,9 +174,9 @@ class BaseActor(SuspendableThread):
 class Actor(BaseActor):
     # TODO Handle messages not replied to – else the queue is waiting forever
     def __init__(self, inbox=None, **kwargs):
-        super(Actor, self).__init__(**kwargs)
-
         self._inbox = inbox or Queue.Queue()
+
+        super(Actor, self).__init__(**kwargs)
 
     def handle_inbox(self):
         msg = self._inbox.get(True, 3)
@@ -255,6 +255,7 @@ class BaseActorReference(Channel):
 class ActorReference(BaseActorReference):
     def __init__(self, actor, **kwargs):
         self._actor = actor
+        super(ActorReference, self).__init__(**kwargs)
 
     def put(self, value, sender=None, remote=None):
         """ Puts a raw value into the actor’s inbox
@@ -384,8 +385,8 @@ class DispatchingActor(Actor):
         cls._init_dispatch_db()
         return super(DispatchingActor, cls).__new__(cls, *args, **kwargs)
 
-    def __init__(self, inbox=None, **kwargs):
-        super(DispatchingActor, self).__init__(inbox, **kwargs)
+    def __init__(self, **kwargs):
+        super(DispatchingActor, self).__init__(**kwargs)
 
         self._init_dispatch_db()
 

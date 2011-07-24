@@ -261,10 +261,10 @@ class RemoteConnection(object):
 
 class RemoteActorReference(BaseActorReference):
     def __init__(self, remote_mailbox, remote_name, **kwargs):
-        super(RemoteActorReference, self).__init__(**kwargs)
-
         self.remote_name = remote_name
         self._remote_mailbox = remote_mailbox
+
+        super(RemoteActorReference, self).__init__(**kwargs)
 
     def put(self, message, channel=None, remote=None):
         remote_name = self.remote_name
