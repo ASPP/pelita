@@ -52,7 +52,21 @@ class Request(Channel):
         """
         self._queue.put(message)
 
-    def get(self, block=True, timeout=3):
+    def get(self, timeout=3):
+        """ Returns the result of the Request (if it is there).
+        Else, it waits `timeout` seconds.
+
+        Parameters
+        ----------
+        timeout : float, optional
+            the time in seconds to wait.
+            default = None (no timeout)
+        """
+        if timeout == 0:
+            block = False
+        else:
+            block = True
+
         return self._queue.get(block, timeout)
 
     def get_or_none(self):
@@ -313,7 +327,7 @@ class ActorReference(BaseActorReference):
 
         Parameters
         ----------
-        join : float, optional
+        timeout : float, optional
             the time in seconds to wait.
             default = None (no timeout)
         """
