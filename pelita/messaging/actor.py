@@ -404,49 +404,62 @@ class DispatchingActor(Actor):
                     raise ValueError("Dispatcher name '%r' defined twice", name)
                 cls._dispatch_db[name] = member_name
 
+    def __reply_error(self, msg):
+        """ Called, when an error occurs. We either reply with the error message
+        or we log a warning.
+        """
+        if self.ref.channel:
+            self.ref.reply(msg)
+        else:
+            _logger.warning(msg)
+
+    def __get_method(self, sent_name):
+        local_name = self._dispatch_db.get(sent_name) or ""
+        return getattr(self, local_name, None)
+
     def _dispatch(self, message):
-        method = message.get("method")
-        params = message.get("params")
+        try:
+            method = message["method"]
+            params = message.get("params")
+        except (TypeError, AttributeError, KeyError):
+            # TypeError -> message must be indexable
+            # AttributeError -> message must have a ‘get’ method
+            # KeyError -> message must have a "method" key
+            return self.on_invalid(message)
 
-        def reply_error(msg):
-            if self.ref.channel:
-                self.ref.reply(msg)
-            else:
-                _logger.warning(msg)
+        if not isinstance(method, basestring):
+            return self.__reply_error("'method' must be a string.")
 
-        wants_doc = False
-        if method[0] == "?":
+        prefixes = ["?"]
+        method_prefix = ""
+
+        if method[0] in prefixes:
+            method_prefix = method[0]
             method = method[1:]
-            wants_doc = True
 
-        method_name = self._dispatch_db.get(method)
-        if not method_name:
+        local_method = self.__get_method(method)
+        if not local_method:
             self.on_unhandled(message)
             return
 
-        meth = getattr(self, method_name, None)
-        if not meth:
-            self.on_unhandled(message)
-            return
-
-        if wants_doc:
+        if method_prefix == "?":
             if self.ref.channel:
-                res = meth.__doc__
+                res = local_method.__doc__
                 self.ref.reply(res)
             else:
                 _logger.warning("Doc requested but no channel given.")
 
         try:
             if params is None:
-                res = meth(message)
+                res = local_method(message)
 
             elif isinstance(params, dict):
-                res = meth(message, **params)
+                res = local_method(message, **params)
 
             else:
-                res = meth(message, *params)
+                res = local_method(message, *params)
         except TypeError, e:
-            reply_error("Type Error: method '%r'\n%r" % (message.get("method"), e))
+            self.__reply_error("Type Error: method '%r'\n%r" % (message.get("method"), e))
             return
 
 # TODO: Need to consider, if we want to automatically reply the result
@@ -457,17 +470,19 @@ class DispatchingActor(Actor):
     def on_receive(self, message):
         self._dispatch(message)
 
+    def on_invalid(self, message):
+        """ Called when the method is not valid.
+
+        This method may be overridden to include other error handling mechanisms.
+        """
+        self.__reply_error("Invalid message for dispatch: '%r'" % message)
+
     def on_unhandled(self, message):
         """ Called when no method fits the message.
 
         This method may be overridden to include other error handling mechanisms.
         """
-        def reply_error(msg):
-            if self.ref.channel:
-                self.ref.reply(msg)
-            else:
-                _logger.warning(msg)
-        reply_error("Not found: method '%r'" % message.get("method"))
+        self.__reply_error("Not found: method '%r'" % message.get("method"))
 
 
 def actor_of(actor, name=None):

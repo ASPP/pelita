@@ -1,7 +1,7 @@
 import unittest
 import time
 
-from pelita.messaging import DispatchingActor, expose, Actor, actor_of, RemoteConnection, Exit
+from pelita.messaging import DispatchingActor, expose, Actor, actor_of, RemoteConnection, Exit, Request
 
 class Dispatcher(DispatchingActor):
     def __init__(self):
@@ -75,6 +75,19 @@ class TestDispatchingActor(unittest.TestCase):
 
         res = actor.query("fake_name")
         self.assertTrue(res.get().startswith("Not found")) # TODO: proper error handling
+
+        actor.stop()
+
+    def test_invalid_dispatch(self):
+        actor = actor_of(Dispatcher)
+        actor.start()
+
+        res = Request()
+        actor.put("No dict", res)
+        self.assertEqual(type(res.get()), str) # cant do better now
+
+        res = actor.query(1)
+        self.assertEqual(type(res.get()), str) # cant do better now
 
         actor.stop()
 
