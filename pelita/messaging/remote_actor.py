@@ -3,7 +3,7 @@
 import Queue
 import socket
 import weakref
-from threading import Lock
+from threading import Lock, RLock
 
 import logging
 _logger = logging.getLogger("pelita.mailbox")
@@ -140,6 +140,9 @@ class RemoteMailbox(object):
         self.inbox = RemoteInbox(self)
         self.outbox = RemoteOutbox(self)
 
+        # finally, add the connection to the remote database
+        remote.add_connection(self.connection, self)
+
     def create_proxy(self, sender):
         """ Creates a proxy which has a reference to this connection and
         an identifier of the sending actor.
@@ -173,37 +176,39 @@ class RemoteMailbox(object):
         self.inbox.stop()
         self.outbox.stop()
         self.connection.close()
+        self.remote.remove_connection(self.connection)
 
-class RemoteConnectionRegistry(object):
-    def __init__(self, *args, **kwargs):
-        self._db_lock = Lock()
+class RemoteConnection(object):
+    def __init__(self):
+        self.listener = None
+
+        self.exposed_actor_reg = {}
+
+        self._db_lock = RLock()
         self.connections = {}
 
     def add_connection(self, connection, mailbox):
         with self._db_lock:
-            _logger.debug("Adding connection")
+            _logger.debug("Adding connection %r for mailbox %r.", connection, mailbox)
             self.connections[connection] = mailbox
-            mailbox.start()
 
-    def remove_connection(self, message, connection):
+    def remove_connection(self, connection):
         with self._db_lock:
-            self.connections[connection].stop()
+            _logger.debug("Deleting connection %r.", connection)
             del self.connections[connection]
+            if not self.connections:
+                self.shutdown()
 
     def get_connections(self, message):
         with self._db_lock:
             return self.connections
 
     def shutdown(self):
-        for box in self.connections.values():
-            box.stop()
+        with self._db_lock:
+            for box in self.connections.values():
+                box.stop()
 
-class RemoteConnection(object):
-    def __init__(self):
-        self.remote_ref = RemoteConnectionRegistry()
-        self.listener = None
-
-        self.reg = {}
+        self.on_shutdown()
 
     def start_listener(self, host, port):
         self.listener = TcpThreadedListeningServer(host=host, port=port)
@@ -211,8 +216,7 @@ class RemoteConnection(object):
         def accepter(connection):
         # a new connection has been established
             mailbox = RemoteMailbox(connection, self)
-
-            self.remote_ref.add_connection(connection, mailbox)
+            mailbox.start()
 
         self.listener.on_accept = accepter
         self.listener.start()
@@ -236,10 +240,10 @@ class RemoteConnection(object):
         return remote_actor
 
     def register(self, name, actor_ref):
-        self.reg[name] = actor_ref.uuid
+        self.exposed_actor_reg[name] = actor_ref.uuid
 
     def get_actor(self, name, default=None):
-        uuid = self.reg.get(name)
+        uuid = self.exposed_actor_reg.get(name)
         if not uuid:
             return default
 
@@ -247,17 +251,22 @@ class RemoteConnection(object):
         return actor
 
     def start_all(self):
-        for uuid in self.reg.values():
+        for uuid in self.exposed_actor_reg.values():
             ref = actor_registry.get_by_uuid(uuid)
             ref.start()
 
     def stop(self):
-        for uuid in self.reg.values():
+        for uuid in self.exposed_actor_reg.values():
             ref = actor_registry.get_by_uuid(uuid)
             ref.stop()
         if self.listener:
             self.listener.stop()
-        self.remote_ref.shutdown()
+        self.shutdown()
+
+    def on_shutdown(self):
+        """ Can be overridden to inform other classes of a remote shutdown.
+        """
+        pass
 
 class RemoteActorReference(BaseActorReference):
     def __init__(self, remote_mailbox, remote_name, **kwargs):
