@@ -160,6 +160,10 @@ class TestActorFailure(unittest.TestCase):
 
         self.assertEqual(collectingActor3.is_alive, False)
 
+    def test_no_real_actor(self):
+        class NoActor(object): pass
+        self.assertRaises(ValueError, actor_of, NoActor)
+
 class MultiplyingActor(Actor):
     def on_receive(self, message):
         if message.get("method") == "mult":

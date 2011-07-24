@@ -495,7 +495,7 @@ def actor_of(actor, name=None):
     return actor_registry.register(actor, name)
 
 def _check_actor_correctness(actor):
-    methods = []
+    methods = ["ref", "put", "_running", "_thread", "_trap_exit", "_linked_actors"]
     return all(hasattr(actor, meth) for meth in methods)
 
 # the actor_registry should be unique,
@@ -508,13 +508,15 @@ class _ActorRegistry(object):
 
     def register(self, actor, name=None):
         with _registry_lock:
+            _orig_arg = actor
             if inspect.isclass(actor):
                 actor = actor()
 
             # We should check that our actor has all the methods, the ActorRef needs.
             # This ensures (only a little) that our actor thread does not fail at
             # runtime because it expects other methods.
-            assert _check_actor_correctness(actor), "Actor does not follow spec."
+            if not _check_actor_correctness(actor):
+                raise ValueError("Actor '%r' does not follow spec." % _orig_arg)
 
             proxy = ActorReference(actor)
             actor._ref = proxy
