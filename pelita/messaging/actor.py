@@ -451,13 +451,13 @@ class DispatchingActor(Actor):
 
         try:
             if params is None:
-                res = local_method(message)
+                local_method(message)
 
             elif isinstance(params, dict):
-                res = local_method(message, **params)
+                local_method(message, **params)
 
             else:
-                res = local_method(message, *params)
+                local_method(message, *params)
         except TypeError, e:
             self.__reply_error("Type Error: method '%r'\n%r" % (message.get("method"), e))
             return
