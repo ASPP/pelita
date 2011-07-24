@@ -36,7 +36,7 @@ class Ping(DispatchingActor):
         else:
             print "Ping: Stop."
             self.pong.notify("Stop", channel=self.ref)
-            self.ref.notify(StopProcessing)
+            self.ref.put(StopProcessing)
 
 class Pong(DispatchingActor):
     def on_start(self):
@@ -57,7 +57,7 @@ class Pong(DispatchingActor):
     @expose
     def Stop(self, message):
         print "Pong: Stop."
-        self.ref.notify(StopProcessing)
+        self.ref.put(StopProcessing)
 
 import logging
 #logging.basicConfig()
