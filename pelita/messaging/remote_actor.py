@@ -40,7 +40,11 @@ class RequestDB(object):
         from the database as well.
         """
         with self._db_lock:
-            id = self.create_id(str(getattr(request, "uuid")))
+            try:
+                id = self.create_id(str(request.uuid))
+            except AttributeError:
+                id = self.create_id()
+
             self._db[id] = request
             return id
 
