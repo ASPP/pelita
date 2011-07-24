@@ -62,6 +62,7 @@ actor.start()
 port = 50007
 
 remote_actor = RemoteConnection().actor_for("main-actor", "localhost", port)
+
 res = remote_actor.query("multiply", [1, 2, 3, 4])
 print res.get()
 

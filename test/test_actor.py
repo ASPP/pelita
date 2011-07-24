@@ -1,5 +1,6 @@
 import unittest
 import time
+import Queue
 
 from pelita.messaging import DispatchingActor, expose, Actor, actor_of, RemoteConnection, Exit, Request
 
@@ -184,11 +185,28 @@ class TestRemoteActor(unittest.TestCase):
         remote.register("main-actor", actor_of(MultiplyingActor))
         remote.start_all()
 
+        # port is dynamic
         port = remote.listener.socket.port
 
         client1 = RemoteConnection().actor_for("main-actor", "localhost", port)
         res = client1.query("mult", [1, 2, 3, 4])
         self.assertEqual(res.get(timeout=3), 24)
+
+        # check, that I can use another client
+        client2 = RemoteConnection().actor_for("main-actor", "localhost", port)
+        res = client2.query("mult", [4, 4, 4])
+        self.assertEqual(res.get(timeout=3), 64)
+
+        # check, that the first still works
+        res = client1.query("mult", [2, 2, 4])
+        self.assertEqual(res.get(timeout=3), 16)
+
+        # check a remote identifier which does not work
+        # sorry, no error propagation at the moment,
+        # need to use a timeout
+        client2 = RemoteConnection().actor_for("unknown-actor", "localhost", port)
+        res = client2.query("mult", [1, 4, 4])
+        self.assertRaises(Queue.Empty, res.get, timeout=1)
 
         remote.stop()
 
