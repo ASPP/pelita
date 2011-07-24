@@ -194,9 +194,6 @@ class Actor(BaseActor):
                 msg.get("priority", 0),
                 msg.get("remote"))
 
-    def forward(self, message):
-        self._inbox.put(message)
-
     def put(self, message, sender=None, remote=None):
         msg = {
             "message": message,
