@@ -46,7 +46,7 @@ class Request(Channel):
         self._queue = Queue.Queue(maxsize=1)
 
     def put(self, message, sender=None, remote=None):
-        """ Sets the result of the Request to `method`.
+        """ Sets the result of the Request to `message`.
 
         The other arguments will be discarded.
         """
@@ -69,10 +69,10 @@ class Request(Channel):
 
         return self._queue.get(block, timeout)
 
-    def get_or_none(self):
+    def get_or_none(self, timeout=0):
         """Returns the result or None, if the value is not available."""
         try:
-            return self._queue.get(False).result
+            return self._queue.get(timeout).result
         except Queue.Empty:
             return None
 
@@ -111,9 +111,23 @@ class BaseActor(SuspendableThread):
 
     @property
     def ref(self):
+        """ Returns the `ActorReference` of the current actor.
+
+        `ActorReference` provides the methods needed to interact
+        with the `Actor` instance.
+         - channel
+         - notify
+         - query
+         - link
+         - current_message
+        """
         return self._ref
 
     def _run(self):
+        """ Reads and processed the next element in the queue,
+        sets the `ActorReference` to the current values and
+        calls `self.on_receive`.
+        """
         try:
             message, sender, priority, remote = self.handle_inbox()
         except Queue.Empty:
@@ -121,7 +135,7 @@ class BaseActor(SuspendableThread):
 
         if isinstance(message, Exit):
             if not self._trap_exit:
-                self.exit_linked(message)
+                self._exit_linked(message)
                 _logger.info("Exiting because of %r", message)
                 raise CloseThread()
 
@@ -142,10 +156,12 @@ class BaseActor(SuspendableThread):
             self.ref._remote = None
         except Exception as e:
             exit_msg = Exit(self, e)
-            self.exit_linked(exit_msg)
+            self._exit_linked(exit_msg)
             raise
 
-    def exit_linked(self, exit_msg):
+    def _exit_linked(self, exit_msg):
+        """ If an exception occurred, tell every linked actor.
+        """
         while self._linked_actors:
             linked = self._linked_actors[0]
             self.ref.unlink(linked)
@@ -188,6 +204,8 @@ class Actor(BaseActor):
         super(Actor, self).__init__(**kwargs)
 
     def handle_inbox(self):
+        """ Reads the next item from the Queue or raises Queue.Empty
+        """
         msg = self._inbox.get(True, 3)
         return (msg.get("message"),
                 msg.get("channel"),
@@ -227,6 +245,8 @@ class BaseActorReference(Channel):
 
     @property
     def current_message(self):
+        """ The message which is currently processed by the `Actor`.
+        """
         return self._current_message
 
     @property
@@ -239,6 +259,8 @@ class BaseActorReference(Channel):
 
     @property
     def remote(self):
+        """ The remote connection over which the message was sent (if there is any).
+        """
         return self._remote
 
     def reply(self, value):
