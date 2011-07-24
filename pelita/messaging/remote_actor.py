@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""
+Remote actor setup and bookkeeping of remote requests.
+"""
+
 import Queue
 import socket
 import weakref
@@ -284,7 +288,12 @@ class RemoteActorReference(BaseActorReference):
         sender_info = repr(channel) # only used for debugging
 
         if channel:
+            # We’ve been given a channel to reply to (either an ActorReference
+            # or a Request). Store a reference to the channel and send an uuid
+            # over the network. This uuid can then be used by the remote
+            # actor to reply to this message.
             uuid = self._remote_mailbox.request_db.add_request(channel)
+
             self._remote_mailbox.outbox.put({"actor": remote_name,
                                              "sender": uuid,
                                              "message": message,

@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""
+General and local actor definitions.
+"""
+
+
 import Queue
 import logging
 import uuid
