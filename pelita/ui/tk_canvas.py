@@ -4,7 +4,8 @@ from Tkinter import *
 
 import cmath
 
-from pelita.universe import CTFUniverse
+from pelita.datamodel import create_CTFUniverse
+from pelita import datamodel
 from pelita.layout import Layout
 
 def col(*rgb):
@@ -151,10 +152,8 @@ class UiCanvas(object):
 
         self.registered_items = []
         self.mapping = {
-            "c": Harvester,
-            "o": Destroyer,
-            "#": Wall,
-            ".": Food
+            datamodel.Wall: Wall,
+            datamodel.Food: Food
         }
 
     def translate_x(self, x):
@@ -164,12 +163,17 @@ class UiCanvas(object):
         return self.offset_y + y * self.square_size[1]
 
     def draw_mesh(self, mesh):
-        for position, char in mesh.iteritems():
+        for position, items in mesh.iteritems():
             x, y = position
-            self.draw_item(char, x, y)
+            self.draw_items(items, x, y)
 
-    def draw_item(self, char, x, y):
-        item_class = self.mapping.get(char)
+    def draw_items(self, items, x, y):
+        item_class = None
+        for item in items:
+            for key in self.mapping:
+                if isinstance(item, key):
+                    item_class = self.mapping[key]
+
         if not item_class:
             return
 
@@ -255,10 +259,10 @@ class Animation(threading.Thread):
         return anim
 
 from pelita.messaging import Notification
-from pelita.messaging import DispatchingActor, dispatch, ActorProxy
+from pelita.messaging import DispatchingActor, expose, actor_of
 
 class CanvasActor(DispatchingActor):
-    @dispatch
+    @expose
     def go_to(self, message, direction):
         pos = complex(direction[0], - direction[1])
         arc = int(cmath.phase(pos) / cmath.pi * 180)
@@ -279,14 +283,15 @@ North = Notification("go_to", [(0, -1)])
 
 
 if __name__ == "__main__":
+
     test_layout = (
             """ ########
-                #c     #
+                #0     #
                 #  .   #
-                #    o #
+                #    1 #
                 ######## """)
 
-    mesh = CTFUniverse(Layout.strip_layout(test_layout), 0).mesh
+    mesh = create_CTFUniverse(Layout.strip_layout(test_layout), 2).maze
     canvas = UiCanvas(mesh.width, mesh.height, 60)
 
     mesh[3,3] = "."
@@ -304,7 +309,7 @@ if __name__ == "__main__":
     thread.setDaemon(True)
     #thread.start()
 
-    actor = CanvasActor()
+    actor = actor_of(CanvasActor)
     actor.start()
     actor.put(South)
     actor.put(East)
