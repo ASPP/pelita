@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from pelita.messaging.remote import TcpConnectingClient
-from pelita.messaging.mailbox import MailboxConnection
-
-from pelita.messaging import Actor, ActorProxy, DispatchingActor, dispatch
+from pelita.messaging import Actor, DispatchingActor, expose, actor_of, RemoteConnection
 
 import logging
 
 _logger = logging.getLogger("clientActor")
 _logger.setLevel(logging.DEBUG)
-FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s] %(message)s'
+
+import colorama
+colorama.init()
+
+FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s]' + colorama.Fore.MAGENTA + ' %(message)s' + colorama.Fore.RESET
 logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S")
 
 from pelita.messaging.utils import ThreadInfoLogger
@@ -32,47 +33,47 @@ def slow_series(start, number_of_elems):
     return acc
 
 class ClientActor(DispatchingActor):
-    @dispatch
+    @expose
     def init(self, message, *params):
         init(*params)
 
-    @dispatch
+    @expose
     def statechanged(self, message):
-        message.reply("NORTH")
+        self.ref.reply("NORTH")
 
-    @dispatch
+    @expose
     def calculate_pi_for(self, message, *params):
         res = calculate_pi_for(*params)
-        message.reply(res)
+        self.ref.reply(res)
 
-    @dispatch
+    @expose
     def slow_series(self, message, *params):
         res = slow_series(*params)
-        message.reply(res)
+        self.ref.reply(res)
 
-    @dispatch
+    @expose
     def random_int(self, message):
         import random
-        message.reply(random.randint(0, 10))
+        self.ref.reply(random.randint(0, 10))
 
-sock = TcpConnectingClient(host="", port=50007)
-conn = sock.handle_connect()
-
-actor = ClientActor()
+actor = actor_of(ClientActor)
 actor.start()
 
-remote = MailboxConnection(conn, actor)
-remote.start()
+port = 50007
 
-remote_actor = ActorProxy(remote)
-remote_actor.notify("hello", "Im there")
+remote_actor = RemoteConnection().actor_for("main-actor", "localhost", port)
+
+res = remote_actor.query("multiply", [1, 2, 3, 4])
+print res.get()
+
+remote_actor.notify("hello", [str(actor.uuid)])
 
 try:
-    while actor.thread.is_alive():
-        actor.thread.join(1)
+    while actor.is_alive:
+        actor.join(1)
+
 except KeyboardInterrupt:
     print "Interrupted"
     actor.stop()
-    remote.stop()
 
 

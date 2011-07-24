@@ -12,7 +12,9 @@ class CloseThread(Exception):
 class SuspendableThread(object):
     """Base class for a thread which may be suspended."""
     def __init__(self):
-        self._thread = _threading.Thread(target=self.run)
+        # get a (unique?) name for the thread
+        # we add the class name, so we know who started the thread
+        self._thread = _threading.Thread(target=self.run, name=_newname(self.__class__))
         self._running = False
 
         # Define a special event which can be flagged to wait.
@@ -22,7 +24,7 @@ class SuspendableThread(object):
     def run(self):
         """Executes the thread.
 
-        This needs only be overriden, if a special running behaviour is needed.
+        This needs only be overridden, if a special running behaviour is needed.
         In many cases, it is sufficient to override _run().
         """
         while self._running:
@@ -30,6 +32,9 @@ class SuspendableThread(object):
             try:
                 self._run()
             except CloseThread:
+                self.stop()
+            except Exception as e:
+                _logger.error("Unhandled exception %r in thread %r. Stopping.", e, self)
                 self.stop()
 
         _logger.debug("Ended thread %r", self)
@@ -96,4 +101,8 @@ class Counter(Value):
             self.value += 1
             return self.value
 
-
+# Helper to generate new thread names
+_counter = Counter(0)
+def _newname(cls, template="Thread-%s-%d"):
+    value = _counter.inc()
+    return template % (cls.__name__, value)

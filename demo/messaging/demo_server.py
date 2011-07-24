@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from pelita.messaging.remote import TcpThreadedListeningServer
 import logging
 
 import colorama
@@ -12,10 +11,7 @@ logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S")
 from pelita.messaging.utils.debug import ThreadInfoLogger
 ThreadInfoLogger(10).start()
 
-#from actors.actor import Actor
-
-from pelita.messaging import Actor, Notification, DispatchingActor, dispatch, ActorProxy
-from pelita.messaging.mailbox import MailboxConnection
+from pelita.messaging import Actor, Notification, DispatchingActor, expose, actor_of, RemoteConnection
 
 class ServerActor(DispatchingActor):
     def __init__(self):
@@ -28,49 +24,43 @@ class ServerActor(DispatchingActor):
         for conn, box in self.mailboxes.iteritems():
             box.stop()
 
-    @dispatch
-    def add_mailbox(self, message, conn):
-        # a new connection has been established
-        mailbox = MailboxConnection(conn, main_actor=self) # TODO or self._inbox?
-        self.mailboxes[conn] = mailbox
-        mailbox.start()
-
-    @dispatch(name="stop")
+    @expose(name="stop")
     def _stop(self, message=None):
         """Stops the actor."""
         self.stop()
 
-    def stop(self):
+    def on_stop(self):
         self.stop_mailboxes()
-        super(ServerActor, self).stop()
 
-    @dispatch
+    @expose
     def multiply(self, message, *args):
         """Multiplies the argument list."""
         res = reduce(lambda x,y: x*y, args)
         print "Calculated", res
-        return res
+        self.ref.reply(res)
 
-    @dispatch
-    def hello(self, message, *args):
-        self.players.append(message.mailbox)
-        message.mailbox.put(Notification("init", [0]))
+    @expose
+    def hello(self, message, actor_uuid):
 
-    @dispatch(name="players")
+        proxy = self.ref.remote.create_proxy(actor_uuid)
+        self.players.append(proxy)
+
+        proxy.notify("init", [0])
+
+    @expose(name="players")
     def _players(self, message, *args):
-        message.reply(list(self.players))
+        self.ref.reply(list(self.players))
 
-
-    @dispatch
+    @expose
     def calc(self, message, num_clients=1, iterations=10000):
         if len(list(self.players)) < num_clients:
-            message.reply_error("Not enough clients connected")
+            self.ref.reply("Not enough clients connected")
             return
 
         answers = []
 
         for ac_num in range(num_clients):
-            player = ActorProxy(self.players[ac_num])
+            player = self.players[ac_num]
 
             start_val = iterations * ac_num
             stop_val = iterations * (ac_num + 1) - 1
@@ -87,44 +77,34 @@ class ServerActor(DispatchingActor):
 
         res = 0
         for answer in answers:
-            res += answer.get().result
-        message.reply(res)
+            res += answer.get()
+        self.ref.reply(res)
 
-    @dispatch
+    @expose
     def minigame(self, message):
         """Demos a small game."""
         if len(self.players) != 2:
-            message.reply_error("Need two players.")
+            self.ref.reply("Need two players.")
             return
 
         reqs = []
 
         for player in self.players:
-            player = ActorProxy(player)
             reqs.append( player.query("random_int", []) )
 
         res = 0
         for answer in reqs:
-            res += answer.get().result
+            res += answer.get()
 
         if res % 2 != 0:
-            message.reply("Player 1 wins")
+            self.ref.reply("Player 1 wins")
         else:
-            message.reply("Player 2 wins")
+            self.ref.reply("Player 2 wins")
 
-
-
-actor = ServerActor()
-actor.start()
-
-p_actor = ActorProxy(actor)
-
-listener = TcpThreadedListeningServer(host="", port=50007)
-def accepter(connection):
-    p_actor.notify("add_mailbox", [connection])
-listener.on_accept = accepter
-listener.start()
-
+remote = RemoteConnection().start_listener("localhost", 50007)
+actor_ref = actor_of(ServerActor)
+remote.register("main-actor", actor_ref)
+remote.start_all()
 
 #incoming_bundler = IncomingConnectionsActor(incoming_connections, inbox)
 #incoming_bundler.start()
@@ -158,24 +138,24 @@ try:
 
         try:
             if len(params):
-                req = p_actor.query(method, params).get()
+                req = actor_ref.query(method, params).get()
             else:
-                req = p_actor.query(method).get()
+                req = actor_ref.query(method).get()
         except TypeError:
             print "Need to get list"
             continue
 
-        try:
-            print req.result
-        except AttributeError:
-            print req.error
+#        try:
+        print req
+#        except AttributeError:
+#            print req.error
 
 except (KeyboardInterrupt, EndSession):
     print "Interrupted"
 
-    req =  p_actor.query("stop")
+    req =  actor_ref.stop()
 #    actor.stop()
-    listener.stop()
+    remote.stop()
     import sys
     sys.exit()
 

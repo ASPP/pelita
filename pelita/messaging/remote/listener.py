@@ -16,7 +16,7 @@ class TcpListeningSocket(TcpSocket):
 
         super(TcpListeningSocket, self).__init__(host, port)
 
-        self.socket.bind( (self.host, self.port) )
+        self.socket.bind( (self._host, self._port) )
         self.socket.listen(1)
 
     def handle_accept(self):
