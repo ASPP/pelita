@@ -84,7 +84,7 @@ class ServerActor(DispatchingActor):
     def minigame(self, message):
         """Demos a small game."""
         if len(self.players) != 2:
-            self.ref.reply_error("Need two players.")
+            self.ref.reply("Need two players.")
             return
 
         reqs = []
