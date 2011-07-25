@@ -1,16 +1,15 @@
 import subprocess
 import sys
 import os
+import pelita
 
-def __get_command_output(command_string, env):
+def __get_command_output(command_string, cwd=None):
     """ Execute arbitrary commands.
 
     Parameters
     ----------
     command_list : strings
         the command and its arguments
-    env: mapping
-        mapping ov environment variables to values
 
     Returns
     -------
@@ -20,7 +19,7 @@ def __get_command_output(command_string, env):
 
     command_list = command_string.split(' ')
     p = subprocess.Popen(command_list, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE, env=env)
+            stderr=subprocess.PIPE, cwd=cwd)
     p.wait()
     return p.returncode, p.stdout.read(), p.stderr.read()
 
@@ -29,7 +28,7 @@ class __GitException(Exception):
 
 def __get_git_output(command, directory):
     ret_code, output, error = __get_command_output('git %s' % command,
-            {"GIT_WORK_TREE" : directory})
+            cwd=directory)
     if ret_code != 0:
         raise __GitException(error)
     else:
@@ -50,5 +49,6 @@ def __git_describe(directory):
     return __get_git_output('describe', directory)
 
 def version():
-    if __is_git_repo(os.getcwd()):
-        return __git_describe(os.getcwd())
+    pelita_dir = os.path.dirname(pelita.__file__)
+    if __is_git_repo(pelita_dir):
+        return __git_describe(pelita_dir)
