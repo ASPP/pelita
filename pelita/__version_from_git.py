@@ -34,9 +34,6 @@ def __get_git_output(command, directory):
     else:
         return output.strip()
 
-def __get_head_sha(directory):
-    return __get_git_output('rev-parse HEAD', directory)
-
 def __is_git_repo(directory):
     try:
         __get_git_output('rev-parse', directory)
