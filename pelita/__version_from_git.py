@@ -11,6 +11,9 @@ def __get_command_output(command_string, cwd=None):
     command_list : strings
         the command and its arguments
 
+    cwd : string
+        the directory where the command should be executed
+
     Returns
     -------
     output : string
