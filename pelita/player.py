@@ -176,6 +176,21 @@ class RandomPlayer(AbstractPlayer):
     def get_move(self, universe):
         return random.choice(self.legal_moves.keys())
 
+class TestPlayer(AbstractPlayer):
+    """ A Player with predetermined set of moves.
+
+    Parameters
+    ----------
+        moves : list of moves
+            the moves to make in reverse (stack) order
+
+    """
+
+    def __init__(self, moves):
+        self.moves = moves
+
+    def get_move(self, universe):
+        return self.moves.pop()
 
 class NQRandomPlayer(AbstractPlayer):
     """ Not-Quite-RandomPlayer that will move randomly but not stop or reverse. """

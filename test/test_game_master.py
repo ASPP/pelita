@@ -70,12 +70,6 @@ class TestGame(unittest.TestCase):
                 universe.teams[0]._score_point()
             return universe
 
-        class TestPlayer(AbstractPlayer):
-            def __init__(self, moves):
-                self.moves = moves
-
-            def get_move(self, universe):
-                return self.moves.pop()
 
         gm = GameMaster(test_start, number_bots, 200)
         gm.register_player(TestPlayer([east, east, east, south, stop, east]))
