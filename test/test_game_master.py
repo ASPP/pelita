@@ -81,6 +81,8 @@ class TestGame(unittest.TestCase):
         gm.register_player(TestPlayer([east, east, east, south, stop, east]))
         gm.register_player(TestPlayer([west, west, west, stop, west, west]))
 
+        gm.register_viewer(DevNullViewer())
+
         gm.play_round(0)
         test_first_round = (
             """ ######
