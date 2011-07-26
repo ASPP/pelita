@@ -2,6 +2,7 @@
 
 from Tkinter import *
 
+import Queue
 import cmath
 
 from pelita.datamodel import create_CTFUniverse
@@ -219,8 +220,37 @@ class UiCanvas(Canvas):
         item.move(self.canvas, x * self.mesh_graph.rect_width, y * self.mesh_graph.rect_height)
 
 class TkApplication(Frame):
-    def createWidgets(self, graph):
+    def __init__(self, graph, queue, master=None):
+        Frame.__init__(self, master) # old style
+        self.pack()
+        self.create_widgets(graph)
+        self.queue = queue
+
+    def create_widgets(self, graph):
         self.canvas = UiCanvas(self, graph)
+
+    def update_application(self):
+        try:
+            event = self.queue.get(False)
+            print "got", event
+            self.react(event)
+            self.after(3000, self.update_application)
+        except Queue.Empty:
+            self.quit()
+
+    def react(self, event):
+        direction = event
+        pos = complex(direction[0], - direction[1])
+        arc = int(cmath.phase(pos) / cmath.pi * 180)
+
+        anim_seq = Animation.sequence(
+            Animation.rotate_to(canvas, canvas.registered_items[8], arc),
+            Animation.move(canvas, canvas.registered_items[8], direction, step_len=0.1),
+        )
+        anim_seq.start()
+
+        print direction
+
 
     def on_quit(self):
         """ override for things which must be done when we exit.
@@ -231,20 +261,11 @@ class TkApplication(Frame):
         self.on_quit()
         Frame.quit()
 
-    def __init__(self, graph, master=None):
-        Frame.__init__(self, master) # old style
-        self.pack()
-        self.createWidgets(graph)
-
 import threading
 import time
 
-class Animation(threading.Thread):
+class Animation(object):
     def __init__(self, delay, step_len=0.1):
-        threading.Thread.__init__(self)
-        # because we’re no more but a floating ghost, we become daemonic
-        # so python does not wait for us when it wants to exit
-        self.setDaemon(True)
         self.delay = delay
         self.step_len = 0.1
 
@@ -252,7 +273,7 @@ class Animation(threading.Thread):
     def num_steps(self):
         return int(self.delay / self.step_len)
 
-    def run(self):
+    def start(self):
         for step in range(self.num_steps):
             time.sleep(self.step_len)
             self.step()
@@ -298,31 +319,14 @@ class Animation(threading.Thread):
 
     @classmethod
     def sequence(cls, *anims):
-        def seq():
-            for anim in anims:
-                anim.start()
-                anim.join()
-        anim = threading.Thread(target=seq)
-        anim.setDaemon(True)
-        return anim
+        class dummy(object):
+            def start(self):
+                for anim in anims:
+                    anim.start()
+        return dummy()
 
 from pelita.messaging import Notification
 from pelita.messaging import DispatchingActor, expose, actor_of
-
-class CanvasActor(DispatchingActor):
-    @expose
-    def go_to(self, message, direction):
-        pos = complex(direction[0], - direction[1])
-        arc = int(cmath.phase(pos) / cmath.pi * 180)
-
-        anim_seq = Animation.sequence(
-            Animation.rotate_to(canvas, canvas.registered_items[9], arc),
-            Animation.move(canvas, canvas.registered_items[9], direction, step_len=0.1),
-        )
-        anim_seq.start()
-        anim_seq.join()
-
-        print direction
 
 East = Notification("go_to", [(1, 0)]).dict
 West = Notification("go_to", [(-1, 0)]).dict
@@ -346,25 +350,19 @@ if __name__ == "__main__":
     scale = 60
     mesh_graph = MeshGraph(mesh.height, mesh.width, mesh.height * scale, mesh.width * scale)
 
-    app = TkApplication(mesh_graph)
+    event_queue = Queue.Queue()
+    app = TkApplication(mesh_graph, event_queue)
+
+    class CanvasActor(DispatchingActor):
+        @expose
+        def go_to(self, message, direction):
+            event_queue.put(direction)
+
 
     mesh[3,3] = "."
 
     canvas = app.canvas
-
     canvas.draw_mesh(mesh)
-
-
-    def move():
-        time.sleep(3)
-        canvas.move(canvas.registered_items[4], 2, 1)
-        canvas.move(canvas.registered_items[9], 2, 1)
-        canvas.registered_items[9].rotate(30)
-        canvas.registered_items[9].redraw(canvas.canvas)
-
-    thread = threading.Thread(target=move)
-    thread.setDaemon(True)
-    #thread.start()
 
     actor = actor_of(CanvasActor)
     actor.start()
@@ -382,4 +380,5 @@ if __name__ == "__main__":
     #    )
     #anim_seq.start()
 
+    app.after_idle(app.update_application)
     app.mainloop()
