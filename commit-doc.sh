@@ -32,5 +32,6 @@ cp -r $tmp_dir/* .
 # assuming eevrything went well, add all files in root dir
 # and create a commit
 git add .
-git commit -m "Sphinx generated doc from: $head_sha"
+git commit -m "DOC: Sphinx generated doc from: $head_sha"
+echo "Ready to push documentation to github!"
 
