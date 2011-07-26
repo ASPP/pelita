@@ -44,6 +44,427 @@
   <div class="section" id="introduction-to-pelita">
 <h1>Introduction to Pelita<a class="headerlink" href="#introduction-to-pelita" title="Permalink to this headline">¶</a></h1>
 <p>Autonomous agent environment in Python</p>
+<div class="section" id="glossary">
+<h2>Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Universe</span></tt>:</th><td class="field-body">The game state.</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Bot</span></tt>:</th><td class="field-body">The datastructure used to store the agent.</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Team</span></tt>:</th><td class="field-body">In capture-the-flag each <tt class="docutils literal"><span class="pre">Bot</span></tt> belongs to a <tt class="docutils literal"><span class="pre">Team</span></tt>.</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Player</span></tt>:</th><td class="field-body">Your implementation of the <em>intelligence</em> for a <tt class="docutils literal"><span class="pre">Bot</span></tt>.</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Mesh</span></tt>:</th><td class="field-body">A two-dimensional container mapping a position tuple to an object.</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Maze</span></tt>:</th><td class="field-body">Datastructre that stores the maze.</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">MazeComponent</span></tt>:</th><td class="field-body">Objects stored in the <tt class="docutils literal"><span class="pre">Maze</span></tt>.</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">GameMaster</span></tt>:</th><td class="field-body">Controller object that asks players for moves and updates the <tt class="docutils literal"><span class="pre">Universe</span></tt>.</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Move</span></tt>:</th><td class="field-body">A tuple that indicates where a <tt class="docutils literal"><span class="pre">Bot</span></tt> should move.</td>
+</tr>
+</tbody>
+</table>
+<p>The connections are as follows: A <tt class="docutils literal"><span class="pre">Universe</span></tt> contains a list of <tt class="docutils literal"><span class="pre">Bot</span></tt>
+objects, a list of <tt class="docutils literal"><span class="pre">Team</span></tt> objects and a <tt class="docutils literal"><span class="pre">Maze</span></tt> object. The <tt class="docutils literal"><span class="pre">Maze</span></tt> object
+is implemented with a <tt class="docutils literal"><span class="pre">Mesh</span></tt> where a list of <tt class="docutils literal"><span class="pre">MazeComponent</span></tt> objects such as
+<tt class="docutils literal"><span class="pre">Free</span></tt>, <tt class="docutils literal"><span class="pre">Wall</span></tt> and <tt class="docutils literal"><span class="pre">Food</span></tt> are store at each position.  A <tt class="docutils literal"><span class="pre">Player</span></tt>
+implements/controls the logic required to navigate a <tt class="docutils literal"><span class="pre">Bot</span></tt>. The <tt class="docutils literal"><span class="pre">GameMaster</span></tt>
+will forward the current state of the <tt class="docutils literal"><span class="pre">Universe</span></tt> to the <tt class="docutils literal"><span class="pre">Player</span></tt> and request
+a <tt class="docutils literal"><span class="pre">Move</span></tt> in return. Upon receipt of the next <tt class="docutils literal"><span class="pre">Move</span></tt> the <tt class="docutils literal"><span class="pre">GameMaster</span></tt> will
+update the <tt class="docutils literal"><span class="pre">Universe</span></tt>.</p>
+</div>
+<div class="section" id="writing-a-player">
+<h2>Writing a Player<a class="headerlink" href="#writing-a-player" title="Permalink to this headline">¶</a></h2>
+<p>In order to write a Player you should subclass from
+<tt class="docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></tt>. This is an abstract class which provides several
+convenience methods to interrogate the Universe including the Bot instance that this
+player controls but lacks the functions to actually control the Bot. In order to
+make your Player do something useful you must implement at least the method
+<tt class="docutils literal"><span class="pre">get_move(self,</span> <span class="pre">universe)</span></tt> to return a move. This can be one of:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">north</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">south</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">west</span>  <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">east</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">stop</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The moves are provided by the <tt class="docutils literal"><span class="pre">datamodel</span></tt>, import them with:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pelita.datamodel</span> <span class="kn">import</span> <span class="n">north</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">west</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">stop</span>
+</pre></div>
+</div>
+<p>An example of such a player is the trivial <tt class="docutils literal"><span class="pre">StoppingPlayer</span></tt> which simply returns
+<tt class="docutils literal"><span class="pre">stop</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">StoppingPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A Player that just stands still. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">stop</span>
+</pre></div>
+</div>
+<p>A slightly more useful example is the <tt class="docutils literal"><span class="pre">RandomPlayer</span></tt> which always selects a move
+at random from the possible moves:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">RandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A player that makes moves at random. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">legal_moves</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Here we can see the first convenience method: <tt class="docutils literal"><span class="pre">legal_moves</span></tt> which returns a
+dictionary mapping move tuples to position tuples. The random player simply
+selects a move at random from the keys (moves) of this dictionary and then moves
+there. <tt class="docutils literal"><span class="pre">legal_moves</span></tt> always includes stop.</p>
+<p>The next example if the not-quite random Player <tt class="docutils literal"><span class="pre">NQRandomPlayer</span></tt>. This ones
+does not move back to the position where it was on its last turn and does not
+ever stop in place:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">NQRandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Not-Quite-RandomPlayer that will move randomly but not stop or reverse. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+        <span class="n">legal_moves</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_moves</span>
+        <span class="c"># now remove the move that would lead to the previous_position</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_moves</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_pos</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">del</span> <span class="n">legal_moves</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="c"># Remove stop</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">legal_moves</span><span class="p">[</span><span class="n">stop</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="c"># and select a move at random</span>
+        <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">legal_moves</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Here we can see the use of another convenience method: <tt class="docutils literal"><span class="pre">previous_pos</span></tt> which
+gives the position the Bot had in the previous round. Lets take a closer look at
+how this is implemented:</p>
+<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">previous_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The previous position of the bot.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        previous_pos : tuple of (int, int)</span>
+<span class="sd">            the previous position (x, y) of this bot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">]</span><span class="o">.</span><span class="n">current_pos</span>
+</pre></div>
+</div>
+<p>Importantly we see that the <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt> automatically maintains a stack of
+previous states of the Universe called <tt class="docutils literal"><span class="pre">universe_states</span></tt>. Here we look at the
+previous state and obtain the bots positions. The Universe maintains a list of
+Bots <tt class="docutils literal"><span class="pre">bots</span></tt> and each Player has an attribute <tt class="docutils literal"><span class="pre">_index</span></tt> which can be used to
+obtain the respective Bot instance controlled by the Player. Lastly we simply
+look at the <tt class="docutils literal"><span class="pre">current_pos</span></tt> property of the Bot to obtain the previous position.</p>
+<p>A somewhat more elaborate example is the <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt> which uses breadth first
+search to find food:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">BFSPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This player uses breadth first search to always go to the closest food.</span>
+
+<span class="sd">    This player uses an adjacency list [1] to store the topology of the</span>
+<span class="sd">    maze. It will then do a breadth first search [2] to search for the</span>
+<span class="sd">    closest food. When found, it will follow the determined path until it</span>
+<span class="sd">    reaches the food. This continues until all food has been eaten or the</span>
+<span class="sd">    enemy wins.</span>
+
+<span class="sd">    [1] http://en.wikipedia.org/wiki/Adjacency_list</span>
+<span class="sd">    [2] http://en.wikipedia.org/wiki/Breadth-first_search</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># Before the game starts we initialise our adjacency list.</span>
+        <span class="c"># to begin with, we get the list of all free positions</span>
+        <span class="n">free_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">maze</span><span class="o">.</span><span class="n">pos_of</span><span class="p">(</span><span class="n">Free</span><span class="p">)</span>
+        <span class="c"># Here we use a generator on a dictionary to create adjacency list.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">get_legal_moves</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">free_pos</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bfs_food</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">bfs_food</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Breadth first search for food.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        path : a lits of tuples (int, int)</span>
+<span class="sd">            The positions (x, y) in the path furthest to closest. The first</span>
+<span class="sd">            element is the final destination.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Initialise `to_visit` of type `deque` with current position.</span>
+        <span class="c"># We use a `deque` since we need to extend to the right</span>
+        <span class="c"># but pop from the left, i.e. its a fifo queue.</span>
+        <span class="n">to_visit</span> <span class="o">=</span> <span class="n">deque</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">])</span>
+        <span class="c"># `seen` is a list of nodes we have seen already</span>
+        <span class="c"># We append to right and later pop from right, so a list will do.</span>
+        <span class="c"># Order is important for the back-track later on, so don&#39;t use a set.</span>
+        <span class="n">seen</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">to_visit</span><span class="p">:</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="n">to_visit</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">current</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                <span class="c"># This node has been seen, ignore it.</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="n">current</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enemy_food</span><span class="p">:</span>
+                <span class="c"># We found some food, break and back-track path.</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># Otherwise keep going, i.e. add adjacent nodes to seen list.</span>
+                <span class="n">seen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+                <span class="n">to_visit</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="p">[</span><span class="n">current</span><span class="p">])</span>
+        <span class="c"># Now back-track using seen to determine how we got here.</span>
+        <span class="c"># Initialise the path with current node, i.e. position of food.</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">current</span><span class="p">]</span>
+        <span class="k">while</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="c"># Pop the latest node in seen</span>
+            <span class="n">next_</span> <span class="o">=</span> <span class="n">seen</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="c"># If thats adjacent to the current node</span>
+            <span class="c"># its in the path</span>
+            <span class="k">if</span> <span class="n">next_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="p">[</span><span class="n">current</span><span class="p">]:</span>
+                <span class="c"># So add it to the path</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">next_</span><span class="p">)</span>
+                <span class="c"># And continue back-tracking from there</span>
+                <span class="n">current</span> <span class="o">=</span> <span class="n">next_</span>
+        <span class="c"># The last element is the current position, we don&#39;t need that in our</span>
+        <span class="c"># path, so don&#39;t include it.</span>
+        <span class="k">return</span> <span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">pos_diff</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
+        <span class="c"># TODO assert for adjacency</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">pos2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">pos1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">pos1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bfs_food</span><span class="p">()</span>
+        <span class="n">new_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="n">new_pos</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here we can already see some more advanced concepts. The first thing to note is
+that any player can override the method <tt class="docutils literal"><span class="pre">set_initial(self)</span></tt> where <tt class="docutils literal"><span class="pre">current_uni</span></tt>
+is the starting state of the game. All food is still present and all Bots are at
+their initial position. In this method we initialise the adjacency list
+representation of the maze. Lets look as the implementation of <tt class="docutils literal"><span class="pre">current_uni</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">current_uni</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The current Universe.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        universe : Universe</span>
+<span class="sd">            the current Universe</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>As we can see its simply the top element on the <tt class="docutils literal"><span class="pre">universe_states</span></tt> stack
+mentioned earlier. In order to obtain the positions of all <tt class="docutils literal"><span class="pre">Free</span></tt> the Universe
+provides a method <tt class="docutils literal"><span class="pre">pos_of(maze_component)</span></tt> which will return the positions of
+all <tt class="docutils literal"><span class="pre">MazeComponent</span></tt> type objects. We then use the method
+<tt class="docutils literal"><span class="pre">get_legal_moves(self,pos)</span></tt> for each of the free positions to build the
+adjacency list.</p>
+<p>The breadth-first search is implemented in the method <tt class="docutils literal"><span class="pre">bfs_food</span></tt> which returns a
+path to closest food element. In this method we see some more convenience, for
+example <tt class="docutils literal"><span class="pre">enemy_food</span></tt> which returns a list of all food that we can eat. One of
+the convenience properties used here is <tt class="docutils literal"><span class="pre">current_pos</span></tt> which returns the
+current position. Let have a look at this:</p>
+<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">current_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The current position of this bot.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        current_pos : tuple of (int, int)</span>
+<span class="sd">            the current position (x, y) of this bot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">current_pos</span>
+</pre></div>
+</div>
+<p>We see that this makes use of the <tt class="docutils literal"><span class="pre">me</span></tt> property which is defined as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">me</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The Bot object this Player controls.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        me : Bot</span>
+<span class="sd">            the bot controlled by this player</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>As you can see <tt class="docutils literal"><span class="pre">me</span></tt> will simply obtain the Bot instance controlled by this
+player from the current universe using the hidden <tt class="docutils literal"><span class="pre">_index</span></tt> attribute of the
+Player. In practice you should be able to avoid having to use the
+<tt class="docutils literal"><span class="pre">_index</span></tt> directly but its good to know how this is implemented in case you
+wish to do something exotic.</p>
+<p>All example Players can be found in the module <tt class="docutils literal"><span class="pre">pelita.player</span></tt>.</p>
+<p>Below is the complete code for the <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt> which shows you all of the
+convenience methods/properties and also some of the implementation details:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">AbstractPlayer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Base class for all user implemented Players. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_set_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Called by the GameMaster to set this Players index.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        index : int</span>
+<span class="sd">            this players index</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">index</span>
+
+    <span class="k">def</span> <span class="nf">_set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Called by the GameMaster on initialisation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        universe : Universe</span>
+<span class="sd">            the initial state of the universe</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">universe</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_initial</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Subclasses can override this if desired. &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Called by the GameMaster to obtain next move.</span>
+
+<span class="sd">        This will add the universe to the list of universe_states and then call</span>
+<span class="sd">        `self.get_move()`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        universe : Universe</span>
+<span class="sd">            the universe in its current state.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">universe</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_move</span><span class="p">(</span><span class="n">universe</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Subclasses _must_ override this. &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s">&quot;You must override the &#39;get_move&#39; method in your player&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">current_uni</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The current Universe.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        universe : Universe</span>
+<span class="sd">            the current Universe</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">me</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The Bot object this Player controls.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        me : Bot</span>
+<span class="sd">            the bot controlled by this player</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">team_bots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; A list of Bots that are on this players team.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        team_bots : list of Bot objects</span>
+<span class="sd">            the team mates</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">this_team</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">]</span><span class="o">.</span><span class="n">bots</span><span class="p">]</span>
+        <span class="n">this_team</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">this_team</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">enemy_food</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Food owned by the enemy which can be eaten by this players bot.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        enemy_food : list of position tuples (int, int)</span>
+<span class="sd">            The positions (x, y) of edible food</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">enemy_food</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">team_index</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">enemy_bots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; A list of enemy Bots.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        enemy_bots : list of Bot objects</span>
+<span class="sd">            all Bots on all enemy teams</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">enemy_bots</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">team_index</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">current_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The current position of this bot.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        current_pos : tuple of (int, int)</span>
+<span class="sd">            the current position (x, y) of this bot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">current_pos</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">previous_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The previous position of the bot.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        previous_pos : tuple of (int, int)</span>
+<span class="sd">            the previous position (x, y) of this bot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">]</span><span class="o">.</span><span class="n">current_pos</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">initial_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The initial_pos of this bot.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        initial_pos : tuple of (int, int)</span>
+<span class="sd">            the initial position (x, y) of this bot</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">initial_pos</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">legal_moves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The currently possible moves, and where they lead.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        legal_moves : dict mapping moves to positions</span>
+<span class="sd">            the currently legal moves</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">get_legal_moves</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="git-repository">
 <h2>Git-Repository<a class="headerlink" href="#git-repository" title="Permalink to this headline">¶</a></h2>
 <p>The official Git-Repository is hosted at Github:
@@ -63,6 +484,8 @@
             <h3><a href="index.html">Table Of Contents</a></h3>
             <ul>
 <li><a class="reference external" href="#">Introduction to Pelita</a><ul>
+<li><a class="reference external" href="#glossary">Glossary</a></li>
+<li><a class="reference external" href="#writing-a-player">Writing a Player</a></li>
 <li><a class="reference external" href="#git-repository">Git-Repository</a></li>
 </ul>
 </li>
