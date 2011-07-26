@@ -16,8 +16,16 @@ git checkout gh-pages
 tmp_dir=$( mktemp -dt pelita.gh-pages.XXXXXXXXXX)
 echo $tmp_dir
 cp -r doc/build/html/* $tmp_dir
+rm -rf doc
 
 # clean the root dir and copy doc files back
+# but abort if there are untracked files present
+if git status --porcelain | grep '??' &> /dev/null ; then
+    echo "There are unttarcked files present, aborting!"
+    git status
+    git checkout -
+    exit 1
+fi
 git clean -dfx
 cp -r $tmp_dir/* .
 
