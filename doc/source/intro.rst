@@ -34,13 +34,13 @@ Glossary
 :``Move``:
     A tuple that indicates where a ``Bot`` should move.
 
-The conections are as follows: A ``Universe`` contains a list of ``Bot``
+The connections are as follows: A ``Universe`` contains a list of ``Bot``
 objects, a list of ``Team`` objects and a ``Maze`` object. The ``Maze`` object
 is implemented with a ``Mesh`` where a list of ``MazeComponent`` objects such as
 ``Free``, ``Wall`` and ``Food`` are store at each position.  A ``Player``
 implements/controls the logic required to navigate a ``Bot``. The ``GameMaster``
 will forward the current state of the ``Universe`` to the ``Player`` and request
-a ``Move`` in return. Upon reciet of the next ``Move`` the ``GameMaster`` will
+a ``Move`` in return. Upon receipt of the next ``Move`` the ``GameMaster`` will
 update the ``Universe``.
 
 Writing a Player
@@ -73,7 +73,7 @@ at random from the possible moves:
    :pyobject: RandomPlayer
 
 Here we can see the first convenience method: ``legal_moves`` which returns a
-dictionary mapping move tuples to position tuples. The randome player simply
+dictionary mapping move tuples to position tuples. The random player simply
 selects a move at random from the keys (moves) of this dictionary and then moves
 there. ``legal_moves`` always includes stop.
 
@@ -96,7 +96,7 @@ Importantly we see that the ``AbstractPlayer`` automatically maintains a stack o
 previous states of the Universe called ``universe_states``. Here we look at the
 previous state and obtain the bots positions. The Universe maintains a list of
 Bots ``bots`` and each Player has an attribute ``_index`` which can be used to
-obatin the respective Bot instace controlled by the Player. Lastly we simply
+obtain the respective Bot instance controlled by the Player. Lastly we simply
 look at the ``current_pos`` property of the Bot to obtain the previous position.
 
 A somewhat more elaborate example is the ``BFSPlayer`` which uses breadth first
