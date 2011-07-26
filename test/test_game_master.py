@@ -23,7 +23,7 @@ class TestGameMaster(unittest.TestCase):
             pass
 
         self.assertRaises(TypeError, game_master.register_viewer, BrokenViewer())
-        self.assertRaises(TypeError, game_master.register_player, 0, BrokenPlayer())
+        self.assertRaises(TypeError, game_master.register_player, BrokenPlayer())
         self.assertRaises(IndexError, game_master.play)
 
 class TestAbstracts(unittest.TestCase):
