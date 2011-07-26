@@ -14,15 +14,53 @@ def col(*rgb):
 def rotate(arc, rotation):
     return (arc + rotation) % 360
 
+class MeshGraph(object):
+    """ A `MeshGraph` is a structure of `num_x` * `num_y` rectangles,
+    covering an area of `height` * `width`.
+    """
+    def __init__(self, num_x, num_y, height, width):
+        self.num_x = num_x
+        self.num_y = num_y
+        self.height = height
+        self.width = width
+
+        self.rect_height = float(height) / num_x
+        self.rect_width = float(width) / num_y
+
+        self.half_scale_x = self.rect_height / 2.0
+        self.half_scale_y = self.rect_width / 2.0
+
+    def mesh_to_real(self, mesh, coords):
+        mesh_x, mesh_y = mesh
+        coords_x, coords_y = coords
+
+        real_x = self.mesh_to_real_x(mesh_x, coords_x)
+        real_y = self.mesh_to_real_y(mesh_y, coords_y)
+        return (real_x, real_y)
+
+    def mesh_to_real_x(self, mesh_x, coords_x):
+        # coords are between -1 and +1: shift on [0, 1]
+        trafo_x = (coords_x + 1.0) / 2.0
+
+        real_x = self.rect_height * (mesh_x + trafo_x)
+        return real_x
+
+    def mesh_to_real_y(self, mesh_y, coords_y):
+        # coords are between -1 and +1: shift on [0, 1]
+        trafo_y = (coords_y + 1.0) / 2.0
+
+        real_y = self.rect_width * (mesh_y + trafo_y)
+        return real_y
+
 class TkSprite(object):
-    def __init__(self, scale):
+    def __init__(self, mesh):
         self.x = 0
         self.y = 0
         self.height = 1
         self.width = 1
         self.is_hidden = True
 
-        self.scale = scale
+        self.mesh = mesh
 
     @property
     def position(self):
@@ -45,8 +83,8 @@ class TkSprite(object):
         raise NotImplementedError
 
     def box(self, factor=1.0):
-        return ((self.x) - self.width * factor * self.scale, (self.y) - self.height * factor * self.scale,
-                (self.x) + self.width * factor * self.scale, (self.y) + self.height * factor * self.scale)
+        return ((self.x) - self.width * factor * self.mesh.half_scale_x, (self.y) - self.height * factor * self.mesh.half_scale_y,
+                (self.x) + self.width * factor * self.mesh.half_scale_x, (self.y) + self.height * factor * self.mesh.half_scale_y)
 
     @property
     def tag(self):
@@ -77,7 +115,7 @@ class BotSprite(TkSprite):
 
     def draw_bot(self, canvas, outer_col, eye_col, central_col=col(235, 235, 50)):
         bounding_box = self.box()
-        scale = self.scale
+        scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5 # TODO: what, if x >> y?
 
         direction = self.direction
         rot = lambda x: rotate(x, direction)
@@ -94,7 +132,7 @@ class BotSprite(TkSprite):
         canvas.create_arc(bounding_box, start=rot(-5), extent=10, style="arc", width=0.2 * scale, outline=central_col, tag=self.tag)
 
         score = self.score
-        canvas.create_text(self.x, self.y, text=score, font=(None, int(0.5 * self.scale)), tag=self.tag)
+        canvas.create_text(self.x, self.y, text=score, font=(None, int(0.5 * scale)), tag=self.tag)
 
 
 class Harvester(BotSprite):
@@ -107,6 +145,8 @@ class Destroyer(BotSprite):
         self.draw_polygon(canvas)
 
     def draw_polygon(self, canvas):
+        scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5 # TODO: what, if x >> y?
+
         direction = 110
 
         penta_arcs = range(0 - direction, 360 - direction, 360 / 5)
@@ -115,12 +155,12 @@ class Destroyer(BotSprite):
         coords = []
         for a, i in zip(penta_arcs, penta_arcs_inner):
             # we rotate with the help of complex numbers
-            n = cmath.rect(self.scale * 0.85, a * cmath.pi / 180.0)
+            n = cmath.rect(scale * 0.85, a * cmath.pi / 180.0)
             coords.append((n.real + self.x, n.imag + self.y))
-            n = cmath.rect(self.scale * 0.3, i * cmath.pi / 180.0)
+            n = cmath.rect(scale * 0.3, i * cmath.pi / 180.0)
             coords.append((n.real + self.x, n.imag + self.y))
 
-        canvas.create_polygon(width=0.05 * self.scale, fill="", outline=col(94, 158, 217), *coords)
+        canvas.create_polygon(width=0.05 * scale, fill="", outline=col(94, 158, 217), *coords)
 
 class Wall(TkSprite):
     def draw(self, canvas):
@@ -130,24 +170,12 @@ class Food(TkSprite):
     def draw(self, canvas):
         canvas.create_oval(self.box(0.3), fill=col(217, 158, 158), tag=self.tag)
 
-class UiCanvas(object):
-    def __init__(self, x, y, scale):
-        self.mesh_width = x
-        self.mesh_height = y
+class UiCanvas(Canvas):
+    def __init__(self, master, mesh_graph):
+        self.mesh_graph = mesh_graph
 
-        self.scale = float(scale)
-        self.halfscale = float(scale) / 2
-
-        self.width = x * scale
-        self.height = y * scale
-
-        self.square_size = (scale, scale)
-
-        self.offset_x = self.halfscale
-        self.offset_y = self.halfscale
-
-        self.master = Tk()
-        self.canvas = Canvas(self.master, width=self.width, height=self.height)
+        self.master = master
+        self.canvas = Canvas(self.master, width=self.mesh_graph.width, height=self.mesh_graph.height)
         self.canvas.pack()
 
         self.registered_items = []
@@ -155,12 +183,6 @@ class UiCanvas(object):
             datamodel.Wall: Wall,
             datamodel.Food: Food
         }
-
-    def translate_x(self, x):
-        return self.offset_x + x * self.square_size[0]
-
-    def translate_y(self, y):
-        return self.offset_y + y * self.square_size[1]
 
     def draw_mesh(self, mesh):
         for position, items in mesh.iteritems():
@@ -177,16 +199,25 @@ class UiCanvas(object):
         if not item_class:
             return
 
-        item = item_class(self.halfscale)
+        item = item_class(self.mesh_graph)
         self.registered_items.append(item)
 
-        item.position = self.translate_x(x), self.translate_y(y)
+        item.position = self.mesh_graph.mesh_to_real((x, y), (0, 0))
 
         item.show()
         item.draw(self.canvas)
 
     def move(self, item, x, y):
         item.move(self.canvas, x * self.scale, y * self.scale)
+
+class TkApplication(Frame):
+    def createWidgets(self, graph):
+        self.canvas = UiCanvas(self, graph)
+
+    def __init__(self, graph, master=None):
+        Frame.__init__(self, master) # old style
+        self.pack()
+        self.createWidgets(graph)
 
 import threading
 import time
@@ -284,6 +315,10 @@ North = Notification("go_to", [(0, -1)])
 
 if __name__ == "__main__":
 
+    root = Tk()
+
+
+
     test_layout = (
             """ ########
                 #0     #
@@ -292,9 +327,15 @@ if __name__ == "__main__":
                 ######## """)
 
     mesh = create_CTFUniverse(Layout.strip_layout(test_layout), 2).maze
-    canvas = UiCanvas(mesh.width, mesh.height, 60)
+
+    scale = 60
+    mesh_graph = MeshGraph(mesh.height, mesh.width, mesh.height * scale, mesh.width * scale)
+
+    app = TkApplication(mesh_graph, master=root)
 
     mesh[3,3] = "."
+
+    canvas = app.canvas
 
     canvas.draw_mesh(mesh)
 
@@ -322,4 +363,5 @@ if __name__ == "__main__":
         )
     #anim_seq.start()
 
-    mainloop()
+    app.mainloop()
+    root.destroy()
