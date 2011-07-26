@@ -67,7 +67,16 @@ source code repository `gh-pages`. This branch has its own root commit and is
 hence disconnected from the commits that track the project code and also the
 documentation source code.
 
-#### To regenerate the project website:
+#### To regenerate the project website (automatic):
+
+Use the [commit-doc.sh script](https://github.com/Debilski/pelita/blob/develop/commit-doc.sh).
+This will automatically make the commit of the latest version of the
+documentation on the `gh-pages` branch. After checking that everything is in
+order you still need to push that branch. Although the script tries
+very hard to not delete untracked files, you should be aware that any untracked
+files in the `doc` subdirectory will be *automatically deleted without warning*!
+
+#### To regenerate the project website (manual):
 
 Move to the `doc` directory:
 
