@@ -60,7 +60,16 @@ class TkSprite(object):
         self.width = 1
         self.is_hidden = True
 
+        self.direction = 0
+
         self.mesh = mesh
+
+
+    def rotate(self, darc):
+        pass
+
+    def rotate_to(self, arc):
+        pass
 
     @property
     def position(self):
@@ -102,7 +111,6 @@ class TkSprite(object):
 class BotSprite(TkSprite):
     def __init__(self, scale):
         super(BotSprite, self).__init__(scale)
-        self.direction = 0
         self.score = 0
 
     def rotate(self, darc):
@@ -208,11 +216,20 @@ class UiCanvas(Canvas):
         item.draw(self.canvas)
 
     def move(self, item, x, y):
-        item.move(self.canvas, x * self.scale, y * self.scale)
+        item.move(self.canvas, x * self.mesh_graph.rect_width, y * self.mesh_graph.rect_height)
 
 class TkApplication(Frame):
     def createWidgets(self, graph):
         self.canvas = UiCanvas(self, graph)
+
+    def on_quit(self):
+        """ override for things which must be done when we exit.
+        """
+        pass
+
+    def quit(self):
+        self.on_quit()
+        Frame.quit()
 
     def __init__(self, graph, master=None):
         Frame.__init__(self, master) # old style
@@ -307,17 +324,15 @@ class CanvasActor(DispatchingActor):
 
         print direction
 
-East = Notification("go_to", [(1, 0)])
-West = Notification("go_to", [(-1, 0)])
-South = Notification("go_to", [(0, 1)])
-North = Notification("go_to", [(0, -1)])
+East = Notification("go_to", [(1, 0)]).dict
+West = Notification("go_to", [(-1, 0)]).dict
+South = Notification("go_to", [(0, 1)]).dict
+North = Notification("go_to", [(0, -1)]).dict
 
 
 if __name__ == "__main__":
-
-    root = Tk()
-
-
+    import logging
+    logging.basicConfig()
 
     test_layout = (
             """ ########
@@ -331,13 +346,14 @@ if __name__ == "__main__":
     scale = 60
     mesh_graph = MeshGraph(mesh.height, mesh.width, mesh.height * scale, mesh.width * scale)
 
-    app = TkApplication(mesh_graph, master=root)
+    app = TkApplication(mesh_graph)
 
     mesh[3,3] = "."
 
     canvas = app.canvas
 
     canvas.draw_mesh(mesh)
+
 
     def move():
         time.sleep(3)
@@ -352,16 +368,18 @@ if __name__ == "__main__":
 
     actor = actor_of(CanvasActor)
     actor.start()
+
+    app.on_quit = actor.stop
+
     actor.put(South)
     actor.put(East)
     actor.put(North)
     actor.put(West)
 
-    anim_seq = Animation.sequence(
-        Animation.rotate(canvas, canvas.registered_items[9], 90),
-        Animation.move(canvas, canvas.registered_items[9], (1, 2), delay=5, step_len=0.1),
-        )
+    #anim_seq = Animation.sequence(
+    #    Animation.rotate(canvas, canvas.registered_items[9], 90),
+    #    Animation.move(canvas, canvas.registered_items[9], (1, 2), delay=5, step_len=0.1),
+    #    )
     #anim_seq.start()
 
     app.mainloop()
-    root.destroy()
