@@ -65,7 +65,6 @@ class TkSprite(object):
 
         self.mesh = mesh
 
-
     def rotate(self, darc):
         pass
 
@@ -120,7 +119,6 @@ class BotSprite(TkSprite):
 
     def rotate_to(self, arc):
         self.direction = arc % 360
-        print self.direction
 
     def draw_bot(self, canvas, outer_col, eye_col, central_col=col(235, 235, 50)):
         bounding_box = self.box()
@@ -179,7 +177,7 @@ class Food(TkSprite):
     def draw(self, canvas):
         canvas.create_oval(self.box(0.3), fill=col(217, 158, 158), tag=self.tag)
 
-class UiCanvas(Canvas):
+class UiCanvas(object):
     def __init__(self, master, mesh_graph):
         self.mesh_graph = mesh_graph
 
@@ -226,6 +224,12 @@ class TkApplication(Frame):
         self.create_widgets(graph)
         self.queue = queue
 
+        self.animations = []
+
+    def start_drawing(self):
+        self.redraw()
+        self.update_application()
+
     def create_widgets(self, graph):
         self.canvas = UiCanvas(self, graph)
 
@@ -238,19 +242,25 @@ class TkApplication(Frame):
         except Queue.Empty:
             self.quit()
 
+    def redraw(self):
+        for anim in self.animations:
+            anim.step()
+
+        self.after(100, self.redraw)
+
     def react(self, event):
         direction = event
         pos = complex(direction[0], - direction[1])
         arc = int(cmath.phase(pos) / cmath.pi * 180)
 
-        anim_seq = Animation.sequence(
+        anim_seq = [
             Animation.rotate_to(canvas, canvas.registered_items[8], arc),
-            Animation.move(canvas, canvas.registered_items[8], direction, step_len=0.1),
-        )
-        anim_seq.start()
+            Animation.move(canvas, canvas.registered_items[8], direction),
+        ]
+        [anim.start() for anim in anim_seq]
+        self.animations += anim_seq
 
         print direction
-
 
     def on_quit(self):
         """ override for things which must be done when we exit.
@@ -259,71 +269,88 @@ class TkApplication(Frame):
 
     def quit(self):
         self.on_quit()
-        Frame.quit()
+        Frame.quit(self)
 
 import threading
 import time
 
 class Animation(object):
-    def __init__(self, delay, step_len=0.1):
-        self.delay = delay
-        self.step_len = 0.1
+    def __init__(self, duration):
+        self.duration = duration
+        self.start_time = None
+        self.is_finished = False
 
-    @property
-    def num_steps(self):
-        return int(self.delay / self.step_len)
+    def elapsed(self):
+        if self.start_time is None:
+            raise AttributeError("Animation is not running.")
+        return time.time() - self.start_time
 
     def start(self):
-        for step in range(self.num_steps):
-            time.sleep(self.step_len)
-            self.step()
+        self.start_time = time.time()
+
+    def rate(self):
+        rate = self.elapsed() / self.duration
+        if rate > 1:
+            self.is_finished = True
+            return 1
+        return rate
 
     def step(self):
+        if not self.is_finished:
+            self._step()
+
+    def _step(self):
+        raise NotImplementedError
+
+    def finish(self):
         raise NotImplementedError
 
     @classmethod
-    def rotate(cls, canvas, item, arc, delay=0.5, step_len=0.1):
-        anim = cls(delay, step_len)
-        step_arc = float(arc) / anim.num_steps
-        def rotation():
-            item.rotate(step_arc)
+    def rotate(cls, canvas, item, arc, duration=0.5):
+        anim = cls(duration)
+        step_arc = float(arc)
+        def rotate():
+            item.rotate(step_arc * anim.rate())
             item.redraw(canvas.canvas)
 
-        anim.step = rotation
+        anim._step = rotate
         return anim
 
     @classmethod
-    def rotate_to(cls, canvas, item, arc, delay=0.5, step_len=0.1):
-        anim = cls(delay, step_len)
+    def rotate_to(cls, canvas, item, arc, duration=0.5):
+        anim = cls(duration)
         s_arc = (item.direction - arc) % 360 - 180
 
-        step_arc = float(s_arc) / anim.num_steps
-        def rotation():
-            item.rotate(step_arc)
+        step_arc = float(s_arc)
+        def rotate():
+            item.rotate(step_arc * anim.rate())
             item.redraw(canvas.canvas)
 
-        anim.step = rotation
+        anim._step = rotate
         return anim
 
     @classmethod
-    def move(cls, canvas, item, transpos, delay=0.5, step_len=0.1):
-        anim = cls(delay, step_len)
-        dx = float(transpos[0]) / anim.num_steps
-        dy = float(transpos[1]) / anim.num_steps
-        def translation():
-            canvas.move(item, dx, dy)
+    def move(cls, canvas, item, transpos, duration=0.5):
+        anim = cls(duration)
+        dx = float(transpos[0]) * canvas.mesh_graph.rect_height
+        dy = float(transpos[1]) * canvas.mesh_graph.rect_width
+        anim.old_pos_x = item.position[0]
+        anim.old_pos_y = item.position[1]
+
+        anim.last_rate = 0
+        def translate():
+            rate = anim.rate()
+            pos_x = anim.old_pos_x + dx * rate
+            pos_y = anim.old_pos_y + dy * rate
+
+            item.position = pos_x, pos_y
+            item.redraw(canvas.canvas)
             #item.redraw(canvas.canvas)
 
-        anim.step = translation
+        anim._step = translate
         return anim
 
-    @classmethod
-    def sequence(cls, *anims):
-        class dummy(object):
-            def start(self):
-                for anim in anims:
-                    anim.start()
-        return dummy()
+
 
 from pelita.messaging import Notification
 from pelita.messaging import DispatchingActor, expose, actor_of
@@ -380,5 +407,5 @@ if __name__ == "__main__":
     #    )
     #anim_seq.start()
 
-    app.after_idle(app.update_application)
+    app.after_idle(app.start_drawing)
     app.mainloop()
