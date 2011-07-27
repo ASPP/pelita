@@ -216,6 +216,21 @@ class BotEats(UniverseEvent):
         return ('BotEats(%i, %r)'
             % (self.bot_index, self.food_pos))
 
+class FoodEaten(UniverseEvent):
+    """ Signifies that food has been eaten.
+
+    Parameters
+    ----------
+    food_pos : tuple of (int, int)
+        position of the eaten food
+
+    """
+    def __init__(self, food_pos):
+        self.food_pos = food_pos
+
+    def __repr__(self):
+        return 'FoodEaten(%s)' % repr(self.food_pos)
+
 
 class BotDestroyed(UniverseEvent):
     """ Signifies that a bot has been destroyed.
@@ -511,6 +526,7 @@ class CTFUniverse(object):
             self.maze.remove_at(Food, bot.current_pos)
             self.teams[bot.team_index]._score_point()
             events.append(BotEats(bot_id, bot.current_pos))
+            events.append(FoodEaten(bot.current_pos))
             if not self.enemy_food(bot.team_index):
                 events.append(TeamWins(bot.team_index))
 
