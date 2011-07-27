@@ -259,17 +259,37 @@ class BotDestroyed(UniverseEvent):
     ----------
     harvester_index : int
         index of the destroyed bot
+    harvester_old_pos : tuple of (int, int)
+        the position before moving
+    harvester_new_pos : tuple of (int, int)
+        the position after moving
+    harvester_reset : tuple of (int, int)
+        the reset position of the harvester
     destroyer_index : int
         index of the destroying bot
+    destroyer_old_pos : tuple of (int, int)
+        the position before moving
+    destroyer_new_pos : tuple of (int, int)
+        the position after moving
 
     """
-    def __init__(self, harvester_index, destroyer_index):
+    def __init__(self, harvester_index, harvester_old_pos,
+            harvester_new_pos, harvester_reset,
+            destroyer_index, destroyer_old_pos, destroyer_new_pos):
         self.harvester_index = harvester_index
+        self.harvester_old_pos = harvester_old_pos
+        self.harvester_new_pos = harvester_new_pos
+        self.harvester_reset = harvester_reset
         self.destroyer_index = destroyer_index
+        self.destroyer_old_pos = destroyer_old_pos
+        self.destroyer_new_pos = destroyer_new_pos
 
     def __repr__(self):
-        return ('BotDestroyed(%i, %i)'
-            % (self.harvester_index, self.destroyer_index))
+        return ('BotDestroyed(%i, %r, %r, %r, %i, %r, %r)'
+            % (self.harvester_index, self.harvester_old_pos,
+                self.harvester_new_pos, self.harvester_reset,
+                self.destroyer_index, self.destroyer_old_pos,
+                self.destroyer_new_pos))
 
 
 class TeamWins(UniverseEvent):
@@ -537,10 +557,15 @@ class CTFUniverse(object):
             if enemy.current_pos == bot.current_pos:
                 if enemy.is_destroyer and bot.is_harvester:
                     bot._reset()
-                    events.append(BotDestroyed(bot.index, enemy.index))
+                    events.append(BotDestroyed(
+                        bot.index, old_pos, new_pos, bot.initial_pos,
+                        enemy.index, enemy.current_pos, enemy.current_pos))
                 elif enemy.is_harvester and bot.is_destroyer:
+                    new_old_pos = enemy.current_pos
                     enemy._reset()
-                    events.append(BotDestroyed(enemy.index, bot.index))
+                    events.append(BotDestroyed(
+                       enemy.index, new_old_pos, new_old_pos, enemy.initial_pos,
+                       bot.index, old_pos, new_pos))
         # check for food being eaten
         if self.maze.has_at(Food, bot.current_pos) and not bot.in_own_zone:
             team = self.teams[bot.team_index]
