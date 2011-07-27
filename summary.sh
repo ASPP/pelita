@@ -5,7 +5,8 @@ echo "----------------------------------------------------------------------"
 echo "Lines of code:"
 echo "  in pelita/                : "$( wc -l pelita/**/*.py | tail -1 | sed 's/total//')
 echo "  in test/                  : "$( wc -l test/**/*.py | tail -1 | sed 's/total//')
-echo "  in both                   : "$( wc -l {pelita,test}/**/*.py | tail -1 | sed 's/total//')
+echo "  in pelita/messaging       : "$( wc -l pelita/messaging/**/*.py | tail -1 | sed 's/total//')
+echo "  in all                    : "$( wc -l {pelita,test}/**/*.py | tail -1 | sed 's/total//')
 echo ""
 echo "Running pylint... please stand by!"
 pelita_score=$( pylint pelita/**/*.py &> /dev/null | tail -3 | \
