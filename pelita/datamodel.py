@@ -231,6 +231,26 @@ class FoodEaten(UniverseEvent):
     def __repr__(self):
         return 'FoodEaten(%s)' % repr(self.food_pos)
 
+class TeamScoreChange(UniverseEvent):
+    """ Signifies that the score of a Team has changed.
+
+    Parameters
+    ----------
+    team_index : int
+        index of the team whos score has changed
+    score_change : int
+        the change in score
+    new_score : int
+        the new score
+    """
+    def __init__(self, team_index, score_change, new_score):
+        self.team_index = team_index
+        self.score_change = score_change
+        self.new_score = new_score
+
+    def __repr__(self):
+        return ('TeamScoreChange(%i, %i, %i)' %
+            (self.team_index, self.score_change, self.new_score))
 
 class BotDestroyed(UniverseEvent):
     """ Signifies that a bot has been destroyed.
@@ -523,12 +543,14 @@ class CTFUniverse(object):
                     events.append(BotDestroyed(enemy.index, bot.index))
         # check for food being eaten
         if self.maze.has_at(Food, bot.current_pos) and not bot.in_own_zone:
+            team = self.teams[bot.team_index]
             self.maze.remove_at(Food, bot.current_pos)
-            self.teams[bot.team_index]._score_point()
+            team._score_point()
             events.append(BotEats(bot_id, bot.current_pos))
             events.append(FoodEaten(bot.current_pos))
-            if not self.enemy_food(bot.team_index):
-                events.append(TeamWins(bot.team_index))
+            events.append(TeamScoreChange(team.index, 1, team.score))
+            if not self.enemy_food(team.index):
+                events.append(TeamWins(team.index))
 
         return events
 
