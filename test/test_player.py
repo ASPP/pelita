@@ -1,6 +1,6 @@
 import unittest
-from pelita.player import AbstractPlayer, StoppingPlayer, BFSPlayer
-from pelita.datamodel import create_CTFUniverse
+from pelita.player import *
+from pelita.datamodel import create_CTFUniverse, north, stop
 from pelita.game_master import GameMaster
 from pelita.viewer import AsciiViewer
 
@@ -15,10 +15,10 @@ class TestAbstractPlayer(unittest.TestCase):
             #     . #  .  .#3#
             ################## """)
 
-        universe = create_CTFUniverse(test_layout, 4)
         game_master = GameMaster(test_layout, 4, 200)
+        universe = game_master.universe
         player_0 = StoppingPlayer()
-        player_1 = StoppingPlayer()
+        player_1 = TestPlayer([stop, north])
         player_2 = StoppingPlayer()
         player_3 = StoppingPlayer()
         game_master.register_player(player_0)
@@ -36,6 +36,13 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual([universe.bots[i] for i in (1, 3)], player_0.enemy_bots)
         self.assertEqual(universe.bots[1].current_pos, player_1.current_pos)
         self.assertEqual(universe.bots[1].initial_pos, player_1.initial_pos)
+
+        game_master.play_round(0)
+        game_master.play_round(1)
+        self.assertEqual(universe, player_1.current_uni)
+        self.assertEqual((16, 1), player_1.current_pos)
+        self.assertEqual((16, 2), player_1.previous_pos)
+        self.assertNotEqual(player_1.current_uni, player_1.universe_states[-2])
 
 class TestBFS_Player(unittest.TestCase):
 
