@@ -189,11 +189,14 @@ class BotMoves(UniverseEvent):
         index of the bot
 
     """
-    def __init__(self, bot_index):
+    def __init__(self, bot_index, old_pos, new_pos):
         self.bot_index = bot_index
+        self.old_pos = old_pos
+        self.new_pos = new_pos
 
     def __repr__(self):
-        return 'BotMoves(%i)' % self.bot_index
+        return ('BotMoves(%i, %r, %r)'
+            % (self.bot_index, self.old_pos, self.new_pos))
 
 
 class BotEats(UniverseEvent):
@@ -488,8 +491,10 @@ class CTFUniverse(object):
             raise IllegalMoveException(
                 'Illegal move from bot %r: %s'
                 % (bot, move))
+        old_pos = bot.current_pos
         bot._move(legal_moves_dict[move])
-        events.append(BotMoves(bot_id))
+        new_pos = bot.current_pos
+        events.append(BotMoves(bot_id, old_pos, new_pos))
         # check for destruction
         for enemy in self.enemy_bots(bot.team_index):
             if enemy.current_pos == bot.current_pos:
