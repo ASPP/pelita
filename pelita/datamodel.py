@@ -208,11 +208,13 @@ class BotEats(UniverseEvent):
         index of the bot
 
     """
-    def __init__(self, bot_index):
+    def __init__(self, bot_index, food_pos):
         self.bot_index = bot_index
+        self.food_pos = food_pos
 
     def __repr__(self):
-        return 'BotEats(%i)' % self.bot_index
+        return ('BotEats(%i, %r)'
+            % (self.bot_index, self.food_pos))
 
 
 class BotDestroyed(UniverseEvent):
@@ -508,7 +510,7 @@ class CTFUniverse(object):
         if self.maze.has_at(Food, bot.current_pos) and not bot.in_own_zone:
             self.maze.remove_at(Food, bot.current_pos)
             self.teams[bot.team_index]._score_point()
-            events.append(BotEats(bot_id))
+            events.append(BotEats(bot_id, bot.current_pos))
             if not self.enemy_food(bot.team_index):
                 events.append(TeamWins(bot.team_index))
 
