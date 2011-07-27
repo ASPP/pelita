@@ -38,7 +38,7 @@ which is done using the `actor_of` method. (Note that neither `Actor` nor
 
 ::
 
-    my_actor = actor_of(Actor) # we pass the class as a parameter
+    my_actor = actor_of(MyActor) # we pass the class as a parameter
 
 We may then start our actor and send it a message::
 

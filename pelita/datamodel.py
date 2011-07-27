@@ -2,6 +2,7 @@
 
 from pelita.layout import Layout
 from pelita.containers import Mesh, new_pos, MazeComponent, Maze, TypeAwareList
+import copy
 
 __docformat__ = "restructuredtext"
 
@@ -629,6 +630,9 @@ class CTFUniverse(object):
 
     def __str__(self):
         return str(self._char_mesh)
+
+    def copy(self):
+        return copy.deepcopy(self)
 
     @property
     def compact_str(self):

@@ -288,6 +288,23 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertEqual(universe, universe2)
         self.assertEqual(universe, eval(repr(universe)))
 
+    def test_copy(self):
+        test_layout3 = (
+        """ ##################
+            #0#.  .  # .     #
+            #1#####    #####2#
+            #     . #  .  .#3#
+            ################## """)
+        universe = create_CTFUniverse(test_layout3, 4)
+        uni_copy = universe.copy()
+        self.assertEqual(universe, uni_copy)
+        # this is just a smoke test for the most volatile aspect of
+        # of copying the universe
+        for food_pos in universe.food_list:
+            universe.maze.remove_at(Food, food_pos)
+        self.assertNotEqual(universe, uni_copy)
+        self.assertEqual(universe, universe.copy())
+
     def test_str_compact_str(self):
         test_layout3 = (
         """ ##################

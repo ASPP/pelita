@@ -9,6 +9,11 @@ class AbstractViewer(object):
         raise NotImplementedError(
                 "You must override the 'observe' method in your viewer")
 
+class DevNullViewer(object):
+    """ A viewer that simply ignores everything. """
+
+    def observe(self, round_, turn, universe, events):
+        pass
 
 class AsciiViewer(AbstractViewer):
 

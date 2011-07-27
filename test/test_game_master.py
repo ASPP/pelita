@@ -23,7 +23,7 @@ class TestGameMaster(unittest.TestCase):
             pass
 
         self.assertRaises(TypeError, game_master.register_viewer, BrokenViewer())
-        self.assertRaises(TypeError, game_master.register_player, 0, BrokenPlayer())
+        self.assertRaises(TypeError, game_master.register_player, BrokenPlayer())
         self.assertRaises(IndexError, game_master.play)
 
 class TestAbstracts(unittest.TestCase):
@@ -70,16 +70,12 @@ class TestGame(unittest.TestCase):
                 universe.teams[0]._score_point()
             return universe
 
-        class TestPlayer(AbstractPlayer):
-            def __init__(self, moves):
-                self.moves = moves
-
-            def get_move(self, universe):
-                return self.moves.pop()
 
         gm = GameMaster(test_start, number_bots, 200)
         gm.register_player(TestPlayer([east, east, east, south, stop, east]))
         gm.register_player(TestPlayer([west, west, west, stop, west, west]))
+
+        gm.register_viewer(DevNullViewer())
 
         gm.play_round(0)
         test_first_round = (
