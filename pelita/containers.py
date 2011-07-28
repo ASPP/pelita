@@ -1,6 +1,9 @@
 """ Advanced container classes. """
 
 from collections import Mapping, MutableSequence
+from pelita.messaging.json_convert import serializable
+
+import sys
 import inspect
 
 
@@ -29,6 +32,7 @@ def new_pos(position, move):
     return (pos_x, pos_y)
 
 
+@serializable
 class Mesh(Mapping):
     """ A mapping from a two-dimensional coordinate system into object space.
 
@@ -277,7 +281,16 @@ class Mesh(Mapping):
     def copy(self):
         return Mesh(self.width, self.height, list(self._data))
 
+    def _to_json_dict(self):
+        return {"width": self.width,
+                "height": self.height,
+                "data": list(self._data)}
 
+    @classmethod
+    def _from_json_dict(cls, item):
+        return cls(**item)
+
+@serializable
 class Maze(Mesh):
     """ A Mesh of TypeAwareLists of MazeComponents.
 
@@ -361,7 +374,7 @@ class Maze(Mesh):
         """ The indices of positions which have a MazeComponent. """
         return [pos for pos in self.positions if self.has_at(type_, pos)]
 
-
+@serializable
 class MazeComponent(object):
     """ Base class for all items inside a Maze. """
 
@@ -371,7 +384,15 @@ class MazeComponent(object):
     def __eq__(self, other):
         return isinstance(other, self.__class__)
 
+    def _to_json_dict(self):
+        return {}
 
+    @classmethod
+    def _from_json_dict(cls, item):
+        return cls(**item)
+
+
+@serializable
 class TypeAwareList(MutableSequence):
     """ List that is aware of `type`.
 
@@ -496,3 +517,24 @@ class TypeAwareList(MutableSequence):
     def __repr__(self):
         return ('TypeAwareList(%r, base_class=%s)'
             % (self._items, self.base_class.__name__))
+
+    def _to_json_dict(self):
+        if self.base_class is None:
+            base_class_json = None
+        else:
+            base_class_json = [self.base_class.__module__, self.base_class.__name__]
+        return {"iterable": list(self._items),
+                "base_class": base_class_json}
+
+    @classmethod
+    def _from_json_dict(cls, item):
+        # we need to do this in order to serialise a type
+        base_class = item["base_class"]
+        if base_class is None:
+            return cls(**item)
+
+        module, class_name = base_class
+        # look up the type, if it is registered
+        item["base_class"] = getattr(sys.modules[module], class_name)
+        return cls(**item)
+
