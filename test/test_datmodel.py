@@ -427,6 +427,18 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertTrue(universe.bots[0].is_destroyer)
         self.assertTrue(universe.bots[3].is_destroyer)
 
+    def test_json(self):
+        test_layout3 = (
+        """ ##################
+            #0#.  .  # .     #
+            #1#####    #####2#
+            #     . #  .  .#3#
+            ################## """)
+        universe = create_CTFUniverse(test_layout3, 4)
+        universe_json = json_converter.dumps(universe)
+        self.assertEqual(json_converter.loads(universe_json), universe)
+
+
 class TestCTFUniverseRules(unittest.TestCase):
 
     def test_get_legal_moves(self):

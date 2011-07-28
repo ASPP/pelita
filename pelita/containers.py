@@ -374,7 +374,7 @@ class Maze(Mesh):
         """ The indices of positions which have a MazeComponent. """
         return [pos for pos in self.positions if self.has_at(type_, pos)]
 
-
+@serializable
 class MazeComponent(object):
     """ Base class for all items inside a Maze. """
 
@@ -383,6 +383,13 @@ class MazeComponent(object):
 
     def __eq__(self, other):
         return isinstance(other, self.__class__)
+
+    def _to_json_dict(self):
+        return {}
+
+    @classmethod
+    def _from_json_dict(cls, item):
+        return cls(**item)
 
 
 @serializable

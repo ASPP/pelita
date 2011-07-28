@@ -276,7 +276,7 @@ class TeamWins(UniverseEvent):
         return ("TeamWins(%i)"
             % self.winning_team_index)
 
-
+@serializable
 class Free(MazeComponent):
     """ Object to represent a free space. """
 
@@ -285,7 +285,7 @@ class Free(MazeComponent):
     def __repr__(self):
         return 'Free()'
 
-
+@serializable
 class Wall(MazeComponent):
     """ Object to represent a wall. """
 
@@ -294,7 +294,7 @@ class Wall(MazeComponent):
     def __repr__(self):
         return 'Wall()'
 
-
+@serializable
 class Food(MazeComponent):
     """ Object to represent a food item. """
 
@@ -418,7 +418,7 @@ class IllegalMoveException(Exception):
     """ Raised when a bot attempts to make an illegal move. """
     pass
 
-
+@serializable
 class CTFUniverse(object):
     """ The Universe: representation of the game state.
 
@@ -648,3 +648,13 @@ class CTFUniverse(object):
     def is_adjacent(pos1, pos2):
         return (pos1[0] == pos2[0] and abs(pos1[1] - pos2[1]) == 1 or
             pos1[1] == pos2[1] and abs(pos1[0] - pos2[0]) == 1)
+
+    def _to_json_dict(self):
+        return {"maze": self.maze,
+                "teams": self.teams,
+                "bots": self.bots}
+
+    @classmethod
+    def _from_json_dict(cls, item):
+        return cls(**item)
+
