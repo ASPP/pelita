@@ -46,7 +46,7 @@ class TestJson(unittest.TestCase):
         converter.register(A)
 
         a = A(['1', '2', '3'])
-        encoded = json.dumps(a, default=converter.encode)
+        encoded = converter.dumps(a)
 
         should_be = {"__id__": "pelita.test.A", "__value__": {"a": ["1", "2", "3"]}}
         decoded = json.loads(encoded)
@@ -58,7 +58,7 @@ class TestJson(unittest.TestCase):
 
         json_code = """{"__id__": "pelita.test.A", "__value__": {"a": ["1", "2", "3"]}}"""
 
-        decoded = json.loads(json_code, object_hook=converter.decode)
+        decoded = converter.loads(json_code)
 
         a = A(['1', '2', '3'])
         self.assertEqual(decoded, a)
@@ -73,8 +73,8 @@ class TestJson(unittest.TestCase):
         a3 = A(['1', '2', '3'])
         bb = B("B", a1, a2, a3)
 
-        dumped = json.dumps(bb, default=converter.encode)
-        loaded = json.loads(dumped, object_hook=converter.decode)
+        dumped = converter.dumps(bb)
+        loaded = converter.loads(dumped)
 
         self.assertEqual(bb, loaded)
 
@@ -90,12 +90,12 @@ class TestJson(unittest.TestCase):
 
         converter.register(A, encoder=encoder, decoder=decoder)
         a = A([1, 2, 3])
-        res = json.dumps(a, default=converter.encode)
+        res = converter.dumps(a)
         res_dict = json.loads(res)
 
         self.assertEqual(res_dict, {"__id__": "pelita.test.A", "__value__": {"a": [2, 4, 6]}})
 
-        reencoded = json.loads(res, object_hook=converter.decode)
+        reencoded = converter.loads(res)
 
         self.assertEqual(a, reencoded)
 
@@ -161,8 +161,8 @@ class TestJson(unittest.TestCase):
         converter.register(A)
 
         unknown_json = """{"__id__": "unknown", "__value__": {"a": [2, 4, 6]}}"""
-        res_with_converter = json.loads(unknown_json, object_hook=converter.decode)
-        res_without_converter = json.loads(unknown_json, object_hook=converter.decode)
+        res_with_converter = converter.loads(unknown_json)
+        res_without_converter = converter.loads(unknown_json)
 
         self.assertEqual(res_with_converter, res_without_converter)
 
@@ -170,7 +170,7 @@ class TestJson(unittest.TestCase):
         converter = JsonConverter()
         a = A("value")
 
-        self.assertRaises(TypeError, json.dumps, a, default=converter.encode)
+        self.assertRaises(TypeError, converter.dumps, a)
 
     def test_autoregistration(self):
         json_converter = JsonConverter()
@@ -191,8 +191,8 @@ class TestJson(unittest.TestCase):
                 return self.value == other.value
 
         autoserialize = Autoserialize("a value")
-        converted = json.dumps(autoserialize, default=json_converter.encode)
-        reencoded = json.loads(converted, object_hook=json_converter.decode)
+        converted = json_converter.dumps(autoserialize)
+        reencoded = json_converter.loads(converted)
 
         self.assertEqual(autoserialize, reencoded)
 

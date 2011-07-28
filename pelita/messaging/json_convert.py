@@ -3,6 +3,7 @@
 """ Json conversion helpers. """
 
 import inspect
+import json
 
 class JsonConverter(object):
     """ The `JsonConverter` registers all necessary methods to transform
@@ -159,6 +160,12 @@ class JsonConverter(object):
             self.register(cls)
             return cls
         return wrapper
+
+    def dumps(self, obj):
+        return json.dumps(obj, default=self.encode)
+
+    def loads(self, json_dict):
+        return json.loads(json_dict, object_hook=self.decode)
 
 def json_id(id):
     def wrapper(cls):
