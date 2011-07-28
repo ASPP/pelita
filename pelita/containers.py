@@ -510,13 +510,20 @@ class TypeAwareList(MutableSequence):
             % (self._items, self.base_class.__name__))
 
     def _to_json_dict(self):
+        if self.base_class is None:
+            base_class_json = None
+        else:
+            base_class_json = [self.base_class.__module__, self.base_class.__name__]
         return {"iterable": list(self._items),
-                "base_class": [self.base_class.__module__, self.base_class.__name__]}
+                "base_class": base_class_json}
 
     @classmethod
     def _from_json_dict(cls, item):
         # we need to do this in order to serialise a type
         base_class = item["base_class"]
+        if base_class is None:
+            return cls(**item)
+
         module, class_name = base_class
         # look up the type, if it is registered
         item["base_class"] = getattr(sys.modules[module], class_name)

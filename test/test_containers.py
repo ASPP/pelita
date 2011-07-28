@@ -332,3 +332,8 @@ class TestTypeAwareList(unittest.TestCase):
         tal = TypeAwareList([], base_class=A)
         tal_json = json_converter.dumps(tal)
         self.assertRaises(AttributeError, json_converter.loads, tal_json)
+
+        # test base_class=None
+        tal = TypeAwareList([], base_class=None)
+        tal_json = json_converter.dumps(tal)
+        self.assertEqual(json_converter.loads(tal_json), tal)
