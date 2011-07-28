@@ -153,9 +153,19 @@ class JsonConverter(object):
         obj = converter["decoder"](value)
         return obj
 
+    def serializable(self, id):
+        def wrapper(cls):
+            cls._json_id = id
+            self.register(cls)
+            return cls
+        return wrapper
+
 def json_id(id):
     def wrapper(cls):
         cls._json_id = id
         return cls
     return wrapper
 
+# default serialization helpers
+json_converter = JsonConverter()
+serializable = json_converter.serializable

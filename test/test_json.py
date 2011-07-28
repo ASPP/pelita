@@ -172,6 +172,32 @@ class TestJson(unittest.TestCase):
 
         self.assertRaises(TypeError, json.dumps, a, default=converter.encode)
 
+    def test_autoregistration(self):
+        json_converter = JsonConverter()
+
+        @json_converter.serializable("pelita.test.Autoserialize")
+        class Autoserialize(object):
+            def __init__(self, value):
+                self.value = value
+
+            def _to_json_dict(self):
+                return {"value": self.value}
+
+            @classmethod
+            def _from_json_dict(cls, item):
+                return cls(**item)
+
+            def __eq__(self, other):
+                return self.value == other.value
+
+        autoserialize = Autoserialize("a value")
+        converted = json.dumps(autoserialize, default=json_converter.encode)
+        reencoded = json.loads(converted, object_hook=json_converter.decode)
+
+        self.assertEqual(autoserialize, reencoded)
+
+
+
 # TODO: Think about rules for inheritance
 #
 #    def test_child(self):
