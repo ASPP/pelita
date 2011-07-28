@@ -1,6 +1,9 @@
 """ Advanced container classes. """
 
 from collections import Mapping, MutableSequence
+from pelita.messaging.json_convert import serializable
+
+import sys
 import inspect
 
 
@@ -29,6 +32,7 @@ def new_pos(position, move):
     return (pos_x, pos_y)
 
 
+@serializable
 class Mesh(Mapping):
     """ A mapping from a two-dimensional coordinate system into object space.
 
@@ -277,7 +281,14 @@ class Mesh(Mapping):
     def copy(self):
         return Mesh(self.width, self.height, list(self._data))
 
+    def _to_json_dict(self):
+        return {"width": self.width,
+                "height": self.height,
+                "data": list(self._data)}
 
+    @classmethod
+    def _from_json_dict(cls, item):
+        return cls(**item)
 class Maze(Mesh):
     """ A Mesh of TypeAwareLists of MazeComponents.
 
@@ -372,6 +383,7 @@ class MazeComponent(object):
         return isinstance(other, self.__class__)
 
 
+@serializable
 class TypeAwareList(MutableSequence):
     """ List that is aware of `type`.
 
@@ -496,3 +508,17 @@ class TypeAwareList(MutableSequence):
     def __repr__(self):
         return ('TypeAwareList(%r, base_class=%s)'
             % (self._items, self.base_class.__name__))
+
+    def _to_json_dict(self):
+        return {"iterable": list(self._items),
+                "base_class": [self.base_class.__module__, self.base_class.__name__]}
+
+    @classmethod
+    def _from_json_dict(cls, item):
+        # we need to do this in order to serialise a type
+        base_class = item["base_class"]
+        module, class_name = base_class
+        # look up the type, if it is registered
+        item["base_class"] = getattr(sys.modules[module], class_name)
+        return cls(**item)
+
