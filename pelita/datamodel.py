@@ -2,6 +2,7 @@
 
 from pelita.layout import Layout
 from pelita.containers import Mesh, new_pos, MazeComponent, Maze, TypeAwareList
+from pelita.messaging.json_convert import serializable
 
 __docformat__ = "restructuredtext"
 
@@ -12,6 +13,7 @@ east  = (1, 0)
 stop  = (0, 0)
 
 
+@serializable
 class Team(object):
     """ A team of bots.
 
@@ -82,7 +84,20 @@ class Team(object):
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
+    def _to_json_dict(self):
+        return {"index": self.index,
+                "name": self.name,
+                "zone": self.zone,
+                "score": self.score,
+                "bots": self.bots}
 
+    @classmethod
+    def _from_json_dict(cls, item):
+        # need to convert the json list to a tuple
+        item["zone"] = tuple(item["zone"])
+        return cls(**item)
+
+@serializable
 class Bot(object):
     """ A bot on a team.
 
@@ -172,6 +187,19 @@ class Bot(object):
                 (self.index, self.initial_pos, self.team_index,
                     self.homezone, self.current_pos))
 
+    def _to_json_dict(self):
+        return {"index": self.index,
+                "initial_pos": self.initial_pos,
+                "team_index": self.team_index,
+                "homezone": self.homezone,
+                "current_pos": self.current_pos}
+
+    @classmethod
+    def _from_json_dict(cls, item):
+        # need to convert the json list to a tuple
+        for tupled_attr in ["initial_pos", "homezone", "current_pos"]:
+            item[tupled_attr] = tuple(item[tupled_attr])
+        return cls(**item)
 
 class UniverseEvent(object):
     """ Base class for all events in a Universe. """

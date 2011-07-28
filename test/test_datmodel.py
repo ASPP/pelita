@@ -1,7 +1,9 @@
 import unittest
+import json
 from pelita.layout import Layout
 from pelita.containers import Mesh
 from pelita.datamodel import *
+from pelita.messaging.json_convert import json_converter
 
 # the legal chars for a basic CTFUniverse
 # see also: create_CTFUniverse factory.
@@ -106,6 +108,33 @@ class TestBot(unittest.TestCase):
         self.assertEqual(white.current_pos, (6, 6))
         self.assertTrue(white.is_destroyer)
 
+    def test_json_serialization(self):
+        black = Bot(0, (1, 1), 0, (0, 3))
+        white = Bot(1, (6, 6), 1, (3, 6), current_pos = (1, 1))
+
+        black_json = json_converter.dumps(black)
+        white_json = json_converter.dumps(white)
+
+        black_json_target = {'__id__': 'pelita.datamodel.Bot',
+                             '__value__': {'current_pos': [1, 1],
+                                           'homezone': [0, 3],
+                                           'index': 0,
+                                           'initial_pos': [1, 1],
+                                           'team_index': 0}}
+
+        white_json_target = {'__id__': 'pelita.datamodel.Bot',
+                             '__value__': {'current_pos': [1, 1],
+                                           'homezone': [3, 6],
+                                           'index': 1,
+                                           'initial_pos': [6, 6],
+                                           'team_index': 1}}
+
+        self.assertEqual(json.loads(black_json), black_json_target)
+        self.assertEqual(json.loads(white_json), white_json_target)
+
+        self.assertEqual(json_converter.loads(black_json), black)
+        self.assertEqual(json_converter.loads(white_json), white)
+
 class TestTeam(unittest.TestCase):
 
     def test_init(self):
@@ -154,6 +183,34 @@ class TestTeam(unittest.TestCase):
         self.assertEqual(team_black, team_black3)
         team_white2 = eval(repr(team_white))
         self.assertEqual(team_white, team_white2)
+
+    def test_json_serialization(self):
+        team_black = Team(0, 'black', (0, 2))
+        team_white = Team(1, 'white', (3, 6), score=5, bots=[1, 3, 5])
+
+        team_black_json = json_converter.dumps(team_black)
+        team_white_json = json_converter.dumps(team_white)
+
+        team_black_json_target = {"__id__": "pelita.datamodel.Team",
+                                  "__value__": {"index": 0,
+                                                "bots": [],
+                                                "score": 0,
+                                                "name": "black",
+                                                "zone": [0, 2]}}
+
+        team_white_json_target = {"__id__": "pelita.datamodel.Team",
+                                  "__value__": {"index": 1,
+                                                "bots": [1, 3, 5],
+                                                "score": 5,
+                                                "name": "white",
+                                                "zone": [3, 6]}}
+
+        self.assertEqual(json.loads(team_black_json), team_black_json_target)
+        self.assertEqual(json.loads(team_white_json), team_white_json_target)
+
+        self.assertEqual(json_converter.loads(team_black_json), team_black)
+        self.assertEqual(json_converter.loads(team_white_json), team_white)
+
 
 class TestMazeComponents(unittest.TestCase):
 
