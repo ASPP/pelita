@@ -172,30 +172,83 @@ class TestJson(unittest.TestCase):
 
         self.assertRaises(TypeError, converter.dumps, a)
 
-    def test_autoregistration(self):
+    def test_autoregistration_explicit(self):
         json_converter = JsonConverter()
 
         @json_converter.serializable("pelita.test.Autoserialize")
         class Autoserialize(object):
-            def __init__(self, value):
-                self.value = value
+            def __init__(self, attr):
+                self.attr = attr
 
             def _to_json_dict(self):
-                return {"value": self.value}
+                return {"attr": self.attr}
 
             @classmethod
             def _from_json_dict(cls, item):
                 return cls(**item)
 
             def __eq__(self, other):
-                return self.value == other.value
+                return self.attr == other.attr
 
-        autoserialize = Autoserialize("a value")
+        self.assertEqual(Autoserialize._json_id, "pelita.test.Autoserialize")
+
+        autoserialize = Autoserialize("an attr")
         converted = json_converter.dumps(autoserialize)
         reencoded = json_converter.loads(converted)
-
         self.assertEqual(autoserialize, reencoded)
 
+        res_dict = json.loads(converted)
+        self.assertEqual(res_dict, {"__id__": "pelita.test.Autoserialize", "__value__": {"attr": "an attr"}})
+
+
+    def test_autoregistration_implicit(self):
+        json_converter = JsonConverter()
+
+        @json_converter.serializable
+        class Autoserialize(object):
+            def __init__(self, attr):
+                self.attr = attr
+
+            def _to_json_dict(self):
+                return {"attr": self.attr}
+
+            @classmethod
+            def _from_json_dict(cls, item):
+                return cls(**item)
+
+            def __eq__(self, other):
+                return self.attr == other.attr
+
+        self.assertEqual(Autoserialize._json_id, "test_json.Autoserialize")
+
+        autoserialize = Autoserialize("an attr")
+        converted = json_converter.dumps(autoserialize)
+        reencoded = json_converter.loads(converted)
+        self.assertEqual(autoserialize, reencoded)
+
+        res_dict = json.loads(converted)
+        self.assertEqual(res_dict, {"__id__": "test_json.Autoserialize", "__value__": {"attr": "an attr"}})
+
+    def test_autoregistration_gone_wrong(self):
+        json_converter = JsonConverter()
+
+        def test_method():
+            @json_converter.serializable(1)
+            class Autoserialize(object):
+                def __init__(self, attr):
+                    self.attr = attr
+
+                def _to_json_dict(self):
+                    return {"attr": self.attr}
+
+                @classmethod
+                def _from_json_dict(cls, item):
+                    return cls(**item)
+
+                def __eq__(self, other):
+                    return self.attr == other.attr
+
+        self.assertRaises(TypeError, test_method)
 
 
 # TODO: Think about rules for inheritance

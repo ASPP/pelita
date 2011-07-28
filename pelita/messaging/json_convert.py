@@ -154,11 +154,23 @@ class JsonConverter(object):
         obj = converter["decoder"](value)
         return obj
 
-    def serializable(self, id):
-        def wrapper(cls):
-            cls._json_id = id
-            self.register(cls)
-            return cls
+
+    def serializable(self, cls_or_id):
+        if isinstance(cls_or_id, basestring):
+            id = cls_or_id
+        elif inspect.isclass(cls_or_id):
+            id = "%s.%s" % (cls_or_id.__module__, cls_or_id.__name__)
+        else:
+            raise TypeError("Argument for decorator must be string or class.")
+
+        def wrapper(class_):
+            class_._json_id = id
+            self.register(class_)
+            return class_
+
+        if inspect.isclass(cls_or_id):
+            return wrapper(cls_or_id)
+
         return wrapper
 
     def dumps(self, obj):
