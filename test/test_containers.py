@@ -209,6 +209,12 @@ class TestMaze(unittest.TestCase):
         self.assertEqual([(x, y) for y in range(5) for x in range(5)],
                 maze.positions)
 
+    def test_json(self):
+        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
+                           TypeAwareList(['', '', '', '', '', '', '',])])
+        maze_json = json_converter.dumps(maze)
+        self.assertEqual(json_converter.loads(maze_json), maze)
+
 class TestTypeAwareList(unittest.TestCase):
 
     def test_eq_repr(self):

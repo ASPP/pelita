@@ -289,6 +289,8 @@ class Mesh(Mapping):
     @classmethod
     def _from_json_dict(cls, item):
         return cls(**item)
+
+@serializable
 class Maze(Mesh):
     """ A Mesh of TypeAwareLists of MazeComponents.
 
