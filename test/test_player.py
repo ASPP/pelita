@@ -37,8 +37,25 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual([universe.bots[2]], player_0.team_bots)
         self.assertEqual([universe.bots[3]], player_1.team_bots)
         self.assertEqual([universe.bots[i] for i in (1, 3)], player_0.enemy_bots)
+        self.assertEqual([universe.bots[i] for i in (0, 2)], player_1.enemy_bots)
+        self.assertEqual([universe.bots[i] for i in (1, 3)], player_2.enemy_bots)
+        self.assertEqual([universe.bots[i] for i in (0, 2)], player_3.enemy_bots)
         self.assertEqual(universe.bots[1].current_pos, player_1.current_pos)
         self.assertEqual(universe.bots[1].initial_pos, player_1.initial_pos)
+
+        self.assertEqual(universe.teams[0], player_0.team)
+        self.assertEqual(universe.teams[0], player_2.team)
+        self.assertEqual(universe.teams[1], player_1.team)
+        self.assertEqual(universe.teams[1], player_3.team)
+
+        self.assertEqual({(0, 1): (1, 2), (0, 0): (1, 1)},
+                player_0.legal_moves)
+        self.assertEqual({(0, 1): (16, 3), (0, -1): (16, 1), (0, 0): (16, 2)},
+                player_1.legal_moves)
+        self.assertEqual({(0, 1): (1, 3), (0, -1): (1, 1), (0, 0): (1, 2)},
+                player_2.legal_moves)
+        self.assertEqual({(0, -1): (16, 2), (0, 0): (16, 3)},
+                player_3.legal_moves)
 
         game_master.play_round(0)
         game_master.play_round(1)
@@ -48,6 +65,20 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertNotEqual(player_1.current_uni, player_1.universe_states[-2])
 
 class TestBFS_Player(unittest.TestCase):
+
+    def test_demo_players(self):
+        test_layout = (
+        """ ##################
+            #0#.  .  # .     #
+            #2#####    #####3#
+            #     . #  .  .#1#
+            ################## """)
+        gm = GameMaster(test_layout, 4, 200)
+        gm.register_player(StoppingPlayer())
+        gm.register_player(RandomPlayer())
+        gm.register_player(NQRandomPlayer())
+        gm.register_player(BFSPlayer())
+        gm.play()
 
     def test_adjacency_bfs(self):
         test_layout = (

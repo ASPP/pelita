@@ -85,6 +85,18 @@ class AbstractPlayer(object):
         return self.current_uni.bots[self._index]
 
     @property
+    def team(self):
+        """ The Team object this Players Bot is on.
+
+        Returns
+        -------
+        team : Team
+            the team of the bot controlled by this player
+
+        """
+        return self.current_uni.teams[self.me.team_index]
+
+    @property
     def team_bots(self):
         """ A list of Bots that are on this players team.
 
@@ -198,16 +210,18 @@ class NQRandomPlayer(AbstractPlayer):
 
     def get_move(self, universe):
         legal_moves = self.legal_moves
-        # now remove the move that would lead to the previous_position
-        for (k,v) in self.legal_moves.iteritems():
-            if v == self.previous_pos:
-                break
-        del legal_moves[k]
         # Remove stop
         try:
             del legal_moves[stop]
         except KeyError:
             pass
+        # now remove the move that would lead to the previous_position
+        # unless there is no where else to go.
+        if len(legal_moves) > 1:
+            for (k,v) in legal_moves.iteritems():
+                if v == self.previous_pos:
+                    break
+            del legal_moves[k]
         # and select a move at random
         return random.choice(legal_moves.keys())
 
@@ -287,6 +301,10 @@ class BFSPlayer(AbstractPlayer):
         return (pos2[0]-pos1[0], pos2[1]-pos1[1])
 
     def get_move(self, universe):
+        if self.current_pos == self.initial_pos:
+            # we have probably been killed
+            # reset the path
+            self.current_path = None
         if not self.current_path:
             self.current_path = self.bfs_food()
         new_pos = self.current_path.pop()
