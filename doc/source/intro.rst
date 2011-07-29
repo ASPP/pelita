@@ -51,10 +51,13 @@ In order to write a Player you should subclass from
 convenience methods to interrogate the Universe including the Bot instance that this
 player controls but lacks the functions to actually control the Bot. In order to
 make your Player do something useful you must implement at least the method
-``get_move(self, universe)`` to return a move. This can be one of:
+``get_move(self, universe)`` to return a move. This can be one of::
 
-.. literalinclude:: ../../pelita/datamodel.py
-   :lines: 8-12
+    north = (0, -1)
+    south = (0, 1)
+    west  = (-1, 0)
+    east  = (1, 0)
+    stop  = (0, 0)
 
 The moves are provided by the ``datamodel``, import them with::
 

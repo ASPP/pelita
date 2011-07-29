@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """ Advanced container classes. """
 
 from collections import Mapping, MutableSequence
@@ -5,7 +7,6 @@ from pelita.messaging.json_convert import serializable
 
 import sys
 import inspect
-
 
 __docformat__ = "restructuredtext"
 

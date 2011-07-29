@@ -1,7 +1,12 @@
+# -*- coding: utf-8 -*-
+
 import subprocess
 import sys
 import os
 import pelita
+
+__docformat__ = "restructuredtext"
+
 
 def __get_command_output(command_string, cwd=None):
     """ Execute arbitrary commands.

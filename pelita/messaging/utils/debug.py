@@ -9,6 +9,9 @@ from pelita.messaging.utils import SuspendableThread
 _logger = logging.getLogger("pelita.utils")
 _logger.setLevel(logging.DEBUG)
 
+__docformat__ = "restructuredtext"
+
+
 class ThreadInfoLogger(SuspendableThread):
     def __init__(self, interval, show_threads=True):
         super(ThreadInfoLogger, self).__init__()

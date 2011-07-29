@@ -1,6 +1,10 @@
+# -*- coding: utf-8 -*-
+
 """ The observers. """
 
 import pelita.datamodel as uni
+
+__docformat__ = "restructuredtext"
 
 
 class AbstractViewer(object):

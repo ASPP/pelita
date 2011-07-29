@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
+
 """ The datamodel. """
 
 import copy
-
 from pelita.layout import Layout
 from pelita.containers import Mesh, new_pos, MazeComponent, Maze, TypeAwareList
 from pelita.messaging.json_convert import serializable
@@ -512,17 +513,48 @@ class CTFUniverse(object):
 
     @property
     def bot_positions(self):
+        """ Current positions of all bots.
+
+        Returns
+        -------
+        bot_positions : list of tuple of (int, int)
+            the positions of all bots
+        """
         return [bot.current_pos for bot in self.bots]
 
     @property
     def food_list(self):
+        """ Positions of all the food.
+
+        Returns
+        -------
+        food_positions : list of tuple of (int, int)
+            the positions of all food
+
+        """
         return self.maze.pos_of(Food)
 
     def team_food(self, team_index):
+        """ Food that is owned by a team
+
+        Returns
+        -------
+        team_food : list of tuple of (int, int)
+            food owned by team
+
+        """
         return [pos for pos in self.food_list
                 if self.teams[team_index].in_zone(pos)]
 
     def enemy_food(self, team_index):
+        """ Food that is edible by a team
+
+        Returns
+        -------
+        team_food : list of tuple of (int, int)
+            food edible by team
+
+        """
         return [pos for pos in self.food_list
                 if not self.teams[team_index].in_zone(pos)]
 

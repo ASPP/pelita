@@ -1,8 +1,12 @@
+# -*- coding: utf-8 -*-
+
 """ Base classes for player implementations. """
 
 from pelita.datamodel import stop, Free
 from collections import deque
 import random
+
+__docformat__ = "restructuredtext"
 
 
 class AbstractPlayer(object):
