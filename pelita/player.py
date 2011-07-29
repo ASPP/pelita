@@ -90,10 +90,7 @@ class AbstractPlayer(object):
             the team mates
 
         """
-        this_team = [self.current_uni.bots[i] for i in
-            self.current_uni.teams[self._index].bots]
-        this_team.pop(self._index)
-        return this_team
+        return self.current_uni.team_bots(self._index)
 
     @property
     def enemy_food(self):

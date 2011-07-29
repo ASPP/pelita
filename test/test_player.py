@@ -32,7 +32,10 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual(universe.bots[3], player_3.me)
 
         self.assertEqual(universe, player_1.current_uni)
+        self.assertEqual([universe.bots[0]], player_2.team_bots)
+        self.assertEqual([universe.bots[1]], player_3.team_bots)
         self.assertEqual([universe.bots[2]], player_0.team_bots)
+        self.assertEqual([universe.bots[3]], player_1.team_bots)
         self.assertEqual([universe.bots[i] for i in (1, 3)], player_0.enemy_bots)
         self.assertEqual(universe.bots[1].current_pos, player_1.current_pos)
         self.assertEqual(universe.bots[1].initial_pos, player_1.initial_pos)
