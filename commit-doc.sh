@@ -1,5 +1,8 @@
 #!/bin/zsh
 
+# Script to automatically generate documentation and commit this to the gh-pages
+# branch. See README.md for more info about website maintenance and updates.
+
 # get the SHA1 of the current commit
 head_sha=$( git rev-parse HEAD)
 head_sha=$head_sha[0,7]
