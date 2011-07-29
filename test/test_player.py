@@ -43,6 +43,11 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual(universe.bots[1].current_pos, player_1.current_pos)
         self.assertEqual(universe.bots[1].initial_pos, player_1.initial_pos)
 
+        self.assertEqual(universe.teams[0], player_0.team)
+        self.assertEqual(universe.teams[0], player_2.team)
+        self.assertEqual(universe.teams[1], player_1.team)
+        self.assertEqual(universe.teams[1], player_3.team)
+
         game_master.play_round(0)
         game_master.play_round(1)
         self.assertEqual(universe, player_1.current_uni)

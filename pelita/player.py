@@ -85,6 +85,18 @@ class AbstractPlayer(object):
         return self.current_uni.bots[self._index]
 
     @property
+    def team(self):
+        """ The Team object this Players Bot is on.
+
+        Returns
+        -------
+        team : Team
+            the team of the bot controlled by this player
+
+        """
+        return self.current_uni.teams[self.me.team_index]
+
+    @property
     def team_bots(self):
         """ A list of Bots that are on this players team.
 
