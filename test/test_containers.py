@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-
 import unittest
 from numbers import Number
 import json
 from pelita.containers import *
 from pelita.messaging.json_convert import json_converter
+from pelita.datamodel import MazeComponent
+
 
 class TestNewPos(unittest.TestCase):
 
@@ -154,66 +155,6 @@ class TestMesh(unittest.TestCase):
 
         self.assertEqual(json_converter.loads(m_json), m_no_tuple)
 
-
-class TestMaze(unittest.TestCase):
-
-    def test_init(self):
-        # check we get errors with wrong stuff
-        self.assertRaises(TypeError, Maze, 1,1, data=[1])
-        self.assertRaises(ValueError, Maze, 1,1, data=[TypeAwareList(),
-            TypeAwareList()])
-
-    def test_has_at(self):
-        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '',])])
-        self.assertTrue(maze.has_at(int, (0,0)))
-        self.assertTrue(maze.has_at(list, (0,0)))
-        self.assertTrue(maze.has_at(dict, (0,0)))
-        self.assertTrue(maze.has_at(str, (1,0)))
-        self.assertFalse(maze.has_at(set, (0,0)))
-        self.assertFalse(maze.has_at(int, (1,0)))
-        self.assertFalse(maze.has_at(list, (1,0)))
-        self.assertFalse(maze.has_at(dict, (1,0)))
-        self.assertFalse(maze.has_at(set, (1,0)))
-
-    def test_get_at(self):
-        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '',])])
-        self.assertEqual(maze.get_at(int, (0,0)), [1, 2, 1, 3])
-        self.assertEqual(maze.get_at(list, (0,0)), [[], []])
-        self.assertEqual(maze.get_at(int, (1,0)), [])
-        self.assertEqual(maze.get_at(str, (1,0)), ['', '', '', '', '', '', '',])
-
-        self.assertRaises(IndexError, maze.get_at, int, (0,1))
-
-    def test_remove_at(self):
-        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '',])])
-        maze.remove_at(int, (0,0))
-        self.assertEqual(list(maze[0,0]), [[], {}, []])
-
-        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '',])])
-        maze.remove_at(list, (0,0))
-        self.assertEqual(list(maze[0,0]), [1, 2, {}, 1, 3] )
-
-        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '',])])
-        maze.remove_at(int, (0,0))
-        self.assertEqual(list(maze[0,0]), [[], {}, []] )
-        maze.remove_at(str, (1,0))
-        self.assertEqual(list(maze[1,0]), [] )
-
-    def test_positions(self):
-        maze = Maze(5,5)
-        self.assertEqual([(x, y) for y in range(5) for x in range(5)],
-                maze.positions)
-
-    def test_json(self):
-        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '',])])
-        maze_json = json_converter.dumps(maze)
-        self.assertEqual(json_converter.loads(maze_json), maze)
 
 class TestTypeAwareList(unittest.TestCase):
 
