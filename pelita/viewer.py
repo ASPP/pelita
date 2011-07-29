@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """ The observers. """
 
 import pelita.datamodel as uni

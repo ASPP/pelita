@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """ Advanced container classes. """
 
 from collections import Mapping, MutableSequence

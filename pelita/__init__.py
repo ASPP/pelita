@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import pelita.datamodel
 import pelita.containers
 import pelita.layout

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """ Base classes for player implementations. """
 
 from pelita.datamodel import stop, Free

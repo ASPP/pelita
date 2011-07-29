@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """ The datamodel. """
 
 import copy
