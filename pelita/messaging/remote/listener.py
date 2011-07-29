@@ -8,6 +8,9 @@ from pelita.messaging.utils import SuspendableThread
 
 _logger = logging.getLogger("pelita.listener")
 
+__docformat__ = "restructuredtext"
+
+
 class TcpListeningSocket(TcpSocket):
     def __init__(self, host, port):
         """ Opens a socket with respective host and port

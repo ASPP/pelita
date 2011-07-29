@@ -24,6 +24,9 @@ response to a specific query.
 Each `Query` may only have one responding message.
 """
 
+__docformat__ = "restructuredtext"
+
+
 class BaseMessage(object):
     """A message can be converted to a simple dict object,
     which in turn may be represented by a JSON string when sent

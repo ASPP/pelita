@@ -6,6 +6,9 @@ import logging
 _logger = logging.getLogger("pelita.threading")
 #_logger.setLevel(logging.DEBUG)
 
+__docformat__ = "restructuredtext"
+
+
 class CloseThread(Exception):
     """May be raised from inside the _run method to close the thread."""
 

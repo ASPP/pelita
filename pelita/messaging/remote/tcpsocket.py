@@ -2,6 +2,9 @@
 
 import socket
 
+__docformat__ = "restructuredtext"
+
+
 class TcpSocket(object):
     """ Wraps a socket for a TCP connection.
 

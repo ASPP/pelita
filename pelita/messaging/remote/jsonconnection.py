@@ -10,6 +10,8 @@ from pelita.messaging import Error, DeadConnection, BaseMessage
 _logger = logging.getLogger("pelita.jsonSocket")
 _logger.setLevel(logging.INFO)
 
+__docformat__ = "restructuredtext"
+
 
 class JsonSocketConnection(object):
     """ Implements JSON communication over a socket.
