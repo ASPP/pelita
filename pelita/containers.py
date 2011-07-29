@@ -6,7 +6,6 @@ from pelita.messaging.json_convert import serializable
 import sys
 import inspect
 
-
 __docformat__ = "restructuredtext"
 
 

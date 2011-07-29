@@ -16,6 +16,9 @@ from pelita.messaging.utils import SuspendableThread, CloseThread
 _logger = logging.getLogger("pelita.actor")
 _logger.setLevel(logging.DEBUG)
 
+__docformat__ = "restructuredtext"
+
+
 class Channel(object):
     """ A `Channel` is an object which may be sent a message.
 

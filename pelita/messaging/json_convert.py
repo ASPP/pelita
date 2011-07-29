@@ -5,6 +5,9 @@
 import inspect
 import json
 
+__docformat__ = "restructuredtext"
+
+
 class JsonConverter(object):
     """ The `JsonConverter` registers all necessary methods to transform
     an object into a Json understandable format and back again.

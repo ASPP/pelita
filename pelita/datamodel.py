@@ -1,7 +1,6 @@
 """ The datamodel. """
 
 import copy
-
 from pelita.layout import Layout
 from pelita.containers import Mesh, new_pos, MazeComponent, Maze, TypeAwareList
 from pelita.messaging.json_convert import serializable

@@ -4,6 +4,8 @@ import pelita.datamodel as uni
 from pelita.player import AbstractPlayer
 from pelita.viewer import AbstractViewer
 
+__docformat__ = "restructuredtext"
+
 
 class GameMaster(object):
     """ Controller of player moves and universe updates.
