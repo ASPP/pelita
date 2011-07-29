@@ -66,6 +66,20 @@ class TestAbstractPlayer(unittest.TestCase):
 
 class TestBFS_Player(unittest.TestCase):
 
+    def test_demo_players(self):
+        test_layout = (
+        """ ##################
+            #0#.  .  # .     #
+            #2#####    #####3#
+            #     . #  .  .#1#
+            ################## """)
+        gm = GameMaster(test_layout, 4, 200)
+        gm.register_player(StoppingPlayer())
+        gm.register_player(RandomPlayer())
+        gm.register_player(NQRandomPlayer())
+        gm.register_player(BFSPlayer())
+        gm.play()
+
     def test_adjacency_bfs(self):
         test_layout = (
         """ ##################
