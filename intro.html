@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -7,22 +5,21 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction to Pelita &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.0.0-432-g40f0889&#39;  documentation</title>
+    <title>Introduction to Pelita &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.0.0-462-g313ee39&#39;  documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.0.0-432-g40f0889&#39; ',
-        COLLAPSE_INDEX: false,
+        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.0.0-462-g313ee39&#39; ',
+        COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.0.0-432-g40f0889&#39;  documentation" href="index.html" />
+    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.0.0-462-g313ee39&#39;  documentation" href="index.html" />
     <link rel="prev" title="Welcome to Pelita’s documentation!" href="index.html" /> 
   </head>
   <body>
@@ -35,7 +32,7 @@
         <li class="right" >
           <a href="index.html" title="Welcome to Pelita’s documentation!"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-432-g40f0889&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-462-g313ee39&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -94,6 +91,7 @@ make your Player do something useful you must implement at least the method
 <span class="n">south</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">west</span>  <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 <span class="n">east</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">stop</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The moves are provided by the <tt class="docutils literal"><span class="pre">datamodel</span></tt>, import them with:</p>
@@ -130,16 +128,18 @@ ever stop in place:</p>
 
     <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
         <span class="n">legal_moves</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_moves</span>
-        <span class="c"># now remove the move that would lead to the previous_position</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_moves</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_pos</span><span class="p">:</span>
-                <span class="k">break</span>
-        <span class="k">del</span> <span class="n">legal_moves</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
         <span class="c"># Remove stop</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">del</span> <span class="n">legal_moves</span><span class="p">[</span><span class="n">stop</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">pass</span>
+        <span class="c"># now remove the move that would lead to the previous_position</span>
+        <span class="c"># unless there is no where else to go.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">legal_moves</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">legal_moves</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_pos</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">del</span> <span class="n">legal_moves</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
         <span class="c"># and select a move at random</span>
         <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">legal_moves</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 </pre></div>
@@ -241,6 +241,10 @@ search to find food:</p>
         <span class="k">return</span> <span class="p">(</span><span class="n">pos2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">pos1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">pos1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pos</span><span class="p">:</span>
+            <span class="c"># we have probably been killed</span>
+            <span class="c"># reset the path</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bfs_food</span><span class="p">()</span>
         <span class="n">new_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
@@ -383,6 +387,18 @@ convenience methods/properties and also some of the implementation details:</p>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">]</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">team</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The Team object this Players Bot is on.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        team : Team</span>
+<span class="sd">            the team of the bot controlled by this player</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">team_index</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">team_bots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; A list of Bots that are on this players team.</span>
 
@@ -392,10 +408,7 @@ convenience methods/properties and also some of the implementation details:</p>
 <span class="sd">            the team mates</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">this_team</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">]</span><span class="o">.</span><span class="n">bots</span><span class="p">]</span>
-        <span class="n">this_team</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">this_team</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">team_bots</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">enemy_food</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -483,37 +496,37 @@ convenience methods/properties and also some of the implementation details:</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Introduction to Pelita</a><ul>
-<li><a class="reference internal" href="#glossary">Glossary</a></li>
-<li><a class="reference internal" href="#writing-a-player">Writing a Player</a></li>
-<li><a class="reference internal" href="#git-repository">Git-Repository</a></li>
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="#">Introduction to Pelita</a><ul>
+<li><a class="reference external" href="#glossary">Glossary</a></li>
+<li><a class="reference external" href="#writing-a-player">Writing a Player</a></li>
+<li><a class="reference external" href="#git-repository">Git-Repository</a></li>
 </ul>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">Welcome to Pelita&#8217;s documentation!</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/intro.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" size="18" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="index.html"
+                                  title="previous chapter">Welcome to Pelita&#8217;s documentation!</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/intro.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -527,13 +540,13 @@ convenience methods/properties and also some of the implementation details:</p>
         <li class="right" >
           <a href="index.html" title="Welcome to Pelita’s documentation!"
              >previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-432-g40f0889&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-462-g313ee39&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
-      Last updated on Jul 27, 2011.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+      &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
+      Last updated on Jul 29, 2011.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.6.
     </div>
   </body>
 </html>
