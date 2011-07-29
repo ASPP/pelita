@@ -1,5 +1,9 @@
 #!/bin/zsh
 
+# Small script to do a QA of the code. Will print total lines of code, the
+# summary score of pylint and the results of testing. This is designed to give a
+# one page, easy-to-read summary of a few code quality metrics.
+
 echo "Project summary / QA for pelita"
 echo "----------------------------------------------------------------------"
 echo "Lines of code:"
