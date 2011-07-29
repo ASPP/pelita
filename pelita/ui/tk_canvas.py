@@ -347,6 +347,7 @@ class Animation(object):
         anim.last_rate = 0
         def translate():
             rate = anim.rate()
+            rate = math.sin(rate * math.pi * 0.5)
             pos_x = anim.old_pos_x + dx * rate
             pos_y = anim.old_pos_y + dy * rate
 
