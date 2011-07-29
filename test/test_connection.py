@@ -6,7 +6,7 @@ from pelita.messaging.remote import TcpThreadedListeningServer, TcpConnectingCli
 class TestConnection(unittest.TestCase):
     def test_accept(self):
         # Bind to this machine with an arbitrary free port
-        listener = TcpThreadedListeningServer(host="", port=0)
+        listener = TcpThreadedListeningServer(host="localhost", port=0)
 
         # We use a Queue to wait until the connection is established
         timeout = 1
