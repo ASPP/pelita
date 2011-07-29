@@ -526,6 +526,23 @@ class CTFUniverse(object):
         return [pos for pos in self.food_list
                 if not self.teams[team_index].in_zone(pos)]
 
+    def team_bots(self, bot_index):
+        """ Obtain other bots on team
+
+        Parameters
+        ----------
+        bot_index : int
+            index of the bot in question
+
+        Returns
+        -------
+        team_bots : list of Bot objects
+            the other bots on the team
+
+        """
+        team = self.teams[self.bots[bot_index].team_index]
+        return [self.bots[i] for i in team.bots if i != bot_index]
+
     def enemy_bots(self, team_index):
         """ Obtain enemy bot objects.
 
