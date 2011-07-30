@@ -818,12 +818,12 @@ class CTFUniverse(object):
 
     @property
     def pretty(self):
-        """ Provide detailed info about datamodel state.
+        """ Provide detailed, readable info about universe state.
 
         Returns
         -------
         pretty : str
-            detailed, readable string version of this datamodel
+            detailed, readable string version of this universe
 
         Examples
         --------
