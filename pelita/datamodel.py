@@ -55,6 +55,10 @@ def diff_pos(initial, target):
     # TODO assert for adjacency
     return (target[0]-initial[0], target[1]-initial[1])
 
+def is_adjacent(pos1, pos2):
+    return (pos1[0] == pos2[0] and abs(pos1[1] - pos2[1]) == 1 or
+        pos1[1] == pos2[1] and abs(pos1[0] - pos2[0]) == 1)
+
 @serializable
 class Team(object):
     """ A team of bots.
@@ -909,11 +913,6 @@ class CTFUniverse(object):
         """
         return dict([(move, new_pos(position, move)) for
             move in self.move_ids])
-
-    @staticmethod
-    def is_adjacent(pos1, pos2):
-        return (pos1[0] == pos2[0] and abs(pos1[1] - pos2[1]) == 1 or
-            pos1[1] == pos2[1] and abs(pos1[0] - pos2[0]) == 1)
 
     def _to_json_dict(self):
         return {"maze": self.maze,

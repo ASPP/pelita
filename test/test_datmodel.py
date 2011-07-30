@@ -26,6 +26,15 @@ class TestStaticmethods(unittest.TestCase):
         self.assertEqual(west, diff_pos((1, 1), (0, 1)))
         self.assertEqual(stop, diff_pos((1, 1), (1, 1)))
 
+    def test_is_adjacent(self):
+        self.assertTrue(is_adjacent((0, 0), (1, 0)))
+        self.assertTrue(is_adjacent((0, 0), (0, 1)))
+        self.assertFalse(is_adjacent((0, 0), (1, 1)))
+
+        self.assertTrue(is_adjacent((1, 0), (0, 0)))
+        self.assertTrue(is_adjacent((0, 1), (0, 0)))
+        self.assertFalse(is_adjacent((1, 1), (0, 0)))
+
     def test_get_initial_positions(self):
 
 
@@ -63,15 +72,6 @@ class TestStaticmethods(unittest.TestCase):
                 '# #####    ##### ##       #      # ###################'))
         self.assertEqual(target, mesh)
 
-
-    def test_is_adjacent(self):
-        self.assertTrue(CTFUniverse.is_adjacent((0, 0), (1, 0)))
-        self.assertTrue(CTFUniverse.is_adjacent((0, 0), (0, 1)))
-        self.assertFalse(CTFUniverse.is_adjacent((0, 0), (1, 1)))
-
-        self.assertTrue(CTFUniverse.is_adjacent((1, 0), (0, 0)))
-        self.assertTrue(CTFUniverse.is_adjacent((0, 1), (0, 0)))
-        self.assertFalse(CTFUniverse.is_adjacent((1, 1), (0, 0)))
 
 class TestBot(unittest.TestCase):
 
