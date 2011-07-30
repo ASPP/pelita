@@ -56,8 +56,28 @@ def diff_pos(initial, target):
     return (target[0]-initial[0], target[1]-initial[1])
 
 def is_adjacent(pos1, pos2):
+    """ Check that two positions are adjacent
+
+    This will check that the Manhatten distance between two positions is exactly
+    one. This function does not take into account if the resulting position is a
+    legal position in a Maze.
+
+    Parameters
+    ----------
+    pos1 : tuple of (int, int)
+        the first position
+    pos2 : tuple of (int, int)
+        the second position
+
+    Returns
+    -------
+    is_adjacent : boolean
+        True if pos1 is adjacent to pos2 and False otherwise
+
+    """
     return (pos1[0] == pos2[0] and abs(pos1[1] - pos2[1]) == 1 or
         pos1[1] == pos2[1] and abs(pos1[0] - pos2[0]) == 1)
+
 
 @serializable
 class Team(object):
