@@ -42,9 +42,7 @@ else
     echo "  Total number of tests     : "$( echo $test_stats |
         grep 'Ran'|
         sed 's/Ran\ \(.*\)\ tests.*/\1/' )
-    echo "  # assert statements       : "$( grep 'assert' -c test/**/*.py |
-        sed 's/.*://' |
-        python -c "import sys; print sum(int(l) for l in sys.stdin)" )
+    echo "  # assert statements       : "$( grep 'assert' test/**/*.py | wc -l)
     echo "  Test coverage             : "$( echo $test_stats |
         grep 'TOTAL' |  sed 's/TOTAL.*\(......$\)/\1/')
     echo "  Result                    : "$( echo $test_stats | tail -1)
