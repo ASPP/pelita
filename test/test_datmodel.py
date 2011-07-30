@@ -13,11 +13,11 @@ layout_chars = [cls.char for cls in [Wall, Free, Food]]
 class TestStaticmethods(unittest.TestCase):
 
     def test_new_pos(self):
-        self.assertEqual(new_pos((1,1), (0,-1)), (1,0))
-        self.assertEqual(new_pos((1,1), (0,1)), (1,2))
-        self.assertEqual(new_pos((1,1), (-1,0)), (0,1))
-        self.assertEqual(new_pos((1,1), (1,0)), (2,1))
-        self.assertEqual(new_pos((1,1), (0,0)), (1,1))
+        self.assertEqual(new_pos((1,1), north), (1,0))
+        self.assertEqual(new_pos((1,1), south), (1,2))
+        self.assertEqual(new_pos((1,1), east), (2,1))
+        self.assertEqual(new_pos((1,1), west), (0,1))
+        self.assertEqual(new_pos((1,1), stop), (1,1))
 
     def test_get_initial_positions(self):
 
