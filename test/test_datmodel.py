@@ -26,6 +26,8 @@ class TestStaticmethods(unittest.TestCase):
         self.assertEqual(west, diff_pos((1, 1), (0, 1)))
         self.assertEqual(stop, diff_pos((1, 1), (1, 1)))
 
+        self.assertRaises(ValueError, diff_pos, (0, 0), (1, 1))
+
     def test_is_adjacent(self):
         self.assertTrue(is_adjacent((0, 0), (1, 0)))
         self.assertTrue(is_adjacent((0, 0), (0, 1)))

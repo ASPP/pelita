@@ -39,6 +39,10 @@ def new_pos(position, move):
 def diff_pos(initial, target):
     """ Return the move required to move from one pos to another.
 
+    Will return the move required to transition from `initial` to `target`. If
+    `initial` equals `target` this is `stop`. If the two are not adjacent a
+    `ValueError` will be raised.
+
     Parameters
     ----------
     initial : tuple of (int, int)
@@ -51,9 +55,18 @@ def diff_pos(initial, target):
     move : tuple of (int, int)
         the resulting move
 
+    Raises
+    ------
+    ValueError
+        if `initial` is not adjacent to `target`
+
     """
-    # TODO assert for adjacency
-    return (target[0]-initial[0], target[1]-initial[1])
+    if initial == target:
+        return stop
+    elif not is_adjacent(initial, target):
+        raise ValueError('%r is not adjacent to %r' % (initial, target))
+    else:
+        return (target[0]-initial[0], target[1]-initial[1])
 
 def is_adjacent(pos1, pos2):
     """ Check that two positions are adjacent
