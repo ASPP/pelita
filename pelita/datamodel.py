@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """ The datamodel. """
+
 import copy
 from pelita.layout import Layout
 from pelita.containers import Mesh, TypeAwareList
