@@ -763,9 +763,6 @@ class CTFUniverse(object):
 
         # TODO:
         # check for state change
-        # generate a list of events
-        # propagate those events to observers
-        # callbacks for the bots
 
     def get_legal_moves(self, position):
         """ Obtain legal moves and where they lead.
