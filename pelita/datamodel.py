@@ -15,6 +15,8 @@ west  = (-1, 0)
 east  = (1, 0)
 stop  = (0, 0)
 
+moves = [north, south, east, west, stop]
+
 def new_pos(position, move):
     """ Adds a position tuple and a move tuple.
 
@@ -682,7 +684,6 @@ class CTFUniverse(object):
 
     """
 
-    move_ids = [north, south, east, west, stop]
 
     def __init__(self, maze, teams, bots):
         self.maze = maze
@@ -797,7 +798,7 @@ class CTFUniverse(object):
         """
         events = TypeAwareList(base_class=UniverseEvent)
         # check legality of the move
-        if move not in self.move_ids:
+        if move not in moves:
             raise IllegalMoveException(
                 'Illegal move_id from bot %i: %s' % (bot_id, move))
         bot = self.bots[bot_id]
@@ -944,8 +945,7 @@ class CTFUniverse(object):
             mapping of moves to new positions (x, y)
 
         """
-        return dict([(move, new_pos(position, move)) for
-            move in self.move_ids])
+        return dict([(move, new_pos(position, move)) for move in moves])
 
     def _to_json_dict(self):
         return {"maze": self.maze,
