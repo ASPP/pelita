@@ -8,6 +8,12 @@ do_wc(){
     print $(wc -l $@ | tail -1 | sed 's/total//')
 }
 
+do_pylint(){
+    print $( pylint $@ &> /dev/null |
+        grep 'Your code' |
+        sed 's/Your\ code\ has\ been\ rated at\ \([^ ]*\) .*$/\1/' )
+}
+
 echo "Project summary / QA for pelita"
 echo "----------------------------------------------------------------------"
 echo "Lines of code:"
@@ -21,16 +27,10 @@ if ! which pylint &> /dev/null ; then
     echo "pylint not found in path! Can't do style checker!"
 else
     echo "Running pylint... please stand by!"
-    pelita_score=$( pylint pelita/**/*.py &> /dev/null | \
-        grep 'Your code' | sed 's/Your\ code\ has\ been\ rated at\ \([^ ]*\) .*$/\1/')
-    test_score=$( pylint test/**/*.py &> /dev/null | \
-        grep 'Your code' | sed 's/Your\ code\ has\ been\ rated at\ \([^ ]*\) .*$/\1/')
-    both_score=$( pylint {pelita,test}/**/*.py &> /dev/null | \
-        grep 'Your code' | sed 's/Your\ code\ has\ been\ rated at\ \([^ ]*\) .*$/\1/')
     echo "Pylint score:"
-    echo "  for pelita/               : "$pelita_score
-    echo "  for test/                 : "$test_score
-    echo "  for both/                 : "$both_score
+    echo "  for pelita/               : "$(do_pylint pelita/**/*.py )
+    echo "  for test/                 : "$( do_pylint test/**/*.py )
+    echo "  for both/                 : "$( do_pylint {pelita,test}/**/*.py )
 fi
 
 if ! which nosetests &> /dev/null ; then
