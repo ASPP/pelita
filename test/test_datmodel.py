@@ -37,6 +37,9 @@ class TestStaticmethods(unittest.TestCase):
         self.assertTrue(is_adjacent((0, 1), (0, 0)))
         self.assertFalse(is_adjacent((1, 1), (0, 0)))
 
+        self.assertFalse(is_adjacent((0, 0), (0, 0)))
+        self.assertFalse(is_adjacent((1, 1), (1, 1)))
+
     def test_get_initial_positions(self):
 
 
