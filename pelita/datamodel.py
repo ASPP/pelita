@@ -36,14 +36,14 @@ def new_pos(position, move):
     pos_y = position[1] + move[1]
     return (pos_x, pos_y)
 
-def diff_pos(pos1, pos2):
+def diff_pos(initial, target):
     """ Return the move required to move from one pos to another.
 
     Parameters
     ----------
-    pos1 : tuple of (int, int)
+    initial : tuple of (int, int)
         the starting position
-    pos2 : tuple of (int, int)
+    target : tuple of (int, int)
         the target position
 
     Returns
@@ -53,7 +53,7 @@ def diff_pos(pos1, pos2):
 
     """
     # TODO assert for adjacency
-    return (pos2[0]-pos1[0], pos2[1]-pos1[1])
+    return (target[0]-initial[0], target[1]-initial[1])
 
 @serializable
 class Team(object):
