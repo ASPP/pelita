@@ -37,6 +37,21 @@ def new_pos(position, move):
     return (pos_x, pos_y)
 
 def diff_pos(pos1, pos2):
+    """ Return the move required to move from one pos to another.
+
+    Parameters
+    ----------
+    pos1 : tuple of (int, int)
+        the starting position
+    pos2 : tuple of (int, int)
+        the target position
+
+    Returns
+    -------
+    move : tuple of (int, int)
+        the resulting move
+
+    """
     # TODO assert for adjacency
     return (pos2[0]-pos1[0], pos2[1]-pos1[1])
 
