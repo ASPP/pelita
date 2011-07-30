@@ -4,13 +4,17 @@
 # summary score of pylint and the results of testing. This is designed to give a
 # one page, easy-to-read summary of a few code quality metrics.
 
+do_wc(){
+    print $(wc -l $@ | tail -1 | sed 's/total//')
+}
+
 echo "Project summary / QA for pelita"
 echo "----------------------------------------------------------------------"
 echo "Lines of code:"
-echo "  in pelita/                : "$( wc -l pelita/**/*.py | tail -1 | sed 's/total//')
-echo "  in test/                  : "$( wc -l test/**/*.py | tail -1 | sed 's/total//')
-echo "  in pelita/messaging       : "$( wc -l pelita/messaging/**/*.py | tail -1 | sed 's/total//')
-echo "  in all                    : "$( wc -l {pelita,test}/**/*.py | tail -1 | sed 's/total//')
+echo "  in pelita/                : "$( do_wc pelita/**/*.py )
+echo "  in test/                  : "$( do_wc test/**/*.py )
+echo "  in pelita/messaging       : "$( do_wc pelita/messaging/**/*.py )
+echo "  in all                    : "$( do_wc {pelita,test}/**/*.py )
 echo ""
 
 if ! which pylint &> /dev/null ; then
