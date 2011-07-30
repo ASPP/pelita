@@ -19,6 +19,13 @@ class TestStaticmethods(unittest.TestCase):
         self.assertEqual(new_pos((1,1), west), (0,1))
         self.assertEqual(new_pos((1,1), stop), (1,1))
 
+    def test_diff_pos(self):
+        self.assertEqual(north, diff_pos((1,1), (1,0)))
+        self.assertEqual(south, diff_pos((1,1), (1,2)))
+        self.assertEqual(east, diff_pos((1,1), (2,1)))
+        self.assertEqual(west, diff_pos((1,1), (0,1)))
+        self.assertEqual(stop, diff_pos((1,1), (1,1)))
+
     def test_get_initial_positions(self):
 
 
