@@ -5,11 +5,19 @@ from pelita.containers import Mesh
 from pelita.datamodel import *
 from pelita.messaging.json_convert import json_converter
 
+
 # the legal chars for a basic CTFUniverse
 # see also: create_CTFUniverse factory.
 layout_chars = [cls.char for cls in [Wall, Free, Food]]
 
 class TestStaticmethods(unittest.TestCase):
+
+    def test_new_pos(self):
+        self.assertEqual(new_pos((1,1), (0,-1)), (1,0))
+        self.assertEqual(new_pos((1,1), (0,1)), (1,2))
+        self.assertEqual(new_pos((1,1), (-1,0)), (0,1))
+        self.assertEqual(new_pos((1,1), (1,0)), (2,1))
+        self.assertEqual(new_pos((1,1), (0,0)), (1,1))
 
     def test_get_initial_positions(self):
 

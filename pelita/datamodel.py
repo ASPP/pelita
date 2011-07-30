@@ -3,7 +3,7 @@
 """ The datamodel. """
 import copy
 from pelita.layout import Layout
-from pelita.containers import Mesh, new_pos, TypeAwareList
+from pelita.containers import Mesh, TypeAwareList
 from pelita.messaging.json_convert import serializable
 
 
@@ -14,6 +14,27 @@ south = (0, 1)
 west  = (-1, 0)
 east  = (1, 0)
 stop  = (0, 0)
+
+def new_pos(position, move):
+    """ Adds a position tuple and a move tuple.
+
+    Parameters
+    ----------
+    position : tuple of int (x, y)
+        current position
+
+    move : tuple of int (x, y)
+        direction vector
+
+    Returns
+    -------
+    new_pos : tuple of int (x, y)
+        new position coordinates
+
+    """
+    pos_x = position[0] + move[0]
+    pos_y = position[1] + move[1]
+    return (pos_x, pos_y)
 
 def diff_pos(pos1, pos2):
     # TODO assert for adjacency
