@@ -38,11 +38,15 @@ if ! which nosetests &> /dev/null ; then
 else
     echo ""
     echo "Running tests... please stand by!"
-    test_stats=$( nosetests --with-coverage --cover-package pelita 2>&1 >/dev/null)
-    echo "  Total number of tests     : "$( echo $test_stats | grep 'Ran' | sed 's/Ran\ \(.*\)\ tests.*/\1/' )
-    echo "  # assert statements       : "$( grep 'assert' -c test/**/*.py | sed 's/.*://' | \
+    test_stats=$( nosetests --with-cov --cover-package pelita 2>&1 >/dev/null)
+    echo "  Total number of tests     : "$( echo $test_stats |
+        grep 'Ran'|
+        sed 's/Ran\ \(.*\)\ tests.*/\1/' )
+    echo "  # assert statements       : "$( grep 'assert' -c test/**/*.py |
+        sed 's/.*://' |
         python -c "import sys; print sum(int(l) for l in sys.stdin)" )
-    echo "  Test coverage             : "$( echo $test_stats | grep 'TOTAL' |  sed 's/TOTAL.*\(......$\)/\1/')
+    echo "  Test coverage             : "$( echo $test_stats |
+        grep 'TOTAL' |  sed 's/TOTAL.*\(......$\)/\1/')
     echo "  Result                    : "$( echo $test_stats | tail -1)
 fi
 
