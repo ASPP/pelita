@@ -15,6 +15,9 @@ west  = (-1, 0)
 east  = (1, 0)
 stop  = (0, 0)
 
+def diff_pos(pos1, pos2):
+    # TODO assert for adjacency
+    return (pos2[0]-pos1[0], pos2[1]-pos1[1])
 
 @serializable
 class Team(object):

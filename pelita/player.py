@@ -2,7 +2,7 @@
 
 """ Base classes for player implementations. """
 
-from pelita.datamodel import stop, Free
+from pelita.datamodel import stop, Free, diff_pos
 from collections import deque
 import random
 
@@ -295,11 +295,6 @@ class BFSPlayer(AbstractPlayer):
         # path, so don't include it.
         return path[:-1]
 
-    @staticmethod
-    def pos_diff(pos1, pos2):
-        # TODO assert for adjacency
-        return (pos2[0]-pos1[0], pos2[1]-pos1[1])
-
     def get_move(self, universe):
         if self.current_pos == self.initial_pos:
             # we have probably been killed
@@ -308,4 +303,4 @@ class BFSPlayer(AbstractPlayer):
         if not self.current_path:
             self.current_path = self.bfs_food()
         new_pos = self.current_path.pop()
-        return self.pos_diff(self.current_pos, new_pos)
+        return diff_pos(self.current_pos, new_pos)
