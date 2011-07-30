@@ -33,7 +33,15 @@ def new_pos(position, move):
     new_pos : tuple of int (x, y)
         new position coordinates
 
+    Raises
+    ------
+    ValueError
+        if move is not one of the 5 possible moves
+        (`north`, `south`, `east`, `west` or `stop`)
+
     """
+    if move not in moves:
+        raise ValueError("%s is not a valid move tuple" % repr(move))
     pos_x = position[0] + move[0]
     pos_y = position[1] + move[1]
     return (pos_x, pos_y)
