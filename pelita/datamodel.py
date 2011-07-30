@@ -705,13 +705,13 @@ class CTFUniverse(object):
         ----------
         bot_id : int
             index of the bot
-        move : string
+        move : tuple of (int, int)
             direction to move in
 
         Returns
         -------
         events : list of UniverseEvent objects
-            the events that happend during the move
+            the events that happened during the move
 
         Raises
         ------
