@@ -17,11 +17,11 @@ if ! which pylint &> /dev/null ; then
     echo "pylint not found in path! Can't do style checker!"
 else
     echo "Running pylint... please stand by!"
-    pelita_score=$( pylint pelita/**/*.py &> /dev/null | tail -3 | \
+    pelita_score=$( pylint pelita/**/*.py &> /dev/null | \
         grep 'Your code' | sed 's/Your\ code\ has\ been\ rated at\ \([^ ]*\) .*$/\1/')
-    test_score=$( pylint test/**/*.py &> /dev/null | tail -3 | \
+    test_score=$( pylint test/**/*.py &> /dev/null | \
         grep 'Your code' | sed 's/Your\ code\ has\ been\ rated at\ \([^ ]*\) .*$/\1/')
-    both_score=$( pylint {pelita,test}/**/*.py &> /dev/null | tail -3 | \
+    both_score=$( pylint {pelita,test}/**/*.py &> /dev/null | \
         grep 'Your code' | sed 's/Your\ code\ has\ been\ rated at\ \([^ ]*\) .*$/\1/')
     echo "Pylint score:"
     echo "  for pelita/               : "$pelita_score
