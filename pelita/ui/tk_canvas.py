@@ -171,7 +171,8 @@ class TkApplication(Frame):
         for anim in self.animations:
             anim.step()
 
-        self.after(100, self.redraw)
+        self.canvas.canvas.update_idletasks()
+        self.after(10, self.redraw)
 
     def react(self, event):
         direction = event
