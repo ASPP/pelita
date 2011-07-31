@@ -3,36 +3,38 @@
 from Tkinter import *
 
 import Queue
-import math
-import cmath
 
 from pelita.datamodel import create_CTFUniverse
 from pelita import datamodel
 from pelita.layout import Layout
 
-def col(red, green, blue):
-    """Convert the given colours [0, 255] to HTML hex colours."""
-    return "#%02x%02x%02x" % (red, green, blue)
-
-def rotate(arc, rotation):
-    """Helper for rotation normalisation."""
-    return (arc + rotation) % 360
+from pelita.ui.tk_sprites import *
 
 class MeshGraph(object):
     """ A `MeshGraph` is a structure of `num_x` * `num_y` rectangles,
-    covering an area of `height` * `width`.
+    covering an area of `width`, `height`.
     """
-    def __init__(self, num_x, num_y, height, width):
+    def __init__(self, num_x, num_y, width, height):
         self.num_x = num_x
         self.num_y = num_y
         self.height = height
         self.width = width
 
-        self.rect_height = float(height) / num_x
-        self.rect_width = float(width) / num_y
+    @property
+    def rect_width(self):
+        return float(self.width) / self.num_x
 
-        self.half_scale_x = self.rect_height / 2.0
-        self.half_scale_y = self.rect_width / 2.0
+    @property
+    def rect_height(self):
+        return float(self.height) / self.num_y
+
+    @property
+    def half_scale_x(self):
+        return self.rect_width / 2.0
+
+    @property
+    def half_scale_y(self):
+        return self.rect_height / 2.0
 
     def mesh_to_real(self, mesh, coords):
         mesh_x, mesh_y = mesh
@@ -46,152 +48,22 @@ class MeshGraph(object):
         # coords are between -1 and +1: shift on [0, 1]
         trafo_x = (coords_x + 1.0) / 2.0
 
-        real_x = self.rect_height * (mesh_x + trafo_x)
+        real_x = self.rect_width * (mesh_x + trafo_x)
         return real_x
 
     def mesh_to_real_y(self, mesh_y, coords_y):
         # coords are between -1 and +1: shift on [0, 1]
         trafo_y = (coords_y + 1.0) / 2.0
 
-        real_y = self.rect_width * (mesh_y + trafo_y)
+        real_y = self.rect_height * (mesh_y + trafo_y)
         return real_y
 
-class TkSprite(object):
-    def __init__(self, mesh):
-        self.x = 0
-        self.y = 0
-        self.height = 1
-        self.width = 1
-        self.is_hidden = True
-
-        self.direction = 0
-
-        self.mesh = mesh
-
-    def rotate(self, darc):
-        pass
-
-    def rotate_to(self, arc):
-        pass
-
-    @property
-    def position(self):
-        if self.is_hidden:
-            return (0, 0)
-        return (self.x, self.y)
-
-    @position.setter
-    def position(self, position):
-        self.x = position[0]
-        self.y = position[1]
-
-    def hide(self):
-        self.is_hidden = True
-
-    def show(self):
-        self.is_hidden = False
-
-    def draw(self, canvas):
-        raise NotImplementedError
-
-    def box(self, factor=1.0):
-        return ((self.x) - self.width * factor * self.mesh.half_scale_x, (self.y) - self.height * factor * self.mesh.half_scale_y,
-                (self.x) + self.width * factor * self.mesh.half_scale_x, (self.y) + self.height * factor * self.mesh.half_scale_y)
-
-    @property
-    def tag(self):
-        return "tag" + str(id(self))
-
-    def move(self, canvas, dx, dy):
-        self.x += dx
-        self.y += dy
-        canvas.move(self.tag, dx, dy)
-
-    def moveto(self, canvas, x, y):
-        self.x = x
-        self.y = y
-        self.redraw(canvas)
-
-    def redraw(self, canvas):
-        canvas.delete(self.tag)
-        self.draw(canvas)
-
-class BotSprite(TkSprite):
-    def __init__(self, scale):
-        super(BotSprite, self).__init__(scale)
-        self.score = 0
-
-    def rotate(self, darc):
-        self.direction += darc
-        self.direction %= 360
-
-    def rotate_to(self, arc):
-        self.direction = arc % 360
-
-    def draw_bot(self, canvas, outer_col, eye_col, central_col=col(235, 235, 50)):
-        bounding_box = self.box()
-        scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5 # TODO: what, if x >> y?
-
-        direction = self.direction
-        rot = lambda x: rotate(x, direction)
-
-        #canvas.create_oval(self.box(1.1), width=0.25 * scale, outline="black", tag=self.tag)
-
-        canvas.create_arc(bounding_box, start=rot(30), extent=300, style="arc", width=0.2 * scale, outline=outer_col, tag=self.tag)
-        canvas.create_arc(bounding_box, start=rot(-20), extent=15, style="arc", width=0.2 * scale, outline=outer_col, tag=self.tag)
-        canvas.create_arc(bounding_box, start=rot(5), extent=15, style="arc", width=0.2 * scale, outline=outer_col, tag=self.tag)
-
-        canvas.create_arc(bounding_box, start=rot(-30), extent=10, style="arc", width=0.2 * scale, outline=eye_col, tag=self.tag)
-        canvas.create_arc(bounding_box, start=rot(20), extent=10, style="arc", width=0.2 * scale, outline=eye_col, tag=self.tag)
-
-        canvas.create_arc(bounding_box, start=rot(-5), extent=10, style="arc", width=0.2 * scale, outline=central_col, tag=self.tag)
-
-        score = self.score
-        canvas.create_text(self.x, self.y, text=score, font=(None, int(0.5 * scale)), tag=self.tag)
-
-
-class Harvester(BotSprite):
-    def draw(self, canvas):
-        self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col=col(235, 60, 60))
-
-class Destroyer(BotSprite):
-    def draw(self, canvas):
-        self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col=col(94, 158, 217))
-        self.draw_polygon(canvas)
-
-    def draw_polygon(self, canvas):
-        scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5 # TODO: what, if x >> y?
-
-        direction = 110
-
-        penta_arcs = range(0 - direction, 360 - direction, 360 / 5)
-        penta_arcs_inner = [arc + 360 / 5 / 2.0 for arc in penta_arcs]
-
-        coords = []
-        for a, i in zip(penta_arcs, penta_arcs_inner):
-            # we rotate with the help of complex numbers
-            n = cmath.rect(scale * 0.85, math.radians(a))
-            coords.append((n.real + self.x, n.imag + self.y))
-            n = cmath.rect(scale * 0.3, math.radians(i))
-            coords.append((n.real + self.x, n.imag + self.y))
-
-        canvas.create_polygon(width=0.05 * scale, fill="", outline=col(94, 158, 217), *coords)
-
-class Wall(TkSprite):
-    def draw(self, canvas):
-        canvas.create_oval(self.box(0.3), fill=col(94, 158, 217), tag=self.tag)
-
-class Food(TkSprite):
-    def draw(self, canvas):
-        canvas.create_oval(self.box(0.3), fill=col(217, 158, 158), tag=self.tag)
-
 class UiCanvas(object):
-    def __init__(self, master, mesh_graph):
-        self.mesh_graph = mesh_graph
+    def __init__(self, master):
+        self.mesh_graph = None
 
         self.master = master
-        self.canvas = Canvas(self.master, width=self.mesh_graph.width, height=self.mesh_graph.height)
-        self.canvas.pack()
+        self.canvas = None
 
         self.registered_items = []
         self.mapping = {
@@ -199,10 +71,51 @@ class UiCanvas(object):
             datamodel.Food: Food
         }
 
+    def init_canvas(self):
+        self.canvas = Canvas(self.master, width=self.mesh_graph.width, height=self.mesh_graph.height)
+        self.canvas.pack(fill=BOTH, expand=YES)
+        self.canvas.bind('<Configure>', self.resize)
+
+    def update(self, universe):
+        print "update"
+        if not self.canvas:
+            if not self.mesh_graph:
+                width = universe.maze.width
+                height = universe.maze.height
+                scale = 60
+                self.mesh_graph = MeshGraph(width, height, scale * width, scale * height)
+            self.init_canvas()
+
+        self.mesh_graph.num_x = universe.maze.width
+        self.mesh_graph.num_y = universe.maze.height
+        self.clear()
+        self.draw_mesh(universe.maze)
+        self.draw_bots(universe)
+
+    def clear(self):
+        self.canvas.delete(ALL)
+
+    def resize(self, event):
+        print '(%d, %d)' % (event.width, event.height)
+        self.mesh_graph.width = event.width
+        self.mesh_graph.height = event.height
+
     def draw_mesh(self, mesh):
         for position, items in mesh.iteritems():
             x, y = position
             self.draw_items(items, x, y)
+
+    def draw_bots(self, universe):
+        for bot in universe.bots:
+            pos = bot.current_pos
+            if bot.is_harvester:
+                tk_bot = Harvester(self.mesh_graph)
+            else:
+                tk_bot = Destroyer(self.mesh_graph)
+            tk_bot.position = self.mesh_graph.mesh_to_real(pos, (0, 0))
+            tk_bot.score = universe.teams[bot.team_index].score
+            tk_bot.show()
+            tk_bot.draw(self.canvas)
 
     def draw_items(self, items, x, y):
         item_class = None
@@ -226,29 +139,33 @@ class UiCanvas(object):
         item.move(self.canvas, x * self.mesh_graph.rect_width, y * self.mesh_graph.rect_height)
 
 class TkApplication(Frame):
-    def __init__(self, graph, queue, master=None):
+    def __init__(self, queue, master=None):
         Frame.__init__(self, master) # old style
-        self.pack()
-        self.create_widgets(graph)
+
         self.queue = queue
+
+        self.pack(fill=BOTH, expand=YES)
+        self.ui_canvas = UiCanvas(self)
 
         self.animations = []
 
-    def start_drawing(self):
-        self.redraw()
-        self.update_application()
-
-    def create_widgets(self, graph):
-        self.canvas = UiCanvas(self, graph)
-
-    def update_application(self):
+    def read_queue(self):
         try:
-            event = self.queue.get(False)
-            print "got", event
-            self.react(event)
-            self.after(3000, self.update_application)
+            # read all events.
+            # if queue is empty, try again in 500 ms
+            while True:
+                observed = self.queue.get(False)
+                self.observe(observed)
         except Queue.Empty:
-            self.quit()
+            self.after(500, self.read_queue)
+
+    def observe(self, observed):
+        round = observed["round"]
+        turn = observed["turn"]
+        universe = observed["universe"]
+        events = observed["events"]
+
+        self.ui_canvas.update(universe)
 
     def redraw(self):
         for anim in self.animations:
@@ -279,7 +196,6 @@ class TkApplication(Frame):
         self.on_quit()
         Frame.quit(self)
 
-import threading
 import time
 
 class Animation(object):
@@ -356,63 +272,3 @@ class Animation(object):
 
         anim._step = translate
         return anim
-
-
-
-from pelita.messaging import Notification
-from pelita.messaging import DispatchingActor, expose, actor_of
-
-East = Notification("go_to", [(1, 0)]).dict
-West = Notification("go_to", [(-1, 0)]).dict
-South = Notification("go_to", [(0, 1)]).dict
-North = Notification("go_to", [(0, -1)]).dict
-
-
-if __name__ == "__main__":
-    import logging
-    logging.basicConfig()
-
-    test_layout = (
-            """ ########
-                #0     #
-                #  .   #
-                #    1 #
-                ######## """)
-
-    mesh = create_CTFUniverse(Layout.strip_layout(test_layout), 2).maze
-
-    scale = 60
-    mesh_graph = MeshGraph(mesh.height, mesh.width, mesh.height * scale, mesh.width * scale)
-
-    event_queue = Queue.Queue()
-    app = TkApplication(mesh_graph, event_queue)
-
-    class CanvasActor(DispatchingActor):
-        @expose
-        def go_to(self, message, direction):
-            event_queue.put(direction)
-
-
-    mesh[3,3] = "."
-
-    canvas = app.canvas
-    canvas.draw_mesh(mesh)
-
-    actor = actor_of(CanvasActor)
-    actor.start()
-
-    app.on_quit = actor.stop
-
-    actor.put(South)
-    actor.put(East)
-    actor.put(North)
-    actor.put(West)
-
-    #anim_seq = Animation.sequence(
-    #    Animation.rotate(canvas, canvas.registered_items[9], 90),
-    #    Animation.move(canvas, canvas.registered_items[9], (1, 2), delay=5, step_len=0.1),
-    #    )
-    #anim_seq.start()
-
-    app.after_idle(app.start_drawing)
-    app.mainloop()
