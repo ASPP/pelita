@@ -41,6 +41,13 @@ class TkSprite(object):
         self.x = position[0]
         self.y = position[1]
 
+    @property
+    def real_position(self):
+        return self.mesh.mesh_to_real((self.x, self.y), (0, 0))
+
+    def real(self, shift=(0, 0)):
+        return self.mesh.mesh_to_real((self.x, self.y), shift)
+
     def hide(self):
         self.is_hidden = True
 
@@ -51,8 +58,8 @@ class TkSprite(object):
         raise NotImplementedError
 
     def box(self, factor=1.0):
-        return ((self.x) - self.width * factor * self.mesh.half_scale_x, (self.y) - self.height * factor * self.mesh.half_scale_y,
-                (self.x) + self.width * factor * self.mesh.half_scale_x, (self.y) + self.height * factor * self.mesh.half_scale_y)
+        return (self.real((-factor, -factor)),
+                self.real((+factor, +factor)))
 
     @property
     def tag(self):
@@ -103,7 +110,7 @@ class BotSprite(TkSprite):
         canvas.create_arc(bounding_box, start=rot(-5), extent=10, style="arc", width=0.2 * scale, outline=central_col, tag=self.tag)
 
         score = self.score
-        canvas.create_text(self.x, self.y, text=score, font=(None, int(0.5 * scale)), tag=self.tag)
+        canvas.create_text(self.real_position[0], self.real_position[1], text=score, font=(None, int(0.5 * scale)), tag=self.tag)
 
 
 class Harvester(BotSprite):
@@ -118,7 +125,7 @@ class Destroyer(BotSprite):
     def draw_polygon(self, canvas):
         scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5 # TODO: what, if x >> y?
 
-        direction = 110
+        direction = self.direction
 
         penta_arcs = range(0 - direction, 360 - direction, 360 / 5)
         penta_arcs_inner = [arc + 360 / 5 / 2.0 for arc in penta_arcs]
@@ -126,11 +133,12 @@ class Destroyer(BotSprite):
         coords = []
         for a, i in zip(penta_arcs, penta_arcs_inner):
             # we rotate with the help of complex numbers
-            n = cmath.rect(scale * 0.85, math.radians(a))
-            coords.append((n.real + self.x, n.imag + self.y))
-            n = cmath.rect(scale * 0.3, math.radians(i))
-            coords.append((n.real + self.x, n.imag + self.y))
+            n = cmath.rect(0.85, math.radians(a))
+            coords.append((n.real, n.imag))
+            n = cmath.rect(0.3, math.radians(i))
+            coords.append((n.real, n.imag))
 
+        coords = [self.real(coord) for coord in coords]
         canvas.create_polygon(width=0.05 * scale, fill="", outline=col(94, 158, 217), *coords)
 
 class Wall(TkSprite):

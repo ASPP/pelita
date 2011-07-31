@@ -112,7 +112,7 @@ class UiCanvas(object):
                 tk_bot = Harvester(self.mesh_graph)
             else:
                 tk_bot = Destroyer(self.mesh_graph)
-            tk_bot.position = self.mesh_graph.mesh_to_real(pos, (0, 0))
+            tk_bot.position = pos
             tk_bot.score = universe.teams[bot.team_index].score
             tk_bot.show()
             tk_bot.draw(self.canvas)
@@ -130,7 +130,7 @@ class UiCanvas(object):
         item = item_class(self.mesh_graph)
         self.registered_items.append(item)
 
-        item.position = self.mesh_graph.mesh_to_real((x, y), (0, 0))
+        item.position = x, y
 
         item.show()
         item.draw(self.canvas)
