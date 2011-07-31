@@ -12,28 +12,16 @@ def rotate(arc, rotation):
     return (arc + rotation) % 360
 
 class TkSprite(object):
-    def __init__(self, mesh):
-        self.x = 0
-        self.y = 0
-
-        self.width = 1
-        self.height = 1
-        self.is_hidden = True
-
-        self.direction = 0
-
+    def __init__(self, mesh, x=0, y=0, direction=0):
         self.mesh = mesh
 
-    def rotate(self, darc):
-        pass
+        self.x = x
+        self.y = y
 
-    def rotate_to(self, arc):
-        pass
+        self.direction = direction
 
     @property
     def position(self):
-        if self.is_hidden:
-            return (0, 0)
         return (self.x, self.y)
 
     @position.setter
@@ -47,12 +35,6 @@ class TkSprite(object):
 
     def real(self, shift=(0, 0)):
         return self.mesh.mesh_to_real((self.x, self.y), shift)
-
-    def hide(self):
-        self.is_hidden = True
-
-    def show(self):
-        self.is_hidden = False
 
     def draw(self, canvas):
         raise NotImplementedError
@@ -75,21 +57,24 @@ class TkSprite(object):
         self.y = y
         self.redraw(canvas)
 
-    def redraw(self, canvas):
-        canvas.delete(self.tag)
-        self.draw(canvas)
-
-class BotSprite(TkSprite):
-    def __init__(self, scale):
-        super(BotSprite, self).__init__(scale)
-        self.score = 0
-
     def rotate(self, darc):
         self.direction += darc
         self.direction %= 360
 
     def rotate_to(self, arc):
         self.direction = arc % 360
+
+    def redraw(self, canvas):
+        canvas.delete(self.tag)
+        self.draw(canvas)
+
+class BotSprite(TkSprite):
+    def __init__(self, mesh, score=0, bot_type=None, **kwargs):
+        self.score = score
+
+        self.bot_type = bot_type
+
+        super(BotSprite, self).__init__(mesh, **kwargs)
 
     def draw_bot(self, canvas, outer_col, eye_col, central_col=col(235, 235, 50)):
         bounding_box = self.box()
@@ -112,6 +97,10 @@ class BotSprite(TkSprite):
         score = self.score
         canvas.create_text(self.real_position[0], self.real_position[1], text=score, font=(None, int(0.5 * scale)), tag=self.tag)
 
+    def draw(self, canvas):
+        # A curious case of delegation
+        args = dict(self.__dict__)
+        self.bot_type(**args).draw(canvas)
 
 class Harvester(BotSprite):
     def draw(self, canvas):
@@ -127,7 +116,7 @@ class Destroyer(BotSprite):
 
         direction = self.direction
 
-        penta_arcs = range(0 - direction, 360 - direction, 360 / 5)
+        penta_arcs = [arc - direction for arc in range(0, 360, 360 / 5)]
         penta_arcs_inner = [arc + 360 / 5 / 2.0 for arc in penta_arcs]
 
         coords = []

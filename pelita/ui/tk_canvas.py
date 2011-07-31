@@ -84,7 +84,11 @@ class UiCanvas(object):
                 height = universe.maze.height
                 scale = 60
                 self.mesh_graph = MeshGraph(width, height, scale * width, scale * height)
+
+                self.bot_sprites = {}
+
             self.init_canvas()
+            self.init_bots(universe)
 
         self.mesh_graph.num_x = universe.maze.width
         self.mesh_graph.num_y = universe.maze.height
@@ -105,17 +109,23 @@ class UiCanvas(object):
             x, y = position
             self.draw_items(items, x, y)
 
-    def draw_bots(self, universe):
+    def init_bots(self, universe):
         for bot in universe.bots:
-            pos = bot.current_pos
+            self.bot_sprites[bot.index] = BotSprite(self.mesh_graph)
+
+    def draw_bots(self, universe):
+        for bot_idx, bot_sprite in self.bot_sprites.iteritems():
+            bot = universe.bots[bot_idx]
+
+            bot_sprite.position = bot.current_pos
+
             if bot.is_harvester:
-                tk_bot = Harvester(self.mesh_graph)
+                bot_sprite.bot_type = Harvester # Harvester(self.mesh_graph)
             else:
-                tk_bot = Destroyer(self.mesh_graph)
-            tk_bot.position = pos
-            tk_bot.score = universe.teams[bot.team_index].score
-            tk_bot.show()
-            tk_bot.draw(self.canvas)
+                bot_sprite.bot_type = Destroyer # (self.mesh_graph)
+
+            bot_sprite.score = universe.teams[bot.team_index].score
+            bot_sprite.draw(self.canvas)
 
     def draw_items(self, items, x, y):
         item_class = None
@@ -132,7 +142,6 @@ class UiCanvas(object):
 
         item.position = x, y
 
-        item.show()
         item.draw(self.canvas)
 
     def move(self, item, x, y):
