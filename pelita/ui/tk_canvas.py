@@ -3,6 +3,7 @@
 from Tkinter import *
 
 import Queue
+import math
 import cmath
 
 from pelita.datamodel import create_CTFUniverse
@@ -13,6 +14,7 @@ def col(*rgb):
     return "#%02x%02x%02x" % rgb
 
 def rotate(arc, rotation):
+    """Helper for rotation normalisation."""
     return (arc + rotation) % 360
 
 class MeshGraph(object):
@@ -162,9 +164,9 @@ class Destroyer(BotSprite):
         coords = []
         for a, i in zip(penta_arcs, penta_arcs_inner):
             # we rotate with the help of complex numbers
-            n = cmath.rect(scale * 0.85, a * cmath.pi / 180.0)
+            n = cmath.rect(scale * 0.85, math.radians(a))
             coords.append((n.real + self.x, n.imag + self.y))
-            n = cmath.rect(scale * 0.3, i * cmath.pi / 180.0)
+            n = cmath.rect(scale * 0.3, math.radians(i))
             coords.append((n.real + self.x, n.imag + self.y))
 
         canvas.create_polygon(width=0.05 * scale, fill="", outline=col(94, 158, 217), *coords)
@@ -251,7 +253,7 @@ class TkApplication(Frame):
     def react(self, event):
         direction = event
         pos = complex(direction[0], - direction[1])
-        arc = int(cmath.phase(pos) / cmath.pi * 180)
+        arc = math.degrees(cmath.phase(pos))
 
         anim_seq = [
             Animation.rotate_to(canvas, canvas.registered_items[8], arc),
