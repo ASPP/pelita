@@ -10,8 +10,9 @@ from pelita.datamodel import create_CTFUniverse
 from pelita import datamodel
 from pelita.layout import Layout
 
-def col(*rgb):
-    return "#%02x%02x%02x" % rgb
+def col(red, green, blue):
+    """Convert the given colours [0, 255] to HTML hex colours."""
+    return "#%02x%02x%02x" % (red, green, blue)
 
 def rotate(arc, rotation):
     """Helper for rotation normalisation."""
