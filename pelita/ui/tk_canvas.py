@@ -106,6 +106,11 @@ class TkSprite(object):
         self.y += dy
         canvas.move(self.tag, dx, dy)
 
+    def moveto(self, canvas, x, y):
+        self.x = x
+        self.y = y
+        self.redraw(canvas)
+
     def redraw(self, canvas):
         canvas.delete(self.tag)
         self.draw(canvas)
@@ -345,9 +350,7 @@ class Animation(object):
             pos_x = anim.old_pos_x + dx * rate
             pos_y = anim.old_pos_y + dy * rate
 
-            item.position = pos_x, pos_y
-            item.redraw(canvas.canvas)
-            #item.redraw(canvas.canvas)
+            item.moveto(canvas.canvas, pos_x, pos_y)
 
         anim._step = translate
         return anim
