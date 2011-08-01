@@ -15,8 +15,9 @@ class TkViewer(AbstractViewer):
         print "observed", events
         import time
         time.sleep(0.5)
-        self.observe_queue.put({
+        import copy
+        self.observe_queue.put(copy.deepcopy({
             "round": round_,
             "turn": turn,
             "universe": universe,
-            "events": events})
+            "events": events}))
