@@ -93,7 +93,7 @@ class GameMaster(object):
 
         """
         for i, p in enumerate(self.players):
-            move = p._get_move(self.universe)
+            move = p._get_move(self.universe.copy())
             events = self.universe.move_bot(i, move)
             for v in self.viewers:
                 v.observe(current_game_time, i, self.universe.copy(), copy.deepcopy(events))

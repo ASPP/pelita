@@ -138,6 +138,43 @@ class TestGame(unittest.TestCase):
                 ###### """)
         self.assertEqual(create_TestUniverse(test_sixth_round), gm.universe)
 
+    def test_malicous_player(self):
+        free_obj = Free()
+
+        class MaliciousPlayer(AbstractPlayer):
+            def _get_move(self, universe):
+                universe.teams[0].score = 100
+                universe.bots[0].current_pos = (2,2)
+                universe.maze[0,0][0] = free_obj
+                return (0,0)
+
+            def get_move(self, universe):
+                pass
+
+        test_layout = (
+            """ ######
+                #0 . #
+                #.. 1#
+                ###### """)
+        gm = GameMaster(test_layout, 2, 200)
+
+        original_universe = gm.universe.copy()
+
+        test_self = self
+        class TestMaliciousPlayer(AbstractPlayer):
+            def get_move(self, universe):
+                # universe should not have been altered
+                test_self.assertEqual(original_universe, gm.universe)
+                return (0,0)
+
+        gm.register_player(MaliciousPlayer())
+        gm.register_player(TestMaliciousPlayer())
+
+        gm.play_round(0)
+
+        test_self.assertEqual(original_universe, gm.universe)
+
+
     def test_viewer_must_not_change_gm(self):
         free_obj = Free()
 
