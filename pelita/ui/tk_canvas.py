@@ -108,13 +108,14 @@ class UiCanvas(object):
 
                 arc = math.degrees(cmath.phase(direction))
 
-                self.waiting_animations += [
-                    Animation.rotate_to(self, bot_sprite, arc, duration=0.1),
+                self.waiting_animations.append(Animation.sequence([
+                    Animation.rotate(self, bot_sprite, arc, duration=0.1),
                     Animation.move(self, bot_sprite, (direction.real, - direction.imag), duration=0.1)
-                ]
+                ]))
 
         if self.waiting_animations:
             for animation in self.waiting_animations:
+
                 if not animation.start_time:
                     animation.start()
 
@@ -129,11 +130,10 @@ class UiCanvas(object):
             return
 
         if universe:
-            self.waiting_animations = []
+            #self.waiting_animations = []
             self.clear()
             self.draw_mesh(universe.maze)
             self.draw_bots(universe)
-
 
     def clear(self):
         self.canvas.delete(ALL)
@@ -174,7 +174,7 @@ class UiCanvas(object):
                 bot_sprite.bot_type = Destroyer # (self.mesh_graph)
 
             bot_sprite.score = universe.teams[bot.team_index].score
-            bot_sprite.draw(self.canvas)
+            bot_sprite.redraw(self.canvas)
 
     def draw_items(self, items, x, y):
         item_class = None
@@ -191,7 +191,7 @@ class UiCanvas(object):
 
         item.position = x, y
 
-        item.draw(self.canvas)
+        item.redraw(self.canvas)
 
     def move(self, item, x, y):
         item.move(self.canvas, x * self.mesh_graph.rect_width, y * self.mesh_graph.rect_height)
@@ -313,3 +313,24 @@ class Animation(object):
 
         anim._step = translate
         return anim
+
+    @classmethod
+    def sequence(cls, animations):
+        duration = sum(anim.duration for anim in animations)
+
+        seq = cls(duration)
+        seq.animations = animations
+        seq.current_animation = None
+
+        def step():
+            if not seq.current_animation or seq.current_animation.is_finished:
+                try:
+                    seq.current_animation = seq.animations.pop(0)
+                    seq.current_animation.start()
+                except IndexError:
+                    return
+
+            seq.current_animation.step()
+
+        seq._step = step
+        return seq
