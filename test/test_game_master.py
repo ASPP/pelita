@@ -137,3 +137,48 @@ class TestGame(unittest.TestCase):
                 #.1  #
                 ###### """)
         self.assertEqual(create_TestUniverse(test_sixth_round), gm.universe)
+
+    def test_viewer_must_not_change_gm(self):
+        free_obj = Free()
+
+        class MeanViewer(AbstractViewer):
+            def observe(self, round_, turn, universe, events):
+                universe.teams[0].score = 100
+                universe.bots[0].current_pos = (4,4)
+                universe.maze[0,0][0] = free_obj
+
+                events.append(TeamWins(0))
+                test_self.assertEqual(len(events), 2)
+
+        test_start = (
+            """ ######
+                #0 . #
+                #.. 1#
+                ###### """)
+
+        number_bots = 2
+
+        gm = GameMaster(test_start, number_bots, 200)
+        gm.register_player(TestPlayer([(0,0)]))
+        gm.register_player(TestPlayer([(0,0)]))
+
+        original_universe = gm.universe.copy()
+
+        test_self = self
+        class TestViewer(AbstractViewer):
+            def observe(self, round_, turn, universe, events):
+                # universe should not have been altered
+                test_self.assertEqual(original_universe, gm.universe)
+                
+                # there should only be a botmoves event
+                test_self.assertEqual(len(events), 1)
+                test_self.assertTrue(BotMoves in events)
+
+        gm.register_viewer(MeanViewer())
+        gm.register_viewer(TestViewer())
+
+        gm.play_round(0)
+
+        self.assertEqual(original_universe, gm.universe)
+
+

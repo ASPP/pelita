@@ -2,6 +2,8 @@
 
 """ The controller """
 
+import copy
+
 import pelita.datamodel as uni
 from pelita.player import AbstractPlayer
 from pelita.viewer import AbstractViewer
@@ -94,7 +96,7 @@ class GameMaster(object):
             move = p._get_move(self.universe)
             events = self.universe.move_bot(i, move)
             for v in self.viewers:
-                v.observe(current_game_time, i, self.universe, events)
+                v.observe(current_game_time, i, self.universe.copy(), copy.deepcopy(events))
             if uni.TeamWins in events:
                 return False
         return True
