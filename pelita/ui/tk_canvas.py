@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from Tkinter import *
-
+import Tkinter
 import Queue
 
 from pelita.datamodel import create_CTFUniverse
@@ -73,12 +72,15 @@ class UiCanvas(object):
 
         self.waiting_animations = []
 
+        self.current_universe = None
+        self.previous_universe = None
+
     def init_canvas(self):
-        self.canvas = Canvas(self.master, width=self.mesh_graph.width, height=self.mesh_graph.height)
-        self.canvas.pack(fill=BOTH, expand=YES)
+        self.canvas = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=self.mesh_graph.height)
+        self.canvas.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
         self.canvas.bind('<Configure>', self.resize)
 
-    def update(self, events=None, universe=None):
+    def update(self, events, universe):
         if not self.canvas:
             if not self.mesh_graph:
                 width = universe.maze.width
@@ -91,27 +93,47 @@ class UiCanvas(object):
             self.init_canvas()
             self.init_bots(universe)
 
-        if universe:
-            self.mesh_graph.num_x = universe.maze.width
-            self.mesh_graph.num_y = universe.maze.height
+        self.previous_universe = self.current_universe
+        self.current_universe = universe
 
+        if not self.previous_universe:
+            self.draw_universe(self.current_universe)
+        else:
+            self.draw_universe(self.previous_universe)
+
+        self.draw_events(events)
+
+    def draw_universe(self, universe):
+        self.mesh_graph.num_x = universe.maze.width
+        self.mesh_graph.num_y = universe.maze.height
+
+        #self.waiting_animations = []
+        self.clear()
+        self.draw_mesh(universe.maze)
+        self.draw_bots(universe)
+
+    def draw_events(self, events=None):
         if events:
             move_events = events.filter_type(datamodel.BotMoves)
             for move_event in move_events:
+                if not self.previous_universe:
+                    continue
+
                 bot_idx = move_event.bot_index
                 bot_sprite = self.bot_sprites[bot_idx]
 
-                old_pos = complex(*bot_sprite.position).conjugate()
-                new_pos = complex(*universe.bots[bot_idx].current_pos).conjugate()
+                old_pos = complex(*self.previous_universe.bots[bot_idx].current_pos).conjugate()
+                new_pos = complex(*self.current_universe.bots[bot_idx].current_pos).conjugate()
 
                 direction = new_pos - old_pos
 
                 arc = math.degrees(cmath.phase(direction))
 
-                self.waiting_animations.append(Animation.sequence([
-                    Animation.rotate_to(self, bot_sprite, arc, duration=0.2),
-                    Animation.move_to(self, bot_sprite, (new_pos.real, - new_pos.imag), duration=0.2)
-                ]))
+                if direction != 0:
+                    self.waiting_animations.append(Animation.sequence([
+                        Animation.rotate_to(self, bot_sprite, arc, duration=0.2),
+                        Animation.move_to(self, bot_sprite, (old_pos.real, -old_pos.imag), (new_pos.real, - new_pos.imag), duration=0.2)
+                    ]))
 
         if self.waiting_animations:
             for animation in self.waiting_animations:
@@ -120,26 +142,26 @@ class UiCanvas(object):
                     animation.start()
 
                 animation.step()
-                self.canvas.update_idletasks()
 
             # delete finished
             self.waiting_animations = [anim for anim in self.waiting_animations if not anim.is_finished]
 
             # come back again
-            self.canvas.after(10, self.update, None, universe)
-            return
+            self.canvas.after(10, self.draw_events, None)
 
-        if universe:
-            #self.waiting_animations = []
-            self.clear()
-            self.draw_mesh(universe.maze)
-            self.draw_bots(universe)
+            tk_items = self.canvas.find_all()
+
+            self.canvas.update_idletasks()
+            return
+        self.canvas.after(10, self.finish_events)
+
+    def finish_events(self):
+        self.draw_universe(self.current_universe)
 
     def clear(self):
-        self.canvas.delete(ALL)
+        self.canvas.delete(Tkinter.ALL)
 
     def resize(self, event):
-        print '(%d, %d)' % (event.width, event.height)
         self.mesh_graph.width = event.width
         self.mesh_graph.height = event.height
 
@@ -196,13 +218,13 @@ class UiCanvas(object):
     def move(self, item, x, y):
         item.move(self.canvas, x * self.mesh_graph.rect_width, y * self.mesh_graph.rect_height)
 
-class TkApplication(Frame):
+class TkApplication(Tkinter.Frame):
     def __init__(self, queue, master=None):
-        Frame.__init__(self, master) # old style
+        Tkinter.Frame.__init__(self, master) # old style
 
         self.queue = queue
 
-        self.pack(fill=BOTH, expand=YES)
+        self.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
         self.ui_canvas = UiCanvas(self)
 
     def read_queue(self):
@@ -212,6 +234,9 @@ class TkApplication(Frame):
             while True:
                 observed = self.queue.get(False)
                 self.observe(observed)
+                
+                self.after(500, self.read_queue)
+                return
         except Queue.Empty:
             self.after(500, self.read_queue)
 
@@ -297,13 +322,13 @@ class Animation(object):
         return anim
 
     @classmethod
-    def move_to(cls, canvas, item, new_pos, duration=0.5):
+    def move_to(cls, canvas, item, from_pos, to_pos, duration=0.5):
         anim = cls(duration)
 
         def start():
-            anim.old_position = item.position
-            anim.diff_position = (new_pos[0] - anim.old_position[0],
-                                  new_pos[1] - anim.old_position[1])
+            anim.old_position = from_pos
+            anim.diff_position = (to_pos[0] - anim.old_position[0],
+                                  to_pos[1] - anim.old_position[1])
 
         def translate():
             rate = anim.rate()
@@ -332,7 +357,6 @@ class Animation(object):
                     seq.current_animation.start()
                 except IndexError:
                     return
-            print seq.animations
             seq.current_animation.step()
 
         seq._step = step

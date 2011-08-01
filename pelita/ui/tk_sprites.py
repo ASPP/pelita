@@ -12,11 +12,13 @@ def rotate(arc, rotation):
     return (arc + rotation) % 360
 
 class TkSprite(object):
-    def __init__(self, mesh, x=0, y=0, direction=0):
+    def __init__(self, mesh, x=0, y=0, direction=0, _tag=None):
         self.mesh = mesh
 
         self.x = x
         self.y = y
+
+        self._tag = _tag
 
         self.direction = direction
 
@@ -52,7 +54,8 @@ class TkSprite(object):
 
     @property
     def tag(self):
-        return "tag" + str(id(self))
+        _tag = self._tag or "tag" + str(id(self))
+        return _tag
 
     def move(self, canvas, dx, dy):
         self.x += dx
@@ -92,7 +95,7 @@ class BotSprite(TkSprite):
 
         #canvas.create_oval(self.box(1.1), width=0.25 * scale, outline="black", tag=self.tag)
 
-        canvas.create_arc(bounding_box, start=rot(30), extent=300, style="arc", width=0.2 * scale, outline=outer_col, tag=self.tag)
+        canvas.create_arc(bounding_box, start=rot(30), extent=300, style="arc", width=0.2 * scale, outline=outer_col, tags=self.tag)
         canvas.create_arc(bounding_box, start=rot(-20), extent=15, style="arc", width=0.2 * scale, outline=outer_col, tag=self.tag)
         canvas.create_arc(bounding_box, start=rot(5), extent=15, style="arc", width=0.2 * scale, outline=outer_col, tag=self.tag)
 
@@ -107,6 +110,7 @@ class BotSprite(TkSprite):
     def draw(self, canvas):
         # A curious case of delegation
         args = dict(self.__dict__)
+        args["_tag"] = self.tag
         self.bot_type(**args).draw(canvas)
 
 class Harvester(BotSprite):
@@ -135,7 +139,7 @@ class Destroyer(BotSprite):
             coords.append((n.real, n.imag))
 
         coords = [self.real(coord) for coord in coords]
-        canvas.create_polygon(width=0.05 * scale, fill="", outline=col(94, 158, 217), *coords)
+        canvas.create_polygon(width=0.05 * scale, fill="", outline=col(94, 158, 217), tag=self.tag, *coords)
 
 class Wall(TkSprite):
     def draw(self, canvas):
