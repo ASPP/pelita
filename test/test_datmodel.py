@@ -5,11 +5,42 @@ from pelita.containers import Mesh
 from pelita.datamodel import *
 from pelita.messaging.json_convert import json_converter
 
+
 # the legal chars for a basic CTFUniverse
 # see also: create_CTFUniverse factory.
 layout_chars = [cls.char for cls in [Wall, Free, Food]]
 
 class TestStaticmethods(unittest.TestCase):
+
+    def test_new_pos(self):
+        self.assertEqual(new_pos((1, 1), north), (1, 0))
+        self.assertEqual(new_pos((1, 1), south), (1, 2))
+        self.assertEqual(new_pos((1, 1), east), (2, 1))
+        self.assertEqual(new_pos((1, 1), west), (0, 1))
+        self.assertEqual(new_pos((1, 1), stop), (1, 1))
+
+        self.assertRaises(ValueError, new_pos, (0, 0), (1, 1))
+
+    def test_diff_pos(self):
+        self.assertEqual(north, diff_pos((1, 1), (1, 0)))
+        self.assertEqual(south, diff_pos((1, 1), (1, 2)))
+        self.assertEqual(east, diff_pos((1, 1), (2, 1)))
+        self.assertEqual(west, diff_pos((1, 1), (0, 1)))
+        self.assertEqual(stop, diff_pos((1, 1), (1, 1)))
+
+        self.assertRaises(ValueError, diff_pos, (0, 0), (1, 1))
+
+    def test_is_adjacent(self):
+        self.assertTrue(is_adjacent((0, 0), (1, 0)))
+        self.assertTrue(is_adjacent((0, 0), (0, 1)))
+        self.assertFalse(is_adjacent((0, 0), (1, 1)))
+
+        self.assertTrue(is_adjacent((1, 0), (0, 0)))
+        self.assertTrue(is_adjacent((0, 1), (0, 0)))
+        self.assertFalse(is_adjacent((1, 1), (0, 0)))
+
+        self.assertFalse(is_adjacent((0, 0), (0, 0)))
+        self.assertFalse(is_adjacent((1, 1), (1, 1)))
 
     def test_get_initial_positions(self):
 
@@ -48,15 +79,6 @@ class TestStaticmethods(unittest.TestCase):
                 '# #####    ##### ##       #      # ###################'))
         self.assertEqual(target, mesh)
 
-
-    def test_is_adjacent(self):
-        self.assertTrue(CTFUniverse.is_adjacent((0, 0), (1, 0)))
-        self.assertTrue(CTFUniverse.is_adjacent((0, 0), (0, 1)))
-        self.assertFalse(CTFUniverse.is_adjacent((0, 0), (1, 1)))
-
-        self.assertTrue(CTFUniverse.is_adjacent((1, 0), (0, 0)))
-        self.assertTrue(CTFUniverse.is_adjacent((0, 1), (0, 0)))
-        self.assertFalse(CTFUniverse.is_adjacent((1, 1), (0, 0)))
 
 class TestBot(unittest.TestCase):
 
@@ -245,59 +267,59 @@ class TestMaze(unittest.TestCase):
 
     def test_init(self):
         # check we get errors with wrong stuff
-        self.assertRaises(TypeError, Maze, 1,1, data=[1])
-        self.assertRaises(ValueError, Maze, 1,1, data=[TypeAwareList(),
+        self.assertRaises(TypeError, Maze, 1, 1, data=[1])
+        self.assertRaises(ValueError, Maze, 1, 1, data=[TypeAwareList(),
             TypeAwareList()])
 
     def test_has_at(self):
         maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '',])])
-        self.assertTrue(maze.has_at(int, (0,0)))
-        self.assertTrue(maze.has_at(list, (0,0)))
-        self.assertTrue(maze.has_at(dict, (0,0)))
-        self.assertTrue(maze.has_at(str, (1,0)))
-        self.assertFalse(maze.has_at(set, (0,0)))
-        self.assertFalse(maze.has_at(int, (1,0)))
-        self.assertFalse(maze.has_at(list, (1,0)))
-        self.assertFalse(maze.has_at(dict, (1,0)))
-        self.assertFalse(maze.has_at(set, (1,0)))
+                           TypeAwareList(['', '', '', '', '', '', '', ])])
+        self.assertTrue(maze.has_at(int, (0, 0)))
+        self.assertTrue(maze.has_at(list, (0, 0)))
+        self.assertTrue(maze.has_at(dict, (0, 0)))
+        self.assertTrue(maze.has_at(str, (1, 0)))
+        self.assertFalse(maze.has_at(set, (0, 0)))
+        self.assertFalse(maze.has_at(int, (1, 0)))
+        self.assertFalse(maze.has_at(list, (1, 0)))
+        self.assertFalse(maze.has_at(dict, (1, 0)))
+        self.assertFalse(maze.has_at(set, (1, 0)))
 
     def test_get_at(self):
         maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '',])])
-        self.assertEqual(maze.get_at(int, (0,0)), [1, 2, 1, 3])
-        self.assertEqual(maze.get_at(list, (0,0)), [[], []])
-        self.assertEqual(maze.get_at(int, (1,0)), [])
-        self.assertEqual(maze.get_at(str, (1,0)), ['', '', '', '', '', '', '',])
+                           TypeAwareList(['', '', '', '', '', '', '', ])])
+        self.assertEqual(maze.get_at(int, (0, 0)), [1, 2, 1, 3])
+        self.assertEqual(maze.get_at(list, (0, 0)), [[], []])
+        self.assertEqual(maze.get_at(int, (1, 0)), [])
+        self.assertEqual(maze.get_at(str, (1, 0)), ['', '', '', '', '', '', '', ])
 
-        self.assertRaises(IndexError, maze.get_at, int, (0,1))
+        self.assertRaises(IndexError, maze.get_at, int, (0, 1))
 
     def test_remove_at(self):
         maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '',])])
-        maze.remove_at(int, (0,0))
-        self.assertEqual(list(maze[0,0]), [[], {}, []])
+                           TypeAwareList(['', '', '', '', '', '', '', ])])
+        maze.remove_at(int, (0, 0))
+        self.assertEqual(list(maze[0, 0]), [[], {}, []])
 
         maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '',])])
-        maze.remove_at(list, (0,0))
-        self.assertEqual(list(maze[0,0]), [1, 2, {}, 1, 3] )
+                           TypeAwareList(['', '', '', '', '', '', '', ])])
+        maze.remove_at(list, (0, 0))
+        self.assertEqual(list(maze[0, 0]), [1, 2, {}, 1, 3] )
 
         maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '',])])
-        maze.remove_at(int, (0,0))
-        self.assertEqual(list(maze[0,0]), [[], {}, []] )
-        maze.remove_at(str, (1,0))
-        self.assertEqual(list(maze[1,0]), [] )
+                           TypeAwareList(['', '', '', '', '', '', '', ])])
+        maze.remove_at(int, (0, 0))
+        self.assertEqual(list(maze[0, 0]), [[], {}, []] )
+        maze.remove_at(str, (1, 0))
+        self.assertEqual(list(maze[1, 0]), [] )
 
     def test_positions(self):
-        maze = Maze(5,5)
+        maze = Maze(5, 5)
         self.assertEqual([(x, y) for y in range(5) for x in range(5)],
                 maze.positions)
 
     def test_json(self):
         maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '',])])
+                           TypeAwareList(['', '', '', '', '', '', '', ])])
         maze_json = json_converter.dumps(maze)
         self.assertEqual(json_converter.loads(maze_json), maze)
 
@@ -305,8 +327,8 @@ class TestMaze(unittest.TestCase):
 class TestUniverseEvent(unittest.TestCase):
 
     def test_eq_repr(self):
-        bot_moves = BotMoves(0, (0,0), (1,0))
-        self.assertEqual(bot_moves, BotMoves(0, (0,0), (1,0)))
+        bot_moves = BotMoves(0, (0, 0), (1, 0))
+        self.assertEqual(bot_moves, BotMoves(0, (0, 0), (1, 0)))
         self.assertEqual(bot_moves, eval(repr(bot_moves)))
         bot_eats = BotEats(1, (0, 0))
         self.assertEqual(bot_eats, BotEats(1, (0, 0)))
@@ -314,7 +336,7 @@ class TestUniverseEvent(unittest.TestCase):
         food_eaten = FoodEaten((0, 0))
         self.assertEqual(food_eaten, FoodEaten((0, 0)))
         self.assertEqual(food_eaten, eval(repr(food_eaten)))
-        bot_destroyed = BotDestroyed(0, (0, 0), (0, 1), (0,0), 1, (0, 1), (0, 1))
+        bot_destroyed = BotDestroyed(0, (0, 0), (0, 1), (0, 0), 1, (0, 1), (0, 1))
         self.assertEqual(bot_destroyed,
                 BotDestroyed(0, (0, 0), (0, 1), (0, 0), 1, (0, 1), (0, 1)))
         self.assertEqual(bot_destroyed, eval(repr(bot_destroyed)))
@@ -670,7 +692,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         def create_TestUniverse(layout):
             initial_pos = [(1, 1), (4, 2)]
             universe = create_CTFUniverse(layout, number_bots)
-            for i,pos in enumerate(initial_pos):
+            for i, pos in enumerate(initial_pos):
                 universe.bots[i].initial_pos = pos
             if not universe.maze.has_at(Food, (1, 2)):
                 universe.teams[1]._score_point()

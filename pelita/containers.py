@@ -11,28 +11,6 @@ import inspect
 __docformat__ = "restructuredtext"
 
 
-def new_pos(position, move):
-    """ Adds a position tuple and a move tuple.
-
-    Parameters
-    ----------
-    position : tuple of int (x, y)
-        current position
-
-    move : tuple of int (x, y)
-        direction vector
-
-    Returns
-    -------
-    new_pos : tuple of int (x, y)
-        new position coordinates
-
-    """
-    pos_x = position[0] + move[0]
-    pos_y = position[1] + move[1]
-    return (pos_x, pos_y)
-
-
 @serializable
 class Mesh(Mapping):
     """ A mapping from a two-dimensional coordinate system into object space.

@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """ The datamodel. """
+
 import copy
 from pelita.layout import Layout
-from pelita.containers import Mesh, new_pos, TypeAwareList
+from pelita.containers import Mesh, TypeAwareList
 from pelita.messaging.json_convert import serializable
 
 
@@ -14,6 +15,92 @@ south = (0, 1)
 west  = (-1, 0)
 east  = (1, 0)
 stop  = (0, 0)
+
+moves = [north, south, east, west, stop]
+
+def new_pos(position, move):
+    """ Adds a position tuple and a move tuple.
+
+    Parameters
+    ----------
+    position : tuple of int (x, y)
+        current position
+
+    move : tuple of int (x, y)
+        direction vector
+
+    Returns
+    -------
+    new_pos : tuple of int (x, y)
+        new position coordinates
+
+    Raises
+    ------
+    ValueError
+        if move is not one of the 5 possible moves
+        (`north`, `south`, `east`, `west` or `stop`)
+
+    """
+    if move not in moves:
+        raise ValueError("%s is not a valid move tuple" % repr(move))
+    pos_x = position[0] + move[0]
+    pos_y = position[1] + move[1]
+    return (pos_x, pos_y)
+
+def diff_pos(initial, target):
+    """ Return the move required to move from one pos to another.
+
+    Will return the move required to transition from `initial` to `target`. If
+    `initial` equals `target` this is `stop`. If the two are not adjacent a
+    `ValueError` will be raised.
+
+    Parameters
+    ----------
+    initial : tuple of (int, int)
+        the starting position
+    target : tuple of (int, int)
+        the target position
+
+    Returns
+    -------
+    move : tuple of (int, int)
+        the resulting move
+
+    Raises
+    ------
+    ValueError
+        if `initial` is not adjacent to `target`
+
+    """
+    if initial == target:
+        return stop
+    elif not is_adjacent(initial, target):
+        raise ValueError('%r is not adjacent to %r' % (initial, target))
+    else:
+        return (target[0]-initial[0], target[1]-initial[1])
+
+def is_adjacent(pos1, pos2):
+    """ Check that two positions are adjacent
+
+    This will check that the Manhatten distance between two positions is exactly
+    one. This function does not take into account if the resulting position is a
+    legal position in a Maze.
+
+    Parameters
+    ----------
+    pos1 : tuple of (int, int)
+        the first position
+    pos2 : tuple of (int, int)
+        the second position
+
+    Returns
+    -------
+    is_adjacent : boolean
+        True if pos1 is adjacent to pos2 and False otherwise
+
+    """
+    return (pos1[0] == pos2[0] and abs(pos1[1] - pos2[1]) == 1 or
+        pos1[1] == pos2[1] and abs(pos1[0] - pos2[0]) == 1)
 
 
 @serializable
@@ -606,7 +693,6 @@ class CTFUniverse(object):
 
     """
 
-    move_ids = [north, south, east, west, stop]
 
     def __init__(self, maze, teams, bots):
         self.maze = maze
@@ -705,13 +791,13 @@ class CTFUniverse(object):
         ----------
         bot_id : int
             index of the bot
-        move : string
+        move : tuple of (int, int)
             direction to move in
 
         Returns
         -------
         events : list of UniverseEvent objects
-            the events that happend during the move
+            the events that happened during the move
 
         Raises
         ------
@@ -721,7 +807,7 @@ class CTFUniverse(object):
         """
         events = TypeAwareList(base_class=UniverseEvent)
         # check legality of the move
-        if move not in self.move_ids:
+        if move not in moves:
             raise IllegalMoveException(
                 'Illegal move_id from bot %i: %s' % (bot_id, move))
         bot = self.bots[bot_id]
@@ -763,9 +849,6 @@ class CTFUniverse(object):
 
         # TODO:
         # check for state change
-        # generate a list of events
-        # propagate those events to observers
-        # callbacks for the bots
 
     def get_legal_moves(self, position):
         """ Obtain legal moves and where they lead.
@@ -821,12 +904,12 @@ class CTFUniverse(object):
 
     @property
     def pretty(self):
-        """ Provide detailed info about datamodel state.
+        """ Provide detailed, readable info about universe state.
 
         Returns
         -------
         pretty : str
-            detailed, readable string version of this datamodel
+            detailed, readable string version of this universe
 
         Examples
         --------
@@ -868,13 +951,7 @@ class CTFUniverse(object):
             mapping of moves to new positions (x, y)
 
         """
-        return dict([(move, new_pos(position, move)) for
-            move in self.move_ids])
-
-    @staticmethod
-    def is_adjacent(pos1, pos2):
-        return (pos1[0] == pos2[0] and abs(pos1[1] - pos2[1]) == 1 or
-            pos1[1] == pos2[1] and abs(pos1[0] - pos2[0]) == 1)
+        return dict([(move, new_pos(position, move)) for move in moves])
 
     def _to_json_dict(self):
         return {"maze": self.maze,
