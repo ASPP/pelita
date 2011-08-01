@@ -209,7 +209,7 @@ class Bot(object):
     ----------
     in_own_zone : boolean, property
         True if in its own homezone and False otherwise
-    is_destroyer : boolean
+    is_destroyer : boolean, property
         True if a destroyer, False otherwise
     is_harvester : boolean, property
         not is_destroyer
@@ -225,14 +225,14 @@ class Bot(object):
             self.current_pos = self.initial_pos
         else:
             self.current_pos = current_pos
-        if self.in_own_zone:
-            self.is_destroyer = True
-        else:
-            self.is_destroyer = False
 
     @property
     def in_own_zone(self):
         return self.homezone[0] <= self.current_pos[0] <= self.homezone[1]
+
+    @property
+    def is_destroyer(self):
+        return self.in_own_zone
 
     @property
     def is_harvester(self):
