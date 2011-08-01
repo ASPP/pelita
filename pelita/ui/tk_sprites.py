@@ -33,8 +33,8 @@ class TkSprite(object):
 
         new = self.x - self.y * 1j
         # automatic rotation
-        if new != old:
-            self.direction = math.degrees(cmath.phase(new - old))
+#        if new != old:
+#            self.direction = math.degrees(cmath.phase(new - old))
 
     @property
     def real_position(self):

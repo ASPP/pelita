@@ -109,8 +109,8 @@ class UiCanvas(object):
                 arc = math.degrees(cmath.phase(direction))
 
                 self.waiting_animations.append(Animation.sequence([
-                    Animation.rotate(self, bot_sprite, arc, duration=0.1),
-                    Animation.move(self, bot_sprite, (direction.real, - direction.imag), duration=0.1)
+                    Animation.rotate_to(self, bot_sprite, arc, duration=0.2),
+                    Animation.move_to(self, bot_sprite, (new_pos.real, - new_pos.imag), duration=0.2)
                 ]))
 
         if self.waiting_animations:
@@ -253,6 +253,7 @@ class Animation(object):
 
     def start(self):
         self.start_time = time.time()
+        self._start()
 
     def rate(self):
         rate = self.elapsed() / self.duration
@@ -264,6 +265,9 @@ class Animation(object):
         if not self.is_finished:
             self._step()
 
+    def _start(self):
+        pass
+
     def _step(self):
         raise NotImplementedError
 
@@ -271,46 +275,45 @@ class Animation(object):
         raise NotImplementedError
 
     @classmethod
-    def rotate(cls, canvas, item, arc, duration=0.5):
-        anim = cls(duration)
-        step_arc = float(arc)
-        def rotate():
-            item.rotate(step_arc * anim.rate())
-            item.redraw(canvas.canvas)
-
-        anim._step = rotate
-        return anim
-
-    @classmethod
     def rotate_to(cls, canvas, item, arc, duration=0.5):
         anim = cls(duration)
-        s_arc = (item.direction - arc) % 360 - 180
 
-        step_arc = float(s_arc)
+        def start():
+            anim.old_direction = item.direction
+            anim.diff_direction = (arc - anim.old_direction)
+
+            anim.diff_direction = (anim.diff_direction + 180) % 360 - 180
+
         def rotate():
-            item.rotate(step_arc * anim.rate())
+            rate = anim.rate()
+            rate = math.sin(rate * math.pi * 0.5)
+            new_dir = anim.old_direction + anim.diff_direction * rate
+
+            item.direction = new_dir % 360
             item.redraw(canvas.canvas)
 
+        anim._start = start
         anim._step = rotate
         return anim
 
     @classmethod
-    def move(cls, canvas, item, transpos, duration=0.5):
+    def move_to(cls, canvas, item, new_pos, duration=0.5):
         anim = cls(duration)
-        dx = float(transpos[0])
-        dy = float(transpos[1])
-        anim.old_pos_x = item.position[0]
-        anim.old_pos_y = item.position[1]
 
-        anim.last_rate = 0
+        def start():
+            anim.old_position = item.position
+            anim.diff_position = (new_pos[0] - anim.old_position[0],
+                                  new_pos[1] - anim.old_position[1])
+
         def translate():
             rate = anim.rate()
             rate = math.sin(rate * math.pi * 0.5)
-            pos_x = anim.old_pos_x + dx * rate
-            pos_y = anim.old_pos_y + dy * rate
+            pos_x = anim.old_position[0] + anim.diff_position[0] * rate
+            pos_y = anim.old_position[1] + anim.diff_position[1] * rate
 
             item.moveto(canvas.canvas, pos_x, pos_y)
 
+        anim._start = start
         anim._step = translate
         return anim
 
@@ -329,7 +332,7 @@ class Animation(object):
                     seq.current_animation.start()
                 except IndexError:
                     return
-
+            print seq.animations
             seq.current_animation.step()
 
         seq._step = step
