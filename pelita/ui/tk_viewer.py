@@ -13,8 +13,10 @@ class TkViewer(AbstractViewer):
 
     def observe(self, round_, turn, universe, events):
         print "observed", events
+
+        # manually delaying the progress in game_master
         import time
-        time.sleep(0.5)
+        time.sleep(0.1)
         import copy
         self.observe_queue.put(copy.deepcopy({
             "round": round_,

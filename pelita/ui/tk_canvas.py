@@ -3,10 +3,7 @@
 import Tkinter
 import Queue
 
-from pelita.datamodel import create_CTFUniverse
 from pelita import datamodel
-from pelita.layout import Layout
-
 from pelita.ui.tk_sprites import *
 
 class MeshGraph(object):
@@ -114,6 +111,14 @@ class UiCanvas(object):
 
     def draw_events(self, events=None):
         if events:
+            destroy_events = events.filter_type(datamodel.BotDestroyed)
+            destroy_animations = {}
+            for destroy_event in destroy_events:
+                destroyed_idx = destroy_event.harvester_index
+                destroyed_sprite = self.bot_sprites[destroyed_idx]
+
+                destroy_animations[destroyed_idx] = Animation.shrink(self, destroyed_sprite, duration=0.03)
+
             move_events = events.filter_type(datamodel.BotMoves)
             for move_event in move_events:
                 bot_idx = move_event.bot_index
@@ -127,26 +132,35 @@ class UiCanvas(object):
                 arc = math.degrees(cmath.phase(direction))
 
                 if direction != 0:
-                    self.waiting_animations.append(Animation.sequence([
-                        Animation.rotate_to(self, bot_sprite, arc, duration=0.2),
-                        Animation.move_to(self, bot_sprite, (old_pos.real, -old_pos.imag), (new_pos.real, - new_pos.imag), duration=0.2)
-                    ]))
+                    move_sequece = [
+                        Animation.rotate_to(self, bot_sprite, arc, duration=0.02),
+                        Animation.move_to(self, bot_sprite, (old_pos.real, -old_pos.imag), (new_pos.real, - new_pos.imag), duration=0.02)
+                            ]
+                else:
+                    move_sequece = []
 
-            destroy_events = events.filter_type(datamodel.BotDestroyed)
-            for destroy_event in destroy_events:
-                destroyed_idx = destroy_event.harvester_index
-                destroyed_sprite = self.bot_sprites[destroyed_idx]
+                if bot_idx in destroy_animations:
+                    move_sequece.append(destroy_animations[bot_idx])
+                    del destroy_animations[bot_idx]
 
-                self.waiting_animations.append(Animation.shrink(self, destroyed_sprite, duration=0.2))
+                if move_sequece:
+                    move_sequece.append(Animation.dummy(duration=0.02))
+                    self.waiting_animations.append(Animation.sequence(move_sequece))
+
+            for destroy_animation in destroy_animations.values():
+                self.waiting_animations.append(destroy_animation)
 
             eat_events = events.filter_type(datamodel.BotEats)
 
+        # disabling the animations for the moment
+        self.waiting_animations = []
         if self.waiting_animations:
             for animation in self.waiting_animations:
 
                 if not animation.start_time:
                     animation.start()
 
+                # disabling the animations for the moment
                 animation.step()
 
             # delete finished
@@ -241,10 +255,10 @@ class TkApplication(Tkinter.Frame):
                 observed = self.queue.get(False)
                 self.observe(observed)
                 
-                self.after(500, self.read_queue)
+                self.after(100, self.read_queue)
                 return
         except Queue.Empty:
-            self.after(500, self.read_queue)
+            self.after(100, self.read_queue)
 
     def observe(self, observed):
         round = observed["round"]
@@ -261,7 +275,7 @@ class TkApplication(Tkinter.Frame):
 
     def quit(self):
         self.on_quit()
-        Frame.quit(self)
+        Tkinter.Frame.quit(self)
 
 import time
 
@@ -333,7 +347,6 @@ class Animation(object):
         anim._finish = finish
         return anim
 
-
     @classmethod
     def rotate_to(cls, canvas, item, arc, duration=0.5):
         anim = cls(duration)
@@ -378,6 +391,14 @@ class Animation(object):
         return anim
 
     @classmethod
+    def dummy(cls, canvas=None, duration=0.1):
+        anim = cls(duration)
+        def do_nothing():
+            pass
+        anim._step = do_nothing
+        return anim
+
+    @classmethod
     def sequence(cls, animations):
         duration = sum(anim.duration for anim in animations)
 
@@ -394,5 +415,10 @@ class Animation(object):
                     return
             seq.current_animation.step()
 
+        def finish():
+            for anim in seq.animations:
+                anim.finish.is_finished
+
         seq._step = step
+        seq._finish = finish
         return seq
