@@ -12,13 +12,14 @@ def rotate(arc, rotation):
     return (arc + rotation) % 360
 
 class TkSprite(object):
-    def __init__(self, mesh, x=0, y=0, direction=0, _tag=None):
+    def __init__(self, mesh, x=0, y=0, direction=0, _tag=None, additional_scale=1.0):
         self.mesh = mesh
 
         self.x = x
         self.y = y
 
         self._tag = _tag
+        self.additional_scale = additional_scale
 
         self.direction = direction
 
@@ -49,8 +50,8 @@ class TkSprite(object):
         raise NotImplementedError
 
     def box(self, factor=1.0):
-        return (self.real((-factor, -factor)),
-                self.real((+factor, +factor)))
+        return (self.real((-factor * self.additional_scale, -factor * self.additional_scale)),
+                self.real((+factor * self.additional_scale, +factor * self.additional_scale)))
 
     @property
     def tag(self):
@@ -133,9 +134,9 @@ class Destroyer(BotSprite):
         coords = []
         for a, i in zip(penta_arcs, penta_arcs_inner):
             # we rotate with the help of complex numbers
-            n = cmath.rect(0.85, math.radians(a))
+            n = cmath.rect(0.85 * self.additional_scale, math.radians(a))
             coords.append((n.real, n.imag))
-            n = cmath.rect(0.3, math.radians(i))
+            n = cmath.rect(0.3 * self.additional_scale, math.radians(i))
             coords.append((n.real, n.imag))
 
         coords = [self.real(coord) for coord in coords]

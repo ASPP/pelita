@@ -116,14 +116,11 @@ class UiCanvas(object):
         if events:
             move_events = events.filter_type(datamodel.BotMoves)
             for move_event in move_events:
-                if not self.previous_universe:
-                    continue
-
                 bot_idx = move_event.bot_index
                 bot_sprite = self.bot_sprites[bot_idx]
 
-                old_pos = complex(*self.previous_universe.bots[bot_idx].current_pos).conjugate()
-                new_pos = complex(*self.current_universe.bots[bot_idx].current_pos).conjugate()
+                old_pos = complex(*move_event.old_pos).conjugate()
+                new_pos = complex(*move_event.new_pos).conjugate()
 
                 direction = new_pos - old_pos
 
@@ -134,6 +131,15 @@ class UiCanvas(object):
                         Animation.rotate_to(self, bot_sprite, arc, duration=0.2),
                         Animation.move_to(self, bot_sprite, (old_pos.real, -old_pos.imag), (new_pos.real, - new_pos.imag), duration=0.2)
                     ]))
+
+            destroy_events = events.filter_type(datamodel.BotDestroyed)
+            for destroy_event in destroy_events:
+                destroyed_idx = destroy_event.harvester_index
+                destroyed_sprite = self.bot_sprites[destroyed_idx]
+
+                self.waiting_animations.append(Animation.shrink(self, destroyed_sprite, duration=0.2))
+
+            eat_events = events.filter_type(datamodel.BotEats)
 
         if self.waiting_animations:
             for animation in self.waiting_animations:
@@ -268,6 +274,7 @@ class Animation(object):
     def is_finished(self):
         if self.start_time:
             if self.elapsed() / self.duration >= 1:
+                self.finish()
                 return True
         return False
 
@@ -283,6 +290,7 @@ class Animation(object):
     def rate(self):
         rate = self.elapsed() / self.duration
         if rate >= 1:
+            self.finish()
             return 1
         return rate
 
@@ -297,7 +305,34 @@ class Animation(object):
         raise NotImplementedError
 
     def finish(self):
-        raise NotImplementedError
+        self._finish()
+
+    def _finish(self):
+        pass
+
+    @classmethod
+    def shrink(cls, canvas, item, duration=0.5):
+        anim = cls(duration)
+
+        def start():
+            anim.old_scale = item.additional_scale
+            anim.diff_scale = (0 - anim.old_scale)
+
+        def do_shrink():
+            rate = anim.rate()
+            new_scale = anim.old_scale + anim.diff_scale * rate
+
+            item.additional_scale = new_scale
+            item.redraw(canvas.canvas)
+
+        def finish():
+            item.additional_scale = anim.old_scale
+
+        anim._start = start
+        anim._step = do_shrink
+        anim._finish = finish
+        return anim
+
 
     @classmethod
     def rotate_to(cls, canvas, item, arc, duration=0.5):
