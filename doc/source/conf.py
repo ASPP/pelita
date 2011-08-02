@@ -163,6 +163,8 @@ html_last_updated_fmt = '%b %d, %Y'
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Pelitadoc'
 
+# Style sheet to use (overrides default styles, they must be included there manually)
+html_style = 'pelita.css'
 
 # -- Options for LaTeX output --------------------------------------------------
 

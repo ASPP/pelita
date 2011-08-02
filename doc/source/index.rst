@@ -3,8 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Pelita's documentation!
-==================================
+Pelita
+======
+
+.. figure:: images/demogame.png
+   :alt: How it looks like (currently).
+
+   **A first fight:** A draw between the team on the left side and the team on the right side.
 
 Contents:
 
