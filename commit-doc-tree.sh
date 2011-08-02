@@ -17,6 +17,9 @@ cd ..
 
 docdirectory=doc/build/html/
 
+# Add a .nojekyll file for sphinx
+touch $docdirectory".nojekyll"
+
 # Adding the doc files to the index
 git add -f $docdirectory
 
