@@ -53,7 +53,7 @@ class GameMaster(object):
                 % player.__class__)
         self.players.append(player)
         player._set_index(len(self.players) - 1)
-        player._set_initial(self.universe)
+        player._set_initial(self.universe.copy())
 
     def register_viewer(self, viewer):
         """ Register a viewer to display the game state as it progresses.

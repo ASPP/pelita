@@ -33,7 +33,7 @@ class AbstractPlayer(object):
 
         """
         self.universe_states = []
-        self.universe_states.append(universe.copy())
+        self.universe_states.append(universe)
         self.set_initial()
 
     def set_initial(self):
