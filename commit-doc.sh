@@ -14,7 +14,8 @@ make clean ; make
 cd ..
 
 # checkout the doc-branch
-git checkout gh-pages
+git checkout gh-pages || exit 1
+
 # create a temp dir, and copy doc files there
 tmp_dir=$( mktemp -dt pelita.gh-pages.XXXXXXXXXX)
 echo $tmp_dir
