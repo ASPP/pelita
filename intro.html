@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -5,22 +7,23 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction to Pelita &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.0.0-462-g313ee39&#39;  documentation</title>
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <title>Introduction to Pelita &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.0.0-490-gf315291&#39;  documentation</title>
+    <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.0.0-462-g313ee39&#39; ',
-        COLLAPSE_MODINDEX: false,
+        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.0.0-490-gf315291&#39; ',
+        COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.0.0-462-g313ee39&#39;  documentation" href="index.html" />
-    <link rel="prev" title="Welcome to Pelita’s documentation!" href="index.html" /> 
+    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.0.0-490-gf315291&#39;  documentation" href="index.html" />
+    <link rel="prev" title="Pelita" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -30,9 +33,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="index.html" title="Welcome to Pelita’s documentation!"
+          <a href="index.html" title="Pelita"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-462-g313ee39&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-490-gf315291&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -235,11 +238,6 @@ search to find food:</p>
         <span class="c"># path, so don&#39;t include it.</span>
         <span class="k">return</span> <span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">pos_diff</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
-        <span class="c"># TODO assert for adjacency</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">pos2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">pos1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">pos1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-
     <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pos</span><span class="p">:</span>
             <span class="c"># we have probably been killed</span>
@@ -248,7 +246,7 @@ search to find food:</p>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bfs_food</span><span class="p">()</span>
         <span class="n">new_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="n">new_pos</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">diff_pos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="n">new_pos</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Here we can already see some more advanced concepts. The first thing to note is
@@ -496,37 +494,37 @@ convenience methods/properties and also some of the implementation details:</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-            <h3><a href="index.html">Table Of Contents</a></h3>
-            <ul>
-<li><a class="reference external" href="#">Introduction to Pelita</a><ul>
-<li><a class="reference external" href="#glossary">Glossary</a></li>
-<li><a class="reference external" href="#writing-a-player">Writing a Player</a></li>
-<li><a class="reference external" href="#git-repository">Git-Repository</a></li>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction to Pelita</a><ul>
+<li><a class="reference internal" href="#glossary">Glossary</a></li>
+<li><a class="reference internal" href="#writing-a-player">Writing a Player</a></li>
+<li><a class="reference internal" href="#git-repository">Git-Repository</a></li>
 </ul>
 </li>
 </ul>
 
-            <h4>Previous topic</h4>
-            <p class="topless"><a href="index.html"
-                                  title="previous chapter">Welcome to Pelita&#8217;s documentation!</a></p>
-            <h3>This Page</h3>
-            <ul class="this-page-menu">
-              <li><a href="_sources/intro.txt"
-                     rel="nofollow">Show Source</a></li>
-            </ul>
-          <div id="searchbox" style="display: none">
-            <h3>Quick search</h3>
-              <form class="search" action="search.html" method="get">
-                <input type="text" name="q" size="18" />
-                <input type="submit" value="Go" />
-                <input type="hidden" name="check_keywords" value="yes" />
-                <input type="hidden" name="area" value="default" />
-              </form>
-              <p class="searchtip" style="font-size: 90%">
-              Enter search terms or a module, class or function name.
-              </p>
-          </div>
-          <script type="text/javascript">$('#searchbox').show(0);</script>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Pelita</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/intro.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -538,15 +536,15 @@ convenience methods/properties and also some of the implementation details:</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="index.html" title="Welcome to Pelita’s documentation!"
+          <a href="index.html" title="Pelita"
              >previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-462-g313ee39&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-490-gf315291&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
-      Last updated on Jul 29, 2011.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.6.
+        &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
+      Last updated on Aug 02, 2011.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>
