@@ -1,1 +1,0 @@
-Search.setIndex({desctypes:{},terms:{index:0,search:0,welcom:0,python:1,modul:0,pelita:[0,1],indic:0,content:0,environ:1,agent:1,autonom:1,tabl:0,document:0,page:0,introduct:[0,1]},titles:["Welcome to Pelita&#8217;s documentation!","Introduction to Pelita"],modules:{},descrefs:{},filenames:["index","intro"]})

@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction to Pelita &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.0.0-490-gf315291&#39;  documentation</title>
+    <title>Introduction to Pelita &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.0.0-498-g40b5c32&#39;  documentation</title>
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.0.0-490-gf315291&#39; ',
+        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.0.0-498-g40b5c32&#39; ',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.0.0-490-gf315291&#39;  documentation" href="index.html" />
+    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.0.0-498-g40b5c32&#39;  documentation" href="index.html" />
     <link rel="prev" title="Pelita" href="index.html" /> 
   </head>
   <body>
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="index.html" title="Pelita"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-490-gf315291&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-498-g40b5c32&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -89,7 +89,7 @@ update the <tt class="docutils literal"><span class="pre">Universe</span></tt>.<
 convenience methods to interrogate the Universe including the Bot instance that this
 player controls but lacks the functions to actually control the Bot. In order to
 make your Player do something useful you must implement at least the method
-<tt class="docutils literal"><span class="pre">get_move(self,</span> <span class="pre">universe)</span></tt> to return a move. This can be one of:</p>
+<tt class="docutils literal"><span class="pre">get_move(self)</span></tt> to return a move. This can be one of:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">north</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">south</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">west</span>  <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -106,7 +106,7 @@ make your Player do something useful you must implement at least the method
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">StoppingPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A Player that just stands still. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">stop</span>
 </pre></div>
 </div>
@@ -115,7 +115,7 @@ at random from the possible moves:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">RandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A player that makes moves at random. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">legal_moves</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 </pre></div>
 </div>
@@ -129,7 +129,7 @@ ever stop in place:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">NQRandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Not-Quite-RandomPlayer that will move randomly but not stop or reverse. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">legal_moves</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_moves</span>
         <span class="c"># Remove stop</span>
         <span class="k">try</span><span class="p">:</span>
@@ -238,7 +238,7 @@ search to find food:</p>
         <span class="c"># path, so don&#39;t include it.</span>
         <span class="k">return</span> <span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pos</span><span class="p">:</span>
             <span class="c"># we have probably been killed</span>
             <span class="c"># reset the path</span>
@@ -333,7 +333,7 @@ convenience methods/properties and also some of the implementation details:</p>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">universe</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">universe</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_initial</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -352,10 +352,10 @@ convenience methods/properties and also some of the implementation details:</p>
 <span class="sd">            the universe in its current state.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">universe</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_move</span><span class="p">(</span><span class="n">universe</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">universe</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_move</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Subclasses _must_ override this. &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
                 <span class="s">&quot;You must override the &#39;get_move&#39; method in your player&quot;</span><span class="p">)</span>
@@ -486,6 +486,36 @@ convenience methods/properties and also some of the implementation details:</p>
 <div class="highlight-python"><pre>$ git clone git://github.com/Debilski/pelita.git</pre>
 </div>
 </div>
+<div class="section" id="project-wall">
+<h2>Project-Wall<a class="headerlink" href="#project-wall" title="Permalink to this headline">¶</a></h2>
+<p>We used an agile project wall to track tasks for the initial stages of the
+development. In our case we split it into four distinct sections: <tt class="docutils literal"><span class="pre">todo</span></tt>
+(upper right), <tt class="docutils literal"><span class="pre">current</span> <span class="pre">iterartion</span></tt> (upper left), <tt class="docutils literal"><span class="pre">done</span></tt> (lower left) and
+<tt class="docutils literal"><span class="pre">nice</span> <span class="pre">to</span> <span class="pre">have</span></tt> (lower right). Since we only had one whiteboard we keept the
+center for sketeches and doodles.  You can read about the agile project wall in
+the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the-agile-samurai">The Agile Samurai</a> by by Jonathan Rasmusson</p>
+<p>Here are some photos:</p>
+<div class="figure">
+<img alt="the whole wall" src="_images/project_wall_full.jpg" style="width: 820px;" />
+<p class="caption">The whole wall</p>
+</div>
+<div class="figure">
+<img alt="The 'todo' section" src="_images/project_wall_todo.jpg" style="width: 640px;" />
+<p class="caption">The &#8216;todo&#8217; section</p>
+</div>
+<div class="figure">
+<img alt="the 'current' section" src="_images/project_wall_current.jpg" style="width: 640px;" />
+<p class="caption">The &#8216;current&#8217; section</p>
+</div>
+<div class="figure">
+<img alt="the done section" src="_images/project_wall_done.jpg" style="width: 640px;" />
+<p class="caption">The &#8216;done&#8217; section</p>
+</div>
+<div class="figure">
+<img alt="the nice to have section" src="_images/project_wall_nice.jpg" style="width: 640px;" />
+<p class="caption">The &#8216;nice to have&#8217; section</p>
+</div>
+</div>
 </div>
 
 
@@ -500,6 +530,7 @@ convenience methods/properties and also some of the implementation details:</p>
 <li><a class="reference internal" href="#glossary">Glossary</a></li>
 <li><a class="reference internal" href="#writing-a-player">Writing a Player</a></li>
 <li><a class="reference internal" href="#git-repository">Git-Repository</a></li>
+<li><a class="reference internal" href="#project-wall">Project-Wall</a></li>
 </ul>
 </li>
 </ul>
@@ -538,7 +569,7 @@ convenience methods/properties and also some of the implementation details:</p>
         <li class="right" >
           <a href="index.html" title="Pelita"
              >previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-490-gf315291&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-498-g40b5c32&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
