@@ -34,7 +34,7 @@ class TestAbstracts(unittest.TestCase):
 
     def test_AbstractPlayer(self):
         ap = AbstractPlayer()
-        self.assertRaises(NotImplementedError, ap.get_move, None)
+        self.assertRaises(NotImplementedError, ap.get_move)
 
 class TestGame(unittest.TestCase):
 
@@ -148,7 +148,7 @@ class TestGame(unittest.TestCase):
                 universe.maze[0,0][0] = free_obj
                 return (0,0)
 
-            def get_move(self, universe):
+            def get_move(self):
                 pass
 
         test_layout = (
@@ -162,7 +162,7 @@ class TestGame(unittest.TestCase):
 
         test_self = self
         class TestMaliciousPlayer(AbstractPlayer):
-            def get_move(self, universe):
+            def get_move(self):
                 # universe should not have been altered
                 test_self.assertEqual(original_universe, gm.universe)
                 return (0,0)

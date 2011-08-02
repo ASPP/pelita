@@ -52,10 +52,10 @@ class AbstractPlayer(object):
             the universe in its current state.
 
         """
-        self.universe_states.append(universe.copy())
-        return self.get_move(universe.copy())
+        self.universe_states.append(universe)
+        return self.get_move()
 
-    def get_move(self, universe):
+    def get_move(self):
         """ Subclasses _must_ override this. """
         raise NotImplementedError(
                 "You must override the 'get_move' method in your player")
@@ -179,14 +179,14 @@ class AbstractPlayer(object):
 class StoppingPlayer(AbstractPlayer):
     """ A Player that just stands still. """
 
-    def get_move(self, universe):
+    def get_move(self):
         return stop
 
 
 class RandomPlayer(AbstractPlayer):
     """ A player that makes moves at random. """
 
-    def get_move(self, universe):
+    def get_move(self):
         return random.choice(self.legal_moves.keys())
 
 class TestPlayer(AbstractPlayer):
@@ -202,13 +202,13 @@ class TestPlayer(AbstractPlayer):
     def __init__(self, moves):
         self.moves = moves
 
-    def get_move(self, universe):
+    def get_move(self):
         return self.moves.pop()
 
 class NQRandomPlayer(AbstractPlayer):
     """ Not-Quite-RandomPlayer that will move randomly but not stop or reverse. """
 
-    def get_move(self, universe):
+    def get_move(self):
         legal_moves = self.legal_moves
         # Remove stop
         try:
@@ -295,7 +295,7 @@ class BFSPlayer(AbstractPlayer):
         # path, so don't include it.
         return path[:-1]
 
-    def get_move(self, universe):
+    def get_move(self):
         if self.current_pos == self.initial_pos:
             # we have probably been killed
             # reset the path
