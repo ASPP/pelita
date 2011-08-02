@@ -35,3 +35,7 @@ git update-ref refs/heads/gh-pages $commit
 # clean index
 git reset HEAD
 
+# try to checkout what we’ve done – does not matter much, if it fails
+# it is purely informative
+git checkout gh-pages
+
