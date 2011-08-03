@@ -1,6 +1,12 @@
 
-from pelita.messaging import actor_of
+from pelita.messaging import actor_of, RemoteConnection
 from pelita.actors import ServerActor
+import logging
+import colorama
+colorama.init()
+
+FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s]' + colorama.Fore.MAGENTA + ' %(message)s' + colorama.Fore.RESET
+#logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S", level=logging.WARNING)
 
 import logging
 from pelita.ui.tk_viewer import TkViewer
@@ -11,7 +17,13 @@ FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s]' + co
 #logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S", level=logging.WARNING)
 
 server = actor_of(ServerActor, "pelita-main")
-server.start()
+
+
+remote = RemoteConnection().start_listener(host="", port=50007)
+remote.register("pelita-main", server)
+remote.start_all()
+
+#server.start()
 
 layout = (
         """ ##################
@@ -22,3 +34,4 @@ layout = (
 
 server.notify("initialize_game", [layout, 2, 200])
 
+#remote.stop()

@@ -1,4 +1,4 @@
-from pelita.messaging import Actor, DispatchingActor, expose, actor_registry, actor_of
+from pelita.messaging import Actor, DispatchingActor, expose, actor_registry, actor_of, RemoteConnection
 
 from pelita.game_master import GameMaster
 from pelita.player import AbstractPlayer
@@ -19,7 +19,10 @@ class _ClientActor(DispatchingActor):
 
     @expose
     def say_hello(self, message, main_actor, team_name, host, port):
-        self.server_actor = actor_registry.get_by_name(main_actor)
+
+        self.server_actor = RemoteConnection().actor_for(main_actor, host, port)
+
+        # self.server_actor = actor_registry.get_by_name(main_actor)
         if not self.server_actor:
             _logger.warning("Actor %r not found." % main_actor)
             return
@@ -64,9 +67,10 @@ class RemotePlayer(AbstractPlayer):
         self.ref = reference
 
     def _set_index(self, index):
-        return self.ref.query("set_index", [index])
+        return self.ref.query("set_index", [index]).get(3)
 
     def _set_initial(self, universe):
+        print type(universe)
         return self.ref.query("set_initial", [universe]).get(3)
     
     def get_move(self):
@@ -74,7 +78,7 @@ class RemotePlayer(AbstractPlayer):
 
     def _get_move(self, universe):
         result = self.ref.query("play_now", [universe]).get(3)
-        return result
+        return tuple(result)
 
 class ServerActor(DispatchingActor):
     def on_start(self):
