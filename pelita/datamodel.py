@@ -241,7 +241,6 @@ class Bot(object):
     def _move(self, new_pos):
         """ Move this bot to a new location.
 
-        Its state (harvester or destroyer) will be automatically updated.
         Whoever moves the bot is responsible for checking the legality of the
         new position.
 
@@ -252,12 +251,6 @@ class Bot(object):
 
         """
         self.current_pos = new_pos
-        if self.is_destroyer:
-            if not self.in_own_zone:
-                self.is_destroyer = False
-        elif self.is_harvester:
-            if self.in_own_zone:
-                self.is_destroyer = True
 
     def _reset(self):
         """ Reset this bot to its initial position. """
