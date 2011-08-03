@@ -419,9 +419,14 @@ class TeamWins(UniverseEvent):
         return ("TeamWins(%i)"
             % self.winning_team_index)
 
-@serializable
 class MazeComponent(object):
-    """ Base class for all items inside a Maze. """
+    """ Base class for all items inside a Maze.
+
+    This class provides basic methods for serialisation but is not
+    serialisable itself (it does not have a `_json_id`). This is to
+    ensure that all inherited objects are decorated with `@serializable`
+    and do not falsely inherit the id from this class.
+    """
 
     def __str__(self):
         return self.__class__.char
@@ -435,7 +440,6 @@ class MazeComponent(object):
     @classmethod
     def _from_json_dict(cls, item):
         return cls(**item)
-
 
 @serializable
 class Free(MazeComponent):
