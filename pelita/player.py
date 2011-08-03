@@ -222,6 +222,9 @@ class NQRandomPlayer(AbstractPlayer):
                 if v == self.previous_pos:
                     break
             del legal_moves[k]
+        # just in case, there is really no way to go to:
+        if not legal_moves:
+            return stop
         # and select a move at random
         return random.choice(legal_moves.keys())
 

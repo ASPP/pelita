@@ -64,6 +64,19 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual((16, 2), player_1.previous_pos)
         self.assertNotEqual(player_1.current_uni, player_1.universe_states[-2])
 
+class TestNQRandom_Player(unittest.TestCase):
+    def test_demo_players(self):
+        test_layout = (
+        """ ############
+            #0#1 #     #
+            ############ """)
+        gm = GameMaster(test_layout, 2, 1)
+        gm.register_player(NQRandomPlayer())
+        gm.register_player(NQRandomPlayer())
+        gm.play()
+        self.assertEqual(gm.universe.bots[0].current_pos, (1, 1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (4, 1))
+
 class TestBFS_Player(unittest.TestCase):
 
     def test_demo_players(self):
