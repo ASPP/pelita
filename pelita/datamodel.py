@@ -82,7 +82,7 @@ def diff_pos(initial, target):
 def is_adjacent(pos1, pos2):
     """ Check that two positions are adjacent
 
-    This will check that the Manhatten distance between two positions is exactly
+    This will check that the Manhattan distance between two positions is exactly
     one. This function does not take into account if the resulting position is a
     legal position in a Maze.
 
@@ -348,7 +348,7 @@ class TeamScoreChange(UniverseEvent):
     Parameters
     ----------
     team_index : int
-        index of the team whos score has changed
+        index of the team whose score has changed
     score_change : int
         the change in score
     new_score : int
@@ -682,14 +682,14 @@ class CTFUniverse(object):
         the maze
     teams : list of Team objects
         the teams
-    bots : lits of Bot objects
+    bots : list of Bot objects
         the bots
 
     Attributes
     ----------
     bot_positions : list of tuple of ints (x, y), property
         the current position of all bots
-    food_list : list of typle of ints (x, y), property
+    food_list : list of tuple of ints (x, y), property
         the positions of all edible food
 
     """
@@ -914,7 +914,7 @@ class CTFUniverse(object):
 
         Examples
         --------
-        >>> univere.pretty
+        >>> universe.pretty
         ##################
         #0#.  .  # .     #
         #1#####    #####2#

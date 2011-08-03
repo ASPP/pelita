@@ -25,7 +25,7 @@ rm -rf doc
 # clean the root dir and copy doc files back
 # but abort if there are untracked files present
 if git status --porcelain | grep '??' &> /dev/null ; then
-    echo "There are unttarcked files present, aborting!"
+    echo "There are untracked files present, aborting!"
     git status
     git checkout -
     exit 1
@@ -33,7 +33,7 @@ fi
 git clean -dfx
 cp -r $tmp_dir/* .
 
-# assuming eevrything went well, add all files in root dir
+# assuming everything went well, add all files in root dir
 # and create a commit
 git add .
 git commit -m "DOC: Sphinx generated doc from: $head_sha"

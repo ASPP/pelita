@@ -256,7 +256,7 @@ class BFSPlayer(AbstractPlayer):
 
         Returns
         -------
-        path : a lits of tuples (int, int)
+        path : a list of tuples (int, int)
             The positions (x, y) in the path furthest to closest. The first
             element is the final destination.
 
@@ -287,8 +287,8 @@ class BFSPlayer(AbstractPlayer):
         while seen:
             # Pop the latest node in seen
             next_ = seen.pop()
-            # If thats adjacent to the current node
-            # its in the path
+            # If that's adjacent to the current node
+            # it's in the path
             if next_ in self.adjacency[current]:
                 # So add it to the path
                 path.append(next_)

@@ -75,7 +75,7 @@ class GameMaster(object):
         """ Play a whole game. """
         if self.number_bots != len(self.players):
             raise IndexError(
-                "GameMaster is configured for %i players, but only %i are registerd " 
+                "GameMaster is configured for %i players, but only %i are registered "
                 % (self.number_bots, len(self.players)))
         for gt in range(self.game_time):
             if not self.play_round(gt):

@@ -29,14 +29,14 @@ class TestLayoutChecks(unittest.TestCase):
         self.assertEqual(stripped, target)
 
     def test_illegal_character(self):
-        illeagal_layout = (
+        illegal_layout = (
             """ #######
                 #c    #
                 #  f  #
                 #    o#
                 ####### """)
         self.assertRaises(LayoutEncodingException, Layout.check_layout,
-                Layout.strip_layout(illeagal_layout),
+                Layout.strip_layout(illegal_layout),
                 TestLayoutChecks.layout_chars, 0)
 
     def test_not_enough_bots(self):

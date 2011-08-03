@@ -275,9 +275,9 @@ class TypeAwareList(MutableSequence):
 
     Parameters
     ----------
-    iterable : iterable, optional, deafult=None
+    iterable : iterable, optional, default=None
         Values to insert into the TypeAwareList
-    base_class : type, , optional, deafult=None
+    base_class : type, , optional, default=None
         The base class which all items must be direct or indirect instances of
 
     This is a special type of list that knows about the types of its contents
