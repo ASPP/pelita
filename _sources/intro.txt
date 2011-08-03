@@ -23,7 +23,7 @@ Glossary
     A two-dimensional container mapping a position tuple to an object.
 
 :``Maze``:
-    Datastructre that stores the maze.
+    Datastructure that stores the maze.
 
 :``MazeComponent``:
     Objects stored in the ``Maze``.
@@ -168,9 +168,9 @@ Project-Wall
 
 We used an agile project wall to track tasks for the initial stages of the
 development. In our case we split it into four distinct sections: ``todo``
-(upper right), ``current iterartion`` (upper left), ``done`` (lower left) and
-``nice to have`` (lower right). Since we only had one whiteboard we keept the
-center for sketeches and doodles.  You can read about the agile project wall in
+(upper right), ``current iteration`` (upper left), ``done`` (lower left) and
+``nice to have`` (lower right). Since we only had one whiteboard we kept the
+center for sketches and doodles.  You can read about the agile project wall in
 the book: `The Agile Samurai
 <http://pragprog.com/book/jtrap/the-agile-samurai>`_ by by Jonathan Rasmusson
 
