@@ -606,7 +606,7 @@ def extract_initial_positions(mesh, number_bots):
 
 
 def create_CTFUniverse(layout_str, number_bots,
-        team_names=['black', 'white']):
+        team_names=None):
     """ Factory to create a 2-Player Capture The Flag Universe.
 
     Parameters
@@ -615,7 +615,8 @@ def create_CTFUniverse(layout_str, number_bots,
         the string encoding the maze layout
     number_bots : int
         the number of bots in the game
-    team_names : length 2 list of strings, optional default = ['black', 'white']
+    team_names : length 2 list of strings, optional
+        default = None -> ['black', 'white']
         the names of the playing teams
 
     Raises
@@ -626,6 +627,9 @@ def create_CTFUniverse(layout_str, number_bots,
         if there is something wrong with the layout_str, see `Layout()`
 
     """
+    if team_names is None:
+        team_names = ["black", "white"]
+
     layout_chars = [cls.char for cls in [Wall, Free, Food]]
 
     if number_bots % 2 != 0:
