@@ -9,6 +9,8 @@ import logging
 _logger = logging.getLogger("pelita")
 _logger.setLevel(logging.DEBUG)
 
+TIMEOUT = 3
+
 class _ClientActor(DispatchingActor):
     def on_start(self):
         self.players = []
@@ -67,16 +69,16 @@ class RemotePlayer(AbstractPlayer):
 
     def _set_index(self, index):
         super(RemotePlayer, self)._set_index(index)
-        return self.ref.query("set_index", [index]).get(3)
+        return self.ref.query("set_index", [index]).get(TIMEOUT)
 
     def _set_initial(self, universe):
-        return self.ref.query("set_initial", [self._index, universe]).get(3)
+        return self.ref.query("set_initial", [self._index, universe]).get(TIMEOUT)
 
     def get_move(self):
         pass
 
     def _get_move(self, universe):
-        result = self.ref.query("play_now", [self._index, universe]).get(3)
+        result = self.ref.query("play_now", [self._index, universe]).get(TIMEOUT)
         return tuple(result)
 
 class ServerActor(DispatchingActor):
