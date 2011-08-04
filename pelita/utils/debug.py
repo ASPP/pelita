@@ -4,7 +4,7 @@
 import threading
 import logging
 
-from pelita.messaging.utils import SuspendableThread
+from pelita.utils import SuspendableThread
 
 _logger = logging.getLogger("pelita.utils")
 _logger.setLevel(logging.DEBUG)

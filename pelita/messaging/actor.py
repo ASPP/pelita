@@ -11,7 +11,7 @@ import uuid
 import inspect
 from threading import Lock
 
-from pelita.messaging.utils import SuspendableThread, CloseThread
+from pelita.utils import SuspendableThread, CloseThread
 
 _logger = logging.getLogger("pelita.actor")
 _logger.setLevel(logging.DEBUG)
