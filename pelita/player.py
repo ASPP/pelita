@@ -8,6 +8,22 @@ import random
 
 __docformat__ = "restructuredtext"
 
+class SimpleTeam(object):
+    def __init__(self, *players):
+        self.players = players
+        self.bot_players = {}
+
+    def _set_bot_ids(self, bot_ids):
+        for bot_id, player in zip(bot_ids, self.players):
+            player._set_index(bot_id)
+            self.bot_players[bot_id] = player
+
+    def _set_initial(self, universe):
+        for player in self.players:
+            player._set_initial(universe)
+
+    def _get_move(self, bot_idx, universe):
+        return self.bot_players[bot_idx]._get_move(universe)
 
 class AbstractPlayer(object):
     """ Base class for all user implemented Players. """

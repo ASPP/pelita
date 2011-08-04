@@ -21,10 +21,8 @@ class TestAbstractPlayer(unittest.TestCase):
         player_1 = TestPlayer([stop, north])
         player_2 = StoppingPlayer()
         player_3 = StoppingPlayer()
-        game_master.register_player(player_0)
-        game_master.register_player(player_1)
-        game_master.register_player(player_2)
-        game_master.register_player(player_3)
+        game_master.register_team(SimpleTeam(player_0, player_2))
+        game_master.register_team(SimpleTeam(player_1, player_3))
 
         self.assertEqual(universe.bots[0], player_0.me)
         self.assertEqual(universe.bots[1], player_1.me)
@@ -71,8 +69,8 @@ class TestNQRandom_Player(unittest.TestCase):
             #0#1 #     #
             ############ """)
         gm = GameMaster(test_layout, 2, 1)
-        gm.register_player(NQRandomPlayer())
-        gm.register_player(NQRandomPlayer())
+        gm.register_team(SimpleTeam(NQRandomPlayer()))
+        gm.register_team(SimpleTeam(NQRandomPlayer()))
         gm.play()
         self.assertEqual(gm.universe.bots[0].current_pos, (1, 1))
         self.assertEqual(gm.universe.bots[1].current_pos, (4, 1))
@@ -87,10 +85,8 @@ class TestBFS_Player(unittest.TestCase):
             #     . #  .  .#1#
             ################## """)
         gm = GameMaster(test_layout, 4, 200)
-        gm.register_player(StoppingPlayer())
-        gm.register_player(RandomPlayer())
-        gm.register_player(NQRandomPlayer())
-        gm.register_player(BFSPlayer())
+        gm.register_team(SimpleTeam(StoppingPlayer(), NQRandomPlayer()))
+        gm.register_team(SimpleTeam(RandomPlayer(), BFSPlayer()))
         gm.play()
 
     def test_adjacency_bfs(self):
@@ -103,8 +99,8 @@ class TestBFS_Player(unittest.TestCase):
         game_master = GameMaster(test_layout, 2, 200)
         bfs = BFSPlayer()
         stopping = StoppingPlayer()
-        game_master.register_player(bfs)
-        game_master.register_player(stopping)
+        game_master.register_team(SimpleTeam(bfs))
+        game_master.register_team(SimpleTeam(stopping))
         adjacency_target = {(7, 3): [(7, 2), (7, 3), (6, 3)],
          (1, 3): [(1, 2), (2, 3), (1, 3)],
          (12, 1): [(13, 1), (12, 1), (11, 1)],

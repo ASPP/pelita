@@ -25,8 +25,8 @@ class GameMaster(object):
         the total permitted number of rounds
     number_bots : int
         the total number of bots
-    players : list of subclasses of AbstractPlayer
-        the player implementations
+    player_teams : the participating player teams
+    player_teams_bots : stores for each player_team index which bots it has
     viewers : list of subclasses of AbstractViewer
         the viewers that are observing this game
 
@@ -35,10 +35,10 @@ class GameMaster(object):
         self.universe = uni.create_CTFUniverse(layout, number_bots)
         self.game_time = game_time
         self.number_bots = number_bots
-        self.players = []
+        self.player_teams = []
         self.viewers = []
 
-    def register_player(self, player):
+    def register_team(self, team):
         """ Register a client player implementation.
 
         Parameters
@@ -47,13 +47,16 @@ class GameMaster(object):
             the concrete player implementation
 
         """
-        if (player.__class__.get_move.__func__ ==
-                AbstractPlayer.get_move.__func__):
-            raise TypeError("Player %s does not override 'get_move()'."
-                % player.__class__)
-        self.players.append(player)
-        player._set_index(len(self.players) - 1)
-        player._set_initial(self.universe.copy())
+        self.player_teams.append(team)
+
+        # map a player_team to a universe.team 1:1
+        team_idx = len(self.player_teams) - 1
+        # the respective bot ids in the universe
+        bot_ids = self.universe.teams[team_idx].bots
+
+        # tell the team about these bot_ids
+        team._set_bot_ids(bot_ids)
+        team._set_initial(self.universe.copy())
 
     def register_viewer(self, viewer):
         """ Register a viewer to display the game state as it progresses.
@@ -73,10 +76,10 @@ class GameMaster(object):
 
     def play(self):
         """ Play a whole game. """
-        if self.number_bots != len(self.players):
+        if len(self.player_teams) != len(self.universe.teams):
             raise IndexError(
-                "GameMaster is configured for %i players, but only %i are registered "
-                % (self.number_bots, len(self.players)))
+                "Universe uses %i teams, but only %i are registered."
+                % (len(self.player_teams), len(self.universe.teams)))
         for gt in range(self.game_time):
             if not self.play_round(gt):
                 return
@@ -92,8 +95,9 @@ class GameMaster(object):
             the number of this round
 
         """
-        for i, p in enumerate(self.players):
-            move = p._get_move(self.universe.copy())
+        for i, bot in enumerate(self.universe.bots):
+            player_team = self.player_teams[bot.team_index]
+            move = player_team._get_move(bot.index, self.universe.copy())
             events = self.universe.move_bot(i, move)
             for v in self.viewers:
                 v.observe(current_game_time, i, self.universe.copy(), copy.deepcopy(events))
