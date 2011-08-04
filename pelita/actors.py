@@ -40,7 +40,7 @@ class _ClientActor(DispatchingActor):
         self.ref.reply(self.players[0]._set_initial(universe))
 
     @expose
-    def play_now(self, message, universe):        
+    def play_now(self, message, universe):
         self.ref.reply(self.players[0]._get_move(universe))
 
 
@@ -72,7 +72,7 @@ class RemotePlayer(AbstractPlayer):
     def _set_initial(self, universe):
         print type(universe)
         return self.ref.query("set_initial", [universe]).get(3)
-    
+
     def get_move(self):
         pass
 
@@ -107,13 +107,16 @@ class ServerActor(DispatchingActor):
             self.ref.notify("start_game")
 
     @expose
+    def register_viewer(self, message, viewer):
+        self.game_master.register_viewer(viewer)
+
+    @expose
     def start_game(self, message):
         for team_name, actor_ref in self.teams.iteritems():
             print team_name, actor_ref
-            
+
             self.game_master.register_player(RemotePlayer(actor_ref))
 
-        self.game_master.register_viewer(AsciiViewer())
         self.game_master.play()
 
         self.ref.stop()
