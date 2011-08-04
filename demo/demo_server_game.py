@@ -20,12 +20,12 @@ remote.start_all()
 
 layout = (
         """ ##################
-            #0#.  .  # .     #
+            #0#.  . 2# .   3 #
             # #####    ##### #
             #     . #  .  .#1#
             ################## """)
 
-server.notify("initialize_game", [layout, 2, 200])
+server.notify("initialize_game", [layout, 4, 200])
 
 viewer = TkViewer()
 server.notify("register_viewer", [viewer])

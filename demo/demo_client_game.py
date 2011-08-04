@@ -1,4 +1,4 @@
-from pelita.player import RandomPlayer
+from pelita.player import RandomPlayer, BFSPlayer
 
 from pelita.actors import ClientActor
 
@@ -11,10 +11,12 @@ FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s]' + co
 #import demo_server_game
 
 clientActor = ClientActor("the good ones")
-clientActor.register_player(RandomPlayer())
+clientActor.register_player(BFSPlayer())
+clientActor.register_player(BFSPlayer())
 clientActor.connect("pelita-main", host="", port=50007)
 
 clientActor2 = ClientActor("the bad ones")
+clientActor2.register_player(RandomPlayer())
 clientActor2.register_player(RandomPlayer())
 clientActor2.connect("pelita-main", host="", port=50007)
 

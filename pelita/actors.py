@@ -33,15 +33,15 @@ class _ClientActor(DispatchingActor):
 
     @expose
     def set_index(self, message, index):
-        self.ref.reply(self.players[0]._set_index(index))
+        self.ref.reply(self.players[index // 2]._set_index(index))
 
     @expose
-    def set_initial(self, message, universe):
-        self.ref.reply(self.players[0]._set_initial(universe))
+    def set_initial(self, message, index, universe):
+        self.ref.reply(self.players[index // 2]._set_initial(universe))
 
     @expose
-    def play_now(self, message, universe):
-        self.ref.reply(self.players[0]._get_move(universe))
+    def play_now(self, message, index, universe):
+        self.ref.reply(self.players[index // 2]._get_move(universe))
 
 
 class ClientActor(object):
@@ -61,28 +61,28 @@ class ClientActor(object):
 
 
 
-
 class RemotePlayer(AbstractPlayer):
     def __init__(self, reference):
         self.ref = reference
 
     def _set_index(self, index):
+        super(RemotePlayer, self)._set_index(index)
         return self.ref.query("set_index", [index]).get(3)
 
     def _set_initial(self, universe):
-        print type(universe)
-        return self.ref.query("set_initial", [universe]).get(3)
+        return self.ref.query("set_initial", [self._index, universe]).get(3)
 
     def get_move(self):
         pass
 
     def _get_move(self, universe):
-        result = self.ref.query("play_now", [universe]).get(3)
+        result = self.ref.query("play_now", [self._index, universe]).get(3)
         return tuple(result)
 
 class ServerActor(DispatchingActor):
     def on_start(self):
-        self.teams = {}
+        self.teams = []
+        self.team_names = []
         self.game_master = None
 
     @expose
@@ -98,7 +98,8 @@ class ServerActor(DispatchingActor):
         else:
             other_ref = actor_registry.get_by_uuid(actor_uuid)
 
-        self.teams[team_name] = other_ref
+        self.teams.append(other_ref)
+        self.team_names.append(team_name)
         self.ref.reply("ok")
 
         if len(self.teams) == 2:
@@ -112,10 +113,16 @@ class ServerActor(DispatchingActor):
 
     @expose
     def start_game(self, message):
-        for team_name, actor_ref in self.teams.iteritems():
-            print team_name, actor_ref
+        for bot in range(self.game_master.number_bots):
+            actor_ref = self.teams[bot % 2]
 
-            self.game_master.register_player(RemotePlayer(actor_ref))
+            remote_player = RemotePlayer(actor_ref)
+
+            self.game_master.register_player(remote_player)
+
+        # hack which sets the name in the universe
+        for idx, team_name in enumerate(self.team_names):
+            self.game_master.universe.teams[idx].name = team_name
 
         self.game_master.play()
 
