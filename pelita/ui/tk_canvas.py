@@ -192,7 +192,7 @@ class UiCanvas(object):
 
     def init_bots(self, universe):
         for bot in universe.bots:
-            bot_sprite = BotSprite(self.mesh_graph)
+            bot_sprite = BotSprite(self.mesh_graph, team=bot.team_index)
 
             self.bot_sprites[bot.index] = bot_sprite
             bot_sprite.position = bot.current_pos
@@ -254,7 +254,7 @@ class TkApplication(Tkinter.Frame):
             while True:
                 observed = self.queue.get(False)
                 self.observe(observed)
-                
+
                 self.after(100, self.read_queue)
                 return
         except Queue.Empty:
