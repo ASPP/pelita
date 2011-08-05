@@ -51,7 +51,7 @@ class MeshGraph(object):
         # coords are between -1 and +1: shift on [0, 1]
         trafo_y = (coords_y + 1.0) / 2.0
 
-        real_y = self.rect_height * (mesh_y + trafo_y)
+        real_y = self.rect_height * (mesh_y + trafo_y) + 30
         return real_y
 
 class UiCanvas(object):
@@ -73,7 +73,7 @@ class UiCanvas(object):
         self.previous_universe = None
 
     def init_canvas(self):
-        self.canvas = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=self.mesh_graph.height)
+        self.canvas = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=self.mesh_graph.height + 30)
         self.canvas.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
         self.canvas.bind('<Configure>', self.resize)
 
@@ -106,8 +106,39 @@ class UiCanvas(object):
 
         #self.waiting_animations = []
         self.clear()
+        self.draw_background(universe)
+        self.draw_title(universe)
         self.draw_mesh(universe.maze)
         self.draw_bots(universe)
+
+    def draw_background(self, universe):
+        center = self.mesh_graph.width // 2
+        cols = (col(94, 158, 217), col(235, 90, 90), col(80, 80, 80))
+
+        for color, x_orig in zip(cols, (center - 3, center + 3, center)):
+            x_width = self.mesh_graph.half_scale_x // 4
+
+            x_prev = None
+            y_prev = None
+            for y in range(-4, self.mesh_graph.num_y * 10):
+                x_real = x_orig + x_width * math.sin(y * 10)
+                y_real = self.mesh_graph.mesh_to_real_y(y / 10.0, 0)
+                if x_prev and y_prev:
+                    self.canvas.create_line((x_prev, y_prev, x_real, y_real), width=3, fill=color)
+                x_prev, y_prev = x_real, y_real
+            #return
+
+    def draw_title(self, universe):
+        print universe.teams
+        center = self.mesh_graph.width // 2
+
+        left_team = "%s %d" % (universe.teams[0].name, universe.teams[0].score)
+        self.canvas.create_text(center - 10, 20, text=left_team, font=(None, 30), fill=col(94, 158, 217), tag="title", anchor=Tkinter.E)
+
+        self.canvas.create_text(center, 20, text=":", font=(None, 30), tag="title", anchor=Tkinter.CENTER)
+
+        right_team = "%d %s" % (universe.teams[1].score, universe.teams[1].name)
+        self.canvas.create_text(center + 10, 20, text=right_team, font=(None, 30), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
 
     def draw_events(self, events=None):
         if events:
@@ -183,7 +214,7 @@ class UiCanvas(object):
 
     def resize(self, event):
         self.mesh_graph.width = event.width
-        self.mesh_graph.height = event.height
+        self.mesh_graph.height = event.height - 30
 
     def draw_mesh(self, mesh):
         for position, items in mesh.iteritems():
@@ -192,7 +223,7 @@ class UiCanvas(object):
 
     def init_bots(self, universe):
         for bot in universe.bots:
-            bot_sprite = BotSprite(self.mesh_graph)
+            bot_sprite = BotSprite(self.mesh_graph, team=bot.team_index)
 
             self.bot_sprites[bot.index] = bot_sprite
             bot_sprite.position = bot.current_pos
@@ -245,6 +276,7 @@ class TkApplication(Tkinter.Frame):
         self.queue = queue
 
         self.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
+
         self.ui_canvas = UiCanvas(self)
 
     def read_queue(self):
@@ -254,7 +286,7 @@ class TkApplication(Tkinter.Frame):
             while True:
                 observed = self.queue.get(False)
                 self.observe(observed)
-                
+
                 self.after(100, self.read_queue)
                 return
         except Queue.Empty:

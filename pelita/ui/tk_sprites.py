@@ -80,8 +80,9 @@ class TkSprite(object):
         self.draw(canvas)
 
 class BotSprite(TkSprite):
-    def __init__(self, mesh, score=0, bot_type=None, **kwargs):
+    def __init__(self, mesh, score=0, bot_type=None, team=0, **kwargs):
         self.score = score
+        self.team = team
 
         self.bot_type = bot_type
 
@@ -116,14 +117,23 @@ class BotSprite(TkSprite):
 
 class Harvester(BotSprite):
     def draw(self, canvas):
-        self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col=col(235, 60, 60))
+        if self.team == 0:
+            self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col=col(235, 60, 60))
+        else:
+            self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col=col(94, 158, 217))
 
 class Destroyer(BotSprite):
     def draw(self, canvas):
-        self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col=col(94, 158, 217))
-        self.draw_polygon(canvas)
+        if self.team == 0:
+            self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col=col(235, 60, 60))
 
-    def draw_polygon(self, canvas):
+            self.draw_polygon(canvas, outline=col(235, 60, 60))
+        else:
+            self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col=col(94, 158, 217))
+
+            self.draw_polygon(canvas, outline=col(94, 158, 217))
+
+    def draw_polygon(self, canvas, outline):
         scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5 # TODO: what, if x >> y?
 
         direction = self.direction
@@ -140,7 +150,7 @@ class Destroyer(BotSprite):
             coords.append((n.real, n.imag))
 
         coords = [self.real(coord) for coord in coords]
-        canvas.create_polygon(width=0.05 * scale, fill="", outline=col(94, 158, 217), tag=self.tag, *coords)
+        canvas.create_polygon(width=0.05 * scale, fill="", outline=outline, tag=self.tag, *coords)
 
 class Wall(TkSprite):
     def draw(self, canvas):
