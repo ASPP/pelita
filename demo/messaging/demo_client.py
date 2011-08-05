@@ -7,8 +7,7 @@ import logging
 _logger = logging.getLogger("clientActor")
 _logger.setLevel(logging.DEBUG)
 
-import colorama
-colorama.init()
+from pelita.utils.colorama_wrapper import colorama
 
 FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s]' + colorama.Fore.MAGENTA + ' %(message)s' + colorama.Fore.RESET
 logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S")
