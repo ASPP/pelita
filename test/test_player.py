@@ -1,6 +1,6 @@
 import unittest
 from pelita.player import *
-from pelita.datamodel import create_CTFUniverse, north, stop
+from pelita.datamodel import create_CTFUniverse, north, stop, east
 from pelita.game_master import GameMaster
 from pelita.viewer import AsciiViewer
 
@@ -21,10 +21,8 @@ class TestAbstractPlayer(unittest.TestCase):
         player_1 = TestPlayer([stop, north])
         player_2 = StoppingPlayer()
         player_3 = StoppingPlayer()
-        game_master.register_player(player_0)
-        game_master.register_player(player_1)
-        game_master.register_player(player_2)
-        game_master.register_player(player_3)
+        game_master.register_team(SimpleTeam(player_0, player_2))
+        game_master.register_team(SimpleTeam(player_1, player_3))
 
         self.assertEqual(universe.bots[0], player_0.me)
         self.assertEqual(universe.bots[1], player_1.me)
@@ -71,8 +69,8 @@ class TestNQRandom_Player(unittest.TestCase):
             #0#1 #     #
             ############ """)
         gm = GameMaster(test_layout, 2, 1)
-        gm.register_player(NQRandomPlayer())
-        gm.register_player(NQRandomPlayer())
+        gm.register_team(SimpleTeam(NQRandomPlayer()))
+        gm.register_team(SimpleTeam(NQRandomPlayer()))
         gm.play()
         self.assertEqual(gm.universe.bots[0].current_pos, (1, 1))
         self.assertEqual(gm.universe.bots[1].current_pos, (4, 1))
@@ -87,10 +85,8 @@ class TestBFS_Player(unittest.TestCase):
             #     . #  .  .#1#
             ################## """)
         gm = GameMaster(test_layout, 4, 200)
-        gm.register_player(StoppingPlayer())
-        gm.register_player(RandomPlayer())
-        gm.register_player(NQRandomPlayer())
-        gm.register_player(BFSPlayer())
+        gm.register_team(SimpleTeam(StoppingPlayer(), NQRandomPlayer()))
+        gm.register_team(SimpleTeam(RandomPlayer(), BFSPlayer()))
         gm.play()
 
     def test_adjacency_bfs(self):
@@ -103,8 +99,8 @@ class TestBFS_Player(unittest.TestCase):
         game_master = GameMaster(test_layout, 2, 200)
         bfs = BFSPlayer()
         stopping = StoppingPlayer()
-        game_master.register_player(bfs)
-        game_master.register_player(stopping)
+        game_master.register_team(SimpleTeam(bfs))
+        game_master.register_team(SimpleTeam(stopping))
         adjacency_target = {(7, 3): [(7, 2), (7, 3), (6, 3)],
          (1, 3): [(1, 2), (2, 3), (1, 3)],
          (12, 1): [(13, 1), (12, 1), (11, 1)],
@@ -153,3 +149,35 @@ class TestBFS_Player(unittest.TestCase):
         self.assertEqual([(14, 3)], bfs.current_path)
         game_master.play_round(i+2)
         self.assertEqual([], bfs.current_path)
+
+class TestSimpleTeam(unittest.TestCase):
+    def test_simple_team(self):
+        class BrokenPlayer(AbstractPlayer):
+            pass
+        self.assertRaises(TypeError, SimpleTeam, BrokenPlayer())
+
+    def test_bot_ids(self):
+        layout = (
+            """ ####
+                #01#
+                #### """
+        )
+        dummy_universe = create_CTFUniverse(layout, 2)
+        team1 = SimpleTeam(TestPlayer([north]), TestPlayer([east]))
+
+        self.assertRaises(ValueError, team1._set_bot_ids, [1, 5, 10])
+        team1._set_bot_ids([1,5])
+
+        team1._set_initial(dummy_universe)
+        self.assertEqual(team1._get_move(1, dummy_universe), north)
+        self.assertEqual(team1._get_move(5, dummy_universe), east)
+        self.assertRaises(KeyError, team1._get_move, 6, dummy_universe)
+
+        team2 = SimpleTeam(TestPlayer([north]), TestPlayer([east]))
+        team2._set_bot_ids([1])
+
+        team2._set_initial(dummy_universe)
+        self.assertEqual(team2._get_move(1, dummy_universe), north)
+        self.assertRaises(KeyError, team2._get_move, 0, dummy_universe)
+        self.assertRaises(KeyError, team2._get_move, 2, dummy_universe)
+

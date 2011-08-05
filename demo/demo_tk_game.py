@@ -2,7 +2,7 @@
 import threading
 
 from pelita.game_master import GameMaster
-from pelita.player import StoppingPlayer, RandomPlayer, NQRandomPlayer, BFSPlayer
+from pelita.player import StoppingPlayer, RandomPlayer, NQRandomPlayer, BFSPlayer, SimpleTeam
 from pelita.ui.tk_viewer import TkViewer
 
 if __name__ == '__main__':
@@ -13,10 +13,8 @@ if __name__ == '__main__':
             #     . #  .  .#3#
             ################## """)
     gm = GameMaster(layout, 4, 200)
-    gm.register_player(StoppingPlayer())
-    gm.register_player(RandomPlayer())
-    gm.register_player(NQRandomPlayer())
-    gm.register_player(BFSPlayer())
+    gm.register_team(SimpleTeam(StoppingPlayer(), NQRandomPlayer()))
+    gm.register_team(SimpleTeam(RandomPlayer(), BFSPlayer()))
 
     viewer = TkViewer()
 

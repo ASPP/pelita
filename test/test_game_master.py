@@ -23,7 +23,7 @@ class TestGameMaster(unittest.TestCase):
             pass
 
         self.assertRaises(TypeError, game_master.register_viewer, BrokenViewer())
-        self.assertRaises(TypeError, game_master.register_player, BrokenPlayer())
+#        self.assertRaises(TypeError, game_master.register_player, BrokenPlayer())
         self.assertRaises(IndexError, game_master.play)
 
 class TestAbstracts(unittest.TestCase):
@@ -72,8 +72,8 @@ class TestGame(unittest.TestCase):
 
 
         gm = GameMaster(test_start, number_bots, 200)
-        gm.register_player(TestPlayer([east, east, east, south, stop, east]))
-        gm.register_player(TestPlayer([west, west, west, stop, west, west]))
+        gm.register_team(SimpleTeam(TestPlayer([east, east, east, south, stop, east])))
+        gm.register_team(SimpleTeam(TestPlayer([west, west, west, stop, west, west])))
 
         gm.register_viewer(DevNullViewer())
 
@@ -128,8 +128,8 @@ class TestGame(unittest.TestCase):
 
         # now play the full game
         gm = GameMaster(test_start, number_bots, 200)
-        gm.register_player(TestPlayer([east, east, east, south, stop, east]))
-        gm.register_player(TestPlayer([west, west, west, stop, west, west]))
+        gm.register_team(SimpleTeam(TestPlayer([east, east, east, south, stop, east])))
+        gm.register_team(SimpleTeam(TestPlayer([west, west, west, stop, west, west])))
         gm.play()
         test_sixth_round = (
             """ ######
@@ -167,8 +167,8 @@ class TestGame(unittest.TestCase):
                 test_self.assertEqual(original_universe, gm.universe)
                 return (0,0)
 
-        gm.register_player(MaliciousPlayer())
-        gm.register_player(TestMaliciousPlayer())
+        gm.register_team(SimpleTeam(MaliciousPlayer()))
+        gm.register_team(SimpleTeam(TestMaliciousPlayer()))
 
         gm.play_round(0)
 
@@ -196,8 +196,8 @@ class TestGame(unittest.TestCase):
         number_bots = 2
 
         gm = GameMaster(test_start, number_bots, 200)
-        gm.register_player(TestPlayer([(0,0)]))
-        gm.register_player(TestPlayer([(0,0)]))
+        gm.register_team(SimpleTeam(TestPlayer([(0,0)])))
+        gm.register_team(SimpleTeam(TestPlayer([(0,0)])))
 
         original_universe = gm.universe.copy()
 
@@ -206,8 +206,9 @@ class TestGame(unittest.TestCase):
             def observe(self, round_, turn, universe, events):
                 # universe should not have been altered
                 test_self.assertEqual(original_universe, gm.universe)
-                
+
                 # there should only be a botmoves event
+                test_self.assertEqual(len(events), 1)
                 test_self.assertEqual(len(events), 1)
                 test_self.assertTrue(BotMoves in events)
 

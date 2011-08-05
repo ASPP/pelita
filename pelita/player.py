@@ -8,6 +8,41 @@ import random
 
 __docformat__ = "restructuredtext"
 
+class SimpleTeam(object):
+    """ Simple class used to register an arbitrary number of Players.
+
+    Each Player is used to control a Bot in the Universe.
+
+    Parameters
+    ----------
+    players : list of Players
+        the Players who shall join this SimpleTeam
+    """
+    def __init__(self, *players):
+        for player in players:
+            if (player.__class__.get_move.__func__ == AbstractPlayer.get_move.__func__):
+                raise TypeError("Player %s does not override 'get_move()'." % player.__class__)
+        self._players = players
+        self._bot_players = {}
+
+    def _set_bot_ids(self, bot_ids):
+        if len(bot_ids) > len(self._players):
+            raise ValueError("Tried to set %d bot_ids with only %d Players." % (len(bot_ids), len(self._players)))
+        for bot_id, player in zip(bot_ids, self._players):
+            player._set_index(bot_id)
+            self._bot_players[bot_id] = player
+
+    def _set_initial(self, universe):
+        # only iterate about those player which are in bot_players
+        # we might have defined more players than we have received
+        # indexes for.
+        for player in self._bot_players.values():
+            player._set_initial(universe)
+
+    def _get_move(self, bot_idx, universe):
+        """ Requests a move from the Player who controls the Bot with index `bot_idx`.
+        """
+        return self._bot_players[bot_idx]._get_move(universe)
 
 class AbstractPlayer(object):
     """ Base class for all user implemented Players. """
