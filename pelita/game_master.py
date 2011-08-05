@@ -39,13 +39,12 @@ class GameMaster(object):
         self.viewers = []
 
     def register_team(self, team):
-        """ Register a client player implementation.
+        """ Register a client TeamPlayer class.
 
         Parameters
         ----------
-        player : subclass of AbstractPlayer
-            the concrete player implementation
-
+        team : class which calculates a new move for
+            each Bot of the team.
         """
         self.player_teams.append(team)
 
