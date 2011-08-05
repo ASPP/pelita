@@ -1,6 +1,6 @@
 import unittest
 from pelita.player import *
-from pelita.datamodel import create_CTFUniverse, north, stop
+from pelita.datamodel import create_CTFUniverse, north, stop, east
 from pelita.game_master import GameMaster
 from pelita.viewer import AsciiViewer
 
@@ -149,3 +149,35 @@ class TestBFS_Player(unittest.TestCase):
         self.assertEqual([(14, 3)], bfs.current_path)
         game_master.play_round(i+2)
         self.assertEqual([], bfs.current_path)
+
+class TestSimpleTeam(unittest.TestCase):
+    def test_simple_team(self):
+        class BrokenPlayer(AbstractPlayer):
+            pass
+        self.assertRaises(TypeError, SimpleTeam, BrokenPlayer())
+
+    def test_bot_ids(self):
+        layout = (
+            """ ####
+                #01#
+                #### """
+        )
+        dummy_universe = create_CTFUniverse(layout, 2)
+        team1 = SimpleTeam(TestPlayer([north]), TestPlayer([east]))
+
+        self.assertRaises(ValueError, team1._set_bot_ids, [1, 5, 10])
+        team1._set_bot_ids([1,5])
+
+        team1._set_initial(dummy_universe)
+        self.assertEqual(team1._get_move(1, dummy_universe), north)
+        self.assertEqual(team1._get_move(5, dummy_universe), east)
+        self.assertRaises(KeyError, team1._get_move, 6, dummy_universe)
+
+        team2 = SimpleTeam(TestPlayer([north]), TestPlayer([east]))
+        team2._set_bot_ids([1])
+
+        team2._set_initial(dummy_universe)
+        self.assertEqual(team2._get_move(1, dummy_universe), north)
+        self.assertRaises(KeyError, team2._get_move, 0, dummy_universe)
+        self.assertRaises(KeyError, team2._get_move, 2, dummy_universe)
+
