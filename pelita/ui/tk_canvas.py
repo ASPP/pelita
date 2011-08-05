@@ -106,9 +106,27 @@ class UiCanvas(object):
 
         #self.waiting_animations = []
         self.clear()
+        self.draw_background(universe)
         self.draw_title(universe)
         self.draw_mesh(universe.maze)
         self.draw_bots(universe)
+
+    def draw_background(self, universe):
+        center = self.mesh_graph.width // 2
+        cols = (col(94, 158, 217), col(235, 90, 90), col(80, 80, 80))
+
+        for color, x_orig in zip(cols, (center - 3, center + 3, center)):
+            x_width = self.mesh_graph.half_scale_x // 4
+
+            x_prev = None
+            y_prev = None
+            for y in range(-4, self.mesh_graph.num_y * 10):
+                x_real = x_orig + x_width * math.sin(y * 10)
+                y_real = self.mesh_graph.mesh_to_real_y(y / 10.0, 0)
+                if x_prev and y_prev:
+                    self.canvas.create_line((x_prev, y_prev, x_real, y_real), width=3, fill=color)
+                x_prev, y_prev = x_real, y_real
+            #return
 
     def draw_title(self, universe):
         print universe.teams
