@@ -16,7 +16,7 @@ _logger.setLevel(logging.DEBUG)
 __docformat__ = "restructuredtext"
 
 
-from pelita.messaging.utils import SuspendableThread, CloseThread, Counter
+from pelita.utils import SuspendableThread, CloseThread, Counter
 from pelita.messaging.remote import JsonSocketConnection, TcpThreadedListeningServer, TcpConnectingClient
 from pelita.messaging.actor import StopProcessing, DeadConnection, actor_registry, BaseActorReference
 

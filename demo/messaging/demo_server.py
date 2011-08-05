@@ -8,7 +8,7 @@ colorama.init()
 FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s]' + colorama.Fore.MAGENTA + ' %(message)s' + colorama.Fore.RESET
 logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S")
 
-from pelita.messaging.utils.debug import ThreadInfoLogger
+from pelita.utils.debug import ThreadInfoLogger
 ThreadInfoLogger(10).start()
 
 from pelita.messaging import Actor, Notification, DispatchingActor, expose, actor_of, RemoteConnection

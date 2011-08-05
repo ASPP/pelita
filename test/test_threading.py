@@ -1,7 +1,7 @@
 import unittest
 import threading, time
 
-from pelita.messaging.utils import SuspendableThread, CloseThread, Value
+from pelita.utils import SuspendableThread, CloseThread, Value
 
 class NotImplementedThread(SuspendableThread):
     pass
