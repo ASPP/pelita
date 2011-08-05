@@ -1,7 +1,11 @@
+# -*- coding: utf-8 -*-
+
+import sys
+import Queue
+
 from pelita.messaging import Actor, DispatchingActor, expose, actor_registry, actor_of, RemoteConnection
 
 from pelita.game_master import GameMaster
-from pelita.player import AbstractPlayer
 from pelita.viewer import AsciiViewer
 
 import logging
@@ -13,14 +17,23 @@ TIMEOUT = 3
 
 class _ClientActor(DispatchingActor):
     def on_start(self):
-        self.players = []
+        self.team = None
+        self.server_actor = None
 
     @expose
-    def add_player(self, message, player):
-        self.players.append(player)
+    def register_team(self, message, team):
+        """ We register the team.
+        """
+        # TODO: Maybe throw an exception, if a team
+        # is already registered.
+        # Also: investigate how to deal with concurrency issues
+        self.team = team
 
     @expose
     def say_hello(self, message, main_actor, team_name, host, port):
+        """ Opens a connection to the remote main_actor,
+        and sends it a "hello" message with the given team_name.
+        """
 
         self.server_actor = RemoteConnection().actor_for(main_actor, host, port)
 
@@ -34,51 +47,62 @@ class _ClientActor(DispatchingActor):
             self.ref.reply("ok")
 
     @expose
-    def set_index(self, message, index):
-        self.ref.reply(self.players[index // 2]._set_index(index))
+    def set_bot_ids(self, message, *bot_ids):
+        """ Called by the server. This method sets the available bot_ids for this team.
+        """
+        self.ref.reply(self.team._set_bot_ids(bot_ids))
 
     @expose
-    def set_initial(self, message, index, universe):
-        self.ref.reply(self.players[index // 2]._set_initial(universe))
+    def set_initial(self, message, universe):
+        """ Called by the server. This method tells us the initial universe.
+        """
+        self.ref.reply(self.team._set_initial(universe))
 
     @expose
-    def play_now(self, message, index, universe):
-        self.ref.reply(self.players[index // 2]._get_move(universe))
+    def play_now(self, message, bot_index, universe):
+        """ Called by the server. This message requests a new move
+        from the bot with index `bot_index`.
+        """
+        self.ref.reply(self.team._get_move(bot_index, universe))
 
 
 class ClientActor(object):
     def __init__(self, team_name):
         self.team_name = team_name
 
-        self.server_actor = None
         self.actor_ref = actor_of(_ClientActor)
         self.actor_ref._actor.thread.daemon = True # TODO remove this line
         self.actor_ref.start()
 
-    def register_player(self, player):
-        self.actor_ref.notify("add_player", [player])
+    def register_team(self, team):
+        """ Registers a team with our local actor.
+        """
+        self.actor_ref.notify("register_team", [team])
 
     def connect(self, main_actor, host="", port=50007):
-        print self.actor_ref.query("say_hello", [main_actor, self.team_name, host, port]).get()
+        """ Tells our local actor to establish a connection with `main_actor`.
+        """
+        print "Trying to establish a connection with remote actor '%s'..." % main_actor,
+        sys.stdout.flush()
+
+        try:
+            print self.actor_ref.query("say_hello", [main_actor, self.team_name, host, port]).get(TIMEOUT)
+        except Queue.Empty:
+            print "failed."
 
 
-
-class RemotePlayer(AbstractPlayer):
+class RemoteTeamPlayer(object):
     def __init__(self, reference):
         self.ref = reference
 
-    def _set_index(self, index):
-        super(RemotePlayer, self)._set_index(index)
-        return self.ref.query("set_index", [index]).get(TIMEOUT)
+    def _set_bot_ids(self, bot_ids):
+        return self.ref.query("set_bot_ids", bot_ids).get(TIMEOUT)
 
     def _set_initial(self, universe):
-        return self.ref.query("set_initial", [self._index, universe]).get(TIMEOUT)
+        return self.ref.query("set_initial", [universe]).get(TIMEOUT)
 
-    def get_move(self):
-        pass
-
-    def _get_move(self, universe):
-        result = self.ref.query("play_now", [self._index, universe]).get(TIMEOUT)
+    def _get_move(self, bot_idx, universe):
+        result = self.ref.query("play_now", [bot_idx, universe]).get(TIMEOUT)
         return tuple(result)
 
 class ServerActor(DispatchingActor):
@@ -115,16 +139,16 @@ class ServerActor(DispatchingActor):
 
     @expose
     def start_game(self, message):
-        for bot in range(self.game_master.number_bots):
-            actor_ref = self.teams[bot % 2]
+        for team_idx in range(len(self.teams)):
+            team_ref = self.teams[team_idx]
+            team_name = self.team_names[team_idx]
 
-            remote_player = RemotePlayer(actor_ref)
+            remote_player = RemoteTeamPlayer(team_ref)
 
-            self.game_master.register_player(remote_player)
+            self.game_master.register_team(remote_player)
 
-        # hack which sets the name in the universe
-        for idx, team_name in enumerate(self.team_names):
-            self.game_master.universe.teams[idx].name = team_name
+            # hack which sets the name in the universe
+            self.game_master.universe.teams[team_idx].name = team_name
 
         self.game_master.play()
 
