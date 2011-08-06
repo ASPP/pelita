@@ -300,10 +300,10 @@ class TkApplication(Tkinter.Frame):
             self.after(100, self.read_queue)
 
     def observe(self, observed):
-        round = observed["round"]
-        turn = observed["turn"]
+        round = observed.get("round")
+        turn = observed.get("turn")
         universe = observed["universe"]
-        events = observed["events"]
+        events = observed.get("events")
 
         self.ui_canvas.update(events, universe)
 

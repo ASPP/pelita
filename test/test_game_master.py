@@ -179,6 +179,9 @@ class TestGame(unittest.TestCase):
         free_obj = Free()
 
         class MeanViewer(AbstractViewer):
+            def set_initial(self, universe):
+                universe.teams[1].score = 50
+
             def observe(self, round_, turn, universe, events):
                 universe.teams[0].score = 100
                 universe.bots[0].current_pos = (4,4)

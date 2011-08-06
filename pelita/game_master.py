@@ -69,6 +69,7 @@ class GameMaster(object):
                 AbstractViewer.observe.__func__):
             raise TypeError("Viewer %s does not override 'observe()'."
                     % viewer.__class__)
+        viewer.set_initial(self.universe.copy())
         self.viewers.append(viewer)
 
     # TODO the game winning detection should be refactored
