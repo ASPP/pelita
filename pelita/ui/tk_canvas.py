@@ -289,15 +289,17 @@ class TkApplication(Tkinter.Frame):
     def read_queue(self):
         try:
             # read all events.
-            # if queue is empty, try again in 500 ms
+            # if queue is empty, try again in 50 ms
+            # we don’t want to block here and lock
+            # Tk animations
             while True:
                 observed = self.queue.get(False)
                 self.observe(observed)
 
-                self.after(100, self.read_queue)
+                self.after(50, self.read_queue)
                 return
         except Queue.Empty:
-            self.after(100, self.read_queue)
+            self.after(50, self.read_queue)
 
     def observe(self, observed):
         round = observed.get("round")

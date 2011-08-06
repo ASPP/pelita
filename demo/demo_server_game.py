@@ -29,6 +29,6 @@ server.notify("initialize_game", [layout, 4, 200])
 
 viewer = TkViewer()
 server.notify("register_viewer", [viewer])
-viewer.viewer.mainloop()
+viewer.app.mainloop()
 
 #remote.stop()
