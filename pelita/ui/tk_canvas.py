@@ -54,6 +54,10 @@ class MeshGraph(object):
         real_y = self.rect_height * (mesh_y + trafo_y) + 30
         return real_y
 
+    def __repr__(self):
+        return "MeshGraph(%d, %d, %d, %d)" % (self.num_x, self.num_y,
+                                              self.height, self.width)
+
 class UiCanvas(object):
     def __init__(self, master):
         self.mesh_graph = None
@@ -213,8 +217,11 @@ class UiCanvas(object):
         self.canvas.delete(Tkinter.ALL)
 
     def resize(self, event):
-        self.mesh_graph.width = event.width
-        self.mesh_graph.height = event.height - 30
+        # need to be careful not to get negative numbers
+        # Tk will crash otherwise
+        if event.height > 30:
+            self.mesh_graph.width = event.width
+            self.mesh_graph.height = event.height - 30
 
     def draw_mesh(self, mesh):
         for position, items in mesh.iteritems():
