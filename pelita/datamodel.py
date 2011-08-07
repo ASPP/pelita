@@ -102,6 +102,22 @@ def is_adjacent(pos1, pos2):
     return (pos1[0] == pos2[0] and abs(pos1[1] - pos2[1]) == 1 or
         pos1[1] == pos2[1] and abs(pos1[0] - pos2[0]) == 1)
 
+def manhattan_dist(pos1, pos2):
+    """ Manhattan distance between two points.
+
+    Parameters
+    ----------
+    pos1 : tuple of (int, int)
+        the first position
+    pos2 : tuple of (int, int)
+        the second position
+
+    Returns
+    -------
+    manhattan_dist : int
+        Manhattan distance between two points
+    """
+    return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
 @serializable
 class Team(object):

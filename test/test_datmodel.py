@@ -42,6 +42,27 @@ class TestStaticmethods(unittest.TestCase):
         self.assertFalse(is_adjacent((0, 0), (0, 0)))
         self.assertFalse(is_adjacent((1, 1), (1, 1)))
 
+    def test_manhattan_dist(self):
+        self.assertEqual(0, manhattan_dist((0, 0), (0, 0)))
+        self.assertEqual(0, manhattan_dist((1, 1), (1, 1)))
+        self.assertEqual(0, manhattan_dist((20, 20), (20, 20)))
+
+        self.assertEqual(1, manhattan_dist((0, 0), (1, 0)))
+        self.assertEqual(1, manhattan_dist((0, 0), (0, 1)))
+        self.assertEqual(1, manhattan_dist((1, 0), (0, 0)))
+        self.assertEqual(1, manhattan_dist((0, 1), (0, 0)))
+
+        self.assertEqual(2, manhattan_dist((0, 0), (1, 1)))
+        self.assertEqual(2, manhattan_dist((1, 1), (0, 0)))
+        self.assertEqual(2, manhattan_dist((1, 0), (0, 1)))
+        self.assertEqual(2, manhattan_dist((0, 1), (1, 0)))
+        self.assertEqual(2, manhattan_dist((0, 0), (2, 0)))
+        self.assertEqual(2, manhattan_dist((0, 0), (0, 2)))
+        self.assertEqual(2, manhattan_dist((2, 0), (0, 0)))
+        self.assertEqual(2, manhattan_dist((0, 2), (0, 0)))
+
+        self.assertEqual(4, manhattan_dist((1, 2), (3, 4)))
+
     def test_get_initial_positions(self):
 
 
