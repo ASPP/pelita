@@ -402,6 +402,21 @@ class BotDestroyed(UniverseEvent):
                 self.destroyer_index, self.destroyer_old_pos,
                 self.destroyer_new_pos))
 
+class TimeoutEvent(UniverseEvent):
+    """ Signify that a timeout has occurred.
+
+    Parameters
+    ----------
+    team_index : int
+        index of the team which had the timeout
+
+    """
+    def __init__(self, team_index):
+        self.team_index = team_index
+
+    def __repr__(self):
+        return "TimeoutEvent(%i)" % self.team_index
+
 
 class TeamWins(UniverseEvent):
     """ Signify that a team has eaten all enemy food.

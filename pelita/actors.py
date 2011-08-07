@@ -3,10 +3,9 @@
 import sys
 import Queue
 
-from pelita.messaging import Actor, DispatchingActor, expose, actor_registry, actor_of, RemoteConnection
+from pelita.messaging import DispatchingActor, expose, actor_registry, actor_of, RemoteConnection, DeadConnection
 
-from pelita.game_master import GameMaster
-from pelita.viewer import AsciiViewer
+from pelita.game_master import GameMaster, PlayerTimeout, PlayerDisconnected
 
 import logging
 
@@ -63,7 +62,8 @@ class _ClientActor(DispatchingActor):
         """ Called by the server. This message requests a new move
         from the bot with index `bot_index`.
         """
-        self.ref.reply(self.team._get_move(bot_index, universe))
+        move = self.team._get_move(bot_index, universe)
+        self.ref.reply(move)
 
 
 class ClientActor(object):
@@ -102,8 +102,18 @@ class RemoteTeamPlayer(object):
         return self.ref.query("set_initial", [universe]).get(TIMEOUT)
 
     def _get_move(self, bot_idx, universe):
-        result = self.ref.query("play_now", [bot_idx, universe]).get(TIMEOUT)
-        return tuple(result)
+        try:
+            result = self.ref.query("play_now", [bot_idx, universe]).get(TIMEOUT)
+            return tuple(result)
+        except TypeError:
+            # if we could not convert into a tuple (e.g. bad reply)
+            return None
+        except Queue.Empty:
+            # if we did not receive a message in time
+            raise PlayerTimeout()
+        except DeadConnection:
+            # if the remote connection is closed
+            raise PlayerDisconnected()
 
 class ServerActor(DispatchingActor):
     def on_start(self):

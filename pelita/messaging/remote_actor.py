@@ -287,6 +287,9 @@ class RemoteActorReference(BaseActorReference):
         super(RemoteActorReference, self).__init__(**kwargs)
 
     def put(self, message, channel=None, remote=None):
+        if not self._remote_mailbox.outbox.thread.is_alive():
+            raise DeadConnection
+
         remote_name = self.remote_name
         sender_info = repr(channel) # only used for debugging
 
