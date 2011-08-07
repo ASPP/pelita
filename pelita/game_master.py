@@ -5,8 +5,8 @@
 import copy
 import random
 from pelita.containers import TypeAwareList
-
 from pelita import datamodel
+from pelita.player import AbstractPlayer
 from pelita.viewer import AbstractViewer
 
 __docformat__ = "restructuredtext"
@@ -141,3 +141,24 @@ class GameMaster(object):
             if datamodel.TeamWins in events:
                 return False
         return True
+
+class UniverseNoiser(object):
+
+    def __init__(self, universe):
+        self.adjacency = dict((pos, universe.get_legal_moves(pos).values())
+                for pos in universe.maze.pos_of(datamodel.Free))
+        self.distance = 5
+
+    def pos_within(self, position):
+        if position not in self.adjacency.keys():
+            raise TypeError("%s is not a free space in this maze" % repr(position))
+        positions = set()
+        to_visit = [position]
+        for i in range(self.distance):
+            local_to_visit = []
+            for pos in to_visit:
+                if pos not in positions:
+                    positions.add(pos)
+                local_to_visit.extend(self.adjacency[pos])
+            to_visit = local_to_visit
+        return positions

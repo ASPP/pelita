@@ -58,6 +58,27 @@ class TestGameMaster(unittest.TestCase):
         self.assertEqual(team_2._players[1].current_uni.teams[1].name, "team2")
 
 
+class TestUniverseNoiser(unittest.TestCase):
+
+    def test_pos_within(self):
+        test_layout = (
+        """ ##################
+            #0#.  .  # .     #
+            #2#####    #####1#
+            #     . #  .  .#3#
+            ################## """)
+        universe = create_CTFUniverse(test_layout, 4)
+        noiser = UniverseNoiser(universe.copy())
+        free = set(universe.maze.pos_of(Free))
+
+
+        self.assertRaises(TypeError, noiser.pos_within, (0, 0))
+        self.assertRaises(TypeError, noiser.pos_within, (6, 2))
+
+        target = set([(1, 1), (1, 2), (1,3), (2, 3), (3, 3), (3, 3)])
+        self.assertEqual(target, noiser.pos_within((1, 1)))
+
+
 class TestAbstracts(unittest.TestCase):
 
     def test_AbstractViewer(self):
