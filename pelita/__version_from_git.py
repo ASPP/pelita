@@ -35,8 +35,12 @@ class __GitException(Exception):
     pass
 
 def __get_git_output(command, directory):
-    ret_code, output, error = __get_command_output('git %s' % command,
+    try:
+        ret_code, output, error = __get_command_output('git %s' % command,
             cwd=directory)
+    except OSError as e:
+        # if git is not installed, an OSError is raised
+        raise __GitException(e)
     if ret_code != 0:
         raise __GitException(error)
     else:
