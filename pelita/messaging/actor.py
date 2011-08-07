@@ -464,7 +464,7 @@ class DispatchingActor(Actor):
         prefixes = ["?"]
         method_prefix = ""
 
-        if method[0] in prefixes:
+        if method and method[0] in prefixes:
             method_prefix = method[0]
             method = method[1:]
 
