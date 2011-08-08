@@ -89,7 +89,7 @@ class TestUniverseNoiser(unittest.TestCase):
 
         target = set([(1, 1), (1, 2), (1,3), (2, 3), (3, 3), (3, 3)])
         self.assertEqual(target, noiser.pos_within((1, 1)))
-        # assumming a_star is working properly
+        # assuming a_star is working properly
         for pos in target:
             self.assertTrue(len(noiser.a_star((1, 1), pos)) < 5)
         for pos in free.difference(target):
