@@ -138,7 +138,6 @@ class UiCanvas(object):
             #return
 
     def draw_title(self, universe):
-        print universe.teams
         center = self.mesh_graph.width // 2
 
         left_team = "%s %d" % (universe.teams[0].name, universe.teams[0].score)
@@ -231,7 +230,7 @@ class UiCanvas(object):
     def draw_mesh(self, mesh):
         for position, items in mesh.iteritems():
             x, y = position
-            self.draw_items(items, x, y)
+            self.draw_items(items, x, y, mesh)
 
     def init_bots(self, universe):
         for bot in universe.bots:
@@ -261,7 +260,7 @@ class UiCanvas(object):
             bot_sprite.score = universe.teams[bot.team_index].score
             bot_sprite.redraw(self.canvas)
 
-    def draw_items(self, items, x, y):
+    def draw_items(self, items, x, y, mesh):
         item_class = None
         for item in items:
             for key in self.mapping:
@@ -274,6 +273,15 @@ class UiCanvas(object):
         item = item_class(self.mesh_graph)
         self.registered_items.append(item)
 
+        if isinstance(item, Wall):
+            item.wall_neighbours = []
+            for dx in [-1, 0, 1]:
+                for dy in [-1, 0, 1]:
+                    try:
+                        if datamodel.Wall in mesh[x + dx, y + dy]:
+                            item.wall_neighbours.append( (dx, dy) )
+                    except IndexError:
+                        pass
         item.position = x, y
 
         item.redraw(self.canvas)

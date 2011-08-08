@@ -106,8 +106,8 @@ class BotSprite(TkSprite):
 
         canvas.create_arc(bounding_box, start=rot(-5), extent=10, style="arc", width=0.2 * scale, outline=central_col, tag=self.tag)
 
-        score = self.score
-        canvas.create_text(self.real_position[0], self.real_position[1], text=score, font=(None, int(0.5 * scale)), tag=self.tag)
+        #score = self.score
+        #canvas.create_text(self.real_position[0], self.real_position[1], text=score, font=(None, int(0.5 * scale)), tag=self.tag)
 
     def draw(self, canvas):
         # A curious case of delegation
@@ -155,6 +155,26 @@ class Destroyer(BotSprite):
 class Wall(TkSprite):
     def draw(self, canvas):
         canvas.create_oval(self.box(0.3), fill=col(94, 158, 217), tag=self.tag)
+
+        scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5
+        neighbours = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
+
+        for dx in [-1, 0, 1]:
+            for dy in [-1, 0, 1]:
+                if (dx, dy) in self.wall_neighbours:
+                    if dx == dy == 0:
+                        continue
+                    if dx * dy != 0:
+                        continue
+                    index = neighbours.index((dx, dy))
+                    if (neighbours[(index + 1) % len(neighbours)] in self.wall_neighbours and
+                        neighbours[(index - 1) % len(neighbours)] in self.wall_neighbours):
+                        pass
+                    else:
+                        pass
+                        #canvas.create_line(self.real((0, 0)), self.real((2*dx, 2*dy)), width=1 * scale, tag=self.tag, capstyle="round")
+
+            #canvas.create_oval(self.box(0.3), fill=col(94, 158, 217), tag=self.tag)
 
 class Food(TkSprite):
     def draw(self, canvas):

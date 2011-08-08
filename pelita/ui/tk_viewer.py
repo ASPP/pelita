@@ -89,7 +89,7 @@ class TkViewer(AbstractViewer):
         }))
 
     def observe(self, round_, turn, universe, events):
-        print "observed", events
+#        print "observed", events
 
         self._put(copy.deepcopy({
             "round": round_,
