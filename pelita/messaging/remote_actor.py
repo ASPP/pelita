@@ -193,6 +193,8 @@ class RemoteMailbox(object):
         except KeyError:
             pass
 
+    def __repr__(self):
+        return "RemoteMailbox(%r, %r)" % (self.connection, self.remote)
 
 class RemoteConnection(object):
     def __init__(self):

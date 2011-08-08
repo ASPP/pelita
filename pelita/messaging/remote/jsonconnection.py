@@ -164,6 +164,16 @@ class JsonSocketConnection(object):
     def close(self):
         self.socket.close()
 
+    def __repr__(self):
+        try:
+            host = self.socket.getsockname()
+            peer = self.socket.getpeername()
+            connection = "%s -> %s" % (host, peer)
+        except socket.error:
+            connection = "none"
+
+        return "JsonSocketConnection(%s)" % connection
+
 
 class MessageSocketConnection(JsonSocketConnection):
     """ Implements a socket for JSON-RPC communication with pre-defined messages.
