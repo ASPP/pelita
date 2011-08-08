@@ -95,6 +95,31 @@ class TestUniverseNoiser(unittest.TestCase):
         for pos in free.difference(target):
             self.assertTrue(len(noiser.a_star((1, 1), pos)) >= 5)
 
+    def test_uniform_noise(self):
+        test_layout = (
+        """ ##################
+            # #.  .  # .     #
+            # #####    ##### #
+            #  0  . #  .  .#1#
+            ################## """)
+        universe = create_CTFUniverse(test_layout, 2)
+        noiser = UniverseNoiser(universe.copy())
+        free = set(universe.maze.pos_of(Free))
+
+        position_bucket = dict(((i, 0)
+            for i in [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
+                (2, 3), (4, 3), (1, 1), (5, 3)]))
+        for i in range(100):
+            new = noiser.uniform_noise(universe.copy(), 0)
+            position_bucket[new.bots[0].current_pos] += 1
+        self.assertEqual(100, sum(position_bucket.itervalues()))
+        # Since this is a randomized algorithm we need to be a bit lenient with
+        # our tests. We check that each position was selected at least once and
+        # check that it was selected a minimum of five times.
+        for v in position_bucket.itervalues():
+            self.assertTrue(v != 0)
+            self.assertTrue(v >= 5, 'Testing randomized function, may fail sometimes.')
+
 
 class TestAbstracts(unittest.TestCase):
 

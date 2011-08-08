@@ -9,6 +9,7 @@ from pelita import datamodel
 from heapq import heappop, heappush
 from pelita.player import AbstractPlayer
 from pelita.viewer import AbstractViewer
+import random
 
 __docformat__ = "restructuredtext"
 
@@ -201,4 +202,11 @@ class UniverseNoiser(object):
         # path, so don't include it.
         return path[:-1]
 
+    def uniform_noise(self, universe, team_index):
+        bots_to_noise = [universe.bots[i] for i in
+                universe.teams[team_index].bots]
+        for bot in bots_to_noise:
+            possible_positions = list(self.pos_within(bot.current_pos))
+            bot.current_pos = random.choice(possible_positions)
+        return universe
 
