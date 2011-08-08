@@ -6,6 +6,7 @@ import copy
 import random
 from pelita.containers import TypeAwareList
 from pelita import datamodel
+from heapq import heappop, heappush
 from pelita.player import AbstractPlayer
 from pelita.viewer import AbstractViewer
 
@@ -162,3 +163,42 @@ class UniverseNoiser(object):
                 local_to_visit.extend(self.adjacency[pos])
             to_visit = local_to_visit
         return positions
+
+    def a_star(self, initial, target):
+        to_visit = []
+        # seen needs to be list since we use it for backtracking
+        # a set would make the lookup faster, but not enable backtracking
+        seen = []
+        # since its A* we use a heap que
+        # this ensures we always get the next node with to lowest manhatten
+        # distance to the current node
+        heappush(to_visit, (0, (initial)))
+        while to_visit:
+            man_dist, current = heappop(to_visit)
+            if current in seen:
+                continue
+            elif current == target:
+                break
+            else:
+                seen.append(current)
+                for pos in self.adjacency[current]:
+                    heappush(to_visit, (datamodel.manhattan_dist(current, pos), (pos)))
+
+        # Now back-track using seen to determine how we got here.
+        # Initialise the path with current node, i.e. position of food.
+        path = [current]
+        while seen:
+            # Pop the latest node in seen
+            next_ = seen.pop()
+            # If that's adjacent to the current node
+            # it's in the path
+            if next_ in self.adjacency[current]:
+                # So add it to the path
+                path.append(next_)
+                # And continue back-tracking from there
+                current = next_
+        # The last element is the current position, we don't need that in our
+        # path, so don't include it.
+        return path[:-1]
+
+

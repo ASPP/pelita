@@ -60,6 +60,18 @@ class TestGameMaster(unittest.TestCase):
 
 class TestUniverseNoiser(unittest.TestCase):
 
+    def test_a_star(self):
+        test_layout = (
+        """ ##################
+            #0#.  .  # .     #
+            #2#####    #####1#
+            #     . #  .  .#3#
+            ################## """)
+        universe = create_CTFUniverse(test_layout, 4)
+        noiser = UniverseNoiser(universe.copy())
+        # just a simple smoke test
+        self.assertEqual(14, len(noiser.a_star((1, 1), (3, 1))))
+
     def test_pos_within(self):
         test_layout = (
         """ ##################
