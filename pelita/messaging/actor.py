@@ -483,14 +483,25 @@ class DispatchingActor(Actor):
         try:
             if params is None:
                 local_method(message)
-
             elif isinstance(params, dict):
                 local_method(message, **params)
-
             else:
                 local_method(message, *params)
-        except TypeError, e:
-            self.__reply_error("Type Error: method '%r'\n%r" % (message.get("method"), e))
+        except TypeError as e:
+            # Must inspect the stack trace, because we cannot
+            # be sure, where the exception happened.
+            # Was it a problem of the Actor, or did the caller
+            # just have a typo somewhere?
+            trace = inspect.trace()
+            if len(trace) > 1:
+                # The exception happened inside the code,
+                # so it is really the Actor’s fault.
+                # This will most probably kill the Actor.
+                raise
+            else:
+                # The exception happened because a non-existing method
+                # got called. Tell the sender what was wrong.
+                self.__reply_error("Type Error: method '%r'\n%r" % (message.get("method"), e))
             return
 
 # TODO: Need to consider, if we want to automatically reply the result
