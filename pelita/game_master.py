@@ -6,7 +6,7 @@ import copy
 import random
 from pelita.containers import TypeAwareList
 
-import pelita.datamodel as uni
+from pelita import datamodel
 from pelita.viewer import AbstractViewer
 
 __docformat__ = "restructuredtext"
@@ -38,7 +38,7 @@ class GameMaster(object):
 
     """
     def __init__(self, layout, number_bots, game_time):
-        self.universe = uni.create_CTFUniverse(layout, number_bots)
+        self.universe = datamodel.create_CTFUniverse(layout, number_bots)
         self.game_time = game_time
         self.number_bots = number_bots
         self.player_teams = []
@@ -108,25 +108,25 @@ class GameMaster(object):
                 events = self.universe.move_bot(i, move)
             except (uni.IllegalMoveException, PlayerTimeout):
                 moves = self.universe.get_legal_moves(bot.current_pos).keys()
-                moves.remove(uni.stop)
+                moves.remove(datamodel.stop)
                 if not moves:
-                    moves = [uni.stop]
+                    moves = [datamodel.stop]
 
                 move = random.choice(moves)
                 events = self.universe.move_bot(i, move)
-                events.append(uni.TimeoutEvent(bot.team_index))
+                events.append(datamodel.TimeoutEvent(bot.team_index))
             except PlayerDisconnected:
                 other_team_idx = not bot.team_index
 
-                events = TypeAwareList(base_class=uni.UniverseEvent)
-                events.append(uni.TeamWins(other_team_idx))
+                events = TypeAwareList(base_class=datamodel.UniverseEvent)
+                events.append(datamodel.TeamWins(other_team_idx))
 
-            for timeout_event in events.filter_type(uni.TimeoutEvent):
+            for timeout_event in events.filter_type(datamodel.TimeoutEvent):
                 team = self.universe.teams[timeout_event.team_index]
                 # team.score -= 1
 
             for v in self.viewers:
                 v.observe(current_game_time, i, self.universe.copy(), copy.deepcopy(events))
-            if uni.TeamWins in events:
+            if datamodel.TeamWins in events:
                 return False
         return True
