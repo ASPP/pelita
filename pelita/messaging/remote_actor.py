@@ -182,12 +182,17 @@ class RemoteMailbox(object):
         self.outbox.start()
 
     def stop(self):
+        # TODO: this method may be called multiple times
         _logger.info("Stopping mailbox %r", self)
         self.outbox._queue.put(StopProcessing) # I need to to this or the thread will not stop...
         self.inbox.stop()
         self.outbox.stop()
         self.connection.close()
-        self.remote.remove_connection(self.connection)
+        try:
+            self.remote.remove_connection(self.connection)
+        except KeyError:
+            pass
+
 
 class RemoteConnection(object):
     def __init__(self):
