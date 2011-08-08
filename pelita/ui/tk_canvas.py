@@ -104,6 +104,11 @@ class UiCanvas(object):
 
         self.draw_events(events)
 
+        if events:
+            for team_wins in events.filter_type(datamodel.TeamWins):
+                team_index = team_wins.winning_team_index
+                self.canvas.after(100, self.winning_animation, team_index, universe)
+
     def draw_universe(self, universe):
         self.mesh_graph.num_x = universe.maze.width
         self.mesh_graph.num_y = universe.maze.height
@@ -273,12 +278,23 @@ class UiCanvas(object):
 
         item.redraw(self.canvas)
 
+    def winning_animation(self, winning_index, universe):
+        team = universe.teams[winning_index]
+        for bot_idx in team.bots:
+            if bot_idx // 2:
+                self.bot_sprites[bot_idx].direction += 3
+            else:
+                self.bot_sprites[bot_idx].direction -= 3
+            self.bot_sprites[bot_idx].redraw(self.canvas)
+        self.canvas.after(10, self.winning_animation, winning_index, universe)
+
     def move(self, item, x, y):
         item.move(self.canvas, x * self.mesh_graph.rect_width, y * self.mesh_graph.rect_height)
 
 class TkApplication(Tkinter.Frame):
     def __init__(self, queue, master=None):
         Tkinter.Frame.__init__(self, master) # old style
+        self.master.title("Pelita")
 
         self.queue = queue
 
