@@ -161,6 +161,3 @@ class ServerActor(DispatchingActor):
             self.game_master.universe.teams[team_idx].name = team_name
 
         self.game_master.play()
-
-        self.ref.stop()
-

@@ -29,6 +29,14 @@ server.notify("initialize_game", [layout, 4, 200])
 
 viewer = TkViewer()
 server.notify("register_viewer", [viewer])
-viewer.app.mainloop()
+
+
+try:
+    viewer.app.mainloop()
+except KeyboardInterrupt:
+    print "Received CTRL+C. Exiting."
+finally:
+    server.stop()
+    remote.stop()
 
 #remote.stop()
