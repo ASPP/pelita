@@ -125,9 +125,21 @@ class ServerActor(DispatchingActor):
     def initialize_game(self, message, layout, number_bots, game_time):
         self.game_master = GameMaster(layout, number_bots, game_time)
 
+    def _remove_dead_teams(self):
+        # check, if previously added teams are still alive:
+        zipped = [(team, name) for team, name in zip(self.teams, self.team_names)
+                               if team._remote_mailbox.outbox.thread.is_alive()]
+
+        if zipped:
+            teams, team_names = zip(*zipped)
+            self.teams = list(teams)
+            self.team_names = list(team_names)
+
     @expose
     def hello(self, message, team_name, actor_uuid):
         _logger.info("Received 'hello' from '%s'." % team_name)
+
+        self._remove_dead_teams()
 
         if self.ref.remote:
             other_ref = self.ref.remote.create_proxy(actor_uuid)
