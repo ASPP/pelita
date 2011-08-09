@@ -26,6 +26,38 @@ class TestGameMaster(unittest.TestCase):
 #        self.assertRaises(TypeError, game_master.register_player, BrokenPlayer())
         self.assertRaises(IndexError, game_master.play)
 
+    def test_team_names(self):
+        test_layout = (
+        """ ##################
+            #0#.  .  # .     #
+            #2#####    #####1#
+            #     . #  .  .#3#
+            ################## """)
+
+        game_master = GameMaster(test_layout, 4, 200)
+
+        team_1 = SimpleTeam(TestPlayer([]), TestPlayer([]))
+        team_2 = SimpleTeam(TestPlayer([]), TestPlayer([]))
+
+        game_master.register_team(team_1, team_name="team1")
+        game_master.register_team(team_2, team_name="team2")
+
+        game_master.set_initial()
+        self.assertEqual(game_master.universe.teams[0].name, "team1")
+        self.assertEqual(game_master.universe.teams[1].name, "team2")
+
+        # check that all players know it, before the game started
+        self.assertEqual(team_1._players[0].current_uni.teams[0].name, "team1")
+        self.assertEqual(team_1._players[0].current_uni.teams[1].name, "team2")
+        self.assertEqual(team_1._players[1].current_uni.teams[0].name, "team1")
+        self.assertEqual(team_1._players[1].current_uni.teams[1].name, "team2")
+
+        self.assertEqual(team_2._players[0].current_uni.teams[0].name, "team1")
+        self.assertEqual(team_2._players[0].current_uni.teams[1].name, "team2")
+        self.assertEqual(team_2._players[1].current_uni.teams[0].name, "team1")
+        self.assertEqual(team_2._players[1].current_uni.teams[1].name, "team2")
+
+
 class TestAbstracts(unittest.TestCase):
 
     def test_AbstractViewer(self):
