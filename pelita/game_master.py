@@ -4,12 +4,11 @@
 
 import copy
 import random
+import heapq
 from pelita.containers import TypeAwareList
 from pelita import datamodel
-from heapq import heappop, heappush
 from pelita.player import AbstractPlayer
 from pelita.viewer import AbstractViewer
-import random
 
 __docformat__ = "restructuredtext"
 
@@ -173,9 +172,9 @@ class UniverseNoiser(object):
         # since its A* we use a heap que
         # this ensures we always get the next node with to lowest manhatten
         # distance to the current node
-        heappush(to_visit, (0, (initial)))
+        heapq.heappush(to_visit, (0, (initial)))
         while to_visit:
-            man_dist, current = heappop(to_visit)
+            man_dist, current = heapq.heappop(to_visit)
             if current in seen:
                 continue
             elif current == target:
@@ -183,7 +182,7 @@ class UniverseNoiser(object):
             else:
                 seen.append(current)
                 for pos in self.adjacency[current]:
-                    heappush(to_visit, (datamodel.manhattan_dist(current, pos), (pos)))
+                    heapq.heappush(to_visit, (datamodel.manhattan_dist(current, pos), (pos)))
 
         # Now back-track using seen to determine how we got here.
         # Initialise the path with current node, i.e. position of food.
