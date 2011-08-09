@@ -158,3 +158,32 @@ class TestLayoutChecks(unittest.TestCase):
         layout = Layout(simple_layout, TestLayoutChecks.layout_chars, 0)
         mesh = layout.as_mesh()
         self.assertEqual(mesh.shape, (4, 3))
+
+    def test_empty_lines(self):
+        simple_layout_1 = (
+            """ ####
+                #. #
+                #### """)
+
+        simple_layout_2 = (
+            """
+
+                ####
+                #. #
+                ####
+
+                """)
+
+        self.assertEqual(Layout(simple_layout_1, TestLayoutChecks.layout_chars, 0),
+                         Layout(simple_layout_2, TestLayoutChecks.layout_chars, 0))
+
+    def test_from_file(self):
+        test_l = (
+            """ ######
+                #0   #
+                #    #
+                #   1#
+                ###### """)
+        layout = Layout.from_file("test/test_layout.layout", TestLayoutChecks.layout_chars, 2)
+        self.assertEqual(layout, Layout(test_l, TestLayoutChecks.layout_chars, 2))
+
