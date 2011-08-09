@@ -182,7 +182,7 @@ class UniverseNoiser(object):
             else:
                 seen.append(current)
                 for pos in self.adjacency[current]:
-                    heapq.heappush(to_visit, (datamodel.manhattan_dist(current, pos), (pos)))
+                    heapq.heappush(to_visit, (datamodel.manhattan_dist(target, pos), (pos)))
 
         # Now back-track using seen to determine how we got here.
         # Initialise the path with current node, i.e. position of food.
