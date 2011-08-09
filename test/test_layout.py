@@ -158,3 +158,22 @@ class TestLayoutChecks(unittest.TestCase):
         layout = Layout(simple_layout, TestLayoutChecks.layout_chars, 0)
         mesh = layout.as_mesh()
         self.assertEqual(mesh.shape, (4, 3))
+
+    def test_empty_lines(self):
+        simple_layout_1 = (
+            """ ####
+                #. #
+                #### """)
+
+        simple_layout_2 = (
+            """
+
+                ####
+                #. #
+                ####
+
+                """)
+
+        self.assertEqual(Layout(simple_layout_1, TestLayoutChecks.layout_chars, 0),
+                         Layout(simple_layout_2, TestLayoutChecks.layout_chars, 0))
+

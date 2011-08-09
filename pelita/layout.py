@@ -71,7 +71,7 @@ class Layout(object):
             the layout with whitespace removed
 
         """
-        return '\n'.join([line.strip() for line in layout_str.split('\n')])
+        return '\n'.join([line.strip() for line in layout_str.split('\n')]).strip()
 
     @staticmethod
     def check_layout(layout_str, layout_chars, number_bots):
