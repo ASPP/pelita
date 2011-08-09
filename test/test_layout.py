@@ -1,17 +1,11 @@
 import unittest
 from pelita.containers import Mesh
+from pelita.datamodel import Wall, Free, Food
 from pelita.layout import *
 
 class TestLayoutChecks(unittest.TestCase):
 
-    # we replicate the CTFUniverse layout_chars here
-    wall   = '#'
-    food   = '.'
-    harvester = 'c'
-    destroyer = 'o'
-    free   = ' '
-
-    layout_chars = [wall, food, harvester, destroyer, free]
+    layout_chars = [Wall.char, Free.char, Food.char]
 
     def test_strip_layout(self):
         test_layout = (
