@@ -238,23 +238,9 @@ class Bot(object):
     def is_harvester(self):
         return not self.is_destroyer
 
-    def _move(self, new_pos):
-        """ Move this bot to a new location.
-
-        Whoever moves the bot is responsible for checking the legality of the
-        new position.
-
-        Parameters
-        ----------
-        new_pos : tuple of int (x, y)
-            the new position for this bot
-
-        """
-        self.current_pos = new_pos
-
     def _reset(self):
         """ Reset this bot to its initial position. """
-        self._move(self.initial_pos)
+        self.current_pos = self.initial_pos
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -833,7 +819,7 @@ class CTFUniverse(object):
                 'Illegal move from bot %r: %s'
                 % (bot, move))
         old_pos = bot.current_pos
-        bot._move(legal_moves_dict[move])
+        bot.current_pos =  legal_moves_dict[move]
         new_pos = bot.current_pos
         events.append(BotMoves(bot_id, old_pos, new_pos))
         # check for destruction

@@ -119,7 +119,7 @@ class TestBot(unittest.TestCase):
         black = Bot(0, (1, 1), 0, (0, 3))
         white = Bot(1, (6, 6), 1, (3, 6), current_pos = (1, 1))
         self.assertTrue(black.is_destroyer)
-        black._move((4, 1))
+        black.current_pos = (4, 1)
         self.assertEqual(black.current_pos, (4, 1))
         self.assertTrue(black.is_harvester)
         self.assertTrue(white.is_harvester)
@@ -654,10 +654,10 @@ class TestCTFUniverseRules(unittest.TestCase):
                 # 1    #
                 # 2    #
                 ######## """)
-        universe.bots[0]._move((4, 1))
-        universe.bots[1]._move((2, 2))
-        universe.bots[2]._move((2, 3))
-        universe.bots[3]._move((6, 1))
+        universe.bots[0].current_pos = (4, 1)
+        universe.bots[1].current_pos = (2, 2)
+        universe.bots[2].current_pos = (2, 3)
+        universe.bots[3].current_pos = (6, 1)
         self.assertEqual(universe.bot_positions,
                 [(4, 1), (2, 2), (2, 3), (6, 1)])
         self.assertEqual(str(universe),
