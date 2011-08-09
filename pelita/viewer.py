@@ -8,6 +8,10 @@ __docformat__ = "restructuredtext"
 
 
 class AbstractViewer(object):
+    def set_initial(self, universe):
+        """ This method is called when the first universe is ready.
+        """
+        pass
 
     def observe(self, round_, turn, universe, events):
         raise NotImplementedError(
@@ -15,6 +19,8 @@ class AbstractViewer(object):
 
 class DevNullViewer(object):
     """ A viewer that simply ignores everything. """
+    def set_initial(self, universe):
+        pass
 
     def observe(self, round_, turn, universe, events):
         pass

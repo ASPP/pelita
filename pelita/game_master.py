@@ -3,13 +3,19 @@
 """ The controller """
 
 import copy
+import random
+from pelita.containers import TypeAwareList
 
 import pelita.datamodel as uni
-from pelita.player import AbstractPlayer
 from pelita.viewer import AbstractViewer
 
 __docformat__ = "restructuredtext"
 
+class PlayerTimeout(Exception):
+    pass
+
+class PlayerDisconnected(Exception):
+    pass
 
 class GameMaster(object):
     """ Controller of player moves and universe updates.
@@ -69,6 +75,7 @@ class GameMaster(object):
                 AbstractViewer.observe.__func__):
             raise TypeError("Viewer %s does not override 'observe()'."
                     % viewer.__class__)
+        viewer.set_initial(self.universe.copy())
         self.viewers.append(viewer)
 
     # TODO the game winning detection should be refactored
@@ -96,8 +103,28 @@ class GameMaster(object):
         """
         for i, bot in enumerate(self.universe.bots):
             player_team = self.player_teams[bot.team_index]
-            move = player_team._get_move(bot.index, self.universe.copy())
-            events = self.universe.move_bot(i, move)
+            try:
+                move = player_team._get_move(bot.index, self.universe.copy())
+                events = self.universe.move_bot(i, move)
+            except (uni.IllegalMoveException, PlayerTimeout):
+                moves = self.universe.get_legal_moves(bot.current_pos).keys()
+                moves.remove(uni.stop)
+                if not moves:
+                    moves = [uni.stop]
+
+                move = random.choice(moves)
+                events = self.universe.move_bot(i, move)
+                events.append(uni.TimeoutEvent(bot.team_index))
+            except PlayerDisconnected:
+                other_team_idx = not bot.team_index
+
+                events = TypeAwareList(base_class=uni.UniverseEvent)
+                events.append(uni.TeamWins(other_team_idx))
+
+            for timeout_event in events.filter_type(uni.TimeoutEvent):
+                team = self.universe.teams[timeout_event.team_index]
+                # team.score -= 1
+
             for v in self.viewers:
                 v.observe(current_game_time, i, self.universe.copy(), copy.deepcopy(events))
             if uni.TeamWins in events:

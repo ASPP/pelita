@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import socket
-import json
 import errno
 import logging
 
 from pelita.messaging import Error, DeadConnection, BaseMessage
+from pelita.messaging.json_convert import json_converter
 
 _logger = logging.getLogger("pelita.jsonSocket")
 _logger.setLevel(logging.INFO)
@@ -62,7 +62,7 @@ class JsonSocketConnection(object):
         """ Converts `obj` to a json string and sends it.
         """
         if self.socket:
-            json_string = json.dumps(obj)
+            json_string = json_converter.dumps(obj)
             self._send(json_string)
         else:
             raise RuntimeError("Cannot send without a connection.")
@@ -92,7 +92,7 @@ class JsonSocketConnection(object):
         # get the first element
         data = self.buffer.pop(0)
         try:
-            json_data = json.loads(data)
+            json_data = json_converter.loads(data)
             _logger.debug("Data read %r", json_data)
         except ValueError:
             _logger.warning("Could not decode data %r", data)

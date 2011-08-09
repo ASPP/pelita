@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import traceback
 import threading as _threading
 import logging
 
@@ -38,6 +39,8 @@ class SuspendableThread(object):
                 self.stop()
             except Exception as e:
                 _logger.error("Unhandled exception %r in thread %r. Stopping.", e, self)
+                # print exception to stderr
+                traceback.print_exc()
                 self.stop()
 
         _logger.debug("Ended thread %r", self)

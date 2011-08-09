@@ -51,8 +51,12 @@ class MeshGraph(object):
         # coords are between -1 and +1: shift on [0, 1]
         trafo_y = (coords_y + 1.0) / 2.0
 
-        real_y = self.rect_height * (mesh_y + trafo_y)
+        real_y = self.rect_height * (mesh_y + trafo_y) + 30
         return real_y
+
+    def __repr__(self):
+        return "MeshGraph(%d, %d, %d, %d)" % (self.num_x, self.num_y,
+                                              self.height, self.width)
 
 class UiCanvas(object):
     def __init__(self, master):
@@ -73,7 +77,7 @@ class UiCanvas(object):
         self.previous_universe = None
 
     def init_canvas(self):
-        self.canvas = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=self.mesh_graph.height)
+        self.canvas = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=self.mesh_graph.height + 30)
         self.canvas.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
         self.canvas.bind('<Configure>', self.resize)
 
@@ -100,14 +104,49 @@ class UiCanvas(object):
 
         self.draw_events(events)
 
+        if events:
+            for team_wins in events.filter_type(datamodel.TeamWins):
+                team_index = team_wins.winning_team_index
+                self.canvas.after(100, self.winning_animation, team_index, universe)
+
     def draw_universe(self, universe):
         self.mesh_graph.num_x = universe.maze.width
         self.mesh_graph.num_y = universe.maze.height
 
         #self.waiting_animations = []
         self.clear()
+        self.draw_background(universe)
+        self.draw_title(universe)
         self.draw_mesh(universe.maze)
         self.draw_bots(universe)
+
+    def draw_background(self, universe):
+        center = self.mesh_graph.width // 2
+        cols = (col(94, 158, 217), col(235, 90, 90), col(80, 80, 80))
+
+        for color, x_orig in zip(cols, (center - 3, center + 3, center)):
+            x_width = self.mesh_graph.half_scale_x // 4
+
+            x_prev = None
+            y_prev = None
+            for y in range(-4, self.mesh_graph.num_y * 10):
+                x_real = x_orig + x_width * math.sin(y * 10)
+                y_real = self.mesh_graph.mesh_to_real_y(y / 10.0, 0)
+                if x_prev and y_prev:
+                    self.canvas.create_line((x_prev, y_prev, x_real, y_real), width=3, fill=color)
+                x_prev, y_prev = x_real, y_real
+            #return
+
+    def draw_title(self, universe):
+        center = self.mesh_graph.width // 2
+
+        left_team = "%s %d" % (universe.teams[0].name, universe.teams[0].score)
+        self.canvas.create_text(center - 10, 20, text=left_team, font=(None, 30), fill=col(94, 158, 217), tag="title", anchor=Tkinter.E)
+
+        self.canvas.create_text(center, 20, text=":", font=(None, 30), tag="title", anchor=Tkinter.CENTER)
+
+        right_team = "%d %s" % (universe.teams[1].score, universe.teams[1].name)
+        self.canvas.create_text(center + 10, 20, text=right_team, font=(None, 30), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
 
     def draw_events(self, events=None):
         if events:
@@ -182,17 +221,20 @@ class UiCanvas(object):
         self.canvas.delete(Tkinter.ALL)
 
     def resize(self, event):
-        self.mesh_graph.width = event.width
-        self.mesh_graph.height = event.height
+        # need to be careful not to get negative numbers
+        # Tk will crash otherwise
+        if event.height > 30:
+            self.mesh_graph.width = event.width
+            self.mesh_graph.height = event.height - 30
 
     def draw_mesh(self, mesh):
         for position, items in mesh.iteritems():
             x, y = position
-            self.draw_items(items, x, y)
+            self.draw_items(items, x, y, mesh)
 
     def init_bots(self, universe):
         for bot in universe.bots:
-            bot_sprite = BotSprite(self.mesh_graph)
+            bot_sprite = BotSprite(self.mesh_graph, team=bot.team_index)
 
             self.bot_sprites[bot.index] = bot_sprite
             bot_sprite.position = bot.current_pos
@@ -218,7 +260,7 @@ class UiCanvas(object):
             bot_sprite.score = universe.teams[bot.team_index].score
             bot_sprite.redraw(self.canvas)
 
-    def draw_items(self, items, x, y):
+    def draw_items(self, items, x, y, mesh):
         item_class = None
         for item in items:
             for key in self.mapping:
@@ -231,9 +273,28 @@ class UiCanvas(object):
         item = item_class(self.mesh_graph)
         self.registered_items.append(item)
 
+        if isinstance(item, Wall):
+            item.wall_neighbours = []
+            for dx in [-1, 0, 1]:
+                for dy in [-1, 0, 1]:
+                    try:
+                        if datamodel.Wall in mesh[x + dx, y + dy]:
+                            item.wall_neighbours.append( (dx, dy) )
+                    except IndexError:
+                        pass
         item.position = x, y
 
         item.redraw(self.canvas)
+
+    def winning_animation(self, winning_index, universe):
+        team = universe.teams[winning_index]
+        for bot_idx in team.bots:
+            if bot_idx // 2:
+                self.bot_sprites[bot_idx].direction += 3
+            else:
+                self.bot_sprites[bot_idx].direction -= 3
+            self.bot_sprites[bot_idx].redraw(self.canvas)
+        self.canvas.after(10, self.winning_animation, winning_index, universe)
 
     def move(self, item, x, y):
         item.move(self.canvas, x * self.mesh_graph.rect_width, y * self.mesh_graph.rect_height)
@@ -241,30 +302,34 @@ class UiCanvas(object):
 class TkApplication(Tkinter.Frame):
     def __init__(self, queue, master=None):
         Tkinter.Frame.__init__(self, master) # old style
+        self.master.title("Pelita")
 
         self.queue = queue
 
         self.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
+
         self.ui_canvas = UiCanvas(self)
 
     def read_queue(self):
         try:
             # read all events.
-            # if queue is empty, try again in 500 ms
+            # if queue is empty, try again in 50 ms
+            # we don’t want to block here and lock
+            # Tk animations
             while True:
                 observed = self.queue.get(False)
                 self.observe(observed)
-                
-                self.after(100, self.read_queue)
+
+                self.after(50, self.read_queue)
                 return
         except Queue.Empty:
-            self.after(100, self.read_queue)
+            self.after(50, self.read_queue)
 
     def observe(self, observed):
-        round = observed["round"]
-        turn = observed["turn"]
+        round = observed.get("round")
+        turn = observed.get("turn")
         universe = observed["universe"]
-        events = observed["events"]
+        events = observed.get("events")
 
         self.ui_canvas.update(events, universe)
 
