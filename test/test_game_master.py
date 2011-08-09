@@ -77,6 +77,7 @@ class TestGame(unittest.TestCase):
 
         gm.register_viewer(DevNullViewer())
 
+        gm.set_initial()
         gm.play_round(0)
         test_first_round = (
             """ ######
@@ -170,6 +171,7 @@ class TestGame(unittest.TestCase):
         gm.register_team(SimpleTeam(MaliciousPlayer()))
         gm.register_team(SimpleTeam(TestMaliciousPlayer()))
 
+        gm.set_initial()
         gm.play_round(0)
 
         test_self.assertEqual(original_universe, gm.universe)
@@ -218,6 +220,7 @@ class TestGame(unittest.TestCase):
         gm.register_viewer(MeanViewer())
         gm.register_viewer(TestViewer())
 
+        gm.set_initial()
         gm.play_round(0)
 
         self.assertEqual(original_universe, gm.universe)

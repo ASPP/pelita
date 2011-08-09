@@ -167,9 +167,6 @@ class ServerActor(DispatchingActor):
 
             remote_player = RemoteTeamPlayer(team_ref)
 
-            self.game_master.register_team(remote_player)
-
-            # hack which sets the name in the universe
-            self.game_master.universe.teams[team_idx].name = team_name
+            self.game_master.register_team(remote_player, team_name=team_name)
 
         self.game_master.play()

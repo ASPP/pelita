@@ -44,7 +44,7 @@ class GameMaster(object):
         self.player_teams = []
         self.viewers = []
 
-    def register_team(self, team):
+    def register_team(self, team, team_name=""):
         """ Register a client TeamPlayer class.
 
         Parameters
@@ -56,12 +56,10 @@ class GameMaster(object):
 
         # map a player_team to a universe.team 1:1
         team_idx = len(self.player_teams) - 1
-        # the respective bot ids in the universe
-        bot_ids = self.universe.teams[team_idx].bots
 
-        # tell the team about these bot_ids
-        team._set_bot_ids(bot_ids)
-        team._set_initial(self.universe.copy())
+        # set the name in the universe
+        if team_name:
+            self.universe.teams[team_idx].name = team_name
 
     def register_viewer(self, viewer):
         """ Register a viewer to display the game state as it progresses.
@@ -78,10 +76,23 @@ class GameMaster(object):
         viewer.set_initial(self.universe.copy())
         self.viewers.append(viewer)
 
+    def set_initial(self):
+        """ This method needs to be called before a game is started.
+        It notifies the PlayerTeams of the initial universes and their
+        respective bot_ids.
+        """
+        for team_idx, team in enumerate(self.player_teams):
+            # the respective bot ids in the universe
+            team._set_bot_ids(self.universe.teams[team_idx].bots)
+            team._set_initial(self.universe.copy())
+
     # TODO the game winning detection should be refactored
 
     def play(self):
         """ Play a whole game. """
+        # notify all PlayerTeams
+        self.set_initial()
+
         if len(self.player_teams) != len(self.universe.teams):
             raise IndexError(
                 "Universe uses %i teams, but only %i are registered."

@@ -23,6 +23,7 @@ class TestAbstractPlayer(unittest.TestCase):
         player_3 = StoppingPlayer()
         game_master.register_team(SimpleTeam(player_0, player_2))
         game_master.register_team(SimpleTeam(player_1, player_3))
+        game_master.set_initial()
 
         self.assertEqual(universe.bots[0], player_0.me)
         self.assertEqual(universe.bots[1], player_1.me)
@@ -101,6 +102,7 @@ class TestBFS_Player(unittest.TestCase):
         stopping = StoppingPlayer()
         game_master.register_team(SimpleTeam(bfs))
         game_master.register_team(SimpleTeam(stopping))
+        game_master.set_initial()
         adjacency_target = {(7, 3): [(7, 2), (7, 3), (6, 3)],
          (1, 3): [(1, 2), (2, 3), (1, 3)],
          (12, 1): [(13, 1), (12, 1), (11, 1)],
