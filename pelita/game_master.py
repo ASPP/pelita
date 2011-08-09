@@ -106,7 +106,7 @@ class GameMaster(object):
             try:
                 move = player_team._get_move(bot.index, self.universe.copy())
                 events = self.universe.move_bot(i, move)
-            except (uni.IllegalMoveException, PlayerTimeout):
+            except (datamodel.IllegalMoveException, PlayerTimeout):
                 moves = self.universe.get_legal_moves(bot.current_pos).keys()
                 moves.remove(datamodel.stop)
                 if not moves:
