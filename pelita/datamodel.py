@@ -229,10 +229,12 @@ class Bot(object):
         True if a destroyer, False otherwise
     is_harvester : boolean, property
         not is_destroyer
+    noisy : boolean
+        True if the position is noisy, False if it is exact
 
     """
     def __init__(self, index, initial_pos, team_index, homezone,
-            current_pos=None):
+            current_pos=None, noisy=False):
         self.index = index
         self.initial_pos = initial_pos
         self.team_index = team_index
@@ -241,6 +243,7 @@ class Bot(object):
             self.current_pos = self.initial_pos
         else:
             self.current_pos = current_pos
+        self.noisy = noisy
 
     @property
     def in_own_zone(self):
@@ -268,16 +271,17 @@ class Bot(object):
             return self.index.__cmp__(other.index)
 
     def __repr__(self):
-        return ('Bot(%i, %s, %i, %s , current_pos=%s)' %
+        return ('Bot(%i, %s, %i, %s , current_pos=%s, noisy=%r)' %
                 (self.index, self.initial_pos, self.team_index,
-                    self.homezone, self.current_pos))
+                    self.homezone, self.current_pos, self.noisy))
 
     def _to_json_dict(self):
         return {"index": self.index,
                 "initial_pos": self.initial_pos,
                 "team_index": self.team_index,
                 "homezone": self.homezone,
-                "current_pos": self.current_pos}
+                "current_pos": self.current_pos,
+                "noisy": self.noisy}
 
     @classmethod
     def _from_json_dict(cls, item):
