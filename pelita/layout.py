@@ -41,8 +41,6 @@ class Layout(object):
 
     Attributes
     ----------
-    original : str
-        the original string given in the constructor (`layout_str`)
     layout_chars : list of str
         the list of legal characters to use
     stripped : str
@@ -52,10 +50,9 @@ class Layout(object):
 
     """
     def __init__(self, layout_str, layout_chars, number_bots):
-        self.original = layout_str
         self.number_bots = number_bots
         self.layout_chars = layout_chars
-        self.stripped = self.strip_layout(self.original)
+        self.stripped = self.strip_layout(layout_str)
         self.check_layout(self.stripped, self.layout_chars, self.number_bots)
         self.shape = self.layout_shape(self.stripped)
 
@@ -150,7 +147,7 @@ class Layout(object):
 
     def __repr__(self):
         return ("Layout(%r, %s, %i)"
-            % (self.original, self.layout_chars, self.number_bots))
+            % (self.stripped, self.layout_chars, self.number_bots))
 
     def as_mesh(self):
         """ Convert to a Mesh.
