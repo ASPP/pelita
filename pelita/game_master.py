@@ -42,8 +42,7 @@ class GameMaster(object):
         self.universe = datamodel.create_CTFUniverse(layout, number_bots)
         self.number_bots = number_bots
         self.game_time = game_time
-        self.noise = noise
-        self.noiser = UniverseNoiser(self.universe)
+        self.noiser = UniverseNoiser(self.universe) if noise else None
         self.player_teams = []
         self.viewers = []
 
@@ -119,7 +118,7 @@ class GameMaster(object):
             player_team = self.player_teams[bot.team_index]
             try:
                 universe_copy = self.universe.copy()
-                if self.noise:
+                if self.noiser:
                     universe_copy = self.noiser.uniform_noise(universe_copy, i)
                 move = player_team._get_move(bot.index, universe_copy)
                 events = self.universe.move_bot(i, move)
