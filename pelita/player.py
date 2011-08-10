@@ -315,6 +315,7 @@ class BFSPlayer(AbstractPlayer):
         # We append to right and later pop from right, so a list will do.
         # Order is important for the back-track later on, so don't use a set.
         seen = []
+        found = False
         while to_visit:
             current = to_visit.popleft()
             if current in seen:
@@ -322,11 +323,16 @@ class BFSPlayer(AbstractPlayer):
                 continue
             elif current in self.enemy_food:
                 # We found some food, break and back-track path.
+                found = True
                 break
             else:
                 # Otherwise keep going, i.e. add adjacent nodes to seen list.
                 seen.append(current)
                 to_visit.extend(self.adjacency[current])
+        # if we did not find any food, we simply return a path with only the
+        # current position
+        if not found:
+            return [self.current_pos]
         # Now back-track using seen to determine how we got here.
         # Initialise the path with current node, i.e. position of food.
         path = [current]

@@ -156,6 +156,22 @@ class TestBFS_Player(unittest.TestCase):
         game_master.play_round(i+2)
         self.assertEqual([], bfs.current_path)
 
+    def test_unreachable(self):
+        test_layout = (
+        """ ############
+            #0.     #.1#
+            ############ """)
+        game_master = GameMaster(test_layout, 2, 200)
+
+        bfs1 = BFSPlayer()
+        bfs2 = BFSPlayer()
+        game_master.register_team(SimpleTeam(bfs1))
+        game_master.register_team(SimpleTeam(bfs2))
+        game_master.set_initial()
+        game_master.play_round(0)
+        self.assertEqual(0, len(bfs1.current_path))
+        self.assertEqual(0, len(bfs2.current_path))
+
 class TestSimpleTeam(unittest.TestCase):
     def test_simple_team(self):
         class BrokenPlayer(AbstractPlayer):
