@@ -144,6 +144,17 @@ class AbstractPlayer(object):
         return self.current_uni.other_team_bots(self._index)
 
     @property
+    def team_bots(self):
+        """ A list of all Bots that are on this Player's Bot's Team.
+
+        Returns
+        -------
+        team_bots : list of Bot objects
+            the team mates, including this Player's Bot
+        """
+        return self.current_uni.team_bots(self.me.team_index)
+
+    @property
     def enemy_food(self):
         """ Food owned by the enemy which can be eaten by this players bot.
 
