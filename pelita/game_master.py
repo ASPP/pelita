@@ -209,5 +209,6 @@ class UniverseNoiser(object):
             if len(self.a_star(bot.current_pos, b.current_pos)) > self.sight_distance:
                 possible_positions = list(self.pos_within(b.current_pos))
                 b.current_pos = random.choice(possible_positions)
+                b.noisy = True
         return universe
 
