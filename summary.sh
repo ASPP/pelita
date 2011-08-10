@@ -16,7 +16,8 @@ do_wc(){
            sed  "s/^\s*##.*$/PLACEHOLDER/" |
            # now remove comments
            sed "/^\s*#.*$/d" | wc -l | tail -1 | sed 's/total//' )
-    print $LOC of which $(( $LOC - $COM )) are comments
+    PERCENT=$(echo "scale=1;$(( $LOC - $COM ))*100/$LOC"|bc) 
+    print $LOC of which $(( $LOC - $COM )) \($PERCENT\%\) are comments
 }
 
 do_pylint(){
