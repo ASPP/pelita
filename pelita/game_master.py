@@ -38,10 +38,12 @@ class GameMaster(object):
         the viewers that are observing this game
 
     """
-    def __init__(self, layout, number_bots, game_time):
+    def __init__(self, layout, number_bots, game_time, noise=True):
         self.universe = datamodel.create_CTFUniverse(layout, number_bots)
-        self.game_time = game_time
         self.number_bots = number_bots
+        self.game_time = game_time
+        self.noise = noise
+        self.noiser = UniverseNoiser(self.universe)
         self.player_teams = []
         self.viewers = []
 
@@ -116,7 +118,10 @@ class GameMaster(object):
         for i, bot in enumerate(self.universe.bots):
             player_team = self.player_teams[bot.team_index]
             try:
-                move = player_team._get_move(bot.index, self.universe.copy())
+                universe_copy = self.universe.copy()
+                if self.noise:
+                    universe_copy = self.noiser.uniform_noise(universe_copy, i)
+                move = player_team._get_move(bot.index, universe_copy)
                 events = self.universe.move_bot(i, move)
             except (datamodel.IllegalMoveException, PlayerTimeout):
                 moves = self.universe.get_legal_moves(bot.current_pos).keys()

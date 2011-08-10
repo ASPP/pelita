@@ -15,7 +15,7 @@ class TestAbstractPlayer(unittest.TestCase):
             #     . #  .  .#3#
             ################## """)
 
-        game_master = GameMaster(test_layout, 4, 200)
+        game_master = GameMaster(test_layout, 4, 200, noise=False)
         universe = game_master.universe
         player_0 = StoppingPlayer()
         player_1 = TestPlayer([stop, north])
