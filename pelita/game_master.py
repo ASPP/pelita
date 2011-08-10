@@ -206,7 +206,8 @@ class UniverseNoiser(object):
         bot = universe.bots[bot_index]
         bots_to_noise = universe.enemy_bots(universe.bots[bot_index].team_index)
         for b in bots_to_noise:
-            possible_positions = list(self.pos_within(b.current_pos))
-            b.current_pos = random.choice(possible_positions)
+            if len(self.a_star(bot.current_pos, b.current_pos)) > self.sight_distance:
+                possible_positions = list(self.pos_within(b.current_pos))
+                b.current_pos = random.choice(possible_positions)
         return universe
 
