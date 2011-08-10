@@ -154,9 +154,9 @@ class UniverseNoiser(object):
     ----------
     universe : CTFUniverse
         the universe which will later be used
-    noise_radius : int
+    noise_radius : int, optional, default: 5
         the radius for the uniform noise
-    sight_distance : int
+    sight_distance : int, optional, default: 5
         the distance at which noise is no longer applied.
 
     """
