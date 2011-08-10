@@ -786,6 +786,21 @@ class CTFUniverse(object):
         team = self.teams[self.bots[bot_index].team_index]
         return [self.bots[i] for i in team.bots if i != bot_index]
 
+    def team_bots(self, team_index):
+        """ Obtain all Bot objects in a Team.
+
+        Parameters
+        ----------
+        team_index : int
+            the index of the desired team
+
+        Returns
+        -------
+        team_bots : list of Bot objects
+
+        """
+        return [self.bots[i] for i in self.teams[team_index].bots]
+
     def enemy_bots(self, team_index):
         """ Obtain enemy bot objects.
 

@@ -403,6 +403,10 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertEqual([universe.bots[2]], universe.other_team_bots(0))
         self.assertEqual([universe.bots[3]], universe.other_team_bots(1))
 
+        self.assertEqual([universe.bots[i] for i in 0,2], universe.team_bots(0))
+        self.assertEqual([universe.bots[i] for i in 0,2], universe.enemy_bots(1))
+        self.assertEqual([universe.bots[i] for i in 1,3], universe.team_bots(1))
+        self.assertEqual([universe.bots[i] for i in 1,3], universe.enemy_bots(0))
 
         odd_layout = (
             """ #####
