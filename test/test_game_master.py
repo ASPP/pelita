@@ -110,7 +110,7 @@ class TestUniverseNoiser(unittest.TestCase):
             for i in [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
                 (2, 3), (4, 3), (1, 1), (5, 3)]))
         for i in range(100):
-            new = noiser.uniform_noise(universe.copy(), 0)
+            new = noiser.uniform_noise(universe.copy(), 1)
             position_bucket[new.bots[0].current_pos] += 1
         self.assertEqual(100, sum(position_bucket.itervalues()))
         # Since this is a randomized algorithm we need to be a bit lenient with
