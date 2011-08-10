@@ -145,17 +145,18 @@ class GameMaster(object):
 
 class UniverseNoiser(object):
 
-    def __init__(self, universe):
+    def __init__(self, universe, noise_radius=5, sight_distance=5):
         self.adjacency = dict((pos, universe.get_legal_moves(pos).values())
                 for pos in universe.maze.pos_of(datamodel.Free))
-        self.distance = 5
+        self.noise_radius = noise_radius
+        self.sight_distance = sight_distance
 
     def pos_within(self, position):
         if position not in self.adjacency.keys():
             raise TypeError("%s is not a free space in this maze" % repr(position))
         positions = set()
         to_visit = [position]
-        for i in range(self.distance):
+        for i in range(self.noise_radius):
             local_to_visit = []
             for pos in to_visit:
                 if pos not in positions:
