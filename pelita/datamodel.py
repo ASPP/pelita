@@ -102,6 +102,22 @@ def is_adjacent(pos1, pos2):
     return (pos1[0] == pos2[0] and abs(pos1[1] - pos2[1]) == 1 or
         pos1[1] == pos2[1] and abs(pos1[0] - pos2[0]) == 1)
 
+def manhattan_dist(pos1, pos2):
+    """ Manhattan distance between two points.
+
+    Parameters
+    ----------
+    pos1 : tuple of (int, int)
+        the first position
+    pos2 : tuple of (int, int)
+        the second position
+
+    Returns
+    -------
+    manhattan_dist : int
+        Manhattan distance between two points
+    """
+    return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
 @serializable
 class Team(object):
@@ -213,10 +229,12 @@ class Bot(object):
         True if a destroyer, False otherwise
     is_harvester : boolean, property
         not is_destroyer
+    noisy : boolean
+        True if the position is noisy, False if it is exact
 
     """
     def __init__(self, index, initial_pos, team_index, homezone,
-            current_pos=None):
+            current_pos=None, noisy=False):
         self.index = index
         self.initial_pos = initial_pos
         self.team_index = team_index
@@ -225,6 +243,7 @@ class Bot(object):
             self.current_pos = self.initial_pos
         else:
             self.current_pos = current_pos
+        self.noisy = noisy
 
     @property
     def in_own_zone(self):
@@ -252,16 +271,17 @@ class Bot(object):
             return self.index.__cmp__(other.index)
 
     def __repr__(self):
-        return ('Bot(%i, %s, %i, %s , current_pos=%s)' %
+        return ('Bot(%i, %s, %i, %s , current_pos=%s, noisy=%r)' %
                 (self.index, self.initial_pos, self.team_index,
-                    self.homezone, self.current_pos))
+                    self.homezone, self.current_pos, self.noisy))
 
     def _to_json_dict(self):
         return {"index": self.index,
                 "initial_pos": self.initial_pos,
                 "team_index": self.team_index,
                 "homezone": self.homezone,
-                "current_pos": self.current_pos}
+                "current_pos": self.current_pos,
+                "noisy": self.noisy}
 
     @classmethod
     def _from_json_dict(cls, item):
@@ -749,8 +769,8 @@ class CTFUniverse(object):
         return [pos for pos in self.food_list
                 if not self.teams[team_index].in_zone(pos)]
 
-    def team_bots(self, bot_index):
-        """ Obtain other bots on team
+    def other_team_bots(self, bot_index):
+        """ Obtain other bots on team.
 
         Parameters
         ----------
@@ -759,12 +779,27 @@ class CTFUniverse(object):
 
         Returns
         -------
-        team_bots : list of Bot objects
-            the other bots on the team
+        other_team_bots : list of Bot objects
+            the other bots on the team, excluding the desired bot
 
         """
         team = self.teams[self.bots[bot_index].team_index]
         return [self.bots[i] for i in team.bots if i != bot_index]
+
+    def team_bots(self, team_index):
+        """ Obtain all Bot objects in a Team.
+
+        Parameters
+        ----------
+        team_index : int
+            the index of the desired team
+
+        Returns
+        -------
+        team_bots : list of Bot objects
+
+        """
+        return [self.bots[i] for i in self.teams[team_index].bots]
 
     def enemy_bots(self, team_index):
         """ Obtain enemy bot objects.

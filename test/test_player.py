@@ -15,7 +15,7 @@ class TestAbstractPlayer(unittest.TestCase):
             #     . #  .  .#3#
             ################## """)
 
-        game_master = GameMaster(test_layout, 4, 200)
+        game_master = GameMaster(test_layout, 4, 200, noise=False)
         universe = game_master.universe
         player_0 = StoppingPlayer()
         player_1 = TestPlayer([stop, north])
@@ -31,13 +31,17 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual(universe.bots[3], player_3.me)
 
         self.assertEqual(universe, player_1.current_uni)
-        self.assertEqual([universe.bots[0]], player_2.team_bots)
-        self.assertEqual([universe.bots[1]], player_3.team_bots)
-        self.assertEqual([universe.bots[2]], player_0.team_bots)
-        self.assertEqual([universe.bots[3]], player_1.team_bots)
+        self.assertEqual([universe.bots[0]], player_2.other_team_bots)
+        self.assertEqual([universe.bots[1]], player_3.other_team_bots)
+        self.assertEqual([universe.bots[2]], player_0.other_team_bots)
+        self.assertEqual([universe.bots[3]], player_1.other_team_bots)
+        self.assertEqual([universe.bots[i] for i in (0, 2)], player_0.team_bots)
         self.assertEqual([universe.bots[i] for i in (1, 3)], player_0.enemy_bots)
+        self.assertEqual([universe.bots[i] for i in (1, 3)], player_1.team_bots)
         self.assertEqual([universe.bots[i] for i in (0, 2)], player_1.enemy_bots)
+        self.assertEqual([universe.bots[i] for i in (0, 2)], player_2.team_bots)
         self.assertEqual([universe.bots[i] for i in (1, 3)], player_2.enemy_bots)
+        self.assertEqual([universe.bots[i] for i in (1, 3)], player_3.team_bots)
         self.assertEqual([universe.bots[i] for i in (0, 2)], player_3.enemy_bots)
         self.assertEqual(universe.bots[1].current_pos, player_1.current_pos)
         self.assertEqual(universe.bots[1].initial_pos, player_1.initial_pos)

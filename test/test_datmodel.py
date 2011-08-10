@@ -42,6 +42,27 @@ class TestStaticmethods(unittest.TestCase):
         self.assertFalse(is_adjacent((0, 0), (0, 0)))
         self.assertFalse(is_adjacent((1, 1), (1, 1)))
 
+    def test_manhattan_dist(self):
+        self.assertEqual(0, manhattan_dist((0, 0), (0, 0)))
+        self.assertEqual(0, manhattan_dist((1, 1), (1, 1)))
+        self.assertEqual(0, manhattan_dist((20, 20), (20, 20)))
+
+        self.assertEqual(1, manhattan_dist((0, 0), (1, 0)))
+        self.assertEqual(1, manhattan_dist((0, 0), (0, 1)))
+        self.assertEqual(1, manhattan_dist((1, 0), (0, 0)))
+        self.assertEqual(1, manhattan_dist((0, 1), (0, 0)))
+
+        self.assertEqual(2, manhattan_dist((0, 0), (1, 1)))
+        self.assertEqual(2, manhattan_dist((1, 1), (0, 0)))
+        self.assertEqual(2, manhattan_dist((1, 0), (0, 1)))
+        self.assertEqual(2, manhattan_dist((0, 1), (1, 0)))
+        self.assertEqual(2, manhattan_dist((0, 0), (2, 0)))
+        self.assertEqual(2, manhattan_dist((0, 0), (0, 2)))
+        self.assertEqual(2, manhattan_dist((2, 0), (0, 0)))
+        self.assertEqual(2, manhattan_dist((0, 2), (0, 0)))
+
+        self.assertEqual(4, manhattan_dist((1, 2), (3, 4)))
+
     def test_get_initial_positions(self):
 
 
@@ -142,14 +163,16 @@ class TestBot(unittest.TestCase):
                                            'homezone': [0, 3],
                                            'index': 0,
                                            'initial_pos': [1, 1],
-                                           'team_index': 0}}
+                                           'team_index': 0,
+                                           'noisy': False}}
 
         white_json_target = {'__id__': 'pelita.datamodel.Bot',
                              '__value__': {'current_pos': [1, 1],
                                            'homezone': [3, 6],
                                            'index': 1,
                                            'initial_pos': [6, 6],
-                                           'team_index': 1}}
+                                           'team_index': 1,
+                                           'noisy': False}}
 
         self.assertEqual(json.loads(black_json), black_json_target)
         self.assertEqual(json.loads(white_json), white_json_target)
@@ -375,10 +398,15 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertEqual([b.initial_pos for b in universe.bots],
                 [(1, 1), (1, 2), (16, 2), (16, 3)])
 
-        self.assertEqual([universe.bots[0]], universe.team_bots(2))
-        self.assertEqual([universe.bots[1]], universe.team_bots(3))
-        self.assertEqual([universe.bots[2]], universe.team_bots(0))
-        self.assertEqual([universe.bots[3]], universe.team_bots(1))
+        self.assertEqual([universe.bots[0]], universe.other_team_bots(2))
+        self.assertEqual([universe.bots[1]], universe.other_team_bots(3))
+        self.assertEqual([universe.bots[2]], universe.other_team_bots(0))
+        self.assertEqual([universe.bots[3]], universe.other_team_bots(1))
+
+        self.assertEqual([universe.bots[i] for i in 0,2], universe.team_bots(0))
+        self.assertEqual([universe.bots[i] for i in 0,2], universe.enemy_bots(1))
+        self.assertEqual([universe.bots[i] for i in 1,3], universe.team_bots(1))
+        self.assertEqual([universe.bots[i] for i in 1,3], universe.enemy_bots(0))
 
         odd_layout = (
             """ #####
@@ -481,11 +509,11 @@ class TestCTFUniverse(unittest.TestCase):
             "#     . #  .  .#3#\n"
             "##################\n"
             "Team(0, 'black', (0, 8), score=0, bots=[0, 2])\n"
-            "\tBot(0, (1, 1), 0, (0, 8) , current_pos=(1, 1))\n"
-            "\tBot(2, (16, 2), 0, (0, 8) , current_pos=(16, 2))\n"
+            "\tBot(0, (1, 1), 0, (0, 8) , current_pos=(1, 1), noisy=False)\n"
+            "\tBot(2, (16, 2), 0, (0, 8) , current_pos=(16, 2), noisy=False)\n"
             "Team(1, 'white', (9, 17), score=0, bots=[1, 3])\n"
-            "\tBot(1, (1, 2), 1, (9, 17) , current_pos=(1, 2))\n"
-            "\tBot(3, (16, 3), 1, (9, 17) , current_pos=(16, 3))\n")
+            "\tBot(1, (1, 2), 1, (9, 17) , current_pos=(1, 2), noisy=False)\n"
+            "\tBot(3, (16, 3), 1, (9, 17) , current_pos=(16, 3), noisy=False)\n")
         self.assertEqual(pretty_target, universe.pretty)
 
     def test_bot_teams(self):
