@@ -104,7 +104,6 @@ class TestUniverseNoiser(unittest.TestCase):
             ################## """)
         universe = create_CTFUniverse(test_layout, 2)
         noiser = UniverseNoiser(universe.copy())
-        free = set(universe.maze.pos_of(Free))
 
         position_bucket = dict(((i, 0)
             for i in [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
@@ -130,7 +129,6 @@ class TestUniverseNoiser(unittest.TestCase):
             ################## """)
         universe = create_CTFUniverse(test_layout, 4)
         noiser = UniverseNoiser(universe.copy())
-        free = set(universe.maze.pos_of(Free))
 
         position_bucket_0 = dict(((i, 0)
             for i in [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
@@ -168,7 +166,6 @@ class TestUniverseNoiser(unittest.TestCase):
             ################## """)
         universe = create_CTFUniverse(test_layout, 4)
         noiser = UniverseNoiser(universe.copy())
-        free = set(universe.maze.pos_of(Free))
 
         position_bucket_0 = dict(((i, 0)
             for i in [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
