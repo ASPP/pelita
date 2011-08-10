@@ -26,14 +26,23 @@ class GameMaster(object):
 
     Parameters
     ----------
-    universe : Universe
-        the game state
-    game_time : int
-        the total permitted number of rounds
+    layout : string
+        initial layout as string
     number_bots : int
         the total number of bots
-    player_teams : the participating player teams
-    player_teams_bots : stores for each player_team index which bots it has
+    game_time : int
+        the total permitted number of rounds
+    noise : boolean
+        should enemy positions be noisy
+
+    Attributes
+    ----------
+    universe : CTFUniverse
+        the game state
+    noiser : UniverseNoiser or None
+        object to add noise to enemy positions
+    player_teams : list
+        the participating player teams
     viewers : list of subclasses of AbstractViewer
         the viewers that are observing this game
 
