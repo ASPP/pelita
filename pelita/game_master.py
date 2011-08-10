@@ -203,8 +203,7 @@ class UniverseNoiser(object):
         return path[:-1]
 
     def uniform_noise(self, universe, team_index):
-        bots_to_noise = [universe.bots[i] for i in
-                universe.teams[team_index].bots]
+        bots_to_noise = universe.team_bots(team_index)
         for bot in bots_to_noise:
             possible_positions = list(self.pos_within(bot.current_pos))
             bot.current_pos = random.choice(possible_positions)
