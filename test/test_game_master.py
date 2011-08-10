@@ -1,8 +1,13 @@
-from pelita.datamodel import *
-from pelita.game_master import *
-from pelita.player import *
-from pelita.viewer import *
+# -*- coding: utf-8 -*-
+
 import unittest
+from pelita.datamodel import north, south, east, west, stop,\
+        Wall, Free, Food,\
+        TeamWins, BotMoves, create_CTFUniverse
+from pelita.game_master import GameMaster, UniverseNoiser
+from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer
+from pelita.viewer import AbstractViewer, DevNullViewer
+
 
 class TestGameMaster(unittest.TestCase):
 
