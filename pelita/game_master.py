@@ -204,7 +204,7 @@ class UniverseNoiser(object):
 
     def uniform_noise(self, universe, bot_index):
         bot = universe.bots[bot_index]
-        bots_to_noise = universe.enemy_bots(universe.bots[bot_index].team_index)
+        bots_to_noise = universe.enemy_bots(bot.team_index)
         for b in bots_to_noise:
             if len(self.a_star(bot.current_pos, b.current_pos)) > self.sight_distance:
                 possible_positions = list(self.pos_within(b.current_pos))
