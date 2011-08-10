@@ -502,11 +502,12 @@ class Maze(Mesh):
 
     def __init__(self, width, height, data=None):
         if not data:
-            data = [TypeAwareList(base_class=MazeComponent)
-                    for i in range(width * height)]
-        elif any([not isinstance(x, TypeAwareList) for x in data]):
-            raise TypeError("Maze keyword argument 'data' should be list of"\
-                    "TypeAwareList objects, not: %r" % data)
+            #data = [TypeAwareList(base_class=MazeComponent)
+            #        for i in range(width * height)]
+            data = [list() for i in range(width*height)]
+        #elif any([not isinstance(x, TypeAwareList) for x in data]):
+        #    raise TypeError("Maze keyword argument 'data' should be list of"\
+        #            "TypeAwareList objects, not: %r" % data)
         super(Maze, self).__init__(width, height, data)
 
     def has_at(self, type_, pos):
@@ -525,7 +526,7 @@ class Maze(Mesh):
             True if objects of the given type are present and False otherwise.
 
         """
-        return type_ in self[pos]
+        return type_.char in self[pos]
 
     def get_at(self, type_, pos):
         """ Get all objects of a given type at certain position.
@@ -543,7 +544,8 @@ class Maze(Mesh):
             the objects at that position
 
         """
-        return self[pos].filter_type(type_)
+        #return self[pos].filter_type(type_)
+        return [item.char for item in self[pos] if isinstance(item, type_)]
 
     def remove_at(self, type_, pos):
         """ Remove all objects of a given type at a certain position.
@@ -556,7 +558,8 @@ class Maze(Mesh):
             the position to look at
 
         """
-        self[pos].remove_type(type_)
+        #self[pos].remove_type(type_)
+        self[pos].remove(type_.char)
 
     @property
     def positions(self):
@@ -592,11 +595,11 @@ def create_maze(layout_mesh):
     maze = Maze(layout_mesh.width, layout_mesh.height)
     for index in maze.iterkeys():
         if layout_mesh[index] == Wall.char:
-            maze[index].append(Wall())
+            maze[index].append(Wall.char)
         else:
-            maze[index].append(Free())
+            maze[index].append(Free.char)
         if layout_mesh[index] == Food.char:
-            maze[index].append(Food())
+            maze[index].append(Food.char)
     return maze
 
 
