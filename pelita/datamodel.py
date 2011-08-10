@@ -769,8 +769,8 @@ class CTFUniverse(object):
         return [pos for pos in self.food_list
                 if not self.teams[team_index].in_zone(pos)]
 
-    def team_bots(self, bot_index):
-        """ Obtain other bots on team
+    def other_team_bots(self, bot_index):
+        """ Obtain other bots on team.
 
         Parameters
         ----------
@@ -779,8 +779,8 @@ class CTFUniverse(object):
 
         Returns
         -------
-        team_bots : list of Bot objects
-            the other bots on the team
+        other_team_bots : list of Bot objects
+            the other bots on the team, excluding the desired bot
 
         """
         team = self.teams[self.bots[bot_index].team_index]

@@ -398,10 +398,11 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertEqual([b.initial_pos for b in universe.bots],
                 [(1, 1), (1, 2), (16, 2), (16, 3)])
 
-        self.assertEqual([universe.bots[0]], universe.team_bots(2))
-        self.assertEqual([universe.bots[1]], universe.team_bots(3))
-        self.assertEqual([universe.bots[2]], universe.team_bots(0))
-        self.assertEqual([universe.bots[3]], universe.team_bots(1))
+        self.assertEqual([universe.bots[0]], universe.other_team_bots(2))
+        self.assertEqual([universe.bots[1]], universe.other_team_bots(3))
+        self.assertEqual([universe.bots[2]], universe.other_team_bots(0))
+        self.assertEqual([universe.bots[3]], universe.other_team_bots(1))
+
 
         odd_layout = (
             """ #####
