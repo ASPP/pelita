@@ -144,6 +144,22 @@ class GameMaster(object):
         return True
 
 class UniverseNoiser(object):
+    """ Class to make bot positions noisy.
+
+    Supports uniform noise in maze space. Can be extended to support other types
+    of noise. Noise will only be applied if the enemy bot is with a certain
+    threshold (`sight_distance`).
+
+    Parameters
+    ----------
+    universe : CTFUniverse
+        the universe which will later be used
+    noise_radius : int
+        the radius for the uniform noise
+    sight_distance : int
+        the distance at which noise is no longer applied.
+
+    """
 
     def __init__(self, universe, noise_radius=5, sight_distance=5):
         self.adjacency = dict((pos, universe.get_legal_moves(pos).values())
@@ -152,6 +168,7 @@ class UniverseNoiser(object):
         self.sight_distance = sight_distance
 
     def pos_within(self, position):
+        """ Position within a certain distance. """
         if position not in self.adjacency.keys():
             raise TypeError("%s is not a free space in this maze" % repr(position))
         positions = set()
@@ -166,6 +183,7 @@ class UniverseNoiser(object):
         return positions
 
     def a_star(self, initial, target):
+        """ A* search. """
         to_visit = []
         # seen needs to be list since we use it for backtracking
         # a set would make the lookup faster, but not enable backtracking
@@ -203,6 +221,28 @@ class UniverseNoiser(object):
         return path[:-1]
 
     def uniform_noise(self, universe, bot_index):
+        """ Apply uniform noise to the enemies of a Bot.
+
+        Given a `bot_index` the method looks up the enemies of this bot. It then
+        adds uniform noise in maze space to the enemy positions. If a position
+        is noisy or not is indicated by the `noisy` attribute in the Bot class.
+
+        The method will modify the reference, therefore it is important to use a
+        copy of the universe as an argument.
+
+        Parameters
+        ----------
+        universe : CTFUniverse
+            the universe to add noise to
+        bot_index : int
+            the bot whose enemies should be noisy
+
+        Returns
+        -------
+        noisy_universe : CTFUniverse
+            universe with noisy enemy positions
+
+        """
         bot = universe.bots[bot_index]
         bots_to_noise = universe.enemy_bots(bot.team_index)
         for b in bots_to_noise:
