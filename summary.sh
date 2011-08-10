@@ -5,7 +5,18 @@
 # one page, easy-to-read summary of a few code quality metrics.
 
 do_wc(){
-    print $(wc -l $@ | tail -1 | sed 's/total//')
+    # LOC does not count blanklines
+    LOC=$( find $@ -name '*.py' -print0 | xargs --null sed "/^\s*$/d" |
+           wc -l | tail -1 | sed 's/total//' )
+    # LOC-COM counts comments. Comments are lines whose first non-blank character
+    # is a single '#'. Lines where the first two non-blank characters are 
+    # '##' are not counted as comments [we use that for maze layouts].
+    COM=$( find $@ -name '*.py' -print0 | xargs --null sed "/^\s*$/d" |
+           # put a placeholder in front of lines with '##'
+           sed  "s/^\s*##.*$/PLACEHOLDER/" |
+           # now remove comments
+           sed "/^\s*#.*$/d" | wc -l | tail -1 | sed 's/total//' )
+    print $LOC of which $(( $LOC - $COM )) are comments
 }
 
 do_pylint(){
@@ -17,10 +28,9 @@ do_pylint(){
 echo "Project summary / QA for pelita"
 echo "----------------------------------------------------------------------"
 echo "Lines of code:"
-echo "  in pelita/                : "$( do_wc pelita/**/*.py )
-echo "  in test/                  : "$( do_wc test/**/*.py )
-echo "  in pelita/messaging       : "$( do_wc pelita/messaging/**/*.py )
-echo "  in all                    : "$( do_wc {pelita,test}/**/*.py )
+for d in pelita test pelita/messaging; do
+printf "%30s : %20s\n" $d "$( do_wc $d )"
+done
 echo ""
 
 if ! which pylint &> /dev/null ; then
