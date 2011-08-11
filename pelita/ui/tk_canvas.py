@@ -62,6 +62,8 @@ class UiCanvas(object):
     def __init__(self, master):
         self.mesh_graph = None
 
+        self.size_changed = True
+
         self.master = master
         self.canvas = None
 
@@ -114,10 +116,13 @@ class UiCanvas(object):
         self.mesh_graph.num_y = universe.maze.height
 
         #self.waiting_animations = []
-        self.clear()
-        self.draw_background(universe)
+        if self.size_changed:
+            self.clear()
+            self.draw_background(universe)
+            self.draw_mesh(universe.maze)
+            self.size_changed = False
+
         self.draw_title(universe)
-        self.draw_mesh(universe.maze)
         self.draw_bots(universe)
 
     def draw_background(self, universe):
@@ -226,6 +231,7 @@ class UiCanvas(object):
         if event.height > 30:
             self.mesh_graph.width = event.width
             self.mesh_graph.height = event.height - 30
+        self.size_changed = True
 
     def draw_mesh(self, mesh):
         for position, items in mesh.iteritems():
