@@ -52,6 +52,18 @@ class TestAdjacencyList(unittest.TestCase):
          (10, 2): [(10, 3), (10, 1), (10, 2), (9, 2)]}
         self.assertEqual(adjacency_target, al.adjacency)
 
+    def test_a_star(self):
+        test_layout = (
+        """ ##################
+            #0#.  .  # .     #
+            #2#####    #####1#
+            #     . #  .  .#3#
+            ################## """)
+        universe = create_CTFUniverse(test_layout, 4)
+        al = AdjacencyList(universe)
+        # just a simple smoke test
+        self.assertEqual(14, len(al.a_star((1, 1), (3, 1))))
+
     def test_bfs_exceptions(self):
         test_layout = (
         """ ############

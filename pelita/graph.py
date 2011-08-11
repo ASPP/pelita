@@ -3,7 +3,8 @@
 """ Basic graph module """
 
 from collections import deque
-from pelita.datamodel import Maze, Free
+import heapq
+from pelita.datamodel import Maze, Free, manhattan_dist
 
 __docformat__ = "restructuredtext"
 
@@ -87,6 +88,44 @@ class AdjacencyList(dict):
         if not found:
             raise NoPathException("BFS: No path from %r to %r."
                     % (initial, targets))
+        # Now back-track using seen to determine how we got here.
+        # Initialise the path with current node, i.e. position of food.
+        path = [current]
+        while seen:
+            # Pop the latest node in seen
+            next_ = seen.pop()
+            # If that's adjacent to the current node
+            # it's in the path
+            if next_ in self.adjacency[current]:
+                # So add it to the path
+                path.append(next_)
+                # And continue back-tracking from there
+                current = next_
+        # The last element is the current position, we don't need that in our
+        # path, so don't include it.
+        return path[:-1]
+
+    def a_star(self, initial, target):
+        """ A* search. """
+        to_visit = []
+        # seen needs to be list since we use it for backtracking
+        # a set would make the lookup faster, but not enable backtracking
+        seen = []
+        # since its A* we use a heap que
+        # this ensures we always get the next node with to lowest manhatten
+        # distance to the current node
+        heapq.heappush(to_visit, (0, (initial)))
+        while to_visit:
+            man_dist, current = heapq.heappop(to_visit)
+            if current in seen:
+                continue
+            elif current == target:
+                break
+            else:
+                seen.append(current)
+                for pos in self.adjacency[current]:
+                    heapq.heappush(to_visit, (manhattan_dist(target, pos), (pos)))
+
         # Now back-track using seen to determine how we got here.
         # Initialise the path with current node, i.e. position of food.
         path = [current]

@@ -7,6 +7,7 @@ from pelita.datamodel import north, south, east, west, stop,\
 from pelita.game_master import GameMaster, UniverseNoiser
 from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer
 from pelita.viewer import AbstractViewer, DevNullViewer
+from pelita.graph import AdjacencyList
 
 
 class TestGameMaster(unittest.TestCase):
@@ -65,17 +66,6 @@ class TestGameMaster(unittest.TestCase):
 
 class TestUniverseNoiser(unittest.TestCase):
 
-    def test_a_star(self):
-        test_layout = (
-        """ ##################
-            #0#.  .  # .     #
-            #2#####    #####1#
-            #     . #  .  .#3#
-            ################## """)
-        universe = create_CTFUniverse(test_layout, 4)
-        noiser = UniverseNoiser(universe.copy())
-        # just a simple smoke test
-        self.assertEqual(14, len(noiser.a_star((1, 1), (3, 1))))
 
     def test_pos_within(self):
         test_layout = (
@@ -86,6 +76,7 @@ class TestUniverseNoiser(unittest.TestCase):
             ################## """)
         universe = create_CTFUniverse(test_layout, 4)
         noiser = UniverseNoiser(universe.copy())
+        al = AdjacencyList(universe)
         free = set(universe.maze.pos_of(Free))
 
 
@@ -96,9 +87,9 @@ class TestUniverseNoiser(unittest.TestCase):
         self.assertEqual(target, noiser.pos_within((1, 1)))
         # assuming a_star is working properly
         for pos in target:
-            self.assertTrue(len(noiser.a_star((1, 1), pos)) < 5)
+            self.assertTrue(len(al.a_star((1, 1), pos)) < 5)
         for pos in free.difference(target):
-            self.assertTrue(len(noiser.a_star((1, 1), pos)) >= 5)
+            self.assertTrue(len(al.a_star((1, 1), pos)) >= 5)
 
     def test_uniform_noise(self):
         test_layout = (
