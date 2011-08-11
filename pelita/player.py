@@ -155,6 +155,19 @@ class AbstractPlayer(object):
         return self.current_uni.team_bots(self.me.team_index)
 
     @property
+    def team_border(self):
+        """ Positions of the border positions.
+        These are the last positions in the zone of the team.
+
+        Returns
+        -------
+        team_border : list of tuple of (int, int)
+            the border positions
+
+        """
+        return self.current_uni.team_border(self.me.team_index)
+
+    @property
     def enemy_food(self):
         """ Food owned by the enemy which can be eaten by this players bot.
 
