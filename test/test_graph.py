@@ -20,6 +20,7 @@ class TestAdjacencyList(unittest.TestCase):
         self.assertRaises(TypeError, al.pos_within, (0, 0), 0)
         self.assertRaises(TypeError, al.pos_within, (6, 2), 0)
 
+        self.assertEqual(set([(1, 1)]), al.pos_within((1, 1), 0))
         target = set([(1, 1), (1, 2), (1,3), (2, 3), (3, 3), (3, 3)])
         self.assertEqual(target, al.pos_within((1, 1), 5))
         # assuming a_star is working properly

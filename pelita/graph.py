@@ -44,7 +44,7 @@ class AdjacencyList(dict):
         """
         if position not in self.adjacency.keys():
             raise TypeError("%s is not a free space in this maze" % repr(position))
-        positions = set()
+        positions = set([position])
         to_visit = [position]
         for i in range(distance):
             local_to_visit = []
