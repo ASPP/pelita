@@ -320,3 +320,11 @@ class BFSPlayer(AbstractPlayer):
             self.current_path = self.bfs_food()
         new_pos = self.current_path.pop()
         return diff_pos(self.current_pos, new_pos)
+
+class BasicDefensePlayer(AbstractPlayer):
+
+    def set_initial(self):
+        pass
+
+    def get_move(self):
+        pass
