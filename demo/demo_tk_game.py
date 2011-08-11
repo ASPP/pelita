@@ -1,4 +1,6 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import threading
 
 from pelita.game_master import GameMaster
@@ -22,4 +24,4 @@ if __name__ == '__main__':
 
     threading.Thread(target=gm.play).start()
 
-    viewer.viewer.mainloop()
+    viewer.app.mainloop()

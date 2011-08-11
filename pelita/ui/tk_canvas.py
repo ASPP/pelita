@@ -51,7 +51,7 @@ class MeshGraph(object):
         # coords are between -1 and +1: shift on [0, 1]
         trafo_y = (coords_y + 1.0) / 2.0
 
-        real_y = self.rect_height * (mesh_y + trafo_y) + 30
+        real_y = self.rect_height * (mesh_y + trafo_y)
         return real_y
 
     def __repr__(self):
@@ -61,6 +61,8 @@ class MeshGraph(object):
 class UiCanvas(object):
     def __init__(self, master):
         self.mesh_graph = None
+
+        self.size_changed = True
 
         self.master = master
         self.canvas = None
@@ -77,16 +79,30 @@ class UiCanvas(object):
         self.previous_universe = None
 
     def init_canvas(self):
-        self.canvas = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=self.mesh_graph.height + 30)
+        self.score = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=30)
+        self.score.pack()
+
+        self.canvas = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=self.mesh_graph.height)
         self.canvas.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
         self.canvas.bind('<Configure>', self.resize)
 
-    def update(self, events, universe):
+        self.status = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=20)
+        self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
+
+    def update(self, events, universe, round=None, turn=None):
         if not self.canvas:
             if not self.mesh_graph:
                 width = universe.maze.width
                 height = universe.maze.height
-                scale = 60
+
+                screensize = (
+                    max(250, self.master.winfo_screenwidth() - 60),
+                    max(250, self.master.winfo_screenheight() - 60)
+                )
+                scale_x = screensize[0] / width
+                scale_y = screensize[1] / height
+
+                scale = int(min(scale_x, scale_y, 50))
                 self.mesh_graph = MeshGraph(width, height, scale * width, scale * height)
 
                 self.bot_sprites = {}
@@ -96,6 +112,13 @@ class UiCanvas(object):
 
         self.previous_universe = self.current_universe
         self.current_universe = universe
+
+        if round is not None and turn is not None:
+            self.status.delete("roundturn")
+            roundturn = "Bot %d, Round %d   " % (turn, round)
+            self.status.create_text(self.mesh_graph.width, 20,
+                                    anchor=Tkinter.SE,
+                                    text=roundturn, font=(None, 15), tag="roundturn")
 
         if not self.previous_universe:
             self.draw_universe(self.current_universe)
@@ -114,15 +137,23 @@ class UiCanvas(object):
         self.mesh_graph.num_y = universe.maze.height
 
         #self.waiting_animations = []
-        self.clear()
-        self.draw_background(universe)
+        if self.size_changed:
+            self.clear()
+
+            self.draw_background(universe)
+            self.draw_mesh(universe.maze)
+            self.size_changed = False
+
         self.draw_title(universe)
-        self.draw_mesh(universe.maze)
         self.draw_bots(universe)
 
     def draw_background(self, universe):
+        self.canvas.delete("background")
+
         center = self.mesh_graph.width // 2
         cols = (col(94, 158, 217), col(235, 90, 90), col(80, 80, 80))
+
+        scale = self.mesh_graph.half_scale_x * 0.1
 
         for color, x_orig in zip(cols, (center - 3, center + 3, center)):
             x_width = self.mesh_graph.half_scale_x // 4
@@ -133,20 +164,20 @@ class UiCanvas(object):
                 x_real = x_orig + x_width * math.sin(y * 10)
                 y_real = self.mesh_graph.mesh_to_real_y(y / 10.0, 0)
                 if x_prev and y_prev:
-                    self.canvas.create_line((x_prev, y_prev, x_real, y_real), width=3, fill=color)
+                    self.canvas.create_line((x_prev, y_prev, x_real, y_real), width=scale, fill=color, tag="background")
                 x_prev, y_prev = x_real, y_real
-            #return
 
     def draw_title(self, universe):
+        self.score.delete("title")
         center = self.mesh_graph.width // 2
 
         left_team = "%s %d" % (universe.teams[0].name, universe.teams[0].score)
-        self.canvas.create_text(center - 10, 20, text=left_team, font=(None, 30), fill=col(94, 158, 217), tag="title", anchor=Tkinter.E)
+        self.score.create_text(center - 10, 15, text=left_team, font=(None, 25), fill=col(94, 158, 217), tag="title", anchor=Tkinter.E)
 
-        self.canvas.create_text(center, 20, text=":", font=(None, 30), tag="title", anchor=Tkinter.CENTER)
+        self.score.create_text(center, 15, text=":", font=(None, 25), tag="title", anchor=Tkinter.CENTER)
 
         right_team = "%d %s" % (universe.teams[1].score, universe.teams[1].name)
-        self.canvas.create_text(center + 10, 20, text=right_team, font=(None, 30), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
+        self.score.create_text(center + 10, 15, text=right_team, font=(None, 25), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
 
     def draw_events(self, events=None):
         if events:
@@ -222,10 +253,11 @@ class UiCanvas(object):
 
     def resize(self, event):
         # need to be careful not to get negative numbers
-        # Tk will crash otherwise
-        if event.height > 30:
+        # Tk will crash, if it receives negative numbers
+        if event.height > 0:
             self.mesh_graph.width = event.width
-            self.mesh_graph.height = event.height - 30
+            self.mesh_graph.height = event.height
+        self.size_changed = True
 
     def draw_mesh(self, mesh):
         for position, items in mesh.iteritems():
@@ -264,7 +296,7 @@ class UiCanvas(object):
         item_class = None
         for item in items:
             for key in self.mapping:
-                if isinstance(item, key):
+                if issubclass(key, item):
                     item_class = self.mapping[key]
 
         if not item_class:
@@ -331,7 +363,7 @@ class TkApplication(Tkinter.Frame):
         universe = observed["universe"]
         events = observed.get("events")
 
-        self.ui_canvas.update(events, universe)
+        self.ui_canvas.update(events, universe, round, turn)
 
     def on_quit(self):
         """ override for things which must be done when we exit.
