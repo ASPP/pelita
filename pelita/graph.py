@@ -20,6 +20,28 @@ class AdjacencyList(dict):
                 for pos in free_pos)
 
     def bfs(self, initial, targets):
+        """ Breadth first search (bfs).
+
+        Breadth first search [1] from one position to multiple tragets. The
+        search will return a path from the `initial` position to the closest
+        position in `targets`.
+
+        Parameters
+        ----------
+        initial : tuple of (int, int)
+            the first position
+        targets : list of tuple of (int, int)
+            the target positions
+
+        Returns
+        -------
+        path : lits of tuple of (int, int)
+            the path from `initial` to the closest `target`
+
+
+        [1] http://en.wikipedia.org/wiki/Breadth-first_search
+
+        """
         # Initialise `to_visit` of type `deque` with current position.
         # We use a `deque` since we need to extend to the right
         # but pop from the left, i.e. its a fifo queue.
