@@ -173,6 +173,7 @@ class TestBFS_Player(unittest.TestCase):
         self.assertEqual(0, len(bfs2.current_path))
 
 class TestSimpleTeam(unittest.TestCase):
+
     def test_simple_team(self):
         class BrokenPlayer(AbstractPlayer):
             pass
