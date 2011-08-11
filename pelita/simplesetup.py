@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import time
+import multiprocessing
 
 from pelita.messaging import actor_of, RemoteConnection
 from pelita.actors import ClientActor, ServerActor
@@ -103,3 +104,8 @@ class SimpleClient(object):
         finally:
             client_actor.actor_ref.stop()
 
+    def autoplay_background(self):
+        # We use a multiprocessing because it behaves well with KeyboardInterrupt.
+        background_process = multiprocessing.Process(target=self.autoplay)
+        background_process.start()
+        return background_process
