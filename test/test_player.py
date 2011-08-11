@@ -141,7 +141,7 @@ class TestBFS_Player(unittest.TestCase):
          (4, 3): [(5, 3), (4, 3), (3, 3)],
          (14, 3): [(14, 3), (13, 3)],
          (10, 2): [(10, 3), (10, 1), (10, 2), (9, 2)]}
-        self.assertEqual(adjacency_target, bfs.adjacency)
+        self.assertEqual(adjacency_target, bfs.adjacency.adjacency)
         path_target = [(11, 3), (10, 3), (10, 2), (9, 2), (8, 2), (7, 2), (7,
             3), (6, 3), (5, 3), (4, 3), (3, 3), (2, 3), (1, 3), (1,2)]
         self.assertEqual(path_target, bfs.current_path)
