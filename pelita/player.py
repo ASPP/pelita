@@ -337,7 +337,57 @@ class BFSPlayer(AbstractPlayer):
 class BasicDefensePlayer(AbstractPlayer):
 
     def set_initial(self):
-        pass
+        self.adjacency = AdjacencyList(self.current_uni)
+        self.path = self.path_to_border
+        self.tracking = None
+
+    @property
+    def path_to_border(self):
+        """ Path to the closest border position. """
+        return self.adjacency.bfs(self.current_pos, self.team_border)
+
+    @property
+    def path_to_target(self):
+        """ Path to the target we are currently tracking. """
+        return self.adjacency.a_star(self.current_pos,
+                tracking_target.current_pos)
+
+    @property
+    def tracking_target(self):
+        """ Bot object we are currently tracking. """
+        return self.current_uni.bots[self.tracking]
 
     def get_move(self):
-        pass
+        # if we were killed, for whatever reason, reset the path
+        if self.current_pos == self.initial_pos:
+            self.current_path = self.path_to_border
+        # if we are not currently tracking anything
+        if not self.tracking:
+            # check the enemy positions
+            possible_targets = [bot for bot in self.enemy_bots
+                    if self.team.in_zone(bot.current_pos)]
+            if possible_targets:
+                # get the path to the closest one
+                self.path = self.adjacency.bfs(self.current_pos, [bot.current_pos for bot
+                    in possible_targets])
+                # decide which bot this is, unfortunately it needs the _index
+                self.tracking = [bot for bot in possible_targets if
+                        bot.current_pos == self.path[0]][0].index
+            else:
+                # otherwise keep going if we aren't already underway
+                if not self.path:
+                    self.path = self.path_to_border
+        elif self.tracking:
+            # if the enemy is no longer in our zone
+            if not self.team.in_zone(self.tracking_target.current_pos):
+                self.tracking = None
+                self.path = path_to_border
+            # otherwise update the path to the target
+            else:
+                self.path = self.path_to_target
+        # if something above went wrong, just stand still
+        if not self.path:
+            return stop
+        else:
+            return diff_pos(self.current_pos, self.path.pop())
+
