@@ -95,7 +95,10 @@ class UiCanvas(object):
                 width = universe.maze.width
                 height = universe.maze.height
 
-                screensize = (self.master.winfo_screenwidth(), self.master.winfo_screenheight())
+                screensize = (
+                    max(250, self.master.winfo_screenwidth() - 60),
+                    max(250, self.master.winfo_screenheight() - 60)
+                )
                 scale_x = screensize[0] / width
                 scale_y = screensize[1] / height
 
@@ -136,6 +139,7 @@ class UiCanvas(object):
         #self.waiting_animations = []
         if self.size_changed:
             self.clear()
+
             self.draw_background(universe)
             self.draw_mesh(universe.maze)
             self.size_changed = False
@@ -168,12 +172,12 @@ class UiCanvas(object):
         center = self.mesh_graph.width // 2
 
         left_team = "%s %d" % (universe.teams[0].name, universe.teams[0].score)
-        self.score.create_text(center - 10, 20, text=left_team, font=(None, 30), fill=col(94, 158, 217), tag="title", anchor=Tkinter.E)
+        self.score.create_text(center - 10, 15, text=left_team, font=(None, 25), fill=col(94, 158, 217), tag="title", anchor=Tkinter.E)
 
-        self.score.create_text(center, 20, text=":", font=(None, 30), tag="title", anchor=Tkinter.CENTER)
+        self.score.create_text(center, 15, text=":", font=(None, 25), tag="title", anchor=Tkinter.CENTER)
 
         right_team = "%d %s" % (universe.teams[1].score, universe.teams[1].name)
-        self.score.create_text(center + 10, 20, text=right_team, font=(None, 30), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
+        self.score.create_text(center + 10, 15, text=right_team, font=(None, 25), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
 
     def draw_events(self, events=None):
         if events:
