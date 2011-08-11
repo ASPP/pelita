@@ -172,6 +172,11 @@ class UniverseNoiser(object):
     sight_distance : int, optional, default: 5
         the distance at which noise is no longer applied.
 
+    Attributes
+    ----------
+    adjacency : AdjacencyList
+        adjacency list representation of the Maze
+
     """
 
     def __init__(self, universe, noise_radius=5, sight_distance=5):
@@ -205,7 +210,10 @@ class UniverseNoiser(object):
         bot = universe.bots[bot_index]
         bots_to_noise = universe.enemy_bots(bot.team_index)
         for b in bots_to_noise:
+            # Check that the distance between this bot and the enemy is larger
+            # than `sight_distance`.
             if len(self.adjacency.a_star(bot.current_pos, b.current_pos)) > self.sight_distance:
+                # If so then alter the position of the enemy
                 possible_positions = list(self.adjacency.pos_within(b.current_pos,
                     self.noise_radius))
                 b.current_pos = random.choice(possible_positions)
