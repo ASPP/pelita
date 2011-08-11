@@ -3,6 +3,7 @@
 """ Base classes for player implementations. """
 
 from pelita.datamodel import stop, Free, diff_pos
+from pelita.graph import AdjacencyList
 from collections import deque
 import random
 
@@ -290,11 +291,7 @@ class BFSPlayer(AbstractPlayer):
     """
     def set_initial(self):
         # Before the game starts we initialise our adjacency list.
-        # to begin with, we get the list of all free positions
-        free_pos = self.current_uni.maze.pos_of(Free)
-        # Here we use a generator on a dictionary to create adjacency list.
-        self.adjacency = dict((pos, self.current_uni.get_legal_moves(pos).values())
-                for pos in free_pos)
+        self.adjacency = AdjacencyList(self.current_uni).adjacency
         self.current_path = self.bfs_food()
 
     def bfs_food(self):
