@@ -27,6 +27,34 @@ class AdjacencyList(dict):
         self.adjacency = dict((pos, universe.get_legal_moves(pos).values())
                 for pos in free_pos)
 
+    def pos_within(self, position, distance):
+        """ Position within a certain distance.
+
+        Calculates all positions within a certain distance of a target
+        `position` in maze space.
+
+        Parameters
+        ----------
+        position : tuple of (int, int)
+            the first position
+
+        distance : int
+            the distance in maze space
+
+        """
+        if position not in self.adjacency.keys():
+            raise TypeError("%s is not a free space in this maze" % repr(position))
+        positions = set()
+        to_visit = [position]
+        for i in range(distance):
+            local_to_visit = []
+            for pos in to_visit:
+                if pos not in positions:
+                    positions.add(pos)
+                local_to_visit.extend(self.adjacency[pos])
+            to_visit = local_to_visit
+        return positions
+
     def bfs(self, initial, targets):
         """ Breadth first search (bfs).
 

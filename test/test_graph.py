@@ -6,6 +6,28 @@ from pelita.graph import AdjacencyList, NoPathException, NoPositionException
 
 class TestAdjacencyList(unittest.TestCase):
 
+    def test_pos_within(self):
+        test_layout = (
+        """ ##################
+            #0#.  .  # .     #
+            #2#####    #####1#
+            #     . #  .  .#3#
+            ################## """)
+        universe = create_CTFUniverse(test_layout, 4)
+        al = AdjacencyList(universe)
+        free = set(universe.maze.pos_of(Free))
+
+        self.assertRaises(TypeError, al.pos_within, (0, 0), 0)
+        self.assertRaises(TypeError, al.pos_within, (6, 2), 0)
+
+        target = set([(1, 1), (1, 2), (1,3), (2, 3), (3, 3), (3, 3)])
+        self.assertEqual(target, al.pos_within((1, 1), 5))
+        # assuming a_star is working properly
+        for pos in target:
+            self.assertTrue(len(al.a_star((1, 1), pos)) < 5)
+        for pos in free.difference(target):
+            self.assertTrue(len(al.a_star((1, 1), pos)) >= 5)
+
     def test_basic_adjacency_list(self):
         test_layout = (
         """ ##################

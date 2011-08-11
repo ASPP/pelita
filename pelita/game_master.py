@@ -179,22 +179,6 @@ class UniverseNoiser(object):
         self.noise_radius = noise_radius
         self.sight_distance = sight_distance
 
-    def pos_within(self, position):
-        """ Position within a certain distance. """
-        if position not in self.adjacency.adjacency.keys():
-            raise TypeError("%s is not a free space in this maze" % repr(position))
-        positions = set()
-        to_visit = [position]
-        for i in range(self.noise_radius):
-            local_to_visit = []
-            for pos in to_visit:
-                if pos not in positions:
-                    positions.add(pos)
-                local_to_visit.extend(self.adjacency.adjacency[pos])
-            to_visit = local_to_visit
-        return positions
-
-
     def uniform_noise(self, universe, bot_index):
         """ Apply uniform noise to the enemies of a Bot.
 
@@ -222,7 +206,8 @@ class UniverseNoiser(object):
         bots_to_noise = universe.enemy_bots(bot.team_index)
         for b in bots_to_noise:
             if len(self.adjacency.a_star(bot.current_pos, b.current_pos)) > self.sight_distance:
-                possible_positions = list(self.pos_within(b.current_pos))
+                possible_positions = list(self.adjacency.pos_within(b.current_pos,
+                    self.noise_radius))
                 b.current_pos = random.choice(possible_positions)
                 b.noisy = True
         return universe
