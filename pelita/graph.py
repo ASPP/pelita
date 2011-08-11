@@ -14,7 +14,11 @@ class NoPositionException(Exception):
     pass
 
 class AdjacencyList(dict):
+    """ Adjacency list [1] representation of a Maze.
 
+    [1] http://en.wikipedia.org/wiki/Adjacency_list
+
+    """
     def __init__(self, universe):
         # Get the list of all free positions.
         free_pos = universe.maze.pos_of(Free)

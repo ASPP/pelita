@@ -284,8 +284,11 @@ class BFSPlayer(AbstractPlayer):
     reaches the food. This continues until all food has been eaten or the
     enemy wins.
 
-    [1] http://en.wikipedia.org/wiki/Adjacency_list
-    [2] http://en.wikipedia.org/wiki/Breadth-first_search
+    The adjacency lits representation (`AdjacencyList`) and breadth first search
+    (`AdjacencyList.bfs`) are imported from `pelita.graph`.
+
+    * [1] http://en.wikipedia.org/wiki/Adjacency_list
+    * [2] http://en.wikipedia.org/wiki/Breadth-first_search
 
     """
     def set_initial(self):
@@ -299,8 +302,8 @@ class BFSPlayer(AbstractPlayer):
         Returns
         -------
         path : a list of tuples (int, int)
-            The positions (x, y) in the path furthest to closest. The first
-            element is the final destination.
+            The positions (x, y) in the path from the current position to the
+            closest food. The first element is the final destination.
 
         """
         try:
