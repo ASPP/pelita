@@ -88,6 +88,15 @@ class TestAdjacencyList(unittest.TestCase):
          (10, 2): [(10, 3), (10, 1), (10, 2), (9, 2)]}
         self.assertEqual(adjacency_target, al)
 
+    def test_bfs_to_self(self):
+        test_layout = (
+        """ ############
+            #0.     #.1#
+            ############ """)
+        universe = create_CTFUniverse(test_layout, 2)
+        al = AdjacencyList(universe)
+        self.assertEqual([], al.bfs((1,1), [(1, 1), (2, 1)]))
+
     def test_a_star(self):
         test_layout = (
         """ ##################
