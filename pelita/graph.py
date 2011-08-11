@@ -17,6 +17,8 @@ class NoPositionException(Exception):
 class AdjacencyList(dict):
     """ Adjacency list [1] representation of a Maze.
 
+    Implemented by inheriting from `dict`.
+
     [1] http://en.wikipedia.org/wiki/Adjacency_list
 
     """
@@ -24,8 +26,8 @@ class AdjacencyList(dict):
         # Get the list of all free positions.
         free_pos = universe.maze.pos_of(Free)
         # Here we use a generator on a dictionary to create the adjacency list.
-        self.adjacency = dict((pos, universe.get_legal_moves(pos).values())
-                for pos in free_pos)
+        self.update(dict((pos, universe.get_legal_moves(pos).values())
+                for pos in free_pos))
 
     def pos_within(self, position, distance):
         """ Position within a certain distance.
@@ -53,7 +55,7 @@ class AdjacencyList(dict):
             if either `initial` or `targets` does not exist
 
         """
-        if position not in self.adjacency.keys():
+        if position not in self.keys():
             raise NoPositionException("Position %s does not exist." %
                     repr(position))
         positions = set([position])
@@ -63,7 +65,7 @@ class AdjacencyList(dict):
             for pos in to_visit:
                 if pos not in positions:
                     positions.add(pos)
-                local_to_visit.extend(self.adjacency[pos])
+                local_to_visit.extend(self[pos])
             to_visit = local_to_visit
         return positions
 
@@ -98,7 +100,7 @@ class AdjacencyList(dict):
         """
         # First check that the arguments were valid.
         for pos in [initial] + targets:
-            if pos not in self.adjacency.keys():
+            if pos not in self.keys():
                 raise NoPositionException("Position %s does not exist." %
                         repr(pos))
         # Initialise `to_visit` of type `deque` with current position.
@@ -122,7 +124,7 @@ class AdjacencyList(dict):
             else:
                 # Otherwise keep going, i.e. add adjacent nodes to seen list.
                 seen.append(current)
-                to_visit.extend(self.adjacency[current])
+                to_visit.extend(self[current])
         # if we did not find any food, we simply return a path with only the
         # current position
         if not found:
@@ -136,7 +138,7 @@ class AdjacencyList(dict):
             next_ = seen.pop()
             # If that's adjacent to the current node
             # it's in the path
-            if next_ in self.adjacency[current]:
+            if next_ in self[current]:
                 # So add it to the path
                 path.append(next_)
                 # And continue back-tracking from there
@@ -163,7 +165,7 @@ class AdjacencyList(dict):
                 break
             else:
                 seen.append(current)
-                for pos in self.adjacency[current]:
+                for pos in self[current]:
                     heapq.heappush(to_visit, (manhattan_dist(target, pos), (pos)))
 
         # Now back-track using seen to determine how we got here.
@@ -174,7 +176,7 @@ class AdjacencyList(dict):
             next_ = seen.pop()
             # If that's adjacent to the current node
             # it's in the path
-            if next_ in self.adjacency[current]:
+            if next_ in self[current]:
                 # So add it to the path
                 path.append(next_)
                 # And continue back-tracking from there

@@ -73,7 +73,7 @@ class TestAdjacencyList(unittest.TestCase):
          (4, 3): [(5, 3), (4, 3), (3, 3)],
          (14, 3): [(14, 3), (13, 3)],
          (10, 2): [(10, 3), (10, 1), (10, 2), (9, 2)]}
-        self.assertEqual(adjacency_target, al.adjacency)
+        self.assertEqual(adjacency_target, al)
 
     def test_a_star(self):
         test_layout = (
