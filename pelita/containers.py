@@ -392,8 +392,12 @@ class TypeAwareList(MutableSequence):
             self.base_class == other.base_class)
 
     def __repr__(self):
+        if self.base_class is None:
+            bc = None
+        else:
+            bc = self.base_class.__name__
         return ('TypeAwareList(%r, base_class=%s)'
-            % (self._items, self.base_class.__name__))
+            % (self._items, bc))
 
     def _to_json_dict(self):
         if self.base_class is None:
