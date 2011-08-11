@@ -504,7 +504,7 @@ class Maze(Mesh):
         if not data:
             #data = [TypeAwareList(base_class=MazeComponent)
             #        for i in range(width * height)]
-            data = [list() for i in range(width*height)]
+            data = ["" for i in range(width*height)]
         #elif any([not isinstance(x, TypeAwareList) for x in data]):
         #    raise TypeError("Maze keyword argument 'data' should be list of"\
         #            "TypeAwareList objects, not: %r" % data)
@@ -559,7 +559,9 @@ class Maze(Mesh):
 
         """
         #self[pos].remove_type(type_)
-        self[pos].remove(type_.char)
+        l = list(self[pos])
+        l.remove(type_.char)
+        self[pos] = str(l)
 
     @property
     def positions(self):
@@ -595,11 +597,11 @@ def create_maze(layout_mesh):
     maze = Maze(layout_mesh.width, layout_mesh.height)
     for index in maze.iterkeys():
         if layout_mesh[index] == Wall.char:
-            maze[index].append(Wall.char)
+            maze[index] += Wall.char
         else:
-            maze[index].append(Free.char)
+            maze[index] += Free.char
         if layout_mesh[index] == Food.char:
-            maze[index].append(Food.char)
+            maze[index] += Food.char
     return maze
 
 
