@@ -17,8 +17,8 @@ class TestAdjacencyList(unittest.TestCase):
         al = AdjacencyList(universe)
         free = set(universe.maze.pos_of(Free))
 
-        self.assertRaises(TypeError, al.pos_within, (0, 0), 0)
-        self.assertRaises(TypeError, al.pos_within, (6, 2), 0)
+        self.assertRaises(NoPositionException, al.pos_within, (0, 0), 0)
+        self.assertRaises(NoPositionException, al.pos_within, (6, 2), 0)
 
         self.assertEqual(set([(1, 1)]), al.pos_within((1, 1), 0))
         target = set([(1, 1), (1, 2), (1,3), (2, 3), (3, 3), (3, 3)])

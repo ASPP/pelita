@@ -41,9 +41,15 @@ class AdjacencyList(dict):
         distance : int
             the distance in maze space
 
+        Raises
+        ------
+        NoPositionException
+            if either `initial` or `targets` does not exist
+
         """
         if position not in self.adjacency.keys():
-            raise TypeError("%s is not a free space in this maze" % repr(position))
+            raise NoPositionException("Position %s does not exist." %
+                    repr(position))
         positions = set([position])
         to_visit = [position]
         for i in range(distance):
