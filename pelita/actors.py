@@ -29,18 +29,21 @@ class _ClientActor(DispatchingActor):
         self.team = team
 
     @expose
-    def say_hello(self, message, main_actor, team_name, host, port):
+    def say_hello(self, message, main_actor, team_name, host=None, port=None):
         """ Opens a connection to the remote main_actor,
         and sends it a "hello" message with the given team_name.
         """
 
         try:
-            self.server_actor = RemoteConnection().actor_for(main_actor, host, port)
+            if not port:
+                # assume local game (TODO: put somewhere else?)
+                self.server_actor = actor_registry.get_by_name(main_actor)
+            else:
+                self.server_actor = RemoteConnection().actor_for(main_actor, host, port)
         except DeadConnection:
             # no connection could be established
             self.ref.reply("failed")
 
-        # self.server_actor = actor_registry.get_by_name(main_actor)
         if not self.server_actor:
             _logger.warning("Actor %r not found." % main_actor)
             return
@@ -85,6 +88,21 @@ class ClientActor(object):
         """ Registers a team with our local actor.
         """
         self.actor_ref.notify("register_team", [team])
+
+    def connect_local(self, main_actor):
+        """ Tells our local actor to establish a connection with `main_actor`.
+        """
+        print "Trying to establish a connection with local actor '%s'..." % main_actor,
+        sys.stdout.flush()
+
+        try:
+            res = self.actor_ref.query("say_hello", [main_actor, self.team_name]).get(TIMEOUT)
+            print res
+            if res == "ok":
+                return True
+        except Queue.Empty:
+            print "failed due to timeout in actor."
+        return False
 
     def connect(self, main_actor, host="", port=50007):
         """ Tells our local actor to establish a connection with `main_actor`.
@@ -139,7 +157,8 @@ class ServerActor(DispatchingActor):
     def _remove_dead_teams(self):
         # check, if previously added teams are still alive:
         zipped = [(team, name) for team, name in zip(self.teams, self.team_names)
-                               if team._remote_mailbox.outbox.thread.is_alive()]
+                               if not getattr(team, "_remote_mailbox", None) or
+                               team._remote_mailbox.outbox.thread.is_alive()]
 
         if zipped:
             teams, team_names = zip(*zipped)
