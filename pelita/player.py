@@ -240,8 +240,8 @@ class TestPlayer(AbstractPlayer):
 
     Parameters
     ----------
-        moves : list of moves
-            the moves to make in reverse (stack) order
+    moves : list of moves
+        the moves to make in reverse (stack) order
 
     """
 
