@@ -489,25 +489,34 @@ class Food(MazeComponent):
     def __repr__(self):
         return 'Food()'
 
+maze_components = [Food, Free, Wall]
+mapped_components = dict((C.char, C) for C in maze_components)
 
 @serializable
 class Maze(Mesh):
-    """ A Mesh of TypeAwareLists of MazeComponents.
+    """ A Mesh of TypeAwareLists of MazeComponent representations.
 
     This is a container class to represent a game maze. It is a two-dimensional
-    structure (Mesh) which contains a special list (TypeAwareList) at each
-    position. Further each TypeAwareList may contain only MazeComponent.
+    structure (Mesh) which contains a representation of MazeComponents at
+    each position. (Internally, this is implemented with strings.)
 
     """
 
     def __init__(self, width, height, data=None):
         if not data:
-            data = [TypeAwareList(base_class=MazeComponent)
-                    for i in range(width * height)]
-        elif any([not isinstance(x, TypeAwareList) for x in data]):
-            raise TypeError("Maze keyword argument 'data' should be list of"\
-                    "TypeAwareList objects, not: %r" % data)
+            data = ["" for i in range(width*height)]
+        elif not all(isinstance(s, basestring) for s in data):
+            raise TypeError("Maze keyword argument 'data' should be list of " +\
+                            "strings, not: %r" % data)
         super(Maze, self).__init__(width, height, data)
+
+    def __getitem__(self, index):
+        chars = super(Maze, self).__getitem__(index)
+        return [mapped_components[char] for char in chars]
+
+    def __setitem__(self, key, value):
+        chars = "".join(val.char for val in value)
+        super(Maze, self).__setitem__(key, chars)
 
     def has_at(self, type_, pos):
         """ Check if objects of a given type are present at position.
@@ -543,7 +552,7 @@ class Maze(Mesh):
             the objects at that position
 
         """
-        return self[pos].filter_type(type_)
+        return [item for item in self[pos] if issubclass(item, type_)]
 
     def remove_at(self, type_, pos):
         """ Remove all objects of a given type at a certain position.
@@ -556,7 +565,10 @@ class Maze(Mesh):
             the position to look at
 
         """
-        self[pos].remove_type(type_)
+        if type_ in self[pos]:
+            self[pos] = [item for item in self[pos] if item != type_]
+        else:
+            raise ValueError
 
     @property
     def positions(self):
@@ -592,11 +604,11 @@ def create_maze(layout_mesh):
     maze = Maze(layout_mesh.width, layout_mesh.height)
     for index in maze.iterkeys():
         if layout_mesh[index] == Wall.char:
-            maze[index].append(Wall())
+            maze[index] = maze[index] + [Wall]
         else:
-            maze[index].append(Free())
+            maze[index] = maze[index] + [Free]
         if layout_mesh[index] == Food.char:
-            maze[index].append(Food())
+            maze[index] = maze[index] + [Food]
     return maze
 
 

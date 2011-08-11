@@ -220,6 +220,10 @@ class Mesh(Mapping):
             output += '\n'
         return output
 
+    def __eq__(self, other):
+        return (self.width == other.width and self.height == other.height and
+                self._data == other._data)
+
     @property
     def compact_str(self):
         """ Return a compact string representation of the Mesh.
