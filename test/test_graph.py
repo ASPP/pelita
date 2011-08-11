@@ -51,3 +51,14 @@ class TestAdjacencyList(unittest.TestCase):
          (14, 3): [(14, 3), (13, 3)],
          (10, 2): [(10, 3), (10, 1), (10, 2), (9, 2)]}
         self.assertEqual(adjacency_target, al.adjacency)
+
+    def test_bfs_exceptions(self):
+        test_layout = (
+        """ ############
+            #0.     #.1#
+            ############ """)
+        universe = create_CTFUniverse(test_layout, 2)
+        al = AdjacencyList(universe)
+        self.assertRaises(NoPathException, al.bfs, (1, 1), [(10, 1)])
+        self.assertRaises(NoPathException, al.bfs, (1, 1), [(10, 1), (9, 1)])
+

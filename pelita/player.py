@@ -3,7 +3,7 @@
 """ Base classes for player implementations. """
 
 from pelita.datamodel import stop, Free, diff_pos
-from pelita.graph import AdjacencyList
+from pelita.graph import AdjacencyList, NoPathException
 import random
 
 __docformat__ = "restructuredtext"
@@ -303,7 +303,10 @@ class BFSPlayer(AbstractPlayer):
             element is the final destination.
 
         """
-        return self.adjacency.bfs(self.current_pos, self.enemy_food)
+        try:
+            return self.adjacency.bfs(self.current_pos, self.enemy_food)
+        except NoPathException:
+            return [self.current_pos]
 
     def get_move(self):
         if self.current_pos == self.initial_pos:

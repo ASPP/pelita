@@ -38,6 +38,10 @@ class AdjacencyList(dict):
         path : lits of tuple of (int, int)
             the path from `initial` to the closest `target`
 
+        Raises
+        ------
+        NoPathException
+            if no path from `initial` to one of `targets`
 
         [1] http://en.wikipedia.org/wiki/Breadth-first_search
 
@@ -67,7 +71,8 @@ class AdjacencyList(dict):
         # if we did not find any food, we simply return a path with only the
         # current position
         if not found:
-            return [initial]
+            raise NoPathException("BFS: No path from %r to %r."
+                    % (initial, targets))
         # Now back-track using seen to determine how we got here.
         # Initialise the path with current node, i.e. position of food.
         path = [current]
