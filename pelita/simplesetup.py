@@ -10,7 +10,7 @@ from pelita.viewer import AsciiViewer, DevNullViewer
 from pelita.ui.tk_viewer import TkViewer
 
 class SimpleServer(object):
-    def __init__(self, layout=None, filename=None, players=4, rounds=200):
+    def __init__(self, layout=None, filename=None, players=4, rounds=200, host="", port=50007):
         if bool(layout) == bool(filename):
             raise ValueError("You must supply exactly one of layout or file.")
 
@@ -23,13 +23,16 @@ class SimpleServer(object):
         self.players = players
         self.rounds = rounds
 
+        self.host = host
+        self.port = port
+
         self.server = None
         self.remote = None
 
     def _setup(self):
         self.server = actor_of(ServerActor, "pelita-main")
 
-        self.remote = RemoteConnection().start_listener(host="", port=50007)
+        self.remote = RemoteConnection().start_listener(host=self.host, port=self.port)
         self.remote.register("pelita-main", self.server)
         self.remote.start_all()
 
@@ -70,14 +73,13 @@ class SimpleServer(object):
 
         self._run_save(main)
 
-
 class SimpleClient(object):
-    def __init__(self, team_name, team):
+    def __init__(self, team_name, team, host="", port=50007):
         self.team_name = team_name
         self.team = team
         self.main_actor = "pelita-main"
-        self.host = ""
-        self.port = 50007
+        self.host = host
+        self.port = port
 
     def autoplay(self):
         client_actor = ClientActor(self.team_name)
@@ -88,7 +90,7 @@ class SimpleClient(object):
             if client_actor.connect(self.main_actor, self.host, self.port):
                 break
             else:
-                print "No connection to %s:%s." % (self.host, self.port),
+                print "%s: No connection to %s:%s." % (self.team_name, self.host, self.port),
                 if i < 2:
                     print " Waiting 3 seconds. (%d/3)" % (i + 1)
                     time.sleep(3)
@@ -100,7 +102,7 @@ class SimpleClient(object):
             while client_actor.actor_ref.is_alive:
                 client_actor.actor_ref.join(1)
         except KeyboardInterrupt:
-            print "Client received CTRL+C. Exiting."
+            print "%s: Client received CTRL+C. Exiting." % self.team_name
         finally:
             client_actor.actor_ref.stop()
 
