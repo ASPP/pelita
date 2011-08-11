@@ -31,6 +31,19 @@ class TestAdjacencyList(unittest.TestCase):
 
     def test_basic_adjacency_list(self):
         test_layout = (
+        """ ######
+            #    #
+            ###### """)
+        universe = create_CTFUniverse(test_layout, 0)
+        al = AdjacencyList(universe)
+        target = { (4, 1): [(4, 1), (3, 1)],
+                   (1, 1): [(2, 1), (1, 1)],
+                   (2, 1): [(3, 1), (2, 1), (1, 1)],
+                   (3, 1): [(4, 1), (3, 1), (2, 1)]}
+        self.assertEqual(target, al)
+
+    def test_extended_adjacency_list(self):
+        test_layout = (
         """ ##################
             #0#.  .  # .     #
             # #####    ##### #
