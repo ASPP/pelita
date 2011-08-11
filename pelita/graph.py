@@ -31,7 +31,8 @@ class AdjacencyList(dict):
         """ Position within a certain distance.
 
         Calculates all positions within a certain distance of a target
-        `position` in maze space.
+        `position` in maze space. Within means strictly less than (`<`) in this
+        case.
 
         Parameters
         ----------
@@ -40,6 +41,11 @@ class AdjacencyList(dict):
 
         distance : int
             the distance in maze space
+
+        Returns
+        -------
+        pos_within : set of tuple of (int, int)
+            the positions within the given distance
 
         Raises
         ------
