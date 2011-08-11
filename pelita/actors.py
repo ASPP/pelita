@@ -34,16 +34,23 @@ class _ClientActor(DispatchingActor):
         and sends it a "hello" message with the given team_name.
         """
 
-        self.server_actor = RemoteConnection().actor_for(main_actor, host, port)
+        try:
+            self.server_actor = RemoteConnection().actor_for(main_actor, host, port)
+        except DeadConnection:
+            # no connection could be established
+            self.ref.reply("failed")
 
         # self.server_actor = actor_registry.get_by_name(main_actor)
         if not self.server_actor:
             _logger.warning("Actor %r not found." % main_actor)
             return
 
-        if self.server_actor.query("hello", [team_name, self.ref.uuid]).get() == "ok":
-            _logger.info("Connection accepted")
-            self.ref.reply("ok")
+        try:
+            if self.server_actor.query("hello", [team_name, self.ref.uuid]).get(2) == "ok":
+                _logger.info("Connection accepted")
+                self.ref.reply("ok")
+        except Queue.Empty:
+            self.ref.reply("actor no reply")
 
     @expose
     def set_bot_ids(self, message, *bot_ids):
@@ -86,9 +93,13 @@ class ClientActor(object):
         sys.stdout.flush()
 
         try:
-            print self.actor_ref.query("say_hello", [main_actor, self.team_name, host, port]).get(TIMEOUT)
+            res = self.actor_ref.query("say_hello", [main_actor, self.team_name, host, port]).get(TIMEOUT)
+            print res
+            if res == "ok":
+                return True
         except Queue.Empty:
-            print "failed."
+            print "failed due to timeout in actor."
+        return False
 
 
 class RemoteTeamPlayer(object):
