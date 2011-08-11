@@ -291,49 +291,41 @@ class TestMaze(unittest.TestCase):
     def test_init(self):
         # check we get errors with wrong stuff
         self.assertRaises(TypeError, Maze, 1, 1, data=[1])
-        self.assertRaises(ValueError, Maze, 1, 1, data=[TypeAwareList(),
-            TypeAwareList()])
+        self.assertRaises(ValueError, Maze, 1, 1, data=["", ""])
 
     def test_has_at(self):
-        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '', ])])
-        self.assertTrue(maze.has_at(int, (0, 0)))
-        self.assertTrue(maze.has_at(list, (0, 0)))
-        self.assertTrue(maze.has_at(dict, (0, 0)))
-        self.assertTrue(maze.has_at(str, (1, 0)))
-        self.assertFalse(maze.has_at(set, (0, 0)))
-        self.assertFalse(maze.has_at(int, (1, 0)))
-        self.assertFalse(maze.has_at(list, (1, 0)))
-        self.assertFalse(maze.has_at(dict, (1, 0)))
-        self.assertFalse(maze.has_at(set, (1, 0)))
+        maze = Maze(2, 1, data=[Wall.char + Free.char, Food.char + Wall.char])
+        self.assertEqual(maze.has_at(Wall, (0, 0)), True)
+        self.assertEqual(maze.has_at(Free, (0, 0)), True)
+        self.assertEqual(maze.has_at(Food, (1, 0)), True)
+        self.assertEqual(maze.has_at(Wall, (1, 0)), True)
+
+        self.assertEqual(maze.has_at(Food, (0, 0)), False)
+        self.assertEqual(maze.has_at(Free, (1, 0)), False)
 
     def test_get_at(self):
-        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '', ])])
-        self.assertEqual(maze.get_at(int, (0, 0)), [1, 2, 1, 3])
-        self.assertEqual(maze.get_at(list, (0, 0)), [[], []])
-        self.assertEqual(maze.get_at(int, (1, 0)), [])
-        self.assertEqual(maze.get_at(str, (1, 0)), ['', '', '', '', '', '', '', ])
+        maze = Maze(2, 1, data=[Wall.char + Free.char, Food.char + Wall.char])
+        self.assertEqual(maze.get_at(Wall, (0, 0)), [Wall])
+        self.assertEqual(maze.get_at(Free, (0, 0)), [Free])
+        self.assertEqual(maze.get_at(Food, (1, 0)), [Food])
+        self.assertEqual(maze.get_at(Wall, (1, 0)), [Wall])
 
-        self.assertRaises(IndexError, maze.get_at, int, (0, 1))
+        self.assertEqual(maze.get_at(Food, (0, 0)), [])
+        self.assertEqual(maze.get_at(Free, (1, 0)), [])
 
     def test_remove_at(self):
-        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '', ])])
-        maze.remove_at(int, (0, 0))
-        self.assertEqual(list(maze[0, 0]), [[], {}, []])
+        maze = Maze(2, 1, data=["#", " ."])
+        maze.remove_at(Wall, (0, 0))
+        self.assertEqual(list(maze[0, 0]), [])
 
-        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '', ])])
-        maze.remove_at(list, (0, 0))
-        self.assertEqual(list(maze[0, 0]), [1, 2, {}, 1, 3] )
+        maze = Maze(2, 1, data=["#", " ."])
+        self.assertRaises(ValueError, maze.remove_at, Free, (0, 0))
 
-        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '', ])])
-        maze.remove_at(int, (0, 0))
-        self.assertEqual(list(maze[0, 0]), [[], {}, []] )
-        maze.remove_at(str, (1, 0))
-        self.assertEqual(list(maze[1, 0]), [] )
+        maze = Maze(2, 1, data=["#", " ."])
+        maze.remove_at(Free, (1, 0))
+        self.assertEqual(list(maze[1, 0]), [Food])
+        maze.remove_at(Food, (1, 0))
+        self.assertEqual(list(maze[1, 0]), [])
 
     def test_positions(self):
         maze = Maze(5, 5)
@@ -341,11 +333,9 @@ class TestMaze(unittest.TestCase):
                 maze.positions)
 
     def test_json(self):
-        maze = Maze(2, 1, data=[TypeAwareList([1, 2, [], {}, 1, [], 3]),
-                           TypeAwareList(['', '', '', '', '', '', '', ])])
+        maze = Maze(2, 1, data=["#", " ."])
         maze_json = json_converter.dumps(maze)
         self.assertEqual(json_converter.loads(maze_json), maze)
-
 
 class TestUniverseEvent(unittest.TestCase):
 
