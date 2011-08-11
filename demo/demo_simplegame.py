@@ -31,8 +31,6 @@ layout = """
 ##################################
 """
 
-
-server = SimpleServer(layout=layout, rounds=50)
+server = SimpleServer(layout=layout, rounds=3000)
 server.run_tk()
-
 
