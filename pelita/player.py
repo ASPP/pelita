@@ -370,15 +370,14 @@ class BasicDefensePlayer(AbstractPlayer):
         # if we are not currently tracking anything
         if not self.tracking:
             # check the enemy positions
-            possible_targets = [bot for bot in self.enemy_bots
-                    if self.team.in_zone(bot.current_pos)]
+            possible_targets = [enemy for enemy in self.enemy_bots
+                    if self.team.in_zone(enemy.current_pos)]
             if possible_targets:
                 # get the path to the closest one
-                self.path = self.adjacency.bfs(self.current_pos, [bot.current_pos for bot
-                    in possible_targets])
-                # decide which bot this is, unfortunately it needs the _index
-                self.tracking = [bot for bot in possible_targets if
-                        bot.current_pos == self.path[0]][0].index
+                closest_enemy = min([(len(self.adjacency.a_star(self.current_pos,
+                    enemy.current_pos)),enemy) for enemy in possible_targets])
+                # track that bot by using its index
+                self.tracking = closest_enemy[1].index
             else:
                 # otherwise keep going if we aren't already underway
                 if not self.path:
