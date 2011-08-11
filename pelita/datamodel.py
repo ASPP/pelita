@@ -833,6 +833,31 @@ class CTFUniverse(object):
             other_team_bots.extend(t.bots)
         return [self.bots[i] for i in other_team_bots]
 
+    def team_border(self, team_index):
+        """ Positions of the border positions.
+
+        These are the last positions in the zone of the team.
+
+        Parameters
+        ----------
+        team_index : int
+            the index of the 'friendly' team
+
+        Returns
+        -------
+        team_border : list of tuple of (int, int)
+            the border positions
+
+        """
+        x_min, x_max = 0, self.maze.shape[0]
+        team_zone = self.teams[team_index].zone
+        if team_zone[0] == x_min:
+            border_x = team_zone[1]
+        else:
+            border_x = team_zone[0]
+        return [(border_x, y) for y in range(self.maze.shape[1]) if
+                self.maze.has_at(Free, (border_x, y))]
+
     def move_bot(self, bot_id, move):
         """ Move a bot in certain direction.
 
