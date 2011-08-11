@@ -9,6 +9,7 @@ from pelita.containers import TypeAwareList
 from pelita import datamodel
 from pelita.player import AbstractPlayer
 from pelita.viewer import AbstractViewer
+from pelita.graph import AdjacencyList
 
 __docformat__ = "restructuredtext"
 
@@ -175,8 +176,7 @@ class UniverseNoiser(object):
     """
 
     def __init__(self, universe, noise_radius=5, sight_distance=5):
-        self.adjacency = dict((pos, universe.get_legal_moves(pos).values())
-                for pos in universe.maze.pos_of(datamodel.Free))
+        self.adjacency = AdjacencyList(universe).adjacency
         self.noise_radius = noise_radius
         self.sight_distance = sight_distance
 
