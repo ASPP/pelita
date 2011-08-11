@@ -335,7 +335,13 @@ class BFSPlayer(AbstractPlayer):
         return diff_pos(self.current_pos, new_pos)
 
 class BasicDefensePlayer(AbstractPlayer):
+    """ A crude defensive player.
 
+    Will move towards the border, and as soon as it notices enemies in its
+    territory, it will start to track them. When it kills the enemy it returns to
+    the border and waits there for more.
+
+    """
     def set_initial(self):
         self.adjacency = AdjacencyList(self.current_uni)
         self.path = self.path_to_border
