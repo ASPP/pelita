@@ -350,7 +350,7 @@ class BasicDefensePlayer(AbstractPlayer):
     def path_to_target(self):
         """ Path to the target we are currently tracking. """
         return self.adjacency.a_star(self.current_pos,
-                tracking_target.current_pos)
+                self.tracking_target.current_pos)
 
     @property
     def tracking_target(self):
@@ -381,7 +381,7 @@ class BasicDefensePlayer(AbstractPlayer):
             # if the enemy is no longer in our zone
             if not self.team.in_zone(self.tracking_target.current_pos):
                 self.tracking = None
-                self.path = path_to_border
+                self.path = self.path_to_border
             # otherwise update the path to the target
             else:
                 self.path = self.path_to_target
