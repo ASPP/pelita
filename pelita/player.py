@@ -3,7 +3,7 @@
 """ Base classes for player implementations. """
 
 from pelita.datamodel import stop, Free, diff_pos
-from collections import deque
+from pelita.graph import AdjacencyList, NoPathException
 import random
 
 __docformat__ = "restructuredtext"
@@ -240,8 +240,8 @@ class TestPlayer(AbstractPlayer):
 
     Parameters
     ----------
-        moves : list of moves
-            the moves to make in reverse (stack) order
+    moves : list of moves
+        the moves to make in reverse (stack) order
 
     """
 
@@ -284,17 +284,16 @@ class BFSPlayer(AbstractPlayer):
     reaches the food. This continues until all food has been eaten or the
     enemy wins.
 
-    [1] http://en.wikipedia.org/wiki/Adjacency_list
-    [2] http://en.wikipedia.org/wiki/Breadth-first_search
+    The adjacency lits representation (`AdjacencyList`) and breadth first search
+    (`AdjacencyList.bfs`) are imported from `pelita.graph`.
+
+    * [1] http://en.wikipedia.org/wiki/Adjacency_list
+    * [2] http://en.wikipedia.org/wiki/Breadth-first_search
 
     """
     def set_initial(self):
         # Before the game starts we initialise our adjacency list.
-        # to begin with, we get the list of all free positions
-        free_pos = self.current_uni.maze.pos_of(Free)
-        # Here we use a generator on a dictionary to create adjacency list.
-        self.adjacency = dict((pos, self.current_uni.get_legal_moves(pos).values())
-                for pos in free_pos)
+        self.adjacency = AdjacencyList(self.current_uni)
         self.current_path = self.bfs_food()
 
     def bfs_food(self):
@@ -303,52 +302,14 @@ class BFSPlayer(AbstractPlayer):
         Returns
         -------
         path : a list of tuples (int, int)
-            The positions (x, y) in the path furthest to closest. The first
-            element is the final destination.
+            The positions (x, y) in the path from the current position to the
+            closest food. The first element is the final destination.
 
         """
-        # Initialise `to_visit` of type `deque` with current position.
-        # We use a `deque` since we need to extend to the right
-        # but pop from the left, i.e. its a fifo queue.
-        to_visit = deque([self.current_pos])
-        # `seen` is a list of nodes we have seen already
-        # We append to right and later pop from right, so a list will do.
-        # Order is important for the back-track later on, so don't use a set.
-        seen = []
-        found = False
-        while to_visit:
-            current = to_visit.popleft()
-            if current in seen:
-                # This node has been seen, ignore it.
-                continue
-            elif current in self.enemy_food:
-                # We found some food, break and back-track path.
-                found = True
-                break
-            else:
-                # Otherwise keep going, i.e. add adjacent nodes to seen list.
-                seen.append(current)
-                to_visit.extend(self.adjacency[current])
-        # if we did not find any food, we simply return a path with only the
-        # current position
-        if not found:
+        try:
+            return self.adjacency.bfs(self.current_pos, self.enemy_food)
+        except NoPathException:
             return [self.current_pos]
-        # Now back-track using seen to determine how we got here.
-        # Initialise the path with current node, i.e. position of food.
-        path = [current]
-        while seen:
-            # Pop the latest node in seen
-            next_ = seen.pop()
-            # If that's adjacent to the current node
-            # it's in the path
-            if next_ in self.adjacency[current]:
-                # So add it to the path
-                path.append(next_)
-                # And continue back-tracking from there
-                current = next_
-        # The last element is the current position, we don't need that in our
-        # path, so don't include it.
-        return path[:-1]
 
     def get_move(self):
         if self.current_pos == self.initial_pos:

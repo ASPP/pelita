@@ -4,11 +4,11 @@
 
 import copy
 import random
-import heapq
 from pelita.containers import TypeAwareList
 from pelita import datamodel
 from pelita.player import AbstractPlayer
 from pelita.viewer import AbstractViewer
+from pelita.graph import AdjacencyList
 
 __docformat__ = "restructuredtext"
 
@@ -172,66 +172,17 @@ class UniverseNoiser(object):
     sight_distance : int, optional, default: 5
         the distance at which noise is no longer applied.
 
+    Attributes
+    ----------
+    adjacency : AdjacencyList
+        adjacency list representation of the Maze
+
     """
 
     def __init__(self, universe, noise_radius=5, sight_distance=5):
-        self.adjacency = dict((pos, universe.get_legal_moves(pos).values())
-                for pos in universe.maze.pos_of(datamodel.Free))
+        self.adjacency = AdjacencyList(universe)
         self.noise_radius = noise_radius
         self.sight_distance = sight_distance
-
-    def pos_within(self, position):
-        """ Position within a certain distance. """
-        if position not in self.adjacency.keys():
-            raise TypeError("%s is not a free space in this maze" % repr(position))
-        positions = set()
-        to_visit = [position]
-        for i in range(self.noise_radius):
-            local_to_visit = []
-            for pos in to_visit:
-                if pos not in positions:
-                    positions.add(pos)
-                local_to_visit.extend(self.adjacency[pos])
-            to_visit = local_to_visit
-        return positions
-
-    def a_star(self, initial, target):
-        """ A* search. """
-        to_visit = []
-        # seen needs to be list since we use it for backtracking
-        # a set would make the lookup faster, but not enable backtracking
-        seen = []
-        # since its A* we use a heap que
-        # this ensures we always get the next node with to lowest manhatten
-        # distance to the current node
-        heapq.heappush(to_visit, (0, (initial)))
-        while to_visit:
-            man_dist, current = heapq.heappop(to_visit)
-            if current in seen:
-                continue
-            elif current == target:
-                break
-            else:
-                seen.append(current)
-                for pos in self.adjacency[current]:
-                    heapq.heappush(to_visit, (datamodel.manhattan_dist(target, pos), (pos)))
-
-        # Now back-track using seen to determine how we got here.
-        # Initialise the path with current node, i.e. position of food.
-        path = [current]
-        while seen:
-            # Pop the latest node in seen
-            next_ = seen.pop()
-            # If that's adjacent to the current node
-            # it's in the path
-            if next_ in self.adjacency[current]:
-                # So add it to the path
-                path.append(next_)
-                # And continue back-tracking from there
-                current = next_
-        # The last element is the current position, we don't need that in our
-        # path, so don't include it.
-        return path[:-1]
 
     def uniform_noise(self, universe, bot_index):
         """ Apply uniform noise to the enemies of a Bot.
@@ -259,8 +210,12 @@ class UniverseNoiser(object):
         bot = universe.bots[bot_index]
         bots_to_noise = universe.enemy_bots(bot.team_index)
         for b in bots_to_noise:
-            if len(self.a_star(bot.current_pos, b.current_pos)) > self.sight_distance:
-                possible_positions = list(self.pos_within(b.current_pos))
+            # Check that the distance between this bot and the enemy is larger
+            # than `sight_distance`.
+            if len(self.adjacency.a_star(bot.current_pos, b.current_pos)) > self.sight_distance:
+                # If so then alter the position of the enemy
+                possible_positions = list(self.adjacency.pos_within(b.current_pos,
+                    self.noise_radius))
                 b.current_pos = random.choice(possible_positions)
                 b.noisy = True
         return universe
