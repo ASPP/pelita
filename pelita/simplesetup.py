@@ -130,6 +130,19 @@ class SimpleClient(object):
 
     def autoplay_background(self):
         # We use a multiprocessing because it behaves well with KeyboardInterrupt.
+        if self.port is None:
+            self.autoplay_thread()
+        else:
+            self.autoplay_process()
+
+    def autoplay_process(self):
         background_process = multiprocessing.Process(target=self.autoplay)
         background_process.start()
         return background_process
+
+    def autoplay_thread(self):
+        import threading
+        background_thread = threading.Thread(target=self.autoplay)
+        background_thread.daemon = True
+        background_thread.start()
+        return background_thread

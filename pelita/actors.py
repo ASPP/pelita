@@ -35,7 +35,7 @@ class _ClientActor(DispatchingActor):
         """
 
         try:
-            if not port:
+            if port is None:
                 # assume local game (TODO: put somewhere else?)
                 self.server_actor = actor_registry.get_by_name(main_actor)
             else:
