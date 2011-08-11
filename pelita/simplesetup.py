@@ -10,12 +10,12 @@ from pelita.viewer import AsciiViewer, DevNullViewer
 from pelita.ui.tk_viewer import TkViewer
 
 class SimpleServer(object):
-    def __init__(self, layout=None, filename=None, players=4, rounds=200, host="", port=50007):
-        if bool(layout) == bool(filename):
+    def __init__(self, layout=None, layoutfile=None, players=4, rounds=200, host="", port=50007, local=False):
+        if bool(layout) == bool(layoutfile):
             raise ValueError("You must supply exactly one of layout or file.")
 
-        if filename:
-            with open(filename) as file:
+        if layoutfile:
+            with open(layoutfile) as file:
                 self.layout = file.read()
         else:
             self.layout = layout
@@ -23,8 +23,12 @@ class SimpleServer(object):
         self.players = players
         self.rounds = rounds
 
-        self.host = host
-        self.port = port
+        if local:
+            self.host = None
+            self.port = None
+        else:
+            self.host = host
+            self.port = port
 
         self.server = None
         self.remote = None
@@ -32,9 +36,14 @@ class SimpleServer(object):
     def _setup(self):
         self.server = actor_of(ServerActor, "pelita-main")
 
-        self.remote = RemoteConnection().start_listener(host=self.host, port=self.port)
-        self.remote.register("pelita-main", self.server)
-        self.remote.start_all()
+        if self.port is not None:
+            print "Starting remote connection on %s:%s" % (self.host, self.port)
+            self.remote = RemoteConnection().start_listener(host=self.host, port=self.port)
+            self.remote.register("pelita-main", self.server)
+            self.remote.start_all()
+        else:
+            print "Starting actor '%s'" % "pelita-main"
+            self.server.start()
 
         self.server.notify("initialize_game", [self.layout, self.players, self.rounds])
 
@@ -50,7 +59,8 @@ class SimpleServer(object):
             print "Server received CTRL+C. Exiting."
         finally:
             self.server.stop()
-            self.remote.stop()
+            if self.remote:
+                self.remote.stop()
 
     def run_ascii(self):
         def main():
@@ -74,23 +84,35 @@ class SimpleServer(object):
         self._run_save(main)
 
 class SimpleClient(object):
-    def __init__(self, team_name, team, host="", port=50007):
+    def __init__(self, team_name, team, host="", port=50007, local=False):
         self.team_name = team_name
         self.team = team
         self.main_actor = "pelita-main"
-        self.host = host
-        self.port = port
+
+        if local:
+            self.host = None
+            self.port = None
+        else:
+            self.host = host
+            self.port = port
 
     def autoplay(self):
         client_actor = ClientActor(self.team_name)
         client_actor.register_team(self.team)
 
+        if self.port is None:
+            address = "%s" % self.main_actor
+            connect = lambda: client_actor.connect_local(self.main_actor)
+        else:
+            address = "%s on %s:%s" % (self.main_actor, self.host, self.port)
+            connect = lambda: client_actor.connect(self.main_actor, self.host, self.port)
+
         # Try 3 times to connect
         for i in range(3):
-            if client_actor.connect(self.main_actor, self.host, self.port):
+            if connect():
                 break
             else:
-                print "%s: No connection to %s:%s." % (self.team_name, self.host, self.port),
+                print "%s: No connection to %s." % (self.team_name, address),
                 if i < 2:
                     print " Waiting 3 seconds. (%d/3)" % (i + 1)
                     time.sleep(3)

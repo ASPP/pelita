@@ -2,6 +2,6 @@
 
 from pelita.simplesetup import SimpleServer
 
-server = SimpleServer(filename="layouts/02.layout")
+server = SimpleServer(layoutfile="layouts/02.layout")
 server.run_tk()
 
