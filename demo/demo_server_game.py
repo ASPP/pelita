@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 from pelita.messaging import actor_of, RemoteConnection
 from pelita.actors import ServerActor
@@ -11,12 +12,9 @@ FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s]' + co
 
 server = actor_of(ServerActor, "pelita-main")
 
-
 remote = RemoteConnection().start_listener(host="", port=50007)
 remote.register("pelita-main", server)
 remote.start_all()
-
-#server.start()
 
 layout = (
         """ ##################
@@ -30,7 +28,6 @@ server.notify("initialize_game", [layout, 4, 200])
 viewer = TkViewer()
 server.notify("register_viewer", [viewer])
 
-
 try:
     viewer.app.mainloop()
 except KeyboardInterrupt:
@@ -38,5 +35,3 @@ except KeyboardInterrupt:
 finally:
     server.stop()
     remote.stop()
-
-#remote.stop()
