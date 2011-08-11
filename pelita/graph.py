@@ -10,6 +10,9 @@ __docformat__ = "restructuredtext"
 class NoPathException(Exception):
     pass
 
+class NoPositionException(Exception):
+    pass
+
 class AdjacencyList(dict):
 
     def __init__(self, universe):
@@ -42,10 +45,17 @@ class AdjacencyList(dict):
         ------
         NoPathException
             if no path from `initial` to one of `targets`
+        NoPositionException
+            if either `initial` or `targets` does not exist
 
         [1] http://en.wikipedia.org/wiki/Breadth-first_search
 
         """
+        # First check that the arguments were valid.
+        for pos in [initial] + targets:
+            if pos not in self.adjacency.keys():
+                raise NoPositionException("Position %s does not exist." %
+                        repr(pos))
         # Initialise `to_visit` of type `deque` with current position.
         # We use a `deque` since we need to extend to the right
         # but pop from the left, i.e. its a fifo queue.

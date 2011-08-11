@@ -2,7 +2,7 @@
 
 import unittest
 from pelita.datamodel import create_CTFUniverse, Free
-from pelita.graph import AdjacencyList, NoPathException
+from pelita.graph import AdjacencyList, NoPathException, NoPositionException
 
 class TestAdjacencyList(unittest.TestCase):
 
@@ -61,4 +61,6 @@ class TestAdjacencyList(unittest.TestCase):
         al = AdjacencyList(universe)
         self.assertRaises(NoPathException, al.bfs, (1, 1), [(10, 1)])
         self.assertRaises(NoPathException, al.bfs, (1, 1), [(10, 1), (9, 1)])
+        self.assertRaises(NoPositionException, al.bfs, (0, 1), [(10, 1)])
+        self.assertRaises(NoPositionException, al.bfs, (1, 1), [(11, 1)])
 
