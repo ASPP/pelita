@@ -155,6 +155,19 @@ class AbstractPlayer(object):
         return self.current_uni.team_bots(self.me.team_index)
 
     @property
+    def team_border(self):
+        """ Positions of the border positions.
+        These are the last positions in the zone of the team.
+
+        Returns
+        -------
+        team_border : list of tuple of (int, int)
+            the border positions
+
+        """
+        return self.current_uni.team_border(self.me.team_index)
+
+    @property
     def enemy_food(self):
         """ Food owned by the enemy which can be eaten by this players bot.
 
@@ -320,3 +333,66 @@ class BFSPlayer(AbstractPlayer):
             self.current_path = self.bfs_food()
         new_pos = self.current_path.pop()
         return diff_pos(self.current_pos, new_pos)
+
+class BasicDefensePlayer(AbstractPlayer):
+    """ A crude defensive player.
+
+    Will move towards the border, and as soon as it notices enemies in its
+    territory, it will start to track them. When it kills the enemy it returns to
+    the border and waits there for more.
+
+    """
+    def set_initial(self):
+        self.adjacency = AdjacencyList(self.current_uni)
+        self.path = self.path_to_border
+        self.tracking = None
+
+    @property
+    def path_to_border(self):
+        """ Path to the closest border position. """
+        return self.adjacency.bfs(self.current_pos, self.team_border)
+
+    @property
+    def path_to_target(self):
+        """ Path to the target we are currently tracking. """
+        return self.adjacency.a_star(self.current_pos,
+                self.tracking_target.current_pos)
+
+    @property
+    def tracking_target(self):
+        """ Bot object we are currently tracking. """
+        return self.current_uni.bots[self.tracking]
+
+    def get_move(self):
+        # if we were killed, for whatever reason, reset the path
+        if self.current_pos == self.initial_pos:
+            self.current_path = self.path_to_border
+        # if we are not currently tracking anything
+        if not self.tracking:
+            # check the enemy positions
+            possible_targets = [enemy for enemy in self.enemy_bots
+                    if self.team.in_zone(enemy.current_pos)]
+            if possible_targets:
+                # get the path to the closest one
+                closest_enemy = min([(len(self.adjacency.a_star(self.current_pos,
+                    enemy.current_pos)),enemy) for enemy in possible_targets])
+                # track that bot by using its index
+                self.tracking = closest_enemy[1].index
+            else:
+                # otherwise keep going if we aren't already underway
+                if not self.path:
+                    self.path = self.path_to_border
+        elif self.tracking:
+            # if the enemy is no longer in our zone
+            if not self.team.in_zone(self.tracking_target.current_pos):
+                self.tracking = None
+                self.path = self.path_to_border
+            # otherwise update the path to the target
+            else:
+                self.path = self.path_to_target
+        # if something above went wrong, just stand still
+        if not self.path:
+            return stop
+        else:
+            return diff_pos(self.current_pos, self.path.pop())
+
