@@ -264,7 +264,7 @@ class UiCanvas(object):
         item_class = None
         for item in items:
             for key in self.mapping:
-                if isinstance(item, key):
+                if issubclass(key, item):
                     item_class = self.mapping[key]
 
         if not item_class:
