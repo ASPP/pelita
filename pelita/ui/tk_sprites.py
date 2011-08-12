@@ -145,7 +145,8 @@ class Wall(TkSprite):
             # if there is no direct neighbour, we can’t connect.
             # draw only a small dot.
             # TODO add diagonal lines
-            canvas.create_oval(self.box(0.5), fill=col(48, 26, 22), width=0, tag=self.tag)
+            canvas.create_line(self.real((-0.3, 0)), self.real((+0.3, 0)), fill=col(48, 26, 22),
+                               width=0.8 * scale, tag=self.tag, capstyle="round")
         else:
             neighbours = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
             for dx in [-1, 0, 1]:
