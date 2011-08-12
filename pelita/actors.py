@@ -13,6 +13,8 @@ from pelita.game_master import GameMaster, PlayerTimeout, PlayerDisconnected
 
 import logging
 
+__docformat__ = "restructuredtext"
+
 _logger = logging.getLogger("pelita")
 _logger.setLevel(logging.DEBUG)
 

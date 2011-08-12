@@ -14,6 +14,8 @@ from pelita.actors import ClientActor, ServerActor
 from pelita.viewer import AsciiViewer, DevNullViewer
 from pelita.ui.tk_viewer import TkViewer
 
+__docformat__ = "restructuredtext"
+
 class SimpleServer(object):
     """ Sets up a simple Server with most settings pre-configured.
 
