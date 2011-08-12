@@ -89,20 +89,11 @@ class BotSprite(TkSprite):
         super(BotSprite, self).__init__(mesh, **kwargs)
 
     def draw_bot(self, canvas, outer_col, eye_col):
-        bounding_box = self.box()
-
         direction = self.direction
+        
         # bot body
-        canvas.create_oval(bounding_box, fill=outer_col, width=0, tag=self.tag)
-
-        # bot mouth
-        up = 1 + 0.3j
-        down = 1 - 0.3j
-        # rotate based on direction
-        up = cmath.exp(1j*math.radians(-direction)) * up
-        down = cmath.exp(1j*math.radians(-direction)) * down   
-        coords = [self.real(coord) for coord in ((0,0), (up.real, up.imag), (down.real, down.imag))]
-        canvas.create_polygon(fill="white", width=0, tag=self.tag, *coords)
+        canvas.create_arc(self.box(), start=rotate(20, direction), extent=320, style="pieslice",
+                          width=0, outline=outer_col, fill=outer_col, tag = self.tag)
 
         # bot eye
         # first locate eye in the center
