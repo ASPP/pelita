@@ -177,5 +177,9 @@ class Wall(TkSprite):
             #canvas.create_oval(self.box(0.3), fill=col(94, 158, 217), tag=self.tag)
 
 class Food(TkSprite):
+    @classmethod
+    def food_pos_tag(cls, position):
+        return "Food" + str(position)
+
     def draw(self, canvas):
-        canvas.create_oval(self.box(0.3), fill=col(217, 158, 158), tag=self.tag)
+        canvas.create_oval(self.box(0.3), fill=col(217, 158, 158), tag=(self.tag, self.food_pos_tag(self.position)))

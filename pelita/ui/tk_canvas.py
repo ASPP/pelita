@@ -181,6 +181,12 @@ class UiCanvas(object):
 
     def draw_events(self, events=None):
         if events:
+            food_eaten_events = events.filter_type(datamodel.FoodEaten)
+            for food_eaten_event in food_eaten_events:
+                tag = Food.food_pos_tag(food_eaten_event.food_pos)
+                self.canvas.delete(tag)
+
+
             destroy_events = events.filter_type(datamodel.BotDestroyed)
             destroy_animations = {}
             for destroy_event in destroy_events:
