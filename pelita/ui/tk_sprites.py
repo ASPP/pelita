@@ -155,7 +155,6 @@ class Destroyer(BotSprite):
 class Wall(TkSprite):
     def draw(self, canvas):
         scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5
-        else:            
         if not ((0, 1) in self.wall_neighbours or
                 (1, 0) in self.wall_neighbours or
                 (0, -1) in self.wall_neighbours or
@@ -163,6 +162,8 @@ class Wall(TkSprite):
             # if there is no direct neighbour, we can’t connect.
             # draw only a small dot.
             # TODO add diagonal lines
+            canvas.create_oval(self.box(0.5), fill=col(48, 26, 22), width=0, tag=self.tag)
+        else:
             neighbours = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
             for dx in [-1, 0, 1]:
                 for dy in [-1, 0, 1]:
