@@ -2,6 +2,7 @@
 
 import time
 import multiprocessing
+import threading
 
 from pelita.messaging import actor_of, RemoteConnection
 from pelita.actors import ClientActor, ServerActor
@@ -129,19 +130,20 @@ class SimpleClient(object):
             client_actor.actor_ref.stop()
 
     def autoplay_background(self):
-        # We use a multiprocessing because it behaves well with KeyboardInterrupt.
         if self.port is None:
             self.autoplay_thread()
         else:
             self.autoplay_process()
 
     def autoplay_process(self):
+        # We use a multiprocessing because it behaves well with KeyboardInterrupt.
         background_process = multiprocessing.Process(target=self.autoplay)
         background_process.start()
         return background_process
 
     def autoplay_thread(self):
-        import threading
+        # We cannot use multiprocessing in a local game.
+        # Or that is, we cannot until we also use multiprocessing Queues.
         background_thread = threading.Thread(target=self.autoplay)
         background_thread.daemon = True
         background_thread.start()
