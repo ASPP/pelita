@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+""" simplesetup.py defines the SimpleServer and SimpleClient classes
+which allow for easy game setup.
+"""
+
 import time
 import multiprocessing
 import threading
@@ -11,7 +15,31 @@ from pelita.viewer import AsciiViewer, DevNullViewer
 from pelita.ui.tk_viewer import TkViewer
 
 class SimpleServer(object):
-    def __init__(self, layout=None, layoutfile=None, players=4, rounds=200, host="", port=50007, local=False):
+    """ Sets up a simple Server with most settings pre-configured.
+
+    Usage
+    -----
+        server = SimpleServer(layoutfile="mymaze.layout", rounds=3000, port=50007)
+        server.run_tk()
+
+    Parameters
+    ----------
+    layout : string, optional
+        The layout as a string. If missing, a `layoutfile` must be given.
+    layoutfile : filename, optional
+        A file which holds a layout. If missing, a `layout` must be given.
+    players : int, optional
+        The number of Players/Bots used in the layout. Default: 4.
+    rounds : int, optional
+        The number of rounds played. Default: 3000.
+    host : string, optional
+        The hostname which the server runs on. Default: "".
+    port : int, optional
+        The port which the server runs on. Default: 50007.
+    local : boolean, optional
+        If True, we only setup a local server. Default: False.
+    """
+    def __init__(self, layout=None, layoutfile=None, players=4, rounds=3000, host="", port=50007, local=False):
         if bool(layout) == bool(layoutfile):
             raise ValueError("You must supply exactly one of layout or file.")
 
@@ -35,6 +63,8 @@ class SimpleServer(object):
         self.remote = None
 
     def _setup(self):
+        """ Instantiates the ServerActor and initialises a new game.
+        """
         self.server = actor_of(ServerActor, "pelita-main")
 
         if self.port is not None:
@@ -64,6 +94,9 @@ class SimpleServer(object):
                 self.remote.stop()
 
     def run_ascii(self):
+        """ Starts a game with the ASCII viewer.
+        This method does not return until the server is stopped.
+        """
         def main():
             viewer = AsciiViewer()
             self.server.notify("register_viewer", [viewer])
@@ -75,6 +108,9 @@ class SimpleServer(object):
         self._run_save(main)
 
     def run_tk(self):
+        """ Starts a game with the Tk viewer.
+        This method does not return until the server or Tk is stopped.
+        """
         def main():
             # Register a tk_viewer
             viewer = TkViewer()
@@ -85,6 +121,28 @@ class SimpleServer(object):
         self._run_save(main)
 
 class SimpleClient(object):
+    """ Sets up a simple Client with most settings pre-configured.
+
+    Usage
+    -----
+        client = SimpleClient("the good ones", SimpleTeam(BFSPlayer(), NQRandomPlayer()))
+        # client.host = "pelita.server.example.com"
+        # client.port = 50011
+        client.autoplay()
+
+    Parameters
+    ----------
+    team_name : string
+        The name of the team.
+    team: PlayerTeam
+        A PlayerTeam instance which defines the algorithms for each Bot.
+    host : string, optional
+        The hostname which the server runs on. Default: "".
+    port : int, optional
+        The port which the server runs on. Default: 50007.
+    local : boolean, optional
+        If True, we only connect to a local server. Default: False.
+    """
     def __init__(self, team_name, team, host="", port=50007, local=False):
         self.team_name = team_name
         self.team = team
@@ -98,6 +156,10 @@ class SimpleClient(object):
             self.port = port
 
     def autoplay(self):
+        """ Creates a new ClientActor, and connects it with
+        the Server.
+        This method only returns when the ClientActor finishes.
+        """
         client_actor = ClientActor(self.team_name)
         client_actor.register_team(self.team)
 
@@ -130,6 +192,11 @@ class SimpleClient(object):
             client_actor.actor_ref.stop()
 
     def autoplay_background(self):
+        """ Calls self.autoplay() but stays in the background.
+
+        Useful for defining both server and client in the same Python script.
+        For standalone clients, the normal autoplay method is sufficient.
+        """
         if self.port is None:
             self.autoplay_thread()
         else:
