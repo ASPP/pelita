@@ -80,13 +80,16 @@ class UiCanvas(object):
 
     def init_canvas(self):
         self.score = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=30)
+        self.score.config(background="white")
         self.score.pack()
 
         self.canvas = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=self.mesh_graph.height)
+        self.canvas.config(background="white")
         self.canvas.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
         self.canvas.bind('<Configure>', self.resize)
 
         self.status = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=20)
+        self.status.config(background="white")
         self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
 
     def update(self, events, universe, round=None, turn=None):
