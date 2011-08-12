@@ -156,7 +156,8 @@ class Wall(TkSprite):
     def draw(self, canvas):
         scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5
         if self.wall_neighbours == [(0,0)]:
-            canvas.create_line(self.real((-0.3, 0)), self.real((+0.3, 0)), width=0.8 * scale, tag=self.tag, capstyle="round")
+            canvas.create_line(self.real((-0.3, 0)), self.real((+0.3, 0)), fill=col(48, 26, 22),
+                               width=0.8 * scale, tag=self.tag, capstyle="round")
         else:            
             neighbours = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
             for dx in [-1, 0, 1]:
@@ -171,7 +172,8 @@ class Wall(TkSprite):
                             neighbours[(index - 1) % len(neighbours)] in self.wall_neighbours):
                             pass
                         else:
-                            canvas.create_line(self.real((0, 0)), self.real((2*dx, 2*dy)), width=0.8 * scale, tag=self.tag, capstyle="round")
+                            canvas.create_line(self.real((0, 0)), self.real((2*dx, 2*dy)), fill=col(48, 26, 22),
+                                               width=0.8 * scale, tag=self.tag, capstyle="round")
 
 class Food(TkSprite):
     @classmethod
@@ -179,4 +181,4 @@ class Food(TkSprite):
         return "Food" + str(position)
 
     def draw(self, canvas):
-        canvas.create_oval(self.box(0.4), fill=col(78, 232, 63), width=0, tag=(self.tag, self.food_pos_tag(self.position)))
+        canvas.create_oval(self.box(0.4), fill=col(96, 173, 57), width=0, tag=(self.tag, self.food_pos_tag(self.position)))
