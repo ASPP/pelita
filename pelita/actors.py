@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+""" Actor classes which allow for transparent communication
+between GameMaster and client Teams over the network.
+"""
+
 import sys
 import Queue
 
@@ -15,6 +19,8 @@ _logger.setLevel(logging.DEBUG)
 TIMEOUT = 3
 
 class _ClientActor(DispatchingActor):
+    """ Actor used to communicate with the Server.
+    """
     def on_start(self):
         self.team = None
         self.server_actor = None
@@ -77,6 +83,18 @@ class _ClientActor(DispatchingActor):
 
 
 class ClientActor(object):
+    """ Helper class which makes accessing the _ClientActor easier.
+
+    Parameters
+    ----------
+    team_name : string
+        The name of the team
+
+    Attributes
+    ----------
+    actor_ref : ActorReference
+        The reference to the local _ClientActor
+    """
     def __init__(self, team_name):
         self.team_name = team_name
 
@@ -86,11 +104,17 @@ class ClientActor(object):
 
     def register_team(self, team):
         """ Registers a team with our local actor.
+
+        Parameters
+        ----------
+        team : PlayerTeam
+            The PlayerTeam which handles all get_move requests.
         """
         self.actor_ref.notify("register_team", [team])
 
     def connect_local(self, main_actor):
-        """ Tells our local actor to establish a connection with `main_actor`.
+        """ Tells our local actor to establish a local connection
+        with other local actor `main_actor`.
         """
         print "Trying to establish a connection with local actor '%s'..." % main_actor,
         sys.stdout.flush()
@@ -121,6 +145,17 @@ class ClientActor(object):
 
 
 class RemoteTeamPlayer(object):
+    """ This class is registered with the GameMaster and
+    relays all get_move requests to the given ActorReference.
+    This can be a local or a remote actor.
+
+    It also does some basic checks for correct return values.
+
+    Paramters
+    ---------
+    reference : ActorReference
+        A reference to the local or remote actor.
+    """
     def __init__(self, reference):
         self.ref = reference
 
@@ -145,6 +180,13 @@ class RemoteTeamPlayer(object):
             raise PlayerDisconnected()
 
 class ServerActor(DispatchingActor):
+    """ Actor which is used to handle all incoming requests,
+    assigns each team a RemoteTeamPlayer and registers this with
+    GameMaster.
+
+    It also automatically starts a new game whenever two players
+    are accepted.
+    """
     def on_start(self):
         self.teams = []
         self.team_names = []
@@ -152,6 +194,8 @@ class ServerActor(DispatchingActor):
 
     @expose
     def initialize_game(self, message, layout, number_bots, game_time):
+        """ Initialises a new game.
+        """
         self.game_master = GameMaster(layout, number_bots, game_time)
 
     def _remove_dead_teams(self):
@@ -167,6 +211,8 @@ class ServerActor(DispatchingActor):
 
     @expose
     def hello(self, message, team_name, actor_uuid):
+        """ Register the actor with address `actor_uuid` as team `team_name`.
+        """
         _logger.info("Received 'hello' from '%s'." % team_name)
 
         self._remove_dead_teams()
@@ -191,6 +237,11 @@ class ServerActor(DispatchingActor):
 
     @expose
     def start_game(self, message):
+        """ Tells the game master to start a new game.
+
+        This method only returns when the game master itself
+        returns.
+        """
         for team_idx in range(len(self.teams)):
             team_ref = self.teams[team_idx]
             team_name = self.team_names[team_idx]
