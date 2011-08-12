@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from pelita.player import RandomPlayer, BFSPlayer, SimpleTeam
 
 from pelita.actors import ClientActor
@@ -16,7 +18,6 @@ clientActor.connect("pelita-main", host="", port=50007)
 clientActor2 = ClientActor("the bad ones")
 clientActor2.register_team(SimpleTeam(RandomPlayer(), RandomPlayer()))
 clientActor2.connect("pelita-main", host="", port=50007)
-
 
 try:
     while clientActor.actor_ref.is_alive:

@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+""" Actor classes which allow for transparent communication
+between GameMaster and client Teams over the network.
+"""
+
 import sys
 import Queue
 
@@ -9,12 +13,16 @@ from pelita.game_master import GameMaster, PlayerTimeout, PlayerDisconnected
 
 import logging
 
+__docformat__ = "restructuredtext"
+
 _logger = logging.getLogger("pelita")
 _logger.setLevel(logging.DEBUG)
 
 TIMEOUT = 3
 
 class _ClientActor(DispatchingActor):
+    """ Actor used to communicate with the Server.
+    """
     def on_start(self):
         self.team = None
         self.server_actor = None
@@ -29,21 +37,31 @@ class _ClientActor(DispatchingActor):
         self.team = team
 
     @expose
-    def say_hello(self, message, main_actor, team_name, host, port):
+    def say_hello(self, message, main_actor, team_name, host=None, port=None):
         """ Opens a connection to the remote main_actor,
         and sends it a "hello" message with the given team_name.
         """
 
-        self.server_actor = RemoteConnection().actor_for(main_actor, host, port)
+        try:
+            if port is None:
+                # assume local game (TODO: put somewhere else?)
+                self.server_actor = actor_registry.get_by_name(main_actor)
+            else:
+                self.server_actor = RemoteConnection().actor_for(main_actor, host, port)
+        except DeadConnection:
+            # no connection could be established
+            self.ref.reply("failed")
 
-        # self.server_actor = actor_registry.get_by_name(main_actor)
         if not self.server_actor:
             _logger.warning("Actor %r not found." % main_actor)
             return
 
-        if self.server_actor.query("hello", [team_name, self.ref.uuid]).get() == "ok":
-            _logger.info("Connection accepted")
-            self.ref.reply("ok")
+        try:
+            if self.server_actor.query("hello", [team_name, self.ref.uuid]).get(2) == "ok":
+                _logger.info("Connection accepted")
+                self.ref.reply("ok")
+        except Queue.Empty:
+            self.ref.reply("actor no reply")
 
     @expose
     def set_bot_ids(self, message, *bot_ids):
@@ -67,6 +85,18 @@ class _ClientActor(DispatchingActor):
 
 
 class ClientActor(object):
+    """ Helper class which makes accessing the _ClientActor easier.
+
+    Parameters
+    ----------
+    team_name : string
+        The name of the team
+
+    Attributes
+    ----------
+    actor_ref : ActorReference
+        The reference to the local _ClientActor
+    """
     def __init__(self, team_name):
         self.team_name = team_name
 
@@ -76,8 +106,29 @@ class ClientActor(object):
 
     def register_team(self, team):
         """ Registers a team with our local actor.
+
+        Parameters
+        ----------
+        team : PlayerTeam
+            The PlayerTeam which handles all get_move requests.
         """
         self.actor_ref.notify("register_team", [team])
+
+    def connect_local(self, main_actor):
+        """ Tells our local actor to establish a local connection
+        with other local actor `main_actor`.
+        """
+        print "Trying to establish a connection with local actor '%s'..." % main_actor,
+        sys.stdout.flush()
+
+        try:
+            res = self.actor_ref.query("say_hello", [main_actor, self.team_name]).get(TIMEOUT)
+            print res
+            if res == "ok":
+                return True
+        except Queue.Empty:
+            print "failed due to timeout in actor."
+        return False
 
     def connect(self, main_actor, host="", port=50007):
         """ Tells our local actor to establish a connection with `main_actor`.
@@ -86,12 +137,27 @@ class ClientActor(object):
         sys.stdout.flush()
 
         try:
-            print self.actor_ref.query("say_hello", [main_actor, self.team_name, host, port]).get(TIMEOUT)
+            res = self.actor_ref.query("say_hello", [main_actor, self.team_name, host, port]).get(TIMEOUT)
+            print res
+            if res == "ok":
+                return True
         except Queue.Empty:
-            print "failed."
+            print "failed due to timeout in actor."
+        return False
 
 
 class RemoteTeamPlayer(object):
+    """ This class is registered with the GameMaster and
+    relays all get_move requests to the given ActorReference.
+    This can be a local or a remote actor.
+
+    It also does some basic checks for correct return values.
+
+    Paramters
+    ---------
+    reference : ActorReference
+        A reference to the local or remote actor.
+    """
     def __init__(self, reference):
         self.ref = reference
 
@@ -116,6 +182,13 @@ class RemoteTeamPlayer(object):
             raise PlayerDisconnected()
 
 class ServerActor(DispatchingActor):
+    """ Actor which is used to handle all incoming requests,
+    assigns each team a RemoteTeamPlayer and registers this with
+    GameMaster.
+
+    It also automatically starts a new game whenever two players
+    are accepted.
+    """
     def on_start(self):
         self.teams = []
         self.team_names = []
@@ -123,12 +196,15 @@ class ServerActor(DispatchingActor):
 
     @expose
     def initialize_game(self, message, layout, number_bots, game_time):
+        """ Initialises a new game.
+        """
         self.game_master = GameMaster(layout, number_bots, game_time)
 
     def _remove_dead_teams(self):
         # check, if previously added teams are still alive:
         zipped = [(team, name) for team, name in zip(self.teams, self.team_names)
-                               if team._remote_mailbox.outbox.thread.is_alive()]
+                               if not getattr(team, "_remote_mailbox", None) or
+                               team._remote_mailbox.outbox.thread.is_alive()]
 
         if zipped:
             teams, team_names = zip(*zipped)
@@ -137,6 +213,8 @@ class ServerActor(DispatchingActor):
 
     @expose
     def hello(self, message, team_name, actor_uuid):
+        """ Register the actor with address `actor_uuid` as team `team_name`.
+        """
         _logger.info("Received 'hello' from '%s'." % team_name)
 
         self._remove_dead_teams()
@@ -161,6 +239,11 @@ class ServerActor(DispatchingActor):
 
     @expose
     def start_game(self, message):
+        """ Tells the game master to start a new game.
+
+        This method only returns when the game master itself
+        returns.
+        """
         for team_idx in range(len(self.teams)):
             team_ref = self.teams[team_idx]
             team_name = self.team_names[team_idx]

@@ -243,7 +243,10 @@ class RemoteConnection(object):
 
     def actor_for(self, name, host, port):
         sock = TcpConnectingClient(host=host, port=port)
-        conn = sock.handle_connect()
+        try:
+            conn = sock.handle_connect()
+        except socket.error:
+            raise DeadConnection
 
         remote = RemoteMailbox(conn, self)
         remote.start()
