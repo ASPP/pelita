@@ -172,7 +172,7 @@ class Wall(TkSprite):
                         pass
                     else:
                         pass
-                        canvas.create_line(self.real((0, 0)), self.real((2*dx, 2*dy)), width=0.3 * scale, tag=self.tag, capstyle="round")
+                        canvas.create_line(self.real((0, 0)), self.real((2*dx, 2*dy)), width=0.8 * scale, tag=self.tag, capstyle="round")
 
             #canvas.create_oval(self.box(0.3), fill=col(94, 158, 217), tag=self.tag)
 
