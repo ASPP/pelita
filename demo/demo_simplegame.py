@@ -17,12 +17,12 @@ repeated tries and should not be a problem in general.
 """
 
 from pelita.simplesetup import SimpleClient, SimpleServer
-from pelita.player import RandomPlayer, BFSPlayer, SimpleTeam, StoppingPlayer, NQRandomPlayer
+from pelita.player import RandomPlayer, BFSPlayer, SimpleTeam, BasicDefensePlayer, NQRandomPlayer
 
-client = SimpleClient("the good ones", SimpleTeam(NQRandomPlayer(), RandomPlayer()))
+client = SimpleClient("the good ones", SimpleTeam(NQRandomPlayer(), BFSPlayer()))
 client.autoplay_background()
 
-client2 = SimpleClient("the bad ones", SimpleTeam(BFSPlayer(), StoppingPlayer()))
+client2 = SimpleClient("the bad ones", SimpleTeam(BFSPlayer(), BasicDefensePlayer()))
 client2.autoplay_background()
 
 
