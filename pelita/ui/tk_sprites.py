@@ -179,4 +179,4 @@ class Food(TkSprite):
         return "Food" + str(position)
 
     def draw(self, canvas):
-        canvas.create_oval(self.box(0.3), fill=col(217, 158, 158), tag=(self.tag, self.food_pos_tag(self.position)))
+        canvas.create_oval(self.box(0.4), fill=col(78, 232, 63), width=0, tag=(self.tag, self.food_pos_tag(self.position)))
