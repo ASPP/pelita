@@ -161,4 +161,8 @@ class Food(TkSprite):
         return "Food" + str(position)
 
     def draw(self, canvas):
-        canvas.create_oval(self.box(0.4), fill=col(96, 173, 57), width=0, tag=(self.tag, self.food_pos_tag(self.position)))
+        if self.position[0] < self.mesh.num_x/2:
+            fill = col(235, 90, 90)
+        else:
+            fill = col(94, 158, 217)
+        canvas.create_oval(self.box(0.4), fill=fill, width=0, tag=(self.tag, self.food_pos_tag(self.position)))
