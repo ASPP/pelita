@@ -88,26 +88,32 @@ class BotSprite(TkSprite):
 
         super(BotSprite, self).__init__(mesh, **kwargs)
 
-    def draw_bot(self, canvas, outer_col, eye_col, central_col=col(235, 235, 50)):
+    def draw_bot(self, canvas, outer_col, eye_col):
         bounding_box = self.box()
-        scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5 # TODO: what, if x >> y?
 
         direction = self.direction
-        rot = lambda x: rotate(x, direction)
+        # bot body
+        canvas.create_oval(bounding_box, fill=outer_col, width=0, tag=self.tag)
 
-        #canvas.create_oval(self.box(1.1), width=0.25 * scale, outline="black", tag=self.tag)
+        # bot mouth
+        up = 1 + 0.3j
+        down = 1 - 0.3j
+        # rotate based on direction
+        up = cmath.exp(1j*math.radians(-direction)) * up
+        down = cmath.exp(1j*math.radians(-direction)) * down   
+        coords = [self.real(coord) for coord in ((0,0), (up.real, up.imag), (down.real, down.imag))]
+        canvas.create_polygon(fill="white", width=0, tag=self.tag, *coords)
 
-        canvas.create_arc(bounding_box, start=rot(30), extent=300, style="arc", width=0.2 * scale, outline=outer_col, tags=self.tag)
-        canvas.create_arc(bounding_box, start=rot(-20), extent=15, style="arc", width=0.2 * scale, outline=outer_col, tag=self.tag)
-        canvas.create_arc(bounding_box, start=rot(5), extent=15, style="arc", width=0.2 * scale, outline=outer_col, tag=self.tag)
-
-        canvas.create_arc(bounding_box, start=rot(-30), extent=10, style="arc", width=0.2 * scale, outline=eye_col, tag=self.tag)
-        canvas.create_arc(bounding_box, start=rot(20), extent=10, style="arc", width=0.2 * scale, outline=eye_col, tag=self.tag)
-
-        canvas.create_arc(bounding_box, start=rot(-5), extent=10, style="arc", width=0.2 * scale, outline=central_col, tag=self.tag)
-
-        #score = self.score
-        #canvas.create_text(self.real_position[0], self.real_position[1], text=score, font=(None, int(0.5 * scale)), tag=self.tag)
+        # bot eye
+        # first locate eye in the center
+        eye_size = 0.15
+        eye_box = (-eye_size -eye_size*1j, eye_size + eye_size*1j)
+        # shift it to the middle of the bot just over the mouth
+        eye_box = [item+0.4+0.6j for item in eye_box]
+        # rotate based on direction
+        eye_box = [cmath.exp(1j*math.radians(-direction)) * item for item in eye_box]
+        eye_box = [self.real((item.real, item.imag)) for item in eye_box] 
+        canvas.create_oval(eye_box, fill=eye_col, width=0, tag=self.tag)
 
     def draw(self, canvas):
         # A curious case of delegation
@@ -118,39 +124,16 @@ class BotSprite(TkSprite):
 class Harvester(BotSprite):
     def draw(self, canvas):
         if self.team == 0:
-            self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col=col(235, 60, 60))
+            self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col="yellow")
         else:
-            self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col=col(94, 158, 217))
+            self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col="yellow")
 
 class Destroyer(BotSprite):
     def draw(self, canvas):
         if self.team == 0:
-            self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col=col(235, 60, 60))
-
-            self.draw_polygon(canvas, outline=col(235, 60, 60))
+            self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col="white")
         else:
-            self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col=col(94, 158, 217))
-
-            self.draw_polygon(canvas, outline=col(94, 158, 217))
-
-    def draw_polygon(self, canvas, outline):
-        scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5 # TODO: what, if x >> y?
-
-        direction = self.direction
-
-        penta_arcs = [arc - direction for arc in range(0, 360, 360 / 5)]
-        penta_arcs_inner = [arc + 360 / 5 / 2.0 for arc in penta_arcs]
-
-        coords = []
-        for a, i in zip(penta_arcs, penta_arcs_inner):
-            # we rotate with the help of complex numbers
-            n = cmath.rect(0.85 * self.additional_scale, math.radians(a))
-            coords.append((n.real, n.imag))
-            n = cmath.rect(0.3 * self.additional_scale, math.radians(i))
-            coords.append((n.real, n.imag))
-
-        coords = [self.real(coord) for coord in coords]
-        canvas.create_polygon(width=0.05 * scale, fill="", outline=outline, tag=self.tag, *coords)
+            self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col="white")
 
 class Wall(TkSprite):
     def draw(self, canvas):
