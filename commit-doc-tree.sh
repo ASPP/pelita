@@ -1,8 +1,9 @@
 #!/bin/zsh
 
 # check, if index is empty
-if git diff-index --cached --quiet --ignore-submodules HEAD ; then
+if ! git diff-index --cached --quiet --ignore-submodules HEAD ; then
   echo "Cannot work with indexed files. Aborting."
+  exit
 fi
 
 # get the SHA1 of the current commit
