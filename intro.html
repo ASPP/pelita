@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction to Pelita &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.0.0-609-g2f303fc&#39;  documentation</title>
+    <title>Introduction to Pelita &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.0.0-678-g572b9d2&#39;  documentation</title>
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.0.0-609-g2f303fc&#39; ',
+        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.0.0-678-g572b9d2&#39; ',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.0.0-609-g2f303fc&#39;  documentation" href="index.html" />
+    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.0.0-678-g572b9d2&#39;  documentation" href="index.html" />
     <link rel="prev" title="Pelita" href="index.html" /> 
   </head>
   <body>
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="index.html" title="Pelita"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-609-g2f303fc&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-678-g572b9d2&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -181,17 +181,16 @@ search to find food:</p>
 <span class="sd">    reaches the food. This continues until all food has been eaten or the</span>
 <span class="sd">    enemy wins.</span>
 
-<span class="sd">    [1] http://en.wikipedia.org/wiki/Adjacency_list</span>
-<span class="sd">    [2] http://en.wikipedia.org/wiki/Breadth-first_search</span>
+<span class="sd">    The adjacency lits representation (`AdjacencyList`) and breadth first search</span>
+<span class="sd">    (`AdjacencyList.bfs`) are imported from `pelita.graph`.</span>
+
+<span class="sd">    * [1] http://en.wikipedia.org/wiki/Adjacency_list</span>
+<span class="sd">    * [2] http://en.wikipedia.org/wiki/Breadth-first_search</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c"># Before the game starts we initialise our adjacency list.</span>
-        <span class="c"># to begin with, we get the list of all free positions</span>
-        <span class="n">free_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">maze</span><span class="o">.</span><span class="n">pos_of</span><span class="p">(</span><span class="n">Free</span><span class="p">)</span>
-        <span class="c"># Here we use a generator on a dictionary to create adjacency list.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">get_legal_moves</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-                <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">free_pos</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span> <span class="o">=</span> <span class="n">AdjacencyList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bfs_food</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">bfs_food</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -200,46 +199,14 @@ search to find food:</p>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        path : a list of tuples (int, int)</span>
-<span class="sd">            The positions (x, y) in the path furthest to closest. The first</span>
-<span class="sd">            element is the final destination.</span>
+<span class="sd">            The positions (x, y) in the path from the current position to the</span>
+<span class="sd">            closest food. The first element is the final destination.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Initialise `to_visit` of type `deque` with current position.</span>
-        <span class="c"># We use a `deque` since we need to extend to the right</span>
-        <span class="c"># but pop from the left, i.e. its a fifo queue.</span>
-        <span class="n">to_visit</span> <span class="o">=</span> <span class="n">deque</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">])</span>
-        <span class="c"># `seen` is a list of nodes we have seen already</span>
-        <span class="c"># We append to right and later pop from right, so a list will do.</span>
-        <span class="c"># Order is important for the back-track later on, so don&#39;t use a set.</span>
-        <span class="n">seen</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">while</span> <span class="n">to_visit</span><span class="p">:</span>
-            <span class="n">current</span> <span class="o">=</span> <span class="n">to_visit</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">current</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
-                <span class="c"># This node has been seen, ignore it.</span>
-                <span class="k">continue</span>
-            <span class="k">elif</span> <span class="n">current</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enemy_food</span><span class="p">:</span>
-                <span class="c"># We found some food, break and back-track path.</span>
-                <span class="k">break</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c"># Otherwise keep going, i.e. add adjacent nodes to seen list.</span>
-                <span class="n">seen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
-                <span class="n">to_visit</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="p">[</span><span class="n">current</span><span class="p">])</span>
-        <span class="c"># Now back-track using seen to determine how we got here.</span>
-        <span class="c"># Initialise the path with current node, i.e. position of food.</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">current</span><span class="p">]</span>
-        <span class="k">while</span> <span class="n">seen</span><span class="p">:</span>
-            <span class="c"># Pop the latest node in seen</span>
-            <span class="n">next_</span> <span class="o">=</span> <span class="n">seen</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-            <span class="c"># If that&#39;s adjacent to the current node</span>
-            <span class="c"># it&#39;s in the path</span>
-            <span class="k">if</span> <span class="n">next_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="p">[</span><span class="n">current</span><span class="p">]:</span>
-                <span class="c"># So add it to the path</span>
-                <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">next_</span><span class="p">)</span>
-                <span class="c"># And continue back-tracking from there</span>
-                <span class="n">current</span> <span class="o">=</span> <span class="n">next_</span>
-        <span class="c"># The last element is the current position, we don&#39;t need that in our</span>
-        <span class="c"># path, so don&#39;t include it.</span>
-        <span class="k">return</span> <span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="o">.</span><span class="n">bfs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">enemy_food</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">NoPathException</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pos</span><span class="p">:</span>
@@ -309,6 +276,70 @@ player from the current universe using the hidden <tt class="docutils literal"><
 Player. In practice you should be able to avoid having to use the
 <tt class="docutils literal"><span class="pre">_index</span></tt> directly but its good to know how this is implemented in case you
 wish to do something exotic.</p>
+<p>As a defensive example we have the <tt class="docutils literal"><span class="pre">BasicDefensePlayer</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">BasicDefensePlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A crude defensive player.</span>
+
+<span class="sd">    Will move towards the border, and as soon as it notices enemies in its</span>
+<span class="sd">    territory, it will start to track them. When it kills the enemy it returns to</span>
+<span class="sd">    the border and waits there for more.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span> <span class="o">=</span> <span class="n">AdjacencyList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_to_border</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracking</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path_to_border</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Path to the closest border position. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="o">.</span><span class="n">bfs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_border</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path_to_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Path to the target we are currently tracking. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="o">.</span><span class="n">a_star</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tracking_target</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tracking_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Bot object we are currently tracking. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tracking</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># if we were killed, for whatever reason, reset the path</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pos</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_to_border</span>
+        <span class="c"># if we are not currently tracking anything</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking</span><span class="p">:</span>
+            <span class="c"># check the enemy positions</span>
+            <span class="n">possible_targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">enemy</span> <span class="k">for</span> <span class="n">enemy</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enemy_bots</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">in_zone</span><span class="p">(</span><span class="n">enemy</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">possible_targets</span><span class="p">:</span>
+                <span class="c"># get the path to the closest one</span>
+                <span class="n">closest_enemy</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="o">.</span><span class="n">a_star</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span>
+                    <span class="n">enemy</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)),</span><span class="n">enemy</span><span class="p">)</span> <span class="k">for</span> <span class="n">enemy</span> <span class="ow">in</span> <span class="n">possible_targets</span><span class="p">])</span>
+                <span class="c"># track that bot by using its index</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tracking</span> <span class="o">=</span> <span class="n">closest_enemy</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># otherwise keep going if we aren&#39;t already underway</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_to_border</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking</span><span class="p">:</span>
+            <span class="c"># if the enemy is no longer in our zone</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">in_zone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracking_target</span><span class="o">.</span><span class="n">current_pos</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tracking</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_to_border</span>
+            <span class="c"># otherwise update the path to the target</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_to_target</span>
+        <span class="c"># if something above went wrong, just stand still</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">stop</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">diff_pos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+</pre></div>
+</div>
 <p>All example Players can be found in the module <tt class="docutils literal"><span class="pre">pelita.player</span></tt>.</p>
 <p>Below is the complete code for the <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt> which shows you all of the
 convenience methods/properties and also some of the implementation details:</p>
@@ -421,6 +452,19 @@ convenience methods/properties and also some of the implementation details:</p>
 <span class="sd">            the team mates, including this Player&#39;s Bot</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">team_bots</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">team_index</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">team_border</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Positions of the border positions.</span>
+<span class="sd">        These are the last positions in the zone of the team.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        team_border : list of tuple of (int, int)</span>
+<span class="sd">            the border positions</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">team_border</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">team_index</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">enemy_food</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -583,12 +627,12 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
         <li class="right" >
           <a href="index.html" title="Pelita"
              >previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-609-g2f303fc&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-678-g572b9d2&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
-      Last updated on Aug 10, 2011.
+      Last updated on Aug 15, 2011.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
