@@ -133,8 +133,9 @@ class UiCanvas(object):
         if events:
             for team_wins in events.filter_type(datamodel.TeamWins):
                 team_index = team_wins.winning_team_index
+                team_name = universe.teams[team_index].name
                 self.canvas.after(100, self.winning_animation, team_index, universe)
-                self.draw_game_over()
+                self.draw_game_over(team_name)
 
     def draw_universe(self, universe):
         self.mesh_graph.num_x = universe.maze.width
@@ -183,9 +184,10 @@ class UiCanvas(object):
         right_team = "%d %s" % (universe.teams[1].score, universe.teams[1].name)
         self.score.create_text(center + 10, 15, text=right_team, font=(None, 25), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
 
-    def draw_game_over(self):
+    def draw_game_over(self, win_name):
         center = self.mesh_graph.width // 2, self.mesh_graph.height //2
-        self.canvas.create_text(center[0], center[1], text="GAME OVER", font=(None, 60), fill="red", tag="gameover", anchor=Tkinter.CENTER)
+        self.canvas.create_text(center[0], center[1], text="GAME OVER\nTeam \"%s\" wins!"%win_name, font=(None, 60, "bold"), fill="red", tag="gameover",
+                                justify=Tkinter.CENTER, anchor=Tkinter.CENTER)
         text = Tkinter.Button(self.status, font=(None, 10), foreground="black", background="white",
                               justify=Tkinter.CENTER, text="QUIT", command=self.master.quit).pack()
 
