@@ -10,9 +10,11 @@ import threading
 
 from pelita.messaging import actor_of, RemoteConnection
 from pelita.actors import ClientActor, ServerActor
+from pelita.layout import get_random_layout
 
 from pelita.viewer import AsciiViewer, DevNullViewer
 from pelita.ui.tk_viewer import TkViewer
+
 
 __docformat__ = "restructuredtext"
 
@@ -42,12 +44,13 @@ class SimpleServer(object):
         If True, we only setup a local server. Default: False.
     """
     def __init__(self, layout=None, layoutfile=None, players=4, rounds=3000, host="", port=50007, local=False):
-        if bool(layout) == bool(layoutfile):
-            raise ValueError("You must supply exactly one of layout or file.")
 
-        if layoutfile:
-            with open(layoutfile) as file:
-                self.layout = file.read()
+        if layout is None: 
+            if layoutfile:
+                with open(layoutfile) as file:
+                    self.layout = file.read()
+            else:
+                self.layout = get_random_layout()
         else:
             self.layout = layout
 

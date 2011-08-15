@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """ Maze layout parsing. """
+import random
 
 from pelita.containers import Mesh
+import pelita.layouts as layouts 
 
 __docformat__ = "restructuredtext"
 
@@ -10,6 +12,13 @@ __docformat__ = "restructuredtext"
 class LayoutEncodingException(Exception):
     """ Signifies a problem with the encoding of a layout. """
     pass
+
+def get_random_layout():
+    # loop in layouts dictionary and look for layout strings
+    layouts_str = [item for item in dir(layouts) if item.startswith('layout_')]
+    layout = random.choice(layouts_str)
+    # decode and return this layout
+    return layouts.__dict__[layout].decode('base64').decode('zlib')
 
 
 class Layout(object):
