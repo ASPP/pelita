@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# Use this script to update/regenerate the layouts strings in pelita.layouts.py
+
 import os
 import pelita
 
@@ -8,7 +11,7 @@ local_dir = os.path.dirname(os.path.realpath(__file__))
 pelita_path = os.path.dirname(pelita.__file__)
 outfile = os.path.join(pelita_path, OUTFILENAME)
 
-content = ''
+content = '### This file is auto-generated. DO NOT EDIT! ###\n'
 # loop through all layout files
 for f in sorted(os.listdir(local_dir)):
     flname, ext = os.path.splitext(f)
