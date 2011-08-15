@@ -157,14 +157,14 @@ class UiCanvas(object):
         center = self.mesh_graph.width // 2
         cols = (col(94, 158, 217), col(235, 90, 90), col(80, 80, 80))
 
-        scale = self.mesh_graph.half_scale_x * 0.1
+        scale = self.mesh_graph.half_scale_x * 0.2
 
         for color, x_orig in zip(cols, (center - 3, center + 3, center)):
             x_width = self.mesh_graph.half_scale_x // 4
 
             x_prev = None
             y_prev = None
-            for y in range(-4, self.mesh_graph.num_y * 10):
+            for y in range((self.mesh_graph.num_y -1 )* 10):
                 x_real = x_orig + x_width * math.sin(y * 10)
                 y_real = self.mesh_graph.mesh_to_real_y(y / 10.0, 0)
                 if x_prev and y_prev:
