@@ -88,7 +88,7 @@ class BotSprite(TkSprite):
 
         super(BotSprite, self).__init__(mesh, **kwargs)
 
-    def draw_bot(self, canvas, outer_col, eye_col):
+    def draw_bot(self, canvas, outer_col, eye_col, mirror=False):
         direction = self.direction
         
         # bot body
@@ -100,7 +100,9 @@ class BotSprite(TkSprite):
         eye_size = 0.15
         eye_box = (-eye_size -eye_size*1j, eye_size + eye_size*1j)
         # shift it to the middle of the bot just over the mouth
-        eye_box = [item+0.4+0.6j for item in eye_box]
+        # take also care of mirroring
+        mirror = -1 if mirror else 1
+        eye_box = [item+ 0.4 + mirror*0.6j for item in eye_box]
         # rotate based on direction
         eye_box = [cmath.exp(1j*math.radians(-direction)) * item for item in eye_box]
         eye_box = [self.real((item.real, item.imag)) for item in eye_box] 
@@ -115,14 +117,14 @@ class BotSprite(TkSprite):
 class Harvester(BotSprite):
     def draw(self, canvas):
         if self.team == 0:
-            self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col="yellow")
+            self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col="yellow", mirror=True)
         else:
             self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col="yellow")
 
 class Destroyer(BotSprite):
     def draw(self, canvas):
         if self.team == 0:
-            self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col="white")
+            self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col="white", mirror=True)
         else:
             self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col="white")
 
