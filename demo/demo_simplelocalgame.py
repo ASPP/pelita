@@ -21,6 +21,6 @@ client.autoplay_background()
 client2 = SimpleClient("the bad ones", SimpleTeam(BFSPlayer(), BasicDefensePlayer()), local=True)
 client2.autoplay_background()
 
-server = SimpleServer(layoutfile="layouts/01.layout", rounds=3000, local=True)
+server = SimpleServer(rounds=3000, local=True)
 server.run_tk()
 
