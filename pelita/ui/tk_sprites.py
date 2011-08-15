@@ -88,26 +88,25 @@ class BotSprite(TkSprite):
 
         super(BotSprite, self).__init__(mesh, **kwargs)
 
-    def draw_bot(self, canvas, outer_col, eye_col, central_col=col(235, 235, 50)):
-        bounding_box = self.box()
-        scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5 # TODO: what, if x >> y?
-
+    def draw_bot(self, canvas, outer_col, eye_col, mirror=False):
         direction = self.direction
-        rot = lambda x: rotate(x, direction)
+        
+        # bot body
+        canvas.create_arc(self.box(), start=rotate(20, direction), extent=320, style="pieslice",
+                          width=0, outline=outer_col, fill=outer_col, tag = self.tag)
 
-        #canvas.create_oval(self.box(1.1), width=0.25 * scale, outline="black", tag=self.tag)
-
-        canvas.create_arc(bounding_box, start=rot(30), extent=300, style="arc", width=0.2 * scale, outline=outer_col, tags=self.tag)
-        canvas.create_arc(bounding_box, start=rot(-20), extent=15, style="arc", width=0.2 * scale, outline=outer_col, tag=self.tag)
-        canvas.create_arc(bounding_box, start=rot(5), extent=15, style="arc", width=0.2 * scale, outline=outer_col, tag=self.tag)
-
-        canvas.create_arc(bounding_box, start=rot(-30), extent=10, style="arc", width=0.2 * scale, outline=eye_col, tag=self.tag)
-        canvas.create_arc(bounding_box, start=rot(20), extent=10, style="arc", width=0.2 * scale, outline=eye_col, tag=self.tag)
-
-        canvas.create_arc(bounding_box, start=rot(-5), extent=10, style="arc", width=0.2 * scale, outline=central_col, tag=self.tag)
-
-        #score = self.score
-        #canvas.create_text(self.real_position[0], self.real_position[1], text=score, font=(None, int(0.5 * scale)), tag=self.tag)
+        # bot eye
+        # first locate eye in the center
+        eye_size = 0.15
+        eye_box = (-eye_size -eye_size*1j, eye_size + eye_size*1j)
+        # shift it to the middle of the bot just over the mouth
+        # take also care of mirroring
+        mirror = -1 if mirror else 1
+        eye_box = [item+ 0.4 + mirror*0.6j for item in eye_box]
+        # rotate based on direction
+        eye_box = [cmath.exp(1j*math.radians(-direction)) * item for item in eye_box]
+        eye_box = [self.real((item.real, item.imag)) for item in eye_box] 
+        canvas.create_oval(eye_box, fill=eye_col, width=0, tag=self.tag)
 
     def draw(self, canvas):
         # A curious case of delegation
@@ -118,63 +117,45 @@ class BotSprite(TkSprite):
 class Harvester(BotSprite):
     def draw(self, canvas):
         if self.team == 0:
-            self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col=col(235, 60, 60))
+            self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col="yellow", mirror=True)
         else:
-            self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col=col(94, 158, 217))
+            self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col="yellow")
 
 class Destroyer(BotSprite):
     def draw(self, canvas):
         if self.team == 0:
-            self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col=col(235, 60, 60))
-
-            self.draw_polygon(canvas, outline=col(235, 60, 60))
+            self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col="white", mirror=True)
         else:
-            self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col=col(94, 158, 217))
-
-            self.draw_polygon(canvas, outline=col(94, 158, 217))
-
-    def draw_polygon(self, canvas, outline):
-        scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5 # TODO: what, if x >> y?
-
-        direction = self.direction
-
-        penta_arcs = [arc - direction for arc in range(0, 360, 360 / 5)]
-        penta_arcs_inner = [arc + 360 / 5 / 2.0 for arc in penta_arcs]
-
-        coords = []
-        for a, i in zip(penta_arcs, penta_arcs_inner):
-            # we rotate with the help of complex numbers
-            n = cmath.rect(0.85 * self.additional_scale, math.radians(a))
-            coords.append((n.real, n.imag))
-            n = cmath.rect(0.3 * self.additional_scale, math.radians(i))
-            coords.append((n.real, n.imag))
-
-        coords = [self.real(coord) for coord in coords]
-        canvas.create_polygon(width=0.05 * scale, fill="", outline=outline, tag=self.tag, *coords)
+            self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col="white")
 
 class Wall(TkSprite):
     def draw(self, canvas):
-        canvas.create_oval(self.box(0.3), fill=col(94, 158, 217), tag=self.tag)
-
         scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5
-        neighbours = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
-
-        for dx in [-1, 0, 1]:
-            for dy in [-1, 0, 1]:
-                if (dx, dy) in self.wall_neighbours:
-                    if dx == dy == 0:
-                        continue
-                    if dx * dy != 0:
-                        continue
-                    index = neighbours.index((dx, dy))
-                    if (neighbours[(index + 1) % len(neighbours)] in self.wall_neighbours and
-                        neighbours[(index - 1) % len(neighbours)] in self.wall_neighbours):
-                        pass
-                    else:
-                        pass
-                        canvas.create_line(self.real((0, 0)), self.real((2*dx, 2*dy)), width=0.8 * scale, tag=self.tag, capstyle="round")
-
-            #canvas.create_oval(self.box(0.3), fill=col(94, 158, 217), tag=self.tag)
+        if not ((0, 1) in self.wall_neighbours or
+                (1, 0) in self.wall_neighbours or
+                (0, -1) in self.wall_neighbours or
+                (-1, 0) in self.wall_neighbours):
+            # if there is no direct neighbour, we can’t connect.
+            # draw only a small dot.
+            # TODO add diagonal lines
+            canvas.create_line(self.real((-0.3, 0)), self.real((+0.3, 0)), fill=col(48, 26, 22),
+                               width=0.8 * scale, tag=self.tag, capstyle="round")
+        else:
+            neighbours = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
+            for dx in [-1, 0, 1]:
+                for dy in [-1, 0, 1]:
+                    if (dx, dy) in self.wall_neighbours:
+                        if dx == dy == 0:
+                            continue
+                        if dx * dy != 0:
+                            continue
+                        index = neighbours.index((dx, dy))
+                        if (neighbours[(index + 1) % len(neighbours)] in self.wall_neighbours and
+                            neighbours[(index - 1) % len(neighbours)] in self.wall_neighbours):
+                            pass
+                        else:
+                            canvas.create_line(self.real((0, 0)), self.real((2*dx, 2*dy)), fill=col(48, 26, 22),
+                                               width=0.8 * scale, tag=self.tag, capstyle="round")
 
 class Food(TkSprite):
     @classmethod
@@ -182,4 +163,8 @@ class Food(TkSprite):
         return "Food" + str(position)
 
     def draw(self, canvas):
-        canvas.create_oval(self.box(0.3), fill=col(217, 158, 158), tag=(self.tag, self.food_pos_tag(self.position)))
+        if self.position[0] < self.mesh.num_x/2:
+            fill = col(235, 90, 90)
+        else:
+            fill = col(94, 158, 217)
+        canvas.create_oval(self.box(0.4), fill=fill, width=0, tag=(self.tag, self.food_pos_tag(self.position)))

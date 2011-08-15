@@ -80,13 +80,16 @@ class UiCanvas(object):
 
     def init_canvas(self):
         self.score = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=30)
+        self.score.config(background="white")
         self.score.pack()
 
         self.canvas = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=self.mesh_graph.height)
+        self.canvas.config(background="white")
         self.canvas.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
         self.canvas.bind('<Configure>', self.resize)
 
-        self.status = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=20)
+        self.status = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=25)
+        self.status.config(background="white")
         self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
 
     def update(self, events, universe, round=None, turn=None):
@@ -116,7 +119,7 @@ class UiCanvas(object):
         if round is not None and turn is not None:
             self.status.delete("roundturn")
             roundturn = "Bot %d, Round %d   " % (turn, round)
-            self.status.create_text(self.mesh_graph.width, 20,
+            self.status.create_text(self.mesh_graph.width, 25,
                                     anchor=Tkinter.SE,
                                     text=roundturn, font=(None, 15), tag="roundturn")
 
@@ -131,6 +134,7 @@ class UiCanvas(object):
             for team_wins in events.filter_type(datamodel.TeamWins):
                 team_index = team_wins.winning_team_index
                 self.canvas.after(100, self.winning_animation, team_index, universe)
+                self.draw_game_over()
 
     def draw_universe(self, universe):
         self.mesh_graph.num_x = universe.maze.width
@@ -153,14 +157,14 @@ class UiCanvas(object):
         center = self.mesh_graph.width // 2
         cols = (col(94, 158, 217), col(235, 90, 90), col(80, 80, 80))
 
-        scale = self.mesh_graph.half_scale_x * 0.1
+        scale = self.mesh_graph.half_scale_x * 0.2
 
         for color, x_orig in zip(cols, (center - 3, center + 3, center)):
             x_width = self.mesh_graph.half_scale_x // 4
 
             x_prev = None
             y_prev = None
-            for y in range(-4, self.mesh_graph.num_y * 10):
+            for y in range((self.mesh_graph.num_y -1 )* 10):
                 x_real = x_orig + x_width * math.sin(y * 10)
                 y_real = self.mesh_graph.mesh_to_real_y(y / 10.0, 0)
                 if x_prev and y_prev:
@@ -178,6 +182,12 @@ class UiCanvas(object):
 
         right_team = "%d %s" % (universe.teams[1].score, universe.teams[1].name)
         self.score.create_text(center + 10, 15, text=right_team, font=(None, 25), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
+
+    def draw_game_over(self):
+        center = self.mesh_graph.width // 2, self.mesh_graph.height //2
+        self.canvas.create_text(center[0], center[1], text="GAME OVER", font=(None, 60), fill="red", tag="gameover", anchor=Tkinter.CENTER)
+        text = Tkinter.Button(self.status, font=(None, 10), foreground="black", background="white",
+                              justify=Tkinter.CENTER, text="QUIT", command=self.master.quit).pack()
 
     def draw_events(self, events=None):
         if events:
