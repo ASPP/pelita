@@ -16,7 +16,7 @@ get rid of the program.
 from pelita.simplesetup import SimpleClient, SimpleServer
 from pelita.player import RandomPlayer, BFSPlayer, SimpleTeam, StoppingPlayer, NQRandomPlayer, BasicDefensePlayer
 
-client = SimpleClient("the good ones", SimpleTeam(NQRandomPlayer(), BFSPlayer()), local=True)
+client = SimpleClient("the good ones", SimpleTeam(RandomPlayer(), RandomPlayer()), local=True)
 client.autoplay_background()
 
 client2 = SimpleClient("the bad ones", SimpleTeam(BFSPlayer(), BasicDefensePlayer()), local=True)
