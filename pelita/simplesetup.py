@@ -7,6 +7,8 @@ which allow for easy game setup.
 import time
 import multiprocessing
 import threading
+import signal
+import os
 
 from pelita.messaging import actor_of, RemoteConnection
 from pelita.actors import ClientActor, ServerActor
@@ -17,6 +19,12 @@ from pelita.ui.tk_viewer import TkViewer
 
 
 __docformat__ = "restructuredtext"
+
+def keyboard_interrupt_handler(signo, frame):
+    print "Got SIGINT. Exit!"
+    os._exit(-1)
+
+signal.signal(signal.SIGINT, keyboard_interrupt_handler)
 
 class SimpleServer(object):
     """ Sets up a simple Server with most settings pre-configured.
