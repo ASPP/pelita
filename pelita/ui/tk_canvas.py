@@ -5,6 +5,7 @@ import Queue
 
 from pelita import datamodel
 from pelita.ui.tk_sprites import *
+from pelita.utils.signal_handlers import wm_delete_window_handler
 
 class MeshGraph(object):
     """ A `MeshGraph` is a structure of `num_x` * `num_y` rectangles,
@@ -359,6 +360,8 @@ class TkApplication(Tkinter.Frame):
         self.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
 
         self.ui_canvas = UiCanvas(self)
+
+        self.master.protocol("WM_DELETE_WINDOW", wm_delete_window_handler)
 
     def read_queue(self):
         try:
