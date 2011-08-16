@@ -4,7 +4,14 @@
 """
 
 import os
+import sys
 import signal
+import logging
+
+# make a logger for these handlers that prints info messages to stderr
+_logger = logging.getLogger("signal_handlers")
+_logger.setLevel(logging.INFO)
+_logger.addHandler(logging.StreamHandler(sys.stderr))
 
 def exit_handler(*args):
     """ Simple handler to just quit using os._exit(-1).
@@ -15,19 +22,19 @@ def exit_handler(*args):
     processes.
 
     """
+    # defensively shutdown the logging system
+    logging.shutdown()
     os._exit(-1)
 
-# TODO handler should use logging
-
 def keyboard_interrupt_handler(signo, frame):
-    print "Got SIGINT. Exit!"
+    _logger.info("Got SIGINT. Exit!")
     exit_handler()
 
 signal.signal(signal.SIGINT, keyboard_interrupt_handler)
 
 # is added  pelita/ui/tk_canvas:TkApplication
 def wm_delete_window_handler():
-    print "WM_DELETE_WINDOW. Exit!"
+    _logger.info("Got WM_DELETE_WINDOW. Exit!")
     exit_handler()
 
 
