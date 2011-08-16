@@ -6,6 +6,7 @@
 import os
 import sys
 import logging
+import signal
 
 # make a logger for these handlers that prints info messages to stderr
 _logger = logging.getLogger("signal_handlers")
@@ -23,16 +24,16 @@ def exit_handler(*args):
     """
     # defensively shutdown the logging system
     logging.shutdown()
-    os._exit(-1)
+    # kill all processes in processgroup.
+    # we need this in case we use the multprocessing.
+    os.killpg(os.getpgrp(), signal.SIGTERM)
 
 def keyboard_interrupt_handler(signo, frame):
     _logger.info("Got SIGINT. Exit!")
     exit_handler()
 
-
 # is added  pelita/ui/tk_canvas:TkApplication
 def wm_delete_window_handler():
     _logger.info("Got WM_DELETE_WINDOW. Exit!")
     exit_handler()
-
 
