@@ -2,6 +2,7 @@
 
 import Tkinter
 import Queue
+import os
 
 from pelita import datamodel
 from pelita.ui.tk_sprites import *
@@ -359,6 +360,14 @@ class TkApplication(Tkinter.Frame):
         self.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
 
         self.ui_canvas = UiCanvas(self)
+
+        def handler():
+            # TODO: should use logging fascility
+            print "WM_DELETE_WINDOW. Exit!"
+            # TODO: os._exit is not graceful
+            os._exit(-1)
+
+        self.master.protocol("WM_DELETE_WINDOW", handler)
 
     def read_queue(self):
         try:
