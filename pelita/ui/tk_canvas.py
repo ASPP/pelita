@@ -2,10 +2,10 @@
 
 import Tkinter
 import Queue
-import os
 
 from pelita import datamodel
 from pelita.ui.tk_sprites import *
+from pelita.utils.signal_handlers import wm_delete_window_handler
 
 class MeshGraph(object):
     """ A `MeshGraph` is a structure of `num_x` * `num_y` rectangles,
@@ -361,13 +361,7 @@ class TkApplication(Tkinter.Frame):
 
         self.ui_canvas = UiCanvas(self)
 
-        def handler():
-            # TODO: should use logging fascility
-            print "WM_DELETE_WINDOW. Exit!"
-            # TODO: os._exit is not graceful
-            os._exit(-1)
-
-        self.master.protocol("WM_DELETE_WINDOW", handler)
+        self.master.protocol("WM_DELETE_WINDOW", wm_delete_window_handler)
 
     def read_queue(self):
         try:
