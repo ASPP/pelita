@@ -7,6 +7,7 @@ which allow for easy game setup.
 import time
 import multiprocessing
 import threading
+import signal
 
 from pelita.messaging import actor_of, RemoteConnection
 from pelita.actors import ClientActor, ServerActor
@@ -14,6 +15,7 @@ from pelita.layout import get_random_layout
 
 from pelita.viewer import AsciiViewer, DevNullViewer
 from pelita.ui.tk_viewer import TkViewer
+from pelita.utils.signal_handlers import keyboard_interrupt_handler
 
 
 __docformat__ = "restructuredtext"
@@ -62,6 +64,7 @@ class SimpleServer(object):
         if local:
             self.host = None
             self.port = None
+            signal.signal(signal.SIGINT, keyboard_interrupt_handler)
         else:
             self.host = host
             self.port = port

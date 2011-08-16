@@ -5,7 +5,6 @@
 
 import os
 import sys
-import signal
 import logging
 
 # make a logger for these handlers that prints info messages to stderr
@@ -30,7 +29,6 @@ def keyboard_interrupt_handler(signo, frame):
     _logger.info("Got SIGINT. Exit!")
     exit_handler()
 
-signal.signal(signal.SIGINT, keyboard_interrupt_handler)
 
 # is added  pelita/ui/tk_canvas:TkApplication
 def wm_delete_window_handler():
