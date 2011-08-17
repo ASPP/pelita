@@ -108,6 +108,50 @@ class BotSprite(TkSprite):
         eye_box = [self.real((item.real, item.imag)) for item in eye_box] 
         canvas.create_oval(eye_box, fill=eye_col, width=0, tag=self.tag)
 
+    def draw_destroyer(self, canvas, outer_col, eye_col, mirror=False):
+        direction = self.direction
+        box_ll, box_tr = self.box()
+
+        # ghost head
+        canvas.create_arc((box_ll, box_tr), start=0, extent=180, style="pieslice",
+                          width=0, outline=outer_col, fill=outer_col, tag = self.tag)
+        # ghost body -> half box
+        body_box_tr = box_tr
+        body_box_ll = box_ll[0], box_ll[1] + (box_tr[1]-box_ll[1])/2.
+        canvas.create_rectangle((body_box_ll, body_box_tr), width=1, outline=outer_col, fill=outer_col, tag=self.tag)
+
+        # ghost outfit -> a sine wave
+        amplitude = (body_box_tr[1]-body_box_ll[1])/3.
+        start = body_box_ll[0], body_box_tr[1]-amplitude/2.
+        end = body_box_tr[0], start[1]
+        periods = 4
+        period = (end[0]-start[0])/periods
+        points_per_period = 10
+        x_spacing = period/points_per_period
+        x = [start[0]+i*x_spacing for i in range(periods*points_per_period)]
+        x.append(end[0])
+        y = [amplitude*math.cos(2*math.pi*(x_i-start[0])/period) + start[1] for x_i in x]
+        # add container edges for the polygon
+        x.insert(0, start[0])
+        y.insert(0, max(y))
+        x.append(end[0])
+        y.append(max(y))
+        canvas.create_polygon(zip(x,y), width=1, fill="white", tag=self.tag)
+
+        # ghost eyes
+        eye_size = 0.15
+        eye_box = (-eye_size -eye_size*1j, eye_size + eye_size*1j)
+        # right eye
+        eye_box_r = [item+ 0.4 - 0.5j for item in eye_box]
+        eye_box_r = [self.real((item.real, item.imag)) for item in eye_box_r] 
+        canvas.create_oval(eye_box_r, fill=eye_col, width=0, tag=self.tag)
+        # left eye
+        eye_box_l = [item- 0.4 - 0.5j for item in eye_box]
+        eye_box_l = [self.real((item.real, item.imag)) for item in eye_box_l] 
+        canvas.create_oval(eye_box_l, fill=eye_col, width=0, tag=self.tag)
+        
+        
+
     def draw(self, canvas):
         # A curious case of delegation
         args = dict(self.__dict__)
@@ -124,9 +168,9 @@ class Harvester(BotSprite):
 class Destroyer(BotSprite):
     def draw(self, canvas):
         if self.team == 0:
-            self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col="white", mirror=True)
+            self.draw_destroyer(canvas, outer_col=col(94, 158, 217), eye_col="yellow", mirror=True)
         else:
-            self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col="white")
+            self.draw_destroyer(canvas, outer_col=col(235, 90, 90), eye_col="yellow")
 
 class Wall(TkSprite):
     def draw(self, canvas):
