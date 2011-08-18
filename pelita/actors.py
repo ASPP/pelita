@@ -7,7 +7,7 @@ between GameMaster and client Teams over the network.
 import sys
 import Queue
 
-from pelita.messaging import DispatchingActor, expose, actor_registry, actor_of, RemoteConnection, DeadConnection
+from pelita.messaging import DispatchingActor, expose, actor_registry, actor_of, RemoteConnection, DeadConnection, ActorNotRunning
 
 from pelita.game_master import GameMaster, PlayerTimeout, PlayerDisconnected
 
@@ -62,8 +62,7 @@ class _ClientActor(DispatchingActor):
                 self.ref.reply("ok")
         except Queue.Empty:
             self.ref.reply("actor no reply")
-        except RuntimeError:
-            # TODO: raise a better error message
+        except ActorNotRunning:
             # local server is not yet running. Try again later
             self.ref.reply("actor not running")
 
