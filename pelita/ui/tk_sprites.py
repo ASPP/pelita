@@ -116,12 +116,11 @@ class BotSprite(TkSprite):
         canvas.create_arc((box_ll, box_tr), start=0, extent=180, style="pieslice",
                           width=0, outline=outer_col, fill=outer_col, tag = self.tag)
         # ghost body
-        body_box_tr = box_tr
-        body_box_ll = box_ll[0], box_ll[1] + (box_tr[1]-box_ll[1])/2.
-        amplitude = (body_box_tr[1]-body_box_ll[1])/3.
-        start = body_box_ll[0], body_box_tr[1]-amplitude/2.
-        end = body_box_tr[0], start[1]
-        periods = 4
+        box_ll = box_ll[0], box_ll[1] + (box_tr[1]-box_ll[1])/2.
+        amplitude = (box_tr[1]-box_ll[1])/4.
+        start = box_ll[0], box_tr[1]-amplitude/2.
+        end = box_tr[0], start[1]
+        periods = 3
         period = (end[0]-start[0])/periods
         points_per_period = 10
         x_spacing = period/points_per_period
@@ -129,10 +128,8 @@ class BotSprite(TkSprite):
         x.append(end[0])
         y = [amplitude*math.cos(2*math.pi*(x_i-start[0])/period) + start[1] for x_i in x]
         # add container edges for the polygon
-        x.insert(0, body_box_ll[0])
-        y.insert(0, body_box_ll[1])
-        x.append(body_box_tr[0])
-        y.append(body_box_ll[1])
+        x.insert(0, box_ll[0]); y.insert(0, box_ll[1])
+        x.append(box_tr[0]); y.append(box_ll[1])
         canvas.create_polygon(zip(x,y), width=1, outline=outer_col, fill=outer_col, tag=self.tag)
 
         # ghost eyes
