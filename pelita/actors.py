@@ -202,6 +202,7 @@ class ServerActor(DispatchingActor):
         """ Initialises a new game.
         """
         self.game_master = GameMaster(layout, number_bots, game_time)
+        self.check_for_start()
 
     def _remove_dead_teams(self):
         # check, if previously added teams are still alive:
@@ -231,10 +232,7 @@ class ServerActor(DispatchingActor):
         self.team_names.append(team_name)
         self.ref.reply("ok")
 
-        if len(self.teams) == 2:
-            _logger.info("Two players are available. Starting a game.")
-
-            self.ref.notify("start_game")
+        self.check_for_start()
 
     @expose
     def register_viewer(self, message, viewer):
@@ -256,3 +254,11 @@ class ServerActor(DispatchingActor):
             self.game_master.register_team(remote_player, team_name=team_name)
 
         self.game_master.play()
+
+    def check_for_start(self):
+        """ Checks, if a game can be run and start it. """
+        if self.game_master is not None and len(self.teams) == 2:
+            _logger.info("Two players are available. Starting a game.")
+
+            self.ref.notify("start_game")
+
