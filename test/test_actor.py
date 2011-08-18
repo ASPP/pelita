@@ -2,12 +2,16 @@ import unittest
 import time
 import Queue
 
-from pelita.messaging import DispatchingActor, expose, Actor, actor_of, RemoteConnection, Exit, Request
+from pelita.messaging import DispatchingActor, expose, Actor, actor_of, RemoteConnection, Exit, Request, ActorNotRunning
 
 class Dispatcher(DispatchingActor):
     def __init__(self):
         super(Dispatcher, self).__init__()
         self.param1 = None
+
+    @expose
+    def dummy(self, message):
+        pass
 
     @expose
     def set_param1(self, message, argument):
@@ -92,6 +96,14 @@ class TestDispatchingActor(unittest.TestCase):
 
         actor.stop()
 
+    def test_lifecycle(self):
+        actor = actor_of(Dispatcher)
+        self.assertRaises(ActorNotRunning, actor.notify, "dummy")
+        actor.start()
+        actor.notify("dummy")
+        actor.stop()
+        actor.join()
+        self.assertRaises(ActorNotRunning, actor.notify, "dummy")
 
 class RaisingActor(Actor):
     def on_receive(self, message):
