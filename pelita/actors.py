@@ -62,6 +62,10 @@ class _ClientActor(DispatchingActor):
                 self.ref.reply("ok")
         except Queue.Empty:
             self.ref.reply("actor no reply")
+        except RuntimeError:
+            # TODO: raise a better error message
+            # local server is not yet running. Try again later
+            self.ref.reply("actor not running")
 
     @expose
     def set_bot_ids(self, message, *bot_ids):
