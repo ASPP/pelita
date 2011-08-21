@@ -99,20 +99,20 @@ class UiCanvas(object):
         }
 
         self.current_universe = None
-        
+
     def init_canvas(self):
         self.score = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=30)
         self.score.config(background="white")
-        self.score.pack()
+        self.score.pack(side=Tkinter.TOP, fill=Tkinter.X)
+
+        self.status = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=25)
+        self.status.config(background="white")
+        self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
 
         self.canvas = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=self.mesh_graph.screen_height)
         self.canvas.config(background="white")
         self.canvas.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
         self.canvas.bind('<Configure>', self.resize)
-
-        self.status = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=25)
-        self.status.config(background="white")
-        self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
 
     def update(self, universe, events, round=None, turn=None):
         if not self.canvas:
