@@ -80,16 +80,16 @@ class UiCanvas(object):
         self.previous_universe = None
 
     def init_canvas(self):
-        self.score = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=30)
+        self.score = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.width, height=30)
         self.score.config(background="white")
         self.score.pack()
 
-        self.canvas = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=self.mesh_graph.height)
+        self.canvas = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.width, height=self.mesh_graph.height)
         self.canvas.config(background="white")
         self.canvas.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
         self.canvas.bind('<Configure>', self.resize)
 
-        self.status = Tkinter.Canvas(self.master, width=self.mesh_graph.width, height=25)
+        self.status = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.width, height=25)
         self.status.config(background="white")
         self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
 
@@ -100,8 +100,8 @@ class UiCanvas(object):
                 height = universe.maze.height
 
                 screensize = (
-                    max(250, self.master.winfo_screenwidth() - 60),
-                    max(250, self.master.winfo_screenheight() - 60)
+                    max(250, self.master.master.winfo_screenwidth() - 60),
+                    max(250, self.master.master.winfo_screenheight() - 60)
                 )
                 scale_x = screensize[0] / width
                 scale_y = screensize[1] / height
@@ -350,14 +350,15 @@ class UiCanvas(object):
     def move(self, item, x, y):
         item.move(self.canvas, x * self.mesh_graph.rect_width, y * self.mesh_graph.rect_height)
 
-class TkApplication(Tkinter.Frame):
+class TkApplication(object):
     def __init__(self, queue, master=None):
-        Tkinter.Frame.__init__(self, master) # old style
+        self.master = master
+        self.frame = Tkinter.Frame(self.master)
         self.master.title("Pelita")
 
         self.queue = queue
 
-        self.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
+        self.frame.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
 
         self.ui_canvas = UiCanvas(self)
 
@@ -373,10 +374,10 @@ class TkApplication(Tkinter.Frame):
                 observed = self.queue.get(False)
                 self.observe(observed)
 
-                self.after(50, self.read_queue)
+                self.master.after(50, self.read_queue)
                 return
         except Queue.Empty:
-            self.after(50, self.read_queue)
+            self.master.after(50, self.read_queue)
 
     def observe(self, observed):
         round = observed.get("round")
