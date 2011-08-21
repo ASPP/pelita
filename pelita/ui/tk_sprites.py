@@ -12,14 +12,13 @@ def rotate(arc, rotation):
     return (arc + rotation) % 360
 
 class TkSprite(object):
-    def __init__(self, mesh, x=0, y=0, direction=0, _tag=None, additional_scale=1.0):
+    def __init__(self, mesh, x=0, y=0, direction=0, _tag=None):
         self.mesh = mesh
 
         self.x = x
         self.y = y
 
         self._tag = _tag
-        self.additional_scale = additional_scale
 
         self.direction = direction
 
@@ -39,19 +38,15 @@ class TkSprite(object):
         if new != old:
             self.direction = math.degrees(cmath.phase(new - old))
 
-    @property
-    def real_position(self):
-        return self.mesh.mesh_to_real((self.x, self.y), (0, 0))
-
-    def real(self, shift=(0, 0)):
-        return self.mesh.mesh_to_real((self.x, self.y), shift)
+    def screen(self, shift=(0, 0)):
+        return self.mesh.mesh_trafo(self.x, self.y).screen(*shift)
 
     def draw(self, canvas):
         raise NotImplementedError
 
-    def box(self, factor=1.0):
-        return (self.real((-factor * self.additional_scale, -factor * self.additional_scale)),
-                self.real((+factor * self.additional_scale, +factor * self.additional_scale)))
+    def bounding_box(self, scale_factor=1.0):
+        return (self.screen((- scale_factor, - scale_factor)),
+                self.screen((+ scale_factor, + scale_factor)))
 
     @property
     def tag(self):
@@ -90,9 +85,9 @@ class BotSprite(TkSprite):
 
     def draw_bot(self, canvas, outer_col, eye_col, mirror=False):
         direction = self.direction
-        
+
         # bot body
-        canvas.create_arc(self.box(), start=rotate(20, direction), extent=320, style="pieslice",
+        canvas.create_arc(self.bounding_box(), start=rotate(20, direction), extent=320, style="pieslice",
                           width=0, outline=outer_col, fill=outer_col, tag = self.tag)
 
         # bot eye
@@ -105,7 +100,7 @@ class BotSprite(TkSprite):
         eye_box = [item+ 0.4 + mirror*0.6j for item in eye_box]
         # rotate based on direction
         eye_box = [cmath.exp(1j*math.radians(-direction)) * item for item in eye_box]
-        eye_box = [self.real((item.real, item.imag)) for item in eye_box] 
+        eye_box = [self.screen((item.real, item.imag)) for item in eye_box]
         canvas.create_oval(eye_box, fill=eye_col, width=0, tag=self.tag)
 
     def draw(self, canvas):
@@ -138,7 +133,7 @@ class Wall(TkSprite):
             # if there is no direct neighbour, we can’t connect.
             # draw only a small dot.
             # TODO add diagonal lines
-            canvas.create_line(self.real((-0.3, 0)), self.real((+0.3, 0)), fill=col(48, 26, 22),
+            canvas.create_line(self.screen((-0.3, 0)), self.screen((+0.3, 0)), fill=col(48, 26, 22),
                                width=0.8 * scale, tag=self.tag, capstyle="round")
         else:
             neighbours = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
@@ -154,7 +149,7 @@ class Wall(TkSprite):
                             neighbours[(index - 1) % len(neighbours)] in self.wall_neighbours):
                             pass
                         else:
-                            canvas.create_line(self.real((0, 0)), self.real((2*dx, 2*dy)), fill=col(48, 26, 22),
+                            canvas.create_line(self.screen((0, 0)), self.screen((2*dx, 2*dy)), fill=col(48, 26, 22),
                                                width=0.8 * scale, tag=self.tag, capstyle="round")
 
 class Food(TkSprite):
@@ -167,4 +162,4 @@ class Food(TkSprite):
             fill = col(94, 158, 217)
         else:
             fill = col(235, 90, 90)
-        canvas.create_oval(self.box(0.4), fill=fill, width=0, tag=(self.tag, self.food_pos_tag(self.position)))
+        canvas.create_oval(self.bounding_box(0.4), fill=fill, width=0, tag=(self.tag, self.food_pos_tag(self.position)))

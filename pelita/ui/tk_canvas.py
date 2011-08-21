@@ -8,22 +8,26 @@ from pelita.ui.tk_sprites import *
 from pelita.utils.signal_handlers import wm_delete_window_handler
 
 class MeshGraph(object):
-    """ A `MeshGraph` is a structure of `num_x` * `num_y` rectangles,
-    covering an area of `width`, `height`.
+    """ A `MeshGraph` is a structure of `mesh_width` * `mesh_height` rectangles,
+    covering an area of `screen_width`, `screen_height`.
     """
-    def __init__(self, num_x, num_y, width, height):
-        self.num_x = num_x
-        self.num_y = num_y
-        self.height = height
-        self.width = width
+    def __init__(self, mesh_width, mesh_height, screen_width, screen_height):
+        self.mesh_width = mesh_width
+        self.mesh_height = mesh_height
+        self.screen_height = screen_height
+        self.screen_width = screen_width
 
     @property
     def rect_width(self):
-        return float(self.width) / self.num_x
+        """ The width of a single field.
+        """
+        return float(self.screen_width) / self.mesh_width
 
     @property
     def rect_height(self):
-        return float(self.height) / self.num_y
+        """ The height of a single field.
+        """
+        return float(self.screen_height) / self.mesh_height
 
     @property
     def half_scale_x(self):
@@ -33,31 +37,51 @@ class MeshGraph(object):
     def half_scale_y(self):
         return self.rect_height / 2.0
 
-    def mesh_to_real(self, mesh, coords):
+    def mesh_trafo(self, mesh_x, mesh_y):
+        return Trafo(self, mesh_x, mesh_y)
+
+    def mesh_to_screen(self, mesh, coords):
         mesh_x, mesh_y = mesh
         coords_x, coords_y = coords
 
-        real_x = self.mesh_to_real_x(mesh_x, coords_x)
-        real_y = self.mesh_to_real_y(mesh_y, coords_y)
+        real_x = self.mesh_to_screen_x(mesh_x, coords_x)
+        real_y = self.mesh_to_screen_y(mesh_y, coords_y)
         return (real_x, real_y)
 
-    def mesh_to_real_x(self, mesh_x, coords_x):
+    def mesh_to_screen_x(self, mesh_x, model_x):
         # coords are between -1 and +1: shift on [0, 1]
-        trafo_x = (coords_x + 1.0) / 2.0
+        trafo_x = (model_x + 1.0) / 2.0
 
         real_x = self.rect_width * (mesh_x + trafo_x)
         return real_x
 
-    def mesh_to_real_y(self, mesh_y, coords_y):
+    def mesh_to_screen_y(self, mesh_y, model_y):
         # coords are between -1 and +1: shift on [0, 1]
-        trafo_y = (coords_y + 1.0) / 2.0
+        trafo_y = (model_y + 1.0) / 2.0
 
         real_y = self.rect_height * (mesh_y + trafo_y)
         return real_y
 
     def __repr__(self):
-        return "MeshGraph(%d, %d, %d, %d)" % (self.num_x, self.num_y,
-                                              self.height, self.width)
+        return "MeshGraph(%d, %d, %d, %d)" % (self.mesh_width, self.mesh_height,
+                                              self.screen_width, self.screen_height)
+
+class Trafo(object):
+    def __init__(self, mesh_graph, mesh_x, mesh_y):
+        self.mesh_graph = mesh_graph
+        self.mesh_x = mesh_x
+        self.mesh_y = mesh_y
+
+    def screen_x(self, model_x):
+        return self.mesh_graph.mesh_to_screen_x(self.mesh_x, model_x)
+
+    def screen_y(self, model_y):
+        return self.mesh_graph.mesh_to_screen_y(self.mesh_y, model_y)
+
+    def screen(self, model_x, model_y):
+        return self.mesh_graph.mesh_to_screen((self.mesh_x, self.mesh_y), (model_x, model_y))
+
+
 
 class UiCanvas(object):
     def __init__(self, master):
@@ -78,16 +102,16 @@ class UiCanvas(object):
         self.previous_universe = None
 
     def init_canvas(self):
-        self.score = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.width, height=30)
+        self.score = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=30)
         self.score.config(background="white")
         self.score.pack()
 
-        self.canvas = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.width, height=self.mesh_graph.height)
+        self.canvas = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=self.mesh_graph.screen_height)
         self.canvas.config(background="white")
         self.canvas.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
         self.canvas.bind('<Configure>', self.resize)
 
-        self.status = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.width, height=25)
+        self.status = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=25)
         self.status.config(background="white")
         self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
 
@@ -118,7 +142,7 @@ class UiCanvas(object):
         if round is not None and turn is not None:
             self.status.delete("roundturn")
             roundturn = "Bot %d, Round %d   " % (turn, round)
-            self.status.create_text(self.mesh_graph.width, 25,
+            self.status.create_text(self.mesh_graph.screen_width, 25,
                                     anchor=Tkinter.SE,
                                     text=roundturn, font=(None, 15), tag="roundturn")
 
@@ -150,7 +174,7 @@ class UiCanvas(object):
     def draw_background(self, universe):
         self.canvas.delete("background")
 
-        center = self.mesh_graph.width // 2
+        center = self.mesh_graph.screen_width // 2
         cols = (col(94, 158, 217), col(235, 90, 90), col(80, 80, 80))
 
         scale = self.mesh_graph.half_scale_x * 0.2
@@ -160,16 +184,16 @@ class UiCanvas(object):
 
             x_prev = None
             y_prev = None
-            for y in range((self.mesh_graph.num_y -1 )* 10):
+            for y in range((self.mesh_graph.mesh_height -1 )* 10):
                 x_real = x_orig + x_width * math.sin(y * 10)
-                y_real = self.mesh_graph.mesh_to_real_y(y / 10.0, 0)
+                y_real = self.mesh_graph.mesh_to_screen_y(y / 10.0, 0)
                 if x_prev and y_prev:
                     self.canvas.create_line((x_prev, y_prev, x_real, y_real), width=scale, fill=color, tag="background")
                 x_prev, y_prev = x_real, y_real
 
     def draw_title(self, universe):
         self.score.delete("title")
-        center = self.mesh_graph.width // 2
+        center = self.mesh_graph.screen_width // 2
 
         left_team = "%s %d" % (universe.teams[0].name, universe.teams[0].score)
         self.score.create_text(center - 10, 15, text=left_team, font=(None, 25), fill=col(94, 158, 217), tag="title", anchor=Tkinter.E)
@@ -180,7 +204,7 @@ class UiCanvas(object):
         self.score.create_text(center + 10, 15, text=right_team, font=(None, 25), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
 
     def draw_game_over(self, win_name):
-        center = self.mesh_graph.width // 2, self.mesh_graph.height //2
+        center = self.mesh_graph.screen_width // 2, self.mesh_graph.screen_height //2
         self.canvas.create_text(center[0], center[1], text="GAME OVER\nTeam \"%s\" wins!"%win_name, font=(None, 60, "bold"), fill="red", tag="gameover",
                                 justify=Tkinter.CENTER, anchor=Tkinter.CENTER)
         text = Tkinter.Button(self.status, font=(None, 10), foreground="black", background="white",
@@ -193,8 +217,8 @@ class UiCanvas(object):
         # need to be careful not to get negative numbers
         # Tk will crash, if it receives negative numbers
         if event.height > 0:
-            self.mesh_graph.width = event.width
-            self.mesh_graph.height = event.height
+            self.mesh_graph.screen_width = event.width
+            self.mesh_graph.screen_height = event.height
         self.size_changed = True
 
     def draw_mesh(self, mesh):
