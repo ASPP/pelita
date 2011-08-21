@@ -274,8 +274,9 @@ class TkApplication(object):
         self.ui_canvas = UiCanvas(self)
 
         self.master.protocol("WM_DELETE_WINDOW", wm_delete_window_handler)
+        self.master.bind('<<QueueAdded>>', self.read_queue)
 
-    def read_queue(self):
+    def read_queue(self, event=None):
         try:
             # read all events.
             # if queue is empty, try again in 50 ms
@@ -285,10 +286,12 @@ class TkApplication(object):
                 observed = self.queue.get(False)
                 self.observe(observed)
 
-                self.master.after(50, self.read_queue)
+                if not event:
+                    self.master.after(50, self.read_queue)
                 return
         except Queue.Empty:
-            self.master.after(50, self.read_queue)
+            if not event:
+                self.master.after(50, self.read_queue)
 
     def observe(self, observed):
         universe = observed.get("universe")

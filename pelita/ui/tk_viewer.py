@@ -82,6 +82,7 @@ class TkViewer(AbstractViewer):
     def _put(self, obj):
         try:
             self.observe_queue.put(obj, self.block, self.timeout)
+            self.root.event_generate("<<QueueAdded>>", when="tail")
         except Queue.Full:
             _logger.info("Queue is filled. Skipping.")
             pass
