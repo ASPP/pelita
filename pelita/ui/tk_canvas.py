@@ -74,8 +74,6 @@ class UiCanvas(object):
             datamodel.Food: Food
         }
 
-        self.waiting_animations = []
-
         self.current_universe = None
         self.previous_universe = None
 
@@ -129,20 +127,16 @@ class UiCanvas(object):
         else:
             self.draw_universe(self.previous_universe)
 
-        self.draw_events(events)
-
         if events:
             for team_wins in events.filter_type(datamodel.TeamWins):
                 team_index = team_wins.winning_team_index
                 team_name = universe.teams[team_index].name
-                self.canvas.after(100, self.winning_animation, team_index, universe)
                 self.draw_game_over(team_name)
 
     def draw_universe(self, universe):
         self.mesh_graph.num_x = universe.maze.width
         self.mesh_graph.num_y = universe.maze.height
 
-        #self.waiting_animations = []
         if self.size_changed:
             self.clear()
 
@@ -191,81 +185,6 @@ class UiCanvas(object):
                                 justify=Tkinter.CENTER, anchor=Tkinter.CENTER)
         text = Tkinter.Button(self.status, font=(None, 10), foreground="black", background="white",
                               justify=Tkinter.CENTER, text="QUIT", command=self.master.quit).pack()
-
-    def draw_events(self, events=None):
-        if events:
-            food_eaten_events = events.filter_type(datamodel.FoodEaten)
-            for food_eaten_event in food_eaten_events:
-                tag = Food.food_pos_tag(food_eaten_event.food_pos)
-                self.canvas.delete(tag)
-
-
-            destroy_events = events.filter_type(datamodel.BotDestroyed)
-            destroy_animations = {}
-            for destroy_event in destroy_events:
-                destroyed_idx = destroy_event.harvester_index
-                destroyed_sprite = self.bot_sprites[destroyed_idx]
-
-                destroy_animations[destroyed_idx] = Animation.shrink(self, destroyed_sprite, duration=0.03)
-
-            move_events = events.filter_type(datamodel.BotMoves)
-            for move_event in move_events:
-                bot_idx = move_event.bot_index
-                bot_sprite = self.bot_sprites[bot_idx]
-
-                old_pos = complex(*move_event.old_pos).conjugate()
-                new_pos = complex(*move_event.new_pos).conjugate()
-
-                direction = new_pos - old_pos
-
-                arc = math.degrees(cmath.phase(direction))
-
-                if direction != 0:
-                    move_sequece = [
-                        Animation.rotate_to(self, bot_sprite, arc, duration=0.02),
-                        Animation.move_to(self, bot_sprite, (old_pos.real, -old_pos.imag), (new_pos.real, - new_pos.imag), duration=0.02)
-                            ]
-                else:
-                    move_sequece = []
-
-                if bot_idx in destroy_animations:
-                    move_sequece.append(destroy_animations[bot_idx])
-                    del destroy_animations[bot_idx]
-
-                if move_sequece:
-                    move_sequece.append(Animation.dummy(duration=0.02))
-                    self.waiting_animations.append(Animation.sequence(move_sequece))
-
-            for destroy_animation in destroy_animations.values():
-                self.waiting_animations.append(destroy_animation)
-
-            eat_events = events.filter_type(datamodel.BotEats)
-
-        # disabling the animations for the moment
-        self.waiting_animations = []
-        if self.waiting_animations:
-            for animation in self.waiting_animations:
-
-                if not animation.start_time:
-                    animation.start()
-
-                # disabling the animations for the moment
-                animation.step()
-
-            # delete finished
-            self.waiting_animations = [anim for anim in self.waiting_animations if not anim.is_finished]
-
-            # come back again
-            self.canvas.after(10, self.draw_events, None)
-
-            tk_items = self.canvas.find_all()
-
-            self.canvas.update_idletasks()
-            return
-        self.canvas.after(10, self.finish_events)
-
-    def finish_events(self):
-        self.draw_universe(self.current_universe)
 
     def clear(self):
         self.canvas.delete(Tkinter.ALL)
@@ -337,19 +256,6 @@ class UiCanvas(object):
 
         item.redraw(self.canvas)
 
-    def winning_animation(self, winning_index, universe):
-        team = universe.teams[winning_index]
-        for bot_idx in team.bots:
-            if bot_idx // 2:
-                self.bot_sprites[bot_idx].direction += 3
-            else:
-                self.bot_sprites[bot_idx].direction -= 3
-            self.bot_sprites[bot_idx].redraw(self.canvas)
-        self.canvas.after(10, self.winning_animation, winning_index, universe)
-
-    def move(self, item, x, y):
-        item.move(self.canvas, x * self.mesh_graph.rect_width, y * self.mesh_graph.rect_height)
-
 class TkApplication(object):
     def __init__(self, queue, master=None):
         self.master = master
@@ -395,149 +301,3 @@ class TkApplication(object):
     def quit(self):
         self.on_quit()
         Tkinter.Frame.quit(self)
-
-import time
-
-class Animation(object):
-    def __init__(self, duration):
-        self.duration = duration
-        self.start_time = None
-
-    @property
-    def is_finished(self):
-        if self.start_time:
-            if self.elapsed() / self.duration >= 1:
-                self.finish()
-                return True
-        return False
-
-    def elapsed(self):
-        if self.start_time is None:
-            raise AttributeError("Animation is not running.")
-        return time.time() - self.start_time
-
-    def start(self):
-        self.start_time = time.time()
-        self._start()
-
-    def rate(self):
-        rate = self.elapsed() / self.duration
-        if rate >= 1:
-            self.finish()
-            return 1
-        return rate
-
-    def step(self):
-        if not self.is_finished:
-            self._step()
-
-    def _start(self):
-        pass
-
-    def _step(self):
-        raise NotImplementedError
-
-    def finish(self):
-        self._finish()
-
-    def _finish(self):
-        pass
-
-    @classmethod
-    def shrink(cls, canvas, item, duration=0.5):
-        anim = cls(duration)
-
-        def start():
-            anim.old_scale = item.additional_scale
-            anim.diff_scale = (0 - anim.old_scale)
-
-        def do_shrink():
-            rate = anim.rate()
-            new_scale = anim.old_scale + anim.diff_scale * rate
-
-            item.additional_scale = new_scale
-            item.redraw(canvas.canvas)
-
-        def finish():
-            item.additional_scale = anim.old_scale
-
-        anim._start = start
-        anim._step = do_shrink
-        anim._finish = finish
-        return anim
-
-    @classmethod
-    def rotate_to(cls, canvas, item, arc, duration=0.5):
-        anim = cls(duration)
-
-        def start():
-            anim.old_direction = item.direction
-            anim.diff_direction = (arc - anim.old_direction)
-
-            anim.diff_direction = (anim.diff_direction + 180) % 360 - 180
-
-        def rotate():
-            rate = anim.rate()
-            rate = math.sin(rate * math.pi * 0.5)
-            new_dir = anim.old_direction + anim.diff_direction * rate
-
-            item.direction = new_dir % 360
-            item.redraw(canvas.canvas)
-
-        anim._start = start
-        anim._step = rotate
-        return anim
-
-    @classmethod
-    def move_to(cls, canvas, item, from_pos, to_pos, duration=0.5):
-        anim = cls(duration)
-
-        def start():
-            anim.old_position = from_pos
-            anim.diff_position = (to_pos[0] - anim.old_position[0],
-                                  to_pos[1] - anim.old_position[1])
-
-        def translate():
-            rate = anim.rate()
-            rate = math.sin(rate * math.pi * 0.5)
-            pos_x = anim.old_position[0] + anim.diff_position[0] * rate
-            pos_y = anim.old_position[1] + anim.diff_position[1] * rate
-
-            item.moveto(canvas.canvas, pos_x, pos_y)
-
-        anim._start = start
-        anim._step = translate
-        return anim
-
-    @classmethod
-    def dummy(cls, canvas=None, duration=0.1):
-        anim = cls(duration)
-        def do_nothing():
-            pass
-        anim._step = do_nothing
-        return anim
-
-    @classmethod
-    def sequence(cls, animations):
-        duration = sum(anim.duration for anim in animations)
-
-        seq = cls(duration)
-        seq.animations = animations
-        seq.current_animation = None
-
-        def step():
-            if not seq.current_animation or seq.current_animation.is_finished:
-                try:
-                    seq.current_animation = seq.animations.pop(0)
-                    seq.current_animation.start()
-                except IndexError:
-                    return
-            seq.current_animation.step()
-
-        def finish():
-            for anim in seq.animations:
-                anim.finish.is_finished
-
-        seq._step = step
-        seq._finish = finish
-        return seq
