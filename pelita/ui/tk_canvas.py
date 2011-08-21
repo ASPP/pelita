@@ -223,31 +223,17 @@ class UiCanvas(object):
 
     def init_bots(self, universe):
         for bot in universe.bots:
-            bot_sprite = BotSprite(self.mesh_graph, team=bot.team_index)
+            bot_sprite = BotSprite(self.mesh_graph, team=bot.team_index, bot_idx=bot.index)
 
             self.bot_sprites[bot.index] = bot_sprite
             bot_sprite.position = bot.current_pos
 
-            if bot.is_harvester:
-                bot_sprite.bot_type = Harvester # Harvester(self.mesh_graph)
-            else:
-                bot_sprite.bot_type = Destroyer # (self.mesh_graph)
-
-            bot_sprite.score = universe.teams[bot.team_index].score
 
     def draw_bots(self, universe):
         for bot_idx, bot_sprite in self.bot_sprites.iteritems():
-            bot = universe.bots[bot_idx]
+            bot_sprite.position = universe.bots[bot_sprite.bot_idx].current_pos
 
-            bot_sprite.position = bot.current_pos
-
-            if bot.is_harvester:
-                bot_sprite.bot_type = Harvester # Harvester(self.mesh_graph)
-            else:
-                bot_sprite.bot_type = Destroyer # (self.mesh_graph)
-
-            bot_sprite.score = universe.teams[bot.team_index].score
-            bot_sprite.redraw(self.canvas)
+            bot_sprite.redraw(self.canvas, universe)
 
     def draw_items(self, items, x, y, mesh):
         item_class = None

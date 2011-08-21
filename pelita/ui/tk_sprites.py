@@ -41,7 +41,7 @@ class TkSprite(object):
     def screen(self, shift=(0, 0)):
         return self.mesh.mesh_trafo(self.x, self.y).screen(*shift)
 
-    def draw(self, canvas):
+    def draw(self, canvas, universe=None):
         raise NotImplementedError
 
     def bounding_box(self, scale_factor=1.0):
@@ -53,19 +53,17 @@ class TkSprite(object):
         _tag = self._tag or "tag" + str(id(self))
         return _tag
 
-    def redraw(self, canvas):
+    def redraw(self, canvas, universe=None):
         self.delete(canvas)
-        self.draw(canvas)
+        self.draw(canvas, universe)
 
     def delete(self, canvas):
         canvas.delete(self.tag)
 
 class BotSprite(TkSprite):
-    def __init__(self, mesh, score=0, bot_type=None, team=0, **kwargs):
-        self.score = score
+    def __init__(self, mesh, team=0, bot_idx=0, **kwargs):
+        self.bot_idx = bot_idx
         self.team = team
-
-        self.bot_type = bot_type
 
         super(BotSprite, self).__init__(mesh, **kwargs)
 
@@ -89,28 +87,21 @@ class BotSprite(TkSprite):
         eye_box = [self.screen((item.real, item.imag)) for item in eye_box]
         canvas.create_oval(eye_box, fill=eye_col, width=0, tag=self.tag)
 
-    def draw(self, canvas):
-        # A curious case of delegation
-        args = dict(self.__dict__)
-        args["_tag"] = self.tag
-        self.bot_type(**args).draw(canvas)
-
-class Harvester(BotSprite):
-    def draw(self, canvas):
-        if self.team == 0:
-            self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col="yellow", mirror=True)
+    def draw(self, canvas, universe):
+        is_harvester = universe.bots[self.bot_idx].is_harvester
+        if is_harvester:
+            if self.team == 0:
+                self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col="yellow", mirror=True)
+            else:
+                self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col="yellow")
         else:
-            self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col="yellow")
-
-class Destroyer(BotSprite):
-    def draw(self, canvas):
-        if self.team == 0:
-            self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col="white", mirror=True)
-        else:
-            self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col="white")
+            if self.team == 0:
+                self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col="white", mirror=True)
+            else:
+                self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col="white")
 
 class Wall(TkSprite):
-    def draw(self, canvas):
+    def draw(self, canvas, universe=None):
         scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5
         if not ((0, 1) in self.wall_neighbours or
                 (1, 0) in self.wall_neighbours or
@@ -143,7 +134,7 @@ class Food(TkSprite):
     def food_pos_tag(cls, position):
         return "Food" + str(position)
 
-    def draw(self, canvas):
+    def draw(self, canvas, universe=None):
         if self.position[0] < self.mesh.num_x/2:
             fill = col(94, 158, 217)
         else:
