@@ -208,7 +208,7 @@ class UiCanvas(object):
         self.canvas.create_text(center[0], center[1], text="GAME OVER\nTeam \"%s\" wins!"%win_name, font=(None, 60, "bold"), fill="red", tag="gameover",
                                 justify=Tkinter.CENTER, anchor=Tkinter.CENTER)
         text = Tkinter.Button(self.status, font=(None, 10), foreground="black", background="white",
-                              justify=Tkinter.CENTER, text="QUIT", command=self.master.quit).pack()
+                              justify=Tkinter.CENTER, text="QUIT", command=self.master.frame.quit).pack()
 
     def clear(self):
         self.canvas.delete(Tkinter.ALL)
