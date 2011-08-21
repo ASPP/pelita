@@ -99,8 +99,7 @@ class UiCanvas(object):
         }
 
         self.current_universe = None
-        self.previous_universe = None
-
+        
     def init_canvas(self):
         self.score = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=30)
         self.score.config(background="white")
@@ -115,7 +114,7 @@ class UiCanvas(object):
         self.status.config(background="white")
         self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
 
-    def update(self, events, universe, round=None, turn=None):
+    def update(self, universe, events, round=None, turn=None):
         if not self.canvas:
             if not self.mesh_graph:
                 width = universe.maze.width
@@ -136,7 +135,6 @@ class UiCanvas(object):
             self.init_canvas()
             self.init_bots(universe)
 
-        self.previous_universe = self.current_universe
         self.current_universe = universe
 
         if round is not None and turn is not None:
@@ -146,10 +144,7 @@ class UiCanvas(object):
                                     anchor=Tkinter.SE,
                                     text=roundturn, font=(None, 15), tag="roundturn")
 
-        if not self.previous_universe:
-            self.draw_universe(self.current_universe)
-        else:
-            self.draw_universe(self.previous_universe)
+        self.draw_universe(self.current_universe)
 
         if events:
             for team_wins in events.filter_type(datamodel.TeamWins):
@@ -310,12 +305,12 @@ class TkApplication(object):
             self.master.after(50, self.read_queue)
 
     def observe(self, observed):
+        universe = observed.get("universe")
+        events = observed.get("events")
         round = observed.get("round")
         turn = observed.get("turn")
-        universe = observed["universe"]
-        events = observed.get("events")
 
-        self.ui_canvas.update(events, universe, round, turn)
+        self.ui_canvas.update(universe, events, round, turn)
 
     def on_quit(self):
         """ override for things which must be done when we exit.
