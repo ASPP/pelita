@@ -53,26 +53,12 @@ class TkSprite(object):
         _tag = self._tag or "tag" + str(id(self))
         return _tag
 
-    def move(self, canvas, dx, dy):
-        self.x += dx
-        self.y += dy
-        canvas.move(self.tag, dx, dy)
-
-    def moveto(self, canvas, x, y):
-        self.x = x
-        self.y = y
-        self.redraw(canvas)
-
-    def rotate(self, darc):
-        self.direction += darc
-        self.direction %= 360
-
-    def rotate_to(self, arc):
-        self.direction = arc % 360
-
     def redraw(self, canvas):
-        canvas.delete(self.tag)
+        self.delete(canvas)
         self.draw(canvas)
+
+    def delete(self, canvas):
+        canvas.delete(self.tag)
 
 class BotSprite(TkSprite):
     def __init__(self, mesh, score=0, bot_type=None, team=0, **kwargs):
