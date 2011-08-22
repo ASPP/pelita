@@ -111,7 +111,7 @@ class Wall(TkSprite):
             # draw only a small dot.
             # TODO add diagonal lines
             canvas.create_line(self.screen((-0.3, 0)), self.screen((+0.3, 0)), fill=col(48, 26, 22),
-                               width=0.8 * scale, tag=self.tag, capstyle="round")
+                               width=0.8 * scale, tag=(self.tag, "wall"), capstyle="round")
         else:
             neighbours = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
             for dx in [-1, 0, 1]:
@@ -127,7 +127,7 @@ class Wall(TkSprite):
                             pass
                         else:
                             canvas.create_line(self.screen((0, 0)), self.screen((2*dx, 2*dy)), fill=col(48, 26, 22),
-                                               width=0.8 * scale, tag=self.tag, capstyle="round")
+                                               width=0.8 * scale, tag=(self.tag, "wall"), capstyle="round")
 
 class Food(TkSprite):
     @classmethod
@@ -139,4 +139,4 @@ class Food(TkSprite):
             fill = col(94, 158, 217)
         else:
             fill = col(235, 90, 90)
-        canvas.create_oval(self.bounding_box(0.4), fill=fill, width=0, tag=(self.tag, self.food_pos_tag(self.position)))
+        canvas.create_oval(self.bounding_box(0.4), fill=fill, width=0, tag=(self.tag, self.food_pos_tag(self.position), "food"))

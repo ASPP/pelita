@@ -92,12 +92,6 @@ class UiCanvas(object):
         self.master = master
         self.canvas = None
 
-        self.registered_items = []
-        self.mapping = {
-            datamodel.Wall: Wall,
-            datamodel.Food: Food
-        }
-
         self.current_universe = None
 
     def init_canvas(self):
@@ -156,17 +150,20 @@ class UiCanvas(object):
         self.mesh_graph.num_x = universe.maze.width
         self.mesh_graph.num_y = universe.maze.height
 
-        if self.size_changed:
-            self.clear()
-
-            self.draw_background(universe)
-            self.draw_mesh(universe.maze)
-            self.size_changed = False
+        self.draw_background(universe)
+        self.draw_maze(universe)
+        self.draw_food(universe)
 
         self.draw_title(universe)
         self.draw_bots(universe)
 
+        self.size_changed = False
+
     def draw_background(self, universe):
+        """ Draws a line between blue and red team.
+        """
+        if not self.size_changed:
+            return
         self.canvas.delete("background")
 
         center = self.mesh_graph.screen_width // 2
@@ -189,8 +186,8 @@ class UiCanvas(object):
     def draw_title(self, universe):
         self.score.delete("title")
         center = self.mesh_graph.screen_width // 2
-
         left_team = "%s %d" % (universe.teams[0].name, universe.teams[0].score)
+
         self.score.create_text(center - 10, 15, text=left_team, font=(None, 25), fill=col(94, 158, 217), tag="title", anchor=Tkinter.E)
 
         self.score.create_text(center, 15, text=":", font=(None, 25), tag="title", anchor=Tkinter.CENTER)
@@ -216,10 +213,31 @@ class UiCanvas(object):
             self.mesh_graph.screen_height = event.height
         self.size_changed = True
 
-    def draw_mesh(self, mesh):
-        for position, items in mesh.iteritems():
-            x, y = position
-            self.draw_items(items, x, y, mesh)
+    def draw_food(self, universe):
+        self.canvas.delete("food")
+        for position, items in universe.maze.iteritems():
+            model_x, model_y = position
+            if datamodel.Food in items:
+                food_item = Food(self.mesh_graph, model_x, model_y)
+                food_item.draw(self.canvas)
+
+    def draw_maze(self, universe):
+        if not self.size_changed:
+            return
+        self.canvas.delete("wall")
+        for position, items in universe.maze.iteritems():
+            model_x, model_y = position
+            if datamodel.Wall in items:
+                wall_item = Wall(self.mesh_graph, model_x, model_y)
+                wall_item.wall_neighbours = []
+                for dx in [-1, 0, 1]:
+                    for dy in [-1, 0, 1]:
+                        try:
+                            if datamodel.Wall in universe.maze[model_x + dx, model_y + dy]:
+                                wall_item.wall_neighbours.append( (dx, dy) )
+                        except IndexError:
+                            pass
+                wall_item.draw(self.canvas)
 
     def init_bots(self, universe):
         for bot in universe.bots:
@@ -228,38 +246,12 @@ class UiCanvas(object):
             self.bot_sprites[bot.index] = bot_sprite
             bot_sprite.position = bot.current_pos
 
-
     def draw_bots(self, universe):
         for bot_idx, bot_sprite in self.bot_sprites.iteritems():
             bot_sprite.position = universe.bots[bot_sprite.bot_idx].current_pos
 
             bot_sprite.redraw(self.canvas, universe)
 
-    def draw_items(self, items, x, y, mesh):
-        item_class = None
-        for item in items:
-            for key in self.mapping:
-                if issubclass(key, item):
-                    item_class = self.mapping[key]
-
-        if not item_class:
-            return
-
-        item = item_class(self.mesh_graph)
-        self.registered_items.append(item)
-
-        if isinstance(item, Wall):
-            item.wall_neighbours = []
-            for dx in [-1, 0, 1]:
-                for dy in [-1, 0, 1]:
-                    try:
-                        if datamodel.Wall in mesh[x + dx, y + dy]:
-                            item.wall_neighbours.append( (dx, dy) )
-                    except IndexError:
-                        pass
-        item.position = x, y
-
-        item.redraw(self.canvas)
 
 class TkApplication(object):
     def __init__(self, queue, master=None):
