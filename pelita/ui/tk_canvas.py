@@ -109,7 +109,7 @@ class UiCanvas(object):
         self.canvas.bind('<Configure>', self.resize)
 
     def update(self, universe, events, round=None, turn=None):
-        if not self.canvas:
+        if universe and not self.canvas:
             if not self.mesh_graph:
                 width = universe.maze.width
                 height = universe.maze.height
@@ -129,7 +129,14 @@ class UiCanvas(object):
             self.init_canvas()
             self.init_bots(universe)
 
-        self.current_universe = universe
+        if not universe and not self.current_universe:
+            return
+
+        if not universe and not self.size_changed:
+            return
+
+        if universe:
+            self.current_universe = universe
 
         if round is not None and turn is not None:
             self.status.delete("roundturn")
@@ -282,6 +289,7 @@ class TkApplication(object):
                     self.master.after(50, self.read_queue)
                 return
         except Queue.Empty:
+            self.observe({})
             if not event:
                 self.master.after(50, self.read_queue)
 
