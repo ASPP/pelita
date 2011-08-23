@@ -96,9 +96,45 @@ class BotSprite(TkSprite):
                 self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col="yellow")
         else:
             if self.team == 0:
-                self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col="white", mirror=True)
+                self.draw_destroyer(canvas, outer_col=col(94, 158, 217), eye_col="yellow", mirror=True)
             else:
-                self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col="white")
+                self.draw_destroyer(canvas, outer_col=col(235, 90, 90), eye_col="yellow")
+
+    def draw_destroyer(self, canvas, outer_col, eye_col, mirror=False):
+        direction = self.direction
+        box_ll, box_tr = self.bounding_box()
+
+        # ghost head
+        canvas.create_arc((box_ll, box_tr), start=0, extent=180, style="pieslice",
+                          width=0, outline=outer_col, fill=outer_col, tag = self.tag)
+        # ghost body
+        box_ll = box_ll[0], box_ll[1] + (box_tr[1]-box_ll[1])/2.
+        amplitude = (box_tr[1]-box_ll[1])/4.
+        start = box_ll[0], box_tr[1]-amplitude/2.
+        end = box_tr[0], start[1]
+        periods = 3
+        period = (end[0]-start[0])/periods
+        points_per_period = 10
+        x_spacing = period/points_per_period
+        x = [start[0]+i*x_spacing for i in range(periods*points_per_period)]
+        x.append(end[0])
+        y = [amplitude*math.cos(2*math.pi*(x_i-start[0])/period) + start[1] for x_i in x]
+        # add container edges for the polygon
+        x.insert(0, box_ll[0]); y.insert(0, box_ll[1])
+        x.append(box_tr[0]); y.append(box_ll[1])
+        canvas.create_polygon(zip(x,y), width=1, outline=outer_col, fill=outer_col, tag=self.tag)
+
+        # ghost eyes
+        eye_size = 0.15
+        eye_box = (-eye_size -eye_size*1j, eye_size + eye_size*1j)
+        # right eye
+        eye_box_r = [item+ 0.4 - 0.5j for item in eye_box]
+        eye_box_r = [self.screen((item.real, item.imag)) for item in eye_box_r]
+        canvas.create_oval(eye_box_r, fill=eye_col, width=0, tag=self.tag)
+        # left eye
+        eye_box_l = [item- 0.4 - 0.5j for item in eye_box]
+        eye_box_l = [self.screen((item.real, item.imag)) for item in eye_box_l]
+        canvas.create_oval(eye_box_l, fill=eye_col, width=0, tag=self.tag)
 
 class Wall(TkSprite):
     def draw(self, canvas, universe=None):
