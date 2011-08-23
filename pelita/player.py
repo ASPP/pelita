@@ -2,9 +2,11 @@
 
 """ Base classes for player implementations. """
 
+import os
+import random
+import sys
 from pelita.datamodel import stop, Free, diff_pos
 from pelita.graph import AdjacencyList, NoPathException
-import random
 
 __docformat__ = "restructuredtext"
 
@@ -275,6 +277,28 @@ class TestPlayer(AbstractPlayer):
 
     def get_move(self):
         return self.moves.pop()
+
+
+class IOBoundPlayer(AbstractPlayer):
+    """ IO Bound player that crawls the file system. """
+
+    def get_move(self):
+        count = 0
+        self.timeouted = False
+        for root, dirs, files in os.walk('/'):
+            for f in files:
+                try:
+                    os.stat(os.path.join(root, f))
+                except OSError:
+                    pass
+                finally:
+                    count += 1
+                    if count % 1000 == 0:
+                        sys.stdout.write('.')
+                        sys.stdout.flush()
+                    if not self.timeouted and self.previous_pos != self.current_pos:
+                        print "Crawling done and timeout received %i" % count
+                        self.timeouted = True
 
 class NQRandomPlayer(AbstractPlayer):
     """ Not-Quite-RandomPlayer that will move randomly but not stop or reverse. """
