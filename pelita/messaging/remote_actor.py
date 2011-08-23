@@ -120,6 +120,7 @@ class RemoteOutbox(SuspendableThread):
         self.connection = mailbox.connection
         self.request_db = mailbox.request_db
         self._queue = Queue.Queue()
+        self._remote_lock = Lock()
 
     def _run(self):
         self.handle_outbox()
@@ -137,7 +138,8 @@ class RemoteOutbox(SuspendableThread):
             pass
 
     def put(self, msg):
-        self._queue.put(msg)
+        with self._remote_lock:
+            self.connection.send(msg)
 
 class RemoteMailbox(object):
     """A mailbox bundles an incoming and an outgoing connection."""
