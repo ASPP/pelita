@@ -2,6 +2,7 @@
 
 import Queue
 import copy
+import Tkinter
 
 import logging
 
@@ -67,8 +68,10 @@ class TkViewer(AbstractViewer):
     def __init__(self, queue_size=1, timeout=0.5):
         self.observe_queue = Queue.Queue(maxsize=queue_size)
 
-        self.app = TkApplication(queue=self.observe_queue)
-        self.app.after_idle(self.app.read_queue)
+        self.root = Tkinter.Tk()
+
+        self.app = TkApplication(queue=self.observe_queue, master=self.root)
+        self.root.after_idle(self.app.read_queue)
 
         self.timeout = timeout
         if self.timeout == 0:
@@ -79,6 +82,7 @@ class TkViewer(AbstractViewer):
     def _put(self, obj):
         try:
             self.observe_queue.put(obj, self.block, self.timeout)
+            self.root.event_generate("<<QueueAdded>>", when="tail")
         except Queue.Full:
             _logger.info("Queue is filled. Skipping.")
             pass

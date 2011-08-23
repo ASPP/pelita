@@ -126,7 +126,7 @@ class SimpleServer(object):
             viewer = TkViewer()
             self.server.notify("register_viewer", [viewer])
             # We wait until tk closes
-            viewer.app.mainloop()
+            viewer.root.mainloop()
 
         self._run_save(main)
 
