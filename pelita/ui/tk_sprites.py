@@ -120,8 +120,8 @@ class BotSprite(TkSprite):
         x.append(end[0])
         y = [amplitude*math.cos(2*math.pi*(x_i-start[0])/period) + start[1] for x_i in x]
         # add container edges for the polygon
-        x.insert(0, box_ll[0]); y.insert(0, box_ll[1])
-        x.append(box_tr[0]); y.append(box_ll[1])
+        x.insert(0, box_ll[0]); y.insert(0, box_ll[1] - 1)
+        x.append(box_tr[0]); y.append(box_ll[1] - 1)
         canvas.create_polygon(zip(x,y), width=1, outline=outer_col, fill=outer_col, tag=self.tag)
 
         # ghost eyes
