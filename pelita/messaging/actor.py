@@ -9,7 +9,6 @@ import Queue
 import logging
 import uuid
 import inspect
-import time
 from threading import Lock
 
 from pelita.utils import SuspendableThread, CloseThread
@@ -18,8 +17,6 @@ _logger = logging.getLogger("pelita.actor")
 _logger.setLevel(logging.DEBUG)
 
 __docformat__ = "restructuredtext"
-
-PUT_DELAY_SECONDS = 0.0005
 
 class Channel(object):
     """ A `Channel` is an object which may be sent a message.
@@ -94,6 +91,9 @@ class Request(Channel):
 
 class DeadConnection(Exception):
     """Raised when the connection is lost."""
+
+class ActorNotRunning(Exception):
+    """Raised when the actor is not yet running or stopped."""
 
 class StopProcessing(object):
     """If a thread encounters this value in a queue, it is advised to stop processing."""
@@ -293,12 +293,8 @@ class ActorReference(BaseActorReference):
     def put(self, value, sender=None, remote=None):
         """ Puts a raw value into the actor’s inbox
         """
-        # wait a bit before putting a message into the inbox
-        # XXX FIXES casual hanging.
-        time.sleep(PUT_DELAY_SECONDS)
-
-        if hasattr(self, "is_running") and not self.is_running:
-            raise RuntimeError("Actor '%r' not running." % self._actor)
+        if not self.is_running:
+            raise ActorNotRunning("Actor '%r' not running." % self._actor)
         _logger.debug("Putting '%r' into '%r' (channel: %r)" % (value, self._actor, sender))
         self._actor.put(value, sender, remote)
 
