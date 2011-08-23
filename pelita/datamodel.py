@@ -305,7 +305,15 @@ class UniverseEvent(object):
     def __ne__(self, other):
         return not (self == other)
 
+    def _to_json_dict(self):
+        return dict(self.__dict__)
 
+    @classmethod
+    def _from_json_dict(cls, item):
+        # Events must take care to convert tuples in their __init__ method
+        return cls(**item)
+
+@serializable
 class BotMoves(UniverseEvent):
     """ Signifies that a bot has moved.
 
@@ -317,14 +325,14 @@ class BotMoves(UniverseEvent):
     """
     def __init__(self, bot_index, old_pos, new_pos):
         self.bot_index = bot_index
-        self.old_pos = old_pos
-        self.new_pos = new_pos
+        self.old_pos = tuple(old_pos)
+        self.new_pos = tuple(new_pos)
 
     def __repr__(self):
         return ('BotMoves(%i, %r, %r)'
             % (self.bot_index, self.old_pos, self.new_pos))
 
-
+@serializable
 class BotEats(UniverseEvent):
     """ Signifies that a bot has eaten food.
 
@@ -336,12 +344,13 @@ class BotEats(UniverseEvent):
     """
     def __init__(self, bot_index, food_pos):
         self.bot_index = bot_index
-        self.food_pos = food_pos
+        self.food_pos = tuple(food_pos)
 
     def __repr__(self):
         return ('BotEats(%i, %r)'
             % (self.bot_index, self.food_pos))
 
+@serializable
 class FoodEaten(UniverseEvent):
     """ Signifies that food has been eaten.
 
@@ -352,11 +361,12 @@ class FoodEaten(UniverseEvent):
 
     """
     def __init__(self, food_pos):
-        self.food_pos = food_pos
+        self.food_pos = tuple(food_pos)
 
     def __repr__(self):
         return 'FoodEaten(%s)' % repr(self.food_pos)
 
+@serializable
 class TeamScoreChange(UniverseEvent):
     """ Signifies that the score of a Team has changed.
 
@@ -378,6 +388,7 @@ class TeamScoreChange(UniverseEvent):
         return ('TeamScoreChange(%i, %i, %i)' %
             (self.team_index, self.score_change, self.new_score))
 
+@serializable
 class BotDestroyed(UniverseEvent):
     """ Signifies that a bot has been destroyed.
 
@@ -403,12 +414,12 @@ class BotDestroyed(UniverseEvent):
             harvester_new_pos, harvester_reset,
             destroyer_index, destroyer_old_pos, destroyer_new_pos):
         self.harvester_index = harvester_index
-        self.harvester_old_pos = harvester_old_pos
-        self.harvester_new_pos = harvester_new_pos
-        self.harvester_reset = harvester_reset
+        self.harvester_old_pos = tuple(harvester_old_pos)
+        self.harvester_new_pos = tuple(harvester_new_pos)
+        self.harvester_reset = tuple(harvester_reset)
         self.destroyer_index = destroyer_index
-        self.destroyer_old_pos = destroyer_old_pos
-        self.destroyer_new_pos = destroyer_new_pos
+        self.destroyer_old_pos = tuple(destroyer_old_pos)
+        self.destroyer_new_pos = tuple(destroyer_new_pos)
 
     def __repr__(self):
         return ('BotDestroyed(%i, %r, %r, %r, %i, %r, %r)'
@@ -417,6 +428,7 @@ class BotDestroyed(UniverseEvent):
                 self.destroyer_index, self.destroyer_old_pos,
                 self.destroyer_new_pos))
 
+@serializable
 class TimeoutEvent(UniverseEvent):
     """ Signifies that a timeout has occurred.
 
@@ -432,7 +444,7 @@ class TimeoutEvent(UniverseEvent):
     def __repr__(self):
         return "TimeoutEvent(%i)" % self.team_index
 
-
+@serializable
 class TeamWins(UniverseEvent):
     """ Signifies that a team has eaten all enemy food.
 

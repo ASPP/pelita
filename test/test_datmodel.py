@@ -368,10 +368,31 @@ class TestUniverseEvent(unittest.TestCase):
         team_wins = TeamWins(0)
         self.assertEqual(team_wins, TeamWins(0))
         self.assertEqual(team_wins, eval(repr(team_wins)))
+        timeout_event = TimeoutEvent(0)
+        self.assertEqual(timeout_event, TimeoutEvent(0))
+        self.assertEqual(timeout_event, eval(repr(timeout_event)))
 
         game_draw = GameDraw()
         self.assertEqual(game_draw, GameDraw())
         self.assertEqual(game_draw, eval(repr(game_draw)))
+
+    def test_json(self):
+        reconvert = lambda event: json_converter.loads(json_converter.dumps(event))
+
+        bot_moves = BotMoves(0, (0, 0), (1, 0))
+        self.assertEqual(bot_moves, reconvert(bot_moves))
+        bot_eats = BotEats(1, (0, 0))
+        self.assertEqual(bot_eats, reconvert(bot_eats))
+        food_eaten = FoodEaten((0, 0))
+        self.assertEqual(food_eaten, reconvert(food_eaten))
+        bot_destroyed = BotDestroyed(0, (0, 0), (0, 1), (0, 0), 1, (0, 1), (0, 1))
+        self.assertEqual(bot_destroyed, reconvert(bot_destroyed))
+        team_score_change = TeamScoreChange(0, 1, 2)
+        self.assertEqual(team_score_change, reconvert(team_score_change))
+        team_wins = TeamWins(0)
+        self.assertEqual(team_wins, reconvert(team_wins))
+        timeout_event = TimeoutEvent(0)
+        self.assertEqual(timeout_event, reconvert(timeout_event))
 
 class TestCTFUniverse(unittest.TestCase):
 
