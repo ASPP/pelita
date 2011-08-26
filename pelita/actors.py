@@ -121,7 +121,7 @@ class ClientActor(object):
         """ Tells our local actor to establish a local connection
         with other local actor `main_actor`.
         """
-        self.connect(main_actor, None, None)
+        return self.connect(main_actor, None, None)
 
     def connect(self, main_actor, host="", port=50007):
         """ Tells our local actor to establish a connection with `main_actor`.
