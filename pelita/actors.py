@@ -9,7 +9,7 @@ import Queue
 
 from pelita.messaging import DispatchingActor, expose, actor_registry, actor_of, RemoteConnection, DeadConnection, ActorNotRunning
 
-from pelita.game_master import GameMaster, PlayerTimeout, PlayerDisconnected
+from pelita.game_master import GameMaster, PlayerTimeout, PlayerDisconnected, AbstractViewer
 
 import logging
 
@@ -148,6 +148,18 @@ class ClientActor(object):
     def __repr__(self):
         return "ClientActor(%s, %s)" % (self.team_name, self.actor_ref)
 
+
+class RemoteViewer(AbstractViewer):
+    def __init__(self, reference):
+        self.ref = reference
+
+    def set_initial(self, universe):
+        self.ref.notify("set_initial", [universe])
+
+    def observe(self, round_, turn, universe, events):
+        self.ref.notify("observe", [round_, turn, universe, events])
+
+
 class RemoteTeamPlayer(object):
     """ This class is registered with the GameMaster and
     relays all get_move requests to the given ActorReference.
@@ -194,6 +206,8 @@ class ServerActor(DispatchingActor):
     def on_start(self):
         self.teams = []
         self.team_names = []
+
+        self.remote_viewers = []
         self.game_master = None
 
     @expose
@@ -232,6 +246,18 @@ class ServerActor(DispatchingActor):
         self.ref.reply("ok")
 
         self.check_for_start()
+
+    @expose
+    def register_viewer_actor(self, viewer_uuid):
+        if self.ref.remote:
+            other_ref = self.ref.remote.create_proxy(viewer_uuid)
+        else:
+            other_ref = actor_registry.get_by_uuid(viewer_uuid)
+
+        viewer = RemoteViewer(other_ref)
+        self.remote_viewers.append(viewer)
+        self.register_viewer(viewer)
+        self.ref.reply("ok")
 
     @expose
     def register_viewer(self, viewer):
