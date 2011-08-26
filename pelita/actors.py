@@ -33,6 +33,77 @@ def get_server_actor(name, host=None, port=None):
 
     return server_actor
 
+
+class _ViewerActor(DispatchingActor):
+    """ Actor used to communicate with
+    """
+    def on_start(self):
+        self._server = None
+        self._viewer = None
+
+    @expose
+    def set_viewer(self, viewer):
+        self._viewer = viewer
+
+    @expose
+    def set_initial(self, universe):
+        self._viewer.set_initial(universe)
+
+    @expose
+    def observe(self, round_, turn, universe, events):
+        self._viewer.observe(round_, turn, universe, events)
+
+    @expose
+    def connect(self, main_actor, timeout, host=None, port=None):
+        self._server = get_server_actor(main_actor, host, port)
+        if not self._server:
+            self.ref.reply("failed")
+            return
+
+        try:
+            if self._server.query("register_viewer_actor", [self.ref.uuid]).get(timeout) == "ok":
+                _logger.info("Connection accepted")
+                self.ref.reply("ok")
+        except Queue.Empty:
+            self.ref.reply("actor no reply")
+        except ActorNotRunning:
+            # local server is not yet running. Try again later
+            self.ref.reply("actor not running")
+
+class ViewerActor(object):
+    def __init__(self, viewer):
+        self.actor_ref = actor_of(_ViewerActor)
+        self.actor_ref._actor.thread.daemon = True # TODO remove this line
+        self.actor_ref.start()
+        self._set_viewer(viewer)
+
+    def _set_viewer(self, viewer):
+        self.actor_ref.notify("set_viewer", [viewer])
+
+    def connect_local(self, main_actor):
+        """ Tells our local actor to establish a local connection
+        with other local actor `main_actor`.
+        """
+        return self.connect(main_actor, None, None)
+
+    def connect(self, main_actor, host="", port=50007):
+        """ Tells our local actor to establish a connection with `main_actor`.
+        """
+        if port is None:
+            print "Trying to establish a connection with local actor '%s'..." % main_actor,
+        else:
+            print "Trying to establish a connection with remote actor '%s'..." % main_actor,
+        sys.stdout.flush()
+
+        try:
+            res = self.actor_ref.query("connect", [main_actor, 2, host, port]).get(TIMEOUT)
+            print res
+            if res == "ok":
+                return True
+        except Queue.Empty:
+            print "failed due to timeout in actor."
+        return False
+
 class _ClientActor(DispatchingActor):
     """ Actor used to communicate with the Server.
     """
