@@ -20,6 +20,19 @@ _logger.setLevel(logging.DEBUG)
 
 TIMEOUT = 3
 
+def get_server_actor(name, host=None, port=None):
+    try:
+        if port is None:
+            # assume local game
+            server_actor = actor_registry.get_by_name(name)
+        else:
+            server_actor = RemoteConnection().actor_for(name, host, port)
+    except DeadConnection:
+        # no connection could be established
+        server_actor = None
+
+    return server_actor
+
 class _ClientActor(DispatchingActor):
     """ Actor used to communicate with the Server.
     """
@@ -42,18 +55,9 @@ class _ClientActor(DispatchingActor):
         and sends it a "hello" message with the given team_name.
         """
 
-        try:
-            if port is None:
-                # assume local game (TODO: put somewhere else?)
-                self.server_actor = actor_registry.get_by_name(main_actor)
-            else:
-                self.server_actor = RemoteConnection().actor_for(main_actor, host, port)
-        except DeadConnection:
-            # no connection could be established
-            self.ref.reply("failed")
-
+        self.server_actor = get_server_actor(main_actor, host, port)
         if not self.server_actor:
-            _logger.warning("Actor %r not found." % main_actor)
+            self.ref.reply("failed")
             return
 
         try:
