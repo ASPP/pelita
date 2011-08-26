@@ -10,25 +10,25 @@ class Ping(DispatchingActor):
         self.pings_left = 2000
 
     @expose
-    def connect(self, message, actor_uuid):
+    def connect(self, actor_uuid):
         if self.ref.remote:
             self.pong = self.ref.remote.create_proxy(actor_uuid)
         else:
             self.pong = actor_registry.get_by_uuid(actor_uuid)
 
     @expose
-    def Start(self, message):
+    def Start(self):
         print "Ping: Starting"
         self.pong.notify("Ping", channel=self.ref)
         self.pings_left -= 1
 
     @expose
-    def SendPing(self, message):
+    def SendPing(self):
         self.pong.notify("Ping", channel=self.ref)
         self.pings_left -= 1
 
     @expose
-    def Pong(self, message):
+    def Pong(self):
         if self.pings_left % 100 == 0:
             print "Ping: pong from: " + str(self.ref.channel)
         if self.pings_left > 0:
@@ -44,7 +44,7 @@ class Pong(DispatchingActor):
         self.old_time = datetime.now()
 
     @expose
-    def Ping(self, message):
+    def Ping(self):
         if self.pong_count % 100 == 0:
             delta = datetime.now() - self.old_time
             self.old_time = datetime.now()
@@ -55,7 +55,7 @@ class Pong(DispatchingActor):
         self.pong_count += 1
 
     @expose
-    def Stop(self, message):
+    def Stop(self):
         print "Pong: Stop."
         self.ref.put(StopProcessing)
 

@@ -24,7 +24,7 @@ class ServerActor(DispatchingActor):
             box.stop()
 
     @expose(name="stop")
-    def _stop(self, message=None):
+    def _stop(self):
         """Stops the actor."""
         self.stop()
 
@@ -32,14 +32,14 @@ class ServerActor(DispatchingActor):
         self.stop_mailboxes()
 
     @expose
-    def multiply(self, message, *args):
+    def multiply(self, *args):
         """Multiplies the argument list."""
         res = reduce(lambda x,y: x*y, args)
         print "Calculated", res
         self.ref.reply(res)
 
     @expose
-    def hello(self, message, actor_uuid):
+    def hello(self, actor_uuid):
 
         proxy = self.ref.remote.create_proxy(actor_uuid)
         self.players.append(proxy)
@@ -47,11 +47,11 @@ class ServerActor(DispatchingActor):
         proxy.notify("init", [0])
 
     @expose(name="players")
-    def _players(self, message, *args):
+    def _players(self, *args):
         self.ref.reply(list(self.players))
 
     @expose
-    def calc(self, message, num_clients=1, iterations=10000):
+    def calc(self, num_clients=1, iterations=10000):
         if len(list(self.players)) < num_clients:
             self.ref.reply("Not enough clients connected")
             return
@@ -80,7 +80,7 @@ class ServerActor(DispatchingActor):
         self.ref.reply(res)
 
     @expose
-    def minigame(self, message):
+    def minigame(self):
         """Demos a small game."""
         if len(self.players) != 2:
             self.ref.reply("Need two players.")

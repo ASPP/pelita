@@ -64,7 +64,7 @@ instance::
 
     class MyOtherActor(DispatchingActor):
         @expose
-        def hello(self, message, what):
+        def hello(self, what):
             print "Hello, " + what
 
     my_other_actor = actor_of(MyOtherActor)
@@ -78,7 +78,7 @@ using the `query` statement::
 
     class MyOtherActor(DispatchingActor):
         @expose
-        def hello(self, message, what):
+        def hello(self, what):
             self.ref.reply("Hello, " + what)
 
     my_other_actor = actor_of(MyOtherActor)
