@@ -22,6 +22,10 @@ class Dispatcher(DispatchingActor):
         self.ref.reply(self.param1)
 
     @expose
+    def complicated_params(self, message, arg1=1, arg2=2, arg3=3):
+        self.ref.reply(arg1 + 10 * arg2 + 100 * arg3)
+
+    @expose
     def get_docstring(self, message):
         """ This method has no content but a docstring. """
 
@@ -104,6 +108,17 @@ class TestDispatchingActor(unittest.TestCase):
         actor.stop()
         actor.join()
         self.assertRaises(ActorNotRunning, actor.notify, "dummy")
+
+    def test_complicated_params(self):
+        actor = actor_of(Dispatcher)
+        actor.start()
+        req = actor.query("complicated_params", {"arg1": 5, "arg3": 7}) # arg2 is default 2
+        self.assertEqual(req.get(), 725)
+
+        req = actor.query("complicated_params", [1,2,3])
+        self.assertEqual(req.get(), 321)
+        actor.stop()
+        actor.join()
 
 class RaisingActor(Actor):
     def on_receive(self, message):
