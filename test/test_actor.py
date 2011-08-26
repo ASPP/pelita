@@ -10,27 +10,32 @@ class Dispatcher(DispatchingActor):
         self.param1 = None
 
     @expose
-    def dummy(self, message):
+    def dummy(self):
         pass
 
     @expose
-    def set_param1(self, message, argument):
+    def set_param1(self, argument):
         self.param1 = argument
 
     @expose
-    def get_param1(self, message):
+    def get_param1(self):
         self.ref.reply(self.param1)
 
     @expose
-    def complicated_params(self, message, arg1=1, arg2=2, arg3=3):
+    def complicated_params(self, arg1=1, arg2=2, arg3=3):
         self.ref.reply(arg1 + 10 * arg2 + 100 * arg3)
 
     @expose
-    def get_docstring(self, message):
+    def get_docstring(self):
         """ This method has no content but a docstring. """
 
+    @expose
+    def return_message(self, *args, **kwargs):
+        msg = self.ref.current_message
+        self.ref.reply(msg)
+
     @expose(name="renamed_method")
-    def fake_name(self, message):
+    def fake_name(self):
         self.ref.reply(12)
 
 
@@ -117,6 +122,15 @@ class TestDispatchingActor(unittest.TestCase):
 
         req = actor.query("complicated_params", [1,2,3])
         self.assertEqual(req.get(), 321)
+        actor.stop()
+        actor.join()
+
+    def test_current_message(self):
+        actor = actor_of(Dispatcher)
+        actor.start()
+        req = actor.query("return_message", {"arg1": 5, "arg3": 7})
+        self.assertEqual(req.get(), {'params': {'arg1': 5, 'arg3': 7}, 'method': 'return_message'})
+
         actor.stop()
         actor.join()
 

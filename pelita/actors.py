@@ -28,7 +28,7 @@ class _ClientActor(DispatchingActor):
         self.server_actor = None
 
     @expose
-    def register_team(self, message, team):
+    def register_team(self, team):
         """ We register the team.
         """
         # TODO: Maybe throw an exception, if a team
@@ -37,7 +37,7 @@ class _ClientActor(DispatchingActor):
         self.team = team
 
     @expose
-    def say_hello(self, message, main_actor, team_name, host=None, port=None):
+    def say_hello(self, main_actor, team_name, host=None, port=None):
         """ Opens a connection to the remote main_actor,
         and sends it a "hello" message with the given team_name.
         """
@@ -67,19 +67,19 @@ class _ClientActor(DispatchingActor):
             self.ref.reply("actor not running")
 
     @expose
-    def set_bot_ids(self, message, *bot_ids):
+    def set_bot_ids(self, *bot_ids):
         """ Called by the server. This method sets the available bot_ids for this team.
         """
         self.ref.reply(self.team._set_bot_ids(bot_ids))
 
     @expose
-    def set_initial(self, message, universe):
+    def set_initial(self, universe):
         """ Called by the server. This method tells us the initial universe.
         """
         self.ref.reply(self.team._set_initial(universe))
 
     @expose
-    def play_now(self, message, bot_index, universe):
+    def play_now(self, bot_index, universe):
         """ Called by the server. This message requests a new move
         from the bot with index `bot_index`.
         """
@@ -198,7 +198,7 @@ class ServerActor(DispatchingActor):
         self.game_master = None
 
     @expose
-    def initialize_game(self, message, layout, number_bots, game_time):
+    def initialize_game(self, layout, number_bots, game_time):
         """ Initialises a new game.
         """
         self.game_master = GameMaster(layout, number_bots, game_time)
@@ -216,7 +216,7 @@ class ServerActor(DispatchingActor):
             self.team_names = list(team_names)
 
     @expose
-    def hello(self, message, team_name, actor_uuid):
+    def hello(self, team_name, actor_uuid):
         """ Register the actor with address `actor_uuid` as team `team_name`.
         """
         _logger.info("Received 'hello' from '%s'." % team_name)
@@ -235,11 +235,11 @@ class ServerActor(DispatchingActor):
         self.check_for_start()
 
     @expose
-    def register_viewer(self, message, viewer):
+    def register_viewer(self, viewer):
         self.game_master.register_viewer(viewer)
 
     @expose
-    def start_game(self, message):
+    def start_game(self):
         """ Tells the game master to start a new game.
 
         This method only returns when the game master itself

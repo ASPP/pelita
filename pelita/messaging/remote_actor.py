@@ -98,7 +98,7 @@ class RemoteInbox(SuspendableThread):
         sender = recv.get("sender")
         if sender:
             proxy = self.mailbox.create_proxy(sender)
-            channel.put(recv.get("message"), sender=proxy, remote=self.mailbox)
+            channel.put(recv.get("message"), channel=proxy, remote=self.mailbox)
         else:
             channel.put(recv.get("message"), remote=self.mailbox)
 
