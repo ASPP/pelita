@@ -141,6 +141,8 @@ class ClientActor(object):
             print "failed due to timeout in actor."
         return False
 
+    def __repr__(self):
+        return "ClientActor(%s, %s)" % (self.team_name, self.actor_ref)
 
 class RemoteTeamPlayer(object):
     """ This class is registered with the GameMaster and
