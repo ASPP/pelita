@@ -171,14 +171,7 @@ class SimpleClient(object):
             self.host = host
             self.port = port
 
-    def autoplay(self):
-        """ Creates a new ClientActor, and connects it with
-        the Server.
-        This method only returns when the ClientActor finishes.
-        """
-        client_actor = ClientActor(self.team_name)
-        client_actor.register_team(self.team)
-
+    def _auto_connect(self, client_actor, retries=3, delay=3):
         if self.port is None:
             address = "%s" % self.main_actor
             connect = lambda: client_actor.connect_local(self.main_actor)
@@ -186,14 +179,15 @@ class SimpleClient(object):
             address = "%s on %s:%s" % (self.main_actor, self.host, self.port)
             connect = lambda: client_actor.connect(self.main_actor, self.host, self.port)
 
-        # Try to connect a few times
-        timeouts = [0.05, 0.05, 0.1, 0.1, 0.1, 1.0, 1.0, 2.0]
-        for i,timeout in enumerate(timeouts):
+        # Try retries times to connect
+        for i in range(retries):
             if connect():
                 break
-            print "%s: No connection to %s." % (self.team_name, address)
-            print "Waiting %f seconds. (%d/%d)" % (timeout, i + 1, len(timeouts))
-            time.sleep(timeout)
+            else:
+                print "%s: No connection to %s." % (client_actor, address)
+                if i < retries - 1:
+                    print " Waiting %f seconds. (%d/%d)" % (delay, i + 1, retries)
+                    time.sleep(delay)
         else:
             print "Giving up."
             return
@@ -202,9 +196,19 @@ class SimpleClient(object):
             while client_actor.actor_ref.is_alive:
                 client_actor.actor_ref.join(1)
         except KeyboardInterrupt:
-            print "%s: Client received CTRL+C. Exiting." % self.team_name
+            print "%s: Client received CTRL+C. Exiting." % client_actor
         finally:
             client_actor.actor_ref.stop()
+
+    def autoplay(self):
+        """ Creates a new ClientActor, and connects it with
+        the Server.
+        This method only returns when the ClientActor finishes.
+        """
+        client_actor = ClientActor(self.team_name)
+        client_actor.register_team(self.team)
+
+        self._auto_connect(client_actor)
 
     def autoplay_background(self):
         """ Calls self.autoplay() but stays in the background.
