@@ -8,9 +8,10 @@ import time
 import multiprocessing
 import threading
 import signal
+import itertools
 
 from pelita.messaging import actor_of, RemoteConnection
-from pelita.actors import ClientActor, ServerActor
+from pelita.actors import ClientActor, ServerActor, ViewerActor
 from pelita.layout import get_random_layout
 
 from pelita.viewer import AsciiViewer
@@ -19,8 +20,6 @@ from pelita.utils.signal_handlers import keyboard_interrupt_handler
 
 
 __docformat__ = "restructuredtext"
-
-
 
 class SimpleServer(object):
     """ Sets up a simple Server with most settings pre-configured.
@@ -48,7 +47,6 @@ class SimpleServer(object):
         If True, we only setup a local server. Default: True.
     """
     def __init__(self, layout=None, layoutfile=None, players=4, rounds=3000, host="", port=50007, local=True):
-
         if layout is None:
             if layoutfile:
                 with open(layoutfile) as file:
@@ -234,3 +232,88 @@ class SimpleClient(object):
         background_thread.daemon = True
         background_thread.start()
         return background_thread
+
+class SimpleViewer(object):
+    def __init__(self, main_actor="pelita-main", host="", port=50007, local=False):
+        self.main_actor = main_actor
+
+        if local:
+            self.host = None
+            self.port = None
+        else:
+            self.host = host
+            self.port = port
+
+        self.viewer_actor = None
+
+    def _setup(self, retries, delay):
+
+        if self.port is None:
+            address = "%s" % self.main_actor
+            connect = lambda: self.viewer_actor.connect_local(self.main_actor)
+        else:
+            address = "%s on %s:%s" % (self.main_actor, self.host, self.port)
+            connect = lambda: self.viewer_actor.connect(self.main_actor, self.host, self.port)
+
+        # Try retries times to connect
+        if retries is None:
+            iter = itertools.count()
+        else:
+            iter = xrange(retries)
+
+        for i in iter:
+            if connect():
+                return True
+            else:
+                print "%s: No connection to %s." % (self.viewer_actor, address)
+                if retries is None:
+                    print " Waiting %i seconds. (%d)" % (delay, i + 1)
+                    time.sleep(delay)
+                else:
+                    if i < retries - 1:
+                        print " Waiting %i seconds. (%d/%d)" % (delay, i + 1, retries)
+                        time.sleep(delay)
+        else:
+            print "Giving up."
+
+        return False
+
+    def _run_save(self, main_block, retries, delay):
+        """ Method which executes `main_block` and rescues
+        a possible keyboard interrupt.
+        """
+        if not self._setup(retries, delay):
+            return
+
+        try:
+            main_block()
+        except KeyboardInterrupt:
+            print "Server received CTRL+C. Exiting."
+        finally:
+            self.viewer_actor.actor_ref.stop()
+
+    def run_tk(self, retries=None, delay=1):
+        """ Starts a game with the Tk viewer.
+        This method does not return until the server or Tk is stopped.
+        """
+        self.viewer = TkViewer()
+        self.viewer_actor = ViewerActor(self.viewer)
+
+        def main():
+            # We wait until tk closes
+            self.viewer.root.mainloop()
+
+        self._run_save(main, retries, delay)
+
+    def run_ascii(self, retries=None, delay=1):
+        """ Starts a game with the ASCII viewer.
+        This method does not return until the server is stopped.
+        """
+        self.viewer = AsciiViewer()
+        self.viewer_actor = ViewerActor(self.viewer)
+
+        def main():
+            while True:
+                time.sleep(1)
+
+        self._run_save(main, retries, delay)
