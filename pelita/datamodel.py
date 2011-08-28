@@ -598,6 +598,10 @@ class Maze(Mesh):
         """ The indices of positions which have a MazeComponent. """
         return [pos for pos in self.positions if self.has_at(type_, pos)]
 
+    def __repr__(self):
+        return ('Maze(%i, %i, data=%r)'
+            % (self.width, self.height, self._data))
+
 
 def create_maze(layout_mesh):
     """ Transforms a layout_mesh into a Maze.
@@ -723,7 +727,7 @@ class CTFUniverse(object):
 
     Parameters
     ----------
-    maze : mesh of lists of MazeComponent objects
+    maze : Maze object
         the maze
     teams : list of Team objects
         the teams
