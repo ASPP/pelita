@@ -458,6 +458,7 @@ class TestCTFUniverse(unittest.TestCase):
 
         self.assertEqual(universe, universe2)
         self.assertEqual(universe, eval(repr(universe)))
+        self.assertFalse(universe != eval(repr(universe)))
 
     def test_copy(self):
         test_layout3 = (
