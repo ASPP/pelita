@@ -93,6 +93,17 @@ class TestMesh(unittest.TestCase):
         m = Mesh(3, 2, data=[1, 2, 3, 4, 5, 6])
         self.assertEqual(m.compact_str, '123\n456\n')
 
+    def test_equality(self):
+        m1a = Mesh(2, 2, data=[1, 2, 3, 4])
+        m1b = Mesh(2, 2, data=[1, 2, 3, 4])
+        m2 = Mesh(2, 2, data=[1, 2, 3, 5])
+        self.assertEqual(m1a, m1b)
+        self.assertEqual(m1a, m1a)
+        self.assertNotEqual(m1a, m2)
+        self.assertNotEqual(m2, m1a)
+        self.assertNotEqual(m1a, None)
+        self.assertNotEqual(None, m1a)
+
     def test_repr(self):
         m = Mesh(2, 2, data=[1, 2, 3, 4])
         m2 = eval(repr(m))
@@ -155,6 +166,8 @@ class TestTypeAwareList(unittest.TestCase):
         self.assertEqual(tal, tal2)
         self.assertEqual(tal, eval(repr(tal)))
         self.assertNotEqual(tal, tal3)
+        self.assertNotEqual(None, tal)
+        self.assertNotEqual(tal, None)
 
     def test_contains(self):
         tal = TypeAwareList([1, [], {}])
