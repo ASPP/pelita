@@ -221,8 +221,13 @@ class Mesh(Mapping):
         return output
 
     def __eq__(self, other):
-        return (self.width == other.width and self.height == other.height and
+        return (type(self) == type(other) and
+                self.width == other.width and
+                self.height == other.height and
                 self._data == other._data)
+
+    def __ne__(self, other):
+        return not (self == other)
 
     @property
     def compact_str(self):
@@ -392,8 +397,12 @@ class TypeAwareList(MutableSequence):
             self.remove(item)
 
     def __eq__(self, other):
-        return (self._items == other._items and
-            self.base_class == other.base_class)
+        return (type(self) == type(other) and
+                self._items == other._items and
+                self.base_class == other.base_class)
+
+    def __ne__(self, other):
+        return not (self == other)
 
     def __repr__(self):
         if self.base_class is None:

@@ -188,7 +188,10 @@ class Team(object):
                 (self.index, self.name, self.zone, self.score, self.bots))
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        return type(self) == type(other) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
 
     def _to_json_dict(self):
         return {"index": self.index,
@@ -262,7 +265,10 @@ class Bot(object):
         self.current_pos = self.initial_pos
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        return type(self) == type(other) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
 
     def __cmp__(self, other):
         if self == other:
@@ -294,7 +300,10 @@ class UniverseEvent(object):
     """ Base class for all events in a Universe. """
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        return type(self) == type(other) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
 
 
 class BotMoves(UniverseEvent):
@@ -455,6 +464,9 @@ class MazeComponent(object):
     def __eq__(self, other):
         return isinstance(other, self.__class__)
 
+    def __ne__(self, other):
+        return not (self == other)
+
     def _to_json_dict(self):
         return {}
 
@@ -586,6 +598,10 @@ class Maze(Mesh):
         """ The indices of positions which have a MazeComponent. """
         return [pos for pos in self.positions if self.has_at(type_, pos)]
 
+    def __repr__(self):
+        return ('Maze(%i, %i, data=%r)'
+            % (self.width, self.height, self._data))
+
 
 def create_maze(layout_mesh):
     """ Transforms a layout_mesh into a Maze.
@@ -711,7 +727,7 @@ class CTFUniverse(object):
 
     Parameters
     ----------
-    maze : mesh of lists of MazeComponent objects
+    maze : Maze object
         the maze
     teams : list of Team objects
         the teams
@@ -949,7 +965,10 @@ class CTFUniverse(object):
             (self.maze, self.teams, self.bots))
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        return type(self) == type(other) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
 
     @property
     def _char_mesh(self):

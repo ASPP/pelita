@@ -337,6 +337,10 @@ class TestMaze(unittest.TestCase):
         maze_json = json_converter.dumps(maze)
         self.assertEqual(json_converter.loads(maze_json), maze)
 
+    def test_eq_repr(self):
+        maze = Maze(2, 1, data=["#", " ."])
+        self.assertEqual(maze, eval(repr(maze)))
+
 class TestUniverseEvent(unittest.TestCase):
 
     def test_eq_repr(self):
@@ -454,6 +458,7 @@ class TestCTFUniverse(unittest.TestCase):
 
         self.assertEqual(universe, universe2)
         self.assertEqual(universe, eval(repr(universe)))
+        self.assertFalse(universe != eval(repr(universe)))
 
     def test_copy(self):
         test_layout3 = (
