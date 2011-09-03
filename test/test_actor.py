@@ -281,6 +281,24 @@ class TestRemoteActor(unittest.TestCase):
 
         remote.stop()
 
+    def test_bad_json(self):
+        remote = RemoteConnection().start_listener("localhost", 0)
+        remote.register("main-actor", actor_of(MultiplyingActor))
+
+        # port is dynamic
+        port = remote.listener.socket.port
+
+        client = RemoteConnection().actor_for("main-actor", "localhost", port)
+
+        # unserialisable class
+        class SomeClass(object):
+            pass
+        somobj = SomeClass()
+
+        self.assertRaises(TypeError, client.query, "mult", somobj)
+
+        remote.stop()
+
 
 if __name__ == '__main__':
     unittest.main()
