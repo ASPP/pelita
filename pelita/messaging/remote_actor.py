@@ -109,7 +109,7 @@ class RemoteInbox(SuspendableThread):
 #        self.connection.connection.shutdown(socket.SHUT_RDWR)
 #        self.connection.close()
 
-class RemoteOutbox(SuspendableThread):
+class RemoteOutbox(object):
     """ This class checks its outgoing queue for new messages and
     sends them through the connection specified by `self.mailbox.connection`.
     """
@@ -118,24 +118,7 @@ class RemoteOutbox(SuspendableThread):
 
         self.mailbox = mailbox
         self.connection = mailbox.connection
-        self.request_db = mailbox.request_db
-        self._queue = Queue.Queue()
         self._remote_lock = Lock()
-
-    def _run(self):
-        self.handle_outbox()
-
-    def handle_outbox(self):
-        try:
-            to_send = self._queue.get(True, 3)
-
-            _logger.info("Processing outbox %r", to_send)
-            if to_send is StopProcessing:
-                raise CloseThread
-
-            self.connection.send(to_send)
-        except Queue.Empty:
-            pass
 
     def put(self, msg):
         with self._remote_lock:
@@ -181,14 +164,11 @@ class RemoteMailbox(object):
     def start(self):
         _logger.info("Starting mailbox %r", self)
         self.inbox.start()
-        self.outbox.start()
 
     def stop(self):
         # TODO: this method may be called multiple times
         _logger.info("Stopping mailbox %r", self)
-        self.outbox._queue.put(StopProcessing) # I need to to this or the thread will not stop...
         self.inbox.stop()
-        self.outbox.stop()
         self.connection.close()
         try:
             self.remote.remove_connection(self.connection)
@@ -299,9 +279,6 @@ class RemoteActorReference(BaseActorReference):
         super(RemoteActorReference, self).__init__(**kwargs)
 
     def put(self, message, channel=None, remote=None):
-        if not self._remote_mailbox.outbox.thread.is_alive():
-            raise DeadConnection
-
         remote_name = self.remote_name
         sender_info = repr(channel) # only used for debugging
 
