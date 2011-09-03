@@ -125,8 +125,16 @@ class RemoteInbox(SuspendableThread):
 #        self.connection.close()
 
 class RemoteOutbox(object):
-    """ This class checks its outgoing queue for new messages and
-    sends them through the connection specified by `self.mailbox.connection`.
+    """ This class is used to send messages over the connection
+    specified by `self.mailbox.connection`.
+    Because of possible threading issues, this class uses a lock
+    before sending messages. This means that there may be problems
+    when too many or too large messages are sent at the same time.
+
+    The alternative would be to use a queue for sending, so that
+    the sender would not need to wait until the message is processed.
+    This, however, has proven to cause much longer delays (contrary to
+    intuition) for the sending thread than the lock solution.
     """
     def __init__(self, mailbox, **kwargs):
         super(RemoteOutbox, self).__init__(**kwargs)
