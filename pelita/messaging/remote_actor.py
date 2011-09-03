@@ -18,7 +18,7 @@ __docformat__ = "restructuredtext"
 
 from pelita.utils import SuspendableThread, CloseThread, Counter
 from pelita.messaging.remote import JsonSocketConnection, TcpThreadedListeningServer, TcpConnectingClient
-from pelita.messaging.actor import StopProcessing, DeadConnection, actor_registry, BaseActorReference
+from pelita.messaging.actor import StopProcessing, DeadConnection, actor_registry, BaseActorReference, ActorNotRunning
 
 
 class RequestDB(object):
@@ -90,17 +90,32 @@ class RemoteInbox(SuspendableThread):
 
         actor = recv.get("actor")
         channel = self.mailbox.dispatcher(actor)
-
-        if not channel:
-            _logger.warning("No channel found for message %r. Dropping." % recv)
-            return
-
         sender = recv.get("sender")
         if sender:
-            proxy = self.mailbox.create_proxy(sender)
-            channel.put(recv.get("message"), channel=proxy, remote=self.mailbox)
+            sender_ref = self.mailbox.create_proxy(sender)
         else:
-            channel.put(recv.get("message"), remote=self.mailbox)
+            sender_ref = None
+
+        if not channel:
+            self.handle_error("No channel '%s' found for message %r. Dropping." % (actor, recv), sender_ref)
+            return
+
+        try:
+            channel.put(recv.get("message"), channel=sender_ref, remote=self.mailbox)
+        except ActorNotRunning:
+            self.handle_error("Channel %r not running. Dropping message %r." % (channel, recv), sender_ref)
+
+    def handle_error(self, message, sender=None):
+        """ If a sender reference is available, tell the sender that
+        this message cannot be handled.
+        """
+        # TODO: In weird cases, this could backfire and ping-pong forever between two bad connections
+        # TODO: This method could be configurable in the mailbox
+        if sender:
+            msg = {"error": message}
+            sender.put(msg)
+        else:
+            _logger.warning(message)
 
 # TODO Not in use now, we rely on timeout until we know better
 #    def stop(self):

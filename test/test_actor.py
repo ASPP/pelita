@@ -228,6 +228,7 @@ class TestRemoteActor(unittest.TestCase):
     def test_remote(self):
         remote = RemoteConnection().start_listener("localhost", 0)
         remote.register("main-actor", actor_of(MultiplyingActor))
+
         remote.start_all()
 
         # port is dynamic
@@ -246,12 +247,37 @@ class TestRemoteActor(unittest.TestCase):
         res = client1.query("mult", [2, 2, 4])
         self.assertEqual(res.get(timeout=3), 16)
 
+        remote.stop()
+
+    def test_bad_actors(self):
+        remote = RemoteConnection().start_listener("localhost", 0)
+        remote.register("main-actor", actor_of(MultiplyingActor))
+
+        remote.start_all()
+
+        # port is dynamic
+        port = remote.listener.socket.port
+
         # check a remote identifier which does not work
-        # sorry, no error propagation at the moment,
-        # need to use a timeout
-        client2 = RemoteConnection().actor_for("unknown-actor", "localhost", port)
-        res = client2.query("mult", [1, 4, 4])
-        self.assertRaises(Queue.Empty, res.get, timeout=1)
+        # should reply with an error message
+        client = RemoteConnection().actor_for("unknown-actor", "localhost", port)
+        req = client.query("mult", [1, 4, 4])
+        res = req.get(timeout=3)
+        self.assertIn("error", res)
+
+        remote.stop()
+
+    def test_not_running(self):
+        remote = RemoteConnection().start_listener("localhost", 0)
+        remote.register("main-actor", actor_of(MultiplyingActor))
+
+        # port is dynamic
+        port = remote.listener.socket.port
+
+        client = RemoteConnection().actor_for("main-actor", "localhost", port)
+        req = client.query("mult", [1, 4, 4])
+        res = req.get(timeout=3)
+        self.assertIn("error", res)
 
         remote.stop()
 
