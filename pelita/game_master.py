@@ -138,6 +138,8 @@ class GameMaster(object):
             events.append(datamodel.TeamWins(1))
         elif self.universe.teams[0].score > self.universe.teams[1].score:
             events.append(datamodel.TeamWins(1))
+        else:
+            events.append(datamodel.GameDraw())
         self.send_to_viewers(round_index, None, events)
 
     def play_round(self, round_index):
