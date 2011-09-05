@@ -320,3 +320,11 @@ class RemoteActorReference(BaseActorReference):
             self._remote_mailbox.outbox.put({"actor": remote_name,
                                              "message": message,
                                              "sender_info": sender_info})
+
+    def is_connected(self):
+        """ Returns true, if the outgoing connection is alive.
+        This does not tell us, if a remote actor exists or lives.
+        Also, a connection may be dead on the other side and we haven’t
+        received this information yet.
+        """
+        return self._remote_mailbox.connection.is_connected()

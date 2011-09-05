@@ -164,6 +164,16 @@ class JsonSocketConnection(object):
     def close(self):
         self.socket.close()
 
+    def is_connected(self):
+        """ Returns true, if we can receive the socket's peername.
+        Otherwise, we'll assume that the socket is not connected.
+        """
+        try:
+            peer = self.socket.getpeername()
+            return True
+        except socket.error:
+            return False
+
     def __repr__(self):
         try:
             host = self.socket.getsockname()

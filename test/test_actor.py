@@ -299,6 +299,37 @@ class TestRemoteActor(unittest.TestCase):
 
         remote.stop()
 
+    def test_connection(self):
+        remote = RemoteConnection().start_listener("localhost", 0)
+        remote_actor = actor_of(MultiplyingActor)
+        remote.register("main-actor", remote_actor)
+        remote.start_all()
+
+        # port is dynamic
+        port = remote.listener.socket.port
+
+        client = RemoteConnection().actor_for("main-actor", "localhost", port)
+
+        self.assertTrue(remote_actor.is_alive)
+        self.assertTrue(client.is_connected())
+        self.assertTrue(remote_actor.is_alive)
+
+        remote_actor.stop()
+        remote_actor.join()
+
+        # we are still connected
+        self.assertTrue(client.is_connected())
+
+        remote.stop()
+        # need to wait a little until the connection shuts down, sorry
+        for i in range(50):
+            still_connected = client.is_connected()
+            if still_connected:
+                time.sleep(0.1)
+            else:
+                return
+
+        self.assertFalse(still_connected)
 
 if __name__ == '__main__':
     unittest.main()
