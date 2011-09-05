@@ -21,6 +21,27 @@ from pelita.utils.signal_handlers import keyboard_interrupt_handler
 
 __docformat__ = "restructuredtext"
 
+def auto_connect(connect_func, retries=10, delay=0.5):
+     # Try retries times to connect
+    if retries is None:
+        iter = itertools.count()
+    else:
+        iter = xrange(retries)
+    for i in iter:
+        if connect_func():
+            return True
+        else:
+
+            if retries is None:
+                print " Waiting %i seconds. (%d)" % (delay, i + 1)
+                time.sleep(delay)
+            else:
+                if i < retries - 1:
+                    print " Waiting %i seconds. (%d/%d)" % (delay, i + 1, retries)
+                    time.sleep(delay)
+    print "Giving up."
+    return False
+
 class SimpleServer(object):
     """ Sets up a simple Server with most settings pre-configured.
 
@@ -169,7 +190,7 @@ class SimpleClient(object):
             self.host = host
             self.port = port
 
-    def _auto_connect(self, client_actor, retries=3, delay=3):
+    def _auto_connect(self, client_actor, retries=None, delay=0.5):
         if self.port is None:
             address = "%s" % self.main_actor
             connect = lambda: client_actor.connect_local(self.main_actor)
@@ -177,17 +198,8 @@ class SimpleClient(object):
             address = "%s on %s:%s" % (self.main_actor, self.host, self.port)
             connect = lambda: client_actor.connect(self.main_actor, self.host, self.port)
 
-        # Try retries times to connect
-        for i in range(retries):
-            if connect():
-                break
-            else:
-                print "%s: No connection to %s." % (client_actor, address)
-                if i < retries - 1:
-                    print " Waiting %f seconds. (%d/%d)" % (delay, i + 1, retries)
-                    time.sleep(delay)
-        else:
-            print "Giving up."
+        if not auto_connect(connect, retries, delay):
+            print "%s: No connection to %s." % (client_actor, address)
             return
 
         try:
@@ -246,7 +258,7 @@ class SimpleViewer(object):
 
         self.viewer_actor = None
 
-    def _setup(self, retries, delay):
+    def _auto_connect(self, retries, delay):
 
         if self.port is None:
             address = "%s" % self.main_actor
@@ -255,34 +267,14 @@ class SimpleViewer(object):
             address = "%s on %s:%s" % (self.main_actor, self.host, self.port)
             connect = lambda: self.viewer_actor.connect(self.main_actor, self.host, self.port)
 
-        # Try retries times to connect
-        if retries is None:
-            iter = itertools.count()
-        else:
-            iter = xrange(retries)
-
-        for i in iter:
-            if connect():
-                return True
-            else:
-                print "%s: No connection to %s." % (self.viewer_actor, address)
-                if retries is None:
-                    print " Waiting %i seconds. (%d)" % (delay, i + 1)
-                    time.sleep(delay)
-                else:
-                    if i < retries - 1:
-                        print " Waiting %i seconds. (%d/%d)" % (delay, i + 1, retries)
-                        time.sleep(delay)
-        else:
-            print "Giving up."
-
-        return False
+        print "%s: Trying to connect to %s." % (self.viewer_actor, address)
+        return auto_connect(connect, retries, delay)
 
     def _run_save(self, main_block, retries, delay):
         """ Method which executes `main_block` and rescues
         a possible keyboard interrupt.
         """
-        if not self._setup(retries, delay):
+        if not self._auto_connect(retries, delay):
             return
 
         try:
@@ -292,7 +284,7 @@ class SimpleViewer(object):
         finally:
             self.viewer_actor.actor_ref.stop()
 
-    def run_tk(self, retries=None, delay=1):
+    def run_tk(self, retries=None, delay=0.5):
         """ Starts a game with the Tk viewer.
         This method does not return until the server or Tk is stopped.
         """
