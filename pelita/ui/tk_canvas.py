@@ -232,9 +232,6 @@ class UiCanvas(object):
                 text="QUIT",
                 command=self.master.frame.quit).pack()
 
-
-
-
     def draw_game_over(self, win_name):
         """ Draw the game over string. """
         self.draw_end_of_game("GAME OVER\nTeam ‘%s’ wins!" % win_name)
