@@ -87,6 +87,22 @@ class GameMaster(object):
         viewer.set_initial(self.universe.copy())
         self.viewers.append(viewer)
 
+    def send_to_viewers(self, round_, turn, events):
+        """ Call the 'observe' method on all registered viewers.
+
+        Parameters
+        ----------
+        round_ : int
+            the current game time
+        turn : int
+            the current turn
+        events : TypeAwareList of UniverseEvent
+            the events for this turn
+        """
+
+        for viewer in self.viewers:
+            viewer.observe(round_, turn, self.universe.copy(), copy.deepcopy(events))
+
     def set_initial(self):
         """ This method needs to be called before a game is started.
         It notifies the PlayerTeams of the initial universes and their
@@ -119,8 +135,7 @@ class GameMaster(object):
             events.append(datamodel.TeamWins(1))
         elif self.universe.teams[0].score > self.universe.teams[1].score:
             events.append(datamodel.TeamWins(1))
-        for v in self.viewers:
-            v.observe(gt, None, self.universe.copy(), copy.deepcopy(events))
+        self.send_to_viewers(gt, None, events)
 
     def play_round(self, current_game_time):
         """ Play only a single round.
@@ -160,8 +175,7 @@ class GameMaster(object):
                 team = self.universe.teams[timeout_event.team_index]
                 # team.score -= 1
 
-            for v in self.viewers:
-                v.observe(current_game_time, i, self.universe.copy(), copy.deepcopy(events))
+            self.send_to_viewers(current_game_time, i, events)
             if datamodel.TeamWins in events:
                 return False
         return True
