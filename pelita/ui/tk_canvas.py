@@ -237,7 +237,7 @@ class UiCanvas(object):
 
     def draw_game_over(self, win_name):
         """ Draw the game over string. """
-        self.draw_end_of_game("GAME OVER\nTeam \"%s\" wins!" % win_name)
+        self.draw_end_of_game("GAME OVER\nTeam ‘%s’ wins!" % win_name)
 
     def draw_game_draw(self):
         """ Draw the game draw string. """
