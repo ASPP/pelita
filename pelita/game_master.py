@@ -87,13 +87,13 @@ class GameMaster(object):
         viewer.set_initial(self.universe.copy())
         self.viewers.append(viewer)
 
-    def send_to_viewers(self, round_, turn, events):
+    def send_to_viewers(self, round_index, turn, events):
         """ Call the 'observe' method on all registered viewers.
 
         Parameters
         ----------
-        round_ : int
-            the current game time
+        round_index : int
+            the current round
         turn : int
             the current turn
         events : TypeAwareList of UniverseEvent
@@ -101,7 +101,10 @@ class GameMaster(object):
         """
 
         for viewer in self.viewers:
-            viewer.observe(round_, turn, self.universe.copy(), copy.deepcopy(events))
+            viewer.observe(round_index,
+                    turn,
+                    self.universe.copy(),
+                    copy.deepcopy(events))
 
     def set_initial(self):
         """ This method needs to be called before a game is started.
@@ -124,8 +127,8 @@ class GameMaster(object):
             raise IndexError(
                 "Universe uses %i teams, but only %i are registered."
                 % (len(self.player_teams), len(self.universe.teams)))
-        for gt in range(self.game_time):
-            if not self.play_round(gt):
+        for round_index in range(self.game_time):
+            if not self.play_round(round_index):
                 return
         # If we arrive here and have not returned due to a TeamWins event
         # the game has ended without a definitiv winner
@@ -135,16 +138,16 @@ class GameMaster(object):
             events.append(datamodel.TeamWins(1))
         elif self.universe.teams[0].score > self.universe.teams[1].score:
             events.append(datamodel.TeamWins(1))
-        self.send_to_viewers(gt, None, events)
+        self.send_to_viewers(round_index, None, events)
 
-    def play_round(self, current_game_time):
+    def play_round(self, round_index):
         """ Play only a single round.
 
         A single round is defined as all bots moving once.
 
         Parameters
         ----------
-        current_game_time : int
+        round_index : int
             the number of this round
 
         """
@@ -175,7 +178,7 @@ class GameMaster(object):
                 team = self.universe.teams[timeout_event.team_index]
                 # team.score -= 1
 
-            self.send_to_viewers(current_game_time, i, events)
+            self.send_to_viewers(round_index, i, events)
             if datamodel.TeamWins in events:
                 return False
         return True
