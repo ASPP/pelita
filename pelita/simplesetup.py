@@ -13,7 +13,7 @@ from pelita.messaging import actor_of, RemoteConnection
 from pelita.actors import ClientActor, ServerActor
 from pelita.layout import get_random_layout
 
-from pelita.viewer import AsciiViewer, DevNullViewer
+from pelita.viewer import AsciiViewer
 from pelita.ui.tk_viewer import TkViewer
 from pelita.utils.signal_handlers import keyboard_interrupt_handler
 
@@ -180,15 +180,14 @@ class SimpleClient(object):
             address = "%s on %s:%s" % (self.main_actor, self.host, self.port)
             connect = lambda: client_actor.connect(self.main_actor, self.host, self.port)
 
-        # Try 3 times to connect
-        for i in range(3):
+        # Try to connect a few times
+        timeouts = [0.05, 0.05, 0.1, 0.1, 0.1, 1.0, 1.0, 2.0]
+        for i,timeout in enumerate(timeouts):
             if connect():
                 break
-            else:
-                print "%s: No connection to %s." % (self.team_name, address),
-                if i < 2:
-                    print " Waiting 3 seconds. (%d/3)" % (i + 1)
-                    time.sleep(3)
+            print "%s: No connection to %s." % (self.team_name, address)
+            print "Waiting %f seconds. (%d/%d)" % (timeout, i + 1, len(timeouts))
+            time.sleep(timeout)
         else:
             print "Giving up."
             return
