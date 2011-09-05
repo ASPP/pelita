@@ -7,9 +7,13 @@ Pelita
 ======
 
 .. figure:: images/demogame.png
-   :alt: How it looks like (currently).
+   :alt: Screenshot.
 
-   **A first fight:** A draw between the team on the left side and the team on the right side.
+   **A first fight:** 'the bad ones' VS. 'the good ones'
+
+**Pelita** is an artificial intelligence programming game, based loosely on
+Pacman.
+
 
 Contents:
 
