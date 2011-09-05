@@ -418,7 +418,7 @@ class BotDestroyed(UniverseEvent):
                 self.destroyer_new_pos))
 
 class TimeoutEvent(UniverseEvent):
-    """ Signify that a timeout has occurred.
+    """ Signifies that a timeout has occurred.
 
     Parameters
     ----------
@@ -434,7 +434,7 @@ class TimeoutEvent(UniverseEvent):
 
 
 class TeamWins(UniverseEvent):
-    """ Signify that a team has eaten all enemy food.
+    """ Signifies that a team has eaten all enemy food.
 
     Parameters
     ----------
