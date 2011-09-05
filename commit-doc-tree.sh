@@ -1,5 +1,8 @@
 #!/bin/zsh
 
+# Script to automatically generate documentation and commit this to the gh-pages
+# branch. See README.md for more info about website maintenance and updates.
+
 # check, if index is empty
 if ! git diff-index --cached --quiet --ignore-submodules HEAD ; then
   echo "Cannot work with indexed files. Aborting."
