@@ -234,6 +234,9 @@ class UiCanvas(object):
 
     def draw_game_over(self, win_name):
         """ Draw the game over string. """
+        # shorten the winning name
+        if len(win_name) > 16:
+            win_name = win_name[:13] + '...'
         self.draw_end_of_game("GAME OVER\nTeam ‘%s’ wins!" % win_name)
 
     def draw_game_draw(self):
