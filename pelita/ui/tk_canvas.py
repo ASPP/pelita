@@ -152,6 +152,8 @@ class UiCanvas(object):
                 team_index = team_wins.winning_team_index
                 team_name = universe.teams[team_index].name
                 self.draw_game_over(team_name)
+            for game_draw in events.filter_type(datamodel.GameDraw):
+                self.draw_game_draw()
 
     def draw_universe(self, universe):
         self.mesh_graph.num_x = universe.maze.width
@@ -202,12 +204,33 @@ class UiCanvas(object):
         right_team = "%d %s" % (universe.teams[1].score, universe.teams[1].name)
         self.score.create_text(center + 10, 15, text=right_team, font=(None, 25), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
 
+    def draw_end_of_game(self, display_string):
+        """ Draw an end of game string. """
+        center = (self.mesh_graph.screen_width // 2,
+                  self.mesh_graph.screen_height //2)
+
+        self.canvas.create_text(center[0],
+                center[1],
+                text=display_string,
+                font=(None, 60, "bold"),
+                fill="red",
+                tag="gameover",
+                justify=Tkinter.CENTER,
+                anchor=Tkinter.CENTER)
+        quit = Tkinter.Button(self.status,
+                font=(None, 10),
+                foreground="black",
+                background="white",
+                justify=Tkinter.CENTER,
+                text="QUIT",
+                command=self.master.frame.quit).pack()
     def draw_game_over(self, win_name):
-        center = self.mesh_graph.screen_width // 2, self.mesh_graph.screen_height //2
-        self.canvas.create_text(center[0], center[1], text="GAME OVER\nTeam \"%s\" wins!"%win_name, font=(None, 60, "bold"), fill="red", tag="gameover",
-                                justify=Tkinter.CENTER, anchor=Tkinter.CENTER)
-        text = Tkinter.Button(self.status, font=(None, 10), foreground="black", background="white",
-                              justify=Tkinter.CENTER, text="QUIT", command=self.master.frame.quit).pack()
+        """ Draw the game over string. """
+        self.draw_end_of_game("GAME OVER\nTeam \"%s\" wins!" % win_name)
+
+    def draw_game_draw(self):
+        """ Draw the game draw string. """
+        self.draw_end_of_game("GAME OVER\nDRAW!!")
 
     def clear(self):
         self.canvas.delete(Tkinter.ALL)

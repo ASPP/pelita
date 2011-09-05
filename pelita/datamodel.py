@@ -418,7 +418,7 @@ class BotDestroyed(UniverseEvent):
                 self.destroyer_new_pos))
 
 class TimeoutEvent(UniverseEvent):
-    """ Signify that a timeout has occurred.
+    """ Signifies that a timeout has occurred.
 
     Parameters
     ----------
@@ -434,7 +434,7 @@ class TimeoutEvent(UniverseEvent):
 
 
 class TeamWins(UniverseEvent):
-    """ Signify that a team has eaten all enemy food.
+    """ Signifies that a team has eaten all enemy food.
 
     Parameters
     ----------
@@ -448,6 +448,15 @@ class TeamWins(UniverseEvent):
     def __repr__(self):
         return ("TeamWins(%i)"
             % self.winning_team_index)
+
+class GameDraw(UniverseEvent):
+    """ Signifies that the game was a draw.
+    """
+    def __init__(self):
+        pass
+
+    def __repr__(self):
+        return ("GameDraw()")
 
 class MazeComponent(object):
     """ Base class for all items inside a Maze.

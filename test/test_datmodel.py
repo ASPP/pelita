@@ -347,22 +347,31 @@ class TestUniverseEvent(unittest.TestCase):
         bot_moves = BotMoves(0, (0, 0), (1, 0))
         self.assertEqual(bot_moves, BotMoves(0, (0, 0), (1, 0)))
         self.assertEqual(bot_moves, eval(repr(bot_moves)))
+
         bot_eats = BotEats(1, (0, 0))
         self.assertEqual(bot_eats, BotEats(1, (0, 0)))
         self.assertEqual(bot_eats, eval(repr(bot_eats)))
+
         food_eaten = FoodEaten((0, 0))
         self.assertEqual(food_eaten, FoodEaten((0, 0)))
         self.assertEqual(food_eaten, eval(repr(food_eaten)))
+
         bot_destroyed = BotDestroyed(0, (0, 0), (0, 1), (0, 0), 1, (0, 1), (0, 1))
         self.assertEqual(bot_destroyed,
                 BotDestroyed(0, (0, 0), (0, 1), (0, 0), 1, (0, 1), (0, 1)))
         self.assertEqual(bot_destroyed, eval(repr(bot_destroyed)))
+
         team_score_change = TeamScoreChange(0, 1, 2)
         self.assertEqual(team_score_change, TeamScoreChange(0, 1, 2))
         self.assertEqual(team_score_change, eval(repr(team_score_change)))
+
         team_wins = TeamWins(0)
         self.assertEqual(team_wins, TeamWins(0))
         self.assertEqual(team_wins, eval(repr(team_wins)))
+
+        game_draw = GameDraw()
+        self.assertEqual(game_draw, GameDraw())
+        self.assertEqual(game_draw, eval(repr(game_draw)))
 
 class TestCTFUniverse(unittest.TestCase):
 

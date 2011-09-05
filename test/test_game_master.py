@@ -2,10 +2,9 @@
 
 import unittest
 from pelita.datamodel import north, south, east, west, stop,\
-        Wall, Free, Food,\
-        TeamWins, BotMoves, create_CTFUniverse
+        Wall, Free, Food, TeamWins, GameDraw, BotMoves, create_CTFUniverse
 from pelita.game_master import GameMaster, UniverseNoiser
-from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer
+from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer, StoppingPlayer
 from pelita.viewer import AbstractViewer, DevNullViewer
 from pelita.graph import AdjacencyList
 
@@ -364,4 +363,60 @@ class TestGame(unittest.TestCase):
 
         self.assertEqual(original_universe, gm.universe)
 
+    def test_win_on_timeout(self):
+        test_start = (
+            """ ######
+                #0 . #
+                #.. 1#
+                ###### """)
+        # the game lasts two rounds, enough time for bot 1 to eat food
+        gm = GameMaster(test_start, 2, 2)
+        gm.register_team(SimpleTeam(StoppingPlayer()))
+        # bot 1 moves wets twice to eat the single food
+        gm.register_team(SimpleTeam(TestPlayer([west, west])))
 
+        # this test viewer caches all events lists seen through observe
+        class TestViewer(AbstractViewer):
+            def __init__(self):
+                self.cache = list()
+            def observe(self, round_, turn, universe, events):
+                self.cache.append(events)
+
+        # run the game
+        tv = TestViewer()
+        gm.register_viewer(tv)
+        gm.set_initial()
+        gm.play()
+
+        # check
+        self.assertTrue(TeamWins in tv.cache[-1])
+        self.assertEqual(tv.cache[-1][0], TeamWins(1))
+
+    def test_draw_on_timeout(self):
+        test_start = (
+            """ ######
+                #0 . #
+                # . 1#
+                ###### """)
+        # the game lasts one round, and then draws
+        gm = GameMaster(test_start, 2, 1)
+        # players do nothing
+        gm.register_team(SimpleTeam(StoppingPlayer()))
+        gm.register_team(SimpleTeam(StoppingPlayer()))
+
+        # this test viewer caches all events lists seen through observe
+        class TestViewer(AbstractViewer):
+            def __init__(self):
+                self.cache = list()
+            def observe(self, round_, turn, universe, events):
+                self.cache.append(events)
+
+        # run the game
+        tv = TestViewer()
+        gm.register_viewer(tv)
+        gm.set_initial()
+        gm.play()
+
+        # check
+        self.assertTrue(GameDraw in tv.cache[-1])
+        self.assertEqual(tv.cache[-1][0], GameDraw())
