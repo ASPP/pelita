@@ -11,8 +11,8 @@ Pelita
 
    **A first fight:** 'the bad ones' VS. 'the good ones'
 
-**Pelita** is an artificial intelligence programming game, based loosely on
-Pacman.
+**Pelita** is an artificial intelligence programming game in Python, based
+loosely on Pacman.
 
 Description of the game
 =======================
@@ -36,6 +36,24 @@ Contents:
    :maxdepth: 2
 
    intro
+Acknowledgements
+================
+
+This software was developed for the 'Advanced Scientific Programming in Python'
+summer school, as a teaching aid for the group project.
+
+Future:
+
+* `St. Andrews, Scotland, 2011 <https://python.g-node.org/wiki/>`_
+
+Past:
+
+* `Trento, Italy, 2010 <https://python.g-node.org/python-autumnschool-2010/>`_
+* `Warsaw, Poland, 2010 <http://escher.fuw.edu.pl/pythonschool/>`_
+* `Berlin, Germany, 2009 <http://portal.g-node.org/python-summerschool-2009/>`_
+
+Initial funding was kindly provided by `The German Neuroinformtaics Node
+<http://www.g-node.org/>`_
 
 Indices and tables
 ==================
