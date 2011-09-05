@@ -41,6 +41,11 @@ Contents:
 Acknowledgements
 ================
 
+The game is inspired by the `“Pac-Man Projects”
+<http://inst.eecs.berkeley.edu/~cs188/pacman/pacman.html>`_  developed by John
+DeNero and Dan Klein at Berkeley University for their artificial intelligence
+introductory course [DeNeroKlein]_.
+
 This software was developed for the 'Advanced Scientific Programming in Python'
 summer school, as a teaching aid for the group project.
 
@@ -57,6 +62,7 @@ Past:
 Initial funding was kindly provided by `The German Neuroinformtaics Node
 <http://www.g-node.org/>`_
 
+
 Indices and tables
 ==================
 
@@ -64,3 +70,10 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+References
+==========
+
+.. [DeNeroKlein] John DeNero and Dan Klein. Teaching Introductory Artificial
+   Intelligence with Pac-Man. In *proceedings of the Symposium on Educational
+   Advances in Artificial Intelligence (EAAI)*, 2010.
+   `pdf <http://www.denero.org/content/pubs/eaai10_denero_pacman.pdf>`_
