@@ -364,6 +364,10 @@ class TestUniverseEvent(unittest.TestCase):
         self.assertEqual(team_wins, TeamWins(0))
         self.assertEqual(team_wins, eval(repr(team_wins)))
 
+        game_draw = GameDraw()
+        self.assertEqual(game_draw, GameDraw())
+        self.assertEqual(game_draw, eval(repr(game_draw)))
+
 class TestCTFUniverse(unittest.TestCase):
 
     def test_factory(self):

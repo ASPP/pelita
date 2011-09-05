@@ -449,6 +449,15 @@ class TeamWins(UniverseEvent):
         return ("TeamWins(%i)"
             % self.winning_team_index)
 
+class GameDraw(UniverseEvent):
+    """ Signifies that the game was a draw.
+    """
+    def __init__(self):
+        pass
+
+    def __repr__(self):
+        return ("GameDraw()")
+
 class MazeComponent(object):
     """ Base class for all items inside a Maze.
 
