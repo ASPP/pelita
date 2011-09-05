@@ -461,6 +461,7 @@ class TeamWins(UniverseEvent):
         return ("TeamWins(%i)"
             % self.winning_team_index)
 
+@serializable
 class GameDraw(UniverseEvent):
     """ Signifies that the game was a draw.
     """

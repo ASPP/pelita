@@ -368,6 +368,7 @@ class TestUniverseEvent(unittest.TestCase):
         team_wins = TeamWins(0)
         self.assertEqual(team_wins, TeamWins(0))
         self.assertEqual(team_wins, eval(repr(team_wins)))
+
         timeout_event = TimeoutEvent(0)
         self.assertEqual(timeout_event, TimeoutEvent(0))
         self.assertEqual(timeout_event, eval(repr(timeout_event)))
@@ -393,6 +394,8 @@ class TestUniverseEvent(unittest.TestCase):
         self.assertEqual(team_wins, reconvert(team_wins))
         timeout_event = TimeoutEvent(0)
         self.assertEqual(timeout_event, reconvert(timeout_event))
+        game_draw = GameDraw()
+        self.assertEqual(game_draw, reconvert(game_draw))
 
 class TestCTFUniverse(unittest.TestCase):
 
