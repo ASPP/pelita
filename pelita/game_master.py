@@ -111,6 +111,16 @@ class GameMaster(object):
         for gt in range(self.game_time):
             if not self.play_round(gt):
                 return
+        # If we arrive here and have not returned due to a TeamWins event
+        # the game has ended without a definitiv winner
+        # TODO: what if its a draw?
+        events = TypeAwareList(base_class=datamodel.UniverseEvent)
+        if self.universe.teams[0].score < self.universe.teams[1].score:
+            events.append(datamodel.TeamWins(1))
+        elif self.universe.teams[0].score > self.universe.teams[1].score:
+            events.append(datamodel.TeamWins(1))
+        for v in self.viewers:
+            v.observe(gt, None, self.universe.copy(), copy.deepcopy(events))
 
     def play_round(self, current_game_time):
         """ Play only a single round.
