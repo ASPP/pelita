@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import Tkinter
+import tkFont
 import Queue
 
 from pelita import datamodel
@@ -208,15 +209,21 @@ class UiCanvas(object):
         """ Draw an end of game string. """
         center = (self.mesh_graph.screen_width // 2,
                   self.mesh_graph.screen_height //2)
+        no_lines = display_string.count("\n") + 1
+        size_guess = self.mesh_graph.screen_height // (3 * no_lines)
+        font = tkFont.Font(size=size_guess)
+        text_width = font.measure(display_string)
+        if text_width > self.mesh_graph.screen_width:
+            font_size = size_guess * self.mesh_graph.screen_width // text_width
+        else:
+            font_size = size_guess
+        width = font.measure(display_string)
 
-        self.canvas.create_text(center[0],
-                center[1],
+        self.canvas.create_text(center[0], center[1],
                 text=display_string,
-                font=(None, 60, "bold"),
-                fill="red",
-                tag="gameover",
-                justify=Tkinter.CENTER,
-                anchor=Tkinter.CENTER)
+                font=(None, font_size, "bold"),
+                fill="red", tag="gameover",
+                justify=Tkinter.CENTER, anchor=Tkinter.CENTER)
         quit = Tkinter.Button(self.status,
                 font=(None, 10),
                 foreground="black",
@@ -224,9 +231,13 @@ class UiCanvas(object):
                 justify=Tkinter.CENTER,
                 text="QUIT",
                 command=self.master.frame.quit).pack()
+
     def draw_game_over(self, win_name):
         """ Draw the game over string. """
-        self.draw_end_of_game("GAME OVER\nTeam \"%s\" wins!" % win_name)
+        # shorten the winning name
+        if len(win_name) > 16:
+            win_name = win_name[:13] + '...'
+        self.draw_end_of_game("GAME OVER\nTeam ‘%s’ wins!" % win_name)
 
     def draw_game_draw(self):
         """ Draw the game draw string. """
