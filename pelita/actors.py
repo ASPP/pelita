@@ -285,7 +285,7 @@ class ServerActor(DispatchingActor):
 
     @expose
     def auto_shutdown(self):
-        return self._auto_shutdown
+        self.ref.reply(self._auto_shutdown)
 
     @expose
     def set_auto_shutdown(self, value):
