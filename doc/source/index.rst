@@ -30,7 +30,6 @@ Your task as *user* is to implement one or more *players* to control bots. Your
 players must implement the *intelligence* to navigate you bots successfully
 through the maze, destroy the enemy's harvesters and eat the enemy's food.
 
-
 Quick Start
 ===========
 
@@ -53,6 +52,34 @@ Contents:
 
    writing_player
    development
+
+Authors and Contributors
+========================
+
+The developers are:
+
+* Rike-Benjamin Schuppner
+* Valentin Haenel
+* Tiziano Zito
+
+With helpful contributions
+
+* Zbigniew Jędrzejewski-Szmek
+* Pietro Berkes
+
+Getting in Touch
+================
+
+Please use our `project mailinglist
+<https://portal.bccn-berlin.de/cgi-bin/mailman/listinfo/pelita>`_
+
+License
+=======
+
+Pelita is licensed under the terms of the `Simplified (two-clause) BSD License
+<http://en.wikipedia.org/wiki/BSD_licenses#2-clause_license_.28.22Simplified_BSD_License.22_or_.22FreeBSD_License.22.29>`_.
+A copy of the license is included with the source, in the file``COPYING``
+
 
 Acknowledgements
 ================
