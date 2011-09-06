@@ -281,6 +281,16 @@ class ServerActor(DispatchingActor):
         self.remote_viewers = []
         self.game_master = None
 
+        self._auto_shutdown = False
+
+    @expose
+    def auto_shutdown(self):
+        return self._auto_shutdown
+
+    @expose
+    def set_auto_shutdown(self, value):
+        self._auto_shutdown = value
+
     @expose
     def initialize_game(self, layout, number_bots, game_time):
         """ Initialises a new game.
@@ -350,6 +360,9 @@ class ServerActor(DispatchingActor):
             self.game_master.register_team(remote_player, team_name=team_name)
 
         self.game_master.play()
+
+        if self._auto_shutdown:
+            self.ref.stop()
 
     def check_for_start(self):
         """ Checks, if a game can be run and start it. """
