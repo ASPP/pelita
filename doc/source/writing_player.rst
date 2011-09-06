@@ -211,6 +211,7 @@ As a defensive example we have the ``BasicDefensePlayer``:
 
 All example Players can be found in the module ``pelita.player``.
 
+
 Source Code for ``pelita.player.AbstractPlayer``
 ================================================
 
