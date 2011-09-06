@@ -263,7 +263,7 @@ class TestRemoteActor(unittest.TestCase):
         client = RemoteConnection().actor_for("unknown-actor", "localhost", port)
         req = client.query("mult", [1, 4, 4])
         res = req.get(timeout=3)
-        self.assertIn("error", res)
+        self.assertTrue("error" in res)
 
         remote.stop()
 
@@ -277,7 +277,7 @@ class TestRemoteActor(unittest.TestCase):
         client = RemoteConnection().actor_for("main-actor", "localhost", port)
         req = client.query("mult", [1, 4, 4])
         res = req.get(timeout=3)
-        self.assertIn("error", res)
+        self.assertTrue("error" in res)
 
         remote.stop()
 
