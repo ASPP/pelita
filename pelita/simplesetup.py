@@ -45,9 +45,9 @@ class SimpleServer(object):
     port : int, optional
         The port which the server runs on. Default: 50007.
     local : boolean, optional
-        If True, we only setup a local server. Default: False.
+        If True, we only setup a local server. Default: True.
     """
-    def __init__(self, layout=None, layoutfile=None, players=4, rounds=3000, host="", port=50007, local=False):
+    def __init__(self, layout=None, layoutfile=None, players=4, rounds=3000, host="", port=50007, local=True):
 
         if layout is None:
             if layoutfile:
@@ -151,9 +151,9 @@ class SimpleClient(object):
     port : int, optional
         The port which the server runs on. Default: 50007.
     local : boolean, optional
-        If True, we only connect to a local server. Default: False.
+        If True, we only connect to a local server. Default: True.
     """
-    def __init__(self, team, team_name="", host="", port=50007, local=False):
+    def __init__(self, team, team_name="", host="", port=50007, local=True):
         self.team = team
 
         if hasattr(self.team, "team_name"):
