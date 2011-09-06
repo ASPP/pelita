@@ -200,7 +200,7 @@ Glossary
     Datastructure that stores the maze.
 
 :``MazeComponent``:
-    Objects stored in the ``Maze``.
+    Classes storing the characters used in the ``Maze``.
 
 :``GameMaster``:
     Controller object that asks players for moves and updates the ``Universe``.
@@ -210,8 +210,10 @@ Glossary
 
 The connections are as follows: A ``Universe`` contains a list of ``Bot``
 objects, a list of ``Team`` objects and a ``Maze`` object. The ``Maze`` object
-is implemented with a ``Mesh`` where a list of ``MazeComponent`` objects such as
-``Free``, ``Wall`` and ``Food`` are store at each position.  A ``Player``
+is implemented with a ``Mesh``. At each position, a multi-character string that
+encodes the type of ``MazeComponents`` stored at that position. The classes
+derived from ``MazeComponent``: ``Free``, ``Wall`` and ``Food`` store the
+mapping of single character to ``MazeComponent``.  A ``Player``
 implements/controls the logic required to navigate a ``Bot``. The ``GameMaster``
 will forward the current state of the ``Universe`` to the ``Player`` and request
 a ``Move`` in return. Upon receipt of the next ``Move`` the ``GameMaster`` will
