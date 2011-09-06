@@ -10,11 +10,11 @@ from pelita.player import SimpleTeam, BFSPlayer, BasicDefensePlayer
 
 # Set up our team named ‘the good ones’ using a
 # BFSPlayer and a NQRandomPlayer.
-client = SimpleClient("the good ones", SimpleTeam(BFSPlayer(), BasicDefensePlayer()))
+client = SimpleClient(SimpleTeam("the good ones", BFSPlayer(), BasicDefensePlayer()))
 
 # We could also have added more specific information about the server,
 # we’d like to connect to:
-# client = SimpleClient("the good ones", SimpleTeam(BFSPlayer(), NQRandomPlayer()),
+# client = SimpleClient(SimpleTeam("the good ones", BFSPlayer(), NQRandomPlayer()),
 #                       host="pelita.server.example.com",
 #                       port=63920)
 

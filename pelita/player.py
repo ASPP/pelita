@@ -15,10 +15,22 @@ class SimpleTeam(object):
 
     Parameters
     ----------
-    players : list of Players
+    team_name :
+        the name of the team (optional)
+    players :
         the Players who shall join this SimpleTeam
     """
-    def __init__(self, *players):
+    def __init__(self, *args):
+        if not args:
+            raise ValueError("No teams given.")
+
+        if isinstance(args[0], basestring):
+            self.team_name = args[0]
+            players = args[1:]
+        else:
+            self.team_name = ""
+            players = args[:]
+
         for player in players:
             if (player.__class__.get_move.__func__ == AbstractPlayer.get_move.__func__):
                 raise TypeError("Player %s does not override 'get_move()'." % player.__class__)

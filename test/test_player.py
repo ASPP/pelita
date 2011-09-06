@@ -144,6 +144,31 @@ class TestSimpleTeam(unittest.TestCase):
             pass
         self.assertRaises(TypeError, SimpleTeam, BrokenPlayer())
 
+    def test_init(self):
+        self.assertRaises(ValueError, SimpleTeam)
+        object_which_is_neither_string_nor_team = 5
+        self.assertRaises(AttributeError, SimpleTeam, object_which_is_neither_string_nor_team)
+
+        team0 = SimpleTeam("my team")
+        self.assertEqual(team0.team_name, "my team")
+        self.assertEqual(len(team0._players), 0)
+
+        team1 = SimpleTeam("my team", TestPlayer([]))
+        self.assertEqual(team1.team_name, "my team")
+        self.assertEqual(len(team1._players), 1)
+
+        team2 = SimpleTeam("my other team", TestPlayer([]), TestPlayer([]))
+        self.assertEqual(team2.team_name, "my other team")
+        self.assertEqual(len(team2._players), 2)
+
+        team3 = SimpleTeam(TestPlayer([]))
+        self.assertEqual(team3.team_name, "")
+        self.assertEqual(len(team3._players), 1)
+
+        team4 = SimpleTeam(TestPlayer([]), TestPlayer([]))
+        self.assertEqual(team4.team_name, "")
+        self.assertEqual(len(team4._players), 2)
+
     def test_bot_ids(self):
         layout = (
             """ ####

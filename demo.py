@@ -16,12 +16,12 @@ get rid of the program.
 from pelita.simplesetup import SimpleClient, SimpleServer
 from pelita.player import RandomPlayer, BFSPlayer, SimpleTeam, StoppingPlayer, NQRandomPlayer, BasicDefensePlayer
 
-client = SimpleClient("the good ones", SimpleTeam(RandomPlayer(), RandomPlayer()), local=True)
+client = SimpleClient(SimpleTeam("the good ones", RandomPlayer(), RandomPlayer()))
 client.autoplay_background()
 
-client2 = SimpleClient("the bad ones", SimpleTeam(BFSPlayer(), BasicDefensePlayer()), local=True)
+client2 = SimpleClient(SimpleTeam("the bad ones", BFSPlayer(), BasicDefensePlayer()))
 client2.autoplay_background()
 
-server = SimpleServer(rounds=3000, local=True)
+server = SimpleServer(rounds=3000)
 server.run_tk()
 

@@ -25,10 +25,10 @@ from pelita.simplesetup import SimpleClient, SimpleServer
 from pelita.player import RandomPlayer, BFSPlayer, SimpleTeam, BasicDefensePlayer, NQRandomPlayer
 
 if __name__=="__main__":
-    client = SimpleClient("the good ones", SimpleTeam(NQRandomPlayer(), BFSPlayer()))
+    client = SimpleClient(SimpleTeam("the good ones", NQRandomPlayer(), BFSPlayer()))
     client.autoplay_background()
 
-    client2 = SimpleClient("the bad ones", SimpleTeam(BFSPlayer(), BasicDefensePlayer()))
+    client2 = SimpleClient(SimpleTeam("the bad ones", BFSPlayer(), BasicDefensePlayer()))
     client2.autoplay_background()
 
 
