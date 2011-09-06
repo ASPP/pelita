@@ -91,7 +91,9 @@ class SimpleServer(object):
         self.server = None
         self.remote = None
 
-    def _setup(self):
+        self._startup()
+
+    def _startup(self):
         """ Instantiates the ServerActor and initialises a new game.
         """
         self.server = actor_of(ServerActor, "pelita-main")
@@ -111,8 +113,6 @@ class SimpleServer(object):
         """ Method which executes `main_block` and rescues
         a possible keyboard interrupt.
         """
-        self._setup()
-
         try:
             main_block()
         except KeyboardInterrupt:
