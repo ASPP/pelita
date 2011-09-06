@@ -11,7 +11,7 @@ import signal
 
 from pelita.messaging import actor_of, RemoteConnection
 from pelita.actors import ClientActor, ServerActor
-from pelita.layout import get_random_layout
+from pelita.layout import get_random_layout, get_layout_by_name
 
 from pelita.viewer import AsciiViewer
 from pelita.ui.tk_viewer import TkViewer
@@ -27,15 +27,20 @@ class SimpleServer(object):
 
     Usage
     -----
-        server = SimpleServer(layoutfile="mymaze.layout", rounds=3000, port=50007)
+        server = SimpleServer(layout_file="mymaze.layout", rounds=3000, port=50007)
         server.run_tk()
+
+    The Parameters 'layout_string', 'layout_name' and 'layout_file' are mutually
+    exclusive. If neither is supplied, a layout will be selected at random.
 
     Parameters
     ----------
-    layout : string, optional
-        The layout as a string. If missing, a `layoutfile` must be given.
-    layoutfile : filename, optional
-        A file which holds a layout. If missing, a `layout` must be given.
+    layout_string : string, optional
+        The layout as a string.
+    layout_name : string, optional
+        The name of an available layout
+    layout_file : filename, optional
+        A file which holds a layout.
     players : int, optional
         The number of Players/Bots used in the layout. Default: 4.
     rounds : int, optional
@@ -46,17 +51,30 @@ class SimpleServer(object):
         The port which the server runs on. Default: 50007.
     local : boolean, optional
         If True, we only setup a local server. Default: False.
-    """
-    def __init__(self, layout=None, layoutfile=None, players=4, rounds=3000, host="", port=50007, local=False):
 
-        if layout is None:
-            if layoutfile:
-                with open(layoutfile) as file:
-                    self.layout = file.read()
-            else:
-                self.layout = get_random_layout()
-        else:
+    Raises
+    ------
+    ValueError:
+        if more than one layout keyword is specified
+    """
+    def __init__(self, layout_string=None, layout_name=None, layout_file=None,
+            players=4, rounds=3000, host="", port=50007, local=False):
+
+        if (layout_string and layout_name or
+                layout_string and layout_file or
+                layout_name and layout_file or
+                layout_string and layout_name and layout_file):
+            raise  ValueError("Can only supply one of: 'layout_string'"+\
+                    "'layout_name' or 'layout_file'")
+        elif layout_string:
             self.layout = layout
+        elif layout_name:
+            self.layout = get_layout_by_name(layout_name)
+        elif layout_file:
+            with open(layoutfile) as file:
+                self.layout = file.read()
+        else:
+            self.layout = get_random_layout()
 
         self.players = players
         self.rounds = rounds
