@@ -63,7 +63,10 @@ class JsonSocketConnection(object):
         """
         if self.socket:
             json_string = json_converter.dumps(obj)
-            self._send(json_string)
+            try:
+                self._send(json_string)
+            except socket.error:
+                raise DeadConnection
         else:
             raise RuntimeError("Cannot send without a connection.")
 

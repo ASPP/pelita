@@ -145,7 +145,10 @@ class RemoteOutbox(object):
 
     def put(self, msg):
         with self._remote_lock:
+            # May raise DeadConnection
+            # TODO add a test
             self.connection.send(msg)
+
 
 class RemoteMailbox(object):
     """A mailbox bundles an incoming and an outgoing connection."""
