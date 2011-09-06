@@ -16,7 +16,7 @@ from pelita.layout import get_random_layout
 
 from pelita.viewer import AsciiViewer
 from pelita.ui.tk_viewer import TkViewer
-from pelita.utils.signal_handlers import keyboard_interrupt_handler
+from pelita.utils.signal_handlers import keyboard_interrupt_handler, exit_handler
 
 
 __docformat__ = "restructuredtext"
@@ -119,6 +119,12 @@ class SimpleServer(object):
             print "Server received CTRL+C. Exiting."
         finally:
             self.server.stop()
+            self.server.join(3)
+            if self.server.is_alive:
+                print "Server did not finish silently. Forcing."
+                # TODO This is not nice. We need a better solution
+                # for the exit handling issue.
+                exit_handler()
             if self.remote:
                 self.remote.stop()
 
