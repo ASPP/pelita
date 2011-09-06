@@ -30,6 +30,22 @@ Your task as *user* is to implement one or more *players* to control bots. Your
 players must implement the *intelligence* to navigate you bots successfully
 through the maze, destroy the enemy's harvesters and eat the enemy's food.
 
+
+Quick Start
+===========
+
+First clone the source code repository::
+
+    $ git clone git://github.com/Debilski/pelita.git
+
+Then ``cd`` into the source code directory::
+
+    $ cd pelita
+
+And launch the demo game::
+
+    $ python demo.py
+
 Contents:
 
 .. toctree::
