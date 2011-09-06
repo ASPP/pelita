@@ -2,7 +2,76 @@
 Writing a Player
 ================
 
-This section explains how to write a player.
+This section explains how to write a Player.
+
+Player Basics
+=============
+
+In order to write a Player you should subclass from
+``pelita.player.AbstractPlayer``. This is an abstract class which provides
+several convenience methods to interrogate the Universe including the Bot
+instance that this player controls but lacks the functions to actually control
+the Bot.
+
+To subclass from ``AbstractPlayer`` import this with::
+
+    from pelita.player import AbstractPlayer
+
+In order to make your Player do something useful you must implement at least the
+method ``get_move(self)`` to return a move. This can be one of::
+
+    north = (0, -1)
+    south = (0, 1)
+    west  = (-1, 0)
+    east  = (1, 0)
+    stop  = (0, 0)
+
+The moves are provided by the ``pelita.datamodel``, import them with::
+
+    from pelita.datamodel import north, south, west, east, stop
+
+An example of such a player is the trivial ``pelita.players.StoppingPlayer``
+which simply returns ``stop``:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: StoppingPlayer
+
+Where to place you files
+========================
+
+To begin using your own Player you need to create a startup script similar to
+``demo.py`` and execute this using the `PYTHONPATH
+<http://docs.python.org/using/cmdline.html#envvar-PYTHONPATH>`_ environment
+variable.
+
+First create an empty directory outside the pelita source code directory, and
+make some empty files::
+
+    $ cd ~
+    $ mkdir my_agent
+    $ cd my_agent
+    $ touch my_agent.py
+    $ touch run_game.py
+
+You can then implement you player in the file ``my_player.py``, for example:
+
+.. literalinclude:: my_player/my_player.py
+   :language: python
+
+The next thing you need is a python script to run your player. Implement this in
+``my_game.py`` using classes from the ``pelita.simplesetup`` module:
+
+.. literalinclude:: my_player/my_game.py
+   :language: python
+
+Now to run the game you need to use the ``PYTHONPTH`` to point to the pelita
+source code. Assuming this is in ``$HOME/pelita`` you can execute
+``my_game.py`` using::
+
+    $ PYTHONPATH=$HOME/pelita python my_game.py
+
+Now that you are set up, read the next section on how to make you Player do
+something useful :-).
 
 Glossary
 ========
@@ -46,28 +115,6 @@ update the ``Universe``.
 Implementation
 ==============
 
-In order to write a Player you should subclass from
-``pelita.player.AbstractPlayer``. This is an abstract class which provides several
-convenience methods to interrogate the Universe including the Bot instance that this
-player controls but lacks the functions to actually control the Bot. In order to
-make your Player do something useful you must implement at least the method
-``get_move(self)`` to return a move. This can be one of::
-
-    north = (0, -1)
-    south = (0, 1)
-    west  = (-1, 0)
-    east  = (1, 0)
-    stop  = (0, 0)
-
-The moves are provided by the ``datamodel``, import them with::
-
-    from pelita.datamodel import north, south, west, east, stop
-
-An example of such a player is the trivial ``StoppingPlayer`` which simply returns
-``stop``:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: StoppingPlayer
 
 A slightly more useful example is the ``RandomPlayer`` which always selects a move
 at random from the possible moves:
