@@ -252,7 +252,7 @@ class SimpleClient(object):
         return background_thread
 
 class SimpleViewer(object):
-    def __init__(self, main_actor="pelita-main", host="", port=50007, local=False):
+    def __init__(self, main_actor="pelita-main", host="", port=50007, local=True):
         self.main_actor = main_actor
 
         if local:
