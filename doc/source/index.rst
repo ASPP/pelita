@@ -45,6 +45,9 @@ And launch the demo game::
 
     $ python demo.py
 
+This will start a game using the `TkInter
+<http://wiki.python.org/moin/TkInter>`_ interface using a random maze.
+
 Contents:
 
 .. toctree::
