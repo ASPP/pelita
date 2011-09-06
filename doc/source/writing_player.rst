@@ -62,7 +62,7 @@ The next thing you need is a python script to run your player. Implement this in
 .. literalinclude:: my_player/my_game.py
    :language: python
 
-Now to run the game you need to use the ``PYTHONPTH`` to point to the pelita
+Now to run the game you need to use the ``PYTHONPATH`` to point to the pelita
 source code. Assuming this is in ``$HOME/pelita`` you can execute
 ``my_game.py`` using::
 
