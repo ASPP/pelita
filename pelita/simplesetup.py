@@ -49,7 +49,7 @@ class SimpleServer(object):
     """
     def __init__(self, layout=None, layoutfile=None, players=4, rounds=3000, host="", port=50007, local=False):
 
-        if layout is None: 
+        if layout is None:
             if layoutfile:
                 with open(layoutfile) as file:
                     self.layout = file.read()
@@ -135,17 +135,17 @@ class SimpleClient(object):
 
     Usage
     -----
-        client = SimpleClient("the good ones", SimpleTeam(BFSPlayer(), NQRandomPlayer()))
+        client = SimpleClient(SimpleTeam("the good ones", BFSPlayer(), NQRandomPlayer()))
         # client.host = "pelita.server.example.com"
         # client.port = 50011
         client.autoplay()
 
     Parameters
     ----------
-    team_name : string
-        The name of the team.
     team: PlayerTeam
         A PlayerTeam instance which defines the algorithms for each Bot.
+    team_name : string
+        The name of the team. (optional, if not defined in team)
     host : string, optional
         The hostname which the server runs on. Default: "".
     port : int, optional
@@ -153,9 +153,15 @@ class SimpleClient(object):
     local : boolean, optional
         If True, we only connect to a local server. Default: False.
     """
-    def __init__(self, team_name, team, host="", port=50007, local=False):
-        self.team_name = team_name
+    def __init__(self, team, team_name="", host="", port=50007, local=False):
         self.team = team
+
+        if hasattr(self.team, "team_name"):
+            self.team_name = self.team.team_name
+
+        if team_name:
+            self.team_name = team_name
+
         self.main_actor = "pelita-main"
 
         if local:
