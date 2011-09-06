@@ -119,12 +119,17 @@ class JsonConverter(object):
         dict : dict containing the keys "__id__" and "__value__"
             returns serialised object as "__value__"
         """
-        json_id = item._json_id
+        try:
+            json_id = item._json_id
+        except AttributeError:
+            # json.dump wants a TypeError, if we cannot match it
+            raise TypeError('%r is not JSON serializable. (No "_json_id" attribute.)' % item)
+
         try:
             converter = self.reg[json_id]
         except KeyError:
             # json.dump wants a TypeError, if we cannot match it
-            raise TypeError('%r is not JSON serializable' % item)
+            raise TypeError('%r is not JSON serializable.' % item)
 
         res = dict()
         res["__id__"] = json_id

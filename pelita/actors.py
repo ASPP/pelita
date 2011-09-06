@@ -205,10 +205,10 @@ class ServerActor(DispatchingActor):
         self.check_for_start()
 
     def _remove_dead_teams(self):
-        # check, if previously added teams are still alive:
+        # check, if previously added teams are still connected:
         zipped = [(team, name) for team, name in zip(self.teams, self.team_names)
-                               if not getattr(team, "_remote_mailbox", None) or
-                               team._remote_mailbox.outbox.thread.is_alive()]
+                               if not getattr(team, "is_connected", None) or
+                               team.is_connected()]
 
         if zipped:
             teams, team_names = zip(*zipped)

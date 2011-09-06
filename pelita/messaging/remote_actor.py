@@ -18,7 +18,7 @@ __docformat__ = "restructuredtext"
 
 from pelita.utils import SuspendableThread, CloseThread, Counter
 from pelita.messaging.remote import JsonSocketConnection, TcpThreadedListeningServer, TcpConnectingClient
-from pelita.messaging.actor import StopProcessing, DeadConnection, actor_registry, BaseActorReference
+from pelita.messaging.actor import StopProcessing, DeadConnection, actor_registry, BaseActorReference, ActorNotRunning
 
 
 class RequestDB(object):
@@ -90,17 +90,32 @@ class RemoteInbox(SuspendableThread):
 
         actor = recv.get("actor")
         channel = self.mailbox.dispatcher(actor)
-
-        if not channel:
-            _logger.warning("No channel found for message %r. Dropping." % recv)
-            return
-
         sender = recv.get("sender")
         if sender:
-            proxy = self.mailbox.create_proxy(sender)
-            channel.put(recv.get("message"), channel=proxy, remote=self.mailbox)
+            sender_ref = self.mailbox.create_proxy(sender)
         else:
-            channel.put(recv.get("message"), remote=self.mailbox)
+            sender_ref = None
+
+        if not channel:
+            self.handle_error("No channel '%s' found for message %r. Dropping." % (actor, recv), sender_ref)
+            return
+
+        try:
+            channel.put(recv.get("message"), channel=sender_ref, remote=self.mailbox)
+        except ActorNotRunning:
+            self.handle_error("Channel %r not running. Dropping message %r." % (channel, recv), sender_ref)
+
+    def handle_error(self, message, sender=None):
+        """ If a sender reference is available, tell the sender that
+        this message cannot be handled.
+        """
+        # TODO: In weird cases, this could backfire and ping-pong forever between two bad connections
+        # TODO: This method could be configurable in the mailbox
+        if sender:
+            msg = {"error": message}
+            sender.put(msg)
+        else:
+            _logger.warning(message)
 
 # TODO Not in use now, we rely on timeout until we know better
 #    def stop(self):
@@ -109,35 +124,28 @@ class RemoteInbox(SuspendableThread):
 #        self.connection.connection.shutdown(socket.SHUT_RDWR)
 #        self.connection.close()
 
-class RemoteOutbox(SuspendableThread):
-    """ This class checks its outgoing queue for new messages and
-    sends them through the connection specified by `self.mailbox.connection`.
+class RemoteOutbox(object):
+    """ This class is used to send messages over the connection
+    specified by `self.mailbox.connection`.
+    Because of possible threading issues, this class uses a lock
+    before sending messages. This means that there may be problems
+    when too many or too large messages are sent at the same time.
+
+    The alternative would be to use a queue for sending, so that
+    the sender would not need to wait until the message is processed.
+    This, however, has proven to cause much longer delays (contrary to
+    intuition) for the sending thread than the lock solution.
     """
     def __init__(self, mailbox, **kwargs):
         super(RemoteOutbox, self).__init__(**kwargs)
 
         self.mailbox = mailbox
         self.connection = mailbox.connection
-        self.request_db = mailbox.request_db
-        self._queue = Queue.Queue()
-
-    def _run(self):
-        self.handle_outbox()
-
-    def handle_outbox(self):
-        try:
-            to_send = self._queue.get(True, 3)
-
-            _logger.info("Processing outbox %r", to_send)
-            if to_send is StopProcessing:
-                raise CloseThread
-
-            self.connection.send(to_send)
-        except Queue.Empty:
-            pass
+        self._remote_lock = Lock()
 
     def put(self, msg):
-        self._queue.put(msg)
+        with self._remote_lock:
+            self.connection.send(msg)
 
 class RemoteMailbox(object):
     """A mailbox bundles an incoming and an outgoing connection."""
@@ -179,14 +187,11 @@ class RemoteMailbox(object):
     def start(self):
         _logger.info("Starting mailbox %r", self)
         self.inbox.start()
-        self.outbox.start()
 
     def stop(self):
         # TODO: this method may be called multiple times
         _logger.info("Stopping mailbox %r", self)
-        self.outbox._queue.put(StopProcessing) # I need to to this or the thread will not stop...
         self.inbox.stop()
-        self.outbox.stop()
         self.connection.close()
         try:
             self.remote.remove_connection(self.connection)
@@ -297,9 +302,6 @@ class RemoteActorReference(BaseActorReference):
         super(RemoteActorReference, self).__init__(**kwargs)
 
     def put(self, message, channel=None, remote=None):
-        if not self._remote_mailbox.outbox.thread.is_alive():
-            raise DeadConnection
-
         remote_name = self.remote_name
         sender_info = repr(channel) # only used for debugging
 
@@ -318,3 +320,11 @@ class RemoteActorReference(BaseActorReference):
             self._remote_mailbox.outbox.put({"actor": remote_name,
                                              "message": message,
                                              "sender_info": sender_info})
+
+    def is_connected(self):
+        """ Returns true, if the outgoing connection is alive.
+        This does not tell us, if a remote actor exists or lives.
+        Also, a connection may be dead on the other side and we haven’t
+        received this information yet.
+        """
+        return self._remote_mailbox.connection.is_connected()
