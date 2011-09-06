@@ -30,5 +30,30 @@ class TestSimpleSetup(unittest.TestCase):
 
         self.assertFalse(server.server.is_alive)
 
+    def test_simple_remote_game(self):
+        return
+        layout = """
+        ##########
+        #        #
+        #0      1#
+        ##########
+        """
+        client1 = SimpleClient(SimpleTeam("team1", RandomPlayer()), local=False)
+        client2 = SimpleClient(SimpleTeam("team2", RandomPlayer()), local=False)
+        server = SimpleServer(layout=layout, rounds=5, players=2, local=False)
+
+        self.assertEqual(server.host, "")
+        self.assertEqual(server.port, 50007)
+        self.assertTrue(server.server.is_alive)
+
+        server.server.notify("set_auto_shutdown", [True])
+
+        client1.autoplay_background()
+        client2.autoplay_background()
+        server.run_ascii()
+
+        self.assertFalse(server.server.is_alive)
+
+
 if __name__ == '__main__':
     unittest.main()

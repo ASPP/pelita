@@ -112,6 +112,13 @@ class _ClientActor(DispatchingActor):
         self.server_actor = None
 
     @expose
+    def is_server_connected(self):
+        if self.server_actor.remote:
+            self.ref.reply(self.server_actor.is_connected())
+        else:
+            self.ref.reply(self.server_actor.is_alive)
+
+    @expose
     def register_team(self, team):
         """ We register the team.
         """
@@ -181,6 +188,12 @@ class ClientActor(object):
         self.actor_ref = actor_of(_ClientActor)
         self.actor_ref._actor.thread.daemon = True # TODO remove this line
         self.actor_ref.start()
+
+    def is_server_connected(self):
+        try:
+            return self.actor_ref.query("is_server_connected").get()
+        except Queue.Empty:
+            return None
 
     def register_team(self, team):
         """ Registers a team with our local actor.

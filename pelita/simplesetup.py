@@ -210,7 +210,11 @@ class SimpleClient(object):
 
         try:
             while client_actor.actor_ref.is_alive:
-                client_actor.actor_ref.join(1)
+                if client_actor.is_server_connected() is False:
+                    client_actor.actor_ref.stop()
+                    client_actor.actor_ref.join(1)
+                else:
+                    client_actor.actor_ref.join(1)
         except KeyboardInterrupt:
             print "%s: Client received CTRL+C. Exiting." % client_actor
         finally:
@@ -247,7 +251,6 @@ class SimpleClient(object):
         # We cannot use multiprocessing in a local game.
         # Or that is, we cannot until we also use multiprocessing Queues.
         background_thread = threading.Thread(target=self.autoplay)
-        background_thread.daemon = True
         background_thread.start()
         return background_thread
 
