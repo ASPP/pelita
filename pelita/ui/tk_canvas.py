@@ -237,11 +237,11 @@ class UiCanvas(object):
         # shorten the winning name
         if len(win_name) > 16:
             win_name = win_name[:13] + '...'
-        self.draw_end_of_game("GAME OVER\nTeam ‘%s’ wins!" % win_name)
+        self.draw_end_of_game(u"GAME OVER\n‘%s’ wins!" % win_name)
 
     def draw_game_draw(self):
         """ Draw the game draw string. """
-        self.draw_end_of_game("GAME OVER\nDRAW!!")
+        self.draw_end_of_game("GAME OVER\nDRAW!")
 
     def clear(self):
         self.canvas.delete(Tkinter.ALL)
