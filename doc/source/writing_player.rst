@@ -4,6 +4,8 @@ Writing a Player
 
 This section explains how to write a Player.
 
+.. contents::
+
 Player Basics
 =============
 
@@ -112,9 +114,8 @@ will forward the current state of the ``Universe`` to the ``Player`` and request
 a ``Move`` in return. Upon receipt of the next ``Move`` the ``GameMaster`` will
 update the ``Universe``.
 
-Implementation
-==============
-
+Doing More
+==========
 
 A slightly more useful example is the ``RandomPlayer`` which always selects a move
 at random from the possible moves:
@@ -148,6 +149,9 @@ previous state and obtain the bots positions. The Universe maintains a list of
 Bots ``bots`` and each Player has an attribute ``_index`` which can be used to
 obtain the respective Bot instance controlled by the Player. Lastly we simply
 look at the ``current_pos`` property of the Bot to obtain the previous position.
+
+A Basic Offensive Player
+========================
 
 A somewhat more elaborate example is the ``BFSPlayer`` which uses breadth first
 search to find food:
@@ -193,12 +197,18 @@ Player. In practice you should be able to avoid having to use the
 ``_index`` directly but its good to know how this is implemented in case you
 wish to do something exotic.
 
+A Basic Defensive Player
+========================
+
 As a defensive example we have the ``BasicDefensePlayer``:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: BasicDefensePlayer
 
 All example Players can be found in the module ``pelita.player``.
+
+Source Code for ``pelita.player.AbstractPlayer``
+================================================
 
 Below is the complete code for the ``AbstractPlayer`` which shows you all of the
 convenience methods/properties and also some of the implementation details:
