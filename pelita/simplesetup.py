@@ -137,8 +137,8 @@ class SimpleServer(object):
             self.server.notify("register_viewer", [viewer])
 
             # We wait until the server is dead
-            while self.server._actor.thread.is_alive:
-                self.server._actor.thread.join(1)
+            while self.server.is_alive:
+                self.server.join(1)
 
         self._run_save(main)
 
