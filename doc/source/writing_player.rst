@@ -22,11 +22,7 @@ To subclass from ``AbstractPlayer`` import this with::
 In order to make your Player do something useful you must implement at least the
 method ``get_move(self)`` to return a move. This can be one of::
 
-    north = (0, -1)
-    south = (0, 1)
-    west  = (-1, 0)
-    east  = (1, 0)
-    stop  = (0, 0)
+    (north, south, west, east, stop)
 
 The moves are provided by the ``pelita.datamodel``, import them with::
 
@@ -111,6 +107,32 @@ the previous state and obtain the bots positions. The Universe maintains a list
 of Bots ``bots`` and each Player has an attribute ``_index`` which can be used
 to obtain the respective Bot instance controlled by the Player. Lastly we simply
 look at the ``current_pos`` property of the Bot to obtain the previous position.
+
+The Maze Coordinate System
+==========================
+
+The coordinate system is the standard coordinate system used in computer games.
+``x`` increases to the left, and ``y`` increases downwards, and a position is
+encoded as the tuple ``(x, y)``. There are no negative coordinates. The
+following example illustrates this for a few positions:
+
+    +---------+---------+---------+---------+---------+
+    | (0, 0)  | (1, 0)  | (2, 0)  | (3, 0)  | ...     |
+    +---------+---------+---------+---------+---------+
+    | (0, 1)  | (1, 1)  | (2, 1)  | (3, 1)  | ...     |
+    +---------+---------+---------+---------+---------+
+    | (0, 2)  | (1, 2)  | (2, 2)  | (3, 2)  | ...     |
+    +---------+---------+---------+---------+---------+
+    | ...     | ...     | ...     | ...     | ...     |
+    +---------+---------+---------+---------+---------+
+
+As a result we obtain the following direction vectors::
+
+    north = (0, -1)
+    south = (0, 1)
+    west  = (-1, 0)
+    east  = (1, 0)
+    stop  = (0, 0)
 
 A Basic Offensive Player
 ========================
