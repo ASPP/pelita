@@ -182,6 +182,25 @@ Player. In practice you should be able to avoid having to use the
 ``_index`` directly but it's good to know how this is implemented in case you
 wish to do something exotic.
 
+Noisy Enemy Positions
+=====================
+
+In general, the ``CTFUniverse`` you receive is noisy. This means that you can
+only obtain an accurate fix on the enemy bots if they are within 5 squares maze
+distance. Otherwise the position is noisy with a uniform radius of 5 squares
+maze distance. These two values may lead to confusing values: for example if the
+Bot is 6 squares away, but the added noise of 4 squares towards your Bot, make
+it appear as if it were only 2 squares away. Thus, you can check if a Bot
+position is noisy using the ``noisy`` attribute of the Bot instance::
+
+    self.enemy_bots[0].noisy
+
+One idea is to implement probabilistic tracking using a `Kalman filter
+<http://en.wikipedia.org/wiki/Kalman_filter>`_
+
+If you wish to know how the noise is implemented look at the class:
+``pelita.game_master.UniverseNoiser``.
+
 A Basic Defensive Player
 ========================
 
