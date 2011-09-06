@@ -166,6 +166,9 @@ class SimpleServer(object):
             print "Server received CTRL+C. Exiting."
         finally:
             self.server.stop()
+            if self.remote:
+                self.remote.stop()
+
             self.server.join(3)
 
             if self.server.is_alive:
@@ -173,9 +176,6 @@ class SimpleServer(object):
                 # TODO This is not nice. We need a better solution
                 # for the exit handling issue.
                 exit_handler()
-
-            if self.remote:
-                self.remote.stop()
 
     def run_ascii(self):
         """ Starts a game with the ASCII viewer.
