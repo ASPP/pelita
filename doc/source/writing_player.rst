@@ -133,7 +133,7 @@ adjacency list representation of the maze. Lets look as the implementation of
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer.current_uni
 
-As we can see its simply the top element on the ``universe_states`` stack
+As we can see it's simply the top element on the ``universe_states`` stack
 mentioned earlier. In order to obtain the positions of all ``Free`` the Universe
 provides a method ``pos_of(maze_component)`` which will return the positions of
 all ``MazeComponent`` type objects. We then use the method
@@ -157,7 +157,7 @@ We see that this makes use of the ``me`` property which is defined as follows:
 As you can see ``me`` will simply obtain the Bot instance controlled by this
 player from the current universe using the hidden ``_index`` attribute of the
 Player. In practice you should be able to avoid having to use the
-``_index`` directly but its good to know how this is implemented in case you
+``_index`` directly but it's good to know how this is implemented in case you
 wish to do something exotic.
 
 A Basic Defensive Player
