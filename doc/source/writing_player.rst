@@ -79,8 +79,8 @@ something useful :-).
 Doing More
 ==========
 
-A slightly more useful example is the ``RandomPlayer`` which always selects a move
-at random from the possible moves:
+A slightly more useful example is the ``RandomPlayer`` which always selects a
+move at random from the possible moves:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: RandomPlayer
@@ -105,11 +105,11 @@ how this is implemented:
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer.previous_pos
 
-Importantly we see that the ``AbstractPlayer`` automatically maintains a stack of
-previous states of the Universe called ``universe_states``. Here we look at the
-previous state and obtain the bots positions. The Universe maintains a list of
-Bots ``bots`` and each Player has an attribute ``_index`` which can be used to
-obtain the respective Bot instance controlled by the Player. Lastly we simply
+Importantly we see that the ``AbstractPlayer`` automatically maintains a stack
+of previous states of the Universe called ``universe_states``. Here we look at
+the previous state and obtain the bots positions. The Universe maintains a list
+of Bots ``bots`` and each Player has an attribute ``_index`` which can be used
+to obtain the respective Bot instance controlled by the Player. Lastly we simply
 look at the ``current_pos`` property of the Bot to obtain the previous position.
 
 A Basic Offensive Player
@@ -122,10 +122,11 @@ search to find food:
    :pyobject: BFSPlayer
 
 Here we can already see some more advanced concepts. The first thing to note is
-that any player can override the method ``set_initial(self)`` where ``current_uni``
-is the starting state of the game. All food is still present and all Bots are at
-their initial position. In this method we initialise the adjacency list
-representation of the maze. Lets look as the implementation of ``current_uni``:
+that any player can override the method ``set_initial(self)`` where
+``current_uni`` is the starting state of the game. All food is still present and
+all Bots are at their initial position. In this method we initialise the
+adjacency list representation of the maze. Lets look as the implementation of
+``current_uni``:
 
 
 
@@ -139,8 +140,8 @@ all ``MazeComponent`` type objects. We then use the method
 ``get_legal_moves(self,pos)`` for each of the free positions to build the
 adjacency list.
 
-The breadth-first search is implemented in the method ``bfs_food`` which returns a
-path to closest food element. In this method we see some more convenience, for
+The breadth-first search is implemented in the method ``bfs_food`` which returns
+a path to closest food element. In this method we see some more convenience, for
 example ``enemy_food`` which returns a list of all food that we can eat. One of
 the convenience properties used here is ``current_pos`` which returns the
 current position. Let have a look at this:
