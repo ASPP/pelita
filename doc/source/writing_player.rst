@@ -115,8 +115,8 @@ look at the ``current_pos`` property of the Bot to obtain the previous position.
 A Basic Offensive Player
 ========================
 
-A somewhat more elaborate example is the ``BFSPlayer`` which uses breadth first
-search to find food:
+A somewhat more elaborate example is the ``BFSPlayer`` which uses *breadth first
+search* to find food:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: BFSPlayer
@@ -140,7 +140,7 @@ all ``MazeComponent`` type objects. We then use the method
 ``get_legal_moves(self,pos)`` for each of the free positions to build the
 adjacency list.
 
-The breadth-first search is implemented in the method ``bfs_food`` which returns
+The breadth first search is implemented in the method ``bfs_food`` which returns
 a path to closest food element. In this method we see some more convenience, for
 example ``enemy_food`` which returns a list of all food that we can eat. One of
 the convenience properties used here is ``current_pos`` which returns the
