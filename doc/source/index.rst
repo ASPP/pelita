@@ -81,7 +81,7 @@ License
 
 Pelita is licensed under the terms of the `Simplified (two-clause) BSD License
 <http://en.wikipedia.org/wiki/BSD_licenses#2-clause_license_.28.22Simplified_BSD_License.22_or_.22FreeBSD_License.22.29>`_.
-A copy of the license is included with the source, in the file``COPYING``
+A copy of the license is included with the source, in the file ``COPYING``.
 
 
 Acknowledgements
