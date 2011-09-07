@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction to Pelita &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.0.0-678-g572b9d2&#39;  documentation</title>
+    <title>Writing a Player &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc1-159-g80ec600&#39;  documentation</title>
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.0.0-678-g572b9d2&#39; ',
+        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.1.0-rc1-159-g80ec600&#39; ',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.0.0-678-g572b9d2&#39;  documentation" href="index.html" />
+    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc1-159-g80ec600&#39;  documentation" href="index.html" />
+    <link rel="next" title="Development" href="development.html" />
     <link rel="prev" title="Pelita" href="index.html" /> 
   </head>
   <body>
@@ -33,9 +34,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="development.html" title="Development"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
           <a href="index.html" title="Pelita"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-678-g572b9d2&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc1-159-g80ec600&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -44,65 +48,54 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="introduction-to-pelita">
-<h1>Introduction to Pelita<a class="headerlink" href="#introduction-to-pelita" title="Permalink to this headline">¶</a></h1>
-<p>Autonomous agent environment in Python</p>
-<div class="section" id="glossary">
-<h2>Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Universe</span></tt>:</th><td class="field-body">The game state.</td>
-</tr>
-<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Bot</span></tt>:</th><td class="field-body">The datastructure used to store the agent.</td>
-</tr>
-<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Team</span></tt>:</th><td class="field-body">In capture-the-flag each <tt class="docutils literal"><span class="pre">Bot</span></tt> belongs to a <tt class="docutils literal"><span class="pre">Team</span></tt>.</td>
-</tr>
-<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Player</span></tt>:</th><td class="field-body">Your implementation of the <em>intelligence</em> for a <tt class="docutils literal"><span class="pre">Bot</span></tt>.</td>
-</tr>
-<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Mesh</span></tt>:</th><td class="field-body">A two-dimensional container mapping a position tuple to an object.</td>
-</tr>
-<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Maze</span></tt>:</th><td class="field-body">Datastructure that stores the maze.</td>
-</tr>
-<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">MazeComponent</span></tt>:</th><td class="field-body">Objects stored in the <tt class="docutils literal"><span class="pre">Maze</span></tt>.</td>
-</tr>
-<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">GameMaster</span></tt>:</th><td class="field-body">Controller object that asks players for moves and updates the <tt class="docutils literal"><span class="pre">Universe</span></tt>.</td>
-</tr>
-<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Move</span></tt>:</th><td class="field-body">A tuple that indicates where a <tt class="docutils literal"><span class="pre">Bot</span></tt> should move.</td>
-</tr>
-</tbody>
-</table>
-<p>The connections are as follows: A <tt class="docutils literal"><span class="pre">Universe</span></tt> contains a list of <tt class="docutils literal"><span class="pre">Bot</span></tt>
-objects, a list of <tt class="docutils literal"><span class="pre">Team</span></tt> objects and a <tt class="docutils literal"><span class="pre">Maze</span></tt> object. The <tt class="docutils literal"><span class="pre">Maze</span></tt> object
-is implemented with a <tt class="docutils literal"><span class="pre">Mesh</span></tt> where a list of <tt class="docutils literal"><span class="pre">MazeComponent</span></tt> objects such as
-<tt class="docutils literal"><span class="pre">Free</span></tt>, <tt class="docutils literal"><span class="pre">Wall</span></tt> and <tt class="docutils literal"><span class="pre">Food</span></tt> are store at each position.  A <tt class="docutils literal"><span class="pre">Player</span></tt>
-implements/controls the logic required to navigate a <tt class="docutils literal"><span class="pre">Bot</span></tt>. The <tt class="docutils literal"><span class="pre">GameMaster</span></tt>
-will forward the current state of the <tt class="docutils literal"><span class="pre">Universe</span></tt> to the <tt class="docutils literal"><span class="pre">Player</span></tt> and request
-a <tt class="docutils literal"><span class="pre">Move</span></tt> in return. Upon receipt of the next <tt class="docutils literal"><span class="pre">Move</span></tt> the <tt class="docutils literal"><span class="pre">GameMaster</span></tt> will
-update the <tt class="docutils literal"><span class="pre">Universe</span></tt>.</p>
+  <div class="section" id="writing-a-player">
+<h1><a class="toc-backref" href="#id1">Writing a Player</a><a class="headerlink" href="#writing-a-player" title="Permalink to this headline">¶</a></h1>
+<p>This section explains how to write a player.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#writing-a-player" id="id1">Writing a Player</a><ul>
+<li><a class="reference internal" href="#player-basics" id="id2">Player Basics</a></li>
+<li><a class="reference internal" href="#where-to-place-you-files" id="id3">Where to place you files</a></li>
+<li><a class="reference internal" href="#doing-more" id="id4">Doing More</a></li>
+<li><a class="reference internal" href="#the-maze-coordinate-system" id="id5">The Maze Coordinate System</a></li>
+<li><a class="reference internal" href="#loading-alternative-mazes" id="id6">Loading Alternative Mazes</a><ul>
+<li><a class="reference internal" href="#layout-string" id="id7"><tt class="docutils literal"><span class="pre">layout_string</span></tt></a></li>
+<li><a class="reference internal" href="#layout-name" id="id8"><tt class="docutils literal"><span class="pre">layout_name</span></tt></a></li>
+<li><a class="reference internal" href="#layout-file" id="id9"><tt class="docutils literal"><span class="pre">layout_file</span></tt></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#a-basic-offensive-player" id="id10">A Basic Offensive Player</a></li>
+<li><a class="reference internal" href="#noisy-enemy-positions" id="id11">Noisy Enemy Positions</a></li>
+<li><a class="reference internal" href="#a-basic-defensive-player" id="id12">A Basic Defensive Player</a></li>
+<li><a class="reference internal" href="#source-code-for-pelita-player-abstractplayer" id="id13">Source Code for <tt class="docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></tt></a></li>
+<li><a class="reference internal" href="#glossary" id="id14">Glossary</a></li>
+</ul>
+</li>
+</ul>
 </div>
-<div class="section" id="writing-a-player">
-<h2>Writing a Player<a class="headerlink" href="#writing-a-player" title="Permalink to this headline">¶</a></h2>
-<p>In order to write a Player you should subclass from
-<tt class="docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></tt>. This is an abstract class which provides several
-convenience methods to interrogate the Universe including the Bot instance that this
-player controls but lacks the functions to actually control the Bot. In order to
-make your Player do something useful you must implement at least the method
-<tt class="docutils literal"><span class="pre">get_move(self)</span></tt> to return a move. This can be one of:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">north</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">south</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">west</span>  <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<span class="n">east</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<span class="n">stop</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<div class="section" id="player-basics">
+<h2><a class="toc-backref" href="#id2">Player Basics</a><a class="headerlink" href="#player-basics" title="Permalink to this headline">¶</a></h2>
+<p>In order to write a player you should subclass from
+<tt class="docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></tt>. This is an abstract class which provides
+several convenience methods to interrogate the universe including the bot
+instance that this player controls, but lacks the functions to actually control
+the bot.</p>
+<p>To subclass from <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt> import this with:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">AbstractPlayer</span>
 </pre></div>
 </div>
-<p>The moves are provided by the <tt class="docutils literal"><span class="pre">datamodel</span></tt>, import them with:</p>
+<p>In order to make your player do something useful you must implement at least the
+method <tt class="docutils literal"><span class="pre">get_move(self)</span></tt> to return a move. This can be one of:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="n">north</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">west</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">stop</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The moves are provided by the <tt class="docutils literal"><span class="pre">pelita.datamodel</span></tt>, import them with:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pelita.datamodel</span> <span class="kn">import</span> <span class="n">north</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">west</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">stop</span>
 </pre></div>
 </div>
-<p>An example of such a player is the trivial <tt class="docutils literal"><span class="pre">StoppingPlayer</span></tt> which simply returns
-<tt class="docutils literal"><span class="pre">stop</span></tt>:</p>
+<p>An example of such a player is the trivial <tt class="docutils literal"><span class="pre">pelita.players.StoppingPlayer</span></tt>
+which simply returns <tt class="docutils literal"><span class="pre">stop</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">StoppingPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A Player that just stands still. &quot;&quot;&quot;</span>
 
@@ -110,8 +103,81 @@ make your Player do something useful you must implement at least the method
         <span class="k">return</span> <span class="n">stop</span>
 </pre></div>
 </div>
-<p>A slightly more useful example is the <tt class="docutils literal"><span class="pre">RandomPlayer</span></tt> which always selects a move
-at random from the possible moves:</p>
+</div>
+<div class="section" id="where-to-place-you-files">
+<h2><a class="toc-backref" href="#id3">Where to place you files</a><a class="headerlink" href="#where-to-place-you-files" title="Permalink to this headline">¶</a></h2>
+<p>To begin using your own player you need to create a startup script similar to
+<tt class="docutils literal"><span class="pre">demo.py</span></tt> and execute this using the <a class="reference external" href="http://docs.python.org/using/cmdline.html#envvar-PYTHONPATH">PYTHONPATH</a> environment
+variable.</p>
+<p>First create an empty directory outside the Pelita source code directory, and
+make some empty files:</p>
+<div class="highlight-python"><pre>$ cd ~
+$ mkdir my_agent
+$ cd my_agent
+$ touch my_agent.py
+$ touch run_game.py</pre>
+</div>
+<p>You can then implement you player in the file <tt class="docutils literal"><span class="pre">my_player.py</span></tt>, for example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">AbstractPlayer</span>
+<span class="kn">from</span> <span class="nn">pelita.datamodel</span> <span class="kn">import</span> <span class="n">stop</span>
+
+
+<span class="k">class</span> <span class="nc">MyPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Basically a clone of the StoppingPlayer. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">stop</span>
+</pre></div>
+</div>
+<p>The next thing you need is a python script to run your player. Implement this in
+<tt class="docutils literal"><span class="pre">my_game.py</span></tt> using classes <tt class="docutils literal"><span class="pre">SimpleServer</span></tt> and <tt class="docutils literal"><span class="pre">SimpleClient</span></tt> from the
+<tt class="docutils literal"><span class="pre">pelita.simplesetup</span></tt> module and also <tt class="docutils literal"><span class="pre">SimpleTeam</span></tt> from <tt class="docutils literal"><span class="pre">pelita.player</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">from</span> <span class="nn">pelita.simplesetup</span> <span class="kn">import</span> <span class="n">SimpleClient</span><span class="p">,</span> <span class="n">SimpleServer</span>
+<span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">SimpleTeam</span><span class="p">,</span> <span class="n">BFSPlayer</span><span class="p">,</span> <span class="n">BasicDefensePlayer</span>
+<span class="kn">from</span> <span class="nn">my_player</span> <span class="kn">import</span> <span class="n">MyPlayer</span>
+
+<span class="c"># setup you own team</span>
+<span class="n">my_client</span> <span class="o">=</span> <span class="n">SimpleClient</span><span class="p">(</span>
+        <span class="n">SimpleTeam</span><span class="p">(</span><span class="s">&quot;my team&quot;</span><span class="p">,</span> <span class="n">MyPlayer</span><span class="p">(),</span> <span class="n">MyPlayer</span><span class="p">()))</span>
+<span class="n">my_client</span><span class="o">.</span><span class="n">autoplay_background</span><span class="p">()</span>
+
+<span class="c"># fight against two strong opponents</span>
+<span class="n">enemy_team</span> <span class="o">=</span> <span class="n">SimpleClient</span><span class="p">(</span>
+        <span class="n">SimpleTeam</span><span class="p">(</span><span class="s">&quot;the enemy&quot;</span><span class="p">,</span> <span class="n">BFSPlayer</span><span class="p">(),</span> <span class="n">BasicDefensePlayer</span><span class="p">()))</span>
+<span class="n">enemy_team</span><span class="o">.</span><span class="n">autoplay_background</span><span class="p">()</span>
+
+<span class="n">server</span> <span class="o">=</span> <span class="n">SimpleServer</span><span class="p">()</span>
+<span class="n">server</span><span class="o">.</span><span class="n">run_tk</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Now to run the game you need to use the <tt class="docutils literal"><span class="pre">PYTHONPATH</span></tt> to point to the Pelita
+source code. Assuming this is in <tt class="docutils literal"><span class="pre">$HOME/pelita</span></tt> you can execute
+<tt class="docutils literal"><span class="pre">my_game.py</span></tt> using:</p>
+<div class="highlight-python"><pre>$ PYTHONPATH=$HOME/pelita python my_game.py</pre>
+</div>
+<p>If instead of the TkInter based display, you would like to use a text-mode
+output replace <tt class="docutils literal"><span class="pre">server.run_tk()</span></tt> with:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">server</span><span class="o">.</span><span class="n">run_ascii</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If you wish to play a shorter game use the <tt class="docutils literal"><span class="pre">rounds=N</span></tt> keyword argument for
+<tt class="docutils literal"><span class="pre">SimpleServer</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">SimpleServer</span><span class="p">(</span><span class="n">rounds</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now that you are set up, read the next section on how to make you player do
+something useful :-).</p>
+</div>
+<div class="section" id="doing-more">
+<h2><a class="toc-backref" href="#id4">Doing More</a><a class="headerlink" href="#doing-more" title="Permalink to this headline">¶</a></h2>
+<p>A slightly more useful example is the <tt class="docutils literal"><span class="pre">RandomPlayer</span></tt> which always selects a
+move at random from the possible moves:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">RandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A player that makes moves at random. &quot;&quot;&quot;</span>
 
@@ -123,7 +189,7 @@ at random from the possible moves:</p>
 dictionary mapping move tuples to position tuples. The random player simply
 selects a move at random from the keys (moves) of this dictionary and then moves
 there. <tt class="docutils literal"><span class="pre">legal_moves</span></tt> always includes stop.</p>
-<p>The next example if the not-quite random Player <tt class="docutils literal"><span class="pre">NQRandomPlayer</span></tt>. This ones
+<p>The next example if the not-quite random player <tt class="docutils literal"><span class="pre">NQRandomPlayer</span></tt>. This ones
 does not move back to the position where it was on its last turn and does not
 ever stop in place:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">NQRandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
@@ -151,7 +217,7 @@ ever stop in place:</p>
 </pre></div>
 </div>
 <p>Here we can see the use of another convenience method: <tt class="docutils literal"><span class="pre">previous_pos</span></tt> which
-gives the position the Bot had in the previous round. Lets take a closer look at
+gives the position the bot had in the previous round. Lets take a closer look at
 how this is implemented:</p>
 <div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">previous_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The previous position of the bot.</span>
@@ -164,14 +230,234 @@ how this is implemented:</p>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">]</span><span class="o">.</span><span class="n">current_pos</span>
 </pre></div>
 </div>
-<p>Importantly we see that the <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt> automatically maintains a stack of
-previous states of the Universe called <tt class="docutils literal"><span class="pre">universe_states</span></tt>. Here we look at the
-previous state and obtain the bots positions. The Universe maintains a list of
-Bots <tt class="docutils literal"><span class="pre">bots</span></tt> and each Player has an attribute <tt class="docutils literal"><span class="pre">_index</span></tt> which can be used to
-obtain the respective Bot instance controlled by the Player. Lastly we simply
-look at the <tt class="docutils literal"><span class="pre">current_pos</span></tt> property of the Bot to obtain the previous position.</p>
-<p>A somewhat more elaborate example is the <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt> which uses breadth first
-search to find food:</p>
+<p>Importantly we see that the <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt> automatically maintains a stack
+of previous states of the Universe called <tt class="docutils literal"><span class="pre">universe_states</span></tt>. Here we look at
+the previous state and obtain the bots positions. The Universe maintains a list
+of bots <tt class="docutils literal"><span class="pre">bots</span></tt> and each player has an attribute <tt class="docutils literal"><span class="pre">_index</span></tt> which can be used
+to obtain the respective bot instance controlled by the player. Lastly we simply
+look at the <tt class="docutils literal"><span class="pre">current_pos</span></tt> property of the bot to obtain the previous position.</p>
+</div>
+<div class="section" id="the-maze-coordinate-system">
+<h2><a class="toc-backref" href="#id5">The Maze Coordinate System</a><a class="headerlink" href="#the-maze-coordinate-system" title="Permalink to this headline">¶</a></h2>
+<p>The coordinate system is the standard coordinate system used in computer games.
+<tt class="docutils literal"><span class="pre">x</span></tt> increases to the left, and <tt class="docutils literal"><span class="pre">y</span></tt> increases downwards, and a position is
+encoded as the tuple <tt class="docutils literal"><span class="pre">(x,</span> <span class="pre">y)</span></tt>. There are no negative coordinates. The
+following example illustrates this for a few positions:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>(0, 0)</td>
+<td>(1, 0)</td>
+<td>(2, 0)</td>
+<td>(3, 0)</td>
+<td>...</td>
+</tr>
+<tr><td>(0, 1)</td>
+<td>(1, 1)</td>
+<td>(2, 1)</td>
+<td>(3, 1)</td>
+<td>...</td>
+</tr>
+<tr><td>(0, 2)</td>
+<td>(1, 2)</td>
+<td>(2, 2)</td>
+<td>(3, 2)</td>
+<td>...</td>
+</tr>
+<tr><td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>As a result we obtain the following direction vectors:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">north</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">south</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">west</span>  <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">east</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">stop</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="loading-alternative-mazes">
+<h2><a class="toc-backref" href="#id6">Loading Alternative Mazes</a><a class="headerlink" href="#loading-alternative-mazes" title="Permalink to this headline">¶</a></h2>
+<p>By default <tt class="docutils literal"><span class="pre">SimpleServer</span></tt> will load a random maze for four players. There are
+three possible keyword arguments which you may use to select a specific layout:
+<tt class="docutils literal"><span class="pre">layout_string</span></tt>, <tt class="docutils literal"><span class="pre">layout_name</span></tt> and <tt class="docutils literal"><span class="pre">layout_file</span></tt>. If you specify more than
+one of these, <tt class="docutils literal"><span class="pre">SimpleServer</span></tt> will complain.</p>
+<div class="section" id="layout-string">
+<h3><a class="toc-backref" href="#id7"><tt class="docutils literal"><span class="pre">layout_string</span></tt></a><a class="headerlink" href="#layout-string" title="Permalink to this headline">¶</a></h3>
+<p>Using <tt class="docutils literal"><span class="pre">layout_string</span></tt> allows you to embed the maze layout as a string directly
+into your code:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">layout_string</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">    ################################</span>
+<span class="s">    #   #. #.#.#       #     #.#.#3#</span>
+<span class="s">    # # ##       ##  #   ###   #.#1#</span>
+<span class="s">    # # #. # ###    #### .#..# # # #</span>
+<span class="s">    # # ## # ..# #   #   ##### # # #</span>
+<span class="s">    # #    ##### ###   ###.#   # # #</span>
+<span class="s">    # ## # ..#.  #.###       #   # #</span>
+<span class="s">    # #. ##.####        #.####  ## #</span>
+<span class="s">    # ##  ####.#        ####.## .# #</span>
+<span class="s">    # #   #       ###.#  .#.. # ## #</span>
+<span class="s">    # # #   #.###   ### #####    # #</span>
+<span class="s">    # # # #####   #   # #.. # ## # #</span>
+<span class="s">    # # # #..#. ####    ### # .# # #</span>
+<span class="s">    #0#.#   ###   #  ##       ## # #</span>
+<span class="s">    #2#.#.#     #       #.#.# .#   #</span>
+<span class="s">    ################################ &quot;&quot;&quot;</span><span class="p">)</span>
+
+<span class="n">server</span> <span class="o">=</span> <span class="n">SimpleServer</span><span class="p">(</span><span class="n">layout_string</span><span class="o">=</span><span class="n">layout_string</span><span class="p">)</span>
+<span class="n">server</span><span class="o">.</span><span class="n">run_tk</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>As you can see from the example, only a few characters are needed to encode a
+maze:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">'#'</span></tt>:</th><td class="field-body">wall</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">'</span> <span class="pre">'</span></tt>:</th><td class="field-body">free space</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">'.'</span></tt>:</th><td class="field-body">food</td>
+</tr>
+</tbody>
+</table>
+<p>And in addition, integers specify the starting position of each bot. In the
+above example <tt class="docutils literal"><span class="pre">0</span></tt> and <tt class="docutils literal"><span class="pre">2</span></tt> are on the team on the left and <tt class="docutils literal"><span class="pre">1</span></tt> and <tt class="docutils literal"><span class="pre">3</span></tt>
+are on the team on the right.  There are some restrictions on the encoding
+however:</p>
+<ul class="simple">
+<li>The maze must be rectangular and even in the x-direction.</li>
+<li>It must be fully enclosed by walls.</li>
+<li>No illegal characters can be used.</li>
+</ul>
+<p>By default a four-bot maze is expected (integers <tt class="docutils literal"><span class="pre">0-3</span></tt> must be present. If you
+wish to player with two bots instead, pass <tt class="docutils literal"><span class="pre">players=N</span></tt> as keyword argument to
+the <tt class="docutils literal"><span class="pre">SimpleServer</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">SimpleServer</span><span class="p">(</span><span class="n">players</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Any leading or trailing whitespace will be stripped. The layout will be
+parsed for correctness. and will raise an exception if any errors are detected.</p>
+<p>This feature should give you enough flexibility to run smallish test games.</p>
+</div>
+<div class="section" id="layout-name">
+<h3><a class="toc-backref" href="#id8"><tt class="docutils literal"><span class="pre">layout_name</span></tt></a><a class="headerlink" href="#layout-name" title="Permalink to this headline">¶</a></h3>
+<p>Using <tt class="docutils literal"><span class="pre">layout_name</span></tt> and  you can use any of the mazes provided. The mazes are
+stored in the <tt class="docutils literal"><span class="pre">layouts</span></tt> directory and there is some magic to load them into
+the Pelita name space.</p>
+<p>The filenames in layouts in the <tt class="docutils literal"><span class="pre">layouts</span></tt> have the <tt class="docutils literal"><span class="pre">.layout</span></tt> extension:</p>
+<div class="highlight-python"><pre>$ cd layouts
+$ ls | head
+01_demo.layout
+01_with_dead_ends.layout
+01_without_dead_ends.layout
+02_demo.layout
+02_with_dead_ends.layout
+02_without_dead_ends.layout
+03_demo.layout
+03_with_dead_ends.layout
+03_without_dead_ends.layout
+04_demo.layout</pre>
+</div>
+<p>To have them available in the Pelita name space we make them available from the
+auto generated module <tt class="docutils literal"><span class="pre">pelita.__layouts</span></tt> module. When converting from filenames
+we prefix the layout name with the string <tt class="docutils literal"><span class="pre">layout_</span></tt> and remove the <tt class="docutils literal"><span class="pre">.layout</span></tt>
+extension. Thus the layout stored in the file <tt class="docutils literal"><span class="pre">01_demo.layout</span></tt> becomes
+<tt class="docutils literal"><span class="pre">layout_01_demo</span></tt>, <tt class="docutils literal"><span class="pre">18_with_dead_ends.layout</span></tt> becomes
+<tt class="docutils literal"><span class="pre">layout_18_with_dead_ends</span></tt> and so on.</p>
+<p>You can get them using: <tt class="docutils literal"><span class="pre">pelita.layout.get_layout_by_name</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pelita.layout</span> <span class="kn">import</span> <span class="n">get_layout_by_name</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">get_layout_by_name</span><span class="p">(</span><span class="s">&#39;layout_01_demo&#39;</span><span class="p">)</span>
+<span class="go">################################</span>
+<span class="go">#   #. #.#.#       #     #.#.#3#</span>
+<span class="go"># # ##       ##  #   ###   #.#1#</span>
+<span class="go"># # #. # ###    #### .#..# # # #</span>
+<span class="go"># # ## # ..# #   #   ##### # # #</span>
+<span class="go"># #    ##### ###   ###.#   # # #</span>
+<span class="go"># ## # ..#.  #.###       #   # #</span>
+<span class="go"># #. ##.####        #.####  ## #</span>
+<span class="go"># ##  ####.#        ####.## .# #</span>
+<span class="go"># #   #       ###.#  .#.. # ## #</span>
+<span class="go"># # #   #.###   ### #####    # #</span>
+<span class="go"># # # #####   #   # #.. # ## # #</span>
+<span class="go"># # # #..#. ####    ### # .# # #</span>
+<span class="go">#0#.#   ###   #  ##       ## # #</span>
+<span class="go">#2#.#.#     #       #.#.# .#   #</span>
+<span class="go">################################</span>
+</pre></div>
+</div>
+<p>You can look at the available names using <tt class="docutils literal"><span class="pre">pelita.get_available_layouts</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pelita.layout</span> <span class="kn">import</span> <span class="n">get_available_layouts</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">layout_name</span> <span class="ow">in</span> <span class="n">get_available_layouts</span><span class="p">()[:</span><span class="mi">10</span><span class="p">]:</span>
+<span class="gp">... </span>    <span class="k">print</span> <span class="n">layout_name</span>
+<span class="gp">...</span>
+<span class="go">layout_01_demo</span>
+<span class="go">layout_01_with_dead_ends</span>
+<span class="go">layout_01_without_dead_ends</span>
+<span class="go">layout_02_demo</span>
+<span class="go">layout_02_with_dead_ends</span>
+<span class="go">layout_02_without_dead_ends</span>
+<span class="go">layout_03_demo</span>
+<span class="go">layout_03_with_dead_ends</span>
+<span class="go">layout_03_without_dead_ends</span>
+<span class="go">layout_04_demo</span>
+</pre></div>
+</div>
+<p>Once you have found a layout you like, pass the desired layout name to the
+<tt class="docutils literal"><span class="pre">SimpleServer</span></tt> using the <tt class="docutils literal"><span class="pre">layout_name</span></tt> keyword argument:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">server</span> <span class="o">=</span> <span class="n">SimpleServer</span><span class="p">(</span><span class="n">layout_name</span><span class="o">=</span><span class="s">&#39;layout_01_demo&#39;</span><span class="p">)</span>
+<span class="n">server</span><span class="o">.</span><span class="n">run_tk</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="layout-file">
+<h3><a class="toc-backref" href="#id9"><tt class="docutils literal"><span class="pre">layout_file</span></tt></a><a class="headerlink" href="#layout-file" title="Permalink to this headline">¶</a></h3>
+<p>Lastly you can use the <tt class="docutils literal"><span class="pre">layout_file</span></tt> keyword argument to load a layout
+from a given file.  Assuming you have a file <tt class="docutils literal"><span class="pre">my_layout.layout</span></tt> which
+contains:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">################################</span>
+<span class="c">#   #. #.#.#       #     #.#.#3#</span>
+<span class="c"># # ##       ##  #   ###   #.#1#</span>
+<span class="c"># # #. # ###    #### .#..# # # #</span>
+<span class="c"># # ## # ..# #   #   ##### # # #</span>
+<span class="c"># #    ##### ###   ###.#   # # #</span>
+<span class="c"># ## # ..#.  #.###       #   # #</span>
+<span class="c"># #. ##.####        #.####  ## #</span>
+<span class="c"># ##  ####.#        ####.## .# #</span>
+<span class="c"># #   #       ###.#  .#.. # ## #</span>
+<span class="c"># # #   #.###   ### #####    # #</span>
+<span class="c"># # # #####   #   # #.. # ## # #</span>
+<span class="c"># # # #..#. ####    ### # .# # #</span>
+<span class="c">#0#.#   ###   #  ##       ## # #</span>
+<span class="c">#2#.#.#     #       #.#.# .#   #</span>
+<span class="c">################################</span>
+</pre></div>
+</div>
+<p>...you would use:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">server</span> <span class="o">=</span> <span class="n">SimpleServer</span><span class="p">(</span><span class="n">layout_file</span><span class="o">=</span><span class="s">&#39;my_layout.layout&#39;</span><span class="p">)</span>
+<span class="n">server</span><span class="o">.</span><span class="n">run_tk</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="a-basic-offensive-player">
+<h2><a class="toc-backref" href="#id10">A Basic Offensive Player</a><a class="headerlink" href="#a-basic-offensive-player" title="Permalink to this headline">¶</a></h2>
+<p>A somewhat more elaborate example is the <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt> which uses <em>breadth first
+search</em> to find food:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">BFSPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; This player uses breadth first search to always go to the closest food.</span>
 
@@ -220,10 +506,11 @@ search to find food:</p>
 </pre></div>
 </div>
 <p>Here we can already see some more advanced concepts. The first thing to note is
-that any player can override the method <tt class="docutils literal"><span class="pre">set_initial(self)</span></tt> where <tt class="docutils literal"><span class="pre">current_uni</span></tt>
-is the starting state of the game. All food is still present and all Bots are at
-their initial position. In this method we initialise the adjacency list
-representation of the maze. Lets look as the implementation of <tt class="docutils literal"><span class="pre">current_uni</span></tt>:</p>
+that any player can override the method <tt class="docutils literal"><span class="pre">set_initial(self)</span></tt> where
+<tt class="docutils literal"><span class="pre">current_uni</span></tt> is the starting state of the game. All food is still present and
+all bots are at their initial position. In this method we initialise the
+adjacency list representation of the maze. Lets look as the implementation of
+<tt class="docutils literal"><span class="pre">current_uni</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">current_uni</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The current Universe.</span>
 
@@ -236,14 +523,14 @@ representation of the maze. Lets look as the implementation of <tt class="docuti
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>As we can see its simply the top element on the <tt class="docutils literal"><span class="pre">universe_states</span></tt> stack
+<p>As we can see it&#8217;s simply the top element on the <tt class="docutils literal"><span class="pre">universe_states</span></tt> stack
 mentioned earlier. In order to obtain the positions of all <tt class="docutils literal"><span class="pre">Free</span></tt> the Universe
 provides a method <tt class="docutils literal"><span class="pre">pos_of(maze_component)</span></tt> which will return the positions of
 all <tt class="docutils literal"><span class="pre">MazeComponent</span></tt> type objects. We then use the method
 <tt class="docutils literal"><span class="pre">get_legal_moves(self,pos)</span></tt> for each of the free positions to build the
 adjacency list.</p>
-<p>The breadth-first search is implemented in the method <tt class="docutils literal"><span class="pre">bfs_food</span></tt> which returns a
-path to closest food element. In this method we see some more convenience, for
+<p>The breadth first search is implemented in the method <tt class="docutils literal"><span class="pre">bfs_food</span></tt> which returns
+a path to closest food element. In this method we see some more convenience, for
 example <tt class="docutils literal"><span class="pre">enemy_food</span></tt> which returns a list of all food that we can eat. One of
 the convenience properties used here is <tt class="docutils literal"><span class="pre">current_pos</span></tt> which returns the
 current position. Let have a look at this:</p>
@@ -271,11 +558,30 @@ current position. Let have a look at this:</p>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>As you can see <tt class="docutils literal"><span class="pre">me</span></tt> will simply obtain the Bot instance controlled by this
+<p>As you can see <tt class="docutils literal"><span class="pre">me</span></tt> will simply obtain the bot instance controlled by this
 player from the current universe using the hidden <tt class="docutils literal"><span class="pre">_index</span></tt> attribute of the
-Player. In practice you should be able to avoid having to use the
-<tt class="docutils literal"><span class="pre">_index</span></tt> directly but its good to know how this is implemented in case you
+player. In practice you should be able to avoid having to use the
+<tt class="docutils literal"><span class="pre">_index</span></tt> directly but it&#8217;s good to know how this is implemented in case you
 wish to do something exotic.</p>
+</div>
+<div class="section" id="noisy-enemy-positions">
+<h2><a class="toc-backref" href="#id11">Noisy Enemy Positions</a><a class="headerlink" href="#noisy-enemy-positions" title="Permalink to this headline">¶</a></h2>
+<p>In general, the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt> you receive is noisy. This means that you can
+only obtain an accurate fix on the enemy bots if they are within 5 squares maze
+distance. Otherwise the position is noisy with a uniform radius of 5 squares
+maze distance. These two values may lead to confusing values: for example if the
+bot is 6 squares away, but the added noise of 4 squares towards your bot, make
+it appear as if it were only 2 squares away. Thus, you can check if a bot
+position is noisy using the <tt class="docutils literal"><span class="pre">noisy</span></tt> attribute of the bot instance:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">enemy_bots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">noisy</span>
+</pre></div>
+</div>
+<p>One idea is to implement probabilistic tracking using a <a class="reference external" href="http://en.wikipedia.org/wiki/Kalman_filter">Kalman filter</a></p>
+<p>If you wish to know how the noise is implemented look at the class:
+<tt class="docutils literal"><span class="pre">pelita.game_master.UniverseNoiser</span></tt>.</p>
+</div>
+<div class="section" id="a-basic-defensive-player">
+<h2><a class="toc-backref" href="#id12">A Basic Defensive Player</a><a class="headerlink" href="#a-basic-defensive-player" title="Permalink to this headline">¶</a></h2>
 <p>As a defensive example we have the <tt class="docutils literal"><span class="pre">BasicDefensePlayer</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">BasicDefensePlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A crude defensive player.</span>
@@ -341,6 +647,9 @@ wish to do something exotic.</p>
 </pre></div>
 </div>
 <p>All example Players can be found in the module <tt class="docutils literal"><span class="pre">pelita.player</span></tt>.</p>
+</div>
+<div class="section" id="source-code-for-pelita-player-abstractplayer">
+<h2><a class="toc-backref" href="#id13">Source Code for <tt class="docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></tt></a><a class="headerlink" href="#source-code-for-pelita-player-abstractplayer" title="Permalink to this headline">¶</a></h2>
 <p>Below is the complete code for the <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt> which shows you all of the
 convenience methods/properties and also some of the implementation details:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">AbstractPlayer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -536,43 +845,42 @@ convenience methods/properties and also some of the implementation details:</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="git-repository">
-<h2>Git-Repository<a class="headerlink" href="#git-repository" title="Permalink to this headline">¶</a></h2>
-<p>The official Git-Repository is hosted at Github:
-<a class="reference external" href="https://github.com/Debilski/pelita">https://github.com/Debilski/pelita</a></p>
-<p>You can create a clone with:</p>
-<div class="highlight-python"><pre>$ git clone git://github.com/Debilski/pelita.git</pre>
-</div>
-</div>
-<div class="section" id="project-wall">
-<h2>Project-Wall<a class="headerlink" href="#project-wall" title="Permalink to this headline">¶</a></h2>
-<p>We used an agile project wall to track tasks for the initial stages of the
-development. In our case we split it into four distinct sections: <tt class="docutils literal"><span class="pre">todo</span></tt>
-(upper right), <tt class="docutils literal"><span class="pre">current</span> <span class="pre">iteration</span></tt> (upper left), <tt class="docutils literal"><span class="pre">done</span></tt> (lower left) and
-<tt class="docutils literal"><span class="pre">nice</span> <span class="pre">to</span> <span class="pre">have</span></tt> (lower right). Since we only had one whiteboard we kept the
-center for sketches and doodles.  You can read about the agile project wall in
-the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the-agile-samurai">The Agile Samurai</a> by by Jonathan Rasmusson</p>
-<p>Here are some photos:</p>
-<div class="figure">
-<img alt="the whole wall" src="_images/project_wall_full.jpg" style="width: 820px;" />
-<p class="caption">The whole wall</p>
-</div>
-<div class="figure">
-<img alt="The 'todo' section" src="_images/project_wall_todo.jpg" style="width: 640px;" />
-<p class="caption">The &#8216;todo&#8217; section</p>
-</div>
-<div class="figure">
-<img alt="the 'current' section" src="_images/project_wall_current.jpg" style="width: 640px;" />
-<p class="caption">The &#8216;current&#8217; section</p>
-</div>
-<div class="figure">
-<img alt="the done section" src="_images/project_wall_done.jpg" style="width: 640px;" />
-<p class="caption">The &#8216;done&#8217; section</p>
-</div>
-<div class="figure">
-<img alt="the nice to have section" src="_images/project_wall_nice.jpg" style="width: 640px;" />
-<p class="caption">The &#8216;nice to have&#8217; section</p>
-</div>
+<div class="section" id="glossary">
+<h2><a class="toc-backref" href="#id14">Glossary</a><a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Universe</span></tt>:</th><td class="field-body">The game state.</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Bot</span></tt>:</th><td class="field-body">The data structure used to store the agent.</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Team</span></tt>:</th><td class="field-body">In capture-the-flag each <tt class="docutils literal"><span class="pre">Bot</span></tt> belongs to a <tt class="docutils literal"><span class="pre">Team</span></tt>.</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Player</span></tt>:</th><td class="field-body">Your implementation of the <em>intelligence</em> for a <tt class="docutils literal"><span class="pre">Bot</span></tt>.</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Mesh</span></tt>:</th><td class="field-body">A two-dimensional container mapping a position tuple to an object.</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Maze</span></tt>:</th><td class="field-body">Data structure that stores the maze.</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">MazeComponent</span></tt>:</th><td class="field-body">Classes storing the characters used in the <tt class="docutils literal"><span class="pre">Maze</span></tt>.</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">GameMaster</span></tt>:</th><td class="field-body">Controller object that asks players for moves and updates the <tt class="docutils literal"><span class="pre">Universe</span></tt>.</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">Move</span></tt>:</th><td class="field-body">A tuple that indicates where a <tt class="docutils literal"><span class="pre">Bot</span></tt> should move.</td>
+</tr>
+</tbody>
+</table>
+<p>The connections are as follows: A <tt class="docutils literal"><span class="pre">Universe</span></tt> contains a list of <tt class="docutils literal"><span class="pre">Bot</span></tt>
+objects, a list of <tt class="docutils literal"><span class="pre">Team</span></tt> objects and a <tt class="docutils literal"><span class="pre">Maze</span></tt> object. The <tt class="docutils literal"><span class="pre">Maze</span></tt> object
+is implemented with a <tt class="docutils literal"><span class="pre">Mesh</span></tt>. At each position, a multi-character string that
+encodes the type of <tt class="docutils literal"><span class="pre">MazeComponents</span></tt> stored at that position. The classes
+derived from <tt class="docutils literal"><span class="pre">MazeComponent</span></tt>: <tt class="docutils literal"><span class="pre">Free</span></tt>, <tt class="docutils literal"><span class="pre">Wall</span></tt> and <tt class="docutils literal"><span class="pre">Food</span></tt> store the
+mapping of single character to <tt class="docutils literal"><span class="pre">MazeComponent</span></tt>.  A <tt class="docutils literal"><span class="pre">Player</span></tt>
+implements/controls the logic required to navigate a <tt class="docutils literal"><span class="pre">Bot</span></tt>. The <tt class="docutils literal"><span class="pre">GameMaster</span></tt>
+will forward the current state of the <tt class="docutils literal"><span class="pre">Universe</span></tt> to the <tt class="docutils literal"><span class="pre">Player</span></tt> and request
+a <tt class="docutils literal"><span class="pre">Move</span></tt> in return. Upon receipt of the next <tt class="docutils literal"><span class="pre">Move</span></tt> the <tt class="docutils literal"><span class="pre">GameMaster</span></tt> will
+update the <tt class="docutils literal"><span class="pre">Universe</span></tt>.</p>
 </div>
 </div>
 
@@ -584,11 +892,22 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Introduction to Pelita</a><ul>
+<li><a class="reference internal" href="#">Writing a Player</a><ul>
+<li><a class="reference internal" href="#player-basics">Player Basics</a></li>
+<li><a class="reference internal" href="#where-to-place-you-files">Where to place you files</a></li>
+<li><a class="reference internal" href="#doing-more">Doing More</a></li>
+<li><a class="reference internal" href="#the-maze-coordinate-system">The Maze Coordinate System</a></li>
+<li><a class="reference internal" href="#loading-alternative-mazes">Loading Alternative Mazes</a><ul>
+<li><a class="reference internal" href="#layout-string"><tt class="docutils literal"><span class="pre">layout_string</span></tt></a></li>
+<li><a class="reference internal" href="#layout-name"><tt class="docutils literal"><span class="pre">layout_name</span></tt></a></li>
+<li><a class="reference internal" href="#layout-file"><tt class="docutils literal"><span class="pre">layout_file</span></tt></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#a-basic-offensive-player">A Basic Offensive Player</a></li>
+<li><a class="reference internal" href="#noisy-enemy-positions">Noisy Enemy Positions</a></li>
+<li><a class="reference internal" href="#a-basic-defensive-player">A Basic Defensive Player</a></li>
+<li><a class="reference internal" href="#source-code-for-pelita-player-abstractplayer">Source Code for <tt class="docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></tt></a></li>
 <li><a class="reference internal" href="#glossary">Glossary</a></li>
-<li><a class="reference internal" href="#writing-a-player">Writing a Player</a></li>
-<li><a class="reference internal" href="#git-repository">Git-Repository</a></li>
-<li><a class="reference internal" href="#project-wall">Project-Wall</a></li>
 </ul>
 </li>
 </ul>
@@ -596,9 +915,12 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
   <h4>Previous topic</h4>
   <p class="topless"><a href="index.html"
                         title="previous chapter">Pelita</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="development.html"
+                        title="next chapter">Development</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="_sources/intro.txt"
+    <li><a href="_sources/writing_player.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
@@ -625,14 +947,17 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+          <a href="development.html" title="Development"
+             >next</a> |</li>
+        <li class="right" >
           <a href="index.html" title="Pelita"
              >previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.0.0-678-g572b9d2&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc1-159-g80ec600&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
-      Last updated on Aug 15, 2011.
+      Last updated on Sep 07, 2011.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
