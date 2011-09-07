@@ -44,6 +44,7 @@ class TcpThreadedListeningServer(SuspendableThread):
 
         # if there is a problem with closing, enable the timeout
         # self.socket.timeout = 3
+        _logger.info("%r: Created socket" % self)
 
     def run(self):
         while self._running:
@@ -79,6 +80,9 @@ class TcpThreadedListeningServer(SuspendableThread):
         dummy.connect((self.socket.host, self.socket.port))
         dummy.close()
 
+    def __repr__(self):
+        return "%s(%r)" % (self.__class__.__name__, self.socket)
+
 class TcpThreadedListeningServerQueuer(TcpThreadedListeningServer):
     def __init__(self, incoming_connections, host, port):
         super(TcpThreadedListeningServerQueuer, self).__init__(host, port)
@@ -86,6 +90,7 @@ class TcpThreadedListeningServerQueuer(TcpThreadedListeningServer):
         self.incoming_connections = incoming_connections
 
     def on_accept(self, connection):
+        _logger.info("%r: Got connection request %r" % (self, connection))
         self.incoming_connections.put(connection)
 
 

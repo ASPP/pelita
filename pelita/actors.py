@@ -7,9 +7,11 @@ between GameMaster and client Teams over the network.
 import sys
 import Queue
 
-from pelita.messaging import DispatchingActor, expose, actor_registry, actor_of, RemoteConnection, DeadConnection, ActorNotRunning
+from pelita.messaging import DispatchingActor, expose, actor_registry, \
+    actor_of, RemoteConnection, DeadConnection, ActorNotRunning
+from pelita.messaging.remote_actor import RemoteActorReference
 
-from pelita.game_master import GameMaster, PlayerTimeout, PlayerDisconnected
+from pelita.game_master import GameMaster, PlayerTimeout, PlayerDisconnected, AbstractViewer
 
 import logging
 
@@ -20,12 +22,107 @@ _logger.setLevel(logging.DEBUG)
 
 TIMEOUT = 3
 
+def get_server_actor(name, host=None, port=None):
+    try:
+        if port is None:
+            # assume local game
+            server_actor = actor_registry.get_by_name(name)
+        else:
+            server_actor = RemoteConnection().actor_for(name, host, port)
+    except DeadConnection:
+        # no connection could be established
+        server_actor = None
+
+    return server_actor
+
+
+class _ViewerActor(DispatchingActor):
+    """ Actor used to communicate with
+    """
+    def on_start(self):
+        self._server = None
+        self._viewer = None
+
+    @expose
+    def set_viewer(self, viewer):
+        self._viewer = viewer
+
+    @expose
+    def set_initial(self, universe):
+        self._viewer.set_initial(universe)
+
+    @expose
+    def observe(self, round_, turn, universe, events):
+        self._viewer.observe(round_, turn, universe, events)
+
+    @expose
+    def connect(self, main_actor, timeout, host=None, port=None):
+        self._server = get_server_actor(main_actor, host, port)
+        if not self._server:
+            self.ref.reply("failed")
+            return
+
+        try:
+            if self._server.query("register_viewer_actor", [self.ref.uuid]).get(timeout) == "ok":
+                _logger.info("Connection accepted")
+                self.ref.reply("ok")
+        except Queue.Empty:
+            self.ref.reply("actor no reply")
+        except ActorNotRunning:
+            # local server is not yet running. Try again later
+            self.ref.reply("actor not running")
+
+class ViewerActor(object):
+    def __init__(self, viewer):
+        self.actor_ref = actor_of(_ViewerActor)
+        self.actor_ref._actor.thread.daemon = True # TODO remove this line
+        self.actor_ref.start()
+        self._set_viewer(viewer)
+
+    def _set_viewer(self, viewer):
+        self.actor_ref.notify("set_viewer", [viewer])
+
+    def connect_local(self, main_actor, silent=False):
+        """ Tells our local actor to establish a local connection
+        with other local actor `main_actor`.
+        """
+        return self.connect(main_actor, None, None, silent=silent)
+
+    def connect(self, main_actor, host="", port=50007, silent=False):
+        """ Tells our local actor to establish a connection with `main_actor`.
+        """
+        if port is None:
+            if not silent:
+                print "Trying to establish a connection with local actor '%s'..." % main_actor,
+        else:
+            if not silent:
+                print "Trying to establish a connection with remote actor '%s'..." % main_actor,
+        sys.stdout.flush()
+
+        try:
+            res = self.actor_ref.query("connect", [main_actor, 2, host, port]).get(TIMEOUT)
+            if not silent:
+                print res
+            if res == "ok":
+                return True
+        except Queue.Empty:
+            if not silent:
+                print "failed due to timeout in actor."
+        return False
+
 class _ClientActor(DispatchingActor):
     """ Actor used to communicate with the Server.
     """
     def on_start(self):
         self.team = None
         self.server_actor = None
+
+    @expose
+    def is_server_connected(self):
+        if isinstance(self.server_actor, RemoteActorReference):
+            self.ref.reply(self.server_actor.is_connected())
+        else:
+            self.ref.reply(self.server_actor.is_alive)
 
     @expose
     def register_team(self, team):
@@ -42,18 +139,9 @@ class _ClientActor(DispatchingActor):
         and sends it a "hello" message with the given team_name.
         """
 
-        try:
-            if port is None:
-                # assume local game (TODO: put somewhere else?)
-                self.server_actor = actor_registry.get_by_name(main_actor)
-            else:
-                self.server_actor = RemoteConnection().actor_for(main_actor, host, port)
-        except DeadConnection:
-            # no connection could be established
-            self.ref.reply("failed")
-
+        self.server_actor = get_server_actor(main_actor, host, port)
         if not self.server_actor:
-            _logger.warning("Actor %r not found." % main_actor)
+            self.ref.reply("failed")
             return
 
         try:
@@ -107,6 +195,12 @@ class ClientActor(object):
         self.actor_ref._actor.thread.daemon = True # TODO remove this line
         self.actor_ref.start()
 
+    def is_server_connected(self):
+        try:
+            return self.actor_ref.query("is_server_connected").get()
+        except Queue.Empty:
+            return None
+
     def register_team(self, team):
         """ Registers a team with our local actor.
 
@@ -117,36 +211,48 @@ class ClientActor(object):
         """
         self.actor_ref.notify("register_team", [team])
 
-    def connect_local(self, main_actor):
+    def connect_local(self, main_actor, silent=False):
         """ Tells our local actor to establish a local connection
         with other local actor `main_actor`.
         """
-        print "Trying to establish a connection with local actor '%s'..." % main_actor,
-        sys.stdout.flush()
+        return self.connect(main_actor, None, None, silent=silent)
 
-        try:
-            res = self.actor_ref.query("say_hello", [main_actor, self.team_name]).get(TIMEOUT)
-            print res
-            if res == "ok":
-                return True
-        except Queue.Empty:
-            print "failed due to timeout in actor."
-        return False
-
-    def connect(self, main_actor, host="", port=50007):
+    def connect(self, main_actor, host="", port=50007, silent=False):
         """ Tells our local actor to establish a connection with `main_actor`.
         """
-        print "Trying to establish a connection with remote actor '%s'..." % main_actor,
-        sys.stdout.flush()
+        if port is None:
+            if not silent:
+                print "Trying to establish a connection with local actor '%s'..." % main_actor,
+        else:
+            if not silent:
+                print "Trying to establish a connection with remote actor '%s'..." % main_actor,
+        if not silent:
+            sys.stdout.flush()
 
         try:
             res = self.actor_ref.query("say_hello", [main_actor, self.team_name, host, port]).get(TIMEOUT)
-            print res
+            if not silent:
+                print res
             if res == "ok":
                 return True
         except Queue.Empty:
-            print "failed due to timeout in actor."
+            if not silent:
+                print "failed due to timeout in actor."
         return False
+
+    def __repr__(self):
+        return "ClientActor(%s, %s)" % (self.team_name, self.actor_ref)
+
+
+class RemoteViewer(AbstractViewer):
+    def __init__(self, reference):
+        self.ref = reference
+
+    def set_initial(self, universe):
+        self.ref.notify("set_initial", [universe])
+
+    def observe(self, round_, turn, universe, events):
+        self.ref.notify("observe", [round_, turn, universe, events])
 
 
 class RemoteTeamPlayer(object):
@@ -195,7 +301,19 @@ class ServerActor(DispatchingActor):
     def on_start(self):
         self.teams = []
         self.team_names = []
+
+        self.remote_viewers = []
         self.game_master = None
+
+        self._auto_shutdown = False
+
+    @expose
+    def auto_shutdown(self):
+        self.ref.reply(self._auto_shutdown)
+
+    @expose
+    def set_auto_shutdown(self, value):
+        self._auto_shutdown = value
 
     @expose
     def initialize_game(self, layout, number_bots, game_time):
@@ -235,6 +353,18 @@ class ServerActor(DispatchingActor):
         self.check_for_start()
 
     @expose
+    def register_viewer_actor(self, viewer_uuid):
+        if self.ref.remote:
+            other_ref = self.ref.remote.create_proxy(viewer_uuid)
+        else:
+            other_ref = actor_registry.get_by_uuid(viewer_uuid)
+
+        viewer = RemoteViewer(other_ref)
+        self.remote_viewers.append(viewer)
+        self.register_viewer(viewer)
+        self.ref.reply("ok")
+
+    @expose
     def register_viewer(self, viewer):
         self.game_master.register_viewer(viewer)
 
@@ -254,6 +384,9 @@ class ServerActor(DispatchingActor):
             self.game_master.register_team(remote_player, team_name=team_name)
 
         self.game_master.play()
+
+        if self._auto_shutdown:
+            self.ref.stop()
 
     def check_for_start(self):
         """ Checks, if a game can be run and start it. """
