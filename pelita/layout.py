@@ -58,7 +58,15 @@ def get_layout_by_name(layout_name):
 
     """
     # decode and return this layout
-    return __layouts.__dict__[layout_name].decode('base64').decode('zlib')
+    try:
+        return __layouts.__dict__[layout_name].decode('base64').decode('zlib')
+    except KeyError, ke:
+        # This happens if layout_name is not a valid key in the __dict__.
+        # I.e. if the layout_name is not available.
+        # The error message would be to terse "KeyError: 'non_existing_layout'",
+        # thus reraise as ValueError with appropriate error message.
+        raise ValueError("Layout: '%s' is not available." % ke.args)
+
 
 class Layout(object):
     """ Auxiliary class to parse string encodings of mazes.

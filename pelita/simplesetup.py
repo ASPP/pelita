@@ -56,6 +56,8 @@ class SimpleServer(object):
     ------
     ValueError:
         if more than one layout keyword is specified
+    IOError:
+        if layout_file was given, but file does not exist
 
     """
     def __init__(self, layout_string=None, layout_name=None, layout_file=None,
@@ -72,7 +74,7 @@ class SimpleServer(object):
         elif layout_name:
             self.layout = get_layout_by_name(layout_name)
         elif layout_file:
-            with open(layoutfile) as file:
+            with open(layout_file) as file:
                 self.layout = file.read()
         else:
             self.layout = get_random_layout()
