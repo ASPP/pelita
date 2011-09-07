@@ -68,7 +68,7 @@ class SimpleServer(object):
             raise  ValueError("Can only supply one of: 'layout_string'"+\
                     "'layout_name' or 'layout_file'")
         elif layout_string:
-            self.layout = layout
+            self.layout = layout_string
         elif layout_name:
             self.layout = get_layout_by_name(layout_name)
         elif layout_file:
