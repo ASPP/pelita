@@ -7,7 +7,7 @@ given by the specified layout file.
 
 from pelita.simplesetup import SimpleServer
 
-server = SimpleServer(layoutfile="layouts/02_demo.layout")
+server = SimpleServer(layout_name="layout_02_demo")
 # For more control, we could also define a game with 8 Bots,
 # run 10000 rounds and want to receive connections on port
 #
