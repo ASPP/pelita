@@ -150,7 +150,11 @@ Loading Alternative Mazes
 
 By default ``SimpleServer`` will load a random maze for four players. There are
 three possible keyword arguments which you may use to select a specific layout:
-``layout_string``, ``layout_name`` and ``layout_file``.
+``layout_string``, ``layout_name`` and ``layout_file``. If you specify more than
+one of these, ``SimpleServer`` will complain.
+
+``layout_string``
+-----------------
 
 Using ``layout_string`` allows you to embed the maze layout as a string directly
 into your code:
