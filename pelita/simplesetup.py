@@ -72,7 +72,7 @@ class SimpleServer(object):
         elif layout_name:
             self.layout = get_layout_by_name(layout_name)
         elif layout_file:
-            with open(layoutfile) as file:
+            with open(layout_file) as file:
                 self.layout = file.read()
         else:
             self.layout = get_random_layout()
