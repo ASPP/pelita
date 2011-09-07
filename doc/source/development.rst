@@ -45,6 +45,23 @@ will automatically make the commit of the latest version of the documentation on
 the ``gh-pages`` branch. After checking that everything is in order you still need
 to push that branch.
 
+Run the script::
+
+    $ ./commit-doc-tree.sh
+    Generating doc from v0.1.0-rc1-165-g3d353c9
+    ...
+    Build finished. The HTML pages are in build/html.
+    Switched to branch 'gh-pages'
+    Your branch is ahead of 'debilski/gh-pages' by 1 commit.
+    ce78099 DOC: Sphinx generated doc from v0.1.0-rc1-165-g3d353c9
+
+Examine the output closely and if all went well::
+
+    $ git push
+
+And return to work::
+
+    $ git co -
 
 Manual
 ------
