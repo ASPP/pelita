@@ -1,7 +1,8 @@
 #!/bin/zsh
 
 # Script to automatically generate documentation and commit this to the gh-pages
-# branch. See README.md for more info about website maintenance and updates.
+# branch. See http://debilski.github.com/pelita/development.rst for more
+# information.
 
 # check, if index is empty
 if ! git diff-index --cached --quiet --ignore-submodules HEAD ; then
