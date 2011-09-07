@@ -118,6 +118,13 @@ class SimpleServer(object):
 
         self._startup()
 
+    def stop(self):
+        """ Stops the server.
+        """
+        self.server.stop()
+        if self.remote:
+            self.remote.stop()
+
     def _startup(self):
         """ Instantiates the ServerActor and initialises a new game.
         """

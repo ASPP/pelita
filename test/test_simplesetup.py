@@ -35,10 +35,10 @@ class TestSimpleSetup(unittest.TestCase):
         # check that a non existent file raises an error
         self.assertRaises(IOError, SimpleServer, layout_file="foobar")
         # check that stuff behaves as it should
-        SimpleServer()
-        SimpleServer(layout_string=layout_string)
-        SimpleServer(layout_name=layout_name)
-        SimpleServer(layout_file=layout_file, players=2)
+        SimpleServer().stop()
+        SimpleServer(layout_string=layout_string).stop()
+        SimpleServer(layout_name=layout_name).stop()
+        SimpleServer(layout_file=layout_file, players=2).stop()
 
     def test_simple_game(self):
         layout = """
