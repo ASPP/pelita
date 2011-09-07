@@ -136,13 +136,16 @@ class SimpleServer(object):
         finally:
             self.server.stop()
             self.server.join(3)
+
             if self.server.is_alive:
                 print "Server did not finish silently. Forcing."
                 # TODO This is not nice. We need a better solution
                 # for the exit handling issue.
                 exit_handler()
+
             if self.remote:
                 self.remote.stop()
+
 
     def run_ascii(self):
         """ Starts a game with the ASCII viewer.
