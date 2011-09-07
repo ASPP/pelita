@@ -49,6 +49,15 @@ class TcpSocket(object):
         """Closes the socket"""
         self._socket.close()
 
+    def __repr__(self):
+        try:
+            host = self._socket.getsockname()
+            connection = "%s:%s" % (host)
+        except socket.error:
+            connection = "none"
+
+        return "%s(%s)" % (self.__class__.__name__, connection)
+
 
 class TcpConnectingClient(TcpSocket):
     def __init__(self, host, port):
