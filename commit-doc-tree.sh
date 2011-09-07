@@ -13,7 +13,7 @@ fi
 # get the 'git describe' output
 git_describe=$( git describe)
 
-# make the documentation
+# make the documentation, hope it doesn't fail
 echo "Generating doc from $git_describe"
 cd doc
 make clean ; make
@@ -21,19 +21,20 @@ cd ..
 
 docdirectory=doc/build/html/
 
-# Add a .nojekyll file for sphinx
+# Add a .nojekyll file
+# This prevents the GitHub jekyll website generator from running
 touch $docdirectory".nojekyll"
 
 # Adding the doc files to the index
 git add -f $docdirectory
 
-# writing a tree
+# writing a tree using the current index
 tree=$(git write-tree --prefix=doc/build/html/)
 
 # we’ll have a commit
 commit=$(echo "DOC: Sphinx generated doc from $git_describe" | git commit-tree $tree -p gh-pages)
 
-# one up
+# move the branch to the commit we made, i.e. one up
 git update-ref refs/heads/gh-pages $commit
 
 # clean index
