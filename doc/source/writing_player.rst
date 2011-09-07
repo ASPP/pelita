@@ -57,7 +57,8 @@ You can then implement you player in the file ``my_player.py``, for example:
    :language: python
 
 The next thing you need is a python script to run your player. Implement this in
-``my_game.py`` using classes from the ``pelita.simplesetup`` module:
+``my_game.py`` using classes ``SimpleServer`` and ``SimpleClient`` from the
+``pelita.simplesetup`` module and also ``SimpleTeam`` from ``pelita.player``:
 
 .. literalinclude:: my_player/my_game.py
    :language: python
