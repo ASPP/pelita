@@ -12,18 +12,18 @@ fi
 
 if ! git rev-parse gh-pages &> /dev/null ; then
     echo "Fatal: no local branch 'gh-pages exists!'"
-    exit 1
+    exit 2
 fi
 
 if [ $(git config  branch.gh-pages.remote) != 'debilski' ] ; then
     echo "Fatal: no remote branch 'gh-pages' from 'debilski' exists!'"
-    exit 1
+    exit 3
 fi
 
 if [ $(git rev-parse gh-pages) != $(git rev-parse debilski/gh-pages) ] ; then
     echo "Fatal: local branch 'gh-pages' and "\
     "remote branch 'debilski/gh-pages' are out of sync!"
-    exit 1
+    exit 4
 fi
 
 
@@ -36,7 +36,7 @@ cd doc
 make clean
 if ! make ; then
     echo "Fatal: 'make'ing the docs failed cannot commit!"
-    exit 2
+    exit 5
     cd ..
 fi
 cd ..
