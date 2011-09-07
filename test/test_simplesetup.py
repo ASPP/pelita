@@ -16,7 +16,7 @@ class TestSimpleSetup(unittest.TestCase):
         """
         client1 = SimpleClient(SimpleTeam("team1", RandomPlayer()))
         client2 = SimpleClient(SimpleTeam("team2", RandomPlayer()))
-        server = SimpleServer(layout=layout, rounds=5, players=2)
+        server = SimpleServer(layout_string=layout, rounds=5, players=2)
 
         self.assertEqual(server.host, None)
         self.assertEqual(server.port, None)
