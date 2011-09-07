@@ -22,8 +22,6 @@ class TestSimpleSetup(unittest.TestCase):
         self.assertEqual(server.port, None)
         self.assertTrue(server.server.is_alive)
 
-        server.server.notify("set_auto_shutdown", [True])
-
         client1.autoplay_background()
         client2.autoplay_background()
         server.run_ascii()
@@ -45,8 +43,6 @@ class TestSimpleSetup(unittest.TestCase):
         self.assertEqual(server.host, "")
         self.assertEqual(server.port, 50007)
         self.assertTrue(server.server.is_alive)
-
-        server.server.notify("set_auto_shutdown", [True])
 
         client1.autoplay_background()
         client2.autoplay_background()

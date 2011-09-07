@@ -5,6 +5,7 @@ which allow for easy game setup.
 """
 
 import time
+import logging
 import multiprocessing
 import threading
 import signal
@@ -18,6 +19,7 @@ from pelita.viewer import AsciiViewer
 from pelita.ui.tk_viewer import TkViewer
 from pelita.utils.signal_handlers import keyboard_interrupt_handler, exit_handler
 
+_logger = logging.getLogger("pelita.simplesetup")
 
 __docformat__ = "restructuredtext"
 
@@ -106,6 +108,20 @@ class SimpleServer(object):
         else:
             print "Starting actor '%s'" % "pelita-main"
             self.server.start()
+
+        # Begin code for automatic closing the server when a game has run
+        # TODO: this is bit of a hack and should be done by linking
+        # the actors/remote connection.
+
+        self.server.notify("set_auto_shutdown", [True])
+        if self.port is not None:
+            def on_stop():
+                _logger.info("Automatically stopping remote connection.")
+                self.remote.stop()
+
+            self.server._actor.on_stop = on_stop
+
+        # End code for automatic closing
 
         self.server.notify("initialize_game", [self.layout, self.players, self.rounds])
 
