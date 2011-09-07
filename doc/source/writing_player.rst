@@ -12,7 +12,7 @@ Player Basics
 In order to write a Player you should subclass from
 ``pelita.player.AbstractPlayer``. This is an abstract class which provides
 several convenience methods to interrogate the Universe including the Bot
-instance that this player controls but lacks the functions to actually control
+instance that this player controls, but lacks the functions to actually control
 the Bot.
 
 To subclass from ``AbstractPlayer`` import this with::
