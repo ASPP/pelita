@@ -80,28 +80,32 @@ class ViewerActor(object):
     def _set_viewer(self, viewer):
         self.actor_ref.notify("set_viewer", [viewer])
 
-    def connect_local(self, main_actor):
+    def connect_local(self, main_actor, silent=False):
         """ Tells our local actor to establish a local connection
         with other local actor `main_actor`.
         """
-        return self.connect(main_actor, None, None)
+        return self.connect(main_actor, None, None, silent=silent)
 
-    def connect(self, main_actor, host="", port=50007):
+    def connect(self, main_actor, host="", port=50007, silent=False):
         """ Tells our local actor to establish a connection with `main_actor`.
         """
         if port is None:
-            print "Trying to establish a connection with local actor '%s'..." % main_actor,
+            if not silent:
+                print "Trying to establish a connection with local actor '%s'..." % main_actor,
         else:
-            print "Trying to establish a connection with remote actor '%s'..." % main_actor,
+            if not silent:
+                print "Trying to establish a connection with remote actor '%s'..." % main_actor,
         sys.stdout.flush()
 
         try:
             res = self.actor_ref.query("connect", [main_actor, 2, host, port]).get(TIMEOUT)
-            print res
+            if not silent:
+                print res
             if res == "ok":
                 return True
         except Queue.Empty:
-            print "failed due to timeout in actor."
+            if not silent:
+                print "failed due to timeout in actor."
         return False
 
 class _ClientActor(DispatchingActor):
@@ -205,28 +209,33 @@ class ClientActor(object):
         """
         self.actor_ref.notify("register_team", [team])
 
-    def connect_local(self, main_actor):
+    def connect_local(self, main_actor, silent=False):
         """ Tells our local actor to establish a local connection
         with other local actor `main_actor`.
         """
-        return self.connect(main_actor, None, None)
+        return self.connect(main_actor, None, None, silent=silent)
 
-    def connect(self, main_actor, host="", port=50007):
+    def connect(self, main_actor, host="", port=50007, silent=False):
         """ Tells our local actor to establish a connection with `main_actor`.
         """
         if port is None:
-            print "Trying to establish a connection with local actor '%s'..." % main_actor,
+            if not silent:
+                print "Trying to establish a connection with local actor '%s'..." % main_actor,
         else:
-            print "Trying to establish a connection with remote actor '%s'..." % main_actor,
-        sys.stdout.flush()
+            if not silent:
+                print "Trying to establish a connection with remote actor '%s'..." % main_actor,
+        if not silent:
+            sys.stdout.flush()
 
         try:
             res = self.actor_ref.query("say_hello", [main_actor, self.team_name, host, port]).get(TIMEOUT)
-            print res
+            if not silent:
+                print res
             if res == "ok":
                 return True
         except Queue.Empty:
-            print "failed due to timeout in actor."
+            if not silent:
+                print "failed due to timeout in actor."
         return False
 
     def __repr__(self):
