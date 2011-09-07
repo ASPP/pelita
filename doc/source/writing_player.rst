@@ -54,14 +54,12 @@ make some empty files::
 You can then implement you player in the file ``my_player.py``, for example:
 
 .. literalinclude:: my_player/my_player.py
-   :language: python
 
 The next thing you need is a python script to run your player. Implement this in
 ``my_game.py`` using classes ``SimpleServer`` and ``SimpleClient`` from the
 ``pelita.simplesetup`` module and also ``SimpleTeam`` from ``pelita.player``:
 
 .. literalinclude:: my_player/my_game.py
-   :language: python
 
 Now to run the game you need to use the ``PYTHONPATH`` to point to the Pelita
 source code. Assuming this is in ``$HOME/pelita`` you can execute
