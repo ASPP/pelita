@@ -94,7 +94,7 @@ The game is inspired by the `“Pac-Man Projects”
 DeNero and Dan Klein at Berkeley University for their artificial intelligence
 introductory course [DeNeroKlein]_.
 
-This software was developed for the 'Advanced Scientific Programming in Python'
+This software was developed for the “Advanced Scientific Programming in Python”
 summer school, as a teaching aid for the group project.
 
 Future:
