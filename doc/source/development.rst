@@ -2,7 +2,7 @@
 Development
 ===========
 
-This section contains information for developers of pelita.
+This section contains information for developers of Pelita.
 
 Git-Repository
 ==============

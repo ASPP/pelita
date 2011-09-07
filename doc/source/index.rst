@@ -65,7 +65,7 @@ The developers are:
 * Valentin Haenel
 * Tiziano Zito
 
-With helpful contributions
+With helpful contributions by:
 
 * Zbigniew Jędrzejewski-Szmek
 * Pietro Berkes
