@@ -141,6 +141,50 @@ As a result we obtain the following direction vectors::
     east  = (1, 0)
     stop  = (0, 0)
 
+Loading Alternative Mazes
+=========================
+
+By default ``SimpleServer`` will load a random maze for four players. There are
+three possible keyword arguments which you may use to select a specific layout:
+``layout_string``, ``layout_name`` and ``layout_file``.
+
+Using ``layout_string`` allows you to embed the maze layout as a string directly
+into your code:
+
+.. literalinclude:: my_player/my_game_layout_string.py
+   :lines: 18-37
+
+As you can see from the example, only a few characters are needed to encode a
+maze:
+
+:``'#'``:
+    wall
+:``' '``:
+    free space
+:``'.'``:
+    food
+
+And in addition, integers specify the starting position of each bot. In the
+above example ``0`` and ``2`` are on the team on the left and ``1`` and ``3``
+are on the team on the right.  There are some restrictions on the encoding
+however:
+
+* The maze must be rectangular and even in the x-direction.
+* It must be fully enclosed by walls.
+* No illegal characters can be used.
+
+By default a four-bot maze is expected (integers ``0-3`` must be present. If you
+wish to player with two bots instead, pass ``players=N`` as keyword argument to
+the ``SimpleServer``::
+
+    SimpleServer(players=2)
+
+Any leading or trailing whitespace will be stripped. The layout will be
+parsed for correctness. and will raise an exception if any errors are detected.
+
+This feature shoud give you enough flexibility to run smallish test games.
+
+
 A Basic Offensive Player
 ========================
 
