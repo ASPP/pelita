@@ -56,6 +56,8 @@ class SimpleServer(object):
     ------
     ValueError:
         if more than one layout keyword is specified
+    IOError:
+        if layout_file was given, but file does not exist
 
     """
     def __init__(self, layout_string=None, layout_name=None, layout_file=None,
