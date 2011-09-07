@@ -74,6 +74,10 @@ output replace ``server.run_tk()`` with::
 
     server.run_ascii()
 
+If you wish to play a shorter game use the ``rounds=N`` keyword argument for
+``SimpleServer``::
+
+    SimpleServer(rounds=100)
 
 Now that you are set up, read the next section on how to make you Player do
 something useful :-).
