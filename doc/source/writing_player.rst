@@ -68,6 +68,12 @@ source code. Assuming this is in ``$HOME/pelita`` you can execute
 
     $ PYTHONPATH=$HOME/pelita python my_game.py
 
+If instead of the TkInter based display, you would like to use a text-mode
+output replace ``server.run_tk()`` with::
+
+    server.run_ascii()
+
+
 Now that you are set up, read the next section on how to make you Player do
 something useful :-).
 

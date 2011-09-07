@@ -15,7 +15,5 @@ enemy_team = SimpleClient(
         SimpleTeam("the enemy", BFSPlayer(), BasicDefensePlayer()))
 enemy_team.autoplay_background()
 
-server = SimpleServer(rounds=3000)
+server = SimpleServer()
 server.run_tk()
-# use this instead of 'server.run_tk' if you need to debug using the text mode
-# server.run_ascii()
