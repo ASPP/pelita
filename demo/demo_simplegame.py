@@ -53,6 +53,6 @@ if __name__=="__main__":
     ##################################
     """
 
-    server = SimpleServer(layout=layout, rounds=3000)
+    server = SimpleServer(layout_string=layout, rounds=3000)
     server.run_tk()
 
