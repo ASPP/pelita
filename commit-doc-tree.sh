@@ -16,7 +16,12 @@ git_describe=$( git describe)
 # make the documentation, hope it doesn't fail
 echo "Generating doc from $git_describe"
 cd doc
-make clean ; make
+make clean
+if ! make ; then
+    echo "Fatal: 'make'ing the docs failed cannot commit!"
+    exit 2
+    cd ..
+fi
 cd ..
 
 docdirectory=doc/build/html/
