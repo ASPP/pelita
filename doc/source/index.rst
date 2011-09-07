@@ -108,7 +108,7 @@ Past:
 * `Berlin, Germany, 2009 <http://portal.g-node.org/python-summerschool-2009/>`_
 
 Initial funding was kindly provided by `The German Neuroinformtaics Node
-<http://www.g-node.org/>`_
+<http://www.g-node.org/>`_.
 
 
 Indices and tables
