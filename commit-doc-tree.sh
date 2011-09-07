@@ -9,12 +9,11 @@ if ! git diff-index --cached --quiet --ignore-submodules HEAD ; then
   exit
 fi
 
-# get the SHA1 of the current commit
-head_sha=$( git rev-parse HEAD)
-head_sha=$head_sha[0,7]
+# get the 'git describe' output
+git_describe=$( git describe)
 
 # make the documentation
-echo "Generating doc from $head_sha"
+echo "Generating doc from $git_describe"
 cd doc
 make clean ; make
 cd ..
@@ -31,7 +30,7 @@ git add -f $docdirectory
 tree=$(git write-tree --prefix=doc/build/html/)
 
 # we’ll have a commit
-commit=$(echo "DOC: Sphinx generated doc from $head_sha" | git commit-tree $tree -p gh-pages)
+commit=$(echo "DOC: Sphinx generated doc from $git_describe" | git commit-tree $tree -p gh-pages)
 
 # one up
 git update-ref refs/heads/gh-pages $commit
