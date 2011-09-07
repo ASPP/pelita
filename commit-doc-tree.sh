@@ -6,8 +6,12 @@
 
 # check, if index is empty
 if ! git diff-index --cached --quiet --ignore-submodules HEAD ; then
-  echo "Cannot work with indexed files. Aborting."
-  exit
+  echo "Fatal: cannot work with indexed files!"
+  exit 1
+fi
+
+if ! git rev-parse ghpages ; then
+    echo
 fi
 
 # get the 'git describe' output
