@@ -7,6 +7,42 @@ from pelita.simplesetup import SimpleClient, SimpleServer
 from pelita.player import SimpleTeam, RandomPlayer
 
 class TestSimpleSetup(unittest.TestCase):
+
+    def test_load_layout(self):
+        # check that using the old API raises an error
+        self.assertRaises(TypeError, SimpleServer, layout="")
+        # check that too many layout args raise an error
+        layout_string = """
+        ##########
+        #2      3#
+        #0      1#
+        ##########
+        """
+        layout_name = "layout_01_demo"
+        layout_file = "test/test_layout.layout"
+        self.assertRaises(ValueError, SimpleServer,
+                layout_string=layout_string,
+                layout_name=layout_name)
+        self.assertRaises(ValueError, SimpleServer,
+                layout_string=layout_string,
+                layout_file=layout_file)
+        self.assertRaises(ValueError, SimpleServer,
+                layout_name=layout_name,
+                layout_file=layout_file)
+        self.assertRaises(ValueError, SimpleServer,
+                layout_string=layout_string,
+                layout_name=layout_name,
+                layout_file=layout_file)
+        # check that unknown layout_name raises an appropriate error
+        self.assertRaises(ValueError, SimpleServer, layout_name="foobar")
+        # check that a non existent file raises an error
+        self.assertRaises(IOError, SimpleServer, layout_file="foobar")
+        # check that stuff behaves as it should
+        SimpleServer()
+        SimpleServer(layout_string=layout_string)
+        SimpleServer(layout_name=layout_name)
+        SimpleServer(layout_file=layout_file)
+
     def test_simple_game(self):
         layout = """
         ##########
