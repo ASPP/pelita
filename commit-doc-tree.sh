@@ -66,3 +66,5 @@ git reset HEAD
 # it is purely informative
 git checkout gh-pages
 
+# print the commit message
+git log -1 --oneline
