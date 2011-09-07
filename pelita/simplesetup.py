@@ -5,6 +5,7 @@ which allow for easy game setup.
 """
 
 import time
+import sys
 import logging
 import multiprocessing
 import threading
@@ -35,7 +36,7 @@ def auto_connect(connect_func, retries=10, delay=0.5):
         else:
 
             if retries is None:
-                print " Waiting %i seconds. (%d)" % (delay, i + 1)
+                sys.stdout.write("[%s]\b\b\b" % "-\\|/"[i % 4])
                 time.sleep(delay)
             else:
                 if i < retries - 1:
@@ -290,10 +291,10 @@ class SimpleViewer(object):
 
         if self.port is None:
             address = "%s" % self.main_actor
-            connect = lambda: self.viewer_actor.connect_local(self.main_actor)
+            connect = lambda: self.viewer_actor.connect_local(self.main_actor, silent=True)
         else:
             address = "%s on %s:%s" % (self.main_actor, self.host, self.port)
-            connect = lambda: self.viewer_actor.connect(self.main_actor, self.host, self.port)
+            connect = lambda: self.viewer_actor.connect(self.main_actor, self.host, self.port, silent=True)
 
         print "%s: Trying to connect to %s." % (self.viewer_actor, address)
         return auto_connect(connect, retries, delay)
@@ -302,13 +303,14 @@ class SimpleViewer(object):
         """ Method which executes `main_block` and rescues
         a possible keyboard interrupt.
         """
-        if not self._auto_connect(retries, delay):
-            return
 
         try:
+            if not self._auto_connect(retries, delay):
+                return
+
             main_block()
         except KeyboardInterrupt:
-            print "Server received CTRL+C. Exiting."
+            print "%s received CTRL+C. Exiting." % self
         finally:
             self.viewer_actor.actor_ref.stop()
 
