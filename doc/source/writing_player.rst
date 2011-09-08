@@ -49,9 +49,9 @@ Player Basics
 
 In order to write a player you should subclass from
 ``pelita.player.AbstractPlayer``. This is an abstract class which provides
-several convenience methods to interrogate the universe including the bot
-instance that this player controls, but lacks the functions to actually control
-the bot.
+several convenience methods and properties to interrogate the universe including
+the bot instance that this player controls, but lacks the functions to actually
+control the bot.
 
 To subclass from ``AbstractPlayer`` import this with::
 
@@ -71,6 +71,10 @@ which simply returns ``stop``:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: StoppingPlayer
+
+Note: the current state or the ``CTFUniverse`` is always implicitly available
+via the ``current_uni`` property inherited from ``AbstractPlayer``. But more
+about that later.
 
 Where to place you files
 ========================
