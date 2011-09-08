@@ -170,6 +170,14 @@ As a result we obtain the following direction vectors::
     east  = (1, 0)
     stop  = (0, 0)
 
+We provide a series of convenience methods for dealing with position tuples in
+``pelita.datamodel``:
+
+:``new_pos``: Adds a position tuple and a move tuple.
+:``diff_pos``: Return the move required to move from one position to another.
+:``is_adjacent``: Check that two positions are adjacent.
+:``manhattan_dist``: Manhattan distance between two points.
+
 Loading Alternative Mazes
 =========================
 
