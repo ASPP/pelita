@@ -482,7 +482,7 @@ All example Players can be found in the module ``pelita.player``.
 
 
 Source Code for ``AbstractPlayer``
-================================================
+==================================
 
 Below is the complete code for the ``pelita.player.AbstractPlayer`` which shows
 you all of the convenience methods/properties and also some of the
