@@ -479,6 +479,38 @@ remove food to the maze::
     stuff.append(Food)
     maze[0,1] = stuff
 
+
+
+A Basic Defensive Player
+========================
+
+As a defensive example we have the ``BasicDefensePlayer``:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: BasicDefensePlayer
+
+The player mostly uses convenience properties already introduced for the
+``BFSPlayer``. Additionally its uses the ``team`` property, which is simply the
+``Team`` instance from the ``CTFUniverse``:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.team
+
+This has a method ``in_zone(position)`` which is uses to check if a position is
+within the zone of this team. Also it uses the ``team_border`` convenience
+property which gives the positions of the border:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.team_border
+
+... and the ``enemy_bots``
+convenience property which gives the enemy ``Bot`` instances:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.enemy_bots
+
+Note that this player simply ignores the noisy enemy positions (described next).
+
 Noisy Enemy Positions
 =====================
 
@@ -499,23 +531,6 @@ One idea is to implement probabilistic tracking using a `Kalman filter
 
 If you wish to know how the noise is implemented look at the class:
 ``pelita.game_master.UniverseNoiser``.
-
-
-A Basic Defensive Player
-========================
-
-As a defensive example we have the ``BasicDefensePlayer``:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: BasicDefensePlayer
-
-The player mostly uses convenience properties already introduced for the
-``BFSPlayer``. Additionally its uses the ``team`` property, which is simply the
-``Team`` instance from the ``CTFUniverse``. This has a method
-``in_zone(position)`` which is uses to check if a position is within the zone of
-this team. Note that this player simply ignores the noisy enemy positions. Also
-it uses the ``team_border`` convenience property which gives the positions of
-the border.
 
 Source Code for ``AbstractPlayer``
 ==================================
