@@ -385,6 +385,36 @@ the ``CTFUniverse`` should be accessible through the convenience properties of
 the ``AbstractPlayer``. However, if these do not suffice, do look at the source
 code.
 
+Error Recovery in Case of Death or Timeout
+------------------------------------------
+
+Lastly we see some error recovery code in the ``get_move()`` method.
+
+The ``BFSPlayer`` is sometimes killed, as expected for an offensive player. In
+order to detect this, it's best to compare the current position with its initial
+position using the ``initial_pos`` convenience property, since this is where it
+will respawn.
+
+Your player only has a limited time to return from ``get_move()``. The default
+is approximately three seconds. If your player does not respond in time the
+``GameMaster`` will move the bot at random for this turn. Its important to
+recover from such an event. The ``BFSPlayer`` does this by catching the
+``ValueError`` raised by ``diff_pos``.
+
+The main problem with detecting a timeout is that, as long as your
+computationally expensive process is running, there is no way to interrupt it.
+Imagine an infinite for loop in your ``get_move()``::
+
+    while True:
+        pass
+
+In this case your ``get_move()`` will be execute exactly once! Thus it is
+important to ensure that your search algorithms are efficient and fast.
+
+.. TODO: when one bot blocks, the whole team blocks
+.. TODO: how to be notified when a timeout happened.
+.. TODO: the universe states will be missing a state
+
 A more Advanced Example
 -----------------------
 
@@ -469,6 +499,7 @@ One idea is to implement probabilistic tracking using a `Kalman filter
 
 If you wish to know how the noise is implemented look at the class:
 ``pelita.game_master.UniverseNoiser``.
+
 
 A Basic Defensive Player
 ========================
