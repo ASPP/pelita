@@ -331,29 +331,10 @@ Importantly we see that the ``AbstractPlayer`` automatically maintains a stack
 of previous states of the Universe called ``universe_states``.
 As we can see ``current_uni`` is simply the top element of this stack.
 
-Now that you know about ``universe_states`` lets look at how the
-``previous_pos`` property used in the ``NQRandomPlayer`` is implemented:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.previous_pos
-
-Again we access ``universe_states``, but this time look at the second element
-from the top of the stack. The Universe maintains a list of bots ``bots`` and
-each player has an attribute ``_index`` which can be used to obtain the
-respective bot instance controlled by the player. Lastly we simply look at the
-``current_pos`` property of the bot to obtain its previous position.
-
-In order to obtain the positions of all ``Free`` the Universe
-provides a method ``pos_of(maze_component)`` which will return the positions of
-all ``MazeComponent`` type objects. We then use the method
-``get_legal_moves(self,pos)`` for each of the free positions to build the
-adjacency list.
-
-The breadth first search is implemented in the method ``bfs_food`` which returns
-a path to closest food element. In this method we see some more convenience, for
-example ``enemy_food`` which returns a list of all food that we can eat. One of
-the convenience properties used here is ``current_pos`` which returns the
-current position. Let have a look at this:
+Further convenience properties used in the ``bfs_food()`` method are
+``current_pos`` which returns the current position of the bot, and
+``enemy_food`` which returns a list of position tuples of the food owned by the
+enemy (which can be eaten by this bot). Let have a look at ``current_pos``:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer.current_pos
@@ -368,6 +349,30 @@ player from the current universe using the hidden ``_index`` attribute of the
 player. In practice you should be able to avoid having to use the
 ``_index`` directly but it's good to know how this is implemented in case you
 wish to do something exotic.
+
+Now that you know about ``universe_states``, ``_index`` and ``current_pos`` lets
+look at how the ``previous_pos`` property used in the ``NQRandomPlayer`` is
+implemented:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.previous_pos
+
+Again we access ``universe_states``, but this time we look at the second element
+from the top of the stack. The Universe maintains a list of bots ``bots`` and
+the hidden attribute ``_index`` can be used to obtain the respective bot
+instance controlled by the player. Lastly we simply look at the ``current_pos``
+property of the bot (the bot instance from one turn ago) to obtain its previous
+position.
+
+There are a few more convenience properties available from
+``AbstractPlayer``, you should look at the section `Source Code for
+AbstractPlayer`_ for details.
+
+In order to obtain the positions of all ``Free`` the Universe
+provides a method ``pos_of(maze_component)`` which will return the positions of
+all ``MazeComponent`` type objects. We then use the method
+``get_legal_moves(self,pos)`` for each of the free positions to build the
+adjacency list.
 
 Noisy Enemy Positions
 =====================
@@ -399,11 +404,12 @@ As a defensive example we have the ``BasicDefensePlayer``:
 All example Players can be found in the module ``pelita.player``.
 
 
-Source Code for ``pelita.player.AbstractPlayer``
+Source Code for ``AbstractPlayer``
 ================================================
 
-Below is the complete code for the ``AbstractPlayer`` which shows you all of the
-convenience methods/properties and also some of the implementation details:
+Below is the complete code for the ``pelita.player.AbstractPlayer`` which shows
+you all of the convenience methods/properties and also some of the
+implementation details:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer
