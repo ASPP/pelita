@@ -401,8 +401,18 @@ class BasicDefensePlayer(AbstractPlayer):
     """ A crude defensive player.
 
     Will move towards the border, and as soon as it notices enemies in its
-    territory, it will start to track them. When it kills the enemy it returns to
-    the border and waits there for more.
+    territory, it will start to track them. When it kills the enemy it returns
+    to the border and waits there for more. Like the `BFSPlayer` this player
+    stores the maze as an adjacency list [1] but uses the breadth first search [2] to
+    find the closest position on the border.  However it additionally uses the
+    A* (A Star) search [3] to find the shortest path to its target.
+
+    The adjacency lits representation (`AdjacencyList`) and A* search
+    (`AdjacencyList.a_star`) are imported from `pelita.graph`.
+
+    * [1] http://en.wikipedia.org/wiki/Adjacency_list
+    * [2] http://en.wikipedia.org/wiki/Breadth-first_search
+    * [3] http://en.wikipedia.org/wiki/A*_search_algorithm
 
     """
     def set_initial(self):
