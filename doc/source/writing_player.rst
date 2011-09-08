@@ -6,6 +6,44 @@ This section explains how to write a player.
 
 .. contents::
 
+Introduction
+============
+
+To begin with, we must define a few classes and some terminology which will be
+used throughout this documentation.
+
+:``pelita.datamodel.CTFUniverse``:
+    The game state. Holds a list of ``Bot`` instances, a list of ``Team``
+    instances and a single ``Maze`` object. Can be queried to obtain
+    information about the game.
+
+:``pelita.datamodel.Bot``:
+    The data structure used to store the bot. This holds the position of the
+    ``Bot`` inside the Maze, its initial position, which team it belongs to
+    etc..
+
+:``pelita.datamodel.Team``:
+    In capture-the-flag each ``Bot`` belongs to a ``Team``. The team stores the
+    indices of its bot, the score, the team name etc..
+
+:``pelita.datamodel.Maze``:
+    Data structure that stores the maze or layout, i.e. where walls and food
+    are.
+
+:``pelita.game_master.GameMaster``:
+    Controller object that asks players for moves and updates the ``Universe``.
+    You will never need to interact with this object but its good to know that
+    this is the central object that coordinates the game.
+
+In addition to these classes there are two additional relevant concepts:
+
+:``Player``:
+    Your implementation of the *intelligence* for a ``Bot``. The abstraction is
+    that a *player* object controls a *bot* object.
+
+:``move``:
+    A tuple that indicates where a ``Bot`` should move.
+
 Player Basics
 =============
 
@@ -364,43 +402,3 @@ convenience methods/properties and also some of the implementation details:
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer
 
-Glossary
-========
-
-:``Universe``:
-    The game state.
-
-:``Bot``:
-    The data structure used to store the agent.
-
-:``Team``:
-    In capture-the-flag each ``Bot`` belongs to a ``Team``.
-
-:``Player``:
-    Your implementation of the *intelligence* for a ``Bot``.
-
-:``Mesh``:
-    A two-dimensional container mapping a position tuple to an object.
-
-:``Maze``:
-    Data structure that stores the maze.
-
-:``MazeComponent``:
-    Classes storing the characters used in the ``Maze``.
-
-:``GameMaster``:
-    Controller object that asks players for moves and updates the ``Universe``.
-
-:``Move``:
-    A tuple that indicates where a ``Bot`` should move.
-
-The connections are as follows: A ``Universe`` contains a list of ``Bot``
-objects, a list of ``Team`` objects and a ``Maze`` object. The ``Maze`` object
-is implemented with a ``Mesh``. At each position, a multi-character string that
-encodes the type of ``MazeComponents`` stored at that position. The classes
-derived from ``MazeComponent``: ``Free``, ``Wall`` and ``Food`` store the
-mapping of single character to ``MazeComponent``.  A ``Player``
-implements/controls the logic required to navigate a ``Bot``. The ``GameMaster``
-will forward the current state of the ``Universe`` to the ``Player`` and request
-a ``Move`` in return. Upon receipt of the next ``Move`` the ``GameMaster`` will
-update the ``Universe``.
