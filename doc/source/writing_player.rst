@@ -32,7 +32,7 @@ used throughout this documentation.
 
 :``pelita.game_master.GameMaster``:
     Controller object that asks players for moves and updates the ``Universe``.
-    You will never need to interact with this object but its good to know that
+    You will never need to interact with this object but it's good to know that
     this is the central object that coordinates the game.
 
 In addition to these classes there are two additional relevant concepts:
@@ -397,7 +397,7 @@ will respawn.
 
 Your player only has a limited time to return from ``get_move()``. The default
 is approximately three seconds. If your player does not respond in time the
-``GameMaster`` will move the bot at random for this turn. Its important to
+``GameMaster`` will move the bot at random for this turn. It's important to
 recover from such an event. The ``BFSPlayer`` does this by catching the
 ``ValueError`` raised by ``diff_pos``.
 
@@ -490,7 +490,7 @@ As a defensive example we have the ``BasicDefensePlayer``:
    :pyobject: BasicDefensePlayer
 
 The player mostly uses convenience properties already introduced for the
-``BFSPlayer``. Additionally its uses the ``team`` property, which is simply the
+``BFSPlayer``. Additionally it uses the ``team`` property, which is simply the
 ``Team`` instance from the ``CTFUniverse``:
 
 .. literalinclude:: ../../pelita/player.py
