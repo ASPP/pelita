@@ -76,8 +76,8 @@ Note: the current state or the ``CTFUniverse`` is always implicitly available
 via the ``current_uni`` property inherited from ``AbstractPlayer``. But more
 about that later.
 
-Where to place you files
-========================
+Where to Place Your Files
+=========================
 
 To begin using your own player you need to create a startup script similar to
 ``demo.py`` and execute this using the `PYTHONPATH
