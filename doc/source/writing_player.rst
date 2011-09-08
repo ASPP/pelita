@@ -58,7 +58,7 @@ To subclass from ``AbstractPlayer`` import this with::
     from pelita.player import AbstractPlayer
 
 In order to make your player do something useful you must implement at least the
-method ``get_move(self)`` to return a move. This can be one of::
+method ``get_move()`` to return a move. This can be one of::
 
     (north, south, west, east, stop)
 
@@ -322,12 +322,18 @@ search* on an *adjacency list* representation of the maze to find food:
 .. literalinclude:: ../../pelita/player.py
    :pyobject: BFSPlayer
 
-Here we can already see some more advanced concepts. The first thing to note is
-that any player can override the method ``set_initial(self)``. All food is still
-present and all bots are at their initial position. In this method we initialise
-the adjacency list representation of the maze. As mentioned previously the
-current state of the universe is always available as ``current_uni``. Within
-``set_initial(self)`` this is the starting state.
+This next sections will explore the convenience properties of the
+``AbstractPlayer``.
+
+Using ``current_uni``
+---------------------
+
+The ``BFSPlayer`` makes use of some more advanced concepts. The first thing to
+note is that any player can override the method ``set_initial()``. At this stage
+food is still present and all bots are at their initial position. In the above
+example we initialise the adjacency list representation of the maze. As
+mentioned previously the current state of the universe is always available as
+``current_uni``. Within ``set_initial()`` this is the starting state.
 
 Lets take a quick look as the implementation
 of ``current_uni``:
@@ -337,12 +343,17 @@ of ``current_uni``:
 
 Importantly we see that the ``AbstractPlayer`` automatically maintains a stack
 of previous states of the Universe called ``universe_states``.
-As we can see ``current_uni`` is simply the top element of this stack.
+As we can see ``current_uni`` is simply the top element of this stack. This
+allows us to access the properties and methods of the ``CTFUniverse``, for
+example look at the implementation of ``legal_moves``:
 
-Further convenience properties used in the ``bfs_food()`` method are
-``current_pos`` which returns the current position of the bot, and
-``enemy_food`` which returns a list of position tuples of the food owned by the
-enemy (which can be eaten by this bot). Let have a look at ``current_pos``:
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.legal_moves
+
+Here we can see that this simply calls the method ``get_legal_moves(pos)``
+which is provided by ``CTFUniverse``. We also see one of the convenience
+properties used in the ``bfs_food()`` method: ``current_pos`` which returns the
+current position of the bot.  Let have a look at this:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer.current_pos
@@ -352,11 +363,30 @@ We see that this makes use of the ``me`` property which is defined as follows:
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer.me
 
-As you can see ``me`` will simply obtain the bot instance controlled by this
+As you can see ``me`` will simply obtain the ``Bot`` instance controlled by this
 player from the current universe using the hidden ``_index`` attribute of the
 player. In practice you should be able to avoid having to use the
 ``_index`` directly but it's good to know how this is implemented in case you
 wish to do something exotic.
+
+The other convenience property used in ``bfs_food()`` is ``enemy_food`` which
+returns a list of position tuples of the food owned by the enemy (which can be
+eaten by this bot). Again this is simply forwarded to the ``CTFUniverse`` using
+``current_uni``:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.enemy_food
+
+As with ``legal_moves`` a method from ``CTFUniverse`` is called, namely
+``enemy_food``. However we need to tell it which team we are on. This is
+obtained using the ``me`` property to access the controlled ``Bot`` instance,
+which in turn stored the ``team_index``. In practice the information stored in
+the ``CTFUniverse`` should be accessible through the convenience properties of
+the ``AbstractPlayer``. However, if these do not suffice, do look at the source
+code.
+
+A more Advanced Example
+-----------------------
 
 Now that you know about ``universe_states``, ``_index`` and ``current_pos`` lets
 look at how the ``previous_pos`` property used in the ``NQRandomPlayer`` is
@@ -376,10 +406,15 @@ There are a few more convenience properties available from
 ``AbstractPlayer``, you should look at the section `Source Code for
 AbstractPlayer`_ for details.
 
+Interacting with the Maze
+=========================
+
+The ``BFSPlayer`` above uses ``pelita.graph.Adjacency``.
+
 In order to obtain the positions of all ``Free`` the Universe
 provides a method ``pos_of(maze_component)`` which will return the positions of
 all ``MazeComponent`` type objects. We then use the method
-``get_legal_moves(self,pos)`` for each of the free positions to build the
+``get_legal_moves(pos)`` for each of the free positions to build the
 adjacency list.
 
 Noisy Enemy Positions
@@ -391,7 +426,9 @@ distance. Otherwise the position is noisy with a uniform radius of 5 squares
 maze distance. These two values may lead to confusing values: for example if the
 bot is 6 squares away, but the added noise of 4 squares towards your bot, make
 it appear as if it were only 2 squares away. Thus, you can check if a bot
-position is noisy using the ``noisy`` attribute of the bot instance::
+position is noisy using the ``noisy`` attribute of the bot instance, in
+combination with the ``enemy_bots`` convenience property provided by
+``AbstractPlayer``:
 
     self.enemy_bots[0].noisy
 
