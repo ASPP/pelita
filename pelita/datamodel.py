@@ -80,7 +80,7 @@ def diff_pos(initial, target):
         return (target[0]-initial[0], target[1]-initial[1])
 
 def is_adjacent(pos1, pos2):
-    """ Check that two positions are adjacent
+    """ Check that two positions are adjacent.
 
     This will check that the Manhattan distance between two positions is exactly
     one. This function does not take into account if the resulting position is a
