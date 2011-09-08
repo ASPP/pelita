@@ -429,6 +429,26 @@ adjacent free spaces, for each of the free positions.  The last step is to use
 the ``update`` method to set the generated dictionary, which we can do, since
 ``AdjacencyList`` inherits from ``dict``.
 
+In addition to `pos_of` there are a few additional constructs that are
+useful when dealing with the maze. The property ``positions`` gives all the
+positions in the maze. To check if a given ``MazeComponent`` is at a certain
+position use the ``in`` operator::
+
+    Free in maze[2, 3]
+
+Note: previously this could be done using ``has_at``, but that method if now
+deprecated in favour of the above.
+
+Sometimes, when exploring future states of the universe, you may want to add or
+remove food to the maze::
+
+    # removing items
+    maze.remove_at(Food, (2,3))
+    # adding items
+    stuff = maze[2,3]
+    stuff.append(Food)
+    maze[0,1] = stuff
+
 Noisy Enemy Positions
 =====================
 
