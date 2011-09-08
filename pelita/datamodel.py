@@ -555,6 +555,8 @@ class Maze(Mesh):
     def has_at(self, type_, pos):
         """ Check if objects of a given type are present at position.
 
+        DEPRECTAED
+
         Parameters
         ----------
         type_ : type
