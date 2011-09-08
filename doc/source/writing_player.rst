@@ -509,11 +509,18 @@ As a defensive example we have the ``BasicDefensePlayer``:
 .. literalinclude:: ../../pelita/player.py
    :pyobject: BasicDefensePlayer
 
-All example Players can be found in the module ``pelita.player``.
-
+The player mostly uses convenience properties already introduced for the
+``BFSPlayer``. Additionally its uses the ``team`` property, which is simply the
+``Team`` instance from the ``CTFUniverse``. This has a method
+``in_zone(position)`` which is uses to check if a position is within the zone of
+this team. Note that this player simply ignores the noisy enemy positions. Also
+it uses the ``team_border`` convenience property which gives the positions of
+the border.
 
 Source Code for ``AbstractPlayer``
 ==================================
+
+All example Players can be found in the module ``pelita.player``.
 
 Below is the complete code for the ``pelita.player.AbstractPlayer`` which shows
 you all of the convenience methods/properties and also some of the
