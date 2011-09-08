@@ -392,6 +392,8 @@ class BFSPlayer(AbstractPlayer):
         try:
             return diff_pos(self.current_pos, new_pos)
         except ValueError:
+            # If there was a timeout, and we are no longer where we think we
+            # were, calculate a new path.
             self.current_path = None
             return self.get_move()
 
