@@ -409,13 +409,25 @@ AbstractPlayer`_ for details.
 Interacting with the Maze
 =========================
 
-The ``BFSPlayer`` above uses ``pelita.graph.Adjacency``.
+The ``BFSPlayer`` above uses the adjacency list representation provided by:
+``pelita.graph.Adjacency``. Lets have a quick look at how this is generated, in
+case you would like to implement you own `graph storage
+<http://en.wikipedia.org/wiki/Graph_(data_structure)>`_ or leverage an
+alternative existing package such as `NetworkX <http://networkx.lanl.gov/>`_.
 
-In order to obtain the positions of all ``Free`` the Universe
-provides a method ``pos_of(maze_component)`` which will return the positions of
-all ``MazeComponent`` type objects. We then use the method
-``get_legal_moves(pos)`` for each of the free positions to build the
-adjacency list.
+Here is the ``__init__`` of the ``AdjacencyList``:
+
+.. literalinclude:: ../../pelita/graph.py
+   :lines: 17-30
+
+In order to obtain the positions of all free spaces the ``Maze`` class provides
+the function ``pos_of(maze_component_class)``. The argument is of type
+``MazeComponent`` (but it's a class, not an instance). There are three
+``MazeComponent`` classes available in ``pelita.datamodel``: ``Wall``, ``Free``,
+``Food``. We then use the method ``get_legal_moves(pos).values()`` to obtain the
+adjacent free spaces, for each of the free positions.  The last step is to use
+the ``update`` method to set the generated dictionary, which we can do, since
+``AdjacencyList`` inherits from ``dict``.
 
 Noisy Enemy Positions
 =====================
@@ -428,7 +440,7 @@ bot is 6 squares away, but the added noise of 4 squares towards your bot, make
 it appear as if it were only 2 squares away. Thus, you can check if a bot
 position is noisy using the ``noisy`` attribute of the bot instance, in
 combination with the ``enemy_bots`` convenience property provided by
-``AbstractPlayer``:
+``AbstractPlayer``::
 
     self.enemy_bots[0].noisy
 
