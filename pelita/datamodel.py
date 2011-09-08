@@ -532,7 +532,9 @@ class Maze(Mesh):
 
     This is a container class to represent a game maze. It is a two-dimensional
     structure (Mesh) which contains a representation of MazeComponents at
-    each position. (Internally, this is implemented with strings.)
+    each position. Internally this is implemented using sequences of
+    characters, i.e. strings. At each position we store the characters
+    corresponding to the maze components at this position.
 
     """
 
