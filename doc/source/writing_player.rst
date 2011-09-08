@@ -119,10 +119,6 @@ If you wish to play a shorter game use the ``rounds=N`` keyword argument for
 
     SimpleServer(rounds=100)
 
-Now that you are set up, read the next section on how to make you player do
-something useful :-).
-
-
 Doing More
 ==========
 
