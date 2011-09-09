@@ -33,25 +33,25 @@ def slow_series(start, number_of_elems):
 
 class ClientActor(DispatchingActor):
     @expose
-    def init(self, message, *params):
+    def init(self, *params):
         init(*params)
 
     @expose
-    def statechanged(self, message):
+    def statechanged(self):
         self.ref.reply("NORTH")
 
     @expose
-    def calculate_pi_for(self, message, *params):
+    def calculate_pi_for(self, *params):
         res = calculate_pi_for(*params)
         self.ref.reply(res)
 
     @expose
-    def slow_series(self, message, *params):
+    def slow_series(self, *params):
         res = slow_series(*params)
         self.ref.reply(res)
 
     @expose
-    def random_int(self, message):
+    def random_int(self):
         import random
         self.ref.reply(random.randint(0, 10))
 

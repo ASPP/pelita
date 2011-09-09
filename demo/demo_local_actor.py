@@ -58,7 +58,7 @@ clientActor2.connect_local("pelita-main")
 # much of a problem. The queue needed to exchange data between
 # different threads is handled by our TkViewer.
 try:
-    viewer.app.mainloop()
+    viewer.root.mainloop()
 except KeyboardInterrupt:
     print "Received CTRL+C. Exiting."
 finally:

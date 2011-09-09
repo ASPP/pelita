@@ -4,7 +4,7 @@
 import random
 
 from pelita.containers import Mesh
-import pelita.layouts as layouts 
+import pelita.__layouts as __layouts
 
 __docformat__ = "restructuredtext"
 
@@ -14,11 +14,58 @@ class LayoutEncodingException(Exception):
     pass
 
 def get_random_layout():
+    """ Return a random layout string from the available ones.
+
+    Returns
+    -------
+    layout : str
+        a random layout string
+
+    """
+    layouts_names = get_available_layouts()
+    layout_choice = random.choice(layouts_names)
+    return get_layout_by_name(layout_choice)
+
+def get_available_layouts():
+    """ The names of the available layouts.
+
+    Returns
+    -------
+    layout_names : list of str
+        the available layouts
+
+    """
     # loop in layouts dictionary and look for layout strings
-    layouts_str = [item for item in dir(layouts) if item.startswith('layout_')]
-    layout = random.choice(layouts_str)
+    return [item for item in dir(__layouts) if item.startswith('layout_')]
+
+def get_layout_by_name(layout_name):
+    """ Get an available layout.
+
+    Parameters
+    ----------
+    layout_name : str
+        a valid layout name
+
+    Returns
+    -------
+    layout_str : str
+        the layout as a string
+
+    Raises
+    ------
+    KeyError
+        if the layout_name is not available
+
+    """
     # decode and return this layout
-    return layouts.__dict__[layout].decode('base64').decode('zlib')
+    try:
+        return __layouts.__dict__[layout_name].decode('base64').decode('zlib')
+    except KeyError, ke:
+        # This happens if layout_name is not a valid key in the __dict__.
+        # I.e. if the layout_name is not available.
+        # The error message would be to terse "KeyError: 'non_existing_layout'",
+        # thus reraise as ValueError with appropriate error message.
+        raise ValueError("Layout: '%s' is not available." % ke.args)
 
 
 class Layout(object):
@@ -149,7 +196,10 @@ class Layout(object):
         return (layout_str.find('\n'), len(layout_str.split('\n')))
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        return type(self) == type(other) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
 
     def __str__(self):
         return self.stripped

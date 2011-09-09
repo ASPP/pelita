@@ -2,7 +2,7 @@ import unittest
 import time
 import Queue
 
-from pelita.messaging import DispatchingActor, expose, Actor, actor_of, RemoteConnection, Exit, Request
+from pelita.messaging import DispatchingActor, expose, Actor, actor_of, RemoteConnection, Exit, Request, ActorNotRunning
 
 class Dispatcher(DispatchingActor):
     def __init__(self):
@@ -10,19 +10,32 @@ class Dispatcher(DispatchingActor):
         self.param1 = None
 
     @expose
-    def set_param1(self, message, argument):
+    def dummy(self):
+        pass
+
+    @expose
+    def set_param1(self, argument):
         self.param1 = argument
 
     @expose
-    def get_param1(self, message):
+    def get_param1(self):
         self.ref.reply(self.param1)
 
     @expose
-    def get_docstring(self, message):
+    def complicated_params(self, arg1=1, arg2=2, arg3=3):
+        self.ref.reply(arg1 + 10 * arg2 + 100 * arg3)
+
+    @expose
+    def get_docstring(self):
         """ This method has no content but a docstring. """
 
+    @expose
+    def return_message(self, *args, **kwargs):
+        msg = self.ref.current_message
+        self.ref.reply(msg)
+
     @expose(name="renamed_method")
-    def fake_name(self, message):
+    def fake_name(self):
         self.ref.reply(12)
 
 
@@ -92,6 +105,34 @@ class TestDispatchingActor(unittest.TestCase):
 
         actor.stop()
 
+    def test_lifecycle(self):
+        actor = actor_of(Dispatcher)
+        self.assertRaises(ActorNotRunning, actor.notify, "dummy")
+        actor.start()
+        actor.notify("dummy")
+        actor.stop()
+        actor.join()
+        self.assertRaises(ActorNotRunning, actor.notify, "dummy")
+
+    def test_complicated_params(self):
+        actor = actor_of(Dispatcher)
+        actor.start()
+        req = actor.query("complicated_params", {"arg1": 5, "arg3": 7}) # arg2 is default 2
+        self.assertEqual(req.get(), 725)
+
+        req = actor.query("complicated_params", [1,2,3])
+        self.assertEqual(req.get(), 321)
+        actor.stop()
+        actor.join()
+
+    def test_current_message(self):
+        actor = actor_of(Dispatcher)
+        actor.start()
+        req = actor.query("return_message", {"arg1": 5, "arg3": 7})
+        self.assertEqual(req.get(), {'params': {'arg1': 5, 'arg3': 7}, 'method': 'return_message'})
+
+        actor.stop()
+        actor.join()
 
 class RaisingActor(Actor):
     def on_receive(self, message):
@@ -187,6 +228,7 @@ class TestRemoteActor(unittest.TestCase):
     def test_remote(self):
         remote = RemoteConnection().start_listener("localhost", 0)
         remote.register("main-actor", actor_of(MultiplyingActor))
+
         remote.start_all()
 
         # port is dynamic
@@ -205,15 +247,89 @@ class TestRemoteActor(unittest.TestCase):
         res = client1.query("mult", [2, 2, 4])
         self.assertEqual(res.get(timeout=3), 16)
 
+        remote.stop()
+
+    def test_bad_actors(self):
+        remote = RemoteConnection().start_listener("localhost", 0)
+        remote.register("main-actor", actor_of(MultiplyingActor))
+
+        remote.start_all()
+
+        # port is dynamic
+        port = remote.listener.socket.port
+
         # check a remote identifier which does not work
-        # sorry, no error propagation at the moment,
-        # need to use a timeout
-        client2 = RemoteConnection().actor_for("unknown-actor", "localhost", port)
-        res = client2.query("mult", [1, 4, 4])
-        self.assertRaises(Queue.Empty, res.get, timeout=1)
+        # should reply with an error message
+        client = RemoteConnection().actor_for("unknown-actor", "localhost", port)
+        req = client.query("mult", [1, 4, 4])
+        res = req.get(timeout=3)
+        self.assertTrue("error" in res)
 
         remote.stop()
 
+    def test_not_running(self):
+        remote = RemoteConnection().start_listener("localhost", 0)
+        remote.register("main-actor", actor_of(MultiplyingActor))
+
+        # port is dynamic
+        port = remote.listener.socket.port
+
+        client = RemoteConnection().actor_for("main-actor", "localhost", port)
+        req = client.query("mult", [1, 4, 4])
+        res = req.get(timeout=3)
+        self.assertTrue("error" in res)
+
+        remote.stop()
+
+    def test_bad_json(self):
+        remote = RemoteConnection().start_listener("localhost", 0)
+        remote.register("main-actor", actor_of(MultiplyingActor))
+
+        # port is dynamic
+        port = remote.listener.socket.port
+
+        client = RemoteConnection().actor_for("main-actor", "localhost", port)
+
+        # unserialisable class
+        class SomeClass(object):
+            pass
+        somobj = SomeClass()
+
+        self.assertRaises(TypeError, client.query, "mult", somobj)
+
+        remote.stop()
+
+    def test_connection(self):
+        remote = RemoteConnection().start_listener("localhost", 0)
+        remote_actor = actor_of(MultiplyingActor)
+        remote.register("main-actor", remote_actor)
+        remote.start_all()
+
+        # port is dynamic
+        port = remote.listener.socket.port
+
+        client = RemoteConnection().actor_for("main-actor", "localhost", port)
+
+        self.assertTrue(remote_actor.is_alive)
+        self.assertTrue(client.is_connected())
+        self.assertTrue(remote_actor.is_alive)
+
+        remote_actor.stop()
+        remote_actor.join()
+
+        # we are still connected
+        self.assertTrue(client.is_connected())
+
+        remote.stop()
+        # need to wait a little until the connection shuts down, sorry
+        for i in range(50):
+            still_connected = client.is_connected()
+            if still_connected:
+                time.sleep(0.1)
+            else:
+                return
+
+        self.assertFalse(still_connected)
 
 if __name__ == '__main__':
     unittest.main()

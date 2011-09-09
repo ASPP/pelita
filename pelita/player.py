@@ -2,9 +2,12 @@
 
 """ Base classes for player implementations. """
 
+import os
+import random
+import sys
+import math
 from pelita.datamodel import stop, Free, diff_pos
 from pelita.graph import AdjacencyList, NoPathException
-import random
 
 __docformat__ = "restructuredtext"
 
@@ -15,10 +18,22 @@ class SimpleTeam(object):
 
     Parameters
     ----------
-    players : list of Players
+    team_name :
+        the name of the team (optional)
+    players :
         the Players who shall join this SimpleTeam
     """
-    def __init__(self, *players):
+    def __init__(self, *args):
+        if not args:
+            raise ValueError("No teams given.")
+
+        if isinstance(args[0], basestring):
+            self.team_name = args[0]
+            players = args[1:]
+        else:
+            self.team_name = ""
+            players = args[:]
+
         for player in players:
             if (player.__class__.get_move.__func__ == AbstractPlayer.get_move.__func__):
                 raise TypeError("Player %s does not override 'get_move()'." % player.__class__)
@@ -264,6 +279,48 @@ class TestPlayer(AbstractPlayer):
     def get_move(self):
         return self.moves.pop()
 
+
+class IOBoundPlayer(AbstractPlayer):
+    """ IO Bound player that crawls the file system. """
+
+    def get_move(self):
+        count = 0
+        self.timeouted = False
+        for root, dirs, files in os.walk('/'):
+            for f in files:
+                try:
+                    os.stat(os.path.join(root, f))
+                except OSError:
+                    pass
+                finally:
+                    count += 1
+                    if count % 1000 == 0:
+                        sys.stdout.write('.')
+                        sys.stdout.flush()
+                    if not self.timeouted and self.previous_pos != self.current_pos:
+                        print "Crawling done and timeout received %i" % count
+                        self.timeouted = True
+
+class CPUBoundPlayer(AbstractPlayer):
+    """ Player that does loads of computation. """
+
+    def get_move(self):
+        self.timeouted = False
+        total = 0.0
+        count = 0
+        for i in xrange(sys.maxint):
+            total += i*i
+            total = math.sin(total)
+            count += 1
+            if count % 1000 == 0:
+                sys.stdout.write('.')
+                sys.stdout.flush()
+            if not self.timeouted and self.previous_pos != self.current_pos:
+                print "Crawling done and timeout received %i" % count
+                self.timeouted = True
+
+
+
 class NQRandomPlayer(AbstractPlayer):
     """ Not-Quite-RandomPlayer that will move randomly but not stop or reverse. """
 
@@ -297,8 +354,8 @@ class BFSPlayer(AbstractPlayer):
     reaches the food. This continues until all food has been eaten or the
     enemy wins.
 
-    The adjacency lits representation (`AdjacencyList`) and breadth first search
-    (`AdjacencyList.bfs`) are imported from `pelita.graph`.
+    The adjacency lits representation (AdjacencyList) and breadth first search
+    (AdjacencyList.bfs) are imported from pelita.graph.
 
     * [1] http://en.wikipedia.org/wiki/Adjacency_list
     * [2] http://en.wikipedia.org/wiki/Breadth-first_search
@@ -332,14 +389,30 @@ class BFSPlayer(AbstractPlayer):
         if not self.current_path:
             self.current_path = self.bfs_food()
         new_pos = self.current_path.pop()
-        return diff_pos(self.current_pos, new_pos)
+        try:
+            return diff_pos(self.current_pos, new_pos)
+        except ValueError:
+            # If there was a timeout, and we are no longer where we think we
+            # were, calculate a new path.
+            self.current_path = None
+            return self.get_move()
 
 class BasicDefensePlayer(AbstractPlayer):
     """ A crude defensive player.
 
     Will move towards the border, and as soon as it notices enemies in its
-    territory, it will start to track them. When it kills the enemy it returns to
-    the border and waits there for more.
+    territory, it will start to track them. When it kills the enemy it returns
+    to the border and waits there for more. Like the BFSPlayer this player
+    stores the maze as an adjacency list [1] but uses the breadth first search [2] to
+    find the closest position on the border.  However it additionally uses the
+    A* (A Star) search [3] to find the shortest path to its target.
+
+    The adjacency lits representation (AdjacencyList) and A* search
+    (AdjacencyList.a_star) are imported from pelita.graph.
+
+    * [1] http://en.wikipedia.org/wiki/Adjacency_list
+    * [2] http://en.wikipedia.org/wiki/Breadth-first_search
+    * [3] http://en.wikipedia.org/wiki/A*_search_algorithm
 
     """
     def set_initial(self):
@@ -395,4 +468,3 @@ class BasicDefensePlayer(AbstractPlayer):
             return stop
         else:
             return diff_pos(self.current_pos, self.path.pop())
-

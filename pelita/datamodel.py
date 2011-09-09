@@ -80,7 +80,7 @@ def diff_pos(initial, target):
         return (target[0]-initial[0], target[1]-initial[1])
 
 def is_adjacent(pos1, pos2):
-    """ Check that two positions are adjacent
+    """ Check that two positions are adjacent.
 
     This will check that the Manhattan distance between two positions is exactly
     one. This function does not take into account if the resulting position is a
@@ -188,7 +188,10 @@ class Team(object):
                 (self.index, self.name, self.zone, self.score, self.bots))
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        return type(self) == type(other) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
 
     def _to_json_dict(self):
         return {"index": self.index,
@@ -262,7 +265,10 @@ class Bot(object):
         self.current_pos = self.initial_pos
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        return type(self) == type(other) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
 
     def __cmp__(self, other):
         if self == other:
@@ -294,9 +300,20 @@ class UniverseEvent(object):
     """ Base class for all events in a Universe. """
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        return type(self) == type(other) and self.__dict__ == other.__dict__
 
+    def __ne__(self, other):
+        return not (self == other)
 
+    def _to_json_dict(self):
+        return dict(self.__dict__)
+
+    @classmethod
+    def _from_json_dict(cls, item):
+        # Events must take care to convert tuples in their __init__ method
+        return cls(**item)
+
+@serializable
 class BotMoves(UniverseEvent):
     """ Signifies that a bot has moved.
 
@@ -308,14 +325,14 @@ class BotMoves(UniverseEvent):
     """
     def __init__(self, bot_index, old_pos, new_pos):
         self.bot_index = bot_index
-        self.old_pos = old_pos
-        self.new_pos = new_pos
+        self.old_pos = tuple(old_pos)
+        self.new_pos = tuple(new_pos)
 
     def __repr__(self):
         return ('BotMoves(%i, %r, %r)'
             % (self.bot_index, self.old_pos, self.new_pos))
 
-
+@serializable
 class BotEats(UniverseEvent):
     """ Signifies that a bot has eaten food.
 
@@ -327,12 +344,13 @@ class BotEats(UniverseEvent):
     """
     def __init__(self, bot_index, food_pos):
         self.bot_index = bot_index
-        self.food_pos = food_pos
+        self.food_pos = tuple(food_pos)
 
     def __repr__(self):
         return ('BotEats(%i, %r)'
             % (self.bot_index, self.food_pos))
 
+@serializable
 class FoodEaten(UniverseEvent):
     """ Signifies that food has been eaten.
 
@@ -343,11 +361,12 @@ class FoodEaten(UniverseEvent):
 
     """
     def __init__(self, food_pos):
-        self.food_pos = food_pos
+        self.food_pos = tuple(food_pos)
 
     def __repr__(self):
         return 'FoodEaten(%s)' % repr(self.food_pos)
 
+@serializable
 class TeamScoreChange(UniverseEvent):
     """ Signifies that the score of a Team has changed.
 
@@ -369,6 +388,7 @@ class TeamScoreChange(UniverseEvent):
         return ('TeamScoreChange(%i, %i, %i)' %
             (self.team_index, self.score_change, self.new_score))
 
+@serializable
 class BotDestroyed(UniverseEvent):
     """ Signifies that a bot has been destroyed.
 
@@ -394,12 +414,12 @@ class BotDestroyed(UniverseEvent):
             harvester_new_pos, harvester_reset,
             destroyer_index, destroyer_old_pos, destroyer_new_pos):
         self.harvester_index = harvester_index
-        self.harvester_old_pos = harvester_old_pos
-        self.harvester_new_pos = harvester_new_pos
-        self.harvester_reset = harvester_reset
+        self.harvester_old_pos = tuple(harvester_old_pos)
+        self.harvester_new_pos = tuple(harvester_new_pos)
+        self.harvester_reset = tuple(harvester_reset)
         self.destroyer_index = destroyer_index
-        self.destroyer_old_pos = destroyer_old_pos
-        self.destroyer_new_pos = destroyer_new_pos
+        self.destroyer_old_pos = tuple(destroyer_old_pos)
+        self.destroyer_new_pos = tuple(destroyer_new_pos)
 
     def __repr__(self):
         return ('BotDestroyed(%i, %r, %r, %r, %i, %r, %r)'
@@ -408,8 +428,9 @@ class BotDestroyed(UniverseEvent):
                 self.destroyer_index, self.destroyer_old_pos,
                 self.destroyer_new_pos))
 
+@serializable
 class TimeoutEvent(UniverseEvent):
-    """ Signify that a timeout has occurred.
+    """ Signifies that a timeout has occurred.
 
     Parameters
     ----------
@@ -423,9 +444,9 @@ class TimeoutEvent(UniverseEvent):
     def __repr__(self):
         return "TimeoutEvent(%i)" % self.team_index
 
-
+@serializable
 class TeamWins(UniverseEvent):
-    """ Signify that a team has eaten all enemy food.
+    """ Signifies that a team has eaten all enemy food.
 
     Parameters
     ----------
@@ -439,6 +460,16 @@ class TeamWins(UniverseEvent):
     def __repr__(self):
         return ("TeamWins(%i)"
             % self.winning_team_index)
+
+@serializable
+class GameDraw(UniverseEvent):
+    """ Signifies that the game was a draw.
+    """
+    def __init__(self):
+        pass
+
+    def __repr__(self):
+        return ("GameDraw()")
 
 class MazeComponent(object):
     """ Base class for all items inside a Maze.
@@ -454,6 +485,9 @@ class MazeComponent(object):
 
     def __eq__(self, other):
         return isinstance(other, self.__class__)
+
+    def __ne__(self, other):
+        return not (self == other)
 
     def _to_json_dict(self):
         return {}
@@ -498,7 +532,9 @@ class Maze(Mesh):
 
     This is a container class to represent a game maze. It is a two-dimensional
     structure (Mesh) which contains a representation of MazeComponents at
-    each position. (Internally, this is implemented with strings.)
+    each position. Internally this is implemented using sequences of
+    characters, i.e. strings. At each position we store the characters
+    corresponding to the maze components at this position.
 
     """
 
@@ -520,6 +556,8 @@ class Maze(Mesh):
 
     def has_at(self, type_, pos):
         """ Check if objects of a given type are present at position.
+
+        DEPRECTAED
 
         Parameters
         ----------
@@ -585,6 +623,10 @@ class Maze(Mesh):
     def pos_of(self, type_):
         """ The indices of positions which have a MazeComponent. """
         return [pos for pos in self.positions if self.has_at(type_, pos)]
+
+    def __repr__(self):
+        return ('Maze(%i, %i, data=%r)'
+            % (self.width, self.height, self._data))
 
 
 def create_maze(layout_mesh):
@@ -711,7 +753,7 @@ class CTFUniverse(object):
 
     Parameters
     ----------
-    maze : mesh of lists of MazeComponent objects
+    maze : Maze object
         the maze
     teams : list of Team objects
         the teams
@@ -949,7 +991,10 @@ class CTFUniverse(object):
             (self.maze, self.teams, self.bots))
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        return type(self) == type(other) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
 
     @property
     def _char_mesh(self):

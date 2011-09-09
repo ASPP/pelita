@@ -64,7 +64,7 @@ instance::
 
     class MyOtherActor(DispatchingActor):
         @expose
-        def hello(self, message, what):
+        def hello(self, what):
             print "Hello, " + what
 
     my_other_actor = actor_of(MyOtherActor)
@@ -78,7 +78,7 @@ using the `query` statement::
 
     class MyOtherActor(DispatchingActor):
         @expose
-        def hello(self, message, what):
+        def hello(self, what):
             self.ref.reply("Hello, " + what)
 
     my_other_actor = actor_of(MyOtherActor)
@@ -141,7 +141,7 @@ It also shares similarities with
 
 
 from pelita.messaging.messages import Query, Notification, Response, Error, BaseMessage
-from pelita.messaging.actor import Actor, BaseActorReference, ActorReference, DispatchingActor, expose, DeadConnection, StopProcessing, Request, actor_of, actor_registry, Exit
+from pelita.messaging.actor import Actor, BaseActorReference, ActorReference, DispatchingActor, expose, DeadConnection, StopProcessing, Request, actor_of, actor_registry, Exit, ActorNotRunning
 from pelita.messaging.remote_actor import RemoteActorReference, RemoteConnection
 
 

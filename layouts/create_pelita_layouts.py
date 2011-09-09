@@ -5,7 +5,7 @@ import os
 import pelita
 
 EXTENSION = '.layout'
-OUTFILENAME = 'layouts.py'
+OUTFILENAME = '__layouts.py'
 
 local_dir = os.path.dirname(os.path.realpath(__file__))
 pelita_path = os.path.dirname(pelita.__file__)

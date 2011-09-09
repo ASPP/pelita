@@ -18,13 +18,12 @@ _logger.setLevel(logging.DEBUG)
 
 __docformat__ = "restructuredtext"
 
-
 class Channel(object):
     """ A `Channel` is an object which may be sent a message.
 
     This is either a `Request` object or an `ActorReference`.
     """
-    def put(self, message, sender=None, remote=None):
+    def put(self, message, channel=None, remote=None):
         raise NotImplementedError
 
     @property
@@ -48,7 +47,7 @@ class Request(Channel):
     def __init__(self):
         self._queue = Queue.Queue(maxsize=1)
 
-    def put(self, message, sender=None, remote=None):
+    def put(self, message, channel=None, remote=None):
         """ Sets the result of the Request to `message`.
 
         The other arguments will be discarded.
@@ -93,6 +92,9 @@ class Request(Channel):
 class DeadConnection(Exception):
     """Raised when the connection is lost."""
 
+class ActorNotRunning(Exception):
+    """Raised when the actor is not yet running or stopped."""
+
 class StopProcessing(object):
     """If a thread encounters this value in a queue, it is advised to stop processing."""
 
@@ -132,7 +134,7 @@ class BaseActor(SuspendableThread):
         calls `self.on_receive`.
         """
         try:
-            message, sender, priority, remote = self.handle_inbox()
+            message, channel, priority, remote = self.handle_inbox()
         except Queue.Empty:
             return
 
@@ -149,7 +151,7 @@ class BaseActor(SuspendableThread):
         try:
             _logger.debug("Received message %r.", message)
             self.ref._current_message = message
-            self.ref._channel = sender
+            self.ref._channel = channel
             self.ref._remote = remote
 
             self.on_receive(message)
@@ -215,10 +217,10 @@ class Actor(BaseActor):
                 msg.get("priority", 0),
                 msg.get("remote"))
 
-    def put(self, message, sender=None, remote=None):
+    def put(self, message, channel=None, remote=None):
         msg = {
             "message": message,
-            "channel": sender,
+            "channel": channel,
             "remote": remote,
             "priority": 0
         }
@@ -272,14 +274,14 @@ class BaseActorReference(Channel):
     def notify(self, method, params=None, channel=None):
         message = {"method": method,
                    "params": params}
-        self.put(message, channel)
+        self.put(message=message, channel=channel)
 
     def query(self, method, params=None):
         query = {"method": method,
                  "params": params}
         req_obj = Request()
 
-        self.put(query, req_obj)
+        self.put(message=query, channel=req_obj)
 
         return req_obj
 
@@ -288,14 +290,13 @@ class ActorReference(BaseActorReference):
         self._actor = actor
         super(ActorReference, self).__init__(**kwargs)
 
-    def put(self, value, sender=None, remote=None):
+    def put(self, message, channel=None, remote=None):
         """ Puts a raw value into the actor’s inbox
         """
-        if hasattr(self, "is_running") and not self.is_running:
-            raise RuntimeError("Actor '%r' not running." % self._actor)
-
-        _logger.debug("Putting '%r' into '%r' (channel: %r)" % (value, self._actor, sender))
-        self._actor.put(value, sender, remote)
+        if not self.is_running:
+            raise ActorNotRunning("Actor '%r' not running." % self._actor)
+        _logger.debug("Putting '%r' into '%r' (channel: %r)" % (message, self._actor, channel))
+        self._actor.put(message, channel, remote)
 
     def link(self, other):
         """ Links this actor to another actor and vice versa.
@@ -369,7 +370,7 @@ class DispatchingActor(Actor):
     """ The `DispatchingActor` allows methods of the form
 
     @expose
-    def some_action(self, method, *args)
+    def some_action(self, *args)
 
     which may be called as
 
@@ -380,37 +381,12 @@ class DispatchingActor(Actor):
     is available
 
     @expose(name="action")
-    def some_action(self, method, *args)
+    def some_action(self, *args)
 
     actor.send("action", params)
 
     Note that `DispatchingActor` overrides `on_receive`.
     """
-
-#
-# Messages we accept
-# TODO: It is still unclear where to put the arguments
-# and where to put the sender/message object
-#
-# a)
-#   def method(self, message, arg1, *args):
-#       sender = message.sender
-#       message.reply(...)
-#
-# b)
-#   def method(self, arg1, *args):
-#       self.sender         # set in the loop before, quasi global
-#       self.reply(...)     # set in the loop before, quasi global
-#
-# c)
-#   def method(self, message):
-#       args = message.params
-#       sender = message.sender
-#       message.reply(...)
-#
-# d)
-#   use inner functions inside receive()
-#
 
     def __new__(cls, *args, **kwargs):
         cls._init_dispatch_db()
@@ -482,11 +458,11 @@ class DispatchingActor(Actor):
 
         try:
             if params is None:
-                local_method(message)
+                local_method()
             elif isinstance(params, dict):
-                local_method(message, **params)
+                local_method(**params)
             else:
-                local_method(message, *params)
+                local_method(*params)
         except TypeError as e:
             # Must inspect the stack trace, because we cannot
             # be sure, where the exception happened.
