@@ -8,6 +8,19 @@ from pelita import datamodel
 from pelita.ui.tk_sprites import *
 from pelita.utils.signal_handlers import wm_delete_window_handler
 
+def guess_size(display_string, bounding_width, bounding_height):
+    no_lines = display_string.count("\n") + 1
+    size_guess = bounding_height // (3 * no_lines)
+    font = tkFont.Font(size=size_guess)
+    text_width = font.measure(display_string)
+    if text_width > bounding_width:
+        font_size = size_guess * bounding_width // text_width
+    else:
+        font_size = size_guess
+    width = font.measure(display_string)
+    return font_size
+
+
 class MeshGraph(object):
     """ A `MeshGraph` is a structure of `mesh_width` * `mesh_height` rectangles,
     covering an area of `screen_width`, `screen_height`.
@@ -209,15 +222,10 @@ class UiCanvas(object):
         """ Draw an end of game string. """
         center = (self.mesh_graph.screen_width // 2,
                   self.mesh_graph.screen_height //2)
-        no_lines = display_string.count("\n") + 1
-        size_guess = self.mesh_graph.screen_height // (3 * no_lines)
-        font = tkFont.Font(size=size_guess)
-        text_width = font.measure(display_string)
-        if text_width > self.mesh_graph.screen_width:
-            font_size = size_guess * self.mesh_graph.screen_width // text_width
-        else:
-            font_size = size_guess
-        width = font.measure(display_string)
+
+        font_size = guess_size(display_string,
+                               self.mesh_graph.screen_width,
+                               self.mesh_graph.screen_height)
 
         self.canvas.create_text(center[0], center[1],
                 text=display_string,
