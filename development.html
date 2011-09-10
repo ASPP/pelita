@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Development &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc1-159-g80ec600&#39;  documentation</title>
+    <title>Development &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2&#39;  documentation</title>
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.1.0-rc1-159-g80ec600&#39; ',
+        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.1.0-rc2&#39; ',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc1-159-g80ec600&#39;  documentation" href="index.html" />
+    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2&#39;  documentation" href="index.html" />
     <link rel="prev" title="Writing a Player" href="writing_player.html" /> 
   </head>
   <body>
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="writing_player.html" title="Writing a Player"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc1-159-g80ec600&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -53,6 +53,76 @@
 <a class="reference external" href="https://github.com/Debilski/pelita">https://github.com/Debilski/pelita</a></p>
 <p>You can create a clone with:</p>
 <div class="highlight-python"><pre>$ git clone git://github.com/Debilski/pelita.git</pre>
+</div>
+</div>
+<div class="section" id="project-website">
+<h2>Project Website<a class="headerlink" href="#project-website" title="Permalink to this headline">¶</a></h2>
+<p>We use the <a class="reference external" href="http://sphinx.pocoo.org/">Sphinx Tool</a> to generate the project
+website and <a class="reference external" href="http://pages.github.com/">GitHub pages</a> to host it.</p>
+<p>This means the sphinx generated content is kept in a separate branch in the
+source code repository called <tt class="docutils literal"><span class="pre">gh-pages</span></tt> (<a class="reference external" href="https://github.com/Debilski/pelita/commits/gh-pages">gh-pages branch for Pelita</a>). This branch has its
+own root commit and is hence disconnected from the commits that track the
+project code and also the documentation source code.</p>
+<p>When this branch is pushed to GitHub the contained documentation is
+automatically deployed to the webserver. There are two ways to make commits to
+the <tt class="docutils literal"><span class="pre">gh-pages</span></tt> branch, using a script or with a series of manual git commands.
+Initially we used the manual commands, these were then converted into a script,
+which was subsequently upgraded multiple times. Hence the manual commands and
+the script are completely out of sync. The command listing is hence only
+provided to understand the process and <strong>all website updates should be performed
+using the script</strong>.</p>
+<div class="section" id="automatic">
+<h3>Automatic<a class="headerlink" href="#automatic" title="Permalink to this headline">¶</a></h3>
+<p>Use the <a class="reference external" href="https://github.com/Debilski/pelita/blob/develop/commit-doc-tree.sh">commit-tree-doc.sh script</a>.  This
+will automatically make the commit of the latest version of the documentation on
+the <tt class="docutils literal"><span class="pre">gh-pages</span></tt> branch. After checking that everything is in order you still need
+to push that branch.</p>
+<p>Run the script:</p>
+<div class="highlight-python"><pre>$ ./commit-doc-tree.sh
+Generating doc from v0.1.0-rc1-165-g3d353c9
+...
+Build finished. The HTML pages are in build/html.
+Switched to branch 'gh-pages'
+Your branch is ahead of 'debilski/gh-pages' by 1 commit.
+ce78099 DOC: Sphinx generated doc from v0.1.0-rc1-165-g3d353c9</pre>
+</div>
+<p>Examine the output closely and if all went well:</p>
+<div class="highlight-python"><pre>$ git push</pre>
+</div>
+<p>And return to work:</p>
+<div class="highlight-python"><pre>$ git co -</pre>
+</div>
+</div>
+<div class="section" id="manual">
+<h3>Manual<a class="headerlink" href="#manual" title="Permalink to this headline">¶</a></h3>
+<p>Move to the <tt class="docutils literal"><span class="pre">doc</span></tt> directory:</p>
+<div class="highlight-python"><pre>$ cd doc</pre>
+</div>
+<p>Edit the documentation:</p>
+<div class="highlight-python"><pre>$ vim source/&lt;file&gt;.rst</pre>
+</div>
+<p>Generate html:</p>
+<div class="highlight-python"><pre>$ make html</pre>
+</div>
+<p>Switch to the documentation branch:</p>
+<div class="highlight-python"><pre>$ git checkout gh-pages</pre>
+</div>
+<p>Move back up to the root directory:</p>
+<div class="highlight-python"><pre>$ cd ..</pre>
+</div>
+<p>Copy the generate documentation here:</p>
+<div class="highlight-python"><pre>$ cp -r doc/build/html/* .</pre>
+</div>
+<p>Add all tracked files that have been changed:</p>
+<div class="highlight-python"><pre>$ git add -u</pre>
+</div>
+<p>Add possibly new files:</p>
+<div class="highlight-python"><pre>$ git add &lt;new pages&gt;.html</pre>
+</div>
+<p>Make a commit message where <tt class="docutils literal"><span class="pre">XXXXXXX</span></tt> is the SHA-1
+prefix of the commit the documentation was # generated from:</p>
+<div class="highlight-python"><pre>$ git commit -m "sphinx generated doc from XXXXXXX"</pre>
+</div>
 </div>
 </div>
 <div class="section" id="project-wall">
@@ -97,6 +167,11 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
   <ul>
 <li><a class="reference internal" href="#">Development</a><ul>
 <li><a class="reference internal" href="#git-repository">Git-Repository</a></li>
+<li><a class="reference internal" href="#project-website">Project Website</a><ul>
+<li><a class="reference internal" href="#automatic">Automatic</a></li>
+<li><a class="reference internal" href="#manual">Manual</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#project-wall">Project-Wall</a></li>
 </ul>
 </li>
@@ -136,12 +211,12 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
         <li class="right" >
           <a href="writing_player.html" title="Writing a Player"
              >previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc1-159-g80ec600&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
-      Last updated on Sep 07, 2011.
+      Last updated on Sep 10, 2011.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
