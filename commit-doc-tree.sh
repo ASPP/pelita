@@ -15,8 +15,8 @@ if ! git rev-parse gh-pages &> /dev/null ; then
     exit 2
 fi
 
-if [ $(git config  branch.gh-pages.remote) != 'debilski' ] ; then
-    echo "Fatal: no remote branch 'gh-pages' from 'debilski' exists!'"
+if [ -z $(git config  branch.gh-pages.remote) ] ; then
+    echo "Fatal: 'gh-pages' does not have a remote branch!'"
     exit 3
 fi
 
