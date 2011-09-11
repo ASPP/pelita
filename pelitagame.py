@@ -27,10 +27,13 @@ def load_factory(filename):
     return module.factory
 
 def import_builtin_player(name):
+    pelita_player = pelita.player
     try:
-        player = getattr(pelita.player, name)
+        player = getattr(pelita_player, name)
     except AttributeError:
-        msg = 'Failed to find %s in pelita.player' % (name,)
+        others = [n for n in dir(pelita_player) if n.endswith('Player')]
+        others = ', '.join(others)
+        msg = 'Failed to find %s in pelita.player [%s]' % (name, others)
         raise ImportError(msg)
     return player
 
@@ -53,9 +56,14 @@ def load_team(spec):
 parser = argparse.ArgumentParser('run a pelita game')
 parser.add_argument('bad_team', help='team on the left side')
 parser.add_argument('good_team', help='team on the right side')
+viewer_opt = parser.add_mutually_exclusive_group()
+viewer_opt.add_argument('--ascii', action='store_const', const='ascii',
+                        dest='viewer', help='use the ASCII viewer')
+viewer_opt.add_argument('--tk', action='store_const', const='tk',
+                        dest='viewer', help='use the tk viewer (default)')
+parser.set_defaults(viewer='tk')
 
 def run_game(*argv):
-    print "args: ", argv
     args = parser.parse_args(argv)
     bads = load_team(args.bad_team)
     goods = load_team(args.good_team)
@@ -64,7 +72,14 @@ def run_game(*argv):
         client = pelita.simplesetup.SimpleClient(team)
         client.autoplay_background()
     server = pelita.simplesetup.SimpleServer()
-    server.run_tk()
+
+    print args
+    if args.viewer in 'tk':
+        server.run_tk()
+    elif args.viewer == 'ascii':
+        server.run_ascii()
+    else:
+        assert 0
 
 if __name__ == '__main__':
     run_game(*sys.argv[1:])
