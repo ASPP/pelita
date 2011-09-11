@@ -161,7 +161,7 @@ class Team(object):
         self.bots.append(bot)
 
     def in_zone(self, position):
-        """ Check if a position is within the zone
+        """ Check if a position is within the zone of this team.
 
         Parameters
         ----------
