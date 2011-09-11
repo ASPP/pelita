@@ -257,13 +257,15 @@ class UiCanvas(object):
                                self.mesh_graph.screen_height,
                                rel_size = +1)
 
-        self.canvas.create_text(center[0] - 1, center[1] - 1,
-                text=display_string,
-                font=(None, font_size, "bold"),
-                fill="#ED1B22", tag="gameover",
-                justify=Tkinter.CENTER, anchor=Tkinter.CENTER)
+        for i in [-2, -1, 0, 1, 2]:
+            for j in [-2, -1, 0, 1, 2]:
+                self.canvas.create_text(center[0] - i, center[1] - j,
+                        text=display_string,
+                        font=(None, font_size, "bold"),
+                        fill="#ED1B22", tag="gameover",
+                        justify=Tkinter.CENTER, anchor=Tkinter.CENTER)
 
-        self.canvas.create_text(center[0] + 1, center[1] + 1,
+        self.canvas.create_text(center[0] , center[1] ,
                 text=display_string,
                 font=(None, font_size, "bold"),
                 fill="#FFC903", tag="gameover",
