@@ -119,6 +119,35 @@ If you wish to play a shorter game use the ``rounds=N`` keyword argument for
 
     SimpleServer(rounds=100)
 
+Tournament Setup
+----------------
+
+If you are participating in the `Python Summer School, St Andrews, Scotland,
+2011 <https://python.g-node.org/wiki/>`_, use the following instructions to
+organize your files such that we can load your players during the
+tournament.  You will need a module ``groupN``, e.g. ``group0``,
+``group1``, ``group2`` etc. This module needs to provide a top level
+function ``factory()`` which returns a ``SimpleTeam``.
+
+The file structure should look like::
+
+    groupN
+    ├── __init__.py
+    └── my_player.py
+
+Your ``__init__.py`` could look like:
+
+.. literalinclude:: groupN/__init__.py
+
+Your are encouraged to structure your code base into modules
+Always remember to use absolute imports.
+
+Using the correct ``PYTHONPATH``, your ``factory()`` should behave as follows::
+
+    >>> import groupN
+    >>> groupN.factory()
+    <pelita.player.SimpleTeam object at 0x1f1f6d0>
+
 Doing More
 ==========
 
