@@ -7,6 +7,7 @@ import os
 import sys
 import logging
 import signal
+import platform
 
 # make a logger for these handlers that prints info messages to stderr
 _logger = logging.getLogger("signal_handlers")
@@ -25,8 +26,15 @@ def exit_handler(*args):
     # defensively shutdown the logging system
     logging.shutdown()
     # kill all processes in processgroup.
-    # we need this in case we use the multprocessing.
-    os.kill(os.getpid(), signal.SIGTERM)
+    # we need this in case we use the multiprocessing.
+    if platform.system() == 'Windows':
+        import win32api, win32con
+        handle = win32api.OpenProcess(win32con.PROCESS_TERMINATE,
+                                      0, os.getpid())
+        win32api.TerminateProcess( handle, 0 )
+        win32api.CloseHandle( handle )
+    else:
+        os.kill(os.getpid(), signal.SIGTERM)
 
 def keyboard_interrupt_handler(signo, frame):
     _logger.info("Got SIGINT. Exit!")
