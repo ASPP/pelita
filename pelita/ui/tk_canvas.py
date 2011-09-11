@@ -8,9 +8,9 @@ from pelita import datamodel
 from pelita.ui.tk_sprites import *
 from pelita.utils.signal_handlers import wm_delete_window_handler
 
-def guess_size(display_string, bounding_width, bounding_height):
+def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
     no_lines = display_string.count("\n") + 1
-    size_guess = bounding_height // (3 * no_lines)
+    size_guess = bounding_height // ((3-rel_size) * no_lines)
     font = tkFont.Font(size=size_guess)
     text_width = font.measure(display_string)
     if text_width > bounding_width:
@@ -155,9 +155,14 @@ class UiCanvas(object):
         if round is not None and turn is not None:
             self.status.delete("roundturn")
             roundturn = "Bot %d, Round %d   " % (turn, round)
+            font_size = guess_size(roundturn,
+                                   self.mesh_graph.screen_width,
+                                   25,
+                                   rel_size = 0)
+
             self.status.create_text(self.mesh_graph.screen_width, 25,
                                     anchor=Tkinter.SE,
-                                    text=roundturn, font=(None, 15), tag="roundturn")
+                                    text=roundturn, font=(None, font_size), tag="roundturn")
 
         self.draw_universe(self.current_universe)
 
@@ -209,14 +214,18 @@ class UiCanvas(object):
     def draw_title(self, universe):
         self.score.delete("title")
         center = self.mesh_graph.screen_width // 2
-        left_team = "%s %d" % (universe.teams[0].name, universe.teams[0].score)
+        left_team = "%s %d " % (universe.teams[0].name, universe.teams[0].score)
+        right_team = " %d %s" % (universe.teams[1].score, universe.teams[1].name)
+        font_size = guess_size(left_team+'|'+right_team,
+                               self.mesh_graph.screen_width,
+                               30,
+                               rel_size = +1)
 
-        self.score.create_text(center - 10, 15, text=left_team, font=(None, 25), fill=col(94, 158, 217), tag="title", anchor=Tkinter.E)
+        self.score.create_text(center, 15, text=left_team, font=(None, font_size), fill=col(94, 158, 217), tag="title", anchor=Tkinter.E)
 
-        self.score.create_text(center, 15, text=":", font=(None, 25), tag="title", anchor=Tkinter.CENTER)
+        self.score.create_text(center, 15, text="|", font=(None, font_size), tag="title", anchor=Tkinter.CENTER)
 
-        right_team = "%d %s" % (universe.teams[1].score, universe.teams[1].name)
-        self.score.create_text(center + 10, 15, text=right_team, font=(None, 25), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
+        self.score.create_text(center+2, 15, text=right_team, font=(None, font_size), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
 
     def draw_end_of_game(self, display_string):
         """ Draw an end of game string. """
@@ -225,7 +234,8 @@ class UiCanvas(object):
 
         font_size = guess_size(display_string,
                                self.mesh_graph.screen_width,
-                               self.mesh_graph.screen_height)
+                               self.mesh_graph.screen_height,
+                               rel_size = +1)
 
         self.canvas.create_text(center[0], center[1],
                 text=display_string,
