@@ -88,9 +88,9 @@ First create an empty directory outside the Pelita source code directory, and
 make some empty files::
 
     $ cd ~
-    $ mkdir my_agent
-    $ cd my_agent
-    $ touch my_agent.py
+    $ mkdir my_player
+    $ cd my_player
+    $ touch my_player.py
     $ touch run_game.py
 
 You can then implement you player in the file ``my_player.py``, for example:
