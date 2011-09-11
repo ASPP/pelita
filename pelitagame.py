@@ -42,7 +42,7 @@ def create_builtin_team(spec):
         raise ValueError('need two comma seperated names')
 
     players = [import_builtin_player(name)() for name in names]
-    return pelita.player.SimpleTeam(name + 's', *players)
+    return pelita.player.SimpleTeam(names[0] + 's', *players)
 
 def load_team(spec):
     if '/' in spec or spec.endswith('.py'):
