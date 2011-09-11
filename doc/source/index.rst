@@ -7,7 +7,7 @@
 Pelita
 ======
 
-.. figure:: images/demogame.png
+.. figure:: images/demogame.small.png
    :alt: Screenshot.
 
    **A first fight:** 'the bad ones' VS. 'the good ones'
