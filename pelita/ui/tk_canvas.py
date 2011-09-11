@@ -119,6 +119,14 @@ class UiCanvas(object):
         self.status.config(background="white")
         self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
 
+        quit = Tkinter.Button(self.status,
+                              font=(None, 10),
+                              foreground="black",
+                              background="white",
+                              justify=Tkinter.CENTER,
+                              text="QUIT",
+                              command=self.master.frame.quit).pack()
+
         self.canvas = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=self.mesh_graph.screen_height)
         self.canvas.config(background="white")
         self.canvas.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
