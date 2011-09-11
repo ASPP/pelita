@@ -170,8 +170,46 @@ As a result we obtain the following direction vectors::
     east  = (1, 0)
     stop  = (0, 0)
 
-We provide a series of convenience methods for dealing with position tuples in
-``pelita.datamodel``:
+Distances in the Maze
+---------------------
+
+There are different ways of measuring distances between objects in the maze. 
+The `Euclidean distance <http://en.wikipedia.org/wiki/Euclidean_distance>`_
+is the length of the vector connecting the centers
+of the cells where the objects are located:
+
+.. figure:: images/distance_euclidean.png
+   :alt: Euclidean distance.
+   :width: 300px
+
+   **Euclidean distance:** The Euclidean distance between the two bots is 
+   sqrt((x1-x2)**2 + (y1-y2)**2) = sqrt((4.5-2.5)**2+(0.5-1.5)**2) = 2.236...
+
+The `Manhattan distance <http://en.wikipedia.org/wiki/Taxicab_geometry>`_,
+also known as L1-distance or taxicab-distance, is the
+absolute difference of the coordinates of the two objects: 
+
+.. figure:: images/distance_manhattan.png
+   :alt: Manhattan distance.
+   :width: 300px
+
+   **Manhattan distance:** The Manhattan distance between the two bots is 
+   abs(x1-x2) + abs(y1-y2) = abs(4-2) + abs(0-1) = 3
+
+The maze distance counts the number of cells of the shortest path that
+connects the two objects:
+
+.. figure:: images/distance_maze.png
+   :alt: Maze distance.
+   :width: 300px
+
+   **Maze distance:** The Maze distance between the two bots is 5.
+
+Note that Manhattan and maze distances are always integer values.
+In the game distances are almost always measured either in Manhattan or in 
+maze distance.
+We provide a series of convenience methods for dealing with position 
+and distances in ``pelita.datamodel``:
 
 :``new_pos``: Adds a position tuple and a move tuple.
 :``diff_pos``: Return the move required to move from one position to another.
@@ -228,34 +266,25 @@ This feature should give you enough flexibility to run smallish test games.
 ``layout_name``
 ---------------
 
-Using ``layout_name`` and  you can use any of the mazes provided. The mazes are
-stored in the ``layouts`` directory and there is some magic to load them into
-the Pelita name space.
+Using ``layout_name`` and  you can use any of the mazes provided. 
+You can get a list of the available layouts using : 
+``pelita.layout.get_available_layouts``::
 
-The filenames in layouts in the ``layouts`` have the ``.layout`` extension::
+    >>> from pelita.layout import get_available_layouts
+    ... ['layout_01_demo', 'layout_01_with_dead_ends', 
+    ...  'layout_01_without_dead_ends', 'layout_02_demo',
+    ...  'layout_02_with_dead_ends', 'layout_02_without_dead_ends',
+    ...  ...]
 
-    $ cd layouts
-    $ ls | head
-    01_demo.layout
-    01_with_dead_ends.layout
-    01_without_dead_ends.layout
-    02_demo.layout
-    02_with_dead_ends.layout
-    02_without_dead_ends.layout
-    03_demo.layout
-    03_with_dead_ends.layout
-    03_without_dead_ends.layout
-    04_demo.layout
+You can even filter the results. If, for example, you want to see
+layouts without dead ends: ::
 
-To have them available in the Pelita name space we make them available from the
-auto generated module ``pelita.__layouts`` module. When converting from
-filenames to variable names we prefix the layout name with the string
-``layout_`` and remove the ``.layout`` extension (because variables in Python
-can not begin with a number). Thus the layout stored in the file
-``01_demo.layout`` becomes ``layout_01_demo``, ``18_with_dead_ends.layout``
-becomes ``layout_18_with_dead_ends`` and so on.
+    >>> get_available_layouts(filter='without_dead_ends')
+    ... ['layout_01_without_dead_ends', 'layout_02_without_dead_ends',
+    ...  'layout_03_without_dead_ends', 'layout_04_without_dead_ends',
+    ... ...]
 
-You can get them using: ``pelita.layout.get_layout_by_name``::
+You can get a specific layout by name using: ``pelita.layout.get_layout_by_name``::
 
     >>> from pelita.layout import get_layout_by_name
     >>> print get_layout_by_name('layout_01_demo')
@@ -276,22 +305,49 @@ You can get them using: ``pelita.layout.get_layout_by_name``::
     #2#.#.#     #       #.#.# .#   #
     ################################
 
-You can look at the available names using ``pelita.get_available_layouts``::
+You can get a random layout with ``pelita.layout.get_random_layout``::
 
-    >>> from pelita.layout import get_available_layouts
-    >>> for layout_name in get_available_layouts()[:10]:
-    ...     print layout_name
-    ...
-    layout_01_demo
-    layout_01_with_dead_ends
-    layout_01_without_dead_ends
-    layout_02_demo
-    layout_02_with_dead_ends
-    layout_02_without_dead_ends
-    layout_03_demo
-    layout_03_with_dead_ends
-    layout_03_without_dead_ends
-    layout_04_demo
+    >>> print get_random_layout()
+    ##################################
+    #...       .   #  #.#   . #. #  3#
+    ###### ## ####  . #.# .## ## # #1#
+    #.#.   #       #..# #  #  #  #   #
+    #.  .      #.    .   . # ##     ## 
+    #### ## #####     # #  #..#  #  .# 
+    #.#  #         #  # ## ######## ##
+    #   .# #### ####    #   #  .     #
+    # #.   #.#  .#.#   .# #   # #### #
+    # #### #   # #.   #.#.  #.#   .# #
+    #     .  #   #    #### #### #.   #
+    ## ######## ## #  #         #  #.#
+    #.  #  #..#  # #     ##### ## ####
+    ##     ## # .   .    .#      .  .#
+    #   #  #  #  # #..#       #   .#.#
+    #0# # ## ##. #.# .  #### ## ######
+    #2  # .# .   #.#  #   .       ...#
+    ##################################
+
+You can use a filter also in this case ::
+
+    >>> print get_random_layout(filter='without_dead_ends')
+    ##################################
+    #    #.   . . .# .#             3#
+    #  #  .#  .#.#.# .    .    .    1#
+    ######## ###.# #    ####   # #####
+    #...     . . #    #   # .  # #   #
+    # ### ########  . # #     .#     #
+    #.#   #..    #      #### ###### ##
+    #.#   # ## # # #  #  .  .. #     #
+    #      .  .  # #  # ## ### #   # #
+    # #   # ### ## #  # #  .  .      #
+    #     # ..  .  #  # # # ## #   #.#
+    ## ###### ####      #    ..#   #.#
+    #     #.     # # .  ######## ### #
+    #   # #  . #   #    # . .     ...#
+    ##### #   ####    # #.### ########
+    #0    .    .    . #.#.#.  #.  #  #
+    #2             #. #. . .   .#    #
+    ##################################
 
 Once you have found a layout you like, pass the desired layout name to the
 ``SimpleServer`` using the ``layout_name`` keyword argument:
