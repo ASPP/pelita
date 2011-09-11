@@ -53,7 +53,8 @@ def load_team(spec):
     else:
         return create_builtin_team(spec)
 
-parser = argparse.ArgumentParser('run a pelita game')
+parser = argparse.ArgumentParser(description='Runs a single pelita game',
+                                 epilog="Run '%(prog)s --layout list' to list layouts");
 parser.add_argument('bad_team', help='team on the left side')
 parser.add_argument('good_team', help='team on the right side')
 viewer_opt = parser.add_mutually_exclusive_group()
