@@ -1,20 +1,7 @@
-Quick Start
-===========
+===================
+Project Information
+===================
 
-First clone the source code repository::
-
-    $ git clone git://github.com/Debilski/pelita.git
-
-Then ``cd`` into the source code directory::
-
-    $ cd pelita
-
-And launch the demo game::
-
-    $ python demo.py
-
-This will start a game using the `TkInter
-<http://wiki.python.org/moin/TkInter>`_ interface using a random maze.
 
 Authors and Contributors
 ========================
@@ -71,12 +58,6 @@ Initial funding was kindly provided by `The German Neuroinformtaics Node
 <http://www.g-node.org/>`_.
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
 References
 ==========
