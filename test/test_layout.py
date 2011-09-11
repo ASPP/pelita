@@ -53,6 +53,29 @@ class TestLayoutModule(unittest.TestCase):
                   'layout_office']
         available = get_available_layouts()
         self.assertEqual(target, available)
+        # now also test the filter
+        target = ['layout_01_without_dead_ends',
+        'layout_02_without_dead_ends',
+        'layout_03_without_dead_ends',
+        'layout_04_without_dead_ends',
+        'layout_05_without_dead_ends',
+        'layout_06_without_dead_ends',
+        'layout_07_without_dead_ends',
+        'layout_08_without_dead_ends',
+        'layout_09_without_dead_ends',
+        'layout_10_without_dead_ends',
+        'layout_11_without_dead_ends',
+        'layout_12_without_dead_ends',
+        'layout_13_without_dead_ends',
+        'layout_14_without_dead_ends',
+        'layout_15_without_dead_ends',
+        'layout_16_without_dead_ends',
+        'layout_17_without_dead_ends',
+        'layout_18_without_dead_ends',
+        'layout_19_without_dead_ends',
+        'layout_20_without_dead_ends']
+        available = get_available_layouts(filter='without_dead_ends')
+        self.assertEqual(target, available)
 
     def test_get_layout_by_name(self):
         # sorry about the indentation, but this is exactly how the string is
