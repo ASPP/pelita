@@ -20,9 +20,9 @@ if [ -z $(git config  branch.gh-pages.remote) ] ; then
     exit 3
 fi
 
-if [ $(git rev-parse gh-pages) != $(git rev-parse debilski/gh-pages) ] ; then
+if [ $(git rev-parse gh-pages) != $(git rev-parse $(git config  branch.gh-pages.remote)/gh-pages) ] ; then
     echo "Fatal: local branch 'gh-pages' and "\
-    "remote branch 'debilski/gh-pages' are out of sync!"
+		"remote branch '$(git config  branch.gh-pages.remote)' are out of sync!"
     exit 4
 fi
 
