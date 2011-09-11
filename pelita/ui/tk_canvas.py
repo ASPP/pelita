@@ -116,8 +116,8 @@ class UiCanvas(object):
                 height = universe.maze.height
 
                 screensize = (
-                    max(250, self.master.master.winfo_screenwidth() - 60),
-                    max(250, self.master.master.winfo_screenheight() - 60)
+                    max(250, self.master.master.winfo_screenwidth() - 100),
+                    max(250, self.master.master.winfo_screenheight() - 100)
                 )
                 scale_x = screensize[0] / width
                 scale_y = screensize[1] / height
