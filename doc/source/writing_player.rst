@@ -170,8 +170,46 @@ As a result we obtain the following direction vectors::
     east  = (1, 0)
     stop  = (0, 0)
 
-We provide a series of convenience methods for dealing with position tuples in
-``pelita.datamodel``:
+Distances in the Maze
+---------------------
+
+There are different ways of measuring distances between objects in the maze. 
+The `Euclidean distance <http://en.wikipedia.org/wiki/Euclidean_distance>`_
+is the length of the vector connecting the centers
+of the cells where the objects are located:
+
+.. figure:: images/distance_euclidean.png
+   :alt: Euclidean distance.
+   :width: 300px
+
+   **Euclidean distance:** The Euclidean distance between the two bots is 
+   sqrt((x1-x2)**2 + (y1-y2)**2) = sqrt((4.5-2.5)**2+(0.5-1.5)**2) = 2.236...
+
+The `Manhattan distance <http://en.wikipedia.org/wiki/Taxicab_geometry>`_,
+also known as L1-distance or taxicab-distance, is the
+absolute difference of the coordinates of the two objects: 
+
+.. figure:: images/distance_manhattan.png
+   :alt: Manhattan distance.
+   :width: 300px
+
+   **Manhattan distance:** The Manhattan distance between the two bots is 
+   abs(x1-x2) + abs(y1-y2) = abs(4-2) + abs(0-1) = 3
+
+The maze distance counts the number of cells of the shortest path that
+connects the two objects:
+
+.. figure:: images/distance_maze.png
+   :alt: Maze distance.
+   :width: 300px
+
+   **Maze distance:** The Maze distance between the two bots is 5.
+
+Note that Manhattan and maze distances are always integer values.
+In the game distances are almost always measured either in Manhattan or in 
+maze distance.
+We provide a series of convenience methods for dealing with position 
+and distances in ``pelita.datamodel``:
 
 :``new_pos``: Adds a position tuple and a move tuple.
 :``diff_pos``: Return the move required to move from one position to another.
