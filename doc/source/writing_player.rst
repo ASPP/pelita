@@ -300,6 +300,7 @@ You can get a list of the available layouts using :
 ``pelita.layout.get_available_layouts``::
 
     >>> from pelita.layout import get_available_layouts
+    >>> get_available_layouts()
     ... ['layout_01_demo', 'layout_01_with_dead_ends', 
     ...  'layout_01_without_dead_ends', 'layout_02_demo',
     ...  'layout_02_with_dead_ends', 'layout_02_without_dead_ends',
