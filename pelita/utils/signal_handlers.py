@@ -26,7 +26,7 @@ def exit_handler(*args):
     logging.shutdown()
     # kill all processes in processgroup.
     # we need this in case we use the multprocessing.
-    os.killpg(os.getpgrp(), signal.SIGTERM)
+    os.kill(os.getpid(), signal.SIGTERM)
 
 def keyboard_interrupt_handler(signo, frame):
     _logger.info("Got SIGINT. Exit!")
