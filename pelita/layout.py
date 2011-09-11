@@ -13,33 +13,58 @@ class LayoutEncodingException(Exception):
     """ Signifies a problem with the encoding of a layout. """
     pass
 
-def get_random_layout():
+def get_random_layout(filter=''):
     """ Return a random layout string from the available ones.
 
+    Parameters
+    ----------
+    filter : str
+        only return layouts which contain "filter" in their name.
+        Default is no filter.
+    
     Returns
     -------
     layout : str
         a random layout string
 
+    Examples
+    --------
+    To only get layouts without dead ends you may use:
+    
+        >>> get_random_layout(filter='without_dead_ends')
+
     """
-    layouts_names = get_available_layouts()
+    layouts_names = [item for item in get_available_layouts() if filter in item]
     layout_choice = random.choice(layouts_names)
     return get_layout_by_name(layout_choice)
 
-def get_available_layouts():
+def get_available_layouts(filter=''):
     """ The names of the available layouts.
+
+    Parameters
+    ----------
+    filter : str
+        only return layouts which contain 'filter' in their name.
+        Default is no filter.
 
     Returns
     -------
     layout_names : list of str
         the available layouts
 
+    Examples
+    --------
+    To only get layouts without dead ends you may use:
+    
+        >>> get_available_layouts(filter='without_dead_ends')
+
     """
     # loop in layouts dictionary and look for layout strings
-    return [item for item in dir(__layouts) if item.startswith('layout_')]
+    return [item for item in dir(__layouts) if item.startswith('layout_') and
+            filter in item]
 
 def get_layout_by_name(layout_name):
-    """ Get an available layout.
+    """ Get a layout.
 
     Parameters
     ----------
@@ -54,8 +79,11 @@ def get_layout_by_name(layout_name):
     Raises
     ------
     KeyError
-        if the layout_name is not available
+        if the layout_name is not known
 
+    See Also
+    --------
+    get_available_layouts
     """
     # decode and return this layout
     try:
@@ -65,7 +93,7 @@ def get_layout_by_name(layout_name):
         # I.e. if the layout_name is not available.
         # The error message would be to terse "KeyError: 'non_existing_layout'",
         # thus reraise as ValueError with appropriate error message.
-        raise ValueError("Layout: '%s' is not available." % ke.args)
+        raise ValueError("Layout: '%s' is not known." % ke.args)
 
 
 class Layout(object):
