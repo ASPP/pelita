@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Writing a Player &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-20-gaa4cf4b&#39;  documentation</title>
+    <title>Writing a Player &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-22-g97ba983&#39;  documentation</title>
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.1.0-rc2-20-gaa4cf4b&#39; ',
+        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.1.0-rc2-22-g97ba983&#39; ',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,9 +22,9 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-20-gaa4cf4b&#39;  documentation" href="index.html" />
+    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-22-g97ba983&#39;  documentation" href="index.html" />
     <link rel="next" title="Development" href="development.html" />
-    <link rel="prev" title="Pelita" href="index.html" /> 
+    <link rel="prev" title="Quick Start" href="info.html" /> 
   </head>
   <body>
     <div class="related">
@@ -37,9 +37,9 @@
           <a href="development.html" title="Development"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Pelita"
+          <a href="info.html" title="Quick Start"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-20-gaa4cf4b&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-22-g97ba983&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -1226,46 +1226,48 @@ implementation details:</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Writing a Player</a><ul>
-<li><a class="reference internal" href="#introduction">Introduction</a></li>
-<li><a class="reference internal" href="#player-basics">Player Basics</a></li>
-<li><a class="reference internal" href="#where-to-place-your-files">Where to Place Your Files</a><ul>
-<li><a class="reference internal" href="#tournament-setup">Tournament Setup</a></li>
+<h3><a href="index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="info.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="info.html#authors-and-contributors">Authors and Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="info.html#getting-in-touch">Getting in Touch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="info.html#license">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="info.html#acknowledgements">Acknowledgements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="info.html#indices-and-tables">Indices and tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="info.html#references">References</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Writing a Player</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#player-basics">Player Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#where-to-place-your-files">Where to Place Your Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tournament-setup">Tournament Setup</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#doing-more">Doing More</a></li>
-<li><a class="reference internal" href="#the-maze-coordinate-system">The Maze Coordinate System</a><ul>
-<li><a class="reference internal" href="#distances-in-the-maze">Distances in the Maze</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#doing-more">Doing More</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-maze-coordinate-system">The Maze Coordinate System</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#distances-in-the-maze">Distances in the Maze</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#loading-alternative-mazes">Loading Alternative Mazes</a><ul>
-<li><a class="reference internal" href="#layout-string"><tt class="docutils literal"><span class="pre">layout_string</span></tt></a></li>
-<li><a class="reference internal" href="#layout-name"><tt class="docutils literal"><span class="pre">layout_name</span></tt></a></li>
-<li><a class="reference internal" href="#layout-file"><tt class="docutils literal"><span class="pre">layout_file</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#loading-alternative-mazes">Loading Alternative Mazes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#layout-string"><tt class="docutils literal"><span class="pre">layout_string</span></tt></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#layout-name"><tt class="docutils literal"><span class="pre">layout_name</span></tt></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#layout-file"><tt class="docutils literal"><span class="pre">layout_file</span></tt></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#a-basic-offensive-player">A Basic Offensive Player</a><ul>
-<li><a class="reference internal" href="#using-current-uni">Using <tt class="docutils literal"><span class="pre">current_uni</span></tt></a></li>
-<li><a class="reference internal" href="#error-recovery-in-case-of-death-or-timeout">Error Recovery in Case of Death or Timeout</a></li>
-<li><a class="reference internal" href="#a-more-advanced-example">A more Advanced Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-basic-offensive-player">A Basic Offensive Player</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#using-current-uni">Using <tt class="docutils literal"><span class="pre">current_uni</span></tt></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#error-recovery-in-case-of-death-or-timeout">Error Recovery in Case of Death or Timeout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-more-advanced-example">A more Advanced Example</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#interacting-with-the-maze">Interacting with the Maze</a></li>
-<li><a class="reference internal" href="#a-basic-defensive-player">A Basic Defensive Player</a></li>
-<li><a class="reference internal" href="#noisy-enemy-positions">Noisy Enemy Positions</a></li>
-<li><a class="reference internal" href="#source-code-for-abstractplayer">Source Code for <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interacting-with-the-maze">Interacting with the Maze</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-basic-defensive-player">A Basic Defensive Player</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#noisy-enemy-positions">Noisy Enemy Positions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#source-code-for-abstractplayer">Source Code for <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt></a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">Pelita</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="development.html"
-                        title="next chapter">Development</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/writing_player.txt"
@@ -1298,9 +1300,9 @@ implementation details:</p>
           <a href="development.html" title="Development"
              >next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Pelita"
+          <a href="info.html" title="Quick Start"
              >previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-20-gaa4cf4b&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-22-g97ba983&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
