@@ -51,7 +51,7 @@ This will start a game using the `TkInter
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    writing_player
    development
