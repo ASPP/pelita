@@ -99,7 +99,7 @@ summer school, as a teaching aid for the group project.
 
 Future:
 
-* `St. Andrews, Scotland, 2011 <https://python.g-node.org/wiki/>`_
+* `St Andrews, Scotland, 2011 <https://python.g-node.org/wiki/>`_
 
 Past:
 
