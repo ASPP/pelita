@@ -139,8 +139,9 @@ Your ``__init__.py`` could look like:
 
 .. literalinclude:: groupN/__init__.py
 
-Your are encouraged to structure your code base into modules
-Always remember to use absolute imports.
+Your are encouraged to structure your code base into modules.
+Always remember to use absolute imports. Also, please perform any additional
+initialisation inside this function, since it may be called multiple times.
 
 Using the correct ``PYTHONPATH``, your ``factory()`` should behave as follows::
 
