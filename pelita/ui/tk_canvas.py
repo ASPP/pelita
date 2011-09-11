@@ -216,14 +216,14 @@ class UiCanvas(object):
         center = self.mesh_graph.screen_width // 2
         left_team = "%s %d " % (universe.teams[0].name, universe.teams[0].score)
         right_team = " %d %s" % (universe.teams[1].score, universe.teams[1].name)
-        font_size = guess_size(left_team+'|'+right_team,
+        font_size = guess_size(left_team+':'+right_team,
                                self.mesh_graph.screen_width,
                                30,
                                rel_size = +1)
 
         self.score.create_text(center, 15, text=left_team, font=(None, font_size), fill=col(94, 158, 217), tag="title", anchor=Tkinter.E)
 
-        self.score.create_text(center, 15, text="|", font=(None, font_size), tag="title", anchor=Tkinter.CENTER)
+        self.score.create_text(center, 15, text=":", font=(None, font_size), tag="title", anchor=Tkinter.CENTER)
 
         self.score.create_text(center+2, 15, text=right_team, font=(None, font_size), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
 
