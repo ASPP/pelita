@@ -133,6 +133,7 @@ The file structure should look like::
 
     groupN
     ├── __init__.py
+    ├── utils.py
     └── my_player.py
 
 Your ``__init__.py`` could look like:
@@ -141,7 +142,18 @@ Your ``__init__.py`` could look like:
 
 Your are encouraged to structure your code base into modules.
 Always remember to use `relative imports
-<http://www.python.org/dev/peps/pep-0328/>`_. Also, please perform any additional
+<http://www.python.org/dev/peps/pep-0328/>`_. For example the function
+``utility`` is provided my the module ``groupN.utils``:
+
+
+.. literalinclude:: groupN/utils.py
+
+To use this module in your ``my_player.py`` module, a relative import
+``from .utils import utility`` is used:
+
+.. literalinclude:: groupN/my_player.py
+
+Also, please perform any additional
 initialisation inside this function, since it may be called multiple times.
 
 Using the correct ``PYTHONPATH``, your ``factory()`` should behave as follows::
