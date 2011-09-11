@@ -99,6 +99,8 @@ class Trafo(object):
 
 class UiCanvas(object):
     def __init__(self, master):
+        self.game_finish_overlay = lambda: None
+
         self.mesh_graph = None
 
         self.size_changed = True
@@ -116,6 +118,14 @@ class UiCanvas(object):
         self.status = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=25)
         self.status.config(background="white")
         self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
+
+        quit = Tkinter.Button(self.status,
+                              font=(None, 10),
+                              foreground="black",
+                              background="white",
+                              justify=Tkinter.CENTER,
+                              text="QUIT",
+                              command=self.master.frame.quit).pack()
 
         self.canvas = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=self.mesh_graph.screen_height)
         self.canvas.config(background="white")
@@ -170,9 +180,11 @@ class UiCanvas(object):
             for team_wins in events.filter_type(datamodel.TeamWins):
                 team_index = team_wins.winning_team_index
                 team_name = universe.teams[team_index].name
-                self.draw_game_over(team_name)
+                self.game_finish_overlay = lambda: self.draw_game_over(team_name)
             for game_draw in events.filter_type(datamodel.GameDraw):
-                self.draw_game_draw()
+                self.game_finish_overlay = lambda: self.draw_game_draw()
+
+        self.game_finish_overlay()
 
     def draw_universe(self, universe):
         self.mesh_graph.num_x = universe.maze.width
@@ -229,6 +241,8 @@ class UiCanvas(object):
 
     def draw_end_of_game(self, display_string):
         """ Draw an end of game string. """
+        self.canvas.delete("gameover")
+
         center = (self.mesh_graph.screen_width // 2,
                   self.mesh_graph.screen_height //2)
 
@@ -237,18 +251,18 @@ class UiCanvas(object):
                                self.mesh_graph.screen_height,
                                rel_size = +1)
 
-        self.canvas.create_text(center[0], center[1],
+        self.canvas.create_text(center[0] - 1, center[1] - 1,
                 text=display_string,
                 font=(None, font_size, "bold"),
-                fill="red", tag="gameover",
+                fill="#ED1B22", tag="gameover",
                 justify=Tkinter.CENTER, anchor=Tkinter.CENTER)
-        quit = Tkinter.Button(self.status,
-                font=(None, 10),
-                foreground="black",
-                background="white",
-                justify=Tkinter.CENTER,
-                text="QUIT",
-                command=self.master.frame.quit).pack()
+
+        self.canvas.create_text(center[0] + 1, center[1] + 1,
+                text=display_string,
+                font=(None, font_size, "bold"),
+                fill="#FFC903", tag="gameover",
+                justify=Tkinter.CENTER, anchor=Tkinter.CENTER)
+
 
     def draw_game_over(self, win_name):
         """ Draw the game over string. """
