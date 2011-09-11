@@ -62,16 +62,29 @@ viewer_opt.add_argument('--ascii', action='store_const', const='ascii',
 viewer_opt.add_argument('--tk', action='store_const', const='tk',
                         dest='viewer', help='use the tk viewer (default)')
 parser.set_defaults(viewer='tk')
+layout_opt = parser.add_mutually_exclusive_group()
+layout_opt.add_argument('--layoutfile', '-L', metavar='filename')
+layout_opt.add_argument('--layout', '-l', metavar='name')
+parser.add_argument('--rounds', '-r', type=int, default=3000)
 
 def run_game(*argv):
     args = parser.parse_args(argv)
+
+    if args.layout == 'list':
+        layouts = pelita.layout.get_available_layouts()
+        print '\n'.join(layouts)
+        sys.exit(0)
+
     bads = load_team(args.bad_team)
     goods = load_team(args.good_team)
 
     for team in (bads, goods):
         client = pelita.simplesetup.SimpleClient(team)
         client.autoplay_background()
-    server = pelita.simplesetup.SimpleServer()
+    server = pelita.simplesetup.SimpleServer(layout_file=args.layoutfile,
+                                             layout_name=args.layout,
+                                             rounds=args.rounds,
+                                             )
 
     print args
     if args.viewer in 'tk':
