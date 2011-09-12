@@ -23,7 +23,7 @@ import pelita
 import logging
 hdlr = logging.FileHandler('pelita.log', mode='w')
 logger = logging.getLogger('pelita')
-FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s[%(funcName)s] %(message)s'
+FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s:%(levelname)s][%(funcName)s] %(message)s'
 formatter = logging.Formatter(FORMAT)
 hdlr.setFormatter(formatter)
 logger.addHandler(hdlr)
