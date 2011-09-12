@@ -28,7 +28,6 @@ class DevNullViewer(object):
 class AsciiViewer(AbstractViewer):
 
     def observe(self, round_, turn, universe, events):
-        print round_, turn, universe, events
         print ("Round: %r Turn: %r Score: %r:%r"
         % (round_, turn, universe.teams[0].score, universe.teams[1].score))
         print ("Events: %r" % [str(e) for e in events])

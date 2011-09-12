@@ -97,10 +97,11 @@ class Trafo(object):
 
 
 class UiCanvas(object):
-    def __init__(self, master):
+    def __init__(self, master, geometry=None):
         self.game_finish_overlay = lambda: None
 
         self.mesh_graph = None
+        self.geometry = geometry
 
         self.size_changed = True
 
@@ -139,13 +140,15 @@ class UiCanvas(object):
                 width = universe.maze.width
                 height = universe.maze.height
 
-                screensize = (
-                    max(250, self.master.master.winfo_screenwidth() - 100),
-                    max(250, self.master.master.winfo_screenheight() - 100)
-                )
+                if self.geometry is None:
+                    screensize = (
+                        max(250, self.master.master.winfo_screenwidth() - 100),
+                        max(250, self.master.master.winfo_screenheight() - 100)
+                        )
+                else:
+                    screensize = self.geometry
                 scale_x = screensize[0] / width
                 scale_y = screensize[1] / height
-
                 scale = int(min(scale_x, scale_y, 50))
                 self.mesh_graph = MeshGraph(width, height, scale * width, scale * height)
 
@@ -328,7 +331,7 @@ class UiCanvas(object):
 
 
 class TkApplication(object):
-    def __init__(self, queue, master=None):
+    def __init__(self, queue, geometry=None, master=None):
         self.master = master
         self.frame = Tkinter.Frame(self.master)
         self.master.title("Pelita")
@@ -337,7 +340,7 @@ class TkApplication(object):
 
         self.frame.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
 
-        self.ui_canvas = UiCanvas(self)
+        self.ui_canvas = UiCanvas(self, geometry=geometry)
 
         self.master.protocol("WM_DELETE_WINDOW", wm_delete_window_handler)
 

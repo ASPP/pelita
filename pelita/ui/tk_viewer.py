@@ -58,6 +58,9 @@ class TkViewer(AbstractViewer):
         gm.observe and the Tk viewer
     timeout : The maximum time to wait before we give up
         observing a new state (or None for no timeout)
+    geometry: tuple, default = None
+        The size (in pixel) of the game root window. None means
+        using a bit less than the screen size.
 
     Attributes
     ----------
@@ -65,12 +68,16 @@ class TkViewer(AbstractViewer):
     app : The TkApplication class
 
     """
-    def __init__(self, queue_size=1, timeout=0.5):
+    def __init__(self, queue_size=1, geometry=None, timeout=0.5):
         self.observe_queue = Queue.Queue(maxsize=queue_size)
 
         self.root = Tkinter.Tk()
-
-        self.app = TkApplication(queue=self.observe_queue, master=self.root)
+        # put the root window in some sensible position
+        self.root.wm_geometry(newGeometry='+0+0')
+        
+        self.app = TkApplication(queue=self.observe_queue,
+                                 geometry = geometry,
+                                 master=self.root)
         self.root.after_idle(self.app.read_queue)
 
         self.timeout = timeout

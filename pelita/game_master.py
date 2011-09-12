@@ -175,10 +175,6 @@ class GameMaster(object):
                 events = TypeAwareList(base_class=datamodel.UniverseEvent)
                 events.append(datamodel.TeamWins(other_team_idx))
 
-            for timeout_event in events.filter_type(datamodel.TimeoutEvent):
-                team = self.universe.teams[timeout_event.team_index]
-                # team.score -= 1
-
             self.send_to_viewers(round_index, i, events)
             if datamodel.TeamWins in events:
                 return False

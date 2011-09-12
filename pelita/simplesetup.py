@@ -24,7 +24,7 @@ _logger = logging.getLogger("pelita.simplesetup")
 
 __docformat__ = "restructuredtext"
 
-def auto_connect(connect_func, retries=10, delay=0.5):
+def auto_connect(connect_func, retries=10, delay=0.5, silent=True):
      # Try retries times to connect
     if retries is None:
         iter = itertools.count()
@@ -36,13 +36,16 @@ def auto_connect(connect_func, retries=10, delay=0.5):
         else:
 
             if retries is None:
-                sys.stdout.write("[%s]\b\b\b" % "-\\|/"[i % 4])
+                if not silent:
+                    sys.stdout.write("[%s]\b\b\b" % "-\\|/"[i % 4])
                 time.sleep(delay)
             else:
                 if i < retries - 1:
-                    print " Waiting %i seconds. (%d/%d)" % (delay, i + 1, retries)
+                    if not silent:
+                        print " Waiting %i seconds. (%d/%d)" % (delay, i + 1, retries)
                     time.sleep(delay)
-    print "Giving up."
+    if not silent:
+        print "Giving up."
     return False
 
 class SimpleServer(object):
@@ -191,13 +194,13 @@ class SimpleServer(object):
 
         self._run_save(main)
 
-    def run_tk(self):
+    def run_tk(self, geometry=None):
         """ Starts a game with the Tk viewer.
         This method does not return until the server or Tk is stopped.
         """
         def main():
             # Register a tk_viewer
-            viewer = TkViewer()
+            viewer = TkViewer(geometry=geometry)
             self.server.notify("register_viewer", [viewer])
             # We wait until tk closes
             viewer.root.mainloop()
@@ -245,7 +248,7 @@ class SimpleClient(object):
             self.host = host
             self.port = port
 
-    def _auto_connect(self, client_actor, retries=None, delay=0.5):
+    def _auto_connect(self, client_actor, retries=10, delay=0.5):
         if self.port is None:
             address = "%s" % self.main_actor
             connect = lambda: client_actor.connect_local(self.main_actor)
@@ -343,7 +346,7 @@ class SimpleViewer(object):
         finally:
             self.viewer_actor.actor_ref.stop()
 
-    def run_tk(self, retries=None, delay=0.5):
+    def run_tk(self, retries=10, delay=0.5):
         """ Starts a game with the Tk viewer.
         This method does not return until the server or Tk is stopped.
         """
@@ -356,7 +359,7 @@ class SimpleViewer(object):
 
         self._run_save(main, retries, delay)
 
-    def run_ascii(self, retries=None, delay=1):
+    def run_ascii(self, retries=10, delay=1):
         """ Starts a game with the ASCII viewer.
         This method does not return until the server is stopped.
         """
