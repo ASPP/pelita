@@ -99,6 +99,7 @@ class Trafo(object):
 class UiCanvas(object):
     def __init__(self, master, geometry=None):
         self.game_finish_overlay = lambda: None
+        self.game_status_info = lambda: None
 
         self.mesh_graph = None
         self.geometry = geometry
@@ -172,7 +173,8 @@ class UiCanvas(object):
             self.current_universe = universe
 
         if round is not None and turn is not None:
-            self.draw_status_info(turn, round)
+            self.game_status_info = lambda: self.draw_status_info(turn, round)
+        self.game_status_info()
 
         self.draw_universe(self.current_universe)
 
