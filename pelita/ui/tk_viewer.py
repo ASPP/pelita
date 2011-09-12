@@ -72,7 +72,9 @@ class TkViewer(AbstractViewer):
         self.observe_queue = Queue.Queue(maxsize=queue_size)
 
         self.root = Tkinter.Tk()
-
+        # put the root window in some sensible position
+        self.root.wm_geometry(newGeometry='+0+0')
+        
         self.app = TkApplication(queue=self.observe_queue,
                                  geometry = geometry,
                                  master=self.root)
