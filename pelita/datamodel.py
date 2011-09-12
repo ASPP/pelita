@@ -180,6 +180,10 @@ class Team(object):
         """ Score a single point. """
         self.score += 1
 
+    def _score_points(self, points):
+        """ Score a single point. """
+        self.score += points
+
     def __str__(self):
         return self.name
 
