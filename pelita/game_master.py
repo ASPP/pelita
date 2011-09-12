@@ -130,7 +130,7 @@ class GameMaster(object):
             if not self.play_round(round_index):
                 return
         # If we arrive here and have not returned due to a TeamWins event
-        # the game has ended without a definitiv winner
+        # the game has ended without a definitive winner
         # TODO: what if its a draw?
         events = TypeAwareList(base_class=datamodel.UniverseEvent)
 
