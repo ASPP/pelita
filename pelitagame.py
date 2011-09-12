@@ -1,6 +1,7 @@
 import sys
 import os.path
 import contextlib
+import random
 
 @contextlib.contextmanager
 def with_sys_path(dirname):
@@ -32,13 +33,18 @@ def load_factory(filename):
 
     return module.factory
 
+PLAYERS = [name for name in dir(pelita.player)
+           if name.endswith('Player') and
+              name not in ('AbstractPlayer', 'TestPlayer')]
+
 def import_builtin_player(name):
-    pelita_player = pelita.player
+    if name == 'random':
+        name = random.choice(PLAYERS)
+        print 'using %s for random player' % name
     try:
-        player = getattr(pelita_player, name)
+        player = getattr(pelita.player, name)
     except AttributeError:
-        others = [n for n in dir(pelita_player) if n.endswith('Player')]
-        others = ', '.join(others)
+        others = ', '.join(PLAYERS)
         msg = 'Failed to find %s in pelita.player [%s]' % (name, others)
         raise ImportError(msg)
     return player
@@ -51,7 +57,8 @@ def create_builtin_team(spec):
         raise ValueError('need two comma seperated names')
 
     players = [import_builtin_player(name)() for name in names]
-    return pelita.player.SimpleTeam(names[0] + 's', *players)
+    teamname = 'The %ss' % players[0].__class__.__name__
+    return pelita.player.SimpleTeam(teamname, *players)
 
 def load_team(spec):
     if '/' in spec or spec.endswith('.py'):
@@ -59,8 +66,7 @@ def load_team(spec):
     else:
         return create_builtin_team(spec)
 
-parser = argparse.ArgumentParser(description='Runs a single pelita game',
-                                 epilog="Run '%(prog)s --layout list' to list layouts");
+parser = argparse.ArgumentParser(description='Runs a single pelita game')
 parser.add_argument('bad_team', help='team on the left side')
 parser.add_argument('good_team', help='team on the right side')
 viewer_opt = parser.add_mutually_exclusive_group()
@@ -72,6 +78,11 @@ parser.set_defaults(viewer='tk')
 layout_opt = parser.add_mutually_exclusive_group()
 layout_opt.add_argument('--layoutfile', '-L', metavar='filename')
 layout_opt.add_argument('--layout', '-l', metavar='name')
+parser.epilog = """\
+Use 'random' as a team to get one of the predefined players.
+Use 'list' as a team to get a list of predefined players.
+Run '%(prog)s --layout list' to list layouts.
+"""
 parser.add_argument('--rounds', '-r', type=int, default=3000)
 
 def run_game(*argv):
@@ -80,6 +91,10 @@ def run_game(*argv):
     if args.layout == 'list':
         layouts = pelita.layout.get_available_layouts()
         print '\n'.join(layouts)
+        sys.exit(0)
+
+    if 'list' in (args.bad_team, args.good_team):
+        print '\n'.join(PLAYERS)
         sys.exit(0)
 
     bads = load_team(args.bad_team)
