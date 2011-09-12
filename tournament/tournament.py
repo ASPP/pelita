@@ -31,6 +31,8 @@ def start_match(team1, team2):
     0 if there was a draw.
     """
     # TODO: start the actual match, parse the outcome and return 0, 1 or 2
+    print team1, 'vs', team2, '...'
+    print team1, 'wins.'
     return 1
 
 
@@ -41,8 +43,10 @@ def start_deathmatch(team1, team2):
     while True:
         r = start_match(team1, team2)
         if r == 0:
+            print 'Draw -> Deathmatch!'
             continue
-        return r
+        winner = team1 if r == 1 else team2
+        return winner
 
 
 def round1(teams):
@@ -50,38 +54,33 @@ def round1(teams):
     round1 = organize_first_round(len(teams))
     print "ROUND 1 (Everybody vs Everybody)"
     for t1, t2 in round1:
-        print teams[t1], 'vs', teams[t2],
         winner = start_match(teams[t1], teams[t2])
         if winner == 0:
-            print 'draw.'
             points[t1] += POINTS_DRAW
             points[t2] += POINTS_DRAW
         else:
-            print [teams[t1], teams[t2]][winner-1], 'won.'
             points[[t1, t2][winner-1]] += POINTS_WIN
     print "Results of the first round."
-    print sorted(zip(points, teams), reverse=True)
-    return zip(teams, points)
+    result = sorted(zip(points, teams), reverse=True)
+    print result
+    result = [t for p, t in result]
+    return result
 
 
-def round2(team1, team2, team3, team4, team5):
+def round2(teams):
+    print 'ROUND 2 (K.O.)'
     # 1 vs 4
-    r = start_deathmatch(team1, team4)
-    w1 = team1 if r == 1 else team2
+    w1 = start_deathmatch(teams[0], teams[3])
     # 2 vs 3
-    r = start_deathmatch(team2, team3)
-    w2 = team2 if r == 1 else team3
+    w2 = start_deathmatch(teams[1], teams[2])
     # w1 vs w2
-    r = start_deathmatch(w1, w2)
-    w = w1 if r == 1 else w2
+    w = start_deathmatch(w1, w2)
     # W vs team5
-    r = start_deathmatch(w, team5)
-    w = w if r == 1 else team5
+    w = start_deathmatch(w, teams[4])
 
 
 if __name__ == '__main__':
     teams = get_teams()
     result = round1(teams)
-    print result
-    result = round2(teams)
+    winner = round2(result)
 
