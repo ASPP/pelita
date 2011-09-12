@@ -65,6 +65,19 @@ def load_team(spec):
     else:
         return create_builtin_team(spec)
 
+def geometry_string(s):
+    """Get a X-style geometry definition and return a tuple.
+
+    600x400 -> (600,400)
+    """
+    try:
+        x_string, y_string = s.split('x')
+        geometry = (int(x_string), int(y_string))
+    except ValueError:
+        msg = "%s is not a valid geometry specification" %s
+        raise argparse.ArgumentTypeError(msg)
+    return geometry
+    
 parser = argparse.ArgumentParser(description='Runs a single pelita game')
 parser.add_argument('bad_team', help='team on the left side')
 parser.add_argument('good_team', help='team on the right side')
@@ -83,6 +96,8 @@ Use 'list' as a team to get a list of predefined players.
 Run '%(prog)s --layout list' to list layouts.
 """
 parser.add_argument('--rounds', '-r', type=int, default=3000)
+parser.add_argument('--geometry', type=geometry_string, metavar='NxM',
+                    help='initial size of the game window')
 
 def run_game(*argv):
     args = parser.parse_args(argv)
@@ -109,7 +124,7 @@ def run_game(*argv):
 
     print args
     if args.viewer in 'tk':
-        server.run_tk()
+        server.run_tk(geometry=args.geometry)
     elif args.viewer == 'ascii':
         server.run_ascii()
     else:

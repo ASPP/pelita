@@ -194,13 +194,13 @@ class SimpleServer(object):
 
         self._run_save(main)
 
-    def run_tk(self):
+    def run_tk(self, geometry=None):
         """ Starts a game with the Tk viewer.
         This method does not return until the server or Tk is stopped.
         """
         def main():
             # Register a tk_viewer
-            viewer = TkViewer()
+            viewer = TkViewer(geometry=geometry)
             self.server.notify("register_viewer", [viewer])
             # We wait until tk closes
             viewer.root.mainloop()
