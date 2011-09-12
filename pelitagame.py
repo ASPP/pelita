@@ -24,12 +24,7 @@ def load_factory(filename):
     modname = os.path.splitext(os.path.basename(filename))[0]
 
     with with_sys_path(dirname):
-        try:
-            module = __import__(modname, fromlist=['factory'])
-        except ImportError as e:
-            msg = 'Failed to find factory in module %s: %s' % (filename, e)
-            raise ImportError(msg)
-
+        module = __import__(modname, fromlist=['factory'])
     return module.factory
 
 PLAYERS = [name for name in dir(pelita.player)
