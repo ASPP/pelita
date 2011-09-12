@@ -4,6 +4,7 @@
 
 import copy
 import random
+import sys
 from .containers import TypeAwareList
 from . import datamodel
 from .viewer import AbstractViewer
@@ -155,9 +156,13 @@ class GameMaster(object):
             t0 = self.universe.teams[0]
             t1 = self.universe.teams[1]
             print "Finished. %r and %r had a draw. (%r:%r)" % (
-                    t0.name, t0.score,
-                    t1.name, t1.score
+                    t0.name, t1.name,
+                    t0.score, t1.score
                 )
+
+        # We must manually flush, else our forceful stopping of Tk
+        # won't let us pipe it.
+        sys.stdout.flush()
 
         self.send_to_viewers(round_index, None, events)
 
