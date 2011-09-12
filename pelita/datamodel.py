@@ -144,7 +144,7 @@ class Team(object):
         self.score = score
         # we can't use a keyword argument here, because that would create a
         # single list object for all our Teams.
-        if not bots:
+        if bots is None:
             self.bots = []
         else:
             self.bots = bots
