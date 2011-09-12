@@ -286,7 +286,7 @@ class RemoteTeamPlayer(object):
         except Queue.Empty:
             # if we did not receive a message in time
             raise PlayerTimeout()
-        except DeadConnection:
+        except (ActorNotRunning, DeadConnection):
             # if the remote connection is closed
             raise PlayerDisconnected()
 
