@@ -25,3 +25,4 @@
 # distutils
 build/
 
+pelita.log
