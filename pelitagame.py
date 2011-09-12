@@ -30,6 +30,7 @@ logger.addHandler(hdlr)
 
 
 def load_factory(filename):
+    filename = filename.rstrip(os.path.sep)
     dirname = os.path.dirname(filename)
     modname = os.path.splitext(os.path.basename(filename))[0]
 
