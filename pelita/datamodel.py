@@ -950,7 +950,8 @@ class CTFUniverse(object):
                     bot._reset()
                     enemy_team = self.teams[enemy.team_index]
                     enemy_team._score_points(KILLPOINTS)
-                    events.append(TeamScoreChange(enemy_team.index, 5, enemy_team.score))
+                    events.append(TeamScoreChange(enemy_team.index,
+                        KILLPOINTS, enemy_team.score))
                     events.append(BotDestroyed(
                         bot.index, old_pos, new_pos, bot.initial_pos,
                         enemy.index, enemy.current_pos, enemy.current_pos))
@@ -959,7 +960,8 @@ class CTFUniverse(object):
                     enemy._reset()
                     bot_team = self.teams[bot.team_index]
                     bot_team._score_points(KILLPOINTS)
-                    events.append(TeamScoreChange(bot_team.index, 5, bot_team.score))
+                    events.append(TeamScoreChange(bot_team.index,
+                        KILLPOINTS, bot_team.score))
                     events.append(BotDestroyed(
                        enemy.index, new_old_pos, new_old_pos, enemy.initial_pos,
                        bot.index, old_pos, new_pos))

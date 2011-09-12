@@ -2,7 +2,8 @@
 
 import unittest
 from pelita.datamodel import north, south, east, west, stop,\
-        Wall, Free, Food, TeamWins, GameDraw, BotMoves, create_CTFUniverse
+        Wall, Free, Food, TeamWins, GameDraw, BotMoves, create_CTFUniverse,\
+        KILLPOINTS
 from pelita.game_master import GameMaster, UniverseNoiser
 from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer, StoppingPlayer
 from pelita.viewer import AbstractViewer, DevNullViewer
@@ -240,7 +241,8 @@ class TestGame(unittest.TestCase):
                 #  . #
                 #.0 1#
                 ###### """)
-        self.assertEqual(create_TestUniverse(test_third_round, black_score=5), gm.universe)
+        self.assertEqual(create_TestUniverse(test_third_round,
+            black_score=KILLPOINTS), gm.universe)
 
         gm.play_round(3)
         test_fourth_round = (
@@ -248,8 +250,8 @@ class TestGame(unittest.TestCase):
                 #0 . #
                 #. 1 #
                 ###### """)
-        self.assertEqual(create_TestUniverse(test_fourth_round, black_score=5,
-            white_score=5), gm.universe)
+        self.assertEqual(create_TestUniverse(test_fourth_round,
+            black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
 
         gm.play_round(4)
         test_fifth_round = (
@@ -257,8 +259,8 @@ class TestGame(unittest.TestCase):
                 # 0. #
                 #.1  #
                 ###### """)
-        self.assertEqual(create_TestUniverse(test_fifth_round, black_score=5,
-            white_score=5), gm.universe)
+        self.assertEqual(create_TestUniverse(test_fifth_round,
+            black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
 
         gm.play_round(5)
         test_sixth_round = (
@@ -266,8 +268,8 @@ class TestGame(unittest.TestCase):
                 #  0 #
                 #.1  #
                 ###### """)
-        self.assertEqual(create_TestUniverse(test_sixth_round, black_score=5,
-            white_score=5), gm.universe)
+        self.assertEqual(create_TestUniverse(test_sixth_round,
+            black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
 
 
         # now play the full game
@@ -280,8 +282,8 @@ class TestGame(unittest.TestCase):
                 #  0 #
                 #.1  #
                 ###### """)
-        self.assertEqual(create_TestUniverse(test_sixth_round, black_score=5,
-            white_score=5), gm.universe)
+        self.assertEqual(create_TestUniverse(test_sixth_round,
+            black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
 
     def test_malicous_player(self):
         free_obj = Free()
