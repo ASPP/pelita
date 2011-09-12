@@ -4,8 +4,8 @@ import socket
 import errno
 import logging
 
-from pelita.messaging import Error, DeadConnection, BaseMessage
-from pelita.messaging.json_convert import json_converter
+from .. import Error, DeadConnection, BaseMessage
+from ..json_convert import json_converter
 
 _logger = logging.getLogger("pelita.jsonSocket")
 _logger.setLevel(logging.INFO)

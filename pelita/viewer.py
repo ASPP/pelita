@@ -2,7 +2,7 @@
 
 """ The observers. """
 
-from pelita import datamodel
+from . import datamodel
 
 __docformat__ = "restructuredtext"
 

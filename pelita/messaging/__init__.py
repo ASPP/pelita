@@ -140,8 +140,8 @@ It also shares similarities with
 """
 
 
-from pelita.messaging.messages import Query, Notification, Response, Error, BaseMessage
-from pelita.messaging.actor import Actor, BaseActorReference, ActorReference, DispatchingActor, expose, DeadConnection, StopProcessing, Request, actor_of, actor_registry, Exit, ActorNotRunning
-from pelita.messaging.remote_actor import RemoteActorReference, RemoteConnection
-
-
+from .messages import Query, Notification, Response, Error, BaseMessage
+from .actor import (Actor, BaseActorReference, ActorReference, DispatchingActor,
+                    expose, DeadConnection, StopProcessing, Request,
+                    actor_of, actor_registry, Exit, ActorNotRunning)
+from .remote_actor import RemoteActorReference, RemoteConnection

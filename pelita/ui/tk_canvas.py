@@ -4,9 +4,9 @@ import Tkinter
 import tkFont
 import Queue
 
-from pelita import datamodel
-from pelita.ui.tk_sprites import *
-from pelita.utils.signal_handlers import wm_delete_window_handler
+from .. import datamodel
+from .tk_sprites import *
+from ..utils.signal_handlers import wm_delete_window_handler
 
 def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
     no_lines = display_string.count("\n") + 1
@@ -17,7 +17,6 @@ def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
         font_size = size_guess * bounding_width // text_width
     else:
         font_size = size_guess
-    width = font.measure(display_string)
     return font_size
 
 
@@ -119,15 +118,17 @@ class UiCanvas(object):
         self.status.config(background="white")
         self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
 
-        quit = Tkinter.Button(self.status,
-                              font=(None, 10),
-                              foreground="black",
-                              background="white",
-                              justify=Tkinter.CENTER,
-                              text="QUIT",
-                              command=self.master.frame.quit).pack()
+        Tkinter.Button(self.status,
+                       font=(None, 10),
+                       foreground="black",
+                       background="white",
+                       justify=Tkinter.CENTER,
+                       text="QUIT",
+                       command=self.master.frame.quit).pack()
 
-        self.canvas = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=self.mesh_graph.screen_height)
+        self.canvas = Tkinter.Canvas(self.master.frame,
+                                     width=self.mesh_graph.screen_width,
+                                     height=self.mesh_graph.screen_height)
         self.canvas.config(background="white")
         self.canvas.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
         self.canvas.bind('<Configure>', self.resize)

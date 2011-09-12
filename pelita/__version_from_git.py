@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import subprocess
-import sys
 import os
-import pelita
+import subprocess
 
 __docformat__ = "restructuredtext"
 
@@ -58,6 +56,6 @@ def __git_describe(directory):
     return __get_git_output('describe', directory)
 
 def version():
-    pelita_dir = os.path.dirname(pelita.__file__)
+    pelita_dir = os.path.dirname(__file__)
     if __is_git_repo(pelita_dir):
         return __git_describe(pelita_dir)
