@@ -4,11 +4,10 @@
 
 import copy
 import random
-from pelita.containers import TypeAwareList
-from pelita import datamodel
-from pelita.player import AbstractPlayer
-from pelita.viewer import AbstractViewer
-from pelita.graph import AdjacencyList
+from .containers import TypeAwareList
+from . import datamodel
+from .viewer import AbstractViewer
+from .graph import AdjacencyList
 
 __docformat__ = "restructuredtext"
 

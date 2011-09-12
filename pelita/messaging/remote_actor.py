@@ -4,7 +4,6 @@
 Remote actor setup and bookkeeping of remote requests.
 """
 
-import Queue
 import socket
 import weakref
 from threading import Lock, RLock
@@ -13,12 +12,11 @@ import logging
 _logger = logging.getLogger("pelita.mailbox")
 _logger.setLevel(logging.DEBUG)
 
+from ..utils import SuspendableThread, CloseThread, Counter
+from .remote import JsonSocketConnection, TcpThreadedListeningServer, TcpConnectingClient
+from .actor import DeadConnection, actor_registry, BaseActorReference, ActorNotRunning
+
 __docformat__ = "restructuredtext"
-
-
-from pelita.utils import SuspendableThread, CloseThread, Counter
-from pelita.messaging.remote import JsonSocketConnection, TcpThreadedListeningServer, TcpConnectingClient
-from pelita.messaging.actor import StopProcessing, DeadConnection, actor_registry, BaseActorReference, ActorNotRunning
 
 
 class RequestDB(object):

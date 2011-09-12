@@ -7,18 +7,18 @@ between GameMaster and client Teams over the network.
 import sys
 import Queue
 
-from pelita.messaging import DispatchingActor, expose, actor_registry, \
-    actor_of, RemoteConnection, DeadConnection, ActorNotRunning
-from pelita.messaging.remote_actor import RemoteActorReference
-
-from pelita.game_master import GameMaster, PlayerTimeout, PlayerDisconnected, AbstractViewer
-
 import logging
-
-__docformat__ = "restructuredtext"
-
 _logger = logging.getLogger("pelita")
 _logger.setLevel(logging.DEBUG)
+
+from .messaging import (DispatchingActor, expose, actor_registry,
+                        actor_of, RemoteConnection, DeadConnection,
+                        ActorNotRunning)
+from .messaging.remote_actor import RemoteActorReference
+from .game_master import (GameMaster, PlayerTimeout, PlayerDisconnected,
+                          AbstractViewer)
+
+__docformat__ = "restructuredtext"
 
 TIMEOUT = 3
 

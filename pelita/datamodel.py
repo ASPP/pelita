@@ -3,9 +3,9 @@
 """ The datamodel. """
 
 import copy
-from pelita.layout import Layout
-from pelita.containers import Mesh, TypeAwareList
-from pelita.messaging.json_convert import serializable
+from .layout import Layout
+from .containers import Mesh, TypeAwareList
+from .messaging.json_convert import serializable
 
 
 __docformat__ = "restructuredtext"

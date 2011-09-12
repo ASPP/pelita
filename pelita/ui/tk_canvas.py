@@ -4,9 +4,9 @@ import Tkinter
 import tkFont
 import Queue
 
-from pelita import datamodel
-from pelita.ui.tk_sprites import *
-from pelita.utils.signal_handlers import wm_delete_window_handler
+from .. import datamodel
+from .tk_sprites import *
+from ..utils.signal_handlers import wm_delete_window_handler
 
 def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
     no_lines = display_string.count("\n") + 1

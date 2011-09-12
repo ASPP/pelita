@@ -6,15 +6,15 @@ General and local actor definitions.
 
 
 import Queue
-import logging
 import uuid
 import inspect
 from threading import Lock
 
-from pelita.utils import SuspendableThread, CloseThread
-
+import logging
 _logger = logging.getLogger("pelita.actor")
 _logger.setLevel(logging.DEBUG)
+
+from ..utils import SuspendableThread, CloseThread
 
 __docformat__ = "restructuredtext"
 

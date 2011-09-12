@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from pelita.utils.threading_helpers import *
-from pelita.utils.debug import *
+from .threading_helpers import *
+from .debug import *
 
 __docformat__ = "restructuredtext"
 
