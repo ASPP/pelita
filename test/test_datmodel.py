@@ -804,7 +804,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         self.assertEqual(create_TestUniverse(test_destruction,
             black_score=KILLPOINTS), universe)
         self.assertTALEqualList(events, [BotMoves(0, (1, 1), (1, 2)),
-            TeamScoreChange(0, 5, 5),
+            TeamScoreChange(0, KILLPOINTS, KILLPOINTS),
             BotDestroyed(1, (1, 2), (1, 2), (4, 2), 0, (1, 1), (1, 2))])
         test_black_score = (
             """ ######
@@ -817,9 +817,10 @@ class TestCTFUniverseRules(unittest.TestCase):
         self.assertEqual(create_TestUniverse(test_black_score,
             black_score=KILLPOINTS), universe)
         self.assertEqual(universe.food_list, [])
-        self.assertEqual(universe.teams[0].score, 6)
+        self.assertEqual(universe.teams[0].score, KILLPOINTS+1)
         self.assertTALEqualList(events, [BotMoves(0, (2, 1), (3, 1)),
-            BotEats(0, (3, 1)), FoodEaten((3, 1)), TeamScoreChange(0, 1, 6), TeamWins(0)])
+            BotEats(0, (3, 1)), FoodEaten((3, 1)), TeamScoreChange(0, 1,
+                KILLPOINTS+1), TeamWins(0)])
         test_bot_suicide = (
             """ ######
                 #0   #
@@ -830,7 +831,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         self.assertEqual(create_TestUniverse(test_bot_suicide,
             black_score=KILLPOINTS, white_score=KILLPOINTS), universe)
         self.assertTALEqualList(events, [BotMoves(0, (4, 1), (4, 2)),
-            TeamScoreChange(1, 5, 6),
+            TeamScoreChange(1, KILLPOINTS, KILLPOINTS+1),
             BotDestroyed(0, (4, 1), (4, 2), (1, 1), 1, (4, 2), (4, 2))])
 
     def test_no_eat_own_food(self):
