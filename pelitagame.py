@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 import os.path
 import contextlib
@@ -14,9 +15,7 @@ def with_sys_path(dirname):
 try:
     import argparse
 except ImportError:
-    compat = os.path.join(os.path.dirname(__file__), 'compat')
-    with with_sys_path(compat):
-        import argparse
+    from pelita.compat import argparse
 
 import pelita
 
