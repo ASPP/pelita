@@ -3,8 +3,8 @@
 """ Maze layout parsing. """
 import random
 
-from pelita.containers import Mesh
-import pelita.__layouts as __layouts
+from .containers import Mesh
+from . import __layouts
 
 __docformat__ = "restructuredtext"
 
