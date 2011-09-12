@@ -301,6 +301,22 @@ class IOBoundPlayer(AbstractPlayer):
                         print "Crawling done and timeout received %i" % count
                         self.timeouted = True
 
+class MoveExceptionPlayer(AbstractPlayer):
+    """ Player that raises an Exception on get_move(). """
+
+    def get_move(self):
+        raise Exception("Exception from MoveExceptionPlayer.")
+
+
+class InitialExceptionPlayer(AbstractPlayer):
+    """ Player that raises an Exception on set_initial(). """
+
+    def set_initial(self):
+        raise Exception("Exception from InitialExceptionPlayer.")
+
+    def get_move(self):
+        pass
+
 class CPUBoundPlayer(AbstractPlayer):
     """ Player that does loads of computation. """
 
