@@ -133,12 +133,32 @@ class GameMaster(object):
         # the game has ended without a definitiv winner
         # TODO: what if its a draw?
         events = TypeAwareList(base_class=datamodel.UniverseEvent)
-        if self.universe.teams[0].score < self.universe.teams[1].score:
-            events.append(datamodel.TeamWins(1))
-        elif self.universe.teams[0].score > self.universe.teams[1].score:
+
+        if self.universe.teams[0].score > self.universe.teams[1].score:
             events.append(datamodel.TeamWins(0))
+            winner = self.universe.teams[0]
+            loser = self.universe.teams[1]
+            print "Finished. %r won over %r. (%r:%r)" % (
+                    winner.name, loser.name,
+                    winner.score, loser.score
+                )
+        elif self.universe.teams[1].score > self.universe.teams[0].score:
+            events.append(datamodel.TeamWins(1))
+            winner = self.universe.teams[1]
+            loser = self.universe.teams[0]
+            print "Finished. %r won over %r. (%r:%r)" % (
+                    winner.name, loser.name,
+                    winner.score, loser.score
+                )
         else:
             events.append(datamodel.GameDraw())
+            t0 = self.universe.teams[0]
+            t1 = self.universe.teams[1]
+            print "Finished. %r and %r had a draw. (%r:%r)" % (
+                    t0.name, t0.score,
+                    t1.name, t1.score
+                )
+
         self.send_to_viewers(round_index, None, events)
 
     def play_round(self, round_index):
