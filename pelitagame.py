@@ -94,6 +94,8 @@ parser.add_argument('good_team', help='team on the right side', nargs='?',
 viewer_opt = parser.add_mutually_exclusive_group()
 viewer_opt.add_argument('--ascii', action='store_const', const='ascii',
                         dest='viewer', help='use the ASCII viewer')
+viewer_opt.add_argument('--null', action='store_const', const='null',
+                        dest='viewer', help='use the /dev/null viewer')
 viewer_opt.add_argument('--tk', action='store_const', const='tk',
                         dest='viewer', help='use the tk viewer (default)')
 parser.set_defaults(viewer='tk')
@@ -138,7 +140,9 @@ def run_game(*argv):
     if args.viewer in 'tk':
         server.run_tk(geometry=args.geometry)
     elif args.viewer == 'ascii':
-        server.run_ascii()
+        server.run_simple(pelita.viewer.AsciiViewer)
+    elif args.viewer == 'null':
+        server.run_simple(pelita.viewer.DevNullViewer)
     else:
         assert 0
 
