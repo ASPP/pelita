@@ -3,6 +3,7 @@ import unittest
 
 from pelita.simplesetup import SimpleClient, SimpleServer
 from pelita.player import SimpleTeam, RandomPlayer
+from pelita.viewer import AsciiViewer
 
 class TestSimpleSetup(unittest.TestCase):
     def test_load_layout(self):
@@ -57,7 +58,7 @@ class TestSimpleSetup(unittest.TestCase):
 
         client1.autoplay_background()
         client2.autoplay_background()
-        server.run_ascii()
+        server.run_simple(AsciiViewer)
 
         self.assertFalse(server.server.is_alive)
 
@@ -78,7 +79,7 @@ class TestSimpleSetup(unittest.TestCase):
 
         client1.autoplay_background()
         client2.autoplay_background()
-        server.run_ascii()
+        server.run_simple(AsciiViewer)
 
         self.assertFalse(server.server.is_alive)
 
