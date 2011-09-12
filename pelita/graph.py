@@ -4,7 +4,7 @@
 
 from collections import deque
 import heapq
-from pelita.datamodel import Maze, Free, manhattan_dist
+from .datamodel import Free, manhattan_dist
 
 __docformat__ = "restructuredtext"
 

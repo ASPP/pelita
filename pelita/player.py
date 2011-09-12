@@ -6,8 +6,8 @@ import os
 import random
 import sys
 import math
-from pelita.datamodel import stop, Free, diff_pos
-from pelita.graph import AdjacencyList, NoPathException
+from .datamodel import stop, Free, diff_pos
+from .graph import AdjacencyList, NoPathException
 
 __docformat__ = "restructuredtext"
 
