@@ -18,6 +18,9 @@ stop  = (0, 0)
 
 moves = [north, south, east, west, stop]
 
+# the number of points to score when killing
+KILLPOINTS=5
+
 def new_pos(position, move):
     """ Adds a position tuple and a move tuple.
 
@@ -945,12 +948,18 @@ class CTFUniverse(object):
             if enemy.current_pos == bot.current_pos:
                 if enemy.is_destroyer and bot.is_harvester:
                     bot._reset()
+                    enemy_team = self.teams[enemy.team_index]
+                    enemy_team._score_points(KILLPOINTS)
+                    events.append(TeamScoreChange(enemy_team.index, 5, enemy_team.score))
                     events.append(BotDestroyed(
                         bot.index, old_pos, new_pos, bot.initial_pos,
                         enemy.index, enemy.current_pos, enemy.current_pos))
                 elif enemy.is_harvester and bot.is_destroyer:
                     new_old_pos = enemy.current_pos
                     enemy._reset()
+                    bot_team = self.teams[bot.team_index]
+                    bot_team._score_points(KILLPOINTS)
+                    events.append(TeamScoreChange(bot_team.index, 5, bot_team.score))
                     events.append(BotDestroyed(
                        enemy.index, new_old_pos, new_old_pos, enemy.initial_pos,
                        bot.index, old_pos, new_pos))
