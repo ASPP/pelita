@@ -1,9 +1,6 @@
 import sys
 import os.path
 import contextlib
-import argparse
-
-import pelita
 
 @contextlib.contextmanager
 def with_sys_path(dirname):
@@ -12,6 +9,15 @@ def with_sys_path(dirname):
         yield
     finally:
         sys.path.remove(dirname)
+
+try:
+    import argparse
+except ImportError:
+    compat = os.path.join(os.path.dirname(__file__), 'compat')
+    with with_sys_path(compat):
+        import argparse
+
+import pelita
 
 def load_factory(filename):
     dirname = os.path.dirname(filename)
