@@ -82,13 +82,13 @@ class ViewerActor(object):
     def _set_viewer(self, viewer):
         self.actor_ref.notify("set_viewer", [viewer])
 
-    def connect_local(self, main_actor, silent=False):
+    def connect_local(self, main_actor, silent=True):
         """ Tells our local actor to establish a local connection
         with other local actor `main_actor`.
         """
         return self.connect(main_actor, None, None, silent=silent)
 
-    def connect(self, main_actor, host="", port=50007, silent=False):
+    def connect(self, main_actor, host="", port=50007, silent=True):
         """ Tells our local actor to establish a connection with `main_actor`.
         """
         if port is None:
@@ -211,13 +211,13 @@ class ClientActor(object):
         """
         self.actor_ref.notify("register_team", [team])
 
-    def connect_local(self, main_actor, silent=False):
+    def connect_local(self, main_actor, silent=True):
         """ Tells our local actor to establish a local connection
         with other local actor `main_actor`.
         """
         return self.connect(main_actor, None, None, silent=silent)
 
-    def connect(self, main_actor, host="", port=50007, silent=False):
+    def connect(self, main_actor, host="", port=50007, silent=True):
         """ Tells our local actor to establish a connection with `main_actor`.
         """
         if port is None:
