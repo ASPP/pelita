@@ -17,15 +17,13 @@ class AbstractViewer(object):
         raise NotImplementedError(
                 "You must override the 'observe' method in your viewer")
 
-class DevNullViewer(object):
+class DevNullViewer(AbstractViewer):
     """ A viewer that simply ignores everything. """
-    def set_initial(self, universe):
-        pass
-
     def observe(self, round_, turn, universe, events):
         pass
 
 class AsciiViewer(AbstractViewer):
+    """ A viewer that dumps ASCII charts on stdout. """
 
     def observe(self, round_, turn, universe, events):
         print ("Round: %r Turn: %r Score: %r:%r"

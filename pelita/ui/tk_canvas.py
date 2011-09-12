@@ -173,7 +173,7 @@ class UiCanvas(object):
             self.current_universe = universe
 
         if round is not None and turn is not None:
-            self.game_status_info = lambda: self.draw_status_info(round, turn)
+            self.game_status_info = lambda: self.draw_status_info(turn, round)
         self.game_status_info()
 
         self.draw_universe(self.current_universe)
