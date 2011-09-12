@@ -748,9 +748,11 @@ class TestCTFUniverseRules(unittest.TestCase):
         # a closure here to quickly generate a target universe to compare to.
         # Also we adapt the score, in case food has been eaten
 
-        def create_TestUniverse(layout):
+        def create_TestUniverse(layout, black_score=0, white_score=0):
             initial_pos = [(1, 1), (4, 2)]
             universe = create_CTFUniverse(layout, number_bots)
+            universe.teams[0].score = black_score
+            universe.teams[1].score = white_score
             for i, pos in enumerate(initial_pos):
                 universe.bots[i].initial_pos = pos
             if not universe.maze.has_at(Food, (1, 2)):
@@ -799,8 +801,9 @@ class TestCTFUniverseRules(unittest.TestCase):
                 #0  1#
                 ###### """)
         events = universe.move_bot(0, south)
-        self.assertEqual(create_TestUniverse(test_destruction), universe)
+        self.assertEqual(create_TestUniverse(test_destruction, black_score=5), universe)
         self.assertTALEqualList(events, [BotMoves(0, (1, 1), (1, 2)),
+            TeamScoreChange(0, 5, 5),
             BotDestroyed(1, (1, 2), (1, 2), (4, 2), 0, (1, 1), (1, 2))])
         test_black_score = (
             """ ######
@@ -810,11 +813,11 @@ class TestCTFUniverseRules(unittest.TestCase):
         universe.move_bot(0, north)
         universe.move_bot(0, east)
         events = universe.move_bot(0, east)
-        self.assertEqual(create_TestUniverse(test_black_score), universe)
+        self.assertEqual(create_TestUniverse(test_black_score, black_score=5), universe)
         self.assertEqual(universe.food_list, [])
-        self.assertEqual(universe.teams[0].score, 1)
+        self.assertEqual(universe.teams[0].score, 6)
         self.assertTALEqualList(events, [BotMoves(0, (2, 1), (3, 1)),
-            BotEats(0, (3, 1)), FoodEaten((3, 1)), TeamScoreChange(0, 1, 1), TeamWins(0)])
+            BotEats(0, (3, 1)), FoodEaten((3, 1)), TeamScoreChange(0, 1, 6), TeamWins(0)])
         test_bot_suicide = (
             """ ######
                 #0   #
@@ -822,8 +825,10 @@ class TestCTFUniverseRules(unittest.TestCase):
                 ###### """)
         universe.move_bot(0, east)
         events = universe.move_bot(0, south)
-        self.assertEqual(create_TestUniverse(test_bot_suicide), universe)
+        self.assertEqual(create_TestUniverse(test_bot_suicide, black_score=5,
+            white_score=5), universe)
         self.assertTALEqualList(events, [BotMoves(0, (4, 1), (4, 2)),
+            TeamScoreChange(1, 5, 6),
             BotDestroyed(0, (4, 1), (4, 2), (1, 1), 1, (4, 2), (4, 2))])
 
     def test_no_eat_own_food(self):
