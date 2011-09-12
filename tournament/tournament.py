@@ -8,7 +8,7 @@ from subprocess import Popen, PIPE
 POINTS_DRAW = 1
 POINTS_WIN = 2
 
-CMD_STUB = 'python pelitagame.py --rounds=10'
+CMD_STUB = 'python pelitagame.py --rounds=10 --null'
 
 def get_teams():
     """Read participants.txt and return a list with the team names."""
@@ -37,18 +37,18 @@ def start_match(team1, team2):
     # TODO: start the actual match, parse the outcome and return 0, 1 or 2
     args = CMD_STUB.split()
     args.extend([team1, team2])
-    p = Popen(args, cwd='..', stdout=PIPE, stderr=PIPE)
-    out = p.stdout.read()
-    err = p.stderr.read()
-    exitstatus = p.wait()
-    print "exitstatus"
-    print exitstatus
+    print 'Starting', ' '.join(args)
+    stdout, stderr = Popen(args, cwd='..', stdout=PIPE, stderr=PIPE).communicate()
     print "stdout"
-    print out
+    print stdout.splitlines()
     print "stderr"
-    print err
-    print team1, 'vs', team2, '...'
-    print team1, 'wins.'
+    print stderr.splitlines()
+    print 'reversed stdout'
+    tmp = reversed(stdout)
+    for line in tmp.readlines():
+        print line
+    #print team1, 'vs', team2, '...'
+    #print team1, 'wins.'
     return 1
 
 
