@@ -41,7 +41,8 @@ PLAYERS = [name for name in dir(pelita.player)
            if name.endswith('Player') and
               name not in ('AbstractPlayer', 'TestPlayer',
                            'StoppingPlayer', 'IOBoundPlayer',
-                           'CPUBoundPlayer')]
+                           'CPUBoundPlayer', 'MoveExceptionPlayer',
+                           'InitialExceptionPlayer')]
 
 def import_builtin_player(name):
     if name == 'random':
