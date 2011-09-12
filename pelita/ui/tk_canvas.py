@@ -141,6 +141,22 @@ class UiCanvas(object):
         self.canvas.bind('<Configure>', self.resize)
 
     def update(self, universe, events, round=None, turn=None):
+        # This method is called every now and then. Either when new information
+        # about universe or events have arrived or when a resize has occurred.
+        # Whenever new universe or event data is sent, this is fine, as every
+        # drawing method will know how to deal with this information.
+        # However, a call due to a simple resize will not include this information.
+        # Therefore, we’d have to save this information in our class manually,
+        # keeping track of updating the variables and hoping that no other
+        # process starts relying on these attributes which are really meant to
+        # be method-private. The alternative way we’re using here is following
+        # the principle of least information:
+        # Calls to the drawing methods are wrapped by a simple lambda, which
+        # includes the last set of parameters given. This closure approach
+        # allows us to hide the parameters from our interface and still be able
+        # to use the most recent set of parameters when there is a mere resize.
+
+
         if universe and not self.canvas:
             if not self.mesh_graph:
                 width = universe.maze.width
