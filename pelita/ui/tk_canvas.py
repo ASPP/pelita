@@ -119,8 +119,13 @@ class UiCanvas(object):
         self.status.config(background="white")
         self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
 
+        font_size = guess_size("QUIT",
+                               self.mesh_graph.screen_width,
+                               25,
+                               rel_size = -1)
+
         Tkinter.Button(self.status,
-                       font=(None, 10),
+                       font=(None, font_size),
                        foreground="black",
                        background="white",
                        justify=Tkinter.CENTER,
