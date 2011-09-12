@@ -60,7 +60,7 @@ def create_builtin_team(spec):
     if len(names) == 1:
         names *= 2
     elif len(names) > 2:
-        raise ValueError('need two comma seperated names')
+        raise ValueError('need two comma separated names')
 
     players = [import_builtin_player(name)() for name in names]
     teamname = 'The %ss' % players[0].__class__.__name__
@@ -84,7 +84,7 @@ def geometry_string(s):
         msg = "%s is not a valid geometry specification" %s
         raise argparse.ArgumentTypeError(msg)
     return geometry
-    
+
 parser = argparse.ArgumentParser(description='Runs a single pelita game')
 parser.add_argument('bad_team', help='team on the left side', nargs='?',
                     default="random")
@@ -100,8 +100,8 @@ layout_opt = parser.add_mutually_exclusive_group()
 layout_opt.add_argument('--layoutfile', '-L', metavar='filename')
 layout_opt.add_argument('--layout', '-l', metavar='name')
 parser.epilog = """\
-A team is specified by a comma separeted list of players. For example:
-NQRandomPlayer, BFSPlayer.
+A team is specified by a comma separated list of players. For example:
+NQRandomPlayer,BFSPlayer.
 
 If you don't specify one or both teams, you'll get random players.
 Use 'list' as a team to get a list of predefined players.
