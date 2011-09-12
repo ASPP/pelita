@@ -87,7 +87,7 @@ class SimpleServer(object):
 
     """
     def __init__(self, layout_string=None, layout_name=None, layout_file=None,
-            players=4, rounds=3000, host="", port=50007, local=True):
+            players=4, rounds=3000, host="", port=50007, local=True, silent=True):
 
         if (layout_string and layout_name or
                 layout_string and layout_file or
@@ -107,6 +107,7 @@ class SimpleServer(object):
 
         self.players = players
         self.rounds = rounds
+        self.silent = silent
 
         if local:
             self.host = None
@@ -134,12 +135,14 @@ class SimpleServer(object):
         self.server = actor_of(ServerActor, "pelita-main")
 
         if self.port is not None:
-            print "Starting remote connection on %s:%s" % (self.host, self.port)
+            if not self.silent:
+                print "Starting remote connection on %s:%s" % (self.host, self.port)
             self.remote = RemoteConnection().start_listener(host=self.host, port=self.port)
             self.remote.register("pelita-main", self.server)
             self.remote.start_all()
         else:
-            print "Starting actor '%s'" % "pelita-main"
+            if not self.silent:
+                print "Starting actor '%s'" % "pelita-main"
             self.server.start()
 
         # Begin code for automatic closing the server when a game has run

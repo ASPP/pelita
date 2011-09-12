@@ -4,6 +4,7 @@ import os.path
 import contextlib
 import random
 
+
 @contextlib.contextmanager
 def with_sys_path(dirname):
     sys.path.insert(0, dirname)
@@ -18,6 +19,15 @@ except ImportError:
     from pelita.compat import argparse
 
 import pelita
+# start logging
+import logging
+hdlr = logging.FileHandler('pelita.log', mode='w')
+logger = logging.getLogger('pelita')
+FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s[%(funcName)s] %(message)s'
+formatter = logging.Formatter(FORMAT)
+hdlr.setFormatter(formatter)
+logger.addHandler(hdlr)
+
 
 def load_factory(filename):
     dirname = os.path.dirname(filename)
@@ -29,7 +39,9 @@ def load_factory(filename):
 
 PLAYERS = [name for name in dir(pelita.player)
            if name.endswith('Player') and
-              name not in ('AbstractPlayer', 'TestPlayer')]
+              name not in ('AbstractPlayer', 'TestPlayer',
+                           'StoppingPlayer', 'IOBoundPlayer',
+                           'CPUBoundPlayer')]
 
 def import_builtin_player(name):
     if name == 'random':
@@ -74,8 +86,10 @@ def geometry_string(s):
     return geometry
     
 parser = argparse.ArgumentParser(description='Runs a single pelita game')
-parser.add_argument('bad_team', help='team on the left side')
-parser.add_argument('good_team', help='team on the right side')
+parser.add_argument('bad_team', help='team on the left side', nargs='?',
+                    default="random")
+parser.add_argument('good_team', help='team on the right side', nargs='?',
+                    default="random")
 viewer_opt = parser.add_mutually_exclusive_group()
 viewer_opt.add_argument('--ascii', action='store_const', const='ascii',
                         dest='viewer', help='use the ASCII viewer')
@@ -86,7 +100,10 @@ layout_opt = parser.add_mutually_exclusive_group()
 layout_opt.add_argument('--layoutfile', '-L', metavar='filename')
 layout_opt.add_argument('--layout', '-l', metavar='name')
 parser.epilog = """\
-Use 'random' as a team to get one of the predefined players.
+A team is specified by a comma separeted list of players. For example:
+NQRandomPlayer, BFSPlayer.
+
+If you don't specify one or both teams, you'll get random players.
 Use 'list' as a team to get a list of predefined players.
 Run '%(prog)s --layout list' to list layouts.
 """
@@ -117,7 +134,6 @@ def run_game(*argv):
                                              rounds=args.rounds,
                                              )
 
-    print args
     if args.viewer in 'tk':
         server.run_tk(geometry=args.geometry)
     elif args.viewer == 'ascii':
