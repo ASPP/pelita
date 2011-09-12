@@ -12,8 +12,7 @@ Pelita
 
    **A first fight:** 'the bad ones' VS. 'the good ones'
 
-**Pelita** is an artificial intelligence programming game in Python, based
-loosely on Pacman.
+**Pelita** is Actor-based Toolkit for Interactive Language Education in Python.
 
 Description of the game
 =======================
