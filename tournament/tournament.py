@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 
 
+from subprocess import Popen, PIPE
+
+
 # Number of points a teams gets for matches in the first round
 POINTS_DRAW = 1
 POINTS_WIN = 2
 
+CMD_STUB = 'python pelitagame.py --rounds=10'
 
 def get_teams():
     """Read participants.txt and return a list with the team names."""
@@ -31,6 +35,18 @@ def start_match(team1, team2):
     0 if there was a draw.
     """
     # TODO: start the actual match, parse the outcome and return 0, 1 or 2
+    args = CMD_STUB.split()
+    args.extend([team1, team2])
+    p = Popen(args, cwd='..', stdout=PIPE, stderr=PIPE)
+    out = p.stdout.read()
+    err = p.stderr.read()
+    exitstatus = p.wait()
+    print "exitstatus"
+    print exitstatus
+    print "stdout"
+    print out
+    print "stderr"
+    print err
     print team1, 'vs', team2, '...'
     print team1, 'wins.'
     return 1
