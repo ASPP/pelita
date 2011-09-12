@@ -99,6 +99,7 @@ class Trafo(object):
 class UiCanvas(object):
     def __init__(self, master, geometry=None):
         self.game_finish_overlay = lambda: None
+        self.game_status_info = lambda: None
 
         self.mesh_graph = None
         self.geometry = geometry
@@ -172,16 +173,8 @@ class UiCanvas(object):
             self.current_universe = universe
 
         if round is not None and turn is not None:
-            self.status.delete("roundturn")
-            roundturn = "Bot %d, Round %d   " % (turn, round)
-            font_size = guess_size(roundturn,
-                                   self.mesh_graph.screen_width,
-                                   25,
-                                   rel_size = 0)
-
-            self.status.create_text(self.mesh_graph.screen_width, 25,
-                                    anchor=Tkinter.SE,
-                                    text=roundturn, font=(None, font_size), tag="roundturn")
+            self.game_status_info = lambda: self.draw_status_info(round, turn)
+        self.game_status_info()
 
         self.draw_universe(self.current_universe)
 
@@ -194,6 +187,7 @@ class UiCanvas(object):
                 self.game_finish_overlay = lambda: self.draw_game_draw()
 
         self.game_finish_overlay()
+
 
     def draw_universe(self, universe):
         self.mesh_graph.num_x = universe.maze.width
@@ -247,6 +241,18 @@ class UiCanvas(object):
         self.score.create_text(center, 15, text=":", font=(None, font_size), tag="title", anchor=Tkinter.CENTER)
 
         self.score.create_text(center+2, 15, text=right_team, font=(None, font_size), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
+
+    def draw_status_info(self, turn, round):
+        self.status.delete("roundturn")
+        roundturn = "Bot %d, Round %d   " % (turn, round)
+        font_size = guess_size(roundturn,
+                               self.mesh_graph.screen_width,
+                               25,
+                               rel_size = 0)
+
+        self.status.create_text(self.mesh_graph.screen_width, 25,
+                                anchor=Tkinter.SE,
+                                text=roundturn, font=(None, font_size), tag="roundturn")
 
     def draw_end_of_game(self, display_string):
         """ Draw an end of game string. """
