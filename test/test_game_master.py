@@ -363,16 +363,45 @@ class TestGame(unittest.TestCase):
 
         self.assertEqual(original_universe, gm.universe)
 
-    def test_win_on_timeout(self):
+    def test_win_on_timeout_team_0(self):
         test_start = (
             """ ######
-                #0 . #
+                #0 ..#
+                #.. 1#
+                ###### """)
+        # the game lasts two rounds, enough time for bot 1 to eat food
+        gm = GameMaster(test_start, 2, 2)
+        # bot 1 moves east twice to eat the single food
+        gm.register_team(SimpleTeam(TestPlayer([east, east])))
+        gm.register_team(SimpleTeam(StoppingPlayer()))
+
+        # this test viewer caches all events lists seen through observe
+        class TestViewer(AbstractViewer):
+            def __init__(self):
+                self.cache = list()
+            def observe(self, round_, turn, universe, events):
+                self.cache.append(events)
+
+        # run the game
+        tv = TestViewer()
+        gm.register_viewer(tv)
+        gm.set_initial()
+        gm.play()
+
+        # check
+        self.assertTrue(TeamWins in tv.cache[-1])
+        self.assertEqual(tv.cache[-1][0], TeamWins(0))
+
+    def test_win_on_timeout_team_1(self):
+        test_start = (
+            """ ######
+                #0 ..#
                 #.. 1#
                 ###### """)
         # the game lasts two rounds, enough time for bot 1 to eat food
         gm = GameMaster(test_start, 2, 2)
         gm.register_team(SimpleTeam(StoppingPlayer()))
-        # bot 1 moves wets twice to eat the single food
+        # bot 1 moves west twice to eat the single food
         gm.register_team(SimpleTeam(TestPlayer([west, west])))
 
         # this test viewer caches all events lists seen through observe
