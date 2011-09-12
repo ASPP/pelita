@@ -12,13 +12,13 @@ import threading
 import signal
 import itertools
 
-from pelita.messaging import actor_of, RemoteConnection
-from pelita.actors import ClientActor, ServerActor, ViewerActor
-from pelita.layout import get_random_layout, get_layout_by_name
+from .messaging import actor_of, RemoteConnection
+from .actors import ClientActor, ServerActor, ViewerActor
+from .layout import get_random_layout, get_layout_by_name
 
-from pelita.viewer import AsciiViewer
-from pelita.ui.tk_viewer import TkViewer
-from pelita.utils.signal_handlers import keyboard_interrupt_handler, exit_handler
+from .viewer import AsciiViewer
+from .ui.tk_viewer import TkViewer
+from .utils.signal_handlers import keyboard_interrupt_handler, exit_handler
 
 _logger = logging.getLogger("pelita.simplesetup")
 
