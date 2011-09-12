@@ -8,7 +8,7 @@ from subprocess import Popen, PIPE
 POINTS_DRAW = 1
 POINTS_WIN = 2
 
-CMD_STUB = 'python pelitagame.py --rounds=10 --null'
+CMD_STUB = 'python pelitagame.py --rounds=100 --null'
 
 def get_teams():
     """Read participants.txt and return a list with the team names."""
@@ -39,17 +39,38 @@ def start_match(team1, team2):
     args.extend([team1, team2])
     print 'Starting', ' '.join(args)
     stdout, stderr = Popen(args, cwd='..', stdout=PIPE, stderr=PIPE).communicate()
-    print "stdout"
-    print stdout.splitlines()
-    print "stderr"
-    print stderr.splitlines()
-    print 'reversed stdout'
-    tmp = reversed(stdout)
-    for line in tmp.readlines():
-        print line
-    #print team1, 'vs', team2, '...'
-    #print team1, 'wins.'
-    return 1
+    tmp = reversed(stdout.splitlines())
+    lastline = None
+    for line in tmp:
+        if line.startswith('Finished.'):
+            lastline = line
+            break
+    if not lastline:
+        print "*** ERROR: Aparently the game crashed. At least I could not find the outcome of the game."
+        print "*** Maybe stderr helps you to debug the problem"
+        print stderr
+        print "***"
+        return 0
+    else:
+        print "***", lastline 
+        if lastline.find('had a draw.') >= 0:
+            print "Draw!"
+            return 0
+        else:
+            tmp = lastline.split("'")
+            print tmp
+            # FIXME: the names in the output do *not* match the names in the participants file!
+            winner = tmp[1]
+            loser = tmp[3]
+            if winner == team1:
+                print team1, 'wins.'
+                return 1
+            elif winner == team2:
+                print team2, 'wins.'
+                return 2
+            else:
+                print "Unable to parse winning result :("
+                return 0
 
 
 def start_deathmatch(team1, team2):
