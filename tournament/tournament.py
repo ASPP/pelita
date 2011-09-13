@@ -3,7 +3,9 @@
 # TODO: add fancier logging maybe w/ colored output
 
 from subprocess import Popen, PIPE
+import random
 
+random.seed(42) # -> guaranteed to be random
 
 # Number of points a teams gets for matches in the first round
 POINTS_DRAW = 1
@@ -26,7 +28,10 @@ def organize_first_round(nr_teams):
 
     In the first round each team plays against all other teams exactly once.
     """
-    return [[i, j] for i in range(nr_teams) for j in range(i+1, nr_teams)]
+    matches = [[i, j] for i in range(nr_teams) for j in range(i+1, nr_teams)]
+    # shuffle the matches for more fun
+    random.shuffle(matches)
+    return matches
 
 
 def start_match(team1, team2):
