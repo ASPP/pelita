@@ -87,10 +87,10 @@ def load_team(spec):
     try:
         if '/' in spec or spec.endswith('.py') or os.path.exists(spec):
             team = load_factory(spec)()
-            print "Using factory %r -> %r" % (spec, team.team_name)
-            return team
         else:
-            return create_builtin_team(spec)
+            team = create_builtin_team(spec)
+        print "Using factory %r -> %r" % (spec, team.team_name)
+        return team
     except (ValueError, AttributeError, IOError, ImportError) as e:
         print >>sys.stderr, "failure while loading team '%s'" % spec
         print >>sys.stderr, 'ERROR: %s' % e
@@ -151,7 +151,7 @@ Team Specification:
     A single name (e.g. 'NQRandomPlayer') in which case the team is
     composed of players of this type, or a comma separated list of
     player types (e.g. 'BFSPlayer,BasicDefensePlayer'). Example usage:
-    
+
         $ %(prog)s BFSPlayer,RandomPlayer NQRandomPlayer,BasicDefensePlayer
 
     Use 'list' as a team to get a list of predefined players.
