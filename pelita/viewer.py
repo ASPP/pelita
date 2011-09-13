@@ -3,6 +3,7 @@
 """ The observers. """
 
 from . import datamodel
+from .messaging.json_convert import json_converter
 
 __docformat__ = "restructuredtext"
 
@@ -34,3 +35,27 @@ class AsciiViewer(AbstractViewer):
             team_wins_event = events.filter_type(datamodel.TeamWins)[0]
             print ("Game Over: Team: '%s' wins!" %
             universe.teams[team_wins_event.winning_team_index].name)
+
+class DumpingViewer(AbstractViewer):
+    """ A viewer which dumps to a given stream.
+    """
+    def __init__(self, stream):
+        self.stream = stream
+
+    def set_initial(self, universe):
+        f.write("-\n")
+        f.write("  universe:%s\n" % json_converter.dumps(universe))
+
+    def observe(self, round_, turn, universe, events):
+        obj = {
+            "round": round_,
+            "turn": turn,
+            "universe": universe,
+            "events": events
+        }
+
+        f.write("-\n")
+        f.write("  round:%s\n" % json_converter.dumps(round_))
+        f.write("  turn:%s\n" % json_converter.dumps(turn))
+        f.write("  universe:%s\n" % json_converter.dumps(universe))
+        f.write("  events:%s\n" % json_converter.dumps(events))
