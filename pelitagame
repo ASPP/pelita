@@ -131,7 +131,7 @@ Team Specification:
     A single name (e.g. 'NQRandomPlayer') in which case the team is
     composed of players of this type, or a comma separated list of
     player types (e.g. 'BFSPlayer,BasicDefensePlayer'). Example usage:
-    
+
         $ %(prog)s BFSPlayer,RandomPlayer NQRandomPlayer,BasicDefensePlayer
 
     Use 'list' as a team to get a list of predefined players.
