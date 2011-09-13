@@ -3,7 +3,7 @@ Running Players
 ===============
 
 To run a game using your player, you should use the command-line interface:
-``pelitagame``. Run it with the ``--help`` option to get a detailed usage 
+``pelitagame``. Run it with the ``--help`` option to get a detailed usage
 description.
 
 
@@ -22,7 +22,7 @@ fight between two teams of two bots each):
 .. literalinclude:: my_player/my_player.py
 
 The factory function is used by the command-line program to lead your
-players into the game. 
+players into the game.
 To run a game using your players against some predefined players in
 pelita you can run ::
 
@@ -30,9 +30,9 @@ pelita you can run ::
 
 This setup is OK for small tests, but if you plan to have a more
 complicated directory structure, for example to load additional
-utilities located in different files, read on to section 
+utilities located in different files, read on to section
 `Tournament Script`_.
-    
+
 
 Load Custom Layouts
 ===================
@@ -76,7 +76,7 @@ If you are participating in the `Python Summer School, St Andrews, Scotland,
 organize your files such that we can load your players during the
 tournament.  You will need to create a python package, i.e. a
 directory containing (at least) an ``__init__.py`` file. This package
-must be named ``groupN``, where ``N`` is your group number. 
+must be named ``groupN``, where ``N`` is your group number.
 This package needs to provide a top level function ``factory()`` which
 returns a ``SimpleTeam``.
 
