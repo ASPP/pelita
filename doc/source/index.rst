@@ -56,6 +56,7 @@ Contents:
 
    info
    writing_player
+   running_player
    development
 
 Indices and tables
