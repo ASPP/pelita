@@ -293,7 +293,7 @@ def get_new_maze(height, width, nfood=30, seed=None, dead_ends=False):
     numpy.random.seed(seed)
 
     maze = empty_maze(height, width)
-    create_half_maze(maze, 4)
+    create_half_maze(maze, height // 4)
 
     # make space for pacman (2 pacman each)
     maze[-2, 1] = E
