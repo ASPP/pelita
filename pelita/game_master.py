@@ -131,17 +131,8 @@ class GameMaster(object):
             if not self.play_round(round_index):
                 return
 
-        # If we arrive here and have not returned due to a TeamWins event
         events = TypeAwareList(base_class=datamodel.UniverseEvent)
-
-        if self.universe.teams[0].score > self.universe.teams[1].score:
-            events.append(datamodel.TeamWins(0))
-
-        elif self.universe.teams[1].score > self.universe.teams[0].score:
-            events.append(datamodel.TeamWins(1))
-        else:
-            events.append(datamodel.GameDraw())
-
+        events.append(self.universe.create_win_event())
         self.print_possible_winner(events)
 
         self.send_to_viewers(round_index, None, events)
@@ -183,7 +174,7 @@ class GameMaster(object):
             self.print_possible_winner(events)
 
             self.send_to_viewers(round_index, i, events)
-            if datamodel.TeamWins in events:
+            if datamodel.TeamWins in events or datamodel.GameDraw in events:
                 return False
         return True
 

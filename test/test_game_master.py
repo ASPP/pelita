@@ -262,12 +262,14 @@ class TestGame(unittest.TestCase):
         self.assertEqual(create_TestUniverse(test_fifth_round,
             black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
 
+        print gm.universe.pretty
         gm.play_round(5)
         test_sixth_round = (
             """ ######
                 #  0 #
                 #.1  #
                 ###### """)
+        print gm.universe.pretty
         self.assertEqual(create_TestUniverse(test_sixth_round,
             black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
 
@@ -487,7 +489,42 @@ class TestGame(unittest.TestCase):
         gm.play()
 
         # check
-        print tv.round_
         self.assertTrue(TeamWins in tv.cache[-1])
         self.assertEqual(tv.cache[-1].filter_type(TeamWins)[0], TeamWins(1))
         self.assertEqual(tv.round_[-1], 1)
+
+    def test_lose_on_eating_all(self):
+        test_start = (
+            """ ######
+                #0 . #
+                # . 1#
+                ###### """
+        )
+        # the game lasts one round, and then draws
+        gm = GameMaster(test_start, 2, 100)
+        # players do nothing
+        gm.register_team(SimpleTeam(StoppingPlayer()))
+        gm.register_team(SimpleTeam(TestPlayer([west, west, west])))
+        gm.universe.teams[0].score = 2
+
+        # this test viewer caches all events lists seen through observe
+        class TestViewer(AbstractViewer):
+            def __init__(self):
+                self.cache = list()
+                self.round_ = list()
+            def observe(self, round_, turn, universe, events):
+                self.cache.append(events)
+                self.round_.append(round_)
+
+        # run the game
+        tv = TestViewer()
+        gm.register_viewer(tv)
+        gm.set_initial()
+        gm.play()
+
+        # check
+        self.assertEqual(tv.round_[-1], 1)
+        self.assertEqual(gm.universe.teams[0].score, 2)
+        self.assertEqual(gm.universe.teams[1].score, 1)
+        self.assertTrue(TeamWins in tv.cache[-1])
+        self.assertEqual(tv.cache[-1].filter_type(TeamWins)[0], TeamWins(0))

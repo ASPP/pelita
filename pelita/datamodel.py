@@ -783,6 +783,13 @@ class CTFUniverse(object):
         self.teams = teams
         self.bots = bots
 
+    def create_win_event(self):
+        if self.teams[0].score > self.teams[1].score:
+            return TeamWins(0)
+        elif self.teams[1].score > self.teams[0].score:
+            return TeamWins(1)
+        return GameDraw()
+
     @property
     def bot_positions(self):
         """ Current positions of all bots.
@@ -974,7 +981,7 @@ class CTFUniverse(object):
             events.append(FoodEaten(bot.current_pos))
             events.append(TeamScoreChange(team.index, 1, team.score))
             if not self.enemy_food(team.index):
-                events.append(TeamWins(team.index))
+                events.append(self.create_win_event())
 
         return events
 
