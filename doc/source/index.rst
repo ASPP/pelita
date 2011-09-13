@@ -37,13 +37,9 @@ First clone the source code repository::
 
     $ git clone git://github.com/Debilski/pelita.git
 
-Then ``cd`` into the source code directory::
-
-    $ cd pelita
-
 And launch the command-line interface::
 
-    $ python pelitagame
+    $ ~/pelita/pelitagame
 
 This will start a demo game using the `TkInter
 <http://wiki.python.org/moin/TkInter>`_ interface on a random maze
