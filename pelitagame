@@ -144,7 +144,8 @@ layout_opt.add_argument('--layout', metavar='NAME',
 layout_opt.add_argument('--filter', metavar='STRING',
                         default='normal_without_dead_ends',
                         help='retrict the pool of random layouts to those whose'
-                        ' name contains STRING')
+                        ' name contains STRING.'
+                        ' Default: \'normal_without_dead_ends\'')
 
 parser.epilog = """\
 Team Specification:
