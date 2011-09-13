@@ -9,7 +9,7 @@ from subprocess import Popen, PIPE
 POINTS_DRAW = 1
 POINTS_WIN = 2
 
-CMD_STUB = 'python pelitagame.py --rounds=100 --null'
+CMD_STUB = 'python pelitagame.py --rounds=10 --null'
 
 def get_teams():
     """Read participants.txt and return a list with the team names."""
@@ -87,6 +87,14 @@ def start_deathmatch(team1, team2):
         return winner
 
 
+def pp_round1_results(teams, points):
+    """Pretty print the current result of the matches."""
+    result = sorted(zip(points, teams), reverse=True)
+    print
+    for p, t in result:
+        print "  %25s %d" % (t, p)
+    print
+
 def round1(teams):
     points = [0 for i in range(len(teams))]
     round1 = organize_first_round(len(teams))
@@ -98,24 +106,51 @@ def round1(teams):
             points[t2] += POINTS_DRAW
         else:
             points[[t1, t2][winner-1]] += POINTS_WIN
+        pp_round1_results(teams, points)
     print "Results of the first round."
+    pp_round1_results(teams, points)
+    # Sort the teams by points and return the team names as a list
     result = sorted(zip(points, teams), reverse=True)
-    print result
     result = [t for p, t in result]
     return result
 
 
+def pp_round2_results(teams, w1, w2, w3, w4):
+    """Pretty print the results for the K.O. round."""
+    feed = 10
+    print
+    print teams[0]
+    print " "*feed, w1
+    print teams[3]
+    print
+    print " "*2*feed, w3
+    print
+    print teams[1]
+    print " "*feed, w2
+    print teams[2]
+    print
+    print " "*3*feed, w4
+    print
+    print teams[4]
+    print
+
+
 def round2(teams):
     print 'ROUND 2 (K.O.)'
+    w1, w2, w3, w4 = "???", "???", "???", "???"
     # 1 vs 4
     w1 = start_deathmatch(teams[0], teams[3])
+    pp_round2_results(teams, w1, w2, w3, w4)
     # 2 vs 3
     w2 = start_deathmatch(teams[1], teams[2])
+    pp_round2_results(teams, w1, w2, w3, w4)
     # w1 vs w2
-    w = start_deathmatch(w1, w2)
+    w3 = start_deathmatch(w1, w2)
+    pp_round2_results(teams, w1, w2, w3, w4)
     # W vs team5
-    w = start_deathmatch(w, teams[4])
-
+    w4 = start_deathmatch(w3, teams[4])
+    pp_round2_results(teams, w1, w2, w3, w4)
+    return w4
 
 if __name__ == '__main__':
     teams = get_teams()
