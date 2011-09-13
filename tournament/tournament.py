@@ -9,7 +9,9 @@ from subprocess import Popen, PIPE
 POINTS_DRAW = 1
 POINTS_WIN = 2
 
+# FIXME: fit that for tournatment
 CMD_STUB = 'python pelitagame.py --rounds=10 --null'
+
 
 def get_teams():
     """Read participants.txt and return a list with the team names."""
@@ -35,7 +37,6 @@ def start_match(team1, team2):
     """Start a match between team1 and team2. Return which team won (1 or 2) or
     0 if there was a draw.
     """
-    # TODO: start the actual match, parse the outcome and return 0, 1 or 2
     args = CMD_STUB.split()
     args.extend([team1, team2])
     print 'Starting', ' '.join(args)
@@ -96,6 +97,7 @@ def pp_round1_results(teams, points):
     print
 
 def round1(teams):
+    """Run the first round and return a sorted list of team names."""
     points = [0 for i in range(len(teams))]
     round1 = organize_first_round(len(teams))
     print "ROUND 1 (Everybody vs Everybody)"
@@ -136,6 +138,7 @@ def pp_round2_results(teams, w1, w2, w3, w4):
 
 
 def round2(teams):
+    """Run the second round and return the name of the winning team."""
     print 'ROUND 2 (K.O.)'
     w1, w2, w3, w4 = "???", "???", "???", "???"
     # 1 vs 4
@@ -151,6 +154,7 @@ def round2(teams):
     w4 = start_deathmatch(w3, teams[4])
     pp_round2_results(teams, w1, w2, w3, w4)
     return w4
+
 
 if __name__ == '__main__':
     teams = get_teams()
