@@ -255,10 +255,10 @@ def add_pacman_stuff(maze, max_food):
     h, w = maze.shape
 
     ## starting pacmen positions
-    maze[-2, 1] = '3'
-    maze[-3, 1] = '1'
-    maze[1, -2] = '4'
-    maze[2, -2] = '2'
+    maze[-2, 1] = '2'
+    maze[-3, 1] = '0'
+    maze[1, -2] = '3'
+    maze[2, -2] = '1'
 
     ## random food
     total_food = 0
