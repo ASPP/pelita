@@ -157,7 +157,7 @@ Team Specification:
     Use 'list' as a team to get a list of predefined players.
 
   - Using custom players (filename):
-    The name of a python file (e.g. '~/my_agents.py') which defines
+    The name of a python file (e.g. '~/my_player.py') which defines
     a function named 'factory' (you can change the name of the factory
     function by adding ':my_factory' to the filename). The factory
     function must take no arguments and return an instance of
@@ -169,18 +169,18 @@ Team Specification:
 
     Example usage:
 
-        $ %(prog)s ~/my_agents.py NQRandomPlayer,BasicDefensePlayer
+        $ %(prog)s ~/my_player.py NQRandomPlayer,BasicDefensePlayer
 
     Example of custom factory function:
 
-        $ %(prog)s ~/my_agents.py:my_factory NQRandomPlayer,BasicDefensePlayer
+        $ %(prog)s ~/my_player.py:my_factory NQRandomPlayer,BasicDefensePlayer
 
   - Using custom players (package):
     The name of a python package (i.e. a directory with an __init__.py file),
     which exposes a function named 'factory' (see above for more details).
     Example usage:
 
-        $ %(prog)s my_agents NQRandomPlayer,BasicDefensePlayer
+        $ %(prog)s my_player NQRandomPlayer,BasicDefensePlayer
 
 Layout specification:
   If neither --layoutfile nor --layout are specified, the maze is
