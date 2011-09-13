@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+# TODO: add fancier logging maybe w/ colored output
 
 from subprocess import Popen, PIPE
 
