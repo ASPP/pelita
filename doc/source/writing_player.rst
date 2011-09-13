@@ -1,3 +1,5 @@
+.. _writing_a_player:
+
 ================
 Writing a Player
 ================

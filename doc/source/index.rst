@@ -45,6 +45,8 @@ This will start a demo game using the `TkInter
 <http://wiki.python.org/moin/TkInter>`_ interface on a random maze
 with some predefined players.
 
+Continue reading: :ref:`writing_a_player`.
+
 Contents:
 
 .. toctree::
