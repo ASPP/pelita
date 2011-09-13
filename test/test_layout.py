@@ -6,98 +6,33 @@ from pelita.layout import *
 class TestLayoutModule(unittest.TestCase):
 
     def test_get_available_layouts(self):
-        target = ['layout_01_demo',
-                  'layout_01_with_dead_ends',
-                  'layout_01_without_dead_ends',
-                  'layout_02_demo',
-                  'layout_02_with_dead_ends',
-                  'layout_02_without_dead_ends',
-                  'layout_03_demo',
-                  'layout_03_with_dead_ends',
-                  'layout_03_without_dead_ends',
-                  'layout_04_demo',
-                  'layout_04_with_dead_ends',
-                  'layout_04_without_dead_ends',
-                  'layout_05_with_dead_ends',
-                  'layout_05_without_dead_ends',
-                  'layout_06_with_dead_ends',
-                  'layout_06_without_dead_ends',
-                  'layout_07_with_dead_ends',
-                  'layout_07_without_dead_ends',
-                  'layout_08_with_dead_ends',
-                  'layout_08_without_dead_ends',
-                  'layout_09_with_dead_ends',
-                  'layout_09_without_dead_ends',
-                  'layout_10_with_dead_ends',
-                  'layout_10_without_dead_ends',
-                  'layout_11_with_dead_ends',
-                  'layout_11_without_dead_ends',
-                  'layout_12_with_dead_ends',
-                  'layout_12_without_dead_ends',
-                  'layout_13_with_dead_ends',
-                  'layout_13_without_dead_ends',
-                  'layout_14_with_dead_ends',
-                  'layout_14_without_dead_ends',
-                  'layout_15_with_dead_ends',
-                  'layout_15_without_dead_ends',
-                  'layout_16_with_dead_ends',
-                  'layout_16_without_dead_ends',
-                  'layout_17_with_dead_ends',
-                  'layout_17_without_dead_ends',
-                  'layout_18_with_dead_ends',
-                  'layout_18_without_dead_ends',
-                  'layout_19_with_dead_ends',
-                  'layout_19_without_dead_ends',
-                  'layout_20_with_dead_ends',
-                  'layout_20_without_dead_ends',
-                  'layout_office']
         available = get_available_layouts()
-        self.assertEqual(target, available)
+        self.assertEqual(600, len(available))
         # now also test the filter
-        target = ['layout_01_without_dead_ends',
-        'layout_02_without_dead_ends',
-        'layout_03_without_dead_ends',
-        'layout_04_without_dead_ends',
-        'layout_05_without_dead_ends',
-        'layout_06_without_dead_ends',
-        'layout_07_without_dead_ends',
-        'layout_08_without_dead_ends',
-        'layout_09_without_dead_ends',
-        'layout_10_without_dead_ends',
-        'layout_11_without_dead_ends',
-        'layout_12_without_dead_ends',
-        'layout_13_without_dead_ends',
-        'layout_14_without_dead_ends',
-        'layout_15_without_dead_ends',
-        'layout_16_without_dead_ends',
-        'layout_17_without_dead_ends',
-        'layout_18_without_dead_ends',
-        'layout_19_without_dead_ends',
-        'layout_20_without_dead_ends']
-        available = get_available_layouts(filter='without_dead_ends')
-        self.assertEqual(target, available)
+        available = get_available_layouts(filter='normal_without_dead_ends')
+        self.assertEqual(100, len(available))
 
     def test_get_layout_by_name(self):
         # sorry about the indentation, but this is exactly how the string is
         target_layout = ("""################################
-#   #. #.#.#       #     #.#.#3#
-# # ##       ##  #   ###   #.#1#
-# # #. # ###    #### .#..# # # #
-# # ## # ..# #   #   ##### # # #
-# #    ##### ###   ###.#   # # #
-# ## # ..#.  #.###       #   # #
-# #. ##.####        #.####  ## #
-# ##  ####.#        ####.## .# #
-# #   #       ###.#  .#.. # ## #
-# # #   #.###   ### #####    # #
-# # # #####   #   # #.. # ## # #
-# # # #..#. ####    ### # .# # #
-#0#.#   ###   #  ##       ## # #
-#2#.#.#     #       #.#.# .#   #
+# #   .  .       .    . .     3#
+#   # ########.## #    . .#   1#
+# #.      .. # ## ######.#######
+# ###### ######## # .   .  #   #
+# #   . ..   ..  .#######..  ###
+# #     .  .   ## #  .   . # #.#
+########## ## ###. .  #    #  .#
+#.  #    #  . .### ## ##########
+#.# # .   .  # ##   .  .     # #
+###  ..#######.  ..   .. .   # #
+#   #  .   . # ######## ###### #
+#######.###### ## # ..      .# #
+#0   #. .    # ##.######## #   #
+#2     . .    .       .  .   # #
 ################################
 """)
         print target_layout
-        loaded = get_layout_by_name('layout_01_demo')
+        loaded = get_layout_by_name('layout_normal_with_dead_ends_001')
         print loaded
         self.assertEqual(target_layout, loaded)
 

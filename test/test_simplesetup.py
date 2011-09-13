@@ -16,7 +16,7 @@ class TestSimpleSetup(unittest.TestCase):
         #0      1#
         ##########
         """
-        layout_name = "layout_01_demo"
+        layout_name = "layout_normal_with_dead_ends_001"
         layout_file = "test/test_layout.layout"
         self.assertRaises(ValueError, SimpleServer,
                 layout_string=layout_string,
