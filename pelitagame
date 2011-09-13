@@ -29,13 +29,13 @@ hdlr.setFormatter(formatter)
 logger.addHandler(hdlr)
 
 
-def load_factory(filename):
+def load_factory(filename, factory):
     filename = filename.rstrip(os.path.sep)
     dirname = os.path.dirname(filename)
     modname = os.path.splitext(os.path.basename(filename))[0]
 
     with with_sys_path(dirname):
-        module = __import__(modname, fromlist=['factory'])
+        module = __import__(modname, fromlist=[factory])
     return module.factory
 
 PLAYERS = [name for name in dir(pelita.player)
@@ -90,12 +90,18 @@ def geometry_string(s):
     return geometry
 
 parser = argparse.ArgumentParser(description='Run a single pelita game',
+                                 add_help=False,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-parser.add_argument('bad_team', help='team on the left side', nargs='?',
+prog = parser.prog
+parser._positionals = parser.add_argument_group('Arguments')
+parser.add_argument('left_team', help='team on the left side', nargs='?',
                     default="random")
-parser.add_argument('good_team', help='team on the right side', nargs='?',
+parser.add_argument('right_team', help='team on the right side', nargs='?',
                     default="random")
 
+parser._optionals = parser.add_argument_group('Options')
+parser.add_argument('--help', '-h', help='show this help message and exit',
+                    action='store_const', const=True)
 parser.add_argument('--rounds', type=int, default=3000)
 parser.add_argument('--geometry', type=geometry_string, metavar='NxM',
                     help='initial size of the game window')
@@ -120,30 +126,54 @@ layout_opt.add_argument('--filter', metavar='STRING', default='',
                         ' name contains STRING')
 
 parser.epilog = """\
-team specification:
-  option 1:
+Team Specification:
+  - Using predefined players:
     A single name (e.g. 'NQRandomPlayer') in which case the team is
-    composed of the players of this type, or a comma separated list of
-    player types (e.g. 'BFSPlayer,BasicDefensePlayer').
+    composed of players of this type, or a comma separated list of
+    player types (e.g. 'BFSPlayer,BasicDefensePlayer'). Example usage:
+    
+        $ %(prog)s BFSPlayer,RandomPlayer NQRandomPlayer,BasicDefensePlayer
 
     Use 'list' as a team to get a list of predefined players.
-  option 2:
-    The name of python module (e.g. '~/work/my_agent.py') with a method
-    called 'factory' which returns an instance of pelita.player.SimpleTeam.
-    If the module is a package (i.e. a directory with '__init__.py') then
-    the directory filename should be used.
 
-  If you don't specify one or both teams, you'll get random players.
+  - Using custom players (filename):
+    The name of a python file (e.g. '~/my_agents.py') which defines
+    a function named 'factory' (you can change the name of the factory
+    function by adding ':my_factory' to the filename). The factory
+    function must take no arguments and return an instance of
+    pelita.player.SimpleTeam.
+    Example implementation:
 
-layout specification:
+    def factory():
+        return pelita.player.SimpleTeam("My Team", MyPlayer1(), MyPlayer2())
+
+    Example usage:
+
+        $ %(prog)s ~/my_agents.py NQRandomPlayer,BasicDefensePlayer
+
+    Example of custom factory function:
+
+        $ %(prog)s ~/my_agents.py:my_factory NQRandomPlayer,BasicDefensePlayer
+
+  - Using custom players (package):
+    The name of a python package (i.e. a directory with an __init__.py file),
+    which exposes a function named 'factory' (see above for more details).
+    Example usage:
+
+        $ %(prog)s my_agents NQRandomPlayer,BasicDefensePlayer
+
+Layout specification:
   If neither --layoutfile nor --layout are specified, the maze is
-  chosen at random among all available layouts. You can restrict this
-  pool by using --filter.
-"""
+  chosen at random from the pool of available layouts.
+  You can restrict this pool by using --filter.
+"""%vars()
 
 def run_game(*argv):
     args = parser.parse_args(argv)
 
+    if args.help:
+        parser.print_help()
+        sys.exit(0)
     if args.layout == 'list':
         layouts = pelita.layout.get_available_layouts()
         print '\n'.join(layouts)
@@ -153,8 +183,8 @@ def run_game(*argv):
         print '\n'.join(PLAYERS)
         sys.exit(0)
 
-    bads = load_team(args.bad_team)
-    goods = load_team(args.good_team)
+    bads = load_team(args.bad_team, args.factory)
+    goods = load_team(args.good_team, args.factory)
 
     for team in (bads, goods):
         client = pelita.simplesetup.SimpleClient(team)
