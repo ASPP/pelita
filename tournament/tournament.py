@@ -23,17 +23,6 @@ rnames = {'group0' : 'group0',
           'group4' : 'group4' }
 
 
-def organize_first_round(nr_teams):
-    """Return the order of matches in round one.
-
-    In the first round each team plays against all other teams exactly once.
-    """
-    matches = [[i, j] for i in range(nr_teams) for j in range(i+1, nr_teams)]
-    # shuffle the matches for more fun
-    random.shuffle(matches)
-    return matches
-
-
 def start_match(team1, team2):
     """Start a match between team1 and team2. Return which team won (1 or 2) or
     0 if there was a draw.
@@ -114,7 +103,9 @@ def round1(teams):
     print '================================'
     print
     points = [0 for i in range(len(teams))]
-    round1 = organize_first_round(len(teams))
+    round1 = [[i, j] for i in range(5) for j in range(i+1, 5)]
+    # shuffle the matches for more fun
+    random.shuffle(round1)
     for t1, t2 in round1:
         winner = start_match(teams[t1], teams[t2])
         if winner == 0:
