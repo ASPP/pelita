@@ -199,6 +199,9 @@ class GameMaster(object):
                     winner.name, loser.name,
                     winner.score, loser.score
                 )
+            # We must manually flush, else our forceful stopping of Tk
+            # won't let us pipe it.
+            sys.stdout.flush()
         elif datamodel.TeamWins(1) in events:
             winner = self.universe.teams[1]
             loser = self.universe.teams[0]
@@ -206,6 +209,7 @@ class GameMaster(object):
                     winner.name, loser.name,
                     winner.score, loser.score
                 )
+            sys.stdout.flush()
         elif datamodel.GameDraw() in events:
             t0 = self.universe.teams[0]
             t1 = self.universe.teams[1]
@@ -213,10 +217,9 @@ class GameMaster(object):
                     t0.name, t1.name,
                     t0.score, t1.score
                 )
+            sys.stdout.flush()
 
-        # We must manually flush, else our forceful stopping of Tk
-        # won't let us pipe it.
-        sys.stdout.flush()
+
 
 class UniverseNoiser(object):
     """ Class to make bot positions noisy.
