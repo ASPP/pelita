@@ -29,7 +29,7 @@ License
 =======
 
 Pelita is licensed under the terms of the `Simplified (two-clause) BSD License
-<http://en.wikipedia.org/wiki/BSD_licenses#2-clause_license_.28.22Simplified_BSD_License.22_or_.22FreeBSD_License.22.29>`_.
+<http://www.opensource.org/licenses/BSD-2-Clause>`_.
 A copy of the license is included with the source, in the file ``COPYING``.
 
 For compatibility with Python 2.6, we ship a copy of the `argparse
@@ -57,8 +57,8 @@ Future:
 Past:
 
 * `Trento, Italy, 2010 <https://python.g-node.org/python-autumnschool-2010/>`_
-* `Warsaw, Poland, 2010 <http://escher.fuw.edu.pl/pythonschool/>`_
-* `Berlin, Germany, 2009 <http://portal.g-node.org/python-summerschool-2009/>`_
+* `Warsaw, Poland, 2010 <https://python.g-node.org/python-winterschool-2010>`_
+* `Berlin, Germany, 2009 <https://python.g-node.org/python-summerschool-2009>`_
 
 Initial funding was kindly provided by `The German Neuroinformtaics Node
 <http://www.g-node.org/>`_.

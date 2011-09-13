@@ -12,8 +12,7 @@ Pelita
 
    **A first fight:** 'the bad ones' VS. 'the good ones'
 
-**Pelita** is an artificial intelligence programming game in Python, based
-loosely on Pacman.
+**Pelita** is Actor-based Toolkit for Interactive Language Education in Python.
 
 Description of the game
 =======================
@@ -30,6 +29,7 @@ Your task as *user* is to implement one or more *players* to control bots. Your
 players must implement the *intelligence* to navigate you bots successfully
 through the maze, destroy the enemy's harvesters and eat the enemy's food.
 
+
 Quick Start
 ===========
 
@@ -37,16 +37,13 @@ First clone the source code repository::
 
     $ git clone git://github.com/Debilski/pelita.git
 
-Then ``cd`` into the source code directory::
+And launch the command-line interface::
 
-    $ cd pelita
+    $ ~/pelita/pelitagame
 
-And launch the demo game::
-
-    $ python demo.py
-
-This will start a game using the `TkInter
-<http://wiki.python.org/moin/TkInter>`_ interface using a random maze.
+This will start a demo game using the `TkInter
+<http://wiki.python.org/moin/TkInter>`_ interface on a random maze
+with some predefined players.
 
 Contents:
 
@@ -55,6 +52,7 @@ Contents:
 
    info
    writing_player
+   running_player
    development
 
 Indices and tables
