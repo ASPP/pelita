@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Pelita &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-23-ge7dd7b5&#39;  documentation</title>
+    <title>Pelita &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-120-gfa44887&#39;  documentation</title>
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.1.0-rc2-23-ge7dd7b5&#39; ',
+        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.1.0-rc2-120-gfa44887&#39; ',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-23-ge7dd7b5&#39;  documentation" href="#" />
+    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-120-gfa44887&#39;  documentation" href="#" />
     <link rel="next" title="Project Information" href="info.html" /> 
   </head>
   <body>
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="info.html" title="Project Information"
              accesskey="N">next</a> |</li>
-        <li><a href="#">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-23-ge7dd7b5&#39;  documentation</a> &raquo;</li> 
+        <li><a href="#">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-120-gfa44887&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -50,8 +50,7 @@
 <img alt="Screenshot." src="_images/demogame.small.png" />
 <p class="caption"><strong>A first fight:</strong> &#8216;the bad ones&#8217; VS. &#8216;the good ones&#8217;</p>
 </div>
-<p><strong>Pelita</strong> is an artificial intelligence programming game in Python, based
-loosely on Pacman.</p>
+<p><strong>Pelita</strong> is Actor-based Toolkit for Interactive Language Education in Python.</p>
 <div class="section" id="description-of-the-game">
 <h2>Description of the game<a class="headerlink" href="#description-of-the-game" title="Permalink to this headline">¶</a></h2>
 <p>Two teams of one or more <em>bots</em> compete in a <em>maze</em> that is filled with <em>food</em>.
@@ -73,10 +72,11 @@ through the maze, destroy the enemy&#8217;s harvesters and eat the enemy&#8217;s
 <p>Then <tt class="docutils literal"><span class="pre">cd</span></tt> into the source code directory:</p>
 <div class="highlight-python"><pre>$ cd pelita</pre>
 </div>
-<p>And launch the demo game:</p>
-<div class="highlight-python"><pre>$ python demo.py</pre>
+<p>And launch the command-line interface:</p>
+<div class="highlight-python"><pre>$ python pelitagame</pre>
 </div>
-<p>This will start a game using the <a class="reference external" href="http://wiki.python.org/moin/TkInter">TkInter</a> interface using a random maze.</p>
+<p>This will start a demo game using the <a class="reference external" href="http://wiki.python.org/moin/TkInter">TkInter</a> interface on a random maze
+with some predefined players.</p>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
 <ul>
@@ -91,19 +91,9 @@ through the maze, destroy the enemy&#8217;s harvesters and eat the enemy&#8217;s
 <li class="toctree-l1"><a class="reference internal" href="writing_player.html">Writing a Player</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="writing_player.html#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="writing_player.html#player-basics">Player Basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="writing_player.html#where-to-place-your-files">Where to Place Your Files</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="writing_player.html#tournament-setup">Tournament Setup</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="writing_player.html#doing-more">Doing More</a></li>
 <li class="toctree-l2"><a class="reference internal" href="writing_player.html#the-maze-coordinate-system">The Maze Coordinate System</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="writing_player.html#distances-in-the-maze">Distances in the Maze</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="writing_player.html#loading-alternative-mazes">Loading Alternative Mazes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="writing_player.html#layout-string"><tt class="docutils literal"><span class="pre">layout_string</span></tt></a></li>
-<li class="toctree-l3"><a class="reference internal" href="writing_player.html#layout-name"><tt class="docutils literal"><span class="pre">layout_name</span></tt></a></li>
-<li class="toctree-l3"><a class="reference internal" href="writing_player.html#layout-file"><tt class="docutils literal"><span class="pre">layout_file</span></tt></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="writing_player.html#a-basic-offensive-player">A Basic Offensive Player</a><ul>
@@ -116,6 +106,14 @@ through the maze, destroy the enemy&#8217;s harvesters and eat the enemy&#8217;s
 <li class="toctree-l2"><a class="reference internal" href="writing_player.html#a-basic-defensive-player">A Basic Defensive Player</a></li>
 <li class="toctree-l2"><a class="reference internal" href="writing_player.html#noisy-enemy-positions">Noisy Enemy Positions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="writing_player.html#source-code-for-abstractplayer">Source Code for <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="running_player.html">Running Players</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="running_player.html#where-to-place-your-files">Where to Place Your Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running_player.html#load-custom-layouts">Load Custom Layouts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="running_player.html#tournament-setup">Tournament Setup</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Development</a><ul>
@@ -151,6 +149,7 @@ through the maze, destroy the enemy&#8217;s harvesters and eat the enemy&#8217;s
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="info.html">Project Information</a></li>
 <li class="toctree-l1"><a class="reference internal" href="writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_player.html">Running Players</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
 </ul>
 
@@ -185,12 +184,12 @@ through the maze, destroy the enemy&#8217;s harvesters and eat the enemy&#8217;s
         <li class="right" >
           <a href="info.html" title="Project Information"
              >next</a> |</li>
-        <li><a href="#">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-23-ge7dd7b5&#39;  documentation</a> &raquo;</li> 
+        <li><a href="#">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-120-gfa44887&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
-      Last updated on Sep 11, 2011.
+      Last updated on Sep 13, 2011.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

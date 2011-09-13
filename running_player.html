@@ -1,0 +1,269 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Running Players &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-120-gfa44887&#39;  documentation</title>
+    <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.1.0-rc2-120-gfa44887&#39; ',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-120-gfa44887&#39;  documentation" href="index.html" />
+    <link rel="next" title="Development" href="development.html" />
+    <link rel="prev" title="Writing a Player" href="writing_player.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="development.html" title="Development"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="writing_player.html" title="Writing a Player"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-120-gfa44887&#39;  documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="running-players">
+<h1>Running Players<a class="headerlink" href="#running-players" title="Permalink to this headline">¶</a></h1>
+<p>To run a game using your player, you should use the command-line interface:
+<tt class="docutils literal"><span class="pre">pelitagame</span></tt>. Run it with the <tt class="docutils literal"><span class="pre">--help</span></tt> option to get a detailed usage
+description.</p>
+<div class="section" id="where-to-place-your-files">
+<h2>Where to Place Your Files<a class="headerlink" href="#where-to-place-your-files" title="Permalink to this headline">¶</a></h2>
+<p>To begin using your own player you need to put its definition in a place
+where <tt class="docutils literal"><span class="pre">pelitagame</span></tt> can find it.</p>
+<p>Put the definition of you player in a file outside the Pelita source
+code directory, for example in <tt class="docutils literal"><span class="pre">/home/student/my_player.py</span></tt>. In addition
+to the definition of your player, this file must contain a factory
+function that returns a team (remember that the default game is a
+fight between two teams of two bots each):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">AbstractPlayer</span><span class="p">,</span> <span class="n">SimpleTeam</span>
+<span class="kn">from</span> <span class="nn">pelita.datamodel</span> <span class="kn">import</span> <span class="n">stop</span>
+
+
+<span class="k">class</span> <span class="nc">MyPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Basically a clone of the StoppingPlayer. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">stop</span>
+
+<span class="k">def</span> <span class="nf">factory</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">SimpleTeam</span><span class="p">(</span><span class="s">&quot;My Team&quot;</span><span class="p">,</span> <span class="n">MyPlayer</span><span class="p">(),</span> <span class="n">MyPlayer</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>The factory function is used by the command-line program to lead your
+players into the game.
+To run a game using your players against some predefined players in
+Pelita you can run</p>
+<div class="highlight-python"><pre>$ pelitagame /home/student/my_player.py BFSPlayer,BasicDefensePlayer</pre>
+</div>
+<p>This setup is OK for small tests, but if you plan to have a more
+complicated directory structure, for example to load additional
+utilities located in different files, read on to section
+<a class="reference internal" href="#tournament-setup">Tournament Setup</a>.</p>
+</div>
+<div class="section" id="load-custom-layouts">
+<h2>Load Custom Layouts<a class="headerlink" href="#load-custom-layouts" title="Permalink to this headline">¶</a></h2>
+<p>For testing purposes it may be useful to use small hand-crafted maze
+layouts instead of the default big ones. You can easily define your
+own layout in a file and load it into the game with:</p>
+<div class="highlight-python"><pre>$ pelitagame --layoutfile my_test_layout.txt /home/student/my_player.py BFSPlayer,BasicDefensePlayer</pre>
+</div>
+<p>A layout file looks like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">################################</span>
+<span class="c">#   #. #.#.#       #     #.#.#3#</span>
+<span class="c"># # ##       ##  #   ###   #.#1#</span>
+<span class="c"># # #. # ###    #### .#..# # # #</span>
+<span class="c"># # ## # ..# #   #   ##### # # #</span>
+<span class="c"># #    ##### ###   ###.#   # # #</span>
+<span class="c"># ## # ..#.  #.###       #   # #</span>
+<span class="c"># #. ##.####        #.####  ## #</span>
+<span class="c"># ##  ####.#        ####.## .# #</span>
+<span class="c"># #   #       ###.#  .#.. # ## #</span>
+<span class="c"># # #   #.###   ### #####    # #</span>
+<span class="c"># # # #####   #   # #.. # ## # #</span>
+<span class="c"># # # #..#. ####    ### # .# # #</span>
+<span class="c">#0#.#   ###   #  ##       ## # #</span>
+<span class="c">#2#.#.#     #       #.#.# .#   #</span>
+<span class="c">################################</span>
+</pre></div>
+</div>
+<p>As you can see from the example, only a few characters are needed to encode a
+maze:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">'#'</span></tt>:</th><td class="field-body">wall</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">'</span> <span class="pre">'</span></tt>:</th><td class="field-body">free space</td>
+</tr>
+<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">'.'</span></tt>:</th><td class="field-body">food</td>
+</tr>
+</tbody>
+</table>
+<p>And in addition, integers specify the starting position of each bot. In the
+above example <tt class="docutils literal"><span class="pre">0</span></tt> and <tt class="docutils literal"><span class="pre">2</span></tt> are on the team on the left and <tt class="docutils literal"><span class="pre">1</span></tt> and <tt class="docutils literal"><span class="pre">3</span></tt>
+are on the team on the right.  There are some restrictions on the encoding
+however:</p>
+<ul class="simple">
+<li>The maze must be rectangular and even in the x-direction.</li>
+<li>It must be fully enclosed by walls.</li>
+<li>No illegal characters can be used.</li>
+</ul>
+<p>Any leading or trailing whitespace will be stripped. The layout will be
+parsed for correctness and will raise an exception if any errors are detected.</p>
+<div class="section" id="tournament-setup">
+<h3>Tournament Setup<a class="headerlink" href="#tournament-setup" title="Permalink to this headline">¶</a></h3>
+<p>If you are participating in the <a class="reference external" href="https://python.g-node.org/wiki/">Python Summer School, St Andrews, Scotland,
+2011</a>, use the following instructions to
+organize your files such that we can load your players during the
+tournament.  You will need to create a python package, i.e. a
+directory containing (at least) an <tt class="docutils literal"><span class="pre">__init__.py</span></tt> file. This package
+must be named <tt class="docutils literal"><span class="pre">groupN</span></tt>, where <tt class="docutils literal"><span class="pre">N</span></tt> is your group number.
+This package needs to provide a top level function <tt class="docutils literal"><span class="pre">factory()</span></tt> which
+returns a <tt class="docutils literal"><span class="pre">SimpleTeam</span></tt>.</p>
+<p>The file structure should look like:</p>
+<div class="highlight-python"><pre>groupN
+├── __init__.py
+├── utils.py
+└── my_player.py</pre>
+</div>
+<p>Your <tt class="docutils literal"><span class="pre">__init__.py</span></tt> could look like:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">SimpleTeam</span>
+<span class="kn">from</span> <span class="nn">.my_player</span> <span class="kn">import</span> <span class="n">MyPlayer</span>
+
+<span class="k">def</span> <span class="nf">factory</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">SimpleTeam</span><span class="p">(</span><span class="s">&quot;My Team&quot;</span><span class="p">,</span> <span class="n">MyPlayer</span><span class="p">(),</span> <span class="n">MyPlayer</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Your are encouraged to structure your code base into packages.
+Always remember to use <a class="reference external" href="http://www.python.org/dev/peps/pep-0328/">relative imports</a>. For example the function
+<tt class="docutils literal"><span class="pre">utility</span></tt> is provided my the module <tt class="docutils literal"><span class="pre">groupN.utils</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="k">def</span> <span class="nf">utility</span><span class="p">():</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>To use this module in your <tt class="docutils literal"><span class="pre">my_player.py</span></tt> module, a relative import
+<tt class="docutils literal"><span class="pre">from</span> <span class="pre">.utils</span> <span class="pre">import</span> <span class="pre">utility</span></tt> is used:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">AbstractPlayer</span>
+<span class="kn">from</span> <span class="nn">pelita.datamodel</span> <span class="kn">import</span> <span class="n">stop</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">utility</span>
+
+<span class="k">class</span> <span class="nc">MyPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Basically a clone of the StoppingPlayer. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">utility</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">stop</span>
+</pre></div>
+</div>
+<p>Also, please perform any additional initialisation inside this
+function, since it will be called once for every game.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Running Players</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#where-to-place-your-files">Where to Place Your Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#load-custom-layouts">Load Custom Layouts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tournament-setup">Tournament Setup</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/running_player.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="development.html" title="Development"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="writing_player.html" title="Writing a Player"
+             >previous</a> |</li>
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-120-gfa44887&#39;  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
+      Last updated on Sep 13, 2011.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

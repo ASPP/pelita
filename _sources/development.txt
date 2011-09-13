@@ -28,7 +28,7 @@ own root commit and is hence disconnected from the commits that track the
 project code and also the documentation source code.
 
 When this branch is pushed to GitHub the contained documentation is
-automatically deployed to the webserver. There are two ways to make commits to
+automatically deployed to the web server. There are two ways to make commits to
 the ``gh-pages`` branch, using a script or with a series of manual git commands.
 Initially we used the manual commands, these were then converted into a script,
 which was subsequently upgraded multiple times. Hence the manual commands and
@@ -52,7 +52,7 @@ Run the script::
     ...
     Build finished. The HTML pages are in build/html.
     Switched to branch 'gh-pages'
-    Your branch is ahead of 'debilski/gh-pages' by 1 commit.
+    Your branch is ahead of 'origin/gh-pages' by 1 commit.
     ce78099 DOC: Sphinx generated doc from v0.1.0-rc1-165-g3d353c9
 
 Examine the output closely and if all went well::
