@@ -11,7 +11,7 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import sys
 import pelita
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -23,7 +23,10 @@ import pelita
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = []
+sys.path.append('sphinxext')
+
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.autosummary',
+              'numpydoc']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -202,3 +205,7 @@ latex_documents = [
 
 # If false, no module index is generated.
 #latex_use_modindex = True
+
+autosummary_generate = True
+autodoc_default_flags = ['members', 'undoc-members', 'show-inheritance']
+autoclass_content = 'both'
