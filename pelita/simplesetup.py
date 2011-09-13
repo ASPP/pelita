@@ -67,6 +67,8 @@ class SimpleServer(object):
         The name of an available layout
     layout_file : filename, optional
         A file which holds a layout.
+    layout_filter : string, optional
+        A filter to restrict the pool of random layouts
     players : int, optional
         The number of Players/Bots used in the layout. Default: 4.
     rounds : int, optional
@@ -87,7 +89,9 @@ class SimpleServer(object):
 
     """
     def __init__(self, layout_string=None, layout_name=None, layout_file=None,
-            players=4, rounds=3000, host="", port=50007, local=True, silent=True):
+                 layout_filter = 'normal_without_dead_ends',
+                 players=4, rounds=3000, host="", port=50007,
+                 local=True, silent=True):
 
         if (layout_string and layout_name or
                 layout_string and layout_file or
@@ -103,7 +107,7 @@ class SimpleServer(object):
             with open(layout_file) as file:
                 self.layout = file.read()
         else:
-            self.layout = get_random_layout(filter='normal_without_dead_ends')
+            self.layout = get_random_layout(filter=layout_filter)
 
         self.players = players
         self.rounds = rounds

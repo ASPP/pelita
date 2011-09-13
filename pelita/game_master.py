@@ -136,32 +136,13 @@ class GameMaster(object):
 
         if self.universe.teams[0].score > self.universe.teams[1].score:
             events.append(datamodel.TeamWins(0))
-            winner = self.universe.teams[0]
-            loser = self.universe.teams[1]
-            print "Finished. %r won over %r. (%r:%r)" % (
-                    winner.name, loser.name,
-                    winner.score, loser.score
-                )
+
         elif self.universe.teams[1].score > self.universe.teams[0].score:
             events.append(datamodel.TeamWins(1))
-            winner = self.universe.teams[1]
-            loser = self.universe.teams[0]
-            print "Finished. %r won over %r. (%r:%r)" % (
-                    winner.name, loser.name,
-                    winner.score, loser.score
-                )
         else:
             events.append(datamodel.GameDraw())
-            t0 = self.universe.teams[0]
-            t1 = self.universe.teams[1]
-            print "Finished. %r and %r had a draw. (%r:%r)" % (
-                    t0.name, t1.name,
-                    t0.score, t1.score
-                )
 
-        # We must manually flush, else our forceful stopping of Tk
-        # won't let us pipe it.
-        sys.stdout.flush()
+        self.print_possible_winner(events)
 
         self.send_to_viewers(round_index, None, events)
 
@@ -199,10 +180,46 @@ class GameMaster(object):
                 events = TypeAwareList(base_class=datamodel.UniverseEvent)
                 events.append(datamodel.TeamWins(other_team_idx))
 
+            self.print_possible_winner(events)
+
             self.send_to_viewers(round_index, i, events)
             if datamodel.TeamWins in events:
                 return False
         return True
+
+    def print_possible_winner(self, events):
+        """ Checks the event list for a potential winner and prints this information.
+
+        This is needed for scripts parsing the output.
+        """
+        if datamodel.TeamWins(0) in events:
+            winner = self.universe.teams[0]
+            loser = self.universe.teams[1]
+            print "Finished. %r won over %r. (%r:%r)" % (
+                    winner.name, loser.name,
+                    winner.score, loser.score
+                )
+            # We must manually flush, else our forceful stopping of Tk
+            # won't let us pipe it.
+            sys.stdout.flush()
+        elif datamodel.TeamWins(1) in events:
+            winner = self.universe.teams[1]
+            loser = self.universe.teams[0]
+            print "Finished. %r won over %r. (%r:%r)" % (
+                    winner.name, loser.name,
+                    winner.score, loser.score
+                )
+            sys.stdout.flush()
+        elif datamodel.GameDraw() in events:
+            t0 = self.universe.teams[0]
+            t1 = self.universe.teams[1]
+            print "Finished. %r and %r had a draw. (%r:%r)" % (
+                    t0.name, t1.name,
+                    t0.score, t1.score
+                )
+            sys.stdout.flush()
+
+
 
 class UniverseNoiser(object):
     """ Class to make bot positions noisy.
