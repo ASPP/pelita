@@ -141,6 +141,22 @@ class UiCanvas(object):
         self.canvas.bind('<Configure>', self.resize)
 
     def update(self, universe, events, round=None, turn=None):
+        # This method is called every now and then. Either when new information
+        # about universe or events have arrived or when a resize has occurred.
+        # Whenever new universe or event data is sent, this is fine, as every
+        # drawing method will know how to deal with this information.
+        # However, a call due to a simple resize will not include this information.
+        # Therefore, we’d have to save this information in our class manually,
+        # keeping track of updating the variables and hoping that no other
+        # process starts relying on these attributes which are really meant to
+        # be method-private. The alternative way we’re using here is following
+        # the principle of least information:
+        # Calls to the drawing methods are wrapped by a simple lambda, which
+        # includes the last set of parameters given. This closure approach
+        # allows us to hide the parameters from our interface and still be able
+        # to use the most recent set of parameters when there is a mere resize.
+
+
         if universe and not self.canvas:
             if not self.mesh_graph:
                 width = universe.maze.width
@@ -266,13 +282,15 @@ class UiCanvas(object):
                                self.mesh_graph.screen_height,
                                rel_size = +1)
 
-        self.canvas.create_text(center[0] - 1, center[1] - 1,
-                text=display_string,
-                font=(None, font_size, "bold"),
-                fill="#ED1B22", tag="gameover",
-                justify=Tkinter.CENTER, anchor=Tkinter.CENTER)
+        for i in [-2, -1, 0, 1, 2]:
+            for j in [-2, -1, 0, 1, 2]:
+                self.canvas.create_text(center[0] - i, center[1] - j,
+                        text=display_string,
+                        font=(None, font_size, "bold"),
+                        fill="#ED1B22", tag="gameover",
+                        justify=Tkinter.CENTER, anchor=Tkinter.CENTER)
 
-        self.canvas.create_text(center[0] + 1, center[1] + 1,
+        self.canvas.create_text(center[0] , center[1] ,
                 text=display_string,
                 font=(None, font_size, "bold"),
                 fill="#FFC903", tag="gameover",

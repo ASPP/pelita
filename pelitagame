@@ -1,0 +1,228 @@
+#!/usr/bin/env python
+import sys
+import os.path
+import random
+import string
+import keyword
+
+try:
+    import argparse
+except ImportError:
+    from pelita.compat import argparse
+
+import pelita
+# start logging
+import logging
+hdlr = logging.FileHandler('pelita.log', mode='w')
+logger = logging.getLogger('pelita')
+FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s:%(levelname)s][%(funcName)s] %(message)s'
+formatter = logging.Formatter(FORMAT)
+hdlr.setFormatter(formatter)
+logger.addHandler(hdlr)
+
+def check_module(filepath):
+    "Throws an ValueError is the specified path is neither a module nor a package."
+    if not os.path.exists(filepath):
+        raise ValueError("'%s' doesn't exist" % filepath)
+    allowed = string.letters + string.digits + '_'
+    if filepath.endswith('.py'):
+        valid = os.path.isfile(filepath)
+        modname = os.path.basename(filepath[:-3])
+    else:
+        initpy = os.path.join(filepath, '__init__.py')
+        valid = os.path.isdir(filepath) and os.path.isfile(initpy)
+        modname = os.path.basename(filepath.rstrip(os.path.sep))
+    if (set(modname) - set(allowed) or
+        modname[0] in string.digits or
+        modname in keyword.kwlist or
+        modname.startswith('__')):
+        raise ValueError("invalid module name: '%s'" % modname)
+
+    if not valid:
+        raise ValueError("'%s': neither a module nor a package" % filepath )
+
+def load_factory(filespec):
+    filename, _, factory_name = filespec.partition(':')
+    check_module(filename)
+    filename = filename.rstrip(os.path.sep)
+    dirname = os.path.dirname(filename)
+    modname = os.path.splitext(os.path.basename(filename))[0]
+
+    factory_name = factory_name or 'factory'
+    with pelita.utils.with_sys_path(dirname):
+        module = __import__(modname, fromlist=[factory_name])
+    return getattr(module, factory_name)
+
+PLAYERS = [name for name in dir(pelita.player)
+           if name.endswith('Player') and
+              name not in ('AbstractPlayer', 'TestPlayer',
+                           'StoppingPlayer', 'IOBoundPlayer',
+                           'CPUBoundPlayer', 'MoveExceptionPlayer',
+                           'InitialExceptionPlayer')]
+
+def import_builtin_player(name):
+    if name == 'random':
+        name = random.choice(PLAYERS)
+        print 'using %s for random player' % name
+    try:
+        player = getattr(pelita.player, name)
+    except AttributeError:
+        others = ', '.join(PLAYERS)
+        msg = 'Failed to find %s in pelita.player [%s]' % (name, others)
+        raise ImportError(msg)
+    return player
+
+def create_builtin_team(spec):
+    names = spec.split(',')
+    if len(names) == 1:
+        names *= 2
+    elif len(names) > 2:
+        raise ValueError('need two comma separated names')
+
+    players = [import_builtin_player(name)() for name in names]
+    teamname = 'The %ss' % players[0].__class__.__name__
+    return pelita.player.SimpleTeam(teamname, *players)
+
+def load_team(spec):
+    try:
+        if '/' in spec or spec.endswith('.py') or os.path.exists(spec):
+            team = load_factory(spec)()
+        else:
+            team = create_builtin_team(spec)
+        print "Using factory %r -> %r" % (spec, team.team_name)
+        return team
+    except (ValueError, AttributeError, IOError, ImportError) as e:
+        print >>sys.stderr, "failure while loading team '%s'" % spec
+        print >>sys.stderr, 'ERROR: %s' % e
+        raise
+
+def geometry_string(s):
+    """Get a X-style geometry definition and return a tuple.
+
+    600x400 -> (600,400)
+    """
+    try:
+        x_string, y_string = s.split('x')
+        geometry = (int(x_string), int(y_string))
+    except ValueError:
+        msg = "%s is not a valid geometry specification" %s
+        raise argparse.ArgumentTypeError(msg)
+    return geometry
+
+parser = argparse.ArgumentParser(description='Run a single pelita game',
+                                 add_help=False,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+prog = parser.prog
+parser._positionals = parser.add_argument_group('Arguments')
+parser.add_argument('left_team', help='team on the left side', nargs='?',
+                    default="random")
+parser.add_argument('right_team', help='team on the right side', nargs='?',
+                    default="random")
+
+parser._optionals = parser.add_argument_group('Options')
+parser.add_argument('--help', '-h', help='show this help message and exit',
+                    action='store_const', const=True)
+parser.add_argument('--rounds', type=int, default=3000)
+parser.add_argument('--geometry', type=geometry_string, metavar='NxM',
+                    help='initial size of the game window')
+
+viewer_opt = parser.add_mutually_exclusive_group()
+viewer_opt.add_argument('--ascii', action='store_const', const='ascii',
+                        dest='viewer', help='use the ASCII viewer')
+viewer_opt.add_argument('--null', action='store_const', const='null',
+                        dest='viewer', help='use the /dev/null viewer')
+viewer_opt.add_argument('--tk', action='store_const', const='tk',
+                        dest='viewer', help='use the tk viewer (default)')
+parser.set_defaults(viewer='tk')
+
+layout_opt = parser.add_mutually_exclusive_group()
+layout_opt.add_argument('--layoutfile', metavar='FILE',
+                        help='load a maze layout from FILE')
+layout_opt.add_argument('--layout', metavar='NAME',
+                        help="load a maze layout by name. If NAME is"
+                        " 'list' return a list of available names")
+layout_opt.add_argument('--filter', metavar='STRING', default='',
+                        help='retrict the pool of random layouts to those whose'
+                        ' name contains STRING')
+
+parser.epilog = """\
+Team Specification:
+  - Using predefined players:
+    A single name (e.g. 'NQRandomPlayer') in which case the team is
+    composed of players of this type, or a comma separated list of
+    player types (e.g. 'BFSPlayer,BasicDefensePlayer'). Example usage:
+
+        $ %(prog)s BFSPlayer,RandomPlayer NQRandomPlayer,BasicDefensePlayer
+
+    Use 'list' as a team to get a list of predefined players.
+
+  - Using custom players (filename):
+    The name of a python file (e.g. '~/my_agents.py') which defines
+    a function named 'factory' (you can change the name of the factory
+    function by adding ':my_factory' to the filename). The factory
+    function must take no arguments and return an instance of
+    pelita.player.SimpleTeam.
+    Example implementation:
+
+    def factory():
+        return pelita.player.SimpleTeam("My Team", MyPlayer1(), MyPlayer2())
+
+    Example usage:
+
+        $ %(prog)s ~/my_agents.py NQRandomPlayer,BasicDefensePlayer
+
+    Example of custom factory function:
+
+        $ %(prog)s ~/my_agents.py:my_factory NQRandomPlayer,BasicDefensePlayer
+
+  - Using custom players (package):
+    The name of a python package (i.e. a directory with an __init__.py file),
+    which exposes a function named 'factory' (see above for more details).
+    Example usage:
+
+        $ %(prog)s my_agents NQRandomPlayer,BasicDefensePlayer
+
+Layout specification:
+  If neither --layoutfile nor --layout are specified, the maze is
+  chosen at random from the pool of available layouts.
+  You can restrict this pool by using --filter.
+"""%vars()
+
+def run_game(*argv):
+    args = parser.parse_args(argv)
+
+    if args.help:
+        parser.print_help()
+        sys.exit(0)
+    if args.layout == 'list':
+        layouts = pelita.layout.get_available_layouts()
+        print '\n'.join(layouts)
+        sys.exit(0)
+
+    if 'list' in (args.left_team, args.right_team):
+        print '\n'.join(PLAYERS)
+        sys.exit(0)
+
+    bads = load_team(args.left_team) or sys.exit(1)
+    goods = load_team(args.right_team) or sys.exit(1)
+
+    for team in (bads, goods):
+        client = pelita.simplesetup.SimpleClient(team)
+        client.autoplay_background()
+    server = pelita.simplesetup.SimpleServer(layout_file=args.layoutfile,
+                                             layout_name=args.layout,
+                                             layout_filter=args.filter,
+                                             rounds=args.rounds,
+                                             )
+
+    if args.viewer in 'tk':
+        server.run_tk(geometry=args.geometry)
+    elif args.viewer == 'ascii':
+        server.run_simple(pelita.viewer.AsciiViewer)
+    elif args.viewer == 'null':
+        server.run_simple(pelita.viewer.DevNullViewer)
+    else:
+        assert 0
+
+if __name__ == '__main__':
+    run_game(*sys.argv[1:])
