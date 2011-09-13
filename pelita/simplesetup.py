@@ -89,7 +89,8 @@ class SimpleServer(object):
 
     """
     def __init__(self, layout_string=None, layout_name=None, layout_file=None,
-                 layout_filter = '', players=4, rounds=3000, host="", port=50007,
+                 layout_filter = 'normal_without_dead_ends',
+                 players=4, rounds=3000, host="", port=50007,
                  local=True, silent=True):
 
         if (layout_string and layout_name or
