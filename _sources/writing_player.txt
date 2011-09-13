@@ -326,9 +326,6 @@ position use the ``in`` operator::
 
     Free in maze[2, 3]
 
-Note: previously this could be done using ``has_at(type_, pos)``, but that method if now
-deprecated in favour of the above.
-
 Sometimes, when exploring future states of the universe, you may want to add or
 remove food to the maze::
 

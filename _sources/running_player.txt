@@ -26,7 +26,7 @@ players into the game.
 To run a game using your players against some predefined players in
 Pelita you can run ::
 
-       $ pelitagame /home/student/my_player.py BFSPlayer,BasicDefensePlayer
+       $ ~/pelita/pelitagame /home/student/my_player.py BFSPlayer,BasicDefensePlayer
 
 This setup is OK for small tests, but if you plan to have a more
 complicated directory structure, for example to load additional
@@ -40,7 +40,7 @@ For testing purposes it may be useful to use small hand-crafted maze
 layouts instead of the default big ones. You can easily define your
 own layout in a file and load it into the game with::
 
-   $ pelitagame --layoutfile my_test_layout.txt /home/student/my_player.py BFSPlayer,BasicDefensePlayer
+   $ ~/pelita/pelitagame --layoutfile my_test_layout.txt /home/student/my_player.py BFSPlayer,BasicDefensePlayer
 
 A layout file looks like this:
 
