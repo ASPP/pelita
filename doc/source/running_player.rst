@@ -14,7 +14,7 @@ To begin using your own player you need to put its definition in a place
 where ``pelitagame`` can find it.
 
 Put the definition of you player in a file outside the Pelita source
-code directory for example in ``/home/student/my_player.py``. In addition
+code directory, for example in ``/home/student/my_player.py``. In addition
 to the definition of your player, this file must contain a factory
 function that returns a team (remember that the default game is a
 fight between two teams of two bots each):
@@ -24,7 +24,7 @@ fight between two teams of two bots each):
 The factory function is used by the command-line program to lead your
 players into the game.
 To run a game using your players against some predefined players in
-pelita you can run ::
+Pelita you can run ::
 
        $ pelitagame /home/student/my_player.py 'BFSPlayer,BasicDefensePlayer'
 
@@ -42,7 +42,7 @@ own layout in a file and load it into the game with::
 
    $ pelitagame --layoutfile my_test_layout.txt /home/student/my_player.py 'BFSPlayer,BasicDefensePlayer'
 
-The layout file looks like this
+A layout file looks like this:
 
 .. literalinclude:: my_player/my_test_layout.txt
 
@@ -66,7 +66,7 @@ however:
 * No illegal characters can be used.
 
 Any leading or trailing whitespace will be stripped. The layout will be
-parsed for correctness. and will raise an exception if any errors are detected.
+parsed for correctness and will raise an exception if any errors are detected.
 
 Tournament Setup
 ----------------
