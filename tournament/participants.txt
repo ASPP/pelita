@@ -1,7 +1,0 @@
-# List of all participants.
-# Enter all the Teams here and the tournament script do the rest.
-StoppingPlayer
-RandomPlayer
-NQRandomPlayer
-BFSPlayer
-BasicDefensivePlayer
