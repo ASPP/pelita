@@ -89,11 +89,17 @@ def geometry_string(s):
         raise argparse.ArgumentTypeError(msg)
     return geometry
 
-parser = argparse.ArgumentParser(description='Runs a single pelita game')
+parser = argparse.ArgumentParser(description='Runs a single pelita game',
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
 parser.add_argument('bad_team', help='team on the left side', nargs='?',
                     default="random")
 parser.add_argument('good_team', help='team on the right side', nargs='?',
                     default="random")
+
+parser.add_argument('--rounds', type=int, default=3000)
+parser.add_argument('--geometry', type=geometry_string, metavar='NxM',
+                    help='initial size of the game window')
+
 viewer_opt = parser.add_mutually_exclusive_group()
 viewer_opt.add_argument('--ascii', action='store_const', const='ascii',
                         dest='viewer', help='use the ASCII viewer')
@@ -102,20 +108,27 @@ viewer_opt.add_argument('--null', action='store_const', const='null',
 viewer_opt.add_argument('--tk', action='store_const', const='tk',
                         dest='viewer', help='use the tk viewer (default)')
 parser.set_defaults(viewer='tk')
+
 layout_opt = parser.add_mutually_exclusive_group()
-layout_opt.add_argument('--layoutfile', '-L', metavar='filename')
-layout_opt.add_argument('--layout', '-l', metavar='name')
+layout_opt.add_argument('--layoutfile', metavar='FILE',
+                        help='load a maze layout from FILE')
+layout_opt.add_argument('--layout', metavar='NAME',
+                        help='load a maze layout by name. If NAME is'
+                        ' \'list\' return a list of available names')
+layout_opt.add_argument('--filter', metavar='STRING', default='',
+                        help='retrict the pool of random layouts to those whose'
+                        ' name contains STRING')
+
 parser.epilog = """\
-A team is specified by a comma separated list of players. For example:
-NQRandomPlayer,BFSPlayer.
+A team is specified by a comma separated list of players. For example,
+'NQRandomPlayer,BFSPlayer'.
 
 If you don't specify one or both teams, you'll get random players.
 Use 'list' as a team to get a list of predefined players.
-Run '%(prog)s --layout list' to list layouts.
+
+If neither --layoutfile nor --layout are specified, the maze is chosen at random
+among all available layouts. You can restrict this pool by using --filter.
 """
-parser.add_argument('--rounds', '-r', type=int, default=3000)
-parser.add_argument('--geometry', type=geometry_string, metavar='NxM',
-                    help='initial size of the game window')
 
 def run_game(*argv):
     args = parser.parse_args(argv)
@@ -137,6 +150,7 @@ def run_game(*argv):
         client.autoplay_background()
     server = pelita.simplesetup.SimpleServer(layout_file=args.layoutfile,
                                              layout_name=args.layout,
+                                             layout_filter=args.filter,
                                              rounds=args.rounds,
                                              )
 
