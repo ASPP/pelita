@@ -85,7 +85,7 @@ def create_builtin_team(spec):
 
 def load_team(spec):
     try:
-        if '/' in spec or spec.endswith('.py'):
+        if '/' in spec or spec.endswith('.py') or os.path.exists(spec):
             team = load_factory(spec)()
             print "Using factory %r -> %r" % (spec, team.team_name)
             return team
