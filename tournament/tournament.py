@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-# TODO: add fancier logging maybe w/ colored output
 
 from subprocess import Popen, PIPE
 import random
+
 
 random.seed(42) # -> guaranteed to be random
 
@@ -50,7 +50,7 @@ def start_match(team1, team2):
             lastline = line
             break
     if not lastline:
-        print "*** ERROR: Aparently the game crashed. At least I could not find the outcome of the game."
+        print "*** ERROR: Apparently the game crashed. At least I could not find the outcome of the game."
         print "*** Maybe stderr helps you to debug the problem"
         print stderr
         print "***"
@@ -78,6 +78,8 @@ def start_deathmatch(team1, team2):
     """Start a match between team1 and team2 until one of them wins (ie no
     draw.)
     """
+    # FIXME: What if there is *always* a draw? We're in K.O. mode so we cannot
+    # let both teams proceed.
     while True:
         r = start_match(team1, team2)
         if r == 0:
@@ -96,8 +98,13 @@ def pp_round1_results(teams, points):
         print "  %25s %d" % (rnames[t], p)
     print
 
+
 def round1(teams):
-    """Run the first round and return a sorted list of team names."""
+    """Run the first round and return a sorted list of team names.
+
+    teams is the sorted list [group0, group1, ...] and not the actual names of
+    the agents. This is necessary to start the agents.
+    """
     print
     print "ROUND 1 (Everybody vs Everybody)"
     print '================================'
@@ -123,7 +130,11 @@ def round1(teams):
 
 
 def pp_round2_results(teams, w1, w2, w3, w4):
-    """Pretty print the results for the K.O. round."""
+    """Pretty print the results for the K.O. round.
+
+    teams is the list [group0, group1, ...] not the names of the agens, sorted
+    by the result of the first round.
+    """
     global rnames
     feed = 10
     print
@@ -144,7 +155,11 @@ def pp_round2_results(teams, w1, w2, w3, w4):
 
 
 def round2(teams):
-    """Run the second round and return the name of the winning team."""
+    """Run the second round and return the name of the winning team.
+
+    teams is the list [group0, group1, ...] not the names of the agens, sorted
+    by the result of the first round.
+    """
     print
     print 'ROUND 2 (K.O.)'
     print '=============='
