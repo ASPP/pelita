@@ -12,6 +12,14 @@ POINTS_WIN = 2
 # FIXME: fit that for tournatment
 CMD_STUB = 'python ../pelitagame --rounds=100 --null'
 
+# the 'real' names of the teams (instead of group0 .. group4). they are
+# collected while the tournament goes
+rnames = {'group0' : 'group0',
+          'group1' : 'group1',
+          'group2' : 'group2',
+          'group3' : 'group3',
+          'group4' : 'group4' }
+
 
 def organize_first_round(nr_teams):
     """Return the order of matches in round one.
@@ -25,8 +33,9 @@ def start_match(team1, team2):
     """Start a match between team1 and team2. Return which team won (1 or 2) or
     0 if there was a draw.
     """
+    global rnames
     print
-    print team1, 'vs', team2
+    print rnames[team1], 'vs', rnames[team2]
     print
     args = CMD_STUB.split()
     args.extend([team1, team2])
@@ -37,15 +46,11 @@ def start_match(team1, team2):
     # get the real names of the teams.
     # pelitagame will output two lines of the following form:
     # Using factory 'RandomPlayer' -> 'The RandomPlayers'
-    rname1, rname2 = '', ''
     for line in stdout.splitlines():
         if line.startswith("Using factory '"):
             split = line.split("'")
             tname, rname = split[1], split[3]
-            if tname == team1:
-                rname1 = rname
-            if tname == team2:
-                rname2 = rname
+            rnames[tname] = rname
     for line in tmp:
         if line.startswith('Finished.'):
             lastline = line
@@ -56,22 +61,18 @@ def start_match(team1, team2):
         print stderr
         print "***"
         return 0
-    if rname1 == '' or rname2 == '':
-        print "*** ERROR: Could not find out the realnames of the teams, have to count that as a draw."
-        return 0
     print "***", lastline
     if lastline.find('had a draw.') >= 0:
         print "Draw!"
         return 0
     else:
         tmp = lastline.split("'")
-        # FIXME: the names in the output do *not* match the names in the participants file!
         winner = tmp[1]
         loser = tmp[3]
-        if winner == rname1:
+        if winner == rnames[team1]:
             print team1, 'wins.'
             return 1
-        elif winner == rname2:
+        elif winner == rnames[team2]:
             print team2, 'wins.'
             return 2
         else:
@@ -94,10 +95,11 @@ def start_deathmatch(team1, team2):
 
 def pp_round1_results(teams, points):
     """Pretty print the current result of the matches."""
+    global rnames
     result = sorted(zip(points, teams), reverse=True)
     print
     for p, t in result:
-        print "  %25s %d" % (t, p)
+        print "  %25s %d" % (rnames[t], p)
     print
 
 def round1(teams):
@@ -126,21 +128,22 @@ def round1(teams):
 
 def pp_round2_results(teams, w1, w2, w3, w4):
     """Pretty print the results for the K.O. round."""
+    global rnames
     feed = 10
     print
-    print teams[0]
-    print " "*feed, w1
-    print teams[3]
+    print rnames[teams[0]]
+    print " "*feed, rnames[w1]
+    print rnames[teams[3]]
     print
-    print " "*2*feed, w3
+    print " "*2*feed, rnames[w3]
     print
-    print teams[1]
-    print " "*feed, w2
-    print teams[2]
+    print rnames[teams[1]]
+    print " "*feed, rnames[w2]
+    print rnames[teams[2]]
     print
-    print " "*3*feed, w4
+    print " "*3*feed, rnames[w4]
     print
-    print teams[4]
+    print rnames[teams[4]]
     print
 
 
