@@ -457,3 +457,37 @@ class TestGame(unittest.TestCase):
         # check
         self.assertTrue(GameDraw in tv.cache[-1])
         self.assertEqual(tv.cache[-1][0], GameDraw())
+
+    def test_win_on_eating_all(self):
+        test_start = (
+            """ ######
+                #0 . #
+                # . 1#
+                ###### """
+        )
+        # the game lasts one round, and then draws
+        gm = GameMaster(test_start, 2, 100)
+        # players do nothing
+        gm.register_team(SimpleTeam(StoppingPlayer()))
+        gm.register_team(SimpleTeam(TestPlayer([west, west, west])))
+
+        # this test viewer caches all events lists seen through observe
+        class TestViewer(AbstractViewer):
+            def __init__(self):
+                self.cache = list()
+                self.round_ = list()
+            def observe(self, round_, turn, universe, events):
+                self.cache.append(events)
+                self.round_.append(round_)
+
+        # run the game
+        tv = TestViewer()
+        gm.register_viewer(tv)
+        gm.set_initial()
+        gm.play()
+
+        # check
+        print tv.round_
+        self.assertTrue(TeamWins in tv.cache[-1])
+        self.assertEqual(tv.cache[-1].filter_type(TeamWins)[0], TeamWins(1))
+        self.assertEqual(tv.round_[-1], 1)
