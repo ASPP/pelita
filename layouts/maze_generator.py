@@ -147,7 +147,8 @@ def _add_wall(maze, ngaps, vertical):
 
     size = cw if vertical else ch
     # create a wall only if there is some space in this direction
-    if size >= 3:
+    min_size = numpy.random.randint(3, 6)
+    if size >= min_size:
         # place the wall at random spot
         pos = numpy.random.randint(1, size - 1)
         sub_mazes = _add_wall_at(maze, pos, ngaps, vertical)
@@ -293,7 +294,7 @@ def get_new_maze(height, width, nfood=30, seed=None, dead_ends=False):
     numpy.random.seed(seed)
 
     maze = empty_maze(height, width)
-    create_half_maze(maze, height // 4)
+    create_half_maze(maze, height // 2)
 
     # make space for pacman (2 pacman each)
     maze[-2, 1] = E
