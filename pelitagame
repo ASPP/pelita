@@ -89,7 +89,7 @@ def geometry_string(s):
         raise argparse.ArgumentTypeError(msg)
     return geometry
 
-parser = argparse.ArgumentParser(description='Runs a single pelita game',
+parser = argparse.ArgumentParser(description='Run a single pelita game',
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
 parser.add_argument('bad_team', help='team on the left side', nargs='?',
                     default="random")
@@ -113,21 +113,32 @@ layout_opt = parser.add_mutually_exclusive_group()
 layout_opt.add_argument('--layoutfile', metavar='FILE',
                         help='load a maze layout from FILE')
 layout_opt.add_argument('--layout', metavar='NAME',
-                        help='load a maze layout by name. If NAME is'
-                        ' \'list\' return a list of available names')
+                        help="load a maze layout by name. If NAME is"
+                        " 'list' return a list of available names")
 layout_opt.add_argument('--filter', metavar='STRING', default='',
                         help='retrict the pool of random layouts to those whose'
                         ' name contains STRING')
 
 parser.epilog = """\
-A team is specified by a comma separated list of players. For example,
-'NQRandomPlayer,BFSPlayer'.
+team specification:
+  option 1:
+    A single name (e.g. 'NQRandomPlayer') in which case the team is
+    composed of the players of this type, or a comma separated list of
+    player types (e.g. 'BFSPlayer,BasicDefensePlayer').
 
-If you don't specify one or both teams, you'll get random players.
-Use 'list' as a team to get a list of predefined players.
+    Use 'list' as a team to get a list of predefined players.
+  option 2:
+    The name of python module (e.g. '~/work/my_agent.py') with a method
+    called 'factory' which returns an instance of pelita.player.SimpleTeam.
+    If the module is a package (i.e. a directory with '__init__.py') then
+    the directory filename should be used.
 
-If neither --layoutfile nor --layout are specified, the maze is chosen at random
-among all available layouts. You can restrict this pool by using --filter.
+  If you don't specify one or both teams, you'll get random players.
+
+layout specification:
+  If neither --layoutfile nor --layout are specified, the maze is
+  chosen at random among all available layouts. You can restrict this
+  pool by using --filter.
 """
 
 def run_game(*argv):
