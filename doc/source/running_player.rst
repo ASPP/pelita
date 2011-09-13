@@ -31,7 +31,7 @@ pelita you can run ::
 This setup is OK for small tests, but if you plan to have a more
 complicated directory structure, for example to load additional
 utilities located in different files, read on to section
-`Tournament Script`_.
+`Tournament Setup`_.
 
 
 Load Custom Layouts
