@@ -103,7 +103,7 @@ class SimpleServer(object):
             with open(layout_file) as file:
                 self.layout = file.read()
         else:
-            self.layout = get_random_layout()
+            self.layout = get_random_layout(filter='normal_without_dead_ends')
 
         self.players = players
         self.rounds = rounds
