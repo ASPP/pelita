@@ -91,7 +91,7 @@ class SimpleServer(object):
     def __init__(self, layout_string=None, layout_name=None, layout_file=None,
                  layout_filter = 'normal_without_dead_ends',
                  players=4, rounds=3000, host="", port=50007,
-                 local=True, silent=True):
+                 local=True, silent=True, dump_to_file=None):
 
         if (layout_string and layout_name or
                 layout_string and layout_file or
@@ -124,6 +124,8 @@ class SimpleServer(object):
         self.server = None
         self.remote = None
 
+        self.dump_to_file = dump_to_file
+
         self._startup()
 
     def stop(self):
@@ -152,6 +154,9 @@ class SimpleServer(object):
         # Begin code for automatic closing the server when a game has run
         # TODO: this is bit of a hack and should be done by linking
         # the actors/remote connection.
+
+        if self.dump_to_file:
+            self.server.notify("set_dump_file", [self.dump_to_file])
 
         self.server.notify("set_auto_shutdown", [True])
         if self.port is not None:
