@@ -589,6 +589,9 @@ As a defensive example we have the ``BasicDefensePlayer``:
 .. literalinclude:: ../../pelita/player.py
    :pyobject: BasicDefensePlayer
 
+Defense is important, your team is awarded ``5`` points if you manage to destory
+an enemy!
+
 The player mostly uses convenience properties already introduced for the
 ``BFSPlayer``. Additionally it uses the ``team`` property, which is simply the
 ``Team`` instance from the ``CTFUniverse``:

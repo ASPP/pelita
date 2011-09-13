@@ -130,9 +130,8 @@ class GameMaster(object):
         for round_index in range(self.game_time):
             if not self.play_round(round_index):
                 return
+
         # If we arrive here and have not returned due to a TeamWins event
-        # the game has ended without a definitive winner
-        # TODO: what if its a draw?
         events = TypeAwareList(base_class=datamodel.UniverseEvent)
 
         if self.universe.teams[0].score > self.universe.teams[1].score:
