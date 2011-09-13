@@ -29,14 +29,16 @@ hdlr.setFormatter(formatter)
 logger.addHandler(hdlr)
 
 
-def load_factory(filename, factory):
+def load_factory(filespec):
+    filename, factory_name = filespec.split(':', 1)
     filename = filename.rstrip(os.path.sep)
     dirname = os.path.dirname(filename)
     modname = os.path.splitext(os.path.basename(filename))[0]
 
+    factory_name = factory_name or 'factory'
     with with_sys_path(dirname):
-        module = __import__(modname, fromlist=[factory])
-    return module.factory
+        module = __import__(modname, fromlist=[factory_name])
+    return getattr(module, factory_name)
 
 PLAYERS = [name for name in dir(pelita.player)
            if name.endswith('Player') and
@@ -179,12 +181,12 @@ def run_game(*argv):
         print '\n'.join(layouts)
         sys.exit(0)
 
-    if 'list' in (args.bad_team, args.good_team):
+    if 'list' in (args.left_team, args.right_team):
         print '\n'.join(PLAYERS)
         sys.exit(0)
 
-    bads = load_team(args.bad_team, args.factory)
-    goods = load_team(args.good_team, args.factory)
+    bads = load_team(args.left_team)
+    goods = load_team(args.right_team)
 
     for team in (bads, goods):
         client = pelita.simplesetup.SimpleClient(team)
