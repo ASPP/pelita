@@ -42,7 +42,7 @@ def check_module(filepath):
         raise ValueError("'%s': neither a module nor a package" % filepath )
 
 def load_factory(filespec):
-    filename, factory_name = filespec.split(':', 1)
+    filename, _, factory_name = filespec.partition(':')
     check_module(filename)
     filename = filename.rstrip(os.path.sep)
     dirname = os.path.dirname(filename)
