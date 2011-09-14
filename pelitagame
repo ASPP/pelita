@@ -122,7 +122,7 @@ parser.add_argument('right_team', help='team on the right side', nargs='?',
 parser._optionals = parser.add_argument_group('Options')
 parser.add_argument('--help', '-h', help='show this help message and exit',
                     action='store_const', const=True)
-parser.add_argument('--rounds', type=int, default=3000)
+parser.add_argument('--rounds', type=int, default=300)
 parser.add_argument('--geometry', type=geometry_string, metavar='NxM',
                     help='initial size of the game window')
 
