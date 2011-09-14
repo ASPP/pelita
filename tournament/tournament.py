@@ -80,8 +80,8 @@ def present_teams():
     print('Welcome to the Pelita tournament', wait=1.5)
     print('This evening the teams are:', wait=1.5)
     for group in sorted(rnames.keys()):
-        print(group, wait=1)
-        [print(member, wait=0.5) for member in group_members[group]]
+        print(group)
+        [print(member, wait=0.1) for member in group_members[group]]
         time.sleep(1)
         print('This was '+group, wait=1.5)
     print('These were the teams. Now you ready for the fight?')
