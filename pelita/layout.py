@@ -21,7 +21,7 @@ def get_random_layout(filter=''):
     filter : str
         only return layouts which contain "filter" in their name.
         Default is no filter.
-    
+
     Returns
     -------
     layout : str
@@ -30,7 +30,7 @@ def get_random_layout(filter=''):
     Examples
     --------
     To only get layouts without dead ends you may use:
-    
+
         >>> get_random_layout(filter='without_dead_ends')
 
     """
@@ -55,7 +55,7 @@ def get_available_layouts(filter=''):
     Examples
     --------
     To only get layouts without dead ends you may use:
-    
+
         >>> get_available_layouts(filter='without_dead_ends')
 
     """
