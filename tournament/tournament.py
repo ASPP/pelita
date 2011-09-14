@@ -1,18 +1,9 @@
 #!/usr/bin/env python
+from __future__ import print_function
 
-
-from subprocess import Popen, PIPE
-import random
-
-
-random.seed(42) # -> guaranteed to be random
-
-# Number of points a teams gets for matches in the first round
-POINTS_DRAW = 1
-POINTS_WIN = 2
-
-# FIXME: fit that for tournatment
-CMD_STUB = 'python ../pelitagame --rounds=100 --null'
+# FIXME: fit that for tournament
+CMD_STUB = 'python ../pelitagame --rounds=100 --tk'
+SPEAK = '/usr/bin/flite'
 
 # the 'real' names of the teams (instead of group0 .. group4). they are
 # collected while the tournament goes
@@ -22,18 +13,89 @@ rnames = {'group0' : 'group0',
           'group3' : 'group3',
           'group4' : 'group4' }
 
+# groups composition (for presentation)
+group_members = {'group0': ('Eivind Norheim', 'David Verelst',
+                            'Chiara Mingarelli', 'Torsten Betz',
+                            'Nicola Zoppetti', 'Luke Rendell'),
+                 'group1': ('Katarzyna Zajac', 'Paula Sanz Leon',
+                            'Niklas Wilming', 'Martin Schaefer',
+                            'Luuk van der Velden', 'Roman Goj'),
+                 'group2': ('Toomas Kirt', 'Christian Drews', 'Clint Blight',
+                            'Nicola Chiapolini', 'Anna Jasper',
+                            'Jan Potworowski'),
+                 'group3': ('Stuart Prescott', 'Katharina Wilmes',
+                            'Christian Steigies', 'Louise O\'Hare',
+                            'Peter Rowat', 'Olivia Mendevil Ramos'),
+                 'group4': ('Martin Loeffler', 'Craig Arnold',
+                            'Maria de Juan Ovelar', 'Philipp Meier',
+                            'Corina Melzer', 'Eva Banko')
+           }
 
+from subprocess import Popen, PIPE, STDOUT, check_call
+import os
+import sys
+import random
+import time
+import tempfile
+import cStringIO
+
+# check for festival support
+if not os.path.exists(SPEAK.split()[0]):
+    SPEAK=False
+
+random.seed(42) # -> guaranteed to be random
+
+# Number of points a teams gets for matches in the first round
+POINTS_DRAW = 1
+POINTS_WIN = 2
+
+def print(*args, **kwargs):
+    """Speak while you print. To disable set speak=False.
+    You need the program 'flite' to be able to speak.
+    Set wait=X to wait X seconds after speaking."""
+    if len(args) == 0:
+        __builtins__.print()
+        return
+    stream = cStringIO.StringIO()
+    wait = kwargs.pop('wait', 0.5)
+    want_speak = kwargs.pop('speak', SPEAK)
+    if want_speak:
+        __builtins__.print(*args, file=stream, **kwargs)
+        string = stream.getvalue()
+        __builtins__.print(string, end='')
+        sys.stdout.flush()
+        speak(string, wait=wait)
+    else:
+        __builtins__.print(*args, **kwargs)
+    
+def speak(string, wait=0.5):
+    with tempfile.NamedTemporaryFile() as text:
+        text.write(string+'\n')
+        text.flush()
+        festival = check_call(SPEAK.split()+[text.name])
+    time.sleep(wait)
+
+def present_teams():
+    print('Hello, I am the Python drone. I am here to serve you.', wait=1.5)
+    print('Welcome to the Pelita tournament', wait=1.5)
+    print('This evening the teams are:', wait=1.5)
+    for group in sorted(rnames.keys()):
+        print(group, wait=1)
+        [print(member, wait=0.5) for member in group_members[group]]
+        time.sleep(1)
+        print('This was '+group, wait=1.5)
+    print('These were the teams. Now you ready for the fight?')
+    
 def start_match(team1, team2):
     """Start a match between team1 and team2. Return which team won (1 or 2) or
     0 if there was a draw.
     """
     global rnames
-    print
-    print rnames[team1], 'vs', rnames[team2]
-    print
+    print()
+    print('Starting match: '+ rnames[team1]+' vs ' + rnames[team2])
+    print()
     args = CMD_STUB.split()
     args.extend([team1, team2])
-    print 'Starting', ' '.join(args)
     stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE).communicate()
     tmp = reversed(stdout.splitlines())
     lastline = None
@@ -48,31 +110,31 @@ def start_match(team1, team2):
     for line in tmp:
         if line.startswith('Finished.'):
             lastline = line
+            print('Match finished.')
             break
     if not lastline:
-        print "*** ERROR: Apparently the game crashed. At least I could not find the outcome of the game."
-        print "*** Maybe stderr helps you to debug the problem"
-        print stderr
-        print "***"
+        print("*** ERROR: Apparently the game crashed. At least I could not find the outcome of the game.")
+        print("*** Maybe stderr helps you to debug the problem")
+        print(stderr, speak=False)
+        print("***", speak=False)
         return 0
-    print "***", lastline
+    print("***", lastline)
     if lastline.find('had a draw.') >= 0:
-        print "Draw!"
+        print("Draw!")
         return 0
     else:
         tmp = lastline.split("'")
         winner = tmp[1]
         loser = tmp[3]
         if winner == rnames[team1]:
-            print team1, 'wins.'
+            print(team1, 'wins.')
             return 1
         elif winner == rnames[team2]:
-            print team2, 'wins.'
+            print(team2, 'wins.')
             return 2
         else:
-            print "Unable to parse winning result :("
+            print("Unable to parse winning result :(")
             return 0
-
 
 def start_deathmatch(team1, team2):
     """Start a match between team1 and team2 until one of them wins (ie no
@@ -80,23 +142,29 @@ def start_deathmatch(team1, team2):
     """
     # FIXME: What if there is *always* a draw? We're in K.O. mode so we cannot
     # let both teams proceed.
-    while True:
+    # do at most 3 death matches:
+    for i in range(3):
         r = start_match(team1, team2)
         if r == 0:
-            print 'Draw -> Deathmatch!'
+            print('Draw -> Now go for a Death Match!')
             continue
         winner = team1 if r == 1 else team2
         return winner
-
+    # if we are here, we have no winner after 3 death matches
+    # just asisgn a random winner
+    print('No winner after 3 Death Matches. Choose a winner at random:', wait=2)
+    winner = random.choice((team1, team2))
+    print('And the winner is', winner)
+    return winner
 
 def pp_round1_results(teams, points):
     """Pretty print the current result of the matches."""
     global rnames
     result = sorted(zip(points, teams), reverse=True)
-    print
+    print('Current Ranking:')
     for p, t in result:
-        print "  %25s %d" % (rnames[t], p)
-    print
+        print("  %25s %d" % (rnames[t], p))
+    print()
 
 
 def round1(teams):
@@ -105,10 +173,11 @@ def round1(teams):
     teams is the sorted list [group0, group1, ...] and not the actual names of
     the agents. This is necessary to start the agents.
     """
-    print
-    print "ROUND 1 (Everybody vs Everybody)"
-    print '================================'
-    print
+    raw_input('--- Press ENTER to start ---\n')
+    print()
+    print("ROUND 1 (Everybody vs Everybody)")
+    print('================================', speak=False)
+    print()
     points = [0 for i in range(len(teams))]
     round1 = [[i, j] for i in range(5) for j in range(i+1, 5)]
     # shuffle the matches for more fun
@@ -121,7 +190,7 @@ def round1(teams):
         else:
             points[[t1, t2][winner-1]] += POINTS_WIN
         pp_round1_results(teams, points)
-    print "Results of the first round."
+    print("Results of the first round.")
     pp_round1_results(teams, points)
     # Sort the teams by points and return the team names as a list
     result = sorted(zip(points, teams), reverse=True)
@@ -135,23 +204,24 @@ def pp_round2_results(teams, w1, w2, w3, w4):
     teams is the list [group0, group1, ...] not the names of the agens, sorted
     by the result of the first round.
     """
-    global rnames
+    names = dict(rnames)
+    names['???'] = '???'
     feed = 10
-    print
-    print rnames[teams[0]]
-    print " "*feed, rnames[w1]
-    print rnames[teams[3]]
-    print
-    print " "*2*feed, rnames[w3]
-    print
-    print rnames[teams[1]]
-    print " "*feed, rnames[w2]
-    print rnames[teams[2]]
-    print
-    print " "*3*feed, rnames[w4]
-    print
-    print rnames[teams[4]]
-    print
+    print()
+    print(names[teams[0]])
+    print(" "*feed, names[w1])
+    print(names[teams[3]])
+    print()
+    print(" "*2*feed, names[w3])
+    print()
+    print(names[teams[1]])
+    print(" "*feed, names[w2])
+    print(names[teams[2]])
+    print()
+    print(" "*3*feed, names[w4])
+    print()
+    print(names[teams[4]])
+    print()
 
 
 def round2(teams):
@@ -160,10 +230,11 @@ def round2(teams):
     teams is the list [group0, group1, ...] not the names of the agens, sorted
     by the result of the first round.
     """
-    print
-    print 'ROUND 2 (K.O.)'
-    print '=============='
-    print
+    raw_input('--- Press ENTER to start ---\n')
+    print()
+    print('ROUND 2 (K.O.)')
+    print('==============', speak=False)
+    print()
     w1, w2, w3, w4 = "???", "???", "???", "???"
     # 1 vs 4
     w1 = start_deathmatch(teams[0], teams[3])
@@ -179,9 +250,13 @@ def round2(teams):
     pp_round2_results(teams, w1, w2, w3, w4)
     return w4
 
-
 if __name__ == '__main__':
-    teams = ['group0', 'group1', 'group2', 'group3', 'group4']
+    teams = sorted(rnames.keys())
+    present_teams()
     result = round1(teams)
     winner = round2(result)
-
+    winner = 'group1'
+    print('The winner of the St Andrews Pelita tournament is', wait=2)
+    print(winner, 'Congratulations!', wait=2)
+    print('Good evening master. It was a pleasure to serve you.')
+    
