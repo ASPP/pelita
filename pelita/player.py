@@ -467,6 +467,7 @@ class BasicDefensePlayer(AbstractPlayer):
                     enemy.current_pos)),enemy) for enemy in possible_targets])
                 # track that bot by using its index
                 self.tracking = closest_enemy[1].index
+                self.path = self.path_to_target
             else:
                 # otherwise keep going if we aren't already underway
                 if not self.path:
