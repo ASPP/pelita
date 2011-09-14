@@ -38,6 +38,11 @@ code is stored in ``pelita/compat/argparse.py`` and is made available as
 License <http://docs.python.org/license.html>`_. Copyright and history
 information for the module is included in the file ``COPYING``.
 
+To generate API documentation from the docstring we ship a copy of the `numpydoc
+<http://pypi.python.org/pypi/numpydoc>`_ sphinx extension in
+``doc/sphinxext/numpydoc``. Numpydoc is licensed under various licenses, see the
+file ``doc/sphinxext/numpydoc/LICENSE.txt`` for details.
+
 Acknowledgements
 ================
 
