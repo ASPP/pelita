@@ -10,6 +10,7 @@
 
    .. autosummary::
       :toctree:
+      :nosignatures:
    {% for item in methods %}
       ~{{ name }}.{{ item }}
    {%- endfor %}
@@ -20,6 +21,7 @@
 
    .. autosummary::
       :toctree:
+      :nosignatures:
    {% for item in attributes %}
       ~{{ name }}.{{ item }}
    {%- endfor %}
