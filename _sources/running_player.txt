@@ -66,7 +66,8 @@ however:
 * No illegal characters can be used.
 
 Any leading or trailing whitespace will be stripped. The layout will be
-parsed for correctness and will raise an exception if any errors are detected.
+parsed for correctness and an exception will be raised if any errors are
+detected.
 
 Tournament Setup
 ----------------
@@ -86,6 +87,8 @@ The file structure should look like::
     ├── __init__.py
     ├── utils.py
     └── my_player.py
+
+Download a :download:`template for this file structure <groupN-template.zip>`.
 
 Your ``__init__.py`` could look like:
 

@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Writing a Player &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-123-g6783670&#39;  documentation</title>
+    <title>Writing a Player &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-170-g538521a&#39;  documentation</title>
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.1.0-rc2-123-g6783670&#39; ',
+        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.1.0-rc2-170-g538521a&#39; ',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-123-g6783670&#39;  documentation" href="index.html" />
+    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-170-g538521a&#39;  documentation" href="index.html" />
     <link rel="next" title="Running Players" href="running_player.html" />
     <link rel="prev" title="Project Information" href="info.html" /> 
   </head>
@@ -39,7 +39,7 @@
         <li class="right" >
           <a href="info.html" title="Project Information"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-123-g6783670&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-170-g538521a&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -49,35 +49,35 @@
           <div class="body">
             
   <div class="section" id="writing-a-player">
-<h1><a class="toc-backref" href="#id1">Writing a Player</a><a class="headerlink" href="#writing-a-player" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1><a class="toc-backref" href="#id2">Writing a Player</a><a class="headerlink" href="#writing-a-player" title="Permalink to this headline">¶</a></h1>
 <p>This section explains how to write a player.</p>
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#writing-a-player" id="id1">Writing a Player</a><ul>
-<li><a class="reference internal" href="#introduction" id="id2">Introduction</a></li>
-<li><a class="reference internal" href="#player-basics" id="id3">Player Basics</a></li>
-<li><a class="reference internal" href="#doing-more" id="id4">Doing More</a></li>
-<li><a class="reference internal" href="#the-maze-coordinate-system" id="id5">The Maze Coordinate System</a><ul>
-<li><a class="reference internal" href="#distances-in-the-maze" id="id6">Distances in the Maze</a></li>
+<li><a class="reference internal" href="#writing-a-player" id="id2">Writing a Player</a><ul>
+<li><a class="reference internal" href="#introduction" id="id3">Introduction</a></li>
+<li><a class="reference internal" href="#player-basics" id="id4">Player Basics</a></li>
+<li><a class="reference internal" href="#doing-more" id="id5">Doing More</a></li>
+<li><a class="reference internal" href="#the-maze-coordinate-system" id="id6">The Maze Coordinate System</a><ul>
+<li><a class="reference internal" href="#distances-in-the-maze" id="id7">Distances in the Maze</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#a-basic-offensive-player" id="id7">A Basic Offensive Player</a><ul>
-<li><a class="reference internal" href="#using-current-uni" id="id8">Using <tt class="docutils literal"><span class="pre">current_uni</span></tt></a></li>
-<li><a class="reference internal" href="#error-recovery-in-case-of-death-or-timeout" id="id9">Error Recovery in Case of Death or Timeout</a></li>
-<li><a class="reference internal" href="#a-more-advanced-example" id="id10">A more Advanced Example</a></li>
+<li><a class="reference internal" href="#a-basic-offensive-player" id="id8">A Basic Offensive Player</a><ul>
+<li><a class="reference internal" href="#using-current-uni" id="id9">Using <tt class="docutils literal"><span class="pre">current_uni</span></tt></a></li>
+<li><a class="reference internal" href="#error-recovery-in-case-of-death-or-timeout" id="id10">Error Recovery in Case of Death or Timeout</a></li>
+<li><a class="reference internal" href="#a-more-advanced-example" id="id11">A more Advanced Example</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#interacting-with-the-maze" id="id11">Interacting with the Maze</a></li>
-<li><a class="reference internal" href="#a-basic-defensive-player" id="id12">A Basic Defensive Player</a></li>
-<li><a class="reference internal" href="#noisy-enemy-positions" id="id13">Noisy Enemy Positions</a></li>
-<li><a class="reference internal" href="#source-code-for-abstractplayer" id="id14">Source Code for <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt></a></li>
+<li><a class="reference internal" href="#interacting-with-the-maze" id="id12">Interacting with the Maze</a></li>
+<li><a class="reference internal" href="#a-basic-defensive-player" id="id13">A Basic Defensive Player</a></li>
+<li><a class="reference internal" href="#noisy-enemy-positions" id="id14">Noisy Enemy Positions</a></li>
+<li><a class="reference internal" href="#source-code-for-abstractplayer" id="id15">Source Code for <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt></a></li>
 </ul>
 </li>
 </ul>
 </div>
 <div class="section" id="introduction">
-<h2><a class="toc-backref" href="#id2">Introduction</a><a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id3">Introduction</a><a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p>To begin with, we must define a few classes and some terminology which will be
 used throughout this documentation.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -85,25 +85,25 @@ used throughout this documentation.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field"><th class="field-name" colspan="2"><tt class="docutils literal"><span class="pre">pelita.datamodel.CTFUniverse</span></tt>:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body">The game state. Holds a list of <tt class="docutils literal"><span class="pre">Bot</span></tt> instances, a list of <tt class="docutils literal"><span class="pre">Team</span></tt>
+<tr class="field"><td>&nbsp;</td><td class="field-body">The game state. Holds a list of <tt class="docutils literal"><span class="pre">Bot</span></tt> instances, a list of <tt class="docutils literal"><span class="pre">Team</span></tt>
 instances and a single <tt class="docutils literal"><span class="pre">Maze</span></tt> object. Can be queried to obtain
 information about the game.</td>
 </tr>
 <tr class="field"><th class="field-name" colspan="2"><tt class="docutils literal"><span class="pre">pelita.datamodel.Bot</span></tt>:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body">The data structure used to store the bot. This holds the position of the
+<tr class="field"><td>&nbsp;</td><td class="field-body">The data structure used to store the bot. This holds the position of the
 <tt class="docutils literal"><span class="pre">Bot</span></tt> inside the Maze, its initial position, which team it belongs to
 etc..</td>
 </tr>
 <tr class="field"><th class="field-name" colspan="2"><tt class="docutils literal"><span class="pre">pelita.datamodel.Team</span></tt>:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body">In capture-the-flag each <tt class="docutils literal"><span class="pre">Bot</span></tt> belongs to a <tt class="docutils literal"><span class="pre">Team</span></tt>. The team stores the
+<tr class="field"><td>&nbsp;</td><td class="field-body">In capture-the-flag each <tt class="docutils literal"><span class="pre">Bot</span></tt> belongs to a <tt class="docutils literal"><span class="pre">Team</span></tt>. The team stores the
 indices of its bot, the score, the team name etc..</td>
 </tr>
 <tr class="field"><th class="field-name" colspan="2"><tt class="docutils literal"><span class="pre">pelita.datamodel.Maze</span></tt>:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body">Data structure that stores the maze or layout, i.e. where walls and food
+<tr class="field"><td>&nbsp;</td><td class="field-body">Data structure that stores the maze or layout, i.e. where walls and food
 are.</td>
 </tr>
 <tr class="field"><th class="field-name" colspan="2"><tt class="docutils literal"><span class="pre">pelita.game_master.GameMaster</span></tt>:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body">Controller object that asks players for moves and updates the <tt class="docutils literal"><span class="pre">Universe</span></tt>.
+<tr class="field"><td>&nbsp;</td><td class="field-body">Controller object that asks players for moves and updates the <tt class="docutils literal"><span class="pre">Universe</span></tt>.
 You will never need to interact with this object but it&#8217;s good to know that
 this is the central object that coordinates the game.</td>
 </tr>
@@ -123,7 +123,7 @@ that a <em>player</em> object controls a <em>bot</em> object.</td>
 </table>
 </div>
 <div class="section" id="player-basics">
-<h2><a class="toc-backref" href="#id3">Player Basics</a><a class="headerlink" href="#player-basics" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id4">Player Basics</a><a class="headerlink" href="#player-basics" title="Permalink to this headline">¶</a></h2>
 <p>In order to write a player you should subclass from
 <tt class="docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></tt>. This is an abstract class which provides
 several convenience methods and properties to interrogate the universe including
@@ -156,7 +156,7 @@ via the <tt class="docutils literal"><span class="pre">current_uni</span></tt> p
 about that later.</p>
 </div>
 <div class="section" id="doing-more">
-<h2><a class="toc-backref" href="#id4">Doing More</a><a class="headerlink" href="#doing-more" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id5">Doing More</a><a class="headerlink" href="#doing-more" title="Permalink to this headline">¶</a></h2>
 <p>A slightly more useful example is the <tt class="docutils literal"><span class="pre">RandomPlayer</span></tt> which always selects a
 move at random from the possible moves:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">RandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
@@ -201,7 +201,7 @@ ever stop in place:</p>
 gives the position the bot had in the previous round.</p>
 </div>
 <div class="section" id="the-maze-coordinate-system">
-<h2><a class="toc-backref" href="#id5">The Maze Coordinate System</a><a class="headerlink" href="#the-maze-coordinate-system" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id6">The Maze Coordinate System</a><a class="headerlink" href="#the-maze-coordinate-system" title="Permalink to this headline">¶</a></h2>
 <p>The coordinate system is the standard coordinate system used in computer games.
 <tt class="docutils literal"><span class="pre">x</span></tt> increases to the left, and <tt class="docutils literal"><span class="pre">y</span></tt> increases downwards, and a position is
 encoded as the tuple <tt class="docutils literal"><span class="pre">(x,</span> <span class="pre">y)</span></tt>. There are no negative coordinates. The
@@ -252,7 +252,7 @@ following example illustrates this for a few positions:</p>
 </pre></div>
 </div>
 <div class="section" id="distances-in-the-maze">
-<h3><a class="toc-backref" href="#id6">Distances in the Maze</a><a class="headerlink" href="#distances-in-the-maze" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id7">Distances in the Maze</a><a class="headerlink" href="#distances-in-the-maze" title="Permalink to this headline">¶</a></h3>
 <p>There are different ways of measuring distances between objects in the maze.
 The <a class="reference external" href="http://en.wikipedia.org/wiki/Euclidean_distance">Euclidean distance</a>
 is the length of the vector connecting the centers
@@ -298,7 +298,7 @@ and distances in <tt class="docutils literal"><span class="pre">pelita.datamodel
 </div>
 </div>
 <div class="section" id="a-basic-offensive-player">
-<h2><a class="toc-backref" href="#id7">A Basic Offensive Player</a><a class="headerlink" href="#a-basic-offensive-player" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id8">A Basic Offensive Player</a><a class="headerlink" href="#a-basic-offensive-player" title="Permalink to this headline">¶</a></h2>
 <p>A somewhat more elaborate example is the <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt> which uses <em>breadth first
 search</em> on an <em>adjacency list</em> representation of the maze to find food:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">BFSPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
@@ -357,7 +357,7 @@ search</em> on an <em>adjacency list</em> representation of the maze to find foo
 <p>This next sections will explore the convenience properties of the
 <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt>.</p>
 <div class="section" id="using-current-uni">
-<h3><a class="toc-backref" href="#id8">Using <tt class="docutils literal"><span class="pre">current_uni</span></tt></a><a class="headerlink" href="#using-current-uni" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id9">Using <tt class="docutils literal"><span class="pre">current_uni</span></tt></a><a class="headerlink" href="#using-current-uni" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt> makes use of some more advanced concepts. The first thing to
 note is that any player can override the method <tt class="docutils literal"><span class="pre">set_initial()</span></tt>. At this stage
 food is still present and all bots are at their initial position. In the above
@@ -452,7 +452,7 @@ the <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt>. H
 code.</p>
 </div>
 <div class="section" id="error-recovery-in-case-of-death-or-timeout">
-<h3><a class="toc-backref" href="#id9">Error Recovery in Case of Death or Timeout</a><a class="headerlink" href="#error-recovery-in-case-of-death-or-timeout" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id10">Error Recovery in Case of Death or Timeout</a><a class="headerlink" href="#error-recovery-in-case-of-death-or-timeout" title="Permalink to this headline">¶</a></h3>
 <p>Lastly we see some error recovery code in the <tt class="docutils literal"><span class="pre">get_move()</span></tt> method.</p>
 <p>The <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt> is sometimes killed, as expected for an offensive player. In
 order to detect this, it&#8217;s best to compare the current position with its initial
@@ -474,7 +474,7 @@ Imagine an infinite for loop in your <tt class="docutils literal"><span class="p
 important to ensure that your search algorithms are efficient and fast.</p>
 </div>
 <div class="section" id="a-more-advanced-example">
-<h3><a class="toc-backref" href="#id10">A more Advanced Example</a><a class="headerlink" href="#a-more-advanced-example" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id11">A more Advanced Example</a><a class="headerlink" href="#a-more-advanced-example" title="Permalink to this headline">¶</a></h3>
 <p>Now that you know about <tt class="docutils literal"><span class="pre">universe_states</span></tt>, <tt class="docutils literal"><span class="pre">_index</span></tt> and <tt class="docutils literal"><span class="pre">current_pos</span></tt> lets
 look at how the <tt class="docutils literal"><span class="pre">previous_pos</span></tt> property used in the <tt class="docutils literal"><span class="pre">NQRandomPlayer</span></tt> is
 implemented:</p>
@@ -501,7 +501,7 @@ AbstractPlayer</a> for details.</p>
 </div>
 </div>
 <div class="section" id="interacting-with-the-maze">
-<h2><a class="toc-backref" href="#id11">Interacting with the Maze</a><a class="headerlink" href="#interacting-with-the-maze" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id12">Interacting with the Maze</a><a class="headerlink" href="#interacting-with-the-maze" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt> above uses the adjacency list representation provided by:
 <tt class="docutils literal"><span class="pre">pelita.graph.Adjacency</span></tt>. Lets have a quick look at how this is generated, in
 case you would like to implement you own <a class="reference external" href="http://en.wikipedia.org/wiki/Graph_(data_structure)">graph storage</a> or leverage an
@@ -550,7 +550,7 @@ remove food to the maze:</p>
 </div>
 </div>
 <div class="section" id="a-basic-defensive-player">
-<h2><a class="toc-backref" href="#id12">A Basic Defensive Player</a><a class="headerlink" href="#a-basic-defensive-player" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id13">A Basic Defensive Player</a><a class="headerlink" href="#a-basic-defensive-player" title="Permalink to this headline">¶</a></h2>
 <p>As a defensive example we have the <tt class="docutils literal"><span class="pre">BasicDefensePlayer</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">BasicDefensePlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A crude defensive player.</span>
@@ -674,7 +674,7 @@ convenience property which gives the enemy <tt class="docutils literal"><span cl
 <p>Note that this player simply ignores the noisy enemy positions (described next).</p>
 </div>
 <div class="section" id="noisy-enemy-positions">
-<h2><a class="toc-backref" href="#id13">Noisy Enemy Positions</a><a class="headerlink" href="#noisy-enemy-positions" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id14">Noisy Enemy Positions</a><a class="headerlink" href="#noisy-enemy-positions" title="Permalink to this headline">¶</a></h2>
 <p>In general, the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt> you receive is noisy. This means that you can
 only obtain an accurate fix on the enemy bots if they are within 5 squares maze
 distance. Otherwise the position is noisy with a uniform radius of 5 squares
@@ -692,7 +692,7 @@ combination with the <tt class="docutils literal"><span class="pre">enemy_bots</
 <tt class="docutils literal"><span class="pre">pelita.game_master.UniverseNoiser</span></tt>.</p>
 </div>
 <div class="section" id="source-code-for-abstractplayer">
-<h2><a class="toc-backref" href="#id14">Source Code for <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt></a><a class="headerlink" href="#source-code-for-abstractplayer" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id15">Source Code for <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt></a><a class="headerlink" href="#source-code-for-abstractplayer" title="Permalink to this headline">¶</a></h2>
 <p>All example Players can be found in the module <tt class="docutils literal"><span class="pre">pelita.player</span></tt>.</p>
 <p>Below is the complete code for the <tt class="docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></tt> which shows
 you all of the convenience methods/properties and also some of the
@@ -959,12 +959,12 @@ implementation details:</p>
         <li class="right" >
           <a href="info.html" title="Project Information"
              >previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-123-g6783670&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc2-170-g538521a&#39;  documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
-      Last updated on Sep 13, 2011.
+      Last updated on Sep 14, 2011.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

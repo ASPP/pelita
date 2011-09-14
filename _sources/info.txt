@@ -6,16 +6,15 @@ Project Information
 Authors and Contributors
 ========================
 
-The developers are:
+As of ``v0.1.0-rc2-157-g192d87c`` the developers and contributors are::
 
-* Rike-Benjamin Schuppner
-* Valentin Haenel
-* Tiziano Zito
-
-With helpful contributions by:
-
-* Zbigniew Jędrzejewski-Szmek
-* Pietro Berkes
+    zsh» git shortlog -sn | cut -f1 --complement
+    Valentin Haenel
+    Rike-Benjamin Schuppner
+    Tiziano Zito
+    Zbigniew Jędrzejewski-Szmek
+    Bastian Venthur
+    Pietro Berkes
 
 Getting in Touch
 ================
