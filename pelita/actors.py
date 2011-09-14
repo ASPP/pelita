@@ -8,6 +8,8 @@ import sys
 import Queue
 
 import logging
+from pelita.viewer import DumpingViewer
+
 _logger = logging.getLogger("pelita")
 _logger.setLevel(logging.DEBUG)
 
@@ -306,6 +308,7 @@ class ServerActor(DispatchingActor):
         self.game_master = None
 
         self._auto_shutdown = False
+        self.dump_file = None
 
     @expose
     def auto_shutdown(self):
@@ -314,6 +317,10 @@ class ServerActor(DispatchingActor):
     @expose
     def set_auto_shutdown(self, value):
         self._auto_shutdown = value
+
+    @expose
+    def set_dump_file(self, dump_file):
+        self.dump_file = dump_file
 
     @expose
     def initialize_game(self, layout, number_bots, game_time):
@@ -383,7 +390,14 @@ class ServerActor(DispatchingActor):
 
             self.game_master.register_team(remote_player, team_name=team_name)
 
-        self.game_master.play()
+        if self.dump_file:
+            with open(self.dump_file, 'w') as f:
+                viewer = DumpingViewer(f)
+                self.game_master.register_viewer(viewer)
+
+                self.game_master.play()
+        else:
+            self.game_master.play()
 
         if self._auto_shutdown:
             self.ref.stop()
