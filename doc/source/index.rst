@@ -50,12 +50,13 @@ Continue reading: :ref:`writing_a_player`.
 Contents:
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    info
    writing_player
    running_player
    development
+   api
 
 Indices and tables
 ==================
