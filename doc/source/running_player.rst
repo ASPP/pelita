@@ -66,7 +66,8 @@ however:
 * No illegal characters can be used.
 
 Any leading or trailing whitespace will be stripped. The layout will be
-parsed for correctness and will raise an exception if any errors are detected.
+parsed for correctness and an exception will be raised if any errors are
+detected.
 
 Tournament Setup
 ----------------
