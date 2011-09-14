@@ -14,26 +14,10 @@ class TestLayoutModule(unittest.TestCase):
 
     def test_get_layout_by_name(self):
         # sorry about the indentation, but this is exactly how the string is
-        target_layout = ("""################################
-# #   .  .       .    . .     3#
-#   # ########.## #    . .#   1#
-# #.      .. # ## ######.#######
-# ###### ######## # .   .  #   #
-# #   . ..   ..  .#######..  ###
-# #     .  .   ## #  .   . # #.#
-########## ## ###. .  #    #  .#
-#.  #    #  . .### ## ##########
-#.# # .   .  # ##   .  .     # #
-###  ..#######.  ..   .. .   # #
-#   #  .   . # ######## ###### #
-#######.###### ## # ..      .# #
-#0   #. .    # ##.######## #   #
-#2     . .    .       .  .   # #
-################################
-""")
-        print target_layout
+        with open('layouts/normal_with_dead_ends_001.layout') as file:
+            target_layout = file.read()
+        target_layout = target_layout.replace('\r', '')
         loaded = get_layout_by_name('layout_normal_with_dead_ends_001')
-        print loaded
         self.assertEqual(target_layout, loaded)
 
     def test_get_random_layout(self):
