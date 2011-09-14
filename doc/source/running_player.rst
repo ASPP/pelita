@@ -87,6 +87,8 @@ The file structure should look like::
     ├── utils.py
     └── my_player.py
 
+Download a :download:`template for this file structure <groupN-template.zip>`.
+
 Your ``__init__.py`` could look like:
 
 .. literalinclude:: groupN/__init__.py
