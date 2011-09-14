@@ -70,7 +70,7 @@ release = version_str
 
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.
-exclude_trees = []
+exclude_trees = ['_templates']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -207,5 +207,6 @@ latex_documents = [
 #latex_use_modindex = True
 
 autosummary_generate = True
-autodoc_default_flags = ['members', 'undoc-members', 'show-inheritance']
+autodoc_default_flags = ['show-inheritance']
 autoclass_content = 'both'
+numpydoc_show_class_members = False
