@@ -535,7 +535,7 @@ mapped_components = dict((C.char, C) for C in maze_components)
 
 @serializable
 class Maze(Mesh):
-    """ A Mesh of TypeAwareLists of MazeComponent representations.
+    """ A Mesh of strings of MazeComponent representations.
 
     This is a container class to represent a game maze. It is a two-dimensional
     structure (Mesh) which contains a representation of MazeComponents at
