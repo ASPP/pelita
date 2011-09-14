@@ -14,9 +14,8 @@ class TestLayoutModule(unittest.TestCase):
 
     def test_get_layout_by_name(self):
         # sorry about the indentation, but this is exactly how the string is
-        with open('layouts/normal_with_dead_ends_001.layout') as file:
+        with open('layouts/normal_with_dead_ends_001.layout', 'rU') as file:
             target_layout = file.read()
-        target_layout = target_layout.replace('\r', '')
         loaded = get_layout_by_name('layout_normal_with_dead_ends_001')
         self.assertEqual(target_layout, loaded)
 
