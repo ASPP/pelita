@@ -7,14 +7,14 @@
 Pelita
 ======
 
-.. figure:: images/demogame.small.png
+.. figure:: images/demogame.png
    :alt: Screenshot.
 
    **A first fight:** 'the bad ones' VS. 'the good ones'
 
 **Pelita** is Actor-based Toolkit for Interactive Language Education in Python.
 
-Description of the game
+Description of the Game
 =======================
 
 Two teams of one or more *bots* compete in a *maze* that is filled with *food*.
