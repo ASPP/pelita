@@ -14,7 +14,7 @@ Pelita
 
 **Pelita** is Actor-based Toolkit for Interactive Language Education in Python.
 
-Description of the game
+Description of the Game
 =======================
 
 Two teams of one or more *bots* compete in a *maze* that is filled with *food*.
