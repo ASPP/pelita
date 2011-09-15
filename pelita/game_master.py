@@ -12,6 +12,8 @@ from .graph import AdjacencyList
 
 __docformat__ = "restructuredtext"
 
+MAX_TIMEOUTS = 5
+
 class PlayerTimeout(Exception):
     pass
 
@@ -53,6 +55,7 @@ class GameMaster(object):
         self.game_time = game_time
         self.noiser = UniverseNoiser(self.universe) if noise else None
         self.player_teams = []
+        self.player_teams_timeouts = []
         self.viewers = []
 
     def register_team(self, team, team_name=""):
@@ -64,6 +67,7 @@ class GameMaster(object):
             each Bot of the team.
         """
         self.player_teams.append(team)
+        self.player_teams_timeouts.append(0)
 
         # map a player_team to a universe.team 1:1
         team_idx = len(self.player_teams) - 1
@@ -156,15 +160,25 @@ class GameMaster(object):
                     universe_copy = self.noiser.uniform_noise(universe_copy, i)
                 move = player_team._get_move(bot.index, universe_copy)
                 events = self.universe.move_bot(i, move)
-            except (datamodel.IllegalMoveException, PlayerTimeout):
+            except (datamodel.IllegalMoveException, PlayerTimeout) as e:
+                events = TypeAwareList(base_class=datamodel.UniverseEvent)
+                events.append(datamodel.TimeoutEvent(bot.team_index))
+
+                if isinstance(e, PlayerTimeout):
+                    # after MAX_TIMEOUTS timeouts, you lose
+                    self.player_teams_timeouts[bot.team_index] += 1
+                    if self.player_teams_timeouts[bot.team_index] == MAX_TIMEOUTS:
+                        other_team_idx = not bot.team_index
+                        events.append(datamodel.TeamWins(other_team_idx))
+
                 moves = self.universe.get_legal_moves(bot.current_pos).keys()
                 moves.remove(datamodel.stop)
                 if not moves:
                     moves = [datamodel.stop]
 
                 move = random.choice(moves)
-                events = self.universe.move_bot(i, move)
-                events.append(datamodel.TimeoutEvent(bot.team_index))
+                events += self.universe.move_bot(i, move)
+
             except PlayerDisconnected:
                 other_team_idx = not bot.team_index
 

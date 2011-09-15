@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+import time
+import pelita
 from pelita.datamodel import north, south, east, west, stop,\
         Wall, Free, Food, TeamWins, GameDraw, BotMoves, create_CTFUniverse,\
         KILLPOINTS
-from pelita.game_master import GameMaster, UniverseNoiser
+from pelita.game_master import GameMaster, UniverseNoiser, PlayerTimeout
 from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer, StoppingPlayer
 from pelita.viewer import AbstractViewer, DevNullViewer
 from pelita.graph import AdjacencyList
@@ -528,3 +530,48 @@ class TestGame(unittest.TestCase):
         self.assertEqual(gm.universe.teams[1].score, 1)
         self.assertTrue(TeamWins in tv.cache[-1])
         self.assertEqual(tv.cache[-1].filter_type(TeamWins)[0], TeamWins(0))
+
+    def test_lose_5_timeouts(self):
+        # 0 must move back and forth because of random steps
+        test_start = (
+            """ ######
+                #0 #.#
+                ###  #
+                ##. 1#
+                ###### """
+        )
+        # the game lasts one round, and then draws
+        gm = GameMaster(test_start, 2, 100)
+        # players do nothing
+        class TimeOutPlayer(AbstractPlayer):
+            def get_move(self):
+                raise PlayerTimeout
+
+        gm.register_team(SimpleTeam(TimeOutPlayer()))
+        gm.register_team(SimpleTeam(StoppingPlayer()))
+
+        # this test viewer caches all events lists seen through observe
+        class TestViewer(AbstractViewer):
+            def __init__(self):
+                self.cache = list()
+                self.round_ = list()
+            def observe(self, round_, turn, universe, events):
+                self.cache.append(events)
+                self.round_.append(round_)
+
+        # run the game
+        tv = TestViewer()
+        gm.register_viewer(tv)
+        gm.set_initial()
+
+        self.assertEqual(gm.universe.bots[0].current_pos, (1,1))
+
+        gm.play()
+
+        # check
+        self.assertEqual(tv.round_[-1], pelita.game_master.MAX_TIMEOUTS - 1)
+        self.assertEqual(gm.universe.teams[0].score, 0)
+        self.assertEqual(gm.universe.teams[1].score, 0)
+        self.assertEqual(gm.universe.bots[0].current_pos, (2,1))
+        self.assertTrue(TeamWins in tv.cache[-1])
+        self.assertEqual(tv.cache[-1].filter_type(TeamWins)[0], TeamWins(1))
