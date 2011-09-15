@@ -3,8 +3,8 @@
 from __future__ import print_function
 
 # FIXME: fit that for tournament
-CMD_STUB = '/home/tiziano/git/pelita/pelitagame --rounds=300 --null'
-SPEAK = '/usr/bin/flite2'
+CMD_STUB = '..//pelitagame --rounds=300 --tk'
+SPEAK = '/usr/bin/flite'
 
 # the 'real' names of the teams (instead of group0 .. group4). they are
 # collected while the tournament goes
