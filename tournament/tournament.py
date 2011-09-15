@@ -76,7 +76,8 @@ def speak(string, wait=0.5):
     time.sleep(wait)
 
 def present_teams():
-    print('Hello, I am the Python drone. I am here to serve you.', wait=1.5)
+    print('Hello master, I am the Python drone. I am here to serve you.', 
+          wait=1.5)
     print('Welcome to the Pelita tournament', wait=1.5)
     print('This evening the teams are:', wait=1.5)
     for group in sorted(rnames.keys()):
@@ -255,8 +256,6 @@ if __name__ == '__main__':
     present_teams()
     result = round1(teams)
     winner = round2(result)
-    winner = 'group1'
     print('The winner of the St Andrews Pelita tournament is', wait=2)
     print(winner, 'Congratulations!', wait=2)
     print('Good evening master. It was a pleasure to serve you.')
-    
