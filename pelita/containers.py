@@ -100,7 +100,7 @@ class Mesh(Mapping):
 
     @property
     def shape(self):
-        """ The shape (width, height of the Mesh.
+        """ The shape (width, height) of the Mesh.
 
         Returns
         -------

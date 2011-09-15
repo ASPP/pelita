@@ -184,7 +184,7 @@ class Team(object):
         self.score += 1
 
     def _score_points(self, points):
-        """ Score a single point. """
+        """ Score several points. """
         self.score += points
 
     def __str__(self):

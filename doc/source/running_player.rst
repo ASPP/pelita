@@ -98,7 +98,7 @@ Your are encouraged to structure your code base into packages.
 Always remember to use `relative imports
 <http://www.python.org/dev/peps/pep-0328/>`_. Note that relative imports only
 work for modules, so you must provide a ``__init__.py`` file in that case.
-For example the function ``utility`` is provided my the module ``groupN.utils``:
+For example the function ``utility`` is provided by the module ``groupN.utils``:
 
 .. literalinclude:: groupN/utils.py
 
