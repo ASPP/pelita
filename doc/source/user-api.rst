@@ -1,5 +1,5 @@
 ==================
-User API reference
+User API Reference
 ==================
 
 This section summarizes the modules, classes and functions that are relevant
