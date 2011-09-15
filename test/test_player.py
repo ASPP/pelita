@@ -71,14 +71,14 @@ class TestNQRandom_Player(unittest.TestCase):
     def test_demo_players(self):
         test_layout = (
         """ ############
-            #0#1 #     #
+            #0#.   .# 1#
             ############ """)
         gm = GameMaster(test_layout, 2, 1)
         gm.register_team(SimpleTeam(NQRandomPlayer()))
         gm.register_team(SimpleTeam(NQRandomPlayer()))
         gm.play()
         self.assertEqual(gm.universe.bots[0].current_pos, (1, 1))
-        self.assertEqual(gm.universe.bots[1].current_pos, (4, 1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (9, 1))
 
 class TestBFS_Player(unittest.TestCase):
 
