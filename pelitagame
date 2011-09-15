@@ -130,6 +130,9 @@ parser.add_argument('--help', '-h', help='show this help message and exit',
 parser.add_argument('--log', help='print debugging log information to'
                                   ' LOGFILE (default \'pelita.log\')',
                     metavar='LOGFILE', default=argparse.SUPPRESS, nargs='?')
+parser.add_argument('--dump', help='print game dumps to'
+                                  ' DUMPFILE (default None)',
+                    metavar='DUMPFILE', default=None, nargs='?')
 parser.add_argument('--rounds', type=int, default=300)
 parser.add_argument('--geometry', type=geometry_string, metavar='NxM',
                     help='initial size of the game window')
@@ -230,6 +233,7 @@ def run_game(*argv):
                                              layout_name=args.layout,
                                              layout_filter=args.filter,
                                              rounds=args.rounds,
+                                             dump_to_file=args.dump
                                              )
 
     if args.viewer in 'tk':
