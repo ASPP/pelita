@@ -134,6 +134,8 @@ parser.add_argument('--dump', help='print game dumps to'
                                   ' DUMPFILE (default None)',
                     metavar='DUMPFILE', default=None, nargs='?')
 parser.add_argument('--rounds', type=int, default=300)
+parser.add_argument('--seed', type=int, metavar='SEED', default=None, 
+                    help='fix random seed')
 parser.add_argument('--geometry', type=geometry_string, metavar='NxM',
                     help='initial size of the game window')
 
@@ -211,6 +213,8 @@ def run_game(*argv):
         layouts = pelita.layout.get_available_layouts()
         print '\n'.join(layouts)
         sys.exit(0)
+    if args.seed is not None:
+        random.seed(args.seed)
 
     try:
         start_logging(args.log or 'pelita.log')

@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 # FIXME: fit that for tournament
-CMD_STUB = '..//pelitagame --rounds=300 --tk'
+CMD_STUB = '../pelitagame --seed 42 --rounds=300 --tk'
 SPEAK = '/usr/bin/flite'
 
 # the 'real' names of the teams (instead of group0 .. group4). they are
