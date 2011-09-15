@@ -303,8 +303,7 @@ property of the bot (the bot instance from one turn ago) to obtain its previous
 position.
 
 There are a few more convenience properties available from
-``AbstractPlayer``, you should look at the section `Source Code for
-AbstractPlayer`_ for details.
+``AbstractPlayer``, you should look at the section :ref:`user_api_reference` for details.
 
 Interacting with the Maze
 =========================

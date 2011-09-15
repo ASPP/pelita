@@ -1,3 +1,5 @@
+.. _user_api_reference:
+
 ==================
 User API Reference
 ==================
