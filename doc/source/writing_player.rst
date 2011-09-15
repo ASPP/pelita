@@ -405,15 +405,3 @@ One idea is to implement probabilistic tracking using a `Kalman filter
 If you wish to know how the noise is implemented, look at the class:
 ``pelita.game_master.UniverseNoiser``.
 
-Source Code for ``AbstractPlayer``
-==================================
-
-All example Players can be found in the module ``pelita.player``.
-
-Below is the complete code for the ``pelita.player.AbstractPlayer``, showing
-all of the convenience methods/properties and also some of the
-implementation details:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer
-

@@ -56,6 +56,7 @@ Contents:
    writing_player
    running_player
    development
+   user-api
    api
 
 Indices and tables
