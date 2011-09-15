@@ -4,6 +4,9 @@ import os.path
 import random
 import string
 import keyword
+import logging
+# silence stupid warnings from logging module
+logging.root.manager.emittedNoHandlerWarning = 1
 
 try:
     import argparse
@@ -11,14 +14,6 @@ except ImportError:
     from pelita.compat import argparse
 
 import pelita
-# start logging
-import logging
-hdlr = logging.FileHandler('pelita.log', mode='w')
-logger = logging.getLogger('pelita')
-FORMAT = '[%(relativeCreated)06d %(name)s:%(levelname)s][%(funcName)s] %(message)s'
-formatter = logging.Formatter(FORMAT)
-hdlr.setFormatter(formatter)
-logger.addHandler(hdlr)
 
 def check_module(filepath):
     "Throws an ValueError is the specified path is neither a module nor a package."
@@ -96,6 +91,16 @@ def load_team(spec):
         print >>sys.stderr, 'ERROR: %s' % e
         raise
 
+def start_logging(filename):
+    hdlr = logging.FileHandler(filename, mode='w')
+    logger = logging.getLogger('pelita')
+    FORMAT = \
+    '[%(relativeCreated)06d %(name)s:%(levelname).1s][%(funcName)s] %(message)s'
+    formatter = logging.Formatter(FORMAT)
+    hdlr.setFormatter(formatter)
+    logger.addHandler(hdlr)
+
+
 def geometry_string(s):
     """Get a X-style geometry definition and return a tuple.
 
@@ -122,6 +127,9 @@ parser.add_argument('right_team', help='team on the right side', nargs='?',
 parser._optionals = parser.add_argument_group('Options')
 parser.add_argument('--help', '-h', help='show this help message and exit',
                     action='store_const', const=True)
+parser.add_argument('--log', help='print debugging log information to'
+                                  ' LOGFILE (default \'pelita.log\')',
+                    metavar='LOGFILE', default=argparse.SUPPRESS, nargs='?')
 parser.add_argument('--rounds', type=int, default=300)
 parser.add_argument('--geometry', type=geometry_string, metavar='NxM',
                     help='initial size of the game window')
@@ -200,6 +208,13 @@ def run_game(*argv):
         layouts = pelita.layout.get_available_layouts()
         print '\n'.join(layouts)
         sys.exit(0)
+
+    try:
+        start_logging(args.log or 'pelita.log')
+    except AttributeError:
+        # no log specified. so disable logging. Also un-import
+        # logging so the clients cannot import logging so easily
+        del sys.modules['logging']
 
     if 'list' in (args.left_team, args.right_team):
         print '\n'.join(PLAYERS)
