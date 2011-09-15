@@ -3,8 +3,8 @@
 from __future__ import print_function
 
 # FIXME: fit that for tournament
-CMD_STUB = '../pelitagame --rounds=300 --tk'
-SPEAK = '/usr/bin/flite'
+CMD_STUB = '/home/tiziano/git/pelita/pelitagame --rounds=300 --null'
+SPEAK = '/usr/bin/flite2'
 
 # the 'real' names of the teams (instead of group0 .. group4). they are
 # collected while the tournament goes
@@ -121,7 +121,6 @@ def start_match(team1, team2):
         return 0
     print('***', lastline)
     if lastline.find('had a draw.') >= 0:
-        print("Draw!")
         return 0
     else:
         tmp = lastline.split("'")
