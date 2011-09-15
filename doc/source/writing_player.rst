@@ -1,7 +1,5 @@
 .. _writing_a_player:
 
-.. default-role:: py:obj
-
 ================
 Writing a Player
 ================

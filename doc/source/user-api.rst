@@ -2,8 +2,6 @@
 User API reference
 ==================
 
-.. default-role:: py:obj
-
 This section summarizes the modules, classes and functions that are relevant
 when writing a player.
 
