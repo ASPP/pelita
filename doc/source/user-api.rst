@@ -14,7 +14,7 @@ when writing a player.
 Convenience Properties of ``AbstractPlayer``
 --------------------------------------------
 
-.. rubric:: Basic properties
+.. rubric:: Basic Properties
 
 .. autosummary::
 
