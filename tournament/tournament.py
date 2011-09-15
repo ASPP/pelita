@@ -1,9 +1,18 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 from __future__ import print_function
+import sys, os
+
+if not len(sys.argv) > 1:
+    sys.stderr.write('You have to specify the pelitagame script!\n')
+    sys.exit(1)
+PELITA=sys.argv[1]
+if not os.path.exists(PELITA) or not os.path.isfile(PELITA):
+    sys.stderr.write(PELITA+' not found!\n')
+    sys.exit(2)
 
 # FIXME: fit that for tournament
-CMD_STUB = '../pelitagame --seed 42 --rounds=300 --tk'
+CMD_STUB = PELITA+' --seed 42 --rounds=300 --tk'
 SPEAK = '/usr/bin/flite'
 
 # the 'real' names of the teams (instead of group0 .. group4). they are
@@ -33,8 +42,6 @@ group_members = {'group0': ('Eivind Norheim', 'David Verelst',
            }
 
 from subprocess import Popen, PIPE, STDOUT, check_call
-import os
-import sys
 import random
 import time
 import tempfile
