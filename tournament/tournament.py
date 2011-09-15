@@ -264,7 +264,6 @@ def round2(teams):
     # W vs team5
     w4 = start_deathmatch(w3, teams[4])
     pp_round2_results(teams, w1, w2, w3, w4)
-    raw_input('--- Press ENTER to start ---\n')
     return w4
 
 if __name__ == '__main__':
@@ -272,6 +271,6 @@ if __name__ == '__main__':
     present_teams()
     result = round1(teams)
     winner = round2(result)
-    print('The winner of the St Andrews Pelita tournament is', wait=2)
-    print(rnames[winner], 'Congratulations!', wait=2)
+    print('The winner of the St Andrews Pelita tournament is...', wait=2)
+    print(rnames[winner], '. Congratulations!', wait=2)
     print('Good evening master. It was a pleasure to serve you.')
