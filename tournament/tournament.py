@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+# -*- coding:utf-8 -*-
 from __future__ import print_function
 
 # FIXME: fit that for tournament
-CMD_STUB = 'python ../pelitagame --rounds=100 --tk'
+CMD_STUB = '../pelitagame --rounds=300 --tk'
 SPEAK = '/usr/bin/flite'
 
 # the 'real' names of the teams (instead of group0 .. group4). they are
@@ -111,7 +112,6 @@ def start_match(team1, team2):
     for line in tmp:
         if line.startswith('Finished.'):
             lastline = line
-            print('Match finished.')
             break
     if not lastline:
         print("*** ERROR: Apparently the game crashed. At least I could not find the outcome of the game.")
@@ -119,7 +119,7 @@ def start_match(team1, team2):
         print(stderr, speak=False)
         print("***", speak=False)
         return 0
-    print("***", lastline)
+    print('***', lastline)
     if lastline.find('had a draw.') >= 0:
         print("Draw!")
         return 0
@@ -128,10 +128,10 @@ def start_match(team1, team2):
         winner = tmp[1]
         loser = tmp[3]
         if winner == rnames[team1]:
-            print(team1, 'wins.')
+            print(rnames[team1], 'wins.')
             return 1
         elif winner == rnames[team2]:
-            print(team2, 'wins.')
+            print(rnames[team2], 'wins.')
             return 2
         else:
             print("Unable to parse winning result :(")
@@ -191,8 +191,7 @@ def round1(teams):
         else:
             points[[t1, t2][winner-1]] += POINTS_WIN
         pp_round1_results(teams, points)
-    print("Results of the first round.")
-    pp_round1_results(teams, points)
+    
     # Sort the teams by points and return the team names as a list
     result = sorted(zip(points, teams), reverse=True)
     result = [t for p, t in result]
@@ -207,22 +206,34 @@ def pp_round2_results(teams, w1, w2, w3, w4):
     """
     names = dict(rnames)
     names['???'] = '???'
-    feed = 10
+    feed = max(len(item) for item in rnames.values())+2
+    lengths={}
+    for name in names:
+        lengths[name] = feed - len(names[name])
+
+    semifinal_top_up = names[teams[0]]+' '+"─"*lengths[teams[0]]+'┐' 
+    final_top = " "*feed+' ├─ '+names[w1]+' '+'─'*lengths[w1]+'┐' 
+    semifinal_top_down = names[teams[3]]+' '+"─"*lengths[teams[3]]+'┘' 
+    preliminary_winner = (" "*(2*feed+5)+'├─ '+names[w3]+' '+
+                          '─'*lengths[w3]+'┐ ')
+    semifinal_bottom_up = names[teams[1]]+' '+"─"*lengths[teams[1]]+'┐'
+    final_bottom = " "*feed+' ├─ '+names[w2]+' '+'─'*lengths[w2]+'┘' 
+    semifinal_bottom_down = names[teams[2]]+' '+"─"*lengths[teams[2]]+'┘'
+    looser = names[teams[4]]+' '+"─"*lengths[teams[4]]+'─'*(2*feed+8)+'┘'
+    winner = " "*(3*feed+9)+'├─ '+names[w4]
     print()
-    print(names[teams[0]])
-    print(" "*feed, names[w1])
-    print(names[teams[3]])
+    print(semifinal_top_up, speak=False)
+    print(final_top, speak=False)
+    print(semifinal_top_down+' '*(feed+3)+'│', speak=False)
+    print(preliminary_winner, speak=False)
+    print(semifinal_bottom_up+' '*(feed+3)+'│'+' '*(feed+3)+'│', speak=False)
+    print(final_bottom+' '*(feed+3)+'└ '+names[w4], speak=False)
+    print(semifinal_bottom_down+' '*(feed+3)+' '+' '*(feed+3)+
+          '┌ '+'═'*len(names[w4]), speak=False)
+    print(" "*(3*feed+9)+'│')
+    print(looser, speak=False)
     print()
-    print(" "*2*feed, names[w3])
-    print()
-    print(names[teams[1]])
-    print(" "*feed, names[w2])
-    print(names[teams[2]])
-    print()
-    print(" "*3*feed, names[w4])
-    print()
-    print(names[teams[4]])
-    print()
+
 
 
 def round2(teams):
@@ -231,24 +242,30 @@ def round2(teams):
     teams is the list [group0, group1, ...] not the names of the agens, sorted
     by the result of the first round.
     """
-    raw_input('--- Press ENTER to start ---\n')
     print()
     print('ROUND 2 (K.O.)')
     print('==============', speak=False)
     print()
+    raw_input('--- Press ENTER to start ---\n')
     w1, w2, w3, w4 = "???", "???", "???", "???"
+    pp_round2_results(teams, w1, w2, w3, w4)
+    raw_input('--- Press ENTER to start ---\n')
     # 1 vs 4
     w1 = start_deathmatch(teams[0], teams[3])
     pp_round2_results(teams, w1, w2, w3, w4)
+    raw_input('--- Press ENTER to start ---\n')
     # 2 vs 3
     w2 = start_deathmatch(teams[1], teams[2])
     pp_round2_results(teams, w1, w2, w3, w4)
+    raw_input('--- Press ENTER to start ---\n')
     # w1 vs w2
     w3 = start_deathmatch(w1, w2)
     pp_round2_results(teams, w1, w2, w3, w4)
+    raw_input('--- Press ENTER to start ---\n')
     # W vs team5
     w4 = start_deathmatch(w3, teams[4])
     pp_round2_results(teams, w1, w2, w3, w4)
+    raw_input('--- Press ENTER to start ---\n')
     return w4
 
 if __name__ == '__main__':
@@ -257,5 +274,5 @@ if __name__ == '__main__':
     result = round1(teams)
     winner = round2(result)
     print('The winner of the St Andrews Pelita tournament is', wait=2)
-    print(winner, 'Congratulations!', wait=2)
+    print(rnames[winner], 'Congratulations!', wait=2)
     print('Good evening master. It was a pleasure to serve you.')
