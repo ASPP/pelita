@@ -950,6 +950,14 @@ class CTFUniverse(object):
         bot.current_pos =  legal_moves_dict[move]
         new_pos = bot.current_pos
         events.append(BotMoves(bot_id, old_pos, new_pos))
+        team = self.teams[bot.team_index]
+        # check for food being eaten
+        if self.maze.has_at(Food, bot.current_pos) and not bot.in_own_zone:
+            self.maze.remove_at(Food, bot.current_pos)
+            team._score_point()
+            events.append(BotEats(bot_id, bot.current_pos))
+            events.append(FoodEaten(bot.current_pos))
+            events.append(TeamScoreChange(team.index, 1, team.score))
         # check for destruction
         for enemy in self.enemy_bots(bot.team_index):
             if enemy.current_pos == bot.current_pos:
@@ -972,16 +980,8 @@ class CTFUniverse(object):
                     events.append(BotDestroyed(
                        enemy.index, new_old_pos, new_old_pos, enemy.initial_pos,
                        bot.index, old_pos, new_pos))
-        # check for food being eaten
-        if self.maze.has_at(Food, bot.current_pos) and not bot.in_own_zone:
-            team = self.teams[bot.team_index]
-            self.maze.remove_at(Food, bot.current_pos)
-            team._score_point()
-            events.append(BotEats(bot_id, bot.current_pos))
-            events.append(FoodEaten(bot.current_pos))
-            events.append(TeamScoreChange(team.index, 1, team.score))
-            if not self.enemy_food(team.index):
-                events.append(self.create_win_event())
+        if not self.enemy_food(team.index):
+            events.append(self.create_win_event())
 
         return events
 

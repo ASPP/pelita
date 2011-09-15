@@ -832,7 +832,8 @@ class TestCTFUniverseRules(unittest.TestCase):
             black_score=KILLPOINTS, white_score=KILLPOINTS), universe)
         self.assertTALEqualList(events, [BotMoves(0, (4, 1), (4, 2)),
             TeamScoreChange(1, KILLPOINTS, KILLPOINTS+1),
-            BotDestroyed(0, (4, 1), (4, 2), (1, 1), 1, (4, 2), (4, 2))])
+            BotDestroyed(0, (4, 1), (4, 2), (1, 1), 1, (4, 2), (4, 2)),
+            GameDraw()])
 
     def test_no_eat_own_food(self):
         test_start = (
@@ -846,6 +847,26 @@ class TestCTFUniverseRules(unittest.TestCase):
         events = universe.move_bot(1, west)
         self.assertEqual(universe.food_list, [(3, 1), (1, 2)])
         self.assertTALEqualList(events, [BotMoves(1, (4, 1), (3, 1))])
+
+    def test_suicide_win(self):
+        test = (
+            """ ######
+                #0 .1#
+                #.   #
+                ###### """)
+        universe = create_CTFUniverse(test, 2)
+        universe.move_bot(0, east)
+        universe.move_bot(1, west)
+        events = universe.move_bot(0, east)
+        target = [BotMoves(0, (2, 1), (3, 1)),
+                  BotEats(0, (3, 1)),
+                  FoodEaten((3, 1)),
+                  TeamScoreChange(0, 1, 1),
+                  TeamScoreChange(1, 5, 5),
+                  BotDestroyed(0, (2, 1), (3, 1), (1, 1), 1, (3, 1), (3, 1) ),
+                  TeamWins(1),
+                  ]
+        self.assertTALEqualList(events, target)
 
 if __name__ == '__main__':
     unittest.main()
