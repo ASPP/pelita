@@ -628,7 +628,25 @@ class Maze(Mesh):
         return self.keys()
 
     def pos_of(self, type_):
-        """ The indices of positions which have a MazeComponent. """
+        """ The indices of positions which have a MazeComponent.
+
+        Parameters
+        ----------
+        type_ : MazeComponent class
+            the type of MazeComponent to look for
+
+        Examples
+        --------
+        >>> universe.maze.pos_of(Free)
+        [(1, 1),
+        (3, 1),
+        (4, 1),
+        (5, 1),
+        (6, 1),
+        (7, 1),
+        ...
+
+        """
         return [pos for pos in self.positions if self.has_at(type_, pos)]
 
     def __repr__(self):
