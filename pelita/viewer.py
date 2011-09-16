@@ -43,12 +43,16 @@ class DumpingViewer(AbstractViewer):
         self.stream = stream
 
     def set_initial(self, universe):
-        self.stream.write("-\n")
-        self.stream.write("  universe:%s\n" % json_converter.dumps(universe))
+        self.stream.write(json_converter.dumps({"universe": universe}))
+        self.stream.write("\x04")
 
     def observe(self, round_, turn, universe, events):
-        self.stream.write("-\n")
-        self.stream.write("  round:%s\n" % json_converter.dumps(round_))
-        self.stream.write("  turn:%s\n" % json_converter.dumps(turn))
-        self.stream.write("  universe:%s\n" % json_converter.dumps(universe))
-        self.stream.write("  events:%s\n" % json_converter.dumps(events))
+        kwargs = {
+            "round_": round_,
+            "turn": turn,
+            "universe": universe,
+            "events": events
+        }
+
+        self.stream.write(json_converter.dumps(kwargs))
+        self.stream.write("\x04")
