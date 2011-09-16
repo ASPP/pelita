@@ -167,9 +167,19 @@ class GameMaster(object):
                 if isinstance(e, PlayerTimeout):
                     # after MAX_TIMEOUTS timeouts, you lose
                     self.player_teams_timeouts[bot.team_index] += 1
+
                     if self.player_teams_timeouts[bot.team_index] == MAX_TIMEOUTS:
                         other_team_idx = not bot.team_index
                         events.append(datamodel.TeamWins(other_team_idx))
+                        sys.stderr.write("Timeout #%r for team %r (bot index %r).\n" % (
+                            self.player_teams_timeouts[bot.team_index],
+                            bot.team_index,
+                            bot.index))
+                    else:
+                        sys.stderr.write("Timeout #%r for team %r (bot index %r). Team disqualified.\n" % (
+                            self.player_teams_timeouts[bot.team_index],
+                            bot.team_index,
+                            bot.index))
 
                 moves = self.universe.get_legal_moves(bot.current_pos).keys()
                 moves.remove(datamodel.stop)
@@ -184,6 +194,10 @@ class GameMaster(object):
 
                 events = TypeAwareList(base_class=datamodel.UniverseEvent)
                 events.append(datamodel.TeamWins(other_team_idx))
+
+                sys.stderr.write("Team %r (bot index %r) disconnected. Team disqualified.\n" % (
+                    bot.team_index,
+                    bot.index))
 
             self.print_possible_winner(events)
 
