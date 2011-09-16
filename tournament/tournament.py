@@ -204,7 +204,13 @@ def round1(teams):
     print('================================', speak=False)
     print()
     points = [0 for i in range(len(teams))]
-    round1 = [[i, j] for i in range(5) for j in range(i+1, 5)]
+    round1 = []
+    for i in range(5):
+        for j in range(i+1, 5):
+            ij = [i, j]
+            random.shuffle(ij)
+            round1.append(ij)
+    #round1 = [[i, j] for i in range(5) for j in range(i+1, 5)]
     # shuffle the matches for more fun
     random.shuffle(round1)
     for t1, t2 in round1:
