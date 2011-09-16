@@ -276,22 +276,14 @@ class RemoteTeamPlayer(object):
     def _set_bot_ids(self, bot_ids):
         try:
             return self.ref.query("set_bot_ids", bot_ids).get(TIMEOUT)
-        except Queue.Empty:
-            # if we did not receive a message in time
-            raise PlayerTimeout()
-        except (ActorNotRunning, DeadConnection):
-            # if the remote connection is closed
-            raise PlayerDisconnected()
+        except (Queue.Empty, ActorNotRunning, DeadConnection):
+            pass
 
     def _set_initial(self, universe):
         try:
             return self.ref.query("set_initial", [universe]).get(TIMEOUT)
-        except Queue.Empty:
-            # if we did not receive a message in time
-            raise PlayerTimeout()
-        except (ActorNotRunning, DeadConnection):
-            # if the remote connection is closed
-            raise PlayerDisconnected()
+        except (Queue.Empty, ActorNotRunning, DeadConnection):
+            pass
 
     def _get_move(self, bot_idx, universe):
         try:
@@ -360,8 +352,6 @@ class ServerActor(DispatchingActor):
         """ Register the actor with address `actor_uuid` as team `team_name`.
         """
         _logger.info("Received 'hello' from '%s'." % team_name)
-
-        self._remove_dead_teams()
 
         if self.ref.remote:
             other_ref = self.ref.remote.create_proxy(actor_uuid)
