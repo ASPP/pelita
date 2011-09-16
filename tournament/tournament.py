@@ -12,7 +12,8 @@ if not os.path.exists(PELITA) or not os.path.isfile(PELITA):
     sys.exit(2)
 
 # FIXME: fit that for tournament
-CMD_STUB = PELITA+' --seed 42 --rounds=300 --tk'
+CMD_STUB = PELITA+' --rounds=300 --tk'
+#CMD_STUB = PELITA+' --rounds=10 --null'
 SPEAK = '/usr/bin/flite'
 
 # the 'real' names of the teams (instead of group0 .. group4). they are
@@ -57,6 +58,9 @@ random.seed(42) # -> guaranteed to be random
 POINTS_DRAW = 1
 POINTS_WIN = 2
 
+def get_seed():
+    return random.randint(0, sys.maxint)
+
 def print(*args, **kwargs):
     """Speak while you print. To disable set speak=False.
     You need the program 'flite' to be able to speak.
@@ -89,12 +93,30 @@ def present_teams():
     print('Welcome to the Pelita tournament', wait=1.5)
     print('This evening the teams are:', wait=1.5)
     for group in sorted(rnames.keys()):
-        print(group)
+        print(group, rnames[group])
         [print(member, wait=0.1) for member in group_members[group]]
         time.sleep(1)
-        print('This was '+group, wait=1.5)
+        print('This was', group, rnames[group],wait=1.5)
     print('These were the teams. Now you ready for the fight?')
     
+def set_name(team):
+    """Get name of team using a dry-run pelita game"""
+    global rnames
+    args = CMD_STUB.split()
+    args.extend(['--dry-run', team, 'random'])
+    stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE).communicate()
+    for line in stdout.splitlines():
+        if line.startswith("Using factory '"):
+            split = line.split("'")
+            tname, rname = split[1], split[3]
+            if tname in rnames:
+                rnames[tname] = rname
+    if stderr != '':
+        print("*** ERROR: I could not load team", team, ". Please help!", 
+              speak=False)
+        print(stderr, speak=False)
+        sys.exit(1)
+
 def start_match(team1, team2):
     """Start a match between team1 and team2. Return which team won (1 or 2) or
     0 if there was a draw.
@@ -104,18 +126,10 @@ def start_match(team1, team2):
     print('Starting match: '+ rnames[team1]+' vs ' + rnames[team2])
     print()
     args = CMD_STUB.split()
-    args.extend([team1, team2])
+    args.extend([team1, team2, '--seed', str(get_seed())])
     stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE).communicate()
     tmp = reversed(stdout.splitlines())
     lastline = None
-    # get the real names of the teams.
-    # pelitagame will output two lines of the following form:
-    # Using factory 'RandomPlayer' -> 'The RandomPlayers'
-    for line in stdout.splitlines():
-        if line.startswith("Using factory '"):
-            split = line.split("'")
-            tname, rname = split[1], split[3]
-            rnames[tname] = rname
     for line in tmp:
         if line.startswith('Finished.'):
             lastline = line
@@ -274,7 +288,11 @@ def round2(teams):
     return w4
 
 if __name__ == '__main__':
-    teams = sorted(rnames.keys())
+    teams = rnames.keys()
+    random.shuffle(teams)
+    # load team names
+    for team in teams:
+        set_name(team)
     present_teams()
     result = round1(teams)
     winner = round2(result)
