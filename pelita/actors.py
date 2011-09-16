@@ -135,6 +135,7 @@ class _ClientActor(DispatchingActor):
         # is already registered.
         # Also: investigate how to deal with concurrency issues
         self.team = team
+        self.ref.reply("OK")
 
     @expose
     def say_hello(self, main_actor, team_name, host=None, port=None):
@@ -212,7 +213,7 @@ class ClientActor(object):
         team : PlayerTeam
             The PlayerTeam which handles all get_move requests.
         """
-        self.actor_ref.notify("register_team", [team])
+        self.actor_ref.query("register_team", [team]).get()
 
     def connect_local(self, main_actor, silent=True):
         """ Tells our local actor to establish a local connection
