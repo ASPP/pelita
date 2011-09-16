@@ -13,7 +13,7 @@ if not os.path.exists(PELITA) or not os.path.isfile(PELITA):
 
 # FIXME: fit that for tournament
 CMD_STUB = PELITA+' --rounds=300 --tk'
-#CMD_STUB = PELITA+' --rounds=10 --tk'
+#CMD_STUB = PELITA+' --rounds=10 --null'
 SPEAK = '/usr/bin/flite'
 
 # the 'real' names of the teams (instead of group0 .. group4). they are
@@ -125,8 +125,10 @@ def start_match(team1, team2):
     print()
     print('Starting match: '+ rnames[team1]+' vs ' + rnames[team2])
     print()
+    raw_input('--- Press ENTER to continue ---\n')
     args = CMD_STUB.split()
-    args.extend([team1, team2, '--seed', str(get_seed())])
+    dumpfile = 'dumpstore/'+time.strftime('%Y%m%d-%H%M%S') 
+    args.extend([team1, team2, '--dump', dumpfile,'--seed', str(get_seed())])
     stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE).communicate()
     tmp = reversed(stdout.splitlines())
     lastline = None
@@ -196,7 +198,7 @@ def round1(teams):
     teams is the sorted list [group0, group1, ...] and not the actual names of
     the agents. This is necessary to start the agents.
     """
-    raw_input('--- Press ENTER to start ---\n')
+    raw_input('--- Press ENTER to continue ---\n')
     print()
     print("ROUND 1 (Everybody vs Everybody)")
     print('================================', speak=False)
@@ -268,28 +270,28 @@ def round2(teams):
     print('ROUND 2 (K.O.)')
     print('==============', speak=False)
     print()
-    raw_input('--- Press ENTER to start ---\n')
+    raw_input('--- Press ENTER to continue ---\n')
     w1, w2, w3, w4 = "???", "???", "???", "???"
     pp_round2_results(teams, w1, w2, w3, w4)
-    raw_input('--- Press ENTER to start ---\n')
     # 1 vs 4
     w1 = start_deathmatch(teams[0], teams[3])
     pp_round2_results(teams, w1, w2, w3, w4)
-    raw_input('--- Press ENTER to start ---\n')
     # 2 vs 3
     w2 = start_deathmatch(teams[1], teams[2])
     pp_round2_results(teams, w1, w2, w3, w4)
-    raw_input('--- Press ENTER to start ---\n')
     # w1 vs w2
     w3 = start_deathmatch(w1, w2)
     pp_round2_results(teams, w1, w2, w3, w4)
-    raw_input('--- Press ENTER to start ---\n')
     # W vs team5
     w4 = start_deathmatch(w3, teams[4])
     pp_round2_results(teams, w1, w2, w3, w4)
+    raw_input('--- Press ENTER to continue ---\n')
     return w4
 
 if __name__ == '__main__':
+    # create a directory for the dumps
+    if not os.path.exists('dumpstore'):
+        os.mkdir('dumpstore')
     teams = rnames.keys()
     random.shuffle(teams)
     # load team names
