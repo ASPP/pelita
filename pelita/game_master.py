@@ -171,12 +171,12 @@ class GameMaster(object):
                     if self.player_teams_timeouts[bot.team_index] == MAX_TIMEOUTS:
                         other_team_idx = not bot.team_index
                         events.append(datamodel.TeamWins(other_team_idx))
-                        sys.stderr.write("Timeout #%r for team %r (bot index %r).\n" % (
+                        sys.stderr.write("Timeout #%r for team %r (bot index %r). Team disqualified.\n" % (
                             self.player_teams_timeouts[bot.team_index],
                             bot.team_index,
                             bot.index))
                     else:
-                        sys.stderr.write("Timeout #%r for team %r (bot index %r). Team disqualified.\n" % (
+                        sys.stderr.write("Timeout #%r for team %r (bot index %r).\n" % (
                             self.player_teams_timeouts[bot.team_index],
                             bot.team_index,
                             bot.index))
