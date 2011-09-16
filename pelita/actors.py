@@ -8,6 +8,7 @@ import sys
 import Queue
 
 import logging
+import time
 from pelita.viewer import DumpingViewer
 
 _logger = logging.getLogger("pelita")
@@ -406,6 +407,10 @@ class ServerActor(DispatchingActor):
         """ Checks, if a game can be run and start it. """
         if self.game_master is not None and len(self.teams) == 2:
             _logger.info("Two players are available. Starting a game.")
+            self.ref.notify("delayed_start_game")
 
-            self.ref.notify("start_game")
-
+    @expose
+    def delayed_start_game(self):
+        """ Waits a bit before really starting the game. """
+        time.sleep(0.3)
+        self.ref.notify("start_game")
