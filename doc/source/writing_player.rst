@@ -247,12 +247,8 @@ the ``CTFUniverse`` should be accessible through the convenience properties of
 the ``AbstractPlayer``. However, if these do not suffice, please have a look
 at the source code.
 
-Error Recovery in Case of Death or Timeout
+Recovery Strategies in Case of Death or Timeout
 ------------------------------------------
-
-.. NOTE: [Francesc] may be "Error Recovery" is not the best way to
-.. express the concept behind this section.  May be "recovery
-.. strategies" is better?
 
 Lastly, we are going to see some error recovery code in the
 ``get_move()`` method.
