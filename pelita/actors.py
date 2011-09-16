@@ -274,10 +274,24 @@ class RemoteTeamPlayer(object):
         self.ref = reference
 
     def _set_bot_ids(self, bot_ids):
-        return self.ref.query("set_bot_ids", bot_ids).get(TIMEOUT)
+        try:
+            return self.ref.query("set_bot_ids", bot_ids).get(TIMEOUT)
+        except Queue.Empty:
+            # if we did not receive a message in time
+            raise PlayerTimeout()
+        except (ActorNotRunning, DeadConnection):
+            # if the remote connection is closed
+            raise PlayerDisconnected()
 
     def _set_initial(self, universe):
-        return self.ref.query("set_initial", [universe]).get(TIMEOUT)
+        try:
+            return self.ref.query("set_initial", [universe]).get(TIMEOUT)
+        except Queue.Empty:
+            # if we did not receive a message in time
+            raise PlayerTimeout()
+        except (ActorNotRunning, DeadConnection):
+            # if the remote connection is closed
+            raise PlayerDisconnected()
 
     def _get_move(self, bot_idx, universe):
         try:
