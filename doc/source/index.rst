@@ -17,17 +17,17 @@ Pelita
 Description of the Game
 =======================
 
-Two teams of one or more *bots* compete in a *maze* that is filled with *food*.
+Two teams, of one or more *bots*, compete in a *maze* that is filled with *food*.
 The maze is split into two parts, the left and the right half, where each team
 *owns* one half of the maze.  Each bot can have one of two states, depending on
-its position in the maze. In its own half the bot is a *destroyer*. In the
-enemy half, the bot is a *harvester*. As a destroyer a bot can *destroy* enemy
-harvesters in its own half. As a harvester a bot can *eat* food that belongs to
+its position in the maze. In its own half, the bot is a *destroyer*. In the
+enemy half, the bot is a *harvester*. As a destroyer, a bot can *destroy* enemy
+harvesters in its own half. As a harvester, a bot can *eat* food that belongs to
 the enemy. The ultimate goal is to eat all the enemy's food.
 
 Your task as *user* is to implement one or more *players* to control bots. Your
-players must implement the *intelligence* to navigate you bots successfully
-through the maze, destroy the enemy's harvesters and eat the enemy's food.
+players must implement the *intelligence* to navigate your bots successfully
+through the maze, destroy the enemy's harvesters, and eat the enemy's food.
 
 
 Quick Start
@@ -35,7 +35,7 @@ Quick Start
 
 First clone the source code repository::
 
-    $ git clone git://github.com/Debilski/pelita.git
+    $ git clone http://github.com/Debilski/pelita.git
 
 And launch the command-line interface::
 
