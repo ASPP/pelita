@@ -13,7 +13,7 @@ if not os.path.exists(PELITA) or not os.path.isfile(PELITA):
 
 # FIXME: fit that for tournament
 CMD_STUB = PELITA+' --rounds=300 --tk'
-#CMD_STUB = PELITA+' --rounds=10 --null'
+#CMD_STUB = PELITA+' --rounds=10 --tk'
 SPEAK = '/usr/bin/flite'
 
 # the 'real' names of the teams (instead of group0 .. group4). they are
@@ -140,6 +140,8 @@ def start_match(team1, team2):
         print(stderr, speak=False)
         print("***", speak=False)
         return 0
+    if stderr != '':
+        print("***", stderr, speak=False)
     print('***', lastline)
     if lastline.find('had a draw.') >= 0:
         return 0
