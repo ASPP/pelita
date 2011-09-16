@@ -385,12 +385,12 @@ class TkApplication(object):
                 self.observe(observed)
 
                 if not event:
-                    self.master.after(5, self.read_queue)
+                    self.master.after(1, self.read_queue)
                 return
         except Queue.Empty:
             self.observe({})
             if not event:
-                self.master.after(5, self.read_queue)
+                self.master.after(1, self.read_queue)
 
     def observe(self, observed):
         universe = observed.get("universe")
