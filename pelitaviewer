@@ -1,0 +1,75 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys
+import logging
+# silence stupid warnings from logging module
+logging.root.manager.emittedNoHandlerWarning = 1
+
+from pelita.ui.tk_viewer import TkViewer
+from pelita.utils.threading_helpers import SuspendableThread
+from pelita.messaging.json_convert import json_converter
+
+
+try:
+    import argparse
+except ImportError:
+    from pelita.compat import argparse
+parser = argparse.ArgumentParser(description='Show a dumped pelita game',
+                                 add_help=False,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+prog = parser.prog
+parser._positionals = parser.add_argument_group('Arguments')
+parser.add_argument('dumpfile', help='File which conained the dumped data to display', nargs='?',
+                    default="pelita.dump")
+
+parser._optionals = parser.add_argument_group('Options')
+parser.add_argument('--help', '-h', help='show this help message and exit',
+                    action='store_const', const=True)
+
+def run_viewer(*argv):
+    args = parser.parse_args(argv)
+    if args.help:
+        parser.print_help()
+        sys.exit(0)
+
+    try:
+        dumpfile = args.dumpfile
+    except AttributeError:
+        dumpfile = "pelita.dump"
+
+
+    with open(dumpfile) as f:
+        old_game = f.read().split("\x04")
+
+    class DumpLoader(SuspendableThread):
+        def __init__(self, viewer):
+            self.viewer = viewer
+            self.set_initial = False
+            super(DumpLoader, self).__init__()
+
+        def start(self):
+            super(DumpLoader, self).start()
+
+        def _run(self):
+            value = old_game.pop(0)
+            if not self.set_initial:
+                universe = json_converter.loads(value)
+
+                self.viewer.set_initial(universe["universe"])
+                self.set_initial = True
+                return
+
+            dict = json_converter.loads(value)
+            self.viewer.observe(**dict)
+
+    viewer = TkViewer()
+
+    loader = DumpLoader(viewer)
+    loader.start()
+
+    viewer.root.mainloop()
+
+
+if __name__ == '__main__':
+    run_viewer(*sys.argv[1:])
