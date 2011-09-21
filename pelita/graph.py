@@ -148,7 +148,27 @@ class AdjacencyList(dict):
         return path[:-1]
 
     def a_star(self, initial, target):
-        """ A* search. """
+        """ A* search.
+
+        A* (A Star) [1] from one position to another. The search will return the
+        shortest path from the `initial` position to the `target` using the
+        Manhatten distance as a heuristic.
+
+        Parameters
+        ----------
+        initial : tuple of (int, int)
+            the first position
+        target : tuple of (int, int)
+            the target position
+
+        Returns
+        -------
+        path : lits of tuple of (int, int)
+            the path from `initial` to the closest `target`
+
+        [1] http://en.wikipedia.org/wiki/A*_search_algorithm
+
+        """
         to_visit = []
         # seen needs to be list since we use it for backtracking
         # a set would make the lookup faster, but not enable backtracking
