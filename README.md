@@ -55,8 +55,3 @@ Commits should be marked. Declare both functionality and area.
 #### Example
 
   - DOC/ENH: add initial README.md
-
-## Website
-
-
-
