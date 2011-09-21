@@ -128,8 +128,7 @@ class AdjacencyList(dict):
                 # Otherwise keep going, i.e. add adjacent nodes to seen list.
                 seen.append(current)
                 to_visit.extend(self[current])
-        # if we did not find any food, we simply return a path with only the
-        # current position
+        # if we did not find any of the targets, raise an Exception
         if not found:
             raise NoPathException("BFS: No path from %r to %r."
                     % (initial, targets))
