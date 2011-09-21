@@ -121,3 +121,13 @@ class TestAdjacencyList(unittest.TestCase):
         self.assertRaises(NoPositionException, al.bfs, (0, 1), [(10, 1)])
         self.assertRaises(NoPositionException, al.bfs, (1, 1), [(11, 1)])
 
+    def test_a_star_exceptions(self):
+        test_layout = (
+        """ ############
+            #0.     #.1#
+            ############ """)
+        universe = create_CTFUniverse(test_layout, 2)
+        al = AdjacencyList(universe)
+        self.assertRaises(NoPathException, al.a_star, (1, 1), (10, 1))
+        self.assertRaises(NoPositionException, al.a_star, (0, 1), (10, 1))
+        self.assertRaises(NoPositionException, al.a_star, (1, 1), (11, 1))

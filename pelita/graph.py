@@ -69,6 +69,12 @@ class AdjacencyList(dict):
             to_visit = local_to_visit
         return positions
 
+    def _check_pos_exists(self, positions):
+        for pos in positions:
+            if pos not in self.keys():
+                raise NoPositionException("Position %s does not exist." %
+                        repr(pos))
+
     def bfs(self, initial, targets):
         """ Breadth first search (bfs).
 
@@ -99,10 +105,7 @@ class AdjacencyList(dict):
 
         """
         # First check that the arguments were valid.
-        for pos in [initial] + targets:
-            if pos not in self.keys():
-                raise NoPositionException("Position %s does not exist." %
-                        repr(pos))
+        self._check_pos_exists([initial] + targets)
         # Initialise `to_visit` of type `deque` with current position.
         # We use a `deque` since we need to extend to the right
         # but pop from the left, i.e. its a fifo queue.
@@ -125,8 +128,7 @@ class AdjacencyList(dict):
                 # Otherwise keep going, i.e. add adjacent nodes to seen list.
                 seen.append(current)
                 to_visit.extend(self[current])
-        # if we did not find any food, we simply return a path with only the
-        # current position
+        # if we did not find any of the targets, raise an Exception
         if not found:
             raise NoPathException("BFS: No path from %r to %r."
                     % (initial, targets))
@@ -148,7 +150,36 @@ class AdjacencyList(dict):
         return path[:-1]
 
     def a_star(self, initial, target):
-        """ A* search. """
+        """ A* search.
+
+        A* (A Star) [1] from one position to another. The search will return the
+        shortest path from the `initial` position to the `target` using the
+        Manhatten distance as a heuristic.
+
+        Parameters
+        ----------
+        initial : tuple of (int, int)
+            the first position
+        target : tuple of (int, int)
+            the target position
+
+        Returns
+        -------
+        path : lits of tuple of (int, int)
+            the path from `initial` to the closest `target`
+
+        Raises
+        ------
+        NoPathException
+            if no path from `initial` to one of `targets`
+        NoPositionException
+            if either `initial` or `targets` does not exist
+
+        [1] http://en.wikipedia.org/wiki/A*_search_algorithm
+
+        """
+        # First check that the arguments were valid.
+        self._check_pos_exists([initial, target])
         to_visit = []
         # seen needs to be list since we use it for backtracking
         # a set would make the lookup faster, but not enable backtracking
@@ -157,16 +188,22 @@ class AdjacencyList(dict):
         # this ensures we always get the next node with to lowest manhatten
         # distance to the current node
         heapq.heappush(to_visit, (0, (initial)))
+        found = False
         while to_visit:
             man_dist, current = heapq.heappop(to_visit)
             if current in seen:
                 continue
             elif current == target:
+                found = True
                 break
             else:
                 seen.append(current)
                 for pos in self[current]:
                     heapq.heappush(to_visit, (manhattan_dist(target, pos), (pos)))
+
+        if not found:
+            raise NoPathException("BFS: No path from %r to %r."
+                    % (initial, target))
 
         # Now back-track using seen to determine how we got here.
         # Initialise the path with current node, i.e. position of food.
