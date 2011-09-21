@@ -10,7 +10,7 @@ Pelita
 .. figure:: images/demogame.png
    :alt: Screenshot.
 
-   **A first fight:** 'the bad ones' VS. 'the good ones'
+   **A first fight:** 'The BasicDefensePlayers' VS. 'The BFSPlayers'
 
 **Pelita** is Actor-based Toolkit for Interactive Language Education in Python.
 
