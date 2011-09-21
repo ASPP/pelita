@@ -255,7 +255,7 @@ the ``AbstractPlayer``. However, if these do not suffice, please have a look
 at the source code.
 
 Recovery Strategies in Case of Death or Timeout
-------------------------------------------
+-----------------------------------------------
 
 Lastly, we are going to see some error recovery code in the
 ``get_move()`` method.
