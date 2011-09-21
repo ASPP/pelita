@@ -10,7 +10,7 @@ Pelita
 .. figure:: images/demogame.png
    :alt: Screenshot.
 
-   **A first fight:** 'the bad ones' VS. 'the good ones'
+   **A first fight:** 'The BasicDefensePlayers' VS. 'The BFSPlayers'
 
 **Pelita** is Actor-based Toolkit for Interactive Language Education in Python.
 
@@ -50,12 +50,14 @@ Continue reading: :ref:`writing_a_player`.
 Contents:
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    info
    writing_player
    running_player
    development
+   user-api
+   api
 
 Indices and tables
 ==================

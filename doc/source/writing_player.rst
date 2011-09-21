@@ -14,25 +14,26 @@ Introduction
 To begin with, we must define a few classes and some terminology which will be
 used throughout this documentation.
 
-:``pelita.datamodel.CTFUniverse``:
+
+`pelita.datamodel.CTFUniverse`:
     The game state. Holds a list of ``Bot`` instances, a list of ``Team``
     instances and a single ``Maze`` object. Can be queried to obtain
     information about the game.
 
-:``pelita.datamodel.Bot``:
+`pelita.datamodel.Bot`:
     The data structure used to store the bot. This holds the position of the
     ``Bot`` inside the Maze, its initial position, which team it belongs to
     etc..
 
-:``pelita.datamodel.Team``:
+`pelita.datamodel.Team`:
     In capture-the-flag each ``Bot`` belongs to a ``Team``. The team stores the
     indices of its bot, the score, the team name etc..
 
-:``pelita.datamodel.Maze``:
+`pelita.datamodel.Maze`:
     Data structure that stores the maze or layout, i.e. where walls and food
     are.
 
-:``pelita.game_master.GameMaster``:
+`pelita.game_master.GameMaster`:
     Controller object that asks players for moves and updates the ``Universe``.
     You will never need to interact with this object but it's good to know that
     this is the central object that coordinates the game.
@@ -50,10 +51,10 @@ Player Basics
 =============
 
 In order to write a player you should subclass from
-``pelita.player.AbstractPlayer``. This is an abstract class which provides
-several convenience methods and properties to interrogate the universe including
-the bot instance that this player controls, but lacks the functions to actually
-control the bot.
+`pelita.player.AbstractPlayer`. This is an abstract class which provides several
+convenience methods and properties to interrogate the universe including the bot
+instance that this player controls, but lacks the functions to actually control
+the bot.
 
 To subclass from ``AbstractPlayer`` import this with::
 
@@ -64,11 +65,11 @@ method ``get_move()`` to return a move. This can be one of::
 
     (north, south, west, east, stop)
 
-The moves are provided by the ``pelita.datamodel``, import them with::
+The moves are provided by the `pelita.datamodel`, import them with::
 
     from pelita.datamodel import north, south, west, east, stop
 
-An example of such a player is the trivial ``pelita.players.StoppingPlayer``
+An example of such a player is the trivial `pelita.player.StoppingPlayer`
 which simply returns ``stop``:
 
 .. literalinclude:: ../../pelita/player.py
@@ -81,19 +82,19 @@ about that later.
 Doing More
 ==========
 
-A slightly more useful example is the ``RandomPlayer`` which always selects a
-move at random from the possible moves:
+A slightly more useful example is the `pelita.player.RandomPlayer` which always
+selects a move at random from the possible moves:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: RandomPlayer
 
-Here we can see the first convenience method: ``legal_moves`` which returns a
+Here we can see the first convenience property ``legal_moves`` which returns a
 dictionary mapping move tuples to position tuples. The random player simply
 selects a move at random from the keys (moves) of this dictionary and then moves
 there. ``legal_moves`` always includes stop.
 
-The next example is the not-quite random player ``NQRandomPlayer``. This one
-does not move back to the position where it was on its last turn and
+The next example is the not-quite random player `pelita.player.NQRandomPlayer``.
+This one does not move back to the position where it was on its last turn and
 never stops in place:
 
 
@@ -168,18 +169,24 @@ Note that Manhattan and maze distances are always integer values.
 In the game, distances are almost always measured either in Manhattan or in 
 maze distance.
 We provide a series of convenience methods for dealing with position 
-and distances in ``pelita.datamodel``:
+and distances in `pelita.datamodel`:
 
-:``new_pos``: Adds a position tuple and a move tuple.
-:``diff_pos``: Return the move required to move from one position to another.
-:``is_adjacent``: Check that two positions are adjacent.
-:``manhattan_dist``: Manhattan distance between two points.
+.. currentmodule:: pelita.datamodel
+
+.. autosummary::
+   :nosignatures:
+
+    new_pos
+    diff_pos
+    is_adjacent
+    manhattan_dist
 
 A Basic Offensive Player
 ========================
 
-A somewhat more elaborate example is the ``BFSPlayer`` which uses *breadth first
-search* on an *adjacency list* representation of the maze to find food:
+A somewhat more elaborate example is the `pelita.player.BFSPlayer` which uses
+*breadth first search* on an *adjacency list* representation of the maze to find
+food:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: BFSPlayer
@@ -248,7 +255,7 @@ the ``AbstractPlayer``. However, if these do not suffice, please have a look
 at the source code.
 
 Recovery Strategies in Case of Death or Timeout
-------------------------------------------
+-----------------------------------------------
 
 Lastly, we are going to see some error recovery code in the
 ``get_move()`` method.
@@ -296,14 +303,13 @@ property of the bot (the bot instance from one turn ago) to obtain its previous
 position.
 
 There are a few more convenience properties available from
-``AbstractPlayer``, you should look at the section `Source Code for
-AbstractPlayer`_ for details.
+``AbstractPlayer``, you should look at the section :ref:`user_api_reference` for details.
 
 Interacting with the Maze
 =========================
 
 The ``BFSPlayer`` above uses the adjacency list representation provided by:
-``pelita.graph.Adjacency``. Let's have a quick look at how this is generated, in
+`pelita.graph.AdjacencyList``. Let's have a quick look at how this is generated, in
 case you would like to implement your own `graph storage
 <http://en.wikipedia.org/wiki/Graph_(data_structure)>`_ or leverage an
 alternative existing package such as `NetworkX <http://networkx.lanl.gov/>`_.
@@ -313,16 +319,17 @@ Here it is the ``__init__`` of the ``AdjacencyList``:
 .. literalinclude:: ../../pelita/graph.py
    :lines: 17-30
 
-In order to obtain the positions of all free spaces, the ``Maze`` class provides
-the function ``pos_of(maze_component_class)``. The type of the argument is
-``MazeComponent`` (but it's a class, not an instance). There are three
-``MazeComponent`` classes available in ``pelita.datamodel``: ``Wall``, ``Free``,
-``Food``. Then, we can use the method ``get_legal_moves(pos).values()`` to obtain the
-adjacent free spaces, for each of the free positions.  The last step is to use
-the ``update`` method to set the generated dictionary, which we can do, since
-``AdjacencyList`` inherits from ``dict``.
+In order to obtain the positions of all free spaces, the `pelita.datamodel.Maze`
+class provides the function `pelita.datamodel.Maze.pos_of`. The type of the
+argument is of type `pelita.datamodel.MazeComponent` (but it's a class, not an
+instance). There are three ``MazeComponent`` classes available in
+``pelita.datamodel``: ``Wall``, ``Free``, ``Food``. Then, we use the method
+``get_legal_moves(pos).values()`` to obtain the adjacent free spaces, for each
+of the free positions.  The last step is to use the ``update`` method to set the
+generated dictionary, which we can do, since ``AdjacencyList`` inherits from
+``dict``.
 
-In addition to `pos_of`, there are a few additional constructs that are
+In addition to ``pos_of``, there are a few additional constructs that are
 useful when dealing with the maze. The property ``positions`` gives all the
 positions in the maze. To check if a given ``MazeComponent`` is at a certain
 position use the ``in`` operator::
@@ -359,7 +366,7 @@ The player mostly uses convenience properties already introduced for the
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer.team
 
-This has a method ``in_zone(position)`` which uses to check if a position is
+This has a method ``in_zone(position)`` which it uses to check if a position is
 within the zone of this team. Also, it uses the ``team_border`` convenience
 property which gives the positions of the border:
 
@@ -394,16 +401,4 @@ One idea is to implement probabilistic tracking using a `Kalman filter
 
 If you wish to know how the noise is implemented, look at the class:
 ``pelita.game_master.UniverseNoiser``.
-
-Source Code for ``AbstractPlayer``
-==================================
-
-All example Players can be found in the module ``pelita.player``.
-
-Below is the complete code for the ``pelita.player.AbstractPlayer``, showing
-all of the convenience methods/properties and also some of the
-implementation details:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer
 

@@ -266,8 +266,8 @@ class RemoteTeamPlayer(object):
 
     It also does some basic checks for correct return values.
 
-    Paramters
-    ---------
+    Parameters
+    ----------
     reference : ActorReference
         A reference to the local or remote actor.
     """
