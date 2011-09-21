@@ -69,6 +69,12 @@ class AdjacencyList(dict):
             to_visit = local_to_visit
         return positions
 
+    def _check_pos_exists(self, positions):
+        for pos in positions:
+            if pos not in self.keys():
+                raise NoPositionException("Position %s does not exist." %
+                        repr(pos))
+
     def bfs(self, initial, targets):
         """ Breadth first search (bfs).
 
@@ -99,10 +105,7 @@ class AdjacencyList(dict):
 
         """
         # First check that the arguments were valid.
-        for pos in [initial] + targets:
-            if pos not in self.keys():
-                raise NoPositionException("Position %s does not exist." %
-                        repr(pos))
+        self._check_pos_exists([initial] + targets)
         # Initialise `to_visit` of type `deque` with current position.
         # We use a `deque` since we need to extend to the right
         # but pop from the left, i.e. its a fifo queue.
