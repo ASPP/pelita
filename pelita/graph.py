@@ -168,9 +168,18 @@ class AdjacencyList(dict):
         path : lits of tuple of (int, int)
             the path from `initial` to the closest `target`
 
+        Raises
+        ------
+        NoPathException
+            if no path from `initial` to one of `targets`
+        NoPositionException
+            if either `initial` or `targets` does not exist
+
         [1] http://en.wikipedia.org/wiki/A*_search_algorithm
 
         """
+        # First check that the arguments were valid.
+        self._check_pos_exists([initial, target])
         to_visit = []
         # seen needs to be list since we use it for backtracking
         # a set would make the lookup faster, but not enable backtracking
@@ -179,16 +188,22 @@ class AdjacencyList(dict):
         # this ensures we always get the next node with to lowest manhatten
         # distance to the current node
         heapq.heappush(to_visit, (0, (initial)))
+        found = False
         while to_visit:
             man_dist, current = heapq.heappop(to_visit)
             if current in seen:
                 continue
             elif current == target:
+                found = True
                 break
             else:
                 seen.append(current)
                 for pos in self[current]:
                     heapq.heappush(to_visit, (manhattan_dist(target, pos), (pos)))
+
+        if not found:
+            raise NoPathException("BFS: No path from %r to %r."
+                    % (initial, target))
 
         # Now back-track using seen to determine how we got here.
         # Initialise the path with current node, i.e. position of food.
