@@ -1,0 +1,6 @@
+pelita.player.MoveExceptionPlayer.enemy_food
+============================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: MoveExceptionPlayer.enemy_food

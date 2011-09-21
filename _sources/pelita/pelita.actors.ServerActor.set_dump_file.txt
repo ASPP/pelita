@@ -1,0 +1,6 @@
+pelita.actors.ServerActor.set_dump_file
+=======================================
+
+.. currentmodule:: pelita.actors
+
+.. automethod:: ServerActor.set_dump_file

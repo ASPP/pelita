@@ -1,0 +1,6 @@
+pelita.player.NQRandomPlayer.enemy_food
+=======================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: NQRandomPlayer.enemy_food

@@ -1,0 +1,212 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pelita.messaging.DispatchingActor &mdash; Pelita v0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'v0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Pelita v0.1.0 documentation" href="../index.html" />
+    <link rel="up" title="pelita.messaging" href="pelita.messaging.html" />
+    <link rel="next" title="pelita.messaging.DispatchingActor.__init__" href="pelita.messaging.DispatchingActor.__init__.html" />
+    <link rel="prev" title="pelita.messaging.BaseMessage.wants_response" href="pelita.messaging.BaseMessage.wants_response.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pelita.messaging.DispatchingActor.__init__.html" title="pelita.messaging.DispatchingActor.__init__"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pelita.messaging.BaseMessage.wants_response.html" title="pelita.messaging.BaseMessage.wants_response"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pelita v0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API reference</a> &raquo;</li>
+          <li><a href="pelita.messaging.html" accesskey="U">pelita.messaging</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pelita-messaging-dispatchingactor">
+<h1>pelita.messaging.DispatchingActor<a class="headerlink" href="#pelita-messaging-dispatchingactor" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pelita.messaging.DispatchingActor">
+<em class="property">class </em><tt class="descclassname">pelita.messaging.</tt><tt class="descname">DispatchingActor</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#pelita.messaging.DispatchingActor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pelita.messaging.actor.Actor</span></tt></p>
+<p>The <a class="reference internal" href="#pelita.messaging.DispatchingActor" title="pelita.messaging.DispatchingActor"><tt class="xref py py-obj docutils literal"><span class="pre">DispatchingActor</span></tt></a> allows methods of the form</p>
+<p>&#64;expose
+def some_action(self, <a href="#id1"><span class="problematic" id="id2">*</span></a>args)</p>
+<p>which may be called as</p>
+<p>actor = DispatchingActor()
+actor.send(&#8220;some_action&#8221;, params)</p>
+<p>An alternative form which allows for calling with a different name
+is available</p>
+<p>&#64;expose(name=&#8221;action&#8221;)
+def some_action(self, <a href="#id3"><span class="problematic" id="id4">*</span></a>args)</p>
+<p>actor.send(&#8220;action&#8221;, params)</p>
+<p>Note that <a class="reference internal" href="#pelita.messaging.DispatchingActor" title="pelita.messaging.DispatchingActor"><tt class="xref py py-obj docutils literal"><span class="pre">DispatchingActor</span></tt></a> overrides <a class="reference internal" href="pelita.messaging.DispatchingActor.on_receive.html#pelita.messaging.DispatchingActor.on_receive" title="pelita.messaging.DispatchingActor.on_receive"><tt class="xref py py-obj docutils literal"><span class="pre">on_receive</span></tt></a>.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.DispatchingActor.__init__.html#pelita.messaging.DispatchingActor.__init__" title="pelita.messaging.DispatchingActor.__init__"><tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.messaging.DispatchingActor.handle_inbox.html#pelita.messaging.DispatchingActor.handle_inbox" title="pelita.messaging.DispatchingActor.handle_inbox"><tt class="xref py py-obj docutils literal"><span class="pre">handle_inbox</span></tt></a></td>
+<td>Reads the next item from the Queue or raises Queue.Empty</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.DispatchingActor.on_invalid.html#pelita.messaging.DispatchingActor.on_invalid" title="pelita.messaging.DispatchingActor.on_invalid"><tt class="xref py py-obj docutils literal"><span class="pre">on_invalid</span></tt></a></td>
+<td>Called when the method is not valid.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.messaging.DispatchingActor.on_receive.html#pelita.messaging.DispatchingActor.on_receive" title="pelita.messaging.DispatchingActor.on_receive"><tt class="xref py py-obj docutils literal"><span class="pre">on_receive</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.DispatchingActor.on_start.html#pelita.messaging.DispatchingActor.on_start" title="pelita.messaging.DispatchingActor.on_start"><tt class="xref py py-obj docutils literal"><span class="pre">on_start</span></tt></a></td>
+<td>This method is called <em>before</em> an actor is started.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.messaging.DispatchingActor.on_stop.html#pelita.messaging.DispatchingActor.on_stop" title="pelita.messaging.DispatchingActor.on_stop"><tt class="xref py py-obj docutils literal"><span class="pre">on_stop</span></tt></a></td>
+<td>This method is called <em>after</em> an actor is stopped.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.DispatchingActor.on_unhandled.html#pelita.messaging.DispatchingActor.on_unhandled" title="pelita.messaging.DispatchingActor.on_unhandled"><tt class="xref py py-obj docutils literal"><span class="pre">on_unhandled</span></tt></a></td>
+<td>Called when no method fits the message.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.messaging.DispatchingActor.put.html#pelita.messaging.DispatchingActor.put" title="pelita.messaging.DispatchingActor.put"><tt class="xref py py-obj docutils literal"><span class="pre">put</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.DispatchingActor.run.html#pelita.messaging.DispatchingActor.run" title="pelita.messaging.DispatchingActor.run"><tt class="xref py py-obj docutils literal"><span class="pre">run</span></tt></a></td>
+<td>Executes the thread.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.messaging.DispatchingActor.start.html#pelita.messaging.DispatchingActor.start" title="pelita.messaging.DispatchingActor.start"><tt class="xref py py-obj docutils literal"><span class="pre">start</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.DispatchingActor.stop.html#pelita.messaging.DispatchingActor.stop" title="pelita.messaging.DispatchingActor.stop"><tt class="xref py py-obj docutils literal"><span class="pre">stop</span></tt></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.DispatchingActor.paused.html#pelita.messaging.DispatchingActor.paused" title="pelita.messaging.DispatchingActor.paused"><tt class="xref py py-obj docutils literal"><span class="pre">paused</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.messaging.DispatchingActor.ref.html#pelita.messaging.DispatchingActor.ref" title="pelita.messaging.DispatchingActor.ref"><tt class="xref py py-obj docutils literal"><span class="pre">ref</span></tt></a></td>
+<td>Returns the <a class="reference internal" href="pelita.messaging.ActorReference.html#pelita.messaging.ActorReference" title="pelita.messaging.ActorReference"><tt class="xref py py-obj docutils literal"><span class="pre">ActorReference</span></tt></a> of the current actor.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.DispatchingActor.thread.html#pelita.messaging.DispatchingActor.thread" title="pelita.messaging.DispatchingActor.thread"><tt class="xref py py-obj docutils literal"><span class="pre">thread</span></tt></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running_player.html">Running Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-api.html">User API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/pelita/pelita.messaging.DispatchingActor.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pelita.messaging.DispatchingActor.__init__.html" title="pelita.messaging.DispatchingActor.__init__"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pelita.messaging.BaseMessage.wants_response.html" title="pelita.messaging.BaseMessage.wants_response"
+             >previous</a> |</li>
+        <li><a href="../index.html">Pelita v0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API reference</a> &raquo;</li>
+          <li><a href="pelita.messaging.html" >pelita.messaging</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
+      Last updated on Sep 21, 2011.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/cf794ec8a096.
+    </div>
+  </body>
+</html>

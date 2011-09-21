@@ -1,0 +1,6 @@
+pelita.player.BasicDefensePlayer.current_pos
+============================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: BasicDefensePlayer.current_pos

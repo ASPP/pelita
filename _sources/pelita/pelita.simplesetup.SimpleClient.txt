@@ -1,0 +1,22 @@
+pelita.simplesetup.SimpleClient
+===============================
+
+.. currentmodule:: pelita.simplesetup
+
+.. autoclass:: SimpleClient
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~SimpleClient.__init__
+      ~SimpleClient.autoplay
+      ~SimpleClient.autoplay_background
+      ~SimpleClient.autoplay_process
+      ~SimpleClient.autoplay_thread
+   
+
+   

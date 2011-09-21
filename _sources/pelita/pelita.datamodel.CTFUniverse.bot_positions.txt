@@ -1,0 +1,6 @@
+pelita.datamodel.CTFUniverse.bot_positions
+==========================================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoattribute:: CTFUniverse.bot_positions

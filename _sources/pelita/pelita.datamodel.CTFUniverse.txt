@@ -1,0 +1,40 @@
+pelita.datamodel.CTFUniverse
+============================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: CTFUniverse
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~CTFUniverse.__init__
+      ~CTFUniverse.copy
+      ~CTFUniverse.create_win_event
+      ~CTFUniverse.enemy_bots
+      ~CTFUniverse.enemy_food
+      ~CTFUniverse.get_legal_moves
+      ~CTFUniverse.move_bot
+      ~CTFUniverse.neighbourhood
+      ~CTFUniverse.other_team_bots
+      ~CTFUniverse.team_border
+      ~CTFUniverse.team_bots
+      ~CTFUniverse.team_food
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~CTFUniverse.bot_positions
+      ~CTFUniverse.compact_str
+      ~CTFUniverse.food_list
+      ~CTFUniverse.pretty
+   

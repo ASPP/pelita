@@ -1,0 +1,6 @@
+pelita.viewer.AsciiViewer.set_initial
+=====================================
+
+.. currentmodule:: pelita.viewer
+
+.. automethod:: AsciiViewer.set_initial

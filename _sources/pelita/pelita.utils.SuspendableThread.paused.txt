@@ -1,0 +1,6 @@
+pelita.utils.SuspendableThread.paused
+=====================================
+
+.. currentmodule:: pelita.utils
+
+.. autoattribute:: SuspendableThread.paused

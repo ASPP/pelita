@@ -1,0 +1,6 @@
+pelita.graph.AdjacencyList.bfs
+==============================
+
+.. currentmodule:: pelita.graph
+
+.. automethod:: AdjacencyList.bfs

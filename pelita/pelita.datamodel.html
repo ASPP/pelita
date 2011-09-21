@@ -1,0 +1,255 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pelita.datamodel &mdash; Pelita v0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'v0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Pelita v0.1.0 documentation" href="../index.html" />
+    <link rel="up" title="API reference" href="../api.html" />
+    <link rel="next" title="pelita.datamodel.create_CTFUniverse" href="pelita.datamodel.create_CTFUniverse.html" />
+    <link rel="prev" title="pelita.containers.TypeAwareList.reverse" href="pelita.containers.TypeAwareList.reverse.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pelita.datamodel.create_CTFUniverse.html" title="pelita.datamodel.create_CTFUniverse"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pelita.containers.TypeAwareList.reverse.html" title="pelita.containers.TypeAwareList.reverse"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pelita v0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pelita.datamodel">
+<span id="pelita-datamodel"></span><h1>pelita.datamodel<a class="headerlink" href="#module-pelita.datamodel" title="Permalink to this headline">¶</a></h1>
+<p>The datamodel.</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.create_CTFUniverse.html#pelita.datamodel.create_CTFUniverse" title="pelita.datamodel.create_CTFUniverse"><tt class="xref py py-obj docutils literal"><span class="pre">create_CTFUniverse</span></tt></a></td>
+<td>Factory to create a 2-Player Capture The Flag Universe.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.create_maze.html#pelita.datamodel.create_maze" title="pelita.datamodel.create_maze"><tt class="xref py py-obj docutils literal"><span class="pre">create_maze</span></tt></a></td>
+<td>Transforms a layout_mesh into a Maze.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.diff_pos.html#pelita.datamodel.diff_pos" title="pelita.datamodel.diff_pos"><tt class="xref py py-obj docutils literal"><span class="pre">diff_pos</span></tt></a></td>
+<td>Return the move required to move from one pos to another.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.extract_initial_positions.html#pelita.datamodel.extract_initial_positions" title="pelita.datamodel.extract_initial_positions"><tt class="xref py py-obj docutils literal"><span class="pre">extract_initial_positions</span></tt></a></td>
+<td>Extract initial positions from mesh.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.is_adjacent.html#pelita.datamodel.is_adjacent" title="pelita.datamodel.is_adjacent"><tt class="xref py py-obj docutils literal"><span class="pre">is_adjacent</span></tt></a></td>
+<td>Check that two positions are adjacent.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.manhattan_dist.html#pelita.datamodel.manhattan_dist" title="pelita.datamodel.manhattan_dist"><tt class="xref py py-obj docutils literal"><span class="pre">manhattan_dist</span></tt></a></td>
+<td>Manhattan distance between two points.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.new_pos.html#pelita.datamodel.new_pos" title="pelita.datamodel.new_pos"><tt class="xref py py-obj docutils literal"><span class="pre">new_pos</span></tt></a></td>
+<td>Adds a position tuple and a move tuple.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.Bot.html#pelita.datamodel.Bot" title="pelita.datamodel.Bot"><tt class="xref py py-obj docutils literal"><span class="pre">Bot</span></tt></a></td>
+<td>A bot on a team.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.BotDestroyed.html#pelita.datamodel.BotDestroyed" title="pelita.datamodel.BotDestroyed"><tt class="xref py py-obj docutils literal"><span class="pre">BotDestroyed</span></tt></a></td>
+<td>Signifies that a bot has been destroyed.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.BotEats.html#pelita.datamodel.BotEats" title="pelita.datamodel.BotEats"><tt class="xref py py-obj docutils literal"><span class="pre">BotEats</span></tt></a></td>
+<td>Signifies that a bot has eaten food.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.BotMoves.html#pelita.datamodel.BotMoves" title="pelita.datamodel.BotMoves"><tt class="xref py py-obj docutils literal"><span class="pre">BotMoves</span></tt></a></td>
+<td>Signifies that a bot has moved.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.CTFUniverse.html#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><tt class="xref py py-obj docutils literal"><span class="pre">CTFUniverse</span></tt></a></td>
+<td>The Universe: representation of the game state.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.Food.html#pelita.datamodel.Food" title="pelita.datamodel.Food"><tt class="xref py py-obj docutils literal"><span class="pre">Food</span></tt></a></td>
+<td>Object to represent a food item.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.FoodEaten.html#pelita.datamodel.FoodEaten" title="pelita.datamodel.FoodEaten"><tt class="xref py py-obj docutils literal"><span class="pre">FoodEaten</span></tt></a></td>
+<td>Signifies that food has been eaten.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.Free.html#pelita.datamodel.Free" title="pelita.datamodel.Free"><tt class="xref py py-obj docutils literal"><span class="pre">Free</span></tt></a></td>
+<td>Object to represent a free space.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.GameDraw.html#pelita.datamodel.GameDraw" title="pelita.datamodel.GameDraw"><tt class="xref py py-obj docutils literal"><span class="pre">GameDraw</span></tt></a></td>
+<td>Signifies that the game was a draw.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.Maze.html#pelita.datamodel.Maze" title="pelita.datamodel.Maze"><tt class="xref py py-obj docutils literal"><span class="pre">Maze</span></tt></a></td>
+<td>A Mesh of strings of MazeComponent representations.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.MazeComponent.html#pelita.datamodel.MazeComponent" title="pelita.datamodel.MazeComponent"><tt class="xref py py-obj docutils literal"><span class="pre">MazeComponent</span></tt></a></td>
+<td>Base class for all items inside a Maze.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.Team.html#pelita.datamodel.Team" title="pelita.datamodel.Team"><tt class="xref py py-obj docutils literal"><span class="pre">Team</span></tt></a></td>
+<td>A team of bots.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.TeamScoreChange.html#pelita.datamodel.TeamScoreChange" title="pelita.datamodel.TeamScoreChange"><tt class="xref py py-obj docutils literal"><span class="pre">TeamScoreChange</span></tt></a></td>
+<td>Signifies that the score of a Team has changed.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.TeamWins.html#pelita.datamodel.TeamWins" title="pelita.datamodel.TeamWins"><tt class="xref py py-obj docutils literal"><span class="pre">TeamWins</span></tt></a></td>
+<td>Signifies that a team has eaten all enemy food.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.TimeoutEvent.html#pelita.datamodel.TimeoutEvent" title="pelita.datamodel.TimeoutEvent"><tt class="xref py py-obj docutils literal"><span class="pre">TimeoutEvent</span></tt></a></td>
+<td>Signifies that a timeout has occurred.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.UniverseEvent.html#pelita.datamodel.UniverseEvent" title="pelita.datamodel.UniverseEvent"><tt class="xref py py-obj docutils literal"><span class="pre">UniverseEvent</span></tt></a></td>
+<td>Base class for all events in a Universe.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.Wall.html#pelita.datamodel.Wall" title="pelita.datamodel.Wall"><tt class="xref py py-obj docutils literal"><span class="pre">Wall</span></tt></a></td>
+<td>Object to represent a wall.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Exceptions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.IllegalMoveException.html#pelita.datamodel.IllegalMoveException" title="pelita.datamodel.IllegalMoveException"><tt class="xref py py-obj docutils literal"><span class="pre">IllegalMoveException</span></tt></a></td>
+<td>Raised when a bot attempts to make an illegal move.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.UniverseException.html#pelita.datamodel.UniverseException" title="pelita.datamodel.UniverseException"><tt class="xref py py-obj docutils literal"><span class="pre">UniverseException</span></tt></a></td>
+<td>Standard error in the Universe.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running_player.html">Running Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-api.html">User API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pelita.__layouts.html">pelita.__layouts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.__version_from_git.html">pelita.__version_from_git</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.actors.html">pelita.actors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.compat.html">pelita.compat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.containers.html">pelita.containers</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">pelita.datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.game_master.html">pelita.game_master</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.graph.html">pelita.graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.layout.html">pelita.layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.messaging.html">pelita.messaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.player.html">pelita.player</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.simplesetup.html">pelita.simplesetup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.ui.html">pelita.ui</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.utils.html">pelita.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.viewer.html">pelita.viewer</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/pelita/pelita.datamodel.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pelita.datamodel.create_CTFUniverse.html" title="pelita.datamodel.create_CTFUniverse"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pelita.containers.TypeAwareList.reverse.html" title="pelita.containers.TypeAwareList.reverse"
+             >previous</a> |</li>
+        <li><a href="../index.html">Pelita v0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
+      Last updated on Sep 21, 2011.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/cf794ec8a096.
+    </div>
+  </body>
+</html>

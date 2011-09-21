@@ -1,0 +1,6 @@
+pelita.player.BFSPlayer.enemy_food
+==================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: BFSPlayer.enemy_food

@@ -1,0 +1,29 @@
+pelita.player
+=============
+
+.. automodule:: pelita.player
+
+   
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~AbstractPlayer
+      ~BFSPlayer
+      ~BasicDefensePlayer
+      ~CPUBoundPlayer
+      ~IOBoundPlayer
+      ~InitialExceptionPlayer
+      ~MoveExceptionPlayer
+      ~NQRandomPlayer
+      ~RandomPlayer
+      ~SimpleTeam
+      ~StoppingPlayer
+      ~TestPlayer
+   
+
+   

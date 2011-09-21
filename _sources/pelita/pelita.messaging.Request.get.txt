@@ -1,0 +1,6 @@
+pelita.messaging.Request.get
+============================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: Request.get

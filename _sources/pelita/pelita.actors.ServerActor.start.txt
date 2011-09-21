@@ -1,0 +1,6 @@
+pelita.actors.ServerActor.start
+===============================
+
+.. currentmodule:: pelita.actors
+
+.. automethod:: ServerActor.start

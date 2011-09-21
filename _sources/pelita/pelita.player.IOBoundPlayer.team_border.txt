@@ -1,0 +1,6 @@
+pelita.player.IOBoundPlayer.team_border
+=======================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: IOBoundPlayer.team_border

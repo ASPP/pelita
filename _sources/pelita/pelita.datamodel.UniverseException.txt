@@ -1,0 +1,6 @@
+pelita.datamodel.UniverseException
+==================================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoexception:: UniverseException

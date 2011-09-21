@@ -1,0 +1,6 @@
+pelita.simplesetup.SimpleViewer.run_ascii
+=========================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: SimpleViewer.run_ascii

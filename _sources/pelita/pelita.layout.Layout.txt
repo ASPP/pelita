@@ -1,0 +1,23 @@
+pelita.layout.Layout
+====================
+
+.. currentmodule:: pelita.layout
+
+.. autoclass:: Layout
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Layout.__init__
+      ~Layout.as_mesh
+      ~Layout.check_layout
+      ~Layout.from_file
+      ~Layout.layout_shape
+      ~Layout.strip_layout
+   
+
+   

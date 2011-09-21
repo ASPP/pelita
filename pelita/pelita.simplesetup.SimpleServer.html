@@ -1,0 +1,216 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pelita.simplesetup.SimpleServer &mdash; Pelita v0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'v0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Pelita v0.1.0 documentation" href="../index.html" />
+    <link rel="up" title="pelita.simplesetup" href="pelita.simplesetup.html" />
+    <link rel="next" title="pelita.simplesetup.SimpleServer.__init__" href="pelita.simplesetup.SimpleServer.__init__.html" />
+    <link rel="prev" title="pelita.simplesetup.SimpleClient.autoplay_thread" href="pelita.simplesetup.SimpleClient.autoplay_thread.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pelita.simplesetup.SimpleServer.__init__.html" title="pelita.simplesetup.SimpleServer.__init__"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pelita.simplesetup.SimpleClient.autoplay_thread.html" title="pelita.simplesetup.SimpleClient.autoplay_thread"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pelita v0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API reference</a> &raquo;</li>
+          <li><a href="pelita.simplesetup.html" accesskey="U">pelita.simplesetup</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pelita-simplesetup-simpleserver">
+<h1>pelita.simplesetup.SimpleServer<a class="headerlink" href="#pelita-simplesetup-simpleserver" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pelita.simplesetup.SimpleServer">
+<em class="property">class </em><tt class="descclassname">pelita.simplesetup.</tt><tt class="descname">SimpleServer</tt><big>(</big><em>layout_string=None</em>, <em>layout_name=None</em>, <em>layout_file=None</em>, <em>layout_filter='normal_without_dead_ends'</em>, <em>players=4</em>, <em>rounds=3000</em>, <em>host=''</em>, <em>port=50007</em>, <em>local=True</em>, <em>silent=True</em>, <em>dump_to_file=None</em><big>)</big><a class="headerlink" href="#pelita.simplesetup.SimpleServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Sets up a simple Server with most settings pre-configured.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>layout_string</strong> : string, optional</p>
+<blockquote>
+<div><p>The layout as a string.</p>
+</div></blockquote>
+<p><strong>layout_name</strong> : string, optional</p>
+<blockquote>
+<div><p>The name of an available layout</p>
+</div></blockquote>
+<p><strong>layout_file</strong> : filename, optional</p>
+<blockquote>
+<div><p>A file which holds a layout.</p>
+</div></blockquote>
+<p><strong>layout_filter</strong> : string, optional</p>
+<blockquote>
+<div><p>A filter to restrict the pool of random layouts</p>
+</div></blockquote>
+<p><strong>players</strong> : int, optional</p>
+<blockquote>
+<div><p>The number of Players/Bots used in the layout. Default: 4.</p>
+</div></blockquote>
+<p><strong>rounds</strong> : int, optional</p>
+<blockquote>
+<div><p>The number of rounds played. Default: 3000.</p>
+</div></blockquote>
+<p><strong>host</strong> : string, optional</p>
+<blockquote>
+<div><p>The hostname which the server runs on. Default: &#8220;&#8221;.</p>
+</div></blockquote>
+<p><strong>port</strong> : int, optional</p>
+<blockquote>
+<div><p>The port which the server runs on. Default: 50007.</p>
+</div></blockquote>
+<p><strong>local</strong> : boolean, optional</p>
+<blockquote>
+<div><p>If True, we only setup a local server. Default: True.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><p class="first"><strong>ValueError:</strong> :</p>
+<blockquote>
+<div><p>if more than one layout keyword is specified</p>
+</div></blockquote>
+<p><strong>IOError:</strong> :</p>
+<blockquote class="last">
+<div><p>if layout_file was given, but file does not exist</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.SimpleServer.__init__.html#pelita.simplesetup.SimpleServer.__init__" title="pelita.simplesetup.SimpleServer.__init__"><tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.SimpleServer.run_simple.html#pelita.simplesetup.SimpleServer.run_simple" title="pelita.simplesetup.SimpleServer.run_simple"><tt class="xref py py-obj docutils literal"><span class="pre">run_simple</span></tt></a></td>
+<td>Starts a game with the ASCII viewer.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.SimpleServer.run_tk.html#pelita.simplesetup.SimpleServer.run_tk" title="pelita.simplesetup.SimpleServer.run_tk"><tt class="xref py py-obj docutils literal"><span class="pre">run_tk</span></tt></a></td>
+<td>Starts a game with the Tk viewer.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.SimpleServer.stop.html#pelita.simplesetup.SimpleServer.stop" title="pelita.simplesetup.SimpleServer.stop"><tt class="xref py py-obj docutils literal"><span class="pre">stop</span></tt></a></td>
+<td>Stops the server.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running_player.html">Running Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-api.html">User API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/pelita/pelita.simplesetup.SimpleServer.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pelita.simplesetup.SimpleServer.__init__.html" title="pelita.simplesetup.SimpleServer.__init__"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pelita.simplesetup.SimpleClient.autoplay_thread.html" title="pelita.simplesetup.SimpleClient.autoplay_thread"
+             >previous</a> |</li>
+        <li><a href="../index.html">Pelita v0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API reference</a> &raquo;</li>
+          <li><a href="pelita.simplesetup.html" >pelita.simplesetup</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
+      Last updated on Sep 21, 2011.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/cf794ec8a096.
+    </div>
+  </body>
+</html>

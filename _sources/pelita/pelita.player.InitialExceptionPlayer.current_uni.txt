@@ -1,0 +1,6 @@
+pelita.player.InitialExceptionPlayer.current_uni
+================================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: InitialExceptionPlayer.current_uni

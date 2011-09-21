@@ -1,0 +1,6 @@
+pelita.simplesetup.SimpleServer.stop
+====================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: SimpleServer.stop

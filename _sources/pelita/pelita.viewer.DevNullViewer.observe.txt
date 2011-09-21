@@ -1,0 +1,6 @@
+pelita.viewer.DevNullViewer.observe
+===================================
+
+.. currentmodule:: pelita.viewer
+
+.. automethod:: DevNullViewer.observe

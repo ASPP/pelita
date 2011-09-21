@@ -1,0 +1,6 @@
+pelita.datamodel.FoodEaten.__init__
+===================================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: FoodEaten.__init__

@@ -1,0 +1,6 @@
+pelita.simplesetup.auto_connect
+===============================
+
+.. currentmodule:: pelita.simplesetup
+
+.. autofunction:: auto_connect

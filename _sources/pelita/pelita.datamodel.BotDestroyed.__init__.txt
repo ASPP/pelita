@@ -1,0 +1,6 @@
+pelita.datamodel.BotDestroyed.__init__
+======================================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: BotDestroyed.__init__

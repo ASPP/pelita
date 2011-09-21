@@ -1,0 +1,6 @@
+pelita.datamodel.Maze.keys
+==========================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: Maze.keys

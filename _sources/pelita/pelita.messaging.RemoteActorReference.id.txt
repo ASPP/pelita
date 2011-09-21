@@ -1,0 +1,6 @@
+pelita.messaging.RemoteActorReference.id
+========================================
+
+.. currentmodule:: pelita.messaging
+
+.. autoattribute:: RemoteActorReference.id

@@ -1,0 +1,6 @@
+pelita.datamodel.Maze.pos_of
+============================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: Maze.pos_of

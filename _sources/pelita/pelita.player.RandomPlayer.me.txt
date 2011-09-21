@@ -1,0 +1,6 @@
+pelita.player.RandomPlayer.me
+=============================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: RandomPlayer.me

@@ -1,0 +1,6 @@
+pelita.datamodel.CTFUniverse.enemy_bots
+=======================================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: CTFUniverse.enemy_bots

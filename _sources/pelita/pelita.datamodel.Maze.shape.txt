@@ -1,0 +1,6 @@
+pelita.datamodel.Maze.shape
+===========================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoattribute:: Maze.shape

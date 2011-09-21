@@ -1,0 +1,6 @@
+pelita.messaging.RemoteActorReference.is_connected
+==================================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: RemoteActorReference.is_connected

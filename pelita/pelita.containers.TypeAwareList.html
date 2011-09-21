@@ -1,0 +1,230 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pelita.containers.TypeAwareList &mdash; Pelita v0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'v0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Pelita v0.1.0 documentation" href="../index.html" />
+    <link rel="up" title="pelita.containers" href="pelita.containers.html" />
+    <link rel="next" title="pelita.containers.TypeAwareList.__init__" href="pelita.containers.TypeAwareList.__init__.html" />
+    <link rel="prev" title="pelita.containers.Mesh.shape" href="pelita.containers.Mesh.shape.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pelita.containers.TypeAwareList.__init__.html" title="pelita.containers.TypeAwareList.__init__"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pelita.containers.Mesh.shape.html" title="pelita.containers.Mesh.shape"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pelita v0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API reference</a> &raquo;</li>
+          <li><a href="pelita.containers.html" accesskey="U">pelita.containers</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pelita-containers-typeawarelist">
+<h1>pelita.containers.TypeAwareList<a class="headerlink" href="#pelita-containers-typeawarelist" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pelita.containers.TypeAwareList">
+<em class="property">class </em><tt class="descclassname">pelita.containers.</tt><tt class="descname">TypeAwareList</tt><big>(</big><em>iterable=None</em>, <em>base_class=None</em><big>)</big><a class="headerlink" href="#pelita.containers.TypeAwareList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">_abcoll.MutableSequence</span></tt></p>
+<p>List that is aware of <tt class="xref py py-obj docutils literal"><span class="pre">type</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>iterable</strong> : iterable, optional, default=None</p>
+<blockquote>
+<div><p>Values to insert into the TypeAwareList</p>
+</div></blockquote>
+<p><strong>base_class</strong> : type, , optional, default=None</p>
+<blockquote>
+<div><p>The base class which all items must be direct or indirect instances of</p>
+</div></blockquote>
+<p><strong>This is a special type of list that knows about the types of its contents</strong> :</p>
+<p><strong>thus allowing you to check if an object of a certain type is in the list.</strong> :</p>
+<p><strong>It also allows for specifying a base_class which ensures that all items</strong> :</p>
+<p><strong>in the list must be instances of this base_class or one of its subclasses.</strong> :</p>
+<p><strong>It inherits from MutableSequence, thus supporting all the usual operations on list.</strong> :</p>
+<p class="last"><strong>One difference is, that for list equality the `list` method must be called.</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">tal</span> <span class="o">=</span> <span class="n">TypeAwareList</span><span class="p">([</span><span class="n">Free</span><span class="p">(),</span> <span class="n">Food</span><span class="p">()])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Food</span> <span class="ow">in</span> <span class="n">tal</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Food</span><span class="p">()</span> <span class="ow">in</span> <span class="n">tal</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Wall</span> <span class="ow">in</span> <span class="n">tal</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Wall</span><span class="p">()</span> <span class="ow">in</span> <span class="n">tal</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tal</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">Food</span><span class="p">)</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tal</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">Food</span><span class="p">())</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tal</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">Free</span><span class="p">)</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tal</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">Free</span><span class="p">())</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tal</span> <span class="o">=</span> <span class="n">TypeAwareList</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">base_class</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tal</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;string&quot;</span><span class="p">)</span>
+<span class="go">ValueError: Value &#39;&#39;a&#39;&#39; is no instance of base &#39;&lt;type &#39;int&#39;&gt;&#39;.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">tal</span><span class="p">)</span>
+<span class="go">[1, 2, 3]</span>
+</pre></div>
+</div>
+<p class="rubric">Methods</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.containers.TypeAwareList.__init__.html#pelita.containers.TypeAwareList.__init__" title="pelita.containers.TypeAwareList.__init__"><tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.containers.TypeAwareList.append.html#pelita.containers.TypeAwareList.append" title="pelita.containers.TypeAwareList.append"><tt class="xref py py-obj docutils literal"><span class="pre">append</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.containers.TypeAwareList.count.html#pelita.containers.TypeAwareList.count" title="pelita.containers.TypeAwareList.count"><tt class="xref py py-obj docutils literal"><span class="pre">count</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.containers.TypeAwareList.extend.html#pelita.containers.TypeAwareList.extend" title="pelita.containers.TypeAwareList.extend"><tt class="xref py py-obj docutils literal"><span class="pre">extend</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.containers.TypeAwareList.filter_type.html#pelita.containers.TypeAwareList.filter_type" title="pelita.containers.TypeAwareList.filter_type"><tt class="xref py py-obj docutils literal"><span class="pre">filter_type</span></tt></a></td>
+<td>Returns the subset of self which is an instance of <tt class="xref py py-obj docutils literal"><span class="pre">type_</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.containers.TypeAwareList.index.html#pelita.containers.TypeAwareList.index" title="pelita.containers.TypeAwareList.index"><tt class="xref py py-obj docutils literal"><span class="pre">index</span></tt></a></td>
+<td>value or instance of value</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.containers.TypeAwareList.insert.html#pelita.containers.TypeAwareList.insert" title="pelita.containers.TypeAwareList.insert"><tt class="xref py py-obj docutils literal"><span class="pre">insert</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.containers.TypeAwareList.pop.html#pelita.containers.TypeAwareList.pop" title="pelita.containers.TypeAwareList.pop"><tt class="xref py py-obj docutils literal"><span class="pre">pop</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.containers.TypeAwareList.remove.html#pelita.containers.TypeAwareList.remove" title="pelita.containers.TypeAwareList.remove"><tt class="xref py py-obj docutils literal"><span class="pre">remove</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.containers.TypeAwareList.remove_type.html#pelita.containers.TypeAwareList.remove_type" title="pelita.containers.TypeAwareList.remove_type"><tt class="xref py py-obj docutils literal"><span class="pre">remove_type</span></tt></a></td>
+<td>Removes all items which is are instances of <tt class="xref py py-obj docutils literal"><span class="pre">type_</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.containers.TypeAwareList.reverse.html#pelita.containers.TypeAwareList.reverse" title="pelita.containers.TypeAwareList.reverse"><tt class="xref py py-obj docutils literal"><span class="pre">reverse</span></tt></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running_player.html">Running Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-api.html">User API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/pelita/pelita.containers.TypeAwareList.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pelita.containers.TypeAwareList.__init__.html" title="pelita.containers.TypeAwareList.__init__"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pelita.containers.Mesh.shape.html" title="pelita.containers.Mesh.shape"
+             >previous</a> |</li>
+        <li><a href="../index.html">Pelita v0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API reference</a> &raquo;</li>
+          <li><a href="pelita.containers.html" >pelita.containers</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
+      Last updated on Sep 21, 2011.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/cf794ec8a096.
+    </div>
+  </body>
+</html>

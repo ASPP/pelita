@@ -1,0 +1,6 @@
+pelita.graph.AdjacencyList.items
+================================
+
+.. currentmodule:: pelita.graph
+
+.. autoattribute:: AdjacencyList.items

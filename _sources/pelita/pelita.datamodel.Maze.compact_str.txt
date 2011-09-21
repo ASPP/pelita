@@ -1,0 +1,6 @@
+pelita.datamodel.Maze.compact_str
+=================================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoattribute:: Maze.compact_str

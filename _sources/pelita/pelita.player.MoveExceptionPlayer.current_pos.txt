@@ -1,0 +1,6 @@
+pelita.player.MoveExceptionPlayer.current_pos
+=============================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: MoveExceptionPlayer.current_pos

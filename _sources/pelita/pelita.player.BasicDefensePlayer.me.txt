@@ -1,0 +1,6 @@
+pelita.player.BasicDefensePlayer.me
+===================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: BasicDefensePlayer.me

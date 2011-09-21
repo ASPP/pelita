@@ -1,0 +1,6 @@
+pelita.player.NQRandomPlayer.current_pos
+========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: NQRandomPlayer.current_pos

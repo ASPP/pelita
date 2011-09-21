@@ -1,0 +1,6 @@
+pelita.player.NQRandomPlayer.me
+===============================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: NQRandomPlayer.me

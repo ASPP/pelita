@@ -1,0 +1,6 @@
+pelita.datamodel.Maze.values
+============================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: Maze.values

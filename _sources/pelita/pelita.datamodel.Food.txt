@@ -1,0 +1,18 @@
+pelita.datamodel.Food
+=====================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: Food
+
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Food.char
+   

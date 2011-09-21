@@ -1,0 +1,6 @@
+pelita.actors.ServerActor.paused
+================================
+
+.. currentmodule:: pelita.actors
+
+.. autoattribute:: ServerActor.paused

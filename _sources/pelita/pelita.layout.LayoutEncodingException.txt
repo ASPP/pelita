@@ -1,0 +1,6 @@
+pelita.layout.LayoutEncodingException
+=====================================
+
+.. currentmodule:: pelita.layout
+
+.. autoexception:: LayoutEncodingException

@@ -1,0 +1,19 @@
+pelita.viewer.AbstractViewer
+============================
+
+.. currentmodule:: pelita.viewer
+
+.. autoclass:: AbstractViewer
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~AbstractViewer.observe
+      ~AbstractViewer.set_initial
+   
+
+   

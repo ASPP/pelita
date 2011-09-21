@@ -1,0 +1,18 @@
+pelita.datamodel.BotDestroyed
+=============================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: BotDestroyed
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~BotDestroyed.__init__
+   
+
+   

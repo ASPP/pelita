@@ -1,0 +1,38 @@
+pelita.player.AbstractPlayer
+============================
+
+.. currentmodule:: pelita.player
+
+.. autoclass:: AbstractPlayer
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~AbstractPlayer.get_move
+      ~AbstractPlayer.set_initial
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~AbstractPlayer.current_pos
+      ~AbstractPlayer.current_uni
+      ~AbstractPlayer.enemy_bots
+      ~AbstractPlayer.enemy_food
+      ~AbstractPlayer.initial_pos
+      ~AbstractPlayer.legal_moves
+      ~AbstractPlayer.me
+      ~AbstractPlayer.other_team_bots
+      ~AbstractPlayer.previous_pos
+      ~AbstractPlayer.team
+      ~AbstractPlayer.team_border
+      ~AbstractPlayer.team_bots
+   

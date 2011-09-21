@@ -1,0 +1,6 @@
+pelita.messaging.ActorReference.query
+=====================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: ActorReference.query

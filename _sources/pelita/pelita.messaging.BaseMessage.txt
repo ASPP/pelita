@@ -1,0 +1,28 @@
+pelita.messaging.BaseMessage
+============================
+
+.. currentmodule:: pelita.messaging
+
+.. autoclass:: BaseMessage
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~BaseMessage.load
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~BaseMessage.dict
+      ~BaseMessage.is_response
+      ~BaseMessage.wants_response
+   

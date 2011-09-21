@@ -1,0 +1,6 @@
+pelita.player.StoppingPlayer.get_move
+=====================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: StoppingPlayer.get_move

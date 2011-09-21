@@ -1,0 +1,6 @@
+pelita.messaging.Notification.is_response
+=========================================
+
+.. currentmodule:: pelita.messaging
+
+.. autoattribute:: Notification.is_response

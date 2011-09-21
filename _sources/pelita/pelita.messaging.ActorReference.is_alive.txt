@@ -1,0 +1,6 @@
+pelita.messaging.ActorReference.is_alive
+========================================
+
+.. currentmodule:: pelita.messaging
+
+.. autoattribute:: ActorReference.is_alive

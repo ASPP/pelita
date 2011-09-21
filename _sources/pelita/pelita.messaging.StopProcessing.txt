@@ -1,0 +1,10 @@
+pelita.messaging.StopProcessing
+===============================
+
+.. currentmodule:: pelita.messaging
+
+.. autoclass:: StopProcessing
+
+   
+
+   

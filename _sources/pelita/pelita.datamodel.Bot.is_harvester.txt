@@ -1,0 +1,6 @@
+pelita.datamodel.Bot.is_harvester
+=================================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoattribute:: Bot.is_harvester

@@ -1,0 +1,6 @@
+pelita.messaging.Query.__init__
+===============================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: Query.__init__

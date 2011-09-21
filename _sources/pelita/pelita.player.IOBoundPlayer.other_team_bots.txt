@@ -1,0 +1,6 @@
+pelita.player.IOBoundPlayer.other_team_bots
+===========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: IOBoundPlayer.other_team_bots

@@ -1,0 +1,57 @@
+pelita.datamodel
+================
+
+.. automodule:: pelita.datamodel
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~create_CTFUniverse
+      ~create_maze
+      ~diff_pos
+      ~extract_initial_positions
+      ~is_adjacent
+      ~manhattan_dist
+      ~new_pos
+   
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Bot
+      ~BotDestroyed
+      ~BotEats
+      ~BotMoves
+      ~CTFUniverse
+      ~Food
+      ~FoodEaten
+      ~Free
+      ~GameDraw
+      ~Maze
+      ~MazeComponent
+      ~Team
+      ~TeamScoreChange
+      ~TeamWins
+      ~TimeoutEvent
+      ~UniverseEvent
+      ~Wall
+   
+
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~IllegalMoveException
+      ~UniverseException
+   

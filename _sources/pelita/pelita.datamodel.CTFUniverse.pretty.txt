@@ -1,0 +1,6 @@
+pelita.datamodel.CTFUniverse.pretty
+===================================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoattribute:: CTFUniverse.pretty

@@ -1,0 +1,6 @@
+pelita.messaging.DispatchingActor.thread
+========================================
+
+.. currentmodule:: pelita.messaging
+
+.. autoattribute:: DispatchingActor.thread

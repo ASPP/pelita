@@ -1,0 +1,6 @@
+pelita.player.NQRandomPlayer.other_team_bots
+============================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: NQRandomPlayer.other_team_bots

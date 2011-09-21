@@ -1,0 +1,6 @@
+pelita.messaging.Request.uuid
+=============================
+
+.. currentmodule:: pelita.messaging
+
+.. autoattribute:: Request.uuid

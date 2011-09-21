@@ -1,0 +1,6 @@
+pelita.player.IOBoundPlayer.initial_pos
+=======================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: IOBoundPlayer.initial_pos

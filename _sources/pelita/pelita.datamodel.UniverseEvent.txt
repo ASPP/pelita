@@ -1,0 +1,10 @@
+pelita.datamodel.UniverseEvent
+==============================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: UniverseEvent
+
+   
+
+   

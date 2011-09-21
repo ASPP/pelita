@@ -1,0 +1,6 @@
+pelita.messaging.RemoteConnection.start_all
+===========================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: RemoteConnection.start_all

@@ -1,0 +1,201 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pelita.player.StoppingPlayer &mdash; Pelita v0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'v0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Pelita v0.1.0 documentation" href="../index.html" />
+    <link rel="up" title="pelita.player" href="pelita.player.html" />
+    <link rel="next" title="pelita.player.StoppingPlayer.get_move" href="pelita.player.StoppingPlayer.get_move.html" />
+    <link rel="prev" title="pelita.player.SimpleTeam.__init__" href="pelita.player.SimpleTeam.__init__.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pelita.player.StoppingPlayer.get_move.html" title="pelita.player.StoppingPlayer.get_move"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pelita.player.SimpleTeam.__init__.html" title="pelita.player.SimpleTeam.__init__"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pelita v0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API reference</a> &raquo;</li>
+          <li><a href="pelita.player.html" accesskey="U">pelita.player</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pelita-player-stoppingplayer">
+<h1>pelita.player.StoppingPlayer<a class="headerlink" href="#pelita-player-stoppingplayer" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pelita.player.StoppingPlayer">
+<em class="property">class </em><tt class="descclassname">pelita.player.</tt><tt class="descname">StoppingPlayer</tt><a class="headerlink" href="#pelita.player.StoppingPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pelita.player.AbstractPlayer.html#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><tt class="xref py py-class docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></tt></a></p>
+<p>A Player that just stands still.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.player.StoppingPlayer.get_move.html#pelita.player.StoppingPlayer.get_move" title="pelita.player.StoppingPlayer.get_move"><tt class="xref py py-obj docutils literal"><span class="pre">get_move</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.player.StoppingPlayer.set_initial.html#pelita.player.StoppingPlayer.set_initial" title="pelita.player.StoppingPlayer.set_initial"><tt class="xref py py-obj docutils literal"><span class="pre">set_initial</span></tt></a></td>
+<td>Subclasses can override this if desired.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.player.StoppingPlayer.current_pos.html#pelita.player.StoppingPlayer.current_pos" title="pelita.player.StoppingPlayer.current_pos"><tt class="xref py py-obj docutils literal"><span class="pre">current_pos</span></tt></a></td>
+<td>The current position of this bot.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.player.StoppingPlayer.current_uni.html#pelita.player.StoppingPlayer.current_uni" title="pelita.player.StoppingPlayer.current_uni"><tt class="xref py py-obj docutils literal"><span class="pre">current_uni</span></tt></a></td>
+<td>The current Universe.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.player.StoppingPlayer.enemy_bots.html#pelita.player.StoppingPlayer.enemy_bots" title="pelita.player.StoppingPlayer.enemy_bots"><tt class="xref py py-obj docutils literal"><span class="pre">enemy_bots</span></tt></a></td>
+<td>A list of enemy Bots.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.player.StoppingPlayer.enemy_food.html#pelita.player.StoppingPlayer.enemy_food" title="pelita.player.StoppingPlayer.enemy_food"><tt class="xref py py-obj docutils literal"><span class="pre">enemy_food</span></tt></a></td>
+<td>Food owned by the enemy which can be eaten by this players bot.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.player.StoppingPlayer.initial_pos.html#pelita.player.StoppingPlayer.initial_pos" title="pelita.player.StoppingPlayer.initial_pos"><tt class="xref py py-obj docutils literal"><span class="pre">initial_pos</span></tt></a></td>
+<td>The initial_pos of this bot.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.player.StoppingPlayer.legal_moves.html#pelita.player.StoppingPlayer.legal_moves" title="pelita.player.StoppingPlayer.legal_moves"><tt class="xref py py-obj docutils literal"><span class="pre">legal_moves</span></tt></a></td>
+<td>The currently possible moves, and where they lead.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.player.StoppingPlayer.me.html#pelita.player.StoppingPlayer.me" title="pelita.player.StoppingPlayer.me"><tt class="xref py py-obj docutils literal"><span class="pre">me</span></tt></a></td>
+<td>The Bot object this Player controls.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.player.StoppingPlayer.other_team_bots.html#pelita.player.StoppingPlayer.other_team_bots" title="pelita.player.StoppingPlayer.other_team_bots"><tt class="xref py py-obj docutils literal"><span class="pre">other_team_bots</span></tt></a></td>
+<td>A list of Bots that are on this players team.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.player.StoppingPlayer.previous_pos.html#pelita.player.StoppingPlayer.previous_pos" title="pelita.player.StoppingPlayer.previous_pos"><tt class="xref py py-obj docutils literal"><span class="pre">previous_pos</span></tt></a></td>
+<td>The previous position of the bot.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.player.StoppingPlayer.team.html#pelita.player.StoppingPlayer.team" title="pelita.player.StoppingPlayer.team"><tt class="xref py py-obj docutils literal"><span class="pre">team</span></tt></a></td>
+<td>The Team object this Players Bot is on.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.player.StoppingPlayer.team_border.html#pelita.player.StoppingPlayer.team_border" title="pelita.player.StoppingPlayer.team_border"><tt class="xref py py-obj docutils literal"><span class="pre">team_border</span></tt></a></td>
+<td>Positions of the border positions.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.player.StoppingPlayer.team_bots.html#pelita.player.StoppingPlayer.team_bots" title="pelita.player.StoppingPlayer.team_bots"><tt class="xref py py-obj docutils literal"><span class="pre">team_bots</span></tt></a></td>
+<td>A list of all Bots that are on this Player&#8217;s Bot&#8217;s Team.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running_player.html">Running Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-api.html">User API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/pelita/pelita.player.StoppingPlayer.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pelita.player.StoppingPlayer.get_move.html" title="pelita.player.StoppingPlayer.get_move"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pelita.player.SimpleTeam.__init__.html" title="pelita.player.SimpleTeam.__init__"
+             >previous</a> |</li>
+        <li><a href="../index.html">Pelita v0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API reference</a> &raquo;</li>
+          <li><a href="pelita.player.html" >pelita.player</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
+      Last updated on Sep 21, 2011.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/cf794ec8a096.
+    </div>
+  </body>
+</html>

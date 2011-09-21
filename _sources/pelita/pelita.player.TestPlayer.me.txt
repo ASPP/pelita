@@ -1,0 +1,6 @@
+pelita.player.TestPlayer.me
+===========================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: TestPlayer.me

@@ -1,0 +1,6 @@
+pelita.player.StoppingPlayer.legal_moves
+========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: StoppingPlayer.legal_moves

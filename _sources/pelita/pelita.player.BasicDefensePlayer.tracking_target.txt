@@ -1,0 +1,6 @@
+pelita.player.BasicDefensePlayer.tracking_target
+================================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: BasicDefensePlayer.tracking_target

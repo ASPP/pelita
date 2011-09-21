@@ -1,0 +1,6 @@
+pelita.player.CPUBoundPlayer.team
+=================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: CPUBoundPlayer.team

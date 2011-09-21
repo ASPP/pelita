@@ -1,0 +1,6 @@
+pelita.player.AbstractPlayer.set_initial
+========================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: AbstractPlayer.set_initial

@@ -1,0 +1,6 @@
+pelita.utils.SuspendableThread.start
+====================================
+
+.. currentmodule:: pelita.utils
+
+.. automethod:: SuspendableThread.start

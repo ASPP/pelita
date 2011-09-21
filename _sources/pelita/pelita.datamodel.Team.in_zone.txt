@@ -1,0 +1,6 @@
+pelita.datamodel.Team.in_zone
+=============================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: Team.in_zone

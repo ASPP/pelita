@@ -1,0 +1,21 @@
+pelita.simplesetup.SimpleServer
+===============================
+
+.. currentmodule:: pelita.simplesetup
+
+.. autoclass:: SimpleServer
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~SimpleServer.__init__
+      ~SimpleServer.run_simple
+      ~SimpleServer.run_tk
+      ~SimpleServer.stop
+   
+
+   

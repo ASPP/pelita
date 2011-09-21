@@ -1,0 +1,6 @@
+pelita.containers.TypeAwareList.__init__
+========================================
+
+.. currentmodule:: pelita.containers
+
+.. automethod:: TypeAwareList.__init__

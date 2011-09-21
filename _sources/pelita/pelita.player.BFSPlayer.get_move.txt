@@ -1,0 +1,6 @@
+pelita.player.BFSPlayer.get_move
+================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: BFSPlayer.get_move

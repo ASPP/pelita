@@ -1,0 +1,6 @@
+pelita.datamodel.Maze.positions
+===============================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoattribute:: Maze.positions

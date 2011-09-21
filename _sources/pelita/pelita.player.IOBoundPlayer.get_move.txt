@@ -1,0 +1,6 @@
+pelita.player.IOBoundPlayer.get_move
+====================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: IOBoundPlayer.get_move

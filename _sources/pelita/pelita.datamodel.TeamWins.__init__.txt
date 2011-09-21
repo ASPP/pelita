@@ -1,0 +1,6 @@
+pelita.datamodel.TeamWins.__init__
+==================================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: TeamWins.__init__

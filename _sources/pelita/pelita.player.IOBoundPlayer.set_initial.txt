@@ -1,0 +1,6 @@
+pelita.player.IOBoundPlayer.set_initial
+=======================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: IOBoundPlayer.set_initial

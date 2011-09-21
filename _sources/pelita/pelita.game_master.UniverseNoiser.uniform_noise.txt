@@ -1,0 +1,6 @@
+pelita.game_master.UniverseNoiser.uniform_noise
+===============================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: UniverseNoiser.uniform_noise

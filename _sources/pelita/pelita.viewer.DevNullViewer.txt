@@ -1,0 +1,19 @@
+pelita.viewer.DevNullViewer
+===========================
+
+.. currentmodule:: pelita.viewer
+
+.. autoclass:: DevNullViewer
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~DevNullViewer.observe
+      ~DevNullViewer.set_initial
+   
+
+   

@@ -1,0 +1,6 @@
+pelita.messaging.ActorReference.remote
+======================================
+
+.. currentmodule:: pelita.messaging
+
+.. autoattribute:: ActorReference.remote

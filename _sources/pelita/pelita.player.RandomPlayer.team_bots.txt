@@ -1,0 +1,6 @@
+pelita.player.RandomPlayer.team_bots
+====================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: RandomPlayer.team_bots

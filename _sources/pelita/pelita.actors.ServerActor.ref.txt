@@ -1,0 +1,6 @@
+pelita.actors.ServerActor.ref
+=============================
+
+.. currentmodule:: pelita.actors
+
+.. autoattribute:: ServerActor.ref

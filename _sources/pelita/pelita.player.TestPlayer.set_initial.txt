@@ -1,0 +1,6 @@
+pelita.player.TestPlayer.set_initial
+====================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: TestPlayer.set_initial

@@ -1,0 +1,6 @@
+pelita.layout.Layout.__init__
+=============================
+
+.. currentmodule:: pelita.layout
+
+.. automethod:: Layout.__init__

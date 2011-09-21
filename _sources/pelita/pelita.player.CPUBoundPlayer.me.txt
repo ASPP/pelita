@@ -1,0 +1,6 @@
+pelita.player.CPUBoundPlayer.me
+===============================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: CPUBoundPlayer.me

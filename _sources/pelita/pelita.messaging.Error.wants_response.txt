@@ -1,0 +1,6 @@
+pelita.messaging.Error.wants_response
+=====================================
+
+.. currentmodule:: pelita.messaging
+
+.. autoattribute:: Error.wants_response

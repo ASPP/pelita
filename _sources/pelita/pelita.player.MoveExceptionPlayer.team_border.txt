@@ -1,0 +1,6 @@
+pelita.player.MoveExceptionPlayer.team_border
+=============================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: MoveExceptionPlayer.team_border

@@ -1,0 +1,6 @@
+pelita.messaging.Request.has_result
+===================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: Request.has_result

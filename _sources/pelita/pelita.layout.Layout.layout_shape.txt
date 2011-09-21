@@ -1,0 +1,6 @@
+pelita.layout.Layout.layout_shape
+=================================
+
+.. currentmodule:: pelita.layout
+
+.. automethod:: Layout.layout_shape

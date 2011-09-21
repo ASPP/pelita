@@ -1,0 +1,226 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pelita.game_master.GameMaster &mdash; Pelita v0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'v0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Pelita v0.1.0 documentation" href="../index.html" />
+    <link rel="up" title="pelita.game_master" href="pelita.game_master.html" />
+    <link rel="next" title="pelita.game_master.GameMaster.__init__" href="pelita.game_master.GameMaster.__init__.html" />
+    <link rel="prev" title="pelita.game_master.PlayerTimeout" href="pelita.game_master.PlayerTimeout.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pelita.game_master.GameMaster.__init__.html" title="pelita.game_master.GameMaster.__init__"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pelita.game_master.PlayerTimeout.html" title="pelita.game_master.PlayerTimeout"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pelita v0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API reference</a> &raquo;</li>
+          <li><a href="pelita.game_master.html" accesskey="U">pelita.game_master</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pelita-game-master-gamemaster">
+<h1>pelita.game_master.GameMaster<a class="headerlink" href="#pelita-game-master-gamemaster" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pelita.game_master.GameMaster">
+<em class="property">class </em><tt class="descclassname">pelita.game_master.</tt><tt class="descname">GameMaster</tt><big>(</big><em>layout</em>, <em>number_bots</em>, <em>game_time</em>, <em>noise=True</em><big>)</big><a class="headerlink" href="#pelita.game_master.GameMaster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Controller of player moves and universe updates.</p>
+<p>This object coordinates the moves of the player implementations with the
+updating of the universe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>layout</strong> : string</p>
+<blockquote>
+<div><p>initial layout as string</p>
+</div></blockquote>
+<p><strong>number_bots</strong> : int</p>
+<blockquote>
+<div><p>the total number of bots</p>
+</div></blockquote>
+<p><strong>game_time</strong> : int</p>
+<blockquote>
+<div><p>the total permitted number of rounds</p>
+</div></blockquote>
+<p><strong>noise</strong> : boolean</p>
+<blockquote class="last">
+<div><p>should enemy positions be noisy</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="41%" />
+<col width="45%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>universe</td>
+<td>CTFUniverse</td>
+<td>the game state</td>
+</tr>
+<tr class="row-even"><td>noiser</td>
+<td>UniverseNoiser or None</td>
+<td>object to add noise to enemy positions</td>
+</tr>
+<tr class="row-odd"><td>player_teams</td>
+<td>list</td>
+<td>the participating player teams</td>
+</tr>
+<tr class="row-even"><td>viewers</td>
+<td>list of subclasses of AbstractViewer</td>
+<td>the viewers that are observing this game</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.game_master.GameMaster.__init__.html#pelita.game_master.GameMaster.__init__" title="pelita.game_master.GameMaster.__init__"><tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.game_master.GameMaster.play.html#pelita.game_master.GameMaster.play" title="pelita.game_master.GameMaster.play"><tt class="xref py py-obj docutils literal"><span class="pre">play</span></tt></a></td>
+<td>Play a whole game.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.game_master.GameMaster.play_round.html#pelita.game_master.GameMaster.play_round" title="pelita.game_master.GameMaster.play_round"><tt class="xref py py-obj docutils literal"><span class="pre">play_round</span></tt></a></td>
+<td>Play only a single round.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.game_master.GameMaster.print_possible_winner.html#pelita.game_master.GameMaster.print_possible_winner" title="pelita.game_master.GameMaster.print_possible_winner"><tt class="xref py py-obj docutils literal"><span class="pre">print_possible_winner</span></tt></a></td>
+<td>Checks the event list for a potential winner and prints this information.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.game_master.GameMaster.register_team.html#pelita.game_master.GameMaster.register_team" title="pelita.game_master.GameMaster.register_team"><tt class="xref py py-obj docutils literal"><span class="pre">register_team</span></tt></a></td>
+<td>Register a client TeamPlayer class.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.game_master.GameMaster.register_viewer.html#pelita.game_master.GameMaster.register_viewer" title="pelita.game_master.GameMaster.register_viewer"><tt class="xref py py-obj docutils literal"><span class="pre">register_viewer</span></tt></a></td>
+<td>Register a viewer to display the game state as it progresses.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.game_master.GameMaster.send_to_viewers.html#pelita.game_master.GameMaster.send_to_viewers" title="pelita.game_master.GameMaster.send_to_viewers"><tt class="xref py py-obj docutils literal"><span class="pre">send_to_viewers</span></tt></a></td>
+<td>Call the &#8216;observe&#8217; method on all registered viewers.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.game_master.GameMaster.set_initial.html#pelita.game_master.GameMaster.set_initial" title="pelita.game_master.GameMaster.set_initial"><tt class="xref py py-obj docutils literal"><span class="pre">set_initial</span></tt></a></td>
+<td>This method needs to be called before a game is started.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running_player.html">Running Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-api.html">User API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/pelita/pelita.game_master.GameMaster.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pelita.game_master.GameMaster.__init__.html" title="pelita.game_master.GameMaster.__init__"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pelita.game_master.PlayerTimeout.html" title="pelita.game_master.PlayerTimeout"
+             >previous</a> |</li>
+        <li><a href="../index.html">Pelita v0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API reference</a> &raquo;</li>
+          <li><a href="pelita.game_master.html" >pelita.game_master</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
+      Last updated on Sep 21, 2011.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/cf794ec8a096.
+    </div>
+  </body>
+</html>

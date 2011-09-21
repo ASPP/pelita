@@ -1,0 +1,6 @@
+pelita.datamodel.Bot.in_own_zone
+================================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoattribute:: Bot.in_own_zone

@@ -1,0 +1,20 @@
+pelita.simplesetup.SimpleViewer
+===============================
+
+.. currentmodule:: pelita.simplesetup
+
+.. autoclass:: SimpleViewer
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~SimpleViewer.__init__
+      ~SimpleViewer.run_ascii
+      ~SimpleViewer.run_tk
+   
+
+   

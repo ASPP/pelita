@@ -1,0 +1,6 @@
+pelita.datamodel.Bot.__init__
+=============================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: Bot.__init__

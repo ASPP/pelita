@@ -1,0 +1,6 @@
+pelita.layout.Layout.check_layout
+=================================
+
+.. currentmodule:: pelita.layout
+
+.. automethod:: Layout.check_layout

@@ -1,0 +1,38 @@
+pelita.player.NQRandomPlayer
+============================
+
+.. currentmodule:: pelita.player
+
+.. autoclass:: NQRandomPlayer
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~NQRandomPlayer.get_move
+      ~NQRandomPlayer.set_initial
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~NQRandomPlayer.current_pos
+      ~NQRandomPlayer.current_uni
+      ~NQRandomPlayer.enemy_bots
+      ~NQRandomPlayer.enemy_food
+      ~NQRandomPlayer.initial_pos
+      ~NQRandomPlayer.legal_moves
+      ~NQRandomPlayer.me
+      ~NQRandomPlayer.other_team_bots
+      ~NQRandomPlayer.previous_pos
+      ~NQRandomPlayer.team
+      ~NQRandomPlayer.team_border
+      ~NQRandomPlayer.team_bots
+   

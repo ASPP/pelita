@@ -1,0 +1,6 @@
+pelita.player.StoppingPlayer.team
+=================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: StoppingPlayer.team

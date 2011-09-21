@@ -1,0 +1,6 @@
+pelita.actors.ServerActor.auto_shutdown
+=======================================
+
+.. currentmodule:: pelita.actors
+
+.. automethod:: ServerActor.auto_shutdown

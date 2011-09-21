@@ -1,0 +1,6 @@
+pelita.messaging.Actor.paused
+=============================
+
+.. currentmodule:: pelita.messaging
+
+.. autoattribute:: Actor.paused

@@ -1,0 +1,6 @@
+pelita.player.AbstractPlayer.legal_moves
+========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: AbstractPlayer.legal_moves

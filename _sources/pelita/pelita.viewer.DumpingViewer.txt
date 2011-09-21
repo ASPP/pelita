@@ -1,0 +1,20 @@
+pelita.viewer.DumpingViewer
+===========================
+
+.. currentmodule:: pelita.viewer
+
+.. autoclass:: DumpingViewer
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~DumpingViewer.__init__
+      ~DumpingViewer.observe
+      ~DumpingViewer.set_initial
+   
+
+   

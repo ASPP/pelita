@@ -1,0 +1,6 @@
+pelita.player.BFSPlayer.team_border
+===================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: BFSPlayer.team_border

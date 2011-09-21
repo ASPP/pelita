@@ -1,0 +1,6 @@
+pelita.actors.ClientActor.connect_local
+=======================================
+
+.. currentmodule:: pelita.actors
+
+.. automethod:: ClientActor.connect_local

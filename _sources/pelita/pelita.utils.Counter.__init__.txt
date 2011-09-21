@@ -1,0 +1,6 @@
+pelita.utils.Counter.__init__
+=============================
+
+.. currentmodule:: pelita.utils
+
+.. automethod:: Counter.__init__

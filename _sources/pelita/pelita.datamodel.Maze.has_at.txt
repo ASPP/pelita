@@ -1,0 +1,6 @@
+pelita.datamodel.Maze.has_at
+============================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: Maze.has_at

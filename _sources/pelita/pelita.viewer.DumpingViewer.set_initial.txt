@@ -1,0 +1,6 @@
+pelita.viewer.DumpingViewer.set_initial
+=======================================
+
+.. currentmodule:: pelita.viewer
+
+.. automethod:: DumpingViewer.set_initial

@@ -1,0 +1,6 @@
+pelita.messaging.Response.load
+==============================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: Response.load

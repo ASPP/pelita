@@ -1,0 +1,18 @@
+pelita.datamodel.BotMoves
+=========================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: BotMoves
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~BotMoves.__init__
+   
+
+   

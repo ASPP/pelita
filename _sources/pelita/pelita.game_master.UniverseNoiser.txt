@@ -1,0 +1,19 @@
+pelita.game_master.UniverseNoiser
+=================================
+
+.. currentmodule:: pelita.game_master
+
+.. autoclass:: UniverseNoiser
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~UniverseNoiser.__init__
+      ~UniverseNoiser.uniform_noise
+   
+
+   

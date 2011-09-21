@@ -1,0 +1,29 @@
+pelita.messaging.Response
+=========================
+
+.. currentmodule:: pelita.messaging
+
+.. autoclass:: Response
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Response.__init__
+      ~Response.load
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Response.dict
+      ~Response.is_response
+      ~Response.wants_response
+   

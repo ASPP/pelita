@@ -1,0 +1,38 @@
+pelita.player.StoppingPlayer
+============================
+
+.. currentmodule:: pelita.player
+
+.. autoclass:: StoppingPlayer
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~StoppingPlayer.get_move
+      ~StoppingPlayer.set_initial
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~StoppingPlayer.current_pos
+      ~StoppingPlayer.current_uni
+      ~StoppingPlayer.enemy_bots
+      ~StoppingPlayer.enemy_food
+      ~StoppingPlayer.initial_pos
+      ~StoppingPlayer.legal_moves
+      ~StoppingPlayer.me
+      ~StoppingPlayer.other_team_bots
+      ~StoppingPlayer.previous_pos
+      ~StoppingPlayer.team
+      ~StoppingPlayer.team_border
+      ~StoppingPlayer.team_bots
+   

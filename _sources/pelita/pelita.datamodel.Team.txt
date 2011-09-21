@@ -1,0 +1,19 @@
+pelita.datamodel.Team
+=====================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: Team
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Team.__init__
+      ~Team.in_zone
+   
+
+   

@@ -1,0 +1,6 @@
+pelita.player.NQRandomPlayer.current_uni
+========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: NQRandomPlayer.current_uni

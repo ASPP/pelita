@@ -1,0 +1,6 @@
+pelita.viewer.DevNullViewer.set_initial
+=======================================
+
+.. currentmodule:: pelita.viewer
+
+.. automethod:: DevNullViewer.set_initial

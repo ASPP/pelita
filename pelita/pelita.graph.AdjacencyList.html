@@ -1,0 +1,218 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pelita.graph.AdjacencyList &mdash; Pelita v0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'v0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Pelita v0.1.0 documentation" href="../index.html" />
+    <link rel="up" title="pelita.graph" href="pelita.graph.html" />
+    <link rel="next" title="pelita.graph.AdjacencyList.__init__" href="pelita.graph.AdjacencyList.__init__.html" />
+    <link rel="prev" title="pelita.graph.NoPositionException" href="pelita.graph.NoPositionException.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pelita.graph.AdjacencyList.__init__.html" title="pelita.graph.AdjacencyList.__init__"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pelita.graph.NoPositionException.html" title="pelita.graph.NoPositionException"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pelita v0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API reference</a> &raquo;</li>
+          <li><a href="pelita.graph.html" accesskey="U">pelita.graph</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pelita-graph-adjacencylist">
+<h1>pelita.graph.AdjacencyList<a class="headerlink" href="#pelita-graph-adjacencylist" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pelita.graph.AdjacencyList">
+<em class="property">class </em><tt class="descclassname">pelita.graph.</tt><tt class="descname">AdjacencyList</tt><big>(</big><em>universe</em><big>)</big><a class="headerlink" href="#pelita.graph.AdjacencyList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></p>
+<p>Adjacency list [1] representation of a Maze.</p>
+<p>Implemented by inheriting from <tt class="xref py py-obj docutils literal"><span class="pre">dict</span></tt>.</p>
+<p>[1] <a class="reference external" href="http://en.wikipedia.org/wiki/Adjacency_list">http://en.wikipedia.org/wiki/Adjacency_list</a></p>
+<p class="rubric">Methods</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.graph.AdjacencyList.__init__.html#pelita.graph.AdjacencyList.__init__" title="pelita.graph.AdjacencyList.__init__"><tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.graph.AdjacencyList.a_star.html#pelita.graph.AdjacencyList.a_star" title="pelita.graph.AdjacencyList.a_star"><tt class="xref py py-obj docutils literal"><span class="pre">a_star</span></tt></a></td>
+<td>A* search.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.graph.AdjacencyList.bfs.html#pelita.graph.AdjacencyList.bfs" title="pelita.graph.AdjacencyList.bfs"><tt class="xref py py-obj docutils literal"><span class="pre">bfs</span></tt></a></td>
+<td>Breadth first search (bfs).</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.graph.AdjacencyList.fromkeys.html#pelita.graph.AdjacencyList.fromkeys" title="pelita.graph.AdjacencyList.fromkeys"><tt class="xref py py-obj docutils literal"><span class="pre">fromkeys</span></tt></a></td>
+<td>v defaults to None.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.graph.AdjacencyList.pos_within.html#pelita.graph.AdjacencyList.pos_within" title="pelita.graph.AdjacencyList.pos_within"><tt class="xref py py-obj docutils literal"><span class="pre">pos_within</span></tt></a></td>
+<td>Position within a certain distance.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.graph.AdjacencyList.clear.html#pelita.graph.AdjacencyList.clear" title="pelita.graph.AdjacencyList.clear"><tt class="xref py py-obj docutils literal"><span class="pre">clear</span></tt></a></td>
+<td>D.clear() -&gt; None.  Remove all items from D.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.graph.AdjacencyList.copy.html#pelita.graph.AdjacencyList.copy" title="pelita.graph.AdjacencyList.copy"><tt class="xref py py-obj docutils literal"><span class="pre">copy</span></tt></a></td>
+<td>D.copy() -&gt; a shallow copy of D</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.graph.AdjacencyList.get.html#pelita.graph.AdjacencyList.get" title="pelita.graph.AdjacencyList.get"><tt class="xref py py-obj docutils literal"><span class="pre">get</span></tt></a></td>
+<td>D.get(k[,d]) -&gt; D[k] if k in D, else d.  d defaults to None.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.graph.AdjacencyList.has_key.html#pelita.graph.AdjacencyList.has_key" title="pelita.graph.AdjacencyList.has_key"><tt class="xref py py-obj docutils literal"><span class="pre">has_key</span></tt></a></td>
+<td>D.has_key(k) -&gt; True if D has a key k, else False</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.graph.AdjacencyList.items.html#pelita.graph.AdjacencyList.items" title="pelita.graph.AdjacencyList.items"><tt class="xref py py-obj docutils literal"><span class="pre">items</span></tt></a></td>
+<td>D.items() -&gt; list of D&#8217;s (key, value) pairs, as 2-tuples</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.graph.AdjacencyList.iteritems.html#pelita.graph.AdjacencyList.iteritems" title="pelita.graph.AdjacencyList.iteritems"><tt class="xref py py-obj docutils literal"><span class="pre">iteritems</span></tt></a></td>
+<td>D.iteritems() -&gt; an iterator over the (key, value) items of D</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.graph.AdjacencyList.iterkeys.html#pelita.graph.AdjacencyList.iterkeys" title="pelita.graph.AdjacencyList.iterkeys"><tt class="xref py py-obj docutils literal"><span class="pre">iterkeys</span></tt></a></td>
+<td>D.iterkeys() -&gt; an iterator over the keys of D</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.graph.AdjacencyList.itervalues.html#pelita.graph.AdjacencyList.itervalues" title="pelita.graph.AdjacencyList.itervalues"><tt class="xref py py-obj docutils literal"><span class="pre">itervalues</span></tt></a></td>
+<td>D.itervalues() -&gt; an iterator over the values of D</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.graph.AdjacencyList.keys.html#pelita.graph.AdjacencyList.keys" title="pelita.graph.AdjacencyList.keys"><tt class="xref py py-obj docutils literal"><span class="pre">keys</span></tt></a></td>
+<td>D.keys() -&gt; list of D&#8217;s keys</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.graph.AdjacencyList.pop.html#pelita.graph.AdjacencyList.pop" title="pelita.graph.AdjacencyList.pop"><tt class="xref py py-obj docutils literal"><span class="pre">pop</span></tt></a></td>
+<td>D.pop(k[,d]) -&gt; v, remove specified key and return the corresponding value.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.graph.AdjacencyList.popitem.html#pelita.graph.AdjacencyList.popitem" title="pelita.graph.AdjacencyList.popitem"><tt class="xref py py-obj docutils literal"><span class="pre">popitem</span></tt></a></td>
+<td>D.popitem() -&gt; (k, v), remove and return some (key, value) pair as a</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.graph.AdjacencyList.setdefault.html#pelita.graph.AdjacencyList.setdefault" title="pelita.graph.AdjacencyList.setdefault"><tt class="xref py py-obj docutils literal"><span class="pre">setdefault</span></tt></a></td>
+<td>D.setdefault(k[,d]) -&gt; D.get(k,d), also set D[k]=d if k not in D</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.graph.AdjacencyList.update.html#pelita.graph.AdjacencyList.update" title="pelita.graph.AdjacencyList.update"><tt class="xref py py-obj docutils literal"><span class="pre">update</span></tt></a></td>
+<td>D.update(E, <a href="#id1"><span class="problematic" id="id2">**</span></a>F) -&gt; None.  Update D from dict/iterable E and F.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.graph.AdjacencyList.values.html#pelita.graph.AdjacencyList.values" title="pelita.graph.AdjacencyList.values"><tt class="xref py py-obj docutils literal"><span class="pre">values</span></tt></a></td>
+<td>D.values() -&gt; list of D&#8217;s values</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running_player.html">Running Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-api.html">User API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/pelita/pelita.graph.AdjacencyList.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pelita.graph.AdjacencyList.__init__.html" title="pelita.graph.AdjacencyList.__init__"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pelita.graph.NoPositionException.html" title="pelita.graph.NoPositionException"
+             >previous</a> |</li>
+        <li><a href="../index.html">Pelita v0.1.0 documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API reference</a> &raquo;</li>
+          <li><a href="pelita.graph.html" >pelita.graph</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
+      Last updated on Sep 21, 2011.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/cf794ec8a096.
+    </div>
+  </body>
+</html>

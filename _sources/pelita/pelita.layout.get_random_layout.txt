@@ -1,0 +1,6 @@
+pelita.layout.get_random_layout
+===============================
+
+.. currentmodule:: pelita.layout
+
+.. autofunction:: get_random_layout

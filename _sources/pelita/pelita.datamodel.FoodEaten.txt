@@ -1,0 +1,18 @@
+pelita.datamodel.FoodEaten
+==========================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: FoodEaten
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~FoodEaten.__init__
+   
+
+   

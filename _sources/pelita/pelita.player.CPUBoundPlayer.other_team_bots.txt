@@ -1,0 +1,6 @@
+pelita.player.CPUBoundPlayer.other_team_bots
+============================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: CPUBoundPlayer.other_team_bots

@@ -1,0 +1,40 @@
+pelita.datamodel.Maze
+=====================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: Maze
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Maze.__init__
+      ~Maze.copy
+      ~Maze.get
+      ~Maze.get_at
+      ~Maze.has_at
+      ~Maze.items
+      ~Maze.iteritems
+      ~Maze.iterkeys
+      ~Maze.itervalues
+      ~Maze.keys
+      ~Maze.pos_of
+      ~Maze.remove_at
+      ~Maze.values
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Maze.compact_str
+      ~Maze.positions
+      ~Maze.shape
+   

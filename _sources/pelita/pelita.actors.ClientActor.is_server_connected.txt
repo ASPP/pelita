@@ -1,0 +1,6 @@
+pelita.actors.ClientActor.is_server_connected
+=============================================
+
+.. currentmodule:: pelita.actors
+
+.. automethod:: ClientActor.is_server_connected

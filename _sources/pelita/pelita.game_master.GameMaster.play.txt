@@ -1,0 +1,6 @@
+pelita.game_master.GameMaster.play
+==================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: GameMaster.play

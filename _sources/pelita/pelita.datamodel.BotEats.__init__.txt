@@ -1,0 +1,6 @@
+pelita.datamodel.BotEats.__init__
+=================================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: BotEats.__init__

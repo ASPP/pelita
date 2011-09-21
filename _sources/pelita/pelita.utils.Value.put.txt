@@ -1,0 +1,6 @@
+pelita.utils.Value.put
+======================
+
+.. currentmodule:: pelita.utils
+
+.. automethod:: Value.put

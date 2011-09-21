@@ -1,0 +1,18 @@
+pelita.datamodel.GameDraw
+=========================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: GameDraw
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~GameDraw.__init__
+   
+
+   

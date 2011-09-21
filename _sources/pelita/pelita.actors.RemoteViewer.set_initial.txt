@@ -1,0 +1,6 @@
+pelita.actors.RemoteViewer.set_initial
+======================================
+
+.. currentmodule:: pelita.actors
+
+.. automethod:: RemoteViewer.set_initial

@@ -1,0 +1,6 @@
+pelita.messaging.RemoteConnection.get_actor
+===========================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: RemoteConnection.get_actor

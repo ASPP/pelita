@@ -1,0 +1,6 @@
+pelita.messaging.BaseMessage.load
+=================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: BaseMessage.load

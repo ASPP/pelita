@@ -1,0 +1,6 @@
+pelita.datamodel.Maze.remove_at
+===============================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: Maze.remove_at

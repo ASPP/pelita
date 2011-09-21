@@ -1,0 +1,6 @@
+pelita.datamodel.Team.__init__
+==============================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: Team.__init__

@@ -1,0 +1,6 @@
+pelita.containers.TypeAwareList.index
+=====================================
+
+.. currentmodule:: pelita.containers
+
+.. automethod:: TypeAwareList.index

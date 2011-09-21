@@ -1,0 +1,6 @@
+pelita.player.BasicDefensePlayer.legal_moves
+============================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: BasicDefensePlayer.legal_moves

@@ -1,0 +1,25 @@
+pelita.game_master.GameMaster
+=============================
+
+.. currentmodule:: pelita.game_master
+
+.. autoclass:: GameMaster
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~GameMaster.__init__
+      ~GameMaster.play
+      ~GameMaster.play_round
+      ~GameMaster.print_possible_winner
+      ~GameMaster.register_team
+      ~GameMaster.register_viewer
+      ~GameMaster.send_to_viewers
+      ~GameMaster.set_initial
+   
+
+   

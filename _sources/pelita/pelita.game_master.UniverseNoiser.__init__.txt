@@ -1,0 +1,6 @@
+pelita.game_master.UniverseNoiser.__init__
+==========================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: UniverseNoiser.__init__

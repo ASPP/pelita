@@ -1,0 +1,35 @@
+pelita.messaging.RemoteActorReference
+=====================================
+
+.. currentmodule:: pelita.messaging
+
+.. autoclass:: RemoteActorReference
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~RemoteActorReference.__init__
+      ~RemoteActorReference.is_connected
+      ~RemoteActorReference.notify
+      ~RemoteActorReference.put
+      ~RemoteActorReference.query
+      ~RemoteActorReference.reply
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~RemoteActorReference.channel
+      ~RemoteActorReference.current_message
+      ~RemoteActorReference.id
+      ~RemoteActorReference.remote
+      ~RemoteActorReference.uuid
+   

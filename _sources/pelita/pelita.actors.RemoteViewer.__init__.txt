@@ -1,0 +1,6 @@
+pelita.actors.RemoteViewer.__init__
+===================================
+
+.. currentmodule:: pelita.actors
+
+.. automethod:: RemoteViewer.__init__

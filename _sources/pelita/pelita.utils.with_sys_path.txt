@@ -1,0 +1,6 @@
+pelita.utils.with_sys_path
+==========================
+
+.. currentmodule:: pelita.utils
+
+.. autofunction:: with_sys_path

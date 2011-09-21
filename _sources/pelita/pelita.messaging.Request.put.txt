@@ -1,0 +1,6 @@
+pelita.messaging.Request.put
+============================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: Request.put

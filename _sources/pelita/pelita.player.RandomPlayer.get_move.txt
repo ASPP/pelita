@@ -1,0 +1,6 @@
+pelita.player.RandomPlayer.get_move
+===================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: RandomPlayer.get_move

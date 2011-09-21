@@ -1,0 +1,6 @@
+pelita.messaging.DispatchingActor.on_receive
+============================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: DispatchingActor.on_receive

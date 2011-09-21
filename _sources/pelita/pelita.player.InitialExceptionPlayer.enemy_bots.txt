@@ -1,0 +1,6 @@
+pelita.player.InitialExceptionPlayer.enemy_bots
+===============================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: InitialExceptionPlayer.enemy_bots

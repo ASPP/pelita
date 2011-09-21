@@ -1,0 +1,6 @@
+pelita.player.AbstractPlayer.me
+===============================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: AbstractPlayer.me

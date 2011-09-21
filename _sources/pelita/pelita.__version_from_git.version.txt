@@ -1,0 +1,6 @@
+pelita.__version_from_git.version
+=================================
+
+.. currentmodule:: pelita.__version_from_git
+
+.. autofunction:: version

@@ -1,0 +1,18 @@
+pelita.player.SimpleTeam
+========================
+
+.. currentmodule:: pelita.player
+
+.. autoclass:: SimpleTeam
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~SimpleTeam.__init__
+   
+
+   

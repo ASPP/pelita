@@ -1,0 +1,6 @@
+pelita.datamodel.IllegalMoveException
+=====================================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoexception:: IllegalMoveException

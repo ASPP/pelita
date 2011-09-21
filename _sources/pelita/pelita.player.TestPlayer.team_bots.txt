@@ -1,0 +1,6 @@
+pelita.player.TestPlayer.team_bots
+==================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: TestPlayer.team_bots

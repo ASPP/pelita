@@ -1,0 +1,6 @@
+pelita.datamodel.TeamScoreChange.__init__
+=========================================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: TeamScoreChange.__init__

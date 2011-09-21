@@ -1,0 +1,6 @@
+pelita.messaging.BaseMessage.dict
+=================================
+
+.. currentmodule:: pelita.messaging
+
+.. autoattribute:: BaseMessage.dict

@@ -1,0 +1,6 @@
+pelita.layout.Layout.from_file
+==============================
+
+.. currentmodule:: pelita.layout
+
+.. automethod:: Layout.from_file

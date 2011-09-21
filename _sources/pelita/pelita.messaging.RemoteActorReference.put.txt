@@ -1,0 +1,6 @@
+pelita.messaging.RemoteActorReference.put
+=========================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: RemoteActorReference.put

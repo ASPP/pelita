@@ -1,0 +1,6 @@
+pelita.datamodel.CTFUniverse.team_food
+======================================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: CTFUniverse.team_food

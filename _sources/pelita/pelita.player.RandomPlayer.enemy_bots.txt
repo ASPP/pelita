@@ -1,0 +1,6 @@
+pelita.player.RandomPlayer.enemy_bots
+=====================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: RandomPlayer.enemy_bots

@@ -1,0 +1,6 @@
+pelita.containers.Mesh.copy
+===========================
+
+.. currentmodule:: pelita.containers
+
+.. automethod:: Mesh.copy

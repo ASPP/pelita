@@ -1,0 +1,6 @@
+pelita.player.BasicDefensePlayer.get_move
+=========================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: BasicDefensePlayer.get_move

@@ -1,0 +1,6 @@
+pelita.player.RandomPlayer.set_initial
+======================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: RandomPlayer.set_initial

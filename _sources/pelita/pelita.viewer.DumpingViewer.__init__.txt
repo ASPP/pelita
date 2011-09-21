@@ -1,0 +1,6 @@
+pelita.viewer.DumpingViewer.__init__
+====================================
+
+.. currentmodule:: pelita.viewer
+
+.. automethod:: DumpingViewer.__init__

@@ -1,0 +1,6 @@
+pelita.messaging.ActorReference.link
+====================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: ActorReference.link

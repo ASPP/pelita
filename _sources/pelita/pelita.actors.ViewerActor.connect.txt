@@ -1,0 +1,6 @@
+pelita.actors.ViewerActor.connect
+=================================
+
+.. currentmodule:: pelita.actors
+
+.. automethod:: ViewerActor.connect

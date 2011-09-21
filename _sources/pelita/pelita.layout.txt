@@ -1,0 +1,36 @@
+pelita.layout
+=============
+
+.. automodule:: pelita.layout
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~get_available_layouts
+      ~get_layout_by_name
+      ~get_random_layout
+   
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Layout
+   
+
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~LayoutEncodingException
+   

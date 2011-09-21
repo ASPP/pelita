@@ -1,0 +1,18 @@
+pelita.__version_from_git
+=========================
+
+.. automodule:: pelita.__version_from_git
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~version
+   
+
+   
+
+   

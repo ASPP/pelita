@@ -1,0 +1,6 @@
+pelita.messaging.DispatchingActor.on_unhandled
+==============================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: DispatchingActor.on_unhandled

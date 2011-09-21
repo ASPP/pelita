@@ -1,0 +1,6 @@
+pelita.datamodel.CTFUniverse.team_border
+========================================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: CTFUniverse.team_border

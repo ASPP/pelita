@@ -3,17 +3,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Pelita &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc3-3-gb5139de&#39;  documentation</title>
+    <title>Pelita &mdash; Pelita v0.1.0 documentation</title>
+    
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.1.0-rc3-3-gb5139de&#39; ',
+        VERSION:     'v0.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc3-3-gb5139de&#39;  documentation" href="#" />
+    <link rel="top" title="Pelita v0.1.0 documentation" href="#" />
     <link rel="next" title="Project Information" href="info.html" /> 
   </head>
   <body>
@@ -33,9 +36,15 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="info.html" title="Project Information"
              accesskey="N">next</a> |</li>
-        <li><a href="#">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc3-3-gb5139de&#39;  documentation</a> &raquo;</li> 
+        <li><a href="#">Pelita v0.1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -48,26 +57,26 @@
 <h1>Pelita<a class="headerlink" href="#pelita" title="Permalink to this headline">¶</a></h1>
 <div class="figure">
 <img alt="Screenshot." src="_images/demogame.png" />
-<p class="caption"><strong>A first fight:</strong> &#8216;the bad ones&#8217; VS. &#8216;the good ones&#8217;</p>
+<p class="caption"><strong>A first fight:</strong> &#8216;The BasicDefensePlayers&#8217; VS. &#8216;The BFSPlayers&#8217;</p>
 </div>
 <p><strong>Pelita</strong> is Actor-based Toolkit for Interactive Language Education in Python.</p>
 <div class="section" id="description-of-the-game">
 <h2>Description of the Game<a class="headerlink" href="#description-of-the-game" title="Permalink to this headline">¶</a></h2>
-<p>Two teams of one or more <em>bots</em> compete in a <em>maze</em> that is filled with <em>food</em>.
+<p>Two teams, of one or more <em>bots</em>, compete in a <em>maze</em> that is filled with <em>food</em>.
 The maze is split into two parts, the left and the right half, where each team
 <em>owns</em> one half of the maze.  Each bot can have one of two states, depending on
-its position in the maze. In its own half the bot is a <em>destroyer</em>. In the
-enemy half, the bot is a <em>harvester</em>. As a destroyer a bot can <em>destroy</em> enemy
-harvesters in its own half. As a harvester a bot can <em>eat</em> food that belongs to
+its position in the maze. In its own half, the bot is a <em>destroyer</em>. In the
+enemy half, the bot is a <em>harvester</em>. As a destroyer, a bot can <em>destroy</em> enemy
+harvesters in its own half. As a harvester, a bot can <em>eat</em> food that belongs to
 the enemy. The ultimate goal is to eat all the enemy&#8217;s food.</p>
 <p>Your task as <em>user</em> is to implement one or more <em>players</em> to control bots. Your
-players must implement the <em>intelligence</em> to navigate you bots successfully
-through the maze, destroy the enemy&#8217;s harvesters and eat the enemy&#8217;s food.</p>
+players must implement the <em>intelligence</em> to navigate your bots successfully
+through the maze, destroy the enemy&#8217;s harvesters, and eat the enemy&#8217;s food.</p>
 </div>
 <div class="section" id="quick-start">
 <h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
 <p>First clone the source code repository:</p>
-<div class="highlight-python"><pre>$ git clone git://github.com/Debilski/pelita.git</pre>
+<div class="highlight-python"><pre>$ git clone http://github.com/Debilski/pelita.git</pre>
 </div>
 <p>And launch the command-line interface:</p>
 <div class="highlight-python"><pre>$ ~/pelita/pelitagame</pre>
@@ -90,38 +99,48 @@ with some predefined players.</p>
 <li class="toctree-l2"><a class="reference internal" href="writing_player.html#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="writing_player.html#player-basics">Player Basics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="writing_player.html#doing-more">Doing More</a></li>
-<li class="toctree-l2"><a class="reference internal" href="writing_player.html#the-maze-coordinate-system">The Maze Coordinate System</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="writing_player.html#distances-in-the-maze">Distances in the Maze</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="writing_player.html#a-basic-offensive-player">A Basic Offensive Player</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="writing_player.html#using-current-uni">Using <tt class="docutils literal"><span class="pre">current_uni</span></tt></a></li>
-<li class="toctree-l3"><a class="reference internal" href="writing_player.html#error-recovery-in-case-of-death-or-timeout">Error Recovery in Case of Death or Timeout</a></li>
-<li class="toctree-l3"><a class="reference internal" href="writing_player.html#a-more-advanced-example">A more Advanced Example</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="writing_player.html#the-maze-coordinate-system">The Maze Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="writing_player.html#a-basic-offensive-player">A Basic Offensive Player</a></li>
 <li class="toctree-l2"><a class="reference internal" href="writing_player.html#interacting-with-the-maze">Interacting with the Maze</a></li>
 <li class="toctree-l2"><a class="reference internal" href="writing_player.html#a-basic-defensive-player">A Basic Defensive Player</a></li>
 <li class="toctree-l2"><a class="reference internal" href="writing_player.html#noisy-enemy-positions">Noisy Enemy Positions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="writing_player.html#source-code-for-abstractplayer">Source Code for <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="running_player.html">Running Players</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="running_player.html#where-to-place-your-files">Where to Place Your Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="running_player.html#load-custom-layouts">Load Custom Layouts</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="running_player.html#tournament-setup">Tournament Setup</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="running_player.html#load-custom-layouts">Load Custom Layouts</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Development</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="development.html#git-repository">Git-Repository</a></li>
-<li class="toctree-l2"><a class="reference internal" href="development.html#project-website">Project Website</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="development.html#automatic">Automatic</a></li>
-<li class="toctree-l3"><a class="reference internal" href="development.html#manual">Manual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#project-website">Project Website</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#project-wall">Project-Wall</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="development.html#project-wall">Project-Wall</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-api.html">User API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user-api.html#convenience-properties-of-abstractplayer">Convenience Properties of <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="user-api.html#example-players">Example Players</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user-api.html#accessing-pelita-datamodel">Accessing <tt class="docutils literal"><span class="pre">pelita.datamodel</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="user-api.html#interfacing-with-the-ctfuniverse">Interfacing with the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="user-api.html#interfacing-with-the-maze">Interfacing with the <tt class="docutils literal"><span class="pre">Maze</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pelita/pelita.__layouts.html">pelita.__layouts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita/pelita.__version_from_git.html">pelita.__version_from_git</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita/pelita.actors.html">pelita.actors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita/pelita.compat.html">pelita.compat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita/pelita.containers.html">pelita.containers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita/pelita.datamodel.html">pelita.datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita/pelita.game_master.html">pelita.game_master</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita/pelita.graph.html">pelita.graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita/pelita.layout.html">pelita.layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita/pelita.messaging.html">pelita.messaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita/pelita.player.html">pelita.player</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita/pelita.simplesetup.html">pelita.simplesetup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita/pelita.ui.html">pelita.ui</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita/pelita.utils.html">pelita.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita/pelita.viewer.html">pelita.viewer</a></li>
 </ul>
 </li>
 </ul>
@@ -149,6 +168,8 @@ with some predefined players.</p>
 <li class="toctree-l1"><a class="reference internal" href="writing_player.html">Writing a Player</a></li>
 <li class="toctree-l1"><a class="reference internal" href="running_player.html">Running Players</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-api.html">User API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
 </ul>
 
   <h3>This Page</h3>
@@ -180,15 +201,21 @@ with some predefined players.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="info.html" title="Project Information"
              >next</a> |</li>
-        <li><a href="#">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc3-3-gb5139de&#39;  documentation</a> &raquo;</li> 
+        <li><a href="#">Pelita v0.1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
-      Last updated on Sep 14, 2011.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Last updated on Sep 21, 2011.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/cf794ec8a096.
     </div>
   </body>
 </html>

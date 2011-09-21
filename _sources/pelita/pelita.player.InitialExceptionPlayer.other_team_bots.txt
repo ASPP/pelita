@@ -1,0 +1,6 @@
+pelita.player.InitialExceptionPlayer.other_team_bots
+====================================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: InitialExceptionPlayer.other_team_bots

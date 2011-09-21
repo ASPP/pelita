@@ -1,0 +1,6 @@
+pelita.player.NQRandomPlayer.team
+=================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: NQRandomPlayer.team

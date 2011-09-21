@@ -1,0 +1,6 @@
+pelita.messaging.DeadConnection
+===============================
+
+.. currentmodule:: pelita.messaging
+
+.. autoexception:: DeadConnection

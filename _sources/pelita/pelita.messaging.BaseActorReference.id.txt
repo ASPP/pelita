@@ -1,0 +1,6 @@
+pelita.messaging.BaseActorReference.id
+======================================
+
+.. currentmodule:: pelita.messaging
+
+.. autoattribute:: BaseActorReference.id

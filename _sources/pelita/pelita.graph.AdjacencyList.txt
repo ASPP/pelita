@@ -1,0 +1,43 @@
+pelita.graph.AdjacencyList
+==========================
+
+.. currentmodule:: pelita.graph
+
+.. autoclass:: AdjacencyList
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~AdjacencyList.__init__
+      ~AdjacencyList.a_star
+      ~AdjacencyList.bfs
+      ~AdjacencyList.fromkeys
+      ~AdjacencyList.pos_within
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~AdjacencyList.clear
+      ~AdjacencyList.copy
+      ~AdjacencyList.get
+      ~AdjacencyList.has_key
+      ~AdjacencyList.items
+      ~AdjacencyList.iteritems
+      ~AdjacencyList.iterkeys
+      ~AdjacencyList.itervalues
+      ~AdjacencyList.keys
+      ~AdjacencyList.pop
+      ~AdjacencyList.popitem
+      ~AdjacencyList.setdefault
+      ~AdjacencyList.update
+      ~AdjacencyList.values
+   

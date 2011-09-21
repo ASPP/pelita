@@ -1,0 +1,21 @@
+pelita.viewer
+=============
+
+.. automodule:: pelita.viewer
+
+   
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~AbstractViewer
+      ~AsciiViewer
+      ~DevNullViewer
+      ~DumpingViewer
+   
+
+   

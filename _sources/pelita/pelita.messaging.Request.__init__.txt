@@ -1,0 +1,6 @@
+pelita.messaging.Request.__init__
+=================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: Request.__init__

@@ -1,0 +1,6 @@
+pelita.player.AbstractPlayer.team
+=================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: AbstractPlayer.team

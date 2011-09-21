@@ -1,0 +1,6 @@
+pelita.game_master.PlayerDisconnected
+=====================================
+
+.. currentmodule:: pelita.game_master
+
+.. autoexception:: PlayerDisconnected

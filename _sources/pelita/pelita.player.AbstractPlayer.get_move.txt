@@ -1,0 +1,6 @@
+pelita.player.AbstractPlayer.get_move
+=====================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: AbstractPlayer.get_move

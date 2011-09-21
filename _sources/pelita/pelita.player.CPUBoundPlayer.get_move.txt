@@ -1,0 +1,6 @@
+pelita.player.CPUBoundPlayer.get_move
+=====================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: CPUBoundPlayer.get_move

@@ -1,0 +1,6 @@
+pelita.player.RandomPlayer.enemy_food
+=====================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: RandomPlayer.enemy_food

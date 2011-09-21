@@ -1,0 +1,6 @@
+pelita.actors.ClientActor.__init__
+==================================
+
+.. currentmodule:: pelita.actors
+
+.. automethod:: ClientActor.__init__

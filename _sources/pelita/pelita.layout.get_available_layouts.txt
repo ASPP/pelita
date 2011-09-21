@@ -1,0 +1,6 @@
+pelita.layout.get_available_layouts
+===================================
+
+.. currentmodule:: pelita.layout
+
+.. autofunction:: get_available_layouts

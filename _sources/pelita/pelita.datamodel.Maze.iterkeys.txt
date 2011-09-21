@@ -1,0 +1,6 @@
+pelita.datamodel.Maze.iterkeys
+==============================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: Maze.iterkeys

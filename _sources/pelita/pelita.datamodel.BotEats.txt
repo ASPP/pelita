@@ -1,0 +1,18 @@
+pelita.datamodel.BotEats
+========================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: BotEats
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~BotEats.__init__
+   
+
+   

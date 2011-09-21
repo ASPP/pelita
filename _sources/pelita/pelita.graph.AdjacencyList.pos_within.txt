@@ -1,0 +1,6 @@
+pelita.graph.AdjacencyList.pos_within
+=====================================
+
+.. currentmodule:: pelita.graph
+
+.. automethod:: AdjacencyList.pos_within

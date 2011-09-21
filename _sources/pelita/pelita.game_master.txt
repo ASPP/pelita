@@ -1,0 +1,28 @@
+pelita.game_master
+==================
+
+.. automodule:: pelita.game_master
+
+   
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~GameMaster
+      ~UniverseNoiser
+   
+
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~PlayerDisconnected
+      ~PlayerTimeout
+   

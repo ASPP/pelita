@@ -1,0 +1,6 @@
+pelita.messaging.expose
+=======================
+
+.. currentmodule:: pelita.messaging
+
+.. autofunction:: expose

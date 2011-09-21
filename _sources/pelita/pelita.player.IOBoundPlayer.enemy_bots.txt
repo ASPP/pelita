@@ -1,0 +1,6 @@
+pelita.player.IOBoundPlayer.enemy_bots
+======================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: IOBoundPlayer.enemy_bots

@@ -1,0 +1,6 @@
+pelita.actors.ServerActor.check_for_start
+=========================================
+
+.. currentmodule:: pelita.actors
+
+.. automethod:: ServerActor.check_for_start

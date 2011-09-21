@@ -1,0 +1,6 @@
+pelita.player.BFSPlayer.team
+============================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: BFSPlayer.team

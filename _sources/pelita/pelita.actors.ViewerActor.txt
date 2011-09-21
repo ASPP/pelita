@@ -1,0 +1,20 @@
+pelita.actors.ViewerActor
+=========================
+
+.. currentmodule:: pelita.actors
+
+.. autoclass:: ViewerActor
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~ViewerActor.__init__
+      ~ViewerActor.connect
+      ~ViewerActor.connect_local
+   
+
+   

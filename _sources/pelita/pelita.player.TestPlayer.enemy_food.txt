@@ -1,0 +1,6 @@
+pelita.player.TestPlayer.enemy_food
+===================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: TestPlayer.enemy_food

@@ -1,0 +1,30 @@
+pelita.actors
+=============
+
+.. automodule:: pelita.actors
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~get_server_actor
+   
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~ClientActor
+      ~RemoteTeamPlayer
+      ~RemoteViewer
+      ~ServerActor
+      ~ViewerActor
+   
+
+   

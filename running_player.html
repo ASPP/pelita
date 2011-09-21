@@ -3,17 +3,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Running Players &mdash; Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc3-3-gb5139de&#39;  documentation</title>
+    <title>Running Players &mdash; Pelita v0.1.0 documentation</title>
+    
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'ersion from &#39;git describe&#39;: &#39;v0.1.0-rc3-3-gb5139de&#39; ',
+        VERSION:     'v0.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc3-3-gb5139de&#39;  documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.1.0 documentation" href="index.html" />
     <link rel="next" title="Development" href="development.html" />
     <link rel="prev" title="Writing a Player" href="writing_player.html" /> 
   </head>
@@ -34,12 +37,18 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="development.html" title="Development"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="writing_player.html" title="Writing a Player"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc3-3-gb5139de&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -57,9 +66,9 @@ description.</p>
 <h2>Where to Place Your Files<a class="headerlink" href="#where-to-place-your-files" title="Permalink to this headline">¶</a></h2>
 <p>To begin using your own player you need to put its definition in a place
 where <tt class="docutils literal"><span class="pre">pelitagame</span></tt> can find it.</p>
-<p>Put the definition of you player in a file outside the Pelita source
-code directory, for example in <tt class="docutils literal"><span class="pre">/home/student/my_player.py</span></tt>. In addition
-to the definition of your player, this file must contain a factory
+<p>Put the definition of your player in a file outside the Pelita source
+code directory, for example in <tt class="docutils literal"><span class="pre">/home/student/my_player.py</span></tt>. Besides
+the definition of your player, this file must contain a factory
 function that returns a team (remember that the default game is a
 fight between two teams of two bots each):</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
@@ -85,7 +94,7 @@ To run a game using your players against some predefined players in
 Pelita you can run</p>
 <div class="highlight-python"><pre>$ ~/pelita/pelitagame /home/student/my_player.py BFSPlayer,BasicDefensePlayer</pre>
 </div>
-<p>This setup is OK for small tests, but if you plan to have a more
+<p>This setup is fine for small tests, but if you plan to have a more
 complicated directory structure, for example to load additional
 utilities located in different files, read on to section
 <a class="reference internal" href="#tournament-setup">Tournament Setup</a>.</p>
@@ -122,15 +131,15 @@ maze:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">'#'</span></tt>:</th><td class="field-body">wall</td>
+<tr class="field-odd field"><th class="field-name"><tt class="docutils literal"><span class="pre">'#'</span></tt>:</th><td class="field-body">wall</td>
 </tr>
-<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">'</span> <span class="pre">'</span></tt>:</th><td class="field-body">free space</td>
+<tr class="field-even field"><th class="field-name"><tt class="docutils literal"><span class="pre">'</span> <span class="pre">'</span></tt>:</th><td class="field-body">free space</td>
 </tr>
-<tr class="field"><th class="field-name"><tt class="docutils literal"><span class="pre">'.'</span></tt>:</th><td class="field-body">food</td>
+<tr class="field-odd field"><th class="field-name"><tt class="docutils literal"><span class="pre">'.'</span></tt>:</th><td class="field-body">food</td>
 </tr>
 </tbody>
 </table>
-<p>And in addition, integers specify the starting position of each bot. In the
+<p>In addition, the starting position of each bot is specified by a number. In the
 above example <tt class="docutils literal"><span class="pre">0</span></tt> and <tt class="docutils literal"><span class="pre">2</span></tt> are on the team on the left and <tt class="docutils literal"><span class="pre">1</span></tt> and <tt class="docutils literal"><span class="pre">3</span></tt>
 are on the team on the right.  There are some restrictions on the encoding
 however:</p>
@@ -173,7 +182,7 @@ returns a <tt class="docutils literal"><span class="pre">SimpleTeam</span></tt>.
 <p>Your are encouraged to structure your code base into packages.
 Always remember to use <a class="reference external" href="http://www.python.org/dev/peps/pep-0328/">relative imports</a>. Note that relative imports only
 work for modules, so you must provide a <tt class="docutils literal"><span class="pre">__init__.py</span></tt> file in that case.
-For example the function <tt class="docutils literal"><span class="pre">utility</span></tt> is provided my the module <tt class="docutils literal"><span class="pre">groupN.utils</span></tt>:</p>
+For example the function <tt class="docutils literal"><span class="pre">utility</span></tt> is provided by the module <tt class="docutils literal"><span class="pre">groupN.utils</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
 <span class="c"># -*- coding: utf-8 -*-</span>
 
@@ -217,13 +226,12 @@ function, since it will be called once for every game.</p>
 <li class="toctree-l1"><a class="reference internal" href="writing_player.html">Writing a Player</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Running Players</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#where-to-place-your-files">Where to Place Your Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#load-custom-layouts">Load Custom Layouts</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#tournament-setup">Tournament Setup</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#load-custom-layouts">Load Custom Layouts</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-api.html">User API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
 </ul>
 
   <h3>This Page</h3>
@@ -255,18 +263,24 @@ function, since it will be called once for every game.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="development.html" title="Development"
              >next</a> |</li>
         <li class="right" >
           <a href="writing_player.html" title="Writing a Player"
              >previous</a> |</li>
-        <li><a href="index.html">Pelita version from &#39;git describe&#39;: &#39;v0.1.0-rc3-3-gb5139de&#39;  documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
-      Last updated on Sep 14, 2011.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Last updated on Sep 21, 2011.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/cf794ec8a096.
     </div>
   </body>
 </html>

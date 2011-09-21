@@ -1,0 +1,18 @@
+pelita.datamodel.TeamScoreChange
+================================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: TeamScoreChange
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~TeamScoreChange.__init__
+   
+
+   

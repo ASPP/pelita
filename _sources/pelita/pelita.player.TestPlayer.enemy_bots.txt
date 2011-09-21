@@ -1,0 +1,6 @@
+pelita.player.TestPlayer.enemy_bots
+===================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: TestPlayer.enemy_bots

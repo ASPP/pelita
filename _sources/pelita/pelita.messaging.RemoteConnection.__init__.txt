@@ -1,0 +1,6 @@
+pelita.messaging.RemoteConnection.__init__
+==========================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: RemoteConnection.__init__

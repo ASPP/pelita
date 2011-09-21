@@ -1,0 +1,6 @@
+pelita.player.InitialExceptionPlayer.team_border
+================================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: InitialExceptionPlayer.team_border

@@ -1,0 +1,28 @@
+pelita.datamodel.Bot
+====================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: Bot
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Bot.__init__
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Bot.in_own_zone
+      ~Bot.is_destroyer
+      ~Bot.is_harvester
+   

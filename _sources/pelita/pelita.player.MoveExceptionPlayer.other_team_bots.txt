@@ -1,0 +1,6 @@
+pelita.player.MoveExceptionPlayer.other_team_bots
+=================================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: MoveExceptionPlayer.other_team_bots

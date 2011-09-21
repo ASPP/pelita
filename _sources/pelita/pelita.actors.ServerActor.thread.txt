@@ -1,0 +1,6 @@
+pelita.actors.ServerActor.thread
+================================
+
+.. currentmodule:: pelita.actors
+
+.. autoattribute:: ServerActor.thread

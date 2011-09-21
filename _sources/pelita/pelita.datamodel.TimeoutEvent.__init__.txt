@@ -1,0 +1,6 @@
+pelita.datamodel.TimeoutEvent.__init__
+======================================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: TimeoutEvent.__init__

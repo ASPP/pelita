@@ -1,0 +1,6 @@
+pelita.player.StoppingPlayer.initial_pos
+========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: StoppingPlayer.initial_pos

@@ -1,0 +1,28 @@
+pelita.containers.TypeAwareList
+===============================
+
+.. currentmodule:: pelita.containers
+
+.. autoclass:: TypeAwareList
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~TypeAwareList.__init__
+      ~TypeAwareList.append
+      ~TypeAwareList.count
+      ~TypeAwareList.extend
+      ~TypeAwareList.filter_type
+      ~TypeAwareList.index
+      ~TypeAwareList.insert
+      ~TypeAwareList.pop
+      ~TypeAwareList.remove
+      ~TypeAwareList.remove_type
+      ~TypeAwareList.reverse
+   
+
+   

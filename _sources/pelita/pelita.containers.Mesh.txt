@@ -1,0 +1,35 @@
+pelita.containers.Mesh
+======================
+
+.. currentmodule:: pelita.containers
+
+.. autoclass:: Mesh
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Mesh.__init__
+      ~Mesh.copy
+      ~Mesh.get
+      ~Mesh.items
+      ~Mesh.iteritems
+      ~Mesh.iterkeys
+      ~Mesh.itervalues
+      ~Mesh.keys
+      ~Mesh.values
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Mesh.compact_str
+      ~Mesh.shape
+   

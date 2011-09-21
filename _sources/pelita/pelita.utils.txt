@@ -1,0 +1,37 @@
+pelita.utils
+============
+
+.. automodule:: pelita.utils
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~with_sys_path
+   
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Counter
+      ~SuspendableThread
+      ~ThreadInfoLogger
+      ~Value
+   
+
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~CloseThread
+   

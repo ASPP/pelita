@@ -1,0 +1,6 @@
+pelita.actors.RemoteTeamPlayer.__init__
+=======================================
+
+.. currentmodule:: pelita.actors
+
+.. automethod:: RemoteTeamPlayer.__init__

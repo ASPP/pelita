@@ -1,0 +1,38 @@
+pelita.player.CPUBoundPlayer
+============================
+
+.. currentmodule:: pelita.player
+
+.. autoclass:: CPUBoundPlayer
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~CPUBoundPlayer.get_move
+      ~CPUBoundPlayer.set_initial
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~CPUBoundPlayer.current_pos
+      ~CPUBoundPlayer.current_uni
+      ~CPUBoundPlayer.enemy_bots
+      ~CPUBoundPlayer.enemy_food
+      ~CPUBoundPlayer.initial_pos
+      ~CPUBoundPlayer.legal_moves
+      ~CPUBoundPlayer.me
+      ~CPUBoundPlayer.other_team_bots
+      ~CPUBoundPlayer.previous_pos
+      ~CPUBoundPlayer.team
+      ~CPUBoundPlayer.team_border
+      ~CPUBoundPlayer.team_bots
+   

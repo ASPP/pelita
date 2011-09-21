@@ -1,0 +1,6 @@
+pelita.player.BasicDefensePlayer.path_to_target
+===============================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: BasicDefensePlayer.path_to_target

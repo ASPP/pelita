@@ -1,0 +1,6 @@
+pelita.messaging.Error.dict
+===========================
+
+.. currentmodule:: pelita.messaging
+
+.. autoattribute:: Error.dict

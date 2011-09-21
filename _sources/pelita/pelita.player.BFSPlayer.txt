@@ -1,0 +1,39 @@
+pelita.player.BFSPlayer
+=======================
+
+.. currentmodule:: pelita.player
+
+.. autoclass:: BFSPlayer
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~BFSPlayer.bfs_food
+      ~BFSPlayer.get_move
+      ~BFSPlayer.set_initial
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~BFSPlayer.current_pos
+      ~BFSPlayer.current_uni
+      ~BFSPlayer.enemy_bots
+      ~BFSPlayer.enemy_food
+      ~BFSPlayer.initial_pos
+      ~BFSPlayer.legal_moves
+      ~BFSPlayer.me
+      ~BFSPlayer.other_team_bots
+      ~BFSPlayer.previous_pos
+      ~BFSPlayer.team
+      ~BFSPlayer.team_border
+      ~BFSPlayer.team_bots
+   

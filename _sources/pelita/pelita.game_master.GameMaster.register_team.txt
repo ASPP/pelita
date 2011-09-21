@@ -1,0 +1,6 @@
+pelita.game_master.GameMaster.register_team
+===========================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: GameMaster.register_team

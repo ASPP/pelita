@@ -1,0 +1,6 @@
+pelita.graph.NoPositionException
+================================
+
+.. currentmodule:: pelita.graph
+
+.. autoexception:: NoPositionException

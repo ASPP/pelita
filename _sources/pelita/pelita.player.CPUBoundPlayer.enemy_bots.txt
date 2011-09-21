@@ -1,0 +1,6 @@
+pelita.player.CPUBoundPlayer.enemy_bots
+=======================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: CPUBoundPlayer.enemy_bots

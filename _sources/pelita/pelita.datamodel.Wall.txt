@@ -1,0 +1,18 @@
+pelita.datamodel.Wall
+=====================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: Wall
+
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Wall.char
+   

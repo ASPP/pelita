@@ -1,0 +1,6 @@
+pelita.utils.ThreadInfoLogger.thread
+====================================
+
+.. currentmodule:: pelita.utils
+
+.. autoattribute:: ThreadInfoLogger.thread

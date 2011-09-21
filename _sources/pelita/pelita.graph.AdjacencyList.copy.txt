@@ -1,0 +1,6 @@
+pelita.graph.AdjacencyList.copy
+===============================
+
+.. currentmodule:: pelita.graph
+
+.. autoattribute:: AdjacencyList.copy

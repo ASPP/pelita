@@ -1,0 +1,6 @@
+pelita.datamodel.Maze.copy
+==========================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: Maze.copy

@@ -1,0 +1,6 @@
+pelita.player.AbstractPlayer.current_pos
+========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: AbstractPlayer.current_pos

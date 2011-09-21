@@ -1,0 +1,6 @@
+pelita.datamodel.CTFUniverse.copy
+=================================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: CTFUniverse.copy

@@ -1,0 +1,6 @@
+pelita.player.AbstractPlayer.enemy_food
+=======================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: AbstractPlayer.enemy_food

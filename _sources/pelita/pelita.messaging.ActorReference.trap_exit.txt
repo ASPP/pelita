@@ -1,0 +1,6 @@
+pelita.messaging.ActorReference.trap_exit
+=========================================
+
+.. currentmodule:: pelita.messaging
+
+.. autoattribute:: ActorReference.trap_exit

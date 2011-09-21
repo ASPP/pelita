@@ -1,0 +1,6 @@
+pelita.player.BFSPlayer.set_initial
+===================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: BFSPlayer.set_initial

@@ -1,0 +1,10 @@
+pelita.datamodel.MazeComponent
+==============================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: MazeComponent
+
+   
+
+   

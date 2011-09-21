@@ -1,0 +1,18 @@
+pelita.datamodel.TeamWins
+=========================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: TeamWins
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~TeamWins.__init__
+   
+
+   

@@ -1,0 +1,399 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>User API Reference &mdash; Pelita v0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     'v0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Pelita v0.1.0 documentation" href="index.html" />
+    <link rel="next" title="API reference" href="api.html" />
+    <link rel="prev" title="Development" href="development.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="development.html" title="Development"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Pelita v0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="user-api-reference">
+<span id="id1"></span><h1><a class="toc-backref" href="#id2">User API Reference</a><a class="headerlink" href="#user-api-reference" title="Permalink to this headline">¶</a></h1>
+<p>This section summarizes the modules, classes and functions that are relevant
+when writing a player.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#user-api-reference" id="id2">User API Reference</a><ul>
+<li><a class="reference internal" href="#convenience-properties-of-abstractplayer" id="id3">Convenience Properties of <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt></a></li>
+<li><a class="reference internal" href="#example-players" id="id4">Example Players</a></li>
+<li><a class="reference internal" href="#accessing-pelita-datamodel" id="id5">Accessing <tt class="docutils literal"><span class="pre">pelita.datamodel</span></tt></a></li>
+<li><a class="reference internal" href="#interfacing-with-the-ctfuniverse" id="id6">Interfacing with the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt></a></li>
+<li><a class="reference internal" href="#interfacing-with-the-maze" id="id7">Interfacing with the <tt class="docutils literal"><span class="pre">Maze</span></tt></a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="convenience-properties-of-abstractplayer">
+<h2><a class="toc-backref" href="#id3">Convenience Properties of <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt></a><a class="headerlink" href="#convenience-properties-of-abstractplayer" title="Permalink to this headline">¶</a></h2>
+<p class="rubric">Basic Properties</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.AbstractPlayer.current_uni.html#pelita.player.AbstractPlayer.current_uni" title="pelita.player.AbstractPlayer.current_uni"><tt class="xref py py-obj docutils literal"><span class="pre">current_uni</span></tt></a></td>
+<td>The current Universe.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.player.AbstractPlayer.me.html#pelita.player.AbstractPlayer.me" title="pelita.player.AbstractPlayer.me"><tt class="xref py py-obj docutils literal"><span class="pre">me</span></tt></a></td>
+<td>The Bot object this Player controls.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.AbstractPlayer.team.html#pelita.player.AbstractPlayer.team" title="pelita.player.AbstractPlayer.team"><tt class="xref py py-obj docutils literal"><span class="pre">team</span></tt></a></td>
+<td>The Team object this Players Bot is on.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.player.AbstractPlayer.legal_moves.html#pelita.player.AbstractPlayer.legal_moves" title="pelita.player.AbstractPlayer.legal_moves"><tt class="xref py py-obj docutils literal"><span class="pre">legal_moves</span></tt></a></td>
+<td>The currently possible moves, and where they lead.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Positional Properties</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.AbstractPlayer.initial_pos.html#pelita.player.AbstractPlayer.initial_pos" title="pelita.player.AbstractPlayer.initial_pos"><tt class="xref py py-obj docutils literal"><span class="pre">initial_pos</span></tt></a></td>
+<td>The initial_pos of this bot.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.player.AbstractPlayer.current_pos.html#pelita.player.AbstractPlayer.current_pos" title="pelita.player.AbstractPlayer.current_pos"><tt class="xref py py-obj docutils literal"><span class="pre">current_pos</span></tt></a></td>
+<td>The current position of this bot.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.AbstractPlayer.previous_pos.html#pelita.player.AbstractPlayer.previous_pos" title="pelita.player.AbstractPlayer.previous_pos"><tt class="xref py py-obj docutils literal"><span class="pre">previous_pos</span></tt></a></td>
+<td>The previous position of the bot.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Team Properties</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.AbstractPlayer.team_border.html#pelita.player.AbstractPlayer.team_border" title="pelita.player.AbstractPlayer.team_border"><tt class="xref py py-obj docutils literal"><span class="pre">team_border</span></tt></a></td>
+<td>Positions of the border positions.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.player.AbstractPlayer.team_bots.html#pelita.player.AbstractPlayer.team_bots" title="pelita.player.AbstractPlayer.team_bots"><tt class="xref py py-obj docutils literal"><span class="pre">team_bots</span></tt></a></td>
+<td>A list of all Bots that are on this Player&#8217;s Bot&#8217;s Team.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.AbstractPlayer.other_team_bots.html#pelita.player.AbstractPlayer.other_team_bots" title="pelita.player.AbstractPlayer.other_team_bots"><tt class="xref py py-obj docutils literal"><span class="pre">other_team_bots</span></tt></a></td>
+<td>A list of Bots that are on this players team.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Enemy Properties</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.AbstractPlayer.enemy_bots.html#pelita.player.AbstractPlayer.enemy_bots" title="pelita.player.AbstractPlayer.enemy_bots"><tt class="xref py py-obj docutils literal"><span class="pre">enemy_bots</span></tt></a></td>
+<td>A list of enemy Bots.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.player.AbstractPlayer.enemy_food.html#pelita.player.AbstractPlayer.enemy_food" title="pelita.player.AbstractPlayer.enemy_food"><tt class="xref py py-obj docutils literal"><span class="pre">enemy_food</span></tt></a></td>
+<td>Food owned by the enemy which can be eaten by this players bot.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="example-players">
+<h2><a class="toc-backref" href="#id4">Example Players</a><a class="headerlink" href="#example-players" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.StoppingPlayer.html#pelita.player.StoppingPlayer" title="pelita.player.StoppingPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">StoppingPlayer</span></tt></a></td>
+<td>A Player that just stands still.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.player.RandomPlayer.html#pelita.player.RandomPlayer" title="pelita.player.RandomPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">RandomPlayer</span></tt></a></td>
+<td>A player that makes moves at random.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.NQRandomPlayer.html#pelita.player.NQRandomPlayer" title="pelita.player.NQRandomPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">NQRandomPlayer</span></tt></a></td>
+<td>Not-Quite-RandomPlayer that will move randomly but not stop or reverse.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.player.BFSPlayer.html#pelita.player.BFSPlayer" title="pelita.player.BFSPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">BFSPlayer</span></tt></a></td>
+<td>This player uses breadth first search to always go to the closest food.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.BasicDefensePlayer.html#pelita.player.BasicDefensePlayer" title="pelita.player.BasicDefensePlayer"><tt class="xref py py-obj docutils literal"><span class="pre">BasicDefensePlayer</span></tt></a></td>
+<td>A crude defensive player.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="accessing-pelita-datamodel">
+<h2><a class="toc-backref" href="#id5">Accessing <tt class="docutils literal"><span class="pre">pelita.datamodel</span></tt></a><a class="headerlink" href="#accessing-pelita-datamodel" title="Permalink to this headline">¶</a></h2>
+<p class="rubric">Convenience Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.diff_pos.html#pelita.datamodel.diff_pos" title="pelita.datamodel.diff_pos"><tt class="xref py py-obj docutils literal"><span class="pre">diff_pos</span></tt></a>(initial,&nbsp;target)</td>
+<td>Return the move required to move from one pos to another.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.is_adjacent.html#pelita.datamodel.is_adjacent" title="pelita.datamodel.is_adjacent"><tt class="xref py py-obj docutils literal"><span class="pre">is_adjacent</span></tt></a>(pos1,&nbsp;pos2)</td>
+<td>Check that two positions are adjacent.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.manhattan_dist.html#pelita.datamodel.manhattan_dist" title="pelita.datamodel.manhattan_dist"><tt class="xref py py-obj docutils literal"><span class="pre">manhattan_dist</span></tt></a>(pos1,&nbsp;pos2)</td>
+<td>Manhattan distance between two points.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.new_pos.html#pelita.datamodel.new_pos" title="pelita.datamodel.new_pos"><tt class="xref py py-obj docutils literal"><span class="pre">new_pos</span></tt></a>(position,&nbsp;move)</td>
+<td>Adds a position tuple and a move tuple.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Important Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.CTFUniverse.html#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><tt class="xref py py-obj docutils literal"><span class="pre">CTFUniverse</span></tt></a>(maze,&nbsp;teams,&nbsp;bots)</td>
+<td>The Universe: representation of the game state.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.Bot.html#pelita.datamodel.Bot" title="pelita.datamodel.Bot"><tt class="xref py py-obj docutils literal"><span class="pre">Bot</span></tt></a>(index,&nbsp;initial_pos,&nbsp;team_index,&nbsp;homezone)</td>
+<td>A bot on a team.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.Team.html#pelita.datamodel.Team" title="pelita.datamodel.Team"><tt class="xref py py-obj docutils literal"><span class="pre">Team</span></tt></a>(index,&nbsp;name,&nbsp;zone[,&nbsp;score,&nbsp;bots])</td>
+<td>A team of bots.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.Maze.html#pelita.datamodel.Maze" title="pelita.datamodel.Maze"><tt class="xref py py-obj docutils literal"><span class="pre">Maze</span></tt></a>(width,&nbsp;height[,&nbsp;data])</td>
+<td>A Mesh of strings of MazeComponent representations.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">MazeComponents</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.MazeComponent.html#pelita.datamodel.MazeComponent" title="pelita.datamodel.MazeComponent"><tt class="xref py py-obj docutils literal"><span class="pre">MazeComponent</span></tt></a></td>
+<td>Base class for all items inside a Maze.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.Wall.html#pelita.datamodel.Wall" title="pelita.datamodel.Wall"><tt class="xref py py-obj docutils literal"><span class="pre">Wall</span></tt></a></td>
+<td>Object to represent a wall.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.Free.html#pelita.datamodel.Free" title="pelita.datamodel.Free"><tt class="xref py py-obj docutils literal"><span class="pre">Free</span></tt></a></td>
+<td>Object to represent a free space.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.Food.html#pelita.datamodel.Food" title="pelita.datamodel.Food"><tt class="xref py py-obj docutils literal"><span class="pre">Food</span></tt></a></td>
+<td>Object to represent a food item.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="interfacing-with-the-ctfuniverse">
+<h2><a class="toc-backref" href="#id6">Interfacing with the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt></a><a class="headerlink" href="#interfacing-with-the-ctfuniverse" title="Permalink to this headline">¶</a></h2>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>maze</td>
+<td>instance of <a class="reference internal" href="pelita/pelita.datamodel.Maze.html#pelita.datamodel.Maze" title="pelita.datamodel.Maze"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.datamodel.Maze</span></tt></a></td>
+</tr>
+<tr class="row-even"><td>teams</td>
+<td>list of instances of <a class="reference internal" href="pelita/pelita.datamodel.Team.html#pelita.datamodel.Team" title="pelita.datamodel.Team"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.datamodel.Team</span></tt></a></td>
+</tr>
+<tr class="row-odd"><td>bots</td>
+<td>list of instances of <a class="reference internal" href="pelita/pelita.datamodel.Bot.html#pelita.datamodel.Bot" title="pelita.datamodel.Bot"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.datamodel.Bot</span></tt></a></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Convenience Properties and Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.CTFUniverse.bot_positions.html#pelita.datamodel.CTFUniverse.bot_positions" title="pelita.datamodel.CTFUniverse.bot_positions"><tt class="xref py py-obj docutils literal"><span class="pre">bot_positions</span></tt></a></td>
+<td>Current positions of all bots.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.CTFUniverse.food_list.html#pelita.datamodel.CTFUniverse.food_list" title="pelita.datamodel.CTFUniverse.food_list"><tt class="xref py py-obj docutils literal"><span class="pre">food_list</span></tt></a></td>
+<td>Positions of all the food.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.CTFUniverse.pretty.html#pelita.datamodel.CTFUniverse.pretty" title="pelita.datamodel.CTFUniverse.pretty"><tt class="xref py py-obj docutils literal"><span class="pre">pretty</span></tt></a></td>
+<td>Provide detailed, readable info about universe state.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.CTFUniverse.enemy_bots.html#pelita.datamodel.CTFUniverse.enemy_bots" title="pelita.datamodel.CTFUniverse.enemy_bots"><tt class="xref py py-obj docutils literal"><span class="pre">enemy_bots</span></tt></a>(team_index)</td>
+<td>Obtain enemy bot objects.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.CTFUniverse.enemy_food.html#pelita.datamodel.CTFUniverse.enemy_food" title="pelita.datamodel.CTFUniverse.enemy_food"><tt class="xref py py-obj docutils literal"><span class="pre">enemy_food</span></tt></a>(team_index)</td>
+<td>Food that is edible by a team</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.CTFUniverse.get_legal_moves.html#pelita.datamodel.CTFUniverse.get_legal_moves" title="pelita.datamodel.CTFUniverse.get_legal_moves"><tt class="xref py py-obj docutils literal"><span class="pre">get_legal_moves</span></tt></a>(position)</td>
+<td>Obtain legal moves and where they lead.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.CTFUniverse.other_team_bots.html#pelita.datamodel.CTFUniverse.other_team_bots" title="pelita.datamodel.CTFUniverse.other_team_bots"><tt class="xref py py-obj docutils literal"><span class="pre">other_team_bots</span></tt></a>(bot_index)</td>
+<td>Obtain other bots on team.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.CTFUniverse.team_border.html#pelita.datamodel.CTFUniverse.team_border" title="pelita.datamodel.CTFUniverse.team_border"><tt class="xref py py-obj docutils literal"><span class="pre">team_border</span></tt></a>(team_index)</td>
+<td>Positions of the border positions.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.CTFUniverse.team_bots.html#pelita.datamodel.CTFUniverse.team_bots" title="pelita.datamodel.CTFUniverse.team_bots"><tt class="xref py py-obj docutils literal"><span class="pre">team_bots</span></tt></a>(team_index)</td>
+<td>Obtain all Bot objects in a Team.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.CTFUniverse.team_food.html#pelita.datamodel.CTFUniverse.team_food" title="pelita.datamodel.CTFUniverse.team_food"><tt class="xref py py-obj docutils literal"><span class="pre">team_food</span></tt></a>(team_index)</td>
+<td>Food that is owned by a team</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="interfacing-with-the-maze">
+<h2><a class="toc-backref" href="#id7">Interfacing with the <tt class="docutils literal"><span class="pre">Maze</span></tt></a><a class="headerlink" href="#interfacing-with-the-maze" title="Permalink to this headline">¶</a></h2>
+<p class="rubric">Convenience Properties and Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.Maze.shape.html#pelita.datamodel.Maze.shape" title="pelita.datamodel.Maze.shape"><tt class="xref py py-obj docutils literal"><span class="pre">shape</span></tt></a></td>
+<td>The shape (width, height) of the Mesh.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.Maze.positions.html#pelita.datamodel.Maze.positions" title="pelita.datamodel.Maze.positions"><tt class="xref py py-obj docutils literal"><span class="pre">positions</span></tt></a></td>
+<td>The indices of positions in the Maze.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.Maze.pos_of.html#pelita.datamodel.Maze.pos_of" title="pelita.datamodel.Maze.pos_of"><tt class="xref py py-obj docutils literal"><span class="pre">pos_of</span></tt></a>(<a href="#id8"><span class="problematic" id="id9">type_</span></a>)</td>
+<td>The indices of positions which have a MazeComponent.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_player.html">Running Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">User API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#convenience-properties-of-abstractplayer">Convenience Properties of <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-players">Example Players</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accessing-pelita-datamodel">Accessing <tt class="docutils literal"><span class="pre">pelita.datamodel</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interfacing-with-the-ctfuniverse">Interfacing with the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interfacing-with-the-maze">Interfacing with the <tt class="docutils literal"><span class="pre">Maze</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/user-api.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="development.html" title="Development"
+             >previous</a> |</li>
+        <li><a href="index.html">Pelita v0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
+      Last updated on Sep 21, 2011.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/cf794ec8a096.
+    </div>
+  </body>
+</html>

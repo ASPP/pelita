@@ -1,0 +1,6 @@
+pelita.actors.ClientActor.register_team
+=======================================
+
+.. currentmodule:: pelita.actors
+
+.. automethod:: ClientActor.register_team

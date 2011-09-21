@@ -1,0 +1,36 @@
+pelita.messaging.Actor
+======================
+
+.. currentmodule:: pelita.messaging
+
+.. autoclass:: Actor
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Actor.__init__
+      ~Actor.handle_inbox
+      ~Actor.on_receive
+      ~Actor.on_start
+      ~Actor.on_stop
+      ~Actor.put
+      ~Actor.run
+      ~Actor.start
+      ~Actor.stop
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Actor.paused
+      ~Actor.ref
+      ~Actor.thread
+   

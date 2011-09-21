@@ -1,0 +1,6 @@
+pelita.messaging.Request.get_or_none
+====================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: Request.get_or_none

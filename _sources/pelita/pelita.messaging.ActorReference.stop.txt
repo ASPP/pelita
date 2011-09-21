@@ -1,0 +1,6 @@
+pelita.messaging.ActorReference.stop
+====================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: ActorReference.stop

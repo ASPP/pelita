@@ -1,0 +1,6 @@
+pelita.messaging.Notification.wants_response
+============================================
+
+.. currentmodule:: pelita.messaging
+
+.. autoattribute:: Notification.wants_response

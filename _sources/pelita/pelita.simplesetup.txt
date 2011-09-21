@@ -1,0 +1,28 @@
+pelita.simplesetup
+==================
+
+.. automodule:: pelita.simplesetup
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~auto_connect
+   
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~SimpleClient
+      ~SimpleServer
+      ~SimpleViewer
+   
+
+   

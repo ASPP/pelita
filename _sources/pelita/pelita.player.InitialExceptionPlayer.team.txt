@@ -1,0 +1,6 @@
+pelita.player.InitialExceptionPlayer.team
+=========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: InitialExceptionPlayer.team

@@ -1,0 +1,6 @@
+pelita.player.StoppingPlayer.me
+===============================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: StoppingPlayer.me

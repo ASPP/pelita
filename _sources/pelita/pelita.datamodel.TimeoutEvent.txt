@@ -1,0 +1,18 @@
+pelita.datamodel.TimeoutEvent
+=============================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: TimeoutEvent
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~TimeoutEvent.__init__
+   
+
+   

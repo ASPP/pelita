@@ -1,0 +1,6 @@
+pelita.datamodel.new_pos
+========================
+
+.. currentmodule:: pelita.datamodel
+
+.. autofunction:: new_pos
