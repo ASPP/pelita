@@ -1,6 +1,0 @@
-pelita.utils.ThreadInfoLogger.paused
-====================================
-
-.. currentmodule:: pelita.utils
-
-.. autoattribute:: ThreadInfoLogger.paused

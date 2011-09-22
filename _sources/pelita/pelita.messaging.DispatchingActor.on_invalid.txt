@@ -1,6 +1,0 @@
-pelita.messaging.DispatchingActor.on_invalid
-============================================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: DispatchingActor.on_invalid

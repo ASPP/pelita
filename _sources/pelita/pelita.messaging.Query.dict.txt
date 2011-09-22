@@ -1,6 +1,0 @@
-pelita.messaging.Query.dict
-===========================
-
-.. currentmodule:: pelita.messaging
-
-.. autoattribute:: Query.dict

@@ -20,18 +20,8 @@ pelita.utils
       :toctree:
       :nosignatures:
    
-      ~Counter
       ~SuspendableThread
-      ~ThreadInfoLogger
       ~Value
    
 
-   
-   .. rubric:: Exceptions
-
-   .. autosummary::
-      :toctree:
-      :nosignatures:
-   
-      ~CloseThread
    

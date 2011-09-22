@@ -1,6 +1,0 @@
-pelita.messaging.Response.__init__
-==================================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: Response.__init__

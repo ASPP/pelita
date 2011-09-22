@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.messaging &mdash; Pelita v0.1.0 documentation</title>
+    <title>pelita.messaging &mdash; Pelita v0.1.0-1-g5bff993 documentation</title>
     
     <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.1.0',
+        VERSION:     'v0.1.0-1-g5bff993',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,9 +25,9 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.0 documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.1.0-1-g5bff993 documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
-    <link rel="next" title="pelita.messaging.actor_of" href="pelita.messaging.actor_of.html" />
+    <link rel="next" title="pelita.messaging.expose" href="pelita.messaging.expose.html" />
     <link rel="prev" title="pelita.layout.LayoutEncodingException" href="pelita.layout.LayoutEncodingException.html" /> 
   </head>
   <body>
@@ -44,12 +44,12 @@
           <a href="../np-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="pelita.messaging.actor_of.html" title="pelita.messaging.actor_of"
+          <a href="pelita.messaging.expose.html" title="pelita.messaging.expose"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="pelita.layout.LayoutEncodingException.html" title="pelita.layout.LayoutEncodingException"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.0 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.0-1-g5bff993 documentation</a> &raquo;</li>
           <li><a href="../api.html" accesskey="U">API reference</a> &raquo;</li> 
       </ul>
     </div>  
@@ -68,10 +68,7 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.actor_of.html#pelita.messaging.actor_of" title="pelita.messaging.actor_of"><tt class="xref py py-obj docutils literal"><span class="pre">actor_of</span></tt></a></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.messaging.expose.html#pelita.messaging.expose" title="pelita.messaging.expose"><tt class="xref py py-obj docutils literal"><span class="pre">expose</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.expose.html#pelita.messaging.expose" title="pelita.messaging.expose"><tt class="xref py py-obj docutils literal"><span class="pre">expose</span></tt></a></td>
 <td></td>
 </tr>
 </tbody>
@@ -83,46 +80,25 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.Actor.html#pelita.messaging.Actor" title="pelita.messaging.Actor"><tt class="xref py py-obj docutils literal"><span class="pre">Actor</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.ActorReference.html#pelita.messaging.ActorReference" title="pelita.messaging.ActorReference"><tt class="xref py py-obj docutils literal"><span class="pre">ActorReference</span></tt></a></td>
 <td></td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.messaging.ActorReference.html#pelita.messaging.ActorReference" title="pelita.messaging.ActorReference"><tt class="xref py py-obj docutils literal"><span class="pre">ActorReference</span></tt></a></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.BaseActorReference.html#pelita.messaging.BaseActorReference" title="pelita.messaging.BaseActorReference"><tt class="xref py py-obj docutils literal"><span class="pre">BaseActorReference</span></tt></a></td>
-<td>An <a class="reference internal" href="pelita.messaging.ActorReference.html#pelita.messaging.ActorReference" title="pelita.messaging.ActorReference"><tt class="xref py py-obj docutils literal"><span class="pre">ActorReference</span></tt></a> is used to send all requests and notifications</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="pelita.messaging.BaseMessage.html#pelita.messaging.BaseMessage" title="pelita.messaging.BaseMessage"><tt class="xref py py-obj docutils literal"><span class="pre">BaseMessage</span></tt></a></td>
 <td>A message can be converted to a simple dict object,</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.DispatchingActor.html#pelita.messaging.DispatchingActor" title="pelita.messaging.DispatchingActor"><tt class="xref py py-obj docutils literal"><span class="pre">DispatchingActor</span></tt></a></td>
-<td>The <a class="reference internal" href="pelita.messaging.DispatchingActor.html#pelita.messaging.DispatchingActor" title="pelita.messaging.DispatchingActor"><tt class="xref py py-obj docutils literal"><span class="pre">DispatchingActor</span></tt></a> allows methods of the form</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.messaging.Error.html#pelita.messaging.Error" title="pelita.messaging.Error"><tt class="xref py py-obj docutils literal"><span class="pre">Error</span></tt></a></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.Exit.html#pelita.messaging.Exit" title="pelita.messaging.Exit"><tt class="xref py py-obj docutils literal"><span class="pre">Exit</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.Error.html#pelita.messaging.Error" title="pelita.messaging.Error"><tt class="xref py py-obj docutils literal"><span class="pre">Error</span></tt></a></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="pelita.messaging.Notification.html#pelita.messaging.Notification" title="pelita.messaging.Notification"><tt class="xref py py-obj docutils literal"><span class="pre">Notification</span></tt></a></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.Query.html#pelita.messaging.Query" title="pelita.messaging.Query"><tt class="xref py py-obj docutils literal"><span class="pre">Query</span></tt></a></td>
-<td>A query is a special message which has a unique id.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.messaging.RemoteActorReference.html#pelita.messaging.RemoteActorReference" title="pelita.messaging.RemoteActorReference"><tt class="xref py py-obj docutils literal"><span class="pre">RemoteActorReference</span></tt></a></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.RemoteConnection.html#pelita.messaging.RemoteConnection" title="pelita.messaging.RemoteConnection"><tt class="xref py py-obj docutils literal"><span class="pre">RemoteConnection</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.RemoteActorReference.html#pelita.messaging.RemoteActorReference" title="pelita.messaging.RemoteActorReference"><tt class="xref py py-obj docutils literal"><span class="pre">RemoteActorReference</span></tt></a></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="pelita.messaging.Request.html#pelita.messaging.Request" title="pelita.messaging.Request"><tt class="xref py py-obj docutils literal"><span class="pre">Request</span></tt></a></td>
 <td>A <a class="reference internal" href="pelita.messaging.Request.html#pelita.messaging.Request" title="pelita.messaging.Request"><tt class="xref py py-obj docutils literal"><span class="pre">Request</span></tt></a> is an object which holds a future value.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.Response.html#pelita.messaging.Response" title="pelita.messaging.Response"><tt class="xref py py-obj docutils literal"><span class="pre">Response</span></tt></a></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.messaging.StopProcessing.html#pelita.messaging.StopProcessing" title="pelita.messaging.StopProcessing"><tt class="xref py py-obj docutils literal"><span class="pre">StopProcessing</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.StopProcessing.html#pelita.messaging.StopProcessing" title="pelita.messaging.StopProcessing"><tt class="xref py py-obj docutils literal"><span class="pre">StopProcessing</span></tt></a></td>
 <td>If a thread encounters this value in a queue, it is advised to stop processing.</td>
 </tr>
 </tbody>
@@ -134,10 +110,7 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.ActorNotRunning.html#pelita.messaging.ActorNotRunning" title="pelita.messaging.ActorNotRunning"><tt class="xref py py-obj docutils literal"><span class="pre">ActorNotRunning</span></tt></a></td>
-<td>Raised when the actor is not yet running or stopped.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.messaging.DeadConnection.html#pelita.messaging.DeadConnection" title="pelita.messaging.DeadConnection"><tt class="xref py py-obj docutils literal"><span class="pre">DeadConnection</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.messaging.DeadConnection.html#pelita.messaging.DeadConnection" title="pelita.messaging.DeadConnection"><tt class="xref py py-obj docutils literal"><span class="pre">DeadConnection</span></tt></a></td>
 <td>Raised when the connection is lost.</td>
 </tr>
 </tbody>
@@ -212,19 +185,19 @@
           <a href="../np-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="pelita.messaging.actor_of.html" title="pelita.messaging.actor_of"
+          <a href="pelita.messaging.expose.html" title="pelita.messaging.expose"
              >next</a> |</li>
         <li class="right" >
           <a href="pelita.layout.LayoutEncodingException.html" title="pelita.layout.LayoutEncodingException"
              >previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.0 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.0-1-g5bff993 documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
-      Last updated on Sep 21, 2011.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/cf794ec8a096.
+      Last updated on Sep 22, 2011.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/e5305dd6dde5.
     </div>
   </body>
 </html>

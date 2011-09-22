@@ -1,6 +1,0 @@
-pelita.utils.ThreadInfoLogger.run
-=================================
-
-.. currentmodule:: pelita.utils
-
-.. automethod:: ThreadInfoLogger.run

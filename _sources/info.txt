@@ -64,7 +64,7 @@ Past:
 * `Warsaw, Poland, 2010 <https://python.g-node.org/python-winterschool-2010>`_
 * `Berlin, Germany, 2009 <https://python.g-node.org/python-summerschool-2009>`_
 
-Initial funding was kindly provided by `The German Neuroinformtaics Node
+Initial funding was kindly provided by `The German Neuroinformatics Node
 <http://www.g-node.org/>`_.
 
 

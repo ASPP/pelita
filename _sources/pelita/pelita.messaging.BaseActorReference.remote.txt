@@ -1,6 +1,0 @@
-pelita.messaging.BaseActorReference.remote
-==========================================
-
-.. currentmodule:: pelita.messaging
-
-.. autoattribute:: BaseActorReference.remote

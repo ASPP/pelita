@@ -1,6 +1,0 @@
-pelita.messaging.Response.dict
-==============================
-
-.. currentmodule:: pelita.messaging
-
-.. autoattribute:: Response.dict

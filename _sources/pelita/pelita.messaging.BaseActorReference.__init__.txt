@@ -1,6 +1,0 @@
-pelita.messaging.BaseActorReference.__init__
-============================================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: BaseActorReference.__init__

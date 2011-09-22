@@ -1,6 +1,0 @@
-pelita.messaging.Response.wants_response
-========================================
-
-.. currentmodule:: pelita.messaging
-
-.. autoattribute:: Response.wants_response

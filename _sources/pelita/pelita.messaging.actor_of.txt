@@ -1,6 +1,0 @@
-pelita.messaging.actor_of
-=========================
-
-.. currentmodule:: pelita.messaging
-
-.. autofunction:: actor_of

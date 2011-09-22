@@ -10,7 +10,6 @@ pelita.messaging
       :toctree:
       :nosignatures:
    
-      ~actor_of
       ~expose
    
 
@@ -21,19 +20,12 @@ pelita.messaging
       :toctree:
       :nosignatures:
    
-      ~Actor
       ~ActorReference
-      ~BaseActorReference
       ~BaseMessage
-      ~DispatchingActor
       ~Error
-      ~Exit
       ~Notification
-      ~Query
       ~RemoteActorReference
-      ~RemoteConnection
       ~Request
-      ~Response
       ~StopProcessing
    
 
@@ -44,6 +36,5 @@ pelita.messaging
       :toctree:
       :nosignatures:
    
-      ~ActorNotRunning
       ~DeadConnection
    

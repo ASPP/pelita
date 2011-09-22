@@ -1,6 +1,0 @@
-pelita.messaging.RemoteConnection.register
-==========================================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: RemoteConnection.register

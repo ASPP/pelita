@@ -1,6 +1,0 @@
-pelita.messaging.ActorNotRunning
-================================
-
-.. currentmodule:: pelita.messaging
-
-.. autoexception:: ActorNotRunning
