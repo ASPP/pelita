@@ -2,5 +2,4 @@
 
 ## Description
 
-Autonomous agent environment for Python summerschool.
-
+Actor-based Toolkit for Interactive Language Education in Python
