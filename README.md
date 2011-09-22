@@ -10,7 +10,7 @@ Current, up-to-date documentation can found on: http://debilski.github.com/pelit
 
 ## Project Information
 
-Information about authors, mailinlist, the license (2-Clause-BSD) and
+Information about authors, mailing list, the license (2-Clause-BSD) and
 acknowledgements can be found at: http://debilski.github.com/pelita/info.html
 
 ## Development
