@@ -150,12 +150,12 @@ class AdjacencyList(dict):
     def a_star(self, initial, target):
         """ A* search. """
         to_visit = []
-        # seen needs to be list since we use it for backtracking
-        # a set would make the lookup faster, but not enable backtracking
+        # Seen needs to be list since we use it for backtracking.
+        # A set would make the lookup faster, but backtracking impossible.
         seen = []
-        # since its A* we use a heap que
-        # this ensures we always get the next node with to lowest manhatten
-        # distance to the current node
+        # Since it's A* we use a heap queue to ensure that we always
+        # get the next node with to lowest manhattan distance to the
+        # current node.
         heapq.heappush(to_visit, (0, (initial)))
         while to_visit:
             man_dist, current = heapq.heappop(to_visit)
