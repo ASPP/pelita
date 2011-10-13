@@ -455,7 +455,7 @@ class BasicDefensePlayer(AbstractPlayer):
     def get_move(self):
         # if we were killed, for whatever reason, reset the path
         if self.current_pos == self.initial_pos:
-            self.current_path = self.path_to_border
+            self.path = self.path_to_border
         # if we are not currently tracking anything
         if not self.tracking:
             # check the enemy positions
