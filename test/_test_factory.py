@@ -1,5 +1,5 @@
 
-""" framework to simplify test developement for pelita players
+""" framework to simplify test development for pelita players
 
 This framework allows you to easily define different tests
 for the behaviour of your bots. 
