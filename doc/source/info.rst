@@ -2,11 +2,10 @@
 Project Information
 ===================
 
-
 Authors and Contributors
 ========================
 
-As of ``v0.1.0-rc2-157-g192d87c`` the developers and contributors are::
+As of ``v0.1.0`` the developers and contributors are::
 
     zsh» git shortlog -sn | cut -f1 --complement
     Valentin Haenel
@@ -15,6 +14,9 @@ As of ``v0.1.0-rc2-157-g192d87c`` the developers and contributors are::
     Zbigniew Jędrzejewski-Szmek
     Bastian Venthur
     Pietro Berkes
+    Pauli Virtanen
+    Christian Steigies
+    Francesc Alted
 
 Getting in Touch
 ================
