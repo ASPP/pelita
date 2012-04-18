@@ -83,7 +83,9 @@ Doing More
 ==========
 
 A slightly more useful example is the `pelita.player.RandomPlayer` which always
-selects a move at random from the possible moves:
+selects a move at random from the possible moves::
+
+    from pelita.player import AbstractPlayer
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: RandomPlayer
@@ -95,8 +97,9 @@ there. ``legal_moves`` always includes stop.
 
 The next example is the not-quite random player `pelita.player.NQRandomPlayer``.
 This one does not move back to the position where it was on its last turn and
-never stops in place:
+never stops in place::
 
+    from pelita.player import AbstractPlayer
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: NQRandomPlayer
@@ -186,7 +189,9 @@ A Basic Offensive Player
 
 A somewhat more elaborate example is the `pelita.player.BFSPlayer` which uses
 *breadth first search* on an *adjacency list* representation of the maze to find
-food:
+food::
+
+    from pelita.player import AbstractPlayer
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: BFSPlayer
@@ -351,7 +356,9 @@ remove food to the maze::
 A Basic Defensive Player
 ========================
 
-As a defensive example we have the ``BasicDefensePlayer``:
+As a defensive example we have the ``BasicDefensePlayer``::
+
+    from pelita.player import AbstractPlayer
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: BasicDefensePlayer
