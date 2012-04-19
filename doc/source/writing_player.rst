@@ -75,12 +75,16 @@ which simply returns ``stop``:
 .. literalinclude:: ../../pelita/player.py
    :pyobject: StoppingPlayer
 
-Besides the definition of your player, this file must contain a factory
-function that returns a team (remember that the default game is a
-fight between two teams of two bots each)::
+.. note::
 
-    def factory():
-        return SimpleTeam("MyTeam", StoppingPlayer(), StoppingPlayer())
+    Besides the definition of your player, this file must contain a factory
+    function that returns a team (remember that the default game is a
+    fight between two teams of two bots each)::
+
+        def factory():
+            return SimpleTeam("MyTeam", StoppingPlayer(), StoppingPlayer())
+
+    For more information about this, see also::doc:`running_player`
 
 Note: the current state or the ``CTFUniverse`` is always implicitly available
 via the ``current_uni`` property inherited from ``AbstractPlayer``. But more
