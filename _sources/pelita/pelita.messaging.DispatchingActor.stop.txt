@@ -1,0 +1,6 @@
+pelita.messaging.DispatchingActor.stop
+======================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: DispatchingActor.stop

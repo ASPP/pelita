@@ -1,0 +1,6 @@
+pelita.utils.CloseThread
+========================
+
+.. currentmodule:: pelita.utils
+
+.. autoexception:: CloseThread

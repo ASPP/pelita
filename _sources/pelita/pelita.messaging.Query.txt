@@ -1,0 +1,29 @@
+pelita.messaging.Query
+======================
+
+.. currentmodule:: pelita.messaging
+
+.. autoclass:: Query
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Query.__init__
+      ~Query.load
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Query.dict
+      ~Query.is_response
+      ~Query.wants_response
+   

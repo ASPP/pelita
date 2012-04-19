@@ -1,0 +1,6 @@
+pelita.utils.Counter.get
+========================
+
+.. currentmodule:: pelita.utils
+
+.. automethod:: Counter.get

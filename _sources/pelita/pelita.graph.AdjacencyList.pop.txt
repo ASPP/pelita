@@ -3,4 +3,4 @@ pelita.graph.AdjacencyList.pop
 
 .. currentmodule:: pelita.graph
 
-.. autoattribute:: AdjacencyList.pop
+.. automethod:: AdjacencyList.pop

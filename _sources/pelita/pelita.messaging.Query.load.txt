@@ -1,0 +1,6 @@
+pelita.messaging.Query.load
+===========================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: Query.load

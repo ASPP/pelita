@@ -1,0 +1,6 @@
+pelita.messaging.RemoteConnection.on_shutdown
+=============================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: RemoteConnection.on_shutdown

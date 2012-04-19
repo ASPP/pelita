@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.utils &mdash; Pelita v0.1.0-1-g5bff993 documentation</title>
+    <title>pelita.utils &mdash; Pelita v0.1.0-5-gcffa64b documentation</title>
     
     <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.1.0-1-g5bff993',
+        VERSION:     'v0.1.0-5-gcffa64b',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.0-1-g5bff993 documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.1.0-5-gcffa64b documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
     <link rel="next" title="pelita.utils.with_sys_path" href="pelita.utils.with_sys_path.html" />
     <link rel="prev" title="pelita.ui" href="pelita.ui.html" /> 
@@ -49,7 +49,7 @@
         <li class="right" >
           <a href="pelita.ui.html" title="pelita.ui"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.0-1-g5bff993 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.0-5-gcffa64b documentation</a> &raquo;</li>
           <li><a href="../api.html" accesskey="U">API reference</a> &raquo;</li> 
       </ul>
     </div>  
@@ -62,7 +62,7 @@
   <div class="section" id="module-pelita.utils">
 <span id="pelita-utils"></span><h1>pelita.utils<a class="headerlink" href="#module-pelita.utils" title="Permalink to this headline">¶</a></h1>
 <p class="rubric">Functions</p>
-<table border="1" class="docutils">
+<table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
@@ -74,17 +74,35 @@
 </tbody>
 </table>
 <p class="rubric">Classes</p>
-<table border="1" class="docutils">
+<table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.utils.SuspendableThread.html#pelita.utils.SuspendableThread" title="pelita.utils.SuspendableThread"><tt class="xref py py-obj docutils literal"><span class="pre">SuspendableThread</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.utils.Counter.html#pelita.utils.Counter" title="pelita.utils.Counter"><tt class="xref py py-obj docutils literal"><span class="pre">Counter</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.utils.SuspendableThread.html#pelita.utils.SuspendableThread" title="pelita.utils.SuspendableThread"><tt class="xref py py-obj docutils literal"><span class="pre">SuspendableThread</span></tt></a></td>
 <td>Base class for a thread which may be suspended.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.utils.ThreadInfoLogger.html#pelita.utils.ThreadInfoLogger" title="pelita.utils.ThreadInfoLogger"><tt class="xref py py-obj docutils literal"><span class="pre">ThreadInfoLogger</span></tt></a></td>
+<td></td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="pelita.utils.Value.html#pelita.utils.Value" title="pelita.utils.Value"><tt class="xref py py-obj docutils literal"><span class="pre">Value</span></tt></a></td>
 <td>Simple wrapper around a value.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Exceptions</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.utils.CloseThread.html#pelita.utils.CloseThread" title="pelita.utils.CloseThread"><tt class="xref py py-obj docutils literal"><span class="pre">CloseThread</span></tt></a></td>
+<td>May be raised from inside the _run method to close the thread.</td>
 </tr>
 </tbody>
 </table>
@@ -131,7 +149,7 @@
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -163,14 +181,14 @@
         <li class="right" >
           <a href="pelita.ui.html" title="pelita.ui"
              >previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.0-1-g5bff993 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.0-5-gcffa64b documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
-      Last updated on Sep 22, 2011.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/e5305dd6dde5.
+      Last updated on Apr 19, 2012.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
     </div>
   </body>
 </html>

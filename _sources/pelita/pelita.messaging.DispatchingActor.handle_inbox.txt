@@ -1,0 +1,6 @@
+pelita.messaging.DispatchingActor.handle_inbox
+==============================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: DispatchingActor.handle_inbox

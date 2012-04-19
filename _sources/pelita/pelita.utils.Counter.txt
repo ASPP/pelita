@@ -1,0 +1,22 @@
+pelita.utils.Counter
+====================
+
+.. currentmodule:: pelita.utils
+
+.. autoclass:: Counter
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Counter.__init__
+      ~Counter.do
+      ~Counter.get
+      ~Counter.inc
+      ~Counter.put
+   
+
+   

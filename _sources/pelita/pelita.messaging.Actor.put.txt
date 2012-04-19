@@ -1,0 +1,6 @@
+pelita.messaging.Actor.put
+==========================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: Actor.put

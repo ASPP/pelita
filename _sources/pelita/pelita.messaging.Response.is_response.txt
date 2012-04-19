@@ -1,0 +1,6 @@
+pelita.messaging.Response.is_response
+=====================================
+
+.. currentmodule:: pelita.messaging
+
+.. autoattribute:: Response.is_response

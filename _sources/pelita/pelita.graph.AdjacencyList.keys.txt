@@ -3,4 +3,4 @@ pelita.graph.AdjacencyList.keys
 
 .. currentmodule:: pelita.graph
 
-.. autoattribute:: AdjacencyList.keys
+.. automethod:: AdjacencyList.keys

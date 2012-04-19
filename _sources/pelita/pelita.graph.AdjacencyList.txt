@@ -15,19 +15,9 @@ pelita.graph.AdjacencyList
       ~AdjacencyList.__init__
       ~AdjacencyList.a_star
       ~AdjacencyList.bfs
-      ~AdjacencyList.fromkeys
-      ~AdjacencyList.pos_within
-   
-
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-      :toctree:
-      :nosignatures:
-   
       ~AdjacencyList.clear
       ~AdjacencyList.copy
+      ~AdjacencyList.fromkeys
       ~AdjacencyList.get
       ~AdjacencyList.has_key
       ~AdjacencyList.items
@@ -37,7 +27,10 @@ pelita.graph.AdjacencyList
       ~AdjacencyList.keys
       ~AdjacencyList.pop
       ~AdjacencyList.popitem
+      ~AdjacencyList.pos_within
       ~AdjacencyList.setdefault
       ~AdjacencyList.update
       ~AdjacencyList.values
+   
+
    

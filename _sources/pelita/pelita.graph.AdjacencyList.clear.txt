@@ -3,4 +3,4 @@ pelita.graph.AdjacencyList.clear
 
 .. currentmodule:: pelita.graph
 
-.. autoattribute:: AdjacencyList.clear
+.. automethod:: AdjacencyList.clear

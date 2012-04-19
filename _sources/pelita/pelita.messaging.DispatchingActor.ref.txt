@@ -1,0 +1,6 @@
+pelita.messaging.DispatchingActor.ref
+=====================================
+
+.. currentmodule:: pelita.messaging
+
+.. autoattribute:: DispatchingActor.ref

@@ -3,4 +3,4 @@ pelita.graph.AdjacencyList.update
 
 .. currentmodule:: pelita.graph
 
-.. autoattribute:: AdjacencyList.update
+.. automethod:: AdjacencyList.update

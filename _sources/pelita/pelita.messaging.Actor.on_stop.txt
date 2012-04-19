@@ -1,0 +1,6 @@
+pelita.messaging.Actor.on_stop
+==============================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: Actor.on_stop

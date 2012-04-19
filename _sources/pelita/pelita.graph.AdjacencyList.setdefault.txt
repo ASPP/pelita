@@ -3,4 +3,4 @@ pelita.graph.AdjacencyList.setdefault
 
 .. currentmodule:: pelita.graph
 
-.. autoattribute:: AdjacencyList.setdefault
+.. automethod:: AdjacencyList.setdefault

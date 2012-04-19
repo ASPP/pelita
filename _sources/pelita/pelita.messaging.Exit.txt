@@ -1,0 +1,18 @@
+pelita.messaging.Exit
+=====================
+
+.. currentmodule:: pelita.messaging
+
+.. autoclass:: Exit
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~Exit.__init__
+   
+
+   

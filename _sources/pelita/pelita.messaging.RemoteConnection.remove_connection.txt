@@ -1,0 +1,6 @@
+pelita.messaging.RemoteConnection.remove_connection
+===================================================
+
+.. currentmodule:: pelita.messaging
+
+.. automethod:: RemoteConnection.remove_connection
