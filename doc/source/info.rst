@@ -22,7 +22,7 @@ Getting in Touch
 Please use our `project mailing list
 <https://portal.bccn-berlin.de/cgi-bin/mailman/listinfo/pelita>`_ for questions
 and discussion. Use the `GitHub issues page
-<https://github.com/Debilski/pelita/issues>`_ to report bugs.
+<https://github.com/ASPP/pelita/issues>`_ to report bugs.
 
 License
 =======

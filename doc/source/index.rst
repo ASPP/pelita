@@ -35,7 +35,7 @@ Quick Start
 
 First clone the source code repository::
 
-    $ git clone http://github.com/Debilski/pelita.git
+    $ git clone http://github.com/ASPP/pelita.git
 
 And launch the command-line interface::
 
