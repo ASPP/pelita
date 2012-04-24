@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.graph.AdjacencyList.a_star &mdash; Pelita v0.1.0-5-gcffa64b documentation</title>
+    <title>pelita.graph.AdjacencyList.a_star &mdash; Pelita v0.1.0-25-g8e2562a documentation</title>
     
     <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.1.0-5-gcffa64b',
+        VERSION:     'v0.1.0-25-g8e2562a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.0-5-gcffa64b documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.1.0-25-g8e2562a documentation" href="../index.html" />
     <link rel="up" title="pelita.graph.AdjacencyList" href="pelita.graph.AdjacencyList.html" />
     <link rel="next" title="pelita.graph.AdjacencyList.bfs" href="pelita.graph.AdjacencyList.bfs.html" />
     <link rel="prev" title="pelita.graph.AdjacencyList.__init__" href="pelita.graph.AdjacencyList.__init__.html" /> 
@@ -49,7 +49,7 @@
         <li class="right" >
           <a href="pelita.graph.AdjacencyList.__init__.html" title="pelita.graph.AdjacencyList.__init__"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.0-5-gcffa64b documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.0-25-g8e2562a documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li>
           <li><a href="pelita.graph.html" >pelita.graph</a> &raquo;</li>
           <li><a href="pelita.graph.AdjacencyList.html" accesskey="U">pelita.graph.AdjacencyList</a> &raquo;</li> 
@@ -67,6 +67,42 @@
 <dt id="pelita.graph.AdjacencyList.a_star">
 <tt class="descclassname">AdjacencyList.</tt><tt class="descname">a_star</tt><big>(</big><em>initial</em>, <em>target</em><big>)</big><a class="headerlink" href="#pelita.graph.AdjacencyList.a_star" title="Permalink to this definition">¶</a></dt>
 <dd><p>A* search.</p>
+<p>A* (A Star) [1] from one position to another. The search will return the
+shortest path from the <tt class="xref py py-obj docutils literal"><span class="pre">initial</span></tt> position to the <tt class="xref py py-obj docutils literal"><span class="pre">target</span></tt> using the
+Manhatten distance as a heuristic.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>initial</strong> : tuple of (int, int)</p>
+<blockquote>
+<div><p>the first position</p>
+</div></blockquote>
+<p><strong>target</strong> : tuple of (int, int)</p>
+<blockquote>
+<div><p>the target position</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>path</strong> : lits of tuple of (int, int)</p>
+<blockquote>
+<div><p>the path from <tt class="xref py py-obj docutils literal"><span class="pre">initial</span></tt> to the closest <tt class="xref py py-obj docutils literal"><span class="pre">target</span></tt></p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises :</th><td class="field-body"><p class="first"><strong>NoPathException</strong> :</p>
+<blockquote>
+<div><p>if no path from <tt class="xref py py-obj docutils literal"><span class="pre">initial</span></tt> to one of <tt class="xref py py-obj docutils literal"><span class="pre">targets</span></tt></p>
+</div></blockquote>
+<p><strong>NoPositionException</strong> :</p>
+<blockquote>
+<div><p>if either <tt class="xref py py-obj docutils literal"><span class="pre">initial</span></tt> or <tt class="xref py py-obj docutils literal"><span class="pre">targets</span></tt> does not exist</p>
+</div></blockquote>
+<p class="last"><strong>[1] http://en.wikipedia.org/wiki/A*_search_algorithm</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -127,7 +163,7 @@
         <li class="right" >
           <a href="pelita.graph.AdjacencyList.__init__.html" title="pelita.graph.AdjacencyList.__init__"
              >previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.0-5-gcffa64b documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.0-25-g8e2562a documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li>
           <li><a href="pelita.graph.html" >pelita.graph</a> &raquo;</li>
           <li><a href="pelita.graph.AdjacencyList.html" >pelita.graph.AdjacencyList</a> &raquo;</li> 
@@ -135,7 +171,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
-      Last updated on Apr 19, 2012.
+      Last updated on Apr 24, 2012.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
     </div>
   </body>

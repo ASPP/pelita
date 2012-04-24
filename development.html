@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Development &mdash; Pelita v0.1.0-5-gcffa64b documentation</title>
+    <title>Development &mdash; Pelita v0.1.0-25-g8e2562a documentation</title>
     
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.1.0-5-gcffa64b',
+        VERSION:     'v0.1.0-25-g8e2562a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.0-5-gcffa64b documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.1.0-25-g8e2562a documentation" href="index.html" />
     <link rel="next" title="User API Reference" href="user-api.html" />
     <link rel="prev" title="Running Players" href="running_player.html" /> 
   </head>
@@ -48,7 +48,7 @@
         <li class="right" >
           <a href="running_player.html" title="Running Players"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita v0.1.0-5-gcffa64b documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.1.0-25-g8e2562a documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -60,23 +60,93 @@
   <div class="section" id="development">
 <h1>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h1>
 <p>This section contains information for developers of Pelita.</p>
+<div class="section" id="coding-conventions">
+<h2>Coding conventions<a class="headerlink" href="#coding-conventions" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Docstrings should follow the <a class="reference external" href="https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt">Numpy convention</a></li>
+<li>Use old-style <tt class="docutils literal"><span class="pre">print</span></tt> statement (not the function)</li>
+<li>For internal messages, use the <tt class="docutils literal"><span class="pre">logging</span></tt> module with an appropriate logging
+level, which makes their appearance completely configurable.</li>
+<li>Use old-style format-string, i.e. <tt class="docutils literal"><span class="pre">&quot;%s&quot;</span> <span class="pre">%</span> <span class="pre">(val))</span></tt> instead of
+<tt class="docutils literal"><span class="pre">&quot;{0}&quot;.format(val)</span></tt></li>
+</ul>
 <div class="section" id="git-repository">
-<h2>Git-Repository<a class="headerlink" href="#git-repository" title="Permalink to this headline">¶</a></h2>
+<h3>Git-Repository<a class="headerlink" href="#git-repository" title="Permalink to this headline">¶</a></h3>
 <p>The official Git-Repository is hosted at Github:
-<a class="reference external" href="https://github.com/Debilski/pelita">https://github.com/Debilski/pelita</a></p>
+<a class="reference external" href="https://github.com/ASPP/pelita">https://github.com/ASPP/pelita</a></p>
 <p>You can create a clone with:</p>
-<div class="highlight-python"><pre>$ git clone git://github.com/Debilski/pelita.git</pre>
+<div class="highlight-python"><pre>$ git clone git://github.com/ASPP/pelita.git</pre>
 </div>
 <p>Or alternatively via <tt class="docutils literal"><span class="pre">https</span></tt>:</p>
-<div class="highlight-python"><pre>$ git clone https://github.com/Debilski/pelita.git</pre>
+<div class="highlight-python"><pre>$ git clone https://github.com/ASPP/pelita.git</pre>
 </div>
 </div>
+</div>
+<div class="section" id="layout-and-branch-model">
+<h2>Layout and Branch Model<a class="headerlink" href="#layout-and-branch-model" title="Permalink to this headline">¶</a></h2>
+<p>We use  the <a class="reference external" href="https://github.com/nvie/gitflow">gitflow</a> model with the following
+settings:</p>
+<ul class="simple">
+<li>Branch name for production releases: [master]</li>
+<li>Branch name for &#8220;next release&#8221; development: [develop]</li>
+<li>How to name your supporting branch prefixes?</li>
+<li>Feature branches? [feature/]</li>
+<li>Release branches? [release/]</li>
+<li>Hotfix branches? [hotfix/]</li>
+<li>Support branches? [support/]</li>
+<li>Version tag prefix? [v]</li>
+</ul>
+<p>Only <tt class="docutils literal"><span class="pre">feature/*</span></tt> branches are subject to rebase/rewind. All others should remain
+stable</p>
+</div>
+<div class="section" id="commit-markers">
+<h2>Commit Markers<a class="headerlink" href="#commit-markers" title="Permalink to this headline">¶</a></h2>
+<p>Commits should be marked. Declare both functionality and area.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name"><tt class="docutils literal"><span class="pre">BF</span></tt> or <tt class="docutils literal"><span class="pre">FIX</span></tt>:</th><td class="field-body">bug fix</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><tt class="docutils literal"><span class="pre">RF</span></tt>:</th><td class="field-body">refactoring</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><tt class="docutils literal"><span class="pre">NF</span></tt>:</th><td class="field-body">new feature</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><tt class="docutils literal"><span class="pre">ENH</span></tt>:</th><td class="field-body">enhancement of an existing feature/facility</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><tt class="docutils literal"><span class="pre">BW</span></tt>:</th><td class="field-body">addresses backward-compatibility</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><tt class="docutils literal"><span class="pre">OPT</span></tt>:</th><td class="field-body">optimization</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><tt class="docutils literal"><span class="pre">BK</span></tt>:</th><td class="field-body">breaks something and/or tests fail</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><tt class="docutils literal"><span class="pre">FO</span></tt>:</th><td class="field-body">code formatting (adding spaces etc.)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><tt class="docutils literal"><span class="pre">PL</span></tt>:</th><td class="field-body">making pylint happier</td>
+</tr>
+</tbody>
+</table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name"><tt class="docutils literal"><span class="pre">DOC</span></tt>:</th><td class="field-body">documentation</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><tt class="docutils literal"><span class="pre">UT</span></tt>:</th><td class="field-body">unit tests</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><tt class="docutils literal"><span class="pre">BLD</span></tt>:</th><td class="field-body">build-system, setup.py</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><tt class="docutils literal"><span class="pre">GIT</span></tt>:</th><td class="field-body">repository mods, e.g. .gitconfig .gitattributes</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">DOC/ENH:</span> <span class="pre">add</span> <span class="pre">initial</span> <span class="pre">README.md</span></tt></p>
 <div class="section" id="project-website">
-<h2>Project Website<a class="headerlink" href="#project-website" title="Permalink to this headline">¶</a></h2>
+<h3>Project Website<a class="headerlink" href="#project-website" title="Permalink to this headline">¶</a></h3>
 <p>We use the <a class="reference external" href="http://sphinx.pocoo.org/">Sphinx Tool</a> to generate the project
 website and <a class="reference external" href="http://pages.github.com/">GitHub pages</a> to host it.</p>
 <p>This means that the content generated by Sphinx is kept in a separate branch in the
-source code repository called <tt class="docutils literal"><span class="pre">gh-pages</span></tt> (<a class="reference external" href="https://github.com/Debilski/pelita/commits/gh-pages">gh-pages branch for Pelita</a>). This branch has its
+source code repository called <tt class="docutils literal"><span class="pre">gh-pages</span></tt> (<a class="reference external" href="https://github.com/ASPP/pelita/commits/gh-pages">gh-pages branch for Pelita</a>). This branch has its
 own root commit and is hence disconnected from the commits that track the
 project code as well as the documentation source code.</p>
 <p>When this branch is pushed to GitHub the contained documentation is
@@ -89,9 +159,11 @@ was subsequently upgraded multiple times and hence the manual commands and
 the script are completely out of sync. As a consequence, the command listing is only
 provided as a reference and <strong>all website updates should be performed
 using the script</strong>.</p>
+</div>
+</div>
 <div class="section" id="automatic">
-<h3>Automatic<a class="headerlink" href="#automatic" title="Permalink to this headline">¶</a></h3>
-<p>Use the <a class="reference external" href="https://github.com/Debilski/pelita/blob/develop/commit-doc-tree.sh">commit-tree-doc.sh script</a>.  This
+<h2>Automatic<a class="headerlink" href="#automatic" title="Permalink to this headline">¶</a></h2>
+<p>Use the <a class="reference external" href="https://github.com/ASPP/pelita/blob/develop/commit-doc-tree.sh">commit-tree-doc.sh script</a>.  This
 will automatically make the commit of the latest version of the documentation on
 the <tt class="docutils literal"><span class="pre">gh-pages</span></tt> branch. After checking that everything is in order you still need
 to push that branch.</p>
@@ -112,7 +184,7 @@ ce78099 DOC: Sphinx generated doc from v0.1.0-rc1-165-g3d353c9</pre>
 </div>
 </div>
 <div class="section" id="manual">
-<h3>Manual<a class="headerlink" href="#manual" title="Permalink to this headline">¶</a></h3>
+<h2>Manual<a class="headerlink" href="#manual" title="Permalink to this headline">¶</a></h2>
 <p>Move to the <tt class="docutils literal"><span class="pre">doc</span></tt> directory:</p>
 <div class="highlight-python"><pre>$ cd doc</pre>
 </div>
@@ -141,10 +213,8 @@ ce78099 DOC: Sphinx generated doc from v0.1.0-rc1-165-g3d353c9</pre>
 prefix of the commit the documentation was # generated from:</p>
 <div class="highlight-python"><pre>$ git commit -m "sphinx generated doc from XXXXXXX"</pre>
 </div>
-</div>
-</div>
 <div class="section" id="project-wall">
-<h2>Project-Wall<a class="headerlink" href="#project-wall" title="Permalink to this headline">¶</a></h2>
+<h3>Project-Wall<a class="headerlink" href="#project-wall" title="Permalink to this headline">¶</a></h3>
 <p>We used an agile project wall to track tasks for the initial stages of the
 development. In our case we split it into four distinct sections: <tt class="docutils literal"><span class="pre">todo</span></tt>
 (upper right), <tt class="docutils literal"><span class="pre">current</span> <span class="pre">iteration</span></tt> (upper left), <tt class="docutils literal"><span class="pre">done</span></tt> (lower left) and
@@ -174,6 +244,7 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
 </div>
 </div>
 </div>
+</div>
 
 
           </div>
@@ -187,9 +258,11 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
 <li class="toctree-l1"><a class="reference internal" href="writing_player.html">Writing a Player</a></li>
 <li class="toctree-l1"><a class="reference internal" href="running_player.html">Running Players</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#git-repository">Git-Repository</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#project-website">Project Website</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#project-wall">Project-Wall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#coding-conventions">Coding conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#layout-and-branch-model">Layout and Branch Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#commit-markers">Commit Markers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#automatic">Automatic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#manual">Manual</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="user-api.html">User API Reference</a></li>
@@ -236,12 +309,12 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
         <li class="right" >
           <a href="running_player.html" title="Running Players"
              >previous</a> |</li>
-        <li><a href="index.html">Pelita v0.1.0-5-gcffa64b documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.1.0-25-g8e2562a documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
-      Last updated on Apr 19, 2012.
+      Last updated on Apr 24, 2012.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
     </div>
   </body>
