@@ -6,12 +6,12 @@
 
 do_wc(){
     # LOC does not count blanklines
-    LOC=$( find $@ -name '*.py' -print0 | xargs --null sed "/^\s*$/d" |
+    LOC=$( find $@ -name '*.py' -print0 | xargs -0 sed "/^\s*$/d" |
            wc -l | tail -1 | sed 's/total//' )
     # LOC-COM counts comments. Comments are lines whose first non-blank character
     # is a single '#'. Lines where the first two non-blank characters are 
     # '##' are not counted as comments [we use that for maze layouts].
-    COM=$( find $@ -name '*.py' -print0 | xargs --null sed "/^\s*$/d" |
+    COM=$( find $@ -name '*.py' -print0 | xargs -0 sed "/^\s*$/d" |
            # put a placeholder in front of lines with '##'
            sed  "s/^\s*##.*$/PLACEHOLDER/" |
            # now remove comments
