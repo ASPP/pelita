@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 # Script to automatically generate documentation and commit this to the gh-pages
-# branch. See http://debilski.github.com/pelita/development.rst for more
+# branch. See http://ASPP.github.com/pelita/development.rst for more
 # information.
 
 # check, if index is empty
