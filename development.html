@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Development &mdash; Pelita v0.1.0-25-g8e2562a documentation</title>
+    <title>Development &mdash; Pelita v0.1.0-33-g5e34ddb documentation</title>
     
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.1.0-25-g8e2562a',
+        VERSION:     'v0.1.0-33-g5e34ddb',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.0-25-g8e2562a documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.1.0-33-g5e34ddb documentation" href="index.html" />
     <link rel="next" title="User API Reference" href="user-api.html" />
     <link rel="prev" title="Running Players" href="running_player.html" /> 
   </head>
@@ -48,7 +48,7 @@
         <li class="right" >
           <a href="running_player.html" title="Running Players"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita v0.1.0-25-g8e2562a documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.1.0-33-g5e34ddb documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -84,20 +84,22 @@ level, which makes their appearance completely configurable.</li>
 </div>
 <div class="section" id="layout-and-branch-model">
 <h2>Layout and Branch Model<a class="headerlink" href="#layout-and-branch-model" title="Permalink to this headline">¶</a></h2>
-<p>We use  the <a class="reference external" href="https://github.com/nvie/gitflow">gitflow</a> model with the following
-settings:</p>
+<p>We used to use the <a class="reference external" href="https://github.com/nvie/gitflow">gitflow</a> model, but it
+was too complicated. Now we just have a few simple guidelines.</p>
+<p>The <tt class="docutils literal"><span class="pre">master</span></tt> branch is used for integration. Trivial commits such a typo
+fixes etc. can be committed directly to <tt class="docutils literal"><span class="pre">master</span></tt>. Anything else should be done
+in a feature branch using, for example, the prefix <tt class="docutils literal"><span class="pre">feature/</span></tt>. If you have
+commit-access to the ASPP repository, you may still want some code-review. In
+this case, please push the branch to your fork and issue a pull-request. If you
+don&#8217;t have commit-access you will have to issue a pull-request anyway. Of
+course, you are free to do whatever you like (<tt class="docutils literal"><span class="pre">rebase</span></tt>, <tt class="docutils literal"><span class="pre">filter-branch</span></tt>) in
+your own fork. We are, after all, consenting adults, but please don&#8217;t rewrite
+history in the ASPP repository.</p>
+<p>If you need to read up on pull-requests, please see:</p>
 <ul class="simple">
-<li>Branch name for production releases: [master]</li>
-<li>Branch name for &#8220;next release&#8221; development: [develop]</li>
-<li>How to name your supporting branch prefixes?</li>
-<li>Feature branches? [feature/]</li>
-<li>Release branches? [release/]</li>
-<li>Hotfix branches? [hotfix/]</li>
-<li>Support branches? [support/]</li>
-<li>Version tag prefix? [v]</li>
+<li><a class="reference external" href="http://help.github.com/fork-a-repo/">http://help.github.com/fork-a-repo/</a></li>
+<li><a class="reference external" href="http://help.github.com/send-pull-requests/">http://help.github.com/send-pull-requests/</a></li>
 </ul>
-<p>Only <tt class="docutils literal"><span class="pre">feature/*</span></tt> branches are subject to rebase/rewind. All others should remain
-stable</p>
 </div>
 <div class="section" id="commit-markers">
 <h2>Commit Markers<a class="headerlink" href="#commit-markers" title="Permalink to this headline">¶</a></h2>
@@ -309,12 +311,12 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
         <li class="right" >
           <a href="running_player.html" title="Running Players"
              >previous</a> |</li>
-        <li><a href="index.html">Pelita v0.1.0-25-g8e2562a documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.1.0-33-g5e34ddb documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
-      Last updated on Apr 24, 2012.
+      Last updated on Apr 29, 2012.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
     </div>
   </body>
