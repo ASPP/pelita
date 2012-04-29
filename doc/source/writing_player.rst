@@ -99,6 +99,15 @@ selects a move at random from the possible moves::
 .. literalinclude:: ../../pelita/player.py
    :pyobject: RandomPlayer
 
+.. note::
+
+    To make the above example (and many of the following examples)work, it
+    might be necessary to add appropriate imports to your python source file,
+    for example::
+
+        from pelita.player import AbstractPlayer
+        from pelita.datamodel import north, south, west, east, stop
+
 Here we can see the first convenience property ``legal_moves`` which returns a
 dictionary mapping move tuples to position tuples. The random player simply
 selects a move at random from the keys (moves) of this dictionary and then moves
