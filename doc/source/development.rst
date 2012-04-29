@@ -33,9 +33,8 @@ Or alternatively via ``https``::
 Layout and Branch Model
 -----------------------
 
-We used to use  the `gitflow <https://github.com/nvie/gitflow>`_ model with the
-following settings, but it was too complicated. Now we just have a few simple
-guidelines.
+We used to use the `gitflow <https://github.com/nvie/gitflow>`_ model, but it
+was too complicated. Now we just have a few simple guidelines.
 
 The ``master`` branch is used for integration. Trivial commits such a typo
 fixes etc. can be committed directly to ``master``. Anything else should be done
