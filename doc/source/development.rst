@@ -46,6 +46,11 @@ course, you are free to do whatever you like (``rebase``, ``filter-branch``) in
 your own fork. We are, after all, consenting adults, but please don't rewrite
 history in the ASPP repository.
 
+If you need to read up on pull-requests, please see:
+
+* http://help.github.com/fork-a-repo/
+* http://help.github.com/send-pull-requests/
+
 Commit Markers
 --------------
 
