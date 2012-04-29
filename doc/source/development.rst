@@ -33,20 +33,23 @@ Or alternatively via ``https``::
 Layout and Branch Model
 -----------------------
 
-We use  the `gitflow <https://github.com/nvie/gitflow>`_ model with the following
-settings:
+We used to use the `gitflow <https://github.com/nvie/gitflow>`_ model, but it
+was too complicated. Now we just have a few simple guidelines.
 
-* Branch name for production releases: [master]
-* Branch name for "next release" development: [develop]
-* How to name your supporting branch prefixes?
-* Feature branches? [feature/]
-* Release branches? [release/]
-* Hotfix branches? [hotfix/]
-* Support branches? [support/]
-* Version tag prefix? [v]
+The ``master`` branch is used for integration. Trivial commits such a typo
+fixes etc. can be committed directly to ``master``. Anything else should be done
+in a feature branch using, for example, the prefix ``feature/``. If you have
+commit-access to the ASPP repository, you may still want some code-review. In
+this case, please push the branch to your fork and issue a pull-request. If you
+don't have commit-access you will have to issue a pull-request anyway. Of
+course, you are free to do whatever you like (``rebase``, ``filter-branch``) in
+your own fork. We are, after all, consenting adults, but please don't rewrite
+history in the ASPP repository.
 
-Only ``feature/*`` branches are subject to rebase/rewind. All others should remain
-stable
+If you need to read up on pull-requests, please see:
+
+* http://help.github.com/fork-a-repo/
+* http://help.github.com/send-pull-requests/
 
 Commit Markers
 --------------
