@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 """ framework to simplify test development for pelita players
 
