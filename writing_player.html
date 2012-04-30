@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Writing a Player &mdash; Pelita v0.1.0-33-g5e34ddb documentation</title>
+    <title>Writing a Player &mdash; Pelita v0.1.0-36-gcc23d8e documentation</title>
     
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.1.0-33-g5e34ddb',
+        VERSION:     'v0.1.0-36-gcc23d8e',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.0-33-g5e34ddb documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.1.0-36-gcc23d8e documentation" href="index.html" />
     <link rel="next" title="Running Players" href="running_player.html" />
     <link rel="prev" title="Project Information" href="info.html" /> 
   </head>
@@ -48,7 +48,7 @@
         <li class="right" >
           <a href="info.html" title="Project Information"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita v0.1.0-33-g5e34ddb documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.1.0-36-gcc23d8e documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -169,15 +169,27 @@ about that later.</p>
 <h2><a class="toc-backref" href="#id5">Doing More</a><a class="headerlink" href="#doing-more" title="Permalink to this headline">¶</a></h2>
 <p>A slightly more useful example is the <a class="reference internal" href="pelita/pelita.player.RandomPlayer.html#pelita.player.RandomPlayer" title="pelita.player.RandomPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.player.RandomPlayer</span></tt></a> which always
 selects a move at random from the possible moves:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">AbstractPlayer</span>
+<div class="highlight-python"><pre>.. literalinclude:: ../../pelita/player.py</pre>
+</div>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">pyobject:</th><td class="field-body">RandomPlayer</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>To make the above example (and many of the following examples)work, it
+might be necessary to add appropriate imports to your python source file,
+for example:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">AbstractPlayer</span>
+<span class="kn">from</span> <span class="nn">pelita.datamodel</span> <span class="kn">import</span> <span class="n">north</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">west</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">stop</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">RandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A player that makes moves at random. &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">legal_moves</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-</pre></div>
 </div>
 <p>Here we can see the first convenience property <tt class="docutils literal"><span class="pre">legal_moves</span></tt> which returns a
 dictionary mapping move tuples to position tuples. The random player simply
@@ -186,33 +198,18 @@ there. <tt class="docutils literal"><span class="pre">legal_moves</span></tt> al
 <p>The next example is the not-quite random player <tt class="xref py py-obj docutils literal"><span class="pre">pelita.player.NQRandomPlayer`</span></tt>.
 This one does not move back to the position where it was on its last turn and
 never stops in place:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">AbstractPlayer</span>
-</pre></div>
+<div class="highlight-python"><pre>.. literalinclude:: ../../pelita/player.py</pre>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">NQRandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Not-Quite-RandomPlayer that will move randomly but not stop or reverse. &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">legal_moves</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_moves</span>
-        <span class="c"># Remove stop</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">del</span> <span class="n">legal_moves</span><span class="p">[</span><span class="n">stop</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="c"># now remove the move that would lead to the previous_position</span>
-        <span class="c"># unless there is no where else to go.</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">legal_moves</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">legal_moves</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_pos</span><span class="p">:</span>
-                    <span class="k">break</span>
-            <span class="k">del</span> <span class="n">legal_moves</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-        <span class="c"># just in case, there is really no way to go to:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">legal_moves</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">stop</span>
-        <span class="c"># and select a move at random</span>
-        <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">legal_moves</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-</pre></div>
-</div>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">pyobject:</th><td class="field-body">NQRandomPlayer</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
 <p>Here we can see the use of another convenience method: <tt class="docutils literal"><span class="pre">previous_pos</span></tt> which
 gives the position the bot had in the previous round.</p>
 </div>
@@ -324,62 +321,18 @@ and distances in <a class="reference internal" href="pelita/pelita.datamodel.htm
 <p>A somewhat more elaborate example is the <a class="reference internal" href="pelita/pelita.player.BFSPlayer.html#pelita.player.BFSPlayer" title="pelita.player.BFSPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.player.BFSPlayer</span></tt></a> which uses
 <em>breadth first search</em> on an <em>adjacency list</em> representation of the maze to find
 food:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">AbstractPlayer</span>
-</pre></div>
+<div class="highlight-python"><pre>.. literalinclude:: ../../pelita/player.py</pre>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">BFSPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; This player uses breadth first search to always go to the closest food.</span>
-
-<span class="sd">    This player uses an adjacency list [1] to store the topology of the</span>
-<span class="sd">    maze. It will then do a breadth first search [2] to search for the</span>
-<span class="sd">    closest food. When found, it will follow the determined path until it</span>
-<span class="sd">    reaches the food. This continues until all food has been eaten or the</span>
-<span class="sd">    enemy wins.</span>
-
-<span class="sd">    The adjacency lits representation (AdjacencyList) and breadth first search</span>
-<span class="sd">    (AdjacencyList.bfs) are imported from pelita.graph.</span>
-
-<span class="sd">    * [1] http://en.wikipedia.org/wiki/Adjacency_list</span>
-<span class="sd">    * [2] http://en.wikipedia.org/wiki/Breadth-first_search</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># Before the game starts we initialise our adjacency list.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span> <span class="o">=</span> <span class="n">AdjacencyList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bfs_food</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">bfs_food</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Breadth first search for food.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        path : a list of tuples (int, int)</span>
-<span class="sd">            The positions (x, y) in the path from the current position to the</span>
-<span class="sd">            closest food. The first element is the final destination.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="o">.</span><span class="n">bfs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">enemy_food</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">NoPathException</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pos</span><span class="p">:</span>
-            <span class="c"># we have probably been killed</span>
-            <span class="c"># reset the path</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bfs_food</span><span class="p">()</span>
-        <span class="n">new_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">diff_pos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="n">new_pos</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="c"># If there was a timeout, and we are no longer where we think we</span>
-            <span class="c"># were, calculate a new path.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span> <span class="o">=</span> <span class="bp">None</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_move</span><span class="p">()</span>
-</pre></div>
-</div>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">pyobject:</th><td class="field-body">BFSPlayer</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
 <p>This next sections will explore the convenience properties of the
 <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt>.</p>
 <div class="section" id="using-current-uni">
@@ -579,83 +532,18 @@ remove food to the maze:</p>
 <div class="section" id="a-basic-defensive-player">
 <h2><a class="toc-backref" href="#id13">A Basic Defensive Player</a><a class="headerlink" href="#a-basic-defensive-player" title="Permalink to this headline">¶</a></h2>
 <p>As a defensive example we have the <tt class="docutils literal"><span class="pre">BasicDefensePlayer</span></tt>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">AbstractPlayer</span>
-</pre></div>
+<div class="highlight-python"><pre>.. literalinclude:: ../../pelita/player.py</pre>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">BasicDefensePlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A crude defensive player.</span>
-
-<span class="sd">    Will move towards the border, and as soon as it notices enemies in its</span>
-<span class="sd">    territory, it will start to track them. When it kills the enemy it returns</span>
-<span class="sd">    to the border and waits there for more. Like the BFSPlayer this player</span>
-<span class="sd">    stores the maze as an adjacency list [1] but uses the breadth first search [2] to</span>
-<span class="sd">    find the closest position on the border.  However it additionally uses the</span>
-<span class="sd">    A* (A Star) search [3] to find the shortest path to its target.</span>
-
-<span class="sd">    The adjacency lits representation (AdjacencyList) and A* search</span>
-<span class="sd">    (AdjacencyList.a_star) are imported from pelita.graph.</span>
-
-<span class="sd">    * [1] http://en.wikipedia.org/wiki/Adjacency_list</span>
-<span class="sd">    * [2] http://en.wikipedia.org/wiki/Breadth-first_search</span>
-<span class="sd">    * [3] http://en.wikipedia.org/wiki/A*_search_algorithm</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span> <span class="o">=</span> <span class="n">AdjacencyList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_to_border</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tracking</span> <span class="o">=</span> <span class="bp">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">path_to_border</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Path to the closest border position. &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="o">.</span><span class="n">bfs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_border</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">path_to_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Path to the target we are currently tracking. &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="o">.</span><span class="n">a_star</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">tracking_target</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tracking_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Bot object we are currently tracking. &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tracking</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># if we were killed, for whatever reason, reset the path</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pos</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_to_border</span>
-        <span class="c"># if we are not currently tracking anything</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking</span><span class="p">:</span>
-            <span class="c"># check the enemy positions</span>
-            <span class="n">possible_targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">enemy</span> <span class="k">for</span> <span class="n">enemy</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enemy_bots</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">in_zone</span><span class="p">(</span><span class="n">enemy</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)]</span>
-            <span class="k">if</span> <span class="n">possible_targets</span><span class="p">:</span>
-                <span class="c"># get the path to the closest one</span>
-                <span class="n">closest_enemy</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="o">.</span><span class="n">a_star</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span>
-                    <span class="n">enemy</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)),</span><span class="n">enemy</span><span class="p">)</span> <span class="k">for</span> <span class="n">enemy</span> <span class="ow">in</span> <span class="n">possible_targets</span><span class="p">])</span>
-                <span class="c"># track that bot by using its index</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">tracking</span> <span class="o">=</span> <span class="n">closest_enemy</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_to_target</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c"># otherwise keep going if we aren&#39;t already underway</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_to_border</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking</span><span class="p">:</span>
-            <span class="c"># if the enemy is no longer in our zone</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">in_zone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracking_target</span><span class="o">.</span><span class="n">current_pos</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">tracking</span> <span class="o">=</span> <span class="bp">None</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_to_border</span>
-            <span class="c"># otherwise update the path to the target</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_to_target</span>
-        <span class="c"># if something above went wrong, just stand still</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">stop</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">diff_pos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
-</pre></div>
-</div>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">pyobject:</th><td class="field-body">BasicDefensePlayer</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
 <p>Defense is important because your enemy is awarded <tt class="docutils literal"><span class="pre">5</span></tt> points if he
 manages to destroy one of your bots!</p>
 <p>The player mostly uses convenience properties already introduced for the
@@ -790,12 +678,12 @@ combination with the <tt class="docutils literal"><span class="pre">enemy_bots</
         <li class="right" >
           <a href="info.html" title="Project Information"
              >previous</a> |</li>
-        <li><a href="index.html">Pelita v0.1.0-33-g5e34ddb documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.1.0-36-gcc23d8e documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
-      Last updated on Apr 29, 2012.
+      Last updated on Apr 30, 2012.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
     </div>
   </body>
