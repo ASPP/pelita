@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 
-""" framework to simplify test development for pelita players
+""" Framework to simplify test development for pelita players.
 
-This framework allows you to easily define different tests
-for the behaviour of your bots.
-It comes with the tools to create tests for the movement of your bots.
-You can test two bots simultaniously and can specify the movements of
-your enemies.
-You can use the framework for other types of tests as well.
-Just write a create_* function and pass it as second parameter
-to tests_from_list.
+This framework allows you to easily define different tests for the behaviour of
+your bots. It comes with the tools to create tests for the movement of your
+bots. You can test two bots simultaniously and can specify the movements of
+your enemies. You can use the framework for other types of tests as well. Just
+write a create_* function and pass it as second parameter to tests_from_list.
 
 Example
 -------
@@ -72,20 +69,17 @@ from pelita.player import TestPlayer, StoppingPlayer, SimpleTeam
 from pelita.datamodel import stop
 
 class TestAttributeSettings(object):
-    """ Container for the settings of a property test
+    """ Container for the settings of a property test.
 
-    This object contains the settings form which a test
-    will then be generated.
+    This object contains the settings form which a test will then be generated.
 
     Parameters
     ----------
     name : string
         name of the test
     layout : string
-        initial map layout as string
-        (as used by GameMaster)
-        the map must contain 2 starting postions
-        and at least one food pellet for each team
+        Initial map layout as string (as used by GameMaster). The map must
+        contain 2 starting postions and at least one food pellet for each team.
     attribute : string
         attribute that should be tested
     expect : *
@@ -100,30 +94,25 @@ class TestAttributeSettings(object):
 
 
 class TestMovementSettings(object):
-    """ Container for the settings of a movement test
+    """ Container for the settings of a movement test.
 
-    This object contains the settings form which a test
-    will then be generated.
+    This object contains the settings form which a test will then be generated.
 
     Parameters
     ----------
     name : string
         name of the test
     layout : string
-        initial map layout as string
-        (as used by GameMaster)
-        the map must contain 4 starting postions
+        Initial map layout as string (as used by GameMaster). The map must
+        contain 4 starting postions.
     expect : (tuple of) dictionaries
-        a dictionary with entries of the form "round : (x,y)"
-        defining the possistions where the bot is expected
-        in a given round.
-        if a tuple with two dictionaries is given, bot 0 and 2 will
-        be tested, otherwise bot 2 is a StoppingPlayer
+        A dictionary with entries of the form "round : (x,y)" defining the
+        possistions where the bot is expected in a given round.  If a tuple
+        with two dictionaries is given, bot 0 and 2 will be tested, otherwise
+        bot 2 is a StoppingPlayer.
     enemy_moves : (tuple of) lists
-        lists containing the moves of the enemy bots
-        as used by TestPlayer
-        if a list is missing or the predefined moves run out
-        the bot will "stop"
+        Lists containing the moves of the enemy bots as used by TestPlayer.  If
+        a list is missing or the predefined moves run out the bot will "stop".
     second_team : boolean
         if true the we control bots 1 and 3
 
@@ -153,10 +142,10 @@ class TestMovementSettings(object):
         self.second_team = second_team
 
 class GeneratedTests(unittest.TestCase):
-    """ Container for genereated tests
+    """ Container for genereated tests.
 
     Object that will contain the generated tests
-    and store general settings
+    and store general settings.
 
     Attributes
     ----------
@@ -172,7 +161,7 @@ class GeneratedTests(unittest.TestCase):
 
 
 def create_attribute_test(settings):
-    """ create a test from given attribute settings
+    """ Create a test from given attribute settings.
 
     Parameters
     ----------
@@ -200,7 +189,7 @@ def create_attribute_test(settings):
 
 
 def create_movement_test(settings):
-    """ create a test from given movement settings
+    """ Create a test from given movement settings.
 
     Parameters
     ----------
@@ -251,11 +240,10 @@ def create_movement_test(settings):
     return new_test
 
 def tests_from_list(test_settings, create_fun=create_movement_test):
-    """ create tests and add them to container
+    """ Create tests and add them to container.
 
-    creates tests from list of settings and registers
-    each test with the container.
-    This is the function that should be called by the user.
+    Creates tests from list of settings and registers each test with the
+    container.  This is the function that should be called by the user.
 
     Parameters
     ----------
