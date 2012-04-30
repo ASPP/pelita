@@ -96,10 +96,17 @@ Doing More
 A slightly more useful example is the `pelita.player.RandomPlayer` which always
 selects a move at random from the possible moves::
 
-    from pelita.player import AbstractPlayer
-
 .. literalinclude:: ../../pelita/player.py
    :pyobject: RandomPlayer
+
+.. note::
+
+    To make the above example (and many of the following examples)work, it
+    might be necessary to add appropriate imports to your python source file,
+    for example::
+
+        from pelita.player import AbstractPlayer
+        from pelita.datamodel import north, south, west, east, stop
 
 Here we can see the first convenience property ``legal_moves`` which returns a
 dictionary mapping move tuples to position tuples. The random player simply
@@ -109,8 +116,6 @@ there. ``legal_moves`` always includes stop.
 The next example is the not-quite random player `pelita.player.NQRandomPlayer``.
 This one does not move back to the position where it was on its last turn and
 never stops in place::
-
-    from pelita.player import AbstractPlayer
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: NQRandomPlayer
@@ -201,8 +206,6 @@ A Basic Offensive Player
 A somewhat more elaborate example is the `pelita.player.BFSPlayer` which uses
 *breadth first search* on an *adjacency list* representation of the maze to find
 food::
-
-    from pelita.player import AbstractPlayer
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: BFSPlayer
@@ -368,8 +371,6 @@ A Basic Defensive Player
 ========================
 
 As a defensive example we have the ``BasicDefensePlayer``::
-
-    from pelita.player import AbstractPlayer
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: BasicDefensePlayer
