@@ -4,7 +4,7 @@
 
 This framework allows you to easily define different tests for the behaviour of
 your bots. It comes with the tools to create tests for the movement of your
-bots. You can test two bots simultaniously and can specify the movements of
+bots. You can test two bots simultaneously and can specify the movements of
 your enemies. You can use the framework for other types of tests as well. Just
 write a create_* function and pass it as second parameter to tests_from_list.
 
@@ -79,7 +79,8 @@ class TestAttributeSettings(object):
         name of the test
     layout : string
         Initial map layout as string (as used by GameMaster). The map must
-        contain 2 starting postions and at least one food pellet for each team.
+        contain 2 starting positions and at least one food pellet for each
+        team.
     attribute : string
         attribute that should be tested
     expect : *
@@ -104,10 +105,10 @@ class TestMovementSettings(object):
         name of the test
     layout : string
         Initial map layout as string (as used by GameMaster). The map must
-        contain 4 starting postions.
+        contain 4 starting positions.
     expect : (tuple of) dictionaries
         A dictionary with entries of the form "round : (x,y)" defining the
-        possistions where the bot is expected in a given round.  If a tuple
+        positions where the bot is expected in a given round.  If a tuple
         with two dictionaries is given, bot 0 and 2 will be tested, otherwise
         bot 2 is a StoppingPlayer.
     enemy_moves : (tuple of) lists
@@ -127,7 +128,7 @@ class TestMovementSettings(object):
                  enemy_moves = [stop], second_team = False ):
         self.name        = name
         self.layout      = layout
-        # store expecte positions for our bots
+        # store expected positions for our bots
         if type(expect) == tuple and len(expect) == 2:
             self.use_bots = 2
             self.expect    = expect
@@ -142,7 +143,7 @@ class TestMovementSettings(object):
         self.second_team = second_team
 
 class GeneratedTests(unittest.TestCase):
-    """ Container for genereated tests.
+    """ Container for generated tests.
 
     Object that will contain the generated tests
     and store general settings.
@@ -151,7 +152,7 @@ class GeneratedTests(unittest.TestCase):
     ----------
     silent : boolean
         if False, movements of tested bots will be printed
-        use -v commandline option
+        use -v command-line option
     player : Player
         the player class that should used for the tested bots
 
