@@ -6,12 +6,12 @@ This framework allows you to easily define different tests for the behaviour of
 your bots. It comes with the tools to create tests for the movement of your
 bots. You can test two bots simultaneously and can specify the movements of
 your enemies. You can use the framework for other types of tests as well. Just
-write a create_* function and pass it as second parameter to tests_from_list.
+write a create_* function and pass it as second parameter to generate_from_list.
 
 Example
 -------
 >>> from _test_factory import TestMovementSettings, GeneratedTests
->>> from _test_factory import tests_from_list
+>>> from _test_factory import generate_from_list
 >>> from pelita.datamodel import north, south, west, east, stop
 >>> eat = TestMovementSettings(
 ...    "eat",
@@ -51,8 +51,8 @@ Example
 ... )
 
 >>> tests = [eat, team_eat]
->>> tests_from_list(tests)
->>> tests_from_list([enemy_food],create_attribute_test)
+>>> generate_from_list(tests)
+>>> generate_from_list([enemy_food],create_attribute_test)
 >>> import unittest
 >>> from pelita.player import BFSPlayer
 >>> GeneratedTests.player = BFSPlayer
@@ -240,7 +240,7 @@ def create_movement_test(settings):
                     print " ", i, ": ", team[bot].current_pos, target_pos
     return new_test
 
-def tests_from_list(test_settings, create_fun=create_movement_test):
+def generate_from_list(test_settings, create_fun=create_movement_test):
     """ Create tests and add them to container.
 
     Creates tests from list of settings and registers each test with the
