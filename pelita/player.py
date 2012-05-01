@@ -457,6 +457,9 @@ class BasicDefensePlayer(AbstractPlayer):
         if self.current_pos == self.initial_pos:
             self.path = self.path_to_border
         # if we are not currently tracking anything
+        # (need to check explicity for None, because using 'if not
+        # self.tracking' would evaluate to True also when we are tracking the
+        # bot with index == 0)
         if self.tracking is None:
             # check the enemy positions
             possible_targets = [enemy for enemy in self.enemy_bots
