@@ -455,9 +455,9 @@ class BasicDefensePlayer(AbstractPlayer):
     def get_move(self):
         # if we were killed, for whatever reason, reset the path
         if self.current_pos == self.initial_pos:
-            self.current_path = self.path_to_border
+            self.path = self.path_to_border
         # if we are not currently tracking anything
-        if not self.tracking:
+        if self.tracking is None:
             # check the enemy positions
             possible_targets = [enemy for enemy in self.enemy_bots
                     if self.team.in_zone(enemy.current_pos)]
@@ -472,7 +472,7 @@ class BasicDefensePlayer(AbstractPlayer):
                 # otherwise keep going if we aren't already underway
                 if not self.path:
                     self.path = self.path_to_border
-        elif self.tracking:
+        else:
             # if the enemy is no longer in our zone
             if not self.team.in_zone(self.tracking_target.current_pos):
                 self.tracking = None

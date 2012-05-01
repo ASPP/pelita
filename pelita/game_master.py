@@ -49,7 +49,7 @@ class GameMaster(object):
         the viewers that are observing this game
 
     """
-    def __init__(self, layout, number_bots, game_time, noise=True):
+    def __init__(self, layout, number_bots, game_time, noise=True, silent=False):
         self.universe = datamodel.create_CTFUniverse(layout, number_bots)
         self.number_bots = number_bots
         self.game_time = game_time
@@ -57,6 +57,7 @@ class GameMaster(object):
         self.player_teams = []
         self.player_teams_timeouts = []
         self.viewers = []
+        self.silent = silent
 
     def register_team(self, team, team_name=""):
         """ Register a client TeamPlayer class.
@@ -199,7 +200,8 @@ class GameMaster(object):
                     bot.team_index,
                     bot.index))
 
-            self.print_possible_winner(events)
+            if not self.silent:
+                self.print_possible_winner(events)
 
             self.send_to_viewers(round_index, i, events)
             if datamodel.TeamWins in events or datamodel.GameDraw in events:
