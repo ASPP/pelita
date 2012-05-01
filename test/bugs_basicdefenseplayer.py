@@ -1,4 +1,4 @@
-from _test_factory import TestMovementSettings, GeneratedTests, tests_from_list
+from _test_factory import TestMovementSettings, GeneratedTests, generate_from_list
 from pelita.datamodel import north, south, west, east, stop
 
 error = TestMovementSettings(
@@ -51,11 +51,11 @@ enemy_moves = ([west, stop],[]),
 second_team = True
 )
 
-tests_from_list([error, tracking_2, tracking_0])
+generate_from_list([error, tracking_2, tracking_0])    
+from pelita.player import BasicDefensePlayer
+GeneratedTests.player = BasicDefensePlayer
 #GeneratedTests.silent = False
 
 if __name__ == '__main__':
     import unittest
-    from pelita.player import BasicDefensePlayer
-    GeneratedTests.player = BasicDefensePlayer
     unittest.main()
