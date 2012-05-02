@@ -5,7 +5,7 @@ Development
 This section contains information for developers of Pelita.
 
 Coding conventions
-------------------
+==================
 
 * Docstrings should follow the `Numpy convention
   <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_
@@ -16,7 +16,7 @@ Coding conventions
   ``"{0}".format(val)``
 
 Git-Repository
-==============
+--------------
 
 The official Git-Repository is hosted at Github:
 `https://github.com/ASPP/pelita <https://github.com/ASPP/pelita>`_
