@@ -5,7 +5,7 @@ Development
 This section contains information for developers of Pelita.
 
 Coding conventions
-------------------
+==================
 
 * Docstrings should follow the `Numpy convention
   <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_
@@ -16,7 +16,7 @@ Coding conventions
   ``"{0}".format(val)``
 
 Git-Repository
-==============
+--------------
 
 The official Git-Repository is hosted at Github:
 `https://github.com/ASPP/pelita <https://github.com/ASPP/pelita>`_
@@ -36,7 +36,7 @@ Layout and Branch Model
 We used to use the `gitflow <https://github.com/nvie/gitflow>`_ model, but it
 was too complicated. Now we just have a few simple guidelines.
 
-The ``master`` branch is used for integration. Trivial commits such a typo
+The ``master`` branch is used for integration. Trivial commits such as typo
 fixes etc. can be committed directly to ``master``. Anything else should be done
 in a feature branch using, for example, the prefix ``feature/``. If you have
 commit-access to the ASPP repository, you may still want some code-review. In
