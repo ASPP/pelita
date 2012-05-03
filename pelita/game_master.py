@@ -36,6 +36,8 @@ class GameMaster(object):
         the total permitted number of rounds
     noise : boolean
         should enemy positions be noisy
+    silent : boolean
+        this parameter will try to mute all output to stdout
 
     Attributes
     ----------
