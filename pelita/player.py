@@ -434,7 +434,7 @@ class BasicDefensePlayer(AbstractPlayer):
     def set_initial(self):
         self.adjacency = AdjacencyList(self.current_uni)
         self.path = self.path_to_border
-        self.tracking = None
+        self.tracking_idx = None
 
     @property
     def path_to_border(self):
@@ -450,7 +450,7 @@ class BasicDefensePlayer(AbstractPlayer):
     @property
     def tracking_target(self):
         """ Bot object we are currently tracking. """
-        return self.current_uni.bots[self.tracking]
+        return self.current_uni.bots[self.tracking_idx]
 
     def get_move(self):
         # if we were killed, for whatever reason, reset the path
@@ -460,7 +460,7 @@ class BasicDefensePlayer(AbstractPlayer):
         # (need to check explicity for None, because using 'if not
         # self.tracking' would evaluate to True also when we are tracking the
         # bot with index == 0)
-        if self.tracking is None:
+        if self.tracking_idx is None:
             # check the enemy positions
             possible_targets = [enemy for enemy in self.enemy_bots
                     if self.team.in_zone(enemy.current_pos)]
@@ -469,7 +469,7 @@ class BasicDefensePlayer(AbstractPlayer):
                 closest_enemy = min([(len(self.adjacency.a_star(self.current_pos,
                     enemy.current_pos)),enemy) for enemy in possible_targets])
                 # track that bot by using its index
-                self.tracking = closest_enemy[1].index
+                self.tracking_idx = closest_enemy[1].index
                 self.path = self.path_to_target
             else:
                 # otherwise keep going if we aren't already underway
@@ -478,7 +478,7 @@ class BasicDefensePlayer(AbstractPlayer):
         else:
             # if the enemy is no longer in our zone
             if not self.team.in_zone(self.tracking_target.current_pos):
-                self.tracking = None
+                self.tracking_idx = None
                 self.path = self.path_to_border
             # otherwise update the path to the target
             else:
