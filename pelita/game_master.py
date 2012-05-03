@@ -61,6 +61,7 @@ class GameMaster(object):
         self.player_teams_timeouts = []
         self.viewers = []
         self.initial_delay = initial_delay
+        self.statistics = {}
 
     def register_team(self, team, team_name=""):
         """ Register a client TeamPlayer class.
@@ -139,9 +140,13 @@ class GameMaster(object):
             raise IndexError(
                 "Universe uses %i teams, but only %i are registered."
                 % (len(self.player_teams), len(self.universe.teams)))
+
+        start_time = time.time()
         for round_index in range(self.game_time):
             if not self.play_round(round_index):
                 return
+        end_time = time.time()
+        self.statistics["running_time"] = end_time - start_time
 
         events = TypeAwareList(base_class=datamodel.UniverseEvent)
         events.append(self.universe.create_win_event())
