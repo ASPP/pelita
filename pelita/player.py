@@ -274,7 +274,7 @@ class TestPlayer(AbstractPlayer):
     """
 
     def __init__(self, moves):
-        self.moves = moves
+        self.moves = list(moves)
 
     def get_move(self):
         return self.moves.pop()
