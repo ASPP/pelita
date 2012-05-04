@@ -144,7 +144,6 @@ class TestMovementSettings(object):
             self.enemy_moves = enemy_moves, []
         self.enemy_moves[0].reverse()
         self.enemy_moves[1].reverse()
-        print self.enemy_moves
         self.second_team = second_team
 
 class GeneratedTests(unittest.TestCase):
