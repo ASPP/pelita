@@ -125,7 +125,7 @@ class TestMovementSettings(object):
 
     """
     def __init__(self, name, layout, expect,
-                 enemy_moves = None, second_team = False):
+                 enemy_moves=None, second_team=False):
         if enemy_moves is None:
             enemy_moves = [stop]
         self.name = name
