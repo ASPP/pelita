@@ -12,8 +12,8 @@ layout =
    ########""",
 expect= ({0: (6,1), 5:(4,1)},
          {0: (6,4)}),
-enemy_moves = ([west, stop, stop, stop],
-               [west, west, stop, east, east]),
+enemy_moves = ([stop, stop, stop, west],
+               [east, east, stop, west, west]),
 second_team = True
 )
 
@@ -30,7 +30,7 @@ layout =
    #     3#
    ########""",
    expect= ({0: (6,1), 1:(6,2), 2:(6,3), 3:(5,3)}),
-enemy_moves = ([],[west, stop]),
+enemy_moves = ([],[stop, west]),
 second_team = True
 )
 
@@ -47,11 +47,11 @@ layout =
    #     3#
    ########""",
    expect= ({0: (6,1), 1:(6,2), 2:(6,3), 3:(5,3)}),
-enemy_moves = ([west, stop],[]),
+enemy_moves = ([stop, west],[]),
 second_team = True
 )
 
-generate_from_list([error, tracking_2, tracking_0])    
+generate_from_list([error, tracking_2, tracking_0])
 from pelita.player import BasicDefensePlayer
 GeneratedTests.player = BasicDefensePlayer
 #GeneratedTests.silent = False
