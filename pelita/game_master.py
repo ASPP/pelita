@@ -35,9 +35,9 @@ class GameMaster(object):
         the total number of bots
     game_time : int
         the total permitted number of rounds
-    noise : boolean
+    noise : boolean, default True
         should enemy positions be noisy
-    silent : boolean
+    silent : boolean, default False
         this parameter will try to mute all output to stdout
 
     Attributes
