@@ -88,10 +88,10 @@ class TestAttributeSettings(object):
 
     """
     def __init__(self, name, layout, attribute, expect):
-        self.name      = name
-        self.layout    = layout
+        self.name = name
+        self.layout = layout
         self.attribute = attribute
-        self.expect    = expect
+        self.expect = expect
 
 
 class TestMovementSettings(object):
@@ -125,13 +125,13 @@ class TestMovementSettings(object):
 
     """
     def __init__(self, name, layout, expect,
-                 enemy_moves = [stop], second_team = False ):
-        self.name        = name
-        self.layout      = layout
+                 enemy_moves = [stop], second_team = False):
+        self.name = name
+        self.layout = layout
         # store expected positions for our bots
         if type(expect) == tuple and len(expect) == 2:
             self.use_bots = 2
-            self.expect    = expect
+            self.expect = expect
         else:
             self.use_bots = 1
             self.expect = expect, {}
