@@ -23,7 +23,7 @@ Example
 ...       #2  3#
 ...       ######''',
 ...    {0: (1,1), 3: (4,1)},
-...    [south, north]
+...    [north, south]
 ... )
 
 >>> team_eat = TestMovementSettings(
@@ -112,10 +112,10 @@ class TestMovementSettings(object):
         with two dictionaries is given, bot 0 and 2 will be tested, otherwise
         bot 2 is a StoppingPlayer.
     enemy_moves : (tuple of) lists
-        Lists containing the moves of the enemy bots as used by TestPlayer.  If
-        a list is missing or the predefined moves run out the bot will "stop".
+        Lists containing the moves of the enemy bots. If a list is missing or 
+        the predefined moves run out the bot will "stop".
     second_team : boolean
-        if true the we control bots 1 and 3
+        if true we control bots 1 and 3
 
     Attributes
     ----------
@@ -142,6 +142,9 @@ class TestMovementSettings(object):
             self.enemy_moves = enemy_moves
         else:
             self.enemy_moves = enemy_moves, []
+        self.enemy_moves[0].reverse()
+        self.enemy_moves[1].reverse()
+        print self.enemy_moves
         self.second_team = second_team
 
 class GeneratedTests(unittest.TestCase):
