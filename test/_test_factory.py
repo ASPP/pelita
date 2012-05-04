@@ -111,7 +111,7 @@ class TestMovementSettings(object):
         positions where the bot is expected in a given round.  If a tuple
         with two dictionaries is given, bot 0 and 2 will be tested, otherwise
         bot 2 is a StoppingPlayer.
-    enemy_moves : (tuple of) lists
+    enemy_moves : list or tuple of 2 lists
         Lists containing the moves of the enemy bots. If a list is missing or 
         the predefined moves run out the bot will "stop".
     second_team : boolean
@@ -139,9 +139,9 @@ class TestMovementSettings(object):
             self.expect = expect, {}
         # store moves for enemy bots
         if type(enemy_moves) == tuple and len(enemy_moves) == 2:
-            self.enemy_moves = enemy_moves
+            self.enemy_moves = 1*enemy_moves[0], 1*enemy_moves[1]
         else:
-            self.enemy_moves = enemy_moves, []
+            self.enemy_moves = 1*enemy_moves, []
         self.enemy_moves[0].reverse()
         self.enemy_moves[1].reverse()
         self.second_team = second_team
