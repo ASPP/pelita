@@ -104,7 +104,6 @@ class GameMaster(object):
         events : TypeAwareList of UniverseEvent
             the events for this turn
         """
-
         for viewer in self.viewers:
             viewer.observe(round_index,
                     turn,

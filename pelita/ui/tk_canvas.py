@@ -5,6 +5,8 @@ import tkFont
 import Queue
 
 from .. import datamodel
+import zmq
+from pelita.messaging.json_convert import json_converter
 from .tk_sprites import *
 from ..utils.signal_handlers import wm_delete_window_handler
 
@@ -155,7 +157,6 @@ class UiCanvas(object):
         # includes the last set of parameters given. This closure approach
         # allows us to hide the parameters from our interface and still be able
         # to use the most recent set of parameters when there is a mere resize.
-
 
         if universe and not self.canvas:
             if not self.mesh_graph:
@@ -361,33 +362,52 @@ class UiCanvas(object):
 
 
 class TkApplication(object):
-    def __init__(self, queue, geometry=None, master=None):
+    def __init__(self, address, geometry=None, master=None):
+        self.context = zmq.Context()
+        self.socket = self.context.socket(zmq.SUB)
+        self.socket.setsockopt(zmq.SUBSCRIBE, "")
+        print address, self.socket, id(self.socket)
+        self.socket.connect(address)
+        self.poll = zmq.Poller()
+        self.poll.register(self.socket, zmq.POLLIN)
+
         self.master = master
         self.frame = Tkinter.Frame(self.master)
         self.master.title("Pelita")
-
-        self.queue = queue
 
         self.frame.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
 
         self.ui_canvas = UiCanvas(self, geometry=geometry)
 
         self.master.protocol("WM_DELETE_WINDOW", wm_delete_window_handler)
+        import time
+        self.queue_time = time.time()
 
     def read_queue(self, event=None):
+        import time
+        prev_time = self.queue_time
+        self.queue_time = time.time()
+        print self.queue_time - prev_time
+
+        #print "RUNNING"
         try:
             # read all events.
             # if queue is empty, try again in 50 ms
             # we don’t want to block here and lock
             # Tk animations
             while True:
-                observed = self.queue.get(False)
+                print "READING",
+                #print self.poll.poll(100)
+                observed = self.socket.recv(flags=zmq.NOBLOCK)
+                observed = json_converter.loads(observed)
+                print "!"
                 self.observe(observed)
 
                 if not event:
                     self.master.after(1, self.read_queue)
                 return
-        except Queue.Empty:
+        except zmq.core.error.ZMQError:
+        #    print "NOTHING"
             self.observe({})
             if not event:
                 self.master.after(1, self.read_queue)

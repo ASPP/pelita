@@ -6,6 +6,10 @@ import string
 import keyword
 import logging
 # silence stupid warnings from logging module
+import zmq
+from pelita.ui.tk_viewer import TkViewer
+from pelita.viewer import AbstractViewer
+
 logging.root.manager.emittedNoHandlerWarning = 1
 
 try:
@@ -239,25 +243,50 @@ def run_game(*argv):
         dump = args.dump or 'pelita.dump'
     except AttributeError:
         dump = None
-    
-    for team in (bads, goods):
-        client = pelita.simplesetup.SimpleClient(team)
-        client.autoplay_background()
-    server = pelita.simplesetup.SimpleServer(layout_file=args.layoutfile,
-                                             layout_name=args.layout,
-                                             layout_filter=args.filter,
-                                             rounds=args.rounds,
-                                             dump_to_file=dump
-                                             )
+
+    server = pelita.zmqsetup.ZMQServer(layout_file=args.layoutfile,
+                                       layout_name=args.layout,
+                                       layout_filter=args.filter,
+                                       rounds=args.rounds,
+                                       dump_to_file=dump,
+                                       bind_addrs="tcp://*",
+                                       )
+
+    teams = []
+    for (addr, team) in zip(server.bind_addresses, [bads, goods]):
+        addr = addr.replace('*', 'localhost')
+        client = pelita.zmqsetup.ZMQClient(team, address=addr)
+        teams.append(client)
+
+    for team in teams:
+        team.autoplay_process()
+
 
     if args.viewer in 'tk':
-        server.run_tk(geometry=args.geometry)
+        publisher = pelita.zmqsetup.ZMQPublisher("tcp://*:6000")
+        server.game_master.register_viewer(publisher)
+
+        import subprocess
+        tkprocess = subprocess.Popen(["python", "-c", "from pelita.ui.tk_viewer import TkViewer;TkViewer('tcp://localhost:6000').run()"])
+
+        import time
+        time.sleep(0.5)
+
+        try:
+            server.run()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            tkprocess.kill()
     elif args.viewer == 'ascii':
-        server.run_simple(pelita.viewer.AsciiViewer)
+        server.game_master.register_viewer(pelita.viewer.AsciiViewer())
+        try:
+            server.run()
+        except KeyboardInterrupt:
+            pass
     elif args.viewer == 'null':
-        server.run_simple(pelita.viewer.DevNullViewer)
-    else:
-        assert 0
+        server.game_master.register_viewer(pelita.viewer.DevNullViewer())
+        server.run()
 
 if __name__ == '__main__':
     run_game(*sys.argv[1:])

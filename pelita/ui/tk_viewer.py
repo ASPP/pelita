@@ -5,6 +5,7 @@ import copy
 import Tkinter
 
 import logging
+import zmq
 
 from pelita.viewer import AbstractViewer
 from pelita.ui.tk_canvas import TkApplication
@@ -68,27 +69,30 @@ class TkViewer(AbstractViewer):
     app : The TkApplication class
 
     """
-    def __init__(self, queue_size=1, geometry=None, timeout=0.5):
-        self.observe_queue = Queue.Queue(maxsize=queue_size)
+    def __init__(self, address, geometry=None, timeout=0.5):
+        self.address = address
 
-        self.root = Tkinter.Tk()
-        if geometry is None:
-            root_geometry = '900x510'
-        else:
-            root_geometry = str(geometry[0])+'x'+str(geometry[1])
-        # put the root window in some sensible position
-        self.root.geometry(root_geometry+'+40+40')
-        
-        self.app = TkApplication(queue=self.observe_queue,
-                                 geometry = geometry,
-                                 master=self.root)
-        self.root.after_idle(self.app.read_queue)
-
+        self.geometry = geometry
         self.timeout = timeout
         if self.timeout == 0:
             self.block = False
         else:
             self.block = True
+
+    def run(self):
+        self.root = Tkinter.Tk()
+        if self.geometry is None:
+            root_geometry = '900x510'
+        else:
+            root_geometry = str(self.geometry[0])+'x'+str(self.geometry[1])
+        # put the root window in some sensible position
+        self.root.geometry(root_geometry+'+40+40')
+
+        self.app = TkApplication(address=self.address,
+                                 geometry = self.geometry,
+                                 master=self.root)
+        self.root.after_idle(self.app.read_queue)
+        self.root.mainloop()
 
     def _put(self, obj):
         try:
