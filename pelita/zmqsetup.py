@@ -45,8 +45,8 @@ class MiniZMQActor(object): # TODO: This is no actor. This is not even thread-sa
 
     def send(self, action, data):
         msg_uuid = str(uuid.uuid4())
-        print "--->", msg_uuid
         self.socket.send_pyobj({"__uuid__": msg_uuid, "__action__": action, "__data__": data})
+        _logger.debug("---> %s", msg_uuid)
         self.last_uuid = msg_uuid
 
     def recv(self):
@@ -56,7 +56,7 @@ class MiniZMQActor(object): # TODO: This is no actor. This is not even thread-sa
         #print repr(json_msg)
         msg_uuid = json_msg["__uuid__"]
 
-        print "<---", msg_uuid
+        _logger.debug("<--- %s", msg_uuid)
 
         if msg_uuid == self.last_uuid:
             self.last_uuid = None
