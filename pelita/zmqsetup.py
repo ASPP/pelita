@@ -2,6 +2,27 @@
 
 """ simplesetup.py defines the SimpleServer and SimpleClient classes
 which allow for easy game setup.
+
+Notes / TODO
+
+Timeout handling was far more elegant (imho) with actors / futures.
+Back then, timeouts were reply-based which meant that no other incoming
+messages would change the timeouts of other messages.
+
+Now it is all sockets so that each incoming message will reset the timeout
+and we need to manually handle this.
+
+A proper solution would use quick-and-dirty queues with size one.
+(Which would also allow us to store the received messages.)
+
+In 2.7, thread queues are too slow for that. (Asymptotically they only
+check every 50ms for new messages which accumulates quickly in our scheme.)
+
+Gevent queues are fast but do not like zeromq (there is a hack, though);
+in a future version we might want to revisit this decision. At the time
+we switch to Python 3.2+, if thread queues might have become fast enough
+(or maybe if the gevent interface likes our messaging layer), we should
+re-investigate this decision.
 """
 
 import time
