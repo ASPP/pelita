@@ -262,7 +262,7 @@ def run_game(*argv):
         team.autoplay_process()
 
 
-    if args.viewer in 'tk':
+    if args.viewer == 'tk':
         publisher = pelita.zmqsetup.ZMQPublisher("tcp://*:6000")
         server.game_master.register_viewer(publisher)
 

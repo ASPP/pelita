@@ -92,7 +92,10 @@ class TkViewer(AbstractViewer):
                                  geometry = self.geometry,
                                  master=self.root)
         self.root.after_idle(self.app.read_queue)
-        self.root.mainloop()
+        try:
+            self.root.mainloop()
+        except KeyboardInterrupt:
+            pass
 
     def _put(self, obj):
         try:

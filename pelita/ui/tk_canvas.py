@@ -5,6 +5,7 @@ import tkFont
 import Queue
 
 from .. import datamodel
+import time
 import zmq
 from pelita.messaging.json_convert import json_converter
 from .tk_sprites import *
@@ -384,30 +385,21 @@ class TkApplication(object):
         self.queue_time = time.time()
 
     def read_queue(self, event=None):
-        import time
-        prev_time = self.queue_time
-        self.queue_time = time.time()
-        print self.queue_time - prev_time
-
-        #print "RUNNING"
         try:
             # read all events.
             # if queue is empty, try again in 50 ms
             # we don’t want to block here and lock
             # Tk animations
             while True:
-                print "READING",
                 #print self.poll.poll(100)
                 observed = self.socket.recv(flags=zmq.NOBLOCK)
                 observed = json_converter.loads(observed)
-                print "!"
                 self.observe(observed)
 
                 if not event:
                     self.master.after(1, self.read_queue)
                 return
         except zmq.core.error.ZMQError:
-        #    print "NOTHING"
             self.observe({})
             if not event:
                 self.master.after(1, self.read_queue)

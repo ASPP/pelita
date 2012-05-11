@@ -16,7 +16,7 @@ import zmq
 
 from .messaging import actor_of, RemoteConnection
 from .layout import get_random_layout, get_layout_by_name
-from pelita.game_master import GameMaster
+from pelita.game_master import GameMaster, PlayerTimeout
 from pelita.messaging.json_convert import json_converter
 from pelita.viewer import AbstractViewer
 
@@ -27,16 +27,25 @@ _logger = logging.getLogger("pelita.simplesetup")
 
 __docformat__ = "restructuredtext"
 
+TIMEOUT = 3
+
 class UnknownMessageId(Exception):
+    pass
+
+class ZMQTimeout(Exception):
     pass
 
 class MiniZMQActor(object): # TODO: This is no actor. This is not even thread-safe!!!
     def __init__(self, socket):
         self.socket = socket
+        self.poll = zmq.Poller()
+        self.poll.register(socket, zmq.POLLIN)
+
         self.last_uuid = None
 
     def send(self, action, data):
         msg_uuid = str(uuid.uuid4())
+        print "--->", msg_uuid
         self.socket.send_pyobj({"__uuid__": msg_uuid, "__action__": action, "__data__": data})
         self.last_uuid = msg_uuid
 
@@ -46,13 +55,39 @@ class MiniZMQActor(object): # TODO: This is no actor. This is not even thread-sa
         json_msg = self.socket.recv_pyobj()
         #print repr(json_msg)
         msg_uuid = json_msg["__uuid__"]
+
+        print "<---", msg_uuid
+
         if msg_uuid == self.last_uuid:
             self.last_uuid = None
             return json_msg["__return__"]
-            return (json_msg["__action__"], json_msg["__data__"])
         else:
             self.last_uuid = None
             raise UnknownMessageId()
+
+    def recv_timeout(self, timeout):
+        time_now = time.time()
+        #: calculate until when it may take
+        timeout_until = time_now + timeout
+
+        while time_now < timeout_until:
+            time_left = timeout_until - time_now
+
+            socks = dict(self.poll.poll(time_left * 1000)) # poll needs milliseconds
+            if socks.get(self.socket) == zmq.POLLIN:
+                try:
+                    reply = self.recv()
+                    # No error? Then it is the answer that we wanted. Good.
+                    return reply
+                except UnknownMessageId:
+                    # Okay, false alarm. Reset the current time and try again.
+                    time_now = time.time()
+                    continue
+                # answer did not arrive in time
+            else:
+                raise ZMQTimeout()
+        raise ZMQTimeout()
+
 
 class RemoteTeamPlayer(object):
     """ This class is registered with the GameMaster and
@@ -88,17 +123,17 @@ class RemoteTeamPlayer(object):
     def _get_move(self, bot_idx, universe):
         try:
             self.zmqactor.send("_get_move", [bot_idx, universe]) # TODO timeout
-            return self.zmqactor.recv()
-            #return action, data
+            reply = self.zmqactor.recv_timeout(TIMEOUT)
+            return reply
+        except ZMQTimeout:
+            # answer did not arrive in time
+            raise PlayerTimeout()
         except TypeError:
             # if we could not convert into a tuple (e.g. bad reply)
             return None
-        except Queue.Empty:
-            # if we did not receive a message in time
-            raise PlayerTimeout()
-        except (ActorNotRunning, DeadConnection):
+        #except (ActorNotRunning, DeadConnection):
             # if the remote connection is closed
-            raise PlayerDisconnected()
+        #    raise PlayerDisconnected()
 
 class ZMQServer(object):
     """ Sets up a simple Server with most settings pre-configured.
@@ -310,7 +345,6 @@ class ZMQPublisher(AbstractViewer):
         self.socket.send(as_json)
 
     def observe(self, round_, turn, universe, events):
-        print "sending"
         as_json = json_converter.dumps({
             "round": round_,
             "turn": turn,
