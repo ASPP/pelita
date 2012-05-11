@@ -14,9 +14,9 @@ import itertools
 import uuid
 import zmq
 
-from .messaging import actor_of, RemoteConnection
+from .messaging import actor_of, RemoteConnection, DeadConnection
 from .layout import get_random_layout, get_layout_by_name
-from pelita.game_master import GameMaster, PlayerTimeout
+from pelita.game_master import GameMaster, PlayerTimeout, PlayerDisconnected
 from pelita.messaging.json_convert import json_converter
 from pelita.viewer import AbstractViewer
 
@@ -38,15 +38,25 @@ class ZMQTimeout(Exception):
 class MiniZMQActor(object): # TODO: This is no actor. This is not even thread-safe!!!
     def __init__(self, socket):
         self.socket = socket
-        self.poll = zmq.Poller()
-        self.poll.register(socket, zmq.POLLIN)
+        self.pollin = zmq.Poller()
+        self.pollin.register(socket, zmq.POLLIN)
+        self.pollout = zmq.Poller()
+        self.pollout.register(socket, zmq.POLLOUT)
 
         self.last_uuid = None
 
-    def send(self, action, data):
+    def send(self, action, data, timeout=3.0):
         msg_uuid = str(uuid.uuid4())
-        self.socket.send_pyobj({"__uuid__": msg_uuid, "__action__": action, "__data__": data})
         _logger.debug("---> %s", msg_uuid)
+
+        # Check before sending. Forever is a long time.
+        socks = dict(self.pollout.poll(timeout * 1000))
+        if socks.get(self.socket) == zmq.POLLOUT:
+            # I think we need to set NOBLOCK here, else we may run into a
+            # race condition if a connection was closed between poll and send.
+            self.socket.send_pyobj({"__uuid__": msg_uuid, "__action__": action, "__data__": data}, flags=zmq.NOBLOCK)
+        else:
+            raise DeadConnection()
         self.last_uuid = msg_uuid
 
     def recv(self):
@@ -73,7 +83,7 @@ class MiniZMQActor(object): # TODO: This is no actor. This is not even thread-sa
         while time_now < timeout_until:
             time_left = timeout_until - time_now
 
-            socks = dict(self.poll.poll(time_left * 1000)) # poll needs milliseconds
+            socks = dict(self.pollin.poll(time_left * 1000)) # poll needs milliseconds
             if socks.get(self.socket) == zmq.POLLIN:
                 try:
                     reply = self.recv()
@@ -131,9 +141,9 @@ class RemoteTeamPlayer(object):
         except TypeError:
             # if we could not convert into a tuple (e.g. bad reply)
             return None
-        #except (ActorNotRunning, DeadConnection):
+        except DeadConnection:
             # if the remote connection is closed
-        #    raise PlayerDisconnected()
+            raise PlayerDisconnected()
 
 class ZMQServer(object):
     """ Sets up a simple Server with most settings pre-configured.
