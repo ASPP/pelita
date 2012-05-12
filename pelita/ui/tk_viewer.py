@@ -96,25 +96,3 @@ class TkViewer(AbstractViewer):
             self.root.mainloop()
         except KeyboardInterrupt:
             pass
-
-    def _put(self, obj):
-        try:
-            self.observe_queue.put(obj, self.block, self.timeout)
-        except Queue.Full:
-            _logger.info("Queue is filled. Skipping.")
-            pass
-
-    def set_initial(self, universe):
-        self._put(copy.deepcopy({
-            "universe": universe,
-        }))
-
-    def observe(self, round_, turn, universe, events):
-#        print "observed", events
-
-        self._put(copy.deepcopy({
-            "round": round_,
-            "turn": turn,
-            "universe": universe,
-            "events": events}))
-
