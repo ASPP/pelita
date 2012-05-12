@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-""" simplesetup.py defines the SimpleServer and SimpleClient classes
-which allow for easy game setup.
+""" zmqsetup.py defines the ZMQServer and ZMQClient classes
+which allow for easy game setup via zmq sockets .
 
 Notes / TODO
 
@@ -56,7 +56,35 @@ class UnknownMessageId(Exception):
 class ZMQTimeout(Exception):
     pass
 
-class MiniZMQActor(object): # TODO: This is no actor. This is not even thread-safe!!!
+class ZMQConnection(object):
+    """ This class is supposed to ease request–reply connections
+    through a zmq socket. It does so by attaching a uuid to each
+    request. It will only accept a reply if this also includes
+    this uuid. All other incoming messages will be discarded.
+
+    Please note the following:
+      * This class is not thread-safe!
+      * There can only be one request at a time. Only the reply for
+        the most recent request (= uuid) will be received. Non-matching
+        uuids are discarded.
+      * There is no storage of messages.
+
+    Parameters
+    ----------
+    socket : zmq socket
+        The zmq socket of this connection
+
+    Attributes
+    ----------
+    socket : zmq socket
+        The zmq socket of this connection
+    pollin : zmq poller
+        Poller for incoming connections
+    pollout : zmq poller
+        Poller for outgoing connections
+    last_uuid : uuid
+        Uuid which the next incoming message has to match
+    """
     def __init__(self, socket):
         self.socket = socket
         self.pollin = zmq.Poller()
@@ -122,34 +150,33 @@ class MiniZMQActor(object): # TODO: This is no actor. This is not even thread-sa
 
 class RemoteTeamPlayer(object):
     """ This class is registered with the GameMaster and
-    relays all get_move requests to the given ActorReference.
-    This can be a local or a remote actor.
+    sends all requests to the attached zmq socket.
 
     It also does some basic checks for correct return values.
 
     Parameters
     ----------
-    reference : ActorReference
-        A reference to the local or remote actor.
+    socket : zmq socket
+        The zmq socket of this connection
     """
     def __init__(self, socket):
-        self.zmqactor = MiniZMQActor(socket)
+        self.zmqconnection = ZMQConnection(socket)
 
     def team_name(self):
-        self.zmqactor.send("team_name", [])
-        return self.zmqactor.recv()
+        self.zmqconnection.send("team_name", [])
+        return self.zmqconnection.recv()
 
     def _set_bot_ids(self, bot_ids):
         #try:
-        self.zmqactor.send("_set_bot_ids", [bot_ids])
-        return self.zmqactor.recv()
+        self.zmqconnection.send("_set_bot_ids", [bot_ids])
+        return self.zmqconnection.recv()
             #return self.ref.query("set_bot_ids", bot_ids).get(TIMEOUT)
         #except (Queue.Empty, ActorNotRunning, DeadConnection):
         #    pass
 
     def _set_initial(self, universe):
-        self.zmqactor.send("_set_initial", [universe])
-        return self.zmqactor.recv()
+        self.zmqconnection.send("_set_initial", [universe])
+        return self.zmqconnection.recv()
         #try:
         #    return self.ref.query("set_initial", [universe]).get(TIMEOUT)
         #except (Queue.Empty, ActorNotRunning, DeadConnection):
@@ -157,8 +184,8 @@ class RemoteTeamPlayer(object):
 
     def _get_move(self, bot_idx, universe):
         try:
-            self.zmqactor.send("_get_move", [bot_idx, universe]) # TODO timeout
-            reply = self.zmqactor.recv_timeout(TIMEOUT)
+            self.zmqconnection.send("_get_move", [bot_idx, universe]) # TODO timeout
+            reply = self.zmqconnection.recv_timeout(TIMEOUT)
             return reply
         except ZMQTimeout:
             # answer did not arrive in time
@@ -175,8 +202,8 @@ class ZMQServer(object):
 
     Usage
     -----
-        server = SimpleServer(layout_file="mymaze.layout", rounds=3000, port=50007)
-        server.run_tk()
+        server = SimpleServer(layout_file="mymaze.layout", rounds=3000)
+        server.run()
 
     The Parameters 'layout_string', 'layout_name' and 'layout_file' are mutually
     exclusive. If neither is supplied, a layout will be selected at random.
@@ -191,16 +218,14 @@ class ZMQServer(object):
         A file which holds a layout.
     layout_filter : string, optional
         A filter to restrict the pool of random layouts
+    teams : int, optional
+        The number of Teams used in the layout. Default: 2.
     players : int, optional
         The number of Players/Bots used in the layout. Default: 4.
     rounds : int, optional
         The number of rounds played. Default: 3000.
-    host : string, optional
-        The hostname which the server runs on. Default: "".
-    port : int, optional
-        The port which the server runs on. Default: 50007.
-    local : boolean, optional
-        If True, we only setup a local server. Default: True.
+    bind_addrs : string or tuple, optional
+        The address(es) which this server uses for its connections. Default: "tcp://*".
 
     Raises
     ------
@@ -212,9 +237,8 @@ class ZMQServer(object):
     """
     def __init__(self, layout_string=None, layout_name=None, layout_file=None,
                  layout_filter = 'normal_without_dead_ends',
-                 teams=2,
-                 players=4, rounds=3000, bind_addrs=None,
-                 local=True, silent=True, dump_to_file=None):
+                 teams=2, players=4, rounds=3000, bind_addrs="tcp://*",
+                 silent=True, dump_to_file=None):
 
         if (layout_string and layout_name or
             layout_string and layout_file or
@@ -240,10 +264,6 @@ class ZMQServer(object):
         self.dump_to_file = dump_to_file
 
         self.game_master = GameMaster(self.layout, self.players, self.rounds)
-
-        if bind_addrs is None:
-            _logger.debug("No address given. Defaulting to 'tcp://*'.")
-            bind_addrs = "tcp://*"
 
         if isinstance(bind_addrs, tuple):
             pass
@@ -313,12 +333,8 @@ class ZMQClient(object):
         A PlayerTeam instance which defines the algorithms for each Bot.
     team_name : string
         The name of the team. (optional, if not defined in team)
-    host : string, optional
-        The hostname which the server runs on. Default: "".
-    port : int, optional
-        The port which the server runs on. Default: 50007.
-    local : boolean, optional
-        If True, we only connect to a local server. Default: True.
+    address : string
+        The address which the client has to connect to.
     """
     def __init__(self, team, team_name="", address=None):
         self.team = team
@@ -333,9 +349,8 @@ class ZMQClient(object):
             pass
 
     def _loop(self):
-        """ Creates a new ClientActor, and connects it with
+        """ Creates a new ZMQCLient, and connects it with
         the Server.
-        This method only returns when the ClientActor finishes.
         """
 
         # We connect here because zmq likes to have its own
@@ -356,7 +371,6 @@ class ZMQClient(object):
                 retval = self.team_name
             else:
                 retval = getattr(self.team, action)(*data)
-            #print action, retval
 
             self.socket.send_pyobj({"__uuid__": uuid_, "__return__": retval})
 
