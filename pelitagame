@@ -252,14 +252,14 @@ def run_game(*argv):
                                        bind_addrs="tcp://*",
                                        )
 
-    teams = []
+    player_clients = []
     for (addr, team) in zip(server.bind_addresses, [bads, goods]):
         addr = addr.replace('*', 'localhost')
         client = pelita.zmqsetup.ZMQClient(team, address=addr)
-        teams.append(client)
+        player_clients.append(client)
 
-    for team in teams:
-        team.autoplay_process()
+    for client in player_clients:
+        client.autoplay_process()
 
 
     if args.viewer == 'tk':

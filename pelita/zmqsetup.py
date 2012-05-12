@@ -364,6 +364,9 @@ class ZMQClient(object):
         background_thread.start()
         return background_thread
 
+    def __repr__(self):
+        return "ZMQCLient(%r, %r, %r)" % (self.team, self.team_name, self.address)
+
 class ZMQPublisher(AbstractViewer):
     def __init__(self, address):
         self.address = address
