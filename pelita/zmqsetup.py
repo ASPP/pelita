@@ -135,6 +135,10 @@ class RemoteTeamPlayer(object):
     def __init__(self, socket):
         self.zmqactor = MiniZMQActor(socket)
 
+    def team_name(self):
+        self.zmqactor.send("team_name", [])
+        return self.zmqactor.recv()
+
     def _set_bot_ids(self, bot_ids):
         #try:
         self.zmqactor.send("_set_bot_ids", [bot_ids])
@@ -285,10 +289,12 @@ class ZMQServer(object):
             team_player = RemoteTeamPlayer(socket)
             self.team_players.append(team_player)
 
-        for team in self.team_players:
-            self.game_master.register_team(team)
-
     def run(self):
+        # At this point the clients should have been started as well.
+        for team in self.team_players:
+            team_name = team.team_name()
+            self.game_master.register_team(team, team_name)
+
         self.game_master.play()
 
 class ZMQClient(object):
@@ -346,7 +352,10 @@ class ZMQClient(object):
 
             # feed client actor here …
 
-            retval = getattr(self.team, action)(*data)
+            if action == "team_name":
+                retval = self.team_name
+            else:
+                retval = getattr(self.team, action)(*data)
             #print action, retval
 
             self.socket.send_pyobj({"__uuid__": uuid_, "__return__": retval})
