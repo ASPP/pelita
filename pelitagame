@@ -275,9 +275,9 @@ def run_game(*argv):
         try:
             server.run()
         except KeyboardInterrupt:
-            pass
-        finally:
             tkprocess.kill()
+        finally:
+            pass
     elif args.viewer == 'ascii':
         server.game_master.register_viewer(pelita.viewer.AsciiViewer())
         try:
