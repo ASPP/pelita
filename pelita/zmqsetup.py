@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """ zmqsetup.py defines the ZMQServer and ZMQClient classes
-which allow for easy game setup via zmq sockets .
+which allow for easy game setup via zmq sockets.
 
 Notes / TODO
 
@@ -26,23 +26,18 @@ re-investigate this decision.
 """
 
 import time
-import sys
 import logging
 import multiprocessing
 import threading
-import signal
-import itertools
+
 import uuid
 import zmq
 
-from .messaging import actor_of, RemoteConnection, DeadConnection
+from .messaging import DeadConnection
 from .layout import get_random_layout, get_layout_by_name
 from pelita.game_master import GameMaster, PlayerTimeout, PlayerDisconnected
 from pelita.messaging.json_convert import json_converter
 from pelita.viewer import AbstractViewer
-
-from .viewer import AsciiViewer, AbstractViewer
-from .utils.signal_handlers import keyboard_interrupt_handler, exit_handler
 
 _logger = logging.getLogger("pelita.simplesetup")
 
