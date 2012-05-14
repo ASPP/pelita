@@ -266,7 +266,11 @@ def run_game(*argv):
         publisher = pelita.zmqsetup.ZMQPublisher("tcp://*:6000")
         server.game_master.register_viewer(publisher)
 
-        tkprocess = subprocess.Popen(["python", "-c", "from pelita.ui.tk_viewer import TkViewer;TkViewer('tcp://localhost:6000').run()"])
+        # Something on OS X prevents Tk from running in a forked process.
+        # Therefore we cannot use multiprocessing here. subprocess works, though.
+        tkprocess = subprocess.Popen(["python",
+                                      "-c",
+                                      "from pelita.ui.tk_viewer import TkViewer;TkViewer('tcp://localhost:6000').run()"])
 
         # we sleep a tiny bit to give Tk time to initialise
         time.sleep(0.5)
