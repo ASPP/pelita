@@ -7,6 +7,7 @@ import random
 import sys
 from .containers import TypeAwareList
 from . import datamodel
+from .graph import NoPathException
 from .viewer import AbstractViewer
 from .graph import AdjacencyList
 
@@ -296,7 +297,13 @@ class UniverseNoiser(object):
         for b in bots_to_noise:
             # Check that the distance between this bot and the enemy is larger
             # than `sight_distance`.
-            if len(self.adjacency.a_star(bot.current_pos, b.current_pos)) > self.sight_distance:
+            try:
+                distance = len(self.adjacency.a_star(bot.current_pos, b.current_pos))
+            except NoPathException:
+                # We cannot see it: Apply the noise anyway
+                distance = None
+
+            if distance is None or distance > self.sight_distance:
                 # If so then alter the position of the enemy
                 possible_positions = list(self.adjacency.pos_within(b.current_pos,
                     self.noise_radius))
