@@ -34,10 +34,10 @@ import uuid
 import zmq
 
 from .messaging import DeadConnection
+from .messaging.json_convert import json_converter
 from .layout import get_random_layout, get_layout_by_name
-from pelita.game_master import GameMaster, PlayerTimeout, PlayerDisconnected
-from pelita.messaging.json_convert import json_converter
-from pelita.viewer import AbstractViewer
+from .game_master import GameMaster, PlayerTimeout, PlayerDisconnected
+from .viewer import AbstractViewer
 
 _logger = logging.getLogger("pelita.simplesetup")
 
