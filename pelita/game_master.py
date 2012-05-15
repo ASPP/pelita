@@ -206,33 +206,24 @@ class GameMaster(object):
 
         This is needed for scripts parsing the output.
         """
+        msg = "Finished. %r won over %r. (%r:%r)"
         if datamodel.TeamWins(0) in events:
             winner = self.universe.teams[0]
             loser = self.universe.teams[1]
-            print "Finished. %r won over %r. (%r:%r)" % (
-                    winner.name, loser.name,
-                    winner.score, loser.score
-                )
-            # We must manually flush, else our forceful stopping of Tk
-            # won't let us pipe it.
-            sys.stdout.flush()
         elif datamodel.TeamWins(1) in events:
             winner = self.universe.teams[1]
             loser = self.universe.teams[0]
-            print "Finished. %r won over %r. (%r:%r)" % (
-                    winner.name, loser.name,
-                    winner.score, loser.score
-                )
-            sys.stdout.flush()
         elif datamodel.GameDraw() in events:
-            t0 = self.universe.teams[0]
-            t1 = self.universe.teams[1]
-            print "Finished. %r and %r had a draw. (%r:%r)" % (
-                    t0.name, t1.name,
-                    t0.score, t1.score
-                )
-            sys.stdout.flush()
+            winner = self.universe.teams[0]
+            loser = self.universe.teams[1]
+            msg = "Finished. %r and %r had a draw. (%r:%r)"
+        else:
+            return
 
+        print msg % (winner.name, loser.name, winner.score, loser.score)
+        # We must manually flush, else our forceful stopping of Tk
+        # won't let us pipe it.
+        sys.stdout.flush()
 
 
 class UniverseNoiser(object):
