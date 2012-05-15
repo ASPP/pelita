@@ -114,11 +114,11 @@ class TestBFS_Player(unittest.TestCase):
             path_target.pop()
             game_master.play_round(i)
             self.assertEqual(path_target, bfs.current_path)
-        game_master.play_round(i)
-        self.assertEqual([(14, 3), (13, 3)], bfs.current_path)
         game_master.play_round(i+1)
-        self.assertEqual([(14, 3)], bfs.current_path)
+        self.assertEqual([(14, 3), (13, 3)], bfs.current_path)
         game_master.play_round(i+2)
+        self.assertEqual([(14, 3)], bfs.current_path)
+        game_master.play_round(i+3)
         self.assertEqual([], bfs.current_path)
 
     def test_unreachable(self):

@@ -58,6 +58,7 @@ class GameMaster(object):
         self.player_teams = []
         self.player_teams_timeouts = []
         self.viewers = []
+        self.round = 0
 
     def register_team(self, team, team_name=""):
         """ Register a client TeamPlayer class.
@@ -92,13 +93,11 @@ class GameMaster(object):
         viewer.set_initial(self.universe.copy())
         self.viewers.append(viewer)
 
-    def send_to_viewers(self, round_index, turn, events):
+    def send_to_viewers(self, turn, events):
         """ Call the 'observe' method on all registered viewers.
 
         Parameters
         ----------
-        round_index : int
-            the current round
         turn : int
             the current turn
         events : TypeAwareList of UniverseEvent
@@ -106,7 +105,7 @@ class GameMaster(object):
         """
 
         for viewer in self.viewers:
-            viewer.observe(round_index,
+            viewer.observe(self.round,
                     turn,
                     self.universe.copy(),
                     copy.deepcopy(events))
@@ -132,27 +131,23 @@ class GameMaster(object):
             raise IndexError(
                 "Universe uses %i teams, but only %i are registered."
                 % (len(self.player_teams), len(self.universe.teams)))
-        for round_index in range(self.game_time):
-            if not self.play_round(round_index):
+        while self.round < self.game_time:
+            if not self.play_round():
                 return
 
         events = TypeAwareList(base_class=datamodel.UniverseEvent)
         events.append(self.universe.create_win_event())
         self.print_possible_winner(events)
 
-        self.send_to_viewers(round_index, None, events)
+        self.send_to_viewers(None, events)
 
-    def play_round(self, round_index):
+    def play_round(self, round=None):
         """ Play only a single round.
 
         A single round is defined as all bots moving once.
-
-        Parameters
-        ----------
-        round_index : int
-            the number of this round
-
         """
+        assert round is None or round == self.round
+
         for i, bot in enumerate(self.universe.bots):
             player_team = self.player_teams[bot.team_index]
             try:
@@ -202,9 +197,10 @@ class GameMaster(object):
 
             self.print_possible_winner(events)
 
-            self.send_to_viewers(round_index, i, events)
+            self.send_to_viewers(i, events)
             if datamodel.TeamWins in events or datamodel.GameDraw in events:
                 return False
+        self.round += 1
         return True
 
     def print_possible_winner(self, events):
