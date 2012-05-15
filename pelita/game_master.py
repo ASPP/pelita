@@ -141,13 +141,11 @@ class GameMaster(object):
 
         self.send_to_viewers(None, events)
 
-    def play_round(self, round=None):
+    def play_round(self):
         """ Play only a single round.
 
         A single round is defined as all bots moving once.
         """
-        assert round is None or round == self.round
-
         for i, bot in enumerate(self.universe.bots):
             player_team = self.player_teams[bot.team_index]
             try:
