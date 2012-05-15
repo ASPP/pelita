@@ -145,8 +145,10 @@ class GameMaster(object):
 
         start_time = time.time()
 
-        while self.play_round():
-            pass
+        while True:
+            running = self.play_round()
+            if not running:
+                break
 
         end_time = time.time()
         self.statistics["running_time"] = end_time - start_time
