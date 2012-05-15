@@ -60,8 +60,8 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual({(0, -1): (16, 2), (0, 0): (16, 3)},
                 player_3.legal_moves)
 
-        game_master.play_round(0)
-        game_master.play_round(1)
+        game_master.play_round()
+        game_master.play_round()
         self.assertEqual(universe, player_1.current_uni)
         self.assertEqual((16, 1), player_1.current_pos)
         self.assertEqual((16, 2), player_1.previous_pos)
@@ -137,13 +137,13 @@ class TestBFS_Player(unittest.TestCase):
         self.assertEqual(path_target, bfs.current_path)
         for i in range(len(path_target)):
             path_target.pop()
-            game_master.play_round(i)
+            game_master.play_round()
             self.assertEqual(path_target, bfs.current_path)
-        game_master.play_round(i)
+        game_master.play_round()
         self.assertEqual([(14, 3), (13, 3)], bfs.current_path)
-        game_master.play_round(i+1)
+        game_master.play_round()
         self.assertEqual([(14, 3)], bfs.current_path)
-        game_master.play_round(i+2)
+        game_master.play_round()
         self.assertEqual([], bfs.current_path)
 
     def test_unreachable(self):
@@ -158,7 +158,7 @@ class TestBFS_Player(unittest.TestCase):
         game_master.register_team(SimpleTeam(bfs1))
         game_master.register_team(SimpleTeam(bfs2))
         game_master.set_initial()
-        game_master.play_round(0)
+        game_master.play_round()
         self.assertEqual(0, len(bfs1.current_path))
         self.assertEqual(0, len(bfs2.current_path))
 
@@ -181,19 +181,19 @@ class TestBasicDefensePlayer(unittest.TestCase):
         game_master.register_team(team_2)
         game_master.set_initial()
 
-        game_master.play_round(0)
+        game_master.play_round()
         # 0 moved east, 1 tracks 0
         # 2 did not move, 3 tracks 0
         self.assertEqual(team_2._players[0].tracking_idx, 0)
         self.assertEqual(team_2._players[1].tracking_idx, 0)
 
-        game_master.play_round(1)
+        game_master.play_round()
         # 0 moved back, 1 tracks None
         # 2 moved east, 3 tracks 2
         self.assertEqual(team_2._players[0].tracking_idx, None)
         self.assertEqual(team_2._players[1].tracking_idx, 2)
 
-        game_master.play_round(2)
+        game_master.play_round()
         # 0 did not move, 1 tracks 2
         # 2 moved back, 3 tracks None
         self.assertEqual(team_2._players[0].tracking_idx, 2)

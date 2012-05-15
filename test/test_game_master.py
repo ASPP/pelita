@@ -243,7 +243,7 @@ class TestGame(unittest.TestCase):
         gm.register_viewer(DevNullViewer())
 
         gm.set_initial()
-        gm.play_round(0)
+        gm.play_round()
         test_first_round = (
             """ ######
                 # 0. #
@@ -251,7 +251,7 @@ class TestGame(unittest.TestCase):
                 ###### """)
         self.assertEqual(create_TestUniverse(test_first_round), gm.universe)
 
-        gm.play_round(1)
+        gm.play_round()
         test_second_round = (
             """ ######
                 # 0. #
@@ -259,7 +259,7 @@ class TestGame(unittest.TestCase):
                 ###### """)
         self.assertEqual(create_TestUniverse(test_second_round), gm.universe)
 
-        gm.play_round(2)
+        gm.play_round()
         test_third_round = (
             """ ######
                 #  . #
@@ -268,7 +268,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual(create_TestUniverse(test_third_round,
             black_score=KILLPOINTS), gm.universe)
 
-        gm.play_round(3)
+        gm.play_round()
         test_fourth_round = (
             """ ######
                 #0 . #
@@ -277,7 +277,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual(create_TestUniverse(test_fourth_round,
             black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
 
-        gm.play_round(4)
+        gm.play_round()
         test_fifth_round = (
             """ ######
                 # 0. #
@@ -287,7 +287,7 @@ class TestGame(unittest.TestCase):
             black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
 
         print gm.universe.pretty
-        gm.play_round(5)
+        gm.play_round()
         test_sixth_round = (
             """ ######
                 #  0 #
@@ -344,7 +344,7 @@ class TestGame(unittest.TestCase):
         gm.register_team(SimpleTeam(TestMaliciousPlayer()))
 
         gm.set_initial()
-        gm.play_round(0)
+        gm.play_round()
 
         test_self.assertEqual(original_universe, gm.universe)
 
@@ -393,7 +393,7 @@ class TestGame(unittest.TestCase):
         gm.register_viewer(TestViewer())
 
         gm.set_initial()
-        gm.play_round(0)
+        gm.play_round()
 
         self.assertEqual(original_universe, gm.universe)
 

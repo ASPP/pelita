@@ -119,6 +119,8 @@ class GameMaster(object):
         universes and tells the PlayerTeams what their respective
         bot_ids are.
         """
+        self.round_index = 0
+
         for team_idx, team in enumerate(self.player_teams):
             # the respective bot ids in the universe
             team._set_bot_ids(self.universe.teams[team_idx].bots)
@@ -142,9 +144,10 @@ class GameMaster(object):
                 % (len(self.player_teams), len(self.universe.teams)))
 
         start_time = time.time()
-        for round_index in range(self.game_time):
-            if not self.play_round(round_index):
-                return
+
+        while self.play_round():
+            pass
+
         end_time = time.time()
         self.statistics["running_time"] = end_time - start_time
 
@@ -152,27 +155,27 @@ class GameMaster(object):
         events.append(self.universe.create_win_event())
         self.print_possible_winner(events)
 
-        self.send_to_viewers(round_index, None, events)
+        self.send_to_viewers(self.round_index, None, events)
 
-    def play_round(self, round_index):
+    def play_round(self):
         """ Play only a single round.
 
         A single round is defined as all bots moving once.
 
-        Parameters
-        ----------
-        round_index : int
-            the number of this round
-
+        Returns
+        -------
+        game_running : boolean
+            True, if game is still running, False otherwise.
         """
         for i, bot in enumerate(self.universe.bots):
             player_team = self.player_teams[bot.team_index]
             try:
                 universe_copy = self.universe.copy()
                 if self.noiser:
-                    universe_copy = self.noiser.uniform_noise(universe_copy, i)
+                    universe_copy = self.noiser.uniform_noise(universe_copy, bot.index)
                 move = player_team._get_move(bot.index, universe_copy)
                 events = self.universe.move_bot(i, move)
+
             except (datamodel.IllegalMoveException, PlayerTimeout) as e:
                 events = TypeAwareList(base_class=datamodel.UniverseEvent)
                 events.append(datamodel.TimeoutEvent(bot.team_index))
@@ -214,9 +217,12 @@ class GameMaster(object):
 
             self.print_possible_winner(events)
 
-            self.send_to_viewers(round_index, i, events)
+            self.send_to_viewers(self.round_index, bot.index, events)
+
             if datamodel.TeamWins in events or datamodel.GameDraw in events:
                 return False
+            
+        self.round_index += 1
         return True
 
     def print_possible_winner(self, events):
