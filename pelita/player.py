@@ -456,8 +456,20 @@ class BasicDefensePlayer(AbstractPlayer):
         # if we were killed, for whatever reason, reset the path
         if self.current_pos == self.initial_pos:
             self.path = self.path_to_border
+
+        # First we need to check, if our tracked enemy is still
+        # in our zone
+        if self.tracking_idx is not None:
+            # if the enemy is no longer in our zone
+            if not self.team.in_zone(self.tracking_target.current_pos):
+                self.tracking_idx = None
+                self.path = self.path_to_border
+            # otherwise update the path to the target
+            else:
+                self.path = self.path_to_target
+
         # if we are not currently tracking anything
-        # (need to check explicity for None, because using 'if not
+        # (need to check explicity for None, because using 'if 
         # self.tracking_idx' would evaluate to True also when we are tracking
         # the bot with index == 0)
         if self.tracking_idx is None:
@@ -475,14 +487,7 @@ class BasicDefensePlayer(AbstractPlayer):
                 # otherwise keep going if we aren't already underway
                 if not self.path:
                     self.path = self.path_to_border
-        else:
-            # if the enemy is no longer in our zone
-            if not self.team.in_zone(self.tracking_target.current_pos):
-                self.tracking_idx = None
-                self.path = self.path_to_border
-            # otherwise update the path to the target
-            else:
-                self.path = self.path_to_target
+
         # if something above went wrong, just stand still
         if not self.path:
             return stop
