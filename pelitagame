@@ -233,8 +233,21 @@ def run_game(*argv):
         print '\n'.join(PLAYERS)
         sys.exit(0)
 
-    bads = load_team(args.left_team) or sys.exit(1)
-    goods = load_team(args.right_team) or sys.exit(1)
+    # check if we've been given an address which a remote
+    # player wants to connect to
+    if "://" in args.left_team:
+        addrs_left = args.left_team
+        bads = None
+    else:
+        addrs_left = "tcp://*"
+        bads = load_team(args.left_team) or sys.exit(1)
+
+    if "://" in args.right_team:
+        addrs_right = args.right_team
+        goods = None
+    else:
+        addrs_right = "tcp://*"
+        goods = load_team(args.right_team) or sys.exit(1)
 
     if args.dry_run:
         sys.exit(0)
@@ -249,14 +262,15 @@ def run_game(*argv):
                                        layout_filter=args.filter,
                                        rounds=args.rounds,
                                        dump_to_file=dump,
-                                       bind_addrs="tcp://*",
+                                       bind_addrs=(addrs_left, addrs_right),
                                        )
 
     player_clients = []
     for (addr, team) in zip(server.bind_addresses, [bads, goods]):
-        addr = addr.replace('*', 'localhost')
-        client = pelita.zmqsetup.ZMQClient(team, address=addr)
-        player_clients.append(client)
+        if team:
+            addr = addr.replace('*', 'localhost')
+            client = pelita.zmqsetup.ZMQClient(team, address=addr)
+            player_clients.append(client)
 
     for client in player_clients:
         client.autoplay_process()

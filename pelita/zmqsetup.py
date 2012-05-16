@@ -369,6 +369,7 @@ class ZMQClient(object):
 
             self.socket.send_pyobj({"__uuid__": uuid_, "__return__": retval})
 
+
     def autoplay_process(self):
         # We use a multiprocessing because it behaves well with KeyboardInterrupt.
         background_process = multiprocessing.Process(target=self.loop)
