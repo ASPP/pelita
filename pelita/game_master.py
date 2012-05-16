@@ -174,11 +174,7 @@ class GameMaster(object):
                             bot.team_index,
                             bot.index))
 
-                moves = self.universe.get_legal_moves(bot.current_pos).keys()
-                moves.remove(datamodel.stop)
-                if not moves:
-                    moves = [datamodel.stop]
-
+                moves = self.universe.get_legal_moves_or_stop(bot.current_pos)
                 move = random.choice(moves)
                 events += self.universe.move_bot(i, move)
 
