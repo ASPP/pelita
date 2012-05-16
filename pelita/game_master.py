@@ -59,6 +59,7 @@ class GameMaster(object):
         self.player_teams_timeouts = []
         self.viewers = []
         self.round = 0
+        self.finished = False
 
     def register_team(self, team, team_name=""):
         """ Register a client TeamPlayer class.
@@ -136,7 +137,7 @@ class GameMaster(object):
 
         events = TypeAwareList(base_class=datamodel.UniverseEvent)
         events.append(self.universe.create_win_event())
-        self.print_possible_winner(events)
+        self.check_possible_winner(events)
 
         self.send_to_viewers(None, events)
 
@@ -144,6 +145,9 @@ class GameMaster(object):
         """ Play only a single round.
 
         A single round is defined as all bots moving once.
+
+        It is the responsibility of the called to watch the number of
+        rounds. This function doesn't check that.
         """
         for i, bot in enumerate(self.universe.bots):
             player_team = self.player_teams[bot.team_index]
@@ -188,15 +192,14 @@ class GameMaster(object):
                     bot.team_index,
                     bot.index))
 
-            self.print_possible_winner(events)
-
+            self.check_possible_winner(events)
             self.send_to_viewers(i, events)
-            if datamodel.TeamWins in events or datamodel.GameDraw in events:
+            if self.finished:
                 return False
         self.round += 1
         return True
 
-    def print_possible_winner(self, events):
+    def check_possible_winner(self, events):
         """ Checks the event list for a potential winner and prints this information.
 
         This is needed for scripts parsing the output.
@@ -215,6 +218,7 @@ class GameMaster(object):
         else:
             return
 
+        self.finished = True
         print msg % (winner.name, loser.name, winner.score, loser.score)
         # We must manually flush, else our forceful stopping of Tk
         # won't let us pipe it.
