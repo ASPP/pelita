@@ -217,8 +217,8 @@ class TestGame(unittest.TestCase):
 
 
         gm = GameMaster(test_start, number_bots, 200)
-        gm.register_team(SimpleTeam(TestPlayer([east, stop, south, east, east, east])))
-        gm.register_team(SimpleTeam(TestPlayer([west, west, stop, west, west, west])))
+        gm.register_team(SimpleTeam(TestPlayer('>-v>>>')))
+        gm.register_team(SimpleTeam(TestPlayer('<<-<<<')))
 
         gm.register_viewer(DevNullViewer())
 
