@@ -139,15 +139,11 @@ class TestBFS_Player(unittest.TestCase):
 
 class TestSimpleTeam(unittest.TestCase):
 
-    def test_simple_team(self):
-        class BrokenPlayer(AbstractPlayer):
-            pass
-        self.assertRaises(TypeError, SimpleTeam, BrokenPlayer())
-
     def test_init(self):
         self.assertRaises(ValueError, SimpleTeam)
         object_which_is_neither_string_nor_team = 5
-        self.assertRaises(AttributeError, SimpleTeam, object_which_is_neither_string_nor_team)
+        self.assertRaises(TypeError, SimpleTeam,
+                          object_which_is_neither_string_nor_team)
 
         team0 = SimpleTeam("my team")
         self.assertEqual(team0.team_name, "my team")

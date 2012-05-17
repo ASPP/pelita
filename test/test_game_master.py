@@ -15,24 +15,14 @@ from pelita.graph import AdjacencyList
 class TestGameMaster(unittest.TestCase):
 
     def test_basics(self):
-        test_layout = (
-        """ ##################
-            #0#.  .  # .     #
-            #2#####    #####1#
-            #     . #  .  .#3#
-            ################## """)
-
-        game_master = GameMaster(test_layout, 4, 200)
-
         class BrokenViewer(AbstractViewer):
             pass
 
         class BrokenPlayer(AbstractPlayer):
             pass
 
-        self.assertRaises(TypeError, game_master.register_viewer, BrokenViewer())
-#        self.assertRaises(TypeError, game_master.register_player, BrokenPlayer())
-        self.assertRaises(IndexError, game_master.play)
+        self.assertRaises(TypeError, BrokenViewer)
+        self.assertRaises(TypeError, BrokenPlayer)
 
     def test_team_names(self):
         test_layout = (
@@ -170,12 +160,10 @@ class TestUniverseNoiser(unittest.TestCase):
 class TestAbstracts(unittest.TestCase):
 
     def test_AbstractViewer(self):
-        av = AbstractViewer()
-        self.assertRaises(NotImplementedError, av.observe, None, None, None, None)
+        self.assertRaises(TypeError, AbstractViewer)
 
     def test_AbstractPlayer(self):
-        ap = AbstractPlayer()
-        self.assertRaises(NotImplementedError, ap.get_move)
+        self.assertRaises(TypeError, AbstractPlayer)
 
 class TestGame(unittest.TestCase):
 

@@ -85,10 +85,6 @@ class GameMaster(object):
         viewer : subclass of AbstractViewer
 
         """
-        if (viewer.__class__.observe.__func__ ==
-                AbstractViewer.observe.__func__):
-            raise TypeError("Viewer %s does not override 'observe()'."
-                    % viewer.__class__)
         viewer.set_initial(self.universe.copy())
         self.viewers.append(viewer)
 
