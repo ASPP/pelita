@@ -955,18 +955,13 @@ class CTFUniverse(object):
         """
         events = TypeAwareList(base_class=UniverseEvent)
         # check legality of the move
-        if move not in moves:
-            raise IllegalMoveException(
-                'Illegal move_id from bot %i: %s' % (bot_id, move))
         bot = self.bots[bot_id]
         legal_moves_dict = self.get_legal_moves(bot.current_pos)
         if move not in legal_moves_dict.keys():
             raise IllegalMoveException(
-                'Illegal move from bot %r: %s'
-                % (bot, move))
+                'Illegal move from bot %r: %s' % (bot, move))
         old_pos = bot.current_pos
-        bot.current_pos =  legal_moves_dict[move]
-        new_pos = bot.current_pos
+        new_pos = bot.current_pos = legal_moves_dict[move]
         events.append(BotMoves(bot_id, old_pos, new_pos))
         team = self.teams[bot.team_index]
         # check for food being eaten
