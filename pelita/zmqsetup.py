@@ -192,6 +192,9 @@ class RemoteTeamPlayer(object):
             # if the remote connection is closed
             raise PlayerDisconnected()
 
+    def _exit(self):
+        self.zmqconnection.send("exit", [])
+
 class ZMQServer(object):
     """ Sets up a simple Server with most settings pre-configured.
 
@@ -312,6 +315,9 @@ class ZMQServer(object):
 
         self.game_master.play()
 
+        for team_player in self.team_players:
+            team_player._exit()
+
 class ZMQClient(object):
     """ Sets up a simple Client with most settings pre-configured.
 
@@ -364,6 +370,8 @@ class ZMQClient(object):
 
             if action == "team_name":
                 retval = self.team_name
+            elif action == "exit":
+                return
             else:
                 retval = getattr(self.team, action)(*data)
 
