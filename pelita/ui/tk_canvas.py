@@ -363,9 +363,7 @@ class UiCanvas(object):
 
     def draw_bots(self, universe):
         for bot_idx, bot_sprite in self.bot_sprites.iteritems():
-            bot_sprite.position = universe.bots[bot_sprite.bot_idx].current_pos
-
-            bot_sprite.redraw(self.canvas, universe)
+            bot_sprite.move_to(universe.bots[bot_sprite.bot_idx].current_pos, self.canvas, universe, force=self.size_changed)
 
 
 class TkApplication(object):

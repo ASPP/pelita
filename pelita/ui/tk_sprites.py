@@ -67,6 +67,19 @@ class BotSprite(TkSprite):
 
         super(BotSprite, self).__init__(mesh, **kwargs)
 
+    def move_to(self, new_pos, canvas, universe=None, force=None):
+        old_direction = self.direction
+        old_position = self.position
+
+        self.position = new_pos
+        if old_direction != self.direction or force:
+            self.redraw(canvas, universe)
+        else:
+            dx = self.position[0] - old_position[0]
+            dy = self.position[1] - old_position[1]
+
+            canvas.move(self.tag, self.mesh.rect_width * dx, self.mesh.rect_height * dy)
+
     def draw_bot(self, canvas, outer_col, eye_col, mirror=False):
         direction = self.direction
 
