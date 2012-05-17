@@ -385,28 +385,23 @@ class TkApplication(object):
         self.ui_canvas = UiCanvas(self, geometry=geometry)
 
         self.master.protocol("WM_DELETE_WINDOW", wm_delete_window_handler)
-        import time
-        self.queue_time = time.time()
 
-    def read_queue(self, event=None):
+    def read_queue(self):
         try:
             # read all events.
-            # if queue is empty, try again in 50 ms
+            # if queue is empty, try again in 20 ms
             # we don’t want to block here and lock
             # Tk animations
-            while True:
-                #print self.poll.poll(100)
-                observed = self.socket.recv(flags=zmq.NOBLOCK)
-                observed = json_converter.loads(observed)
-                self.observe(observed)
+            #print self.poll.poll(100)
+            observed = self.socket.recv(flags=zmq.NOBLOCK)
+            observed = json_converter.loads(observed)
+            self.observe(observed)
 
-                if not event:
-                    self.master.after(1, self.read_queue)
-                return
+            self.master.after(1, self.read_queue)
+            return
         except zmq.core.error.ZMQError:
             self.observe({})
-            if not event:
-                self.master.after(1, self.read_queue)
+            self.master.after(20, self.read_queue)
 
     def observe(self, observed):
         universe = observed.get("universe")
