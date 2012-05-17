@@ -197,6 +197,10 @@ class UiCanvas(object):
         self.draw_universe(self.current_universe)
 
         if events:
+            for food_eaten in events.filter_type(datamodel.FoodEaten):
+                food_tag = Food.food_pos_tag(food_eaten.food_pos)
+                self.canvas.delete(food_tag)
+
             for team_wins in events.filter_type(datamodel.TeamWins):
                 team_index = team_wins.winning_team_index
                 team_name = universe.teams[team_index].name
@@ -323,6 +327,8 @@ class UiCanvas(object):
         self.size_changed = True
 
     def draw_food(self, universe):
+        if not self.size_changed:
+            return
         self.canvas.delete("food")
         for position, items in universe.maze.iteritems():
             model_x, model_y = position
