@@ -139,6 +139,25 @@ class TestBFS_Player(unittest.TestCase):
 
 class TestSimpleTeam(unittest.TestCase):
 
+    class BrokenPlayer_with_nothing(object):
+        pass
+
+    class BrokenPlayer_without_set_initial(object):
+        def _set_initial(self, universe):
+            pass
+
+    class BrokenPlayer_without_get_move(object):
+        def _set_initial(self, universe):
+            pass
+
+    def test_player_api_methods(self):
+        self.assertRaises(TypeError, SimpleTeam,
+                          self.BrokenPlayer_with_nothing())
+        self.assertRaises(TypeError, SimpleTeam,
+                          self.BrokenPlayer_without_set_initial())
+        self.assertRaises(TypeError, SimpleTeam,
+                          self.BrokenPlayer_without_get_move())
+
     def test_init(self):
         self.assertRaises(ValueError, SimpleTeam)
         object_which_is_neither_string_nor_team = 5
@@ -190,3 +209,12 @@ class TestSimpleTeam(unittest.TestCase):
         self.assertRaises(KeyError, team2._get_move, 0, dummy_universe)
         self.assertRaises(KeyError, team2._get_move, 2, dummy_universe)
 
+class TestAbstracts(unittest.TestCase):
+    class BrokenPlayer(AbstractPlayer):
+        pass
+
+    def test_AbstractPlayer(self):
+        self.assertRaises(TypeError, AbstractPlayer)
+
+    def test_BrokenPlayer(self):
+        self.assertRaises(TypeError, self.BrokenPlayer)

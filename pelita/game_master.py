@@ -85,7 +85,10 @@ class GameMaster(object):
         viewer : subclass of AbstractViewer
 
         """
-        viewer.set_initial(self.universe.copy())
+        try:
+            viewer.set_initial(self.universe.copy())
+        except AttributeError:
+            pass # set_initial is not mandatory
         self.viewers.append(viewer)
 
     def send_to_viewers(self, round_index, turn, events):

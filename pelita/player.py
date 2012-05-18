@@ -36,8 +36,9 @@ class SimpleTeam(object):
             players = args[:]
 
         for player in players:
-            if not hasattr(player, 'get_move'):
-                raise TypeError('player missing get_move()')
+            for method in ('_get_move', '_set_initial'):
+                if not hasattr(player, method):
+                    raise TypeError('player missing %s()' % method)
 
         self._players = players
         self._bot_players = {}
