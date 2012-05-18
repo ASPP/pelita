@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Development &mdash; Pelita v0.1.0-36-gcc23d8e documentation</title>
+    <title>Development &mdash; Pelita v0.1.0-44-ge98823d documentation</title>
     
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.1.0-36-gcc23d8e',
+        VERSION:     'v0.1.0-44-ge98823d',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.0-36-gcc23d8e documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.1.0-44-ge98823d documentation" href="index.html" />
     <link rel="next" title="User API Reference" href="user-api.html" />
     <link rel="prev" title="Running Players" href="running_player.html" /> 
   </head>
@@ -48,7 +48,7 @@
         <li class="right" >
           <a href="running_player.html" title="Running Players"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita v0.1.0-36-gcc23d8e documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.1.0-44-ge98823d documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -81,12 +81,11 @@ level, which makes their appearance completely configurable.</li>
 <div class="highlight-python"><pre>$ git clone https://github.com/ASPP/pelita.git</pre>
 </div>
 </div>
-</div>
 <div class="section" id="layout-and-branch-model">
-<h2>Layout and Branch Model<a class="headerlink" href="#layout-and-branch-model" title="Permalink to this headline">¶</a></h2>
+<h3>Layout and Branch Model<a class="headerlink" href="#layout-and-branch-model" title="Permalink to this headline">¶</a></h3>
 <p>We used to use the <a class="reference external" href="https://github.com/nvie/gitflow">gitflow</a> model, but it
 was too complicated. Now we just have a few simple guidelines.</p>
-<p>The <tt class="docutils literal"><span class="pre">master</span></tt> branch is used for integration. Trivial commits such a typo
+<p>The <tt class="docutils literal"><span class="pre">master</span></tt> branch is used for integration. Trivial commits such as typo
 fixes etc. can be committed directly to <tt class="docutils literal"><span class="pre">master</span></tt>. Anything else should be done
 in a feature branch using, for example, the prefix <tt class="docutils literal"><span class="pre">feature/</span></tt>. If you have
 commit-access to the ASPP repository, you may still want some code-review. In
@@ -102,8 +101,10 @@ history in the ASPP repository.</p>
 </ul>
 </div>
 <div class="section" id="commit-markers">
-<h2>Commit Markers<a class="headerlink" href="#commit-markers" title="Permalink to this headline">¶</a></h2>
+<h3>Commit Markers<a class="headerlink" href="#commit-markers" title="Permalink to this headline">¶</a></h3>
 <p>Commits should be marked. Declare both functionality and area.</p>
+<div class="section" id="functionality-markers">
+<h4>Functionality Markers<a class="headerlink" href="#functionality-markers" title="Permalink to this headline">¶</a></h4>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -128,6 +129,9 @@ history in the ASPP repository.</p>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="section" id="code-area-markers">
+<h4>Code Area Markers<a class="headerlink" href="#code-area-markers" title="Permalink to this headline">¶</a></h4>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -142,9 +146,15 @@ history in the ASPP repository.</p>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="section" id="example">
+<h4>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h4>
 <p><tt class="docutils literal"><span class="pre">DOC/ENH:</span> <span class="pre">add</span> <span class="pre">initial</span> <span class="pre">README.md</span></tt></p>
+</div>
+</div>
+</div>
 <div class="section" id="project-website">
-<h3>Project Website<a class="headerlink" href="#project-website" title="Permalink to this headline">¶</a></h3>
+<h2>Project Website<a class="headerlink" href="#project-website" title="Permalink to this headline">¶</a></h2>
 <p>We use the <a class="reference external" href="http://sphinx.pocoo.org/">Sphinx Tool</a> to generate the project
 website and <a class="reference external" href="http://pages.github.com/">GitHub pages</a> to host it.</p>
 <p>This means that the content generated by Sphinx is kept in a separate branch in the
@@ -161,10 +171,8 @@ was subsequently upgraded multiple times and hence the manual commands and
 the script are completely out of sync. As a consequence, the command listing is only
 provided as a reference and <strong>all website updates should be performed
 using the script</strong>.</p>
-</div>
-</div>
 <div class="section" id="automatic">
-<h2>Automatic<a class="headerlink" href="#automatic" title="Permalink to this headline">¶</a></h2>
+<h3>Automatic<a class="headerlink" href="#automatic" title="Permalink to this headline">¶</a></h3>
 <p>Use the <a class="reference external" href="https://github.com/ASPP/pelita/blob/develop/commit-doc-tree.sh">commit-tree-doc.sh script</a>.  This
 will automatically make the commit of the latest version of the documentation on
 the <tt class="docutils literal"><span class="pre">gh-pages</span></tt> branch. After checking that everything is in order you still need
@@ -186,7 +194,7 @@ ce78099 DOC: Sphinx generated doc from v0.1.0-rc1-165-g3d353c9</pre>
 </div>
 </div>
 <div class="section" id="manual">
-<h2>Manual<a class="headerlink" href="#manual" title="Permalink to this headline">¶</a></h2>
+<h3>Manual<a class="headerlink" href="#manual" title="Permalink to this headline">¶</a></h3>
 <p>Move to the <tt class="docutils literal"><span class="pre">doc</span></tt> directory:</p>
 <div class="highlight-python"><pre>$ cd doc</pre>
 </div>
@@ -215,8 +223,10 @@ ce78099 DOC: Sphinx generated doc from v0.1.0-rc1-165-g3d353c9</pre>
 prefix of the commit the documentation was # generated from:</p>
 <div class="highlight-python"><pre>$ git commit -m "sphinx generated doc from XXXXXXX"</pre>
 </div>
+</div>
+</div>
 <div class="section" id="project-wall">
-<h3>Project-Wall<a class="headerlink" href="#project-wall" title="Permalink to this headline">¶</a></h3>
+<h2>Project-Wall<a class="headerlink" href="#project-wall" title="Permalink to this headline">¶</a></h2>
 <p>We used an agile project wall to track tasks for the initial stages of the
 development. In our case we split it into four distinct sections: <tt class="docutils literal"><span class="pre">todo</span></tt>
 (upper right), <tt class="docutils literal"><span class="pre">current</span> <span class="pre">iteration</span></tt> (upper left), <tt class="docutils literal"><span class="pre">done</span></tt> (lower left) and
@@ -246,7 +256,6 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
 </div>
 </div>
 </div>
-</div>
 
 
           </div>
@@ -261,10 +270,8 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
 <li class="toctree-l1"><a class="reference internal" href="running_player.html">Running Players</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Development</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#coding-conventions">Coding conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#layout-and-branch-model">Layout and Branch Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#commit-markers">Commit Markers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#automatic">Automatic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#manual">Manual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#project-website">Project Website</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#project-wall">Project-Wall</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="user-api.html">User API Reference</a></li>
@@ -311,12 +318,12 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
         <li class="right" >
           <a href="running_player.html" title="Running Players"
              >previous</a> |</li>
-        <li><a href="index.html">Pelita v0.1.0-36-gcc23d8e documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.1.0-44-ge98823d documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Valentin Haenel, Rike-Benjamin Shuppner.
-      Last updated on Apr 30, 2012.
+      Last updated on May 18, 2012.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
     </div>
   </body>

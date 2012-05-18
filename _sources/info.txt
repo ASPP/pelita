@@ -58,10 +58,11 @@ summer school, as a teaching aid for the group project.
 
 Future:
 
-* `St Andrews, Scotland, 2011 <https://python.g-node.org/wiki/>`_
+* `Kiel, Germany, September 2012` <https://python.g-node.org/wiki/start>`_
 
 Past:
 
+* `St Andrews, Scotland, 2011 <https://python.g-node.org/python-summerschool-2011>`_
 * `Trento, Italy, 2010 <https://python.g-node.org/python-autumnschool-2010/>`_
 * `Warsaw, Poland, 2010 <https://python.g-node.org/python-winterschool-2010>`_
 * `Berlin, Germany, 2009 <https://python.g-node.org/python-summerschool-2009>`_
