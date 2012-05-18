@@ -181,7 +181,7 @@ class RemoteTeamPlayer(object):
         try:
             self.zmqconnection.send("_get_move", [bot_idx, universe]) # TODO timeout
             reply = self.zmqconnection.recv_timeout(TIMEOUT)
-            return reply
+            return tuple(reply)
         except ZMQTimeout:
             # answer did not arrive in time
             raise PlayerTimeout()
@@ -318,6 +318,10 @@ class ZMQServer(object):
         for team_player in self.team_players:
             team_player._exit()
 
+class ExitLoop(Exception):
+    """ If this is raised, we’ll close the inner loop.
+    """
+
 class ZMQClient(object):
     """ Sets up a simple Client with most settings pre-configured.
 
@@ -339,55 +343,64 @@ class ZMQClient(object):
     """
     def __init__(self, team, team_name="", address=None):
         self.team = team
-        self.team_name = getattr(self.team, "team_name", team_name)
+        self._team_name = getattr(self.team, "team_name", team_name)
 
         self.address = address
 
-    def loop(self):
-        try:
-            self._loop()
-        except KeyboardInterrupt:
-            pass
-
-    def _loop(self):
-        """ Creates a new ZMQCLient, and connects it with
-        the Server.
-        """
-
+    def on_start(self):
         # We connect here because zmq likes to have its own
         # thread/process/whatever.
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PAIR)
         self.socket.connect(self.address)
 
-        while True:
-            py_obj = self.socket.recv_pyobj()
-            uuid_ = py_obj["__uuid__"]
-            action = py_obj["__action__"]
-            data = py_obj["__data__"]
+    def run(self):
+        self.on_start()
+        try:
+            while True:
+                self._loop()
+        except (KeyboardInterrupt, ExitLoop):
+            pass
 
-            # feed client actor here …
+    def _loop(self):
+        """ Creates a new ZMQCLient, and connects it with
+        the Server.
+        """
+        py_obj = self.socket.recv_pyobj()
+        uuid_ = py_obj["__uuid__"]
+        action = py_obj["__action__"]
+        data = py_obj["__data__"]
 
-            if action == "team_name":
-                retval = self.team_name
-            elif action == "exit":
-                return
-            else:
-                retval = getattr(self.team, action)(*data)
+        # feed client actor here …
+        retval = getattr(self, action)(*data)
 
-            self.socket.send_pyobj({"__uuid__": uuid_, "__return__": retval})
+        self.socket.send_pyobj({"__uuid__": uuid_, "__return__": retval})
 
+    def _set_bot_ids(self, *args):
+        return self.team._set_bot_ids(*args)
+
+    def _set_initial(self, *args):
+        return self.team._set_initial(*args)
+
+    def _get_move(self, *args):
+        return self.team._get_move(*args)
+
+    def exit(self):
+        raise ExitLoop()
+
+    def team_name(self):
+        return self._team_name
 
     def autoplay_process(self):
         # We use a multiprocessing because it behaves well with KeyboardInterrupt.
-        background_process = multiprocessing.Process(target=self.loop)
+        background_process = multiprocessing.Process(target=self.run)
         background_process.start()
         return background_process
 
     def autoplay_thread(self):
         # We cannot use multiprocessing in a local game.
         # Or that is, we cannot until we also use multiprocessing Queues.
-        background_thread = threading.Thread(target=self.loop)
+        background_thread = threading.Thread(target=self.run)
         background_thread.start()
         return background_thread
 
