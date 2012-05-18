@@ -167,6 +167,28 @@ class TestUniverseNoiser(unittest.TestCase):
         # bots should never have been noised
         self.assertEqual(100, position_bucket_2[bot_2_pos])
 
+    def test_noise_a_star_failure(self):
+        test_layout = (
+        """ ##################
+            # #.  .  # . 2   #
+            # #####    #####3#
+            #  0# . #  .  . 1#
+            ################## """)
+        # noiser should not find a connection
+        universe = create_CTFUniverse(test_layout, 4)
+
+        positions = [b.current_pos for b in universe.bots]
+
+        noiser = UniverseNoiser(universe.copy())
+        new_uni = noiser.uniform_noise(universe.copy(), 0)
+        new_positions = [b.current_pos for b in new_uni.bots]
+
+        # assume not all bots (except 0 and 2) are in the original position anymore
+        self.assertEqual(positions[0::2], new_positions[0::2])
+        self.assertNotEqual(positions[1::2], new_positions[1::2],
+                            "Testing randomized function, may fail sometimes.")
+
+
 class TestAbstracts(unittest.TestCase):
 
     def test_AbstractViewer(self):
