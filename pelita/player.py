@@ -278,10 +278,10 @@ class TestPlayer(AbstractPlayer):
     """
 
     def __init__(self, moves):
-        self.moves = list(moves)
+        self.moves = iter(moves)
 
     def get_move(self):
-        return self.moves.pop()
+        return next(self.moves)
 
 
 class IOBoundPlayer(AbstractPlayer):

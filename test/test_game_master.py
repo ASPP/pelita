@@ -209,8 +209,8 @@ class TestGame(unittest.TestCase):
 
 
         gm = GameMaster(test_start, number_bots, 200)
-        gm.register_team(SimpleTeam(TestPlayer([east, east, east, south, stop, east])))
-        gm.register_team(SimpleTeam(TestPlayer([west, west, west, stop, west, west])))
+        gm.register_team(SimpleTeam(TestPlayer([east, stop, south, east, east, east])))
+        gm.register_team(SimpleTeam(TestPlayer([west, west, stop, west, west, west])))
 
         gm.register_viewer(DevNullViewer())
 
@@ -272,8 +272,8 @@ class TestGame(unittest.TestCase):
 
         # now play the full game
         gm = GameMaster(test_start, number_bots, 200)
-        gm.register_team(SimpleTeam(TestPlayer([east, east, east, south, stop, east])))
-        gm.register_team(SimpleTeam(TestPlayer([west, west, west, stop, west, west])))
+        gm.register_team(SimpleTeam(TestPlayer([east, stop, south, east, east, east])))
+        gm.register_team(SimpleTeam(TestPlayer([west, west, stop, west, west, west])))
         gm.play()
         test_sixth_round = (
             """ ######

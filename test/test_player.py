@@ -5,20 +5,25 @@ from pelita.game_master import GameMaster
 from pelita.viewer import AsciiViewer
 
 class TestAbstractPlayer(unittest.TestCase):
+    def assertUniversesEqual(self, uni1, uni2):
+        self.assertEqual(uni1, uni2, '\n' + uni1.pretty + '\n' + uni2.pretty)
+
+    def assertUniversesNotEqual(self, uni1, uni2):
+        self.assertNotEqual(uni1, uni2, '\n' + uni1.pretty + '\n' + uni2.pretty)
 
     def test_convenience(self):
 
         test_layout = (
         """ ##################
             #0#.  .  # .     #
-            #2#####    #####1#
-            #     . #  .  .#3#
+            #2#####    ####1 #
+            #     . #  .  #3##
             ################## """)
 
-        game_master = GameMaster(test_layout, 4, 200, noise=False)
+        game_master = GameMaster(test_layout, 4, 2, noise=False)
         universe = game_master.universe
         player_0 = StoppingPlayer()
-        player_1 = TestPlayer([stop, north])
+        player_1 = TestPlayer([north, west])
         player_2 = StoppingPlayer()
         player_3 = StoppingPlayer()
         game_master.register_team(SimpleTeam(player_0, player_2))
@@ -43,8 +48,11 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual([universe.bots[i] for i in (1, 3)], player_2.enemy_bots)
         self.assertEqual([universe.bots[i] for i in (1, 3)], player_3.team_bots)
         self.assertEqual([universe.bots[i] for i in (0, 2)], player_3.enemy_bots)
-        self.assertEqual(universe.bots[1].current_pos, player_1.current_pos)
-        self.assertEqual(universe.bots[1].initial_pos, player_1.initial_pos)
+
+        self.assertEqual(player_1.current_pos, (15, 2))
+        self.assertEqual(player_1.initial_pos, (15, 2))
+        self.assertEqual(universe.bots[1].current_pos, (15, 2))
+        self.assertEqual(universe.bots[1].initial_pos, (15, 2))
 
         self.assertEqual(universe.teams[0], player_0.team)
         self.assertEqual(universe.teams[0], player_2.team)
@@ -53,19 +61,32 @@ class TestAbstractPlayer(unittest.TestCase):
 
         self.assertEqual({(0, 1): (1, 2), (0, 0): (1, 1)},
                 player_0.legal_moves)
-        self.assertEqual({(0, 1): (16, 3), (0, -1): (16, 1), (0, 0): (16, 2)},
+        self.assertEqual({(0, 1): (15, 3), (0, -1): (15, 1), (0, 0): (15, 2),
+                          (1, 0): (16, 2)},
                 player_1.legal_moves)
         self.assertEqual({(0, 1): (1, 3), (0, -1): (1, 1), (0, 0): (1, 2)},
                 player_2.legal_moves)
-        self.assertEqual({(0, -1): (16, 2), (0, 0): (16, 3)},
+        self.assertEqual({(0, -1): (15, 2), (0, 0): (15, 3)},
                 player_3.legal_moves)
 
         game_master.play_round()
+
+        self.assertEqual(player_1.current_pos, (15, 2))
+        self.assertEqual(player_1.previous_pos, (15, 2))
+        self.assertEqual(player_1.initial_pos, (15, 2))
+        self.assertEqual(universe.bots[1].current_pos, (15, 1))
+        self.assertEqual(universe.bots[1].initial_pos, (15, 2))
+        self.assertUniversesEqual(player_1.current_uni, player_1.universe_states[-1])
+
         game_master.play_round()
-        self.assertEqual(universe, player_1.current_uni)
-        self.assertEqual((16, 1), player_1.current_pos)
-        self.assertEqual((16, 2), player_1.previous_pos)
-        self.assertNotEqual(player_1.current_uni, player_1.universe_states[-2])
+
+        self.assertEqual(player_1.current_pos, (15, 1))
+        self.assertEqual(player_1.previous_pos, (15, 2))
+        self.assertEqual(player_1.initial_pos, (15, 2))
+        self.assertEqual(universe.bots[1].current_pos, (14, 1))
+        self.assertEqual(universe.bots[1].initial_pos, (15, 2))
+        self.assertUniversesNotEqual(player_1.current_uni,
+                                     player_1.universe_states[-2])
 
 class TestTestPlayer(unittest.TestCase):
     def test_test_players(self):
@@ -173,8 +194,8 @@ class TestBasicDefensePlayer(unittest.TestCase):
            ############## """)
 
         game_master = GameMaster(test_layout, 4, 5, noise=False)
-        team_1 = SimpleTeam(TestPlayer([stop, stop, west, east]),
-                            TestPlayer([ stop, west, east, stop]))
+        team_1 = SimpleTeam(TestPlayer([east, west, stop, stop]),
+                            TestPlayer([stop, east, west, stop]))
         team_2 = SimpleTeam(BasicDefensePlayer(), BasicDefensePlayer())
 
         game_master.register_team(team_1)
