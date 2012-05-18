@@ -67,6 +67,31 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual((16, 2), player_1.previous_pos)
         self.assertNotEqual(player_1.current_uni, player_1.universe_states[-2])
 
+class TestTestPlayer(unittest.TestCase):
+    def test_test_players(self):
+        test_layout = (
+        """ ############
+            #0  .  .  1#
+            #2        3#
+            ############ """)
+        gm = GameMaster(test_layout, 4, 2)
+        movements_0 = [east, east]
+        movements_1 = [west, west]
+        gm.register_team(SimpleTeam(TestPlayer(movements_0), TestPlayer(movements_0)))
+        gm.register_team(SimpleTeam(TestPlayer(movements_1), TestPlayer(movements_1)))
+
+        self.assertEqual(gm.universe.bots[0].current_pos, (1, 1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (10, 1))
+        self.assertEqual(gm.universe.bots[2].current_pos, (1, 2))
+        self.assertEqual(gm.universe.bots[3].current_pos, (10, 2))
+
+        gm.play()
+        print gm.universe
+        self.assertEqual(gm.universe.bots[0].current_pos, (3, 1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (8, 1))
+        self.assertEqual(gm.universe.bots[2].current_pos, (3, 2))
+        self.assertEqual(gm.universe.bots[3].current_pos, (8, 2))
+
 class TestNQRandom_Player(unittest.TestCase):
     def test_demo_players(self):
         test_layout = (
