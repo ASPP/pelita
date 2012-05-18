@@ -14,6 +14,12 @@ Pelita
 
 **Pelita** is Actor-based Toolkit for Interactive Language Education in Python.
 
+Resources
+=========
+- `Documentation <http://aspp.github.com/pelita/>`_
+- `Source code <https://github.com/ASPP/pelita>`_
+- `Issue tracker <https://github.com/ASPP/pelita/issues>`_
+
 Description of the Game
 =======================
 
