@@ -1,6 +1,6 @@
 import unittest
 from pelita.player import *
-from pelita.datamodel import create_CTFUniverse, north, stop, east
+from pelita.datamodel import create_CTFUniverse, north, stop, east, west
 from pelita.game_master import GameMaster
 from pelita.viewer import AsciiViewer
 
@@ -136,6 +136,44 @@ class TestBFS_Player(unittest.TestCase):
         game_master.play_round(0)
         self.assertEqual(0, len(bfs1.current_path))
         self.assertEqual(0, len(bfs2.current_path))
+
+class TestBasicDefensePlayer(unittest.TestCase):
+    def test_tracking(self):
+        test_layout = (
+        """##############
+           #           1#
+           #.    0     .#
+           #.    2     .#
+           #   #    #  3#
+           ############## """)
+
+        game_master = GameMaster(test_layout, 4, 5, noise=False)
+        team_1 = SimpleTeam(TestPlayer([stop, stop, west, east]),
+                            TestPlayer([ stop, west, east, stop]))
+        team_2 = SimpleTeam(BasicDefensePlayer(), BasicDefensePlayer())
+
+        game_master.register_team(team_1)
+        game_master.register_team(team_2)
+        game_master.set_initial()
+
+        game_master.play_round(0)
+        # 0 moved east, 1 tracks 0
+        # 2 did not move, 3 tracks 0
+        self.assertEqual(team_2._players[0].tracking_idx, 0)
+        self.assertEqual(team_2._players[1].tracking_idx, 0)
+
+        game_master.play_round(1)
+        # 0 moved back, 1 tracks None
+        # 2 moved east, 3 tracks 2
+        self.assertEqual(team_2._players[0].tracking_idx, None)
+        self.assertEqual(team_2._players[1].tracking_idx, 2)
+
+        game_master.play_round(2)
+        # 0 did not move, 1 tracks 2
+        # 2 moved back, 3 tracks None
+        self.assertEqual(team_2._players[0].tracking_idx, 2)
+        self.assertEqual(team_2._players[1].tracking_idx, None)
+
 
 class TestSimpleTeam(unittest.TestCase):
 
