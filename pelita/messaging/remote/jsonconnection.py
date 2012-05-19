@@ -4,7 +4,7 @@ import socket
 import errno
 import logging
 
-from .. import Error, DeadConnection, BaseMessage
+from .. import DeadConnection
 from ..json_convert import json_converter
 
 _logger = logging.getLogger("pelita.jsonSocket")
@@ -186,41 +186,4 @@ class JsonSocketConnection(object):
             connection = "none"
 
         return "JsonSocketConnection(%s)" % connection
-
-
-class MessageSocketConnection(JsonSocketConnection):
-    """ Implements a socket for JSON-RPC communication with pre-defined messages.
-
-    """
-    def send(self, message):
-        if not isinstance(message, BaseMessage):
-            raise ValueError("'%r' is no Message object." % message)
-
-        super(MessageSocketConnection, self).send(message.dict)
-
-    def read(self):
-        try:
-            obj = super(MessageSocketConnection, self).read()
-            _logger.debug("Received: %r", obj)
-        except ValueError:
-            # Reply an error code -32700
-            error_msg = {"message": "Parse Error",
-                         "code": -32700,
-                         "data": ["No valid json"]
-                        }
-            return Error(error_msg, None)
-
-        # okay, the code was valid json.
-        # see, if it is a valid message
-        try:
-            msg_obj = BaseMessage.load(obj)
-        except ValueError:
-            # Reply an error code -32700
-            error_msg = {"message": "Parse Error",
-                         "code": -32700,
-                         "data": ["No valid message", obj]
-                         }
-            return Error(error_msg, None)
-
-        return msg_obj
 
