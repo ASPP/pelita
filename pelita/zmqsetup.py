@@ -179,7 +179,7 @@ class RemoteTeamPlayer(object):
 
     def _get_move(self, bot_idx, universe):
         try:
-            self.zmqconnection.send("_get_move", [bot_idx, universe]) # TODO timeout
+            self.zmqconnection.send("_get_move", [bot_idx, universe])
             reply = self.zmqconnection.recv_timeout(TIMEOUT)
             return tuple(reply)
         except ZMQTimeout:
