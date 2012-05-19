@@ -10,7 +10,7 @@ logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S")
 from pelita.utils.debug import ThreadInfoLogger
 ThreadInfoLogger(10).start()
 
-from pelita.messaging import Actor, Notification, DispatchingActor, expose, actor_of, RemoteConnection
+from pelita.messaging import Actor, DispatchingActor, expose, actor_of, RemoteConnection
 
 class ServerActor(DispatchingActor):
     def __init__(self):
