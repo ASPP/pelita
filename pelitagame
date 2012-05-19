@@ -311,7 +311,10 @@ def run_game(*argv):
             pass
     elif args.viewer == 'null':
         server.game_master.register_viewer(pelita.viewer.DevNullViewer())
-        server.run()
+        try:
+            server.run()
+        except KeyboardInterrupt:
+            pass
 
 if __name__ == '__main__':
     run_game(*sys.argv[1:])
