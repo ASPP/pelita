@@ -478,60 +478,11 @@ class GameDraw(UniverseEvent):
     def __repr__(self):
         return ("GameDraw()")
 
-class MazeComponent(object):
-    """ Base class for all items inside a Maze.
-
-    This class provides basic methods for serialisation but is not
-    serialisable itself (it does not have a `_json_id`). This is to
-    ensure that all inherited objects are decorated with `@serializable`
-    and do not falsely inherit the id from this class.
-    """
-
-    def __str__(self):
-        return self.__class__.char
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__)
-
-    def __ne__(self, other):
-        return not (self == other)
-
-    def _to_json_dict(self):
-        return {}
-
-    @classmethod
-    def _from_json_dict(cls, item):
-        return cls(**item)
-
-@serializable
-class Free(MazeComponent):
-    """ Object to represent a free space. """
-
-    char = ' '
-
-    def __repr__(self):
-        return 'Free()'
-
-@serializable
-class Wall(MazeComponent):
-    """ Object to represent a wall. """
-
-    char = '#'
-
-    def __repr__(self):
-        return 'Wall()'
-
-@serializable
-class Food(MazeComponent):
-    """ Object to represent a food item. """
-
-    char = '.'
-
-    def __repr__(self):
-        return 'Food()'
+Free = ' '
+Wall = '#'
+Food = '.'
 
 maze_components = [Food, Free, Wall]
-mapped_components = dict((C.char, C) for C in maze_components)
 
 @serializable
 class Maze(Mesh):
@@ -553,13 +504,8 @@ class Maze(Mesh):
                             "strings, not: %r" % data)
         super(Maze, self).__init__(width, height, data)
 
-    def __getitem__(self, index):
-        chars = super(Maze, self).__getitem__(index)
-        return [mapped_components[char] for char in chars]
-
     def __setitem__(self, key, value):
-        chars = "".join(val.char for val in value)
-        super(Maze, self).__setitem__(key, chars)
+        super(Maze, self).__setitem__(key, "".join(sorted(value)))
 
     def has_at(self, type_, pos):
         """ Check if objects of a given type are present at position.
@@ -597,7 +543,7 @@ class Maze(Mesh):
             the objects at that position
 
         """
-        return [item for item in self[pos] if issubclass(item, type_)]
+        return [item for item in self[pos] if item == type_]
 
     def remove_at(self, type_, pos):
         """ Remove all objects of a given type at a certain position.
@@ -670,12 +616,12 @@ def create_maze(layout_mesh):
     """
     maze = Maze(layout_mesh.width, layout_mesh.height)
     for index in maze.iterkeys():
-        if layout_mesh[index] == Wall.char:
-            maze[index] = maze[index] + [Wall]
+        if layout_mesh[index] == Wall:
+            maze[index] = maze[index] + Wall
         else:
-            maze[index] = maze[index] + [Free]
-        if layout_mesh[index] == Food.char:
-            maze[index] = maze[index] + [Food]
+            maze[index] = maze[index] + Free
+        if layout_mesh[index] == Food:
+            maze[index] = maze[index] + Food
     return maze
 
 
@@ -701,7 +647,7 @@ def extract_initial_positions(mesh, number_bots):
     for k, v in mesh.iteritems():
         if v in bot_ids:
             start[int(v)] = k
-            mesh[k] = Free.char
+            mesh[k] = Free
     return start
 
 
@@ -730,7 +676,7 @@ def create_CTFUniverse(layout_str, number_bots,
     if team_names is None:
         team_names = ["black", "white"]
 
-    layout_chars = [cls.char for cls in [Wall, Free, Food]]
+    layout_chars = [Wall, Free, Food]
 
     if number_bots % 2 != 0:
         raise UniverseException(
@@ -1040,12 +986,12 @@ class CTFUniverse(object):
     def _char_mesh(self):
         char_mesh = Mesh(self.maze.width, self.maze.height)
         for pos in self.maze.positions:
-            if self.maze.has_at(Wall, pos):
-                char_mesh[pos] = Wall.char
-            elif self.maze.has_at(Food, pos):
-                char_mesh[pos] = Food.char
-            elif self.maze.has_at(Free, pos):
-                char_mesh[pos] = Free.char
+                if self.maze.has_at(Wall, pos):
+                    char_mesh[pos] = Wall
+                elif self.maze.has_at(Food, pos):
+                    char_mesh[pos] = Food
+                elif self.maze.has_at(Free, pos):
+                    char_mesh[pos] = Free
         for bot in self.bots:
             # TODO what about bots on the same space?
             char_mesh[bot.current_pos] = str(bot.index)

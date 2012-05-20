@@ -312,13 +312,13 @@ class TestGame(unittest.TestCase):
             black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
 
     def test_malicous_player(self):
-        free_obj = Free()
+        free_obj = Free
 
         class MaliciousPlayer(AbstractPlayer):
             def _get_move(self, universe):
                 universe.teams[0].score = 100
                 universe.bots[0].current_pos = (2,2)
-                universe.maze[0,0][0] = free_obj
+                universe.maze[0,0] = free_obj
                 return (0,0)
 
             def get_move(self):
@@ -350,7 +350,7 @@ class TestGame(unittest.TestCase):
 
 
     def test_viewer_must_not_change_gm(self):
-        free_obj = Free()
+        free_obj = Free
 
         class MeanViewer(AbstractViewer):
             def set_initial(self, universe):
@@ -359,7 +359,7 @@ class TestGame(unittest.TestCase):
             def observe(self, round_, turn, universe, events):
                 universe.teams[0].score = 100
                 universe.bots[0].current_pos = (4,4)
-                universe.maze[0,0][0] = free_obj
+                universe.maze[0,0] = free_obj
 
                 events.append(TeamWins(0))
                 test_self.assertEqual(len(events), 2)

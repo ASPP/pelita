@@ -8,7 +8,7 @@ from pelita.messaging.json_convert import json_converter
 
 # the legal chars for a basic CTFUniverse
 # see also: create_CTFUniverse factory.
-layout_chars = [cls.char for cls in [Wall, Free, Food]]
+layout_chars = [Wall, Free, Food]
 
 class TestStaticmethods(unittest.TestCase):
 
@@ -260,12 +260,12 @@ class TestTeam(unittest.TestCase):
 class TestMazeComponents(unittest.TestCase):
 
     def test_init_str_eq_repr(self):
-        wall = Wall()
-        wall2 = Wall()
-        free = Free()
-        free2 = Free()
-        food = Food()
-        food2 = Food()
+        wall = Wall
+        wall2 = Wall
+        free = Free
+        free2 = Free
+        food = Food
+        food2 = Food
         self.assertEqual(wall, wall2)
         self.assertNotEqual(wall, free)
         self.assertNotEqual(wall, food)
@@ -294,7 +294,7 @@ class TestMaze(unittest.TestCase):
         self.assertRaises(ValueError, Maze, 1, 1, data=["", ""])
 
     def test_has_at(self):
-        maze = Maze(2, 1, data=[Wall.char + Free.char, Food.char + Wall.char])
+        maze = Maze(2, 1, data=[Wall + Free, Food + Wall])
         self.assertEqual(maze.has_at(Wall, (0, 0)), True)
         self.assertEqual(maze.has_at(Free, (0, 0)), True)
         self.assertEqual(maze.has_at(Food, (1, 0)), True)
@@ -304,7 +304,7 @@ class TestMaze(unittest.TestCase):
         self.assertEqual(maze.has_at(Free, (1, 0)), False)
 
     def test_get_at(self):
-        maze = Maze(2, 1, data=[Wall.char + Free.char, Food.char + Wall.char])
+        maze = Maze(2, 1, data=[Wall + Free, Food + Wall])
         self.assertEqual(maze.get_at(Wall, (0, 0)), [Wall])
         self.assertEqual(maze.get_at(Free, (0, 0)), [Free])
         self.assertEqual(maze.get_at(Food, (1, 0)), [Food])

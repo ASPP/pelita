@@ -5,7 +5,7 @@ from numbers import Number
 import json
 from pelita.containers import *
 from pelita.messaging.json_convert import json_converter
-from pelita.datamodel import MazeComponent, Wall, Free, Food
+from pelita.datamodel import Wall, Free, Food
 
 class TestMesh(unittest.TestCase):
 
@@ -272,7 +272,7 @@ class TestTypeAwareList(unittest.TestCase):
         self.assertRaises(ValueError, TypeAwareList, [1, []], base_class=list)
 
     def test_json(self):
-        tal = TypeAwareList([Wall(), Free(), Food()], base_class=MazeComponent)
+        tal = [Wall, Free, Food]
         tal_json = json_converter.dumps(tal)
         self.assertEqual(json_converter.loads(tal_json), tal)
 
