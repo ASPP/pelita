@@ -727,13 +727,6 @@ class CTFUniverse(object):
         self.teams = teams
         self.bots = bots
 
-    def create_win_event(self):
-        if self.teams[0].score > self.teams[1].score:
-            return TeamWins(0)
-        elif self.teams[1].score > self.teams[0].score:
-            return TeamWins(1)
-        return GameDraw()
-
     @property
     def bot_positions(self):
         """ Current positions of all bots.
@@ -879,7 +872,7 @@ class CTFUniverse(object):
             if the string is an invalid or the move not possible
 
         """
-        events = TypeAwareList(base_class=UniverseEvent)
+        events = {}
         # check legality of the move
         if move not in moves:
             raise IllegalMoveException(
@@ -893,39 +886,35 @@ class CTFUniverse(object):
         old_pos = bot.current_pos
         bot.current_pos =  legal_moves_dict[move]
         new_pos = bot.current_pos
-        events.append(BotMoves(bot_id, old_pos, new_pos))
+
+        events["bot_moved"] = [{"bot_id": bot_id, "old_pos": old_pos, "new_pos": new_pos}]
+
         team = self.teams[bot.team_index]
         # check for food being eaten
         if Food in self.maze[bot.current_pos] and not bot.in_own_zone:
             self.maze.remove_at(Food, bot.current_pos)
-            team._score_point()
-            events.append(BotEats(bot_id, bot.current_pos))
-            events.append(FoodEaten(bot.current_pos))
-            events.append(TeamScoreChange(team.index, 1, team.score))
+
+            events["food_eaten"] = [{"food_pos": bot.current_pos, "bot_id": bot_id}]
+
         # check for destruction
         for enemy in self.enemy_bots(bot.team_index):
             if enemy.current_pos == bot.current_pos:
                 if enemy.is_destroyer and bot.is_harvester:
-                    bot._reset()
                     enemy_team = self.teams[enemy.team_index]
-                    enemy_team._score_points(KILLPOINTS)
-                    events.append(TeamScoreChange(enemy_team.index,
-                        KILLPOINTS, enemy_team.score))
-                    events.append(BotDestroyed(
-                        bot.index, old_pos, new_pos, bot.initial_pos,
-                        enemy.index, enemy.current_pos, enemy.current_pos))
+
+                    events["bot_destroyed"] = [{'bot_idx': enemy.index, 'destroyed_by': bot.index}]
                 elif enemy.is_harvester and bot.is_destroyer:
-                    new_old_pos = enemy.current_pos
-                    enemy._reset()
-                    bot_team = self.teams[bot.team_index]
-                    bot_team._score_points(KILLPOINTS)
-                    events.append(TeamScoreChange(bot_team.index,
-                        KILLPOINTS, bot_team.score))
-                    events.append(BotDestroyed(
-                       enemy.index, new_old_pos, new_old_pos, enemy.initial_pos,
-                       bot.index, old_pos, new_pos))
-        if not self.enemy_food(team.index):
-            events.append(self.create_win_event())
+                    events["bot_destroyed"] = [{'bot_idx': bot.index, 'destroyed_by': enemy.index}]
+
+        # reset bots
+        for destroyed in events["bot_destroyed"]:
+            self.bots[destroyed["bot_idx"]]._reset()
+
+        for food_eaten in events["food_eaten"]:
+            events["score"][self.bots[food_eaten["bot_id"]].team.index] += 1
+
+        for bot_destroyed in events["bot_destroyed"]:
+            events["score"][self.bots[bot_destroyed["destroyed_by"]].team.index] += KILLPOINTS
 
         return events
 
