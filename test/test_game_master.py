@@ -227,11 +227,11 @@ class TestGame(unittest.TestCase):
             universe.teams[1].score = white_score
             for i, pos in enumerate(initial_pos):
                 universe.bots[i].initial_pos = pos
-            if not universe.maze.has_at(Food, (1, 2)):
+            if not Food in universe.maze[1, 2]:
                 universe.teams[1]._score_point()
-            if not universe.maze.has_at(Food, (2, 2)):
+            if not Food in universe.maze[2, 2]:
                 universe.teams[1]._score_point()
-            if not universe.maze.has_at(Food, (3, 1)):
+            if not Food in universe.maze[3, 1]:
                 universe.teams[0]._score_point()
             return universe
 

@@ -507,26 +507,6 @@ class Maze(Mesh):
     def __setitem__(self, key, value):
         super(Maze, self).__setitem__(key, "".join(sorted(value)))
 
-    def has_at(self, type_, pos):
-        """ Check if objects of a given type are present at position.
-
-        DEPRECTAED
-
-        Parameters
-        ----------
-        type_ : type
-            the type of objects to look for
-        pos : tuple of (int, int)
-            the position to look at
-
-        Returns
-        -------
-        object_present : boolean
-            True if objects of the given type are present and False otherwise.
-
-        """
-        return type_ in self[pos]
-
     def get_at(self, type_, pos):
         """ Get all objects of a given type at certain position.
 
@@ -593,7 +573,7 @@ class Maze(Mesh):
         ...
 
         """
-        return [pos for pos in self.positions if self.has_at(type_, pos)]
+        return [pos for pos, val in self.iteritems() if type_ in val]
 
     def __repr__(self):
         return ('Maze(%i, %i, data=%r)'
@@ -876,7 +856,7 @@ class CTFUniverse(object):
         else:
             border_x = team_zone[0]
         return [(border_x, y) for y in range(self.maze.shape[1]) if
-                self.maze.has_at(Free, (border_x, y))]
+                Free in self.maze[border_x, y]]
 
     def move_bot(self, bot_id, move):
         """ Move a bot in certain direction.
@@ -916,7 +896,7 @@ class CTFUniverse(object):
         events.append(BotMoves(bot_id, old_pos, new_pos))
         team = self.teams[bot.team_index]
         # check for food being eaten
-        if self.maze.has_at(Food, bot.current_pos) and not bot.in_own_zone:
+        if Food in self.maze[bot.current_pos] and not bot.in_own_zone:
             self.maze.remove_at(Food, bot.current_pos)
             team._score_point()
             events.append(BotEats(bot_id, bot.current_pos))
@@ -968,7 +948,7 @@ class CTFUniverse(object):
         """
         legal_moves_dict = {}
         for move, new_pos in self.neighbourhood(position).items():
-            if self.maze.has_at(Free, new_pos):
+            if Free in self.maze[new_pos]:
                 legal_moves_dict[move] = new_pos
         return legal_moves_dict
 
@@ -986,11 +966,11 @@ class CTFUniverse(object):
     def _char_mesh(self):
         char_mesh = Mesh(self.maze.width, self.maze.height)
         for pos in self.maze.positions:
-                if self.maze.has_at(Wall, pos):
+                if Wall in self.maze[pos]:
                     char_mesh[pos] = Wall
-                elif self.maze.has_at(Food, pos):
+                elif Food in self.maze[pos]:
                     char_mesh[pos] = Food
-                elif self.maze.has_at(Free, pos):
+                elif Free in self.maze[pos]:
                     char_mesh[pos] = Free
         for bot in self.bots:
             # TODO what about bots on the same space?
