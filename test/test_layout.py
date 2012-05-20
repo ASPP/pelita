@@ -29,7 +29,7 @@ class TestLayoutModule(unittest.TestCase):
 
 class TestLayoutChecks(unittest.TestCase):
 
-    layout_chars = [Wall.char, Free.char, Food.char]
+    layout_chars = [Wall, Free, Food]
 
     def test_strip_layout(self):
         test_layout = (
