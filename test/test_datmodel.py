@@ -293,15 +293,15 @@ class TestMaze(unittest.TestCase):
         self.assertRaises(TypeError, Maze, 1, 1, data=[1])
         self.assertRaises(ValueError, Maze, 1, 1, data=["", ""])
 
-    def test_has_at(self):
+    def test_in(self):
         maze = Maze(2, 1, data=[Wall + Free, Food + Wall])
-        self.assertEqual(maze.has_at(Wall, (0, 0)), True)
-        self.assertEqual(maze.has_at(Free, (0, 0)), True)
-        self.assertEqual(maze.has_at(Food, (1, 0)), True)
-        self.assertEqual(maze.has_at(Wall, (1, 0)), True)
+        self.assertEqual(Wall in maze[0, 0], True)
+        self.assertEqual(Free in maze[0, 0], True)
+        self.assertEqual(Food in maze[1, 0], True)
+        self.assertEqual(Wall in maze[1, 0], True)
 
-        self.assertEqual(maze.has_at(Food, (0, 0)), False)
-        self.assertEqual(maze.has_at(Free, (1, 0)), False)
+        self.assertEqual(Food in maze[0, 0], False)
+        self.assertEqual(Free in maze[1, 0], False)
 
     def test_get_at(self):
         maze = Maze(2, 1, data=[Wall + Free, Food + Wall])
@@ -755,9 +755,9 @@ class TestCTFUniverseRules(unittest.TestCase):
             universe.teams[1].score = white_score
             for i, pos in enumerate(initial_pos):
                 universe.bots[i].initial_pos = pos
-            if not universe.maze.has_at(Food, (1, 2)):
+            if not Food in universe.maze[1, 2]:
                 universe.teams[1]._score_point()
-            if not universe.maze.has_at(Food, (3, 1)):
+            if not Food in universe.maze[3, 1]:
                 universe.teams[0]._score_point()
             return universe
 
