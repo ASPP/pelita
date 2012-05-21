@@ -872,7 +872,12 @@ class CTFUniverse(object):
             if the string is an invalid or the move not possible
 
         """
-        events = {}
+        events = {
+            "bot_moved": [],
+            "food_eaten": [],
+            "bot_destroyed": [],
+            "score": [0, 0]
+        }
         # check legality of the move
         if move not in moves:
             raise IllegalMoveException(
@@ -887,14 +892,14 @@ class CTFUniverse(object):
         bot.current_pos =  legal_moves_dict[move]
         new_pos = bot.current_pos
 
-        events["bot_moved"] = [{"bot_id": bot_id, "old_pos": old_pos, "new_pos": new_pos}]
+        events["bot_moved"] += [{"bot_id": bot_id, "old_pos": old_pos, "new_pos": new_pos}]
 
         team = self.teams[bot.team_index]
         # check for food being eaten
         if Food in self.maze[bot.current_pos] and not bot.in_own_zone:
             self.maze.remove_at(Food, bot.current_pos)
 
-            events["food_eaten"] = [{"food_pos": bot.current_pos, "bot_id": bot_id}]
+            events["food_eaten"] += [{"food_pos": bot.current_pos, "bot_id": bot_id}]
 
         # check for destruction
         for enemy in self.enemy_bots(bot.team_index):
@@ -902,13 +907,14 @@ class CTFUniverse(object):
                 if enemy.is_destroyer and bot.is_harvester:
                     enemy_team = self.teams[enemy.team_index]
 
-                    events["bot_destroyed"] = [{'bot_idx': enemy.index, 'destroyed_by': bot.index}]
+                    events["bot_destroyed"] += [{'bot_idx': enemy.index, 'destroyed_by': bot.index}]
                 elif enemy.is_harvester and bot.is_destroyer:
-                    events["bot_destroyed"] = [{'bot_idx': bot.index, 'destroyed_by': enemy.index}]
+                    events["bot_destroyed"] += [{'bot_idx': bot.index, 'destroyed_by': enemy.index}]
 
         # reset bots
         for destroyed in events["bot_destroyed"]:
             self.bots[destroyed["bot_idx"]]._reset()
+            # must add new bot_moved event
 
         for food_eaten in events["food_eaten"]:
             events["score"][self.bots[food_eaten["bot_id"]].team.index] += 1
