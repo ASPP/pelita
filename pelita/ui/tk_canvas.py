@@ -197,16 +197,16 @@ class UiCanvas(object):
         self.draw_universe(self.current_universe)
 
         if events:
-            for food_eaten in events.filter_type(datamodel.FoodEaten):
-                food_tag = Food.food_pos_tag(food_eaten.food_pos)
+            for food_eaten in events["food_eaten"]:
+                food_tag = Food.food_pos_tag(tuple(food_eaten["food_pos"]))
                 self.canvas.delete(food_tag)
 
-            for team_wins in events.filter_type(datamodel.TeamWins):
-                team_index = team_wins.winning_team_index
-                team_name = universe.teams[team_index].name
-                self.game_finish_overlay = lambda: self.draw_game_over(team_name)
-            for game_draw in events.filter_type(datamodel.GameDraw):
-                self.game_finish_overlay = lambda: self.draw_game_draw()
+            #for team_wins in events.filter_type(datamodel.TeamWins):
+            #    team_index = team_wins.winning_team_index
+            #    team_name = universe.teams[team_index].name
+            #    self.game_finish_overlay = lambda: self.draw_game_over(team_name)
+            #for game_draw in events.filter_type(datamodel.GameDraw):
+            #    self.game_finish_overlay = lambda: self.draw_game_draw()
 
         self.game_finish_overlay()
 

@@ -917,10 +917,10 @@ class CTFUniverse(object):
             # must add new bot_moved event
 
         for food_eaten in events["food_eaten"]:
-            events["score"][self.bots[food_eaten["bot_id"]].team.index] += 1
+            events["score"][self.bots[food_eaten["bot_id"]].team_index] += 1
 
         for bot_destroyed in events["bot_destroyed"]:
-            events["score"][self.bots[bot_destroyed["destroyed_by"]].team.index] += KILLPOINTS
+            events["score"][self.bots[bot_destroyed["destroyed_by"]].team_index] += KILLPOINTS
 
         return events
 
