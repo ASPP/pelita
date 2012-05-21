@@ -851,7 +851,7 @@ class CTFUniverse(object):
         return [(border_x, y) for y in range(self.maze.shape[1]) if
                 Free in self.maze[border_x, y]]
 
-    def move_bot(self, bot_id, move):
+    def move_bot(self, events, move):
         """ Move a bot in certain direction.
 
         Parameters
@@ -872,13 +872,10 @@ class CTFUniverse(object):
             if the string is an invalid or the move not possible
 
         """
-        events = {
-            "bot_moved": [],
-            "food_eaten": [],
-            "bot_destroyed": [],
-            "score": [0, 0]
-        }
         # check legality of the move
+
+        bot_id = events["bot_id"]
+
         if move not in moves:
             raise IllegalMoveException(
                 'Illegal move_id from bot %i: %s' % (bot_id, move))
@@ -913,14 +910,24 @@ class CTFUniverse(object):
 
         # reset bots
         for destroyed in events["bot_destroyed"]:
+            old_pos = bot.current_pos
             self.bots[destroyed["bot_idx"]]._reset()
-            # must add new bot_moved event
+            new_pos = bot.current_pos
+            events["bot_moved"] += [{"bot_id": bot_id, "old_pos": old_pos, "new_pos": new_pos}]
 
         for food_eaten in events["food_eaten"]:
             events["score"][self.bots[food_eaten["bot_id"]].team_index] += 1
 
         for bot_destroyed in events["bot_destroyed"]:
             events["score"][self.bots[bot_destroyed["destroyed_by"]].team_index] += KILLPOINTS
+
+        if not self.enemy_food(team.index):
+            if events["score"][0] > events["score"][1]:
+                events["team_wins"] = 0
+            elif events["score"][0] < events["score"][1]:
+                events["team_wins"] = 1
+            else:
+                events["game_draw"] = True
 
         return events
 
