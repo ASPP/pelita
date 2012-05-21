@@ -6,7 +6,6 @@ import copy
 import random
 import sys
 import time
-from .containers import TypeAwareList
 from . import datamodel
 from .graph import NoPathException
 from .viewer import AbstractViewer
