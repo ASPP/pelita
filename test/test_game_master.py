@@ -2,6 +2,7 @@
 
 import unittest
 import time
+import collections
 import pelita
 from pelita.datamodel import north, south, east, west, stop,\
         Wall, Free, Food, TeamWins, GameDraw, BotMoves, create_CTFUniverse,\
@@ -71,20 +72,15 @@ class TestUniverseNoiser(unittest.TestCase):
         universe = create_CTFUniverse(test_layout, 2)
         noiser = UniverseNoiser(universe.copy())
 
-        position_bucket = dict(((i, 0)
-            for i in [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
-                (2, 3), (4, 3), (1, 1), (5, 3)]))
+        position_bucket = collections.Counter()
         for i in range(100):
             new = noiser.uniform_noise(universe.copy(), 1)
             self.assertTrue(new.bots[0].noisy)
             position_bucket[new.bots[0].current_pos] += 1
         self.assertEqual(100, sum(position_bucket.itervalues()))
         # Since this is a randomized algorithm we need to be a bit lenient with
-        # our tests. We check that each position was selected at least once and
-        # check that it was selected a minimum of five times.
-        for v in position_bucket.itervalues():
-            self.assertTrue(v != 0)
-            self.assertTrue(v >= 5, 'Testing randomized function, may fail sometimes.')
+        # our tests. We check that each position was selected at least once.
+        self.assertEqual(len(position_bucket), 9, position_bucket)
 
     def test_uniform_noise_4_bots(self):
         test_layout = (
@@ -96,13 +92,8 @@ class TestUniverseNoiser(unittest.TestCase):
         universe = create_CTFUniverse(test_layout, 4)
         noiser = UniverseNoiser(universe.copy())
 
-        position_bucket_0 = dict(((i, 0)
-            for i in [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
-                (2, 3), (4, 3), (1, 1), (5, 3)]))
-
-        position_bucket_2 = dict(((i, 0)
-            for i in [(7, 3), (8, 2), (7, 1), (8, 1), (6, 1), (3, 1), (5, 1),
-                (4, 1), (7, 2)]))
+        position_bucket_0 = collections.Counter()
+        position_bucket_2 = collections.Counter()
 
         for i in range(100):
             new = noiser.uniform_noise(universe.copy(), 1)
@@ -113,15 +104,9 @@ class TestUniverseNoiser(unittest.TestCase):
         self.assertEqual(100, sum(position_bucket_0.itervalues()))
         self.assertEqual(100, sum(position_bucket_2.itervalues()))
         # Since this is a randomized algorithm we need to be a bit lenient with
-        # our tests. We check that each position was selected at least once and
-        # check that it was selected a minimum of five times.
-        for v in position_bucket_0.itervalues():
-            self.assertTrue(v != 0)
-            self.assertTrue(v >= 5, 'Testing randomized function, may fail sometimes.')
-
-        for v in position_bucket_2.itervalues():
-            self.assertTrue(v != 0)
-            self.assertTrue(v >= 5, 'Testing randomized function, may fail sometimes.')
+        # our tests. We check that each position was selected at least once.
+        self.assertEqual(len(position_bucket_0), 9, position_bucket_0)
+        self.assertEqual(len(position_bucket_2), 9, position_bucket_2)
 
     def test_uniform_noise_4_bots_no_noise(self):
         test_layout = (
@@ -133,9 +118,7 @@ class TestUniverseNoiser(unittest.TestCase):
         universe = create_CTFUniverse(test_layout, 4)
         noiser = UniverseNoiser(universe.copy())
 
-        position_bucket_0 = dict(((i, 0)
-            for i in [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
-                (2, 3), (4, 3), (1, 1), (5, 3)]))
+        position_bucket_0 = collections.Counter()
 
         bot_2_pos = (13, 1)
         position_bucket_2 = {bot_2_pos : 0}
@@ -148,12 +131,10 @@ class TestUniverseNoiser(unittest.TestCase):
             position_bucket_2[new.bots[2].current_pos] += 1
         self.assertEqual(100, sum(position_bucket_0.itervalues()))
         self.assertEqual(100, sum(position_bucket_2.itervalues()))
+
         # Since this is a randomized algorithm we need to be a bit lenient with
-        # our tests. We check that each position was selected at least once and
-        # check that it was selected a minimum of five times.
-        for v in position_bucket_0.itervalues():
-            self.assertTrue(v != 0)
-            self.assertTrue(v >= 5, 'Testing randomized function, may fail sometimes.')
+        # our tests. We check that each position was selected at least once.
+        self.assertEqual(len(position_bucket_0), 9, position_bucket_0)
 
         # bots should never have been noised
         self.assertEqual(100, position_bucket_2[bot_2_pos])
