@@ -204,7 +204,7 @@ Layout specification:
   If neither --layoutfile nor --layout are specified, the maze is
   chosen at random from the pool of available layouts.
   You can restrict this pool by using --filter.
-"""%vars()
+"""
 
 def run_game(*argv):
     args = parser.parse_args(argv)
