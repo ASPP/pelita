@@ -6,6 +6,7 @@ import os
 import random
 import sys
 import math
+import abc
 from .datamodel import stop, Free, diff_pos
 from .graph import AdjacencyList, NoPathException
 
@@ -35,8 +36,10 @@ class SimpleTeam(object):
             players = args[:]
 
         for player in players:
-            if (player.__class__.get_move.__func__ == AbstractPlayer.get_move.__func__):
-                raise TypeError("Player %s does not override 'get_move()'." % player.__class__)
+            for method in ('_get_move', '_set_initial'):
+                if not hasattr(player, method):
+                    raise TypeError('player missing %s()' % method)
+
         self._players = players
         self._bot_players = {}
 
@@ -61,6 +64,8 @@ class SimpleTeam(object):
 
 class AbstractPlayer(object):
     """ Base class for all user implemented Players. """
+
+    __metaclass__ =  abc.ABCMeta
 
     def _set_index(self, index):
         """ Called by the GameMaster to set this Players index.
@@ -105,10 +110,9 @@ class AbstractPlayer(object):
         self.universe_states.append(universe)
         return self.get_move()
 
+    @abc.abstractmethod
     def get_move(self):
         """ Subclasses _must_ override this. """
-        raise NotImplementedError(
-                "You must override the 'get_move' method in your player")
 
     @property
     def current_uni(self):

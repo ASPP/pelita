@@ -2,6 +2,8 @@
 
 """ The observers. """
 
+import abc
+
 from . import datamodel
 from .messaging.json_convert import json_converter
 
@@ -9,14 +11,16 @@ __docformat__ = "restructuredtext"
 
 
 class AbstractViewer(object):
+    __metaclass__ = abc.ABCMeta
+
     def set_initial(self, universe):
         """ This method is called when the first universe is ready.
         """
         pass
 
+    @abc.abstractmethod
     def observe(self, round_, turn, universe, events):
-        raise NotImplementedError(
-                "You must override the 'observe' method in your viewer")
+        pass
 
 class DevNullViewer(AbstractViewer):
     """ A viewer that simply ignores everything. """
