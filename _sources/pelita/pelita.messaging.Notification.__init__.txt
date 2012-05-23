@@ -1,6 +1,0 @@
-pelita.messaging.Notification.__init__
-======================================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: Notification.__init__

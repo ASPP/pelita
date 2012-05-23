@@ -1,6 +1,0 @@
-pelita.messaging.BaseMessage.wants_response
-===========================================
-
-.. currentmodule:: pelita.messaging
-
-.. autoattribute:: BaseMessage.wants_response

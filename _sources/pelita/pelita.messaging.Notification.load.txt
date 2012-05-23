@@ -1,6 +1,0 @@
-pelita.messaging.Notification.load
-==================================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: Notification.load

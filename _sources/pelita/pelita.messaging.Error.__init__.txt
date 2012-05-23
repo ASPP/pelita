@@ -1,6 +1,0 @@
-pelita.messaging.Error.__init__
-===============================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: Error.__init__

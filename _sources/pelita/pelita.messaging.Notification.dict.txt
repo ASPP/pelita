@@ -1,6 +1,0 @@
-pelita.messaging.Notification.dict
-==================================
-
-.. currentmodule:: pelita.messaging
-
-.. autoattribute:: Notification.dict

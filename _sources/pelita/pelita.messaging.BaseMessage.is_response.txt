@@ -1,6 +1,0 @@
-pelita.messaging.BaseMessage.is_response
-========================================
-
-.. currentmodule:: pelita.messaging
-
-.. autoattribute:: BaseMessage.is_response

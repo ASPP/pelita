@@ -1,6 +1,0 @@
-pelita.messaging.Error.load
-===========================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: Error.load

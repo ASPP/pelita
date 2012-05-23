@@ -24,16 +24,11 @@ pelita.messaging
       ~Actor
       ~ActorReference
       ~BaseActorReference
-      ~BaseMessage
       ~DispatchingActor
-      ~Error
       ~Exit
-      ~Notification
-      ~Query
       ~RemoteActorReference
       ~RemoteConnection
       ~Request
-      ~Response
       ~StopProcessing
    
 
