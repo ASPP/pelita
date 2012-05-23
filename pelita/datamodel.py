@@ -950,14 +950,14 @@ class CTFUniverse(object):
         Raises
         ------
         IllegalMoveException
-            if the string is an invalid or the move not possible
+            if the move is invalid or impossible
 
         """
         events = TypeAwareList(base_class=UniverseEvent)
         # check legality of the move
         if move not in moves:
             raise IllegalMoveException(
-                'Illegal move_id from bot %i: %s' % (bot_id, move))
+                'Illegal move from bot_id %i: %s' % (bot_id, move))
         bot = self.bots[bot_id]
         legal_moves_dict = self.get_legal_moves(bot.current_pos)
         if move not in legal_moves_dict.keys():
