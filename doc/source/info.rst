@@ -5,7 +5,7 @@ Project Information
 Authors and Contributors
 ========================
 
-As of ``v0.1.0`` the developers and contributors are::
+As of ``v0.1.1`` the developers and contributors are::
 
     zsh» git shortlog -sn | cut -f1 --complement
     Valentin Haenel
@@ -15,8 +15,12 @@ As of ``v0.1.0`` the developers and contributors are::
     Bastian Venthur
     Pietro Berkes
     Pauli Virtanen
+    Nicola Chiapolini
+    Anna Chabuda
     Christian Steigies
     Francesc Alted
+    Ola Pidde
+    Sasza Kijek
 
 Getting in Touch
 ================
