@@ -16,7 +16,7 @@ Coding conventions
   ``"{0}".format(val)``
 
 Git-Repository
---------------
+==============
 
 The official Git-Repository is hosted at Github:
 `https://github.com/ASPP/pelita <https://github.com/ASPP/pelita>`_
