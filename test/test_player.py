@@ -5,20 +5,25 @@ from pelita.game_master import GameMaster
 from pelita.viewer import AsciiViewer
 
 class TestAbstractPlayer(unittest.TestCase):
+    def assertUniversesEqual(self, uni1, uni2):
+        self.assertEqual(uni1, uni2, '\n' + uni1.pretty + '\n' + uni2.pretty)
+
+    def assertUniversesNotEqual(self, uni1, uni2):
+        self.assertNotEqual(uni1, uni2, '\n' + uni1.pretty + '\n' + uni2.pretty)
 
     def test_convenience(self):
 
         test_layout = (
         """ ##################
             #0#.  .  # .     #
-            #2#####    #####1#
-            #     . #  .  .#3#
+            #2#####    ####1 #
+            #     . #  .  #3##
             ################## """)
 
-        game_master = GameMaster(test_layout, 4, 200, noise=False)
+        game_master = GameMaster(test_layout, 4, 2, noise=False)
         universe = game_master.universe
         player_0 = StoppingPlayer()
-        player_1 = TestPlayer([stop, north])
+        player_1 = TestPlayer([north, west])
         player_2 = StoppingPlayer()
         player_3 = StoppingPlayer()
         game_master.register_team(SimpleTeam(player_0, player_2))
@@ -43,8 +48,11 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual([universe.bots[i] for i in (1, 3)], player_2.enemy_bots)
         self.assertEqual([universe.bots[i] for i in (1, 3)], player_3.team_bots)
         self.assertEqual([universe.bots[i] for i in (0, 2)], player_3.enemy_bots)
-        self.assertEqual(universe.bots[1].current_pos, player_1.current_pos)
-        self.assertEqual(universe.bots[1].initial_pos, player_1.initial_pos)
+
+        self.assertEqual(player_1.current_pos, (15, 2))
+        self.assertEqual(player_1.initial_pos, (15, 2))
+        self.assertEqual(universe.bots[1].current_pos, (15, 2))
+        self.assertEqual(universe.bots[1].initial_pos, (15, 2))
 
         self.assertEqual(universe.teams[0], player_0.team)
         self.assertEqual(universe.teams[0], player_2.team)
@@ -53,19 +61,32 @@ class TestAbstractPlayer(unittest.TestCase):
 
         self.assertEqual({(0, 1): (1, 2), (0, 0): (1, 1)},
                 player_0.legal_moves)
-        self.assertEqual({(0, 1): (16, 3), (0, -1): (16, 1), (0, 0): (16, 2)},
+        self.assertEqual({(0, 1): (15, 3), (0, -1): (15, 1), (0, 0): (15, 2),
+                          (1, 0): (16, 2)},
                 player_1.legal_moves)
         self.assertEqual({(0, 1): (1, 3), (0, -1): (1, 1), (0, 0): (1, 2)},
                 player_2.legal_moves)
-        self.assertEqual({(0, -1): (16, 2), (0, 0): (16, 3)},
+        self.assertEqual({(0, -1): (15, 2), (0, 0): (15, 3)},
                 player_3.legal_moves)
 
-        game_master.play_round(0)
-        game_master.play_round(1)
-        self.assertEqual(universe, player_1.current_uni)
-        self.assertEqual((16, 1), player_1.current_pos)
-        self.assertEqual((16, 2), player_1.previous_pos)
-        self.assertNotEqual(player_1.current_uni, player_1.universe_states[-2])
+        game_master.play_round()
+
+        self.assertEqual(player_1.current_pos, (15, 2))
+        self.assertEqual(player_1.previous_pos, (15, 2))
+        self.assertEqual(player_1.initial_pos, (15, 2))
+        self.assertEqual(universe.bots[1].current_pos, (15, 1))
+        self.assertEqual(universe.bots[1].initial_pos, (15, 2))
+        self.assertUniversesEqual(player_1.current_uni, player_1.universe_states[-1])
+
+        game_master.play_round()
+
+        self.assertEqual(player_1.current_pos, (15, 1))
+        self.assertEqual(player_1.previous_pos, (15, 2))
+        self.assertEqual(player_1.initial_pos, (15, 2))
+        self.assertEqual(universe.bots[1].current_pos, (14, 1))
+        self.assertEqual(universe.bots[1].initial_pos, (15, 2))
+        self.assertUniversesNotEqual(player_1.current_uni,
+                                     player_1.universe_states[-2])
 
 class TestTestPlayer(unittest.TestCase):
     def test_test_players(self):
@@ -137,13 +158,13 @@ class TestBFS_Player(unittest.TestCase):
         self.assertEqual(path_target, bfs.current_path)
         for i in range(len(path_target)):
             path_target.pop()
-            game_master.play_round(i)
+            game_master.play_round()
             self.assertEqual(path_target, bfs.current_path)
-        game_master.play_round(i)
+        game_master.play_round()
         self.assertEqual([(14, 3), (13, 3)], bfs.current_path)
-        game_master.play_round(i+1)
+        game_master.play_round()
         self.assertEqual([(14, 3)], bfs.current_path)
-        game_master.play_round(i+2)
+        game_master.play_round()
         self.assertEqual([], bfs.current_path)
 
     def test_unreachable(self):
@@ -158,7 +179,7 @@ class TestBFS_Player(unittest.TestCase):
         game_master.register_team(SimpleTeam(bfs1))
         game_master.register_team(SimpleTeam(bfs2))
         game_master.set_initial()
-        game_master.play_round(0)
+        game_master.play_round()
         self.assertEqual(0, len(bfs1.current_path))
         self.assertEqual(0, len(bfs2.current_path))
 
@@ -173,27 +194,27 @@ class TestBasicDefensePlayer(unittest.TestCase):
            ############## """)
 
         game_master = GameMaster(test_layout, 4, 5, noise=False)
-        team_1 = SimpleTeam(TestPlayer([stop, stop, west, east]),
-                            TestPlayer([ stop, west, east, stop]))
+        team_1 = SimpleTeam(TestPlayer([east, west, stop, stop]),
+                            TestPlayer([stop, east, west, stop]))
         team_2 = SimpleTeam(BasicDefensePlayer(), BasicDefensePlayer())
 
         game_master.register_team(team_1)
         game_master.register_team(team_2)
         game_master.set_initial()
 
-        game_master.play_round(0)
+        game_master.play_round()
         # 0 moved east, 1 tracks 0
         # 2 did not move, 3 tracks 0
         self.assertEqual(team_2._players[0].tracking_idx, 0)
         self.assertEqual(team_2._players[1].tracking_idx, 0)
 
-        game_master.play_round(1)
+        game_master.play_round()
         # 0 moved back, 1 tracks None
         # 2 moved east, 3 tracks 2
         self.assertEqual(team_2._players[0].tracking_idx, None)
         self.assertEqual(team_2._players[1].tracking_idx, 2)
 
-        game_master.play_round(2)
+        game_master.play_round()
         # 0 did not move, 1 tracks 2
         # 2 moved back, 3 tracks None
         self.assertEqual(team_2._players[0].tracking_idx, 2)
@@ -202,15 +223,30 @@ class TestBasicDefensePlayer(unittest.TestCase):
 
 class TestSimpleTeam(unittest.TestCase):
 
-    def test_simple_team(self):
-        class BrokenPlayer(AbstractPlayer):
+    class BrokenPlayer_with_nothing(object):
+        pass
+
+    class BrokenPlayer_without_set_initial(object):
+        def _set_initial(self, universe):
             pass
-        self.assertRaises(TypeError, SimpleTeam, BrokenPlayer())
+
+    class BrokenPlayer_without_get_move(object):
+        def _set_initial(self, universe):
+            pass
+
+    def test_player_api_methods(self):
+        self.assertRaises(TypeError, SimpleTeam,
+                          self.BrokenPlayer_with_nothing())
+        self.assertRaises(TypeError, SimpleTeam,
+                          self.BrokenPlayer_without_set_initial())
+        self.assertRaises(TypeError, SimpleTeam,
+                          self.BrokenPlayer_without_get_move())
 
     def test_init(self):
         self.assertRaises(ValueError, SimpleTeam)
         object_which_is_neither_string_nor_team = 5
-        self.assertRaises(AttributeError, SimpleTeam, object_which_is_neither_string_nor_team)
+        self.assertRaises(TypeError, SimpleTeam,
+                          object_which_is_neither_string_nor_team)
 
         team0 = SimpleTeam("my team")
         self.assertEqual(team0.team_name, "my team")
@@ -257,3 +293,12 @@ class TestSimpleTeam(unittest.TestCase):
         self.assertRaises(KeyError, team2._get_move, 0, dummy_universe)
         self.assertRaises(KeyError, team2._get_move, 2, dummy_universe)
 
+class TestAbstracts(unittest.TestCase):
+    class BrokenPlayer(AbstractPlayer):
+        pass
+
+    def test_AbstractPlayer(self):
+        self.assertRaises(TypeError, AbstractPlayer)
+
+    def test_BrokenPlayer(self):
+        self.assertRaises(TypeError, self.BrokenPlayer)

@@ -2,6 +2,7 @@
 
 import unittest
 import time
+import collections
 import pelita
 from pelita.datamodel import north, south, east, west, stop,\
         Wall, Free, Food, TeamWins, GameDraw, BotMoves, create_CTFUniverse,\
@@ -13,26 +14,17 @@ from pelita.graph import AdjacencyList
 
 
 class TestGameMaster(unittest.TestCase):
+    test_layout = """ ####
+                      #01#
+                      #### """
+    game_master = GameMaster(test_layout, 2, 200)
 
-    def test_basics(self):
-        test_layout = (
-        """ ##################
-            #0#.  .  # .     #
-            #2#####    #####1#
-            #     . #  .  .#3#
-            ################## """)
+    class BrokenViewer_without_observe(object):
+        pass
 
-        game_master = GameMaster(test_layout, 4, 200)
-
-        class BrokenViewer(AbstractViewer):
-            pass
-
-        class BrokenPlayer(AbstractPlayer):
-            pass
-
-        self.assertRaises(TypeError, game_master.register_viewer, BrokenViewer())
-#        self.assertRaises(TypeError, game_master.register_player, BrokenPlayer())
-        self.assertRaises(IndexError, game_master.play)
+    def test_viewer_api_methods(self):
+        viewer = self.BrokenViewer_without_observe()
+        self.game_master.register_viewer(viewer)
 
     def test_team_names(self):
         test_layout = (
@@ -80,20 +72,15 @@ class TestUniverseNoiser(unittest.TestCase):
         universe = create_CTFUniverse(test_layout, 2)
         noiser = UniverseNoiser(universe.copy())
 
-        position_bucket = dict(((i, 0)
-            for i in [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
-                (2, 3), (4, 3), (1, 1), (5, 3)]))
+        position_bucket = collections.Counter()
         for i in range(100):
             new = noiser.uniform_noise(universe.copy(), 1)
             self.assertTrue(new.bots[0].noisy)
             position_bucket[new.bots[0].current_pos] += 1
         self.assertEqual(100, sum(position_bucket.itervalues()))
         # Since this is a randomized algorithm we need to be a bit lenient with
-        # our tests. We check that each position was selected at least once and
-        # check that it was selected a minimum of five times.
-        for v in position_bucket.itervalues():
-            self.assertTrue(v != 0)
-            self.assertTrue(v >= 5, 'Testing randomized function, may fail sometimes.')
+        # our tests. We check that each position was selected at least once.
+        self.assertEqual(len(position_bucket), 9, position_bucket)
 
     def test_uniform_noise_4_bots(self):
         test_layout = (
@@ -105,13 +92,8 @@ class TestUniverseNoiser(unittest.TestCase):
         universe = create_CTFUniverse(test_layout, 4)
         noiser = UniverseNoiser(universe.copy())
 
-        position_bucket_0 = dict(((i, 0)
-            for i in [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
-                (2, 3), (4, 3), (1, 1), (5, 3)]))
-
-        position_bucket_2 = dict(((i, 0)
-            for i in [(7, 3), (8, 2), (7, 1), (8, 1), (6, 1), (3, 1), (5, 1),
-                (4, 1), (7, 2)]))
+        position_bucket_0 = collections.Counter()
+        position_bucket_2 = collections.Counter()
 
         for i in range(100):
             new = noiser.uniform_noise(universe.copy(), 1)
@@ -122,15 +104,9 @@ class TestUniverseNoiser(unittest.TestCase):
         self.assertEqual(100, sum(position_bucket_0.itervalues()))
         self.assertEqual(100, sum(position_bucket_2.itervalues()))
         # Since this is a randomized algorithm we need to be a bit lenient with
-        # our tests. We check that each position was selected at least once and
-        # check that it was selected a minimum of five times.
-        for v in position_bucket_0.itervalues():
-            self.assertTrue(v != 0)
-            self.assertTrue(v >= 5, 'Testing randomized function, may fail sometimes.')
-
-        for v in position_bucket_2.itervalues():
-            self.assertTrue(v != 0)
-            self.assertTrue(v >= 5, 'Testing randomized function, may fail sometimes.')
+        # our tests. We check that each position was selected at least once.
+        self.assertEqual(len(position_bucket_0), 9, position_bucket_0)
+        self.assertEqual(len(position_bucket_2), 9, position_bucket_2)
 
     def test_uniform_noise_4_bots_no_noise(self):
         test_layout = (
@@ -142,9 +118,7 @@ class TestUniverseNoiser(unittest.TestCase):
         universe = create_CTFUniverse(test_layout, 4)
         noiser = UniverseNoiser(universe.copy())
 
-        position_bucket_0 = dict(((i, 0)
-            for i in [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
-                (2, 3), (4, 3), (1, 1), (5, 3)]))
+        position_bucket_0 = collections.Counter()
 
         bot_2_pos = (13, 1)
         position_bucket_2 = {bot_2_pos : 0}
@@ -157,12 +131,10 @@ class TestUniverseNoiser(unittest.TestCase):
             position_bucket_2[new.bots[2].current_pos] += 1
         self.assertEqual(100, sum(position_bucket_0.itervalues()))
         self.assertEqual(100, sum(position_bucket_2.itervalues()))
+
         # Since this is a randomized algorithm we need to be a bit lenient with
-        # our tests. We check that each position was selected at least once and
-        # check that it was selected a minimum of five times.
-        for v in position_bucket_0.itervalues():
-            self.assertTrue(v != 0)
-            self.assertTrue(v >= 5, 'Testing randomized function, may fail sometimes.')
+        # our tests. We check that each position was selected at least once.
+        self.assertEqual(len(position_bucket_0), 9, position_bucket_0)
 
         # bots should never have been noised
         self.assertEqual(100, position_bucket_2[bot_2_pos])
@@ -190,14 +162,14 @@ class TestUniverseNoiser(unittest.TestCase):
 
 
 class TestAbstracts(unittest.TestCase):
+    class BrokenViewer(AbstractViewer):
+        pass
 
     def test_AbstractViewer(self):
-        av = AbstractViewer()
-        self.assertRaises(NotImplementedError, av.observe, None, None, None, None)
+        self.assertRaises(TypeError, AbstractViewer)
 
-    def test_AbstractPlayer(self):
-        ap = AbstractPlayer()
-        self.assertRaises(NotImplementedError, ap.get_move)
+    def test_BrokenViewer(self):
+        self.assertRaises(TypeError, self.BrokenViewer)
 
 class TestGame(unittest.TestCase):
 
@@ -237,13 +209,13 @@ class TestGame(unittest.TestCase):
 
 
         gm = GameMaster(test_start, number_bots, 200)
-        gm.register_team(SimpleTeam(TestPlayer([east, east, east, south, stop, east])))
-        gm.register_team(SimpleTeam(TestPlayer([west, west, west, stop, west, west])))
+        gm.register_team(SimpleTeam(TestPlayer('>-v>>>')))
+        gm.register_team(SimpleTeam(TestPlayer('<<-<<<')))
 
         gm.register_viewer(DevNullViewer())
 
         gm.set_initial()
-        gm.play_round(0)
+        gm.play_round()
         test_first_round = (
             """ ######
                 # 0. #
@@ -251,7 +223,7 @@ class TestGame(unittest.TestCase):
                 ###### """)
         self.assertEqual(create_TestUniverse(test_first_round), gm.universe)
 
-        gm.play_round(1)
+        gm.play_round()
         test_second_round = (
             """ ######
                 # 0. #
@@ -259,7 +231,7 @@ class TestGame(unittest.TestCase):
                 ###### """)
         self.assertEqual(create_TestUniverse(test_second_round), gm.universe)
 
-        gm.play_round(2)
+        gm.play_round()
         test_third_round = (
             """ ######
                 #  . #
@@ -268,7 +240,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual(create_TestUniverse(test_third_round,
             black_score=KILLPOINTS), gm.universe)
 
-        gm.play_round(3)
+        gm.play_round()
         test_fourth_round = (
             """ ######
                 #0 . #
@@ -277,7 +249,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual(create_TestUniverse(test_fourth_round,
             black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
 
-        gm.play_round(4)
+        gm.play_round()
         test_fifth_round = (
             """ ######
                 # 0. #
@@ -287,7 +259,7 @@ class TestGame(unittest.TestCase):
             black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
 
         print gm.universe.pretty
-        gm.play_round(5)
+        gm.play_round()
         test_sixth_round = (
             """ ######
                 #  0 #
@@ -300,8 +272,8 @@ class TestGame(unittest.TestCase):
 
         # now play the full game
         gm = GameMaster(test_start, number_bots, 200)
-        gm.register_team(SimpleTeam(TestPlayer([east, east, east, south, stop, east])))
-        gm.register_team(SimpleTeam(TestPlayer([west, west, west, stop, west, west])))
+        gm.register_team(SimpleTeam(TestPlayer([east, stop, south, east, east, east])))
+        gm.register_team(SimpleTeam(TestPlayer([west, west, stop, west, west, west])))
         gm.play()
         test_sixth_round = (
             """ ######
@@ -344,7 +316,7 @@ class TestGame(unittest.TestCase):
         gm.register_team(SimpleTeam(TestMaliciousPlayer()))
 
         gm.set_initial()
-        gm.play_round(0)
+        gm.play_round()
 
         test_self.assertEqual(original_universe, gm.universe)
 
@@ -393,7 +365,7 @@ class TestGame(unittest.TestCase):
         gm.register_viewer(TestViewer())
 
         gm.set_initial()
-        gm.play_round(0)
+        gm.play_round()
 
         self.assertEqual(original_universe, gm.universe)
 

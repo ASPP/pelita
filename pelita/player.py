@@ -6,7 +6,9 @@ import os
 import random
 import sys
 import math
-from .datamodel import stop, Free, diff_pos
+import abc
+from . import datamodel
+from .datamodel import Free, diff_pos
 from .graph import AdjacencyList, NoPathException
 
 __docformat__ = "restructuredtext"
@@ -35,8 +37,10 @@ class SimpleTeam(object):
             players = args[:]
 
         for player in players:
-            if (player.__class__.get_move.__func__ == AbstractPlayer.get_move.__func__):
-                raise TypeError("Player %s does not override 'get_move()'." % player.__class__)
+            for method in ('_get_move', '_set_initial'):
+                if not hasattr(player, method):
+                    raise TypeError('player missing %s()' % method)
+
         self._players = players
         self._bot_players = {}
 
@@ -61,6 +65,8 @@ class SimpleTeam(object):
 
 class AbstractPlayer(object):
     """ Base class for all user implemented Players. """
+
+    __metaclass__ =  abc.ABCMeta
 
     def _set_index(self, index):
         """ Called by the GameMaster to set this Players index.
@@ -105,10 +111,9 @@ class AbstractPlayer(object):
         self.universe_states.append(universe)
         return self.get_move()
 
+    @abc.abstractmethod
     def get_move(self):
         """ Subclasses _must_ override this. """
-        raise NotImplementedError(
-                "You must override the 'get_move' method in your player")
 
     @property
     def current_uni(self):
@@ -254,7 +259,7 @@ class StoppingPlayer(AbstractPlayer):
     """ A Player that just stands still. """
 
     def get_move(self):
-        return stop
+        return datamodel.stop
 
 
 class RandomPlayer(AbstractPlayer):
@@ -273,12 +278,20 @@ class TestPlayer(AbstractPlayer):
 
     """
 
+
+    _MOVES = {'^': datamodel.north,
+              'v': datamodel.south,
+              '<': datamodel.west,
+              '>': datamodel.east,
+              '-': datamodel.stop}
+
     def __init__(self, moves):
-        self.moves = list(moves)
+        if isinstance(moves, basestring):
+            moves = (self._MOVES[move] for move in moves)
+        self.moves = iter(moves)
 
     def get_move(self):
-        return self.moves.pop()
-
+        return next(self.moves)
 
 class IOBoundPlayer(AbstractPlayer):
     """ IO Bound player that crawls the file system. """
@@ -344,7 +357,7 @@ class NQRandomPlayer(AbstractPlayer):
         legal_moves = self.legal_moves
         # Remove stop
         try:
-            del legal_moves[stop]
+            del legal_moves[datamodel.stop]
         except KeyError:
             pass
         # now remove the move that would lead to the previous_position
@@ -356,7 +369,7 @@ class NQRandomPlayer(AbstractPlayer):
             del legal_moves[k]
         # just in case, there is really no way to go to:
         if not legal_moves:
-            return stop
+            return datamodel.stop
         # and select a move at random
         return random.choice(legal_moves.keys())
 
@@ -490,6 +503,6 @@ class BasicDefensePlayer(AbstractPlayer):
 
         # if something above went wrong, just stand still
         if not self.path:
-            return stop
+            return datamodel.stop
         else:
             return diff_pos(self.current_pos, self.path.pop())

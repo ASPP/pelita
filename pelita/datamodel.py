@@ -955,18 +955,13 @@ class CTFUniverse(object):
         """
         events = TypeAwareList(base_class=UniverseEvent)
         # check legality of the move
-        if move not in moves:
-            raise IllegalMoveException(
-                'Illegal move from bot_id %i: %s' % (bot_id, move))
         bot = self.bots[bot_id]
         legal_moves_dict = self.get_legal_moves(bot.current_pos)
         if move not in legal_moves_dict.keys():
             raise IllegalMoveException(
-                'Illegal move from bot %r: %s'
-                % (bot, move))
+                'Illegal move from bot_id %r: %s' % (bot_id, move))
         old_pos = bot.current_pos
-        bot.current_pos =  legal_moves_dict[move]
-        new_pos = bot.current_pos
+        new_pos = bot.current_pos = legal_moves_dict[move]
         events.append(BotMoves(bot_id, old_pos, new_pos))
         team = self.teams[bot.team_index]
         # check for food being eaten
@@ -1025,6 +1020,24 @@ class CTFUniverse(object):
             if self.maze.has_at(Free, new_pos):
                 legal_moves_dict[move] = new_pos
         return legal_moves_dict
+
+    def get_legal_moves_or_stop(self, position):
+        """ Obtain legal moves or just stop if impossible to move.
+
+        Parameters
+        ----------
+        position : tuple of int (x, y)
+            the position to start at
+
+        Returns
+        -------
+        legal_moves: a list of legal moves
+        """
+        moves = self.get_legal_moves(position).keys()
+        assert stop in moves
+        if len(moves) > 1:
+            moves.remove(stop)
+        return moves
 
     def __repr__(self):
         return ("CTFUniverse(%r, %r, %r)" %
