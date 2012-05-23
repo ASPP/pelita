@@ -15,6 +15,17 @@ Coding conventions
 * Use old-style format-string, i.e. ``"%s" % (val))`` instead of
   ``"{0}".format(val)``
 
+Changelog
+=========
+
+:v0.1.1 -- 2012-05-23:
+    * Bugfix/Maintenance Release
+    * tying together loose ends
+:v0.1.0 -- 2011-09-21:
+    * Initial Release
+    * for St. Andrews Summerschool
+
+
 Git-Repository
 ==============
 
