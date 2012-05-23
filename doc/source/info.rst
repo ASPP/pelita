@@ -62,7 +62,7 @@ summer school, as a teaching aid for the group project.
 
 Future:
 
-* `Kiel, Germany, September 2012` <https://python.g-node.org/wiki/start>`_
+* `Kiel, Germany, September 2012 <https://python.g-node.org/wiki/start>`_
 
 Past:
 
