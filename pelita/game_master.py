@@ -89,7 +89,6 @@ class GameMaster(object):
                 AbstractViewer.observe.__func__):
             raise TypeError("Viewer %s does not override 'observe()'."
                     % viewer.__class__)
-        viewer.set_initial(self.universe.copy())
         self.viewers.append(viewer)
 
     def send_to_viewers(self, round_index, turn, events):
@@ -112,13 +111,17 @@ class GameMaster(object):
 
     def set_initial(self):
         """ This method needs to be called before a game is started.
-        It notifies the PlayerTeams of the initial universes and their
-        respective bot_ids.
+        It notifies the PlayerTeams and the Viewers of the initial
+        universes and tells the PlayerTeams what their respective
+        bot_ids are.
         """
         for team_idx, team in enumerate(self.player_teams):
             # the respective bot ids in the universe
             team._set_bot_ids(self.universe.teams[team_idx].bots)
             team._set_initial(self.universe.copy())
+
+        for viewer in self.viewers:
+            viewer.set_initial(self.universe.copy())
 
     # TODO the game winning detection should be refactored
 
