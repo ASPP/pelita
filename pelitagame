@@ -271,6 +271,7 @@ def run_game(*argv):
                                        rounds=args.rounds,
                                        dump_to_file=dump,
                                        bind_addrs=(addrs_left, addrs_right),
+                                       initial_delay=0.5
                                        )
 
     player_clients = []

@@ -5,6 +5,7 @@
 import copy
 import random
 import sys
+import time
 from .containers import TypeAwareList
 from . import datamodel
 from .graph import NoPathException
@@ -50,7 +51,8 @@ class GameMaster(object):
         the viewers that are observing this game
 
     """
-    def __init__(self, layout, number_bots, game_time, noise=True):
+    def __init__(self, layout, number_bots, game_time, noise=True,
+                 initial_delay=0.0):
         self.universe = datamodel.create_CTFUniverse(layout, number_bots)
         self.number_bots = number_bots
         self.game_time = game_time
@@ -58,6 +60,7 @@ class GameMaster(object):
         self.player_teams = []
         self.player_teams_timeouts = []
         self.viewers = []
+        self.initial_delay = initial_delay
 
     def register_team(self, team, team_name=""):
         """ Register a client TeamPlayer class.
@@ -129,6 +132,8 @@ class GameMaster(object):
         """ Play a whole game. """
         # notify all PlayerTeams
         self.set_initial()
+        
+        time.sleep(self.initial_delay)
 
         if len(self.player_teams) != len(self.universe.teams):
             raise IndexError(

@@ -236,7 +236,7 @@ class ZMQServer(object):
     def __init__(self, layout_string=None, layout_name=None, layout_file=None,
                  layout_filter = 'normal_without_dead_ends',
                  teams=2, players=4, rounds=3000, bind_addrs="tcp://*",
-                 silent=True, dump_to_file=None):
+                 silent=True, dump_to_file=None, initial_delay=0.0):
 
         if (layout_string and layout_name or
             layout_string and layout_file or
@@ -261,7 +261,7 @@ class ZMQServer(object):
 
         self.dump_to_file = dump_to_file
 
-        self.game_master = GameMaster(self.layout, self.players, self.rounds)
+        self.game_master = GameMaster(self.layout, self.players, self.rounds, initial_delay=initial_delay)
 
         if isinstance(bind_addrs, tuple):
             pass
