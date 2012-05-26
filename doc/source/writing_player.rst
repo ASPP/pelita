@@ -211,10 +211,7 @@ food:
    :pyobject: BFSPlayer
 
 This next sections will explore the convenience properties of the
-``AbstractPlayer``.
-
-Using ``current_uni``
----------------------
+``AbstractPlayer`` as used in the ``BFSPlayer``.
 
 The ``BFSPlayer`` makes use of some more advanced concepts. The first thing to
 note is that any player can override the method ``set_initial()``. At this stage
@@ -223,43 +220,11 @@ example we initialise the adjacency list representation of the maze. As
 mentioned previously the current state of the universe is always available as
 ``current_uni``. Within ``set_initial()`` this is the starting state.
 
-Let's take a quick look as the implementation
-of ``current_uni``:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.current_uni
-
-Importantly we see that the ``AbstractPlayer`` automatically maintains a stack
-of previous states of the Universe called ``universe_states``.
-As we can see ``current_uni`` is simply the top element of this stack. This
-allows us to access the properties and methods of the ``CTFUniverse``, for
-example look at the implementation of ``legal_moves``:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.legal_moves
-
-Here we can see that this simply calls the method ``get_legal_moves(pos)``
-which is provided by ``CTFUniverse``. We also see one of the convenience
-properties used in the ``bfs_food()`` method: ``current_pos`` which returns the
-current position of the bot.  Let's have a look at this:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.current_pos
-
-We see that this makes use of the ``me`` property which is defined as follows:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.me
-
-As you can see, ``me`` will simply obtain the ``Bot`` instance controlled by this
-player from the current universe using the hidden ``_index`` attribute of the
-player. In practice, you should be able to avoid having to use the
-``_index`` directly but it's good to know how this is implemented in case you
-wish to do something exotic.
-
 The other convenience property used in ``bfs_food()`` is ``enemy_food`` which
 returns a list of position tuples of the food owned by the enemy (which can be
-eaten by this bot). Again, this is simply forwarded to the ``CTFUniverse`` using
+eaten by this bot).
+
+Again, this is simply forwarded to the ``CTFUniverse`` using
 ``current_uni``:
 
 .. literalinclude:: ../../pelita/player.py
@@ -421,3 +386,46 @@ One idea is to implement probabilistic tracking using a `Kalman filter
 If you wish to know how the noise is implemented, look at the class:
 ``pelita.game_master.UniverseNoiser``.
 
+Implementation Details
+======================
+
+This section contains some details about the implementation of
+``AbstractPlayer``. Reading this section is not required, but may be of
+interest to the curious reader.
+
+Using ``current_uni``
+---------------------
+
+Let's take a quick look as the implementation
+of ``current_uni``:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.current_uni
+
+Importantly we see that the ``AbstractPlayer`` automatically maintains a stack
+of previous states of the Universe called ``universe_states``.
+As we can see ``current_uni`` is simply the top element of this stack. This
+allows us to access the properties and methods of the ``CTFUniverse``, for
+example look at the implementation of ``legal_moves``:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.legal_moves
+
+Here we can see that this simply calls the method ``get_legal_moves(pos)``
+which is provided by ``CTFUniverse``. We also see one of the convenience
+properties used in the ``bfs_food()`` method: ``current_pos`` which returns the
+current position of the bot.  Let's have a look at this:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.current_pos
+
+We see that this makes use of the ``me`` property which is defined as follows:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.me
+
+As you can see, ``me`` will simply obtain the ``Bot`` instance controlled by this
+player from the current universe using the hidden ``_index`` attribute of the
+player. In practice, you should be able to avoid having to use the
+``_index`` directly but it's good to know how this is implemented in case you
+wish to do something exotic.
