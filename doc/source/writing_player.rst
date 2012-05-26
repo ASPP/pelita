@@ -51,10 +51,10 @@ Player Basics
 =============
 
 In order to write a player you should subclass from
-`pelita.player.AbstractPlayer`. This is an abstract class which provides several
-convenience methods and properties to interrogate the universe including the bot
-instance that this player controls, but lacks the functions to actually control
-the bot.
+`pelita.player.AbstractPlayer`. This is an abstract class which provides
+several convenience methods and properties to interrogate the universe
+including the bot instance that this player controls, but lacks the functions
+to actually control the bot.
 
 To subclass from ``AbstractPlayer`` import this with::
 
@@ -110,12 +110,12 @@ selects a move at random from the possible moves:
 
 Here we can see the first convenience property ``legal_moves`` which returns a
 dictionary mapping move tuples to position tuples. The random player simply
-selects a move at random from the keys (moves) of this dictionary and then moves
-there. ``legal_moves`` always includes stop.
+selects a move at random from the keys (moves) of this dictionary and then
+moves there. ``legal_moves`` always includes stop.
 
-The next example is the not-quite random player ``pelita.player.NQRandomPlayer``.
-This one does not move back to the position where it was on its last turn and
-never stops in place:
+The next example is the not-quite random player
+``pelita.player.NQRandomPlayer``.  This one does not move back to the position
+where it was on its last turn and never stops in place:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: NQRandomPlayer
@@ -204,8 +204,8 @@ A Basic Offensive Player
 ========================
 
 A somewhat more elaborate example is the `pelita.player.BFSPlayer` which uses
-*breadth first search* on an *adjacency list* representation of the maze to find
-food:
+*breadth first search* on an *adjacency list* representation of the maze to
+find food:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: BFSPlayer
@@ -217,9 +217,9 @@ This next sections will explore the convenience properties of the
 ---------------------------------------------------
 
 The ``BFSPlayer`` makes use of some more advanced concepts. The first thing to
-note is that any player can override the method ``set_initial()``. At this stage
-food is still present, and all bots are at their initial position. In the above
-example we initialise the adjacency list representation of the maze. As
+note is that any player can override the method ``set_initial()``. At this
+stage food is still present, and all bots are at their initial position. In the
+above example we initialise the adjacency list representation of the maze. As
 mentioned previously the current state of the universe is always available as
 ``current_uni``. Within ``set_initial()`` this is the starting state.
 
@@ -241,9 +241,9 @@ Lastly, we are going to see some error recovery code in the
 ``get_move()`` method of the ``BFSPlayer``.
 
 The ``BFSPlayer`` is sometimes killed, as expected for an offensive player. In
-order to detect this, it's best to compare the current position with its initial
-position using the ``initial_pos`` convenience property, since this is where it
-will respawn.
+order to detect this, it's best to compare the current position with its
+initial position using the ``initial_pos`` convenience property, since this is
+where it will respawn.
 
 Your player only has a limited time to return from ``get_move()``. The default
 is approximately three seconds. If your player does not respond in time, the
@@ -270,8 +270,8 @@ Interacting with the Maze
 =========================
 
 The ``BFSPlayer`` above uses the adjacency list representation provided by:
-`pelita.graph.AdjacencyList``. Let's have a quick look at how this is generated, in
-case you would like to implement your own `graph storage
+`pelita.graph.AdjacencyList``. Let's have a quick look at how this is
+generated, in case you would like to implement your own `graph storage
 <http://en.wikipedia.org/wiki/Graph_(data_structure)>`_ or leverage an
 alternative existing package such as `NetworkX <http://networkx.lanl.gov/>`_.
 
@@ -280,15 +280,15 @@ Here it is the ``__init__`` of the ``AdjacencyList``:
 .. literalinclude:: ../../pelita/graph.py
    :lines: 17-30
 
-In order to obtain the positions of all free spaces, the `pelita.datamodel.Maze`
-class provides the function `pelita.datamodel.Maze.pos_of`. The type of the
-argument is of type `pelita.datamodel.MazeComponent` (but it's a class, not an
-instance). There are three ``MazeComponent`` classes available in
-``pelita.datamodel``: ``Wall``, ``Free``, ``Food``. Then, we use the method
-``get_legal_moves(pos).values()`` to obtain the adjacent free spaces, for each
-of the free positions.  The last step is to use the ``update`` method to set the
-generated dictionary, which we can do, since ``AdjacencyList`` inherits from
-``dict``.
+In order to obtain the positions of all free spaces, the
+`pelita.datamodel.Maze` class provides the function
+`pelita.datamodel.Maze.pos_of`. The type of the argument is of type
+`pelita.datamodel.MazeComponent` (but it's a class, not an instance). There are
+three ``MazeComponent`` classes available in ``pelita.datamodel``: ``Wall``,
+``Free``, ``Food``. Then, we use the method ``get_legal_moves(pos).values()``
+to obtain the adjacent free spaces, for each of the free positions.  The last
+step is to use the ``update`` method to set the generated dictionary, which we
+can do, since ``AdjacencyList`` inherits from ``dict``.
 
 In addition to ``pos_of``, there are a few additional constructs that are
 useful when dealing with the maze. The property ``positions`` gives all the
@@ -342,9 +342,9 @@ Noisy Enemy Positions
 In general, the ``CTFUniverse`` you receive is noisy. This means that you can
 only obtain an accurate fix on the enemy bots if they are within 5 squares maze
 distance (otherwise, the position is noisy with a uniform radius of 5 squares
-maze distance). These two values may lead to confusing values: for example if the
-bot is 6 squares away, but the added noise of 4 squares towards your bot, make
-it appear as if it were only 2 squares away. Thus, you can check if a bot
+maze distance). These two values may lead to confusing values: for example if
+the bot is 6 squares away, but the added noise of 4 squares towards your bot,
+make it appear as if it were only 2 squares away. Thus, you can check if a bot
 position is noisy using the ``noisy`` attribute of the bot instance, in
 combination with the ``enemy_bots`` convenience property provided by
 ``AbstractPlayer``::
