@@ -420,7 +420,7 @@ implemented:
    :pyobject: AbstractPlayer.previous_pos
 
 Again, we will make use of ``universe_states``, but this time we will look at the second element
-from the top of the stack. The Universe maintains a list of bots ``bots`` and
+from the top of the stack. The ``CTFUniverse`` maintains a list of bots ``bots`` and
 the hidden attribute ``_index`` can be used to obtain the respective bot
 instance controlled by the player. Lastly, we simply look at the ``current_pos``
 property of the bot (the bot instance from one turn ago) to obtain its previous
