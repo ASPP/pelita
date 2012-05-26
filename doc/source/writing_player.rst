@@ -364,9 +364,6 @@ This section contains some details about the implementation of
 ``AbstractPlayer``. Reading this section is not required, but may be of
 interest to the curious reader.
 
-Using ``current_uni``
----------------------
-
 Let's take a quick look as the implementation
 of ``current_uni``:
 
@@ -431,13 +428,17 @@ position.
 
 The ``team`` property uses the ``me`` property to access the bots
 ``team_index`` which it then uses in ``current_uni.teams`` to get the
-respective team instance:
+respective ``Team`` instance:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer.team
 
+Somthing similar is achieved for the ``team_border``:
+
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer.team_border
+
+And again for ``enemy_bots``:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer.enemy_bots
