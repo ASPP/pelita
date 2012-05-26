@@ -329,6 +329,10 @@ the zone of this team. Note that ``team`` is a convenience property of the
 ``AbstractPlayer`` which in turn gives acces to the ``Team`` instance from the
 ``CTFUniverse``, which in turn has the method ``in_zone(position)``.
 
+
+For a comprehensive overview of all the properties of ``AbstractPlayer``,
+look at the section :ref:`user_api_reference`.
+
 Note that this player simply ignores the noisy enemy positions (described
 next).
 
