@@ -357,12 +357,12 @@ One idea is to implement probabilistic tracking using a `Kalman filter
 If you wish to know how the noise is implemented, look at the class:
 ``pelita.game_master.UniverseNoiser``.
 
-Implementation Details
-======================
+Implementation Details of Convenience Properties
+================================================
 
-This section contains some details about the implementation of
-``AbstractPlayer``. Reading this section is not required, but may be of
-interest to the curious reader.
+This section contains some details about the implementation of the convenience
+properties of ``AbstractPlayer``. Reading this section is not required, but may
+be of interest to the curious reader.
 
 Let's take a quick look as the implementation
 of ``current_uni``:
@@ -392,9 +392,9 @@ We see that this makes use of the ``me`` property which is defined as follows:
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer.me
 
-As you can see, ``me`` will simply obtain the ``Bot`` instance controlled by this
-player from the current universe using the hidden ``_index`` attribute of the
-player. In practice, you should be able to avoid having to use the
+As you can see, ``me`` will simply obtain the ``Bot`` instance controlled by
+this player from the current universe using the hidden ``_index`` attribute of
+the player. In practice, you should be able to avoid having to use the
 ``_index`` directly but it's good to know how this is implemented in case you
 wish to do something exotic.
 
@@ -412,19 +412,19 @@ the ``CTFUniverse`` should be accessible through the convenience properties of
 the ``AbstractPlayer``. However, if these do not suffice, please have a look
 at the source code.
 
-Now that you know about ``universe_states``, ``_index`` and ``current_pos`` let's
-have a look at how the ``previous_pos`` property (used in the ``NQRandomPlayer``) is
-implemented:
+Now that you know about ``universe_states``, ``_index`` and ``current_pos``
+let's have a look at how the ``previous_pos`` property (used in the
+``NQRandomPlayer``) is implemented:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer.previous_pos
 
-Again, we will make use of ``universe_states``, but this time we will look at the second element
-from the top of the stack. The ``CTFUniverse`` maintains a list of bots ``bots`` and
-the hidden attribute ``_index`` can be used to obtain the respective bot
-instance controlled by the player. Lastly, we simply look at the ``current_pos``
-property of the bot (the bot instance from one turn ago) to obtain its previous
-position.
+Again, we will make use of ``universe_states``, but this time we will look at
+the second element from the top of the stack. The ``CTFUniverse`` maintains a
+list of bots ``bots`` and the hidden attribute ``_index`` can be used to obtain
+the respective bot instance controlled by the player. Lastly, we simply look at
+the ``current_pos`` property of the bot (the bot instance from one turn ago) to
+obtain its previous position.
 
 The ``team`` property uses the ``me`` property to access the bots
 ``team_index`` which it then uses in ``current_uni.teams`` to get the
