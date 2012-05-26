@@ -113,7 +113,7 @@ dictionary mapping move tuples to position tuples. The random player simply
 selects a move at random from the keys (moves) of this dictionary and then moves
 there. ``legal_moves`` always includes stop.
 
-The next example is the not-quite random player `pelita.player.NQRandomPlayer``.
+The next example is the not-quite random player ``pelita.player.NQRandomPlayer``.
 This one does not move back to the position where it was on its last turn and
 never stops in place:
 
