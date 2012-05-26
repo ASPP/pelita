@@ -321,26 +321,16 @@ Defense is important because your enemy is awarded ``5`` points if he
 manages to destroy one of your bots!
 
 The player mostly uses convenience properties already introduced for the
-``BFSPlayer``. Additionally, it makes use of the ``team`` property, which is just the
-``Team`` instance from the ``CTFUniverse``:
+``BFSPlayer`` in addition to a few othres. For example ``path_to_border`` uses
+uses the ``team_border`` convenience property which gives the positions of the
+border. Also, ``get_move()`` access the ``enemy_bots`` property and then uses
+the ``team.in_zone(position)`` function to check if an enemy position is within
+the zone of this team. Note that ``team`` is a convenience property of the
+``AbstractPlayer`` which in turn gives acces to the ``Team`` instance from the
+``CTFUniverse``, which in turn has the method ``in_zone(position)``.
 
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.team
-
-This has a method ``in_zone(position)`` which it uses to check if a position is
-within the zone of this team. Also, it uses the ``team_border`` convenience
-property which gives the positions of the border:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.team_border
-
-... and the ``enemy_bots``
-convenience property which gives the enemy ``Bot`` instances:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.enemy_bots
-
-Note that this player simply ignores the noisy enemy positions (described next).
+Note that this player simply ignores the noisy enemy positions (described
+next).
 
 Noisy Enemy Positions
 =====================
@@ -434,3 +424,16 @@ the hidden attribute ``_index`` can be used to obtain the respective bot
 instance controlled by the player. Lastly, we simply look at the ``current_pos``
 property of the bot (the bot instance from one turn ago) to obtain its previous
 position.
+
+The ``team`` property uses the ``me`` property to access the bots
+``team_index`` which it then uses in ``current_uni.teams`` to get the
+respective team instance:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.team
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.team_border
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.enemy_bots
