@@ -213,6 +213,9 @@ food:
 This next sections will explore the convenience properties of the
 ``AbstractPlayer`` as used in the ``BFSPlayer``.
 
+``current_uni``, ``current_pos`` and ``enemy_food``
+---------------------------------------------------
+
 The ``BFSPlayer`` makes use of some more advanced concepts. The first thing to
 note is that any player can override the method ``set_initial()``. At this stage
 food is still present, and all bots are at their initial position. In the above
@@ -220,29 +223,19 @@ example we initialise the adjacency list representation of the maze. As
 mentioned previously the current state of the universe is always available as
 ``current_uni``. Within ``set_initial()`` this is the starting state.
 
-The other convenience property used in ``bfs_food()`` is ``enemy_food`` which
-returns a list of position tuples of the food owned by the enemy (which can be
-eaten by this bot).
-
-Again, this is simply forwarded to the ``CTFUniverse`` using
-``current_uni``:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.enemy_food
-
-As with ``legal_moves``, a method from ``CTFUniverse`` is called, namely
-``enemy_food``. However, we need to tell it which team we are on. This is
-obtained using the ``me`` property to access the controlled ``Bot`` instance,
-which in turn stores the ``team_index``. In practice, the information stored in
-the ``CTFUniverse`` should be accessible through the convenience properties of
-the ``AbstractPlayer``. However, if these do not suffice, please have a look
-at the source code.
+The next interesting thing to look at is the ``bfs_food()`` method which simply
+searches the ``AdjacencyList`` to find the closest food and returns a path to
+that food. In the process it makes use of two convenience properties:
+``current_pos`` and ``enemy_food``. The first is the location of the ``Bot``
+controlled by this ``Player`` as a position tuple. The second is a list of
+position tuples of the food owned by the enemy (which can be eaten by this
+bot).
 
 Recovery Strategies in Case of Death or Timeout
 -----------------------------------------------
 
 Lastly, we are going to see some error recovery code in the
-``get_move()`` method.
+``get_move()`` method of the ``BFSPlayer``.
 
 The ``BFSPlayer`` is sometimes killed, as expected for an offensive player. In
 order to detect this, it's best to compare the current position with its initial
@@ -268,23 +261,6 @@ important to ensure that your search algorithms are efficient and fast.
 .. TODO: when one bot blocks, the whole team blocks
 .. TODO: how to be notified when a timeout happened.
 .. TODO: the universe states will be missing a state
-
-A more Advanced Example
------------------------
-
-Now that you know about ``universe_states``, ``_index`` and ``current_pos`` let's
-have a look at how the ``previous_pos`` property (used in the ``NQRandomPlayer``) is
-implemented:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.previous_pos
-
-Again, we will make use of ``universe_states``, but this time we will look at the second element
-from the top of the stack. The Universe maintains a list of bots ``bots`` and
-the hidden attribute ``_index`` can be used to obtain the respective bot
-instance controlled by the player. Lastly, we simply look at the ``current_pos``
-property of the bot (the bot instance from one turn ago) to obtain its previous
-position.
 
 There are a few more convenience properties available from
 ``AbstractPlayer``, you should look at the section :ref:`user_api_reference` for details.
@@ -429,3 +405,31 @@ player from the current universe using the hidden ``_index`` attribute of the
 player. In practice, you should be able to avoid having to use the
 ``_index`` directly but it's good to know how this is implemented in case you
 wish to do something exotic.
+
+Lets now have a look at the convenience property ``enemy_food`` Again, this is
+simply forwarded to the ``CTFUniverse`` using ``current_uni``:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.enemy_food
+
+As with ``legal_moves``, a method from ``CTFUniverse`` is called, namely
+``enemy_food``. However, we need to tell it which team we are on. This is
+obtained using the ``me`` property to access the controlled ``Bot`` instance,
+which in turn stores the ``team_index``. In practice, the information stored in
+the ``CTFUniverse`` should be accessible through the convenience properties of
+the ``AbstractPlayer``. However, if these do not suffice, please have a look
+at the source code.
+
+Now that you know about ``universe_states``, ``_index`` and ``current_pos`` let's
+have a look at how the ``previous_pos`` property (used in the ``NQRandomPlayer``) is
+implemented:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.previous_pos
+
+Again, we will make use of ``universe_states``, but this time we will look at the second element
+from the top of the stack. The Universe maintains a list of bots ``bots`` and
+the hidden attribute ``_index`` can be used to obtain the respective bot
+instance controlled by the player. Lastly, we simply look at the ``current_pos``
+property of the bot (the bot instance from one turn ago) to obtain its previous
+position.
