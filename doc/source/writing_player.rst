@@ -231,6 +231,9 @@ controlled by this ``Player`` as a position tuple. The second is a list of
 position tuples of the food owned by the enemy (which can be eaten by this
 bot).
 
+There are a few more convenience properties available from ``AbstractPlayer``,
+you should look at the section :ref:`user_api_reference` for details.
+
 Recovery Strategies in Case of Death or Timeout
 -----------------------------------------------
 
@@ -262,8 +265,6 @@ important to ensure that your search algorithms are efficient and fast.
 .. TODO: how to be notified when a timeout happened.
 .. TODO: the universe states will be missing a state
 
-There are a few more convenience properties available from
-``AbstractPlayer``, you should look at the section :ref:`user_api_reference` for details.
 
 Interacting with the Maze
 =========================
