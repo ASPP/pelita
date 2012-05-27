@@ -676,7 +676,7 @@ class CTFUniverse(object):
         return [(border_x, y) for y in range(self.maze.shape[1]) if
                 Free in self.maze[border_x, y]]
 
-    def move_bot(self, events, move):
+    def move_bot(self, game_state, move):
         """ Move a bot in certain direction.
 
         Parameters
@@ -688,8 +688,8 @@ class CTFUniverse(object):
 
         Returns
         -------
-        events : list of UniverseEvent objects
-            the events that happened during the move
+        game_state : dict
+            the current game_state
 
         Raises
         ------
@@ -699,7 +699,7 @@ class CTFUniverse(object):
         """
         # check legality of the move
 
-        bot_id = events["bot_id"]
+        bot_id = game_state["bot_id"]
 
         if move not in moves:
             raise IllegalMoveException(
@@ -714,45 +714,45 @@ class CTFUniverse(object):
         bot.current_pos =  legal_moves_dict[move]
         new_pos = bot.current_pos
 
-        events["bot_moved"] += [{"bot_id": bot_id, "old_pos": old_pos, "new_pos": new_pos}]
+        game_state["bot_moved"] += [{"bot_id": bot_id, "old_pos": old_pos, "new_pos": new_pos}]
 
         team = self.teams[bot.team_index]
         # check for food being eaten
         if Food in self.maze[bot.current_pos] and not bot.in_own_zone:
             self.maze.remove_at(Food, bot.current_pos)
 
-            events["food_eaten"] += [{"food_pos": bot.current_pos, "bot_id": bot_id}]
+            game_state["food_eaten"] += [{"food_pos": bot.current_pos, "bot_id": bot_id}]
 
         # check for destruction
         for enemy in self.enemy_bots(bot.team_index):
             if enemy.current_pos == bot.current_pos:
                 if enemy.is_destroyer and bot.is_harvester:
-                    events["bot_destroyed"] += [{'bot_idx': bot.index, 'destroyed_by': enemy.index}]
+                    game_state["bot_destroyed"] += [{'bot_idx': bot.index, 'destroyed_by': enemy.index}]
                 elif enemy.is_harvester and bot.is_destroyer:
-                    events["bot_destroyed"] += [{'bot_idx': enemy.index, 'destroyed_by': bot.index}]
+                    game_state["bot_destroyed"] += [{'bot_idx': enemy.index, 'destroyed_by': bot.index}]
 
         # reset bots
-        for destroyed in events["bot_destroyed"]:
+        for destroyed in game_state["bot_destroyed"]:
             old_pos = bot.current_pos
             self.bots[destroyed["bot_idx"]]._reset()
             new_pos = bot.current_pos
-            events["bot_moved"] += [{"bot_id": bot_id, "old_pos": old_pos, "new_pos": new_pos}]
+            game_state["bot_moved"] += [{"bot_id": bot_id, "old_pos": old_pos, "new_pos": new_pos}]
 
-        for food_eaten in events["food_eaten"]:
-            events["score"][self.bots[food_eaten["bot_id"]].team_index] += 1
+        for food_eaten in game_state["food_eaten"]:
+            game_state["score"][self.bots[food_eaten["bot_id"]].team_index] += 1
 
-        for bot_destroyed in events["bot_destroyed"]:
-            events["score"][self.bots[bot_destroyed["destroyed_by"]].team_index] += KILLPOINTS
+        for bot_destroyed in game_state["bot_destroyed"]:
+            game_state["score"][self.bots[bot_destroyed["destroyed_by"]].team_index] += KILLPOINTS
 
         if not self.enemy_food(team.index):
-            if events["score"][0] > events["score"][1]:
-                events["team_wins"] = 0
-            elif events["score"][0] < events["score"][1]:
-                events["team_wins"] = 1
+            if game_state["score"][0] > game_state["score"][1]:
+                game_state["team_wins"] = 0
+            elif game_state["score"][0] < game_state["score"][1]:
+                game_state["team_wins"] = 1
             else:
-                events["game_draw"] = True
+                game_state["game_draw"] = True
 
-        return events
+        return game_state
 
         # TODO:
         # check for state change

@@ -143,9 +143,9 @@ class UiCanvas(object):
         self.canvas.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
         self.canvas.bind('<Configure>', self.resize)
 
-    def update(self, universe, events, round=None, turn=None):
+    def update(self, universe, game_state, round=None, turn=None):
         # This method is called every now and then. Either when new information
-        # about universe or events have arrived or when a resize has occurred.
+        # about universe or game_state have arrived or when a resize has occurred.
         # Whenever new universe or event data is sent, this is fine, as every
         # drawing method will know how to deal with this information.
         # However, a call due to a simple resize will not include this information.
@@ -196,17 +196,17 @@ class UiCanvas(object):
 
         self.draw_universe(self.current_universe)
 
-        if events:
-            for food_eaten in events["food_eaten"]:
+        if game_state:
+            for food_eaten in game_state["food_eaten"]:
                 food_tag = Food.food_pos_tag(tuple(food_eaten["food_pos"]))
                 self.canvas.delete(food_tag)
 
-            winning_team_idx = events.get("team_wins")
+            winning_team_idx = game_state.get("team_wins")
             if winning_team_idx is not None:
                 team_name = universe.teams[winning_team_idx].name
                 self.game_finish_overlay = lambda: self.draw_game_over(team_name)
 
-            if events.get("game_draw"):
+            if game_state.get("game_draw"):
                 self.game_finish_overlay = lambda: self.draw_game_draw()
 
         self.game_finish_overlay()
@@ -406,11 +406,11 @@ class TkApplication(object):
 
     def observe(self, observed):
         universe = observed.get("universe")
-        events = observed.get("events")
+        game_state = observed.get("game_state")
         round = observed.get("round")
         turn = observed.get("turn")
 
-        self.ui_canvas.update(universe, events, round, turn)
+        self.ui_canvas.update(universe, game_state, round, turn)
 
     def on_quit(self):
         """ override for things which must be done when we exit.

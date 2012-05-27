@@ -60,7 +60,8 @@ class GameMaster(object):
         self.player_teams_timeouts = []
         self.viewers = []
         self.initial_delay = initial_delay
-        self.events = {
+
+        self.game_state = {
             "bot_moved": [],
             "food_eaten": [],
             "bot_destroyed": [],
@@ -105,7 +106,7 @@ class GameMaster(object):
                     % viewer.__class__)
         self.viewers.append(viewer)
 
-    def send_to_viewers(self, round_index, turn, events):
+    def send_to_viewers(self, round_index, turn, game_state):
         """ Call the 'observe' method on all registered viewers.
 
         Parameters
@@ -114,14 +115,14 @@ class GameMaster(object):
             the current round
         turn : int
             the current turn
-        events : TypeAwareList of UniverseEvent
-            the events for this turn
+        game_state : dict
+            the current game state
         """
         for viewer in self.viewers:
             viewer.observe(round_index,
                     turn,
                     self.universe.copy(),
-                    copy.deepcopy(events))
+                    copy.deepcopy(game_state))
 
     def set_initial(self):
         """ This method needs to be called before a game is started.
@@ -158,18 +159,18 @@ class GameMaster(object):
                 break
 
         end_time = time.time()
-        self.events["running_time"] = end_time - start_time
+        self.game_state["running_time"] = end_time - start_time
 
-        if self.events["score"][0] > self.events["score"][1]:
-            self.events["team_wins"] = 0
-        elif self.events["score"][0] < self.events["score"][1]:
-            self.events["team_wins"] = 1
+        if self.game_state["score"][0] > self.game_state["score"][1]:
+            self.game_state["team_wins"] = 0
+        elif self.game_state["score"][0] < self.game_state["score"][1]:
+            self.game_state["team_wins"] = 1
         else:
-            self.events["game_draw"] = True
+            self.game_state["game_draw"] = True
 
         self.print_possible_winner()
 
-        self.send_to_viewers(self.events["round_index"], None, self.events)
+        self.send_to_viewers(self.game_state["round_index"], None, self.game_state)
 
     def play_round(self):
         """ Play only a single round.
@@ -181,17 +182,17 @@ class GameMaster(object):
         game_running : boolean
             True, if game is still running, False otherwise.
         """
-        if self.events["round_index"] is None:
-            self.events["round_index"] = 0
-        elif self.events["round_index"] >= self.game_time:
+        if self.game_state["round_index"] is None:
+            self.game_state["round_index"] = 0
+        elif self.game_state["round_index"] >= self.game_time:
             # This could raise an exception.
             return False
 
         for i, bot in enumerate(self.universe.bots):
-            self.events["bot_id"] = i
-            self.events["bot_moved"] = []
-            self.events["food_eaten"] = []
-            self.events["bot_destroyed"] = []
+            self.game_state["bot_id"] = i
+            self.game_state["bot_moved"] = []
+            self.game_state["food_eaten"] = []
+            self.game_state["bot_destroyed"] = []
 
             player_team = self.player_teams[bot.team_index]
             try:
@@ -199,22 +200,22 @@ class GameMaster(object):
                 if self.noiser:
                     universe_copy = self.noiser.uniform_noise(universe_copy, bot.index)
                 move = player_team._get_move(bot.index, universe_copy)
-                self.events = self.universe.move_bot(self.events, move)
+                self.game_state = self.universe.move_bot(self.game_state, move)
 
             except (datamodel.IllegalMoveException, PlayerTimeout) as e:
                 # after MAX_TIMEOUTS timeouts, you lose
-                self.events["timeout_teams"][bot.team_index] += 1
+                self.game_state["timeout_teams"][bot.team_index] += 1
 
-                if self.events["timeout_teams"][bot.team_index] == MAX_TIMEOUTS:
+                if self.game_state["timeout_teams"][bot.team_index] == MAX_TIMEOUTS:
                     other_team_idx = not bot.team_index
-                    self.events["team_wins"] = other_team_idx
+                    self.game_state["team_wins"] = other_team_idx
                     sys.stderr.write("Timeout #%r for team %r (bot index %r). Team disqualified.\n" % (
-                                      self.events["timeout_teams"][bot.team_index],
+                                      self.game_state["timeout_teams"][bot.team_index],
                                       bot.team_index,
                                       bot.index))
                 else:
                     sys.stderr.write("Timeout #%r for team %r (bot index %r).\n" % (
-                                      self.events["timeout_teams"][bot.team_index],
+                                      self.game_state["timeout_teams"][bot.team_index],
                                       bot.team_index,
                                       bot.index))
 
@@ -224,11 +225,11 @@ class GameMaster(object):
                     moves = [datamodel.stop]
 
                 move = random.choice(moves)
-                self.events = self.universe.move_bot(self.events, move)
+                self.game_state = self.universe.move_bot(self.game_state, move)
 
             except PlayerDisconnected:
                 other_team_idx = not bot.team_index
-                self.events["team_wins"] = other_team_idx
+                self.game_state["team_wins"] = other_team_idx
 
                 sys.stderr.write("Team %r (bot index %r) disconnected. Team disqualified.\n" % (
                                   bot.team_index,
@@ -237,16 +238,16 @@ class GameMaster(object):
             # re-add the score to the team objects in universe
             # TODO: refactor the whole score handling
             for team_idx, team in enumerate(self.universe.teams):
-                team.score = self.events["score"][team_idx]
+                team.score = self.game_state["score"][team_idx]
 
             self.print_possible_winner()
 
-            self.send_to_viewers(self.events["round_index"], bot.index, self.events)
+            self.send_to_viewers(self.game_state["round_index"], bot.index, self.game_state)
 
-            if self.events.get("team_wins") is not None or self.events.get("game_draw") is not None:
+            if self.game_state.get("team_wins") is not None or self.game_state.get("game_draw") is not None:
                 return False
 
-        self.events["round_index"] += 1
+        self.game_state["round_index"] += 1
         return True
 
     def print_possible_winner(self):
@@ -254,7 +255,7 @@ class GameMaster(object):
 
         This is needed for scripts parsing the output.
         """
-        winning_team = self.events.get("team_wins")
+        winning_team = self.game_state.get("team_wins")
         if winning_team is not None:
             winner = self.universe.teams[winning_team]
             loser = self.universe.teams[1 - winning_team]
@@ -266,7 +267,7 @@ class GameMaster(object):
             # won't let us pipe it.
             sys.stdout.flush()
 
-        if self.events.get("game_draw") is not None:
+        if self.game_state.get("game_draw") is not None:
             t0 = self.universe.teams[0]
             t1 = self.universe.teams[1]
             print "Finished. %r and %r had a draw. (%r:%r)" % (
