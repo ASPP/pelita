@@ -234,6 +234,11 @@ class GameMaster(object):
                                   bot.team_index,
                                   bot.index))
 
+            # re-add the score to the team objects in universe
+            # TODO: refactor the whole score handling
+            for team_idx, team in enumerate(self.universe.teams):
+                team.score = self.events["score"][team_idx]
+
             self.print_possible_winner()
 
             self.send_to_viewers(self.events["round_index"], bot.index, self.events)
