@@ -106,7 +106,7 @@ class GameMaster(object):
                     % viewer.__class__)
         self.viewers.append(viewer)
 
-    def send_to_viewers(self, round_index, turn, game_state):
+    def send_to_viewers(self, game_state):
         """ Call the 'observe' method on all registered viewers.
 
         Parameters
@@ -119,10 +119,8 @@ class GameMaster(object):
             the current game state
         """
         for viewer in self.viewers:
-            viewer.observe(round_index,
-                    turn,
-                    self.universe.copy(),
-                    copy.deepcopy(game_state))
+            viewer.observe(self.universe.copy(),
+                           copy.deepcopy(game_state))
 
     def set_initial(self):
         """ This method needs to be called before a game is started.
@@ -170,7 +168,7 @@ class GameMaster(object):
 
         self.print_possible_winner()
 
-        self.send_to_viewers(self.game_state["round_index"], None, self.game_state)
+        self.send_to_viewers(self.game_state)
 
     def play_round(self):
         """ Play only a single round.
@@ -242,7 +240,7 @@ class GameMaster(object):
 
             self.print_possible_winner()
 
-            self.send_to_viewers(self.game_state["round_index"], bot.index, self.game_state)
+            self.send_to_viewers(self.game_state)
 
             if self.game_state.get("team_wins") is not None or self.game_state.get("game_draw") is not None:
                 return False

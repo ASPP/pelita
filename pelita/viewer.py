@@ -14,21 +14,21 @@ class AbstractViewer(object):
         """
         pass
 
-    def observe(self, round_, turn, universe, game_state):
+    def observe(self, universe, game_state):
         raise NotImplementedError(
                 "You must override the 'observe' method in your viewer")
 
 class DevNullViewer(AbstractViewer):
     """ A viewer that simply ignores everything. """
-    def observe(self, round_, turn, universe, game_state):
+    def observe(self, universe, game_state):
         pass
 
 class AsciiViewer(AbstractViewer):
     """ A viewer that dumps ASCII charts on stdout. """
 
-    def observe(self, round_, turn, universe, game_state):
+    def observe(self, universe, game_state):
         print ("Round: %r Turn: %r Score: %r:%r"
-        % (round_, turn, universe.teams[0].score, universe.teams[1].score))
+        % (game_state["round_index"], game_state["bot_id"], game_state["score"][0], game_state["score"][1]))
         print ("Game State: %r") % game_state
         print universe.compact_str
         winning_team_idx = game_state.get("team_wins")
@@ -46,10 +46,8 @@ class DumpingViewer(AbstractViewer):
         self.stream.write(json_converter.dumps({"universe": universe}))
         self.stream.write("\x04")
 
-    def observe(self, round_, turn, universe, game_state):
+    def observe(self, universe, game_state):
         kwargs = {
-            "round_": round_,
-            "turn": turn,
             "universe": universe,
             "game_state": game_state
         }
