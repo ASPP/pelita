@@ -321,12 +321,12 @@ Defense is important because your enemy is awarded ``5`` points if he
 manages to destroy one of your bots!
 
 The player mostly uses convenience properties already introduced for the
-``BFSPlayer`` in addition to a few othres. For example ``path_to_border`` uses
-uses the ``team_border`` convenience property which gives the positions of the
+``BFSPlayer`` in addition to a few others. For example ``path_to_border`` uses
+the ``team_border`` convenience property which gives the positions of the
 border. Also, ``get_move()`` access the ``enemy_bots`` property and then uses
 the ``team.in_zone(position)`` function to check if an enemy position is within
 the zone of this team. Note that ``team`` is a convenience property of the
-``AbstractPlayer`` which in turn gives acces to the ``Team`` instance from the
+``AbstractPlayer`` which in turn gives access to the ``Team`` instance from the
 ``CTFUniverse``, which in turn has the method ``in_zone(position)``.
 
 
@@ -433,7 +433,7 @@ respective ``Team`` instance:
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer.team
 
-Somthing similar is achieved for the ``team_border``:
+Something similar is achieved for the ``team_border``:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer.team_border
