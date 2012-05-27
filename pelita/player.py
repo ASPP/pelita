@@ -7,7 +7,8 @@ import random
 import sys
 import math
 import abc
-from .datamodel import stop, Free, diff_pos
+from . import datamodel
+from .datamodel import Free, diff_pos
 from .graph import AdjacencyList, NoPathException
 
 __docformat__ = "restructuredtext"
@@ -258,7 +259,7 @@ class StoppingPlayer(AbstractPlayer):
     """ A Player that just stands still. """
 
     def get_move(self):
-        return stop
+        return datamodel.stop
 
 
 class RandomPlayer(AbstractPlayer):
@@ -277,12 +278,20 @@ class TestPlayer(AbstractPlayer):
 
     """
 
+
+    _MOVES = {'^': datamodel.north,
+              'v': datamodel.south,
+              '<': datamodel.west,
+              '>': datamodel.east,
+              '-': datamodel.stop}
+
     def __init__(self, moves):
-        self.moves = list(moves)
+        if isinstance(moves, basestring):
+            moves = (self._MOVES[move] for move in moves)
+        self.moves = iter(moves)
 
     def get_move(self):
-        return self.moves.pop()
-
+        return next(self.moves)
 
 class IOBoundPlayer(AbstractPlayer):
     """ IO Bound player that crawls the file system. """
@@ -348,7 +357,7 @@ class NQRandomPlayer(AbstractPlayer):
         legal_moves = self.legal_moves
         # Remove stop
         try:
-            del legal_moves[stop]
+            del legal_moves[datamodel.stop]
         except KeyError:
             pass
         # now remove the move that would lead to the previous_position
@@ -360,7 +369,7 @@ class NQRandomPlayer(AbstractPlayer):
             del legal_moves[k]
         # just in case, there is really no way to go to:
         if not legal_moves:
-            return stop
+            return datamodel.stop
         # and select a move at random
         return random.choice(legal_moves.keys())
 
@@ -494,6 +503,6 @@ class BasicDefensePlayer(AbstractPlayer):
 
         # if something above went wrong, just stand still
         if not self.path:
-            return stop
+            return datamodel.stop
         else:
             return diff_pos(self.current_pos, self.path.pop())
