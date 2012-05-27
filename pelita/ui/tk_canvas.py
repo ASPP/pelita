@@ -201,12 +201,13 @@ class UiCanvas(object):
                 food_tag = Food.food_pos_tag(tuple(food_eaten["food_pos"]))
                 self.canvas.delete(food_tag)
 
-            #for team_wins in events.filter_type(datamodel.TeamWins):
-            #    team_index = team_wins.winning_team_index
-            #    team_name = universe.teams[team_index].name
-            #    self.game_finish_overlay = lambda: self.draw_game_over(team_name)
-            #for game_draw in events.filter_type(datamodel.GameDraw):
-            #    self.game_finish_overlay = lambda: self.draw_game_draw()
+            winning_team_idx = events.get("team_wins")
+            if winning_team_idx is not None:
+                team_name = universe.teams[winning_team_idx].name
+                self.game_finish_overlay = lambda: self.draw_game_over(team_name)
+
+            if events.get("game_draw"):
+                self.game_finish_overlay = lambda: self.draw_game_draw()
 
         self.game_finish_overlay()
 

@@ -138,7 +138,6 @@ class GameMaster(object):
             viewer.set_initial(self.universe.copy())
 
     # TODO the game winning detection should be refactored
-
     def play(self):
         """ Play a whole game. """
         # notify all PlayerTeams
