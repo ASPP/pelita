@@ -13,26 +13,17 @@ from pelita.graph import AdjacencyList
 
 
 class TestGameMaster(unittest.TestCase):
+    test_layout = """ ####
+                      #01#
+                      #### """
+    game_master = GameMaster(test_layout, 2, 200)
 
-    def test_basics(self):
-        test_layout = (
-        """ ##################
-            #0#.  .  # .     #
-            #2#####    #####1#
-            #     . #  .  .#3#
-            ################## """)
+    class BrokenViewer_without_observe(object):
+        pass
 
-        game_master = GameMaster(test_layout, 4, 200)
-
-        class BrokenViewer(AbstractViewer):
-            pass
-
-        class BrokenPlayer(AbstractPlayer):
-            pass
-
-        self.assertRaises(TypeError, game_master.register_viewer, BrokenViewer())
-#        self.assertRaises(TypeError, game_master.register_player, BrokenPlayer())
-        self.assertRaises(IndexError, game_master.play)
+    def test_viewer_api_methods(self):
+        viewer = self.BrokenViewer_without_observe()
+        self.game_master.register_viewer(viewer)
 
     def test_team_names(self):
         test_layout = (
@@ -190,14 +181,14 @@ class TestUniverseNoiser(unittest.TestCase):
 
 
 class TestAbstracts(unittest.TestCase):
+    class BrokenViewer(AbstractViewer):
+        pass
 
     def test_AbstractViewer(self):
-        av = AbstractViewer()
-        self.assertRaises(NotImplementedError, av.observe, None, None, None, None)
+        self.assertRaises(TypeError, AbstractViewer)
 
-    def test_AbstractPlayer(self):
-        ap = AbstractPlayer()
-        self.assertRaises(NotImplementedError, ap.get_move)
+    def test_BrokenViewer(self):
+        self.assertRaises(TypeError, self.BrokenViewer)
 
 class TestGame(unittest.TestCase):
 
