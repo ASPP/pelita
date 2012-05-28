@@ -1,0 +1,6 @@
+pelita.player.RoundBasedPlayer.initial_pos
+==========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: RoundBasedPlayer.initial_pos

@@ -1,0 +1,6 @@
+pelita.player.RoundBasedPlayer.enemy_bots
+=========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: RoundBasedPlayer.enemy_bots

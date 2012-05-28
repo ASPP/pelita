@@ -1,0 +1,6 @@
+pelita.player.RoundBasedPlayer.me
+=================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: RoundBasedPlayer.me

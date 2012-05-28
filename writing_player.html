@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Writing a Player &mdash; Pelita v0.1.1-3-gfdc3f07 documentation</title>
+    <title>Writing a Player &mdash; Pelita v0.1.1-35-g568088e documentation</title>
     
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.1.1-3-gfdc3f07',
+        VERSION:     'v0.1.1-35-g568088e',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.1-3-gfdc3f07 documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.1.1-35-g568088e documentation" href="index.html" />
     <link rel="next" title="Running Players" href="running_player.html" />
     <link rel="prev" title="Project Information" href="info.html" /> 
   </head>
@@ -48,7 +48,7 @@
         <li class="right" >
           <a href="info.html" title="Project Information"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita v0.1.1-3-gfdc3f07 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.1.1-35-g568088e documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -72,14 +72,14 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#a-basic-offensive-player" id="id8">A Basic Offensive Player</a><ul>
-<li><a class="reference internal" href="#using-current-uni" id="id9">Using <tt class="docutils literal"><span class="pre">current_uni</span></tt></a></li>
+<li><a class="reference internal" href="#current-uni-current-pos-and-enemy-food" id="id9"><tt class="docutils literal"><span class="pre">current_uni</span></tt>, <tt class="docutils literal"><span class="pre">current_pos</span></tt> and <tt class="docutils literal"><span class="pre">enemy_food</span></tt></a></li>
 <li><a class="reference internal" href="#recovery-strategies-in-case-of-death-or-timeout" id="id10">Recovery Strategies in Case of Death or Timeout</a></li>
-<li><a class="reference internal" href="#a-more-advanced-example" id="id11">A more Advanced Example</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#interacting-with-the-maze" id="id12">Interacting with the Maze</a></li>
-<li><a class="reference internal" href="#a-basic-defensive-player" id="id13">A Basic Defensive Player</a></li>
-<li><a class="reference internal" href="#noisy-enemy-positions" id="id14">Noisy Enemy Positions</a></li>
+<li><a class="reference internal" href="#interacting-with-the-maze" id="id11">Interacting with the Maze</a></li>
+<li><a class="reference internal" href="#a-basic-defensive-player" id="id12">A Basic Defensive Player</a></li>
+<li><a class="reference internal" href="#noisy-enemy-positions" id="id13">Noisy Enemy Positions</a></li>
+<li><a class="reference internal" href="#implementation-details-of-convenience-properties" id="id14">Implementation Details of Convenience Properties</a></li>
 </ul>
 </li>
 </ul>
@@ -124,10 +124,10 @@ that a <em>player</em> object controls a <em>bot</em> object.</td>
 <div class="section" id="player-basics">
 <h2><a class="toc-backref" href="#id4">Player Basics</a><a class="headerlink" href="#player-basics" title="Permalink to this headline">¶</a></h2>
 <p>In order to write a player you should subclass from
-<a class="reference internal" href="pelita/pelita.player.AbstractPlayer.html#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></tt></a>. This is an abstract class which provides several
-convenience methods and properties to interrogate the universe including the bot
-instance that this player controls, but lacks the functions to actually control
-the bot.</p>
+<a class="reference internal" href="pelita/pelita.player.AbstractPlayer.html#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></tt></a>. This is an abstract class which provides
+several convenience methods and properties to interrogate the universe
+including the bot instance that this player controls, but lacks the functions
+to actually control the bot.</p>
 <p>To subclass from <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt> import this with:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">AbstractPlayer</span>
 </pre></div>
@@ -147,7 +147,7 @@ which simply returns <tt class="docutils literal"><span class="pre">stop</span><
     <span class="sd">&quot;&quot;&quot; A Player that just stands still. &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">stop</span>
+        <span class="k">return</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -188,11 +188,11 @@ for example:</p>
 </div>
 <p>Here we can see the first convenience property <tt class="docutils literal"><span class="pre">legal_moves</span></tt> which returns a
 dictionary mapping move tuples to position tuples. The random player simply
-selects a move at random from the keys (moves) of this dictionary and then moves
-there. <tt class="docutils literal"><span class="pre">legal_moves</span></tt> always includes stop.</p>
-<p>The next example is the not-quite random player <tt class="xref py py-obj docutils literal"><span class="pre">pelita.player.NQRandomPlayer`</span></tt>.
-This one does not move back to the position where it was on its last turn and
-never stops in place:</p>
+selects a move at random from the keys (moves) of this dictionary and then
+moves there. <tt class="docutils literal"><span class="pre">legal_moves</span></tt> always includes stop.</p>
+<p>The next example is the not-quite random player
+<tt class="docutils literal"><span class="pre">pelita.player.NQRandomPlayer</span></tt>.  This one does not move back to the position
+where it was on its last turn and never stops in place:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">NQRandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Not-Quite-RandomPlayer that will move randomly but not stop or reverse. &quot;&quot;&quot;</span>
 
@@ -200,7 +200,7 @@ never stops in place:</p>
         <span class="n">legal_moves</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_moves</span>
         <span class="c"># Remove stop</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">del</span> <span class="n">legal_moves</span><span class="p">[</span><span class="n">stop</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">legal_moves</span><span class="p">[</span><span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="c"># now remove the move that would lead to the previous_position</span>
@@ -212,7 +212,7 @@ never stops in place:</p>
             <span class="k">del</span> <span class="n">legal_moves</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
         <span class="c"># just in case, there is really no way to go to:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">legal_moves</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">stop</span>
+            <span class="k">return</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span>
         <span class="c"># and select a move at random</span>
         <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">legal_moves</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 </pre></div>
@@ -311,7 +311,7 @@ and distances in <a class="reference internal" href="pelita/pelita.datamodel.htm
 <td>Adds a position tuple and a move tuple.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.diff_pos.html#pelita.datamodel.diff_pos" title="pelita.datamodel.diff_pos"><tt class="xref py py-obj docutils literal"><span class="pre">diff_pos</span></tt></a></td>
-<td>Return the move required to move from one pos to another.</td>
+<td>Return the move required to move from one position to another.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.is_adjacent.html#pelita.datamodel.is_adjacent" title="pelita.datamodel.is_adjacent"><tt class="xref py py-obj docutils literal"><span class="pre">is_adjacent</span></tt></a></td>
 <td>Check that two positions are adjacent.</td>
@@ -326,8 +326,8 @@ and distances in <a class="reference internal" href="pelita/pelita.datamodel.htm
 <div class="section" id="a-basic-offensive-player">
 <h2><a class="toc-backref" href="#id8">A Basic Offensive Player</a><a class="headerlink" href="#a-basic-offensive-player" title="Permalink to this headline">¶</a></h2>
 <p>A somewhat more elaborate example is the <a class="reference internal" href="pelita/pelita.player.BFSPlayer.html#pelita.player.BFSPlayer" title="pelita.player.BFSPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.player.BFSPlayer</span></tt></a> which uses
-<em>breadth first search</em> on an <em>adjacency list</em> representation of the maze to find
-food:</p>
+<em>breadth first search</em> on an <em>adjacency list</em> representation of the maze to
+find food:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">BFSPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; This player uses breadth first search to always go to the closest food.</span>
 
@@ -382,110 +382,33 @@ food:</p>
 </pre></div>
 </div>
 <p>This next sections will explore the convenience properties of the
-<tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt>.</p>
-<div class="section" id="using-current-uni">
-<h3><a class="toc-backref" href="#id9">Using <tt class="docutils literal"><span class="pre">current_uni</span></tt></a><a class="headerlink" href="#using-current-uni" title="Permalink to this headline">¶</a></h3>
+<tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt> as used in the <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt>.</p>
+<div class="section" id="current-uni-current-pos-and-enemy-food">
+<h3><a class="toc-backref" href="#id9"><tt class="docutils literal"><span class="pre">current_uni</span></tt>, <tt class="docutils literal"><span class="pre">current_pos</span></tt> and <tt class="docutils literal"><span class="pre">enemy_food</span></tt></a><a class="headerlink" href="#current-uni-current-pos-and-enemy-food" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt> makes use of some more advanced concepts. The first thing to
-note is that any player can override the method <tt class="docutils literal"><span class="pre">set_initial()</span></tt>. At this stage
-food is still present, and all bots are at their initial position. In the above
-example we initialise the adjacency list representation of the maze. As
+note is that any player can override the method <tt class="docutils literal"><span class="pre">set_initial()</span></tt>. At this
+stage food is still present, and all bots are at their initial position. In the
+above example we initialise the adjacency list representation of the maze. As
 mentioned previously the current state of the universe is always available as
 <tt class="docutils literal"><span class="pre">current_uni</span></tt>. Within <tt class="docutils literal"><span class="pre">set_initial()</span></tt> this is the starting state.</p>
-<p>Let&#8217;s take a quick look as the implementation
-of <tt class="docutils literal"><span class="pre">current_uni</span></tt>:</p>
-<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">current_uni</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; The current Universe.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        universe : Universe</span>
-<span class="sd">            the current Universe</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-</pre></div>
-</div>
-<p>Importantly we see that the <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt> automatically maintains a stack
-of previous states of the Universe called <tt class="docutils literal"><span class="pre">universe_states</span></tt>.
-As we can see <tt class="docutils literal"><span class="pre">current_uni</span></tt> is simply the top element of this stack. This
-allows us to access the properties and methods of the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt>, for
-example look at the implementation of <tt class="docutils literal"><span class="pre">legal_moves</span></tt>:</p>
-<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">legal_moves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; The currently possible moves, and where they lead.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        legal_moves : dict mapping moves to positions</span>
-<span class="sd">            the currently legal moves</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">get_legal_moves</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Here we can see that this simply calls the method <tt class="docutils literal"><span class="pre">get_legal_moves(pos)</span></tt>
-which is provided by <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt>. We also see one of the convenience
-properties used in the <tt class="docutils literal"><span class="pre">bfs_food()</span></tt> method: <tt class="docutils literal"><span class="pre">current_pos</span></tt> which returns the
-current position of the bot.  Let&#8217;s have a look at this:</p>
-<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">current_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; The current position of this bot.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        current_pos : tuple of (int, int)</span>
-<span class="sd">            the current position (x, y) of this bot</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">current_pos</span>
-</pre></div>
-</div>
-<p>We see that this makes use of the <tt class="docutils literal"><span class="pre">me</span></tt> property which is defined as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">me</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; The Bot object this Player controls.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        me : Bot</span>
-<span class="sd">            the bot controlled by this player</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">]</span>
-</pre></div>
-</div>
-<p>As you can see, <tt class="docutils literal"><span class="pre">me</span></tt> will simply obtain the <tt class="docutils literal"><span class="pre">Bot</span></tt> instance controlled by this
-player from the current universe using the hidden <tt class="docutils literal"><span class="pre">_index</span></tt> attribute of the
-player. In practice, you should be able to avoid having to use the
-<tt class="docutils literal"><span class="pre">_index</span></tt> directly but it&#8217;s good to know how this is implemented in case you
-wish to do something exotic.</p>
-<p>The other convenience property used in <tt class="docutils literal"><span class="pre">bfs_food()</span></tt> is <tt class="docutils literal"><span class="pre">enemy_food</span></tt> which
-returns a list of position tuples of the food owned by the enemy (which can be
-eaten by this bot). Again, this is simply forwarded to the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt> using
-<tt class="docutils literal"><span class="pre">current_uni</span></tt>:</p>
-<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">enemy_food</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Food owned by the enemy which can be eaten by this players bot.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        enemy_food : list of position tuples (int, int)</span>
-<span class="sd">            The positions (x, y) of edible food</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">enemy_food</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">team_index</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>As with <tt class="docutils literal"><span class="pre">legal_moves</span></tt>, a method from <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt> is called, namely
-<tt class="docutils literal"><span class="pre">enemy_food</span></tt>. However, we need to tell it which team we are on. This is
-obtained using the <tt class="docutils literal"><span class="pre">me</span></tt> property to access the controlled <tt class="docutils literal"><span class="pre">Bot</span></tt> instance,
-which in turn stores the <tt class="docutils literal"><span class="pre">team_index</span></tt>. In practice, the information stored in
-the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt> should be accessible through the convenience properties of
-the <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt>. However, if these do not suffice, please have a look
-at the source code.</p>
+<p>The next interesting thing to look at is the <tt class="docutils literal"><span class="pre">bfs_food()</span></tt> method which simply
+searches the <tt class="docutils literal"><span class="pre">AdjacencyList</span></tt> to find the closest food and returns a path to
+that food. In the process it makes use of two convenience properties:
+<tt class="docutils literal"><span class="pre">current_pos</span></tt> and <tt class="docutils literal"><span class="pre">enemy_food</span></tt>. The first is the location of the <tt class="docutils literal"><span class="pre">Bot</span></tt>
+controlled by this <tt class="docutils literal"><span class="pre">Player</span></tt> as a position tuple. The second is a list of
+position tuples of the food owned by the enemy (which can be eaten by this
+bot).</p>
+<p>There are a few more convenience properties available from <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt>,
+you should look at the section <a class="reference internal" href="user-api.html#user-api-reference"><em>User API Reference</em></a> for details.</p>
 </div>
 <div class="section" id="recovery-strategies-in-case-of-death-or-timeout">
 <h3><a class="toc-backref" href="#id10">Recovery Strategies in Case of Death or Timeout</a><a class="headerlink" href="#recovery-strategies-in-case-of-death-or-timeout" title="Permalink to this headline">¶</a></h3>
 <p>Lastly, we are going to see some error recovery code in the
-<tt class="docutils literal"><span class="pre">get_move()</span></tt> method.</p>
+<tt class="docutils literal"><span class="pre">get_move()</span></tt> method of the <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt>.</p>
 <p>The <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt> is sometimes killed, as expected for an offensive player. In
-order to detect this, it&#8217;s best to compare the current position with its initial
-position using the <tt class="docutils literal"><span class="pre">initial_pos</span></tt> convenience property, since this is where it
-will respawn.</p>
+order to detect this, it&#8217;s best to compare the current position with its
+initial position using the <tt class="docutils literal"><span class="pre">initial_pos</span></tt> convenience property, since this is
+where it will respawn.</p>
 <p>Your player only has a limited time to return from <tt class="docutils literal"><span class="pre">get_move()</span></tt>. The default
 is approximately three seconds. If your player does not respond in time, the
 <tt class="docutils literal"><span class="pre">GameMaster</span></tt> will move the bot at random for this turn. It&#8217;s important to
@@ -501,37 +424,12 @@ Imagine an infinite <tt class="docutils literal"><span class="pre">for</span></t
 <p>In this case, your <tt class="docutils literal"><span class="pre">get_move()</span></tt> will be executed exactly once! Thus it is
 important to ensure that your search algorithms are efficient and fast.</p>
 </div>
-<div class="section" id="a-more-advanced-example">
-<h3><a class="toc-backref" href="#id11">A more Advanced Example</a><a class="headerlink" href="#a-more-advanced-example" title="Permalink to this headline">¶</a></h3>
-<p>Now that you know about <tt class="docutils literal"><span class="pre">universe_states</span></tt>, <tt class="docutils literal"><span class="pre">_index</span></tt> and <tt class="docutils literal"><span class="pre">current_pos</span></tt> let&#8217;s
-have a look at how the <tt class="docutils literal"><span class="pre">previous_pos</span></tt> property (used in the <tt class="docutils literal"><span class="pre">NQRandomPlayer</span></tt>) is
-implemented:</p>
-<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">previous_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; The previous position of the bot.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        previous_pos : tuple of (int, int)</span>
-<span class="sd">            the previous position (x, y) of this bot</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">]</span><span class="o">.</span><span class="n">current_pos</span>
-</pre></div>
-</div>
-<p>Again, we will make use of <tt class="docutils literal"><span class="pre">universe_states</span></tt>, but this time we will look at the second element
-from the top of the stack. The Universe maintains a list of bots <tt class="docutils literal"><span class="pre">bots</span></tt> and
-the hidden attribute <tt class="docutils literal"><span class="pre">_index</span></tt> can be used to obtain the respective bot
-instance controlled by the player. Lastly, we simply look at the <tt class="docutils literal"><span class="pre">current_pos</span></tt>
-property of the bot (the bot instance from one turn ago) to obtain its previous
-position.</p>
-<p>There are a few more convenience properties available from
-<tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt>, you should look at the section <a class="reference internal" href="user-api.html#user-api-reference"><em>User API Reference</em></a> for details.</p>
-</div>
 </div>
 <div class="section" id="interacting-with-the-maze">
-<h2><a class="toc-backref" href="#id12">Interacting with the Maze</a><a class="headerlink" href="#interacting-with-the-maze" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id11">Interacting with the Maze</a><a class="headerlink" href="#interacting-with-the-maze" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt> above uses the adjacency list representation provided by:
-<tt class="xref py py-obj docutils literal"><span class="pre">pelita.graph.AdjacencyList`</span></tt>. Let&#8217;s have a quick look at how this is generated, in
-case you would like to implement your own <a class="reference external" href="http://en.wikipedia.org/wiki/Graph_(data_structure)">graph storage</a> or leverage an
+<tt class="xref py py-obj docutils literal"><span class="pre">pelita.graph.AdjacencyList`</span></tt>. Let&#8217;s have a quick look at how this is
+generated, in case you would like to implement your own <a class="reference external" href="http://en.wikipedia.org/wiki/Graph_(data_structure)">graph storage</a> or leverage an
 alternative existing package such as <a class="reference external" href="http://networkx.lanl.gov/">NetworkX</a>.</p>
 <p>Here it is the <tt class="docutils literal"><span class="pre">__init__</span></tt> of the <tt class="docutils literal"><span class="pre">AdjacencyList</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">AdjacencyList</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
@@ -550,15 +448,15 @@ alternative existing package such as <a class="reference external" href="http://
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">gen</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>In order to obtain the positions of all free spaces, the <a class="reference internal" href="pelita/pelita.datamodel.Maze.html#pelita.datamodel.Maze" title="pelita.datamodel.Maze"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.datamodel.Maze</span></tt></a>
-class provides the function <a class="reference internal" href="pelita/pelita.datamodel.Maze.pos_of.html#pelita.datamodel.Maze.pos_of" title="pelita.datamodel.Maze.pos_of"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.datamodel.Maze.pos_of</span></tt></a>. The type of the
-argument is of type <a class="reference internal" href="pelita/pelita.datamodel.MazeComponent.html#pelita.datamodel.MazeComponent" title="pelita.datamodel.MazeComponent"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.datamodel.MazeComponent</span></tt></a> (but it&#8217;s a class, not an
-instance). There are three <tt class="docutils literal"><span class="pre">MazeComponent</span></tt> classes available in
-<tt class="docutils literal"><span class="pre">pelita.datamodel</span></tt>: <tt class="docutils literal"><span class="pre">Wall</span></tt>, <tt class="docutils literal"><span class="pre">Free</span></tt>, <tt class="docutils literal"><span class="pre">Food</span></tt>. Then, we use the method
-<tt class="docutils literal"><span class="pre">get_legal_moves(pos).values()</span></tt> to obtain the adjacent free spaces, for each
-of the free positions.  The last step is to use the <tt class="docutils literal"><span class="pre">update</span></tt> method to set the
-generated dictionary, which we can do, since <tt class="docutils literal"><span class="pre">AdjacencyList</span></tt> inherits from
-<tt class="docutils literal"><span class="pre">dict</span></tt>.</p>
+<p>In order to obtain the positions of all free spaces, the
+<a class="reference internal" href="pelita/pelita.datamodel.Maze.html#pelita.datamodel.Maze" title="pelita.datamodel.Maze"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.datamodel.Maze</span></tt></a> class provides the function
+<a class="reference internal" href="pelita/pelita.datamodel.Maze.pos_of.html#pelita.datamodel.Maze.pos_of" title="pelita.datamodel.Maze.pos_of"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.datamodel.Maze.pos_of</span></tt></a>. The type of the argument is of type
+<a class="reference internal" href="pelita/pelita.datamodel.MazeComponent.html#pelita.datamodel.MazeComponent" title="pelita.datamodel.MazeComponent"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.datamodel.MazeComponent</span></tt></a> (but it&#8217;s a class, not an instance). There are
+three <tt class="docutils literal"><span class="pre">MazeComponent</span></tt> classes available in <tt class="docutils literal"><span class="pre">pelita.datamodel</span></tt>: <tt class="docutils literal"><span class="pre">Wall</span></tt>,
+<tt class="docutils literal"><span class="pre">Free</span></tt>, <tt class="docutils literal"><span class="pre">Food</span></tt>. Then, we use the method <tt class="docutils literal"><span class="pre">get_legal_moves(pos).values()</span></tt>
+to obtain the adjacent free spaces, for each of the free positions.  The last
+step is to use the <tt class="docutils literal"><span class="pre">update</span></tt> method to set the generated dictionary, which we
+can do, since <tt class="docutils literal"><span class="pre">AdjacencyList</span></tt> inherits from <tt class="docutils literal"><span class="pre">dict</span></tt>.</p>
 <p>In addition to <tt class="docutils literal"><span class="pre">pos_of</span></tt>, there are a few additional constructs that are
 useful when dealing with the maze. The property <tt class="docutils literal"><span class="pre">positions</span></tt> gives all the
 positions in the maze. To check if a given <tt class="docutils literal"><span class="pre">MazeComponent</span></tt> is at a certain
@@ -578,7 +476,7 @@ remove food to the maze:</p>
 </div>
 </div>
 <div class="section" id="a-basic-defensive-player">
-<h2><a class="toc-backref" href="#id13">A Basic Defensive Player</a><a class="headerlink" href="#a-basic-defensive-player" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id12">A Basic Defensive Player</a><a class="headerlink" href="#a-basic-defensive-player" title="Permalink to this headline">¶</a></h2>
 <p>As a defensive example we have the <tt class="docutils literal"><span class="pre">BasicDefensePlayer</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">BasicDefensePlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A crude defensive player.</span>
@@ -657,7 +555,7 @@ remove food to the maze:</p>
 
         <span class="c"># if something above went wrong, just stand still</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">stop</span>
+            <span class="k">return</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">diff_pos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
 </pre></div>
@@ -665,8 +563,148 @@ remove food to the maze:</p>
 <p>Defense is important because your enemy is awarded <tt class="docutils literal"><span class="pre">5</span></tt> points if he
 manages to destroy one of your bots!</p>
 <p>The player mostly uses convenience properties already introduced for the
-<tt class="docutils literal"><span class="pre">BFSPlayer</span></tt>. Additionally, it makes use of the <tt class="docutils literal"><span class="pre">team</span></tt> property, which is just the
-<tt class="docutils literal"><span class="pre">Team</span></tt> instance from the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt>:</p>
+<tt class="docutils literal"><span class="pre">BFSPlayer</span></tt> in addition to a few others. For example <tt class="docutils literal"><span class="pre">path_to_border</span></tt> uses
+the <tt class="docutils literal"><span class="pre">team_border</span></tt> convenience property which gives the positions of the
+border. Also, <tt class="docutils literal"><span class="pre">get_move()</span></tt> access the <tt class="docutils literal"><span class="pre">enemy_bots</span></tt> property and then uses
+the <tt class="docutils literal"><span class="pre">team.in_zone(position)</span></tt> function to check if an enemy position is within
+the zone of this team. Note that <tt class="docutils literal"><span class="pre">team</span></tt> is a convenience property of the
+<tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt> which in turn gives access to the <tt class="docutils literal"><span class="pre">Team</span></tt> instance from the
+<tt class="docutils literal"><span class="pre">CTFUniverse</span></tt>, which in turn has the method <tt class="docutils literal"><span class="pre">in_zone(position)</span></tt>.</p>
+<p>For a comprehensive overview of all the properties of <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt>,
+look at the section <a class="reference internal" href="user-api.html#user-api-reference"><em>User API Reference</em></a>.</p>
+<p>Note that this player simply ignores the noisy enemy positions (described
+next).</p>
+</div>
+<div class="section" id="noisy-enemy-positions">
+<h2><a class="toc-backref" href="#id13">Noisy Enemy Positions</a><a class="headerlink" href="#noisy-enemy-positions" title="Permalink to this headline">¶</a></h2>
+<p>In general, the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt> you receive is noisy. This means that you can
+only obtain an accurate fix on the enemy bots if they are within 5 squares maze
+distance (otherwise, the position is noisy with a uniform radius of 5 squares
+maze distance). These two values may lead to confusing values: for example if
+the bot is 6 squares away, but the added noise of 4 squares towards your bot,
+make it appear as if it were only 2 squares away. Thus, you can check if a bot
+position is noisy using the <tt class="docutils literal"><span class="pre">noisy</span></tt> attribute of the bot instance, in
+combination with the <tt class="docutils literal"><span class="pre">enemy_bots</span></tt> convenience property provided by
+<tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">enemy_bots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">noisy</span>
+</pre></div>
+</div>
+<p>One idea is to implement probabilistic tracking using a <a class="reference external" href="http://en.wikipedia.org/wiki/Kalman_filter">Kalman filter</a></p>
+<p>If you wish to know how the noise is implemented, look at the class:
+<tt class="docutils literal"><span class="pre">pelita.game_master.UniverseNoiser</span></tt>.</p>
+</div>
+<div class="section" id="implementation-details-of-convenience-properties">
+<h2><a class="toc-backref" href="#id14">Implementation Details of Convenience Properties</a><a class="headerlink" href="#implementation-details-of-convenience-properties" title="Permalink to this headline">¶</a></h2>
+<p>This section contains some details about the implementation of the convenience
+properties of <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt>. Reading this section is not required, but may
+be of interest to the curious reader.</p>
+<p>Let&#8217;s take a quick look as the implementation
+of <tt class="docutils literal"><span class="pre">current_uni</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">current_uni</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The current Universe.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        universe : Universe</span>
+<span class="sd">            the current Universe</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Importantly we see that the <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt> automatically maintains a stack
+of previous states of the Universe called <tt class="docutils literal"><span class="pre">universe_states</span></tt>.
+As we can see <tt class="docutils literal"><span class="pre">current_uni</span></tt> is simply the top element of this stack. This
+allows us to access the properties and methods of the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt>, for
+example look at the implementation of <tt class="docutils literal"><span class="pre">legal_moves</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">legal_moves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The currently possible moves, and where they lead.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        legal_moves : dict mapping moves to positions</span>
+<span class="sd">            the currently legal moves</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">get_legal_moves</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here we can see that this simply calls the method <tt class="docutils literal"><span class="pre">get_legal_moves(pos)</span></tt>
+which is provided by <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt>. We also see one of the convenience
+properties used in the <tt class="docutils literal"><span class="pre">bfs_food()</span></tt> method: <tt class="docutils literal"><span class="pre">current_pos</span></tt> which returns the
+current position of the bot.  Let&#8217;s have a look at this:</p>
+<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">current_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The current position of this bot.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        current_pos : tuple of (int, int)</span>
+<span class="sd">            the current position (x, y) of this bot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">current_pos</span>
+</pre></div>
+</div>
+<p>We see that this makes use of the <tt class="docutils literal"><span class="pre">me</span></tt> property which is defined as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">me</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The Bot object this Player controls.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        me : Bot</span>
+<span class="sd">            the bot controlled by this player</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>As you can see, <tt class="docutils literal"><span class="pre">me</span></tt> will simply obtain the <tt class="docutils literal"><span class="pre">Bot</span></tt> instance controlled by
+this player from the current universe using the hidden <tt class="docutils literal"><span class="pre">_index</span></tt> attribute of
+the player. In practice, you should be able to avoid having to use the
+<tt class="docutils literal"><span class="pre">_index</span></tt> directly but it&#8217;s good to know how this is implemented in case you
+wish to do something exotic.</p>
+<p>Lets now have a look at the convenience property <tt class="docutils literal"><span class="pre">enemy_food</span></tt> Again, this is
+simply forwarded to the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt> using <tt class="docutils literal"><span class="pre">current_uni</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">enemy_food</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Food owned by the enemy which can be eaten by this players bot.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        enemy_food : list of position tuples (int, int)</span>
+<span class="sd">            The positions (x, y) of edible food</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">enemy_food</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">team_index</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As with <tt class="docutils literal"><span class="pre">legal_moves</span></tt>, a method from <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt> is called, namely
+<tt class="docutils literal"><span class="pre">enemy_food</span></tt>. However, we need to tell it which team we are on. This is
+obtained using the <tt class="docutils literal"><span class="pre">me</span></tt> property to access the controlled <tt class="docutils literal"><span class="pre">Bot</span></tt> instance,
+which in turn stores the <tt class="docutils literal"><span class="pre">team_index</span></tt>. In practice, the information stored in
+the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt> should be accessible through the convenience properties of
+the <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt>. However, if these do not suffice, please have a look
+at the source code.</p>
+<p>Now that you know about <tt class="docutils literal"><span class="pre">universe_states</span></tt>, <tt class="docutils literal"><span class="pre">_index</span></tt> and <tt class="docutils literal"><span class="pre">current_pos</span></tt>
+let&#8217;s have a look at how the <tt class="docutils literal"><span class="pre">previous_pos</span></tt> property (used in the
+<tt class="docutils literal"><span class="pre">NQRandomPlayer</span></tt>) is implemented:</p>
+<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">previous_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The previous position of the bot.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        previous_pos : tuple of (int, int)</span>
+<span class="sd">            the previous position (x, y) of this bot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">]</span><span class="o">.</span><span class="n">current_pos</span>
+</pre></div>
+</div>
+<p>Again, we will make use of <tt class="docutils literal"><span class="pre">universe_states</span></tt>, but this time we will look at
+the second element from the top of the stack. The <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt> maintains a
+list of bots <tt class="docutils literal"><span class="pre">bots</span></tt> and the hidden attribute <tt class="docutils literal"><span class="pre">_index</span></tt> can be used to obtain
+the respective bot instance controlled by the player. Lastly, we simply look at
+the <tt class="docutils literal"><span class="pre">current_pos</span></tt> property of the bot (the bot instance from one turn ago) to
+obtain its previous position.</p>
+<p>The <tt class="docutils literal"><span class="pre">team</span></tt> property uses the <tt class="docutils literal"><span class="pre">me</span></tt> property to access the bots
+<tt class="docutils literal"><span class="pre">team_index</span></tt> which it then uses in <tt class="docutils literal"><span class="pre">current_uni.teams</span></tt> to get the
+respective <tt class="docutils literal"><span class="pre">Team</span></tt> instance:</p>
 <div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">team</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The Team object this Players Bot is on.</span>
 
@@ -679,9 +717,7 @@ manages to destroy one of your bots!</p>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">team_index</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>This has a method <tt class="docutils literal"><span class="pre">in_zone(position)</span></tt> which it uses to check if a position is
-within the zone of this team. Also, it uses the <tt class="docutils literal"><span class="pre">team_border</span></tt> convenience
-property which gives the positions of the border:</p>
+<p>Something similar is achieved for the <tt class="docutils literal"><span class="pre">team_border</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">team_border</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Positions of the border positions.</span>
 <span class="sd">        These are the last positions in the zone of the team.</span>
@@ -695,8 +731,7 @@ property which gives the positions of the border:</p>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">team_border</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">team_index</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>... and the <tt class="docutils literal"><span class="pre">enemy_bots</span></tt>
-convenience property which gives the enemy <tt class="docutils literal"><span class="pre">Bot</span></tt> instances:</p>
+<p>And again for <tt class="docutils literal"><span class="pre">enemy_bots</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">enemy_bots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; A list of enemy Bots.</span>
 
@@ -708,25 +743,6 @@ convenience property which gives the enemy <tt class="docutils literal"><span cl
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">enemy_bots</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">team_index</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Note that this player simply ignores the noisy enemy positions (described next).</p>
-</div>
-<div class="section" id="noisy-enemy-positions">
-<h2><a class="toc-backref" href="#id14">Noisy Enemy Positions</a><a class="headerlink" href="#noisy-enemy-positions" title="Permalink to this headline">¶</a></h2>
-<p>In general, the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt> you receive is noisy. This means that you can
-only obtain an accurate fix on the enemy bots if they are within 5 squares maze
-distance (otherwise, the position is noisy with a uniform radius of 5 squares
-maze distance). These two values may lead to confusing values: for example if the
-bot is 6 squares away, but the added noise of 4 squares towards your bot, make
-it appear as if it were only 2 squares away. Thus, you can check if a bot
-position is noisy using the <tt class="docutils literal"><span class="pre">noisy</span></tt> attribute of the bot instance, in
-combination with the <tt class="docutils literal"><span class="pre">enemy_bots</span></tt> convenience property provided by
-<tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">enemy_bots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">noisy</span>
-</pre></div>
-</div>
-<p>One idea is to implement probabilistic tracking using a <a class="reference external" href="http://en.wikipedia.org/wiki/Kalman_filter">Kalman filter</a></p>
-<p>If you wish to know how the noise is implemented, look at the class:
-<tt class="docutils literal"><span class="pre">pelita.game_master.UniverseNoiser</span></tt>.</p>
 </div>
 </div>
 
@@ -748,6 +764,7 @@ combination with the <tt class="docutils literal"><span class="pre">enemy_bots</
 <li class="toctree-l2"><a class="reference internal" href="#interacting-with-the-maze">Interacting with the Maze</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#a-basic-defensive-player">A Basic Defensive Player</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#noisy-enemy-positions">Noisy Enemy Positions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#implementation-details-of-convenience-properties">Implementation Details of Convenience Properties</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="running_player.html">Running Players</a></li>
@@ -796,12 +813,12 @@ combination with the <tt class="docutils literal"><span class="pre">enemy_bots</
         <li class="right" >
           <a href="info.html" title="Project Information"
              >previous</a> |</li>
-        <li><a href="index.html">Pelita v0.1.1-3-gfdc3f07 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.1.1-35-g568088e documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2012, Valentin Haenel, Rike-Benjamin Shuppner et. al..
-      Last updated on May 26, 2012.
+      Last updated on May 28, 2012.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
     </div>
   </body>

@@ -1,0 +1,39 @@
+pelita.player.RoundBasedPlayer
+==============================
+
+.. currentmodule:: pelita.player
+
+.. autoclass:: RoundBasedPlayer
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~RoundBasedPlayer.__init__
+      ~RoundBasedPlayer.get_move
+      ~RoundBasedPlayer.set_initial
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~RoundBasedPlayer.current_pos
+      ~RoundBasedPlayer.current_uni
+      ~RoundBasedPlayer.enemy_bots
+      ~RoundBasedPlayer.enemy_food
+      ~RoundBasedPlayer.initial_pos
+      ~RoundBasedPlayer.legal_moves
+      ~RoundBasedPlayer.me
+      ~RoundBasedPlayer.other_team_bots
+      ~RoundBasedPlayer.previous_pos
+      ~RoundBasedPlayer.team
+      ~RoundBasedPlayer.team_border
+      ~RoundBasedPlayer.team_bots
+   

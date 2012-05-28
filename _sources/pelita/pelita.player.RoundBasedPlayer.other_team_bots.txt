@@ -1,0 +1,6 @@
+pelita.player.RoundBasedPlayer.other_team_bots
+==============================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: RoundBasedPlayer.other_team_bots

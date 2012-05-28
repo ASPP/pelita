@@ -1,0 +1,6 @@
+pelita.player.RoundBasedPlayer.legal_moves
+==========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: RoundBasedPlayer.legal_moves

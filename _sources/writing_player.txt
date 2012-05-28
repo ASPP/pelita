@@ -51,10 +51,10 @@ Player Basics
 =============
 
 In order to write a player you should subclass from
-`pelita.player.AbstractPlayer`. This is an abstract class which provides several
-convenience methods and properties to interrogate the universe including the bot
-instance that this player controls, but lacks the functions to actually control
-the bot.
+`pelita.player.AbstractPlayer`. This is an abstract class which provides
+several convenience methods and properties to interrogate the universe
+including the bot instance that this player controls, but lacks the functions
+to actually control the bot.
 
 To subclass from ``AbstractPlayer`` import this with::
 
@@ -110,12 +110,12 @@ selects a move at random from the possible moves:
 
 Here we can see the first convenience property ``legal_moves`` which returns a
 dictionary mapping move tuples to position tuples. The random player simply
-selects a move at random from the keys (moves) of this dictionary and then moves
-there. ``legal_moves`` always includes stop.
+selects a move at random from the keys (moves) of this dictionary and then
+moves there. ``legal_moves`` always includes stop.
 
-The next example is the not-quite random player `pelita.player.NQRandomPlayer``.
-This one does not move back to the position where it was on its last turn and
-never stops in place:
+The next example is the not-quite random player
+``pelita.player.NQRandomPlayer``.  This one does not move back to the position
+where it was on its last turn and never stops in place:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: NQRandomPlayer
@@ -204,85 +204,46 @@ A Basic Offensive Player
 ========================
 
 A somewhat more elaborate example is the `pelita.player.BFSPlayer` which uses
-*breadth first search* on an *adjacency list* representation of the maze to find
-food:
+*breadth first search* on an *adjacency list* representation of the maze to
+find food:
 
 .. literalinclude:: ../../pelita/player.py
    :pyobject: BFSPlayer
 
 This next sections will explore the convenience properties of the
-``AbstractPlayer``.
+``AbstractPlayer`` as used in the ``BFSPlayer``.
 
-Using ``current_uni``
----------------------
+``current_uni``, ``current_pos`` and ``enemy_food``
+---------------------------------------------------
 
 The ``BFSPlayer`` makes use of some more advanced concepts. The first thing to
-note is that any player can override the method ``set_initial()``. At this stage
-food is still present, and all bots are at their initial position. In the above
-example we initialise the adjacency list representation of the maze. As
+note is that any player can override the method ``set_initial()``. At this
+stage food is still present, and all bots are at their initial position. In the
+above example we initialise the adjacency list representation of the maze. As
 mentioned previously the current state of the universe is always available as
 ``current_uni``. Within ``set_initial()`` this is the starting state.
 
-Let's take a quick look as the implementation
-of ``current_uni``:
+The next interesting thing to look at is the ``bfs_food()`` method which simply
+searches the ``AdjacencyList`` to find the closest food and returns a path to
+that food. In the process it makes use of two convenience properties:
+``current_pos`` and ``enemy_food``. The first is the location of the ``Bot``
+controlled by this ``Player`` as a position tuple. The second is a list of
+position tuples of the food owned by the enemy (which can be eaten by this
+bot).
 
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.current_uni
-
-Importantly we see that the ``AbstractPlayer`` automatically maintains a stack
-of previous states of the Universe called ``universe_states``.
-As we can see ``current_uni`` is simply the top element of this stack. This
-allows us to access the properties and methods of the ``CTFUniverse``, for
-example look at the implementation of ``legal_moves``:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.legal_moves
-
-Here we can see that this simply calls the method ``get_legal_moves(pos)``
-which is provided by ``CTFUniverse``. We also see one of the convenience
-properties used in the ``bfs_food()`` method: ``current_pos`` which returns the
-current position of the bot.  Let's have a look at this:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.current_pos
-
-We see that this makes use of the ``me`` property which is defined as follows:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.me
-
-As you can see, ``me`` will simply obtain the ``Bot`` instance controlled by this
-player from the current universe using the hidden ``_index`` attribute of the
-player. In practice, you should be able to avoid having to use the
-``_index`` directly but it's good to know how this is implemented in case you
-wish to do something exotic.
-
-The other convenience property used in ``bfs_food()`` is ``enemy_food`` which
-returns a list of position tuples of the food owned by the enemy (which can be
-eaten by this bot). Again, this is simply forwarded to the ``CTFUniverse`` using
-``current_uni``:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.enemy_food
-
-As with ``legal_moves``, a method from ``CTFUniverse`` is called, namely
-``enemy_food``. However, we need to tell it which team we are on. This is
-obtained using the ``me`` property to access the controlled ``Bot`` instance,
-which in turn stores the ``team_index``. In practice, the information stored in
-the ``CTFUniverse`` should be accessible through the convenience properties of
-the ``AbstractPlayer``. However, if these do not suffice, please have a look
-at the source code.
+There are a few more convenience properties available from ``AbstractPlayer``,
+you should look at the section :ref:`user_api_reference` for details.
 
 Recovery Strategies in Case of Death or Timeout
 -----------------------------------------------
 
 Lastly, we are going to see some error recovery code in the
-``get_move()`` method.
+``get_move()`` method of the ``BFSPlayer``.
 
 The ``BFSPlayer`` is sometimes killed, as expected for an offensive player. In
-order to detect this, it's best to compare the current position with its initial
-position using the ``initial_pos`` convenience property, since this is where it
-will respawn.
+order to detect this, it's best to compare the current position with its
+initial position using the ``initial_pos`` convenience property, since this is
+where it will respawn.
 
 Your player only has a limited time to return from ``get_move()``. The default
 is approximately three seconds. If your player does not respond in time, the
@@ -304,32 +265,13 @@ important to ensure that your search algorithms are efficient and fast.
 .. TODO: how to be notified when a timeout happened.
 .. TODO: the universe states will be missing a state
 
-A more Advanced Example
------------------------
-
-Now that you know about ``universe_states``, ``_index`` and ``current_pos`` let's
-have a look at how the ``previous_pos`` property (used in the ``NQRandomPlayer``) is
-implemented:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.previous_pos
-
-Again, we will make use of ``universe_states``, but this time we will look at the second element
-from the top of the stack. The Universe maintains a list of bots ``bots`` and
-the hidden attribute ``_index`` can be used to obtain the respective bot
-instance controlled by the player. Lastly, we simply look at the ``current_pos``
-property of the bot (the bot instance from one turn ago) to obtain its previous
-position.
-
-There are a few more convenience properties available from
-``AbstractPlayer``, you should look at the section :ref:`user_api_reference` for details.
 
 Interacting with the Maze
 =========================
 
 The ``BFSPlayer`` above uses the adjacency list representation provided by:
-`pelita.graph.AdjacencyList``. Let's have a quick look at how this is generated, in
-case you would like to implement your own `graph storage
+`pelita.graph.AdjacencyList``. Let's have a quick look at how this is
+generated, in case you would like to implement your own `graph storage
 <http://en.wikipedia.org/wiki/Graph_(data_structure)>`_ or leverage an
 alternative existing package such as `NetworkX <http://networkx.lanl.gov/>`_.
 
@@ -338,15 +280,15 @@ Here it is the ``__init__`` of the ``AdjacencyList``:
 .. literalinclude:: ../../pelita/graph.py
    :lines: 17-30
 
-In order to obtain the positions of all free spaces, the `pelita.datamodel.Maze`
-class provides the function `pelita.datamodel.Maze.pos_of`. The type of the
-argument is of type `pelita.datamodel.MazeComponent` (but it's a class, not an
-instance). There are three ``MazeComponent`` classes available in
-``pelita.datamodel``: ``Wall``, ``Free``, ``Food``. Then, we use the method
-``get_legal_moves(pos).values()`` to obtain the adjacent free spaces, for each
-of the free positions.  The last step is to use the ``update`` method to set the
-generated dictionary, which we can do, since ``AdjacencyList`` inherits from
-``dict``.
+In order to obtain the positions of all free spaces, the
+`pelita.datamodel.Maze` class provides the function
+`pelita.datamodel.Maze.pos_of`. The type of the argument is of type
+`pelita.datamodel.MazeComponent` (but it's a class, not an instance). There are
+three ``MazeComponent`` classes available in ``pelita.datamodel``: ``Wall``,
+``Free``, ``Food``. Then, we use the method ``get_legal_moves(pos).values()``
+to obtain the adjacent free spaces, for each of the free positions.  The last
+step is to use the ``update`` method to set the generated dictionary, which we
+can do, since ``AdjacencyList`` inherits from ``dict``.
 
 In addition to ``pos_of``, there are a few additional constructs that are
 useful when dealing with the maze. The property ``positions`` gives all the
@@ -379,26 +321,20 @@ Defense is important because your enemy is awarded ``5`` points if he
 manages to destroy one of your bots!
 
 The player mostly uses convenience properties already introduced for the
-``BFSPlayer``. Additionally, it makes use of the ``team`` property, which is just the
-``Team`` instance from the ``CTFUniverse``:
+``BFSPlayer`` in addition to a few others. For example ``path_to_border`` uses
+the ``team_border`` convenience property which gives the positions of the
+border. Also, ``get_move()`` access the ``enemy_bots`` property and then uses
+the ``team.in_zone(position)`` function to check if an enemy position is within
+the zone of this team. Note that ``team`` is a convenience property of the
+``AbstractPlayer`` which in turn gives access to the ``Team`` instance from the
+``CTFUniverse``, which in turn has the method ``in_zone(position)``.
 
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.team
 
-This has a method ``in_zone(position)`` which it uses to check if a position is
-within the zone of this team. Also, it uses the ``team_border`` convenience
-property which gives the positions of the border:
+For a comprehensive overview of all the properties of ``AbstractPlayer``,
+look at the section :ref:`user_api_reference`.
 
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.team_border
-
-... and the ``enemy_bots``
-convenience property which gives the enemy ``Bot`` instances:
-
-.. literalinclude:: ../../pelita/player.py
-   :pyobject: AbstractPlayer.enemy_bots
-
-Note that this player simply ignores the noisy enemy positions (described next).
+Note that this player simply ignores the noisy enemy positions (described
+next).
 
 Noisy Enemy Positions
 =====================
@@ -406,9 +342,9 @@ Noisy Enemy Positions
 In general, the ``CTFUniverse`` you receive is noisy. This means that you can
 only obtain an accurate fix on the enemy bots if they are within 5 squares maze
 distance (otherwise, the position is noisy with a uniform radius of 5 squares
-maze distance). These two values may lead to confusing values: for example if the
-bot is 6 squares away, but the added noise of 4 squares towards your bot, make
-it appear as if it were only 2 squares away. Thus, you can check if a bot
+maze distance). These two values may lead to confusing values: for example if
+the bot is 6 squares away, but the added noise of 4 squares towards your bot,
+make it appear as if it were only 2 squares away. Thus, you can check if a bot
 position is noisy using the ``noisy`` attribute of the bot instance, in
 combination with the ``enemy_bots`` convenience property provided by
 ``AbstractPlayer``::
@@ -421,3 +357,88 @@ One idea is to implement probabilistic tracking using a `Kalman filter
 If you wish to know how the noise is implemented, look at the class:
 ``pelita.game_master.UniverseNoiser``.
 
+Implementation Details of Convenience Properties
+================================================
+
+This section contains some details about the implementation of the convenience
+properties of ``AbstractPlayer``. Reading this section is not required, but may
+be of interest to the curious reader.
+
+Let's take a quick look as the implementation
+of ``current_uni``:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.current_uni
+
+Importantly we see that the ``AbstractPlayer`` automatically maintains a stack
+of previous states of the Universe called ``universe_states``.
+As we can see ``current_uni`` is simply the top element of this stack. This
+allows us to access the properties and methods of the ``CTFUniverse``, for
+example look at the implementation of ``legal_moves``:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.legal_moves
+
+Here we can see that this simply calls the method ``get_legal_moves(pos)``
+which is provided by ``CTFUniverse``. We also see one of the convenience
+properties used in the ``bfs_food()`` method: ``current_pos`` which returns the
+current position of the bot.  Let's have a look at this:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.current_pos
+
+We see that this makes use of the ``me`` property which is defined as follows:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.me
+
+As you can see, ``me`` will simply obtain the ``Bot`` instance controlled by
+this player from the current universe using the hidden ``_index`` attribute of
+the player. In practice, you should be able to avoid having to use the
+``_index`` directly but it's good to know how this is implemented in case you
+wish to do something exotic.
+
+Lets now have a look at the convenience property ``enemy_food`` Again, this is
+simply forwarded to the ``CTFUniverse`` using ``current_uni``:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.enemy_food
+
+As with ``legal_moves``, a method from ``CTFUniverse`` is called, namely
+``enemy_food``. However, we need to tell it which team we are on. This is
+obtained using the ``me`` property to access the controlled ``Bot`` instance,
+which in turn stores the ``team_index``. In practice, the information stored in
+the ``CTFUniverse`` should be accessible through the convenience properties of
+the ``AbstractPlayer``. However, if these do not suffice, please have a look
+at the source code.
+
+Now that you know about ``universe_states``, ``_index`` and ``current_pos``
+let's have a look at how the ``previous_pos`` property (used in the
+``NQRandomPlayer``) is implemented:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.previous_pos
+
+Again, we will make use of ``universe_states``, but this time we will look at
+the second element from the top of the stack. The ``CTFUniverse`` maintains a
+list of bots ``bots`` and the hidden attribute ``_index`` can be used to obtain
+the respective bot instance controlled by the player. Lastly, we simply look at
+the ``current_pos`` property of the bot (the bot instance from one turn ago) to
+obtain its previous position.
+
+The ``team`` property uses the ``me`` property to access the bots
+``team_index`` which it then uses in ``current_uni.teams`` to get the
+respective ``Team`` instance:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.team
+
+Something similar is achieved for the ``team_border``:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.team_border
+
+And again for ``enemy_bots``:
+
+.. literalinclude:: ../../pelita/player.py
+   :pyobject: AbstractPlayer.enemy_bots

@@ -21,6 +21,7 @@ pelita.player
       ~MoveExceptionPlayer
       ~NQRandomPlayer
       ~RandomPlayer
+      ~RoundBasedPlayer
       ~SimpleTeam
       ~StoppingPlayer
       ~TestPlayer
