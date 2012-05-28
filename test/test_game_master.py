@@ -59,8 +59,9 @@ class TestGameMaster(unittest.TestCase):
 
 
 class TestUniverseNoiser(unittest.TestCase):
-
-
+    if not hasattr(unittest.TestCase, 'assertItemsEqual'):
+        def assertItemsEqual(self, a, b, disp):
+            self.assertEqual(sorted(a), sorted(b), disp)
 
     def test_uniform_noise(self):
         test_layout = (
@@ -72,7 +73,7 @@ class TestUniverseNoiser(unittest.TestCase):
         universe = create_CTFUniverse(test_layout, 2)
         noiser = UniverseNoiser(universe.copy())
 
-        position_bucket = collections.Counter()
+        position_bucket = collections.defaultdict(int)
         for i in range(100):
             new = noiser.uniform_noise(universe.copy(), 1)
             self.assertTrue(new.bots[0].noisy)
@@ -96,11 +97,11 @@ class TestUniverseNoiser(unittest.TestCase):
 
         expected_0 = [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
                       (2, 3), (4, 3), (1, 1), (5, 3)]
-        position_bucket_0 = collections.Counter()
+        position_bucket_0 = collections.defaultdict(int)
 
         expected_2 = [(7, 3), (8, 2), (7, 1), (8, 1), (6, 1), (3, 1), (5, 1),
                       (4, 1), (7, 2)]
-        position_bucket_2 = collections.Counter()
+        position_bucket_2 = collections.defaultdict(int)
 
         for i in range(100):
             new = noiser.uniform_noise(universe.copy(), 1)
@@ -127,7 +128,7 @@ class TestUniverseNoiser(unittest.TestCase):
 
         expected_0 = [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
                       (2, 3), (4, 3), (1, 1), (5, 3)]
-        position_bucket_0 = collections.Counter()
+        position_bucket_0 = collections.defaultdict(int)
 
         bot_2_pos = (13, 1)
         position_bucket_2 = {bot_2_pos : 0}
