@@ -112,6 +112,26 @@ class TestTestPlayer(unittest.TestCase):
         self.assertEqual(gm.universe.bots[2].current_pos, (3, 2))
         self.assertEqual(gm.universe.bots[3].current_pos, (8, 2))
 
+    def test_shorthand(self):
+        test_layout = (
+        """ ############
+            #0  .  .   #
+            #         1#
+            ############ """)
+        num_rounds = 5
+        gm = GameMaster(test_layout, 2, num_rounds)
+        gm.register_team(SimpleTeam(TestPlayer('>v<^-)')))
+        gm.register_team(SimpleTeam(TestPlayer('<^>v-)')))
+        player0_expected_positions = [(1,1), (2,1), (2,2), (1,2), (1,1)]
+        player1_expected_positions = [(10,2), (9,2), (9,1), (10,1), (10,2)]
+        gm.set_initial()
+        for i in range(num_rounds):
+            self.assertEqual(gm.universe.bots[0].current_pos,
+                player0_expected_positions[i])
+            self.assertEqual(gm.universe.bots[1].current_pos,
+                player1_expected_positions[i])
+            gm.play_round()
+
 class TestRoundBasedPlayer(unittest.TestCase):
     def test_round_based_players(self):
         test_layout = (
