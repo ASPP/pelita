@@ -107,7 +107,6 @@ class TestTestPlayer(unittest.TestCase):
         self.assertEqual(gm.universe.bots[3].current_pos, (10, 2))
 
         gm.play()
-        print gm.universe
         self.assertEqual(gm.universe.bots[0].current_pos, (3, 1))
         self.assertEqual(gm.universe.bots[1].current_pos, (8, 1))
         self.assertEqual(gm.universe.bots[2].current_pos, (3, 2))
