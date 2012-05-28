@@ -278,9 +278,9 @@ class TestPlayer(AbstractPlayer):
 
     Notes
     -----
-    The 'moves' argument can either be a list of moves, e.g. '[west, east,
-    south, north stop]' or a string of shorthand symbols, where the equivalent
-    of the previous example is: '><v^-'.
+    The ``moves`` argument can either be a list of moves, e.g. ``[west, east,
+    south, north, stop]`` or a string of shorthand symbols, where the equivalent
+    of the previous example is: ``'><v^-'``.
 
     """
 
