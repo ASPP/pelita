@@ -107,11 +107,35 @@ class TestTestPlayer(unittest.TestCase):
         self.assertEqual(gm.universe.bots[3].current_pos, (10, 2))
 
         gm.play()
-        print gm.universe
         self.assertEqual(gm.universe.bots[0].current_pos, (3, 1))
         self.assertEqual(gm.universe.bots[1].current_pos, (8, 1))
         self.assertEqual(gm.universe.bots[2].current_pos, (3, 2))
         self.assertEqual(gm.universe.bots[3].current_pos, (8, 2))
+
+class TestRoundBasedPlayer(unittest.TestCase):
+    def test_round_based_players(self):
+        test_layout = (
+        """ ############
+            #0  .  .  1#
+            #2        3#
+            ############ """)
+        gm = GameMaster(test_layout, 4, 3)
+        movements_0 = [east, east]
+        movements_1_0 = {0: west, 2: west}
+        movements_1_1 = {2: west}
+        gm.register_team(SimpleTeam(RoundBasedPlayer(movements_0), RoundBasedPlayer(movements_0)))
+        gm.register_team(SimpleTeam(RoundBasedPlayer(movements_1_0), RoundBasedPlayer(movements_1_1)))
+
+        self.assertEqual(gm.universe.bots[0].current_pos, (1, 1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (10, 1))
+        self.assertEqual(gm.universe.bots[2].current_pos, (1, 2))
+        self.assertEqual(gm.universe.bots[3].current_pos, (10, 2))
+
+        gm.play()
+        self.assertEqual(gm.universe.bots[0].current_pos, (3, 1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (8, 1))
+        self.assertEqual(gm.universe.bots[2].current_pos, (3, 2))
+        self.assertEqual(gm.universe.bots[3].current_pos, (9, 2))
 
 class TestNQRandom_Player(unittest.TestCase):
     def test_demo_players(self):

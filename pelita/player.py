@@ -293,6 +293,30 @@ class TestPlayer(AbstractPlayer):
     def get_move(self):
         return next(self.moves)
 
+class RoundBasedPlayer(AbstractPlayer):
+    """ A Player which makes a decision dependent on the round index
+    in a dict or list. (Or anything which responds to moves[idx].)
+
+    Parameters
+    ----------
+    moves : list or dict of moves
+        the moves to make, a move is determined by moves[round]
+    """
+    def __init__(self, moves):
+        self.moves = moves
+        self.round_index = None
+
+    def get_move(self):
+        if self.round_index is None:
+            self.round_index = 0
+        else:
+            self.round_index += 1
+
+        try:
+            return self.moves[self.round_index]
+        except (IndexError, KeyError):
+            return datamodel.stop
+
 class IOBoundPlayer(AbstractPlayer):
     """ IO Bound player that crawls the file system. """
 
