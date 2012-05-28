@@ -51,7 +51,7 @@ def new_pos(position, move):
     return (pos_x, pos_y)
 
 def diff_pos(initial, target):
-    """ Return the move required to move from one pos to another.
+    """ Return the move required to move from one position to another.
 
     Will return the move required to transition from `initial` to `target`. If
     `initial` equals `target` this is `stop`. If the two are not adjacent a
