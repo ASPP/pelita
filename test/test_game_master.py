@@ -4,9 +4,8 @@ import unittest
 import time
 import collections
 import pelita
-from pelita.datamodel import north, south, east, west, stop,\
-        Wall, Free, Food, TeamWins, GameDraw, BotMoves, create_CTFUniverse,\
-        KILLPOINTS
+from pelita.datamodel import Wall, Free, Food, TeamWins, GameDraw, BotMoves, \
+        create_CTFUniverse, KILLPOINTS
 from pelita.game_master import GameMaster, UniverseNoiser, PlayerTimeout
 from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer, StoppingPlayer
 from pelita.viewer import AbstractViewer, DevNullViewer
@@ -281,8 +280,8 @@ class TestGame(unittest.TestCase):
 
         # now play the full game
         gm = GameMaster(test_start, number_bots, 200)
-        gm.register_team(SimpleTeam(TestPlayer([east, stop, south, east, east, east])))
-        gm.register_team(SimpleTeam(TestPlayer([west, west, stop, west, west, west])))
+        gm.register_team(SimpleTeam(TestPlayer('>-v>>>')))
+        gm.register_team(SimpleTeam(TestPlayer('<<-<<<')))
         gm.play()
         test_sixth_round = (
             """ ######
@@ -387,7 +386,7 @@ class TestGame(unittest.TestCase):
         # the game lasts two rounds, enough time for bot 1 to eat food
         gm = GameMaster(test_start, 2, 2)
         # bot 1 moves east twice to eat the single food
-        gm.register_team(SimpleTeam(TestPlayer([east, east])))
+        gm.register_team(SimpleTeam(TestPlayer('>>')))
         gm.register_team(SimpleTeam(StoppingPlayer()))
 
         # this test viewer caches all events lists seen through observe
@@ -417,7 +416,7 @@ class TestGame(unittest.TestCase):
         gm = GameMaster(test_start, 2, 2)
         gm.register_team(SimpleTeam(StoppingPlayer()))
         # bot 1 moves west twice to eat the single food
-        gm.register_team(SimpleTeam(TestPlayer([west, west])))
+        gm.register_team(SimpleTeam(TestPlayer('<<')))
 
         # this test viewer caches all events lists seen through observe
         class TestViewer(AbstractViewer):
@@ -476,7 +475,7 @@ class TestGame(unittest.TestCase):
         gm = GameMaster(test_start, 2, 100)
         # players do nothing
         gm.register_team(SimpleTeam(StoppingPlayer()))
-        gm.register_team(SimpleTeam(TestPlayer([west, west, west])))
+        gm.register_team(SimpleTeam(TestPlayer('<<<')))
 
         # this test viewer caches all events lists seen through observe
         class TestViewer(AbstractViewer):
@@ -509,7 +508,7 @@ class TestGame(unittest.TestCase):
         gm = GameMaster(test_start, 2, 100)
         # players do nothing
         gm.register_team(SimpleTeam(StoppingPlayer()))
-        gm.register_team(SimpleTeam(TestPlayer([west, west, west])))
+        gm.register_team(SimpleTeam(TestPlayer('<<<')))
         gm.universe.teams[0].score = 2
 
         # this test viewer caches all events lists seen through observe
