@@ -273,8 +273,14 @@ class TestPlayer(AbstractPlayer):
 
     Parameters
     ----------
-    moves : list of moves
-        the moves to make in reverse (stack) order
+    moves : list of moves or str of shorthand symbols
+        the moves to make in order, see notes below
+
+    Notes
+    -----
+    The 'moves' argument can either be a list of moves, e.g. '[west, east,
+    south, north stop]' or a string of shorthand symbols, where the equivalent
+    of the previous example is: '><v^-'.
 
     """
 
