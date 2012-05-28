@@ -23,7 +23,7 @@ class TestAbstractPlayer(unittest.TestCase):
         game_master = GameMaster(test_layout, 4, 2, noise=False)
         universe = game_master.universe
         player_0 = StoppingPlayer()
-        player_1 = TestPlayer([north, west])
+        player_1 = TestPlayer('^<')
         player_2 = StoppingPlayer()
         player_3 = StoppingPlayer()
         game_master.register_team(SimpleTeam(player_0, player_2))
@@ -238,8 +238,8 @@ class TestBasicDefensePlayer(unittest.TestCase):
            ############## """)
 
         game_master = GameMaster(test_layout, 4, 5, noise=False)
-        team_1 = SimpleTeam(TestPlayer([east, west, stop, stop]),
-                            TestPlayer([stop, east, west, stop]))
+        team_1 = SimpleTeam(TestPlayer('><--'),
+                            TestPlayer('-><-'))
         team_2 = SimpleTeam(BasicDefensePlayer(), BasicDefensePlayer())
 
         game_master.register_team(team_1)
@@ -319,7 +319,7 @@ class TestSimpleTeam(unittest.TestCase):
                 #### """
         )
         dummy_universe = create_CTFUniverse(layout, 2)
-        team1 = SimpleTeam(TestPlayer([north]), TestPlayer([east]))
+        team1 = SimpleTeam(TestPlayer('^'), TestPlayer('>'))
 
         self.assertRaises(ValueError, team1._set_bot_ids, [1, 5, 10])
         team1._set_bot_ids([1,5])
@@ -329,7 +329,7 @@ class TestSimpleTeam(unittest.TestCase):
         self.assertEqual(team1._get_move(5, dummy_universe), east)
         self.assertRaises(KeyError, team1._get_move, 6, dummy_universe)
 
-        team2 = SimpleTeam(TestPlayer([north]), TestPlayer([east]))
+        team2 = SimpleTeam(TestPlayer('^'), TestPlayer('>'))
         team2._set_bot_ids([1])
 
         team2._set_initial(dummy_universe)
