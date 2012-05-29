@@ -486,14 +486,13 @@ maze_components = [Food, Free, Wall]
 
 @serializable
 class Maze(Mesh):
-    """ A Mesh of strings of MazeComponent representations.
+    """ A Mesh of strings of maze component representations.
 
     This is a container class to represent a game maze. It is a two-dimensional
-    structure (Mesh) which contains a representation of MazeComponents at
-    each position. Internally this is implemented using sequences of
-    characters, i.e. strings. At each position we store the characters
-    corresponding to the maze components at this position.
-
+    structure (Mesh) which contains a representation of maze components at each
+    position. This is implemented using sequences of characters, i.e. strings.
+    At each position we store the characters corresponding to the maze
+    components at this position.
     """
 
     def __init__(self, width, height, data=None):
@@ -510,13 +509,13 @@ class Maze(Mesh):
     def __setitem__(self, key, value):
         super(Maze, self).__setitem__(key, "".join(sorted(value)))
 
-    def get_at(self, type_, pos):
-        """ Get all objects of a given type at certain position.
+    def get_at(self, char, pos):
+        """ Get all objects of a given char representation at certain position.
 
         Parameters
         ----------
-        type_ : type
-            the type of objects to look for
+        char : char
+            the char representation of maze components to look for
         pos : tuple of (int, int)
             the position to look at
 
@@ -526,21 +525,21 @@ class Maze(Mesh):
             the objects at that position
 
         """
-        return [item for item in self[pos] if item == type_]
+        return [item for item in self[pos] if item == char]
 
-    def remove_at(self, type_, pos):
-        """ Remove all objects of a given type at a certain position.
+    def remove_at(self, char, pos):
+        """ Remove all objects of a given char representation at a certain position.
 
         Parameters
         ----------
-        type_ : type
-            the type of objects to look for
+        char : char
+            the char representation to remove from the Maze
         pos : tuple of (int, int)
             the position to look at
 
         """
-        if type_ in self[pos]:
-            self[pos] = [item for item in self[pos] if item != type_]
+        if char in self[pos]:
+            self[pos] = [item for item in self[pos] if item != char]
         else:
             raise ValueError
 
@@ -556,13 +555,13 @@ class Maze(Mesh):
         """
         return self.keys()
 
-    def pos_of(self, type_):
-        """ The indices of positions which have a MazeComponent.
+    def pos_of(self, char):
+        """ The indices of positions which have a maze component.
 
         Parameters
         ----------
-        type_ : MazeComponent class
-            the type of MazeComponent to look for
+        char : maze component char
+            the char of maze component to look for
 
         Examples
         --------
@@ -576,7 +575,7 @@ class Maze(Mesh):
         ...
 
         """
-        return [pos for pos, val in self.iteritems() if type_ in val]
+        return [pos for pos, val in self.iteritems() if char in val]
 
     def __repr__(self):
         return ('Maze(%i, %i, data=%r)'
