@@ -66,7 +66,6 @@ class GameMaster(object):
             "food_eaten": [],
             "bot_destroyed": [],
             "timeout_teams": [0, 0],
-            "score": [0, 0],
             "bot_id": None,
             "round_index": None,
             "running_time": 0,
@@ -159,9 +158,9 @@ class GameMaster(object):
         end_time = time.time()
         self.game_state["running_time"] = end_time - start_time
 
-        if self.game_state["score"][0] > self.game_state["score"][1]:
+        if self.universe.teams[0].score > self.universe.teams[1].score:
             self.game_state["team_wins"] = 0
-        elif self.game_state["score"][0] < self.game_state["score"][1]:
+        elif self.universe.teams[0].score < self.universe.teams[1].score:
             self.game_state["team_wins"] = 1
         else:
             self.game_state["game_draw"] = True
@@ -232,11 +231,6 @@ class GameMaster(object):
                 sys.stderr.write("Team %r (bot index %r) disconnected. Team disqualified.\n" % (
                                   bot.team_index,
                                   bot.index))
-
-            # re-add the score to the team objects in universe
-            # TODO: refactor the whole score handling
-            for team_idx, team in enumerate(self.universe.teams):
-                team.score = self.game_state["score"][team_idx]
 
             self.print_possible_winner()
 

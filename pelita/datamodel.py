@@ -739,18 +739,10 @@ class CTFUniverse(object):
             game_state["bot_moved"] += [{"bot_id": bot_id, "old_pos": old_pos, "new_pos": new_pos}]
 
         for food_eaten in game_state["food_eaten"]:
-            game_state["score"][self.bots[food_eaten["bot_id"]].team_index] += 1
+            self.teams[self.bots[food_eaten["bot_id"]].team_index].score += 1
 
         for bot_destroyed in game_state["bot_destroyed"]:
-            game_state["score"][self.bots[bot_destroyed["destroyed_by"]].team_index] += KILLPOINTS
-
-        if not self.enemy_food(team.index):
-            if game_state["score"][0] > game_state["score"][1]:
-                game_state["team_wins"] = 0
-            elif game_state["score"][0] < game_state["score"][1]:
-                game_state["team_wins"] = 1
-            else:
-                game_state["game_draw"] = True
+            self.teams[self.bots[bot_destroyed["destroyed_by"]].team_index].score += KILLPOINTS
 
         return game_state
 
