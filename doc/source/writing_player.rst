@@ -282,17 +282,20 @@ Here it is the ``__init__`` of the ``AdjacencyList``:
 
 In order to obtain the positions of all free spaces, the
 `pelita.datamodel.Maze` class provides the function
-`pelita.datamodel.Maze.pos_of`. The type of the argument is of type
-`pelita.datamodel.MazeComponent` (but it's a class, not an instance). There are
-three ``MazeComponent`` classes available in ``pelita.datamodel``: ``Wall``,
-``Free``, ``Food``. Then, we use the method ``get_legal_moves(pos).values()``
-to obtain the adjacent free spaces, for each of the free positions.  The last
-step is to use the ``update`` method to set the generated dictionary, which we
-can do, since ``AdjacencyList`` inherits from ``dict``.
+`pelita.datamodel.Maze.pos_of`. A maze can hold three different components at
+each position, all of them available in ``pelita.datamodel``: ``Wall``,
+``Free``, ``Food``. We thus can get a list of all positions by calling::
+
+    maze.pos_of(Free)
+
+Then, we use the method ``get_legal_moves(pos).values()`` to obtain the
+adjacent free spaces, for each of the free positions.  The last step is to use
+the ``update`` method to set the generated dictionary, which we can do, since
+``AdjacencyList`` inherits from ``dict``.
 
 In addition to ``pos_of``, there are a few additional constructs that are
 useful when dealing with the maze. The property ``positions`` gives all the
-positions in the maze. To check if a given ``MazeComponent`` is at a certain
+positions in the maze. To check if a given maze component is at a certain
 position use the ``in`` operator::
 
     Free in maze[2, 3]

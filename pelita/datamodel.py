@@ -478,71 +478,21 @@ class GameDraw(UniverseEvent):
     def __repr__(self):
         return ("GameDraw()")
 
-class MazeComponent(object):
-    """ Base class for all items inside a Maze.
-
-    This class provides basic methods for serialisation but is not
-    serialisable itself (it does not have a `_json_id`). This is to
-    ensure that all inherited objects are decorated with `@serializable`
-    and do not falsely inherit the id from this class.
-    """
-
-    def __str__(self):
-        return self.__class__.char
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__)
-
-    def __ne__(self, other):
-        return not (self == other)
-
-    def _to_json_dict(self):
-        return {}
-
-    @classmethod
-    def _from_json_dict(cls, item):
-        return cls(**item)
-
-@serializable
-class Free(MazeComponent):
-    """ Object to represent a free space. """
-
-    char = ' '
-
-    def __repr__(self):
-        return 'Free()'
-
-@serializable
-class Wall(MazeComponent):
-    """ Object to represent a wall. """
-
-    char = '#'
-
-    def __repr__(self):
-        return 'Wall()'
-
-@serializable
-class Food(MazeComponent):
-    """ Object to represent a food item. """
-
-    char = '.'
-
-    def __repr__(self):
-        return 'Food()'
+Free = ' '
+Wall = '#'
+Food = '.'
 
 maze_components = [Food, Free, Wall]
-mapped_components = dict((C.char, C) for C in maze_components)
 
 @serializable
 class Maze(Mesh):
-    """ A Mesh of strings of MazeComponent representations.
+    """ A Mesh of strings of maze component representations.
 
     This is a container class to represent a game maze. It is a two-dimensional
-    structure (Mesh) which contains a representation of MazeComponents at
-    each position. Internally this is implemented using sequences of
-    characters, i.e. strings. At each position we store the characters
-    corresponding to the maze components at this position.
-
+    structure (Mesh) which contains a representation of maze components at each
+    position. This is implemented using sequences of characters, i.e. strings.
+    At each position we store the characters corresponding to the maze
+    components at this position.
     """
 
     def __init__(self, width, height, data=None):
@@ -551,43 +501,21 @@ class Maze(Mesh):
         elif not all(isinstance(s, basestring) for s in data):
             raise TypeError("Maze keyword argument 'data' should be list of " +\
                             "strings, not: %r" % data)
+        else:
+            # sort the data items
+            data = ["".join(sorted(v)) for v in data]
         super(Maze, self).__init__(width, height, data)
 
-    def __getitem__(self, index):
-        chars = super(Maze, self).__getitem__(index)
-        return [mapped_components[char] for char in chars]
-
     def __setitem__(self, key, value):
-        chars = "".join(val.char for val in value)
-        super(Maze, self).__setitem__(key, chars)
+        super(Maze, self).__setitem__(key, "".join(sorted(value)))
 
-    def has_at(self, type_, pos):
-        """ Check if objects of a given type are present at position.
-
-        DEPRECTAED
+    def get_at(self, char, pos):
+        """ Get all objects of a given char representation at certain position.
 
         Parameters
         ----------
-        type_ : type
-            the type of objects to look for
-        pos : tuple of (int, int)
-            the position to look at
-
-        Returns
-        -------
-        object_present : boolean
-            True if objects of the given type are present and False otherwise.
-
-        """
-        return type_ in self[pos]
-
-    def get_at(self, type_, pos):
-        """ Get all objects of a given type at certain position.
-
-        Parameters
-        ----------
-        type_ : type
-            the type of objects to look for
+        char : char
+            the char representation of maze components to look for
         pos : tuple of (int, int)
             the position to look at
 
@@ -597,21 +525,21 @@ class Maze(Mesh):
             the objects at that position
 
         """
-        return [item for item in self[pos] if issubclass(item, type_)]
+        return [item for item in self[pos] if item == char]
 
-    def remove_at(self, type_, pos):
-        """ Remove all objects of a given type at a certain position.
+    def remove_at(self, char, pos):
+        """ Remove all objects of a given char representation at a certain position.
 
         Parameters
         ----------
-        type_ : type
-            the type of objects to look for
+        char : char
+            the char representation to remove from the Maze
         pos : tuple of (int, int)
             the position to look at
 
         """
-        if type_ in self[pos]:
-            self[pos] = [item for item in self[pos] if item != type_]
+        if char in self[pos]:
+            self[pos] = [item for item in self[pos] if item != char]
         else:
             raise ValueError
 
@@ -627,13 +555,13 @@ class Maze(Mesh):
         """
         return self.keys()
 
-    def pos_of(self, type_):
-        """ The indices of positions which have a MazeComponent.
+    def pos_of(self, char):
+        """ The indices of positions which have a maze component.
 
         Parameters
         ----------
-        type_ : MazeComponent class
-            the type of MazeComponent to look for
+        char : maze component char
+            the char of maze component to look for
 
         Examples
         --------
@@ -647,7 +575,7 @@ class Maze(Mesh):
         ...
 
         """
-        return [pos for pos in self.positions if self.has_at(type_, pos)]
+        return [pos for pos, val in self.iteritems() if char in val]
 
     def __repr__(self):
         return ('Maze(%i, %i, data=%r)'
@@ -670,12 +598,12 @@ def create_maze(layout_mesh):
     """
     maze = Maze(layout_mesh.width, layout_mesh.height)
     for index in maze.iterkeys():
-        if layout_mesh[index] == Wall.char:
-            maze[index] = maze[index] + [Wall]
+        if layout_mesh[index] == Wall:
+            maze[index] = maze[index] + Wall
         else:
-            maze[index] = maze[index] + [Free]
-        if layout_mesh[index] == Food.char:
-            maze[index] = maze[index] + [Food]
+            maze[index] = maze[index] + Free
+        if layout_mesh[index] == Food:
+            maze[index] = maze[index] + Food
     return maze
 
 
@@ -701,7 +629,7 @@ def extract_initial_positions(mesh, number_bots):
     for k, v in mesh.iteritems():
         if v in bot_ids:
             start[int(v)] = k
-            mesh[k] = Free.char
+            mesh[k] = Free
     return start
 
 
@@ -730,7 +658,7 @@ def create_CTFUniverse(layout_str, number_bots,
     if team_names is None:
         team_names = ["black", "white"]
 
-    layout_chars = [cls.char for cls in [Wall, Free, Food]]
+    layout_chars = datamodel.maze_components
 
     if number_bots % 2 != 0:
         raise UniverseException(
@@ -930,7 +858,7 @@ class CTFUniverse(object):
         else:
             border_x = team_zone[0]
         return [(border_x, y) for y in range(self.maze.shape[1]) if
-                self.maze.has_at(Free, (border_x, y))]
+                Free in self.maze[border_x, y]]
 
     def move_bot(self, bot_id, move):
         """ Move a bot in certain direction.
@@ -965,7 +893,7 @@ class CTFUniverse(object):
         events.append(BotMoves(bot_id, old_pos, new_pos))
         team = self.teams[bot.team_index]
         # check for food being eaten
-        if self.maze.has_at(Food, bot.current_pos) and not bot.in_own_zone:
+        if Food in self.maze[bot.current_pos] and not bot.in_own_zone:
             self.maze.remove_at(Food, bot.current_pos)
             team._score_point()
             events.append(BotEats(bot_id, bot.current_pos))
@@ -1017,7 +945,7 @@ class CTFUniverse(object):
         """
         legal_moves_dict = {}
         for move, new_pos in self.neighbourhood(position).items():
-            if self.maze.has_at(Free, new_pos):
+            if Free in self.maze[new_pos]:
                 legal_moves_dict[move] = new_pos
         return legal_moves_dict
 
@@ -1035,12 +963,12 @@ class CTFUniverse(object):
     def _char_mesh(self):
         char_mesh = Mesh(self.maze.width, self.maze.height)
         for pos in self.maze.positions:
-            if self.maze.has_at(Wall, pos):
-                char_mesh[pos] = Wall.char
-            elif self.maze.has_at(Food, pos):
-                char_mesh[pos] = Food.char
-            elif self.maze.has_at(Free, pos):
-                char_mesh[pos] = Free.char
+                if Wall in self.maze[pos]:
+                    char_mesh[pos] = Wall
+                elif Food in self.maze[pos]:
+                    char_mesh[pos] = Food
+                elif Free in self.maze[pos]:
+                    char_mesh[pos] = Free
         for bot in self.bots:
             # TODO what about bots on the same space?
             char_mesh[bot.current_pos] = str(bot.index)
