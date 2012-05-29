@@ -8,7 +8,7 @@ from pelita.messaging.json_convert import json_converter
 
 # the legal chars for a basic CTFUniverse
 # see also: create_CTFUniverse factory.
-layout_chars = [cls.char for cls in [Wall, Free, Food]]
+layout_chars = datamodel.maze_components
 
 class TestStaticmethods(unittest.TestCase):
 
@@ -260,12 +260,12 @@ class TestTeam(unittest.TestCase):
 class TestMazeComponents(unittest.TestCase):
 
     def test_init_str_eq_repr(self):
-        wall = Wall()
-        wall2 = Wall()
-        free = Free()
-        free2 = Free()
-        food = Food()
-        food2 = Food()
+        wall = Wall
+        wall2 = Wall
+        free = Free
+        free2 = Free
+        food = Food
+        food2 = Food
         self.assertEqual(wall, wall2)
         self.assertNotEqual(wall, free)
         self.assertNotEqual(wall, food)
@@ -293,18 +293,18 @@ class TestMaze(unittest.TestCase):
         self.assertRaises(TypeError, Maze, 1, 1, data=[1])
         self.assertRaises(ValueError, Maze, 1, 1, data=["", ""])
 
-    def test_has_at(self):
-        maze = Maze(2, 1, data=[Wall.char + Free.char, Food.char + Wall.char])
-        self.assertEqual(maze.has_at(Wall, (0, 0)), True)
-        self.assertEqual(maze.has_at(Free, (0, 0)), True)
-        self.assertEqual(maze.has_at(Food, (1, 0)), True)
-        self.assertEqual(maze.has_at(Wall, (1, 0)), True)
+    def test_in(self):
+        maze = Maze(2, 1, data=[Wall + Free, Food + Wall])
+        self.assertEqual(Wall in maze[0, 0], True)
+        self.assertEqual(Free in maze[0, 0], True)
+        self.assertEqual(Food in maze[1, 0], True)
+        self.assertEqual(Wall in maze[1, 0], True)
 
-        self.assertEqual(maze.has_at(Food, (0, 0)), False)
-        self.assertEqual(maze.has_at(Free, (1, 0)), False)
+        self.assertEqual(Food in maze[0, 0], False)
+        self.assertEqual(Free in maze[1, 0], False)
 
     def test_get_at(self):
-        maze = Maze(2, 1, data=[Wall.char + Free.char, Food.char + Wall.char])
+        maze = Maze(2, 1, data=[Wall + Free, Food + Wall])
         self.assertEqual(maze.get_at(Wall, (0, 0)), [Wall])
         self.assertEqual(maze.get_at(Free, (0, 0)), [Free])
         self.assertEqual(maze.get_at(Food, (1, 0)), [Food])
@@ -340,6 +340,17 @@ class TestMaze(unittest.TestCase):
     def test_eq_repr(self):
         maze = Maze(2, 1, data=["#", " ."])
         self.assertEqual(maze, eval(repr(maze)))
+
+    def test_is_always_sorted_and_unique(self):
+        maze_1 = Maze(2, 1, data=["#", " ."])
+        maze_2 = Maze(2, 1, data=["#", ". "])
+        self.assertEqual(maze_1, maze_2)
+
+        maze_1[0,0] = "abcd"
+        maze_1[1,0] = "bcda"
+        self.assertEqual(maze_1[0,0], maze_1[1,0])
+        self.assertEqual(maze_1[0,0], "abcd")
+        self.assertEqual(maze_1[1,0], "abcd")
 
 class TestUniverseEvent(unittest.TestCase):
 
@@ -755,9 +766,9 @@ class TestCTFUniverseRules(unittest.TestCase):
             universe.teams[1].score = white_score
             for i, pos in enumerate(initial_pos):
                 universe.bots[i].initial_pos = pos
-            if not universe.maze.has_at(Food, (1, 2)):
+            if not Food in universe.maze[1, 2]:
                 universe.teams[1]._score_point()
-            if not universe.maze.has_at(Food, (3, 1)):
+            if not Food in universe.maze[3, 1]:
                 universe.teams[0]._score_point()
             return universe
 
