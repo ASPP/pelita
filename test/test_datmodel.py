@@ -341,6 +341,17 @@ class TestMaze(unittest.TestCase):
         maze = Maze(2, 1, data=["#", " ."])
         self.assertEqual(maze, eval(repr(maze)))
 
+    def test_is_always_sorted_and_unique(self):
+        maze_1 = Maze(2, 1, data=["#", " ."])
+        maze_2 = Maze(2, 1, data=["#", ". "])
+        self.assertEqual(maze_1, maze_2)
+
+        maze_1[0,0] = "abcd"
+        maze_1[1,0] = "bcda"
+        self.assertEqual(maze_1[0,0], maze_1[1,0])
+        self.assertEqual(maze_1[0,0], "abcd")
+        self.assertEqual(maze_1[1,0], "abcd")
+
 class TestUniverseEvent(unittest.TestCase):
 
     def test_eq_repr(self):

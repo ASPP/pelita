@@ -502,6 +502,9 @@ class Maze(Mesh):
         elif not all(isinstance(s, basestring) for s in data):
             raise TypeError("Maze keyword argument 'data' should be list of " +\
                             "strings, not: %r" % data)
+        else:
+            # sort the data items
+            data = ["".join(sorted(v)) for v in data]
         super(Maze, self).__init__(width, height, data)
 
     def __setitem__(self, key, value):
