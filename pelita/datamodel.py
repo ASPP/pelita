@@ -658,7 +658,7 @@ def create_CTFUniverse(layout_str, number_bots,
     if team_names is None:
         team_names = ["black", "white"]
 
-    layout_chars = [Wall, Free, Food]
+    layout_chars = datamodel.maze_components
 
     if number_bots % 2 != 0:
         raise UniverseException(

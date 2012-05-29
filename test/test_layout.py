@@ -29,7 +29,7 @@ class TestLayoutModule(unittest.TestCase):
 
 class TestLayoutChecks(unittest.TestCase):
 
-    layout_chars = [Wall, Free, Food]
+    layout_chars = datamodel.maze_components
 
     def test_strip_layout(self):
         test_layout = (
