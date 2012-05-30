@@ -170,6 +170,7 @@ class GameMaster(object):
             self.print_possible_winner()
 
         if self.game_state.get("finished"):
+            self.update_viewers()
             return
 
         for bot in self.universe.bots:
@@ -181,6 +182,9 @@ class GameMaster(object):
         self.check_winner()
 
         self.print_possible_winner()
+
+        if self.game_state.get("finished"):
+            self.update_viewers()
 
     def _play_bot(self, bot):
         self.game_state["bot_id"] = bot.index

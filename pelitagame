@@ -306,13 +306,18 @@ def run_game(*argv):
         # Therefore we cannot use multiprocessing here. subprocess works, though.
         tkprocess = subprocess.Popen(["python",
                                       "-c",
-                                      "from pelita.ui.tk_viewer import TkViewer;TkViewer('"+subscribe_sock+"').run()"])
+                                      "from pelita.ui.tk_viewer import TkViewer;TkViewer('"+subscribe_sock+"', 'tcp://localhost:50012').run()"])
 
         # we sleep a tiny bit to give Tk time to initialise
         time.sleep(0.5)
 
         try:
-            server.run()
+            server.register_teams()
+
+            controller = pelita.simplesetup.ZMQController(server.game_master, "tcp://*:50012")
+            controller.run()
+#            server.run()
+            server.exit_teams()
         except KeyboardInterrupt:
             tkprocess.kill()
     else:

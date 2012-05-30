@@ -375,7 +375,7 @@ class UiCanvas(object):
 
 
 class TkApplication(object):
-    def __init__(self, address, geometry=None, master=None):
+    def __init__(self, address, controller, geometry=None, master=None):
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
         self.socket.setsockopt(zmq.SUBSCRIBE, "")
@@ -383,6 +383,9 @@ class TkApplication(object):
         self.socket.connect(address)
         self.poll = zmq.Poller()
         self.poll.register(self.socket, zmq.POLLIN)
+
+        self.controller_socket = self.context.socket(zmq.DEALER)
+        self.controller_socket.connect(controller)
 
         self.master = master
         self.frame = Tkinter.Frame(self.master)
@@ -393,6 +396,8 @@ class TkApplication(object):
         self.ui_canvas = UiCanvas(self, geometry=geometry)
 
         self.master.protocol("WM_DELETE_WINDOW", wm_delete_window_handler)
+        self.controller_socket.send_json({"__action__": "set_initial"})
+        self.controller_socket.send_json({"__action__": "play_round"})
 
     def read_queue(self):
         try:
@@ -405,11 +410,17 @@ class TkApplication(object):
             observed = json_converter.loads(observed)
             self.observe(observed)
 
-            self.master.after(1, self.read_queue)
+            self.master.after(1, self.request_next, observed)
             return
         except zmq.core.error.ZMQError:
             self.observe({})
-            self.master.after(20, self.read_queue)
+            self.master.after(2, self.read_queue)
+
+    def request_next(self, observed):
+        game_state = observed.get("game_state")
+        if game_state and game_state.get("bot_id") == 3:
+            self.controller_socket.send_json({"__action__": "play_round"})
+        self.master.after(1, self.read_queue)
 
     def observe(self, observed):
         universe = observed.get("universe")
