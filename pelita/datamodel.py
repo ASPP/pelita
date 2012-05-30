@@ -676,7 +676,7 @@ class CTFUniverse(object):
         return [(border_x, y) for y in range(self.maze.shape[1]) if
                 Free in self.maze[border_x, y]]
 
-    def move_bot(self, game_state, move):
+    def move_bot(self, bot_id, move):
         """ Move a bot in certain direction.
 
         Parameters
@@ -699,7 +699,7 @@ class CTFUniverse(object):
         """
         # check legality of the move
 
-        bot_id = game_state["bot_id"]
+        game_state = {}
 
         if move not in moves:
             raise IllegalMoveException(
@@ -714,16 +714,18 @@ class CTFUniverse(object):
         bot.current_pos =  legal_moves_dict[move]
         new_pos = bot.current_pos
 
-        game_state["bot_moved"] += [{"bot_id": bot_id, "old_pos": old_pos, "new_pos": new_pos}]
+        game_state["bot_moved"] = [{"bot_id": bot_id, "old_pos": old_pos, "new_pos": new_pos}]
 
         team = self.teams[bot.team_index]
         # check for food being eaten
+        game_state["food_eaten"] = []
         if Food in self.maze[bot.current_pos] and not bot.in_own_zone:
             self.maze.remove_at(Food, bot.current_pos)
 
             game_state["food_eaten"] += [{"food_pos": bot.current_pos, "bot_id": bot_id}]
 
         # check for destruction
+        game_state["bot_destroyed"] = []
         for enemy in self.enemy_bots(bot.team_index):
             if enemy.current_pos == bot.current_pos:
                 if enemy.is_destroyer and bot.is_harvester:

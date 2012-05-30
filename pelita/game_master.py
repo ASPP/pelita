@@ -70,7 +70,7 @@ class GameMaster(object):
             "round_index": None,
             "running_time": 0,
             "team_wins": None,
-            "game_draw": None
+            "game_draw": None,
         }
 
     def register_team(self, team, team_name=""):
@@ -132,6 +132,11 @@ class GameMaster(object):
             team._set_bot_ids(self.universe.teams[team_idx].bots)
             team._set_initial(self.universe.copy())
 
+        if len(self.player_teams) != len(self.universe.teams):
+            raise IndexError(
+                "Universe uses %i teams, but only %i are registered."
+                % (len(self.player_teams), len(self.universe.teams)))
+
         for viewer in self.viewers:
             viewer.set_initial(self.universe.copy())
 
@@ -140,23 +145,115 @@ class GameMaster(object):
         """ Play a whole game. """
         # notify all PlayerTeams
         self.set_initial()
-        
+
         time.sleep(self.initial_delay)
 
-        if len(self.player_teams) != len(self.universe.teams):
-            raise IndexError(
-                "Universe uses %i teams, but only %i are registered."
-                % (len(self.player_teams), len(self.universe.teams)))
+        while not self.game_state.get("finished"):
+            self.play_round()
 
+        self.send_to_viewers(self.game_state)
+
+    def play_round(self):
+        """ Play the next round.
+
+        A round is defined as all bots moving once.
+
+        Returns
+        -------
+        game_running : boolean
+            True, if game is still running, False otherwise.
+        """
         start_time = time.time()
 
-        while True:
-            running = self.play_round()
-            if not running:
-                break
+        self._play_round()
 
         end_time = time.time()
-        self.game_state["running_time"] = end_time - start_time
+        self.game_state["running_time"] += (end_time - start_time)
+
+    def _play_round(self):
+        if self.game_state["round_index"] is None:
+            self.game_state["round_index"] = 0
+
+        if self.game_state.get("finished"):
+            return
+
+        for bot in self.universe.bots:
+            self._play_bot(bot)
+
+            self.send_to_viewers(self.game_state)
+
+        self.check_finished()
+        self.check_winner()
+
+        self.print_possible_winner()
+
+        self.game_state["round_index"] += 1
+
+    def _play_bot(self, bot):
+        self.game_state["bot_id"] = bot.index
+        self.game_state["bot_moved"] = []
+        self.game_state["food_eaten"] = []
+        self.game_state["bot_destroyed"] = []
+
+        player_team = self.player_teams[bot.team_index]
+        try:
+            universe_copy = self.universe.copy()
+            if self.noiser:
+                universe_copy = self.noiser.uniform_noise(universe_copy, bot.index)
+            move = player_team._get_move(bot.index, universe_copy)
+
+            move_state = self.universe.move_bot(bot.index, move)
+            for k,v in move_state.iteritems():
+                self.game_state[k] += v
+
+        except (datamodel.IllegalMoveException, PlayerTimeout) as e:
+            # after MAX_TIMEOUTS timeouts, you lose
+            self.game_state["timeout_teams"][bot.team_index] += 1
+
+            if self.game_state["timeout_teams"][bot.team_index] == MAX_TIMEOUTS:
+                other_team_idx = not bot.team_index
+                self.game_state["team_wins"] = other_team_idx
+                sys.stderr.write("Timeout #%r for team %r (bot index %r). Team disqualified.\n" % (
+                                  self.game_state["timeout_teams"][bot.team_index],
+                                  bot.team_index,
+                                  bot.index))
+            else:
+                sys.stderr.write("Timeout #%r for team %r (bot index %r).\n" % (
+                                  self.game_state["timeout_teams"][bot.team_index],
+                                  bot.team_index,
+                                  bot.index))
+
+            moves = self.universe.get_legal_moves(bot.current_pos).keys()
+            moves.remove(datamodel.stop)
+            if not moves:
+                moves = [datamodel.stop]
+
+            move = random.choice(moves)
+            move_state = self.universe.move_bot(bot.index, move)
+            for k,v in move_state.iteritems():
+                self.game_state[k] += v
+
+        except PlayerDisconnected:
+            other_team_idx = not bot.team_index
+            self.game_state["team_wins"] = other_team_idx
+
+            sys.stderr.write("Team %r (bot index %r) disconnected. Team disqualified.\n" % (
+                              bot.team_index,
+                              bot.index))
+
+    def check_finished(self):
+        self.game_state["finished"] = False
+
+        if self.game_state["round_index"] > self.game_time:
+            self.game_state["finished"] = True
+        else:
+            food_left = [self.universe.enemy_food(team.index) for team in self.universe.teams]
+            if not all(food_left):
+                self.game_state["finished"] = True
+
+    def check_winner(self):
+        if not self.game_state["finished"]:
+            return
 
         if self.universe.teams[0].score > self.universe.teams[1].score:
             self.game_state["team_wins"] = 0
@@ -164,83 +261,6 @@ class GameMaster(object):
             self.game_state["team_wins"] = 1
         else:
             self.game_state["game_draw"] = True
-
-        self.print_possible_winner()
-
-        self.send_to_viewers(self.game_state)
-
-    def play_round(self):
-        """ Play only a single round.
-
-        A single round is defined as all bots moving once.
-
-        Returns
-        -------
-        game_running : boolean
-            True, if game is still running, False otherwise.
-        """
-        if self.game_state["round_index"] is None:
-            self.game_state["round_index"] = 0
-        elif self.game_state["round_index"] >= self.game_time:
-            # This could raise an exception.
-            return False
-
-        for i, bot in enumerate(self.universe.bots):
-            self.game_state["bot_id"] = i
-            self.game_state["bot_moved"] = []
-            self.game_state["food_eaten"] = []
-            self.game_state["bot_destroyed"] = []
-
-            player_team = self.player_teams[bot.team_index]
-            try:
-                universe_copy = self.universe.copy()
-                if self.noiser:
-                    universe_copy = self.noiser.uniform_noise(universe_copy, bot.index)
-                move = player_team._get_move(bot.index, universe_copy)
-                self.game_state = self.universe.move_bot(self.game_state, move)
-
-            except (datamodel.IllegalMoveException, PlayerTimeout) as e:
-                # after MAX_TIMEOUTS timeouts, you lose
-                self.game_state["timeout_teams"][bot.team_index] += 1
-
-                if self.game_state["timeout_teams"][bot.team_index] == MAX_TIMEOUTS:
-                    other_team_idx = not bot.team_index
-                    self.game_state["team_wins"] = other_team_idx
-                    sys.stderr.write("Timeout #%r for team %r (bot index %r). Team disqualified.\n" % (
-                                      self.game_state["timeout_teams"][bot.team_index],
-                                      bot.team_index,
-                                      bot.index))
-                else:
-                    sys.stderr.write("Timeout #%r for team %r (bot index %r).\n" % (
-                                      self.game_state["timeout_teams"][bot.team_index],
-                                      bot.team_index,
-                                      bot.index))
-
-                moves = self.universe.get_legal_moves(bot.current_pos).keys()
-                moves.remove(datamodel.stop)
-                if not moves:
-                    moves = [datamodel.stop]
-
-                move = random.choice(moves)
-                self.game_state = self.universe.move_bot(self.game_state, move)
-
-            except PlayerDisconnected:
-                other_team_idx = not bot.team_index
-                self.game_state["team_wins"] = other_team_idx
-
-                sys.stderr.write("Team %r (bot index %r) disconnected. Team disqualified.\n" % (
-                                  bot.team_index,
-                                  bot.index))
-
-            self.print_possible_winner()
-
-            self.send_to_viewers(self.game_state)
-
-            if self.game_state.get("team_wins") is not None or self.game_state.get("game_draw") is not None:
-                return False
-
-        self.game_state["round_index"] += 1
-        return True
 
     def print_possible_winner(self):
         """ Checks the event list for a potential winner and prints this information.
