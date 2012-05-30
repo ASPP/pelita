@@ -18,54 +18,46 @@ class TkViewer(AbstractViewer):
 
     The viewer may be passed to a GameMaster instance by calling::
 
-        viewer = TkViever()
+        viewer = TkViever(zmq_address)
         gm.register_viewer(viewer)
 
     Afterwards, Tk needs to run in the main thread, which is done
     by calling::
 
-        viewer.app.mainloop()
+        viewer.run()
 
     Notes
     -----
-    Any Tk application must run in the main thread. Therefore,
-    the real game needs to run in some background thread. This means
-    that we’ll need to exchange all information about current universe
-    states in a thread-safe way.
-    A good way to accomplish this is using a simple Queue.
+    Any Tk application must run in the (or at least *a*) main thread.
+    Therefore, the real game needs to run in some background thread, or
+    the Tk application needs to have its own process. (Note that using
+    Python’s subprocess library might have it’s very own issues with Tk.)
 
-    There is however a problem with a simple Queue approach: The producer
-    (ie. the GameMaster) may produce new states much faster than the
+    This means that we’ll need to exchange all information about current
+    universe states in a thread-safe and location independent way. A good way
+    to accomplish this is using a zmq socket.
+
+    There is however a problem with a simple message passing approach: The
+    producer (ie. the GameMaster) may produce new states much faster than the
     consumer is able to process them. (ie. the Viewer might show some
     animations which just take their time.)
-    A queue which is just naïvely filled might therefore be a suboptimal
-    solution when the game is finished long before the animations.
+    A message queue which is just naïvely filled might therefore be a
+    suboptimal solution when the game is finished long before the animations.
 
-    One solution is to use a Queue with a maximum size. If the Queue is
-    filled, no producer may put any more items into it until another
-    item is consumed.
-
-    By default, the TkViewer queue is set to a maximum size of 1 to
-    get the least possible delay between game state and animation.
-
-    If Tk crashes, however, this may lead to dead locks, so we must
-    add a timeout parameter, if the animation takes too long.
-    The respective states and events will be lost then.
+    This synchronisation could be accomplished using a separate messaging
+    scheme which tells the main game that it should move on.
 
     Parameters
     ----------
-    queue_size : int, default = 1
-        The maximum size of the exchange queue between
-        gm.observe and the Tk viewer
-    timeout : The maximum time to wait before we give up
-        observing a new state (or None for no timeout)
+    address : zmq uri
+        The address of the zmq socket to connect to
     geometry: tuple, default = None
         The size (in pixel) of the game root window. None means
         using a bit less than the screen size.
 
     Attributes
     ----------
-    observe_queue :  The exchange queue
+    root : The Tk root instance
     app : The TkApplication class
 
     """
@@ -86,6 +78,7 @@ class TkViewer(AbstractViewer):
         self.app = TkApplication(address=self.address,
                                  geometry = self.geometry,
                                  master=self.root)
+        # schedule next read
         self.root.after_idle(self.app.read_queue)
         try:
             self.root.mainloop()
