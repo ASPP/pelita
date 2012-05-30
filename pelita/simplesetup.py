@@ -193,29 +193,22 @@ class SimpleServer(object):
                 exit_handler()
 
     def run_simple(self, viewerclass, **kwargs):
-        """ Starts a game with the ASCII viewer.
-        This method does not return until the server is stopped.
+        """ Starts a game with the viewer.
+
+        This method does not return until the server is stopped
+        or TkViewer finished, if the TkViewer is used.
         """
         def main():
             viewer = viewerclass(**kwargs)
             self.server.notify("register_viewer", [viewer])
 
-            # We wait until the server is dead
-            while self.server.is_alive:
-                self.server.join(1)
-
-        self._run_save(main)
-
-    def run_tk(self, geometry=None):
-        """ Starts a game with the Tk viewer.
-        This method does not return until the server or Tk is stopped.
-        """
-        def main():
-            # Register a tk_viewer
-            viewer = TkViewer(geometry=geometry)
-            self.server.notify("register_viewer", [viewer])
-            # We wait until tk closes
-            viewer.root.mainloop()
+            if isinstance(viewer, TkViewer):
+                # We wait until tk closes
+                viewer.root.mainloop()
+            else:
+                # We wait until the server is dead
+                while self.server.is_alive:
+                    self.server.join(1)
 
         self._run_save(main)
 
