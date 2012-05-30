@@ -69,15 +69,10 @@ class TkViewer(AbstractViewer):
     app : The TkApplication class
 
     """
-    def __init__(self, address, geometry=None, timeout=0.5):
+    def __init__(self, address, geometry=None):
         self.address = address
 
         self.geometry = geometry
-        self.timeout = timeout
-        if self.timeout == 0:
-            self.block = False
-        else:
-            self.block = True
 
     def run(self):
         self.root = Tkinter.Tk()
