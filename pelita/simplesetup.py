@@ -377,6 +377,9 @@ class ZMQController(object):
     def play(self, *args):
         return self.game_master.play(*args)
 
+    def play_step(self, *args):
+        return self.game_master.play_step(*args)
+
     def play_round(self, *args):
         return self.game_master.play_round(*args)
 

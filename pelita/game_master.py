@@ -15,6 +15,9 @@ __docformat__ = "restructuredtext"
 
 MAX_TIMEOUTS = 5
 
+class GameFinished(Exception):
+    pass
+
 class PlayerTimeout(Exception):
     pass
 
@@ -60,6 +63,8 @@ class GameMaster(object):
         self.player_teams_timeouts = []
         self.viewers = []
         self.initial_delay = initial_delay
+
+        self._step_iter = None
 
         self.game_state = {
             "bot_moved": [],
@@ -150,14 +155,32 @@ class GameMaster(object):
         game_running : boolean
             True, if game is still running, False otherwise.
         """
-        start_time = time.time()
+        if self._step_iter is None:
+            self._step_iter = self._play_round_iter()
+        try:
+            while True:
+                self._step_iter.next()
+        except StopIteration:
+            self._step_iter = None
+            # at the end of iterations
+        except GameFinished:
+            return
 
-        self._play_round()
+    def play_step(self):
+        if self._step_iter is None:
+            self._step_iter = self._play_round_iter()
 
-        end_time = time.time()
-        self.game_state["running_time"] += (end_time - start_time)
+        try:
+            self._step_iter.next()
+        except StopIteration:
+            self._step_iter = None
+            # we could not make a move:
+            # just try another one
+            self.play_step()
+        except GameFinished:
+            return
 
-    def _play_round(self):
+    def _play_round_iter(self):
         if self.game_state["round_index"] is None:
             self.game_state["round_index"] = 0
         else:
@@ -171,12 +194,20 @@ class GameMaster(object):
 
         if self.game_state.get("finished"):
             self.update_viewers()
-            return
+            raise GameFinished()
 
         for bot in self.universe.bots:
+            start_time = time.time()
+
             self._play_bot(bot)
 
             self.update_viewers()
+
+            end_time = time.time()
+            self.game_state["running_time"] += (end_time - start_time)
+
+            # give control to caller
+            yield
 
         self.check_finished()
         self.check_winner()
