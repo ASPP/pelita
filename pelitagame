@@ -250,7 +250,7 @@ def run_game(*argv):
                                              dump_to_file=dump
                                              )
 
-    if args.viewer in 'tk':
+    if args.viewer == 'tk':
         server.run_tk(geometry=args.geometry)
     elif args.viewer == 'ascii':
         server.run_simple(pelita.viewer.AsciiViewer)
