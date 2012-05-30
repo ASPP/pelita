@@ -86,10 +86,7 @@ class TkViewer(AbstractViewer):
         self.root.after_idle(self.app.read_queue)
 
         self.timeout = timeout
-        if self.timeout == 0:
-            self.block = False
-        else:
-            self.block = True
+        self.block = timeout != 0
 
     def _put(self, obj):
         try:
