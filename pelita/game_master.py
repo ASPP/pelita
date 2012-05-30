@@ -105,7 +105,7 @@ class GameMaster(object):
                     % viewer.__class__)
         self.viewers.append(viewer)
 
-    def send_to_viewers(self, game_state):
+    def update_viewers(self):
         """ Call the 'observe' method on all registered viewers.
 
         Parameters
@@ -114,12 +114,10 @@ class GameMaster(object):
             the current round
         turn : int
             the current turn
-        game_state : dict
-            the current game state
         """
         for viewer in self.viewers:
             viewer.observe(self.universe.copy(),
-                           copy.deepcopy(game_state))
+                           copy.deepcopy(self.game_state))
 
     def set_initial(self):
         """ This method needs to be called before a game is started.
@@ -151,7 +149,7 @@ class GameMaster(object):
         while not self.game_state.get("finished"):
             self.play_round()
 
-        self.send_to_viewers(self.game_state)
+        self.update_viewers()
 
     def play_round(self):
         """ Play the next round.
@@ -180,7 +178,7 @@ class GameMaster(object):
         for bot in self.universe.bots:
             self._play_bot(bot)
 
-            self.send_to_viewers(self.game_state)
+            self.update_viewers()
 
         self.check_finished()
         self.check_winner()
