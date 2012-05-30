@@ -250,14 +250,10 @@ def run_game(*argv):
                                              dump_to_file=dump
                                              )
 
-    if args.viewer in 'tk':
-        server.run_tk(geometry=args.geometry)
-    elif args.viewer == 'ascii':
-        server.run_simple(pelita.viewer.AsciiViewer)
-    elif args.viewer == 'null':
-        server.run_simple(pelita.viewer.DevNullViewer)
-    else:
-        assert 0
+    viewers = {'tk': pelita.ui.tk_viewer.TkViewer,
+               'ascii': pelita.viewer.AsciiViewer,
+               'null': pelita.viewer.DevNullViewer}
+    server.run_simple(viewers[args.viewer], geometry=args.geometry)
 
 if __name__ == '__main__':
     run_game(*sys.argv[1:])
