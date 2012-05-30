@@ -8,7 +8,7 @@ from pelita.messaging.json_convert import json_converter
 
 # the legal chars for a basic CTFUniverse
 # see also: create_CTFUniverse factory.
-layout_chars = datamodel.maze_components
+layout_chars = maze_components
 
 class TestStaticmethods(unittest.TestCase):
 
