@@ -13,6 +13,9 @@ __docformat__ = "restructuredtext"
 class AbstractViewer(object):
     __metaclass__ = abc.ABCMeta
 
+    def __init__(self, geometry=None):
+        pass
+
     def set_initial(self, universe):
         """ This method is called when the first universe is ready.
         """
@@ -43,7 +46,8 @@ class AsciiViewer(AbstractViewer):
 class DumpingViewer(AbstractViewer):
     """ A viewer which dumps to a given stream.
     """
-    def __init__(self, stream):
+    def __init__(self, stream, **kwargs):
+        super(DumpingViewer, self).__init__(**kwargs)
         self.stream = stream
 
     def set_initial(self, universe):

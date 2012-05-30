@@ -192,12 +192,12 @@ class SimpleServer(object):
                 # for the exit handling issue.
                 exit_handler()
 
-    def run_simple(self, viewerclass):
+    def run_simple(self, viewerclass, **kwargs):
         """ Starts a game with the ASCII viewer.
         This method does not return until the server is stopped.
         """
         def main():
-            viewer = viewerclass()
+            viewer = viewerclass(**kwargs)
             self.server.notify("register_viewer", [viewer])
 
             # We wait until the server is dead
