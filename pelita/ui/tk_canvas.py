@@ -134,7 +134,23 @@ class UiCanvas(object):
                        background="white",
                        justify=Tkinter.CENTER,
                        text="PLAY/PAUSE",
-                       command=self.master.toggle_running).pack()
+                       command=self.master.toggle_running).pack(side=Tkinter.LEFT)
+
+        Tkinter.Button(self.status,
+                       font=(None, font_size),
+                       foreground="black",
+                       background="white",
+                       justify=Tkinter.CENTER,
+                       text="STEP",
+                       command=self.master.request_step).pack(side=Tkinter.LEFT)
+
+        Tkinter.Button(self.status,
+                       font=(None, font_size),
+                       foreground="black",
+                       background="white",
+                       justify=Tkinter.CENTER,
+                       text="PLAY ROUND",
+                       command=self.master.request_round).pack(side=Tkinter.LEFT)
 
         Tkinter.Button(self.status,
                        font=(None, font_size),
@@ -407,12 +423,12 @@ class TkApplication(object):
 
         self.master.protocol("WM_DELETE_WINDOW", wm_delete_window_handler)
         self.controller_socket.send_json({"__action__": "set_initial"})
-        self.controller_socket.send_json({"__action__": "play_round"})
+        self.request_step()
 
     def toggle_running(self):
         self.running = not self.running
         if self.running:
-            self.controller_socket.send_json({"__action__": "play_round"})
+            self.request_step()
 
     def read_queue(self):
         try:
@@ -432,11 +448,15 @@ class TkApplication(object):
             self.master.after(2, self.request_next, {})
 
     def request_next(self, observed):
-        if self.running:
-            game_state = observed.get("game_state")
-            if game_state and game_state.get("bot_id") == 3:
-                self.controller_socket.send_json({"__action__": "play_round"})
+        if self.running and observed and observed.get("game_state"):
+            self.request_step()
         self.master.after(1, self.read_queue)
+
+    def request_step(self):
+        self.controller_socket.send_json({"__action__": "play_step"})
+
+    def request_round(self):
+        self.controller_socket.send_json({"__action__": "play_round"})
 
     def observe(self, observed):
         universe = observed.get("universe")
