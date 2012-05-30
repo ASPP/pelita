@@ -133,6 +133,14 @@ class UiCanvas(object):
                        foreground="black",
                        background="white",
                        justify=Tkinter.CENTER,
+                       text="PLAY/PAUSE",
+                       command=self.master.toggle_running).pack()
+
+        Tkinter.Button(self.status,
+                       font=(None, font_size),
+                       foreground="black",
+                       background="white",
+                       justify=Tkinter.CENTER,
                        text="QUIT",
                        command=self.master.frame.quit).pack()
 
@@ -395,9 +403,16 @@ class TkApplication(object):
 
         self.ui_canvas = UiCanvas(self, geometry=geometry)
 
+        self.running = True
+
         self.master.protocol("WM_DELETE_WINDOW", wm_delete_window_handler)
         self.controller_socket.send_json({"__action__": "set_initial"})
         self.controller_socket.send_json({"__action__": "play_round"})
+
+    def toggle_running(self):
+        self.running = not self.running
+        if self.running:
+            self.controller_socket.send_json({"__action__": "play_round"})
 
     def read_queue(self):
         try:
@@ -414,12 +429,13 @@ class TkApplication(object):
             return
         except zmq.core.error.ZMQError:
             self.observe({})
-            self.master.after(2, self.read_queue)
+            self.master.after(2, self.request_next, {})
 
     def request_next(self, observed):
-        game_state = observed.get("game_state")
-        if game_state and game_state.get("bot_id") == 3:
-            self.controller_socket.send_json({"__action__": "play_round"})
+        if self.running:
+            game_state = observed.get("game_state")
+            if game_state and game_state.get("bot_id") == 3:
+                self.controller_socket.send_json({"__action__": "play_round"})
         self.master.after(1, self.read_queue)
 
     def observe(self, observed):
