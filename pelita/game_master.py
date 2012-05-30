@@ -74,6 +74,7 @@ class GameMaster(object):
             "bot_id": None,
             "round_index": None,
             "running_time": 0,
+            "team_time": [0, 0],
             "team_wins": None,
             "game_draw": None,
         }
@@ -228,10 +229,14 @@ class GameMaster(object):
             universe_copy = self.universe.copy()
             if self.noiser:
                 universe_copy = self.noiser.uniform_noise(universe_copy, bot.index)
+
+            team_time_begin = time.time()
             move = player_team._get_move(bot.index, universe_copy)
+            team_time_needed = time.time() - team_time_begin
+            self.game_state["team_time"][bot.team_index] += team_time_needed
 
             move_state = self.universe.move_bot(bot.index, move)
-            for k,v in move_state.iteritems():
+            for k, v in move_state.iteritems():
                 self.game_state[k] += v
 
         except (datamodel.IllegalMoveException, PlayerTimeout) as e:
