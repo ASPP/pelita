@@ -146,6 +146,13 @@ parser.add_argument('--geometry', type=geometry_string, metavar='NxM',
 parser.add_argument('--dry-run', const=True, action='store_const',
                     help='load players but do not actually play the game')
 
+publisher_opt = parser.add_mutually_exclusive_group()
+publisher_opt.add_argument('--publish', type=str,
+                           dest='publish_to', help='publish to this zmq socket')
+publisher_opt.add_argument('--no-publish', const=False, action='store_const',
+                           dest='publish_to', help='do not publish')
+parser.set_defaults(publish_to="tcp://*:50011")
+
 viewer_opt = parser.add_mutually_exclusive_group()
 viewer_opt.add_argument('--ascii', action='store_const', const='ascii',
                         dest='viewer', help='use the ASCII viewer')
@@ -229,6 +236,9 @@ def run_game(*argv):
         sys.exit(0)
     if args.seed is not None:
         random.seed(args.seed)
+    if args.viewer == 'tk' and not args.publish_to:
+        raise ValueError("Options --tk and --no-publish are mutually exclusive.")
+
 
     try:
         start_logging(args.log or 'pelita.log')
@@ -284,16 +294,19 @@ def run_game(*argv):
     for client in player_clients:
         client.autoplay_process()
 
+    if args.publish_to:
+        publish_sock = args.publish_to
+        subscribe_sock = publish_sock.replace('*', 'localhost')
 
-    if args.viewer == 'tk':
-        publisher = pelita.zmqsetup.ZMQPublisher("tcp://*:6000")
+        publisher = pelita.zmqsetup.ZMQPublisher(publish_sock)
         server.game_master.register_viewer(publisher)
 
+    if args.viewer == 'tk':
         # Something on OS X prevents Tk from running in a forked process.
         # Therefore we cannot use multiprocessing here. subprocess works, though.
         tkprocess = subprocess.Popen(["python",
                                       "-c",
-                                      "from pelita.ui.tk_viewer import TkViewer;TkViewer('tcp://localhost:6000').run()"])
+                                      "from pelita.ui.tk_viewer import TkViewer;TkViewer('"+subscribe_sock+"').run()"])
 
         # we sleep a tiny bit to give Tk time to initialise
         time.sleep(0.5)
@@ -302,16 +315,11 @@ def run_game(*argv):
             server.run()
         except KeyboardInterrupt:
             tkprocess.kill()
-        finally:
-            pass
-    elif args.viewer == 'ascii':
-        server.game_master.register_viewer(pelita.viewer.AsciiViewer())
-        try:
-            server.run()
-        except KeyboardInterrupt:
-            pass
-    elif args.viewer == 'null':
-        server.game_master.register_viewer(pelita.viewer.DevNullViewer())
+    else:
+        if args.viewer == 'ascii':
+            server.game_master.register_viewer(pelita.viewer.AsciiViewer())
+        elif args.viewer == 'null':
+            server.game_master.register_viewer(pelita.viewer.DevNullViewer())
         try:
             server.run()
         except KeyboardInterrupt:
