@@ -174,6 +174,12 @@ class GameMaster(object):
         else:
             self.game_state["round_index"] += 1
 
+        if not self.game_state.get("finished"):
+            self.check_finished()
+            self.check_winner()
+
+            self.print_possible_winner()
+
         if self.game_state.get("finished"):
             return
 
@@ -247,7 +253,7 @@ class GameMaster(object):
             self.game_state["finished"] = True
             return
 
-        if self.game_state["round_index"] > self.game_time:
+        if self.game_state["round_index"] >= self.game_time:
             self.game_state["finished"] = True
         else:
             food_left = [self.universe.enemy_food(team.index) for team in self.universe.teams]
