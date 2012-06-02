@@ -171,6 +171,8 @@ class GameMaster(object):
     def _play_round(self):
         if self.game_state["round_index"] is None:
             self.game_state["round_index"] = 0
+        else:
+            self.game_state["round_index"] += 1
 
         if self.game_state.get("finished"):
             return
@@ -184,8 +186,6 @@ class GameMaster(object):
         self.check_winner()
 
         self.print_possible_winner()
-
-        self.game_state["round_index"] += 1
 
     def _play_bot(self, bot):
         self.game_state["bot_id"] = bot.index
