@@ -46,9 +46,13 @@ __docformat__ = "restructuredtext"
 TIMEOUT = 3
 
 class UnknownMessageId(Exception):
+    """ Is raised when a reply arrives with unexpected id.
+    """
     pass
 
 class ZMQTimeout(Exception):
+    """ Is raised when an ZMQ socket does not answer in time.
+    """
     pass
 
 class ZMQConnection(object):
@@ -144,8 +148,9 @@ class ZMQConnection(object):
 
 
 class RemoteTeamPlayer(object):
-    """ This class is registered with the GameMaster and
-    sends all requests to the attached zmq socket.
+    """ This class is registered server-side with the GameMaster
+    and sends all requests to the attached zmq socket (to which
+    a client player has connected.)
 
     It also does some basic checks for correct return values.
 
@@ -224,6 +229,8 @@ class ZMQServer(object):
         The number of rounds played. Default: 3000.
     bind_addrs : string or tuple, optional
         The address(es) which this server uses for its connections. Default: "tcp://*".
+    initial_delay : float
+        Delays the start of the game by `initial_delay` seconds.
 
     Raises
     ------
@@ -328,14 +335,14 @@ class ZMQClient(object):
     Usage
     -----
         client = SimpleClient(SimpleTeam("the good ones", BFSPlayer(), NQRandomPlayer()))
-        # client.host = "pelita.server.example.com"
-        # client.port = 50011
-        client.autoplay()
+        client.run() # runs in the same thread / process
+
+        client.autoplay_process() # runs in a background process
 
     Parameters
     ----------
     team: PlayerTeam
-        A PlayerTeam instance which defines the algorithms for each Bot.
+        A Player which defines the algorithms for each Bot.
     team_name : string
         The name of the team. (optional, if not defined in team)
     address : string
@@ -372,6 +379,11 @@ class ZMQClient(object):
         data = py_obj["__data__"]
 
         # feed client actor here …
+        #
+        # TODO: This code is dangerous as a malicious message
+        # could call anything on this object. This needs to
+        # be fixed analogous to the `expose` method in
+        # the messaging framework.
         retval = getattr(self, action)(*data)
 
         self.socket.send_pyobj({"__uuid__": uuid_, "__return__": retval})
