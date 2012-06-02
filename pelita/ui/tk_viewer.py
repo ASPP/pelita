@@ -7,13 +7,12 @@ import Tkinter
 import logging
 import zmq
 
-from pelita.viewer import AbstractViewer
 from pelita.ui.tk_canvas import TkApplication
 
 _logger = logging.getLogger("pelita.tk_viewer")
 _logger.setLevel(logging.DEBUG)
 
-class TkViewer(AbstractViewer):
+class TkViewer(object):
     """ Initialises Tk based viewer for the game.
 
     The viewer may be passed to a GameMaster instance by calling::
