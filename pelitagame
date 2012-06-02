@@ -271,6 +271,7 @@ def run_game(*argv):
         sys.exit(0)
 
     try:
+        # TODO: Re-include the dump.
         dump = args.dump or 'pelita.dump'
     except AttributeError:
         dump = None
@@ -279,7 +280,6 @@ def run_game(*argv):
                                        layout_name=args.layout,
                                        layout_filter=args.filter,
                                        rounds=args.rounds,
-                                       dump_to_file=dump,
                                        bind_addrs=(addrs_left, addrs_right),
                                        initial_delay=0.5
                                        )
