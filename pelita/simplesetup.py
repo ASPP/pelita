@@ -340,7 +340,7 @@ class ExitLoop(Exception):
     """ If this is raised, we’ll close the inner loop.
     """
 
-class ZMQController(object):
+class SimpleController(object):
     """ Sets up a simple Controller to interact with GameMaster. """
 
     def __init__(self, game_master, address):
@@ -393,7 +393,7 @@ class ZMQController(object):
         raise ExitLoop()
 
     def __repr__(self):
-        return "ZMQController(%r, %r)" % (self.game_master, self.address)
+        return "SimpleController(%r, %r)" % (self.game_master, self.address)
 
 
 class SimpleClient(object):

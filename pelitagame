@@ -314,7 +314,7 @@ def run_game(*argv):
         try:
             server.register_teams()
 
-            controller = pelita.simplesetup.ZMQController(server.game_master, "tcp://*:50012")
+            controller = pelita.simplesetup.SimpleController(server.game_master, "tcp://*:50012")
             controller.run()
 #            server.run()
             server.exit_teams()
