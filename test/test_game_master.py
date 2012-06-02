@@ -193,7 +193,7 @@ class TestAbstracts(unittest.TestCase):
 
     def test_AbstractViewer(self):
         av = AbstractViewer()
-        self.assertRaises(NotImplementedError, av.observe, None, None, None, None)
+        self.assertRaises(NotImplementedError, av.observe, None, None)
 
     def test_AbstractPlayer(self):
         ap = AbstractPlayer()
@@ -356,7 +356,7 @@ class TestGame(unittest.TestCase):
             def set_initial(self, universe):
                 universe.teams[1].score = 50
 
-            def observe(self, round_, turn, universe, events):
+            def observe(self, universe, events):
                 universe.teams[0].score = 100
                 universe.bots[0].current_pos = (4,4)
                 universe.maze[0,0] = free_obj
@@ -380,7 +380,7 @@ class TestGame(unittest.TestCase):
 
         test_self = self
         class TestViewer(AbstractViewer):
-            def observe(self, round_, turn, universe, events):
+            def observe(self, universe, events):
                 # universe should not have been altered
                 test_self.assertEqual(original_universe, gm.universe)
 
@@ -413,7 +413,7 @@ class TestGame(unittest.TestCase):
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, round_, turn, universe, events):
+            def observe(self, universe, events):
                 self.cache.append(events)
 
         # run the game
@@ -442,7 +442,7 @@ class TestGame(unittest.TestCase):
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, round_, turn, universe, events):
+            def observe(self, universe, events):
                 self.cache.append(events)
 
         # run the game
@@ -471,7 +471,7 @@ class TestGame(unittest.TestCase):
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, round_, turn, universe, events):
+            def observe(self, universe, events):
                 self.cache.append(events)
 
         # run the game
@@ -502,7 +502,7 @@ class TestGame(unittest.TestCase):
             def __init__(self):
                 self.cache = list()
                 self.round_ = list()
-            def observe(self, round_, turn, universe, events):
+            def observe(self, universe, events):
                 self.cache.append(events)
                 self.round_.append(round_)
 
@@ -536,7 +536,7 @@ class TestGame(unittest.TestCase):
             def __init__(self):
                 self.cache = list()
                 self.round_ = list()
-            def observe(self, round_, turn, universe, events):
+            def observe(self, universe, events):
                 self.cache.append(events)
                 self.round_.append(round_)
 
@@ -577,7 +577,7 @@ class TestGame(unittest.TestCase):
             def __init__(self):
                 self.cache = list()
                 self.round_ = list()
-            def observe(self, round_, turn, universe, events):
+            def observe(self, universe, events):
                 self.cache.append(events)
                 self.round_.append(round_)
 
