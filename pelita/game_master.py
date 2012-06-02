@@ -242,6 +242,11 @@ class GameMaster(object):
     def check_finished(self):
         self.game_state["finished"] = False
 
+        if (self.game_state["team_wins"] is not None or
+            self.game_state["game_draw"] is not None):
+            self.game_state["finished"] = True
+            return
+
         if self.game_state["round_index"] > self.game_time:
             self.game_state["finished"] = True
         else:
@@ -251,6 +256,11 @@ class GameMaster(object):
 
     def check_winner(self):
         if not self.game_state["finished"]:
+            return
+
+        if (self.game_state["team_wins"] is not None or
+            self.game_state["game_draw"] is not None):
+            # we found out already
             return
 
         if self.universe.teams[0].score > self.universe.teams[1].score:
