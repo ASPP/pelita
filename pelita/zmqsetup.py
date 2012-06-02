@@ -367,8 +367,8 @@ class ZMQClient(object):
             pass
 
     def _loop(self):
-        """ Creates a new ZMQCLient, and connects it with
-        the Server.
+        """ Waits for incoming requests and tries to get a proper
+        answer from the player.
         """
         py_obj = self.socket.recv_pyobj()
         uuid_ = py_obj["__uuid__"]
