@@ -374,17 +374,17 @@ class SimpleController(object):
         if uuid_:
             self.socket.send_pyobj({"__uuid__": uuid_, "__return__": retval})
 
+    def set_initial(self, *args):
+        return self.game_master.set_initial(*args)
+
     def play(self, *args):
         return self.game_master.play(*args)
-
-    def play_step(self, *args):
-        return self.game_master.play_step(*args)
 
     def play_round(self, *args):
         return self.game_master.play_round(*args)
 
-    def set_initial(self, *args):
-        return self.game_master.set_initial(*args)
+    def play_step(self, *args):
+        return self.game_master.play_step(*args)
 
     def update_viewers(self, *args):
         return self.game_master.update_viewers(*args)
