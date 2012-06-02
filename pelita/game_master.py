@@ -119,13 +119,10 @@ class GameMaster(object):
     def set_initial(self):
         """ This method needs to be called before a game is started.
         It notifies the PlayerTeams and the Viewers of the initial
-        universes and tells the PlayerTeams what their respective
-        bot_ids are.
+        universes and tells the PlayerTeams what team_id they have.
         """
-        for team_idx, team in enumerate(self.player_teams):
-            # the respective bot ids in the universe
-            team._set_bot_ids(self.universe.teams[team_idx].bots)
-            team._set_initial(self.universe.copy())
+        for team_id, team in enumerate(self.player_teams):
+            team._set_initial(team_id, self.universe.copy())
 
         if len(self.player_teams) != len(self.universe.teams):
             raise IndexError(

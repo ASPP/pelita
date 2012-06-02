@@ -336,18 +336,18 @@ class TestSimpleTeam(unittest.TestCase):
         dummy_universe = create_CTFUniverse(layout, 2)
         team1 = SimpleTeam(TestPlayer('^'), TestPlayer('>'))
 
-        self.assertRaises(ValueError, team1._set_bot_ids, [1, 5, 10])
-        team1._set_bot_ids([1,5])
+        dummy_universe.teams[0].bots = [1, 5, 10]
+        self.assertRaises(ValueError, team1._set_initial, 0, dummy_universe)
 
-        team1._set_initial(dummy_universe)
+        dummy_universe.teams[0].bots = [1, 5]
+        team1._set_initial(0, dummy_universe)
         self.assertEqual(team1._get_move(1, dummy_universe), north)
         self.assertEqual(team1._get_move(5, dummy_universe), east)
         self.assertRaises(KeyError, team1._get_move, 6, dummy_universe)
 
         team2 = SimpleTeam(TestPlayer('^'), TestPlayer('>'))
-        team2._set_bot_ids([1])
 
-        team2._set_initial(dummy_universe)
+        team2._set_initial(1, dummy_universe)
         self.assertEqual(team2._get_move(1, dummy_universe), north)
         self.assertRaises(KeyError, team2._get_move, 0, dummy_universe)
         self.assertRaises(KeyError, team2._get_move, 2, dummy_universe)
