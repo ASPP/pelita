@@ -257,10 +257,8 @@ class AbstractPlayer(object):
 
 class StoppingPlayer(AbstractPlayer):
     """ A Player that just stands still. """
-
     def get_move(self):
         return datamodel.stop
-
 
 class RandomPlayer(AbstractPlayer):
     """ A player that makes moves at random. """

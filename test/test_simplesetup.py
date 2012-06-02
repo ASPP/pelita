@@ -36,10 +36,10 @@ class TestSimpleSetup(unittest.TestCase):
         # check that a non existent file raises an error
         self.assertRaises(IOError, SimpleServer, layout_file="foobar")
         # check that stuff behaves as it should
-        SimpleServer().stop()
-        SimpleServer(layout_string=layout_string).stop()
-        SimpleServer(layout_name=layout_name).stop()
-        SimpleServer(layout_file=layout_file, players=2).stop()
+        SimpleServer().shutdown()
+        SimpleServer(layout_string=layout_string).shutdown()
+        SimpleServer(layout_name=layout_name).shutdown()
+        SimpleServer(layout_file=layout_file, players=2).shutdown()
 
     def test_simple_game(self):
         layout = """
@@ -48,19 +48,23 @@ class TestSimpleSetup(unittest.TestCase):
         #0      1#
         ##########
         """
-        client1 = SimpleClient(SimpleTeam("team1", RandomPlayer()))
-        client2 = SimpleClient(SimpleTeam("team2", RandomPlayer()))
-        server = SimpleServer(layout_string=layout, rounds=5, players=2)
+        server = SimpleServer(layout_string=layout, rounds=5, players=2,
+                              bind_addrs=("ipc:///tmp/pelita-testplayer1",
+                                          "ipc:///tmp/pelita-testplayer2"))
 
-        self.assertEqual(server.host, None)
-        self.assertEqual(server.port, None)
-        self.assertTrue(server.server.is_alive)
+        for bind_address in server.bind_addresses:
+            self.assertTrue(bind_address.startswith("ipc://"))
 
-        client1.autoplay_background()
-        client2.autoplay_background()
-        server.run_simple(AsciiViewer)
+        client1_address = server.bind_addresses[0]
+        client2_address = server.bind_addresses[1]
 
-        self.assertFalse(server.server.is_alive)
+        client1 = SimpleClient(SimpleTeam("team1", RandomPlayer()), address=client1_address)
+        client2 = SimpleClient(SimpleTeam("team2", RandomPlayer()), address=client2_address)
+
+        client1.autoplay_process()
+        client2.autoplay_process()
+        server.run()
+        server.shutdown()
 
     def test_simple_remote_game(self):
         layout = """
@@ -69,19 +73,21 @@ class TestSimpleSetup(unittest.TestCase):
         #0      1#
         ##########
         """
-        client1 = SimpleClient(SimpleTeam("team1", RandomPlayer()), local=False)
-        client2 = SimpleClient(SimpleTeam("team2", RandomPlayer()), local=False)
-        server = SimpleServer(layout_string=layout, rounds=5, players=2, local=False)
+        server = SimpleServer(layout_string=layout, rounds=5, players=2)
 
-        self.assertEqual(server.host, "")
-        self.assertEqual(server.port, 50007)
-        self.assertTrue(server.server.is_alive)
+        for bind_address in server.bind_addresses:
+            self.assertTrue(bind_address.startswith("tcp://"))
 
-        client1.autoplay_background()
-        client2.autoplay_background()
-        server.run_simple(AsciiViewer)
+        client1_address = server.bind_addresses[0].replace("*", "localhost")
+        client2_address = server.bind_addresses[1].replace("*", "localhost")
 
-        self.assertFalse(server.server.is_alive)
+        client1 = SimpleClient(SimpleTeam("team1", RandomPlayer()), address=client1_address)
+        client2 = SimpleClient(SimpleTeam("team2", RandomPlayer()), address=client2_address)
+
+        client1.autoplay_process()
+        client2.autoplay_process()
+        server.run()
+        server.shutdown()
 
 if __name__ == '__main__':
     unittest.main()

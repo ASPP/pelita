@@ -5,6 +5,7 @@
 import copy
 import random
 import sys
+import time
 from .containers import TypeAwareList
 from . import datamodel
 from .graph import NoPathException
@@ -50,7 +51,8 @@ class GameMaster(object):
         the viewers that are observing this game
 
     """
-    def __init__(self, layout, number_bots, game_time, noise=True):
+    def __init__(self, layout, number_bots, game_time, noise=True,
+                 initial_delay=0.0):
         self.universe = datamodel.create_CTFUniverse(layout, number_bots)
         self.number_bots = number_bots
         self.game_time = game_time
@@ -59,6 +61,7 @@ class GameMaster(object):
         self.player_teams_timeouts = []
         self.viewers = []
         self.round = 0
+        self.initial_delay = initial_delay
 
     def register_team(self, team, team_name=""):
         """ Register a client TeamPlayer class.
@@ -86,10 +89,6 @@ class GameMaster(object):
         viewer : subclass of AbstractViewer
 
         """
-        try:
-            viewer.set_initial(self.universe.copy())
-        except AttributeError:
-            pass # set_initial is not mandatory
         self.viewers.append(viewer)
 
     def send_to_viewers(self, turn, events):
@@ -102,7 +101,6 @@ class GameMaster(object):
         events : TypeAwareList of UniverseEvent
             the events for this turn
         """
-
         for viewer in self.viewers:
             viewer.observe(self.round,
                     turn,
@@ -111,13 +109,17 @@ class GameMaster(object):
 
     def set_initial(self):
         """ This method needs to be called before a game is started.
-        It notifies the PlayerTeams of the initial universes and their
-        respective bot_ids.
+        It notifies the PlayerTeams and the Viewers of the initial
+        universes and tells the PlayerTeams what their respective
+        bot_ids are.
         """
         for team_idx, team in enumerate(self.player_teams):
             # the respective bot ids in the universe
             team._set_bot_ids(self.universe.teams[team_idx].bots)
             team._set_initial(self.universe.copy())
+
+        for viewer in self.viewers:
+            viewer.set_initial(self.universe.copy())
 
     # TODO the game winning detection should be refactored
 
@@ -125,6 +127,8 @@ class GameMaster(object):
         """ Play a whole game. """
         # notify all PlayerTeams
         self.set_initial()
+        
+        time.sleep(self.initial_delay)
 
         if len(self.player_teams) != len(self.universe.teams):
             raise IndexError(

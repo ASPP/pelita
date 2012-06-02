@@ -64,8 +64,22 @@ class BotSprite(TkSprite):
     def __init__(self, mesh, team=0, bot_idx=0, **kwargs):
         self.bot_idx = bot_idx
         self.team = team
+        self.is_harvester = None
 
         super(BotSprite, self).__init__(mesh, **kwargs)
+
+    def move_to(self, new_pos, canvas, universe=None, force=None):
+        old_direction = self.direction
+        old_position = self.position
+
+        self.position = new_pos
+        if old_direction != self.direction or force or self.is_harvester != universe.bots[self.bot_idx].is_harvester:
+            self.redraw(canvas, universe)
+        else:
+            dx = self.position[0] - old_position[0]
+            dy = self.position[1] - old_position[1]
+
+            canvas.move(self.tag, self.mesh.rect_width * dx, self.mesh.rect_height * dy)
 
     def draw_bot(self, canvas, outer_col, eye_col, mirror=False):
         direction = self.direction
@@ -88,8 +102,8 @@ class BotSprite(TkSprite):
         canvas.create_oval(eye_box, fill=eye_col, width=0, tag=self.tag)
 
     def draw(self, canvas, universe):
-        is_harvester = universe.bots[self.bot_idx].is_harvester
-        if is_harvester:
+        self.is_harvester = universe.bots[self.bot_idx].is_harvester
+        if self.is_harvester:
             if self.team == 0:
                 self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col="yellow", mirror=True)
             else:
