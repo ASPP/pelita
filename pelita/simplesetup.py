@@ -322,6 +322,14 @@ class SimpleServer(object):
         for team_player in self.team_players:
             team_player._exit()
 
+    def shutdown(self):
+        """ Closes the sockets.
+
+        To be used with care.
+        """
+        for socket in self.sockets:
+            socket.close()
+
 class ExitLoop(Exception):
     """ If this is raised, we’ll close the inner loop.
     """
