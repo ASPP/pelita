@@ -209,7 +209,7 @@ class GameMaster(object):
             self.game_state["timeout_teams"][bot.team_index] += 1
 
             if self.game_state["timeout_teams"][bot.team_index] == MAX_TIMEOUTS:
-                other_team_idx = not bot.team_index
+                other_team_idx = 1 - bot.team_index
                 self.game_state["team_wins"] = other_team_idx
                 sys.stderr.write("Timeout #%r for team %r (bot index %r). Team disqualified.\n" % (
                                   self.game_state["timeout_teams"][bot.team_index],
@@ -232,7 +232,7 @@ class GameMaster(object):
                 self.game_state[k] += v
 
         except PlayerDisconnected:
-            other_team_idx = not bot.team_index
+            other_team_idx = 1 - bot.team_index
             self.game_state["team_wins"] = other_team_idx
 
             sys.stderr.write("Team %r (bot index %r) disconnected. Team disqualified.\n" % (
