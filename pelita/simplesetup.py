@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-""" simplesetup.py defines the ZMQServer and ZMQClient classes
+""" simplesetup.py defines the SimpleServer and SimpleClient classes
 which allow for easy game setup via zmq sockets.
 
 Notes / TODO
@@ -200,7 +200,7 @@ class RemoteTeamPlayer(object):
     def _exit(self):
         self.zmqconnection.send("exit", [])
 
-class ZMQServer(object):
+class SimpleServer(object):
     """ Sets up a simple Server with most settings pre-configured.
 
     Usage
@@ -326,7 +326,7 @@ class ExitLoop(Exception):
     """ If this is raised, we’ll close the inner loop.
     """
 
-class ZMQClient(object):
+class SimpleClient(object):
     """ Sets up a simple Client with most settings pre-configured.
 
     Usage
@@ -414,9 +414,9 @@ class ZMQClient(object):
         return background_thread
 
     def __repr__(self):
-        return "ZMQCLient(%r, %r, %r)" % (self.team, self.team_name, self.address)
+        return "SimpleCLient(%r, %r, %r)" % (self.team, self.team_name, self.address)
 
-class ZMQPublisher(AbstractViewer):
+class SimplePublisher(AbstractViewer):
     def __init__(self, address):
         self.address = address
         self.context = zmq.Context()
