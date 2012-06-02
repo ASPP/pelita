@@ -6,8 +6,7 @@ from . import (compat,
                game_master,
                layout,
                player,
-               #simplesetup,
-               zmqsetup,
+               simplesetup,
                viewer,
                __version_from_git)
 

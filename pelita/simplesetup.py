@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-""" zmqsetup.py defines the ZMQServer and ZMQClient classes
+""" simplesetup.py defines the ZMQServer and ZMQClient classes
 which allow for easy game setup via zmq sockets.
 
 Notes / TODO

@@ -275,7 +275,7 @@ def run_game(*argv):
     except AttributeError:
         dump = None
 
-    server = pelita.zmqsetup.ZMQServer(layout_file=args.layoutfile,
+    server = pelita.simplesetup.ZMQServer(layout_file=args.layoutfile,
                                        layout_name=args.layout,
                                        layout_filter=args.filter,
                                        rounds=args.rounds,
@@ -288,7 +288,7 @@ def run_game(*argv):
     for (addr, team) in zip(server.bind_addresses, [bads, goods]):
         if team:
             addr = addr.replace('*', 'localhost')
-            client = pelita.zmqsetup.ZMQClient(team, address=addr)
+            client = pelita.simplesetup.ZMQClient(team, address=addr)
             player_clients.append(client)
 
     for client in player_clients:
@@ -298,7 +298,7 @@ def run_game(*argv):
         publish_sock = args.publish_to
         subscribe_sock = publish_sock.replace('*', 'localhost')
 
-        publisher = pelita.zmqsetup.ZMQPublisher(publish_sock)
+        publisher = pelita.simplesetup.ZMQPublisher(publish_sock)
         server.game_master.register_viewer(publisher)
 
     if args.viewer == 'tk':
