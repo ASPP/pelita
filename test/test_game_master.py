@@ -4,8 +4,8 @@ import unittest
 import time
 import collections
 import pelita
-from pelita.datamodel import Wall, Free, Food, TeamWins, GameDraw, BotMoves, \
-        create_CTFUniverse, KILLPOINTS
+from pelita.datamodel import Wall, Free, Food, create_CTFUniverse, KILLPOINTS
+
 from pelita.game_master import GameMaster, UniverseNoiser, PlayerTimeout
 from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer, StoppingPlayer
 from pelita.viewer import AbstractViewer, DevNullViewer
@@ -271,12 +271,11 @@ class TestGame(unittest.TestCase):
         test_sixth_round = (
             """ ######
                 #  0 #
-                #.1  #
+                #1   #
                 ###### """)
         print gm.universe.pretty
         self.assertEqual(create_TestUniverse(test_sixth_round,
             black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
-
 
         # now play the full game
         gm = GameMaster(test_start, number_bots, 200)
@@ -286,7 +285,7 @@ class TestGame(unittest.TestCase):
         test_sixth_round = (
             """ ######
                 #  0 #
-                #.1  #
+                #1   #
                 ###### """)
         self.assertEqual(create_TestUniverse(test_sixth_round,
             black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
@@ -336,13 +335,12 @@ class TestGame(unittest.TestCase):
             def set_initial(self, universe):
                 universe.teams[1].score = 50
 
-            def observe(self, round_, turn, universe, events):
+            def observe(self, universe, events):
                 universe.teams[0].score = 100
                 universe.bots[0].current_pos = (4,4)
                 universe.maze[0,0] = free_obj
 
-                events.append(TeamWins(0))
-                test_self.assertEqual(len(events), 2)
+                events["team_wins"] = 0
 
         test_start = (
             """ ######
@@ -360,14 +358,13 @@ class TestGame(unittest.TestCase):
 
         test_self = self
         class TestViewer(AbstractViewer):
-            def observe(self, round_, turn, universe, events):
+            def observe(self, universe, events):
                 # universe should not have been altered
                 test_self.assertEqual(original_universe, gm.universe)
 
                 # there should only be a botmoves event
-                test_self.assertEqual(len(events), 1)
-                test_self.assertEqual(len(events), 1)
-                test_self.assertTrue(BotMoves in events)
+                test_self.assertEqual(len(events["bot_moved"]), 1)
+                test_self.assertEqual(len(events["bot_moved"]), 1)
 
         gm.register_viewer(MeanViewer())
         gm.register_viewer(TestViewer())
@@ -393,7 +390,7 @@ class TestGame(unittest.TestCase):
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, round_, turn, universe, events):
+            def observe(self, universe, events):
                 self.cache.append(events)
 
         # run the game
@@ -403,8 +400,8 @@ class TestGame(unittest.TestCase):
         gm.play()
 
         # check
-        self.assertTrue(TeamWins in tv.cache[-1])
-        self.assertEqual(tv.cache[-1][0], TeamWins(0))
+        self.assertTrue(tv.cache[-1]["team_wins"] is not None)
+        self.assertEqual(tv.cache[-1]["team_wins"], 0)
 
     def test_win_on_timeout_team_1(self):
         test_start = (
@@ -422,7 +419,7 @@ class TestGame(unittest.TestCase):
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, round_, turn, universe, events):
+            def observe(self, universe, events):
                 self.cache.append(events)
 
         # run the game
@@ -432,8 +429,8 @@ class TestGame(unittest.TestCase):
         gm.play()
 
         # check
-        self.assertTrue(TeamWins in tv.cache[-1])
-        self.assertEqual(tv.cache[-1][0], TeamWins(1))
+        self.assertTrue(tv.cache[-1]["team_wins"] is not None)
+        self.assertEqual(tv.cache[-1]["team_wins"], 1)
 
     def test_draw_on_timeout(self):
         test_start = (
@@ -451,7 +448,7 @@ class TestGame(unittest.TestCase):
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, round_, turn, universe, events):
+            def observe(self, universe, events):
                 self.cache.append(events)
 
         # run the game
@@ -461,8 +458,7 @@ class TestGame(unittest.TestCase):
         gm.play()
 
         # check
-        self.assertTrue(GameDraw in tv.cache[-1])
-        self.assertEqual(tv.cache[-1][0], GameDraw())
+        self.assertTrue(tv.cache[-1]["game_draw"])
 
     def test_win_on_eating_all(self):
         test_start = (
@@ -481,10 +477,8 @@ class TestGame(unittest.TestCase):
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-                self.round_ = list()
-            def observe(self, round_, turn, universe, events):
+            def observe(self, universe, events):
                 self.cache.append(events)
-                self.round_.append(round_)
 
         # run the game
         tv = TestViewer()
@@ -493,9 +487,9 @@ class TestGame(unittest.TestCase):
         gm.play()
 
         # check
-        self.assertTrue(TeamWins in tv.cache[-1])
-        self.assertEqual(tv.cache[-1].filter_type(TeamWins)[0], TeamWins(1))
-        self.assertEqual(tv.round_[-1], 1)
+        self.assertTrue(tv.cache[-1]["team_wins"] is not None)
+        self.assertEqual(tv.cache[-1]["team_wins"], 1)
+        self.assertEqual(tv.cache[-1]["round_index"], 1)
 
     def test_lose_on_eating_all(self):
         test_start = (
@@ -515,10 +509,8 @@ class TestGame(unittest.TestCase):
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-                self.round_ = list()
-            def observe(self, round_, turn, universe, events):
+            def observe(self, universe, events):
                 self.cache.append(events)
-                self.round_.append(round_)
 
         # run the game
         tv = TestViewer()
@@ -527,11 +519,11 @@ class TestGame(unittest.TestCase):
         gm.play()
 
         # check
-        self.assertEqual(tv.round_[-1], 1)
+        self.assertEqual(tv.cache[-1]["round_index"], 1)
         self.assertEqual(gm.universe.teams[0].score, 2)
         self.assertEqual(gm.universe.teams[1].score, 1)
-        self.assertTrue(TeamWins in tv.cache[-1])
-        self.assertEqual(tv.cache[-1].filter_type(TeamWins)[0], TeamWins(0))
+        self.assertTrue(tv.cache[-1]["team_wins"] is not None)
+        self.assertEqual(tv.cache[-1]["team_wins"], 0)
 
     def test_lose_5_timeouts(self):
         # 0 must move back and forth because of random steps
@@ -556,10 +548,8 @@ class TestGame(unittest.TestCase):
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-                self.round_ = list()
-            def observe(self, round_, turn, universe, events):
+            def observe(self, universe, events):
                 self.cache.append(events)
-                self.round_.append(round_)
 
         # run the game
         tv = TestViewer()
@@ -571,9 +561,9 @@ class TestGame(unittest.TestCase):
         gm.play()
 
         # check
-        self.assertEqual(tv.round_[-1], pelita.game_master.MAX_TIMEOUTS - 1)
+        self.assertEqual(tv.cache[-1]["round_index"], pelita.game_master.MAX_TIMEOUTS - 1)
         self.assertEqual(gm.universe.teams[0].score, 0)
         self.assertEqual(gm.universe.teams[1].score, 0)
         self.assertEqual(gm.universe.bots[0].current_pos, (2,1))
-        self.assertTrue(TeamWins in tv.cache[-1])
-        self.assertEqual(tv.cache[-1].filter_type(TeamWins)[0], TeamWins(1))
+        self.assertTrue(tv.cache[-1]["team_wins"] is not None)
+        self.assertEqual(tv.cache[-1]["team_wins"], 1)

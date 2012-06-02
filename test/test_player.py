@@ -88,6 +88,7 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertUniversesNotEqual(player_1.current_uni,
                                      player_1.universe_states[-2])
 
+
 class TestTestPlayer(unittest.TestCase):
     def test_test_players(self):
         test_layout = (

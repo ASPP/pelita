@@ -1,6 +1,6 @@
 import unittest
 from pelita.containers import Mesh
-from pelita.datamodel import Wall, Free, Food, maze_components
+from pelita.datamodel import maze_components
 from pelita.layout import *
 
 class TestLayoutModule(unittest.TestCase):
@@ -28,7 +28,6 @@ class TestLayoutModule(unittest.TestCase):
 
 
 class TestLayoutChecks(unittest.TestCase):
-
     layout_chars = maze_components
 
     def test_strip_layout(self):

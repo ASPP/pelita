@@ -4,7 +4,6 @@
 
 import abc
 
-from . import datamodel
 from .messaging.json_convert import json_converter
 
 __docformat__ = "restructuredtext"
@@ -19,26 +18,26 @@ class AbstractViewer(object):
         pass
 
     @abc.abstractmethod
-    def observe(self, round_, turn, universe, events):
+    def observe(self, universe, events):
         pass
 
 class DevNullViewer(AbstractViewer):
     """ A viewer that simply ignores everything. """
-    def observe(self, round_, turn, universe, events):
+    def observe(self, universe, game_state):
         pass
 
 class AsciiViewer(AbstractViewer):
     """ A viewer that dumps ASCII charts on stdout. """
 
-    def observe(self, round_, turn, universe, events):
+    def observe(self, universe, game_state):
         print ("Round: %r Turn: %r Score: %r:%r"
-        % (round_, turn, universe.teams[0].score, universe.teams[1].score))
-        print ("Events: %r" % [str(e) for e in events])
+        % (game_state["round_index"], game_state["bot_id"], game_state["score"][0], game_state["score"][1]))
+        print ("Game State: %r") % game_state
         print universe.compact_str
-        if datamodel.TeamWins in events:
-            team_wins_event = events.filter_type(datamodel.TeamWins)[0]
+        winning_team_idx = game_state.get("team_wins")
+        if winning_team_idx is not None:
             print ("Game Over: Team: '%s' wins!" %
-            universe.teams[team_wins_event.winning_team_index].name)
+                universe.teams[winning_team_idx].name)
 
 class DumpingViewer(AbstractViewer):
     """ A viewer which dumps to a given stream.
@@ -50,12 +49,10 @@ class DumpingViewer(AbstractViewer):
         self.stream.write(json_converter.dumps({"universe": universe}))
         self.stream.write("\x04")
 
-    def observe(self, round_, turn, universe, events):
+    def observe(self, universe, game_state):
         kwargs = {
-            "round_": round_,
-            "turn": turn,
             "universe": universe,
-            "events": events
+            "game_state": game_state
         }
 
         self.stream.write(json_converter.dumps(kwargs))

@@ -352,61 +352,6 @@ class TestMaze(unittest.TestCase):
         self.assertEqual(maze_1[0,0], "abcd")
         self.assertEqual(maze_1[1,0], "abcd")
 
-class TestUniverseEvent(unittest.TestCase):
-
-    def test_eq_repr(self):
-        bot_moves = BotMoves(0, (0, 0), (1, 0))
-        self.assertEqual(bot_moves, BotMoves(0, (0, 0), (1, 0)))
-        self.assertEqual(bot_moves, eval(repr(bot_moves)))
-
-        bot_eats = BotEats(1, (0, 0))
-        self.assertEqual(bot_eats, BotEats(1, (0, 0)))
-        self.assertEqual(bot_eats, eval(repr(bot_eats)))
-
-        food_eaten = FoodEaten((0, 0))
-        self.assertEqual(food_eaten, FoodEaten((0, 0)))
-        self.assertEqual(food_eaten, eval(repr(food_eaten)))
-
-        bot_destroyed = BotDestroyed(0, (0, 0), (0, 1), (0, 0), 1, (0, 1), (0, 1))
-        self.assertEqual(bot_destroyed,
-                BotDestroyed(0, (0, 0), (0, 1), (0, 0), 1, (0, 1), (0, 1)))
-        self.assertEqual(bot_destroyed, eval(repr(bot_destroyed)))
-
-        team_score_change = TeamScoreChange(0, 1, 2)
-        self.assertEqual(team_score_change, TeamScoreChange(0, 1, 2))
-        self.assertEqual(team_score_change, eval(repr(team_score_change)))
-
-        team_wins = TeamWins(0)
-        self.assertEqual(team_wins, TeamWins(0))
-        self.assertEqual(team_wins, eval(repr(team_wins)))
-
-        timeout_event = TimeoutEvent(0)
-        self.assertEqual(timeout_event, TimeoutEvent(0))
-        self.assertEqual(timeout_event, eval(repr(timeout_event)))
-
-        game_draw = GameDraw()
-        self.assertEqual(game_draw, GameDraw())
-        self.assertEqual(game_draw, eval(repr(game_draw)))
-
-    def test_json(self):
-        reconvert = lambda event: json_converter.loads(json_converter.dumps(event))
-
-        bot_moves = BotMoves(0, (0, 0), (1, 0))
-        self.assertEqual(bot_moves, reconvert(bot_moves))
-        bot_eats = BotEats(1, (0, 0))
-        self.assertEqual(bot_eats, reconvert(bot_eats))
-        food_eaten = FoodEaten((0, 0))
-        self.assertEqual(food_eaten, reconvert(food_eaten))
-        bot_destroyed = BotDestroyed(0, (0, 0), (0, 1), (0, 0), 1, (0, 1), (0, 1))
-        self.assertEqual(bot_destroyed, reconvert(bot_destroyed))
-        team_score_change = TeamScoreChange(0, 1, 2)
-        self.assertEqual(team_score_change, reconvert(team_score_change))
-        team_wins = TeamWins(0)
-        self.assertEqual(team_wins, reconvert(team_wins))
-        timeout_event = TimeoutEvent(0)
-        self.assertEqual(timeout_event, reconvert(timeout_event))
-        game_draw = GameDraw()
-        self.assertEqual(game_draw, reconvert(game_draw))
 
 class TestCTFUniverse(unittest.TestCase):
 
@@ -741,11 +686,6 @@ class TestCTFUniverseRules(unittest.TestCase):
         self.assertEqual(universe.bot_positions,
                 [(1, 1), (6, 3), (1, 2), (6, 2)])
 
-    def assertTALEqualList(self, tal, list_):
-        """ Assert that a TypeAwareList is equal to a list."""
-        self.assertEqual(tal, TypeAwareList(list_,
-            base_class=UniverseEvent))
-
     def test_one(self):
 
         number_bots = 2
@@ -785,7 +725,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 #. 1 #
                 ###### """)
         self.assertEqual(create_TestUniverse(test_first_move), universe)
-        self.assertTALEqualList(events, [BotMoves(1, (4, 2), (3, 2))])
+        self.assertEqual(events["bot_moved"][0], {"bot_id": 1, "old_pos": (4, 2), "new_pos": (3, 2)})
         test_second_move = (
             """ ######
                 #0 . #
@@ -793,7 +733,7 @@ class TestCTFUniverseRules(unittest.TestCase):
                 ###### """)
         events = universe.move_bot(1, west)
         self.assertEqual(create_TestUniverse(test_second_move), universe)
-        self.assertTALEqualList(events, [BotMoves(1, (3, 2), (2, 2))])
+        self.assertEqual(events["bot_moved"][0], {"bot_id": 1, "old_pos": (3, 2), "new_pos": (2, 2)})
         test_eat_food = (
             """ ######
                 #0 . #
@@ -804,8 +744,12 @@ class TestCTFUniverseRules(unittest.TestCase):
         self.assertEqual(create_TestUniverse(test_eat_food), universe)
         self.assertEqual(universe.food_list, [(3, 1)])
         self.assertEqual(universe.teams[1].score, 1)
-        self.assertTALEqualList(events, [BotMoves(1, (2, 2), (1, 2)),
-            BotEats(1, (1, 2)), FoodEaten((1, 2)), TeamScoreChange(1, 1, 1), TeamWins(1)])
+        self.assertEqual(events, {
+            "bot_moved": [{"bot_id": 1, "old_pos": (2, 2), "new_pos": (1, 2)}],
+            "food_eaten": [{"bot_id": 1, "food_pos": (1,2)}],
+            "bot_destroyed": []
+            })
+
         test_destruction = (
             """ ######
                 #  . #
@@ -814,9 +758,12 @@ class TestCTFUniverseRules(unittest.TestCase):
         events = universe.move_bot(0, south)
         self.assertEqual(create_TestUniverse(test_destruction,
             black_score=KILLPOINTS), universe)
-        self.assertTALEqualList(events, [BotMoves(0, (1, 1), (1, 2)),
-            TeamScoreChange(0, KILLPOINTS, KILLPOINTS),
-            BotDestroyed(1, (1, 2), (1, 2), (4, 2), 0, (1, 1), (1, 2))])
+        self.assertEqual(events, {
+            "bot_moved": [{"bot_id": 0, "old_pos": (1, 1), "new_pos": (1, 2)}, {'old_pos': (1, 2), 'new_pos': (1, 2), 'bot_id': 0}],
+            "food_eaten": [],
+            "bot_destroyed": [{"bot_id": 1, "destroyed_by": 0}]
+        })
+
         test_black_score = (
             """ ######
                 #  0 #
@@ -829,9 +776,11 @@ class TestCTFUniverseRules(unittest.TestCase):
             black_score=KILLPOINTS), universe)
         self.assertEqual(universe.food_list, [])
         self.assertEqual(universe.teams[0].score, KILLPOINTS+1)
-        self.assertTALEqualList(events, [BotMoves(0, (2, 1), (3, 1)),
-            BotEats(0, (3, 1)), FoodEaten((3, 1)), TeamScoreChange(0, 1,
-                KILLPOINTS+1), TeamWins(0)])
+        self.assertEqual(events, {
+            "bot_moved": [{"bot_id": 0, "old_pos": (2, 1), "new_pos": (3, 1)}],
+            "food_eaten": [{"bot_id": 0, "food_pos": (3, 1)}],
+            "bot_destroyed": []
+        })
         test_bot_suicide = (
             """ ######
                 #0   #
@@ -841,10 +790,11 @@ class TestCTFUniverseRules(unittest.TestCase):
         events = universe.move_bot(0, south)
         self.assertEqual(create_TestUniverse(test_bot_suicide,
             black_score=KILLPOINTS, white_score=KILLPOINTS), universe)
-        self.assertTALEqualList(events, [BotMoves(0, (4, 1), (4, 2)),
-            TeamScoreChange(1, KILLPOINTS, KILLPOINTS+1),
-            BotDestroyed(0, (4, 1), (4, 2), (1, 1), 1, (4, 2), (4, 2)),
-            GameDraw()])
+        self.assertEqual(events, {
+            "bot_moved": [{"bot_id": 0, "old_pos": (4, 1), "new_pos": (4, 2)}, {'old_pos': (4, 2), 'new_pos': (1, 1), 'bot_id': 0}],
+            "food_eaten": [],
+            "bot_destroyed": [{"bot_id": 0, "destroyed_by": 1}]
+        })
 
     def test_no_eat_own_food(self):
         test_start = (
@@ -857,7 +807,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         universe.move_bot(1, north)
         events = universe.move_bot(1, west)
         self.assertEqual(universe.food_list, [(3, 1), (1, 2)])
-        self.assertTALEqualList(events, [BotMoves(1, (4, 1), (3, 1))])
+        self.assertEqual(events["bot_moved"][0], {"bot_id": 1, "old_pos": (4, 1), "new_pos": (3, 1)})
 
     def test_suicide_win(self):
         test = (
@@ -869,15 +819,12 @@ class TestCTFUniverseRules(unittest.TestCase):
         universe.move_bot(0, east)
         universe.move_bot(1, west)
         events = universe.move_bot(0, east)
-        target = [BotMoves(0, (2, 1), (3, 1)),
-                  BotEats(0, (3, 1)),
-                  FoodEaten((3, 1)),
-                  TeamScoreChange(0, 1, 1),
-                  TeamScoreChange(1, 5, 5),
-                  BotDestroyed(0, (2, 1), (3, 1), (1, 1), 1, (3, 1), (3, 1) ),
-                  TeamWins(1),
-                  ]
-        self.assertTALEqualList(events, target)
+        target = {
+            "bot_moved": [{"bot_id": 0, "old_pos": (2, 1), "new_pos": (3, 1)}, {"bot_id": 0, "old_pos": (3, 1), "new_pos": (1, 1)}],
+            "food_eaten": [{"bot_id": 0, "food_pos": (3, 1)}],
+            "bot_destroyed": [{"bot_id": 0, "destroyed_by": 1}]
+        }
+        self.assertEqual(events, target)
 
 if __name__ == '__main__':
     unittest.main()

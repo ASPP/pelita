@@ -4,7 +4,7 @@
 
 import copy
 from .layout import Layout
-from .containers import Mesh, TypeAwareList
+from .containers import Mesh
 from .messaging.json_convert import serializable
 
 
@@ -303,181 +303,6 @@ class Bot(object):
             item[tupled_attr] = tuple(item[tupled_attr])
         return cls(**item)
 
-class UniverseEvent(object):
-    """ Base class for all events in a Universe. """
-
-    def __eq__(self, other):
-        return type(self) == type(other) and self.__dict__ == other.__dict__
-
-    def __ne__(self, other):
-        return not (self == other)
-
-    def _to_json_dict(self):
-        return dict(self.__dict__)
-
-    @classmethod
-    def _from_json_dict(cls, item):
-        # Events must take care to convert tuples in their __init__ method
-        return cls(**item)
-
-@serializable
-class BotMoves(UniverseEvent):
-    """ Signifies that a bot has moved.
-
-    Parameters
-    ----------
-    bot_index : int
-        index of the bot
-
-    """
-    def __init__(self, bot_index, old_pos, new_pos):
-        self.bot_index = bot_index
-        self.old_pos = tuple(old_pos)
-        self.new_pos = tuple(new_pos)
-
-    def __repr__(self):
-        return ('BotMoves(%i, %r, %r)'
-            % (self.bot_index, self.old_pos, self.new_pos))
-
-@serializable
-class BotEats(UniverseEvent):
-    """ Signifies that a bot has eaten food.
-
-    Parameters
-    ----------
-    bot_index : int
-        index of the bot
-
-    """
-    def __init__(self, bot_index, food_pos):
-        self.bot_index = bot_index
-        self.food_pos = tuple(food_pos)
-
-    def __repr__(self):
-        return ('BotEats(%i, %r)'
-            % (self.bot_index, self.food_pos))
-
-@serializable
-class FoodEaten(UniverseEvent):
-    """ Signifies that food has been eaten.
-
-    Parameters
-    ----------
-    food_pos : tuple of (int, int)
-        position of the eaten food
-
-    """
-    def __init__(self, food_pos):
-        self.food_pos = tuple(food_pos)
-
-    def __repr__(self):
-        return 'FoodEaten(%s)' % repr(self.food_pos)
-
-@serializable
-class TeamScoreChange(UniverseEvent):
-    """ Signifies that the score of a Team has changed.
-
-    Parameters
-    ----------
-    team_index : int
-        index of the team whose score has changed
-    score_change : int
-        the change in score
-    new_score : int
-        the new score
-    """
-    def __init__(self, team_index, score_change, new_score):
-        self.team_index = team_index
-        self.score_change = score_change
-        self.new_score = new_score
-
-    def __repr__(self):
-        return ('TeamScoreChange(%i, %i, %i)' %
-            (self.team_index, self.score_change, self.new_score))
-
-@serializable
-class BotDestroyed(UniverseEvent):
-    """ Signifies that a bot has been destroyed.
-
-    Parameters
-    ----------
-    harvester_index : int
-        index of the destroyed bot
-    harvester_old_pos : tuple of (int, int)
-        the position before moving
-    harvester_new_pos : tuple of (int, int)
-        the position after moving
-    harvester_reset : tuple of (int, int)
-        the reset position of the harvester
-    destroyer_index : int
-        index of the destroying bot
-    destroyer_old_pos : tuple of (int, int)
-        the position before moving
-    destroyer_new_pos : tuple of (int, int)
-        the position after moving
-
-    """
-    def __init__(self, harvester_index, harvester_old_pos,
-            harvester_new_pos, harvester_reset,
-            destroyer_index, destroyer_old_pos, destroyer_new_pos):
-        self.harvester_index = harvester_index
-        self.harvester_old_pos = tuple(harvester_old_pos)
-        self.harvester_new_pos = tuple(harvester_new_pos)
-        self.harvester_reset = tuple(harvester_reset)
-        self.destroyer_index = destroyer_index
-        self.destroyer_old_pos = tuple(destroyer_old_pos)
-        self.destroyer_new_pos = tuple(destroyer_new_pos)
-
-    def __repr__(self):
-        return ('BotDestroyed(%i, %r, %r, %r, %i, %r, %r)'
-            % (self.harvester_index, self.harvester_old_pos,
-                self.harvester_new_pos, self.harvester_reset,
-                self.destroyer_index, self.destroyer_old_pos,
-                self.destroyer_new_pos))
-
-@serializable
-class TimeoutEvent(UniverseEvent):
-    """ Signifies that a timeout has occurred.
-
-    Parameters
-    ----------
-    team_index : int
-        index of the team which had the timeout
-
-    """
-    def __init__(self, team_index):
-        self.team_index = team_index
-
-    def __repr__(self):
-        return "TimeoutEvent(%i)" % self.team_index
-
-@serializable
-class TeamWins(UniverseEvent):
-    """ Signifies that a team has eaten all enemy food.
-
-    Parameters
-    ----------
-    winning_team_index : int
-        index of the winning team
-
-    """
-    def __init__(self, winning_team_index):
-        self.winning_team_index = winning_team_index
-
-    def __repr__(self):
-        return ("TeamWins(%i)"
-            % self.winning_team_index)
-
-@serializable
-class GameDraw(UniverseEvent):
-    """ Signifies that the game was a draw.
-    """
-    def __init__(self):
-        pass
-
-    def __repr__(self):
-        return ("GameDraw()")
-
 Free = ' '
 Wall = '#'
 Food = '.'
@@ -729,13 +554,6 @@ class CTFUniverse(object):
         self.teams = teams
         self.bots = bots
 
-    def create_win_event(self):
-        if self.teams[0].score > self.teams[1].score:
-            return TeamWins(0)
-        elif self.teams[1].score > self.teams[0].score:
-            return TeamWins(1)
-        return GameDraw()
-
     @property
     def bot_positions(self):
         """ Current positions of all bots.
@@ -872,8 +690,8 @@ class CTFUniverse(object):
 
         Returns
         -------
-        events : list of UniverseEvent objects
-            the events that happened during the move
+        game_state : dict
+            the current game_state
 
         Raises
         ------
@@ -881,8 +699,10 @@ class CTFUniverse(object):
             if the move is invalid or impossible
 
         """
-        events = TypeAwareList(base_class=UniverseEvent)
         # check legality of the move
+
+        game_state = {}
+
         bot = self.bots[bot_id]
         legal_moves_dict = self.get_legal_moves(bot.current_pos)
         if move not in legal_moves_dict.keys():
@@ -890,41 +710,40 @@ class CTFUniverse(object):
                 'Illegal move from bot_id %r: %s' % (bot_id, move))
         old_pos = bot.current_pos
         new_pos = bot.current_pos = legal_moves_dict[move]
-        events.append(BotMoves(bot_id, old_pos, new_pos))
+
+        game_state["bot_moved"] = [{"bot_id": bot_id, "old_pos": old_pos, "new_pos": new_pos}]
+
         team = self.teams[bot.team_index]
         # check for food being eaten
+        game_state["food_eaten"] = []
         if Food in self.maze[bot.current_pos] and not bot.in_own_zone:
             self.maze.remove_at(Food, bot.current_pos)
-            team._score_point()
-            events.append(BotEats(bot_id, bot.current_pos))
-            events.append(FoodEaten(bot.current_pos))
-            events.append(TeamScoreChange(team.index, 1, team.score))
+
+            game_state["food_eaten"] += [{"food_pos": bot.current_pos, "bot_id": bot_id}]
+
         # check for destruction
+        game_state["bot_destroyed"] = []
         for enemy in self.enemy_bots(bot.team_index):
             if enemy.current_pos == bot.current_pos:
                 if enemy.is_destroyer and bot.is_harvester:
-                    bot._reset()
-                    enemy_team = self.teams[enemy.team_index]
-                    enemy_team._score_points(KILLPOINTS)
-                    events.append(TeamScoreChange(enemy_team.index,
-                        KILLPOINTS, enemy_team.score))
-                    events.append(BotDestroyed(
-                        bot.index, old_pos, new_pos, bot.initial_pos,
-                        enemy.index, enemy.current_pos, enemy.current_pos))
+                    game_state["bot_destroyed"] += [{'bot_id': bot.index, 'destroyed_by': enemy.index}]
                 elif enemy.is_harvester and bot.is_destroyer:
-                    new_old_pos = enemy.current_pos
-                    enemy._reset()
-                    bot_team = self.teams[bot.team_index]
-                    bot_team._score_points(KILLPOINTS)
-                    events.append(TeamScoreChange(bot_team.index,
-                        KILLPOINTS, bot_team.score))
-                    events.append(BotDestroyed(
-                       enemy.index, new_old_pos, new_old_pos, enemy.initial_pos,
-                       bot.index, old_pos, new_pos))
-        if not self.enemy_food(team.index):
-            events.append(self.create_win_event())
+                    game_state["bot_destroyed"] += [{'bot_id': enemy.index, 'destroyed_by': bot.index}]
 
-        return events
+        # reset bots
+        for destroyed in game_state["bot_destroyed"]:
+            old_pos = bot.current_pos
+            self.bots[destroyed["bot_id"]]._reset()
+            new_pos = bot.current_pos
+            game_state["bot_moved"] += [{"bot_id": bot_id, "old_pos": old_pos, "new_pos": new_pos}]
+
+        for food_eaten in game_state["food_eaten"]:
+            self.teams[self.bots[food_eaten["bot_id"]].team_index].score += 1
+
+        for bot_destroyed in game_state["bot_destroyed"]:
+            self.teams[self.bots[bot_destroyed["destroyed_by"]].team_index].score += KILLPOINTS
+
+        return game_state
 
         # TODO:
         # check for state change

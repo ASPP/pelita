@@ -143,9 +143,9 @@ class UiCanvas(object):
         self.canvas.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
         self.canvas.bind('<Configure>', self.resize)
 
-    def update(self, universe, events, round=None, turn=None):
+    def update(self, universe, game_state):
         # This method is called every now and then. Either when new information
-        # about universe or events have arrived or when a resize has occurred.
+        # about universe or game_state have arrived or when a resize has occurred.
         # Whenever new universe or event data is sent, this is fine, as every
         # drawing method will know how to deal with this information.
         # However, a call due to a simple resize will not include this information.
@@ -158,6 +158,13 @@ class UiCanvas(object):
         # includes the last set of parameters given. This closure approach
         # allows us to hide the parameters from our interface and still be able
         # to use the most recent set of parameters when there is a mere resize.
+
+        if game_state:
+            round = game_state.get("round_index")
+            turn = game_state.get("bot_id")
+        else:
+            round = None
+            turn = None
 
         if universe and not self.canvas:
             if not self.mesh_graph:
@@ -196,16 +203,17 @@ class UiCanvas(object):
 
         self.draw_universe(self.current_universe)
 
-        if events:
-            for food_eaten in events.filter_type(datamodel.FoodEaten):
-                food_tag = Food.food_pos_tag(food_eaten.food_pos)
+        if game_state:
+            for food_eaten in game_state["food_eaten"]:
+                food_tag = Food.food_pos_tag(tuple(food_eaten["food_pos"]))
                 self.canvas.delete(food_tag)
 
-            for team_wins in events.filter_type(datamodel.TeamWins):
-                team_index = team_wins.winning_team_index
-                team_name = universe.teams[team_index].name
+            winning_team_idx = game_state.get("team_wins")
+            if winning_team_idx is not None:
+                team_name = universe.teams[winning_team_idx].name
                 self.game_finish_overlay = lambda: self.draw_game_over(team_name)
-            for game_draw in events.filter_type(datamodel.GameDraw):
+
+            if game_state.get("game_draw"):
                 self.game_finish_overlay = lambda: self.draw_game_draw()
 
         self.game_finish_overlay()
@@ -405,11 +413,9 @@ class TkApplication(object):
 
     def observe(self, observed):
         universe = observed.get("universe")
-        events = observed.get("events")
-        round = observed.get("round")
-        turn = observed.get("turn")
+        game_state = observed.get("game_state")
 
-        self.ui_canvas.update(universe, events, round, turn)
+        self.ui_canvas.update(universe, game_state)
 
     def on_quit(self):
         """ override for things which must be done when we exit.
