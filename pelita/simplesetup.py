@@ -351,6 +351,11 @@ class SimpleController(object):
         # We connect here because zmq likes to have its own
         # thread/process/whatever.
         self.context = zmq.Context()
+        # We currently use a DEALER which we bind.
+        # This means, other DEALERs can connect and
+        # each one can take over the control.
+        # However, we cannot send any information back to them.
+        # (Only one DEALER will receive the data.)
         self.socket = self.context.socket(zmq.DEALER)
         self.socket.bind(self.address)
 
