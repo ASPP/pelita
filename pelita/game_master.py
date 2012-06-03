@@ -182,15 +182,7 @@ class GameMaster(object):
     def _play_bot_iterator(self):
         """ Returns an iterator which will query a bot at each step.
         """
-        # clear the bot_id of the current bot
-        self.game_state["bot_id"] = None
-
-        if self.game_state["round_index"] is None:
-            self.game_state["round_index"] = 0
-        elif self.game_state["round_index"] < self.game_time:
-            self.game_state["round_index"] += 1
-        else:
-            self.game_state["finished"] = True
+        self.prepare_next_round()
 
         if not self.game_state.get("finished"):
             self.check_finished()
@@ -278,6 +270,19 @@ class GameMaster(object):
             sys.stderr.write("Team %r (bot index %r) disconnected. Team disqualified.\n" % (
                               bot.team_index,
                               bot.index))
+
+    def prepare_next_round(self):
+        """ Increases `game_state["round_index"]`, if possible
+        and resets `game_state["bot_id"]`.
+        """
+        self.game_state["bot_id"] = None
+
+        if self.game_state["round_index"] is None:
+            self.game_state["round_index"] = 0
+        elif self.game_state["round_index"] < self.game_time:
+            self.game_state["round_index"] += 1
+        else:
+            self.game_state["finished"] = True
 
     def check_finished(self):
         self.game_state["finished"] = False
