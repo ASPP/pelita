@@ -295,7 +295,10 @@ class TestPlayer(AbstractPlayer):
         self.moves = iter(moves)
 
     def get_move(self):
-        return next(self.moves)
+        try:
+            return next(self.moves)
+        except StopIteration:
+            raise ValueError()
 
 class RoundBasedPlayer(AbstractPlayer):
     """ A Player which makes a decision dependent on the round index
