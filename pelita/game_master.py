@@ -64,6 +64,7 @@ class GameMaster(object):
         self.viewers = []
         self.initial_delay = initial_delay
 
+        #: The pointer to the current iteration.
         self._step_iter = None
 
         self.game_state = {
@@ -135,7 +136,7 @@ class GameMaster(object):
 
     # TODO the game winning detection should be refactored
     def play(self):
-        """ Play a whole game. """
+        """ Play game until finished. """
         # notify all PlayerTeams
         self.set_initial()
 
@@ -147,17 +148,12 @@ class GameMaster(object):
         self.update_viewers()
 
     def play_round(self):
-        """ Play the next round.
+        """ Finishes the current round.
 
         A round is defined as all bots moving once.
-
-        Returns
-        -------
-        game_running : boolean
-            True, if game is still running, False otherwise.
         """
         if self._step_iter is None:
-            self._step_iter = self._play_round_iter()
+            self._step_iter = self._play_bot_iterator()
         try:
             while True:
                 self._step_iter.next()
@@ -168,8 +164,10 @@ class GameMaster(object):
             return
 
     def play_step(self):
+        """ Plays a single step of a bot.
+        """
         if self._step_iter is None:
-            self._step_iter = self._play_round_iter()
+            self._step_iter = self._play_bot_iterator()
 
         try:
             self._step_iter.next()
@@ -181,11 +179,18 @@ class GameMaster(object):
         except GameFinished:
             return
 
-    def _play_round_iter(self):
+    def _play_bot_iterator(self):
+        """ Returns an iterator which will query a bot at each step.
+        """
+        # clear the bot_id of the current bot
+        self.game_state["bot_id"] = None
+
         if self.game_state["round_index"] is None:
             self.game_state["round_index"] = 0
-        else:
+        elif self.game_state["round_index"] < self.game_time:
             self.game_state["round_index"] += 1
+        else:
+            self.game_state["finished"] = True
 
         if not self.game_state.get("finished"):
             self.check_finished()
@@ -202,10 +207,10 @@ class GameMaster(object):
 
             self._play_bot(bot)
 
-            self.update_viewers()
-
             end_time = time.time()
             self.game_state["running_time"] += (end_time - start_time)
+
+            self.update_viewers()
 
             # give control to caller
             yield
@@ -280,10 +285,11 @@ class GameMaster(object):
         if (self.game_state["team_wins"] is not None or
             self.game_state["game_draw"] is not None):
             self.game_state["finished"] = True
-            return
 
         if self.game_state["round_index"] >= self.game_time:
             self.game_state["finished"] = True
+            # clear the bot_id of the current bot
+            self.game_state["bot_id"] = None
         else:
             food_left = [self.universe.enemy_food(team.index) for team in self.universe.teams]
             if not all(food_left):
