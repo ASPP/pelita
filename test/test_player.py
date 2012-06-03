@@ -133,6 +133,20 @@ class TestTestPlayer(unittest.TestCase):
                 player1_expected_positions[i])
             gm.play_round()
 
+    def test_too_many_moves(self):
+        test_layout = (
+        """ ############
+            #0  .  .  1#
+            #2        3#
+            ############ """)
+        gm = GameMaster(test_layout, 4, 3)
+        movements_0 = [east, east]
+        movements_1 = [west, west]
+        gm.register_team(SimpleTeam(TestPlayer(movements_0), TestPlayer(movements_0)))
+        gm.register_team(SimpleTeam(TestPlayer(movements_1), TestPlayer(movements_1)))
+
+        self.assertRaises(ValueError, gm.play)
+
 class TestRoundBasedPlayer(unittest.TestCase):
     def test_round_based_players(self):
         test_layout = (
