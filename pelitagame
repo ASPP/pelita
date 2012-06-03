@@ -306,7 +306,8 @@ def run_game(*argv):
         # Therefore we cannot use multiprocessing here. subprocess works, though.
         tkprocess = subprocess.Popen(["python",
                                       "-c",
-                                      "from pelita.ui.tk_viewer import TkViewer;TkViewer('"+subscribe_sock+"', 'tcp://localhost:50012').run()"])
+                                      ("from pelita.ui.tk_viewer import TkViewer\n"
+                                       "TkViewer('"+subscribe_sock+"', 'tcp://localhost:50012').run()")])
 
         # we sleep a tiny bit to give Tk time to initialise
         time.sleep(0.5)
