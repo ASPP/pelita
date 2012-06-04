@@ -443,10 +443,9 @@ class TkApplication(object):
     def read_queue(self):
         try:
             # read all events.
-            # if queue is empty, try again in 20 ms
+            # if queue is empty, try again in a few ms
             # we don’t want to block here and lock
             # Tk animations
-            #print self.poll.poll(100)
             observed = self.socket.recv(flags=zmq.NOBLOCK)
             observed = json_converter.loads(observed)
             self.observe(observed)
