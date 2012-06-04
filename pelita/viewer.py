@@ -31,7 +31,7 @@ class AsciiViewer(AbstractViewer):
 
     def observe(self, universe, game_state):
         print ("Round: %r Turn: %r Score: %r:%r"
-        % (game_state["round_index"], game_state["bot_id"], game_state["score"][0], game_state["score"][1]))
+        % (game_state["round_index"], game_state["bot_id"], universe.teams[0].score, universe.teams[1].score))
         print ("Game State: %r") % game_state
         print universe.compact_str
         winning_team_idx = game_state.get("team_wins")
