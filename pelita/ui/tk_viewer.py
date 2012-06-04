@@ -60,9 +60,9 @@ class TkViewer(object):
     app : The TkApplication class
 
     """
-    def __init__(self, address, controller, geometry=None):
+    def __init__(self, address, controller_address=None, geometry=None):
         self.address = address
-        self.controller = controller
+        self.controller_address = controller_address
 
         self.geometry = geometry
 
@@ -76,7 +76,7 @@ class TkViewer(object):
         self.root.geometry(root_geometry+'+40+40')
 
         self.app = TkApplication(address=self.address,
-                                 controller=self.controller,
+                                 controller_address=self.controller_address,
                                  geometry=self.geometry,
                                  master=self.root)
         # schedule next read

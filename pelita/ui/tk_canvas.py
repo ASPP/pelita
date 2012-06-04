@@ -405,7 +405,7 @@ class UiCanvas(object):
 
 
 class TkApplication(object):
-    def __init__(self, address, controller, geometry=None, master=None):
+    def __init__(self, address, controller_address=None, geometry=None, master=None):
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
         self.socket.setsockopt(zmq.SUBSCRIBE, "")
@@ -414,8 +414,11 @@ class TkApplication(object):
         self.poll = zmq.Poller()
         self.poll.register(self.socket, zmq.POLLIN)
 
-        self.controller_socket = self.context.socket(zmq.DEALER)
-        self.controller_socket.connect(controller)
+        if controller_address:
+            self.controller_socket = self.context.socket(zmq.DEALER)
+            self.controller_socket.connect(controller_address)
+        else:
+            self.controller_socket = None
 
         self.master = master
         self.frame = Tkinter.Frame(self.master)
@@ -428,7 +431,8 @@ class TkApplication(object):
         self.running = True
 
         self.master.protocol("WM_DELETE_WINDOW", wm_delete_window_handler)
-        self.controller_socket.send_json({"__action__": "set_initial"})
+        if self.controller_socket:
+            self.controller_socket.send_json({"__action__": "set_initial"})
         self.request_step()
 
     def toggle_running(self):
@@ -459,10 +463,12 @@ class TkApplication(object):
         self.master.after(0, self.read_queue)
 
     def request_step(self):
-        self.controller_socket.send_json({"__action__": "play_step"})
+        if self.controller_socket:
+            self.controller_socket.send_json({"__action__": "play_step"})
 
     def request_round(self):
-        self.controller_socket.send_json({"__action__": "play_round"})
+        if self.controller_socket:
+            self.controller_socket.send_json({"__action__": "play_round"})
 
     def observe(self, observed):
         universe = observed.get("universe")

@@ -147,11 +147,15 @@ parser.add_argument('--dry-run', const=True, action='store_const',
                     help='load players but do not actually play the game')
 
 publisher_opt = parser.add_mutually_exclusive_group()
-publisher_opt.add_argument('--publish', type=str,
+publisher_opt.add_argument('--publish', type=str, metavar='URL',
                            dest='publish_to', help='publish to this zmq socket')
 publisher_opt.add_argument('--no-publish', const=False, action='store_const',
                            dest='publish_to', help='do not publish')
 parser.set_defaults(publish_to="tcp://*:50011")
+
+controller_opt = parser.add_mutually_exclusive_group()
+controller_opt.add_argument('--controller', type=str, metavar='URL', default="tcp://*:50012",
+                            help='open a controller on this zmq socket')
 
 viewer_opt = parser.add_mutually_exclusive_group()
 viewer_opt.add_argument('--ascii', action='store_const', const='ascii',
@@ -160,6 +164,8 @@ viewer_opt.add_argument('--null', action='store_const', const='null',
                         dest='viewer', help='use the /dev/null viewer')
 viewer_opt.add_argument('--tk', action='store_const', const='tk',
                         dest='viewer', help='use the tk viewer (default)')
+viewer_opt.add_argument('--tk-no-sync', action='store_const', const='tk-no-sync',
+                        dest='viewer', help='use the unsynchronised tk viewer')
 parser.set_defaults(viewer='tk')
 
 layout_opt = parser.add_mutually_exclusive_group()
@@ -236,8 +242,8 @@ def run_game(*argv):
         sys.exit(0)
     if args.seed is not None:
         random.seed(args.seed)
-    if args.viewer == 'tk' and not args.publish_to:
-        raise ValueError("Options --tk and --no-publish are mutually exclusive.")
+    if args.viewer.startswith('tk') and not args.publish_to:
+        raise ValueError("Options --tk (or --tk-no-sync) and --no-publish are mutually exclusive.")
 
 
     try:
@@ -294,42 +300,52 @@ def run_game(*argv):
     for client in player_clients:
         client.autoplay_process()
 
+    # register the viewers
     if args.publish_to:
         publish_sock = args.publish_to
         subscribe_sock = publish_sock.replace('*', 'localhost')
 
         publisher = pelita.simplesetup.SimplePublisher(publish_sock)
         server.game_master.register_viewer(publisher)
+    else:
+        publish_sock = subscribe_sock = None
 
-    if args.viewer == 'tk':
+    if args.viewer == 'ascii':
+        server.game_master.register_viewer(pelita.viewer.AsciiViewer())
+    if args.viewer == 'null':
+        server.game_master.register_viewer(pelita.viewer.DevNullViewer())
+
+    open_tk = args.viewer.startswith('tk')
+
+    if open_tk:
         # Something on OS X prevents Tk from running in a forked process.
         # Therefore we cannot use multiprocessing here. subprocess works, though.
+
+        if args.viewer == 'tk':
+            sync_address_tk = args.controller.replace('*', 'localhost')
+            tk_open = "TkViewer(%r, %r).run()" % (subscribe_sock, sync_address_tk)
+        else:
+            tk_open = "TkViewer(%r).run()" % subscribe_sock
+
         tkprocess = subprocess.Popen(["python",
                                       "-c",
-                                      ("from pelita.ui.tk_viewer import TkViewer\n"
-                                       "TkViewer('"+subscribe_sock+"', 'tcp://localhost:50012').run()")])
+                                      "from pelita.ui.tk_viewer import TkViewer\n" + tk_open])
 
         # we sleep a tiny bit to give Tk time to initialise
         time.sleep(0.5)
 
-        try:
+    try:
+        if args.viewer == 'tk':
             server.register_teams()
-
-            controller = pelita.simplesetup.SimpleController(server.game_master, "tcp://*:50012")
+            controller = pelita.simplesetup.SimpleController(server.game_master, args.controller)
             controller.run()
-#            server.run()
             server.exit_teams()
-        except KeyboardInterrupt:
-            tkprocess.kill()
-    else:
-        if args.viewer == 'ascii':
-            server.game_master.register_viewer(pelita.viewer.AsciiViewer())
-        elif args.viewer == 'null':
-            server.game_master.register_viewer(pelita.viewer.DevNullViewer())
-        try:
+        else:
             server.run()
-        except KeyboardInterrupt:
-            pass
+    except KeyboardInterrupt:
+        if open_tk:
+            tkprocess.kill()
+
 
 if __name__ == '__main__':
     run_game(*sys.argv[1:])
