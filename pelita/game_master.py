@@ -75,6 +75,7 @@ class GameMaster(object):
             "bot_id": None,
             "round_index": None,
             "running_time": 0,
+            "finished": False,
             "team_time": [0, 0],
             "team_wins": None,
             "game_draw": None,
@@ -152,6 +153,9 @@ class GameMaster(object):
 
         A round is defined as all bots moving once.
         """
+        if self.game_state["finished"]:
+            return
+
         if self._step_iter is None:
             self._step_iter = self._play_bot_iterator()
         try:
@@ -166,6 +170,9 @@ class GameMaster(object):
     def play_step(self):
         """ Plays a single step of a bot.
         """
+        if self.game_state["finished"]:
+            return
+
         if self._step_iter is None:
             self._step_iter = self._play_bot_iterator()
 
@@ -275,6 +282,9 @@ class GameMaster(object):
         """ Increases `game_state["round_index"]`, if possible
         and resets `game_state["bot_id"]`.
         """
+        if self.game_state.get("finished"):
+            return
+
         self.game_state["bot_id"] = None
 
         if self.game_state["round_index"] is None:
