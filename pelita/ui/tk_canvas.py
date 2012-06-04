@@ -158,7 +158,7 @@ class UiCanvas(object):
                        background="white",
                        justify=Tkinter.CENTER,
                        text="QUIT",
-                       command=self.master.frame.quit).pack()
+                       command=self.master.quit).pack()
 
         self.canvas = Tkinter.Canvas(self.master.frame,
                                      width=self.mesh_graph.screen_width,
@@ -405,7 +405,9 @@ class UiCanvas(object):
 
 
 class TkApplication(object):
-    def __init__(self, address, controller_address=None, geometry=None, master=None):
+    def __init__(self, master, address, controller_address=None, geometry=None):
+        self.master = master
+
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
         self.socket.setsockopt(zmq.SUBSCRIBE, "")
@@ -420,7 +422,6 @@ class TkApplication(object):
         else:
             self.controller_socket = None
 
-        self.master = master
         self.frame = Tkinter.Frame(self.master)
         self.master.title("Pelita")
 
@@ -430,7 +431,9 @@ class TkApplication(object):
 
         self.running = True
 
-        self.master.protocol("WM_DELETE_WINDOW", wm_delete_window_handler)
+        self.master.createcommand('exit', self.quit)
+        self.master.protocol("WM_DELETE_WINDOW", self.quit)
+
         if self.controller_socket:
             self.controller_socket.send_json({"__action__": "set_initial"})
         self.request_step()
@@ -484,8 +487,13 @@ class TkApplication(object):
     def on_quit(self):
         """ override for things which must be done when we exit.
         """
-        pass
+        self.running = False
+        if self.controller_socket:
+            self.controller_socket.send_json({"__action__": "exit"})
+        else:
+            # force closing the window (though this might not work)
+            wm_delete_window_handler()
 
     def quit(self):
         self.on_quit()
-        Tkinter.Frame.quit(self)
+        self.frame.quit()

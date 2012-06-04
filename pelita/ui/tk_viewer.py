@@ -75,10 +75,10 @@ class TkViewer(object):
         # put the root window in some sensible position
         self.root.geometry(root_geometry+'+40+40')
 
-        self.app = TkApplication(address=self.address,
+        self.app = TkApplication(master=self.root,
+                                 address=self.address,
                                  controller_address=self.controller_address,
-                                 geometry=self.geometry,
-                                 master=self.root)
+                                 geometry=self.geometry)
         # schedule next read
         self.root.after_idle(self.app.read_queue)
         try:
