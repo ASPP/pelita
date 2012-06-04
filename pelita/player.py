@@ -122,6 +122,10 @@ class AbstractPlayer(object):
         self._store_universe(universe)
         self.set_initial()
 
+        seed_offset = getattr(self, "seed_offset", 0)
+        self.rnd = random.Random()
+        self.rnd.seed(game_state["seed"] + seed_offset)
+
     def set_initial(self):
         """ Subclasses can override this if desired. """
         pass

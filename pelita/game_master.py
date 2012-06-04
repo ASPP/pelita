@@ -37,6 +37,8 @@ class GameMaster(object):
         the total permitted number of rounds
     noise : boolean
         should enemy positions be noisy
+    seed : int, optional
+        random seed to be passed to players
 
     Attributes
     ----------
@@ -51,7 +53,8 @@ class GameMaster(object):
 
     """
     def __init__(self, layout, number_bots, game_time, noise=True, noiser=None,
-                 initial_delay=0.0, max_timeouts=5, timeout_length=3, layout_name=None):
+                 initial_delay=0.0, max_timeouts=5, timeout_length=3, layout_name=None,
+                 seed=None):
         self.universe = datamodel.create_CTFUniverse(layout, number_bots)
         self.number_bots = number_bots
         if noiser is None:
@@ -85,7 +88,8 @@ class GameMaster(object):
             "bot_talk": [""] * self.number_bots,
             "layout_name": layout_name,
             "noise_radius": self.noiser and self.noiser.noise_radius,
-            "noise_sight_distance": self.noiser and self.noiser.sight_distance
+            "noise_sight_distance": self.noiser and self.noiser.sight_distance,
+            "seed": seed
         }
 
     @property
