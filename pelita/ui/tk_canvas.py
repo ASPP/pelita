@@ -451,11 +451,17 @@ class TkApplication(object):
             observed = json_converter.loads(observed)
             self.observe(observed)
 
-            self.master.after(0, self.request_next, observed)
+            if self.controller_socket:
+                self.master.after(0, self.request_next, observed)
+            else:
+                self.master.after(1, self.read_queue)
             return
         except zmq.core.error.ZMQError:
             self.observe({})
-            self.master.after(2, self.request_next, {})
+            if self.controller_socket:
+                self.master.after(2, self.request_next, {})
+            else:
+                self.master.after(2, self.read_queue)
 
     def request_next(self, observed):
         if self.running and observed and observed.get("game_state"):
