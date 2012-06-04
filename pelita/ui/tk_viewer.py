@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import Queue
-import copy
 import Tkinter
 
 import logging
-import zmq
 
 from pelita.ui.tk_canvas import TkApplication
 

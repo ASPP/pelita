@@ -2,7 +2,6 @@
 
 import Tkinter
 import tkFont
-import Queue
 
 from .. import datamodel
 import time
