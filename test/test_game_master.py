@@ -381,7 +381,8 @@ class TestGame(unittest.TestCase):
                 #.. 1#
                 ###### """)
         # the game lasts two rounds, enough time for bot 1 to eat food
-        gm = GameMaster(test_start, 2, 2)
+        NUM_ROUNDS = 2
+        gm = GameMaster(test_start, 2, game_time=NUM_ROUNDS)
         # bot 1 moves east twice to eat the single food
         gm.register_team(SimpleTeam(TestPlayer('>>')))
         gm.register_team(SimpleTeam(StoppingPlayer()))
@@ -402,6 +403,7 @@ class TestGame(unittest.TestCase):
         # check
         self.assertTrue(tv.cache[-1]["team_wins"] is not None)
         self.assertEqual(tv.cache[-1]["team_wins"], 0)
+        self.assertEqual(gm.game_state["round_index"], NUM_ROUNDS)
 
     def test_win_on_timeout_team_1(self):
         test_start = (
@@ -410,7 +412,8 @@ class TestGame(unittest.TestCase):
                 #.. 1#
                 ###### """)
         # the game lasts two rounds, enough time for bot 1 to eat food
-        gm = GameMaster(test_start, 2, 2)
+        NUM_ROUNDS = 2
+        gm = GameMaster(test_start, 2, game_time=NUM_ROUNDS)
         gm.register_team(SimpleTeam(StoppingPlayer()))
         # bot 1 moves west twice to eat the single food
         gm.register_team(SimpleTeam(TestPlayer('<<')))
@@ -431,6 +434,7 @@ class TestGame(unittest.TestCase):
         # check
         self.assertTrue(tv.cache[-1]["team_wins"] is not None)
         self.assertEqual(tv.cache[-1]["team_wins"], 1)
+        self.assertEqual(gm.game_state["round_index"], NUM_ROUNDS)
 
     def test_draw_on_timeout(self):
         test_start = (
@@ -439,7 +443,8 @@ class TestGame(unittest.TestCase):
                 # . 1#
                 ###### """)
         # the game lasts one round, and then draws
-        gm = GameMaster(test_start, 2, 1)
+        NUM_ROUNDS = 1
+        gm = GameMaster(test_start, 2, game_time=NUM_ROUNDS)
         # players do nothing
         gm.register_team(SimpleTeam(StoppingPlayer()))
         gm.register_team(SimpleTeam(StoppingPlayer()))
@@ -459,6 +464,7 @@ class TestGame(unittest.TestCase):
 
         # check
         self.assertTrue(tv.cache[-1]["game_draw"])
+        self.assertEqual(gm.game_state["round_index"], NUM_ROUNDS)
 
     def test_win_on_eating_all(self):
         test_start = (
@@ -467,7 +473,7 @@ class TestGame(unittest.TestCase):
                 # . 1#
                 ###### """
         )
-        # the game lasts one round, and then draws
+        # bot 1 eats all the food and the game stops
         gm = GameMaster(test_start, 2, 100)
         # players do nothing
         gm.register_team(SimpleTeam(StoppingPlayer()))
@@ -490,6 +496,7 @@ class TestGame(unittest.TestCase):
         self.assertTrue(tv.cache[-1]["team_wins"] is not None)
         self.assertEqual(tv.cache[-1]["team_wins"], 1)
         self.assertEqual(tv.cache[-1]["round_index"], 1)
+        self.assertEqual(gm.game_state["round_index"], 1)
 
     def test_lose_on_eating_all(self):
         test_start = (
@@ -498,7 +505,7 @@ class TestGame(unittest.TestCase):
                 # . 1#
                 ###### """
         )
-        # the game lasts one round, and then draws
+        # bot 1 eats all the food and the game stops
         gm = GameMaster(test_start, 2, 100)
         # players do nothing
         gm.register_team(SimpleTeam(StoppingPlayer()))
@@ -524,6 +531,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual(gm.universe.teams[1].score, 1)
         self.assertTrue(tv.cache[-1]["team_wins"] is not None)
         self.assertEqual(tv.cache[-1]["team_wins"], 0)
+        self.assertEqual(gm.game_state["round_index"], 1)
 
     def test_lose_5_timeouts(self):
         # 0 must move back and forth because of random steps
@@ -567,3 +575,64 @@ class TestGame(unittest.TestCase):
         self.assertEqual(gm.universe.bots[0].current_pos, (2,1))
         self.assertTrue(tv.cache[-1]["team_wins"] is not None)
         self.assertEqual(tv.cache[-1]["team_wins"], 1)
+
+    def test_play_step(self):
+
+        test_start = (
+            """ ######
+                #0 ..#
+                #.. 1#
+                ###### """)
+
+        number_bots = 2
+
+        gm = GameMaster(test_start, number_bots, 3)
+        gm.register_team(SimpleTeam(TestPlayer('>>>')))
+        gm.register_team(SimpleTeam(TestPlayer('<<<')))
+
+        gm.set_initial()
+
+        gm.play_round()
+        self.assertEqual(gm.universe.bots[0].current_pos, (2,1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (3,2))
+        self.assertEqual(gm.game_state["round_index"], 0)
+        self.assertEqual(gm.game_state["bot_id"], 1)
+
+        gm.play_step()
+        self.assertEqual(gm.universe.bots[0].current_pos, (3,1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (3,2))
+        self.assertEqual(gm.game_state["round_index"], 1)
+        self.assertEqual(gm.game_state["bot_id"], 0)
+
+        gm.play_step()
+        self.assertEqual(gm.universe.bots[0].current_pos, (3,1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (2,2))
+        self.assertEqual(gm.game_state["round_index"], 1)
+        self.assertEqual(gm.game_state["bot_id"], 1)
+
+        gm.play_round()
+        # first call tries to finish current round (which already is finished)
+        # so nothing happens
+        self.assertEqual(gm.universe.bots[0].current_pos, (3,1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (2,2))
+        self.assertEqual(gm.game_state["round_index"], 1)
+        self.assertEqual(gm.game_state["bot_id"], 1)
+
+        gm.play_round()
+        # second call works
+        self.assertEqual(gm.universe.bots[0].current_pos, (4,1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (1,2))
+        self.assertEqual(gm.game_state["round_index"], 2)
+        self.assertEqual(gm.game_state["bot_id"], 1)
+
+        gm.play_round()
+        self.assertEqual(gm.universe.bots[0].current_pos, (4,1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (1,2))
+        self.assertEqual(gm.game_state["round_index"], 3)
+        self.assertIsNone(gm.game_state["bot_id"])
+
+        gm.play_round()
+        self.assertEqual(gm.universe.bots[0].current_pos, (4,1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (1,2))
+        self.assertEqual(gm.game_state["round_index"], 3)
+        self.assertIsNone(gm.game_state["bot_id"])

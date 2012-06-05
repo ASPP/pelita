@@ -2,7 +2,6 @@
 
 import Tkinter
 import tkFont
-import Queue
 
 from .. import datamodel
 import time
@@ -133,8 +132,32 @@ class UiCanvas(object):
                        foreground="black",
                        background="white",
                        justify=Tkinter.CENTER,
+                       text="PLAY/PAUSE",
+                       command=self.master.toggle_running).pack(side=Tkinter.LEFT)
+
+        Tkinter.Button(self.status,
+                       font=(None, font_size),
+                       foreground="black",
+                       background="white",
+                       justify=Tkinter.CENTER,
+                       text="STEP",
+                       command=self.master.request_step).pack(side=Tkinter.LEFT)
+
+        Tkinter.Button(self.status,
+                       font=(None, font_size),
+                       foreground="black",
+                       background="white",
+                       justify=Tkinter.CENTER,
+                       text="PLAY ROUND",
+                       command=self.master.request_round).pack(side=Tkinter.LEFT)
+
+        Tkinter.Button(self.status,
+                       font=(None, font_size),
+                       foreground="black",
+                       background="white",
+                       justify=Tkinter.CENTER,
                        text="QUIT",
-                       command=self.master.frame.quit).pack()
+                       command=self.master.quit).pack()
 
         self.canvas = Tkinter.Canvas(self.master.frame,
                                      width=self.mesh_graph.screen_width,
@@ -201,7 +224,7 @@ class UiCanvas(object):
             self.game_status_info = lambda: self.draw_status_info(turn, round)
         self.game_status_info()
 
-        self.draw_universe(self.current_universe)
+        self.draw_universe(self.current_universe, game_state)
 
         if game_state:
             for food_eaten in game_state["food_eaten"]:
@@ -219,7 +242,7 @@ class UiCanvas(object):
         self.game_finish_overlay()
 
 
-    def draw_universe(self, universe):
+    def draw_universe(self, universe, game_state):
         self.mesh_graph.num_x = universe.maze.width
         self.mesh_graph.num_y = universe.maze.height
 
@@ -227,7 +250,7 @@ class UiCanvas(object):
         self.draw_maze(universe)
         self.draw_food(universe)
 
-        self.draw_title(universe)
+        self.draw_title(universe, game_state)
         self.draw_bots(universe)
 
         self.size_changed = False
@@ -245,22 +268,21 @@ class UiCanvas(object):
         scale = self.mesh_graph.half_scale_x * 0.2
 
         for color, x_orig in zip(cols, (center - 3, center + 3, center)):
-            x_width = self.mesh_graph.half_scale_x // 4
+            y_top = self.mesh_graph.mesh_to_screen_y(0, 0)
+            y_bottom = self.mesh_graph.mesh_to_screen_y(self.mesh_graph.mesh_height - 1, 0)
+            self.canvas.create_line(x_orig, y_top, x_orig, y_bottom, width=scale, fill=color, tag="background")
 
-            x_prev = None
-            y_prev = None
-            for y in range((self.mesh_graph.mesh_height -1 )* 10):
-                x_real = x_orig + x_width * math.sin(y * 10)
-                y_real = self.mesh_graph.mesh_to_screen_y(y / 10.0, 0)
-                if x_prev and y_prev:
-                    self.canvas.create_line((x_prev, y_prev, x_real, y_real), width=scale, fill=color, tag="background")
-                x_prev, y_prev = x_real, y_real
-
-    def draw_title(self, universe):
+    def draw_title(self, universe, game_state):
         self.score.delete("title")
         center = self.mesh_graph.screen_width // 2
-        left_team = "%s %d " % (universe.teams[0].name, universe.teams[0].score)
-        right_team = " %d %s" % (universe.teams[1].score, universe.teams[1].name)
+
+        try:
+            team_time = game_state["team_time"]
+        except (KeyError, TypeError):
+            team_time = [0, 0]
+
+        left_team = "(%.2f secs) %s %d " % (team_time[0], universe.teams[0].name, universe.teams[0].score)
+        right_team = " %d %s (%.2f secs)" % (universe.teams[1].score, universe.teams[1].name, team_time[1])
         font_size = guess_size(left_team+':'+right_team,
                                self.mesh_graph.screen_width,
                                30,
@@ -375,7 +397,9 @@ class UiCanvas(object):
 
 
 class TkApplication(object):
-    def __init__(self, address, geometry=None, master=None):
+    def __init__(self, master, address, controller_address=None, geometry=None):
+        self.master = master
+
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
         self.socket.setsockopt(zmq.SUBSCRIBE, "")
@@ -384,7 +408,12 @@ class TkApplication(object):
         self.poll = zmq.Poller()
         self.poll.register(self.socket, zmq.POLLIN)
 
-        self.master = master
+        if controller_address:
+            self.controller_socket = self.context.socket(zmq.DEALER)
+            self.controller_socket.connect(controller_address)
+        else:
+            self.controller_socket = None
+
         self.frame = Tkinter.Frame(self.master)
         self.master.title("Pelita")
 
@@ -392,24 +421,59 @@ class TkApplication(object):
 
         self.ui_canvas = UiCanvas(self, geometry=geometry)
 
-        self.master.protocol("WM_DELETE_WINDOW", wm_delete_window_handler)
+        self.running = True
+
+        self.master.createcommand('exit', self.quit)
+        self.master.protocol("WM_DELETE_WINDOW", self.quit)
+
+        if self.controller_socket:
+            self.master.after_idle(self.request_initial)
+
+    def toggle_running(self):
+        self.running = not self.running
+        if self.running:
+            self.request_step()
 
     def read_queue(self):
         try:
             # read all events.
-            # if queue is empty, try again in 20 ms
+            # if queue is empty, try again in a few ms
             # we don’t want to block here and lock
             # Tk animations
-            #print self.poll.poll(100)
             observed = self.socket.recv(flags=zmq.NOBLOCK)
             observed = json_converter.loads(observed)
             self.observe(observed)
 
-            self.master.after(1, self.read_queue)
+            if self.controller_socket:
+                self.master.after(0, self.request_next, observed)
+            else:
+                self.master.after(1, self.read_queue)
             return
         except zmq.core.error.ZMQError:
             self.observe({})
-            self.master.after(20, self.read_queue)
+            if self.controller_socket:
+                self.master.after(2, self.request_next, {})
+            else:
+                self.master.after(2, self.read_queue)
+
+    def request_initial(self):
+        if self.controller_socket:
+            self.controller_socket.send_json({"__action__": "set_initial"})
+
+        self.master.after(500, self.request_step)
+
+    def request_next(self, observed):
+        if self.running and observed and observed.get("game_state"):
+            self.request_step()
+        self.master.after(0, self.read_queue)
+
+    def request_step(self):
+        if self.controller_socket:
+            self.controller_socket.send_json({"__action__": "play_step"})
+
+    def request_round(self):
+        if self.controller_socket:
+            self.controller_socket.send_json({"__action__": "play_round"})
 
     def observe(self, observed):
         universe = observed.get("universe")
@@ -420,8 +484,13 @@ class TkApplication(object):
     def on_quit(self):
         """ override for things which must be done when we exit.
         """
-        pass
+        self.running = False
+        if self.controller_socket:
+            self.controller_socket.send_json({"__action__": "exit"})
+        else:
+            # force closing the window (though this might not work)
+            wm_delete_window_handler()
 
     def quit(self):
         self.on_quit()
-        Tkinter.Frame.quit(self)
+        self.frame.quit()

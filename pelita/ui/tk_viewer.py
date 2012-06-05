@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import Queue
-import copy
 import Tkinter
 
 import logging
-import zmq
 
 from pelita.ui.tk_canvas import TkApplication
 
@@ -60,8 +57,9 @@ class TkViewer(object):
     app : The TkApplication class
 
     """
-    def __init__(self, address, geometry=None):
+    def __init__(self, address, controller_address=None, geometry=None):
         self.address = address
+        self.controller_address = controller_address
 
         self.geometry = geometry
 
@@ -74,9 +72,10 @@ class TkViewer(object):
         # put the root window in some sensible position
         self.root.geometry(root_geometry+'+40+40')
 
-        self.app = TkApplication(address=self.address,
-                                 geometry = self.geometry,
-                                 master=self.root)
+        self.app = TkApplication(master=self.root,
+                                 address=self.address,
+                                 controller_address=self.controller_address,
+                                 geometry=self.geometry)
         # schedule next read
         self.root.after_idle(self.app.read_queue)
         try:
