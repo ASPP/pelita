@@ -434,8 +434,7 @@ class TkApplication(object):
         self.master.protocol("WM_DELETE_WINDOW", self.quit)
 
         if self.controller_socket:
-            self.controller_socket.send_json({"__action__": "set_initial"})
-        self.request_step()
+            self.master.after_idle(self.request_initial)
 
     def toggle_running(self):
         self.running = not self.running
@@ -463,6 +462,12 @@ class TkApplication(object):
                 self.master.after(2, self.request_next, {})
             else:
                 self.master.after(2, self.read_queue)
+
+    def request_initial(self):
+        if self.controller_socket:
+            self.controller_socket.send_json({"__action__": "set_initial"})
+
+        self.master.after(500, self.request_step)
 
     def request_next(self, observed):
         if self.running and observed and observed.get("game_state"):

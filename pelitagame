@@ -282,12 +282,18 @@ def run_game(*argv):
     except AttributeError:
         dump = None
 
+    if args.viewer == 'tk-no-sync':
+        # only use delay when not synced.
+        initial_delay = 0.5
+    else:
+        initial_delay = 0.0
+
     server = pelita.simplesetup.SimpleServer(layout_file=args.layoutfile,
                                        layout_name=args.layout,
                                        layout_filter=args.filter,
                                        rounds=args.rounds,
                                        bind_addrs=(addrs_left, addrs_right),
-                                       initial_delay=0.5
+                                       initial_delay=initial_delay
                                        )
 
     player_clients = []
@@ -331,9 +337,8 @@ def run_game(*argv):
                                       "-c",
                                       "from pelita.ui.tk_viewer import TkViewer\n" + tk_open])
 
-        # we sleep a tiny bit to give Tk time to initialise
-        time.sleep(0.5)
-
+        if args.viewer == 'tk-no-sync':
+            time.sleep(0.5)
     try:
         if args.viewer == 'tk':
             server.register_teams()
