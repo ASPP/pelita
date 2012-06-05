@@ -268,16 +268,9 @@ class UiCanvas(object):
         scale = self.mesh_graph.half_scale_x * 0.2
 
         for color, x_orig in zip(cols, (center - 3, center + 3, center)):
-            x_width = self.mesh_graph.half_scale_x // 4
-
-            x_prev = None
-            y_prev = None
-            for y in range((self.mesh_graph.mesh_height -1 )* 10):
-                x_real = x_orig + x_width * math.sin(y * 10)
-                y_real = self.mesh_graph.mesh_to_screen_y(y / 10.0, 0)
-                if x_prev and y_prev:
-                    self.canvas.create_line((x_prev, y_prev, x_real, y_real), width=scale, fill=color, tag="background")
-                x_prev, y_prev = x_real, y_real
+            y_top = self.mesh_graph.mesh_to_screen_y(0, 0)
+            y_bottom = self.mesh_graph.mesh_to_screen_y(self.mesh_graph.mesh_height - 1, 0)
+            self.canvas.create_line(x_orig, y_top, x_orig, y_bottom, width=scale, fill=color, tag="background")
 
     def draw_title(self, universe, game_state):
         self.score.delete("title")
