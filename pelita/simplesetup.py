@@ -311,14 +311,13 @@ class SimpleServer(object):
             team_player = RemoteTeamPlayer(socket)
             self.team_players.append(team_player)
 
-    def run(self):
+    def register_teams(self):
         # At this point the clients should have been started as well.
         for team in self.team_players:
             team_name = team.team_name()
             self.game_master.register_team(team, team_name)
 
-        self.game_master.play()
-
+    def exit_teams(self):
         for team_player in self.team_players:
             team_player._exit()
 
@@ -330,9 +329,77 @@ class SimpleServer(object):
         for socket in self.sockets:
             socket.close()
 
+    def run(self):
+        self.register_teams()
+
+        self.game_master.play()
+
+        self.exit_teams()
+
 class ExitLoop(Exception):
     """ If this is raised, we’ll close the inner loop.
     """
+
+class SimpleController(object):
+    """ Sets up a simple Controller to interact with GameMaster. """
+
+    def __init__(self, game_master, address):
+        self.game_master = game_master
+        self.address = address
+
+    def on_start(self):
+        # We connect here because zmq likes to have its own
+        # thread/process/whatever.
+        self.context = zmq.Context()
+        # We currently use a DEALER which we bind.
+        # This means, other DEALERs can connect and
+        # each one can take over the control.
+        # However, we cannot send any information back to them.
+        # (Only one DEALER will receive the data.)
+        self.socket = self.context.socket(zmq.DEALER)
+        self.socket.bind(self.address)
+
+    def run(self):
+        self.on_start()
+        try:
+            while True:
+                self._loop()
+        except (KeyboardInterrupt, ExitLoop):
+            pass
+
+    def _loop(self):
+        py_obj = self.socket.recv_json()
+        uuid_ = py_obj.get("__uuid__")
+        action = py_obj["__action__"]
+        data = py_obj.get("__data__") or []
+
+        # feed client actor here …
+        retval = getattr(self, action)(*data)
+
+        if uuid_:
+            self.socket.send_pyobj({"__uuid__": uuid_, "__return__": retval})
+
+    def set_initial(self, *args):
+        return self.game_master.set_initial(*args)
+
+    def play(self, *args):
+        return self.game_master.play(*args)
+
+    def play_round(self, *args):
+        return self.game_master.play_round(*args)
+
+    def play_step(self, *args):
+        return self.game_master.play_step(*args)
+
+    def update_viewers(self, *args):
+        return self.game_master.update_viewers(*args)
+
+    def exit(self):
+        raise ExitLoop()
+
+    def __repr__(self):
+        return "SimpleController(%r, %r)" % (self.game_master, self.address)
+
 
 class SimpleClient(object):
     """ Sets up a simple Client with most settings pre-configured.

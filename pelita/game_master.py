@@ -15,6 +15,9 @@ __docformat__ = "restructuredtext"
 
 MAX_TIMEOUTS = 5
 
+class GameFinished(Exception):
+    pass
+
 class PlayerTimeout(Exception):
     pass
 
@@ -61,6 +64,9 @@ class GameMaster(object):
         self.viewers = []
         self.initial_delay = initial_delay
 
+        #: The pointer to the current iteration.
+        self._step_iter = None
+
         self.game_state = {
             "bot_moved": [],
             "food_eaten": [],
@@ -69,6 +75,8 @@ class GameMaster(object):
             "bot_id": None,
             "round_index": None,
             "running_time": 0,
+            "finished": False,
+            "team_time": [0, 0],
             "team_wins": None,
             "game_draw": None,
         }
@@ -129,7 +137,7 @@ class GameMaster(object):
 
     # TODO the game winning detection should be refactored
     def play(self):
-        """ Play a whole game. """
+        """ Play game until finished. """
         # notify all PlayerTeams
         self.set_initial()
 
@@ -141,27 +149,47 @@ class GameMaster(object):
         self.update_viewers()
 
     def play_round(self):
-        """ Play the next round.
+        """ Finishes the current round.
 
         A round is defined as all bots moving once.
-
-        Returns
-        -------
-        game_running : boolean
-            True, if game is still running, False otherwise.
         """
-        start_time = time.time()
+        if self.game_state["finished"]:
+            return
 
-        self._play_round()
+        if self._step_iter is None:
+            self._step_iter = self._play_bot_iterator()
+        try:
+            while True:
+                self._step_iter.next()
+        except StopIteration:
+            self._step_iter = None
+            # at the end of iterations
+        except GameFinished:
+            return
 
-        end_time = time.time()
-        self.game_state["running_time"] += (end_time - start_time)
+    def play_step(self):
+        """ Plays a single step of a bot.
+        """
+        if self.game_state["finished"]:
+            return
 
-    def _play_round(self):
-        if self.game_state["round_index"] is None:
-            self.game_state["round_index"] = 0
-        else:
-            self.game_state["round_index"] += 1
+        if self._step_iter is None:
+            self._step_iter = self._play_bot_iterator()
+
+        try:
+            self._step_iter.next()
+        except StopIteration:
+            self._step_iter = None
+            # we could not make a move:
+            # just try another one
+            self.play_step()
+        except GameFinished:
+            return
+
+    def _play_bot_iterator(self):
+        """ Returns an iterator which will query a bot at each step.
+        """
+        self.prepare_next_round()
 
         if not self.game_state.get("finished"):
             self.check_finished()
@@ -170,17 +198,29 @@ class GameMaster(object):
             self.print_possible_winner()
 
         if self.game_state.get("finished"):
-            return
+            self.update_viewers()
+            raise GameFinished()
 
         for bot in self.universe.bots:
+            start_time = time.time()
+
             self._play_bot(bot)
 
+            end_time = time.time()
+            self.game_state["running_time"] += (end_time - start_time)
+
             self.update_viewers()
+
+            # give control to caller
+            yield
 
         self.check_finished()
         self.check_winner()
 
         self.print_possible_winner()
+
+        if self.game_state.get("finished"):
+            self.update_viewers()
 
     def _play_bot(self, bot):
         self.game_state["bot_id"] = bot.index
@@ -193,10 +233,14 @@ class GameMaster(object):
             universe_copy = self.universe.copy()
             if self.noiser:
                 universe_copy = self.noiser.uniform_noise(universe_copy, bot.index)
+
+            team_time_begin = time.time()
             move = player_team._get_move(bot.index, universe_copy)
+            team_time_needed = time.time() - team_time_begin
+            self.game_state["team_time"][bot.team_index] += team_time_needed
 
             move_state = self.universe.move_bot(bot.index, move)
-            for k,v in move_state.iteritems():
+            for k, v in move_state.iteritems():
                 self.game_state[k] += v
 
         except (datamodel.IllegalMoveException, PlayerTimeout) as e:
@@ -234,16 +278,33 @@ class GameMaster(object):
                               bot.team_index,
                               bot.index))
 
+    def prepare_next_round(self):
+        """ Increases `game_state["round_index"]`, if possible
+        and resets `game_state["bot_id"]`.
+        """
+        if self.game_state.get("finished"):
+            return
+
+        self.game_state["bot_id"] = None
+
+        if self.game_state["round_index"] is None:
+            self.game_state["round_index"] = 0
+        elif self.game_state["round_index"] < self.game_time:
+            self.game_state["round_index"] += 1
+        else:
+            self.game_state["finished"] = True
+
     def check_finished(self):
         self.game_state["finished"] = False
 
         if (self.game_state["team_wins"] is not None or
             self.game_state["game_draw"] is not None):
             self.game_state["finished"] = True
-            return
 
         if self.game_state["round_index"] >= self.game_time:
             self.game_state["finished"] = True
+            # clear the bot_id of the current bot
+            self.game_state["bot_id"] = None
         else:
             food_left = [self.universe.enemy_food(team.index) for team in self.universe.teams]
             if not all(food_left):
