@@ -143,8 +143,6 @@ class GameMaster(object):
         while not self.game_state.get("finished"):
             self.play_round()
 
-        self.update_viewers()
-
     def play_round(self):
         """ Finishes the current round.
 
