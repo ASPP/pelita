@@ -478,7 +478,7 @@ class SimpleClient(object):
         return background_thread
 
     def __repr__(self):
-        return "SimpleCLient(%r, %r, %r)" % (self.team, self.team_name, self.address)
+        return "SimpleClient(%r, %r, %r)" % (self.team, self.team_name, self.address)
 
 class SimplePublisher(AbstractViewer):
     def __init__(self, address):
