@@ -52,12 +52,7 @@ def load_factory(filespec):
         module = __import__(modname, fromlist=[factory_name])
     return getattr(module, factory_name)
 
-PLAYERS = [name for name in dir(pelita.player)
-           if name.endswith('Player') and
-              name not in ('AbstractPlayer', 'TestPlayer',
-                           'StoppingPlayer', 'IOBoundPlayer',
-                           'CPUBoundPlayer', 'MoveExceptionPlayer',
-                           'InitialExceptionPlayer', 'RoundBasedPlayer')]
+PLAYERS = pelita.player.SANE_PLAYERS
 
 def import_builtin_player(name):
     if name == 'random':
