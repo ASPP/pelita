@@ -239,7 +239,8 @@ class GameMaster(object):
 
             team_time_begin = time.time()
 
-            move = player_team.get_move(bot.index, universe, self.game_state)
+            player_state = player_team.get_move(bot.index, universe, self.game_state)
+            move = player_state.get("move")
 
             team_time_needed = time.time() - team_time_begin
             self.game_state["team_time"][bot.team_index] += team_time_needed

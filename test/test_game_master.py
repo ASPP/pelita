@@ -411,7 +411,7 @@ class TestGame(unittest.TestCase):
                 universe.teams[0].score = 100
                 universe.bots[0].current_pos = (2,2)
                 universe.maze[0,0] = free_obj
-                return (0,0)
+                return {"move": (0,0)}
 
             def get_move(self):
                 pass

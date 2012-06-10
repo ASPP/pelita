@@ -146,7 +146,8 @@ class AbstractPlayer(object):
         """
         self.current_state = game_state
         self._store_universe(universe)
-        return self.get_move()
+        move = self.get_move()
+        return {"move": move}
 
     @abc.abstractmethod
     def get_move(self):
