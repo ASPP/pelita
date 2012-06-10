@@ -194,7 +194,7 @@ class RemoteTeamPlayer(object):
                                                  "universe": universe,
                                                  "game_state": game_state})
             reply = self.zmqconnection.recv_timeout(game_state["timeout_length"])
-            return tuple(reply)
+            return dict(reply)
         except ZMQTimeout:
             # answer did not arrive in time
             raise PlayerTimeout()
