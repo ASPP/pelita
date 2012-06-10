@@ -157,6 +157,8 @@ viewer_opt.add_argument('--ascii', action='store_const', const='ascii',
                         dest='viewer', help='use the ASCII viewer')
 viewer_opt.add_argument('--null', action='store_const', const='null',
                         dest='viewer', help='use the /dev/null viewer')
+viewer_opt.add_argument('--progress', action='store_const', const='progress',
+                        dest='viewer', help='use the progress viewer')
 viewer_opt.add_argument('--tk', action='store_const', const='tk',
                         dest='viewer', help='use the tk viewer (default)')
 viewer_opt.add_argument('--tk-no-sync', action='store_const', const='tk-no-sync',
@@ -315,6 +317,8 @@ def run_game(*argv):
         server.game_master.register_viewer(pelita.viewer.AsciiViewer())
     if args.viewer == 'null':
         server.game_master.register_viewer(pelita.viewer.DevNullViewer())
+    if args.viewer == 'progress':
+        server.game_master.register_viewer(pelita.viewer.ProgressViewer())
 
     open_tk = args.viewer.startswith('tk')
 
