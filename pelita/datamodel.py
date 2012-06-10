@@ -768,6 +768,26 @@ class CTFUniverse(object):
                 legal_moves_dict[move] = new_pos
         return legal_moves_dict
 
+    def get_legal_moves_or_stop(self, position):
+        """ Obtain legal moves (and where they lead)
+        or just stop if impossible to move.
+
+        Parameters
+        ----------
+        position : tuple of int (x, y)
+            the position to start at
+
+        Returns
+        -------
+        legal_moves : dict mapping strings (moves) to positions (x, y)
+            the legal moves and where they would lead.
+        """
+        moves = self.get_legal_moves(position)
+
+        if len(moves) > 1:
+            del moves[stop]
+        return moves
+
     def __repr__(self):
         return ("CTFUniverse(%r, %r, %r)" %
             (self.maze, self.teams, self.bots))
