@@ -166,17 +166,17 @@ class RemoteTeamPlayer(object):
         self.zmqconnection.send("team_name", [])
         return self.zmqconnection.recv()
 
-    def _set_initial(self, team_id, universe):
-        self.zmqconnection.send("_set_initial", [team_id, universe])
+    def set_initial(self, team_id, universe):
+        self.zmqconnection.send("set_initial", [team_id, universe])
         return self.zmqconnection.recv()
         #try:
         #    return self.ref.query("set_initial", [universe]).get(TIMEOUT)
         #except (Queue.Empty, ActorNotRunning, DeadConnection):
         #    pass
 
-    def _get_move(self, bot_idx, universe):
+    def get_move(self, bot_idx, universe):
         try:
-            self.zmqconnection.send("_get_move", [bot_idx, universe])
+            self.zmqconnection.send("get_move", [bot_idx, universe])
             reply = self.zmqconnection.recv_timeout(TIMEOUT)
             return tuple(reply)
         except ZMQTimeout:
@@ -452,11 +452,11 @@ class SimpleClient(object):
 
         self.socket.send_pyobj({"__uuid__": uuid_, "__return__": retval})
 
-    def _set_initial(self, *args):
-        return self.team._set_initial(*args)
+    def set_initial(self, *args):
+        return self.team.set_initial(*args)
 
-    def _get_move(self, *args):
-        return self.team._get_move(*args)
+    def get_move(self, *args):
+        return self.team.get_move(*args)
 
     def exit(self):
         raise ExitLoop()

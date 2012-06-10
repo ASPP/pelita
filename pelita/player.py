@@ -14,9 +14,13 @@ from .graph import AdjacencyList, NoPathException
 __docformat__ = "restructuredtext"
 
 class SimpleTeam(object):
-    """ Simple class used to register an arbitrary number of Players.
+    """ Simple class used to register an arbitrary number of (Abstract-)Players.
 
     Each Player is used to control a Bot in the Universe.
+
+    SimpleTeam transforms the `set_initial` and `get_move` messages
+    from the GameMaster into `_set_index`, `_set_initial` and `_get_move`
+    messages on the Player.
 
     Parameters
     ----------
@@ -37,14 +41,14 @@ class SimpleTeam(object):
             players = args[:]
 
         for player in players:
-            for method in ('_get_move', '_set_initial'):
+            for method in ('_set_index', '_get_move', '_set_initial'):
                 if not hasattr(player, method):
                     raise TypeError('player missing %s()' % method)
 
         self._players = players
         self._bot_players = {}
 
-    def _set_initial(self, team_id, universe):
+    def set_initial(self, team_id, universe):
         # only iterate about those player which are in bot_players
         # we might have defined more players than we have received
         # indexes for.
@@ -60,7 +64,7 @@ class SimpleTeam(object):
             player._set_initial(universe)
             self._bot_players[bot_id] = player
 
-    def _get_move(self, bot_idx, universe):
+    def get_move(self, bot_idx, universe):
         """ Requests a move from the Player who controls the Bot with index `bot_idx`.
         """
         return self._bot_players[bot_idx]._get_move(universe)
@@ -71,7 +75,7 @@ class AbstractPlayer(object):
     __metaclass__ =  abc.ABCMeta
 
     def _set_index(self, index):
-        """ Called by the GameMaster to set this Players index.
+        """ Called by SimpleTeam to set this Players index.
 
         Parameters
         ----------
@@ -82,7 +86,7 @@ class AbstractPlayer(object):
         self._index = index
 
     def _set_initial(self, universe):
-        """ Called by the GameMaster on initialisation.
+        """ Called by SimpleTeam on initialisation.
 
         Parameters
         ----------
@@ -99,7 +103,7 @@ class AbstractPlayer(object):
         pass
 
     def _get_move(self, universe):
-        """ Called by the GameMaster to obtain next move.
+        """ Called by SimpleTeam to obtain next move.
 
         This will add the universe to the list of universe_states and then call
         `self.get_move()`.
