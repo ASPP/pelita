@@ -57,7 +57,6 @@ class GameMaster(object):
                  initial_delay=0.0):
         self.universe = datamodel.create_CTFUniverse(layout, number_bots)
         self.number_bots = number_bots
-        self.game_time = game_time
         self.noiser = UniverseNoiser(self.universe) if noise else None
         self.player_teams = []
         self.player_teams_timeouts = []
@@ -79,7 +78,12 @@ class GameMaster(object):
             "team_time": [0, 0],
             "team_wins": None,
             "game_draw": None,
+            "game_time": game_time
         }
+
+    @property
+    def game_time(self):
+        return self.game_state["game_time"]
 
     def register_team(self, team, team_name=""):
         """ Register a client TeamPlayer class.
