@@ -318,6 +318,14 @@ class RandomPlayer(AbstractPlayer):
     def get_move(self):
         return random.choice(self.legal_moves.keys())
 
+class SpeakingPlayer(AbstractPlayer):
+    """ A player that makes moves at random and tells us about it. """
+
+    def get_move(self):
+        move = random.choice(self.legal_moves.keys())
+        self.say("Going %r." % (move,))
+        return move
+
 class TestPlayer(AbstractPlayer):
     """ A Player with predetermined set of moves.
 
