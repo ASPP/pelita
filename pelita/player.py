@@ -146,8 +146,12 @@ class AbstractPlayer(object):
         """
         self.current_state = game_state
         self._store_universe(universe)
+        self._say = ""
         move = self.get_move()
-        return {"move": move}
+        return {
+            "move": move,
+            "say": self._say
+        }
 
     @abc.abstractmethod
     def get_move(self):
@@ -292,6 +296,16 @@ class AbstractPlayer(object):
             the currently legal moves
         """
         return self.current_uni.get_legal_moves(self.current_pos)
+
+    def say(self, text):
+        """ Let the bot speak.
+
+        Parameters
+        ----------
+        text : string
+            the text to be shown in the Viewer.
+        """
+        self._say = unicode(text)
 
 class StoppingPlayer(AbstractPlayer):
     """ A Player that just stands still. """
