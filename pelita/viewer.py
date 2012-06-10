@@ -36,7 +36,10 @@ class ProgressViewer(AbstractViewer):
             bot_sign = game_state["bot_id"]
         else:
             bot_sign = ' '
-        string = "[%s] %3i%% (%i / %i) [%s]" % (bot_sign, percentage, round_index, game_time, ":".join(str(t.score) for t in universe.teams))
+        string = ("[%s] %3i%% (%i / %i) [%s]" % (
+                    bot_sign, percentage,
+                    round_index, game_time,
+                    ":".join(str(t.score) for t in universe.teams)))
         sys.stdout.write(string + ("\b" * len(string)))
         sys.stdout.flush()
 
