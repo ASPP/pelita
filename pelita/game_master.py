@@ -81,7 +81,8 @@ class GameMaster(object):
             "food_count": [0] * len(self.universe.teams),
             "food_to_eat": [len(self.universe.enemy_food(team.index)) for team in self.universe.teams],
             "timeout_length": timeout_length,
-            "max_timeouts": max_timeouts
+            "max_timeouts": max_timeouts,
+            "bot_talk": [""] * self.number_bots
         }
 
     @property
@@ -241,6 +242,9 @@ class GameMaster(object):
 
             player_state = player_team.get_move(bot.index, universe, self.game_state)
             move = player_state.get("move")
+            bot_talk = player_state.get("say")
+
+            self.game_state["bot_talk"][bot.index] = bot_talk
 
             team_time_needed = time.time() - team_time_begin
             self.game_state["team_time"][bot.team_index] += team_time_needed
