@@ -122,7 +122,7 @@ class GameMaster(object):
         universes and tells the PlayerTeams what team_id they have.
         """
         for team_id, team in enumerate(self.player_teams):
-            team._set_initial(team_id, self.universe.copy())
+            team.set_initial(team_id, self.universe.copy())
 
         if len(self.player_teams) != len(self.universe.teams):
             raise IndexError(
@@ -232,7 +232,7 @@ class GameMaster(object):
                 universe_copy = self.noiser.uniform_noise(universe_copy, bot.index)
 
             team_time_begin = time.time()
-            move = player_team._get_move(bot.index, universe_copy)
+            move = player_team.get_move(bot.index, universe_copy)
             team_time_needed = time.time() - team_time_begin
             self.game_state["team_time"][bot.team_index] += team_time_needed
 
