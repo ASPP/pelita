@@ -251,7 +251,7 @@ class UiCanvas(object):
         self.draw_food(universe)
 
         self.draw_title(universe, game_state)
-        self.draw_bots(universe)
+        self.draw_bots(universe, game_state)
 
         self.size_changed = False
 
@@ -391,9 +391,10 @@ class UiCanvas(object):
             self.bot_sprites[bot.index] = bot_sprite
             bot_sprite.position = bot.current_pos
 
-    def draw_bots(self, universe):
+    def draw_bots(self, universe, game_state):
         for bot_id, bot_sprite in self.bot_sprites.iteritems():
-            bot_sprite.move_to(universe.bots[bot_sprite.bot_id].current_pos, self.canvas, universe, force=self.size_changed)
+            say = game_state and game_state["bot_talk"][bot_id]
+            bot_sprite.move_to(universe.bots[bot_sprite.bot_id].current_pos, self.canvas, universe, force=self.size_changed, say=say)
 
 
 class TkApplication(object):

@@ -68,7 +68,7 @@ class BotSprite(TkSprite):
 
         super(BotSprite, self).__init__(mesh, **kwargs)
 
-    def move_to(self, new_pos, canvas, universe=None, force=None):
+    def move_to(self, new_pos, canvas, universe=None, force=None, say=""):
         old_direction = self.direction
         old_position = self.position
 
@@ -80,6 +80,10 @@ class BotSprite(TkSprite):
             dy = self.position[1] - old_position[1]
 
             canvas.move(self.tag, self.mesh.rect_width * dx, self.mesh.rect_height * dy)
+
+        canvas.delete("speak"+self.tag)
+        canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1], text=say, font=(None, 10), fill=col(20, 20, 200), tag="speak"+self.tag)
+
 
     def draw_bot(self, canvas, outer_col, eye_col, mirror=False):
         direction = self.direction
