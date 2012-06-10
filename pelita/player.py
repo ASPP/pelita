@@ -13,6 +13,11 @@ from .graph import AdjacencyList, NoPathException
 
 __docformat__ = "restructuredtext"
 
+SANE_PLAYERS = ['BFSPlayer',
+                'BasicDefensePlayer',
+                'NQRandomPlayer',
+                'RandomPlayer']
+
 class SimpleTeam(object):
     """ Simple class used to register an arbitrary number of (Abstract-)Players.
 
