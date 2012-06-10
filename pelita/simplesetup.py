@@ -166,16 +166,8 @@ class RemoteTeamPlayer(object):
         self.zmqconnection.send("team_name", [])
         return self.zmqconnection.recv()
 
-    def _set_bot_ids(self, bot_ids):
-        #try:
-        self.zmqconnection.send("_set_bot_ids", [bot_ids])
-        return self.zmqconnection.recv()
-            #return self.ref.query("set_bot_ids", bot_ids).get(TIMEOUT)
-        #except (Queue.Empty, ActorNotRunning, DeadConnection):
-        #    pass
-
-    def _set_initial(self, universe):
-        self.zmqconnection.send("_set_initial", [universe])
+    def _set_initial(self, team_id, universe):
+        self.zmqconnection.send("_set_initial", [team_id, universe])
         return self.zmqconnection.recv()
         #try:
         #    return self.ref.query("set_initial", [universe]).get(TIMEOUT)
@@ -459,9 +451,6 @@ class SimpleClient(object):
         retval = getattr(self, action)(*data)
 
         self.socket.send_pyobj({"__uuid__": uuid_, "__return__": retval})
-
-    def _set_bot_ids(self, *args):
-        return self.team._set_bot_ids(*args)
 
     def _set_initial(self, *args):
         return self.team._set_initial(*args)
