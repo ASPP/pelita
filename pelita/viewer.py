@@ -3,6 +3,7 @@
 """ The observers. """
 
 import abc
+import sys
 
 from .messaging.json_convert import json_converter
 
@@ -28,11 +29,6 @@ class DevNullViewer(AbstractViewer):
 
 class ProgressViewer(AbstractViewer):
     def observe(self, universe, game_state):
-        import sys
-        if game_state["finished"]:
-            sys.stdout.write("\n")
-            print game_state
-
         round_index = game_state["round_index"]
         game_time = game_state["game_time"]
         percentage = int(100.0 * round_index / game_time)
@@ -43,6 +39,10 @@ class ProgressViewer(AbstractViewer):
         string = "[%s] %3i%% (%i / %i) [%s]" % (bot_sign, percentage, round_index, game_time, ":".join(str(t.score) for t in universe.teams))
         sys.stdout.write(string + ("\b" * len(string)))
         sys.stdout.flush()
+
+        if game_state["finished"]:
+            sys.stdout.write("\n")
+            print "Final state:", game_state
 
 class AsciiViewer(AbstractViewer):
     """ A viewer that dumps ASCII charts on stdout. """
