@@ -305,7 +305,7 @@ class AbstractPlayer(object):
         text : string
             the text to be shown in the Viewer.
         """
-        self._say = unicode(text)
+        self._say = unicode(text, errors='ignore')
 
 class StoppingPlayer(AbstractPlayer):
     """ A Player that just stands still. """
