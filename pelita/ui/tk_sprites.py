@@ -82,7 +82,7 @@ class BotSprite(TkSprite):
             canvas.move(self.tag, self.mesh.rect_width * dx, self.mesh.rect_height * dy)
 
         canvas.delete("speak"+self.tag)
-        canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1], text=say, font=(None, 10), fill=col(20, 20, 200), tag="speak"+self.tag)
+        canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1], text=say, font=(None, 12), fill="#FFC903", tag="speak"+self.tag)
 
 
     def draw_bot(self, canvas, outer_col, eye_col, mirror=False):
