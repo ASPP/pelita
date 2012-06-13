@@ -440,8 +440,10 @@ class TkApplication(object):
             # if queue is empty, try again in a few ms
             # we don’t want to block here and lock
             # Tk animations
-            observed = self.socket.recv(flags=zmq.NOBLOCK)
-            observed = json_converter.loads(observed)
+            message = self.socket.recv(flags=zmq.NOBLOCK)
+            message = json_converter.loads(message)
+            # we curretly don’t care about the action
+            observed = message["__data__"]
             self.observe(observed)
 
             if self.controller_socket:

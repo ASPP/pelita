@@ -163,11 +163,12 @@ class RemoteTeamPlayer(object):
         self.zmqconnection = ZMQConnection(socket)
 
     def team_name(self):
-        self.zmqconnection.send("team_name", [])
+        self.zmqconnection.send("team_name", {})
         return self.zmqconnection.recv()
 
     def set_initial(self, team_id, universe):
-        self.zmqconnection.send("set_initial", [team_id, universe])
+        self.zmqconnection.send("set_initial", {"team_id": team_id,
+                                                "universe": universe})
         return self.zmqconnection.recv()
         #try:
         #    return self.ref.query("set_initial", [universe]).get(TIMEOUT)
@@ -176,7 +177,8 @@ class RemoteTeamPlayer(object):
 
     def get_move(self, bot_idx, universe):
         try:
-            self.zmqconnection.send("get_move", [bot_idx, universe])
+            self.zmqconnection.send("get_move", {"bot_idx": bot_idx,
+                                                 "universe": universe})
             reply = self.zmqconnection.recv_timeout(TIMEOUT)
             return tuple(reply)
         except ZMQTimeout:
@@ -190,7 +192,7 @@ class RemoteTeamPlayer(object):
             raise PlayerDisconnected()
 
     def _exit(self):
-        self.zmqconnection.send("exit", [])
+        self.zmqconnection.send("exit", {})
 
 class SimpleServer(object):
     """ Sets up a simple Server with most settings pre-configured.
@@ -363,28 +365,28 @@ class SimpleController(object):
         py_obj = self.socket.recv_json()
         uuid_ = py_obj.get("__uuid__")
         action = py_obj["__action__"]
-        data = py_obj.get("__data__") or []
+        data = py_obj.get("__data__") or {}
 
         # feed client actor here …
-        retval = getattr(self, action)(*data)
+        retval = getattr(self, action)(**data)
 
         if uuid_:
             self.socket.send_pyobj({"__uuid__": uuid_, "__return__": retval})
 
-    def set_initial(self, *args):
-        return self.game_master.set_initial(*args)
+    def set_initial(self, *args, **kwargs):
+        return self.game_master.set_initial(*args, **kwargs)
 
-    def play(self, *args):
-        return self.game_master.play(*args)
+    def play(self, *args, **kwargs):
+        return self.game_master.play(*args, **kwargs)
 
-    def play_round(self, *args):
-        return self.game_master.play_round(*args)
+    def play_round(self, *args, **kwargs):
+        return self.game_master.play_round(*args, **kwargs)
 
-    def play_step(self, *args):
-        return self.game_master.play_step(*args)
+    def play_step(self, *args, **kwargs):
+        return self.game_master.play_step(*args, **kwargs)
 
-    def update_viewers(self, *args):
-        return self.game_master.update_viewers(*args)
+    def update_viewers(self, *args, **kwargs):
+        return self.game_master.update_viewers(*args, **kwargs)
 
     def exit(self):
         raise ExitLoop()
@@ -448,15 +450,15 @@ class SimpleClient(object):
         # could call anything on this object. This needs to
         # be fixed analogous to the `expose` method in
         # the messaging framework.
-        retval = getattr(self, action)(*data)
+        retval = getattr(self, action)(**data)
 
         self.socket.send_pyobj({"__uuid__": uuid_, "__return__": retval})
 
-    def set_initial(self, *args):
-        return self.team.set_initial(*args)
+    def set_initial(self, *args, **kwargs):
+        return self.team.set_initial(*args, **kwargs)
 
-    def get_move(self, *args):
-        return self.team.get_move(*args)
+    def get_move(self, *args, **kwargs):
+        return self.team.get_move(*args, **kwargs)
 
     def exit(self):
         raise ExitLoop()
@@ -488,11 +490,14 @@ class SimplePublisher(AbstractViewer):
         self.socket.bind(self.address)
 
     def set_initial(self, universe):
-        as_json = json_converter.dumps({"universe": universe})
+        message = {"__action__": "set_initial",
+                   "__data__": {"universe": universe}}
+        as_json = json_converter.dumps(message)
         self.socket.send(as_json)
 
     def observe(self, universe, game_state):
-        as_json = json_converter.dumps({
-            "universe": universe,
-            "game_state": game_state})
+        message = {"__action__": "observe",
+                   "__data__": {"universe": universe,
+                                "game_state": game_state}}
+        as_json = json_converter.dumps(message)
         self.socket.send(as_json)
