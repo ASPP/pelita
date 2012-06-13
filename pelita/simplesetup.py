@@ -175,9 +175,9 @@ class RemoteTeamPlayer(object):
         #except (Queue.Empty, ActorNotRunning, DeadConnection):
         #    pass
 
-    def get_move(self, bot_idx, universe):
+    def get_move(self, bot_id, universe):
         try:
-            self.zmqconnection.send("get_move", {"bot_idx": bot_idx,
+            self.zmqconnection.send("get_move", {"bot_id": bot_id,
                                                  "universe": universe})
             reply = self.zmqconnection.recv_timeout(TIMEOUT)
             return tuple(reply)
