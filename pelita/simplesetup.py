@@ -517,3 +517,69 @@ class SimplePublisher(AbstractViewer):
                                 "game_state": game_state}}
         as_json = json_converter.dumps(message)
         self.socket.send(as_json)
+
+class SimpleSubscriber(AbstractViewer):
+    """ Subscribes to a given zmq socket and passes
+    all incoming data to a viewer.
+
+    Parameters
+    ----------
+    viewer : Viewer
+        Viewer with AbstractPlayer-like interface
+    address : string
+        The address of the publisher we want to subscribe to.
+    """
+    def __init__(self, viewer, address):
+        self.viewer = viewer
+        self.address = address
+
+    def on_start(self):
+        self.context = zmq.Context()
+        self.socket = self.context.socket(zmq.SUB)
+        self.socket.setsockopt(zmq.SUBSCRIBE, "")
+        self.socket.connect(self.address)
+
+    def run(self):
+        self.on_start()
+        try:
+            while True:
+                self._loop()
+        except (KeyboardInterrupt, ExitLoop):
+            pass
+
+    def _loop(self):
+        """ Waits for incoming requests and tries to get a proper
+        answer from the player.
+        """
+        data = self.socket.recv()
+        py_obj = json_converter.loads(data)
+
+        action = py_obj.get("__action__")
+        data = py_obj.get("__data__") or {}
+
+        getattr(self, action)(**data)
+
+    def set_initial(self, universe):
+        return self.viewer.set_initial(universe)
+
+    def observe(self, universe, game_state):
+        return self.viewer.observe(universe, game_state)
+
+    def exit(self):
+        raise ExitLoop()
+
+    def autoplay_process(self):
+        # We use a multiprocessing because it behaves well with KeyboardInterrupt.
+        background_process = multiprocessing.Process(target=self.run)
+        background_process.start()
+        return background_process
+
+    def autoplay_thread(self):
+        # Threading has problems with KeyboardInterrupts but makes it easier
+        # (though not simpler) to share state.
+        background_thread = threading.Thread(target=self.run)
+        background_thread.start()
+        return background_thread
+
+    def __repr__(self):
+        return "SimpleSubscriber(%r, %r)" % (self.viewer, self.address)
