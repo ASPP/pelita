@@ -102,7 +102,9 @@ class ZMQConnection(object):
         if socks.get(self.socket) == zmq.POLLOUT:
             # I think we need to set NOBLOCK here, else we may run into a
             # race condition if a connection was closed between poll and send.
-            self.socket.send_pyobj({"__uuid__": msg_uuid, "__action__": action, "__data__": data}, flags=zmq.NOBLOCK)
+            message_obj = {"__uuid__": msg_uuid, "__action__": action, "__data__": data}
+            json_message = json_converter.dumps(message_obj)
+            self.socket.send(json_message, flags=zmq.NOBLOCK)
         else:
             raise DeadConnection()
         self.last_uuid = msg_uuid
@@ -110,15 +112,16 @@ class ZMQConnection(object):
     def recv(self):
         # return tuple
         # (action, data)
-        json_msg = self.socket.recv_pyobj()
+        json_message = self.socket.recv()
+        py_obj = json_converter.loads(json_message)
         #print repr(json_msg)
-        msg_uuid = json_msg["__uuid__"]
+        msg_uuid = py_obj["__uuid__"]
 
         _logger.debug("<--- %s", msg_uuid)
 
         if msg_uuid == self.last_uuid:
             self.last_uuid = None
-            return json_msg["__return__"]
+            return py_obj["__return__"]
         else:
             self.last_uuid = None
             raise UnknownMessageId()
@@ -371,7 +374,9 @@ class SimpleController(object):
         retval = getattr(self, action)(**data)
 
         if uuid_:
-            self.socket.send_pyobj({"__uuid__": uuid_, "__return__": retval})
+            message_obj = {"__uuid__": uuid_, "__return__": retval}
+            json_message = json_converter.dumps(message_obj)
+            self.socket.send(json_message)
 
     def set_initial(self, *args, **kwargs):
         return self.game_master.set_initial(*args, **kwargs)
@@ -439,7 +444,8 @@ class SimpleClient(object):
         """ Waits for incoming requests and tries to get a proper
         answer from the player.
         """
-        py_obj = self.socket.recv_pyobj()
+        json_message = self.socket.recv()
+        py_obj = json_converter.loads(json_message)
         uuid_ = py_obj["__uuid__"]
         action = py_obj["__action__"]
         data = py_obj["__data__"]
@@ -452,7 +458,9 @@ class SimpleClient(object):
         # the messaging framework.
         retval = getattr(self, action)(**data)
 
-        self.socket.send_pyobj({"__uuid__": uuid_, "__return__": retval})
+        message_obj = {"__uuid__": uuid_, "__return__": retval}
+        json_message = json_converter.dumps(message_obj)
+        self.socket.send(json_message)
 
     def set_initial(self, *args, **kwargs):
         return self.team.set_initial(*args, **kwargs)
