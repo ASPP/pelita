@@ -481,8 +481,8 @@ class SimpleClient(object):
         return background_process
 
     def autoplay_thread(self):
-        # We cannot use multiprocessing in a local game.
-        # Or that is, we cannot until we also use multiprocessing Queues.
+        # Threading has problems with KeyboardInterrupts but makes it easier
+        # (though not simpler) to share state.
         background_thread = threading.Thread(target=self.run)
         background_thread.start()
         return background_thread
@@ -491,6 +491,14 @@ class SimpleClient(object):
         return "SimpleClient(%r, %r, %r)" % (self.team, self.team_name, self.address)
 
 class SimplePublisher(AbstractViewer):
+    """ Sets up a simple Publisher which sends all viewed events
+    over a zmq connection.
+
+    Parameters
+    ----------
+    address : string
+        The address which the publisher binds.
+    """
     def __init__(self, address):
         self.address = address
         self.context = zmq.Context()
