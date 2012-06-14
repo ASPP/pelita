@@ -100,7 +100,7 @@ class AbstractPlayer(object):
 
         """
         self.universe_states = []
-        self.universe_states.append(universe)
+        self.universe_states.append(universe.copy())
         self.set_initial()
 
     def set_initial(self):
@@ -119,7 +119,7 @@ class AbstractPlayer(object):
             the universe in its current state.
 
         """
-        self.universe_states.append(universe)
+        self.universe_states.append(universe.copy())
         return self.get_move()
 
     @abc.abstractmethod
