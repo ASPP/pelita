@@ -337,20 +337,20 @@ class TestSimpleTeam(unittest.TestCase):
         team1 = SimpleTeam(TestPlayer('^'), TestPlayer('>'))
 
         dummy_universe.teams[0].bots = [1, 5, 10]
-        self.assertRaises(ValueError, team1.set_initial, 0, dummy_universe)
+        self.assertRaises(ValueError, team1.set_initial, 0, dummy_universe, {})
 
         dummy_universe.teams[0].bots = [1, 5]
-        team1.set_initial(0, dummy_universe)
-        self.assertEqual(team1.get_move(1, dummy_universe), north)
-        self.assertEqual(team1.get_move(5, dummy_universe), east)
-        self.assertRaises(KeyError, team1.get_move, 6, dummy_universe)
+        team1.set_initial(0, dummy_universe, {})
+        self.assertEqual(team1.get_move(1, dummy_universe, {}), north)
+        self.assertEqual(team1.get_move(5, dummy_universe, {}), east)
+        self.assertRaises(KeyError, team1.get_move, 6, dummy_universe, {})
 
         team2 = SimpleTeam(TestPlayer('^'), TestPlayer('>'))
 
-        team2.set_initial(1, dummy_universe)
-        self.assertEqual(team2.get_move(1, dummy_universe), north)
-        self.assertRaises(KeyError, team2.get_move, 0, dummy_universe)
-        self.assertRaises(KeyError, team2.get_move, 2, dummy_universe)
+        team2.set_initial(1, dummy_universe, {})
+        self.assertEqual(team2.get_move(1, dummy_universe, {}), north)
+        self.assertRaises(KeyError, team2.get_move, 0, dummy_universe, {})
+        self.assertRaises(KeyError, team2.get_move, 2, dummy_universe, {})
 
 class TestAbstracts(unittest.TestCase):
     class BrokenPlayer(AbstractPlayer):
