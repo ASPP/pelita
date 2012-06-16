@@ -7,7 +7,7 @@ import sys
 import time
 from . import datamodel
 from .graph import NoPathException
-from pelita.datamodel import CTFUniverse, Bot, Food
+from pelita.datamodel import CTFUniverse, Bot, Food, Wall, Free, manhattan_dist
 from .viewer import AbstractViewer
 from .graph import AdjacencyList
 
@@ -54,10 +54,12 @@ class GameMaster(object):
 
     """
     def __init__(self, layout, number_bots, game_time, noise=True,
-                 initial_delay=0.0):
+                 initial_delay=0.0, noiser=None):
         self.universe = datamodel.create_CTFUniverse(layout, number_bots)
         self.number_bots = number_bots
-        self.noiser = UniverseNoiser(self.universe) if noise else None
+        if noiser is None:
+            noiser = ManhattanNoiser
+        self.noiser = noiser(self.universe) if noise else None
         self.player_teams = []
         self.player_teams_timeouts = []
         self.viewers = []
@@ -379,11 +381,6 @@ class UniverseNoiser(object):
     sight_distance : int, optional, default: 5
         the distance at which noise is no longer applied.
 
-    Attributes
-    ----------
-    adjacency : AdjacencyList
-        adjacency list representation of the Maze
-
     """
 
     def __init__(self, universe, noise_radius=5, sight_distance=5):
@@ -415,22 +412,68 @@ class UniverseNoiser(object):
 
         """
         universe_copy = CTFUniverse(maze=universe.maze, teams=universe.teams, bots=[Bot._from_json_dict(bot._to_json_dict()) for bot in universe.bots])
+        self.universe = universe_copy
         bot = universe_copy.bots[bot_index]
         bots_to_noise = universe_copy.enemy_bots(bot.team_index)
         for b in bots_to_noise:
             # Check that the distance between this bot and the enemy is larger
             # than `sight_distance`.
-            try:
-                distance = len(self.adjacency.a_star(bot.current_pos, b.current_pos))
-            except NoPathException:
-                # We cannot see it: Apply the noise anyway
-                distance = None
+            distance = self.distance(bot, b)
 
             if distance is None or distance > self.sight_distance:
                 # If so then alter the position of the enemy
-                possible_positions = list(self.adjacency.pos_within(b.current_pos,
-                    self.noise_radius))
-                b.current_pos = random.choice(possible_positions)
+                b.current_pos = self.alter_pos(b.current_pos)
                 b.noisy = True
+
         return universe_copy
 
+    def distance(self, bot, other_bot):
+        return NotImplementedError
+
+    def alter_pos(self, bot_pos):
+        return NotImplementedError
+
+
+class AStarNoiser(UniverseNoiser):
+    def __init__(self, universe, noise_radius=5, sight_distance=5):
+        super(AStarNoiser, self).__init__(universe, noise_radius, sight_distance) 
+        self.adjacency = AdjacencyList(universe)
+    
+    def distance(self, bot, other_bot):
+        try:
+            return len(self.adjacency.a_star(bot.current_pos, other_bot.current_pos))
+        except NoPathException:
+            # We cannot see it: Apply the noise anyway
+            return None
+
+    def alter_pos(self, bot_pos):
+        possible_positions = list(self.adjacency.pos_within(bot_pos,
+                                                            self.noise_radius))
+        if len(possible_positions) > 0:
+            return random.choice(possible_positions)
+        else:
+            return bot_pos
+
+class ManhattanNoiser(UniverseNoiser):
+    def distance(self, bot, other_bot):
+        return abs(bot.current_pos[0] - other_bot.current_pos[0]) +\
+               bot.current_pos[1] - other_bot.current_pos[1]
+
+    def alter_pos(self, bot_pos):
+        # get a list of possible positions
+        noise_radius = self.noise_radius
+        x_min, x_max = bot_pos[0] - noise_radius, bot_pos[0] + noise_radius
+        y_min, y_max = bot_pos[1] - noise_radius, bot_pos[1] + noise_radius
+        possible_positions = [(i,j) for i in range(x_min, x_max)
+                                    for j in range(y_min, y_max)
+                              if manhattan_dist((i,j), bot_pos) <= noise_radius] 
+
+        random.shuffle(possible_positions)
+        for pos in possible_positions:
+            try:
+                if Free in self.universe.maze[pos]:
+                    return pos
+            except IndexError:
+                pass
+        # if we land here, no valid position has been found
+        return bot_pos
