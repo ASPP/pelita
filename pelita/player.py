@@ -53,6 +53,9 @@ class SimpleTeam(object):
         self._players = players
         self._bot_players = {}
 
+        self._remote_game = False
+        self.remote_game = False
+
     def set_initial(self, team_id, universe):
         # only iterate about those player which are in bot_players
         # we might have defined more players than we have received
@@ -73,6 +76,16 @@ class SimpleTeam(object):
         """ Requests a move from the Player who controls the Bot with id `bot_id`.
         """
         return self._bot_players[bot_id]._get_move(universe)
+
+    @property
+    def remote_game(self):
+        return self._remote_game
+
+    @remote_game.setter
+    def remote_game(self, remote_game):
+        self._remote_game = remote_game
+        for player in self._players:
+            player._remote_game = self._remote_game
 
 class AbstractPlayer(object):
     """ Base class for all user implemented Players. """
@@ -99,13 +112,24 @@ class AbstractPlayer(object):
             the initial state of the universe
 
         """
+        if getattr(self, "_remote_game", None):
+            self._store_universe = self._store_universe_ref
+        else:
+            self._store_universe = self._store_universe_copy
+
         self.universe_states = []
-        self.universe_states.append(universe.copy())
+        self._store_universe(universe)
         self.set_initial()
 
     def set_initial(self):
         """ Subclasses can override this if desired. """
         pass
+
+    def _store_universe_copy(self, universe):
+        self.universe_states.append(universe.copy())
+
+    def _store_universe_ref(self, universe):
+        self.universe_states.append(universe)
 
     def _get_move(self, universe):
         """ Called by SimpleTeam to obtain next move.
@@ -119,7 +143,7 @@ class AbstractPlayer(object):
             the universe in its current state.
 
         """
-        self.universe_states.append(universe.copy())
+        self._store_universe(universe)
         return self.get_move()
 
     @abc.abstractmethod
