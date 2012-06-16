@@ -338,12 +338,12 @@ class TestGame(unittest.TestCase):
             def set_initial(self, universe):
                 universe.teams[1].score = 50
 
-            def observe(self, universe, events):
+            def observe(self, universe, game_state):
                 universe.teams[0].score = 100
                 universe.bots[0].current_pos = (4,2)
                 universe.maze[0,0] = free_obj
 
-                events["team_wins"] = 0
+                game_state["team_wins"] = 0
 
         test_start = (
             """ ######
@@ -361,7 +361,7 @@ class TestGame(unittest.TestCase):
 
         test_self = self
         class TestViewer(AbstractViewer):
-            def observe(self, universe, events):
+            def observe(self, universe, game_state):
                 # universe has been altered
                 test_self.assertNotEqual(original_universe, gm.universe)
 
@@ -390,8 +390,8 @@ class TestGame(unittest.TestCase):
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, universe, events):
-                self.cache.append(events)
+            def observe(self, universe, game_state):
+                self.cache.append(game_state)
 
         # run the game
         tv = TestViewer()
@@ -421,8 +421,8 @@ class TestGame(unittest.TestCase):
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, universe, events):
-                self.cache.append(events)
+            def observe(self, universe, game_state):
+                self.cache.append(game_state)
 
         # run the game
         tv = TestViewer()
@@ -452,8 +452,8 @@ class TestGame(unittest.TestCase):
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, universe, events):
-                self.cache.append(events)
+            def observe(self, universe, game_state):
+                self.cache.append(game_state)
 
         # run the game
         tv = TestViewer()
@@ -482,8 +482,8 @@ class TestGame(unittest.TestCase):
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, universe, events):
-                self.cache.append(events)
+            def observe(self, universe, game_state):
+                self.cache.append(game_state)
 
         # run the game
         tv = TestViewer()
@@ -515,8 +515,8 @@ class TestGame(unittest.TestCase):
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, universe, events):
-                self.cache.append(events)
+            def observe(self, universe, game_state):
+                self.cache.append(game_state)
 
         # run the game
         tv = TestViewer()
@@ -555,8 +555,8 @@ class TestGame(unittest.TestCase):
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, universe, events):
-                self.cache.append(events)
+            def observe(self, universe, game_state):
+                self.cache.append(game_state)
 
         # run the game
         tv = TestViewer()

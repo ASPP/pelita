@@ -19,7 +19,7 @@ class AbstractViewer(object):
         pass
 
     @abc.abstractmethod
-    def observe(self, universe, events):
+    def observe(self, universe, game_state):
         pass
 
 class DevNullViewer(AbstractViewer):

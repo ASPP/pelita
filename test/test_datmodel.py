@@ -792,33 +792,33 @@ class TestCTFUniverseRules(unittest.TestCase):
                 #.  1#
                 ###### """)
         universe = create_CTFUniverse(test_start, number_bots)
-        events = universe.move_bot(1, west)
+        game_state = universe.move_bot(1, west)
         test_first_move = (
             """ ######
                 #0 . #
                 #. 1 #
                 ###### """)
         self.assertEqual(create_TestUniverse(test_first_move), universe)
-        self.assertEqual(events["bot_moved"][0], {"bot_id": 1, "old_pos": (4, 2), "new_pos": (3, 2)})
+        self.assertEqual(game_state["bot_moved"][0], {"bot_id": 1, "old_pos": (4, 2), "new_pos": (3, 2)})
         test_second_move = (
             """ ######
                 #0 . #
                 #.1  #
                 ###### """)
-        events = universe.move_bot(1, west)
+        game_state = universe.move_bot(1, west)
         self.assertEqual(create_TestUniverse(test_second_move), universe)
-        self.assertEqual(events["bot_moved"][0], {"bot_id": 1, "old_pos": (3, 2), "new_pos": (2, 2)})
+        self.assertEqual(game_state["bot_moved"][0], {"bot_id": 1, "old_pos": (3, 2), "new_pos": (2, 2)})
         test_eat_food = (
             """ ######
                 #0 . #
                 #1   #
                 ###### """)
         self.assertEqual(universe.food_list, [(3, 1), (1, 2)])
-        events = universe.move_bot(1, west)
+        game_state = universe.move_bot(1, west)
         self.assertEqual(create_TestUniverse(test_eat_food), universe)
         self.assertEqual(universe.food_list, [(3, 1)])
         self.assertEqual(universe.teams[1].score, 1)
-        self.assertEqual(events, {
+        self.assertEqual(game_state, {
             "bot_moved": [{"bot_id": 1, "old_pos": (2, 2), "new_pos": (1, 2)}],
             "food_eaten": [{"bot_id": 1, "food_pos": (1,2)}],
             "bot_destroyed": []
@@ -829,10 +829,10 @@ class TestCTFUniverseRules(unittest.TestCase):
                 #  . #
                 #0  1#
                 ###### """)
-        events = universe.move_bot(0, south)
+        game_state = universe.move_bot(0, south)
         self.assertEqual(create_TestUniverse(test_destruction,
             black_score=KILLPOINTS), universe)
-        self.assertEqual(events, {
+        self.assertEqual(game_state, {
             "bot_moved": [{"bot_id": 0, "old_pos": (1, 1), "new_pos": (1, 2)}, {'old_pos': (1, 2), 'new_pos': (1, 2), 'bot_id': 0}],
             "food_eaten": [],
             "bot_destroyed": [{"bot_id": 1, "destroyed_by": 0}]
@@ -845,12 +845,12 @@ class TestCTFUniverseRules(unittest.TestCase):
                 ###### """)
         universe.move_bot(0, north)
         universe.move_bot(0, east)
-        events = universe.move_bot(0, east)
+        game_state = universe.move_bot(0, east)
         self.assertEqual(create_TestUniverse(test_black_score,
             black_score=KILLPOINTS), universe)
         self.assertEqual(universe.food_list, [])
         self.assertEqual(universe.teams[0].score, KILLPOINTS+1)
-        self.assertEqual(events, {
+        self.assertEqual(game_state, {
             "bot_moved": [{"bot_id": 0, "old_pos": (2, 1), "new_pos": (3, 1)}],
             "food_eaten": [{"bot_id": 0, "food_pos": (3, 1)}],
             "bot_destroyed": []
@@ -861,10 +861,10 @@ class TestCTFUniverseRules(unittest.TestCase):
                 #   1#
                 ###### """)
         universe.move_bot(0, east)
-        events = universe.move_bot(0, south)
+        game_state = universe.move_bot(0, south)
         self.assertEqual(create_TestUniverse(test_bot_suicide,
             black_score=KILLPOINTS, white_score=KILLPOINTS), universe)
-        self.assertEqual(events, {
+        self.assertEqual(game_state, {
             "bot_moved": [{"bot_id": 0, "old_pos": (4, 1), "new_pos": (4, 2)}, {'old_pos': (4, 2), 'new_pos': (1, 1), 'bot_id': 0}],
             "food_eaten": [],
             "bot_destroyed": [{"bot_id": 0, "destroyed_by": 1}]
@@ -879,9 +879,9 @@ class TestCTFUniverseRules(unittest.TestCase):
         number_bots = 2
         universe = create_CTFUniverse(test_start, number_bots)
         universe.move_bot(1, north)
-        events = universe.move_bot(1, west)
+        game_state = universe.move_bot(1, west)
         self.assertEqual(universe.food_list, [(3, 1), (1, 2)])
-        self.assertEqual(events["bot_moved"][0], {"bot_id": 1, "old_pos": (4, 1), "new_pos": (3, 1)})
+        self.assertEqual(game_state["bot_moved"][0], {"bot_id": 1, "old_pos": (4, 1), "new_pos": (3, 1)})
 
     def test_suicide_win(self):
         test = (
@@ -892,13 +892,13 @@ class TestCTFUniverseRules(unittest.TestCase):
         universe = create_CTFUniverse(test, 2)
         universe.move_bot(0, east)
         universe.move_bot(1, west)
-        events = universe.move_bot(0, east)
+        game_state = universe.move_bot(0, east)
         target = {
             "bot_moved": [{"bot_id": 0, "old_pos": (2, 1), "new_pos": (3, 1)}, {"bot_id": 0, "old_pos": (3, 1), "new_pos": (1, 1)}],
             "food_eaten": [{"bot_id": 0, "food_pos": (3, 1)}],
             "bot_destroyed": [{"bot_id": 0, "destroyed_by": 1}]
         }
-        self.assertEqual(events, target)
+        self.assertEqual(game_state, target)
 
 if __name__ == '__main__':
     unittest.main()
