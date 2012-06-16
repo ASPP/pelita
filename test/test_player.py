@@ -69,11 +69,16 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual({(0, -1): (15, 2), (0, 0): (15, 3)},
                 player_3.legal_moves)
 
+        self.assertEqual(player_1.current_state["round_index"], None)
+        self.assertEqual(player_1.current_state["bot_id"], None)
+
         game_master.play_round()
 
         self.assertEqual(player_1.current_pos, (15, 2))
         self.assertEqual(player_1.previous_pos, (15, 2))
         self.assertEqual(player_1.initial_pos, (15, 2))
+        self.assertEqual(player_1.current_state["round_index"], 0)
+        self.assertEqual(player_1.current_state["bot_id"], 3)
         self.assertEqual(universe.bots[1].current_pos, (15, 1))
         self.assertEqual(universe.bots[1].initial_pos, (15, 2))
         self.assertUniversesEqual(player_1.current_uni, player_1.universe_states[-1])
@@ -83,6 +88,8 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual(player_1.current_pos, (15, 1))
         self.assertEqual(player_1.previous_pos, (15, 2))
         self.assertEqual(player_1.initial_pos, (15, 2))
+        self.assertEqual(player_1.current_state["round_index"], 1)
+        self.assertEqual(player_1.current_state["bot_id"], 3)
         self.assertEqual(universe.bots[1].current_pos, (14, 1))
         self.assertEqual(universe.bots[1].initial_pos, (15, 2))
         self.assertUniversesNotEqual(player_1.current_uni,
@@ -337,20 +344,20 @@ class TestSimpleTeam(unittest.TestCase):
         team1 = SimpleTeam(TestPlayer('^'), TestPlayer('>'))
 
         dummy_universe.teams[0].bots = [1, 5, 10]
-        self.assertRaises(ValueError, team1.set_initial, 0, dummy_universe)
+        self.assertRaises(ValueError, team1.set_initial, 0, dummy_universe, {})
 
         dummy_universe.teams[0].bots = [1, 5]
-        team1.set_initial(0, dummy_universe)
-        self.assertEqual(team1.get_move(1, dummy_universe), north)
-        self.assertEqual(team1.get_move(5, dummy_universe), east)
-        self.assertRaises(KeyError, team1.get_move, 6, dummy_universe)
+        team1.set_initial(0, dummy_universe, {})
+        self.assertEqual(team1.get_move(1, dummy_universe, {}), north)
+        self.assertEqual(team1.get_move(5, dummy_universe, {}), east)
+        self.assertRaises(KeyError, team1.get_move, 6, dummy_universe, {})
 
         team2 = SimpleTeam(TestPlayer('^'), TestPlayer('>'))
 
-        team2.set_initial(1, dummy_universe)
-        self.assertEqual(team2.get_move(1, dummy_universe), north)
-        self.assertRaises(KeyError, team2.get_move, 0, dummy_universe)
-        self.assertRaises(KeyError, team2.get_move, 2, dummy_universe)
+        team2.set_initial(1, dummy_universe, {})
+        self.assertEqual(team2.get_move(1, dummy_universe, {}), north)
+        self.assertRaises(KeyError, team2.get_move, 0, dummy_universe, {})
+        self.assertRaises(KeyError, team2.get_move, 2, dummy_universe, {})
 
 class TestAbstracts(unittest.TestCase):
     class BrokenPlayer(AbstractPlayer):

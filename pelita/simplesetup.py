@@ -169,19 +169,21 @@ class RemoteTeamPlayer(object):
         self.zmqconnection.send("team_name", {})
         return self.zmqconnection.recv()
 
-    def set_initial(self, team_id, universe):
+    def set_initial(self, team_id, universe, game_state):
         self.zmqconnection.send("set_initial", {"team_id": team_id,
-                                                "universe": universe})
+                                                "universe": universe,
+                                                "game_state": game_state})
         return self.zmqconnection.recv()
         #try:
         #    return self.ref.query("set_initial", [universe]).get(TIMEOUT)
         #except (Queue.Empty, ActorNotRunning, DeadConnection):
         #    pass
 
-    def get_move(self, bot_id, universe):
+    def get_move(self, bot_id, universe, game_state):
         try:
             self.zmqconnection.send("get_move", {"bot_id": bot_id,
-                                                 "universe": universe})
+                                                 "universe": universe,
+                                                 "game_state": game_state})
             reply = self.zmqconnection.recv_timeout(TIMEOUT)
             return tuple(reply)
         except ZMQTimeout:

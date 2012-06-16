@@ -294,7 +294,7 @@ class TestGame(unittest.TestCase):
         free_obj = Free
 
         class MaliciousPlayer(AbstractPlayer):
-            def _get_move(self, universe):
+            def _get_move(self, universe, game_state):
                 universe.teams[0].score = 100
                 universe.bots[0].current_pos = (2,2)
                 universe.maze[0,0] = free_obj
