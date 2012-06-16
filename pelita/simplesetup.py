@@ -102,7 +102,9 @@ class ZMQConnection(object):
         if socks.get(self.socket) == zmq.POLLOUT:
             # I think we need to set NOBLOCK here, else we may run into a
             # race condition if a connection was closed between poll and send.
-            self.socket.send_pyobj({"__uuid__": msg_uuid, "__action__": action, "__data__": data}, flags=zmq.NOBLOCK)
+            message_obj = {"__uuid__": msg_uuid, "__action__": action, "__data__": data}
+            json_message = json_converter.dumps(message_obj)
+            self.socket.send(json_message, flags=zmq.NOBLOCK)
         else:
             raise DeadConnection()
         self.last_uuid = msg_uuid
@@ -110,15 +112,16 @@ class ZMQConnection(object):
     def recv(self):
         # return tuple
         # (action, data)
-        json_msg = self.socket.recv_pyobj()
+        json_message = self.socket.recv()
+        py_obj = json_converter.loads(json_message)
         #print repr(json_msg)
-        msg_uuid = json_msg["__uuid__"]
+        msg_uuid = py_obj["__uuid__"]
 
         _logger.debug("<--- %s", msg_uuid)
 
         if msg_uuid == self.last_uuid:
             self.last_uuid = None
-            return json_msg["__return__"]
+            return py_obj["__return__"]
         else:
             self.last_uuid = None
             raise UnknownMessageId()
@@ -163,20 +166,22 @@ class RemoteTeamPlayer(object):
         self.zmqconnection = ZMQConnection(socket)
 
     def team_name(self):
-        self.zmqconnection.send("team_name", [])
+        self.zmqconnection.send("team_name", {})
         return self.zmqconnection.recv()
 
     def set_initial(self, team_id, universe):
-        self.zmqconnection.send("set_initial", [team_id, universe])
+        self.zmqconnection.send("set_initial", {"team_id": team_id,
+                                                "universe": universe})
         return self.zmqconnection.recv()
         #try:
         #    return self.ref.query("set_initial", [universe]).get(TIMEOUT)
         #except (Queue.Empty, ActorNotRunning, DeadConnection):
         #    pass
 
-    def get_move(self, bot_idx, universe):
+    def get_move(self, bot_id, universe):
         try:
-            self.zmqconnection.send("get_move", [bot_idx, universe])
+            self.zmqconnection.send("get_move", {"bot_id": bot_id,
+                                                 "universe": universe})
             reply = self.zmqconnection.recv_timeout(TIMEOUT)
             return tuple(reply)
         except ZMQTimeout:
@@ -190,7 +195,7 @@ class RemoteTeamPlayer(object):
             raise PlayerDisconnected()
 
     def _exit(self):
-        self.zmqconnection.send("exit", [])
+        self.zmqconnection.send("exit", {})
 
 class SimpleServer(object):
     """ Sets up a simple Server with most settings pre-configured.
@@ -363,28 +368,30 @@ class SimpleController(object):
         py_obj = self.socket.recv_json()
         uuid_ = py_obj.get("__uuid__")
         action = py_obj["__action__"]
-        data = py_obj.get("__data__") or []
+        data = py_obj.get("__data__") or {}
 
         # feed client actor here …
-        retval = getattr(self, action)(*data)
+        retval = getattr(self, action)(**data)
 
         if uuid_:
-            self.socket.send_pyobj({"__uuid__": uuid_, "__return__": retval})
+            message_obj = {"__uuid__": uuid_, "__return__": retval}
+            json_message = json_converter.dumps(message_obj)
+            self.socket.send(json_message)
 
-    def set_initial(self, *args):
-        return self.game_master.set_initial(*args)
+    def set_initial(self, *args, **kwargs):
+        return self.game_master.set_initial(*args, **kwargs)
 
-    def play(self, *args):
-        return self.game_master.play(*args)
+    def play(self, *args, **kwargs):
+        return self.game_master.play(*args, **kwargs)
 
-    def play_round(self, *args):
-        return self.game_master.play_round(*args)
+    def play_round(self, *args, **kwargs):
+        return self.game_master.play_round(*args, **kwargs)
 
-    def play_step(self, *args):
-        return self.game_master.play_step(*args)
+    def play_step(self, *args, **kwargs):
+        return self.game_master.play_step(*args, **kwargs)
 
-    def update_viewers(self, *args):
-        return self.game_master.update_viewers(*args)
+    def update_viewers(self, *args, **kwargs):
+        return self.game_master.update_viewers(*args, **kwargs)
 
     def exit(self):
         raise ExitLoop()
@@ -437,7 +444,8 @@ class SimpleClient(object):
         """ Waits for incoming requests and tries to get a proper
         answer from the player.
         """
-        py_obj = self.socket.recv_pyobj()
+        json_message = self.socket.recv()
+        py_obj = json_converter.loads(json_message)
         uuid_ = py_obj["__uuid__"]
         action = py_obj["__action__"]
         data = py_obj["__data__"]
@@ -448,15 +456,17 @@ class SimpleClient(object):
         # could call anything on this object. This needs to
         # be fixed analogous to the `expose` method in
         # the messaging framework.
-        retval = getattr(self, action)(*data)
+        retval = getattr(self, action)(**data)
 
-        self.socket.send_pyobj({"__uuid__": uuid_, "__return__": retval})
+        message_obj = {"__uuid__": uuid_, "__return__": retval}
+        json_message = json_converter.dumps(message_obj)
+        self.socket.send(json_message)
 
-    def set_initial(self, *args):
-        return self.team.set_initial(*args)
+    def set_initial(self, *args, **kwargs):
+        return self.team.set_initial(*args, **kwargs)
 
-    def get_move(self, *args):
-        return self.team.get_move(*args)
+    def get_move(self, *args, **kwargs):
+        return self.team.get_move(*args, **kwargs)
 
     def exit(self):
         raise ExitLoop()
@@ -471,8 +481,8 @@ class SimpleClient(object):
         return background_process
 
     def autoplay_thread(self):
-        # We cannot use multiprocessing in a local game.
-        # Or that is, we cannot until we also use multiprocessing Queues.
+        # Threading has problems with KeyboardInterrupts but makes it easier
+        # (though not simpler) to share state.
         background_thread = threading.Thread(target=self.run)
         background_thread.start()
         return background_thread
@@ -481,6 +491,14 @@ class SimpleClient(object):
         return "SimpleClient(%r, %r, %r)" % (self.team, self.team_name, self.address)
 
 class SimplePublisher(AbstractViewer):
+    """ Sets up a simple Publisher which sends all viewed events
+    over a zmq connection.
+
+    Parameters
+    ----------
+    address : string
+        The address which the publisher binds.
+    """
     def __init__(self, address):
         self.address = address
         self.context = zmq.Context()
@@ -488,11 +506,80 @@ class SimplePublisher(AbstractViewer):
         self.socket.bind(self.address)
 
     def set_initial(self, universe):
-        as_json = json_converter.dumps({"universe": universe})
+        message = {"__action__": "set_initial",
+                   "__data__": {"universe": universe}}
+        as_json = json_converter.dumps(message)
         self.socket.send(as_json)
 
     def observe(self, universe, game_state):
-        as_json = json_converter.dumps({
-            "universe": universe,
-            "game_state": game_state})
+        message = {"__action__": "observe",
+                   "__data__": {"universe": universe,
+                                "game_state": game_state}}
+        as_json = json_converter.dumps(message)
         self.socket.send(as_json)
+
+class SimpleSubscriber(AbstractViewer):
+    """ Subscribes to a given zmq socket and passes
+    all incoming data to a viewer.
+
+    Parameters
+    ----------
+    viewer : Viewer
+        Viewer with AbstractPlayer-like interface
+    address : string
+        The address of the publisher we want to subscribe to.
+    """
+    def __init__(self, viewer, address):
+        self.viewer = viewer
+        self.address = address
+
+    def on_start(self):
+        self.context = zmq.Context()
+        self.socket = self.context.socket(zmq.SUB)
+        self.socket.setsockopt(zmq.SUBSCRIBE, "")
+        self.socket.connect(self.address)
+
+    def run(self):
+        self.on_start()
+        try:
+            while True:
+                self._loop()
+        except (KeyboardInterrupt, ExitLoop):
+            pass
+
+    def _loop(self):
+        """ Waits for incoming requests and tries to get a proper
+        answer from the player.
+        """
+        data = self.socket.recv()
+        py_obj = json_converter.loads(data)
+
+        action = py_obj.get("__action__")
+        data = py_obj.get("__data__") or {}
+
+        getattr(self, action)(**data)
+
+    def set_initial(self, universe):
+        return self.viewer.set_initial(universe)
+
+    def observe(self, universe, game_state):
+        return self.viewer.observe(universe, game_state)
+
+    def exit(self):
+        raise ExitLoop()
+
+    def autoplay_process(self):
+        # We use a multiprocessing because it behaves well with KeyboardInterrupt.
+        background_process = multiprocessing.Process(target=self.run)
+        background_process.start()
+        return background_process
+
+    def autoplay_thread(self):
+        # Threading has problems with KeyboardInterrupts but makes it easier
+        # (though not simpler) to share state.
+        background_thread = threading.Thread(target=self.run)
+        background_thread.start()
+        return background_thread
+
+    def __repr__(self):
+        return "SimpleSubscriber(%r, %r)" % (self.viewer, self.address)

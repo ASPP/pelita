@@ -2,7 +2,6 @@
 
 """ The controller """
 
-import copy
 import random
 import sys
 import time
@@ -117,8 +116,8 @@ class GameMaster(object):
         """ Call the 'observe' method on all registered viewers.
         """
         for viewer in self.viewers:
-            viewer.observe(self.universe.copy(),
-                           copy.deepcopy(self.game_state))
+            viewer.observe(self.universe,
+                           self.game_state)
 
     def set_initial(self):
         """ This method needs to be called before a game is started.
@@ -126,7 +125,7 @@ class GameMaster(object):
         universes and tells the PlayerTeams what team_id they have.
         """
         for team_id, team in enumerate(self.player_teams):
-            team.set_initial(team_id, self.universe.copy())
+            team.set_initial(team_id, self.universe)
 
         if len(self.player_teams) != len(self.universe.teams):
             raise IndexError(
@@ -134,7 +133,7 @@ class GameMaster(object):
                 % (len(self.player_teams), len(self.universe.teams)))
 
         for viewer in self.viewers:
-            viewer.set_initial(self.universe.copy())
+            viewer.set_initial(self.universe)
 
     # TODO the game winning detection should be refactored
     def play(self):
@@ -229,12 +228,16 @@ class GameMaster(object):
 
         player_team = self.player_teams[bot.team_index]
         try:
-            universe_copy = self.universe.copy()
             if self.noiser:
-                universe_copy = self.noiser.uniform_noise(universe_copy, bot.index)
+                # need to copy before we apply noise to the universe
+                universe = self.noiser.uniform_noise(self.universe.copy(), bot.index)
+            else:
+                universe = self.universe
 
             team_time_begin = time.time()
-            move = player_team.get_move(bot.index, universe_copy)
+
+            move = player_team.get_move(bot.index, universe)
+
             team_time_needed = time.time() - team_time_begin
             self.game_state["team_time"][bot.team_index] += team_time_needed
 

@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from pelita.simplesetup import SimpleClient, SimpleServer
-from pelita.player import SimpleTeam, RandomPlayer
-from pelita.viewer import AsciiViewer
+from pelita.simplesetup import SimpleClient, SimpleServer, SimplePublisher, SimpleSubscriber
+from pelita.player import SimpleTeam, RandomPlayer, TestPlayer
+from pelita.viewer import AsciiViewer, AbstractViewer
+from pelita.datamodel import Free
+from pelita.game_master import GameMaster
 
 class TestSimpleSetup(unittest.TestCase):
     def test_load_layout(self):
@@ -88,6 +90,103 @@ class TestSimpleSetup(unittest.TestCase):
         client2.autoplay_process()
         server.run()
         server.shutdown()
+
+    def test_remote_viewer_may_not_change_gm(self):
+        free_obj = Free
+
+        self.mean_viewer_did_run = False
+        class MeanViewer(AbstractViewer):
+            def set_initial(self, universe):
+                universe.teams[1].score = 50
+
+            def observe(self_, universe, events):
+                self.mean_viewer_did_run = True
+
+                universe.teams[0].score = 100
+                universe.bots[0].current_pos = (4,4)
+                universe.maze[0,0] = free_obj
+
+                events["team_wins"] = 0
+
+        test_start = (
+            """ ######
+                #0 . #
+                #.. 1#
+                ###### """)
+
+        number_bots = 2
+
+        gm = GameMaster(test_start, number_bots, 1)
+        gm.register_team(SimpleTeam(TestPlayer([(0,0)])))
+        gm.register_team(SimpleTeam(TestPlayer([(0,0)])))
+
+        original_universe = gm.universe.copy()
+
+        self.test_viewer_did_run = False
+        test_self = self
+        class TestViewer(AbstractViewer):
+            def observe(self_, universe, events):
+                self.test_viewer_did_run = True
+
+                # universe should not have been altered
+                test_self.assertEqual(original_universe, gm.universe)
+
+                # there should only be a botmoves event
+                test_self.assertEqual(len(events["bot_moved"]), 1)
+                test_self.assertEqual(len(events["bot_moved"]), 1)
+
+        # We need to be able to tell when our subscriber is able to receive
+        # new events from the publisher.
+        # Due to its completely asynchronous approach, zmq does not even
+        # provide built-in methods to check whether two or more sockets
+        # are connected, so we have to figure a way to find out.
+        # The approach is as follows: When the publisher starts, it
+        # sends only ‘sync’ messages without a pause.
+        # When a subscriber is finally connected, it will receive this message and
+        # set an instance variable (`has_sync`). The main thread checks whether
+        # all variables of all subscribers have been set, will stop
+        # sending ‘sync’ and move on.
+        # No special thread synchronisation or locking is being used. The current
+        # code is hopefully simple enough not to include any race conditions.
+
+        class SyncedSubscriber(SimpleSubscriber):
+            def sync(self):
+                self.has_sync = True
+
+        mean_viewer = SyncedSubscriber(MeanViewer(), "ipc:///tmp/pelita-publisher")
+        test_viewer = SyncedSubscriber(TestViewer(), "ipc:///tmp/pelita-publisher")
+
+        # must be threads because we try to access shared state
+        # in the mean_viewer_did_run variable
+        # (and in a bad way)
+        mean_viewer_thread = mean_viewer.autoplay_thread()
+        test_viewer_thread = test_viewer.autoplay_thread()
+
+        publisher_viewer = SimplePublisher("ipc:///tmp/pelita-publisher")
+
+        viewers = [mean_viewer, test_viewer]
+        while not all(getattr(viewer, "has_sync", False) for viewer in viewers):
+            publisher_viewer.socket.send_json({"__action__": "sync"})
+
+        # now we can register it and game_master takes care of sending messages
+        gm.register_viewer(publisher_viewer)
+
+        gm.set_initial()
+        gm.play()
+
+        # exit our threads
+        publisher_viewer.socket.send_json({"__action__": "exit", "__data__": {}})
+
+        # wait until threads stop
+        mean_viewer_thread.join()
+        test_viewer_thread.join()
+
+        self.assertEqual(original_universe, gm.universe)
+
+        # check, that the code was actually executed
+        self.assertTrue(self.mean_viewer_did_run)
+        self.assertTrue(self.test_viewer_did_run)
+
 
 if __name__ == '__main__':
     unittest.main()
