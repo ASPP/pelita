@@ -56,7 +56,7 @@ class SimpleTeam(object):
         self._remote_game = False
         self.remote_game = False
 
-    def set_initial(self, team_id, universe):
+    def set_initial(self, team_id, universe, game_state):
         # only iterate about those player which are in bot_players
         # we might have defined more players than we have received
         # indexes for.
@@ -69,13 +69,13 @@ class SimpleTeam(object):
             # tell the player its index
             player._set_index(bot_id)
             # tell the player about the initial universe
-            player._set_initial(universe)
+            player._set_initial(universe, game_state)
             self._bot_players[bot_id] = player
 
-    def get_move(self, bot_id, universe):
+    def get_move(self, bot_id, universe, game_state):
         """ Requests a move from the Player who controls the Bot with id `bot_id`.
         """
-        return self._bot_players[bot_id]._get_move(universe)
+        return self._bot_players[bot_id]._get_move(universe, game_state)
 
     @property
     def remote_game(self):
@@ -103,7 +103,7 @@ class AbstractPlayer(object):
         """
         self._index = index
 
-    def _set_initial(self, universe):
+    def _set_initial(self, universe, game_state):
         """ Called by SimpleTeam on initialisation.
 
         Parameters
@@ -117,6 +117,7 @@ class AbstractPlayer(object):
         else:
             self._store_universe = self._store_universe_copy
 
+        self.current_state = game_state
         self.universe_states = []
         self._store_universe(universe)
         self.set_initial()
@@ -131,7 +132,7 @@ class AbstractPlayer(object):
     def _store_universe_ref(self, universe):
         self.universe_states.append(universe)
 
-    def _get_move(self, universe):
+    def _get_move(self, universe, game_state):
         """ Called by SimpleTeam to obtain next move.
 
         This will add the universe to the list of universe_states and then call
@@ -143,6 +144,7 @@ class AbstractPlayer(object):
             the universe in its current state.
 
         """
+        self.current_state = game_state
         self._store_universe(universe)
         return self.get_move()
 

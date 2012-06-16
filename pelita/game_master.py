@@ -128,7 +128,7 @@ class GameMaster(object):
         universes and tells the PlayerTeams what team_id they have.
         """
         for team_id, team in enumerate(self.player_teams):
-            team.set_initial(team_id, self.universe)
+            team.set_initial(team_id, self.universe, self.game_state)
 
         if len(self.player_teams) != len(self.universe.teams):
             raise IndexError(
@@ -238,7 +238,7 @@ class GameMaster(object):
 
             team_time_begin = time.time()
 
-            move = player_team.get_move(bot.index, universe)
+            move = player_team.get_move(bot.index, universe, self.game_state)
 
             team_time_needed = time.time() - team_time_begin
             self.game_state["team_time"][bot.team_index] += team_time_needed
