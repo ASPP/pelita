@@ -140,6 +140,10 @@ parser.add_argument('--geometry', type=geometry_string, metavar='NxM',
                     help='initial size of the game window')
 parser.add_argument('--dry-run', const=True, action='store_const',
                     help='load players but do not actually play the game')
+parser.add_argument('--max-timeouts', type=int, default=5,
+                    dest='max_timeouts', help='maximum number of timeouts allowed')
+parser.add_argument('--timeout-length', type=int, default=3,
+                    dest='timeout_length', help='time before timeout')
 
 publisher_opt = parser.add_mutually_exclusive_group()
 publisher_opt.add_argument('--publish', type=str, metavar='URL',
@@ -290,7 +294,9 @@ def run_game(*argv):
                                        layout_filter=args.filter,
                                        rounds=args.rounds,
                                        bind_addrs=(addrs_left, addrs_right),
-                                       initial_delay=initial_delay
+                                       initial_delay=initial_delay,
+                                       max_timeouts=args.max_timeouts,
+                                       timeout_length=args.timeout_length
                                        )
 
     player_clients = []

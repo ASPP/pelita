@@ -542,7 +542,7 @@ class TestGame(unittest.TestCase):
                 ###### """
         )
         # the game lasts one round, and then draws
-        gm = GameMaster(test_start, 2, 100)
+        gm = GameMaster(test_start, 2, 100, max_timeouts=5)
         # players do nothing
         class TimeOutPlayer(AbstractPlayer):
             def get_move(self):
@@ -568,7 +568,8 @@ class TestGame(unittest.TestCase):
         gm.play()
 
         # check
-        self.assertEqual(tv.cache[-1]["round_index"], pelita.game_master.MAX_TIMEOUTS - 1)
+        self.assertEqual(gm.game_state["max_timeouts"], 5)
+        self.assertEqual(tv.cache[-1]["round_index"], gm.game_state["max_timeouts"] - 1)
         self.assertEqual(gm.universe.teams[0].score, 0)
         self.assertEqual(gm.universe.teams[1].score, 0)
         self.assertEqual(gm.universe.bots[0].current_pos, (2,1))
