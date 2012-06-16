@@ -7,6 +7,7 @@ import sys
 import time
 from . import datamodel
 from .graph import NoPathException
+from pelita.datamodel import CTFUniverse, Bot, Food
 from .viewer import AbstractViewer
 from .graph import AdjacencyList
 
@@ -231,8 +232,7 @@ class GameMaster(object):
         player_team = self.player_teams[bot.team_index]
         try:
             if self.noiser:
-                # need to copy before we apply noise to the universe
-                universe = self.noiser.uniform_noise(self.universe.copy(), bot.index)
+                universe = self.noiser.uniform_noise(self.universe, bot.index)
             else:
                 universe = self.universe
 
@@ -414,8 +414,9 @@ class UniverseNoiser(object):
             universe with noisy enemy positions
 
         """
-        bot = universe.bots[bot_index]
-        bots_to_noise = universe.enemy_bots(bot.team_index)
+        universe_copy = CTFUniverse(maze=universe.maze, teams=universe.teams, bots=[Bot._from_json_dict(bot._to_json_dict()) for bot in universe.bots])
+        bot = universe_copy.bots[bot_index]
+        bots_to_noise = universe_copy.enemy_bots(bot.team_index)
         for b in bots_to_noise:
             # Check that the distance between this bot and the enemy is larger
             # than `sight_distance`.
@@ -431,5 +432,5 @@ class UniverseNoiser(object):
                     self.noise_radius))
                 b.current_pos = random.choice(possible_positions)
                 b.noisy = True
-        return universe
+        return universe_copy
 
