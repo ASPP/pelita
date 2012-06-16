@@ -327,6 +327,32 @@ class TestMaze(unittest.TestCase):
         maze.remove_at(Food, (1, 0))
         self.assertEqual(list(maze[1, 0]), [])
 
+    def test_pos_of(self):
+        maze = Maze(2, 1, data=["#", " ."])
+        self.assertEqual([(0,0)], maze.pos_of(Wall))
+        self.assertEqual([(1,0)], maze.pos_of(Food))
+        test_layout3 = (
+        """ ##################
+            # #.  .  # .     #
+            # #####    ##### #
+            #     . #  .  .# #
+            ################## """)
+        data = [l.strip() for l in test_layout3.split('\n')]
+        data = reduce(lambda x,y: x + y, data)
+        data = [d for d in data]
+        maze = Maze(18, 5, data=data)
+        walls = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8,
+            0), (9, 0), (10, 0), (11, 0), (12, 0), (13, 0), (14, 0), (15, 0),
+            (16, 0), (17, 0), (0, 1), (2, 1), (9, 1), (17, 1), (0, 2), (2, 2),
+            (3, 2), (4, 2), (5, 2), (6, 2), (11, 2), (12, 2), (13, 2), (14, 2),
+            (15, 2), (17, 2), (0, 3), (8, 3), (15, 3), (17, 3), (0, 4), (1, 4),
+            (2, 4), (3, 4), (4, 4), (5, 4), (6, 4), (7, 4), (8, 4), (9, 4),
+            (10, 4), (11, 4), (12, 4), (13, 4), (14, 4), (15, 4), (16, 4), (17,
+                4)]
+        foods = [(3, 1), (6, 1), (11, 1), (6, 3), (11, 3), (14, 3)]
+        self.assertEqual(walls, maze.pos_of(Wall))
+        self.assertEqual(foods, maze.pos_of(Food))
+
     def test_positions(self):
         maze = Maze(5, 5)
         self.assertEqual([(x, y) for y in range(5) for x in range(5)],
