@@ -7,7 +7,7 @@ import sys
 import time
 from . import datamodel
 from .graph import NoPathException
-from pelita.datamodel import CTFUniverse, Bot, Food, Wall, Free
+from pelita.datamodel import CTFUniverse, Bot, Food, Wall, Free, manhattan_dist
 from .viewer import AbstractViewer
 from .graph import AdjacencyList
 
@@ -461,10 +461,12 @@ class ManhattanNoiser(UniverseNoiser):
 
     def alter_pos(self, bot_pos):
         # get a list of possible positions
-        possible_positions = [(i,j) for i in range(bot_pos[0] - self.noise_radius,
-                                                   bot_pos[0] + self.noise_radius)
-                                    for j in range(bot_pos[1] - self.noise_radius,
-                                                   bot_pos[1] + self.noise_radius)]
+        noise_radius = self.noise_radius
+        x_min, x_max = bot_pos[0] - noise_radius, bot_pos[0] + noise_radius
+        y_min, y_max = bot_pos[1] - noise_radius, bot_pos[1] + noise_radius
+        possible_positions = [(i,j) for i in range(x_min, x_max)
+                                    for j in range(y_min, y_max)
+                              if manhattan_dist((i,j), bot_pos) <= noise_radius] 
 
         random.shuffle(possible_positions)
         for pos in possible_positions:
