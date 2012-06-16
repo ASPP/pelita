@@ -13,9 +13,10 @@ pelita.simplesetup.SimpleServer
       :nosignatures:
    
       ~SimpleServer.__init__
-      ~SimpleServer.run_simple
-      ~SimpleServer.run_tk
-      ~SimpleServer.stop
+      ~SimpleServer.exit_teams
+      ~SimpleServer.register_teams
+      ~SimpleServer.run
+      ~SimpleServer.shutdown
    
 
    

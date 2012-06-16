@@ -1,0 +1,6 @@
+pelita.simplesetup.ZMQConnection.recv_timeout
+=============================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: ZMQConnection.recv_timeout

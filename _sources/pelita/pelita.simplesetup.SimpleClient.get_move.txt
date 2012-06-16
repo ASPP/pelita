@@ -1,0 +1,6 @@
+pelita.simplesetup.SimpleClient.get_move
+========================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: SimpleClient.get_move

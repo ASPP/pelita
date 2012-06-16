@@ -82,11 +82,10 @@ Accessing ``pelita.datamodel``
     Team
     Maze
 
-.. rubric:: MazeComponents
+.. rubric:: Maze components
 
 .. autosummary::
 
-    MazeComponent
     Wall
     Free
     Food

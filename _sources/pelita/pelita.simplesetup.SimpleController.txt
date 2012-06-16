@@ -1,0 +1,26 @@
+pelita.simplesetup.SimpleController
+===================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. autoclass:: SimpleController
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~SimpleController.__init__
+      ~SimpleController.exit
+      ~SimpleController.on_start
+      ~SimpleController.play
+      ~SimpleController.play_round
+      ~SimpleController.play_step
+      ~SimpleController.run
+      ~SimpleController.set_initial
+      ~SimpleController.update_viewers
+   
+
+   

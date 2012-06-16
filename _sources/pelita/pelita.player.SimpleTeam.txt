@@ -13,6 +13,8 @@ pelita.player.SimpleTeam
       :nosignatures:
    
       ~SimpleTeam.__init__
+      ~SimpleTeam.get_move
+      ~SimpleTeam.set_initial
    
 
    

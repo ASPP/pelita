@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.player.SimpleTeam &mdash; Pelita v0.1.1-35-g568088e documentation</title>
+    <title>pelita.player.SimpleTeam &mdash; Pelita v0.1.1-175-g7306988 documentation</title>
     
     <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.1.1-35-g568088e',
+        VERSION:     'v0.1.1-175-g7306988',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.1-35-g568088e documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.1.1-175-g7306988 documentation" href="../index.html" />
     <link rel="up" title="pelita.player" href="pelita.player.html" />
     <link rel="next" title="pelita.player.SimpleTeam.__init__" href="pelita.player.SimpleTeam.__init__.html" />
     <link rel="prev" title="pelita.player.RoundBasedPlayer.team_bots" href="pelita.player.RoundBasedPlayer.team_bots.html" /> 
@@ -49,7 +49,7 @@
         <li class="right" >
           <a href="pelita.player.RoundBasedPlayer.team_bots.html" title="pelita.player.RoundBasedPlayer.team_bots"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-35-g568088e documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li>
           <li><a href="pelita.player.html" accesskey="U">pelita.player</a> &raquo;</li> 
       </ul>
@@ -66,8 +66,11 @@
 <dt id="pelita.player.SimpleTeam">
 <em class="property">class </em><tt class="descclassname">pelita.player.</tt><tt class="descname">SimpleTeam</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#pelita.player.SimpleTeam" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Simple class used to register an arbitrary number of Players.</p>
+<p>Simple class used to register an arbitrary number of (Abstract-)Players.</p>
 <p>Each Player is used to control a Bot in the Universe.</p>
+<p>SimpleTeam transforms the <a class="reference internal" href="pelita.player.SimpleTeam.set_initial.html#pelita.player.SimpleTeam.set_initial" title="pelita.player.SimpleTeam.set_initial"><tt class="xref py py-obj docutils literal"><span class="pre">set_initial</span></tt></a> and <a class="reference internal" href="pelita.player.SimpleTeam.get_move.html#pelita.player.SimpleTeam.get_move" title="pelita.player.SimpleTeam.get_move"><tt class="xref py py-obj docutils literal"><span class="pre">get_move</span></tt></a> messages
+from the GameMaster into <tt class="xref py py-obj docutils literal"><span class="pre">_set_index</span></tt>, <tt class="xref py py-obj docutils literal"><span class="pre">_set_initial</span></tt> and <tt class="xref py py-obj docutils literal"><span class="pre">_get_move</span></tt>
+messages on the Player.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -92,6 +95,12 @@
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="pelita.player.SimpleTeam.__init__.html#pelita.player.SimpleTeam.__init__" title="pelita.player.SimpleTeam.__init__"><tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.player.SimpleTeam.get_move.html#pelita.player.SimpleTeam.get_move" title="pelita.player.SimpleTeam.get_move"><tt class="xref py py-obj docutils literal"><span class="pre">get_move</span></tt></a></td>
+<td>Requests a move from the Player who controls the Bot with id <tt class="xref py py-obj docutils literal"><span class="pre">bot_id</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.player.SimpleTeam.set_initial.html#pelita.player.SimpleTeam.set_initial" title="pelita.player.SimpleTeam.set_initial"><tt class="xref py py-obj docutils literal"><span class="pre">set_initial</span></tt></a></td>
 <td></td>
 </tr>
 </tbody>
@@ -156,14 +165,14 @@
         <li class="right" >
           <a href="pelita.player.RoundBasedPlayer.team_bots.html" title="pelita.player.RoundBasedPlayer.team_bots"
              >previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-35-g568088e documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li>
           <li><a href="pelita.player.html" >pelita.player</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2012, Valentin Haenel, Rike-Benjamin Shuppner et. al..
-      Last updated on May 28, 2012.
+      Last updated on Jun 16, 2012.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
     </div>
   </body>

@@ -1,0 +1,6 @@
+pelita.viewer.ProgressViewer.set_initial
+========================================
+
+.. currentmodule:: pelita.viewer
+
+.. automethod:: ProgressViewer.set_initial

@@ -1,0 +1,6 @@
+pelita.simplesetup.SimpleServer.run
+===================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: SimpleServer.run

@@ -1,0 +1,6 @@
+pelita.simplesetup.SimpleClient.on_start
+========================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: SimpleClient.on_start

@@ -1,6 +1,0 @@
-pelita.datamodel.GameDraw.__init__
-==================================
-
-.. currentmodule:: pelita.datamodel
-
-.. automethod:: GameDraw.__init__

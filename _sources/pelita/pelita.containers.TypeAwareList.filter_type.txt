@@ -1,6 +1,0 @@
-pelita.containers.TypeAwareList.filter_type
-===========================================
-
-.. currentmodule:: pelita.containers
-
-.. automethod:: TypeAwareList.filter_type

@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Writing a Player &mdash; Pelita v0.1.1-35-g568088e documentation</title>
+    <title>Writing a Player &mdash; Pelita v0.1.1-175-g7306988 documentation</title>
     
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.1.1-35-g568088e',
+        VERSION:     'v0.1.1-175-g7306988',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.1-35-g568088e documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.1.1-175-g7306988 documentation" href="index.html" />
     <link rel="next" title="Running Players" href="running_player.html" />
     <link rel="prev" title="Project Information" href="info.html" /> 
   </head>
@@ -48,7 +48,7 @@
         <li class="right" >
           <a href="info.html" title="Project Information"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita v0.1.1-35-g568088e documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -145,7 +145,6 @@ method <tt class="docutils literal"><span class="pre">get_move()</span></tt> to 
 which simply returns <tt class="docutils literal"><span class="pre">stop</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">StoppingPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A Player that just stands still. &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span>
 </pre></div>
@@ -450,16 +449,19 @@ alternative existing package such as <a class="reference external" href="http://
 </div>
 <p>In order to obtain the positions of all free spaces, the
 <a class="reference internal" href="pelita/pelita.datamodel.Maze.html#pelita.datamodel.Maze" title="pelita.datamodel.Maze"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.datamodel.Maze</span></tt></a> class provides the function
-<a class="reference internal" href="pelita/pelita.datamodel.Maze.pos_of.html#pelita.datamodel.Maze.pos_of" title="pelita.datamodel.Maze.pos_of"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.datamodel.Maze.pos_of</span></tt></a>. The type of the argument is of type
-<a class="reference internal" href="pelita/pelita.datamodel.MazeComponent.html#pelita.datamodel.MazeComponent" title="pelita.datamodel.MazeComponent"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.datamodel.MazeComponent</span></tt></a> (but it&#8217;s a class, not an instance). There are
-three <tt class="docutils literal"><span class="pre">MazeComponent</span></tt> classes available in <tt class="docutils literal"><span class="pre">pelita.datamodel</span></tt>: <tt class="docutils literal"><span class="pre">Wall</span></tt>,
-<tt class="docutils literal"><span class="pre">Free</span></tt>, <tt class="docutils literal"><span class="pre">Food</span></tt>. Then, we use the method <tt class="docutils literal"><span class="pre">get_legal_moves(pos).values()</span></tt>
-to obtain the adjacent free spaces, for each of the free positions.  The last
-step is to use the <tt class="docutils literal"><span class="pre">update</span></tt> method to set the generated dictionary, which we
-can do, since <tt class="docutils literal"><span class="pre">AdjacencyList</span></tt> inherits from <tt class="docutils literal"><span class="pre">dict</span></tt>.</p>
+<a class="reference internal" href="pelita/pelita.datamodel.Maze.pos_of.html#pelita.datamodel.Maze.pos_of" title="pelita.datamodel.Maze.pos_of"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.datamodel.Maze.pos_of</span></tt></a>. A maze can hold three different components at
+each position, all of them available in <tt class="docutils literal"><span class="pre">pelita.datamodel</span></tt>: <tt class="docutils literal"><span class="pre">Wall</span></tt>,
+<tt class="docutils literal"><span class="pre">Free</span></tt>, <tt class="docutils literal"><span class="pre">Food</span></tt>. We thus can get a list of all positions by calling:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">maze</span><span class="o">.</span><span class="n">pos_of</span><span class="p">(</span><span class="n">Free</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then, we use the method <tt class="docutils literal"><span class="pre">get_legal_moves(pos).values()</span></tt> to obtain the
+adjacent free spaces, for each of the free positions.  The last step is to use
+the <tt class="docutils literal"><span class="pre">update</span></tt> method to set the generated dictionary, which we can do, since
+<tt class="docutils literal"><span class="pre">AdjacencyList</span></tt> inherits from <tt class="docutils literal"><span class="pre">dict</span></tt>.</p>
 <p>In addition to <tt class="docutils literal"><span class="pre">pos_of</span></tt>, there are a few additional constructs that are
 useful when dealing with the maze. The property <tt class="docutils literal"><span class="pre">positions</span></tt> gives all the
-positions in the maze. To check if a given <tt class="docutils literal"><span class="pre">MazeComponent</span></tt> is at a certain
+positions in the maze. To check if a given maze component is at a certain
 position use the <tt class="docutils literal"><span class="pre">in</span></tt> operator:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">Free</span> <span class="ow">in</span> <span class="n">maze</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
 </pre></div>
@@ -813,12 +815,12 @@ respective <tt class="docutils literal"><span class="pre">Team</span></tt> insta
         <li class="right" >
           <a href="info.html" title="Project Information"
              >previous</a> |</li>
-        <li><a href="index.html">Pelita v0.1.1-35-g568088e documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2012, Valentin Haenel, Rike-Benjamin Shuppner et. al..
-      Last updated on May 28, 2012.
+      Last updated on Jun 16, 2012.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
     </div>
   </body>

@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.datamodel.Maze &mdash; Pelita v0.1.1-35-g568088e documentation</title>
+    <title>pelita.datamodel.Maze &mdash; Pelita v0.1.1-175-g7306988 documentation</title>
     
     <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.1.1-35-g568088e',
+        VERSION:     'v0.1.1-175-g7306988',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,10 +25,10 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.1-35-g568088e documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.1.1-175-g7306988 documentation" href="../index.html" />
     <link rel="up" title="pelita.datamodel" href="pelita.datamodel.html" />
     <link rel="next" title="pelita.datamodel.Maze.__init__" href="pelita.datamodel.Maze.__init__.html" />
-    <link rel="prev" title="pelita.datamodel.GameDraw.__init__" href="pelita.datamodel.GameDraw.__init__.html" /> 
+    <link rel="prev" title="pelita.datamodel.CTFUniverse.pretty" href="pelita.datamodel.CTFUniverse.pretty.html" /> 
   </head>
   <body>
     <div class="related">
@@ -47,9 +47,9 @@
           <a href="pelita.datamodel.Maze.__init__.html" title="pelita.datamodel.Maze.__init__"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="pelita.datamodel.GameDraw.__init__.html" title="pelita.datamodel.GameDraw.__init__"
+          <a href="pelita.datamodel.CTFUniverse.pretty.html" title="pelita.datamodel.CTFUniverse.pretty"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-35-g568088e documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li>
           <li><a href="pelita.datamodel.html" accesskey="U">pelita.datamodel</a> &raquo;</li> 
       </ul>
@@ -66,12 +66,12 @@
 <dt id="pelita.datamodel.Maze">
 <em class="property">class </em><tt class="descclassname">pelita.datamodel.</tt><tt class="descname">Maze</tt><big>(</big><em>width</em>, <em>height</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#pelita.datamodel.Maze" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pelita.containers.Mesh.html#pelita.containers.Mesh" title="pelita.containers.Mesh"><tt class="xref py py-class docutils literal"><span class="pre">pelita.containers.Mesh</span></tt></a></p>
-<p>A Mesh of strings of MazeComponent representations.</p>
+<p>A Mesh of strings of maze component representations.</p>
 <p>This is a container class to represent a game maze. It is a two-dimensional
-structure (Mesh) which contains a representation of MazeComponents at
-each position. Internally this is implemented using sequences of
-characters, i.e. strings. At each position we store the characters
-corresponding to the maze components at this position.</p>
+structure (Mesh) which contains a representation of maze components at each
+position. This is implemented using sequences of characters, i.e. strings.
+At each position we store the characters corresponding to the maze
+components at this position.</p>
 <p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -89,33 +89,30 @@ corresponding to the maze components at this position.</p>
 <td></td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.Maze.get_at.html#pelita.datamodel.Maze.get_at" title="pelita.datamodel.Maze.get_at"><tt class="xref py py-obj docutils literal"><span class="pre">get_at</span></tt></a></td>
-<td>Get all objects of a given type at certain position.</td>
+<td>Get all objects of a given char representation at certain position.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.Maze.has_at.html#pelita.datamodel.Maze.has_at" title="pelita.datamodel.Maze.has_at"><tt class="xref py py-obj docutils literal"><span class="pre">has_at</span></tt></a></td>
-<td>Check if objects of a given type are present at position.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.Maze.items.html#pelita.datamodel.Maze.items" title="pelita.datamodel.Maze.items"><tt class="xref py py-obj docutils literal"><span class="pre">items</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.Maze.items.html#pelita.datamodel.Maze.items" title="pelita.datamodel.Maze.items"><tt class="xref py py-obj docutils literal"><span class="pre">items</span></tt></a></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.Maze.iteritems.html#pelita.datamodel.Maze.iteritems" title="pelita.datamodel.Maze.iteritems"><tt class="xref py py-obj docutils literal"><span class="pre">iteritems</span></tt></a></td>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.Maze.iteritems.html#pelita.datamodel.Maze.iteritems" title="pelita.datamodel.Maze.iteritems"><tt class="xref py py-obj docutils literal"><span class="pre">iteritems</span></tt></a></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.Maze.iterkeys.html#pelita.datamodel.Maze.iterkeys" title="pelita.datamodel.Maze.iterkeys"><tt class="xref py py-obj docutils literal"><span class="pre">iterkeys</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.Maze.iterkeys.html#pelita.datamodel.Maze.iterkeys" title="pelita.datamodel.Maze.iterkeys"><tt class="xref py py-obj docutils literal"><span class="pre">iterkeys</span></tt></a></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.Maze.itervalues.html#pelita.datamodel.Maze.itervalues" title="pelita.datamodel.Maze.itervalues"><tt class="xref py py-obj docutils literal"><span class="pre">itervalues</span></tt></a></td>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.Maze.itervalues.html#pelita.datamodel.Maze.itervalues" title="pelita.datamodel.Maze.itervalues"><tt class="xref py py-obj docutils literal"><span class="pre">itervalues</span></tt></a></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.Maze.keys.html#pelita.datamodel.Maze.keys" title="pelita.datamodel.Maze.keys"><tt class="xref py py-obj docutils literal"><span class="pre">keys</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.Maze.keys.html#pelita.datamodel.Maze.keys" title="pelita.datamodel.Maze.keys"><tt class="xref py py-obj docutils literal"><span class="pre">keys</span></tt></a></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.Maze.pos_of.html#pelita.datamodel.Maze.pos_of" title="pelita.datamodel.Maze.pos_of"><tt class="xref py py-obj docutils literal"><span class="pre">pos_of</span></tt></a></td>
-<td>The indices of positions which have a MazeComponent.</td>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.Maze.pos_of.html#pelita.datamodel.Maze.pos_of" title="pelita.datamodel.Maze.pos_of"><tt class="xref py py-obj docutils literal"><span class="pre">pos_of</span></tt></a></td>
+<td>The indices of positions which have a maze component.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.Maze.remove_at.html#pelita.datamodel.Maze.remove_at" title="pelita.datamodel.Maze.remove_at"><tt class="xref py py-obj docutils literal"><span class="pre">remove_at</span></tt></a></td>
-<td>Remove all objects of a given type at a certain position.</td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.Maze.remove_at.html#pelita.datamodel.Maze.remove_at" title="pelita.datamodel.Maze.remove_at"><tt class="xref py py-obj docutils literal"><span class="pre">remove_at</span></tt></a></td>
+<td>Remove all objects of a given char representation at a certain position.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.Maze.values.html#pelita.datamodel.Maze.values" title="pelita.datamodel.Maze.values"><tt class="xref py py-obj docutils literal"><span class="pre">values</span></tt></a></td>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.Maze.values.html#pelita.datamodel.Maze.values" title="pelita.datamodel.Maze.values"><tt class="xref py py-obj docutils literal"><span class="pre">values</span></tt></a></td>
 <td></td>
 </tr>
 </tbody>
@@ -196,16 +193,16 @@ corresponding to the maze components at this position.</p>
           <a href="pelita.datamodel.Maze.__init__.html" title="pelita.datamodel.Maze.__init__"
              >next</a> |</li>
         <li class="right" >
-          <a href="pelita.datamodel.GameDraw.__init__.html" title="pelita.datamodel.GameDraw.__init__"
+          <a href="pelita.datamodel.CTFUniverse.pretty.html" title="pelita.datamodel.CTFUniverse.pretty"
              >previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-35-g568088e documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li>
           <li><a href="pelita.datamodel.html" >pelita.datamodel</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2012, Valentin Haenel, Rike-Benjamin Shuppner et. al..
-      Last updated on May 28, 2012.
+      Last updated on Jun 16, 2012.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
     </div>
   </body>

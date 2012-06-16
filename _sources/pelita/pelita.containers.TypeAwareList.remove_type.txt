@@ -1,6 +1,0 @@
-pelita.containers.TypeAwareList.remove_type
-===========================================
-
-.. currentmodule:: pelita.containers
-
-.. automethod:: TypeAwareList.remove_type

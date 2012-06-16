@@ -1,6 +1,0 @@
-pelita.containers.TypeAwareList.pop
-===================================
-
-.. currentmodule:: pelita.containers
-
-.. automethod:: TypeAwareList.pop

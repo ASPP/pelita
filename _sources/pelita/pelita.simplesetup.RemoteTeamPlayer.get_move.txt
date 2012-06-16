@@ -1,0 +1,6 @@
+pelita.simplesetup.RemoteTeamPlayer.get_move
+============================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: RemoteTeamPlayer.get_move

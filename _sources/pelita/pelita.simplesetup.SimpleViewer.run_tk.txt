@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleViewer.run_tk
-======================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleViewer.run_tk

@@ -1,0 +1,6 @@
+pelita.simplesetup.SimpleController.play_round
+==============================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: SimpleController.play_round

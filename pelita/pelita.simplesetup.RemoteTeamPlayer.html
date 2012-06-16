@@ -1,0 +1,177 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pelita.simplesetup.RemoteTeamPlayer &mdash; Pelita v0.1.1-175-g7306988 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'v0.1.1-175-g7306988',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Pelita v0.1.1-175-g7306988 documentation" href="../index.html" />
+    <link rel="up" title="pelita.simplesetup" href="pelita.simplesetup.html" />
+    <link rel="next" title="pelita.simplesetup.RemoteTeamPlayer.__init__" href="pelita.simplesetup.RemoteTeamPlayer.__init__.html" />
+    <link rel="prev" title="pelita.simplesetup.ZMQTimeout" href="pelita.simplesetup.ZMQTimeout.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pelita.simplesetup.RemoteTeamPlayer.__init__.html" title="pelita.simplesetup.RemoteTeamPlayer.__init__"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pelita.simplesetup.ZMQTimeout.html" title="pelita.simplesetup.ZMQTimeout"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API reference</a> &raquo;</li>
+          <li><a href="pelita.simplesetup.html" accesskey="U">pelita.simplesetup</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pelita-simplesetup-remoteteamplayer">
+<h1>pelita.simplesetup.RemoteTeamPlayer<a class="headerlink" href="#pelita-simplesetup-remoteteamplayer" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pelita.simplesetup.RemoteTeamPlayer">
+<em class="property">class </em><tt class="descclassname">pelita.simplesetup.</tt><tt class="descname">RemoteTeamPlayer</tt><big>(</big><em>socket</em><big>)</big><a class="headerlink" href="#pelita.simplesetup.RemoteTeamPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>This class is registered server-side with the GameMaster
+and sends all requests to the attached zmq socket (to which
+a client player has connected.)</p>
+<p>It also does some basic checks for correct return values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>socket</strong> : zmq socket</p>
+<blockquote class="last">
+<div><p>The zmq socket of this connection</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.RemoteTeamPlayer.__init__.html#pelita.simplesetup.RemoteTeamPlayer.__init__" title="pelita.simplesetup.RemoteTeamPlayer.__init__"><tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.RemoteTeamPlayer.get_move.html#pelita.simplesetup.RemoteTeamPlayer.get_move" title="pelita.simplesetup.RemoteTeamPlayer.get_move"><tt class="xref py py-obj docutils literal"><span class="pre">get_move</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.RemoteTeamPlayer.set_initial.html#pelita.simplesetup.RemoteTeamPlayer.set_initial" title="pelita.simplesetup.RemoteTeamPlayer.set_initial"><tt class="xref py py-obj docutils literal"><span class="pre">set_initial</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.RemoteTeamPlayer.team_name.html#pelita.simplesetup.RemoteTeamPlayer.team_name" title="pelita.simplesetup.RemoteTeamPlayer.team_name"><tt class="xref py py-obj docutils literal"><span class="pre">team_name</span></tt></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running_player.html">Running Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-api.html">User API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/pelita/pelita.simplesetup.RemoteTeamPlayer.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pelita.simplesetup.RemoteTeamPlayer.__init__.html" title="pelita.simplesetup.RemoteTeamPlayer.__init__"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pelita.simplesetup.ZMQTimeout.html" title="pelita.simplesetup.ZMQTimeout"
+             >previous</a> |</li>
+        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API reference</a> &raquo;</li>
+          <li><a href="pelita.simplesetup.html" >pelita.simplesetup</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Valentin Haenel, Rike-Benjamin Shuppner et. al..
+      Last updated on Jun 16, 2012.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
+    </div>
+  </body>
+</html>

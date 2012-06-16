@@ -1,6 +1,0 @@
-pelita.datamodel.Food.char
-==========================
-
-.. currentmodule:: pelita.datamodel
-
-.. autoattribute:: Food.char

@@ -4,14 +4,6 @@ pelita.simplesetup
 .. automodule:: pelita.simplesetup
 
    
-   .. rubric:: Functions
-
-   .. autosummary::
-      :toctree:
-      :nosignatures:
-   
-      ~auto_connect
-   
 
    
    .. rubric:: Classes
@@ -20,9 +12,23 @@ pelita.simplesetup
       :toctree:
       :nosignatures:
    
+      ~RemoteTeamPlayer
       ~SimpleClient
+      ~SimpleController
+      ~SimplePublisher
       ~SimpleServer
-      ~SimpleViewer
+      ~SimpleSubscriber
+      ~ZMQConnection
    
 
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~ExitLoop
+      ~UnknownMessageId
+      ~ZMQTimeout
    

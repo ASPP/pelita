@@ -1,6 +1,0 @@
-pelita.datamodel.Free.char
-==========================
-
-.. currentmodule:: pelita.datamodel
-
-.. autoattribute:: Free.char

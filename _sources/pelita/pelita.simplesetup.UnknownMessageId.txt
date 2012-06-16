@@ -1,0 +1,6 @@
+pelita.simplesetup.UnknownMessageId
+===================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. autoexception:: UnknownMessageId

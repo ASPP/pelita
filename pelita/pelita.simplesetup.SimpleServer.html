@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.simplesetup.SimpleServer &mdash; Pelita v0.1.1-35-g568088e documentation</title>
+    <title>pelita.simplesetup.SimpleServer &mdash; Pelita v0.1.1-175-g7306988 documentation</title>
     
     <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.1.1-35-g568088e',
+        VERSION:     'v0.1.1-175-g7306988',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,10 +25,10 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.1-35-g568088e documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.1.1-175-g7306988 documentation" href="../index.html" />
     <link rel="up" title="pelita.simplesetup" href="pelita.simplesetup.html" />
     <link rel="next" title="pelita.simplesetup.SimpleServer.__init__" href="pelita.simplesetup.SimpleServer.__init__.html" />
-    <link rel="prev" title="pelita.simplesetup.SimpleClient.autoplay_thread" href="pelita.simplesetup.SimpleClient.autoplay_thread.html" /> 
+    <link rel="prev" title="pelita.simplesetup.SimplePublisher.set_initial" href="pelita.simplesetup.SimplePublisher.set_initial.html" /> 
   </head>
   <body>
     <div class="related">
@@ -47,9 +47,9 @@
           <a href="pelita.simplesetup.SimpleServer.__init__.html" title="pelita.simplesetup.SimpleServer.__init__"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="pelita.simplesetup.SimpleClient.autoplay_thread.html" title="pelita.simplesetup.SimpleClient.autoplay_thread"
+          <a href="pelita.simplesetup.SimplePublisher.set_initial.html" title="pelita.simplesetup.SimplePublisher.set_initial"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-35-g568088e documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li>
           <li><a href="pelita.simplesetup.html" accesskey="U">pelita.simplesetup</a> &raquo;</li> 
       </ul>
@@ -64,7 +64,7 @@
 <h1>pelita.simplesetup.SimpleServer<a class="headerlink" href="#pelita-simplesetup-simpleserver" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pelita.simplesetup.SimpleServer">
-<em class="property">class </em><tt class="descclassname">pelita.simplesetup.</tt><tt class="descname">SimpleServer</tt><big>(</big><em>layout_string=None</em>, <em>layout_name=None</em>, <em>layout_file=None</em>, <em>layout_filter='normal_without_dead_ends'</em>, <em>players=4</em>, <em>rounds=3000</em>, <em>host=''</em>, <em>port=50007</em>, <em>local=True</em>, <em>silent=True</em>, <em>dump_to_file=None</em><big>)</big><a class="headerlink" href="#pelita.simplesetup.SimpleServer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pelita.simplesetup.</tt><tt class="descname">SimpleServer</tt><big>(</big><em>layout_string=None</em>, <em>layout_name=None</em>, <em>layout_file=None</em>, <em>layout_filter='normal_without_dead_ends'</em>, <em>teams=2</em>, <em>players=4</em>, <em>rounds=3000</em>, <em>bind_addrs='tcp://*'</em>, <em>initial_delay=0.0</em><big>)</big><a class="headerlink" href="#pelita.simplesetup.SimpleServer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Sets up a simple Server with most settings pre-configured.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -87,6 +87,10 @@
 <blockquote>
 <div><p>A filter to restrict the pool of random layouts</p>
 </div></blockquote>
+<p><strong>teams</strong> : int, optional</p>
+<blockquote>
+<div><p>The number of Teams used in the layout. Default: 2.</p>
+</div></blockquote>
 <p><strong>players</strong> : int, optional</p>
 <blockquote>
 <div><p>The number of Players/Bots used in the layout. Default: 4.</p>
@@ -95,17 +99,13 @@
 <blockquote>
 <div><p>The number of rounds played. Default: 3000.</p>
 </div></blockquote>
-<p><strong>host</strong> : string, optional</p>
+<p><strong>bind_addrs</strong> : string or tuple, optional</p>
 <blockquote>
-<div><p>The hostname which the server runs on. Default: &#8220;&#8221;.</p>
+<div><p>The address(es) which this server uses for its connections. Default: &#8220;<a class="reference external" href="tcp://">tcp://</a><a href="#id1"><span class="problematic" id="id2">*</span></a>&#8221;.</p>
 </div></blockquote>
-<p><strong>port</strong> : int, optional</p>
+<p><strong>initial_delay</strong> : float</p>
 <blockquote>
-<div><p>The port which the server runs on. Default: 50007.</p>
-</div></blockquote>
-<p><strong>local</strong> : boolean, optional</p>
-<blockquote>
-<div><p>If True, we only setup a local server. Default: True.</p>
+<div><p>Delays the start of the game by <tt class="xref py py-obj docutils literal"><span class="pre">initial_delay</span></tt> seconds.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -131,14 +131,17 @@
 <tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.SimpleServer.__init__.html#pelita.simplesetup.SimpleServer.__init__" title="pelita.simplesetup.SimpleServer.__init__"><tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt></a></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.SimpleServer.run_simple.html#pelita.simplesetup.SimpleServer.run_simple" title="pelita.simplesetup.SimpleServer.run_simple"><tt class="xref py py-obj docutils literal"><span class="pre">run_simple</span></tt></a></td>
-<td>Starts a game with the ASCII viewer.</td>
+<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.SimpleServer.exit_teams.html#pelita.simplesetup.SimpleServer.exit_teams" title="pelita.simplesetup.SimpleServer.exit_teams"><tt class="xref py py-obj docutils literal"><span class="pre">exit_teams</span></tt></a></td>
+<td></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.SimpleServer.run_tk.html#pelita.simplesetup.SimpleServer.run_tk" title="pelita.simplesetup.SimpleServer.run_tk"><tt class="xref py py-obj docutils literal"><span class="pre">run_tk</span></tt></a></td>
-<td>Starts a game with the Tk viewer.</td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.SimpleServer.register_teams.html#pelita.simplesetup.SimpleServer.register_teams" title="pelita.simplesetup.SimpleServer.register_teams"><tt class="xref py py-obj docutils literal"><span class="pre">register_teams</span></tt></a></td>
+<td></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.SimpleServer.stop.html#pelita.simplesetup.SimpleServer.stop" title="pelita.simplesetup.SimpleServer.stop"><tt class="xref py py-obj docutils literal"><span class="pre">stop</span></tt></a></td>
-<td>Stops the server.</td>
+<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.SimpleServer.run.html#pelita.simplesetup.SimpleServer.run" title="pelita.simplesetup.SimpleServer.run"><tt class="xref py py-obj docutils literal"><span class="pre">run</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.SimpleServer.shutdown.html#pelita.simplesetup.SimpleServer.shutdown" title="pelita.simplesetup.SimpleServer.shutdown"><tt class="xref py py-obj docutils literal"><span class="pre">shutdown</span></tt></a></td>
+<td>Closes the sockets.</td>
 </tr>
 </tbody>
 </table>
@@ -200,16 +203,16 @@
           <a href="pelita.simplesetup.SimpleServer.__init__.html" title="pelita.simplesetup.SimpleServer.__init__"
              >next</a> |</li>
         <li class="right" >
-          <a href="pelita.simplesetup.SimpleClient.autoplay_thread.html" title="pelita.simplesetup.SimpleClient.autoplay_thread"
+          <a href="pelita.simplesetup.SimplePublisher.set_initial.html" title="pelita.simplesetup.SimplePublisher.set_initial"
              >previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-35-g568088e documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li>
           <li><a href="pelita.simplesetup.html" >pelita.simplesetup</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2012, Valentin Haenel, Rike-Benjamin Shuppner et. al..
-      Last updated on May 28, 2012.
+      Last updated on Jun 16, 2012.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
     </div>
   </body>

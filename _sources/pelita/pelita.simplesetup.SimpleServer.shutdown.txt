@@ -1,0 +1,6 @@
+pelita.simplesetup.SimpleServer.shutdown
+========================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: SimpleServer.shutdown

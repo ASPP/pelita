@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.game_master.GameMaster.set_initial &mdash; Pelita v0.1.1-35-g568088e documentation</title>
+    <title>pelita.game_master.GameMaster.set_initial &mdash; Pelita v0.1.1-175-g7306988 documentation</title>
     
     <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.1.1-35-g568088e',
+        VERSION:     'v0.1.1-175-g7306988',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,10 +25,10 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.1-35-g568088e documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.1.1-175-g7306988 documentation" href="../index.html" />
     <link rel="up" title="pelita.game_master.GameMaster" href="pelita.game_master.GameMaster.html" />
-    <link rel="next" title="pelita.game_master.UniverseNoiser" href="pelita.game_master.UniverseNoiser.html" />
-    <link rel="prev" title="pelita.game_master.GameMaster.send_to_viewers" href="pelita.game_master.GameMaster.send_to_viewers.html" /> 
+    <link rel="next" title="pelita.game_master.GameMaster.update_viewers" href="pelita.game_master.GameMaster.update_viewers.html" />
+    <link rel="prev" title="pelita.game_master.GameMaster.register_viewer" href="pelita.game_master.GameMaster.register_viewer.html" /> 
   </head>
   <body>
     <div class="related">
@@ -44,12 +44,12 @@
           <a href="../np-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="pelita.game_master.UniverseNoiser.html" title="pelita.game_master.UniverseNoiser"
+          <a href="pelita.game_master.GameMaster.update_viewers.html" title="pelita.game_master.GameMaster.update_viewers"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="pelita.game_master.GameMaster.send_to_viewers.html" title="pelita.game_master.GameMaster.send_to_viewers"
+          <a href="pelita.game_master.GameMaster.register_viewer.html" title="pelita.game_master.GameMaster.register_viewer"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-35-g568088e documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li>
           <li><a href="pelita.game_master.html" >pelita.game_master</a> &raquo;</li>
           <li><a href="pelita.game_master.GameMaster.html" accesskey="U">pelita.game_master.GameMaster</a> &raquo;</li> 
@@ -67,8 +67,8 @@
 <dt id="pelita.game_master.GameMaster.set_initial">
 <tt class="descclassname">GameMaster.</tt><tt class="descname">set_initial</tt><big>(</big><big>)</big><a class="headerlink" href="#pelita.game_master.GameMaster.set_initial" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method needs to be called before a game is started.
-It notifies the PlayerTeams of the initial universes and their
-respective bot_ids.</p>
+It notifies the PlayerTeams and the Viewers of the initial
+universes and tells the PlayerTeams what team_id they have.</p>
 </dd></dl>
 
 </div>
@@ -124,12 +124,12 @@ respective bot_ids.</p>
           <a href="../np-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="pelita.game_master.UniverseNoiser.html" title="pelita.game_master.UniverseNoiser"
+          <a href="pelita.game_master.GameMaster.update_viewers.html" title="pelita.game_master.GameMaster.update_viewers"
              >next</a> |</li>
         <li class="right" >
-          <a href="pelita.game_master.GameMaster.send_to_viewers.html" title="pelita.game_master.GameMaster.send_to_viewers"
+          <a href="pelita.game_master.GameMaster.register_viewer.html" title="pelita.game_master.GameMaster.register_viewer"
              >previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-35-g568088e documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li>
           <li><a href="pelita.game_master.html" >pelita.game_master</a> &raquo;</li>
           <li><a href="pelita.game_master.GameMaster.html" >pelita.game_master.GameMaster</a> &raquo;</li> 
@@ -137,7 +137,7 @@ respective bot_ids.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2012, Valentin Haenel, Rike-Benjamin Shuppner et. al..
-      Last updated on May 28, 2012.
+      Last updated on Jun 16, 2012.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
     </div>
   </body>

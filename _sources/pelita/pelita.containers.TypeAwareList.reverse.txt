@@ -1,6 +1,0 @@
-pelita.containers.TypeAwareList.reverse
-=======================================
-
-.. currentmodule:: pelita.containers
-
-.. automethod:: TypeAwareList.reverse

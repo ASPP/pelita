@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleServer.run_tk
-======================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleServer.run_tk

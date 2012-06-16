@@ -1,0 +1,6 @@
+pelita.simplesetup.ZMQTimeout
+=============================
+
+.. currentmodule:: pelita.simplesetup
+
+.. autoexception:: ZMQTimeout

@@ -1,6 +1,0 @@
-pelita.datamodel.Wall.char
-==========================
-
-.. currentmodule:: pelita.datamodel
-
-.. autoattribute:: Wall.char

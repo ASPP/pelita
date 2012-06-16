@@ -1,0 +1,6 @@
+pelita.simplesetup.ZMQConnection.recv
+=====================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: ZMQConnection.recv

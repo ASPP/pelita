@@ -1,0 +1,6 @@
+pelita.simplesetup.RemoteTeamPlayer.team_name
+=============================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: RemoteTeamPlayer.team_name

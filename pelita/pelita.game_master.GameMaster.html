@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.game_master.GameMaster &mdash; Pelita v0.1.1-35-g568088e documentation</title>
+    <title>pelita.game_master.GameMaster &mdash; Pelita v0.1.1-175-g7306988 documentation</title>
     
     <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.1.1-35-g568088e',
+        VERSION:     'v0.1.1-175-g7306988',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.1-35-g568088e documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.1.1-175-g7306988 documentation" href="../index.html" />
     <link rel="up" title="pelita.game_master" href="pelita.game_master.html" />
     <link rel="next" title="pelita.game_master.GameMaster.__init__" href="pelita.game_master.GameMaster.__init__.html" />
     <link rel="prev" title="pelita.game_master.PlayerTimeout" href="pelita.game_master.PlayerTimeout.html" /> 
@@ -49,7 +49,7 @@
         <li class="right" >
           <a href="pelita.game_master.PlayerTimeout.html" title="pelita.game_master.PlayerTimeout"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-35-g568088e documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li>
           <li><a href="pelita.game_master.html" accesskey="U">pelita.game_master</a> &raquo;</li> 
       </ul>
@@ -64,7 +64,7 @@
 <h1>pelita.game_master.GameMaster<a class="headerlink" href="#pelita-game-master-gamemaster" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pelita.game_master.GameMaster">
-<em class="property">class </em><tt class="descclassname">pelita.game_master.</tt><tt class="descname">GameMaster</tt><big>(</big><em>layout</em>, <em>number_bots</em>, <em>game_time</em>, <em>noise=True</em><big>)</big><a class="headerlink" href="#pelita.game_master.GameMaster" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pelita.game_master.</tt><tt class="descname">GameMaster</tt><big>(</big><em>layout</em>, <em>number_bots</em>, <em>game_time</em>, <em>noise=True</em>, <em>initial_delay=0.0</em><big>)</big><a class="headerlink" href="#pelita.game_master.GameMaster" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Controller of player moves and universe updates.</p>
 <p>This object coordinates the moves of the player implementations with the
@@ -129,11 +129,23 @@ updating of the universe.</p>
 <tr class="row-odd"><td><a class="reference internal" href="pelita.game_master.GameMaster.__init__.html#pelita.game_master.GameMaster.__init__" title="pelita.game_master.GameMaster.__init__"><tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt></a></td>
 <td></td>
 </tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.game_master.GameMaster.check_finished.html#pelita.game_master.GameMaster.check_finished" title="pelita.game_master.GameMaster.check_finished"><tt class="xref py py-obj docutils literal"><span class="pre">check_finished</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.game_master.GameMaster.check_winner.html#pelita.game_master.GameMaster.check_winner" title="pelita.game_master.GameMaster.check_winner"><tt class="xref py py-obj docutils literal"><span class="pre">check_winner</span></tt></a></td>
+<td></td>
+</tr>
 <tr class="row-even"><td><a class="reference internal" href="pelita.game_master.GameMaster.play.html#pelita.game_master.GameMaster.play" title="pelita.game_master.GameMaster.play"><tt class="xref py py-obj docutils literal"><span class="pre">play</span></tt></a></td>
-<td>Play a whole game.</td>
+<td>Play game until finished.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="pelita.game_master.GameMaster.play_round.html#pelita.game_master.GameMaster.play_round" title="pelita.game_master.GameMaster.play_round"><tt class="xref py py-obj docutils literal"><span class="pre">play_round</span></tt></a></td>
-<td>Play only a single round.</td>
+<td>Finishes the current round.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.game_master.GameMaster.play_step.html#pelita.game_master.GameMaster.play_step" title="pelita.game_master.GameMaster.play_step"><tt class="xref py py-obj docutils literal"><span class="pre">play_step</span></tt></a></td>
+<td>Plays a single step of a bot.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.game_master.GameMaster.prepare_next_round.html#pelita.game_master.GameMaster.prepare_next_round" title="pelita.game_master.GameMaster.prepare_next_round"><tt class="xref py py-obj docutils literal"><span class="pre">prepare_next_round</span></tt></a></td>
+<td>Increases <tt class="xref py py-obj docutils literal"><span class="pre">game_state[&quot;round_index&quot;]</span></tt>, if possible</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="pelita.game_master.GameMaster.print_possible_winner.html#pelita.game_master.GameMaster.print_possible_winner" title="pelita.game_master.GameMaster.print_possible_winner"><tt class="xref py py-obj docutils literal"><span class="pre">print_possible_winner</span></tt></a></td>
 <td>Checks the event list for a potential winner and prints this information.</td>
@@ -144,11 +156,23 @@ updating of the universe.</p>
 <tr class="row-even"><td><a class="reference internal" href="pelita.game_master.GameMaster.register_viewer.html#pelita.game_master.GameMaster.register_viewer" title="pelita.game_master.GameMaster.register_viewer"><tt class="xref py py-obj docutils literal"><span class="pre">register_viewer</span></tt></a></td>
 <td>Register a viewer to display the game state as it progresses.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.game_master.GameMaster.send_to_viewers.html#pelita.game_master.GameMaster.send_to_viewers" title="pelita.game_master.GameMaster.send_to_viewers"><tt class="xref py py-obj docutils literal"><span class="pre">send_to_viewers</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.game_master.GameMaster.set_initial.html#pelita.game_master.GameMaster.set_initial" title="pelita.game_master.GameMaster.set_initial"><tt class="xref py py-obj docutils literal"><span class="pre">set_initial</span></tt></a></td>
+<td>This method needs to be called before a game is started.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.game_master.GameMaster.update_viewers.html#pelita.game_master.GameMaster.update_viewers" title="pelita.game_master.GameMaster.update_viewers"><tt class="xref py py-obj docutils literal"><span class="pre">update_viewers</span></tt></a></td>
 <td>Call the &#8216;observe&#8217; method on all registered viewers.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.game_master.GameMaster.set_initial.html#pelita.game_master.GameMaster.set_initial" title="pelita.game_master.GameMaster.set_initial"><tt class="xref py py-obj docutils literal"><span class="pre">set_initial</span></tt></a></td>
-<td>This method needs to be called before a game is started.</td>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.game_master.GameMaster.game_time.html#pelita.game_master.GameMaster.game_time" title="pelita.game_master.GameMaster.game_time"><tt class="xref py py-obj docutils literal"><span class="pre">game_time</span></tt></a></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -212,14 +236,14 @@ updating of the universe.</p>
         <li class="right" >
           <a href="pelita.game_master.PlayerTimeout.html" title="pelita.game_master.PlayerTimeout"
              >previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-35-g568088e documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li>
           <li><a href="pelita.game_master.html" >pelita.game_master</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2012, Valentin Haenel, Rike-Benjamin Shuppner et. al..
-      Last updated on May 28, 2012.
+      Last updated on Jun 16, 2012.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
     </div>
   </body>

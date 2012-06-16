@@ -23,6 +23,7 @@ pelita.game_master
       :toctree:
       :nosignatures:
    
+      ~GameFinished
       ~PlayerDisconnected
       ~PlayerTimeout
    

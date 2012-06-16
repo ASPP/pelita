@@ -1,0 +1,6 @@
+pelita.simplesetup.SimpleSubscriber.run
+=======================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: SimpleSubscriber.run

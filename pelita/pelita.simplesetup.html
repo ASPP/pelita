@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.simplesetup &mdash; Pelita v0.1.1-35-g568088e documentation</title>
+    <title>pelita.simplesetup &mdash; Pelita v0.1.1-175-g7306988 documentation</title>
     
     <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.1.1-35-g568088e',
+        VERSION:     'v0.1.1-175-g7306988',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,9 +25,9 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.1-35-g568088e documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.1.1-175-g7306988 documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
-    <link rel="next" title="pelita.simplesetup.auto_connect" href="pelita.simplesetup.auto_connect.html" />
+    <link rel="next" title="pelita.simplesetup.RemoteTeamPlayer" href="pelita.simplesetup.RemoteTeamPlayer.html" />
     <link rel="prev" title="pelita.player.TestPlayer.team_bots" href="pelita.player.TestPlayer.team_bots.html" /> 
   </head>
   <body>
@@ -44,12 +44,12 @@
           <a href="../np-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="pelita.simplesetup.auto_connect.html" title="pelita.simplesetup.auto_connect"
+          <a href="pelita.simplesetup.RemoteTeamPlayer.html" title="pelita.simplesetup.RemoteTeamPlayer"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="pelita.player.TestPlayer.team_bots.html" title="pelita.player.TestPlayer.team_bots"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-35-g568088e documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
           <li><a href="../api.html" accesskey="U">API reference</a> &raquo;</li> 
       </ul>
     </div>  
@@ -62,19 +62,22 @@
   <div class="section" id="module-pelita.simplesetup">
 <span id="pelita-simplesetup"></span><h1>pelita.simplesetup<a class="headerlink" href="#module-pelita.simplesetup" title="Permalink to this headline">¶</a></h1>
 <p>simplesetup.py defines the SimpleServer and SimpleClient classes
-which allow for easy game setup.</p>
-<p class="rubric">Functions</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.auto_connect.html#pelita.simplesetup.auto_connect" title="pelita.simplesetup.auto_connect"><tt class="xref py py-obj docutils literal"><span class="pre">auto_connect</span></tt></a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
+which allow for easy game setup via zmq sockets.</p>
+<p>Notes / TODO</p>
+<p>Timeout handling was far more elegant (imho) with actors / futures.
+Back then, timeouts were reply-based which meant that no other incoming
+messages would change the timeouts of other messages.</p>
+<p>Now it is all sockets so that each incoming message will reset the timeout
+and we need to manually handle this.</p>
+<p>A proper solution would use quick-and-dirty queues with size one.
+(Which would also allow us to store the received messages.)</p>
+<p>In 2.7, thread queues are too slow for that. (Asymptotically they only
+check every 50ms for new messages which accumulates quickly in our scheme.)</p>
+<p>Gevent queues are fast but do not like zeromq (there is a hack, though);
+in a future version we might want to revisit this decision. At the time
+we switch to Python 3.2+, if thread queues might have become fast enough
+(or maybe if the gevent interface likes our messaging layer), we should
+re-investigate this decision.</p>
 <p class="rubric">Classes</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -82,14 +85,44 @@ which allow for easy game setup.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.SimpleClient.html#pelita.simplesetup.SimpleClient" title="pelita.simplesetup.SimpleClient"><tt class="xref py py-obj docutils literal"><span class="pre">SimpleClient</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.RemoteTeamPlayer.html#pelita.simplesetup.RemoteTeamPlayer" title="pelita.simplesetup.RemoteTeamPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">RemoteTeamPlayer</span></tt></a></td>
+<td>This class is registered server-side with the GameMaster</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.SimpleClient.html#pelita.simplesetup.SimpleClient" title="pelita.simplesetup.SimpleClient"><tt class="xref py py-obj docutils literal"><span class="pre">SimpleClient</span></tt></a></td>
 <td>Sets up a simple Client with most settings pre-configured.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.SimpleServer.html#pelita.simplesetup.SimpleServer" title="pelita.simplesetup.SimpleServer"><tt class="xref py py-obj docutils literal"><span class="pre">SimpleServer</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.SimpleController.html#pelita.simplesetup.SimpleController" title="pelita.simplesetup.SimpleController"><tt class="xref py py-obj docutils literal"><span class="pre">SimpleController</span></tt></a></td>
+<td>Sets up a simple Controller to interact with GameMaster.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.SimplePublisher.html#pelita.simplesetup.SimplePublisher" title="pelita.simplesetup.SimplePublisher"><tt class="xref py py-obj docutils literal"><span class="pre">SimplePublisher</span></tt></a></td>
+<td>Sets up a simple Publisher which sends all viewed events</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.SimpleServer.html#pelita.simplesetup.SimpleServer" title="pelita.simplesetup.SimpleServer"><tt class="xref py py-obj docutils literal"><span class="pre">SimpleServer</span></tt></a></td>
 <td>Sets up a simple Server with most settings pre-configured.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.SimpleViewer.html#pelita.simplesetup.SimpleViewer" title="pelita.simplesetup.SimpleViewer"><tt class="xref py py-obj docutils literal"><span class="pre">SimpleViewer</span></tt></a></td>
-<td></td>
+<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.SimpleSubscriber.html#pelita.simplesetup.SimpleSubscriber" title="pelita.simplesetup.SimpleSubscriber"><tt class="xref py py-obj docutils literal"><span class="pre">SimpleSubscriber</span></tt></a></td>
+<td>Subscribes to a given zmq socket and passes all incoming data to a viewer.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.ZMQConnection.html#pelita.simplesetup.ZMQConnection" title="pelita.simplesetup.ZMQConnection"><tt class="xref py py-obj docutils literal"><span class="pre">ZMQConnection</span></tt></a></td>
+<td>This class is supposed to ease request–reply connections through a zmq socket.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Exceptions</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.ExitLoop.html#pelita.simplesetup.ExitLoop" title="pelita.simplesetup.ExitLoop"><tt class="xref py py-obj docutils literal"><span class="pre">ExitLoop</span></tt></a></td>
+<td>If this is raised, we’ll close the inner loop.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.UnknownMessageId.html#pelita.simplesetup.UnknownMessageId" title="pelita.simplesetup.UnknownMessageId"><tt class="xref py py-obj docutils literal"><span class="pre">UnknownMessageId</span></tt></a></td>
+<td>Is raised when a reply arrives with unexpected id.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.ZMQTimeout.html#pelita.simplesetup.ZMQTimeout" title="pelita.simplesetup.ZMQTimeout"><tt class="xref py py-obj docutils literal"><span class="pre">ZMQTimeout</span></tt></a></td>
+<td>Is raised when an ZMQ socket does not answer in time.</td>
 </tr>
 </tbody>
 </table>
@@ -163,18 +196,18 @@ which allow for easy game setup.</p>
           <a href="../np-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="pelita.simplesetup.auto_connect.html" title="pelita.simplesetup.auto_connect"
+          <a href="pelita.simplesetup.RemoteTeamPlayer.html" title="pelita.simplesetup.RemoteTeamPlayer"
              >next</a> |</li>
         <li class="right" >
           <a href="pelita.player.TestPlayer.team_bots.html" title="pelita.player.TestPlayer.team_bots"
              >previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-35-g568088e documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2012, Valentin Haenel, Rike-Benjamin Shuppner et. al..
-      Last updated on May 28, 2012.
+      Last updated on Jun 16, 2012.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
     </div>
   </body>

@@ -1,6 +1,0 @@
-pelita.containers.TypeAwareList.append
-======================================
-
-.. currentmodule:: pelita.containers
-
-.. automethod:: TypeAwareList.append

@@ -13,7 +13,6 @@ pelita.containers
       :nosignatures:
    
       ~Mesh
-      ~TypeAwareList
    
 
    

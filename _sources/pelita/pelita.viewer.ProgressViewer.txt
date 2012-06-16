@@ -1,0 +1,19 @@
+pelita.viewer.ProgressViewer
+============================
+
+.. currentmodule:: pelita.viewer
+
+.. autoclass:: ProgressViewer
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~ProgressViewer.observe
+      ~ProgressViewer.set_initial
+   
+
+   

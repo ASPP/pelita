@@ -1,0 +1,6 @@
+pelita.simplesetup.SimpleClient.run
+===================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: SimpleClient.run

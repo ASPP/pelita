@@ -1,0 +1,6 @@
+pelita.game_master.GameFinished
+===============================
+
+.. currentmodule:: pelita.game_master
+
+.. autoexception:: GameFinished

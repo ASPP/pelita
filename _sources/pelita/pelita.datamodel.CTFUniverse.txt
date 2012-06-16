@@ -14,10 +14,10 @@ pelita.datamodel.CTFUniverse
    
       ~CTFUniverse.__init__
       ~CTFUniverse.copy
-      ~CTFUniverse.create_win_event
       ~CTFUniverse.enemy_bots
       ~CTFUniverse.enemy_food
       ~CTFUniverse.get_legal_moves
+      ~CTFUniverse.get_legal_moves_or_stop
       ~CTFUniverse.move_bot
       ~CTFUniverse.neighbourhood
       ~CTFUniverse.other_team_bots

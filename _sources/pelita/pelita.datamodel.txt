@@ -27,22 +27,9 @@ pelita.datamodel
       :nosignatures:
    
       ~Bot
-      ~BotDestroyed
-      ~BotEats
-      ~BotMoves
       ~CTFUniverse
-      ~Food
-      ~FoodEaten
-      ~Free
-      ~GameDraw
       ~Maze
-      ~MazeComponent
       ~Team
-      ~TeamScoreChange
-      ~TeamWins
-      ~TimeoutEvent
-      ~UniverseEvent
-      ~Wall
    
 
    

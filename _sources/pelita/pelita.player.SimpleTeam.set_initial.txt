@@ -1,0 +1,6 @@
+pelita.player.SimpleTeam.set_initial
+====================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: SimpleTeam.set_initial

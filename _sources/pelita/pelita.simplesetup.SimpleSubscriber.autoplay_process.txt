@@ -1,0 +1,6 @@
+pelita.simplesetup.SimpleSubscriber.autoplay_process
+====================================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: SimpleSubscriber.autoplay_process

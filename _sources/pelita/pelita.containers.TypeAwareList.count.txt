@@ -1,6 +1,0 @@
-pelita.containers.TypeAwareList.count
-=====================================
-
-.. currentmodule:: pelita.containers
-
-.. automethod:: TypeAwareList.count

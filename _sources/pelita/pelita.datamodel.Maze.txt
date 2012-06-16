@@ -16,7 +16,6 @@ pelita.datamodel.Maze
       ~Maze.copy
       ~Maze.get
       ~Maze.get_at
-      ~Maze.has_at
       ~Maze.items
       ~Maze.iteritems
       ~Maze.iterkeys

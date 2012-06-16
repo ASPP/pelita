@@ -13,10 +13,14 @@ pelita.simplesetup.SimpleClient
       :nosignatures:
    
       ~SimpleClient.__init__
-      ~SimpleClient.autoplay
-      ~SimpleClient.autoplay_background
       ~SimpleClient.autoplay_process
       ~SimpleClient.autoplay_thread
+      ~SimpleClient.exit
+      ~SimpleClient.get_move
+      ~SimpleClient.on_start
+      ~SimpleClient.run
+      ~SimpleClient.set_initial
+      ~SimpleClient.team_name
    
 
    

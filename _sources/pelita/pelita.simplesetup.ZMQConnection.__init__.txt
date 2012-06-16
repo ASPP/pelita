@@ -1,0 +1,6 @@
+pelita.simplesetup.ZMQConnection.__init__
+=========================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: ZMQConnection.__init__

@@ -1,6 +1,0 @@
-pelita.datamodel.BotMoves.__init__
-==================================
-
-.. currentmodule:: pelita.datamodel
-
-.. automethod:: BotMoves.__init__

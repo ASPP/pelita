@@ -1,6 +1,0 @@
-pelita.game_master.GameMaster.send_to_viewers
-=============================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: GameMaster.send_to_viewers

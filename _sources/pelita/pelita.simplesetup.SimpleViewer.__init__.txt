@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleViewer.__init__
-========================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleViewer.__init__

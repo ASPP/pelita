@@ -1,0 +1,6 @@
+pelita.simplesetup.SimpleSubscriber.set_initial
+===============================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: SimpleSubscriber.set_initial
