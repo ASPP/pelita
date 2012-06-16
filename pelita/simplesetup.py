@@ -421,6 +421,7 @@ class SimpleClient(object):
     """
     def __init__(self, team, team_name="", address=None):
         self.team = team
+        self.team.remote_game = True
         self._team_name = getattr(self.team, "team_name", team_name)
 
         self.address = address

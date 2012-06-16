@@ -315,8 +315,11 @@ class TestGame(unittest.TestCase):
         test_self = self
         class TestMaliciousPlayer(AbstractPlayer):
             def get_move(self):
-                # universe should not have been altered
-                test_self.assertEqual(original_universe, gm.universe)
+                print id(original_universe.maze)
+                print id(gm.universe.maze)
+                # universe should have been altered because the
+                # Player is really malicious
+                test_self.assertNotEqual(original_universe, gm.universe)
                 return (0,0)
 
         gm.register_team(SimpleTeam(MaliciousPlayer()))
@@ -325,7 +328,7 @@ class TestGame(unittest.TestCase):
         gm.set_initial()
         gm.play_round()
 
-        test_self.assertEqual(original_universe, gm.universe)
+        test_self.assertNotEqual(original_universe, gm.universe)
 
 
     def test_viewer_may_change_gm(self):
