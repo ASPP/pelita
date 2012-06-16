@@ -69,15 +69,17 @@ class GameMaster(object):
             "bot_moved": [],
             "food_eaten": [],
             "bot_destroyed": [],
-            "timeout_teams": [0, 0],
+            "timeout_teams": [0] * len(self.universe.teams),
             "bot_id": None,
             "round_index": None,
             "running_time": 0,
             "finished": False,
-            "team_time": [0, 0],
+            "team_time": [0] * len(self.universe.teams),
             "team_wins": None,
             "game_draw": None,
-            "game_time": game_time
+            "game_time": game_time,
+            "food_count": [0] * len(self.universe.teams),
+            "food_to_eat": [len(self.universe.enemy_food(team.index)) for team in self.universe.teams]
         }
 
     @property
@@ -277,6 +279,10 @@ class GameMaster(object):
                               bot.team_index,
                               bot.index))
 
+        for food_eaten in self.game_state["food_eaten"]:
+            team_id = self.universe.bots[food_eaten["bot_id"]].team_index
+            self.game_state["food_count"][team_id] += 1
+
     def prepare_next_round(self):
         """ Increases `game_state["round_index"]`, if possible
         and resets `game_state["bot_id"]`.
@@ -305,9 +311,10 @@ class GameMaster(object):
             # clear the bot_id of the current bot
             self.game_state["bot_id"] = None
         else:
-            food_left = [self.universe.enemy_food(team.index) for team in self.universe.teams]
-            if not all(food_left):
-                self.game_state["finished"] = True
+            for to_eat, eaten in zip(self.game_state["food_to_eat"], self.game_state["food_count"]):
+                if to_eat == eaten:
+                    self.game_state["finished"] = True
+
 
     def check_winner(self):
         if not self.game_state["finished"]:
