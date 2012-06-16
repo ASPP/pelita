@@ -69,10 +69,10 @@ class SimpleTeam(object):
             player._set_initial(universe)
             self._bot_players[bot_id] = player
 
-    def get_move(self, bot_idx, universe):
-        """ Requests a move from the Player who controls the Bot with index `bot_idx`.
+    def get_move(self, bot_id, universe):
+        """ Requests a move from the Player who controls the Bot with id `bot_id`.
         """
-        return self._bot_players[bot_idx]._get_move(universe)
+        return self._bot_players[bot_id]._get_move(universe)
 
 class AbstractPlayer(object):
     """ Base class for all user implemented Players. """
@@ -100,7 +100,7 @@ class AbstractPlayer(object):
 
         """
         self.universe_states = []
-        self.universe_states.append(universe)
+        self.universe_states.append(universe.copy())
         self.set_initial()
 
     def set_initial(self):
@@ -119,7 +119,7 @@ class AbstractPlayer(object):
             the universe in its current state.
 
         """
-        self.universe_states.append(universe)
+        self.universe_states.append(universe.copy())
         return self.get_move()
 
     @abc.abstractmethod

@@ -386,14 +386,14 @@ class UiCanvas(object):
 
     def init_bots(self, universe):
         for bot in universe.bots:
-            bot_sprite = BotSprite(self.mesh_graph, team=bot.team_index, bot_idx=bot.index)
+            bot_sprite = BotSprite(self.mesh_graph, team=bot.team_index, bot_id=bot.index)
 
             self.bot_sprites[bot.index] = bot_sprite
             bot_sprite.position = bot.current_pos
 
     def draw_bots(self, universe):
-        for bot_idx, bot_sprite in self.bot_sprites.iteritems():
-            bot_sprite.move_to(universe.bots[bot_sprite.bot_idx].current_pos, self.canvas, universe, force=self.size_changed)
+        for bot_id, bot_sprite in self.bot_sprites.iteritems():
+            bot_sprite.move_to(universe.bots[bot_sprite.bot_id].current_pos, self.canvas, universe, force=self.size_changed)
 
 
 class TkApplication(object):
@@ -440,8 +440,10 @@ class TkApplication(object):
             # if queue is empty, try again in a few ms
             # we don’t want to block here and lock
             # Tk animations
-            observed = self.socket.recv(flags=zmq.NOBLOCK)
-            observed = json_converter.loads(observed)
+            message = self.socket.recv(flags=zmq.NOBLOCK)
+            message = json_converter.loads(message)
+            # we curretly don’t care about the action
+            observed = message["__data__"]
             self.observe(observed)
 
             if self.controller_socket:
