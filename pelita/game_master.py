@@ -13,8 +13,6 @@ from .graph import AdjacencyList
 
 __docformat__ = "restructuredtext"
 
-MAX_TIMEOUTS = 5
-
 class GameFinished(Exception):
     pass
 
@@ -54,7 +52,7 @@ class GameMaster(object):
 
     """
     def __init__(self, layout, number_bots, game_time, noise=True,
-                 initial_delay=0.0):
+                 initial_delay=0.0, max_timeouts=5, timeout_length=3):
         self.universe = datamodel.create_CTFUniverse(layout, number_bots)
         self.number_bots = number_bots
         self.noiser = UniverseNoiser(self.universe) if noise else None
@@ -80,7 +78,9 @@ class GameMaster(object):
             "game_draw": None,
             "game_time": game_time,
             "food_count": [0] * len(self.universe.teams),
-            "food_to_eat": [len(self.universe.enemy_food(team.index)) for team in self.universe.teams]
+            "food_to_eat": [len(self.universe.enemy_food(team.index)) for team in self.universe.teams],
+            "timeout_length": timeout_length,
+            "max_timeouts": max_timeouts
         }
 
     @property
@@ -248,10 +248,10 @@ class GameMaster(object):
                 self.game_state[k] += v
 
         except (datamodel.IllegalMoveException, PlayerTimeout) as e:
-            # after MAX_TIMEOUTS timeouts, you lose
+            # after max_timeouts timeouts, you lose
             self.game_state["timeout_teams"][bot.team_index] += 1
 
-            if self.game_state["timeout_teams"][bot.team_index] == MAX_TIMEOUTS:
+            if self.game_state["timeout_teams"][bot.team_index] == self.game_state["max_timeouts"]:
                 other_team_idx = 1 - bot.team_index
                 self.game_state["team_wins"] = other_team_idx
                 sys.stderr.write("Timeout #%r for team %r (bot index %r). Team disqualified.\n" % (
