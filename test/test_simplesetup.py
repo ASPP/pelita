@@ -99,14 +99,14 @@ class TestSimpleSetup(unittest.TestCase):
             def set_initial(self, universe):
                 universe.teams[1].score = 50
 
-            def observe(self_, universe, events):
+            def observe(self_, universe, game_state):
                 self.mean_viewer_did_run = True
 
                 universe.teams[0].score = 100
                 universe.bots[0].current_pos = (4,4)
                 universe.maze[0,0] = free_obj
 
-                events["team_wins"] = 0
+                game_state["team_wins"] = 0
 
         test_start = (
             """ ######
@@ -125,15 +125,15 @@ class TestSimpleSetup(unittest.TestCase):
         self.test_viewer_did_run = False
         test_self = self
         class TestViewer(AbstractViewer):
-            def observe(self_, universe, events):
+            def observe(self_, universe, game_state):
                 self.test_viewer_did_run = True
 
                 # universe should not have been altered
                 test_self.assertEqual(original_universe, gm.universe)
 
                 # there should only be a botmoves event
-                test_self.assertEqual(len(events["bot_moved"]), 1)
-                test_self.assertEqual(len(events["bot_moved"]), 1)
+                test_self.assertEqual(len(game_state["bot_moved"]), 1)
+                test_self.assertEqual(len(game_state["bot_moved"]), 1)
 
         # We need to be able to tell when our subscriber is able to receive
         # new events from the publisher.
