@@ -142,7 +142,7 @@ parser.add_argument('--dry-run', const=True, action='store_const',
                     help='load players but do not actually play the game')
 parser.add_argument('--max-timeouts', type=int, default=5,
                     dest='max_timeouts', help='maximum number of timeouts allowed')
-parser.add_argument('--timeout-length', type=int, default=3,
+parser.add_argument('--timeout', type=int, default=3,
                     dest='timeout_length', help='time before timeout')
 
 publisher_opt = parser.add_mutually_exclusive_group()
