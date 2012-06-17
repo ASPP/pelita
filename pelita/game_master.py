@@ -7,8 +7,7 @@ import sys
 import time
 from . import datamodel
 from .graph import NoPathException
-from pelita.datamodel import CTFUniverse, Bot, Food, Wall, Free, manhattan_dist
-from .viewer import AbstractViewer
+from .datamodel import CTFUniverse, Bot, Free, manhattan_dist
 from .graph import AdjacencyList
 
 __docformat__ = "restructuredtext"
@@ -249,7 +248,7 @@ class GameMaster(object):
             for k, v in move_state.iteritems():
                 self.game_state[k] += v
 
-        except (datamodel.IllegalMoveException, PlayerTimeout) as e:
+        except (datamodel.IllegalMoveException, PlayerTimeout):
             # after MAX_TIMEOUTS timeouts, you lose
             self.game_state["timeout_teams"][bot.team_index] += 1
 
