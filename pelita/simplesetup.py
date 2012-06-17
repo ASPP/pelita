@@ -43,8 +43,6 @@ _logger = logging.getLogger("pelita.simplesetup")
 
 __docformat__ = "restructuredtext"
 
-TIMEOUT = 3
-
 class UnknownMessageId(Exception):
     """ Is raised when a reply arrives with unexpected id.
     """
@@ -184,7 +182,7 @@ class RemoteTeamPlayer(object):
             self.zmqconnection.send("get_move", {"bot_id": bot_id,
                                                  "universe": universe,
                                                  "game_state": game_state})
-            reply = self.zmqconnection.recv_timeout(TIMEOUT)
+            reply = self.zmqconnection.recv_timeout(game_state["timeout_length"])
             return tuple(reply)
         except ZMQTimeout:
             # answer did not arrive in time
@@ -242,7 +240,7 @@ class SimpleServer(object):
     def __init__(self, layout_string=None, layout_name=None, layout_file=None,
                  layout_filter='normal_without_dead_ends',
                  teams=2, players=4, rounds=3000, bind_addrs="tcp://*",
-                 initial_delay=0.0):
+                 initial_delay=0.0, max_timeouts=5, timeout_length=3):
 
         if (layout_string and layout_name or
             layout_string and layout_file or
@@ -264,7 +262,7 @@ class SimpleServer(object):
         self.number_of_teams = teams
         self.rounds = rounds
 
-        self.game_master = GameMaster(self.layout, self.players, self.rounds, initial_delay=initial_delay)
+        self.game_master = GameMaster(self.layout, self.players, self.rounds, initial_delay=initial_delay, max_timeouts=max_timeouts, timeout_length=timeout_length)
 
         if isinstance(bind_addrs, tuple):
             pass
