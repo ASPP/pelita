@@ -450,7 +450,7 @@ class UniverseNoiser(object):
 class AStarNoiser(UniverseNoiser):
     """Noiser in maze space.
 
-    It uses astar and adiacency maps to measure distances in maze space."""
+    It uses A* and adjacency maps to measure distances in maze space."""
     def __init__(self, universe, noise_radius=5, sight_distance=5):
         super(AStarNoiser, self).__init__(universe, noise_radius, sight_distance) 
         self.adjacency = AdjacencyList(universe)
