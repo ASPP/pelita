@@ -366,11 +366,24 @@ class GameMaster(object):
 
 
 class UniverseNoiser(object):
-    """ Class to make bot positions noisy.
+    """Abstract BaseClass to make bot positions noisy.
 
     Supports uniform noise in maze space. Can be extended to support other types
     of noise. Noise will only be applied if the enemy bot is with a certain
     threshold (`sight_distance`).
+
+    Derived classes will need to implement distance and the alter_pos methods
+
+    Methods
+    -------
+
+    distance(bot, other_bot):
+        return distance between current bot and bot to be noised. Distance
+        is measured in the space relevant to the particular algorithm implemented
+        in the subclass, e.g. maze distance, manhattan distance, euclidean distance...
+
+    alter_pos(bot_pos):
+        return the noised new position of an enemy bot.
 
     Parameters
     ----------
@@ -435,10 +448,13 @@ class UniverseNoiser(object):
 
 
 class AStarNoiser(UniverseNoiser):
+    """Noiser in maze space.
+
+    It uses astar and adiacency maps to measure distances in maze space."""
     def __init__(self, universe, noise_radius=5, sight_distance=5):
         super(AStarNoiser, self).__init__(universe, noise_radius, sight_distance) 
         self.adjacency = AdjacencyList(universe)
-    
+
     def distance(self, bot, other_bot):
         try:
             return len(self.adjacency.a_star(bot.current_pos, other_bot.current_pos))
@@ -455,9 +471,14 @@ class AStarNoiser(UniverseNoiser):
             return bot_pos
 
 class ManhattanNoiser(UniverseNoiser):
+    """Noiser in Manhattan space.
+
+    It uses Manhattan distance. This noiser is much faster than AStarNoiser,
+    but Manhattan distance is less relevant to the game. For example, a bot
+    distant 1 in Manhattan space could still be much further in maze distance."""
+
     def distance(self, bot, other_bot):
-        return abs(bot.current_pos[0] - other_bot.current_pos[0]) +\
-               bot.current_pos[1] - other_bot.current_pos[1]
+        return manhattan_dist(bot.current_pos, other_bot.current_pos)
 
     def alter_pos(self, bot_pos):
         # get a list of possible positions
@@ -468,9 +489,11 @@ class ManhattanNoiser(UniverseNoiser):
                                     for j in range(y_min, y_max)
                               if manhattan_dist((i,j), bot_pos) <= noise_radius] 
 
+        # shuffle the list of positions
         random.shuffle(possible_positions)
         for pos in possible_positions:
             try:
+                # check that the bot can really fit in here
                 if Free in self.universe.maze[pos]:
                     return pos
             except IndexError:
