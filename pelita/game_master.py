@@ -452,7 +452,7 @@ class AStarNoiser(UniverseNoiser):
 
     It uses A* and adjacency maps to measure distances in maze space."""
     def __init__(self, universe, noise_radius=5, sight_distance=5):
-        super(AStarNoiser, self).__init__(universe, noise_radius, sight_distance) 
+        super(AStarNoiser, self).__init__(universe, noise_radius, sight_distance)
         self.adjacency = AdjacencyList(universe)
 
     def distance(self, bot, other_bot):
@@ -487,7 +487,7 @@ class ManhattanNoiser(UniverseNoiser):
         y_min, y_max = bot_pos[1] - noise_radius, bot_pos[1] + noise_radius
         possible_positions = [(i,j) for i in range(x_min, x_max)
                                     for j in range(y_min, y_max)
-                              if manhattan_dist((i,j), bot_pos) <= noise_radius] 
+                              if manhattan_dist((i,j), bot_pos) <= noise_radius]
 
         # shuffle the list of positions
         random.shuffle(possible_positions)
