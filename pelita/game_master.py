@@ -51,7 +51,7 @@ class GameMaster(object):
 
     """
     def __init__(self, layout, number_bots, game_time, noise=True, noiser=None,
-                 initial_delay=0.0, max_timeouts=5, timeout_length=3):
+                 initial_delay=0.0, max_timeouts=5, timeout_length=3, layout_name=None):
         self.universe = datamodel.create_CTFUniverse(layout, number_bots)
         self.number_bots = number_bots
         if noiser is None:

@@ -259,21 +259,29 @@ class SimpleServer(object):
             layout_string and layout_name and layout_file):
             raise  ValueError("Can only supply one of: 'layout_string'"+\
                               "'layout_name' or 'layout_file'")
+
         elif layout_string:
             self.layout = layout_string
+            self.layout_name = ""
         elif layout_name:
             self.layout = get_layout_by_name(layout_name)
+            self.layout_name = layout_name
         elif layout_file:
             with open(layout_file) as file:
                 self.layout = file.read()
+                self.layout_name = file.name
         else:
-            self.layout = get_random_layout(filter=layout_filter)
+            self.layout_name, self.layout = get_random_layout(filter=layout_filter)
 
         self.players = players
         self.number_of_teams = teams
         self.rounds = rounds
 
-        self.game_master = GameMaster(self.layout, self.players, self.rounds, initial_delay=initial_delay, max_timeouts=max_timeouts, timeout_length=timeout_length)
+        self.game_master = GameMaster(self.layout, self.players, self.rounds,
+                                      initial_delay=initial_delay,
+                                      max_timeouts=max_timeouts,
+                                      timeout_length=timeout_length,
+                                      layout_name=self.layout_name)
 
         if isinstance(bind_addrs, tuple):
             pass
