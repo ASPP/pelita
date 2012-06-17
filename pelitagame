@@ -145,6 +145,8 @@ parser.add_argument('--max-timeouts', type=int, default=5,
                     dest='max_timeouts', help='maximum number of timeouts allowed')
 parser.add_argument('--timeout', type=int, default=3,
                     dest='timeout_length', help='time before timeout')
+parser.add_argument('--standalone-client', const=True, action='store_const', dest='standalone_client',
+                    help='run standalone game')
 
 publisher_opt = parser.add_mutually_exclusive_group()
 publisher_opt.add_argument('--publish', type=str, metavar='URL',
@@ -289,6 +291,13 @@ def run_game():
         initial_delay = 0.5
     else:
         initial_delay = 0.0
+
+
+    if args.standalone_client:
+        addr = addrs_right.replace('*', 'localhost')
+        client = pelita.simplesetup.SimpleClient(bads, address=addr)
+        client.run()
+        sys.exit(1)
 
     server = pelita.simplesetup.SimpleServer(layout_file=args.layoutfile,
                                        layout_name=args.layout,
