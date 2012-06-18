@@ -29,6 +29,7 @@ import time
 import logging
 import multiprocessing
 import threading
+import sys
 
 import uuid
 import zmq
@@ -42,6 +43,16 @@ from .viewer import AbstractViewer
 _logger = logging.getLogger("pelita.simplesetup")
 
 __docformat__ = "restructuredtext"
+
+def bind_socket(socket, address, option_hint=None):
+    try:
+        socket.bind(address)
+    except zmq.core.error.ZMQError as e:
+        print >>sys.stderr, 'error binding to address %s: %s' % (address, e)
+        if option_hint:
+            print >>sys.stderr, 'use %s <address> to specify a different port' %\
+                (option_hint,)
+        raise
 
 class UnknownMessageId(Exception):
     """ Is raised when a reply arrives with unexpected id.
@@ -354,7 +365,7 @@ class SimpleController(object):
         # However, we cannot send any information back to them.
         # (Only one DEALER will receive the data.)
         self.socket = self.context.socket(zmq.DEALER)
-        self.socket.bind(self.address)
+        bind_socket(self.socket, self.address, '--controller')
 
     def run(self):
         self.on_start()
@@ -504,7 +515,7 @@ class SimplePublisher(AbstractViewer):
         self.address = address
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PUB)
-        self.socket.bind(self.address)
+        bind_socket(self.socket, self.address, '--publish')
 
     def set_initial(self, universe):
         message = {"__action__": "set_initial",
