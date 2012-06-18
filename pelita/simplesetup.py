@@ -49,8 +49,9 @@ def bind_socket(socket, address, option_hint=None):
         socket.bind(address)
     except zmq.core.error.ZMQError as e:
         print >>sys.stderr, 'error binding to address %s: %s' % (address, e)
-        print >>sys.stderr, 'use %s <address> to specify a different port' %\
-            (option_hint,)
+        if option_hint:
+            print >>sys.stderr, 'use %s <address> to specify a different port' %\
+                (option_hint,)
         raise
 
 class UnknownMessageId(Exception):
