@@ -184,6 +184,48 @@ class TestRoundBasedPlayer(unittest.TestCase):
         self.assertEqual(gm.universe.bots[2].current_pos, (3, 2))
         self.assertEqual(gm.universe.bots[3].current_pos, (9, 2))
 
+class TestSeededRandom_Player(unittest.TestCase):
+    def test_demo_players(self):
+        test_layout = (
+        """ ################
+            #              #
+            #              #
+            #              #
+            #   0      1   #
+            #              #
+            #              #
+            #              #
+            #.            .#
+            ################ """)
+        gm = GameMaster(test_layout, 2, 5, seed=20)
+        gm.register_team(SimpleTeam(SeededRandomPlayer()))
+        gm.register_team(SimpleTeam(SeededRandomPlayer()))
+        self.assertEqual(gm.universe.bots[0].current_pos, (4, 4))
+        self.assertEqual(gm.universe.bots[1].current_pos, (4 + 7, 4))
+        gm.play()
+
+        pos_left_bot = gm.universe.bots[0].current_pos
+        # right bot has same y but x increased by 7.
+        pos_right_bot = (pos_left_bot[0] + 7, pos_left_bot[1])
+        self.assertEqual(gm.universe.bots[1].current_pos, pos_right_bot)
+
+        # running again to test seed:
+        gm = GameMaster(test_layout, 2, 5, seed=20)
+        gm.register_team(SimpleTeam(SeededRandomPlayer()))
+        gm.register_team(SimpleTeam(SeededRandomPlayer()))
+        gm.play()
+        self.assertEqual(gm.universe.bots[0].current_pos, pos_left_bot)
+        self.assertEqual(gm.universe.bots[1].current_pos, pos_right_bot)
+
+        # running again with other seed:
+        gm = GameMaster(test_layout, 2, 5, seed=200)
+        gm.register_team(SimpleTeam(SeededRandomPlayer()))
+        gm.register_team(SimpleTeam(SeededRandomPlayer()))
+        gm.play()
+        self.assertNotEqual(gm.universe.bots[0].current_pos, pos_left_bot)
+        self.assertNotEqual(gm.universe.bots[1].current_pos, pos_right_bot)
+
+
 class TestNQRandom_Player(unittest.TestCase):
     def test_demo_players(self):
         test_layout = (
