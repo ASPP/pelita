@@ -342,6 +342,11 @@ class SpeakingPlayer(AbstractPlayer):
         self.say("Going %r." % (move,))
         return move
 
+class SeededRandomPlayer(AbstractPlayer):
+    """ A random player which uses the global seed. """
+    def get_move(self):
+        return self.rnd.choice(self.legal_moves.keys())
+
 class TestPlayer(AbstractPlayer):
     """ A Player with predetermined set of moves.
 
