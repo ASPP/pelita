@@ -225,6 +225,16 @@ class TestSeededRandom_Player(unittest.TestCase):
         self.assertNotEqual(gm.universe.bots[0].current_pos, pos_left_bot)
         self.assertNotEqual(gm.universe.bots[1].current_pos, pos_right_bot)
 
+        # running again with offset seed:
+        gm = GameMaster(test_layout, 2, 5, seed=20)
+        gm.register_team(SimpleTeam(SeededRandomPlayer()))
+        player2 = SeededRandomPlayer()
+        player2.seed_offset = 1
+        gm.register_team(SimpleTeam(player2))
+        gm.play()
+        self.assertEqual(gm.universe.bots[0].current_pos, pos_left_bot)
+        self.assertNotEqual(gm.universe.bots[1].current_pos, pos_right_bot)
+
 
 class TestNQRandom_Player(unittest.TestCase):
     def test_demo_players(self):
