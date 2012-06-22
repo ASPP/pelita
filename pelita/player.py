@@ -124,7 +124,8 @@ class AbstractPlayer(object):
 
         seed_offset = getattr(self, "seed_offset", 0)
         self.rnd = random.Random()
-        self.rnd.seed(game_state["seed"] + seed_offset)
+        if game_state.get("seed") is not None:
+            self.rnd.seed(game_state["seed"] + seed_offset)
 
     def set_initial(self):
         """ Subclasses can override this if desired. """
