@@ -121,11 +121,6 @@ class UiCanvas(object):
         self.status = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=25)
         self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
 
-        font_size = guess_size("QUIT",
-                               self.mesh_graph.screen_width,
-                               25,
-                               rel_size = -1)
-
         game_speed_frame = Tkinter.Frame(self.status)
         game_speed_frame.grid(row=0, sticky="WE")
         game_control_frame = Tkinter.Frame(self.status)
@@ -140,7 +135,6 @@ class UiCanvas(object):
         Tkinter.Label(game_speed_frame, text="Adjust speed").pack(side=Tkinter.LEFT)
 
         Tkinter.Button(game_speed_frame,
-            font=(None, font_size),
             foreground="black",
             background="white",
             justify=Tkinter.CENTER,
@@ -148,7 +142,6 @@ class UiCanvas(object):
             command=self.master.delay_inc).pack(side=Tkinter.LEFT)
 
         Tkinter.Button(game_speed_frame,
-            font=(None, font_size),
             foreground="black",
             background="white",
             justify=Tkinter.CENTER,
@@ -156,7 +149,6 @@ class UiCanvas(object):
             command=self.master.delay_dec).pack(side=Tkinter.LEFT)
 
         Tkinter.Button(game_control_frame,
-                       font=(None, font_size),
                        foreground="black",
                        background="white",
                        justify=Tkinter.CENTER,
@@ -164,7 +156,6 @@ class UiCanvas(object):
                        command=self.master.toggle_running).pack(side=Tkinter.LEFT)
 
         Tkinter.Button(game_control_frame,
-                       font=(None, font_size),
                        foreground="black",
                        background="white",
                        justify=Tkinter.CENTER,
@@ -172,7 +163,6 @@ class UiCanvas(object):
                        command=self.master.request_step).pack(side=Tkinter.LEFT)
 
         Tkinter.Button(game_control_frame,
-                       font=(None, font_size),
                        foreground="black",
                        background="white",
                        justify=Tkinter.CENTER,
@@ -180,7 +170,6 @@ class UiCanvas(object):
                        command=self.master.request_round).pack(side=Tkinter.LEFT)
 
         Tkinter.Button(self.status,
-                       font=(None, font_size),
                        foreground="black",
                        background="white",
                        justify=Tkinter.CENTER,
