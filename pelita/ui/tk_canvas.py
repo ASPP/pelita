@@ -122,9 +122,9 @@ class UiCanvas(object):
         self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
 
         game_control_frame = Tkinter.Frame(self.status)
-        game_control_frame.grid(row=0, sticky="WE")
+        game_control_frame.grid(row=0, sticky="W")
         game_speed_frame = Tkinter.Frame(self.status)
-        game_speed_frame.grid(row=1, sticky="WE")
+        game_speed_frame.grid(row=1, sticky="W")
 
         self.status_round_info = Tkinter.Label(self.status, text="")
         self.status_round_info.grid(row=0, column=2, sticky="E")
