@@ -426,7 +426,7 @@ class UiCanvas(object):
 class TkApplication(object):
     def __init__(self, master, address, controller_address=None, geometry=None):
         self.master = master
-        self._delay = 0
+        self._delay = 1
 
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
