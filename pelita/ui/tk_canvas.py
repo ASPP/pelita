@@ -121,10 +121,10 @@ class UiCanvas(object):
         self.status = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=25)
         self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
 
-        game_speed_frame = Tkinter.Frame(self.status)
-        game_speed_frame.grid(row=0, sticky="WE")
         game_control_frame = Tkinter.Frame(self.status)
-        game_control_frame.grid(row=1, sticky="WE")
+        game_control_frame.grid(row=0, sticky="WE")
+        game_speed_frame = Tkinter.Frame(self.status)
+        game_speed_frame.grid(row=1, sticky="WE")
 
         self.status_round_info = Tkinter.Label(self.status, text="")
         self.status_round_info.grid(row=0, column=2, sticky="NE")
@@ -132,21 +132,22 @@ class UiCanvas(object):
         self.status_layout_info = Tkinter.Label(self.status, text="")
         self.status_layout_info.grid(row=1, column=2, sticky="NE")
 
-        Tkinter.Label(game_speed_frame, text="Adjust speed").pack(side=Tkinter.LEFT)
-
-        Tkinter.Button(game_speed_frame,
+        self.button_game_speed_slower = Tkinter.Button(game_speed_frame,
             foreground="black",
             background="white",
             justify=Tkinter.CENTER,
             text="slower",
-            command=self.master.delay_inc).pack(side=Tkinter.LEFT)
+            command=self.master.delay_inc)
+        self.button_game_speed_slower.pack(side=Tkinter.LEFT)
 
-        Tkinter.Button(game_speed_frame,
+        self.button_game_speed_faster = Tkinter.Button(game_speed_frame,
             foreground="black",
             background="white",
             justify=Tkinter.CENTER,
             text="faster",
-            command=self.master.delay_dec).pack(side=Tkinter.LEFT)
+            command=self.master.delay_dec)
+        self.button_game_speed_faster.pack(side=Tkinter.LEFT)
+
 
         Tkinter.Button(game_control_frame,
                        foreground="black",
@@ -166,7 +167,7 @@ class UiCanvas(object):
                        foreground="black",
                        background="white",
                        justify=Tkinter.CENTER,
-                       text="PLAY ROUND",
+                       text="ROUND",
                        command=self.master.request_round).pack(side=Tkinter.LEFT)
 
         Tkinter.Button(self.status,
