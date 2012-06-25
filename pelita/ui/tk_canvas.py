@@ -148,6 +148,7 @@ class UiCanvas(object):
             command=self.master.delay_dec)
         self.button_game_speed_faster.pack(side=Tkinter.LEFT)
 
+        self.master._check_speed_button_state()
 
         Tkinter.Button(game_control_frame,
                        foreground="black",
@@ -416,7 +417,6 @@ class UiCanvas(object):
 class TkApplication(object):
     def __init__(self, master, address, controller_address=None, geometry=None):
         self.master = master
-        self._delay = 1
 
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
@@ -438,6 +438,10 @@ class TkApplication(object):
         self.frame.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
 
         self.ui_canvas = UiCanvas(self, geometry=geometry)
+
+        self._min_delay = 1
+        self._delay = 1
+        self._check_speed_button_state()
 
         self.running = True
 
@@ -517,10 +521,20 @@ class TkApplication(object):
 
     def delay_inc(self):
         self._delay += 5
-        print self._delay
+        self._check_speed_button_state()
 
     def delay_dec(self):
         self._delay -= 5
-        if self._delay < 0:
-            self._delay = 0
+        if self._delay < self._min_delay:
+            self._delay = self._min_delay
+        self._check_speed_button_state()
+
+    def _check_speed_button_state(self):
+        try:
+            if self._delay <= self._min_delay:
+                self.ui_canvas.button_game_speed_faster.config(state=Tkinter.DISABLED)
+            else:
+                self.ui_canvas.button_game_speed_faster.config(state=Tkinter.NORMAL)
+        except AttributeError:
+            pass
 
