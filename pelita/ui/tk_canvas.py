@@ -119,7 +119,6 @@ class UiCanvas(object):
         self.score.pack(side=Tkinter.TOP, fill=Tkinter.X)
 
         self.status = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=25)
-        self.status.config(background="white")
         self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
 
         font_size = guess_size("QUIT",
@@ -127,7 +126,36 @@ class UiCanvas(object):
                                25,
                                rel_size = -1)
 
-        Tkinter.Button(self.status,
+        game_speed_frame = Tkinter.Frame(self.status)
+        game_speed_frame.grid(row=0, sticky="WE")
+        game_control_frame = Tkinter.Frame(self.status)
+        game_control_frame.grid(row=1, sticky="WE")
+
+        self.status_round_info = Tkinter.Label(self.status, text="")
+        self.status_round_info.grid(row=0, column=2, sticky="NE")
+
+        self.status_layout_info = Tkinter.Label(self.status, text="")
+        self.status_layout_info.grid(row=1, column=2, sticky="NE")
+
+        Tkinter.Label(game_speed_frame, text="Adjust speed").pack(side=Tkinter.LEFT)
+
+        Tkinter.Button(game_speed_frame,
+            font=(None, font_size),
+            foreground="black",
+            background="white",
+            justify=Tkinter.CENTER,
+            text="slower",
+            command=self.master.delay_inc).pack(side=Tkinter.LEFT)
+
+        Tkinter.Button(game_speed_frame,
+            font=(None, font_size),
+            foreground="black",
+            background="white",
+            justify=Tkinter.CENTER,
+            text="faster",
+            command=self.master.delay_dec).pack(side=Tkinter.LEFT)
+
+        Tkinter.Button(game_control_frame,
                        font=(None, font_size),
                        foreground="black",
                        background="white",
@@ -135,7 +163,7 @@ class UiCanvas(object):
                        text="PLAY/PAUSE",
                        command=self.master.toggle_running).pack(side=Tkinter.LEFT)
 
-        Tkinter.Button(self.status,
+        Tkinter.Button(game_control_frame,
                        font=(None, font_size),
                        foreground="black",
                        background="white",
@@ -143,7 +171,7 @@ class UiCanvas(object):
                        text="STEP",
                        command=self.master.request_step).pack(side=Tkinter.LEFT)
 
-        Tkinter.Button(self.status,
+        Tkinter.Button(game_control_frame,
                        font=(None, font_size),
                        foreground="black",
                        background="white",
@@ -157,7 +185,12 @@ class UiCanvas(object):
                        background="white",
                        justify=Tkinter.CENTER,
                        text="QUIT",
-                       command=self.master.quit).pack()
+                       command=self.master.quit).grid(row=0, column=1, rowspan=2, sticky="WE")
+
+
+        self.status.grid_columnconfigure(0, weight=1)
+        self.status.grid_columnconfigure(1, weight=1)
+        self.status.grid_columnconfigure(2, weight=1)
 
         self.canvas = Tkinter.Canvas(self.master.frame,
                                      width=self.mesh_graph.screen_width,
@@ -221,7 +254,7 @@ class UiCanvas(object):
             self.current_universe = universe
 
         if round is not None and turn is not None:
-            self.game_status_info = lambda: self.draw_status_info(turn, round)
+            self.game_status_info = lambda: self.draw_status_info(turn, round, game_state.get("layout_name", ""))
         self.game_status_info()
 
         self.draw_universe(self.current_universe, game_state)
@@ -294,17 +327,10 @@ class UiCanvas(object):
 
         self.score.create_text(center+2, 15, text=right_team, font=(None, font_size), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
 
-    def draw_status_info(self, turn, round):
-        self.status.delete("roundturn")
-        roundturn = "Bot %d, Round %d   " % (turn, round)
-        font_size = guess_size(roundturn,
-                               self.mesh_graph.screen_width,
-                               25,
-                               rel_size = 0)
-
-        self.status.create_text(self.mesh_graph.screen_width, 25,
-                                anchor=Tkinter.SE,
-                                text=roundturn, font=(None, font_size), tag="roundturn")
+    def draw_status_info(self, turn, round, layout_name):
+        roundturn = "Bot %d / Round %d" % (turn, round)
+        self.status_round_info.config(text=roundturn)
+        self.status_layout_info.config(text=layout_name)
 
     def draw_end_of_game(self, display_string):
         """ Draw an end of game string. """
@@ -400,6 +426,7 @@ class UiCanvas(object):
 class TkApplication(object):
     def __init__(self, master, address, controller_address=None, geometry=None):
         self.master = master
+        self._delay = 0
 
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
@@ -448,9 +475,9 @@ class TkApplication(object):
             self.observe(observed)
 
             if self.controller_socket:
-                self.master.after(0, self.request_next, observed)
+                self.master.after(0 + self._delay, self.request_next, observed)
             else:
-                self.master.after(1, self.read_queue)
+                self.master.after(2 + self._delay, self.read_queue)
             return
         except zmq.core.error.ZMQError:
             self.observe({})
@@ -497,3 +524,13 @@ class TkApplication(object):
     def quit(self):
         self.on_quit()
         self.frame.quit()
+
+    def delay_inc(self):
+        self._delay += 5
+        print self._delay
+
+    def delay_dec(self):
+        self._delay -= 5
+        if self._delay < 0:
+            self._delay = 0
+
