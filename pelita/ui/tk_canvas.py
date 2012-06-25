@@ -127,10 +127,10 @@ class UiCanvas(object):
         game_speed_frame.grid(row=1, sticky="WE")
 
         self.status_round_info = Tkinter.Label(self.status, text="")
-        self.status_round_info.grid(row=0, column=2, sticky="NE")
+        self.status_round_info.grid(row=0, column=2, sticky="E")
 
         self.status_layout_info = Tkinter.Label(self.status, text="")
-        self.status_layout_info.grid(row=1, column=2, sticky="NE")
+        self.status_layout_info.grid(row=1, column=2, sticky="E")
 
         self.button_game_speed_slower = Tkinter.Button(game_speed_frame,
             foreground="black",
