@@ -524,13 +524,16 @@ class TkApplication(object):
         self._check_speed_button_state()
 
     def delay_dec(self):
-        self._delay -= 5
-        if self._delay < self._min_delay:
-            self._delay = self._min_delay
+        # Tk may break if self._delay is lower than zero.
+        # (For some systems a value < 1 is already too fast.)
+        self._delay = max(self._delay - 5, self._min_delay)
         self._check_speed_button_state()
 
     def _check_speed_button_state(self):
         try:
+            # self.ui_canvas.button_game_speed_faster
+            # may not be available yet (or may be None).
+            # If this is the case, we’ll do nothing at all.
             if self._delay <= self._min_delay:
                 self.ui_canvas.button_game_speed_faster.config(state=Tkinter.DISABLED)
             else:
