@@ -51,7 +51,7 @@ class GameMaster(object):
 
     """
     def __init__(self, layout, number_bots, game_time, noise=True, noiser=None,
-                 initial_delay=0.0, max_timeouts=5, timeout_length=3):
+                 initial_delay=0.0, max_timeouts=5, timeout_length=3, layout_name=None):
         self.universe = datamodel.create_CTFUniverse(layout, number_bots)
         self.number_bots = number_bots
         if noiser is None:
@@ -82,7 +82,8 @@ class GameMaster(object):
             "food_to_eat": [len(self.universe.enemy_food(team.index)) for team in self.universe.teams],
             "timeout_length": timeout_length,
             "max_timeouts": max_timeouts,
-            "bot_talk": [""] * self.number_bots
+            "bot_talk": [""] * self.number_bots,
+            "layout_name": layout_name
         }
 
     @property
