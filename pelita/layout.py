@@ -24,8 +24,8 @@ def get_random_layout(filter=''):
 
     Returns
     -------
-    layout : str
-        a random layout string
+    layout : tuple(str, str)
+        the name of the layout, a random layout string
 
     Examples
     --------
@@ -36,7 +36,7 @@ def get_random_layout(filter=''):
     """
     layouts_names = [item for item in get_available_layouts() if filter in item]
     layout_choice = random.choice(layouts_names)
-    return get_layout_by_name(layout_choice)
+    return layout_choice, get_layout_by_name(layout_choice)
 
 def get_available_layouts(filter=''):
     """ The names of the available layouts.

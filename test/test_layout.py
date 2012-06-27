@@ -26,6 +26,11 @@ class TestLayoutModule(unittest.TestCase):
         self.assertNotEqual(random1, random2,
                 'Testing randomized function, may fail sometimes.')
 
+    def test_get_random_layout_returns_correct_layout(self):
+        name, layout = get_random_layout()
+        layout2 = get_layout_by_name(name)
+        self.assertEqual(layout, layout2)
+
 
 class TestLayoutChecks(unittest.TestCase):
     layout_chars = maze_components
