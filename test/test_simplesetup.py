@@ -47,7 +47,7 @@ class TestSimpleSetup(unittest.TestCase):
         layout = """
         ##########
         #        #
-        #0      1#
+        #0  ..  1#
         ##########
         """
         server = SimpleServer(layout_string=layout, rounds=5, players=2,
@@ -72,7 +72,7 @@ class TestSimpleSetup(unittest.TestCase):
         layout = """
         ##########
         #        #
-        #0      1#
+        #0  ..  1#
         ##########
         """
         server = SimpleServer(layout_string=layout, rounds=5, players=2)
