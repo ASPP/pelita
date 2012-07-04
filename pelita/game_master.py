@@ -252,11 +252,11 @@ class GameMaster(object):
             team_time_needed = time.time() - team_time_begin
             self.game_state["team_time"][bot.team_index] += team_time_needed
 
-            move_state = self.universe.move_bot(bot.index, tuple(move))
+            move_state = self.universe.move_bot(bot.index, move)
             for k, v in move_state.iteritems():
                 self.game_state[k] += v
 
-        except (datamodel.IllegalMoveException, TypeError, PlayerTimeout):
+        except (datamodel.IllegalMoveException, PlayerTimeout):
             # after max_timeouts timeouts, you lose
             self.game_state["timeout_teams"][bot.team_index] += 1
 
