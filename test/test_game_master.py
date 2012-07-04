@@ -443,6 +443,23 @@ class TestGame(unittest.TestCase):
 
         test_self.assertNotEqual(original_universe, gm.universe)
 
+    def test_failing_player(self):
+        class FailingPlayer(AbstractPlayer):
+            def get_move(self):
+                return 1
+
+        test_layout = (
+            """ ######
+                #0 . #
+                #.. 1#
+                ###### """)
+        gm = GameMaster(test_layout, 2, 1)
+
+        gm.register_team(SimpleTeam(FailingPlayer()))
+        gm.register_team(SimpleTeam(TestPlayer("^")))
+
+        gm.play()
+        self.assertEqual(gm.game_state["timeout_teams"], [1, 0])
 
     def test_viewer_may_change_gm(self):
         free_obj = Free
