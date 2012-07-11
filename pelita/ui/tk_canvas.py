@@ -119,45 +119,69 @@ class UiCanvas(object):
         self.score.pack(side=Tkinter.TOP, fill=Tkinter.X)
 
         self.status = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=25)
-        self.status.config(background="white")
         self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
 
-        font_size = guess_size("QUIT",
-                               self.mesh_graph.screen_width,
-                               25,
-                               rel_size = -1)
+        game_control_frame = Tkinter.Frame(self.status)
+        game_control_frame.grid(row=0, sticky="W")
+        game_speed_frame = Tkinter.Frame(self.status)
+        game_speed_frame.grid(row=1, sticky="W")
 
-        Tkinter.Button(self.status,
-                       font=(None, font_size),
+        self.status_round_info = Tkinter.Label(self.status, text="")
+        self.status_round_info.grid(row=0, column=2, sticky="E")
+
+        self.status_layout_info = Tkinter.Label(self.status, text="")
+        self.status_layout_info.grid(row=1, column=2, sticky="E")
+
+        self.button_game_speed_slower = Tkinter.Button(game_speed_frame,
+            foreground="black",
+            background="white",
+            justify=Tkinter.CENTER,
+            text="slower",
+            command=self.master.delay_inc)
+        self.button_game_speed_slower.pack(side=Tkinter.LEFT)
+
+        self.button_game_speed_faster = Tkinter.Button(game_speed_frame,
+            foreground="black",
+            background="white",
+            justify=Tkinter.CENTER,
+            text="faster",
+            command=self.master.delay_dec)
+        self.button_game_speed_faster.pack(side=Tkinter.LEFT)
+
+        self.master._check_speed_button_state()
+
+        Tkinter.Button(game_control_frame,
                        foreground="black",
                        background="white",
                        justify=Tkinter.CENTER,
                        text="PLAY/PAUSE",
                        command=self.master.toggle_running).pack(side=Tkinter.LEFT)
 
-        Tkinter.Button(self.status,
-                       font=(None, font_size),
+        Tkinter.Button(game_control_frame,
                        foreground="black",
                        background="white",
                        justify=Tkinter.CENTER,
                        text="STEP",
                        command=self.master.request_step).pack(side=Tkinter.LEFT)
 
-        Tkinter.Button(self.status,
-                       font=(None, font_size),
+        Tkinter.Button(game_control_frame,
                        foreground="black",
                        background="white",
                        justify=Tkinter.CENTER,
-                       text="PLAY ROUND",
+                       text="ROUND",
                        command=self.master.request_round).pack(side=Tkinter.LEFT)
 
         Tkinter.Button(self.status,
-                       font=(None, font_size),
                        foreground="black",
                        background="white",
                        justify=Tkinter.CENTER,
                        text="QUIT",
-                       command=self.master.quit).pack()
+                       command=self.master.quit).grid(row=0, column=1, rowspan=2, sticky="WE")
+
+
+        self.status.grid_columnconfigure(0, weight=1)
+        self.status.grid_columnconfigure(1, weight=1)
+        self.status.grid_columnconfigure(2, weight=1)
 
         self.canvas = Tkinter.Canvas(self.master.frame,
                                      width=self.mesh_graph.screen_width,
@@ -221,7 +245,7 @@ class UiCanvas(object):
             self.current_universe = universe
 
         if round is not None and turn is not None:
-            self.game_status_info = lambda: self.draw_status_info(turn, round)
+            self.game_status_info = lambda: self.draw_status_info(turn, round, game_state.get("layout_name", ""))
         self.game_status_info()
 
         self.draw_universe(self.current_universe, game_state)
@@ -294,17 +318,10 @@ class UiCanvas(object):
 
         self.score.create_text(center+2, 15, text=right_team, font=(None, font_size), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
 
-    def draw_status_info(self, turn, round):
-        self.status.delete("roundturn")
-        roundturn = "Bot %d, Round %d   " % (turn, round)
-        font_size = guess_size(roundturn,
-                               self.mesh_graph.screen_width,
-                               25,
-                               rel_size = 0)
-
-        self.status.create_text(self.mesh_graph.screen_width, 25,
-                                anchor=Tkinter.SE,
-                                text=roundturn, font=(None, font_size), tag="roundturn")
+    def draw_status_info(self, turn, round, layout_name):
+        roundturn = "Bot %d / Round %d" % (turn, round)
+        self.status_round_info.config(text=roundturn)
+        self.status_layout_info.config(text=layout_name)
 
     def draw_end_of_game(self, display_string):
         """ Draw an end of game string. """
@@ -422,6 +439,10 @@ class TkApplication(object):
 
         self.ui_canvas = UiCanvas(self, geometry=geometry)
 
+        self._min_delay = 1
+        self._delay = 1
+        self._check_speed_button_state()
+
         self.running = True
 
         self.master.createcommand('exit', self.quit)
@@ -448,9 +469,9 @@ class TkApplication(object):
             self.observe(observed)
 
             if self.controller_socket:
-                self.master.after(0, self.request_next, observed)
+                self.master.after(0 + self._delay, self.request_next, observed)
             else:
-                self.master.after(1, self.read_queue)
+                self.master.after(2 + self._delay, self.read_queue)
             return
         except zmq.core.error.ZMQError:
             self.observe({})
@@ -497,3 +518,26 @@ class TkApplication(object):
     def quit(self):
         self.on_quit()
         self.frame.quit()
+
+    def delay_inc(self):
+        self._delay += 5
+        self._check_speed_button_state()
+
+    def delay_dec(self):
+        # Tk may break if self._delay is lower than zero.
+        # (For some systems a value < 1 is already too fast.)
+        self._delay = max(self._delay - 5, self._min_delay)
+        self._check_speed_button_state()
+
+    def _check_speed_button_state(self):
+        try:
+            # self.ui_canvas.button_game_speed_faster
+            # may not be available yet (or may be None).
+            # If this is the case, we’ll do nothing at all.
+            if self._delay <= self._min_delay:
+                self.ui_canvas.button_game_speed_faster.config(state=Tkinter.DISABLED)
+            else:
+                self.ui_canvas.button_game_speed_faster.config(state=Tkinter.NORMAL)
+        except AttributeError:
+            pass
+
