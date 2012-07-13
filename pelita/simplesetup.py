@@ -569,7 +569,7 @@ class SimpleSubscriber(AbstractViewer):
             while True:
                 self._loop()
         except (KeyboardInterrupt, ExitLoop):
-            pass
+            self.socket.close()
 
     def _loop(self):
         """ Waits for incoming requests and tries to get a proper
