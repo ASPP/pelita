@@ -212,6 +212,10 @@ class TestSimpleSetup(unittest.TestCase):
         # wait until threads stop
         mean_viewer_thread.join()
         test_viewer_thread.join()
+        # must close the socket and terminate the context
+        # else we may get an assertion failure in zmq
+        publisher_viewer.socket.close()
+        publisher_viewer.context.term()
 
         self.assertEqual(original_universe, gm.universe)
 
