@@ -83,7 +83,9 @@ class GameMaster(object):
             "timeout_length": timeout_length,
             "max_timeouts": max_timeouts,
             "bot_talk": [""] * self.number_bots,
-            "layout_name": layout_name
+            "layout_name": layout_name,
+            "noise_radius": self.noiser and self.noiser.noise_radius,
+            "noise_sight_distance": self.noiser and self.noiser.sight_distance
         }
 
     @property
