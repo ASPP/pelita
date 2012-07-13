@@ -83,8 +83,8 @@ class TestSimpleSetup(unittest.TestCase):
         client1_address = server.bind_addresses[0].replace("*", "localhost")
         client2_address = server.bind_addresses[1].replace("*", "localhost")
 
-        client1 = SimpleClient(SimpleTeam("team1", RandomPlayer()), address=client1_address)
-        client2 = SimpleClient(SimpleTeam("team2", RandomPlayer()), address=client2_address)
+        client1 = SimpleClient(SimpleTeam("team1", TestPlayer("^>>v<")), address=client1_address)
+        client2 = SimpleClient(SimpleTeam("team2", TestPlayer("^<<v>")), address=client2_address)
 
         client1.autoplay_process()
         client2.autoplay_process()
