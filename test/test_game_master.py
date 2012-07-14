@@ -692,54 +692,68 @@ class TestGame(unittest.TestCase):
     def test_play_step(self):
 
         test_start = (
-            """ ######
-                #0 ..#
-                #.. 1#
-                ###### """)
+            """ ########
+                # 0  ..#
+                #..  1 #
+                ######## """)
 
         number_bots = 2
 
-        gm = GameMaster(test_start, number_bots, 3)
-        gm.register_team(SimpleTeam(TestPlayer('>>>')))
-        gm.register_team(SimpleTeam(TestPlayer('<<<')))
+        gm = GameMaster(test_start, number_bots, 4)
+        gm.register_team(SimpleTeam(TestPlayer('>>>>')))
+        gm.register_team(SimpleTeam(TestPlayer('<<<<')))
 
         gm.set_initial()
 
         gm.play_round()
-        self.assertEqual(gm.universe.bots[0].current_pos, (2,1))
-        self.assertEqual(gm.universe.bots[1].current_pos, (3,2))
+        self.assertEqual(gm.universe.bots[0].current_pos, (3,1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (4,2))
         self.assertEqual(gm.game_state["round_index"], 0)
         self.assertEqual(gm.game_state["bot_id"], 1)
         self.assertEqual(gm.game_state["finished"], False)
 
         gm.play_step()
-        self.assertEqual(gm.universe.bots[0].current_pos, (3,1))
-        self.assertEqual(gm.universe.bots[1].current_pos, (3,2))
+        self.assertEqual(gm.universe.bots[0].current_pos, (4,1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (4,2))
         self.assertEqual(gm.game_state["round_index"], 1)
         self.assertEqual(gm.game_state["bot_id"], 0)
         self.assertEqual(gm.game_state["finished"], False)
 
         gm.play_step()
-        self.assertEqual(gm.universe.bots[0].current_pos, (3,1))
-        self.assertEqual(gm.universe.bots[1].current_pos, (2,2))
+        self.assertEqual(gm.universe.bots[0].current_pos, (4,1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (3,2))
         self.assertEqual(gm.game_state["round_index"], 1)
+        self.assertEqual(gm.game_state["bot_id"], 1)
+        self.assertEqual(gm.game_state["finished"], False)
+
+        gm.play_step()
+        self.assertEqual(gm.universe.bots[0].current_pos, (5,1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (3,2))
+        self.assertEqual(gm.game_state["round_index"], 2)
+        self.assertEqual(gm.game_state["bot_id"], 0)
+        self.assertEqual(gm.game_state["finished"], False)
+
+        gm.play_step()
+        self.assertEqual(gm.universe.bots[0].current_pos, (5,1))
+        self.assertEqual(gm.universe.bots[1].current_pos, (2,2))
+        self.assertEqual(gm.game_state["round_index"], 2)
         self.assertEqual(gm.game_state["bot_id"], 1)
         self.assertEqual(gm.game_state["finished"], False)
 
         gm.play_round()
         # first call tries to finish current round (which already is finished)
         # so nothing happens
-        self.assertEqual(gm.universe.bots[0].current_pos, (3,1))
+        self.assertEqual(gm.universe.bots[0].current_pos, (5,1))
         self.assertEqual(gm.universe.bots[1].current_pos, (2,2))
-        self.assertEqual(gm.game_state["round_index"], 1)
+        self.assertEqual(gm.game_state["round_index"], 2)
         self.assertEqual(gm.game_state["bot_id"], 1)
         self.assertEqual(gm.game_state["finished"], False)
 
         gm.play_round()
         # second call works
-        self.assertEqual(gm.universe.bots[0].current_pos, (4,1))
+        self.assertEqual(gm.universe.bots[0].current_pos, (6,1))
         self.assertEqual(gm.universe.bots[1].current_pos, (1,2))
-        self.assertEqual(gm.game_state["round_index"], 2)
+        self.assertEqual(gm.game_state["round_index"], 3)
         self.assertEqual(gm.game_state["bot_id"], 1)
         self.assertEqual(gm.game_state["finished"], True)
 
@@ -747,16 +761,16 @@ class TestGame(unittest.TestCase):
         # (hence round_index == 2 and bot_id == 1)
         # nothing happens anymore
         gm.play_round()
-        self.assertEqual(gm.universe.bots[0].current_pos, (4,1))
+        self.assertEqual(gm.universe.bots[0].current_pos, (6,1))
         self.assertEqual(gm.universe.bots[1].current_pos, (1,2))
-        self.assertEqual(gm.game_state["round_index"], 2)
+        self.assertEqual(gm.game_state["round_index"], 3)
         self.assertEqual(gm.game_state["bot_id"], 1)
         self.assertEqual(gm.game_state["finished"], True)
 
         # nothing happens anymore
         gm.play_round()
-        self.assertEqual(gm.universe.bots[0].current_pos, (4,1))
+        self.assertEqual(gm.universe.bots[0].current_pos, (6,1))
         self.assertEqual(gm.universe.bots[1].current_pos, (1,2))
-        self.assertEqual(gm.game_state["round_index"], 2)
+        self.assertEqual(gm.game_state["round_index"], 3)
         self.assertEqual(gm.game_state["bot_id"], 1)
         self.assertEqual(gm.game_state["finished"], True)
