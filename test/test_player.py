@@ -192,8 +192,22 @@ class TestNQRandom_Player(unittest.TestCase):
         self.assertEqual(gm.universe.bots[0].current_pos, (1, 1))
         self.assertEqual(gm.universe.bots[1].current_pos, (9, 1))
 
-class TestBFS_Player(unittest.TestCase):
 
+class TestSpeakingPlayer(unittest.TestCase):
+    def test_demo_players(self):
+        test_layout = (
+        """ ############
+            #0 #.  .# 1#
+            ############ """)
+        gm = GameMaster(test_layout, 2, 1)
+        gm.register_team(SimpleTeam(SpeakingPlayer()))
+        gm.register_team(SimpleTeam(RandomPlayer()))
+        gm.play()
+        self.assertTrue(gm.game_state["bot_talk"][0].startswith("Going"))
+        self.assertEqual(gm.game_state["bot_talk"][1], "")
+
+
+class TestBFS_Player(unittest.TestCase):
     def test_demo_players(self):
         test_layout = (
         """ ##################
