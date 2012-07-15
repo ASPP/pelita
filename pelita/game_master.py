@@ -132,13 +132,13 @@ class GameMaster(object):
         It notifies the PlayerTeams and the Viewers of the initial
         universes and tells the PlayerTeams what team_id they have.
         """
-        for team_id, team in enumerate(self.player_teams):
-            team.set_initial(team_id, self.universe, self.game_state)
-
         if len(self.player_teams) != len(self.universe.teams):
             raise IndexError(
-                "Universe uses %i teams, but only %i are registered."
+                "Universe uses %i teams, but %i are registered."
                 % (len(self.player_teams), len(self.universe.teams)))
+
+        for team_id, team in enumerate(self.player_teams):
+            team.set_initial(team_id, self.universe, self.game_state)
 
         for viewer in self.viewers:
             viewer.set_initial(self.universe)

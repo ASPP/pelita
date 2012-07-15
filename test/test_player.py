@@ -192,8 +192,36 @@ class TestNQRandom_Player(unittest.TestCase):
         self.assertEqual(gm.universe.bots[0].current_pos, (1, 1))
         self.assertEqual(gm.universe.bots[1].current_pos, (9, 1))
 
-class TestBFS_Player(unittest.TestCase):
+    def test_path(self):
+        test_layout = (
+        """ ############
+            #  . # .# ##
+            # ## #  # ##
+            #0#.   .##1#
+            ############ """)
+        gm = GameMaster(test_layout, 2, 7)
+        gm.register_team(SimpleTeam(NQRandomPlayer()))
+        gm.register_team(SimpleTeam(NQRandomPlayer()))
+        gm.play()
+        self.assertEqual(gm.universe.bots[0].current_pos, (4, 3))
+        self.assertEqual(gm.universe.bots[1].current_pos, (10, 3))
 
+
+class TestSpeakingPlayer(unittest.TestCase):
+    def test_demo_players(self):
+        test_layout = (
+        """ ############
+            #0 #.  .# 1#
+            ############ """)
+        gm = GameMaster(test_layout, 2, 1)
+        gm.register_team(SimpleTeam(SpeakingPlayer()))
+        gm.register_team(SimpleTeam(RandomPlayer()))
+        gm.play()
+        self.assertTrue(gm.game_state["bot_talk"][0].startswith("Going"))
+        self.assertEqual(gm.game_state["bot_talk"][1], "")
+
+
+class TestBFS_Player(unittest.TestCase):
     def test_demo_players(self):
         test_layout = (
         """ ##################
@@ -249,19 +277,20 @@ class TestBFS_Player(unittest.TestCase):
         self.assertEqual(0, len(bfs1.current_path))
         self.assertEqual(0, len(bfs2.current_path))
 
+
 class TestBasicDefensePlayer(unittest.TestCase):
     def test_tracking(self):
         test_layout = (
-        """##############
-           #           1#
-           #.    0     .#
-           #.    2     .#
-           #   #    #  3#
-           ############## """)
+        """################
+           #             1#
+           #.     0      .#
+           #.     2      .#
+           #   #      #  3#
+           ################ """)
 
         game_master = GameMaster(test_layout, 4, 5, noise=False)
-        team_1 = SimpleTeam(TestPlayer('><--'),
-                            TestPlayer('-><-'))
+        team_1 = SimpleTeam(TestPlayer('><---'),
+                            TestPlayer('-><>-'))
         team_2 = SimpleTeam(BasicDefensePlayer(), BasicDefensePlayer())
 
         game_master.register_team(team_1)
@@ -285,6 +314,49 @@ class TestBasicDefensePlayer(unittest.TestCase):
         # 2 moved back, 3 tracks None
         self.assertEqual(team_2._players[0].tracking_idx, 2)
         self.assertEqual(team_2._players[1].tracking_idx, None)
+
+        game_master.play_round()
+        # 0 did not move, 1 tracks None
+        # 2 moved east, 3 tracks 2
+        self.assertEqual(team_2._players[0].tracking_idx, None)
+        self.assertEqual(team_2._players[1].tracking_idx, 2)
+
+        game_master.play_round()
+        # 0 did not move, 1 tracks 2
+        # 2 did not move, 3 still tracks 2
+        self.assertEqual(team_2._players[0].tracking_idx, 2)
+        self.assertEqual(team_2._players[1].tracking_idx, 2)
+
+    def test_unreachable_border(self):
+        test_layout = (
+        """ ############
+            #0 .   #. 1#
+            ############ """)
+        game_master = GameMaster(test_layout, 2, 1, noise=False)
+
+        bfs1 = BasicDefensePlayer()
+        bfs2 = BasicDefensePlayer()
+        game_master.register_team(SimpleTeam(bfs1))
+        game_master.register_team(SimpleTeam(bfs2))
+        game_master.set_initial()
+        game_master.play()
+        self.assertEqual(bfs1.path, [(5, 1), (4, 1), (3, 1)])
+        self.assertTrue(bfs2.path is None)
+
+
+    def test_unreachable_bot(self):
+        test_layout = (
+        """ ############
+            #  .  0#. 1#
+            ############ """)
+        game_master = GameMaster(test_layout, 2, 1, noise=False)
+
+        bfs2 = BasicDefensePlayer()
+        game_master.register_team(SimpleTeam(StoppingPlayer()))
+        game_master.register_team(SimpleTeam(bfs2))
+        game_master.set_initial()
+        game_master.play()
+        self.assertTrue(bfs2.path is None)
 
 
 class TestSimpleTeam(unittest.TestCase):
