@@ -267,16 +267,16 @@ class TestBFS_Player(unittest.TestCase):
 class TestBasicDefensePlayer(unittest.TestCase):
     def test_tracking(self):
         test_layout = (
-        """##############
-           #           1#
-           #.    0     .#
-           #.    2     .#
-           #   #    #  3#
-           ############## """)
+        """################
+           #             1#
+           #.     0      .#
+           #.     2      .#
+           #   #      #  3#
+           ################ """)
 
         game_master = GameMaster(test_layout, 4, 5, noise=False)
-        team_1 = SimpleTeam(TestPlayer('><--'),
-                            TestPlayer('-><-'))
+        team_1 = SimpleTeam(TestPlayer('><---'),
+                            TestPlayer('-><>-'))
         team_2 = SimpleTeam(BasicDefensePlayer(), BasicDefensePlayer())
 
         game_master.register_team(team_1)
@@ -300,6 +300,18 @@ class TestBasicDefensePlayer(unittest.TestCase):
         # 2 moved back, 3 tracks None
         self.assertEqual(team_2._players[0].tracking_idx, 2)
         self.assertEqual(team_2._players[1].tracking_idx, None)
+
+        game_master.play_round()
+        # 0 did not move, 1 tracks None
+        # 2 moved east, 3 tracks 2
+        self.assertEqual(team_2._players[0].tracking_idx, None)
+        self.assertEqual(team_2._players[1].tracking_idx, 2)
+
+        game_master.play_round()
+        # 0 did not move, 1 tracks 2
+        # 2 did not move, 3 still tracks 2
+        self.assertEqual(team_2._players[0].tracking_idx, 2)
+        self.assertEqual(team_2._players[1].tracking_idx, 2)
 
     def test_unreachable_border(self):
         test_layout = (
