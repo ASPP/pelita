@@ -653,6 +653,22 @@ class CTFUniverse(object):
             other_team_bots.extend(t.bots)
         return [self.bots[i] for i in other_team_bots]
 
+    def enemy_teams(self, team_index):
+        """ Obtain the enemy teams.
+
+        Parameters
+        ----------
+        team_index : int
+            the index of the 'friendly' team
+
+        Returns
+        -------
+        enemy_teams : list of Team objects
+        """
+        other_teams = self.teams[:]
+        other_teams.remove(self.teams[team_index])
+        return other_teams
+
     def team_border(self, team_index):
         """ Positions of the border positions.
 
