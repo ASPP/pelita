@@ -646,10 +646,8 @@ class CTFUniverse(object):
         enemy_bots : list of Bot objects
 
         """
-        other_teams = self.teams[:]
-        other_teams.remove(self.teams[team_index])
         other_team_bots = []
-        for t in other_teams:
+        for t in self.enemy_teams(team_index):
             other_team_bots.extend(t.bots)
         return [self.bots[i] for i in other_team_bots]
 
