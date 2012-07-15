@@ -56,6 +56,40 @@ class TestGameMaster(unittest.TestCase):
         self.assertEqual(team_2._players[1].current_uni.teams[0].name, "team1")
         self.assertEqual(team_2._players[1].current_uni.teams[1].name, "team2")
 
+    def test_too_few_registered_teams(self):
+        test_layout_4 = (
+        """ ##################
+            #0#.  .  # .     #
+            #2#####    #####1#
+            #     . #  .  .#3#
+            ################## """)
+        game_master = GameMaster(test_layout_4, 4, 200)
+
+        team_1 = SimpleTeam(TestPlayer([]), TestPlayer([]))
+        game_master.register_team(team_1)
+
+        self.assertEqual(len(game_master.universe.teams), 2)
+        self.assertRaises(IndexError, game_master.play)
+
+    def test_too_many_registered_teams(self):
+        test_layout_4 = (
+        """ ##################
+            #0#.  .  # .     #
+            #2#####    #####1#
+            #     . #  .  .#3#
+            ################## """)
+        game_master = GameMaster(test_layout_4, 4, 200)
+
+        team_1 = SimpleTeam(TestPlayer([]), TestPlayer([]))
+        team_2 = SimpleTeam(TestPlayer([]), TestPlayer([]))
+        team_3 = SimpleTeam(TestPlayer([]), TestPlayer([]))
+        game_master.register_team(team_1)
+        game_master.register_team(team_2)
+        game_master.register_team(team_3)
+
+        self.assertEqual(len(game_master.universe.teams), 2)
+        self.assertRaises(IndexError, game_master.play)
+
 
 class TestUniverseNoiser(unittest.TestCase):
     if not hasattr(unittest.TestCase, 'assertItemsEqual'):
