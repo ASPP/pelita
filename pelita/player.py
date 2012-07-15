@@ -517,6 +517,7 @@ class BFSPlayer(AbstractPlayer):
             self.current_path = None
             return self.get_move()
 
+
 class BasicDefensePlayer(AbstractPlayer):
     """ A crude defensive player.
 
@@ -588,11 +589,21 @@ class BasicDefensePlayer(AbstractPlayer):
                     if self.team.in_zone(enemy.current_pos)]
             if possible_targets:
                 # get the path to the closest one
-                closest_enemy = min([(len(self.adjacency.a_star(self.current_pos,
-                    enemy.current_pos)),enemy) for enemy in possible_targets])
+                try:
+                    possible_paths = [(enemy, self.adjacency.a_star(self.current_pos, enemy.current_pos))
+                                      for enemy in possible_targets]
+                except NoPathException:
+                    possible_paths = []
+            else:
+                possible_paths = []
+
+            if possible_paths:
+                closest_enemy, path = min(possible_paths,
+                                          key=lambda enemy_path: len(enemy_path[1]))
+
                 # track that bot by using its index
-                self.tracking_idx = closest_enemy[1].index
-                self.path = self.path_to_target
+                self.tracking_idx = closest_enemy.index
+                self.path = path
             else:
                 # otherwise keep going if we aren't already underway
                 if not self.path:

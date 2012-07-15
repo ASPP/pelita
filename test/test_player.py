@@ -301,20 +301,35 @@ class TestBasicDefensePlayer(unittest.TestCase):
         self.assertEqual(team_2._players[0].tracking_idx, 2)
         self.assertEqual(team_2._players[1].tracking_idx, None)
 
-    def test_unreachable(self):
+    def test_unreachable_border(self):
         test_layout = (
         """ ############
             #0 .   #. 1#
             ############ """)
-        game_master = GameMaster(test_layout, 2, 200)
+        game_master = GameMaster(test_layout, 2, 1, noise=False)
 
         bfs1 = BasicDefensePlayer()
         bfs2 = BasicDefensePlayer()
         game_master.register_team(SimpleTeam(bfs1))
         game_master.register_team(SimpleTeam(bfs2))
         game_master.set_initial()
-        game_master.play_round()
+        game_master.play()
         self.assertEqual(bfs1.path, [(5, 1), (4, 1), (3, 1)])
+        self.assertTrue(bfs2.path is None)
+
+
+    def test_unreachable_bot(self):
+        test_layout = (
+        """ ############
+            #  .  0#. 1#
+            ############ """)
+        game_master = GameMaster(test_layout, 2, 1, noise=False)
+
+        bfs2 = BasicDefensePlayer()
+        game_master.register_team(SimpleTeam(StoppingPlayer()))
+        game_master.register_team(SimpleTeam(bfs2))
+        game_master.set_initial()
+        game_master.play()
         self.assertTrue(bfs2.path is None)
 
 
