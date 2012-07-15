@@ -1,4 +1,5 @@
 import unittest
+import time
 from pelita.player import *
 from pelita.datamodel import create_CTFUniverse, north, stop, east, west
 from pelita.game_master import GameMaster
@@ -109,6 +110,26 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual(universe.bots[1].initial_pos, (15, 2))
         self.assertUniversesNotEqual(player_1.current_uni,
                                      player_1.universe_states[-2])
+
+    def test_time_spent(self):
+        outer = self
+
+        class TimeSpendingPlayer(AbstractPlayer):
+            def get_move(self):
+                time_spent = self.time_spent()
+                sleep_time = 0.01
+                time.sleep(sleep_time)
+                outer.assertAlmostEqual(self.time_spent(), time_spent + sleep_time, places=2)
+                return stop
+
+        test_layout = (
+        """ ############
+            #0 #.  .# 1#
+            ############ """)
+        gm = GameMaster(test_layout, 2, 1)
+        gm.register_team(SimpleTeam(TimeSpendingPlayer()))
+        gm.register_team(SimpleTeam(RandomPlayer()))
+        gm.play()
 
 
 class TestTestPlayer(unittest.TestCase):
