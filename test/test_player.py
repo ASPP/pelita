@@ -263,6 +263,7 @@ class TestBFS_Player(unittest.TestCase):
         self.assertEqual(0, len(bfs1.current_path))
         self.assertEqual(0, len(bfs2.current_path))
 
+
 class TestBasicDefensePlayer(unittest.TestCase):
     def test_tracking(self):
         test_layout = (
@@ -299,6 +300,22 @@ class TestBasicDefensePlayer(unittest.TestCase):
         # 2 moved back, 3 tracks None
         self.assertEqual(team_2._players[0].tracking_idx, 2)
         self.assertEqual(team_2._players[1].tracking_idx, None)
+
+    def test_unreachable(self):
+        test_layout = (
+        """ ############
+            #0 .   #. 1#
+            ############ """)
+        game_master = GameMaster(test_layout, 2, 200)
+
+        bfs1 = BasicDefensePlayer()
+        bfs2 = BasicDefensePlayer()
+        game_master.register_team(SimpleTeam(bfs1))
+        game_master.register_team(SimpleTeam(bfs2))
+        game_master.set_initial()
+        game_master.play_round()
+        self.assertEqual(bfs1.path, [(5, 1), (4, 1), (3, 1)])
+        self.assertTrue(bfs2.path is None)
 
 
 class TestSimpleTeam(unittest.TestCase):
