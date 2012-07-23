@@ -47,7 +47,7 @@ class TestSimpleSetup(unittest.TestCase):
         layout = """
         ##########
         #        #
-        #0      1#
+        #0  ..  1#
         ##########
         """
         server = SimpleServer(layout_string=layout, rounds=5, players=2,
@@ -72,7 +72,7 @@ class TestSimpleSetup(unittest.TestCase):
         layout = """
         ##########
         #        #
-        #0      1#
+        #0  ..  1#
         ##########
         """
         server = SimpleServer(layout_string=layout, rounds=5, players=2)
@@ -83,13 +83,45 @@ class TestSimpleSetup(unittest.TestCase):
         client1_address = server.bind_addresses[0].replace("*", "localhost")
         client2_address = server.bind_addresses[1].replace("*", "localhost")
 
-        client1 = SimpleClient(SimpleTeam("team1", RandomPlayer()), address=client1_address)
-        client2 = SimpleClient(SimpleTeam("team2", RandomPlayer()), address=client2_address)
+        client1 = SimpleClient(SimpleTeam("team1", TestPlayer("^>>v<")), address=client1_address)
+        client2 = SimpleClient(SimpleTeam("team2", TestPlayer("^<<v>")), address=client2_address)
 
         client1.autoplay_process()
         client2.autoplay_process()
         server.run()
         server.shutdown()
+
+    def test_simple_failing_bots(self):
+        layout = """
+        ##########
+        #        #
+        #0  ..  1#
+        ##########
+        """
+        server = SimpleServer(layout_string=layout, rounds=5, players=2)
+
+        for bind_address in server.bind_addresses:
+            self.assertTrue(bind_address.startswith("tcp://"))
+
+        client1_address = server.bind_addresses[0].replace("*", "localhost")
+        client2_address = server.bind_addresses[1].replace("*", "localhost")
+
+        class FailingPlayer(object):
+            def _set_initial(self, dummy, dummy2):
+                pass
+            def _set_index(self, dummy):
+                pass
+            def _get_move(self, universe, game_state):
+                pass
+
+        client1 = SimpleClient(SimpleTeam("team1", TestPlayer("^>>v<")), address=client1_address)
+        client2 = SimpleClient(SimpleTeam("team2", FailingPlayer()), address=client2_address)
+
+        client1.autoplay_process()
+        client2.autoplay_process()
+        server.run()
+        server.shutdown()
+
 
     def test_remote_viewer_may_not_change_gm(self):
         free_obj = Free
@@ -180,6 +212,10 @@ class TestSimpleSetup(unittest.TestCase):
         # wait until threads stop
         mean_viewer_thread.join()
         test_viewer_thread.join()
+        # must close the socket and terminate the context
+        # else we may get an assertion failure in zmq
+        publisher_viewer.socket.close()
+        publisher_viewer.context.term()
 
         self.assertEqual(original_universe, gm.universe)
 
