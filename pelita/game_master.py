@@ -244,15 +244,20 @@ class GameMaster(object):
             team_time_begin = time.time()
 
             player_state = player_team.get_move(bot.index, universe, self.game_state)
-            move = player_state.get("move")
-            bot_talk = player_state.get("say")
+            try:
+                # player_state may be None, if RemoteTeamPlayer could not
+                # properly convert it
+                move = player_state.get("move")
+                bot_talk = player_state.get("say")
+            except AttributeError:
+                raise datamodel.IllegalMoveException("Bad data returned by Player.")
 
             self.game_state["bot_talk"][bot.index] = bot_talk
 
             team_time_needed = time.time() - team_time_begin
             self.game_state["team_time"][bot.team_index] += team_time_needed
 
-            move_state = self.universe.move_bot(bot.index, tuple(move))
+            move_state = self.universe.move_bot(bot.index, move)
             for k, v in move_state.iteritems():
                 self.game_state[k] += v
 

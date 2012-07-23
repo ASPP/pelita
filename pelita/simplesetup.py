@@ -194,12 +194,16 @@ class RemoteTeamPlayer(object):
                                                  "universe": universe,
                                                  "game_state": game_state})
             reply = self.zmqconnection.recv_timeout(game_state["timeout_length"])
-            return dict(reply)
+            # make sure it is a dict
+            reply = dict(reply)
+            # make sure that the move is a tuple
+            reply["move"] = tuple(reply.get("move"))
+            return reply
         except ZMQTimeout:
             # answer did not arrive in time
             raise PlayerTimeout()
         except TypeError:
-            # if we could not convert into a tuple (e.g. bad reply)
+            # if we could not convert into a tuple or dict (e.g. bad reply)
             return None
         except DeadConnection:
             # if the remote connection is closed
@@ -565,7 +569,7 @@ class SimpleSubscriber(AbstractViewer):
             while True:
                 self._loop()
         except (KeyboardInterrupt, ExitLoop):
-            pass
+            self.socket.close()
 
     def _loop(self):
         """ Waits for incoming requests and tries to get a proper
