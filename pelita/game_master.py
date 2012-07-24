@@ -38,7 +38,7 @@ class GameMaster(object):
     noise : boolean
         should enemy positions be noisy
     seed : int, optional
-        random seed to be passed to players
+        seed which initialises the internal random number generator
 
     Attributes
     ----------
@@ -65,6 +65,14 @@ class GameMaster(object):
         self.viewers = []
         self.initial_delay = initial_delay
 
+        # We seed the internal random number generator.
+        # This instance should be used for all important random decisions
+        # in GameMaster which influence the game itself.
+        # E.g. for forced random moves and most importantly for calculating
+        # the seed which is passed to the clients with set_initial.
+        # Currently, the noiser does not use this seed.
+        self.rnd = random.Random(seed)
+
         #: The pointer to the current iteration.
         self._step_iter = None
 
@@ -88,8 +96,7 @@ class GameMaster(object):
             "bot_talk": [""] * self.number_bots,
             "layout_name": layout_name,
             "noise_radius": self.noiser and self.noiser.noise_radius,
-            "noise_sight_distance": self.noiser and self.noiser.sight_distance,
-            "seed": seed
+            "noise_sight_distance": self.noiser and self.noiser.sight_distance
         }
 
     @property
@@ -142,7 +149,15 @@ class GameMaster(object):
                 % (len(self.player_teams), len(self.universe.teams)))
 
         for team_id, team in enumerate(self.player_teams):
-            team.set_initial(team_id, self.universe, self.game_state)
+            # What follows is a small hack:
+            # We only send the seed once with the game state
+            # during set_initial. This ensures that no-one
+            # is able to read or guess the seed of the other
+            # party.
+
+            team_seed = self.rnd.randint(0, sys.maxint)
+            team_state = dict({"seed": team_seed}, **self.game_state)
+            team.set_initial(team_id, self.universe, team_state)
 
         for viewer in self.viewers:
             viewer.set_initial(self.universe)
@@ -284,7 +299,7 @@ class GameMaster(object):
 
             moves = self.universe.get_legal_moves_or_stop(bot.current_pos).keys()
 
-            move = random.choice(moves)
+            move = self.rnd.choice(moves)
             move_state = self.universe.move_bot(bot.index, move)
             for k,v in move_state.iteritems():
                 self.game_state[k] += v
