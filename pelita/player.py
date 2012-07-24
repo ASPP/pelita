@@ -253,15 +253,15 @@ class AbstractPlayer(object):
         return self.current_uni.enemy_bots(self.me.team_index)
 
     @property
-    def enemy_teams(self):
-        """ A list of enemy Teams.
+    def enemy_team(self):
+        """ The enemy Team.
 
         Returns
         -------
-        enemy_teams : list of Team objects
-            all enemy teams
+        enemy_team : Team object
+            the enemy teams
         """
-        return self.current_uni.enemy_teams(self.me.team_index)
+        return self.current_uni.enemy_team(self.me.team_index)
 
     @property
     def current_pos(self):

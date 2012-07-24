@@ -43,7 +43,7 @@ Convenience Properties of ``AbstractPlayer``
 
 .. autosummary::
 
-    enemy_teams
+    enemy_team
     enemy_bots
     enemy_food
 
@@ -113,7 +113,7 @@ Interfacing with the ``CTFUniverse``
     bot_positions
     food_list
     pretty
-    enemy_teams
+    enemy_team
     enemy_bots
     enemy_food
     get_legal_moves
