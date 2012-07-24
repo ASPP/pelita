@@ -417,6 +417,9 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertEqual([universe.bots[i] for i in 1,3], universe.team_bots(1))
         self.assertEqual([universe.bots[i] for i in 1,3], universe.enemy_bots(0))
 
+        self.assertEqual(universe.enemy_team(0), universe.teams[1])
+        self.assertEqual(universe.enemy_team(1), universe.teams[0])
+
         self.assertEqual([(8, 1), (8, 2)], universe.team_border(0))
         self.assertEqual([(9, 2), (9, 3)], universe.team_border(1))
 
@@ -591,6 +594,18 @@ class TestCTFUniverse(unittest.TestCase):
         universe = create_CTFUniverse(test_layout3, 4)
         universe_json = json_converter.dumps(universe)
         self.assertEqual(json_converter.loads(universe_json), universe)
+
+    def test_too_many_enemy_teams(self):
+        test_layout3 = (
+        """ ##################
+            #0#.  .  # .     #
+            #1#####    #####2#
+            #     . #  .  .#3#
+            ################## """)
+        universe = create_CTFUniverse(test_layout3, 4)
+        # cheating
+        universe.teams.append(Team(2, "noname", ()))
+        self.assertRaises(UniverseException, universe.enemy_team, 0)
 
 
 class TestCTFUniverseRules(unittest.TestCase):

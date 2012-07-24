@@ -59,6 +59,11 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual(universe.teams[1], player_1.team)
         self.assertEqual(universe.teams[1], player_3.team)
 
+        self.assertEqual(universe.teams[1], player_0.enemy_team)
+        self.assertEqual(universe.teams[1], player_2.enemy_team)
+        self.assertEqual(universe.teams[0], player_1.enemy_team)
+        self.assertEqual(universe.teams[0], player_3.enemy_team)
+
         self.assertEqual({(0, 1): (1, 2), (0, 0): (1, 1)},
                 player_0.legal_moves)
         self.assertEqual({(0, 1): (15, 3), (0, -1): (15, 1), (0, 0): (15, 2),
