@@ -646,12 +646,30 @@ class CTFUniverse(object):
         enemy_bots : list of Bot objects
 
         """
+        return [self.bots[i] for i in self.enemy_team(team_index).bots]
+
+    def enemy_team(self, team_index):
+        """ Obtain the enemy team.
+
+        Parameters
+        ----------
+        team_index : int
+            the index of the 'friendly' team
+
+        Returns
+        -------
+        enemy_team : Team object
+
+        Raises
+        ------
+        UniverseException
+            if there is more than one enemy team
+        """
         other_teams = self.teams[:]
         other_teams.remove(self.teams[team_index])
-        other_team_bots = []
-        for t in other_teams:
-            other_team_bots.extend(t.bots)
-        return [self.bots[i] for i in other_team_bots]
+        if len(other_teams) != 1:
+            raise UniverseException("Expecting one enemy team. Found %i." % len(other_teams))
+        return other_teams[0]
 
     def team_border(self, team_index):
         """ Positions of the border positions.

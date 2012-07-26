@@ -266,8 +266,8 @@ class GameMaster(object):
             self.game_state["timeout_teams"][bot.team_index] += 1
 
             if self.game_state["timeout_teams"][bot.team_index] == self.game_state["max_timeouts"]:
-                other_team_idx = 1 - bot.team_index
-                self.game_state["team_wins"] = other_team_idx
+                other_team = self.universe.enemy_team(bot.team_index)
+                self.game_state["team_wins"] = other_team.index
                 sys.stderr.write("Timeout #%r for team %r (bot index %r). Team disqualified.\n" % (
                                   self.game_state["timeout_teams"][bot.team_index],
                                   bot.team_index,
@@ -286,8 +286,8 @@ class GameMaster(object):
                 self.game_state[k] += v
 
         except PlayerDisconnected:
-            other_team_idx = 1 - bot.team_index
-            self.game_state["team_wins"] = other_team_idx
+            other_team = self.universe.enemy_team(bot.team_index)
+            self.game_state["team_wins"] = other_team.index
 
             sys.stderr.write("Team %r (bot index %r) disconnected. Team disqualified.\n" % (
                               bot.team_index,
@@ -354,7 +354,7 @@ class GameMaster(object):
         winning_team = self.game_state.get("team_wins")
         if winning_team is not None:
             winner = self.universe.teams[winning_team]
-            loser = self.universe.teams[1 - winning_team]
+            loser = self.universe.enemy_team(winning_team)
             msg = "Finished. %r won over %r. (%r:%r)" % (
                     winner.name, loser.name,
                     winner.score, loser.score
