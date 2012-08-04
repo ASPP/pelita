@@ -326,7 +326,7 @@ def run_game():
         addr = addrs_right.replace('*', 'localhost')
         client = pelita.simplesetup.SimpleClient(bads, address=addr)
         client.run()
-        sys.exit(1)
+        sys.exit()
 
     server = pelita.simplesetup.SimpleServer(layout_file=args.layoutfile,
                                        layout_name=args.layout,
