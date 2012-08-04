@@ -145,8 +145,6 @@ parser.add_argument('--max-timeouts', type=int, default=5,
                     dest='max_timeouts', help='maximum number of timeouts allowed')
 parser.add_argument('--timeout', type=int, default=3,
                     dest='timeout_length', help='time before timeout')
-parser.add_argument('--standalone-client', const=True, action='store_const', dest='standalone_client',
-                    help='run standalone game')
 
 publisher_opt = parser.add_mutually_exclusive_group()
 publisher_opt.add_argument('--publish', type=str, metavar='URL',
@@ -183,6 +181,9 @@ layout_opt.add_argument('--filter', metavar='STRING',
                         help='retrict the pool of random layouts to those whose'
                         ' name contains STRING.'
                         ' Default: \'normal_without_dead_ends\'')
+
+parser.add_argument('--standalone-client', const=True, action='store_const', dest='standalone_client',
+                    help='run standalone game')
 
 parser.epilog = """\
 Team Specification:
@@ -224,10 +225,35 @@ Team Specification:
   - Using custom players (simpleclient):
     The address the server should bind on and wait for a client
     to connect to.
-    Example usage:
+
+    Example of a server binding the left team to 'tcp://*:9005' and
+    the right team to 'ipc:///tmp/mysocket':
 
         $ %(prog)s tcp://*:9005 ipc:///tmp/mysocket
 
+    Example of a server binding the left team to 'tcp://*:9005' and
+    using a built-in Player as the right team:
+
+        $ %(prog)s tcp://*:9005 NQRandomPlayer,BasicDefensePlayer
+
+Standalone mode:
+  When --standalone-client is specified, the first positional argument
+  is taken as a team specification, whereas the second positional argument
+  is used to specify the address where the Player should connect to.
+
+  The user code then runs in the main thread of the process and as such
+  may be interrupted with the Python debugger pdb. (For best results,
+  it may be necessary to increase the timeout time in the server.)
+
+  Example usage. We use a server binding to two different ports:
+
+      $ %(prog)s tcp://*:51025 tcp://*:51027
+
+  Now we can start two clients and have them connect to their respective
+  socket:
+
+    $ %(prog)s --standalone-client BFSPlayer,RandomPlayer tcp://localhost:51025
+    $ %(prog)s --standalone-client ~/my_player.py tcp://localhost:51027
 
 Layout specification:
   If neither --layoutfile nor --layout are specified, the maze is
@@ -292,7 +318,10 @@ def run_game():
     else:
         initial_delay = 0.0
 
-
+    # if standalone_client was specified,
+    # we use the following scheme
+    # the first positional argument specifies the team to load
+    # the second positional argument specifies the address to connect to
     if args.standalone_client:
         addr = addrs_right.replace('*', 'localhost')
         client = pelita.simplesetup.SimpleClient(bads, address=addr)
