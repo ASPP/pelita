@@ -27,6 +27,7 @@ class GameMaster(object):
     This object coordinates the moves of the player implementations with the
     updating of the universe.
 
+
     Parameters
     ----------
     layout : string
@@ -77,26 +78,70 @@ class GameMaster(object):
         self._step_iter = None
 
         self.game_state = {
+            #: holds a list of bot movements for this step
+            #: [{"bot_id": bot_id, "old_pos": old_pos, "new_pos": new_pos}]
             "bot_moved": [],
+
+            #: holds a list of eaten food items for this step
+            #: [{"bot_id": bot_id, "food_pos": bot.current_pos}]
             "food_eaten": [],
+
+            #: holds a list of destroyed bots for this step
+            #: [{'bot_id': bot.index, 'destroyed_by': enemy.index}]
             "bot_destroyed": [],
+
+            #: [timeouts_team_0, timeouts_team_1]
             "timeout_teams": [0] * len(self.universe.teams),
+
+            #: bot.index of the bot which is about to move or None
             "bot_id": None,
+
+            #: round_index or None,
             "round_index": None,
+
+            #: time for all teams together
             "running_time": 0,
+
+            #: true if finished
             "finished": False,
+
+            #: [running_time_team_0, running_time_team_1]
             "team_time": [0] * len(self.universe.teams),
+
+            #: [times_killed_team_0, times_killed_team_1]
             "times_killed": [0] * len(self.universe.teams),
+
+            #: team.index of the team winning or None
             "team_wins": None,
+
+            #: true if game is a draw
             "game_draw": None,
+
+            #: maximum number of rounds
             "game_time": game_time,
+
+            #: [food_eaten_team_0, food_eaten_team_1]
             "food_count": [0] * len(self.universe.teams),
+
+            #: [food_to_eat_team_0, food_to_eat_team_1]
             "food_to_eat": [len(self.universe.enemy_food(team.index)) for team in self.universe.teams],
+
+            #: time until timeout
             "timeout_length": timeout_length,
+
+            #: number of timeouts before game is lost
             "max_timeouts": max_timeouts,
+
+            #: [talk_bot_0, talk_bot_1, ...]
             "bot_talk": [""] * self.number_bots,
+
+            #: name of the layout
             "layout_name": layout_name,
+
+            #: radius of the noise
             "noise_radius": self.noiser and self.noiser.noise_radius,
+
+            #: sight distance of the noise
             "noise_sight_distance": self.noiser and self.noiser.sight_distance
         }
 
