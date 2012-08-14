@@ -244,6 +244,8 @@ class TestSeededRandom_Player(unittest.TestCase):
         gm1.register_team(SimpleTeam(players_a[1], players_a[3]))
         gm1.set_initial()
         random_numbers_a = [player.rnd.randint(0, 10000) for player in players_a]
+        # check that each player has a different seed (if randomness allows)
+        self.assertEqual(len(set(random_numbers_a)), 4, "Probably not all player seeds were unique.")
 
         gm2 = GameMaster(test_layout, 4, 5, seed=20)
         players_b = [SeededRandomPlayer() for _ in range(4)]

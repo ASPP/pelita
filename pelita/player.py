@@ -122,7 +122,9 @@ class AbstractPlayer(object):
         self._store_universe(universe)
         self.set_initial()
 
-        seed_offset = getattr(self, "seed_offset", 0)
+        # we take the bot’s index as a default value for the seed_offset
+        # this ensures that the bots differ in their actions
+        seed_offset = getattr(self, "seed_offset", self._index)
         self.rnd = random.Random()
         if game_state.get("seed") is not None:
             self.rnd.seed(game_state["seed"] + seed_offset)
