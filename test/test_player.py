@@ -116,10 +116,15 @@ class TestAbstractPlayer(unittest.TestCase):
 
         class TimeSpendingPlayer(AbstractPlayer):
             def get_move(self):
-                time_spent = self.time_spent()
-                sleep_time = 0.01
+                time_spent_begin = self.time_spent()
+
+                sleep_time = 0.1
                 time.sleep(sleep_time)
-                outer.assertAlmostEqual(self.time_spent(), time_spent + sleep_time, delta=0.003)
+
+                time_spent_end = self.time_spent()
+
+                outer.assertTrue(0 <= time_spent_begin < time_spent_end)
+                outer.assertAlmostEqual(time_spent_end, time_spent_begin + sleep_time, delta=0.05)
                 return stop
 
         test_layout = (
