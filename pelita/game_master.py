@@ -59,7 +59,7 @@ class GameMaster(object):
         self.number_bots = number_bots
         if noiser is None:
             noiser = ManhattanNoiser
-        self.noiser = noiser(self.universe) if noise else None
+        self.noiser = noiser(self.universe, seed=seed) if noise else None
         self.player_teams = []
         self.player_teams_timeouts = []
         self.viewers = []
@@ -70,7 +70,7 @@ class GameMaster(object):
         # in GameMaster which influence the game itself.
         # E.g. for forced random moves and most importantly for calculating
         # the seed which is passed to the clients with set_initial.
-        # Currently, the noiser does not use this seed.
+        # Currently, the noiser does not use this rng but has its own.
         self.rnd = random.Random(seed)
 
         #: The pointer to the current iteration.
@@ -424,13 +424,16 @@ class UniverseNoiser(object):
         the radius for the uniform noise
     sight_distance : int, optional, default: 5
         the distance at which noise is no longer applied.
+    seed : int, optional
+        seed which initialises the internal random number generator
 
     """
 
-    def __init__(self, universe, noise_radius=5, sight_distance=5):
+    def __init__(self, universe, noise_radius=5, sight_distance=5, seed=None):
         self.adjacency = AdjacencyList(universe)
         self.noise_radius = noise_radius
         self.sight_distance = sight_distance
+        self.rnd = random.Random(seed)
 
     def uniform_noise(self, universe, bot_index):
         """ Apply uniform noise to the enemies of a Bot.
@@ -497,7 +500,7 @@ class AStarNoiser(UniverseNoiser):
         possible_positions = list(self.adjacency.pos_within(bot_pos,
                                                             self.noise_radius))
         if len(possible_positions) > 0:
-            return random.choice(possible_positions)
+            return self.rnd.choice(possible_positions)
         else:
             return bot_pos
 
@@ -521,7 +524,7 @@ class ManhattanNoiser(UniverseNoiser):
                               if manhattan_dist((i,j), bot_pos) <= noise_radius]
 
         # shuffle the list of positions
-        random.shuffle(possible_positions)
+        self.rnd.shuffle(possible_positions)
         for pos in possible_positions:
             try:
                 # check that the bot can really fit in here
