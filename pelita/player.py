@@ -122,6 +122,13 @@ class AbstractPlayer(object):
         self._store_universe(universe)
         self.set_initial()
 
+        # we take the bot’s index as a default value for the seed_offset
+        # this ensures that the bots differ in their actions
+        seed_offset = getattr(self, "seed_offset", self._index)
+        self.rnd = random.Random()
+        if game_state.get("seed") is not None:
+            self.rnd.seed(game_state["seed"] + seed_offset)
+
     def set_initial(self):
         """ Subclasses can override this if desired. """
         pass
@@ -336,6 +343,11 @@ class SpeakingPlayer(AbstractPlayer):
         move = random.choice(self.legal_moves.keys())
         self.say("Going %r." % (move,))
         return move
+
+class SeededRandomPlayer(AbstractPlayer):
+    """ A random player which uses the global seed. """
+    def get_move(self):
+        return self.rnd.choice(self.legal_moves.keys())
 
 class TestPlayer(AbstractPlayer):
     """ A Player with predetermined set of moves.

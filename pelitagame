@@ -296,7 +296,8 @@ def run_game(*argv):
                                        bind_addrs=(addrs_left, addrs_right),
                                        initial_delay=initial_delay,
                                        max_timeouts=args.max_timeouts,
-                                       timeout_length=args.timeout_length
+                                       timeout_length=args.timeout_length,
+                                       seed=args.seed
                                        )
 
     player_clients = []
