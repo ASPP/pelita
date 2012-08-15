@@ -114,7 +114,7 @@ class UiCanvas(object):
         self.current_universe = None
 
     def init_canvas(self):
-        self.score = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=30)
+        self.score = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=40)
         self.score.config(background="white")
         self.score.pack(side=Tkinter.TOP, fill=Tkinter.X)
 
@@ -312,11 +312,25 @@ class UiCanvas(object):
                                30,
                                rel_size = +1)
 
+        def status(team_idx):
+            try:
+                return "Timeouts: %i, Killed: %i" % (game_state["timeout_teams"][team_idx], game_state["times_killed"][team_idx])
+            except TypeError:
+                return ""
+
+        left_status = status(0)
+        right_status = status(1)
+        status_font_size = max(font_size - 3, 3)
+
         self.score.create_text(center, 15, text=left_team, font=(None, font_size), fill=col(94, 158, 217), tag="title", anchor=Tkinter.E)
 
         self.score.create_text(center, 15, text=":", font=(None, font_size), tag="title", anchor=Tkinter.CENTER)
 
         self.score.create_text(center+2, 15, text=right_team, font=(None, font_size), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
+
+        self.score.create_text(center, 35, text="|", font=(None, font_size), tag="title", anchor=Tkinter.CENTER)
+        self.score.create_text(center, 35, text=left_status + " ", font=(None, status_font_size), tag="title", anchor=Tkinter.E)
+        self.score.create_text(center+1, 35, text=" " + right_status, font=(None, status_font_size), tag="title", anchor=Tkinter.W)
 
     def draw_status_info(self, turn, round, layout_name):
         roundturn = "Bot %d / Round %d" % (turn, round)
