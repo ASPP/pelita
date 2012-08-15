@@ -86,6 +86,7 @@ class GameMaster(object):
             "running_time": 0,
             "finished": False,
             "team_time": [0] * len(self.universe.teams),
+            "times_killed": [0] * len(self.universe.teams),
             "team_wins": None,
             "game_draw": None,
             "game_time": game_time,
@@ -315,6 +316,10 @@ class GameMaster(object):
         for food_eaten in self.game_state["food_eaten"]:
             team_id = self.universe.bots[food_eaten["bot_id"]].team_index
             self.game_state["food_count"][team_id] += 1
+
+        for destroyed in self.game_state["bot_destroyed"]:
+            self.game_state["times_killed"][self.universe.bots[destroyed["bot_id"]].team_index] += 1
+
 
     def prepare_next_round(self):
         """ Increases `game_state["round_index"]`, if possible
