@@ -825,3 +825,28 @@ class TestGame(unittest.TestCase):
         self.assertEqual(gm.game_state["round_index"], 3)
         self.assertEqual(gm.game_state["bot_id"], 1)
         self.assertEqual(gm.game_state["finished"], True)
+
+    def test_kill_count(self):
+        test_start = (
+            """ ######
+                #0  1#
+                #....#
+                ###### """)
+        # the game lasts two rounds, enough time for bot 1 to eat food
+        NUM_ROUNDS = 5
+        gm = GameMaster(test_start, 2, game_time=NUM_ROUNDS)
+        gm.register_team(SimpleTeam(TestPlayer('>--->')))
+        # bot 1 moves west twice to eat the single food
+        gm.register_team(SimpleTeam(TestPlayer('<<<<<')))
+
+        gm.set_initial()
+        gm.play_round()
+        self.assertEqual(gm.game_state["times_killed"], [0, 0])
+        gm.play_round()
+        self.assertEqual(gm.game_state["times_killed"], [0, 1])
+        gm.play_round()
+        self.assertEqual(gm.game_state["times_killed"], [0, 1])
+        gm.play_round()
+        self.assertEqual(gm.game_state["times_killed"], [0, 2])
+        gm.play_round()
+        self.assertEqual(gm.game_state["times_killed"], [1, 2])
