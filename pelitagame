@@ -114,6 +114,12 @@ def geometry_string(s):
         raise argparse.ArgumentTypeError(msg)
     return geometry
 
+def get_python_process():
+    py_proc = sys.executable
+    if not py_proc:
+        raise RuntimeError("Cannot retrieve current Python executable.")
+    return py_proc
+
 parser = argparse.ArgumentParser(description='Run a single pelita game',
                                  add_help=False,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -381,7 +387,7 @@ def run_game():
         else:
             tk_open = "TkViewer(%r).run()" % subscribe_sock
 
-        tkprocess = subprocess.Popen(["python",
+        tkprocess = subprocess.Popen([get_python_process(),
                                       "-c",
                                       "from pelita.ui.tk_viewer import TkViewer\n" + tk_open])
 
