@@ -136,6 +136,9 @@ class ZMQConnection(object):
             raise UnknownMessageId()
 
     def recv_timeout(self, timeout):
+        if timeout is None:
+            return self.recv()
+
         time_now = time.time()
         #: calculate until when it may take
         timeout_until = time_now + timeout

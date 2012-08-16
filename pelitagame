@@ -143,8 +143,13 @@ parser.add_argument('--dry-run', const=True, action='store_const',
                     help='load players but do not actually play the game')
 parser.add_argument('--max-timeouts', type=int, default=5,
                     dest='max_timeouts', help='maximum number of timeouts allowed')
-parser.add_argument('--timeout', type=int, default=3,
-                    dest='timeout_length', help='time before timeout')
+
+timeout_opt = parser.add_mutually_exclusive_group()
+timeout_opt.add_argument('--timeout', type=int, metavar="SEC",
+                         dest='timeout_length', help='time before timeout is triggered')
+timeout_opt.add_argument('--no-timeout', const=None, action='store_const',
+                         dest='timeout_length', help='run game with no timeouts')
+parser.set_defaults(timeout_length=3)
 
 publisher_opt = parser.add_mutually_exclusive_group()
 publisher_opt.add_argument('--publish', type=str, metavar='URL',
@@ -243,7 +248,7 @@ Standalone mode:
 
   The user code then runs in the main thread of the process and as such
   may be interrupted with the Python debugger pdb. (For best results,
-  it may be necessary to increase the timeout time in the server.)
+  it may be necessary to increase (or turn off the timeout time in the server.)
 
   Example usage. We use a server binding to two different ports:
 
