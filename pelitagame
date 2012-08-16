@@ -292,21 +292,19 @@ def run_game():
         print '\n'.join(PLAYERS)
         sys.exit(0)
 
-    # check if we've been given an address which a remote
-    # player wants to connect to
-    if "://" in args.left_team:
-        addrs_left = args.left_team
-        bads = None
-    else:
-        addrs_left = "tcp://*"
-        bads = load_team(args.left_team) or sys.exit(1)
+    def prepare_team(team_spec):
+        # check if we've been given an address which a remote
+        # player wants to connect to
+        if "://" in team_spec:
+            addrs = team_spec
+            team = None
+        else:
+            addrs = "tcp://*"
+            team = load_team(team_spec) or sys.exit(1)
+        return addrs, team
 
-    if "://" in args.right_team:
-        addrs_right = args.right_team
-        goods = None
-    else:
-        addrs_right = "tcp://*"
-        goods = load_team(args.right_team) or sys.exit(1)
+    addrs_left, bads = prepare_team(args.left_team)
+    addrs_right, goods = prepare_team(args.right_team)
 
     if args.dry_run:
         sys.exit(0)
