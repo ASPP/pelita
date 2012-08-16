@@ -195,6 +195,10 @@ layout_opt.add_argument('--filter', metavar='STRING',
 
 parser.add_argument('--standalone-client', const=True, action='store_const', dest='standalone_client',
                     help='run standalone game')
+parser.add_argument('--standalone-left', const=True, action='store_const', dest='standalone_left',
+                    help='run standalone game for the left team')
+parser.add_argument('--standalone-right', const=True, action='store_const', dest='standalone_right',
+                    help='run standalone game for the right team')
 
 parser.epilog = """\
 Team Specification:
@@ -298,7 +302,7 @@ def run_game():
         print '\n'.join(PLAYERS)
         sys.exit(0)
 
-    def prepare_team(team_spec):
+    def prepare_team(team_spec, standalone=False):
         # check if we've been given an address which a remote
         # player wants to connect to
         if "://" in team_spec:
@@ -307,10 +311,13 @@ def run_game():
         else:
             addrs = "tcp://*"
             team = load_team(team_spec) or sys.exit(1)
-        return addrs, team
+        if standalone:
+            return "tcp://", None, team_spec
+        else:
+            return addrs, team, team_spec
 
-    addrs_left, bads = prepare_team(args.left_team)
-    addrs_right, goods = prepare_team(args.right_team)
+    addrs_left, bads, spec_left = prepare_team(args.left_team, args.standalone_left)
+    addrs_right, goods, spec_right = prepare_team(args.right_team, args.standalone_right)
 
     if args.dry_run:
         sys.exit(0)
@@ -357,6 +364,18 @@ def run_game():
 
     for client in player_clients:
         client.autoplay_process()
+
+    def call_standalone_pelitagame(team_spec, addr):
+        return subprocess.Popen([get_python_process(),
+                                 sys.argv[0],
+                                 "--standalone-client",
+                                 team_spec,
+                                 addr])
+
+    if args.standalone_left:
+        sub = call_standalone_pelitagame(spec_left, server.bind_addresses[0])
+    if args.standalone_right:
+        sub = call_standalone_pelitagame(spec_right, server.bind_addresses[1])
 
     # register the viewers
     if args.publish_to:
