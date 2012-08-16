@@ -93,12 +93,12 @@ class AbstractPlayer(object):
     __metaclass__ =  abc.ABCMeta
 
     def _set_index(self, index):
-        """ Called by SimpleTeam to set this Players index.
+        """ Called by SimpleTeam to set this Player's index.
 
         Parameters
         ----------
         index : int
-            this players index
+            this Player's index
 
         """
         self._index = index
@@ -190,7 +190,7 @@ class AbstractPlayer(object):
 
     @property
     def team(self):
-        """ The Team object this Players Bot is on.
+        """ The Team object this Player's Bot is on.
 
         Returns
         -------
@@ -202,7 +202,7 @@ class AbstractPlayer(object):
 
     @property
     def other_team_bots(self):
-        """ A list of Bots that are on this players team.
+        """ A list of Bots that are on this Player's team.
 
         Returns
         -------
@@ -238,7 +238,7 @@ class AbstractPlayer(object):
 
     @property
     def enemy_food(self):
-        """ Food owned by the enemy which can be eaten by this players bot.
+        """ Food owned by the enemy which can be eaten by this Player's bot.
 
         Returns
         -------
