@@ -38,6 +38,7 @@ Convenience Properties of ``AbstractPlayer``
     team_border
     team_bots
     other_team_bots
+    team_food
 
 .. rubric:: Enemy Properties
 
