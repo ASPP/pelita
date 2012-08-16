@@ -263,8 +263,8 @@ Standalone mode:
   Now we can start two clients and have them connect to their respective
   socket:
 
-    $ %(prog)s --standalone-client BFSPlayer,RandomPlayer tcp://localhost:51025
-    $ %(prog)s --standalone-client ~/my_player.py tcp://localhost:51027
+      $ %(prog)s --standalone-client BFSPlayer,RandomPlayer tcp://localhost:51025
+      $ %(prog)s --standalone-client ~/my_player.py tcp://localhost:51027
 
 Layout specification:
   If neither --layoutfile nor --layout are specified, the maze is
