@@ -237,6 +237,18 @@ class AbstractPlayer(object):
         return self.current_uni.team_border(self.me.team_index)
 
     @property
+    def team_food(self):
+        """ Food owned by the team which can be eaten by the enemy Player's bot.
+
+        Returns
+        -------
+        team_food : list of position tuples (int, int)
+            The positions (x, y) of food edible by the enemy
+
+        """
+        return self.current_uni.team_food(self.me.team_index)
+
+    @property
     def enemy_food(self):
         """ Food owned by the enemy which can be eaten by this Player's bot.
 
