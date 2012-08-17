@@ -124,7 +124,10 @@ class TestAbstractPlayer(unittest.TestCase):
                 time_spent_end = self.time_spent()
 
                 outer.assertTrue(0 <= time_spent_begin < time_spent_end)
-                outer.assertAlmostEqual(time_spent_end, time_spent_begin + sleep_time, delta=0.05)
+
+                time_diff = abs(time_spent_begin + sleep_time - time_spent_end)
+                delta = 0.05
+                outer.assertTrue(time_diff < delta)
                 return stop
 
         test_layout = (
