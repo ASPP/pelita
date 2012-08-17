@@ -98,6 +98,7 @@ def start_logging(filename):
     formatter = logging.Formatter(FORMAT)
     hdlr.setFormatter(formatter)
     logger.addHandler(hdlr)
+    logger.setLevel(logging.DEBUG)
 
 
 def geometry_string(s):
