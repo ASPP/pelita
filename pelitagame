@@ -151,7 +151,7 @@ parser.add_argument('--max-timeouts', type=int, default=5,
                     dest='max_timeouts', help='maximum number of timeouts allowed')
 
 timeout_opt = parser.add_mutually_exclusive_group()
-timeout_opt.add_argument('--timeout', type=int, metavar="SEC",
+timeout_opt.add_argument('--timeout', type=float, metavar="SEC",
                          dest='timeout_length', help='time before timeout is triggered')
 timeout_opt.add_argument('--no-timeout', const=None, action='store_const',
                          dest='timeout_length', help='run game with no timeouts')
