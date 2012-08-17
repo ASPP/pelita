@@ -312,7 +312,7 @@ def run_game():
             addrs = "tcp://*"
             team = load_team(team_spec) or sys.exit(1)
         if standalone:
-            return "tcp://", None, team_spec
+            return "tcp://*", None, team_spec
         else:
             return addrs, team, team_spec
 
