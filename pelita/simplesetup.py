@@ -518,7 +518,7 @@ class SimpleClient(object):
         return background_thread
 
     def __repr__(self):
-        return "SimpleClient(%r, %r, %r)" % (self.team, self.team_name, self.address)
+        return "SimpleClient(%r, %r, %r)" % (self.team, self.team_name(), self.address)
 
 class SimplePublisher(AbstractViewer):
     """ Sets up a simple Publisher which sends all viewed events
