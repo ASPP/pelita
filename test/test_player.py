@@ -1,5 +1,6 @@
 import unittest
 import time
+import random
 from pelita.player import *
 from pelita.datamodel import create_CTFUniverse, north, stop, east, west
 from pelita.game_master import GameMaster
@@ -137,6 +138,50 @@ class TestAbstractPlayer(unittest.TestCase):
         gm = GameMaster(test_layout, 2, 1)
         gm.register_team(SimpleTeam(TimeSpendingPlayer()))
         gm.register_team(SimpleTeam(RandomPlayer()))
+        gm.play()
+
+    def test_rnd(self):
+        outer = self
+
+        class RndPlayer(AbstractPlayer):
+            def set_initial(self):
+                original_seed = self.current_state["seed"]
+                original_rand = self.rnd.randint(10, 100)
+                outer.assertTrue(10 <= original_rand <= 100)
+
+                # now check
+                test_rnd = random.Random(original_seed + self._index)
+                outer.assertEqual(test_rnd.randint(10, 100), original_rand)
+
+            def get_move(self):
+                outer.assertTrue(10 <= self.rnd.randint(10, 100) <= 100)
+                return datamodel.stop
+
+
+        class SeedTestingPlayer(AbstractPlayer):
+            def __init__(self):
+                # must be initialised before set_initial is called
+                self.seed_offset = 120
+
+            def set_initial(self):
+                original_seed = self.current_state["seed"]
+                original_rand = self.rnd.randint(0, 100)
+
+                # now check
+                test_rnd = random.Random(original_seed + self.seed_offset)
+                outer.assertEqual(test_rnd.randint(0, 100), original_rand)
+
+            def get_move(self):
+                outer.assertTrue(10 <= self.rnd.randint(10, 100) <= 100)
+                return datamodel.stop
+
+        test_layout = (
+        """ ############
+            #02#.  .#31#
+            ############ """)
+        gm = GameMaster(test_layout, 4, 1)
+        gm.register_team(SimpleTeam(RndPlayer(), SeedTestingPlayer()))
+        gm.register_team(SimpleTeam(SeedTestingPlayer(), RndPlayer()))
         gm.play()
 
 
