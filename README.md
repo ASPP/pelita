@@ -1,5 +1,7 @@
 # Pelita
 
+[![Build Status](https://secure.travis-ci.org/ASPP/pelita.png)](http://travis-ci.org/ASPP/pelita)
+
 ## Description
 
 Actor-based Toolkit for Interactive Language Education in Python
