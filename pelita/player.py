@@ -5,6 +5,7 @@
 import os
 import random
 import sys
+import time
 import math
 import abc
 from . import datamodel
@@ -151,6 +152,8 @@ class AbstractPlayer(object):
             the universe in its current state.
 
         """
+        #: Used for the `time_spent` method.
+        self.__time_in_get_move = time.time()
         self.current_state = game_state
         self._store_universe(universe)
         self._say = ""
@@ -326,6 +329,25 @@ class AbstractPlayer(object):
             the currently legal moves
         """
         return self.current_uni.get_legal_moves(self.current_pos)
+
+    def time_spent(self):
+        """ The approximate amount of time since `get_move` was
+        called.
+
+        Note: Due to delays in network communication and serialisation,
+        this method is not completely reliable concerning the timeout
+        handling. It may however be useful for debugging and as a
+        rough estimation.
+
+        Returns
+        -------
+        time_needed : float
+            time in seconds
+        """
+        try:
+            return time.time() - self.__time_in_get_move
+        except AttributeError:
+            return None
 
     def say(self, text):
         """ Let the bot speak.

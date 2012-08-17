@@ -243,7 +243,9 @@ Lastly, we are going to see some error recovery code in the
 The ``BFSPlayer`` is sometimes killed, as expected for an offensive player. In
 order to detect this, it's best to compare the current position with its
 initial position using the ``initial_pos`` convenience property, since this is
-where it will respawn.
+where it will respawn. Alternatively, it is also possible to keep track of the
+timeouts using ``self.current_state["timeout_teams"]``, which holds the
+number of timeouts each team has already used up.
 
 Your player only has a limited time to return from ``get_move()``. The default
 is approximately three seconds. If your player does not respond in time, the
@@ -261,8 +263,44 @@ Imagine an infinite ``for`` loop in your ``get_move()``::
 In this case, your ``get_move()`` will be executed exactly once! Thus it is
 important to ensure that your search algorithms are efficient and fast.
 
-.. TODO: when one bot blocks, the whole team blocks
-.. TODO: how to be notified when a timeout happened.
+For convenience ``AbstractPlayer`` has a ``time_spent()`` method, which
+shows the approximate time since ``get_move()`` has been called. A simple
+approach using this method could be as follows::
+
+    def get_move():
+        self.best_move = stop
+        MAX_TIME = 3 # whatever the rules tell you
+        if self.time_spent() > MAX_TIME - 0.5:
+            return self.best_move
+        # do some iterative data mining and eventually
+        # change the value of self.best_move
+        self.do_first_calculation()
+        if self.time_spent() > MAX_TIME - 0.5:
+            return self.best_move
+        self.do_second_calculation()
+        # ...
+
+
+.. note::
+
+    Even though ``time_spent()`` takes into account the initial calculations
+    done in ``AbstractPlayer``, it knows nothing about network delays.
+    Therefore, it seems adviseable not to wait until the last millisecond
+    before returning.
+
+A very important thing to emphasise is the following: When one bot blocks,
+the whole team blocks. This means that all subsequent calls to ``get_move()``
+for a team are stalled until the blocking ``get_move()`` has finished.
+
+This also means, that it may happen that the second call to ``get_move()``
+is already behind in terms of time when it is being executed. In extreme
+cases, it may even generate a second timeout *before* its execution.
+
+There is no good way to predict this other than keeping track of one’s
+own execution time and returning early, if necessary. For long lasting
+tasks, it may be a good idea to experiment with concurrency.
+
+.. TODO: maybe prepare some graphics for the duplicate timeouts situation
 .. TODO: the universe states will be missing a state
 
 
@@ -270,7 +308,7 @@ Interacting with the Maze
 =========================
 
 The ``BFSPlayer`` above uses the adjacency list representation provided by:
-`pelita.graph.AdjacencyList``. Let's have a quick look at how this is
+``pelita.graph.AdjacencyList``. Let's have a quick look at how this is
 generated, in case you would like to implement your own `graph storage
 <http://en.wikipedia.org/wiki/Graph_(data_structure)>`_ or leverage an
 alternative existing package such as `NetworkX <http://networkx.lanl.gov/>`_.
