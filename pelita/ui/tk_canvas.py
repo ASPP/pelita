@@ -119,17 +119,18 @@ class UiCanvas(object):
         self.score.pack(side=Tkinter.TOP, fill=Tkinter.X)
 
         self.status = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=25)
+        self.status.config(background="white")
         self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
 
-        game_control_frame = Tkinter.Frame(self.status)
+        game_control_frame = Tkinter.Frame(self.status, background="white")
         game_control_frame.grid(row=0, sticky="W")
-        game_speed_frame = Tkinter.Frame(self.status)
+        game_speed_frame = Tkinter.Frame(self.status, background="white")
         game_speed_frame.grid(row=1, sticky="W")
 
-        self.status_round_info = Tkinter.Label(self.status, text="")
+        self.status_round_info = Tkinter.Label(self.status, text="", background="white")
         self.status_round_info.grid(row=0, column=2, sticky="E")
 
-        self.status_layout_info = Tkinter.Label(self.status, text="")
+        self.status_layout_info = Tkinter.Label(self.status, text="", background="white")
         self.status_layout_info.grid(row=1, column=2, sticky="E")
 
         self.button_game_speed_slower = Tkinter.Button(game_speed_frame,
@@ -305,8 +306,8 @@ class UiCanvas(object):
         except (KeyError, TypeError):
             team_time = [0, 0]
 
-        left_team = "(%.2f secs) %s %d " % (team_time[0], universe.teams[0].name, universe.teams[0].score)
-        right_team = " %d %s (%.2f secs)" % (universe.teams[1].score, universe.teams[1].name, team_time[1])
+        left_team = "(%.2f) %s %d " % (team_time[0], universe.teams[0].name, universe.teams[0].score)
+        right_team = " %d %s (%.2f)" % (universe.teams[1].score, universe.teams[1].name, team_time[1])
         font_size = guess_size(left_team+':'+right_team,
                                self.mesh_graph.screen_width,
                                30,
@@ -431,6 +432,7 @@ class UiCanvas(object):
 class TkApplication(object):
     def __init__(self, master, address, controller_address=None, geometry=None):
         self.master = master
+        self.master.configure(background="white")
 
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
@@ -446,7 +448,7 @@ class TkApplication(object):
         else:
             self.controller_socket = None
 
-        self.frame = Tkinter.Frame(self.master)
+        self.frame = Tkinter.Frame(self.master, background="white")
         self.master.title("Pelita")
 
         self.frame.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
