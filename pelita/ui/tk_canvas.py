@@ -306,8 +306,8 @@ class UiCanvas(object):
         except (KeyError, TypeError):
             team_time = [0, 0]
 
-        left_team = "(%.2f secs) %s %d " % (team_time[0], universe.teams[0].name, universe.teams[0].score)
-        right_team = " %d %s (%.2f secs)" % (universe.teams[1].score, universe.teams[1].name, team_time[1])
+        left_team = "(%.2f) %s %d " % (team_time[0], universe.teams[0].name, universe.teams[0].score)
+        right_team = " %d %s (%.2f)" % (universe.teams[1].score, universe.teams[1].name, team_time[1])
         font_size = guess_size(left_team+':'+right_team,
                                self.mesh_graph.screen_width,
                                30,
