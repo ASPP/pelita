@@ -57,7 +57,7 @@ PLAYERS = pelita.player.SANE_PLAYERS
 def import_builtin_player(name):
     if name == 'random':
         name = random.choice(PLAYERS)
-        print 'using %s for random player' % name
+        print 'Choosing %s for random player' % name
     try:
         player = getattr(pelita.player, name)
     except AttributeError:
@@ -83,12 +83,27 @@ def load_team(spec):
             team = load_factory(spec)()
         else:
             team = create_builtin_team(spec)
-        print "Using factory %r -> %r" % (spec, team.team_name)
         return team
     except (ValueError, AttributeError, IOError, ImportError) as e:
         print >>sys.stderr, "failure while loading team '%s'" % spec
         print >>sys.stderr, 'ERROR: %s' % e
         raise
+
+def prepare_team(team_spec, standalone=False):
+    # check if we've been given an address which a remote
+    # player wants to connect to
+    if standalone:
+        addrs = "tcp://*"
+        team = None
+    else:
+        if "://" in team_spec:
+            addrs = team_spec
+            team = None
+        else:
+            addrs = "tcp://*"
+            team = load_team(team_spec) or sys.exit(1)
+    return addrs, team, team_spec
+
 
 def start_logging(filename):
     hdlr = logging.FileHandler(filename, mode='w')
@@ -302,23 +317,30 @@ def run_game():
         print '\n'.join(PLAYERS)
         sys.exit(0)
 
-    def prepare_team(team_spec, standalone=False):
-        # check if we've been given an address which a remote
-        # player wants to connect to
-        if standalone:
-            addrs = "tcp://*"
-            team = None
-        else:
-            if "://" in team_spec:
-                addrs = team_spec
-                team = None
-            else:
-                addrs = "tcp://*"
-                team = load_team(team_spec) or sys.exit(1)
-        return addrs, team, team_spec
 
     addrs_left, bads, spec_left = prepare_team(args.left_team, args.standalone_left)
     addrs_right, goods, spec_right = prepare_team(args.right_team, args.standalone_right)
+
+    def print_team_info(addr, team, spec, info):
+        if team is not None:
+            print "Using factory %r -> %r (%s)" % (spec, team.team_name, info)
+        elif "://" in addr:
+            print "Waiting for %s team on %s" % (info, addr)
+
+    # if standalone_client was specified,
+    # we use the following scheme
+    # the first positional argument specifies the team to load
+    # the second positional argument specifies the address to connect to
+    if args.standalone_client:
+        addr = addrs_right.replace('*', 'localhost')
+        print_team_info(addrs_left, bads, spec_left, "standalone")
+        client = pelita.simplesetup.SimpleClient(bads, address=addr)
+        client.run()
+        sys.exit()
+    else:
+        print_team_info(addrs_left, bads, spec_left, "left")
+        print_team_info(addrs_right, goods, spec_right, "right")
+
 
     if args.dry_run:
         sys.exit(0)
@@ -334,16 +356,6 @@ def run_game():
         initial_delay = 0.5
     else:
         initial_delay = 0.0
-
-    # if standalone_client was specified,
-    # we use the following scheme
-    # the first positional argument specifies the team to load
-    # the second positional argument specifies the address to connect to
-    if args.standalone_client:
-        addr = addrs_right.replace('*', 'localhost')
-        client = pelita.simplesetup.SimpleClient(bads, address=addr)
-        client.run()
-        sys.exit()
 
     server = pelita.simplesetup.SimpleServer(layout_file=args.layoutfile,
                                        layout_name=args.layout,
@@ -367,6 +379,10 @@ def run_game():
         client.autoplay_process()
 
     def call_standalone_pelitagame(team_spec, addr):
+        """ Starts another process with the same Python executable,
+        the same start script (pelitagame) and runs `team_spec`
+        as a standalone client on URL `addr`.
+        """
         return subprocess.Popen([get_python_process(),
                                  sys.argv[0],
                                  "--standalone-client",
