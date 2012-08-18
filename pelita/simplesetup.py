@@ -30,6 +30,7 @@ import logging
 import multiprocessing
 import threading
 import sys
+import traceback
 
 import uuid
 import zmq
@@ -495,7 +496,15 @@ class SimpleClient(object):
         # could call anything on this object. This needs to
         # be fixed analogous to the `expose` method in
         # the messaging framework.
-        retval = getattr(self, action)(**data)
+        try:
+            retval = getattr(self, action)(**data)
+        except Exception as e:
+            if isinstance(e, ExitLoop):
+                raise
+            else:
+                print "Exception in client code executing %s." % self.team
+                traceback.print_exc(file=sys.stdout)
+                raise
 
         message_obj = {"__uuid__": uuid_, "__return__": retval}
         json_message = json_converter.dumps(message_obj)
