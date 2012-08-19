@@ -44,21 +44,11 @@ rnames = {'group0' : 'group0',
           'group4' : 'group4' }
 
 # groups composition (for presentation)
-group_members = {'group0': ('Eivind Norheim', 'David Verelst',
-                            'Chiara Mingarelli', 'Torsten Betz',
-                            'Nicola Zoppetti', 'Luke Rendell'),
-                 'group1': ('Katarzyna Zajac', 'Paula Sanz Leon',
-                            'Niklas Wilming', 'Martin Schaefer',
-                            'Luuk van der Velden', 'Roman Goj'),
-                 'group2': ('Toomas Kirt', 'Christian Drews', 'Clint Blight',
-                            'Nicola Chiapolini', 'Anna Jasper',
-                            'Jan Potworowski'),
-                 'group3': ('Stuart Prescott', 'Katharina Wilmes',
-                            'Christian Steigies', 'Louise O\'Hare',
-                            'Peter Rowat', 'Olivia Mendevil Ramos'),
-                 'group4': ('Martin Loeffler', 'Craig Arnold',
-                            'Maria de Juan Ovelar', 'Philipp Meier',
-                            'Corina Melzer', 'Eva Banko')
+group_members = {'group0': ('',),
+                 'group1': ('',),
+                 'group2': ('',),
+                 'group3': ('',),
+                 'group4': ('',)
            }
 
 from subprocess import Popen, PIPE, STDOUT, check_call
