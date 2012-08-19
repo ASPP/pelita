@@ -3,10 +3,29 @@
 from __future__ import print_function
 import sys, os
 
-if not len(sys.argv) > 1:
-    sys.stderr.write('You have to specify the pelitagame script!\n')
-    sys.exit(1)
-PELITA=sys.argv[1]
+try:
+    import argparse
+except ImportError:
+    from pelita.compat import argparse
+
+
+parser = argparse.ArgumentParser(description='Run a tournament',
+                                 add_help=False,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+prog = parser.prog
+parser._positionals = parser.add_argument_group('Arguments')
+parser.add_argument('pelitagame', help='The pelitagame script')
+
+parser._optionals = parser.add_argument_group('Options')
+parser.add_argument('--help', '-h', help='show this help message and exit',
+                    action='store_const', const=True)
+
+args = parser.parse_args()
+if args.help:
+    parser.print_help()
+    sys.exit(0)
+
+PELITA = args.pelitagame
 if not os.path.exists(PELITA) or not os.path.isfile(PELITA):
     sys.stderr.write(PELITA+' not found!\n')
     sys.exit(2)
