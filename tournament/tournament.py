@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 from __future__ import print_function
 import sys, os
+import json
 
 try:
     import argparse
@@ -19,6 +20,19 @@ parser.add_argument('pelitagame', help='The pelitagame script')
 parser._optionals = parser.add_argument_group('Options')
 parser.add_argument('--help', '-h', help='show this help message and exit',
                     action='store_const', const=True)
+
+parser.add_argument('--teams', help='load teams from TEAMFILE',
+                    metavar="TEAMFILE.json", default="teams.json")
+
+parser.epilog = """
+TEAMFILE.json must be of the form:
+    { "group0": ["Name0", "Name1", "Name2"],
+      "group1": ["Name0", "Name1", "Name2"],
+      "group2": ["Name0", "Name1", "Name2"],
+      "group3": ["Name0", "Name1", "Name2"],
+      "group4": ["Name0", "Name1", "Name2"]
+    }
+"""
 
 args = parser.parse_args()
 if args.help:
@@ -43,13 +57,8 @@ rnames = {'group0' : 'group0',
           'group3' : 'group3',
           'group4' : 'group4' }
 
-# groups composition (for presentation)
-group_members = {'group0': ('',),
-                 'group1': ('',),
-                 'group2': ('',),
-                 'group3': ('',),
-                 'group4': ('',)
-           }
+with open(args.teams) as teamfile:
+    group_members = json.load(teamfile)
 
 from subprocess import Popen, PIPE, STDOUT, check_call
 import random
