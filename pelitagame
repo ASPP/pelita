@@ -163,11 +163,11 @@ parser.add_argument('--geometry', type=geometry_string, metavar='NxM',
 parser.add_argument('--dry-run', const=True, action='store_const',
                     help='load players but do not actually play the game')
 parser.add_argument('--max-timeouts', type=int, default=5,
-                    dest='max_timeouts', help='maximum number of timeouts allowed')
+                    dest='max_timeouts', help='maximum number of timeouts allowed (default: 5)')
 
 timeout_opt = parser.add_mutually_exclusive_group()
 timeout_opt.add_argument('--timeout', type=float, metavar="SEC",
-                         dest='timeout_length', help='time before timeout is triggered')
+                         dest='timeout_length', help='time before timeout is triggered (default: 3 seconds)')
 timeout_opt.add_argument('--no-timeout', const=None, action='store_const',
                          dest='timeout_length', help='run game with no timeouts')
 parser.set_defaults(timeout_length=3)
