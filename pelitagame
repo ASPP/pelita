@@ -285,6 +285,15 @@ Standalone mode:
       $ %(prog)s --standalone-client BFSPlayer,RandomPlayer tcp://localhost:51025
       $ %(prog)s --standalone-client ~/my_player.py tcp://localhost:51027
 
+  A much simpler way, which avoids both the need to specify an available port
+  and to manually open up a new process is provided by the --standalone-left and
+  --standalone-right arguments. The following line automatically runs
+  the left team in standalone mode where it is possible to intercept with
+  the Python debugger. (Provided this is included in the code.)
+
+      $ %(prog)s --standalone-left --no-timeout DebuggablePlayer,MyTestPlayer \
+                                                BFSPlayer,RandomPlayer
+
 Layout specification:
   If neither --layoutfile nor --layout are specified, the maze is
   chosen at random from the pool of available layouts.
