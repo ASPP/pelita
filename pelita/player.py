@@ -8,6 +8,7 @@ import sys
 import time
 import math
 import abc
+import pdb
 from . import datamodel
 from .datamodel import Free, diff_pos
 from .graph import AdjacencyList, NoPathException
@@ -479,6 +480,17 @@ class InitialExceptionPlayer(AbstractPlayer):
 
     def get_move(self):
         pass
+
+class DebuggablePlayer(AbstractPlayer):
+    """ Player which invokes pdb on each move. 
+
+    Setting ``direction`` inside the debugger will change
+    its behaviour.
+    """
+    def get_move(self):
+        direction = datamodel.stop
+        pdb.set_trace()
+        return direction
 
 class CPUBoundPlayer(AbstractPlayer):
     """ Player that does loads of computation. """
