@@ -428,9 +428,9 @@ def run_game():
 
         if args.viewer == 'tk':
             sync_address_tk = args.controller.replace('*', 'localhost')
-            tk_open = "TkViewer(%r, %r).run()" % (subscribe_sock, sync_address_tk)
+            tk_open = "TkViewer(%r, %r, geometry=%r).run()" % (subscribe_sock, sync_address_tk, args.geometry)
         else:
-            tk_open = "TkViewer(%r).run()" % subscribe_sock
+            tk_open = "TkViewer(%r, geometry=%r).run()" % (subscribe_sock, args.geometry)
 
         tkprocess = subprocess.Popen([get_python_process(),
                                       "-c",
