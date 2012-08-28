@@ -2,11 +2,44 @@
 # -*- coding:utf-8 -*-
 from __future__ import print_function
 import sys, os
+import json
 
-if not len(sys.argv) > 1:
-    sys.stderr.write('You have to specify the pelitagame script!\n')
-    sys.exit(1)
-PELITA=sys.argv[1]
+try:
+    import argparse
+except ImportError:
+    from pelita.compat import argparse
+
+
+parser = argparse.ArgumentParser(description='Run a tournament',
+                                 add_help=False,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+prog = parser.prog
+parser._positionals = parser.add_argument_group('Arguments')
+parser.add_argument('pelitagame', help='The pelitagame script')
+
+parser._optionals = parser.add_argument_group('Options')
+parser.add_argument('--help', '-h', help='show this help message and exit',
+                    action='store_const', const=True)
+
+parser.add_argument('--teams', help='load teams from TEAMFILE',
+                    metavar="TEAMFILE.json", default="teams.json")
+
+parser.epilog = """
+TEAMFILE.json must be of the form:
+    { "group0": ["Name0", "Name1", "Name2"],
+      "group1": ["Name0", "Name1", "Name2"],
+      "group2": ["Name0", "Name1", "Name2"],
+      "group3": ["Name0", "Name1", "Name2"],
+      "group4": ["Name0", "Name1", "Name2"]
+    }
+"""
+
+args = parser.parse_args()
+if args.help:
+    parser.print_help()
+    sys.exit(0)
+
+PELITA = args.pelitagame
 if not os.path.exists(PELITA) or not os.path.isfile(PELITA):
     sys.stderr.write(PELITA+' not found!\n')
     sys.exit(2)
@@ -24,23 +57,8 @@ rnames = {'group0' : 'group0',
           'group3' : 'group3',
           'group4' : 'group4' }
 
-# groups composition (for presentation)
-group_members = {'group0': ('Eivind Norheim', 'David Verelst',
-                            'Chiara Mingarelli', 'Torsten Betz',
-                            'Nicola Zoppetti', 'Luke Rendell'),
-                 'group1': ('Katarzyna Zajac', 'Paula Sanz Leon',
-                            'Niklas Wilming', 'Martin Schaefer',
-                            'Luuk van der Velden', 'Roman Goj'),
-                 'group2': ('Toomas Kirt', 'Christian Drews', 'Clint Blight',
-                            'Nicola Chiapolini', 'Anna Jasper',
-                            'Jan Potworowski'),
-                 'group3': ('Stuart Prescott', 'Katharina Wilmes',
-                            'Christian Steigies', 'Louise O\'Hare',
-                            'Peter Rowat', 'Olivia Mendevil Ramos'),
-                 'group4': ('Martin Loeffler', 'Craig Arnold',
-                            'Maria de Juan Ovelar', 'Philipp Meier',
-                            'Corina Melzer', 'Eva Banko')
-           }
+with open(args.teams) as teamfile:
+    group_members = json.load(teamfile)
 
 from subprocess import Popen, PIPE, STDOUT, check_call
 import random
