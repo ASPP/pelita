@@ -151,7 +151,7 @@ parser.add_argument('--help', '-h', help='show this help message and exit',
 parser.add_argument('--log', help='print debugging log information to'
                                   ' LOGFILE (default \'pelita.log\')',
                     metavar='LOGFILE', default=argparse.SUPPRESS, nargs='?')
-parser.add_argument('--dump', help='print game dumps to'
+parser.add_argument('--dump', help='print game dumps to file (will be overwritten)'
                                   ' DUMPFILE (default \'pelita.dump\')',
                     metavar='DUMPFILE', default=argparse.SUPPRESS, nargs='?')
 parser.add_argument('--rounds', type=int, default=300,
@@ -413,6 +413,8 @@ def run_game():
     else:
         publish_sock = subscribe_sock = None
 
+    if dump:
+        server.game_master.register_viewer(pelita.viewer.DumpingViewer(open(dump, "w")))
     if args.viewer == 'ascii':
         server.game_master.register_viewer(pelita.viewer.AsciiViewer())
     if args.viewer == 'null':
