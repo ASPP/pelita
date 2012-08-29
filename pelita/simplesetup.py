@@ -502,8 +502,7 @@ class SimpleClient(object):
             if isinstance(e, ExitLoop):
                 raise
             else:
-                print "Exception in client code executing %s." % self.team
-                traceback.print_exc(file=sys.stdout)
+                print >> sys.stderr, "Exception in client code executing %s." % self.team
                 raise
 
         message_obj = {"__uuid__": uuid_, "__return__": retval}
