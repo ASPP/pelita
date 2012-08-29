@@ -51,10 +51,19 @@ class AsciiViewer(AbstractViewer):
     """ A viewer that dumps ASCII charts on stdout. """
 
     def observe(self, universe, game_state):
-        print ("Round: %r Turn: %r Score: %r:%r"
-        % (game_state["round_index"], game_state["bot_id"], universe.teams[0].score, universe.teams[1].score))
-        print ("Game State: %r") % game_state
-        print universe.compact_str
+        info = (
+            "Round: {round!r} Turn: {turn!r} Score {s0}:{s1}\n"
+            "Game State: {game_state!r}\n"
+            "\n"
+            "{universe}"
+        ).format(round=game_state["round_index"],
+                 turn=game_state["bot_id"],
+                 s0=universe.teams[0].score,
+                 s1=universe.teams[1].score,
+                 game_state=game_state,
+                 universe=universe.compact_str)
+
+        print info
         winning_team_idx = game_state.get("team_wins")
         if winning_team_idx is not None:
             print ("Game Over: Team: '%s' wins!" %
