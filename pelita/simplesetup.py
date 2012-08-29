@@ -490,20 +490,20 @@ class SimpleClient(object):
         action = py_obj["__action__"]
         data = py_obj["__data__"]
 
-        # feed client actor here …
-        #
-        # TODO: This code is dangerous as a malicious message
-        # could call anything on this object. This needs to
-        # be fixed analogous to the `expose` method in
-        # the messaging framework.
         try:
+            # feed client actor here …
+            #
+            # TODO: This code is dangerous as a malicious message
+            # could call anything on this object. This needs to
+            # be fixed analogous to the `expose` method in
+            # the messaging framework.
             retval = getattr(self, action)(**data)
+        except (KeyboardInterrupt, ExitLoop):
+            raise
         except Exception as e:
-            if isinstance(e, ExitLoop):
-                raise
-            else:
-                print >> sys.stderr, "Exception in client code executing %s." % self.team
-                raise
+            msg = "Exception in client code for team %s." % self.team
+            print >> sys.stderr, msg
+            raise
 
         message_obj = {"__uuid__": uuid_, "__return__": retval}
         json_message = json_converter.dumps(message_obj)
