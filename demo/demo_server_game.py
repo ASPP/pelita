@@ -23,7 +23,7 @@ def get_python_process():
     return py_proc
 
 FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s]' + colorama.Fore.MAGENTA + ' %(message)s' + colorama.Fore.RESET
-#logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S", level=logging.WARNING)
+logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S", level=logging.INFO)
 
 layout = (
         """ ##################

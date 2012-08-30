@@ -340,6 +340,7 @@ class SimpleServer(object):
     def register_teams(self):
         # At this point the clients should have been started as well.
         for team in self.team_players:
+            _logger.info("Registering team %r.", team)
             team_name = team.team_name()
             self.game_master.register_team(team, team_name)
 
