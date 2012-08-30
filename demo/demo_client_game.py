@@ -2,7 +2,7 @@
 
 from pelita.player import RandomPlayer, BFSPlayer, SimpleTeam
 
-from pelita.actors import ClientActor
+from pelita.simplesetup import SimpleClient
 
 import logging
 from pelita.utils.colorama_wrapper import colorama
@@ -11,19 +11,12 @@ FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s]' + co
 #logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S", level=logging.WARNING)
 
 
-clientActor = ClientActor("the good ones")
-clientActor.register_team(SimpleTeam(BFSPlayer(), BFSPlayer()))
-clientActor.connect("pelita-main", host="", port=50007)
+team1 = SimpleTeam("the good ones", BFSPlayer(), BFSPlayer())
+client1 = SimpleClient(team1, address="tcp://localhost:50007")
 
-clientActor2 = ClientActor("the bad ones")
-clientActor2.register_team(SimpleTeam(RandomPlayer(), RandomPlayer()))
-clientActor2.connect("pelita-main", host="", port=50007)
+team2 = SimpleTeam("the bad ones", BFSPlayer(), BFSPlayer())
+client2 = SimpleClient(team2, address="tcp://localhost:50008")
 
-try:
-    while clientActor.actor_ref.is_alive:
-        clientActor.actor_ref.join(1)
-except KeyboardInterrupt:
-    pass
-finally:
-    clientActor.actor_ref.stop()
-    clientActor2.actor_ref.stop()
+client1.autoplay_process()
+client2.autoplay_process()
+
