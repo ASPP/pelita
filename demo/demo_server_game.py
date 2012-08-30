@@ -6,21 +6,24 @@ Verbose demonstration of how to set up a server and run a remote game.
 For all practical needs, using the simplesetup module should be sufficient.
 """
 
+import sys
+import subprocess
+
 from pelita.messaging import actor_of, RemoteConnection
-from pelita.actors import ServerActor
+from pelita.simplesetup import SimpleServer, SimplePublisher, SimpleController
 import logging
 from pelita.ui.tk_viewer import TkViewer
 
 from pelita.utils.colorama_wrapper import colorama
 
+def get_python_process():
+    py_proc = sys.executable
+    if not py_proc:
+        raise RuntimeError("Cannot retrieve current Python executable.")
+    return py_proc
+
 FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s]' + colorama.Fore.MAGENTA + ' %(message)s' + colorama.Fore.RESET
 #logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S", level=logging.WARNING)
-
-server = actor_of(ServerActor, "pelita-main")
-
-remote = RemoteConnection().start_listener(host="", port=50007)
-remote.register("pelita-main", server)
-remote.start_all()
 
 layout = (
         """ ##################
@@ -29,15 +32,23 @@ layout = (
             #     . #  .  .#1#
             ################## """)
 
-server.notify("initialize_game", [layout, 4, 200])
+server = SimpleServer(layout_string=layout, rounds=200, bind_addrs=("tcp://*:50007", "tcp://*:50008"))
 
-viewer = TkViewer()
-server.notify("register_viewer", [viewer])
+publisher = SimplePublisher("tcp://*:50012")
+server.game_master.register_viewer(publisher)
+
+subscribe_sock = server
+tk_open = "TkViewer(%r, %r).run()" % ("tcp://localhost:50012", "tcp://localhost:50013")
+tkprocess = subprocess.Popen([get_python_process(),
+                              "-c",
+                              "from pelita.ui.tk_viewer import TkViewer\n" + tk_open])
 
 try:
-    viewer.app.mainloop()
+    print server.bind_addresses
+    server.register_teams()
+    controller = SimpleController(server.game_master, "tcp://*:50013")
+    controller.run()
+    server.exit_teams()
 except KeyboardInterrupt:
-    print "Received CTRL+C. Exiting."
-finally:
-    server.stop()
-    remote.stop()
+    tkprocess.kill()
+
