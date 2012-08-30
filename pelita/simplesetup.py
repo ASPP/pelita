@@ -161,6 +161,9 @@ class ZMQConnection(object):
                 raise ZMQTimeout()
         raise ZMQTimeout()
 
+    def __repr__(self):
+        return "ZMQConnection(%r)" % self.socket
+
 
 class RemoteTeamPlayer(object):
     """ This class is registered server-side with the GameMaster
@@ -214,6 +217,9 @@ class RemoteTeamPlayer(object):
 
     def _exit(self):
         self.zmqconnection.send("exit", {})
+
+    def __repr__(self):
+        return "RemoteTeamPlayer(%r)" % self.zmqconnection
 
 class SimpleServer(object):
     """ Sets up a simple Server with most settings pre-configured.
