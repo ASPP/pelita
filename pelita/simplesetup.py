@@ -217,7 +217,10 @@ class RemoteTeamPlayer(object):
             raise PlayerDisconnected()
 
     def _exit(self):
-        self.zmqconnection.send("exit", {})
+        try:
+            self.zmqconnection.send("exit", {})
+        except DeadConnection:
+            _logger.info("Remote Player %r is already dead during exit. Ignoring.", self)
 
     def __repr__(self):
         return "RemoteTeamPlayer(%r)" % self.zmqconnection
