@@ -138,7 +138,6 @@ def get_python_process():
 parser = argparse.ArgumentParser(description='Run a single pelita game',
                                  add_help=False,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-prog = parser.prog
 parser._positionals = parser.add_argument_group('Arguments')
 parser.add_argument('left_team', help='team on the left side', nargs='?',
                     default="random")
