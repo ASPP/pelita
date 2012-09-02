@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import Tkinter
 import tkFont
 
-import time
 import zmq
 
 from .. import datamodel
 from .tk_sprites import BotSprite, Wall, Food, col
 from ..messaging.json_convert import json_converter
 from ..utils.signal_handlers import wm_delete_window_handler
+
+_logger = logging.getLogger("pelita.tk")
 
 def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
     no_lines = display_string.count("\n") + 1
@@ -477,7 +479,7 @@ class TkApplication(object):
             try:
                 fun(*args)
             except KeyboardInterrupt:
-                print "Bye."
+                _logger.info("Detected KeyboardInterrupt. Exiting.")
                 self.quit()
         self.master.after(delay, wrapped_fun)
 
