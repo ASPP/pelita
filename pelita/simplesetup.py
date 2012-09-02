@@ -45,6 +45,9 @@ _logger = logging.getLogger("pelita.simplesetup")
 
 __docformat__ = "restructuredtext"
 
+#: The timeout to use during sending
+DEAD_CONNECTION_TIMEOUT = 3.0
+
 def bind_socket(socket, address, option_hint=None):
     try:
         socket.bind(address)
@@ -103,7 +106,10 @@ class ZMQConnection(object):
 
         self.last_uuid = None
 
-    def send(self, action, data, timeout=3.0):
+    def send(self, action, data, timeout=None):
+        if timeout is None:
+            timeout = DEAD_CONNECTION_TIMEOUT
+
         msg_uuid = str(uuid.uuid4())
         _logger.debug("---> %s", msg_uuid)
 
