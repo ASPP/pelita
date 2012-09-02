@@ -213,8 +213,8 @@ find food:
 This next sections will explore the convenience properties of the
 ``AbstractPlayer`` as used in the ``BFSPlayer``.
 
-``current_uni``, ``current_pos`` and ``enemy_food``
----------------------------------------------------
+``current_uni``, ``current_state``, ``current_pos`` and ``enemy_food``
+----------------------------------------------------------------------
 
 The ``BFSPlayer`` makes use of some more advanced concepts. The first thing to
 note is that any player can override the method ``set_initial()``. At this
@@ -222,6 +222,16 @@ stage food is still present, and all bots are at their initial position. In the
 above example we initialise the adjacency list representation of the maze. As
 mentioned previously the current state of the universe is always available as
 ``current_uni``. Within ``set_initial()`` this is the starting state.
+
+Additionally, there is a low-level dict which includes all other game related
+information: ``current_state``. ``current_state`` is the current copy of the
+internal ``GameMaster.game_state`` dict. It holds for example the current round
+index or which bot is currently playing or how many timeouts each team has
+produced. Some of these values have dedicated properties in ``AbstractPlayer``
+but some are only accessible via ``current_state``. In some special cases
+however, one might want to access the full state of the game. (Minus the
+information the current Player is not allowed to access, of course.)
+The dict is documented in-line in ``pelita/game_state.py``.
 
 The next interesting thing to look at is the ``bfs_food()`` method which simply
 searches the ``AdjacencyList`` to find the closest food and returns a path to
