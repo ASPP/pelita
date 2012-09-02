@@ -19,6 +19,7 @@ Convenience Properties of ``AbstractPlayer``
 .. autosummary::
 
     current_uni
+    current_state
     me
     team
     legal_moves
