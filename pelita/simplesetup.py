@@ -188,18 +188,21 @@ class RemoteTeamPlayer(object):
         self.zmqconnection = ZMQConnection(socket)
 
     def team_name(self):
-        self.zmqconnection.send("team_name", {})
-        return self.zmqconnection.recv()
+        try:
+            self.zmqconnection.send("team_name", {})
+            return self.zmqconnection.recv()
+        except DeadConnection:
+            _logger.info("Detected a DeadConnection, returning a string nonetheless.")
+            return "%error%"
 
     def set_initial(self, team_id, universe, game_state):
-        self.zmqconnection.send("set_initial", {"team_id": team_id,
-                                                "universe": universe,
-                                                "game_state": game_state})
-        return self.zmqconnection.recv()
-        #try:
-        #    return self.ref.query("set_initial", [universe]).get(TIMEOUT)
-        #except (Queue.Empty, ActorNotRunning, DeadConnection):
-        #    pass
+        try:
+            self.zmqconnection.send("set_initial", {"team_id": team_id,
+                                                    "universe": universe,
+                                                    "game_state": game_state})
+            return self.zmqconnection.recv()
+        except DeadConnection:
+            _logger.info("Detected a DeadConnection.")
 
     def get_move(self, bot_id, universe, game_state):
         try:
@@ -512,11 +515,16 @@ class SimpleClient(object):
         except Exception as e:
             msg = "Exception in client code for team %s." % self.team
             print >> sys.stderr, msg
+            # return None. Let it crash next time the server tries to send.
+            retval = None
             raise
-
-        message_obj = {"__uuid__": uuid_, "__return__": retval}
-        json_message = json_converter.dumps(message_obj)
-        self.socket.send(json_message)
+        finally:
+            try:
+                message_obj = {"__uuid__": uuid_, "__return__": retval}
+                json_message = json_converter.dumps(message_obj)
+                self.socket.send(json_message)
+            except NameError:
+                pass
 
     def set_initial(self, *args, **kwargs):
         return self.team.set_initial(*args, **kwargs)
