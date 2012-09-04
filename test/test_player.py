@@ -268,7 +268,7 @@ class TestRoundBasedPlayer(unittest.TestCase):
         self.assertEqual(gm.universe.bots[2].current_pos, (3, 2))
         self.assertEqual(gm.universe.bots[3].current_pos, (9, 2))
 
-class TestSeededRandom_Player(unittest.TestCase):
+class TestRandomPlayerSeeds(unittest.TestCase):
     def test_demo_players(self):
         test_layout = (
         """ ################
@@ -282,8 +282,8 @@ class TestSeededRandom_Player(unittest.TestCase):
             #.            .#
             ################ """)
         gm = GameMaster(test_layout, 2, 5, seed=20)
-        gm.register_team(SimpleTeam(SeededRandomPlayer()))
-        gm.register_team(SimpleTeam(SeededRandomPlayer()))
+        gm.register_team(SimpleTeam(RandomPlayer()))
+        gm.register_team(SimpleTeam(RandomPlayer()))
         self.assertEqual(gm.universe.bots[0].current_pos, (4, 4))
         self.assertEqual(gm.universe.bots[1].current_pos, (4 + 7, 4))
         gm.play()
@@ -293,16 +293,16 @@ class TestSeededRandom_Player(unittest.TestCase):
 
         # running again to test seed:
         gm = GameMaster(test_layout, 2, 5, seed=20)
-        gm.register_team(SimpleTeam(SeededRandomPlayer()))
-        gm.register_team(SimpleTeam(SeededRandomPlayer()))
+        gm.register_team(SimpleTeam(RandomPlayer()))
+        gm.register_team(SimpleTeam(RandomPlayer()))
         gm.play()
         self.assertEqual(gm.universe.bots[0].current_pos, pos_left_bot)
         self.assertEqual(gm.universe.bots[1].current_pos, pos_right_bot)
 
         # running again with other seed:
         gm = GameMaster(test_layout, 2, 5, seed=200)
-        gm.register_team(SimpleTeam(SeededRandomPlayer()))
-        gm.register_team(SimpleTeam(SeededRandomPlayer()))
+        gm.register_team(SimpleTeam(RandomPlayer()))
+        gm.register_team(SimpleTeam(RandomPlayer()))
         gm.play()
         # most probably, either the left bot or the right bot or both are at
         # a different position
@@ -322,7 +322,7 @@ class TestSeededRandom_Player(unittest.TestCase):
             #.            .#
             ################ """)
         gm1 = GameMaster(test_layout, 4, 5, seed=20)
-        players_a = [SeededRandomPlayer() for _ in range(4)]
+        players_a = [RandomPlayer() for _ in range(4)]
 
         gm1.register_team(SimpleTeam(players_a[0], players_a[2]))
         gm1.register_team(SimpleTeam(players_a[1], players_a[3]))
@@ -332,7 +332,7 @@ class TestSeededRandom_Player(unittest.TestCase):
         self.assertEqual(len(set(random_numbers_a)), 4, "Probably not all player seeds were unique.")
 
         gm2 = GameMaster(test_layout, 4, 5, seed=20)
-        players_b = [SeededRandomPlayer() for _ in range(4)]
+        players_b = [RandomPlayer() for _ in range(4)]
 
         gm2.register_team(SimpleTeam(players_b[0], players_b[2]))
         gm2.register_team(SimpleTeam(players_b[1], players_b[3]))
@@ -341,7 +341,7 @@ class TestSeededRandom_Player(unittest.TestCase):
         self.assertEqual(random_numbers_a, random_numbers_b)
 
         gm3 = GameMaster(test_layout, 4, 5, seed=200)
-        players_c = [SeededRandomPlayer() for _ in range(4)]
+        players_c = [RandomPlayer() for _ in range(4)]
 
         gm3.register_team(SimpleTeam(players_c[0], players_c[2]))
         gm3.register_team(SimpleTeam(players_c[1], players_c[3]))
