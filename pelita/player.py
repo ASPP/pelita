@@ -385,13 +385,13 @@ class RandomPlayer(AbstractPlayer):
     """ A player that makes moves at random. """
 
     def get_move(self):
-        return random.choice(self.legal_moves.keys())
+        return self.rnd.choice(self.legal_moves.keys())
 
 class SpeakingPlayer(AbstractPlayer):
     """ A player that makes moves at random and tells us about it. """
 
     def get_move(self):
-        move = random.choice(self.legal_moves.keys())
+        move = self.rnd.choice(self.legal_moves.keys())
         self.say("Going %r." % (move,))
         return move
 
@@ -547,7 +547,7 @@ class NQRandomPlayer(AbstractPlayer):
         if not legal_moves:
             return datamodel.stop
         # and select a move at random
-        return random.choice(legal_moves.keys())
+        return self.rnd.choice(legal_moves.keys())
 
 
 class BFSPlayer(AbstractPlayer):
