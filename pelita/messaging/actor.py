@@ -120,11 +120,11 @@ class BaseActor(SuspendableThread):
 
         `ActorReference` provides the methods needed to interact
         with the `Actor` instance.
-         - channel
-         - notify
-         - query
-         - link
-         - current_message
+        - `channel`
+        - `notify`
+        - `query`
+        - `link`
+        - `current_message`
         """
         return self._ref
 
@@ -367,23 +367,23 @@ def expose(method=None, name=None):
     return method
 
 class DispatchingActor(Actor):
-    """ The `DispatchingActor` allows methods of the form
+    """ The `DispatchingActor` allows methods of the form::
 
-    @expose
-    def some_action(self, *args)
+        @expose
+        def some_action(self, *args): pass
 
-    which may be called as
+    which may be called as::
 
-    actor = DispatchingActor()
-    actor.send("some_action", params)
+        actor = DispatchingActor()
+        actor.send("some_action", params)
 
     An alternative form which allows for calling with a different name
-    is available
+    is available::
 
-    @expose(name="action")
-    def some_action(self, *args)
+        @expose(name="action")
+        def some_action(self, *args): pass
 
-    actor.send("action", params)
+        actor.send("action", params)
 
     Note that `DispatchingActor` overrides `on_receive`.
     """

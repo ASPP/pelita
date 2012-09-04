@@ -226,6 +226,8 @@ class SimpleServer(object):
 
     Usage
     -----
+    Initialise as follows::
+
         server = SimpleServer(layout_file="mymaze.layout", rounds=3000)
         server.run()
 
