@@ -89,6 +89,9 @@ class SimpleTeam(object):
         for player in self._players:
             player._remote_game = self._remote_game
 
+    def __repr__(self):
+        return "SimpleTeam(%r, %s)" % (self.team_name, ", ".join(repr(p) for p in self._players))
+
 class AbstractPlayer(object):
     """ Base class for all user implemented Players. """
 

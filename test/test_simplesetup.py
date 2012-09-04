@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import unittest
 
+import pelita
 from pelita.simplesetup import SimpleClient, SimpleServer, SimplePublisher, SimpleSubscriber
-from pelita.player import SimpleTeam, RandomPlayer, TestPlayer
+from pelita.player import SimpleTeam, RandomPlayer, TestPlayer, AbstractPlayer
 from pelita.viewer import AsciiViewer, AbstractViewer
 from pelita.datamodel import Free
 from pelita.game_master import GameMaster
@@ -122,6 +123,78 @@ class TestSimpleSetup(unittest.TestCase):
         server.run()
         server.shutdown()
 
+    def test_failing_bots_do_not_crash_server_in_set_initial(self):
+        layout = """
+        ##########
+        #        #
+        #0  ..  1#
+        ##########
+        """
+        server = SimpleServer(layout_string=layout, rounds=5, players=2, timeout_length=0.3)
+
+        for bind_address in server.bind_addresses:
+            self.assertTrue(bind_address.startswith("tcp://"))
+
+        client1_address = server.bind_addresses[0].replace("*", "localhost")
+        client2_address = server.bind_addresses[1].replace("*", "localhost")
+
+        class ThisIsAnExpectedException(Exception):
+            pass
+
+        class FailingPlayer(AbstractPlayer):
+            def set_initial(self):
+                raise ThisIsAnExpectedException()
+
+            def get_move(self):
+                raise ThisIsAnExpectedException()
+
+        old_timeout = pelita.simplesetup.DEAD_CONNECTION_TIMEOUT
+        pelita.simplesetup.DEAD_CONNECTION_TIMEOUT = 0.3
+
+        client1 = SimpleClient(SimpleTeam("team1", FailingPlayer()), address=client1_address)
+        client2 = SimpleClient(SimpleTeam("team2", FailingPlayer()), address=client2_address)
+
+        client1.autoplay_process()
+        client2.autoplay_process()
+        server.run()
+        server.shutdown()
+
+        pelita.simplesetup.DEAD_CONNECTION_TIMEOUT = old_timeout
+
+    def test_failing_bots_do_not_crash_server(self):
+        layout = """
+        ##########
+        #        #
+        #0  ..  1#
+        ##########
+        """
+        server = SimpleServer(layout_string=layout, rounds=5, players=2, timeout_length=0.3)
+
+        for bind_address in server.bind_addresses:
+            self.assertTrue(bind_address.startswith("tcp://"))
+
+        client1_address = server.bind_addresses[0].replace("*", "localhost")
+        client2_address = server.bind_addresses[1].replace("*", "localhost")
+
+        class ThisIsAnExpectedException(Exception):
+            pass
+
+        class FailingPlayer(AbstractPlayer):
+            def get_move(self):
+                raise ThisIsAnExpectedException()
+
+        old_timeout = pelita.simplesetup.DEAD_CONNECTION_TIMEOUT
+        pelita.simplesetup.DEAD_CONNECTION_TIMEOUT = 0.3
+
+        client1 = SimpleClient(SimpleTeam("team1", FailingPlayer()), address=client1_address)
+        client2 = SimpleClient(SimpleTeam("team2", FailingPlayer()), address=client2_address)
+
+        client1.autoplay_process()
+        client2.autoplay_process()
+        server.run()
+        server.shutdown()
+
+        pelita.simplesetup.DEAD_CONNECTION_TIMEOUT = old_timeout
 
     def test_remote_viewer_may_not_change_gm(self):
         free_obj = Free

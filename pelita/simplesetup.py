@@ -30,6 +30,7 @@ import logging
 import multiprocessing
 import threading
 import sys
+import traceback
 
 import uuid
 import zmq
@@ -43,6 +44,9 @@ from .viewer import AbstractViewer
 _logger = logging.getLogger("pelita.simplesetup")
 
 __docformat__ = "restructuredtext"
+
+#: The timeout to use during sending
+DEAD_CONNECTION_TIMEOUT = 3.0
 
 def bind_socket(socket, address, option_hint=None):
     try:
@@ -102,7 +106,10 @@ class ZMQConnection(object):
 
         self.last_uuid = None
 
-    def send(self, action, data, timeout=3.0):
+    def send(self, action, data, timeout=None):
+        if timeout is None:
+            timeout = DEAD_CONNECTION_TIMEOUT
+
         msg_uuid = str(uuid.uuid4())
         _logger.debug("---> %s", msg_uuid)
 
@@ -181,18 +188,21 @@ class RemoteTeamPlayer(object):
         self.zmqconnection = ZMQConnection(socket)
 
     def team_name(self):
-        self.zmqconnection.send("team_name", {})
-        return self.zmqconnection.recv()
+        try:
+            self.zmqconnection.send("team_name", {})
+            return self.zmqconnection.recv()
+        except DeadConnection:
+            _logger.info("Detected a DeadConnection, returning a string nonetheless.")
+            return "%error%"
 
     def set_initial(self, team_id, universe, game_state):
-        self.zmqconnection.send("set_initial", {"team_id": team_id,
-                                                "universe": universe,
-                                                "game_state": game_state})
-        return self.zmqconnection.recv()
-        #try:
-        #    return self.ref.query("set_initial", [universe]).get(TIMEOUT)
-        #except (Queue.Empty, ActorNotRunning, DeadConnection):
-        #    pass
+        try:
+            self.zmqconnection.send("set_initial", {"team_id": team_id,
+                                                    "universe": universe,
+                                                    "game_state": game_state})
+            return self.zmqconnection.recv()
+        except DeadConnection:
+            _logger.info("Detected a DeadConnection.")
 
     def get_move(self, bot_id, universe, game_state):
         try:
@@ -216,7 +226,10 @@ class RemoteTeamPlayer(object):
             raise PlayerDisconnected()
 
     def _exit(self):
-        self.zmqconnection.send("exit", {})
+        try:
+            self.zmqconnection.send("exit", {})
+        except DeadConnection:
+            _logger.info("Remote Player %r is already dead during exit. Ignoring.", self)
 
     def __repr__(self):
         return "RemoteTeamPlayer(%r)" % self.zmqconnection
@@ -489,17 +502,29 @@ class SimpleClient(object):
         action = py_obj["__action__"]
         data = py_obj["__data__"]
 
-        # feed client actor here …
-        #
-        # TODO: This code is dangerous as a malicious message
-        # could call anything on this object. This needs to
-        # be fixed analogous to the `expose` method in
-        # the messaging framework.
-        retval = getattr(self, action)(**data)
-
-        message_obj = {"__uuid__": uuid_, "__return__": retval}
-        json_message = json_converter.dumps(message_obj)
-        self.socket.send(json_message)
+        try:
+            # feed client actor here …
+            #
+            # TODO: This code is dangerous as a malicious message
+            # could call anything on this object. This needs to
+            # be fixed analogous to the `expose` method in
+            # the messaging framework.
+            retval = getattr(self, action)(**data)
+        except (KeyboardInterrupt, ExitLoop):
+            raise
+        except Exception as e:
+            msg = "Exception in client code for team %s." % self.team
+            print >> sys.stderr, msg
+            # return None. Let it crash next time the server tries to send.
+            retval = None
+            raise
+        finally:
+            try:
+                message_obj = {"__uuid__": uuid_, "__return__": retval}
+                json_message = json_converter.dumps(message_obj)
+                self.socket.send(json_message)
+            except NameError:
+                pass
 
     def set_initial(self, *args, **kwargs):
         return self.team.set_initial(*args, **kwargs)
