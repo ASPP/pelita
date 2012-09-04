@@ -119,7 +119,7 @@ class AbstractPlayer(object):
         else:
             self._store_universe = self._store_universe_copy
 
-        self.current_state = game_state
+        self._current_state = game_state
         self.universe_states = []
         self._store_universe(universe)
 
@@ -157,7 +157,7 @@ class AbstractPlayer(object):
         """
         #: Used for the `time_spent` method.
         self.__time_in_get_move = time.time()
-        self.current_state = game_state
+        self._current_state = game_state
         self._store_universe(universe)
         self._say = ""
         move = self.get_move()
@@ -181,6 +181,17 @@ class AbstractPlayer(object):
 
         """
         return self.universe_states[-1]
+
+    @property
+    def current_state(self):
+        """ The current game state.
+
+        Returns
+        -------
+        game_state : dict
+            The current game_state dict
+        """
+        return self._current_state
 
     @property
     def me(self):
