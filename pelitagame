@@ -155,6 +155,8 @@ parser.add_argument('--dump', help='print game dumps to file (will be overwritte
                     metavar='DUMPFILE', default=argparse.SUPPRESS, nargs='?')
 parser.add_argument('--rounds', type=int, default=300,
                     help='maximum number of rounds to play')
+parser.add_argument('--fps', type=float, default=40,
+                    help='(approximate) number of frames per second in a graphical viewer')
 parser.add_argument('--seed', type=int, metavar='SEED', default=None, 
                     help='fix random seed')
 parser.add_argument('--geometry', type=geometry_string, metavar='NxM',
@@ -426,12 +428,12 @@ def run_game():
     if open_tk:
         # Something on OS X prevents Tk from running in a forked process.
         # Therefore we cannot use multiprocessing here. subprocess works, though.
-
+        delay = int(1000./args.fps)
         if args.viewer == 'tk':
             sync_address_tk = args.controller.replace('*', 'localhost')
-            tk_open = "TkViewer(%r, %r, geometry=%r).run()" % (subscribe_sock, sync_address_tk, args.geometry)
+            tk_open = "TkViewer(%r, %r, geometry=%r, delay=%r).run()" % (subscribe_sock, sync_address_tk, args.geometry, delay)
         else:
-            tk_open = "TkViewer(%r, geometry=%r).run()" % (subscribe_sock, args.geometry)
+            tk_open = "TkViewer(%r, geometry=%r, delay=%r).run()" % (subscribe_sock, args.geometry, delay)
 
         tkprocess = subprocess.Popen([get_python_process(),
                                       "-c",
