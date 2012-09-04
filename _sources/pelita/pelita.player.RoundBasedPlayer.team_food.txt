@@ -1,0 +1,6 @@
+pelita.player.RoundBasedPlayer.team_food
+========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: RoundBasedPlayer.team_food

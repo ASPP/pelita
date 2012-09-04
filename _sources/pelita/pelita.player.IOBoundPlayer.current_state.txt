@@ -1,0 +1,6 @@
+pelita.player.IOBoundPlayer.current_state
+=========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: IOBoundPlayer.current_state

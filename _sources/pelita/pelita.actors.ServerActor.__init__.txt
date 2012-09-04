@@ -1,6 +1,0 @@
-pelita.actors.ServerActor.__init__
-==================================
-
-.. currentmodule:: pelita.actors
-
-.. automethod:: ServerActor.__init__

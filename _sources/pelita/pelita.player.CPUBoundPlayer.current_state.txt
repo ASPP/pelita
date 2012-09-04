@@ -1,0 +1,6 @@
+pelita.player.CPUBoundPlayer.current_state
+==========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: CPUBoundPlayer.current_state

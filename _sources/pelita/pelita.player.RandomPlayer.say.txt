@@ -1,0 +1,6 @@
+pelita.player.RandomPlayer.say
+==============================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: RandomPlayer.say

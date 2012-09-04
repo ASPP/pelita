@@ -13,7 +13,9 @@ pelita.player.IOBoundPlayer
       :nosignatures:
    
       ~IOBoundPlayer.get_move
+      ~IOBoundPlayer.say
       ~IOBoundPlayer.set_initial
+      ~IOBoundPlayer.time_spent
    
 
    
@@ -24,9 +26,11 @@ pelita.player.IOBoundPlayer
       :nosignatures:
    
       ~IOBoundPlayer.current_pos
+      ~IOBoundPlayer.current_state
       ~IOBoundPlayer.current_uni
       ~IOBoundPlayer.enemy_bots
       ~IOBoundPlayer.enemy_food
+      ~IOBoundPlayer.enemy_team
       ~IOBoundPlayer.initial_pos
       ~IOBoundPlayer.legal_moves
       ~IOBoundPlayer.me
@@ -35,4 +39,5 @@ pelita.player.IOBoundPlayer
       ~IOBoundPlayer.team
       ~IOBoundPlayer.team_border
       ~IOBoundPlayer.team_bots
+      ~IOBoundPlayer.team_food
    

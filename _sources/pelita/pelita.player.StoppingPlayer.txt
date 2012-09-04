@@ -13,7 +13,9 @@ pelita.player.StoppingPlayer
       :nosignatures:
    
       ~StoppingPlayer.get_move
+      ~StoppingPlayer.say
       ~StoppingPlayer.set_initial
+      ~StoppingPlayer.time_spent
    
 
    
@@ -24,9 +26,11 @@ pelita.player.StoppingPlayer
       :nosignatures:
    
       ~StoppingPlayer.current_pos
+      ~StoppingPlayer.current_state
       ~StoppingPlayer.current_uni
       ~StoppingPlayer.enemy_bots
       ~StoppingPlayer.enemy_food
+      ~StoppingPlayer.enemy_team
       ~StoppingPlayer.initial_pos
       ~StoppingPlayer.legal_moves
       ~StoppingPlayer.me
@@ -35,4 +39,5 @@ pelita.player.StoppingPlayer
       ~StoppingPlayer.team
       ~StoppingPlayer.team_border
       ~StoppingPlayer.team_bots
+      ~StoppingPlayer.team_food
    

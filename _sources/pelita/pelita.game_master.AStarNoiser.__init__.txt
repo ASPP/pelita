@@ -1,0 +1,6 @@
+pelita.game_master.AStarNoiser.__init__
+=======================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: AStarNoiser.__init__

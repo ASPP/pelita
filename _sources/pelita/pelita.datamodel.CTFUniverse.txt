@@ -16,6 +16,7 @@ pelita.datamodel.CTFUniverse
       ~CTFUniverse.copy
       ~CTFUniverse.enemy_bots
       ~CTFUniverse.enemy_food
+      ~CTFUniverse.enemy_team
       ~CTFUniverse.get_legal_moves
       ~CTFUniverse.get_legal_moves_or_stop
       ~CTFUniverse.move_bot

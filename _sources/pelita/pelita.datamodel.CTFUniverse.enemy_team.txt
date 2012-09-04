@@ -1,0 +1,6 @@
+pelita.datamodel.CTFUniverse.enemy_team
+=======================================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: CTFUniverse.enemy_team

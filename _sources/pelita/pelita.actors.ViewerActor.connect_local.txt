@@ -1,6 +1,0 @@
-pelita.actors.ViewerActor.connect_local
-=======================================
-
-.. currentmodule:: pelita.actors
-
-.. automethod:: ViewerActor.connect_local

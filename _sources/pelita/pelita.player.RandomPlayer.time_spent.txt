@@ -1,0 +1,6 @@
+pelita.player.RandomPlayer.time_spent
+=====================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: RandomPlayer.time_spent

@@ -1,0 +1,6 @@
+pelita.game_master.UniverseNoiser.distance
+==========================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: UniverseNoiser.distance

@@ -1,0 +1,6 @@
+pelita.player.SeededRandomPlayer.enemy_bots
+===========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: SeededRandomPlayer.enemy_bots

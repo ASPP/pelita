@@ -1,0 +1,6 @@
+pelita.game_master.AStarNoiser.uniform_noise
+============================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: AStarNoiser.uniform_noise

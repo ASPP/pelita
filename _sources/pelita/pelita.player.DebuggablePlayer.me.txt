@@ -1,0 +1,6 @@
+pelita.player.DebuggablePlayer.me
+=================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: DebuggablePlayer.me

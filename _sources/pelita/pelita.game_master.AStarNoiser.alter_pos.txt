@@ -1,0 +1,6 @@
+pelita.game_master.AStarNoiser.alter_pos
+========================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: AStarNoiser.alter_pos

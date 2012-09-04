@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.game_master.GameMaster &mdash; Pelita v0.1.1-175-g7306988 documentation</title>
+    <title>pelita.game_master.GameMaster &mdash; Pelita v0.1.1-329-g260502c documentation</title>
     
     <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.1.1-175-g7306988',
+        VERSION:     'v0.1.1-329-g260502c',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,10 +25,10 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.1-175-g7306988 documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.1.1-329-g260502c documentation" href="../index.html" />
     <link rel="up" title="pelita.game_master" href="pelita.game_master.html" />
     <link rel="next" title="pelita.game_master.GameMaster.__init__" href="pelita.game_master.GameMaster.__init__.html" />
-    <link rel="prev" title="pelita.game_master.PlayerTimeout" href="pelita.game_master.PlayerTimeout.html" /> 
+    <link rel="prev" title="pelita.game_master.AStarNoiser.uniform_noise" href="pelita.game_master.AStarNoiser.uniform_noise.html" /> 
   </head>
   <body>
     <div class="related">
@@ -47,9 +47,9 @@
           <a href="pelita.game_master.GameMaster.__init__.html" title="pelita.game_master.GameMaster.__init__"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="pelita.game_master.PlayerTimeout.html" title="pelita.game_master.PlayerTimeout"
+          <a href="pelita.game_master.AStarNoiser.uniform_noise.html" title="pelita.game_master.AStarNoiser.uniform_noise"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-329-g260502c documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li>
           <li><a href="pelita.game_master.html" accesskey="U">pelita.game_master</a> &raquo;</li> 
       </ul>
@@ -64,7 +64,7 @@
 <h1>pelita.game_master.GameMaster<a class="headerlink" href="#pelita-game-master-gamemaster" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pelita.game_master.GameMaster">
-<em class="property">class </em><tt class="descclassname">pelita.game_master.</tt><tt class="descname">GameMaster</tt><big>(</big><em>layout</em>, <em>number_bots</em>, <em>game_time</em>, <em>noise=True</em>, <em>initial_delay=0.0</em><big>)</big><a class="headerlink" href="#pelita.game_master.GameMaster" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pelita.game_master.</tt><tt class="descname">GameMaster</tt><big>(</big><em>layout</em>, <em>number_bots</em>, <em>game_time</em>, <em>noise=True</em>, <em>noiser=None</em>, <em>initial_delay=0.0</em>, <em>max_timeouts=5</em>, <em>timeout_length=3</em>, <em>layout_name=None</em>, <em>seed=None</em><big>)</big><a class="headerlink" href="#pelita.game_master.GameMaster" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Controller of player moves and universe updates.</p>
 <p>This object coordinates the moves of the player implementations with the
@@ -86,8 +86,12 @@ updating of the universe.</p>
 <div><p>the total permitted number of rounds</p>
 </div></blockquote>
 <p><strong>noise</strong> : boolean</p>
-<blockquote class="last">
+<blockquote>
 <div><p>should enemy positions be noisy</p>
+</div></blockquote>
+<p><strong>seed</strong> : int, optional</p>
+<blockquote class="last">
+<div><p>seed which initialises the internal random number generator</p>
 </div></blockquote>
 </td>
 </tr>
@@ -234,17 +238,17 @@ updating of the universe.</p>
           <a href="pelita.game_master.GameMaster.__init__.html" title="pelita.game_master.GameMaster.__init__"
              >next</a> |</li>
         <li class="right" >
-          <a href="pelita.game_master.PlayerTimeout.html" title="pelita.game_master.PlayerTimeout"
+          <a href="pelita.game_master.AStarNoiser.uniform_noise.html" title="pelita.game_master.AStarNoiser.uniform_noise"
              >previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-329-g260502c documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li>
           <li><a href="pelita.game_master.html" >pelita.game_master</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2012, Valentin Haenel, Rike-Benjamin Shuppner et. al..
-      Last updated on Jun 16, 2012.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
+      Last updated on Sep 04, 2012.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

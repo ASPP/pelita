@@ -13,7 +13,9 @@ pelita.player.InitialExceptionPlayer
       :nosignatures:
    
       ~InitialExceptionPlayer.get_move
+      ~InitialExceptionPlayer.say
       ~InitialExceptionPlayer.set_initial
+      ~InitialExceptionPlayer.time_spent
    
 
    
@@ -24,9 +26,11 @@ pelita.player.InitialExceptionPlayer
       :nosignatures:
    
       ~InitialExceptionPlayer.current_pos
+      ~InitialExceptionPlayer.current_state
       ~InitialExceptionPlayer.current_uni
       ~InitialExceptionPlayer.enemy_bots
       ~InitialExceptionPlayer.enemy_food
+      ~InitialExceptionPlayer.enemy_team
       ~InitialExceptionPlayer.initial_pos
       ~InitialExceptionPlayer.legal_moves
       ~InitialExceptionPlayer.me
@@ -35,4 +39,5 @@ pelita.player.InitialExceptionPlayer
       ~InitialExceptionPlayer.team
       ~InitialExceptionPlayer.team_border
       ~InitialExceptionPlayer.team_bots
+      ~InitialExceptionPlayer.team_food
    

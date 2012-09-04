@@ -1,0 +1,43 @@
+pelita.player.DebuggablePlayer
+==============================
+
+.. currentmodule:: pelita.player
+
+.. autoclass:: DebuggablePlayer
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~DebuggablePlayer.get_move
+      ~DebuggablePlayer.say
+      ~DebuggablePlayer.set_initial
+      ~DebuggablePlayer.time_spent
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~DebuggablePlayer.current_pos
+      ~DebuggablePlayer.current_state
+      ~DebuggablePlayer.current_uni
+      ~DebuggablePlayer.enemy_bots
+      ~DebuggablePlayer.enemy_food
+      ~DebuggablePlayer.enemy_team
+      ~DebuggablePlayer.initial_pos
+      ~DebuggablePlayer.legal_moves
+      ~DebuggablePlayer.me
+      ~DebuggablePlayer.other_team_bots
+      ~DebuggablePlayer.previous_pos
+      ~DebuggablePlayer.team
+      ~DebuggablePlayer.team_border
+      ~DebuggablePlayer.team_bots
+      ~DebuggablePlayer.team_food
+   

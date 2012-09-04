@@ -1,0 +1,6 @@
+pelita.player.SpeakingPlayer.set_initial
+========================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: SpeakingPlayer.set_initial

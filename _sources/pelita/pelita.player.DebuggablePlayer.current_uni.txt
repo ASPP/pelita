@@ -1,0 +1,6 @@
+pelita.player.DebuggablePlayer.current_uni
+==========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: DebuggablePlayer.current_uni

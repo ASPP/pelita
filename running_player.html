@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Running Players &mdash; Pelita v0.1.1-175-g7306988 documentation</title>
+    <title>Running Players &mdash; Pelita v0.1.1-329-g260502c documentation</title>
     
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.1.1-175-g7306988',
+        VERSION:     'v0.1.1-329-g260502c',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.1-175-g7306988 documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.1.1-329-g260502c documentation" href="index.html" />
     <link rel="next" title="Development" href="development.html" />
     <link rel="prev" title="Writing a Player" href="writing_player.html" /> 
   </head>
@@ -48,7 +48,7 @@
         <li class="right" >
           <a href="writing_player.html" title="Writing a Player"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.1.1-329-g260502c documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -212,6 +212,55 @@ For example the function <tt class="docutils literal"><span class="pre">utility<
 function, since it will be called once for every game.</p>
 </div>
 </div>
+<div class="section" id="debugging">
+<h2>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">pelitagame</span></tt> script runs the client code in another process. Therefore,
+it is not possible from the client process to halt the program and interact
+with standard input. In order to use debugging methods, one has to somehow run
+the player code in the main process. Depending on whether one wants to check
+the left or the right, one has to use the flags <tt class="xref py py-obj docutils literal"><span class="pre">--standalone-left</span></tt> and
+<tt class="xref py py-obj docutils literal"><span class="pre">--standalone-right</span></tt>, respectively.</p>
+<p>For a start, let us consider a Player which does nothing but call the Python
+debugger for help:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">pdb</span>
+<span class="k">class</span> <span class="nc">DebuggablePlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Player which invokes pdb on each move. </span>
+
+<span class="sd">    Setting ``direction`` inside the debugger will change</span>
+<span class="sd">    its behaviour.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">direction</span> <span class="o">=</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span>
+        <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">direction</span>
+</pre></div>
+</div>
+<p>We want to use this player in our left team and let the server choose a random
+team for the right hand side. Additionally, we disable the timeouts:</p>
+<div class="highlight-python"><pre>$ ~/pelita/pelitagame --standalone-left --no-timeout DebuggablePlayer</pre>
+</div>
+<p>We now can interact with the game by manually setting the direction at
+each step:</p>
+<div class="highlight-python"><pre>&gt; ./pelita/player.py(494)get_move()
+-&gt; return direction
+(Pdb) direction = (1,0)
+(Pdb) c
+&gt; ./pelita/player.py(494)get_move()
+-&gt; return direction
+(Pdb) direction = (0,1)
+(Pdb) c
+&gt; ./pelita/player.py(494)get_move()
+-&gt; return direction
+(Pdb)</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The standalone mode may sometimes misbehave. Possible issues may include
+the occasional not responding on keystrokes, garbled output and the
+failure to automatically shutdown the program. In these cases, it is
+useful to press the keyboard interrupt (CTRL+C) a couple of times.</p>
+</div>
+</div>
 </div>
 
 
@@ -227,6 +276,7 @@ function, since it will be called once for every game.</p>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Running Players</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#where-to-place-your-files">Where to Place Your Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#load-custom-layouts">Load Custom Layouts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#debugging">Debugging</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
@@ -274,13 +324,13 @@ function, since it will be called once for every game.</p>
         <li class="right" >
           <a href="writing_player.html" title="Writing a Player"
              >previous</a> |</li>
-        <li><a href="index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.1.1-329-g260502c documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2012, Valentin Haenel, Rike-Benjamin Shuppner et. al..
-      Last updated on Jun 16, 2012.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
+      Last updated on Sep 04, 2012.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

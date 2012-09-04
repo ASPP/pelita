@@ -13,7 +13,9 @@ pelita.player.RandomPlayer
       :nosignatures:
    
       ~RandomPlayer.get_move
+      ~RandomPlayer.say
       ~RandomPlayer.set_initial
+      ~RandomPlayer.time_spent
    
 
    
@@ -24,9 +26,11 @@ pelita.player.RandomPlayer
       :nosignatures:
    
       ~RandomPlayer.current_pos
+      ~RandomPlayer.current_state
       ~RandomPlayer.current_uni
       ~RandomPlayer.enemy_bots
       ~RandomPlayer.enemy_food
+      ~RandomPlayer.enemy_team
       ~RandomPlayer.initial_pos
       ~RandomPlayer.legal_moves
       ~RandomPlayer.me
@@ -35,4 +39,5 @@ pelita.player.RandomPlayer
       ~RandomPlayer.team
       ~RandomPlayer.team_border
       ~RandomPlayer.team_bots
+      ~RandomPlayer.team_food
    

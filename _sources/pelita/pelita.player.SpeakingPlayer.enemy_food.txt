@@ -1,0 +1,6 @@
+pelita.player.SpeakingPlayer.enemy_food
+=======================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: SpeakingPlayer.enemy_food

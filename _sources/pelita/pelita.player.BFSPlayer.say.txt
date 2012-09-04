@@ -1,0 +1,6 @@
+pelita.player.BFSPlayer.say
+===========================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: BFSPlayer.say

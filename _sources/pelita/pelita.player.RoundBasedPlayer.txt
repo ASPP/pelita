@@ -14,7 +14,9 @@ pelita.player.RoundBasedPlayer
    
       ~RoundBasedPlayer.__init__
       ~RoundBasedPlayer.get_move
+      ~RoundBasedPlayer.say
       ~RoundBasedPlayer.set_initial
+      ~RoundBasedPlayer.time_spent
    
 
    
@@ -25,9 +27,11 @@ pelita.player.RoundBasedPlayer
       :nosignatures:
    
       ~RoundBasedPlayer.current_pos
+      ~RoundBasedPlayer.current_state
       ~RoundBasedPlayer.current_uni
       ~RoundBasedPlayer.enemy_bots
       ~RoundBasedPlayer.enemy_food
+      ~RoundBasedPlayer.enemy_team
       ~RoundBasedPlayer.initial_pos
       ~RoundBasedPlayer.legal_moves
       ~RoundBasedPlayer.me
@@ -36,4 +40,5 @@ pelita.player.RoundBasedPlayer
       ~RoundBasedPlayer.team
       ~RoundBasedPlayer.team_border
       ~RoundBasedPlayer.team_bots
+      ~RoundBasedPlayer.team_food
    

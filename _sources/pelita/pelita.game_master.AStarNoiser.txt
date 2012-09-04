@@ -1,0 +1,21 @@
+pelita.game_master.AStarNoiser
+==============================
+
+.. currentmodule:: pelita.game_master
+
+.. autoclass:: AStarNoiser
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~AStarNoiser.__init__
+      ~AStarNoiser.alter_pos
+      ~AStarNoiser.distance
+      ~AStarNoiser.uniform_noise
+   
+
+   

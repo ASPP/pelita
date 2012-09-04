@@ -1,6 +1,0 @@
-pelita.actors.ServerActor.start_game
-====================================
-
-.. currentmodule:: pelita.actors
-
-.. automethod:: ServerActor.start_game

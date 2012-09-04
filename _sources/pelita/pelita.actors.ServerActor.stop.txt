@@ -1,6 +1,0 @@
-pelita.actors.ServerActor.stop
-==============================
-
-.. currentmodule:: pelita.actors
-
-.. automethod:: ServerActor.stop

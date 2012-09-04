@@ -1,6 +1,0 @@
-pelita.actors.ServerActor.hello
-===============================
-
-.. currentmodule:: pelita.actors
-
-.. automethod:: ServerActor.hello

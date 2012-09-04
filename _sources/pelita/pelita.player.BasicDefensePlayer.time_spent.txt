@@ -1,0 +1,6 @@
+pelita.player.BasicDefensePlayer.time_spent
+===========================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: BasicDefensePlayer.time_spent

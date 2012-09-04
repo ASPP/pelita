@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.simplesetup &mdash; Pelita v0.1.1-175-g7306988 documentation</title>
+    <title>pelita.simplesetup &mdash; Pelita v0.1.1-329-g260502c documentation</title>
     
     <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.1.1-175-g7306988',
+        VERSION:     'v0.1.1-329-g260502c',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,10 +25,10 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.1-175-g7306988 documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.1.1-329-g260502c documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
-    <link rel="next" title="pelita.simplesetup.RemoteTeamPlayer" href="pelita.simplesetup.RemoteTeamPlayer.html" />
-    <link rel="prev" title="pelita.player.TestPlayer.team_bots" href="pelita.player.TestPlayer.team_bots.html" /> 
+    <link rel="next" title="pelita.simplesetup.bind_socket" href="pelita.simplesetup.bind_socket.html" />
+    <link rel="prev" title="pelita.player.TestPlayer.team_food" href="pelita.player.TestPlayer.team_food.html" /> 
   </head>
   <body>
     <div class="related">
@@ -44,12 +44,12 @@
           <a href="../np-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="pelita.simplesetup.RemoteTeamPlayer.html" title="pelita.simplesetup.RemoteTeamPlayer"
+          <a href="pelita.simplesetup.bind_socket.html" title="pelita.simplesetup.bind_socket"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="pelita.player.TestPlayer.team_bots.html" title="pelita.player.TestPlayer.team_bots"
+          <a href="pelita.player.TestPlayer.team_food.html" title="pelita.player.TestPlayer.team_food"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-329-g260502c documentation</a> &raquo;</li>
           <li><a href="../api.html" accesskey="U">API reference</a> &raquo;</li> 
       </ul>
     </div>  
@@ -78,6 +78,18 @@ in a future version we might want to revisit this decision. At the time
 we switch to Python 3.2+, if thread queues might have become fast enough
 (or maybe if the gevent interface likes our messaging layer), we should
 re-investigate this decision.</p>
+<p class="rubric">Functions</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.bind_socket.html#pelita.simplesetup.bind_socket" title="pelita.simplesetup.bind_socket"><tt class="xref py py-obj docutils literal"><span class="pre">bind_socket</span></tt></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Classes</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -144,7 +156,6 @@ re-investigate this decision.</p>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="pelita.__layouts.html">pelita.__layouts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.__version_from_git.html">pelita.__version_from_git</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pelita.actors.html">pelita.actors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.compat.html">pelita.compat</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.containers.html">pelita.containers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.datamodel.html">pelita.datamodel</a></li>
@@ -196,19 +207,19 @@ re-investigate this decision.</p>
           <a href="../np-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="pelita.simplesetup.RemoteTeamPlayer.html" title="pelita.simplesetup.RemoteTeamPlayer"
+          <a href="pelita.simplesetup.bind_socket.html" title="pelita.simplesetup.bind_socket"
              >next</a> |</li>
         <li class="right" >
-          <a href="pelita.player.TestPlayer.team_bots.html" title="pelita.player.TestPlayer.team_bots"
+          <a href="pelita.player.TestPlayer.team_food.html" title="pelita.player.TestPlayer.team_food"
              >previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-329-g260502c documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2012, Valentin Haenel, Rike-Benjamin Shuppner et. al..
-      Last updated on Jun 16, 2012.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
+      Last updated on Sep 04, 2012.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

@@ -1,0 +1,6 @@
+pelita.player.RoundBasedPlayer.current_state
+============================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: RoundBasedPlayer.current_state

@@ -1,0 +1,6 @@
+pelita.player.SpeakingPlayer.enemy_team
+=======================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: SpeakingPlayer.enemy_team

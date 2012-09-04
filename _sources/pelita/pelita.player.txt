@@ -16,13 +16,16 @@ pelita.player
       ~BFSPlayer
       ~BasicDefensePlayer
       ~CPUBoundPlayer
+      ~DebuggablePlayer
       ~IOBoundPlayer
       ~InitialExceptionPlayer
       ~MoveExceptionPlayer
       ~NQRandomPlayer
       ~RandomPlayer
       ~RoundBasedPlayer
+      ~SeededRandomPlayer
       ~SimpleTeam
+      ~SpeakingPlayer
       ~StoppingPlayer
       ~TestPlayer
    

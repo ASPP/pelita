@@ -31,6 +31,9 @@ pelita.graph.AdjacencyList
       ~AdjacencyList.setdefault
       ~AdjacencyList.update
       ~AdjacencyList.values
+      ~AdjacencyList.viewitems
+      ~AdjacencyList.viewkeys
+      ~AdjacencyList.viewvalues
    
 
    

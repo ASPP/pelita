@@ -1,0 +1,6 @@
+pelita.player.CPUBoundPlayer.say
+================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: CPUBoundPlayer.say

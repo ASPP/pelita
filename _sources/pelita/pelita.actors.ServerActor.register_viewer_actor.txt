@@ -1,6 +1,0 @@
-pelita.actors.ServerActor.register_viewer_actor
-===============================================
-
-.. currentmodule:: pelita.actors
-
-.. automethod:: ServerActor.register_viewer_actor

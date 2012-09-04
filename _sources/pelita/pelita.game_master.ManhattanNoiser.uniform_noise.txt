@@ -1,0 +1,6 @@
+pelita.game_master.ManhattanNoiser.uniform_noise
+================================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: ManhattanNoiser.uniform_noise

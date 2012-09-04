@@ -1,0 +1,6 @@
+pelita.player.SpeakingPlayer.say
+================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: SpeakingPlayer.say

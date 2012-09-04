@@ -1,0 +1,6 @@
+pelita.player.NQRandomPlayer.time_spent
+=======================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: NQRandomPlayer.time_spent

@@ -1,0 +1,21 @@
+pelita.game_master.ManhattanNoiser
+==================================
+
+.. currentmodule:: pelita.game_master
+
+.. autoclass:: ManhattanNoiser
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~ManhattanNoiser.__init__
+      ~ManhattanNoiser.alter_pos
+      ~ManhattanNoiser.distance
+      ~ManhattanNoiser.uniform_noise
+   
+
+   

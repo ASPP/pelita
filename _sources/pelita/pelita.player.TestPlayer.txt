@@ -14,7 +14,9 @@ pelita.player.TestPlayer
    
       ~TestPlayer.__init__
       ~TestPlayer.get_move
+      ~TestPlayer.say
       ~TestPlayer.set_initial
+      ~TestPlayer.time_spent
    
 
    
@@ -25,9 +27,11 @@ pelita.player.TestPlayer
       :nosignatures:
    
       ~TestPlayer.current_pos
+      ~TestPlayer.current_state
       ~TestPlayer.current_uni
       ~TestPlayer.enemy_bots
       ~TestPlayer.enemy_food
+      ~TestPlayer.enemy_team
       ~TestPlayer.initial_pos
       ~TestPlayer.legal_moves
       ~TestPlayer.me
@@ -36,4 +40,5 @@ pelita.player.TestPlayer
       ~TestPlayer.team
       ~TestPlayer.team_border
       ~TestPlayer.team_bots
+      ~TestPlayer.team_food
    

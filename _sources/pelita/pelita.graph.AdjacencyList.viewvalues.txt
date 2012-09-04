@@ -1,0 +1,6 @@
+pelita.graph.AdjacencyList.viewvalues
+=====================================
+
+.. currentmodule:: pelita.graph
+
+.. automethod:: AdjacencyList.viewvalues

@@ -1,0 +1,6 @@
+pelita.player.DebuggablePlayer.current_pos
+==========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: DebuggablePlayer.current_pos

@@ -1,0 +1,6 @@
+pelita.player.DebuggablePlayer.set_initial
+==========================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: DebuggablePlayer.set_initial

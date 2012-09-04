@@ -1,0 +1,6 @@
+pelita.player.SeededRandomPlayer.current_state
+==============================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: SeededRandomPlayer.current_state

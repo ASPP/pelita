@@ -1,6 +1,0 @@
-pelita.actors.ServerActor.on_unhandled
-======================================
-
-.. currentmodule:: pelita.actors
-
-.. automethod:: ServerActor.on_unhandled

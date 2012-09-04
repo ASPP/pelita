@@ -13,7 +13,9 @@ pelita.player.NQRandomPlayer
       :nosignatures:
    
       ~NQRandomPlayer.get_move
+      ~NQRandomPlayer.say
       ~NQRandomPlayer.set_initial
+      ~NQRandomPlayer.time_spent
    
 
    
@@ -24,9 +26,11 @@ pelita.player.NQRandomPlayer
       :nosignatures:
    
       ~NQRandomPlayer.current_pos
+      ~NQRandomPlayer.current_state
       ~NQRandomPlayer.current_uni
       ~NQRandomPlayer.enemy_bots
       ~NQRandomPlayer.enemy_food
+      ~NQRandomPlayer.enemy_team
       ~NQRandomPlayer.initial_pos
       ~NQRandomPlayer.legal_moves
       ~NQRandomPlayer.me
@@ -35,4 +39,5 @@ pelita.player.NQRandomPlayer
       ~NQRandomPlayer.team
       ~NQRandomPlayer.team_border
       ~NQRandomPlayer.team_bots
+      ~NQRandomPlayer.team_food
    

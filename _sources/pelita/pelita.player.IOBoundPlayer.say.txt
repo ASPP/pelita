@@ -1,0 +1,6 @@
+pelita.player.IOBoundPlayer.say
+===============================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: IOBoundPlayer.say

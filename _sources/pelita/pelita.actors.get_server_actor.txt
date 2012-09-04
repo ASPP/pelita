@@ -1,6 +1,0 @@
-pelita.actors.get_server_actor
-==============================
-
-.. currentmodule:: pelita.actors
-
-.. autofunction:: get_server_actor

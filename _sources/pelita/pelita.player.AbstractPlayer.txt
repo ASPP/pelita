@@ -13,7 +13,9 @@ pelita.player.AbstractPlayer
       :nosignatures:
    
       ~AbstractPlayer.get_move
+      ~AbstractPlayer.say
       ~AbstractPlayer.set_initial
+      ~AbstractPlayer.time_spent
    
 
    
@@ -24,9 +26,11 @@ pelita.player.AbstractPlayer
       :nosignatures:
    
       ~AbstractPlayer.current_pos
+      ~AbstractPlayer.current_state
       ~AbstractPlayer.current_uni
       ~AbstractPlayer.enemy_bots
       ~AbstractPlayer.enemy_food
+      ~AbstractPlayer.enemy_team
       ~AbstractPlayer.initial_pos
       ~AbstractPlayer.legal_moves
       ~AbstractPlayer.me
@@ -35,4 +39,5 @@ pelita.player.AbstractPlayer
       ~AbstractPlayer.team
       ~AbstractPlayer.team_border
       ~AbstractPlayer.team_bots
+      ~AbstractPlayer.team_food
    

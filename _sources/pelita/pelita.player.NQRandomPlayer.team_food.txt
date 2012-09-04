@@ -1,0 +1,6 @@
+pelita.player.NQRandomPlayer.team_food
+======================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: NQRandomPlayer.team_food

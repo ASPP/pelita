@@ -1,0 +1,6 @@
+pelita.player.DebuggablePlayer.team_bots
+========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: DebuggablePlayer.team_bots

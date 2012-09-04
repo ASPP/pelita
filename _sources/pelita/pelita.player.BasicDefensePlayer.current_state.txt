@@ -1,0 +1,6 @@
+pelita.player.BasicDefensePlayer.current_state
+==============================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: BasicDefensePlayer.current_state

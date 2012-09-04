@@ -12,7 +12,9 @@ pelita.game_master
       :toctree:
       :nosignatures:
    
+      ~AStarNoiser
       ~GameMaster
+      ~ManhattanNoiser
       ~UniverseNoiser
    
 

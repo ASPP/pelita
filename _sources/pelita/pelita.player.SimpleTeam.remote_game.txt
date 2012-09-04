@@ -1,0 +1,6 @@
+pelita.player.SimpleTeam.remote_game
+====================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: SimpleTeam.remote_game

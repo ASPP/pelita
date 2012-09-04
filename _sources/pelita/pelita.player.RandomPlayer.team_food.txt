@@ -1,0 +1,6 @@
+pelita.player.RandomPlayer.team_food
+====================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: RandomPlayer.team_food

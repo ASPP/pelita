@@ -1,0 +1,6 @@
+pelita.player.AbstractPlayer.time_spent
+=======================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: AbstractPlayer.time_spent

@@ -1,0 +1,6 @@
+pelita.player.IOBoundPlayer.time_spent
+======================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: IOBoundPlayer.time_spent

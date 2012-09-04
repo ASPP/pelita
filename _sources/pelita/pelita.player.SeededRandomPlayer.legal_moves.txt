@@ -1,0 +1,6 @@
+pelita.player.SeededRandomPlayer.legal_moves
+============================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: SeededRandomPlayer.legal_moves

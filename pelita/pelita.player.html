@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.player &mdash; Pelita v0.1.1-175-g7306988 documentation</title>
+    <title>pelita.player &mdash; Pelita v0.1.1-329-g260502c documentation</title>
     
     <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.1.1-175-g7306988',
+        VERSION:     'v0.1.1-329-g260502c',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.1-175-g7306988 documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.1.1-329-g260502c documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
     <link rel="next" title="pelita.player.AbstractPlayer" href="pelita.player.AbstractPlayer.html" />
     <link rel="prev" title="pelita.messaging.DeadConnection" href="pelita.messaging.DeadConnection.html" /> 
@@ -49,7 +49,7 @@
         <li class="right" >
           <a href="pelita.messaging.DeadConnection.html" title="pelita.messaging.DeadConnection"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-329-g260502c documentation</a> &raquo;</li>
           <li><a href="../api.html" accesskey="U">API reference</a> &raquo;</li> 
       </ul>
     </div>  
@@ -81,31 +81,40 @@
 <tr class="row-even"><td><a class="reference internal" href="pelita.player.CPUBoundPlayer.html#pelita.player.CPUBoundPlayer" title="pelita.player.CPUBoundPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">CPUBoundPlayer</span></tt></a></td>
 <td>Player that does loads of computation.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.player.IOBoundPlayer.html#pelita.player.IOBoundPlayer" title="pelita.player.IOBoundPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">IOBoundPlayer</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.player.DebuggablePlayer.html#pelita.player.DebuggablePlayer" title="pelita.player.DebuggablePlayer"><tt class="xref py py-obj docutils literal"><span class="pre">DebuggablePlayer</span></tt></a></td>
+<td>Player which invokes pdb on each move.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.player.IOBoundPlayer.html#pelita.player.IOBoundPlayer" title="pelita.player.IOBoundPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">IOBoundPlayer</span></tt></a></td>
 <td>IO Bound player that crawls the file system.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.player.InitialExceptionPlayer.html#pelita.player.InitialExceptionPlayer" title="pelita.player.InitialExceptionPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">InitialExceptionPlayer</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.player.InitialExceptionPlayer.html#pelita.player.InitialExceptionPlayer" title="pelita.player.InitialExceptionPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">InitialExceptionPlayer</span></tt></a></td>
 <td>Player that raises an Exception on set_initial().</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.player.MoveExceptionPlayer.html#pelita.player.MoveExceptionPlayer" title="pelita.player.MoveExceptionPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">MoveExceptionPlayer</span></tt></a></td>
+<tr class="row-even"><td><a class="reference internal" href="pelita.player.MoveExceptionPlayer.html#pelita.player.MoveExceptionPlayer" title="pelita.player.MoveExceptionPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">MoveExceptionPlayer</span></tt></a></td>
 <td>Player that raises an Exception on get_move().</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.player.NQRandomPlayer.html#pelita.player.NQRandomPlayer" title="pelita.player.NQRandomPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">NQRandomPlayer</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.player.NQRandomPlayer.html#pelita.player.NQRandomPlayer" title="pelita.player.NQRandomPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">NQRandomPlayer</span></tt></a></td>
 <td>Not-Quite-RandomPlayer that will move randomly but not stop or reverse.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.player.RandomPlayer.html#pelita.player.RandomPlayer" title="pelita.player.RandomPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">RandomPlayer</span></tt></a></td>
+<tr class="row-even"><td><a class="reference internal" href="pelita.player.RandomPlayer.html#pelita.player.RandomPlayer" title="pelita.player.RandomPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">RandomPlayer</span></tt></a></td>
 <td>A player that makes moves at random.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.player.RoundBasedPlayer.html#pelita.player.RoundBasedPlayer" title="pelita.player.RoundBasedPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">RoundBasedPlayer</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.player.RoundBasedPlayer.html#pelita.player.RoundBasedPlayer" title="pelita.player.RoundBasedPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">RoundBasedPlayer</span></tt></a></td>
 <td>A Player which makes a decision dependent on the round index</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.player.SeededRandomPlayer.html#pelita.player.SeededRandomPlayer" title="pelita.player.SeededRandomPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">SeededRandomPlayer</span></tt></a></td>
+<td>A random player which uses the global seed.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="pelita.player.SimpleTeam.html#pelita.player.SimpleTeam" title="pelita.player.SimpleTeam"><tt class="xref py py-obj docutils literal"><span class="pre">SimpleTeam</span></tt></a></td>
 <td>Simple class used to register an arbitrary number of (Abstract-)Players.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.player.StoppingPlayer.html#pelita.player.StoppingPlayer" title="pelita.player.StoppingPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">StoppingPlayer</span></tt></a></td>
+<tr class="row-even"><td><a class="reference internal" href="pelita.player.SpeakingPlayer.html#pelita.player.SpeakingPlayer" title="pelita.player.SpeakingPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">SpeakingPlayer</span></tt></a></td>
+<td>A player that makes moves at random and tells us about it.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.player.StoppingPlayer.html#pelita.player.StoppingPlayer" title="pelita.player.StoppingPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">StoppingPlayer</span></tt></a></td>
 <td>A Player that just stands still.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.player.TestPlayer.html#pelita.player.TestPlayer" title="pelita.player.TestPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">TestPlayer</span></tt></a></td>
+<tr class="row-even"><td><a class="reference internal" href="pelita.player.TestPlayer.html#pelita.player.TestPlayer" title="pelita.player.TestPlayer"><tt class="xref py py-obj docutils literal"><span class="pre">TestPlayer</span></tt></a></td>
 <td>A Player with predetermined set of moves.</td>
 </tr>
 </tbody>
@@ -128,7 +137,6 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="pelita.__layouts.html">pelita.__layouts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.__version_from_git.html">pelita.__version_from_git</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pelita.actors.html">pelita.actors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.compat.html">pelita.compat</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.containers.html">pelita.containers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.datamodel.html">pelita.datamodel</a></li>
@@ -185,14 +193,14 @@
         <li class="right" >
           <a href="pelita.messaging.DeadConnection.html" title="pelita.messaging.DeadConnection"
              >previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-329-g260502c documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2012, Valentin Haenel, Rike-Benjamin Shuppner et. al..
-      Last updated on Jun 16, 2012.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
+      Last updated on Sep 04, 2012.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

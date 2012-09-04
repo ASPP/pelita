@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.game_master.UniverseNoiser &mdash; Pelita v0.1.1-175-g7306988 documentation</title>
+    <title>pelita.game_master.UniverseNoiser &mdash; Pelita v0.1.1-329-g260502c documentation</title>
     
     <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.1.1-175-g7306988',
+        VERSION:     'v0.1.1-329-g260502c',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,10 +25,10 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.1-175-g7306988 documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.1.1-329-g260502c documentation" href="../index.html" />
     <link rel="up" title="pelita.game_master" href="pelita.game_master.html" />
     <link rel="next" title="pelita.game_master.UniverseNoiser.__init__" href="pelita.game_master.UniverseNoiser.__init__.html" />
-    <link rel="prev" title="pelita.game_master.GameMaster.game_time" href="pelita.game_master.GameMaster.game_time.html" /> 
+    <link rel="prev" title="pelita.game_master.ManhattanNoiser.uniform_noise" href="pelita.game_master.ManhattanNoiser.uniform_noise.html" /> 
   </head>
   <body>
     <div class="related">
@@ -47,9 +47,9 @@
           <a href="pelita.game_master.UniverseNoiser.__init__.html" title="pelita.game_master.UniverseNoiser.__init__"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="pelita.game_master.GameMaster.game_time.html" title="pelita.game_master.GameMaster.game_time"
+          <a href="pelita.game_master.ManhattanNoiser.uniform_noise.html" title="pelita.game_master.ManhattanNoiser.uniform_noise"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-329-g260502c documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li>
           <li><a href="pelita.game_master.html" accesskey="U">pelita.game_master</a> &raquo;</li> 
       </ul>
@@ -64,12 +64,13 @@
 <h1>pelita.game_master.UniverseNoiser<a class="headerlink" href="#pelita-game-master-universenoiser" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pelita.game_master.UniverseNoiser">
-<em class="property">class </em><tt class="descclassname">pelita.game_master.</tt><tt class="descname">UniverseNoiser</tt><big>(</big><em>universe</em>, <em>noise_radius=5</em>, <em>sight_distance=5</em><big>)</big><a class="headerlink" href="#pelita.game_master.UniverseNoiser" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pelita.game_master.</tt><tt class="descname">UniverseNoiser</tt><big>(</big><em>universe</em>, <em>noise_radius=5</em>, <em>sight_distance=5</em>, <em>seed=None</em><big>)</big><a class="headerlink" href="#pelita.game_master.UniverseNoiser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Class to make bot positions noisy.</p>
+<p>Abstract BaseClass to make bot positions noisy.</p>
 <p>Supports uniform noise in maze space. Can be extended to support other types
 of noise. Noise will only be applied if the enemy bot is with a certain
 threshold (<tt class="xref py py-obj docutils literal"><span class="pre">sight_distance</span></tt>).</p>
+<p>Derived classes will need to implement distance and the alter_pos methods</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -83,24 +84,31 @@ threshold (<tt class="xref py py-obj docutils literal"><span class="pre">sight_d
 <div><p>the radius for the uniform noise</p>
 </div></blockquote>
 <p><strong>sight_distance</strong> : int, optional, default: 5</p>
-<blockquote class="last">
+<blockquote>
 <div><p>the distance at which noise is no longer applied.</p>
+</div></blockquote>
+<p><strong>seed</strong> : int, optional</p>
+<blockquote class="last">
+<div><p>seed which initialises the internal random number generator</p>
 </div></blockquote>
 </td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Attributes</p>
+<p class="rubric">Methods</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="14%" />
-<col width="21%" />
-<col width="65%" />
+<col width="24%" />
+<col width="76%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td>adjacency</td>
-<td>AdjacencyList</td>
-<td>adjacency list representation of the Maze</td>
+<tr class="row-odd"><td>distance(bot, other_bot):</td>
+<td>return distance between current bot and bot to be noised. Distance
+is measured in the space relevant to the particular algorithm implemented
+in the subclass, e.g. maze distance, manhattan distance, euclidean distance...</td>
+</tr>
+<tr class="row-even"><td>alter_pos(bot_pos):</td>
+<td>return the noised new position of an enemy bot.</td>
 </tr>
 </tbody>
 </table>
@@ -112,6 +120,12 @@ threshold (<tt class="xref py py-obj docutils literal"><span class="pre">sight_d
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="pelita.game_master.UniverseNoiser.__init__.html#pelita.game_master.UniverseNoiser.__init__" title="pelita.game_master.UniverseNoiser.__init__"><tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.game_master.UniverseNoiser.alter_pos.html#pelita.game_master.UniverseNoiser.alter_pos" title="pelita.game_master.UniverseNoiser.alter_pos"><tt class="xref py py-obj docutils literal"><span class="pre">alter_pos</span></tt></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.game_master.UniverseNoiser.distance.html#pelita.game_master.UniverseNoiser.distance" title="pelita.game_master.UniverseNoiser.distance"><tt class="xref py py-obj docutils literal"><span class="pre">distance</span></tt></a></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="pelita.game_master.UniverseNoiser.uniform_noise.html#pelita.game_master.UniverseNoiser.uniform_noise" title="pelita.game_master.UniverseNoiser.uniform_noise"><tt class="xref py py-obj docutils literal"><span class="pre">uniform_noise</span></tt></a></td>
@@ -177,17 +191,17 @@ threshold (<tt class="xref py py-obj docutils literal"><span class="pre">sight_d
           <a href="pelita.game_master.UniverseNoiser.__init__.html" title="pelita.game_master.UniverseNoiser.__init__"
              >next</a> |</li>
         <li class="right" >
-          <a href="pelita.game_master.GameMaster.game_time.html" title="pelita.game_master.GameMaster.game_time"
+          <a href="pelita.game_master.ManhattanNoiser.uniform_noise.html" title="pelita.game_master.ManhattanNoiser.uniform_noise"
              >previous</a> |</li>
-        <li><a href="../index.html">Pelita v0.1.1-175-g7306988 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Pelita v0.1.1-329-g260502c documentation</a> &raquo;</li>
           <li><a href="../api.html" >API reference</a> &raquo;</li>
           <li><a href="pelita.game_master.html" >pelita.game_master</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2012, Valentin Haenel, Rike-Benjamin Shuppner et. al..
-      Last updated on Jun 16, 2012.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1pre/dc8b0d1dc213.
+      Last updated on Sep 04, 2012.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

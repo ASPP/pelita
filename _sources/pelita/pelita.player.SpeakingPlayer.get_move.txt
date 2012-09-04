@@ -1,0 +1,6 @@
+pelita.player.SpeakingPlayer.get_move
+=====================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: SpeakingPlayer.get_move

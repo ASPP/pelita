@@ -13,7 +13,9 @@ pelita.player.CPUBoundPlayer
       :nosignatures:
    
       ~CPUBoundPlayer.get_move
+      ~CPUBoundPlayer.say
       ~CPUBoundPlayer.set_initial
+      ~CPUBoundPlayer.time_spent
    
 
    
@@ -24,9 +26,11 @@ pelita.player.CPUBoundPlayer
       :nosignatures:
    
       ~CPUBoundPlayer.current_pos
+      ~CPUBoundPlayer.current_state
       ~CPUBoundPlayer.current_uni
       ~CPUBoundPlayer.enemy_bots
       ~CPUBoundPlayer.enemy_food
+      ~CPUBoundPlayer.enemy_team
       ~CPUBoundPlayer.initial_pos
       ~CPUBoundPlayer.legal_moves
       ~CPUBoundPlayer.me
@@ -35,4 +39,5 @@ pelita.player.CPUBoundPlayer
       ~CPUBoundPlayer.team
       ~CPUBoundPlayer.team_border
       ~CPUBoundPlayer.team_bots
+      ~CPUBoundPlayer.team_food
    

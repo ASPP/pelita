@@ -4,6 +4,14 @@ pelita.simplesetup
 .. automodule:: pelita.simplesetup
 
    
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~bind_socket
+   
 
    
    .. rubric:: Classes

@@ -13,6 +13,8 @@ pelita.game_master.UniverseNoiser
       :nosignatures:
    
       ~UniverseNoiser.__init__
+      ~UniverseNoiser.alter_pos
+      ~UniverseNoiser.distance
       ~UniverseNoiser.uniform_noise
    
 

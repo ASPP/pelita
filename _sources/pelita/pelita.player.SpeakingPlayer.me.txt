@@ -1,0 +1,6 @@
+pelita.player.SpeakingPlayer.me
+===============================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: SpeakingPlayer.me

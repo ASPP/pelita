@@ -6,7 +6,6 @@ API reference
 
    pelita.__layouts
    pelita.__version_from_git
-   pelita.actors
    pelita.compat
    pelita.containers
    pelita.datamodel

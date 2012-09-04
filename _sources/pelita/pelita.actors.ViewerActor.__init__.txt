@@ -1,6 +1,0 @@
-pelita.actors.ViewerActor.__init__
-==================================
-
-.. currentmodule:: pelita.actors
-
-.. automethod:: ViewerActor.__init__

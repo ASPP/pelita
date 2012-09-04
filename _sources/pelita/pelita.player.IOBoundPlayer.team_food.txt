@@ -1,0 +1,6 @@
+pelita.player.IOBoundPlayer.team_food
+=====================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: IOBoundPlayer.team_food

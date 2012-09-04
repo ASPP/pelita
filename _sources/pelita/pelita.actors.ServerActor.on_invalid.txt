@@ -1,6 +1,0 @@
-pelita.actors.ServerActor.on_invalid
-====================================
-
-.. currentmodule:: pelita.actors
-
-.. automethod:: ServerActor.on_invalid

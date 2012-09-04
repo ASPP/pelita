@@ -1,0 +1,6 @@
+pelita.player.BFSPlayer.team_food
+=================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: BFSPlayer.team_food

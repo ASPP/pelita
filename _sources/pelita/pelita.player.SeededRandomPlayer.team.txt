@@ -1,0 +1,6 @@
+pelita.player.SeededRandomPlayer.team
+=====================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: SeededRandomPlayer.team

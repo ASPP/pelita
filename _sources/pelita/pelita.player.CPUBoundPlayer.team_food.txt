@@ -1,0 +1,6 @@
+pelita.player.CPUBoundPlayer.team_food
+======================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: CPUBoundPlayer.team_food

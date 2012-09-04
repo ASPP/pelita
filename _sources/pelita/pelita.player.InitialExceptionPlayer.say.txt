@@ -1,0 +1,6 @@
+pelita.player.InitialExceptionPlayer.say
+========================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: InitialExceptionPlayer.say

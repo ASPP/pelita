@@ -1,0 +1,6 @@
+pelita.player.TestPlayer.say
+============================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: TestPlayer.say

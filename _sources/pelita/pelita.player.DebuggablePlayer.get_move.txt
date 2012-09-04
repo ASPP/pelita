@@ -1,0 +1,6 @@
+pelita.player.DebuggablePlayer.get_move
+=======================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: DebuggablePlayer.get_move

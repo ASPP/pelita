@@ -1,0 +1,43 @@
+pelita.player.SeededRandomPlayer
+================================
+
+.. currentmodule:: pelita.player
+
+.. autoclass:: SeededRandomPlayer
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~SeededRandomPlayer.get_move
+      ~SeededRandomPlayer.say
+      ~SeededRandomPlayer.set_initial
+      ~SeededRandomPlayer.time_spent
+   
+
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~SeededRandomPlayer.current_pos
+      ~SeededRandomPlayer.current_state
+      ~SeededRandomPlayer.current_uni
+      ~SeededRandomPlayer.enemy_bots
+      ~SeededRandomPlayer.enemy_food
+      ~SeededRandomPlayer.enemy_team
+      ~SeededRandomPlayer.initial_pos
+      ~SeededRandomPlayer.legal_moves
+      ~SeededRandomPlayer.me
+      ~SeededRandomPlayer.other_team_bots
+      ~SeededRandomPlayer.previous_pos
+      ~SeededRandomPlayer.team
+      ~SeededRandomPlayer.team_border
+      ~SeededRandomPlayer.team_bots
+      ~SeededRandomPlayer.team_food
+   

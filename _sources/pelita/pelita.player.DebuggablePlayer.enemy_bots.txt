@@ -1,0 +1,6 @@
+pelita.player.DebuggablePlayer.enemy_bots
+=========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: DebuggablePlayer.enemy_bots

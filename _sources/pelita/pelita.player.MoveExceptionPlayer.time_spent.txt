@@ -1,0 +1,6 @@
+pelita.player.MoveExceptionPlayer.time_spent
+============================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: MoveExceptionPlayer.time_spent

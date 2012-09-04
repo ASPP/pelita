@@ -1,6 +1,0 @@
-pelita.actors.ServerActor.delayed_start_game
-============================================
-
-.. currentmodule:: pelita.actors
-
-.. automethod:: ServerActor.delayed_start_game

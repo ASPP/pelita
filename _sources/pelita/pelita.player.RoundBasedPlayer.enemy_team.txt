@@ -1,0 +1,6 @@
+pelita.player.RoundBasedPlayer.enemy_team
+=========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: RoundBasedPlayer.enemy_team

@@ -1,6 +1,0 @@
-pelita.actors.ClientActor.connect
-=================================
-
-.. currentmodule:: pelita.actors
-
-.. automethod:: ClientActor.connect

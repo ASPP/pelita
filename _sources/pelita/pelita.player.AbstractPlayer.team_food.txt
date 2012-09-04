@@ -1,0 +1,6 @@
+pelita.player.AbstractPlayer.team_food
+======================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: AbstractPlayer.team_food

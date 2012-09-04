@@ -1,6 +1,0 @@
-pelita.actors.ServerActor.handle_inbox
-======================================
-
-.. currentmodule:: pelita.actors
-
-.. automethod:: ServerActor.handle_inbox

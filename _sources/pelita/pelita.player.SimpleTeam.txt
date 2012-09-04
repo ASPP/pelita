@@ -18,3 +18,11 @@ pelita.player.SimpleTeam
    
 
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~SimpleTeam.remote_game
+   

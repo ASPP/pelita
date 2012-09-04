@@ -1,0 +1,6 @@
+pelita.player.AbstractPlayer.say
+================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: AbstractPlayer.say

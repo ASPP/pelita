@@ -1,0 +1,6 @@
+pelita.player.StoppingPlayer.say
+================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: StoppingPlayer.say

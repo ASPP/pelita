@@ -1,0 +1,6 @@
+pelita.player.StoppingPlayer.time_spent
+=======================================
+
+.. currentmodule:: pelita.player
+
+.. automethod:: StoppingPlayer.time_spent

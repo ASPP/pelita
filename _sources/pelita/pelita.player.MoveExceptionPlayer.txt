@@ -13,7 +13,9 @@ pelita.player.MoveExceptionPlayer
       :nosignatures:
    
       ~MoveExceptionPlayer.get_move
+      ~MoveExceptionPlayer.say
       ~MoveExceptionPlayer.set_initial
+      ~MoveExceptionPlayer.time_spent
    
 
    
@@ -24,9 +26,11 @@ pelita.player.MoveExceptionPlayer
       :nosignatures:
    
       ~MoveExceptionPlayer.current_pos
+      ~MoveExceptionPlayer.current_state
       ~MoveExceptionPlayer.current_uni
       ~MoveExceptionPlayer.enemy_bots
       ~MoveExceptionPlayer.enemy_food
+      ~MoveExceptionPlayer.enemy_team
       ~MoveExceptionPlayer.initial_pos
       ~MoveExceptionPlayer.legal_moves
       ~MoveExceptionPlayer.me
@@ -35,4 +39,5 @@ pelita.player.MoveExceptionPlayer
       ~MoveExceptionPlayer.team
       ~MoveExceptionPlayer.team_border
       ~MoveExceptionPlayer.team_bots
+      ~MoveExceptionPlayer.team_food
    

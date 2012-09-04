@@ -1,6 +1,0 @@
-pelita.actors.RemoteViewer.observe
-==================================
-
-.. currentmodule:: pelita.actors
-
-.. automethod:: RemoteViewer.observe

@@ -1,0 +1,6 @@
+pelita.player.SpeakingPlayer.legal_moves
+========================================
+
+.. currentmodule:: pelita.player
+
+.. autoattribute:: SpeakingPlayer.legal_moves
