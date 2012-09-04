@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import Tkinter
 import tkFont
 
-import time
 import zmq
 
 from .. import datamodel
 from .tk_sprites import BotSprite, Wall, Food, col
 from ..messaging.json_convert import json_converter
 from ..utils.signal_handlers import wm_delete_window_handler
+
+_logger = logging.getLogger("pelita.tk")
 
 def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
     no_lines = display_string.count("\n") + 1
@@ -21,7 +23,6 @@ def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
     else:
         font_size = size_guess
     return font_size
-
 
 class MeshGraph(object):
     """ A `MeshGraph` is a structure of `mesh_width` * `mesh_height` rectangles,
@@ -469,6 +470,19 @@ class TkApplication(object):
         if self.controller_socket:
             self.master.after_idle(self.request_initial)
 
+    def _after(self, delay, fun, *args):
+        """ Execute fun(*args) after delay milliseconds.
+
+        # Patched to quit after `KeyboardInterrupt`s.
+        """
+        def wrapped_fun():
+            try:
+                fun(*args)
+            except KeyboardInterrupt:
+                _logger.info("Detected KeyboardInterrupt. Exiting.")
+                self.quit()
+        self.master.after(delay, wrapped_fun)
+
     def toggle_running(self):
         self.running = not self.running
         if self.running:
@@ -487,27 +501,27 @@ class TkApplication(object):
             self.observe(observed)
 
             if self.controller_socket:
-                self.master.after(0 + self._delay, self.request_next, observed)
+                self._after(0 + self._delay, self.request_next, observed)
             else:
-                self.master.after(2 + self._delay, self.read_queue)
+                self._after(2 + self._delay, self.read_queue)
             return
         except zmq.core.error.ZMQError:
             self.observe({})
             if self.controller_socket:
-                self.master.after(2, self.request_next, {})
+                self._after(2, self.request_next, {})
             else:
-                self.master.after(2, self.read_queue)
+                self._after(2, self.read_queue)
 
     def request_initial(self):
         if self.controller_socket:
             self.controller_socket.send_json({"__action__": "set_initial"})
 
-        self.master.after(500, self.request_step)
+        self._after(500, self.request_step)
 
     def request_next(self, observed):
         if self.running and observed and observed.get("game_state"):
             self.request_step()
-        self.master.after(0, self.read_queue)
+        self._after(0, self.read_queue)
 
     def request_step(self):
         if self.controller_socket:
