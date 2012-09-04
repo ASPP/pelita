@@ -14,6 +14,7 @@ setup(name='pelita',
                 'pelita.utils', 
                 'pelita.compat',
                 ],
+      scripts=['pelitagame'],
       install_requires=[
           'pyzmq >= 2.1.9'
         ],
