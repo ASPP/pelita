@@ -99,9 +99,20 @@ selects a move at random from the possible moves:
 .. literalinclude:: ../../pelita/player.py
    :pyobject: RandomPlayer
 
+.. warning::
+
+    In the above example, we use an internal random number generator,
+    `self.rnd` instead of the one from the `random` module.
+
+    `self.rnd` is seeded by the `GameMaster` during startup. This means
+    that whenever we initialise `GameMaster` with the same seed, we will get
+    the same numbers in our Player. This is very useful for testing,
+    especially when playing against other Players which use randomness,
+    because we can replay previous test games with improved algorithms.
+
 .. note::
 
-    To make the above example (and many of the following examples)work, it
+    To make the above example (and many of the following examples) work, it
     might be necessary to add appropriate imports to your python source file,
     for example::
 
