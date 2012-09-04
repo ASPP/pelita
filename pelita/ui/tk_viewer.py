@@ -4,7 +4,7 @@ import Tkinter
 
 import logging
 
-from pelita.ui.tk_canvas import TkApplication
+from .tk_canvas import TkApplication
 
 _logger = logging.getLogger("pelita.tk_viewer")
 _logger.setLevel(logging.DEBUG)

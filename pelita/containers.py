@@ -2,11 +2,11 @@
 
 """ Advanced container classes. """
 
-from collections import Mapping, MutableSequence
-from .messaging.json_convert import serializable
-
 import sys
 import inspect
+from collections import Mapping, MutableSequence
+
+from .messaging.json_convert import serializable
 
 __docformat__ = "restructuredtext"
 

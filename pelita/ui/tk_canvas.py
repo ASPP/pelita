@@ -3,11 +3,12 @@
 import Tkinter
 import tkFont
 
-from .. import datamodel
 import time
 import zmq
-from pelita.messaging.json_convert import json_converter
-from .tk_sprites import *
+
+from .. import datamodel
+from .tk_sprites import BotSprite, Wall, Food, col
+from ..messaging.json_convert import json_converter
 from ..utils.signal_handlers import wm_delete_window_handler
 
 def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
