@@ -430,7 +430,8 @@ class UiCanvas(object):
 
 
 class TkApplication(object):
-    def __init__(self, master, address, controller_address=None, geometry=None):
+    def __init__(self, master, address, controller_address=None,
+                 geometry=None, delay=1):
         self.master = master
         self.master.configure(background="white")
 
@@ -456,7 +457,7 @@ class TkApplication(object):
         self.ui_canvas = UiCanvas(self, geometry=geometry)
 
         self._min_delay = 1
-        self._delay = 1
+        self._delay = delay
         self._check_speed_button_state()
 
         self.running = True
