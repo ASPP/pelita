@@ -237,7 +237,7 @@ class Mesh(Mapping):
         represented with single character strings. See the following examples
         for details.
 
-        Non-compact string:
+        Non-compact string::
 
             ['#', '#', '#', '#', '#', '#']
             ['#', ' ', ' ', '#', '0', '#']
@@ -245,7 +245,8 @@ class Mesh(Mapping):
             ['#', '2', ' ', ' ', '1', '#']
             ['#', '#', '#', '#', '#', '#']
 
-        Compact string:
+        Compact string::
+
             ######
             #  #0#
             # 3 ##
