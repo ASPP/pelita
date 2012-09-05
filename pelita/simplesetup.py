@@ -269,6 +269,8 @@ class SimpleServer(object):
         Delays the start of the game by `initial_delay` seconds.
     seed : int, optional
         The initial seed to be passed to GameMaster.
+    parseable_output : Boolean
+        Make the result of the game parseable
 
     Raises
     ------
@@ -281,7 +283,8 @@ class SimpleServer(object):
     def __init__(self, layout_string=None, layout_name=None, layout_file=None,
                  layout_filter='normal_without_dead_ends',
                  teams=2, players=4, rounds=3000, bind_addrs="tcp://*",
-                 initial_delay=0.0, max_timeouts=5, timeout_length=3, seed=None):
+                 initial_delay=0.0, max_timeouts=5, timeout_length=3, seed=None,
+                 parseable_output=False):
 
         if (layout_string and layout_name or
             layout_string and layout_file or
@@ -312,7 +315,7 @@ class SimpleServer(object):
                                       max_timeouts=max_timeouts,
                                       timeout_length=timeout_length,
                                       layout_name=self.layout_name,
-                                      seed=seed)
+                                      seed=seed, parseable_output=parseable_output)
 
         if isinstance(bind_addrs, tuple):
             pass
