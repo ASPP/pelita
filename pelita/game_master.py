@@ -441,7 +441,7 @@ class GameMaster(object):
                     t0.score, t1.score
                 )
             if self.parseable_output:
-                msg = "\n-"
+                msg += "\n-"
         else:
             return
 
