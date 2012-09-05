@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Running Players &mdash; Pelita v0.1.1-330-ge75e40e documentation</title>
+    <title>Running Players &mdash; Pelita v0.2.0-rc1 documentation</title>
     
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     'v0.1.1-330-ge75e40e',
+        VERSION:     'v0.2.0-rc1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.1.1-330-ge75e40e documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.2.0-rc1 documentation" href="index.html" />
     <link rel="next" title="Development" href="development.html" />
     <link rel="prev" title="Writing a Player" href="writing_player.html" /> 
   </head>
@@ -48,7 +48,7 @@
         <li class="right" >
           <a href="writing_player.html" title="Writing a Player"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita v0.1.1-330-ge75e40e documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.2.0-rc1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -175,8 +175,22 @@ returns a <tt class="docutils literal"><span class="pre">SimpleTeam</span></tt>.
 <span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">SimpleTeam</span>
 <span class="kn">from</span> <span class="nn">.my_player</span> <span class="kn">import</span> <span class="n">MyPlayer</span>
 
+<span class="c"># The default factory method, which this module must export.</span>
+<span class="c"># It must return an instance of `SimpleTeam`  containing</span>
+<span class="c"># the name of the team and the respective instances for</span>
+<span class="c"># the first and second player.</span>
+
 <span class="k">def</span> <span class="nf">factory</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">SimpleTeam</span><span class="p">(</span><span class="s">&quot;My Team&quot;</span><span class="p">,</span> <span class="n">MyPlayer</span><span class="p">(),</span> <span class="n">MyPlayer</span><span class="p">())</span>
+
+<span class="c"># For testing purposes, one may use alternate factory methods::</span>
+<span class="c">#</span>
+<span class="c">#     def alternate_factory():</span>
+<span class="c">#          return SimpleTeam(&quot;Our alternate Team&quot;, AlternatePlayer(), AlternatePlayer())</span>
+<span class="c">#</span>
+<span class="c"># To be used as follows::</span>
+<span class="c">#</span>
+<span class="c">#     $ ./pelitagame path_to/groupN/:alternate_factory</span>
 </pre></div>
 </div>
 <p>Your are encouraged to structure your code base into packages.
@@ -185,6 +199,8 @@ work for modules, so you must provide a <tt class="docutils literal"><span class
 For example the function <tt class="docutils literal"><span class="pre">utility</span></tt> is provided by the module <tt class="docutils literal"><span class="pre">groupN.utils</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
 <span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="c"># This would be a good place for utility functions.</span>
 
 <span class="k">def</span> <span class="nf">utility</span><span class="p">():</span>
     <span class="k">pass</span>
@@ -198,6 +214,7 @@ For example the function <tt class="docutils literal"><span class="pre">utility<
 <span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">AbstractPlayer</span>
 <span class="kn">from</span> <span class="nn">pelita.datamodel</span> <span class="kn">import</span> <span class="n">stop</span>
 
+<span class="c"># use relative imports for things inside your module</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">utility</span>
 
 <span class="k">class</span> <span class="nc">MyPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
@@ -210,6 +227,15 @@ For example the function <tt class="docutils literal"><span class="pre">utility<
 </div>
 <p>Also, please perform any additional initialisation inside this
 function, since it will be called once for every game.</p>
+<p>To run a game from a module, ensure that it exports the <tt class="xref py py-obj docutils literal"><span class="pre">factory()</span></tt> function,
+as it was done in <tt class="docutils literal"><span class="pre">__init__.py</span></tt> above, which will return your actual team.
+Also, for a module, you would not reference the Python file but only the
+module itself:</p>
+<div class="highlight-python"><pre>$ ~/pelita/pelitagame /home/student/groupN/ BFSPlayer,BasicDefensePlayer</pre>
+</div>
+<p>or, if you would be using a differently named factory method:</p>
+<div class="highlight-python"><pre>$ ~/pelita/pelitagame /home/student/groupN/:second_factory BFSPlayer,BasicDefensePlayer</pre>
+</div>
 </div>
 </div>
 <div class="section" id="debugging">
@@ -324,12 +350,12 @@ useful to press the keyboard interrupt (CTRL+C) a couple of times.</p>
         <li class="right" >
           <a href="writing_player.html" title="Writing a Player"
              >previous</a> |</li>
-        <li><a href="index.html">Pelita v0.1.1-330-ge75e40e documentation</a> &raquo;</li> 
+        <li><a href="index.html">Pelita v0.2.0-rc1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2012, Valentin Haenel, Rike-Benjamin Shuppner et. al..
-      Last updated on Sep 04, 2012.
+      Last updated on Sep 05, 2012.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

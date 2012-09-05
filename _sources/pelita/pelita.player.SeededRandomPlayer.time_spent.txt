@@ -1,6 +1,0 @@
-pelita.player.SeededRandomPlayer.time_spent
-===========================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: SeededRandomPlayer.time_spent

@@ -1,6 +1,0 @@
-pelita.player.SeededRandomPlayer.initial_pos
-============================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: SeededRandomPlayer.initial_pos

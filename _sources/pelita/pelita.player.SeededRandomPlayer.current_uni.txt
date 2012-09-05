@@ -1,6 +1,0 @@
-pelita.player.SeededRandomPlayer.current_uni
-============================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: SeededRandomPlayer.current_uni

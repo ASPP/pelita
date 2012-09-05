@@ -1,6 +1,0 @@
-pelita.player.SeededRandomPlayer.team_food
-==========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: SeededRandomPlayer.team_food

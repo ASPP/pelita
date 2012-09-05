@@ -23,7 +23,6 @@ pelita.player
       ~NQRandomPlayer
       ~RandomPlayer
       ~RoundBasedPlayer
-      ~SeededRandomPlayer
       ~SimpleTeam
       ~SpeakingPlayer
       ~StoppingPlayer

@@ -1,6 +1,0 @@
-pelita.player.SeededRandomPlayer.other_team_bots
-================================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: SeededRandomPlayer.other_team_bots

@@ -1,6 +1,0 @@
-pelita.player.SeededRandomPlayer.get_move
-=========================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: SeededRandomPlayer.get_move
