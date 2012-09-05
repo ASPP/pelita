@@ -55,7 +55,7 @@ class GameMaster(object):
     """
     def __init__(self, layout, number_bots, game_time, noise=True, noiser=None,
                  initial_delay=0.0, max_timeouts=5, timeout_length=3, layout_name=None,
-                 seed=None):
+                 seed=None, parseable_output=False):
         self.universe = datamodel.create_CTFUniverse(layout, number_bots)
         self.number_bots = number_bots
         if noiser is None:
@@ -73,6 +73,8 @@ class GameMaster(object):
         # the seed which is passed to the clients with set_initial.
         # Currently, the noiser does not use this rng but has its own.
         self.rnd = random.Random(seed)
+
+        self.parseable_output = parseable_output
 
         #: The pointer to the current iteration.
         self._step_iter = None
@@ -428,7 +430,8 @@ class GameMaster(object):
                     winner.name, loser.name,
                     winner.score, loser.score
                 )
-
+            if self.parseable_output:
+                msg += '\n' + str(winner.index)
             sys.stdout.flush()
         elif self.game_state.get("game_draw") is not None:
             t0 = self.universe.teams[0]
@@ -437,6 +440,8 @@ class GameMaster(object):
                     t0.name, t1.name,
                     t0.score, t1.score
                 )
+            if self.parseable_output:
+                msg = "\n-"
         else:
             return
 
