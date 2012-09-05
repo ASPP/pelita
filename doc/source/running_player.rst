@@ -111,6 +111,17 @@ To use this module in your ``my_player.py`` module, a relative import
 Also, please perform any additional initialisation inside this
 function, since it will be called once for every game.
 
+To run a game from a module, ensure that it exports the `factory()` function,
+as it was done in ``__init__.py`` above, which will return your actual team.
+Also, for a module, you would not reference the Python file but only the
+module itself::
+
+    $ ~/pelita/pelitagame /home/student/groupN/ BFSPlayer,BasicDefensePlayer
+
+or, if you would be using a differently named factory method::
+
+    $ ~/pelita/pelitagame /home/student/groupN/:second_factory BFSPlayer,BasicDefensePlayer
+
 
 Debugging
 =========
