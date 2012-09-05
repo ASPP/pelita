@@ -157,7 +157,7 @@ parser.add_argument('--rounds', type=int, default=300,
                     help='maximum number of rounds to play')
 parser.add_argument('--fps', type=float, default=40,
                     help='(approximate) number of frames per second in a graphical viewer')
-parser.add_argument('--seed', type=int, metavar='SEED', default=None, 
+parser.add_argument('--seed', type=int, metavar='SEED', default=None,
                     help='fix random seed')
 parser.add_argument('--geometry', type=geometry_string, metavar='NxM',
                     help='initial size of the game window')
@@ -165,6 +165,8 @@ parser.add_argument('--dry-run', const=True, action='store_const',
                     help='load players but do not actually play the game')
 parser.add_argument('--max-timeouts', type=int, default=5,
                     dest='max_timeouts', help='maximum number of timeouts allowed (default: 5)')
+parser.add_argument('--parseable-output', action="store_const", const=True,
+                    help='Make game result parseable')
 
 timeout_opt = parser.add_mutually_exclusive_group()
 timeout_opt.add_argument('--timeout', type=float, metavar="SEC",
@@ -375,7 +377,8 @@ def run_game():
                                        initial_delay=initial_delay,
                                        max_timeouts=args.max_timeouts,
                                        timeout_length=args.timeout_length,
-                                       seed=args.seed
+                                       seed=args.seed,
+                                       parseable_output=args.parseable_output
                                        )
 
     player_clients = []
