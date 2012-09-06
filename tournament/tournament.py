@@ -9,8 +9,6 @@ import cStringIO
 import sys
 import os
 import json
-import unicodedata
-import re
 # Drop this as soon as we drop support for python 2.6
 try:
     import argparse
@@ -42,8 +40,6 @@ RNAMES = {'group0' : 'group0',
           'group3' : 'group3',
           'group4' : 'group4' }
 
-REGEXP = re.compile(r'\?\?+')
-
 
 def print(*args, **kwargs):
     """Speak while you print. To disable set speak=False.
@@ -68,6 +64,7 @@ def print(*args, **kwargs):
             festival = check_call(FLITE.split()+[text.name])
         time.sleep(wait)
 
+
 def wait_for_keypress():
     raw_input('---\n')
 
@@ -83,13 +80,6 @@ def present_teams(group_members):
         print()
     print('These were the teams. Now you ready for the fight?')
 
-def _u(str_, encoding='UTF-8'):
-    # encode to unicode only if the string is not unicode and
-    # the encoding is unicode
-    if type(str_) is unicode:
-        return str_
-    elif type(str_) is str:
-        return unicode(str_, encoding)
 
 def set_name(team):
     """Get name of team using a dry-run pelita game"""
