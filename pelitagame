@@ -12,6 +12,8 @@ import time
 # silence stupid warnings from logging module
 logging.root.manager.emittedNoHandlerWarning = 1
 
+_logger = logging.getLogger("pelita.pelitagame")
+
 try:
     import argparse
 except ImportError:
@@ -410,8 +412,10 @@ def run_game():
             client = pelita.simplesetup.SimpleClient(team, address=addr)
             player_clients.append(client)
 
+    player_procs = []
     for client in player_clients:
-        client.autoplay_process()
+        proc = client.autoplay_process()
+        player_procs.append(proc)
 
     def call_standalone_pelitagame(team_spec, addr):
         """ Starts another process with the same Python executable,
@@ -477,7 +481,15 @@ def run_game():
     except KeyboardInterrupt:
         if open_tk:
             tkprocess.kill()
-
+    finally:
+        # kill all client processes. NOW!
+        # (is this too early?)
+        for player_proc in player_procs:
+            _logger.debug("Attempting to terminate %r.", player_proc)
+            player_proc.terminate()
+        for player_proc in player_procs:
+            player_proc.join()
+            _logger.debug("%r terminated.", player_proc)
 
 if __name__ == '__main__':
     run_game()
