@@ -242,6 +242,8 @@ parser.add_argument('--standalone-left', const=True, action='store_const', dest=
 parser.add_argument('--standalone-right', const=True, action='store_const', dest='standalone_right',
                     help='run standalone game for the right team')
 
+parser.add_argument('--print-args', const=True, action='store_const')
+
 parser.epilog = """\
 Team Specification:
   - Using predefined players:
@@ -341,6 +343,12 @@ def run_game():
     if args.viewer.startswith('tk') and not args.publish_to:
         raise ValueError("Options --tk (or --tk-no-sync) and --no-publish are mutually exclusive.")
 
+    if args.print_args:
+        option_strings = []
+        for action in parser._actions:
+            option_strings += action.option_strings
+        print " ".join(option_strings)
+        exit(0)
 
     try:
         start_logging(args.log or 'pelita.log')
