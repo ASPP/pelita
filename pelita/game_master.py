@@ -166,6 +166,8 @@ class GameMaster(object):
         # set the name in the universe
         if team_name:
             self.universe.teams[team_idx].name = team_name
+        elif team.team_name:
+            self.universe.teams[team_idx].name = team.team_name
 
     def register_viewer(self, viewer):
         """ Register a viewer to display the game state as it progresses.
