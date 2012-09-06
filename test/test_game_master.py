@@ -56,6 +56,28 @@ class TestGameMaster(unittest.TestCase):
         self.assertEqual(team_2._players[1].current_uni.teams[0].name, "team1")
         self.assertEqual(team_2._players[1].current_uni.teams[1].name, "team2")
 
+    def test_team_names_in_simpleteam(self):
+        test_layout = (
+        """ ##################
+            #0#.  .  # .     #
+            #2#####    #####1#
+            #     . #  .  .#3#
+            ################## """)
+        
+        game_master = GameMaster(test_layout, 4, 200)
+        
+        team_1 = SimpleTeam('team1', TestPlayer([]), TestPlayer([]))
+        team_2 = SimpleTeam('team2', TestPlayer([]), TestPlayer([]))
+
+        game_master.register_team(team_1)
+        game_master.register_team(team_2)
+        game_master.set_initial()
+        
+        self.assertEqual(game_master.universe.teams[0].name, "team1")
+        self.assertEqual(game_master.universe.teams[1].name,
+                         "team2")
+
+
     def test_too_few_registered_teams(self):
         test_layout_4 = (
         """ ##################
