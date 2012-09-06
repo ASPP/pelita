@@ -9,11 +9,16 @@ import cStringIO
 import sys
 import os
 import json
+import unicodedata
+import re
 # Drop this as soon as we drop support for python 2.6
 try:
     import argparse
 except ImportError:
     from pelita.compat import argparse
+
+# Location
+LOCATION="Kiel"
 
 # Speaking external program.
 # Probably not worth it to make it an option.
@@ -28,6 +33,17 @@ random.seed(42)
 # Probably not worth it to make it options.
 POINTS_DRAW = 1
 POINTS_WIN = 2
+
+# The real names of the teams (instead of "group0" ... "group4").
+# They are collected while the tournament goes
+RNAMES = {'group0' : 'group0',
+          'group1' : 'group1',
+          'group2' : 'group2',
+          'group3' : 'group3',
+          'group4' : 'group4' }
+
+REGEXP = re.compile(r'\?\?+')
+
 
 def print(*args, **kwargs):
     """Speak while you print. To disable set speak=False.
@@ -49,18 +65,31 @@ def print(*args, **kwargs):
         with tempfile.NamedTemporaryFile() as text:
             text.write(string+'\n')
             text.flush()
-            festival = check_call(SPEAK.split()+[text.name])
+            festival = check_call(FLITE.split()+[text.name])
         time.sleep(wait)
 
-def present_teams():
+def wait_for_keypress():
+    raw_input('---\n')
+
+
+def present_teams(group_members):
     print('Hello master, I am the Python drone. I am here to serve you.', wait=1.5)
-    print('Welcome to the Pelita tournament', wait=1.5)
+    print('Welcome to the %s Pelita tournament'%LOCATION, wait=1.5)
     print('This evening the teams are:', wait=1.5)
     for group in sorted(RNAMES.keys()):
-        print(group, RNAMES[group])
+        print(group+':', '"'+RNAMES[group]+'"')
         [print(member, wait=0.1) for member in group_members[group]]
         time.sleep(1)
+        print()
     print('These were the teams. Now you ready for the fight?')
+
+def _u(str_, encoding='UTF-8'):
+    # encode to unicode only if the string is not unicode and
+    # the encoding is unicode
+    if type(str_) is unicode:
+        return str_
+    elif type(str_) is str:
+        return unicode(str_, encoding)
 
 def set_name(team):
     """Get name of team using a dry-run pelita game"""
@@ -73,6 +102,7 @@ def set_name(team):
             split = line.split("'")
             tname, rname = split[1], split[3]
             if tname in RNAMES:
+                # sanitize real names
                 RNAMES[tname] = rname
     if stderr != '':
         print("*** ERROR: I could not load team", team, ". Please help!",
@@ -80,15 +110,15 @@ def set_name(team):
         print(stderr, speak=False)
         sys.exit(1)
 
+
 def start_match(team1, team2):
     """Start a match between team1 and team2. Return which team won (1 or 2) or
     0 if there was a draw.
     """
-    global RNAMES
     print()
     print('Starting match: '+ RNAMES[team1]+' vs ' + RNAMES[team2])
     print()
-    #raw_input('--- Press ENTER to continue ---\n')
+    wait_for_keypress()
     args = CMD_STUB.split()
     dumpfile = 'dumpstore/'+time.strftime('%Y%m%d-%H%M%S')
     args.extend([team1, team2, '--dump', dumpfile,'--seed', str(random.randint(0, sys.maxint))])
@@ -124,6 +154,7 @@ def start_match(team1, team2):
             print("Unable to parse winning result :(")
             return 0
 
+
 def start_deathmatch(team1, team2):
     """Start a match between team1 and team2 until one of them wins (ie no
     draw.)
@@ -142,14 +173,15 @@ def start_deathmatch(team1, team2):
     print('And the winner is', winner)
     return winner
 
+
 def pp_round1_results(teams, points):
     """Pretty print the current result of the matches."""
-    global RNAMES
     result = sorted(zip(points, teams), reverse=True)
     print('Current Ranking:')
     for p, t in result:
         print("  %25s %d" % (RNAMES[t], p))
     print()
+
 
 
 def round1(teams):
@@ -158,7 +190,7 @@ def round1(teams):
     teams is the sorted list [group0, group1, ...] and not the actual names of
     the agents. This is necessary to start the agents.
     """
-    raw_input('--- Press ENTER to continue ---\n')
+    wait_for_keypress()
     print()
     print("ROUND 1 (Everybody vs Everybody)")
     print('================================', speak=False)
@@ -235,7 +267,7 @@ def round2(teams):
     print('ROUND 2 (K.O.)')
     print('==============', speak=False)
     print()
-    raw_input('--- Press ENTER to continue ---\n')
+    wait_for_keypress()
     w1, w2, w3, w4 = "???", "???", "???", "???"
     pp_round2_results(teams, w1, w2, w3, w4)
     # 1 vs 4
@@ -250,8 +282,9 @@ def round2(teams):
     # W vs team5
     w4 = start_deathmatch(w3, teams[4])
     pp_round2_results(teams, w1, w2, w3, w4)
-    raw_input('--- Press ENTER to continue ---\n')
+    wait_for_keypress()
     return w4
+
 
 if __name__ == '__main__':
     # Command line argument parsing.
@@ -259,22 +292,19 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run a tournament',
                                  add_help=False,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-
     parser._positionals = parser.add_argument_group('Arguments')
     parser.add_argument('pelitagame', help='The pelitagame script')
-
     parser._optionals = parser.add_argument_group('Options')
     parser.add_argument('--help', '-h', help='show this help message and exit',
                         action='store_const', const=True)
     parser.add_argument('--speak', '-s', help='speak loudly every messsage on stdout',
                         action='store_const', const=True)
     parser.add_argument('--rounds', '-r', help='maximum number of rounds to play per match',
-                                            type=int, default=300)
+                        type=int, default=300)
     parser.add_argument('--viewer', '-v', help='the pelita viewer to use',
-                                                                default='tk')
+                        default='tk')
     parser.add_argument('--teams', help='load teams from TEAMFILE',
                     metavar="TEAMFILE.json", default="teams.json")
-
     parser.epilog = """
 TEAMFILE.json must be of the form:
     { "group0": ["Name0", "Name1", "Name2"],
@@ -284,9 +314,7 @@ TEAMFILE.json must be of the form:
       "group4": ["Name0", "Name1", "Name2"]
     }
 """
-
     args = parser.parse_args()
-
     if args.help:
         parser.print_help()
         sys.exit(0)
@@ -299,23 +327,11 @@ TEAMFILE.json must be of the form:
         # Define the command line to run a pelita match
         CMD_STUB = args.pelitagame+' --rounds=%d'%args.rounds+' --%s'%args.viewer
 
+    # Check speaking support
     SPEAK = False
     if args.speak:
-        # check for speaking support
         if os.path.exists(FLITE):
             SPEAK = True
-
-    # the 'real' names of the teams (instead of group0 .. group4). they are
-    # collected while the tournament goes
-    RNAMES = {'group0' : 'group0',
-              'group1' : 'group1',
-              'group2' : 'group2',
-              'group3' : 'group3',
-              'group4' : 'group4' }
-
-    with open(args.teams) as teamfile:
-        group_members = json.load(teamfile)
-
 
     # create a directory for the dumps
     if not os.path.exists('dumpstore'):
@@ -326,9 +342,12 @@ TEAMFILE.json must be of the form:
     # load team names
     for team in teams:
         set_name(team)
-    present_teams()
+
+    with open(args.teams) as teamfile:
+        group_members = json.load(teamfile)
+        present_teams(group_members)
     result = round1(teams)
     winner = round2(result)
-    print('The winner of the Kiel Pelita tournament is...', wait=2)
+    print('The winner of the %s Pelita tournament is...'%LOCATION, wait=2)
     print(RNAMES[winner], '. Congratulations!', wait=2)
     print('Good evening master. It was a pleasure to serve you.')
