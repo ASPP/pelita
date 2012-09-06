@@ -485,7 +485,11 @@ class SimpleClient(object):
         # thread/process/whatever.
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PAIR)
-        self.socket.connect(self.address)
+        try:
+            self.socket.connect(self.address)
+        except zmq.core.error.ZMQError as e:
+            raise IOError('failed to connect the client to address %s: %s'
+                          % (self.address, e))
 
     def run(self):
         self.on_start()
