@@ -235,12 +235,13 @@ layout_opt.add_argument('--filter', metavar='STRING',
                         ' name contains STRING.'
                         ' Default: \'normal_without_dead_ends\'')
 
-parser.add_argument('--standalone-client', const=True, action='store_const', dest='standalone_client',
-                    help='run standalone game')
-parser.add_argument('--standalone-left', const=True, action='store_const', dest='standalone_left',
-                    help='run standalone game for the left team')
-parser.add_argument('--standalone-right', const=True, action='store_const', dest='standalone_right',
-                    help='run standalone game for the right team')
+client_opt = parser.add_mutually_exclusive_group()
+client_opt.add_argument('--standalone-client', action='store_true',
+                        help='run standalone game')
+client_opt.add_argument('--standalone-left', action='store_true',
+                        help='run standalone game for the left team')
+client_opt.add_argument('--standalone-right', action='store_true',
+                        help='run standalone game for the right team')
 
 parser.epilog = """\
 Team Specification:
@@ -300,14 +301,13 @@ Standalone mode:
 
   The user code then runs in the main thread of the process and as such
   may be interrupted with the Python debugger pdb. (For best results,
-  it may be necessary to increase (or turn off the timeout time in the server.)
+  it may be necessary to increase (or turn off) the timeout in the server.
 
-  Example usage. We use a server binding to two different ports:
+  Example usage. A server bound to two different ports:
 
       $ %(prog)s tcp://*:51025 tcp://*:51027
 
-  Now we can start two clients and have them connect to their respective
-  socket:
+  Now we can start two clients connected to their respective sockets:
 
       $ %(prog)s --standalone-client BFSPlayer,RandomPlayer tcp://localhost:51025
       $ %(prog)s --standalone-client ~/my_player.py tcp://localhost:51027
@@ -369,8 +369,7 @@ def run_game():
         addr = addrs_right.replace('*', 'localhost')
         print_team_info(addrs_left, bads, spec_left, "standalone")
         client = pelita.simplesetup.SimpleClient(bads, address=addr)
-        client.run()
-        sys.exit()
+        sys.exit(client.run())
     else:
         print_team_info(addrs_left, bads, spec_left, "left")
         print_team_info(addrs_right, goods, spec_right, "right")
