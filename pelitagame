@@ -77,12 +77,34 @@ def create_builtin_team(spec):
     teamname = 'The %ss' % players[0].__class__.__name__
     return pelita.player.SimpleTeam(teamname, *players)
 
+def check_team_name(name):
+    # Team name must be ascii
+    try:
+        name.encode('ascii')
+    except UnicodeDecodeError:
+        raise ValueError('Invalid team name (non ascii): "%s".'%name)
+    # Team name must be shorter than 25 characters
+    if len(name) > 25:
+        raise ValueError('Invalid team name (longer than 25): "%s".'%name)
+    if len(name) == 0:
+        raise ValueError('Invalid team name (too short).')
+    # Check every character and make sure it is either
+    # a letter or a number. Nothing else is allowed.
+    for char in name:
+        if (not char.isalnum()) and (char != ' '):
+            raise ValueError('Invalid team name (only alphanumeric '
+                             'chars or blanks): "%s"'%name)
+    if name.isspace():
+        raise ValueError('Invalid team name (no letters): "%s"'%name)
+
+
 def load_team(spec):
     try:
         if '/' in spec or spec.endswith('.py') or os.path.exists(spec):
             team = load_factory(spec)()
         else:
             team = create_builtin_team(spec)
+        check_team_name(team.team_name)
         return team
     except (ValueError, AttributeError, IOError, ImportError) as e:
         print >>sys.stderr, "failure while loading team '%s'" % spec
