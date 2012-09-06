@@ -329,6 +329,6 @@ TEAMFILE.json must be of the form:
     present_teams()
     result = round1(teams)
     winner = round2(result)
-    print('The winner of the St Andrews Pelita tournament is...', wait=2)
+    print('The winner of the Kiel Pelita tournament is...', wait=2)
     print(RNAMES[winner], '. Congratulations!', wait=2)
     print('Good evening master. It was a pleasure to serve you.')
