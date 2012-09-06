@@ -345,9 +345,7 @@ def run_game():
     try:
         start_logging(args.log or 'pelita.log')
     except AttributeError:
-        # no log specified. so disable logging. Also un-import
-        # logging so the clients cannot import logging so easily
-        del sys.modules['logging']
+        pass
 
     if 'list' in (args.left_team, args.right_team):
         print '\n'.join(PLAYERS)
