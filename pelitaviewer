@@ -31,8 +31,8 @@ parser._optionals = parser.add_argument_group('Options')
 parser.add_argument('--help', '-h', help='show this help message and exit',
                     action='store_const', const=True)
 
-def run_viewer(*argv):
-    args = parser.parse_args(argv)
+def run_viewer():
+    args = parser.parse_args()
     if args.help:
         parser.print_help()
         sys.exit(0)
@@ -67,4 +67,5 @@ def run_viewer(*argv):
 
 
 if __name__ == '__main__':
-    run_viewer(*sys.argv[1:])
+    run_viewer()
+
