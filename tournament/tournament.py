@@ -331,8 +331,7 @@ TEAMFILE.json must be of the form:
             SPEAK = True
 
     # create a directory for the dumps
-    if not os.path.exists('dumpstore'):
-        os.mkdir('dumpstore')
+    os.mkdir('dumpstore')
 
     # open the log file (fail if it exists)
     LOGFILE = os.fdopen(os.open(LOGFILE, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o0666), 'w')
