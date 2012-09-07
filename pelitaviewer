@@ -10,6 +10,7 @@ from pelita.ui.tk_viewer import TkViewer
 from pelita.utils.threading_helpers import SuspendableThread
 from pelita.messaging.json_convert import json_converter
 
+import zmq
 
 try:
     import argparse
@@ -43,8 +44,8 @@ def run_viewer(*argv):
         old_game = f.read().split("\x04")
 
     class DumpLoader(SuspendableThread):
-        def __init__(self, viewer):
-            self.viewer = viewer
+        def __init__(self, socket):
+            self.socket = socket
             self.set_initial = False
             super(DumpLoader, self).__init__()
 
@@ -63,12 +64,17 @@ def run_viewer(*argv):
             dict = json_converter.loads(value)
             self.viewer.observe(**dict)
 
-    viewer = TkViewer()
+    import json
+    context = zmq.Context()
+    socket = context.socket(zmq.PUB)
+    socket.bind("tcp://*:50011")
 
-    loader = DumpLoader(viewer)
-    loader.start()
-
-    viewer.root.mainloop()
+    for state in old_game:
+        if state:
+            data = json.loads(state)
+            message = {"__action__": "observe",
+                       "__data__": data}
+            socket.send_json(message)
 
 
 if __name__ == '__main__':
