@@ -10,7 +10,10 @@ from pelita.ui.tk_viewer import TkViewer
 from pelita.utils.threading_helpers import SuspendableThread
 from pelita.messaging.json_convert import json_converter
 
+import time
 import zmq
+import subprocess
+import json
 
 try:
     import argparse
@@ -28,8 +31,8 @@ parser._optionals = parser.add_argument_group('Options')
 parser.add_argument('--help', '-h', help='show this help message and exit',
                     action='store_const', const=True)
 
-def run_viewer(*argv):
-    args = parser.parse_args(argv)
+def run_viewer():
+    args = parser.parse_args()
     if args.help:
         parser.print_help()
         sys.exit(0)
@@ -39,35 +42,21 @@ def run_viewer(*argv):
     except AttributeError:
         dumpfile = "pelita.dump"
 
-
     with open(dumpfile) as f:
         old_game = f.read().split("\x04")
 
-    class DumpLoader(SuspendableThread):
-        def __init__(self, socket):
-            self.socket = socket
-            self.set_initial = False
-            super(DumpLoader, self).__init__()
-
-        def start(self):
-            super(DumpLoader, self).start()
-
-        def _run(self):
-            value = old_game.pop(0)
-            if not self.set_initial:
-                universe = json_converter.loads(value)
-
-                self.viewer.set_initial(universe["universe"])
-                self.set_initial = True
-                return
-
-            dict = json_converter.loads(value)
-            self.viewer.observe(**dict)
-
-    import json
     context = zmq.Context()
     socket = context.socket(zmq.PUB)
     socket.bind("tcp://*:50011")
+
+    delay = 80
+    tk_open = "TkViewer(%r, delay=%r).run()" % ("tcp://localhost:50011", delay)
+
+    tkprocess = subprocess.Popen(["python",
+                                  "-c",
+                                  "from pelita.ui.tk_viewer import TkViewer\n" + tk_open])
+
+    time.sleep(0.5)
 
     for state in old_game:
         if state:
@@ -78,4 +67,5 @@ def run_viewer(*argv):
 
 
 if __name__ == '__main__':
-    run_viewer(*sys.argv[1:])
+    run_viewer()
+
