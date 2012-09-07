@@ -27,6 +27,9 @@ FLITE = '/usr/bin/flite'
 # Individual matches will get a random seed derived from this.
 random.seed(42)
 
+# Tournament log file
+LOGFILE = "tournament.log"
+
 # Number of points a teams gets for matches in the first round
 # Probably not worth it to make it options.
 POINTS_DRAW = 1
@@ -40,23 +43,27 @@ RNAMES = {'group0' : 'group0',
           'group3' : 'group3',
           'group4' : 'group4' }
 
+def _print(*args, **kwargs):
+    __builtins__.print(*args, **kwargs)
+    kwargs['file'] = LOGFILE
+    __builtins__.print(*args, **kwargs)
 
 def print(*args, **kwargs):
     """Speak while you print. To disable set speak=False.
     You need the program %s to be able to speak.
     Set wait=X to wait X seconds after speaking."""%FLITE
     if len(args) == 0:
-        __builtins__.print()
+        _print()
         return
     stream = cStringIO.StringIO()
     wait = kwargs.pop('wait', 0.5)
     want_speak = kwargs.pop('speak', SPEAK)
     if not want_speak:
-        __builtins__.print(*args, **kwargs)
+        _print(*args, **kwargs)
     else:
-        __builtins__.print(*args, file=stream, **kwargs)
+        _print(*args, file=stream, **kwargs)
         string = stream.getvalue()
-        __builtins__.print(string, end='')
+        _print(string, end='')
         sys.stdout.flush()
         with tempfile.NamedTemporaryFile() as text:
             text.write(string+'\n')
@@ -326,6 +333,9 @@ TEAMFILE.json must be of the form:
     # create a directory for the dumps
     if not os.path.exists('dumpstore'):
         os.mkdir('dumpstore')
+
+    # open the log file (fail if it exists)
+    LOGFILE = os.fdopen(os.open(LOGFILE, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o0666), 'w')
 
     teams = RNAMES.keys()
     random.shuffle(teams)
