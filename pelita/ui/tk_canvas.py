@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import division
 
 import logging
 import Tkinter
 import tkFont
+import time
 
 import zmq
 
@@ -114,6 +116,9 @@ class UiCanvas(object):
         self.canvas = None
 
         self.current_universe = None
+
+        self.timestamp = time.time()
+        self.fps = 0
 
     def init_canvas(self):
         self.score = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=40)
@@ -335,8 +340,18 @@ class UiCanvas(object):
         self.score.create_text(center, 35, text=left_status + " ", font=(None, status_font_size), tag="title", anchor=Tkinter.E)
         self.score.create_text(center+1, 35, text=" " + right_status, font=(None, status_font_size), tag="title", anchor=Tkinter.W)
 
+    FPS_MULT = 10
+
     def draw_status_info(self, turn, round, layout_name):
-        roundturn = "Bot %d / Round %d" % (turn, round)
+        newtime = time.time()
+        diff = newtime - self.timestamp
+        if diff == 0:
+            diff = 0.0000001
+        self.fps = (1/diff + (self.FPS_MULT-1) * self.fps)/self.FPS_MULT
+        self.timestamp = newtime
+
+        roundturn = "Bot %d / Round % 3d / %.2f fps" % (turn, round, self.fps)
+
         self.status_round_info.config(text=roundturn)
         self.status_layout_info.config(text=layout_name)
 
