@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-try:
-    import argparse
-except ImportError:
-    from pelita.compat import argparse
-
+import argparse
 from pelita.ui.tk_viewer import TkViewer
 
 def geometry_string(s):

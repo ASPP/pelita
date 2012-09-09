@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from . import (compat,
-               containers,
+from . import (containers,
                datamodel,
                game_master,
                layout,
