@@ -372,7 +372,7 @@ class AbstractPlayer(object, metaclass=abc.ABCMeta):
         text : string
             the text to be shown in the Viewer.
         """
-        self._say = str(text, errors='ignore')
+        self._say = text
 
 class StoppingPlayer(AbstractPlayer):
     """ A Player that just stands still. """
