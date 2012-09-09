@@ -5,4 +5,4 @@ python:
 install:
   - "pip install pyzmq --use-mirrors"
 # command to run tests
-script: nosetests -v && ./pelitagame --progress
+script: nosetests -v && python ./pelitagame --progress
