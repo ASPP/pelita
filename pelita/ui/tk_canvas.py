@@ -439,7 +439,7 @@ class TkApplication(object):
 
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
-        self.socket.setsockopt(zmq.SUBSCRIBE, "")
+        self.socket.setsockopt_unicode(zmq.SUBSCRIBE, "")
         print(address, self.socket, id(self.socket))
         self.socket.connect(address)
         self.poll = zmq.Poller()
@@ -494,7 +494,7 @@ class TkApplication(object):
             # if queue is empty, try again in a few ms
             # we don’t want to block here and lock
             # Tk animations
-            message = self.socket.recv(flags=zmq.NOBLOCK)
+            message = self.socket.recv_unicode(flags=zmq.NOBLOCK)
             message = json_converter.loads(message)
             # we curretly don’t care about the action
             observed = message["__data__"]
