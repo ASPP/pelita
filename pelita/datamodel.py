@@ -277,12 +277,6 @@ class Bot(object):
     def __ne__(self, other):
         return not (self == other)
 
-    def __cmp__(self, other):
-        if self == other:
-            return 0
-        else:
-            return self.index.__cmp__(other.index)
-
     def __repr__(self):
         return ('Bot(%i, %s, %i, %s , current_pos=%s, noisy=%r)' %
                 (self.index, self.initial_pos, self.team_index,

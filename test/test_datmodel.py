@@ -125,7 +125,7 @@ class TestBot(unittest.TestCase):
         self.assertTrue(bot.is_harvester)
         self.assertFalse(bot.in_own_zone)
 
-    def test_eq_repr_cmp(self):
+    def test_eq_repr(self):
         black = Bot(0, (1, 1), 0, (0, 3))
         black2 = Bot(0, (1, 1), 0, (0, 3))
         white = Bot(1, (6, 6), 1, (3, 6), current_pos = (1, 1))
@@ -133,9 +133,6 @@ class TestBot(unittest.TestCase):
         self.assertEqual(black, black2)
         black3 = eval(repr(black))
         self.assertEqual(black, black3)
-        self.assertEqual(black.__cmp__(black2), 0)
-        self.assertEqual(black.__cmp__(white), -1)
-        self.assertEqual(white.__cmp__(black),  1)
 
     def test_move_reset(self):
         black = Bot(0, (1, 1), 0, (0, 3))
