@@ -26,7 +26,7 @@ class AdjacencyList(dict):
         # Get the list of all free positions.
         free_pos = universe.maze.pos_of(Free)
         # Here we use a generator on a dictionary to create the adjacency list.
-        gen = ((pos, universe.get_legal_moves(pos).values()) for pos in free_pos)
+        gen = ((pos, list(universe.get_legal_moves(pos).values())) for pos in free_pos)
         self.update(dict(gen))
 
     def pos_within(self, position, distance):
@@ -55,7 +55,7 @@ class AdjacencyList(dict):
             if either `initial` or `targets` does not exist
 
         """
-        if position not in self.keys():
+        if position not in list(self.keys()):
             raise NoPositionException("Position %s does not exist." %
                     repr(position))
         positions = set([position])
@@ -71,7 +71,7 @@ class AdjacencyList(dict):
 
     def _check_pos_exists(self, positions):
         for pos in positions:
-            if pos not in self.keys():
+            if pos not in list(self.keys()):
                 raise NoPositionException("Position %s does not exist." %
                         repr(pos))
 

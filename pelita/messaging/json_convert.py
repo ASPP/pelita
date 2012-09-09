@@ -164,7 +164,7 @@ class JsonConverter(object):
 
 
     def serializable(self, cls_or_id):
-        if isinstance(cls_or_id, basestring):
+        if isinstance(cls_or_id, str):
             id = cls_or_id
         elif inspect.isclass(cls_or_id):
             id = "%s.%s" % (cls_or_id.__module__, cls_or_id.__name__)

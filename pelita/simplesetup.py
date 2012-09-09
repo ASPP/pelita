@@ -52,10 +52,10 @@ def bind_socket(socket, address, option_hint=None):
     try:
         socket.bind(address)
     except zmq.core.error.ZMQError as e:
-        print >>sys.stderr, 'error binding to address %s: %s' % (address, e)
+        print('error binding to address %s: %s' % (address, e), file=sys.stderr)
         if option_hint:
-            print >>sys.stderr, 'use %s <address> to specify a different port' %\
-                (option_hint,)
+            print('use %s <address> to specify a different port' %\
+                (option_hint,), file=sys.stderr)
         raise
 
 class UnknownMessageId(Exception):
@@ -319,7 +319,7 @@ class SimpleServer(object):
 
         if isinstance(bind_addrs, tuple):
             pass
-        elif isinstance(bind_addrs, basestring):
+        elif isinstance(bind_addrs, str):
             if not bind_addrs.startswith("tcp://"):
                 raise ValueError("non-tcp bind_addrs cannot be shared.")
             bind_addrs = (bind_addrs, ) * self.number_of_teams
@@ -521,7 +521,7 @@ class SimpleClient(object):
             raise
         except Exception as e:
             msg = "Exception in client code for team %s." % self.team
-            print >> sys.stderr, msg
+            print(msg, file=sys.stderr)
             # return None. Let it crash next time the server tries to send.
             retval = None
             raise

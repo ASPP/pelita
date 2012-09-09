@@ -205,7 +205,7 @@ class GameMaster(object):
             # is able to read or guess the seed of the other
             # party.
 
-            team_seed = self.rnd.randint(0, sys.maxint)
+            team_seed = self.rnd.randint(0, sys.maxsize)
             team_state = dict({"seed": team_seed}, **self.game_state)
             team.set_initial(team_id, self.universe, team_state)
 
@@ -235,7 +235,7 @@ class GameMaster(object):
             self._step_iter = self._play_bot_iterator()
         try:
             while True:
-                self._step_iter.next()
+                next(self._step_iter)
         except StopIteration:
             self._step_iter = None
             # at the end of iterations
@@ -252,7 +252,7 @@ class GameMaster(object):
             self._step_iter = self._play_bot_iterator()
 
         try:
-            self._step_iter.next()
+            next(self._step_iter)
         except StopIteration:
             self._step_iter = None
             # we could not make a move:
@@ -327,7 +327,7 @@ class GameMaster(object):
             self.game_state["team_time"][bot.team_index] += team_time_needed
 
             move_state = self.universe.move_bot(bot.index, move)
-            for k, v in move_state.iteritems():
+            for k, v in move_state.items():
                 self.game_state[k] += v
 
         except (datamodel.IllegalMoveException, PlayerTimeout):
@@ -347,11 +347,11 @@ class GameMaster(object):
                                   bot.team_index,
                                   bot.index))
 
-            moves = self.universe.get_legal_moves_or_stop(bot.current_pos).keys()
+            moves = list(self.universe.get_legal_moves_or_stop(bot.current_pos).keys())
 
             move = self.rnd.choice(moves)
             move_state = self.universe.move_bot(bot.index, move)
-            for k,v in move_state.iteritems():
+            for k,v in move_state.items():
                 self.game_state[k] += v
 
         except PlayerDisconnected:
@@ -447,7 +447,7 @@ class GameMaster(object):
         else:
             return
 
-        print msg
+        print(msg)
         # We must manually flush, else our forceful stopping of Tk
         # won't let us pipe it.
         sys.stdout.flush()

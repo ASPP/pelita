@@ -4,6 +4,7 @@ from pelita.layout import Layout
 from pelita.containers import Mesh
 from pelita.datamodel import *
 from pelita.messaging.json_convert import json_converter
+from functools import reduce
 
 
 # the legal chars for a basic CTFUniverse
@@ -412,10 +413,10 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertEqual([universe.bots[2]], universe.other_team_bots(0))
         self.assertEqual([universe.bots[3]], universe.other_team_bots(1))
 
-        self.assertEqual([universe.bots[i] for i in 0,2], universe.team_bots(0))
-        self.assertEqual([universe.bots[i] for i in 0,2], universe.enemy_bots(1))
-        self.assertEqual([universe.bots[i] for i in 1,3], universe.team_bots(1))
-        self.assertEqual([universe.bots[i] for i in 1,3], universe.enemy_bots(0))
+        self.assertEqual([universe.bots[i] for i in (0,2)], universe.team_bots(0))
+        self.assertEqual([universe.bots[i] for i in (0,2)], universe.enemy_bots(1))
+        self.assertEqual([universe.bots[i] for i in (1,3)], universe.team_bots(1))
+        self.assertEqual([universe.bots[i] for i in (1,3)], universe.enemy_bots(0))
 
         self.assertEqual(universe.enemy_team(0), universe.teams[1])
         self.assertEqual(universe.enemy_team(1), universe.teams[0])

@@ -55,7 +55,7 @@ PLAYERS = pelita.player.SANE_PLAYERS
 def import_builtin_player(name):
     if name == 'random':
         name = random.choice(PLAYERS)
-        print 'Choosing %s for random player' % name
+        print('Choosing %s for random player' % name)
     try:
         player = getattr(pelita.player, name)
     except AttributeError:
@@ -105,8 +105,8 @@ def load_team(spec):
         check_team_name(team.team_name)
         return team
     except (ValueError, AttributeError, IOError, ImportError) as e:
-        print >>sys.stderr, "failure while loading team '%s'" % spec
-        print >>sys.stderr, 'ERROR: %s' % e
+        print("failure while loading team '%s'" % spec, file=sys.stderr)
+        print('ERROR: %s' % e, file=sys.stderr)
         raise
 
 def prepare_team(team_spec, standalone=False):
@@ -330,7 +330,7 @@ def run_game():
         sys.exit(0)
     if args.layout == 'list':
         layouts = pelita.layout.get_available_layouts()
-        print '\n'.join(layouts)
+        print('\n'.join(layouts))
         sys.exit(0)
     if args.seed is not None:
         random.seed(args.seed)
@@ -344,7 +344,7 @@ def run_game():
         pass
 
     if 'list' in (args.left_team, args.right_team):
-        print '\n'.join(PLAYERS)
+        print('\n'.join(PLAYERS))
         sys.exit(0)
 
 
@@ -353,9 +353,9 @@ def run_game():
 
     def print_team_info(addr, team, spec, info):
         if team is not None:
-            print "Using factory %r -> %r (%s)" % (spec, team.team_name, info)
+            print("Using factory %r -> %r (%s)" % (spec, team.team_name, info))
         elif "://" in addr:
-            print "Waiting for %s team on %s" % (info, addr)
+            print("Waiting for %s team on %s" % (info, addr))
 
     # if standalone_client was specified,
     # we use the following scheme

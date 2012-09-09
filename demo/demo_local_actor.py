@@ -60,7 +60,7 @@ clientActor2.connect_local("pelita-main")
 try:
     viewer.root.mainloop()
 except KeyboardInterrupt:
-    print "Received CTRL+C. Exiting."
+    print("Received CTRL+C. Exiting.")
 finally:
     # Finally, we need to ensure that everything closes.
 

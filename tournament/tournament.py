@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-from __future__ import print_function
+
 from subprocess import Popen, PIPE, STDOUT, check_call
 import random
 import time
 import tempfile
-import cStringIO
+import io
 import sys
 import os
 import json
@@ -51,7 +51,7 @@ def print(*args, **kwargs):
     if len(args) == 0:
         _print()
         return
-    stream = cStringIO.StringIO()
+    stream = io.StringIO()
     wait = kwargs.pop('wait', 0.5)
     want_speak = kwargs.pop('speak', SPEAK)
     if not want_speak:
@@ -69,7 +69,7 @@ def print(*args, **kwargs):
 
 
 def wait_for_keypress():
-    raw_input('---\n')
+    input('---\n')
 
 
 def present_teams(group_members):
@@ -114,7 +114,7 @@ def start_match(team1, team2):
     wait_for_keypress()
     args = CMD_STUB.split()
     dumpfile = 'dumpstore/'+time.strftime('%Y%m%d-%H%M%S')
-    args.extend([team1, team2, '--dump', dumpfile,'--seed', str(random.randint(0, sys.maxint))])
+    args.extend([team1, team2, '--dump', dumpfile,'--seed', str(random.randint(0, sys.maxsize))])
     stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE).communicate()
     tmp = reversed(stdout.splitlines())
     lastline = None
@@ -220,7 +220,7 @@ def pp_round2_results(teams, w1, w2, w3, w4):
     """
     names = dict(RNAMES)
     names['???'] = '???'
-    feed = max(len(item) for item in RNAMES.values())+2
+    feed = max(len(item) for item in list(RNAMES.values()))+2
     lengths={}
     for name in names:
         lengths[name] = feed - len(names[name])
@@ -332,7 +332,7 @@ TEAMFILE.json must be of the form:
     # open the log file (fail if it exists)
     LOGFILE = os.fdopen(os.open(LOGFILE, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o0666), 'w')
 
-    teams = RNAMES.keys()
+    teams = list(RNAMES.keys())
     random.shuffle(teams)
     # load team names
     for team in teams:

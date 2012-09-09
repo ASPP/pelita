@@ -5,7 +5,7 @@ General and local actor definitions.
 """
 
 
-import Queue
+import queue
 import uuid
 import inspect
 from threading import Lock
@@ -45,7 +45,7 @@ class Request(Channel):
     The `Actor` may then reply to the `Request` exactly once.
     """
     def __init__(self):
-        self._queue = Queue.Queue(maxsize=1)
+        self._queue = queue.Queue(maxsize=1)
 
     def put(self, message, channel=None, remote=None):
         """ Sets the result of the Request to `message`.
@@ -75,7 +75,7 @@ class Request(Channel):
         """Returns the result or None, if the value is not available."""
         try:
             return self._queue.get(timeout).result
-        except Queue.Empty:
+        except queue.Empty:
             return None
 
     def has_result(self):
@@ -135,7 +135,7 @@ class BaseActor(SuspendableThread):
         """
         try:
             message, channel, priority, remote = self.handle_inbox()
-        except Queue.Empty:
+        except queue.Empty:
             return
 
         if isinstance(message, Exit):
@@ -204,7 +204,7 @@ class BaseActor(SuspendableThread):
 class Actor(BaseActor):
     # TODO Handle messages not replied to – else the queue is waiting forever
     def __init__(self, inbox=None, **kwargs):
-        self._inbox = inbox or Queue.Queue()
+        self._inbox = inbox or queue.Queue()
 
         super(Actor, self).__init__(**kwargs)
 
@@ -434,7 +434,7 @@ class DispatchingActor(Actor):
             # KeyError -> message must have a "method" key
             return self.on_invalid(message)
 
-        if not isinstance(method, basestring):
+        if not isinstance(method, str):
             return self.__reply_error("'method' must be a string.")
 
         prefixes = ["?"]

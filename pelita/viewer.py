@@ -10,9 +10,7 @@ from .messaging.json_convert import json_converter
 __docformat__ = "restructuredtext"
 
 
-class AbstractViewer(object):
-    __metaclass__ = abc.ABCMeta
-
+class AbstractViewer(object, metaclass=abc.ABCMeta):
     def set_initial(self, universe):
         """ This method is called when the first universe is ready.
         """
@@ -45,7 +43,7 @@ class ProgressViewer(AbstractViewer):
 
         if game_state["finished"]:
             sys.stdout.write("\n")
-            print "Final state:", game_state
+            print("Final state:", game_state)
 
 class AsciiViewer(AbstractViewer):
     """ A viewer that dumps ASCII charts on stdout. """
@@ -63,11 +61,11 @@ class AsciiViewer(AbstractViewer):
                  game_state=game_state,
                  universe=universe.compact_str)
 
-        print info
+        print(info)
         winning_team_idx = game_state.get("team_wins")
         if winning_team_idx is not None:
-            print ("Game Over: Team: '%s' wins!" %
-                universe.teams[winning_team_idx].name)
+            print(("Game Over: Team: '%s' wins!" %
+                universe.teams[winning_team_idx].name))
 
 class DumpingViewer(AbstractViewer):
     """ A viewer which dumps to a given stream.

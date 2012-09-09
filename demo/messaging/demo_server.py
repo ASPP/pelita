@@ -3,6 +3,7 @@
 import logging
 
 from pelita.utils.colorama_wrapper import colorama
+from functools import reduce
 
 FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s]' + colorama.Fore.MAGENTA + ' %(message)s' + colorama.Fore.RESET
 logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S")
@@ -20,7 +21,7 @@ class ServerActor(DispatchingActor):
         self.players = []
 
     def stop_mailboxes(self):
-        for conn, box in self.mailboxes.iteritems():
+        for conn, box in self.mailboxes.items():
             box.stop()
 
     @expose(name="stop")
@@ -35,7 +36,7 @@ class ServerActor(DispatchingActor):
     def multiply(self, *args):
         """Multiplies the argument list."""
         res = reduce(lambda x,y: x*y, args)
-        print "Calculated", res
+        print("Calculated", res)
         self.ref.reply(res)
 
     @expose
@@ -110,7 +111,7 @@ remote.start_all()
 
 def printcol(msg):
     """Using a helper function to get coloured output"""
-    print colorama.Fore.BLUE + str(msg) + colorama.Fore.RESET
+    print(colorama.Fore.BLUE + str(msg) + colorama.Fore.RESET)
 
 class EndSession(Exception):
     pass
@@ -118,7 +119,7 @@ class EndSession(Exception):
 import json
 try:
     while True:
-        inp = raw_input("> ")
+        inp = input("> ")
         split_inp = inp.partition(" ")
         method = split_inp[0]
         json_params = split_inp[2].strip()
@@ -132,7 +133,7 @@ try:
             else:
                 params = []
         except ValueError:
-            print "value error"
+            print("value error")
             continue
 
         try:
@@ -141,16 +142,16 @@ try:
             else:
                 req = actor_ref.query(method).get()
         except TypeError:
-            print "Need to get list"
+            print("Need to get list")
             continue
 
 #        try:
-        print req
+        print(req)
 #        except AttributeError:
 #            print req.error
 
 except (KeyboardInterrupt, EndSession):
-    print "Interrupted"
+    print("Interrupted")
 
     req =  actor_ref.stop()
 #    actor.stop()

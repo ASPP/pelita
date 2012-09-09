@@ -323,7 +323,7 @@ class Maze(Mesh):
     def __init__(self, width, height, data=None):
         if not data:
             data = ["" for i in range(width*height)]
-        elif not all(isinstance(s, basestring) for s in data):
+        elif not all(isinstance(s, str) for s in data):
             raise TypeError("Maze keyword argument 'data' should be list of " +\
                             "strings, not: %r" % data)
         else:
@@ -378,7 +378,7 @@ class Maze(Mesh):
             the positions (x, y) in the Maze
 
         """
-        return self.keys()
+        return list(self.keys())
 
     def pos_of(self, char):
         """ The indices of positions which have a maze component.
@@ -400,7 +400,7 @@ class Maze(Mesh):
         ...
 
         """
-        return [pos for pos, val in self.iteritems() if char in val]
+        return [pos for pos, val in self.items() if char in val]
 
     def __repr__(self):
         return ('Maze(%i, %i, data=%r)'
@@ -422,7 +422,7 @@ def create_maze(layout_mesh):
 
     """
     maze = Maze(layout_mesh.width, layout_mesh.height)
-    for index in maze.iterkeys():
+    for index in maze.keys():
         if layout_mesh[index] == Wall:
             maze[index] = maze[index] + Wall
         else:
@@ -451,7 +451,7 @@ def extract_initial_positions(mesh, number_bots):
     """
     bot_ids = [str(i) for i in range(number_bots)]
     start = [(0, 0)] * number_bots
-    for k, v in mesh.iteritems():
+    for k, v in mesh.items():
         if v in bot_ids:
             start[int(v)] = k
             mesh[k] = Free
@@ -501,10 +501,10 @@ def create_CTFUniverse(layout_str, number_bots,
             (maze.width // 2, maze.width - 1)]
 
     teams = []
-    teams.append(Team(0, team_names[0], homezones[0], bots=range(0,
-        number_bots, 2)))
-    teams.append(Team(1, team_names[1], homezones[1], bots=range(1,
-        number_bots, 2)))
+    teams.append(Team(0, team_names[0], homezones[0], bots=list(range(0,
+        number_bots, 2))))
+    teams.append(Team(1, team_names[1], homezones[1], bots=list(range(1,
+        number_bots, 2))))
 
     bots = []
     for bot_index in range(number_bots):
@@ -723,7 +723,7 @@ class CTFUniverse(object):
 
         bot = self.bots[bot_id]
         legal_moves_dict = self.get_legal_moves(bot.current_pos)
-        if move not in legal_moves_dict.keys():
+        if move not in list(legal_moves_dict.keys()):
             raise IllegalMoveException(
                 'Illegal move from bot_id %r: %s' % (bot_id, move))
         old_pos = bot.current_pos
@@ -781,7 +781,7 @@ class CTFUniverse(object):
 
         """
         legal_moves_dict = {}
-        for move, new_pos in self.neighbourhood(position).items():
+        for move, new_pos in list(self.neighbourhood(position).items()):
             if Free in self.maze[new_pos]:
                 legal_moves_dict[move] = new_pos
         return legal_moves_dict

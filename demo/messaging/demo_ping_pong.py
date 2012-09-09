@@ -18,7 +18,7 @@ class Ping(DispatchingActor):
 
     @expose
     def Start(self):
-        print "Ping: Starting"
+        print("Ping: Starting")
         self.pong.notify("Ping", channel=self.ref)
         self.pings_left -= 1
 
@@ -30,11 +30,11 @@ class Ping(DispatchingActor):
     @expose
     def Pong(self):
         if self.pings_left % 100 == 0:
-            print "Ping: pong from: " + str(self.ref.channel)
+            print("Ping: pong from: " + str(self.ref.channel))
         if self.pings_left > 0:
             self.ref.notify("SendPing")
         else:
-            print "Ping: Stop."
+            print("Ping: Stop.")
             self.pong.notify("Stop", channel=self.ref)
             self.ref.put(StopProcessing)
 
@@ -48,15 +48,15 @@ class Pong(DispatchingActor):
         if self.pong_count % 100 == 0:
             delta = datetime.now() - self.old_time
             self.old_time = datetime.now()
-            print "Pong: ping " + str(self.pong_count) + " from " + str(self.ref.channel) + \
-                    str(delta.seconds) + "." + str(delta.microseconds // 1000)
+            print("Pong: ping " + str(self.pong_count) + " from " + str(self.ref.channel) + \
+                    str(delta.seconds) + "." + str(delta.microseconds // 1000))
 
         self.ref.channel.notify("Pong", channel=self.ref)
         self.pong_count += 1
 
     @expose
     def Stop(self):
-        print "Pong: Stop."
+        print("Pong: Stop.")
         self.ref.put(StopProcessing)
 
 import logging

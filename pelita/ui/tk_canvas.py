@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import Tkinter
-import tkFont
+import tkinter
+import tkinter.font
 
 import zmq
 
@@ -16,7 +16,7 @@ _logger = logging.getLogger("pelita.tk")
 def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
     no_lines = display_string.count("\n") + 1
     size_guess = bounding_height // ((3-rel_size) * no_lines)
-    font = tkFont.Font(size=size_guess)
+    font = tkinter.font.Font(size=size_guess)
     text_width = font.measure(display_string)
     if text_width > bounding_width:
         font_size = size_guess * bounding_width // text_width
@@ -116,68 +116,68 @@ class UiCanvas(object):
         self.current_universe = None
 
     def init_canvas(self):
-        self.score = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=40)
+        self.score = tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=40)
         self.score.config(background="white")
-        self.score.pack(side=Tkinter.TOP, fill=Tkinter.X)
+        self.score.pack(side=tkinter.TOP, fill=tkinter.X)
 
-        self.status = Tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=25)
+        self.status = tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=25)
         self.status.config(background="white")
-        self.status.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
+        self.status.pack(side=tkinter.BOTTOM, fill=tkinter.X)
 
-        game_control_frame = Tkinter.Frame(self.status, background="white")
+        game_control_frame = tkinter.Frame(self.status, background="white")
         game_control_frame.grid(row=0, sticky="W")
-        game_speed_frame = Tkinter.Frame(self.status, background="white")
+        game_speed_frame = tkinter.Frame(self.status, background="white")
         game_speed_frame.grid(row=1, sticky="W")
 
-        self.status_round_info = Tkinter.Label(self.status, text="", background="white")
+        self.status_round_info = tkinter.Label(self.status, text="", background="white")
         self.status_round_info.grid(row=0, column=2, sticky="E")
 
-        self.status_layout_info = Tkinter.Label(self.status, text="", background="white")
+        self.status_layout_info = tkinter.Label(self.status, text="", background="white")
         self.status_layout_info.grid(row=1, column=2, sticky="E")
 
-        self.button_game_speed_slower = Tkinter.Button(game_speed_frame,
+        self.button_game_speed_slower = tkinter.Button(game_speed_frame,
             foreground="black",
             background="white",
-            justify=Tkinter.CENTER,
+            justify=tkinter.CENTER,
             text="slower",
             command=self.master.delay_inc)
-        self.button_game_speed_slower.pack(side=Tkinter.LEFT)
+        self.button_game_speed_slower.pack(side=tkinter.LEFT)
 
-        self.button_game_speed_faster = Tkinter.Button(game_speed_frame,
+        self.button_game_speed_faster = tkinter.Button(game_speed_frame,
             foreground="black",
             background="white",
-            justify=Tkinter.CENTER,
+            justify=tkinter.CENTER,
             text="faster",
             command=self.master.delay_dec)
-        self.button_game_speed_faster.pack(side=Tkinter.LEFT)
+        self.button_game_speed_faster.pack(side=tkinter.LEFT)
 
         self.master._check_speed_button_state()
 
-        Tkinter.Button(game_control_frame,
+        tkinter.Button(game_control_frame,
                        foreground="black",
                        background="white",
-                       justify=Tkinter.CENTER,
+                       justify=tkinter.CENTER,
                        text="PLAY/PAUSE",
-                       command=self.master.toggle_running).pack(side=Tkinter.LEFT)
+                       command=self.master.toggle_running).pack(side=tkinter.LEFT)
 
-        Tkinter.Button(game_control_frame,
+        tkinter.Button(game_control_frame,
                        foreground="black",
                        background="white",
-                       justify=Tkinter.CENTER,
+                       justify=tkinter.CENTER,
                        text="STEP",
-                       command=self.master.request_step).pack(side=Tkinter.LEFT)
+                       command=self.master.request_step).pack(side=tkinter.LEFT)
 
-        Tkinter.Button(game_control_frame,
+        tkinter.Button(game_control_frame,
                        foreground="black",
                        background="white",
-                       justify=Tkinter.CENTER,
+                       justify=tkinter.CENTER,
                        text="ROUND",
-                       command=self.master.request_round).pack(side=Tkinter.LEFT)
+                       command=self.master.request_round).pack(side=tkinter.LEFT)
 
-        Tkinter.Button(self.status,
+        tkinter.Button(self.status,
                        foreground="black",
                        background="white",
-                       justify=Tkinter.CENTER,
+                       justify=tkinter.CENTER,
                        text="QUIT",
                        command=self.master.quit).grid(row=0, column=1, rowspan=2, sticky="WE")
 
@@ -186,11 +186,11 @@ class UiCanvas(object):
         self.status.grid_columnconfigure(1, weight=1)
         self.status.grid_columnconfigure(2, weight=1)
 
-        self.canvas = Tkinter.Canvas(self.master.frame,
+        self.canvas = tkinter.Canvas(self.master.frame,
                                      width=self.mesh_graph.screen_width,
                                      height=self.mesh_graph.screen_height)
         self.canvas.config(background="white")
-        self.canvas.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
+        self.canvas.pack(fill=tkinter.BOTH, expand=tkinter.YES)
         self.canvas.bind('<Configure>', self.resize)
 
     def update(self, universe, game_state):
@@ -325,15 +325,15 @@ class UiCanvas(object):
         right_status = status(1)
         status_font_size = max(font_size - 3, 3)
 
-        self.score.create_text(center, 15, text=left_team, font=(None, font_size), fill=col(94, 158, 217), tag="title", anchor=Tkinter.E)
+        self.score.create_text(center, 15, text=left_team, font=(None, font_size), fill=col(94, 158, 217), tag="title", anchor=tkinter.E)
 
-        self.score.create_text(center, 15, text=":", font=(None, font_size), tag="title", anchor=Tkinter.CENTER)
+        self.score.create_text(center, 15, text=":", font=(None, font_size), tag="title", anchor=tkinter.CENTER)
 
-        self.score.create_text(center+2, 15, text=right_team, font=(None, font_size), fill=col(235, 90, 90), tag="title", anchor=Tkinter.W)
+        self.score.create_text(center+2, 15, text=right_team, font=(None, font_size), fill=col(235, 90, 90), tag="title", anchor=tkinter.W)
 
-        self.score.create_text(center, 35, text="|", font=(None, font_size), tag="title", anchor=Tkinter.CENTER)
-        self.score.create_text(center, 35, text=left_status + " ", font=(None, status_font_size), tag="title", anchor=Tkinter.E)
-        self.score.create_text(center+1, 35, text=" " + right_status, font=(None, status_font_size), tag="title", anchor=Tkinter.W)
+        self.score.create_text(center, 35, text="|", font=(None, font_size), tag="title", anchor=tkinter.CENTER)
+        self.score.create_text(center, 35, text=left_status + " ", font=(None, status_font_size), tag="title", anchor=tkinter.E)
+        self.score.create_text(center+1, 35, text=" " + right_status, font=(None, status_font_size), tag="title", anchor=tkinter.W)
 
     def draw_status_info(self, turn, round, layout_name):
         roundturn = "Bot %d / Round %d" % (turn, round)
@@ -358,13 +358,13 @@ class UiCanvas(object):
                         text=display_string,
                         font=(None, font_size, "bold"),
                         fill="#ED1B22", tag="gameover",
-                        justify=Tkinter.CENTER, anchor=Tkinter.CENTER)
+                        justify=tkinter.CENTER, anchor=tkinter.CENTER)
 
         self.canvas.create_text(center[0] , center[1] ,
                 text=display_string,
                 font=(None, font_size, "bold"),
                 fill="#FFC903", tag="gameover",
-                justify=Tkinter.CENTER, anchor=Tkinter.CENTER)
+                justify=tkinter.CENTER, anchor=tkinter.CENTER)
 
 
     def draw_game_over(self, win_name):
@@ -373,14 +373,14 @@ class UiCanvas(object):
         plural = '' if win_name.endswith('s') else 's'
         if len(win_name) > 25:
             win_name = win_name[:22] + '...'
-        self.draw_end_of_game(u"GAME OVER\n%s win%s!" % (win_name, plural))
+        self.draw_end_of_game("GAME OVER\n%s win%s!" % (win_name, plural))
 
     def draw_game_draw(self):
         """ Draw the game draw string. """
         self.draw_end_of_game("GAME OVER\nDRAW!")
 
     def clear(self):
-        self.canvas.delete(Tkinter.ALL)
+        self.canvas.delete(tkinter.ALL)
 
     def resize(self, event):
         # need to be careful not to get negative numbers
@@ -394,7 +394,7 @@ class UiCanvas(object):
         if not self.size_changed:
             return
         self.canvas.delete("food")
-        for position, items in universe.maze.iteritems():
+        for position, items in universe.maze.items():
             model_x, model_y = position
             if datamodel.Food in items:
                 food_item = Food(self.mesh_graph, model_x, model_y)
@@ -404,7 +404,7 @@ class UiCanvas(object):
         if not self.size_changed:
             return
         self.canvas.delete("wall")
-        for position, items in universe.maze.iteritems():
+        for position, items in universe.maze.items():
             model_x, model_y = position
             if datamodel.Wall in items:
                 wall_item = Wall(self.mesh_graph, model_x, model_y)
@@ -426,7 +426,7 @@ class UiCanvas(object):
             bot_sprite.position = bot.current_pos
 
     def draw_bots(self, universe, game_state):
-        for bot_id, bot_sprite in self.bot_sprites.iteritems():
+        for bot_id, bot_sprite in self.bot_sprites.items():
             say = game_state and game_state["bot_talk"][bot_id]
             bot_sprite.move_to(universe.bots[bot_sprite.bot_id].current_pos, self.canvas, universe, force=self.size_changed, say=say)
 
@@ -440,7 +440,7 @@ class TkApplication(object):
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
         self.socket.setsockopt(zmq.SUBSCRIBE, "")
-        print address, self.socket, id(self.socket)
+        print(address, self.socket, id(self.socket))
         self.socket.connect(address)
         self.poll = zmq.Poller()
         self.poll.register(self.socket, zmq.POLLIN)
@@ -451,10 +451,10 @@ class TkApplication(object):
         else:
             self.controller_socket = None
 
-        self.frame = Tkinter.Frame(self.master, background="white")
+        self.frame = tkinter.Frame(self.master, background="white")
         self.master.title("Pelita")
 
-        self.frame.pack(fill=Tkinter.BOTH, expand=Tkinter.YES)
+        self.frame.pack(fill=tkinter.BOTH, expand=tkinter.YES)
 
         self.ui_canvas = UiCanvas(self, geometry=geometry)
 
@@ -567,9 +567,9 @@ class TkApplication(object):
             # may not be available yet (or may be None).
             # If this is the case, we’ll do nothing at all.
             if self._delay <= self._min_delay:
-                self.ui_canvas.button_game_speed_faster.config(state=Tkinter.DISABLED)
+                self.ui_canvas.button_game_speed_faster.config(state=tkinter.DISABLED)
             else:
-                self.ui_canvas.button_game_speed_faster.config(state=Tkinter.NORMAL)
+                self.ui_canvas.button_game_speed_faster.config(state=tkinter.NORMAL)
         except AttributeError:
             pass
 
