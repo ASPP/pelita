@@ -42,12 +42,12 @@ class JsonConverter(object):
         """
         try:
             encoder = getattr(class_, "_to_json_dict")
-
-            # trick to find out, if "from_dict" is an instancemethod
-            # may also raise AttributeError
-            if inspect.isclass(encoder.__self__):
-                raise ValueError("Class '%s' has no instancemethod '_to_json_dict'." % class_.__name__)
         except AttributeError:
+            raise ValueError("Class '%s' has no instancemethod '_to_json_dict'." % class_.__name__)
+
+        # "to_dict" must be an unbound instancemethod
+        # (func.__self__ must not exist)
+        if hasattr(encoder, "__self__"):
             raise ValueError("Class '%s' has no instancemethod '_to_json_dict'." % class_.__name__)
         return encoder
 
@@ -57,12 +57,11 @@ class JsonConverter(object):
         """
         try:
             decoder = getattr(class_, "_from_json_dict")
-
-            # trick to find out, if "from_dict" is a classmethod
-            # may also raise AttributeError
-            if not inspect.isclass(decoder.__self__):
-                raise ValueError("Class '%s' has no classmethod '_from_json_dict'." % class_.__name__)
         except AttributeError:
+            raise ValueError("Class '%s' has no classmethod '_from_json_dict'." % class_.__name__)
+
+        # "from_dict" must be bound to the class (classmethod)
+        if not inspect.isclass(getattr(decoder, "__self__", None)):
             raise ValueError("Class '%s' has no classmethod '_from_json_dict'." % class_.__name__)
         return decoder
 
