@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Python script to generate a new maze.
 
 The maze will be sent to sys.out .
