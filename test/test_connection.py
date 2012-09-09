@@ -10,11 +10,11 @@ class TestConnection(unittest.TestCase):
 
         # We use a Queue to wait until the connection is established
         timeout = 1
-        queue = queue.Queue()
+        q = queue.Queue()
 
         # define, what to do, when we get a connection
         def acceptor(connection):
-            queue.put(connection)
+            q.put(connection)
 
         listener.on_accept = acceptor
         listener.start()
@@ -26,7 +26,7 @@ class TestConnection(unittest.TestCase):
         sock = conn.handle_connect()
 
         try:
-            received_conn = queue.get(True, timeout)
+            received_conn = q.get(True, timeout)
         except queue.Empty:
             raise AssertionError("Timed out. No connection in %d secs." % timeout)
 
