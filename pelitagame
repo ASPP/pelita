@@ -21,7 +21,7 @@ def check_module(filepath):
     "Throws an ValueError is the specified path is neither a module nor a package."
     if not os.path.exists(filepath):
         raise ValueError("'%s' doesn't exist" % filepath)
-    allowed = string.letters + string.digits + '_'
+    allowed = string.ascii_letters + string.digits + '_'
     if filepath.endswith('.py'):
         valid = os.path.isfile(filepath)
         modname = os.path.basename(filepath[:-3])
