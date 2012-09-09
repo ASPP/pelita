@@ -15,10 +15,8 @@ import zmq
 import subprocess
 import json
 
-try:
-    import argparse
-except ImportError:
-    from pelita.compat import argparse
+import argparse
+
 parser = argparse.ArgumentParser(description='Show a dumped pelita game',
                                  add_help=False,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)

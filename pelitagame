@@ -8,18 +8,14 @@ import keyword
 import logging
 import subprocess
 import time
+import argparse
+
+import pelita
 
 # silence stupid warnings from logging module
 logging.root.manager.emittedNoHandlerWarning = 1
 
 _logger = logging.getLogger("pelita.pelitagame")
-
-try:
-    import argparse
-except ImportError:
-    from pelita.compat import argparse
-
-import pelita
 
 def check_module(filepath):
     "Throws an ValueError is the specified path is neither a module nor a package."

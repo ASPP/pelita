@@ -9,11 +9,7 @@ import cStringIO
 import sys
 import os
 import json
-# Drop this as soon as we drop support for python 2.6
-try:
-    import argparse
-except ImportError:
-    from pelita.compat import argparse
+import argparse
 
 # Location
 LOCATION="Kiel"

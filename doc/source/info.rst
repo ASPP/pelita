@@ -37,13 +37,6 @@ Pelita is licensed under the terms of the `Simplified (two-clause) BSD License
 <http://www.opensource.org/licenses/BSD-2-Clause>`_.
 A copy of the license is included with the source, in the file ``COPYING``.
 
-For compatibility with Python 2.6, we ship a copy of the `argparse
-<http://docs.python.org/library/argparse.html>`_ module from Python 2.7. The
-code is stored in ``pelita/compat/argparse.py`` and is made available as
-``pelita.compat.argparse``. It's licensed under the terms of the `Python
-License <http://docs.python.org/license.html>`_. Copyright and history
-information for the module is included in the file ``COPYING``.
-
 To generate API documentation from the docstring we ship a copy of the `numpydoc
 <http://pypi.python.org/pypi/numpydoc>`_ sphinx extension in
 ``doc/sphinxext/numpydoc``. Numpydoc is licensed under various licenses, see the
