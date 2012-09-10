@@ -21,7 +21,12 @@ setup(name='pelita',
       classifiers=[
           'Development Status :: 4 - Beta',
           'License :: OSI Approved :: BSD License',
-          'Topic :: Scientific/Engineering :: Artificial Intelligence'
+          'Topic :: Scientific/Engineering :: Artificial Intelligence',
+          'Programming Language :: Python :: 2',
+          'Programming Language :: Python :: 2.6',
+          'Programming Language :: Python :: 2.7',
+
+
       ]
       
      )
