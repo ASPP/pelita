@@ -76,16 +76,11 @@ def create_builtin_team(spec):
     return pelita.player.SimpleTeam(teamname, *players)
 
 def check_team_name(name):
-    # Team name must be ascii
-    try:
-        name.encode('ascii')
-    except UnicodeDecodeError:
-        raise ValueError('Invalid team name (non ascii): "%s".'%name)
     # Team name must be shorter than 25 characters
     if len(name) > 25:
         raise ValueError('Invalid team name (longer than 25): "%s".'%name)
     if len(name) == 0:
-        raise ValueError('Invalid team name (too short).')
+        raise ValueError('Invalid team name (empty).')
     # Check every character and make sure it is either
     # a letter or a number. Nothing else is allowed.
     for char in name:
