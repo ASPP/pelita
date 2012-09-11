@@ -229,7 +229,7 @@ class RemoteConnection(object):
 
     def shutdown(self):
         with self._db_lock:
-            for box in self.connections.values():
+            for box in list(self.connections.values()):
                 box.stop()
 
         self.on_shutdown()
@@ -278,12 +278,12 @@ class RemoteConnection(object):
         return actor
 
     def start_all(self):
-        for uuid in self.exposed_actor_reg.values():
+        for uuid in list(self.exposed_actor_reg.values()):
             ref = actor_registry.get_by_uuid(uuid)
             ref.start()
 
     def stop(self):
-        for uuid in self.exposed_actor_reg.values():
+        for uuid in list(self.exposed_actor_reg.values()):
             ref = actor_registry.get_by_uuid(uuid)
             ref.stop()
         if self.listener:

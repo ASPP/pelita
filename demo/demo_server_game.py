@@ -44,7 +44,7 @@ tkprocess = subprocess.Popen([get_python_process(),
                               "from pelita.ui.tk_viewer import TkViewer\n" + tk_open])
 
 try:
-    print server.bind_addresses
+    print(server.bind_addresses)
     server.register_teams()
     controller = SimpleController(server.game_master, "tcp://*:50013")
     controller.run()

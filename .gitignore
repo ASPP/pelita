@@ -4,6 +4,7 @@
 # python ignores
 *.pyc
 *.pyo
+__pycache__
 
 # coverage ignore
 .coverage

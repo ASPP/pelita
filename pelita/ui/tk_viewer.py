@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import Tkinter
+import tkinter
 
 import logging
 
@@ -64,7 +64,7 @@ class TkViewer(object):
         self.geometry = geometry
 
     def run(self):
-        self.root = Tkinter.Tk()
+        self.root = tkinter.Tk()
         if self.geometry is None:
             root_geometry = '900x510'
         else:

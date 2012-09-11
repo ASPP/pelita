@@ -33,7 +33,7 @@ class JsonSocketConnection(object):
 
         # Our terminator must never be included in our JSON strings
         # also, it must be a one-byte character for easier parsing
-        self._terminator = "\x04" # End of transmission
+        self._terminator = b"\x04" # End of transmission
 
         # the buffer is used for complete JSON strings
         # which have not yet been popped by `read()`
@@ -41,7 +41,7 @@ class JsonSocketConnection(object):
 
         # the incoming string is used for the last incomplete JSON string
         # which still waits for completion
-        self.incoming = ""
+        self.incoming = b""
 
     @property
     def terminator(self):
@@ -74,10 +74,12 @@ class JsonSocketConnection(object):
         """ Takes a json_string, appends the termination character
         and sends it.
         """
-        if self.terminator in json_string:
+        json_bytes = bytes(json_string, encoding="utf-8")
+
+        if self.terminator in json_bytes:
             raise ValueError("JSON contains invalid termination character.")
 
-        data = json_string + self.terminator
+        data = json_bytes + self.terminator
 
         sent_bytes = 0
         while sent_bytes < len(data):
@@ -95,7 +97,8 @@ class JsonSocketConnection(object):
         # get the first element
         data = self.buffer.pop(0)
         try:
-            json_data = json_converter.loads(data)
+            data_utf_8 = str(data, encoding="utf-8")
+            json_data = json_converter.loads(data_utf_8)
             _logger.debug("Data read %r", json_data)
         except ValueError:
             _logger.warning("Could not decode data %r", data)
@@ -151,7 +154,7 @@ class JsonSocketConnection(object):
             contd = complete.pop(0)
             self.incoming += contd
             self.buffer.append(self.incoming)
-            self.incoming = ""
+            self.incoming = b""
 
         if complete:
             # if there is still something left in complete,

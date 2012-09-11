@@ -66,7 +66,7 @@ class TestValue(unittest.TestCase):
             value.do(lambda x: x + 1)
 
         def do_10_times():
-            print "."
+            print(".")
             for _ in range(10):
                 time.sleep(0.01)
                 inc_fun()

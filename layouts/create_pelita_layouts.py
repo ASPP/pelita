@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Use this script to update/regenerate the layouts strings in pelita.layouts.py
 
 import os

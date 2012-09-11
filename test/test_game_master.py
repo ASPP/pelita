@@ -133,7 +133,7 @@ class TestUniverseNoiser(unittest.TestCase):
             new = noiser.uniform_noise(universe.copy(), 1)
             self.assertTrue(new.bots[0].noisy)
             position_bucket[new.bots[0].current_pos] += 1
-        self.assertEqual(100, sum(position_bucket.itervalues()))
+        self.assertEqual(100, sum(position_bucket.values()))
         # Since this is a randomized algorithm we need to be a bit lenient with
         # our tests. We check that each position was selected at least once.
         expected = [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
@@ -155,7 +155,7 @@ class TestUniverseNoiser(unittest.TestCase):
             new = noiser.uniform_noise(universe.copy(), 1)
             self.assertTrue(new.bots[0].noisy)
             position_bucket[new.bots[0].current_pos] += 1
-        self.assertEqual(200, sum(position_bucket.itervalues()))
+        self.assertEqual(200, sum(position_bucket.values()))
         # Since this is a randomized algorithm we need to be a bit lenient with
         # our tests. We check that each position was selected at least once.
         expected = [ (1, 1), (1, 2), (1, 3), (2, 3), (3, 3),
@@ -188,8 +188,8 @@ class TestUniverseNoiser(unittest.TestCase):
             self.assertTrue(new.bots[2].noisy)
             position_bucket_0[new.bots[0].current_pos] += 1
             position_bucket_2[new.bots[2].current_pos] += 1
-        self.assertEqual(100, sum(position_bucket_0.itervalues()))
-        self.assertEqual(100, sum(position_bucket_2.itervalues()))
+        self.assertEqual(100, sum(position_bucket_0.values()))
+        self.assertEqual(100, sum(position_bucket_2.values()))
         # Since this is a randomized algorithm we need to be a bit lenient with
         # our tests. We check that each position was selected at least once.
         self.assertItemsEqual(position_bucket_0, expected_0, sorted(position_bucket_0.keys()))
@@ -224,8 +224,8 @@ class TestUniverseNoiser(unittest.TestCase):
             self.assertTrue(new.bots[2].noisy)
             position_bucket_0[new.bots[0].current_pos] += 1
             position_bucket_2[new.bots[2].current_pos] += 1
-        self.assertEqual(200, sum(position_bucket_0.itervalues()))
-        self.assertEqual(200, sum(position_bucket_2.itervalues()))
+        self.assertEqual(200, sum(position_bucket_0.values()))
+        self.assertEqual(200, sum(position_bucket_2.values()))
         # Since this is a randomized algorithm we need to be a bit lenient with
         # our tests. We check that each position was selected at least once.
         self.assertItemsEqual(position_bucket_0, expected_0, sorted(position_bucket_0.keys()))
@@ -254,8 +254,8 @@ class TestUniverseNoiser(unittest.TestCase):
             self.assertFalse(new.bots[2].noisy)
             position_bucket_0[new.bots[0].current_pos] += 1
             position_bucket_2[new.bots[2].current_pos] += 1
-        self.assertEqual(100, sum(position_bucket_0.itervalues()))
-        self.assertEqual(100, sum(position_bucket_2.itervalues()))
+        self.assertEqual(100, sum(position_bucket_0.values()))
+        self.assertEqual(100, sum(position_bucket_2.values()))
         # Since this is a randomized algorithm we need to be a bit lenient with
         # our tests. We check that each position was selected at least once.
         self.assertItemsEqual(position_bucket_0, expected_0, position_bucket_0)
@@ -287,8 +287,8 @@ class TestUniverseNoiser(unittest.TestCase):
             self.assertFalse(new.bots[2].noisy)
             position_bucket_0[new.bots[0].current_pos] += 1
             position_bucket_2[new.bots[2].current_pos] += 1
-        self.assertEqual(200, sum(position_bucket_0.itervalues()))
-        self.assertEqual(200, sum(position_bucket_2.itervalues()))
+        self.assertEqual(200, sum(position_bucket_0.values()))
+        self.assertEqual(200, sum(position_bucket_2.values()))
         # Since this is a randomized algorithm we need to be a bit lenient with
         # our tests. We check that each position was selected at least once.
         self.assertItemsEqual(position_bucket_0, expected_0, position_bucket_0)
@@ -435,14 +435,14 @@ class TestGame(unittest.TestCase):
         self.assertEqual(create_TestUniverse(test_fifth_round,
             black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
 
-        print gm.universe.pretty
+        print(gm.universe.pretty)
         gm.play_round()
         test_sixth_round = (
             """ ######
                 #  0 #
                 #1   #
                 ###### """)
-        print gm.universe.pretty
+        print(gm.universe.pretty)
         self.assertEqual(create_TestUniverse(test_sixth_round,
             black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
 
@@ -484,8 +484,8 @@ class TestGame(unittest.TestCase):
         test_self = self
         class TestMaliciousPlayer(AbstractPlayer):
             def get_move(self):
-                print id(original_universe.maze)
-                print id(gm.universe.maze)
+                print(id(original_universe.maze))
+                print(id(gm.universe.maze))
                 # universe should have been altered because the
                 # Player is really malicious
                 test_self.assertNotEqual(original_universe, gm.universe)

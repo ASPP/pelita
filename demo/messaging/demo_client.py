@@ -16,18 +16,18 @@ from pelita.utils import ThreadInfoLogger
 ThreadInfoLogger(10).start()
 
 def init(*params):
-    print params
+    print(params)
 
 def calculate_pi_for(start, number_of_elems):
     acc = 0.0
-    for i in xrange(start, start + number_of_elems):
+    for i in range(start, start + number_of_elems):
         acc += 4.0 * (1 - (i % 2) * 2) / (2 * i + 1)
     return acc
 
 import math
 def slow_series(start, number_of_elems):
     acc = 0.0
-    for i in xrange(start, start + number_of_elems):
+    for i in range(start, start + number_of_elems):
         acc += 1.0 / (i * (math.log(i)*math.log(i)))
     return acc
 
@@ -63,7 +63,7 @@ port = 50007
 remote_actor = RemoteConnection().actor_for("main-actor", "localhost", port)
 
 res = remote_actor.query("multiply", [1, 2, 3, 4])
-print res.get()
+print(res.get())
 
 remote_actor.notify("hello", [str(actor.uuid)])
 
@@ -72,7 +72,7 @@ try:
         actor.join(1)
 
 except KeyboardInterrupt:
-    print "Interrupted"
+    print("Interrupted")
     actor.stop()
 
 

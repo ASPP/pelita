@@ -144,7 +144,7 @@ class BotSprite(TkSprite):
         # add container edges for the polygon
         x.insert(0, box_ll[0]); y.insert(0, box_ll[1] - 1)
         x.append(box_tr[0]); y.append(box_ll[1] - 1)
-        canvas.create_polygon(zip(x,y), width=1, outline=outer_col, fill=outer_col, tag=self.tag)
+        canvas.create_polygon(list(zip(x,y)), width=1, outline=outer_col, fill=outer_col, tag=self.tag)
 
         # ghost eyes
         eye_size = 0.15

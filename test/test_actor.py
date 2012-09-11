@@ -1,8 +1,9 @@
 import unittest
 import time
-import Queue
+import queue
 
 from pelita.messaging import DispatchingActor, expose, Actor, actor_of, RemoteConnection, Exit, Request, ActorNotRunning
+from functools import reduce
 
 class Dispatcher(DispatchingActor):
     def __init__(self):

@@ -4,6 +4,7 @@ from pelita.layout import Layout
 from pelita.containers import Mesh
 from pelita.datamodel import *
 from pelita.messaging.json_convert import json_converter
+from functools import reduce
 
 
 # the legal chars for a basic CTFUniverse
@@ -124,7 +125,7 @@ class TestBot(unittest.TestCase):
         self.assertTrue(bot.is_harvester)
         self.assertFalse(bot.in_own_zone)
 
-    def test_eq_repr_cmp(self):
+    def test_eq_repr(self):
         black = Bot(0, (1, 1), 0, (0, 3))
         black2 = Bot(0, (1, 1), 0, (0, 3))
         white = Bot(1, (6, 6), 1, (3, 6), current_pos = (1, 1))
@@ -132,9 +133,6 @@ class TestBot(unittest.TestCase):
         self.assertEqual(black, black2)
         black3 = eval(repr(black))
         self.assertEqual(black, black3)
-        self.assertEqual(black.__cmp__(black2), 0)
-        self.assertEqual(black.__cmp__(white), -1)
-        self.assertEqual(white.__cmp__(black),  1)
 
     def test_move_reset(self):
         black = Bot(0, (1, 1), 0, (0, 3))
@@ -412,10 +410,10 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertEqual([universe.bots[2]], universe.other_team_bots(0))
         self.assertEqual([universe.bots[3]], universe.other_team_bots(1))
 
-        self.assertEqual([universe.bots[i] for i in 0,2], universe.team_bots(0))
-        self.assertEqual([universe.bots[i] for i in 0,2], universe.enemy_bots(1))
-        self.assertEqual([universe.bots[i] for i in 1,3], universe.team_bots(1))
-        self.assertEqual([universe.bots[i] for i in 1,3], universe.enemy_bots(0))
+        self.assertEqual([universe.bots[i] for i in (0,2)], universe.team_bots(0))
+        self.assertEqual([universe.bots[i] for i in (0,2)], universe.enemy_bots(1))
+        self.assertEqual([universe.bots[i] for i in (1,3)], universe.team_bots(1))
+        self.assertEqual([universe.bots[i] for i in (1,3)], universe.enemy_bots(0))
 
         self.assertEqual(universe.enemy_team(0), universe.teams[1])
         self.assertEqual(universe.enemy_team(1), universe.teams[0])
