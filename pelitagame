@@ -206,9 +206,11 @@ publisher_opt.add_argument('--no-publish', const=False, action='store_const',
                            dest='publish_to', help='do not publish')
 parser.set_defaults(publish_to="tcp://*:50011")
 
-controller_opt = parser.add_mutually_exclusive_group()
+controller_opt = parser.add_argument_group("Controller")
 controller_opt.add_argument('--controller', type=str, metavar='URL', default="tcp://*:50012",
                             help='open a controller on this zmq socket')
+controller_opt.add_argument('--external-controller', const=True, action='store_const',
+                            help='force control by an external controller')
 
 viewer_opt = parser.add_mutually_exclusive_group()
 viewer_opt.add_argument('--ascii', action='store_const', const='ascii',
@@ -468,7 +470,7 @@ def run_game():
         if args.viewer == 'tk-no-sync':
             time.sleep(0.5)
     try:
-        if args.viewer == 'tk':
+        if args.viewer == 'tk' or args.external_controller:
             server.register_teams()
             controller = pelita.simplesetup.SimpleController(server.game_master, args.controller)
             controller.run()
