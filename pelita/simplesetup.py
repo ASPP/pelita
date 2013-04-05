@@ -51,7 +51,7 @@ DEAD_CONNECTION_TIMEOUT = 3.0
 def bind_socket(socket, address, option_hint=None):
     try:
         socket.bind(address)
-    except zmq.core.error.ZMQError as e:
+    except zmq.ZMQError as e:
         print >>sys.stderr, 'error binding to address %s: %s' % (address, e)
         if option_hint:
             print >>sys.stderr, 'use %s <address> to specify a different port' %\
@@ -487,7 +487,7 @@ class SimpleClient(object):
         self.socket = self.context.socket(zmq.PAIR)
         try:
             self.socket.connect(self.address)
-        except zmq.core.error.ZMQError as e:
+        except zmq.ZMQError as e:
             raise IOError('failed to connect the client to address %s: %s'
                           % (self.address, e))
 
