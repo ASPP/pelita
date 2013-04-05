@@ -2,13 +2,23 @@
 import unittest
 
 import pelita
-from pelita.simplesetup import SimpleClient, SimpleServer, SimplePublisher, SimpleSubscriber
+from pelita.simplesetup import SimpleClient, SimpleServer, SimplePublisher, SimpleSubscriber, bind_socket
 from pelita.player import SimpleTeam, RandomPlayer, TestPlayer, AbstractPlayer
 from pelita.viewer import AsciiViewer, AbstractViewer
 from pelita.datamodel import Free
 from pelita.game_master import GameMaster
 
+import zmq
+
 class TestSimpleSetup(unittest.TestCase):
+    def test_bind_socket(self):
+        # check that we cannot bind to a stupid address
+        address = "ipc:///tmp/pelita-test-bind-socket"
+        context = zmq.Context()
+        socket = context.socket(zmq.PUB)
+        bind_socket(socket, address)
+        self.assertRaises(zmq.ZMQError, bind_socket, socket, "bad-address", '--publish')
+
     def test_load_layout(self):
         # check that using the old API raises an error
         self.assertRaises(TypeError, SimpleServer, layout="")
