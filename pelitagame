@@ -191,6 +191,8 @@ parser.add_argument('--max-timeouts', type=int, default=5,
                     dest='max_timeouts', help='maximum number of timeouts allowed (default: 5)')
 parser.add_argument('--parseable-output', action="store_const", const=True,
                     help='Make game result parseable')
+parser.add_argument('--check-team', action="store_const", const=True,
+                    help='Check that the team is valid (on first sight) and print its name.')
 
 timeout_opt = parser.add_mutually_exclusive_group()
 timeout_opt.add_argument('--timeout', type=float, metavar="SEC",
@@ -206,9 +208,11 @@ publisher_opt.add_argument('--no-publish', const=False, action='store_const',
                            dest='publish_to', help='do not publish')
 parser.set_defaults(publish_to="tcp://*:50011")
 
-controller_opt = parser.add_mutually_exclusive_group()
+controller_opt = parser.add_argument_group("Controller")
 controller_opt.add_argument('--controller', type=str, metavar='URL', default="tcp://*:50012",
                             help='open a controller on this zmq socket')
+controller_opt.add_argument('--external-controller', const=True, action='store_const',
+                            help='force control by an external controller')
 
 viewer_opt = parser.add_mutually_exclusive_group()
 viewer_opt.add_argument('--ascii', action='store_const', const='ascii',
@@ -351,6 +355,10 @@ def run_game():
         print '\n'.join(PLAYERS)
         sys.exit(0)
 
+    if args.check_team:
+        # only print the team name.
+        print load_team(args.left_team).team_name
+        sys.exit(0)
 
     addrs_left, bads, spec_left = prepare_team(args.left_team, args.standalone_left)
     addrs_right, goods, spec_right = prepare_team(args.right_team, args.standalone_right)
@@ -468,7 +476,7 @@ def run_game():
         if args.viewer == 'tk-no-sync':
             time.sleep(0.5)
     try:
-        if args.viewer == 'tk':
+        if args.viewer == 'tk' or args.external_controller:
             server.register_teams()
             controller = pelita.simplesetup.SimpleController(server.game_master, args.controller)
             controller.run()
