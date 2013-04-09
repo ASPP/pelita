@@ -589,9 +589,12 @@ class BFSPlayer(AbstractPlayer):
         if not self.current_path:
             self.current_path = self.bfs_food()
         new_pos = self.current_path.pop()
-        try:
-            return diff_pos(self.current_pos, new_pos)
-        except ValueError:
+        move = diff_pos(self.current_pos, new_pos)
+
+        if move in self.legal_moves:
+            return move
+        else:
+            # Whoops. We’re lost.
             # If there was a timeout, and we are no longer where we think we
             # were, calculate a new path.
             self.current_path = None
