@@ -18,8 +18,7 @@ class TestStaticmethods(unittest.TestCase):
         self.assertEqual(new_pos((1, 1), east), (2, 1))
         self.assertEqual(new_pos((1, 1), west), (0, 1))
         self.assertEqual(new_pos((1, 1), stop), (1, 1))
-
-        self.assertRaises(ValueError, new_pos, (0, 0), (1, 1))
+        self.assertEqual(new_pos((0, 0), (1, 1)), (1, 1))
 
     def test_diff_pos(self):
         self.assertEqual(north, diff_pos((1, 1), (1, 0)))
@@ -28,19 +27,12 @@ class TestStaticmethods(unittest.TestCase):
         self.assertEqual(west, diff_pos((1, 1), (0, 1)))
         self.assertEqual(stop, diff_pos((1, 1), (1, 1)))
 
-        self.assertRaises(ValueError, diff_pos, (0, 0), (1, 1))
-
-    def test_is_adjacent(self):
-        self.assertTrue(is_adjacent((0, 0), (1, 0)))
-        self.assertTrue(is_adjacent((0, 0), (0, 1)))
-        self.assertFalse(is_adjacent((0, 0), (1, 1)))
-
-        self.assertTrue(is_adjacent((1, 0), (0, 0)))
-        self.assertTrue(is_adjacent((0, 1), (0, 0)))
-        self.assertFalse(is_adjacent((1, 1), (0, 0)))
-
-        self.assertFalse(is_adjacent((0, 0), (0, 0)))
-        self.assertFalse(is_adjacent((1, 1), (1, 1)))
+    def test_diff_pos_arbitrary(self):
+        vectors = [(0, 0), (0, 1), (-1, 1), (-2, 3)]
+        orig = (1, 1)
+        for vec in vectors:
+            new = new_pos(orig, vec)
+            self.assertEqual(vec, diff_pos(orig, new))
 
     def test_manhattan_dist(self):
         self.assertEqual(0, manhattan_dist((0, 0), (0, 0)))

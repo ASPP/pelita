@@ -37,15 +37,7 @@ def new_pos(position, move):
     new_pos : tuple of int (x, y)
         new position coordinates
 
-    Raises
-    ------
-    ValueError
-        if move is not one of the 5 possible moves
-        (`north`, `south`, `east`, `west` or `stop`)
-
     """
-    if move not in moves:
-        raise ValueError("%s is not a valid move tuple" % repr(move))
     pos_x = position[0] + move[0]
     pos_y = position[1] + move[1]
     return (pos_x, pos_y)
@@ -54,8 +46,7 @@ def diff_pos(initial, target):
     """ Return the move required to move from one position to another.
 
     Will return the move required to transition from `initial` to `target`. If
-    `initial` equals `target` this is `stop`. If the two are not adjacent a
-    `ValueError` will be raised.
+    `initial` equals `target` this is `stop`.
 
     Parameters
     ----------
@@ -69,41 +60,8 @@ def diff_pos(initial, target):
     move : tuple of (int, int)
         the resulting move
 
-    Raises
-    ------
-    ValueError
-        if `initial` is not adjacent to `target`
-
     """
-    if initial == target:
-        return stop
-    elif not is_adjacent(initial, target):
-        raise ValueError('%r is not adjacent to %r' % (initial, target))
-    else:
-        return (target[0]-initial[0], target[1]-initial[1])
-
-def is_adjacent(pos1, pos2):
-    """ Check that two positions are adjacent.
-
-    This will check that the Manhattan distance between two positions is exactly
-    one. This function does not take into account if the resulting position is a
-    legal position in a Maze.
-
-    Parameters
-    ----------
-    pos1 : tuple of (int, int)
-        the first position
-    pos2 : tuple of (int, int)
-        the second position
-
-    Returns
-    -------
-    is_adjacent : boolean
-        True if pos1 is adjacent to pos2 and False otherwise
-
-    """
-    return (pos1[0] == pos2[0] and abs(pos1[1] - pos2[1]) == 1 or
-        pos1[1] == pos2[1] and abs(pos1[0] - pos2[0]) == 1)
+    return (target[0]-initial[0], target[1]-initial[1])
 
 def manhattan_dist(pos1, pos2):
     """ Manhattan distance between two points.
@@ -120,7 +78,7 @@ def manhattan_dist(pos1, pos2):
     manhattan_dist : int
         Manhattan distance between two points
     """
-    return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
+    return sum(abs(idx) for idx in diff_pos(pos1, pos2))
 
 @serializable
 class Team(object):
@@ -782,8 +740,12 @@ class CTFUniverse(object):
         """
         legal_moves_dict = {}
         for move, new_pos in self.neighbourhood(position).items():
-            if Free in self.maze[new_pos]:
-                legal_moves_dict[move] = new_pos
+            try:
+                if Free in self.maze[new_pos]:
+                    legal_moves_dict[move] = new_pos
+            except IndexError:
+                # If we’re outside the maze, it is not a legal move.
+                pass
         return legal_moves_dict
 
     def get_legal_moves_or_stop(self, position):

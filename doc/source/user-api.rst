@@ -72,7 +72,6 @@ Accessing ``pelita.datamodel``
 .. autosummary::
 
     diff_pos
-    is_adjacent
     manhattan_dist
     new_pos
 

@@ -208,7 +208,6 @@ and distances in `pelita.datamodel`:
 
     new_pos
     diff_pos
-    is_adjacent
     manhattan_dist
 
 A Basic Offensive Player
