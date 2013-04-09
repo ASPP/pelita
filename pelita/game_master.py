@@ -347,7 +347,7 @@ class GameMaster(object):
                                   bot.team_index,
                                   bot.index))
 
-            moves = self.universe.get_legal_moves_or_stop(bot.current_pos).keys()
+            moves = self.universe.legal_moves_or_stop(bot.current_pos).keys()
 
             move = self.rnd.choice(moves)
             move_state = self.universe.move_bot(bot.index, move)

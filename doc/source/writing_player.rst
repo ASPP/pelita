@@ -346,9 +346,9 @@ each position, all of them available in ``pelita.datamodel``: ``Wall``,
 
     maze.pos_of(Free)
 
-Then, we use the method ``get_legal_moves(pos).values()`` to obtain the
-adjacent free spaces, for each of the free positions.  The last step is to use
-the ``update`` method to set the generated dictionary, which we can do, since
+Then, we use the method ``legal_moves(pos).values()`` to obtain the adjacent
+free spaces, for each of the free positions.  The last step is to use the
+``update`` method to set the generated dictionary, which we can do, since
 ``AdjacencyList`` inherits from ``dict``.
 
 In addition to ``pos_of``, there are a few additional constructs that are
@@ -440,7 +440,7 @@ example look at the implementation of ``legal_moves``:
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer.legal_moves
 
-Here we can see that this simply calls the method ``get_legal_moves(pos)``
+Here we can see that this simply calls the method ``legal_moves(pos)``
 which is provided by ``CTFUniverse``. We also see one of the convenience
 properties used in the ``bfs_food()`` method: ``current_pos`` which returns the
 current position of the bot.  Let's have a look at this:

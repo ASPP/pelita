@@ -345,7 +345,7 @@ class AbstractPlayer(object):
         legal_moves : dict mapping moves to positions
             the currently legal moves
         """
-        return self.current_uni.get_legal_moves(self.current_pos)
+        return self.current_uni.legal_moves(self.current_pos)
 
     def time_spent(self):
         """ The approximate amount of time since `get_move` was

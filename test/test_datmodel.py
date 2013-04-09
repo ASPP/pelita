@@ -602,7 +602,7 @@ class TestCTFUniverse(unittest.TestCase):
 
 class TestCTFUniverseRules(unittest.TestCase):
 
-    def test_get_legal_moves(self):
+    def test_legal_moves(self):
         test_legal = (
             """ ######
                 #  # #
@@ -610,55 +610,55 @@ class TestCTFUniverseRules(unittest.TestCase):
                 #    #
                 ###### """)
         universe = create_CTFUniverse(test_legal, 0)
-        legal_moves_1_1 = universe.get_legal_moves((1, 1))
+        legal_moves_1_1 = universe.legal_moves((1, 1))
         target = {east  : (2, 1),
                   south : (1, 2),
                   stop  : (1, 1)}
         self.assertEqual(target, legal_moves_1_1)
-        legal_moves_2_1 = universe.get_legal_moves((2, 1))
+        legal_moves_2_1 = universe.legal_moves((2, 1))
         target = {west  : (1, 1),
                   south : (2, 2),
                   stop  : (2, 1)}
         self.assertEqual(target, legal_moves_2_1)
-        legal_moves_4_1 = universe.get_legal_moves((4, 1))
+        legal_moves_4_1 = universe.legal_moves((4, 1))
         target = { stop : (4, 1)}
         self.assertEqual(target, legal_moves_4_1)
-        legal_moves_1_2 = universe.get_legal_moves((1, 2))
+        legal_moves_1_2 = universe.legal_moves((1, 2))
         target = {north : (1, 1),
                   east  : (2, 2),
                   south : (1, 3),
                   stop  : (1, 2)}
         self.assertEqual(target, legal_moves_1_2)
-        legal_moves_2_2 = universe.get_legal_moves((2, 2))
+        legal_moves_2_2 = universe.legal_moves((2, 2))
         target = {north : (2, 1),
                   east  : (3, 2),
                   south : (2, 3),
                   west  : (1, 2),
                   stop  : (2, 2)}
         self.assertEqual(target, legal_moves_2_2)
-        legal_moves_3_2 = universe.get_legal_moves((3, 2))
+        legal_moves_3_2 = universe.legal_moves((3, 2))
         target = {south : (3, 3),
                   west  : (2, 2),
                   stop  : (3, 2)}
         self.assertEqual(target, legal_moves_3_2)
-        legal_moves_1_3 = universe.get_legal_moves((1, 3))
+        legal_moves_1_3 = universe.legal_moves((1, 3))
         target = {north : (1, 2),
                   east  : (2, 3),
                   stop  : (1, 3)}
         self.assertEqual(target, legal_moves_1_3)
-        legal_moves_2_3 = universe.get_legal_moves((2, 3))
+        legal_moves_2_3 = universe.legal_moves((2, 3))
         target = {north : (2, 2),
                   east  : (3, 3),
                   west  : (1, 3),
                   stop  : (2, 3)}
         self.assertEqual(target, legal_moves_2_3)
         # 3, 3 has the same options as 2, 3
-        legal_moves_4_3 = universe.get_legal_moves((4, 3))
+        legal_moves_4_3 = universe.legal_moves((4, 3))
         target = {west  : (3, 3),
                   stop  : (4, 3)}
         self.assertEqual(target, legal_moves_4_3)
 
-    def test_get_legal_moves_or_stop(self):
+    def test_legal_moves_or_stop(self):
         test_legal = (
             """ ######
                 #  # #
@@ -666,43 +666,43 @@ class TestCTFUniverseRules(unittest.TestCase):
                 #    #
                 ###### """)
         universe = create_CTFUniverse(test_legal, 0)
-        legal_moves_1_1 = universe.get_legal_moves_or_stop((1, 1))
+        legal_moves_1_1 = universe.legal_moves_or_stop((1, 1))
         target = {east  : (2, 1),
                   south : (1, 2)}
         self.assertEqual(target, legal_moves_1_1)
-        legal_moves_2_1 = universe.get_legal_moves_or_stop((2, 1))
+        legal_moves_2_1 = universe.legal_moves_or_stop((2, 1))
         target = {west  : (1, 1),
                   south : (2, 2)}
         self.assertEqual(target, legal_moves_2_1)
-        legal_moves_4_1 = universe.get_legal_moves_or_stop((4, 1))
+        legal_moves_4_1 = universe.legal_moves_or_stop((4, 1))
         target = { stop : (4, 1)}
         self.assertEqual(target, legal_moves_4_1)
-        legal_moves_1_2 = universe.get_legal_moves_or_stop((1, 2))
+        legal_moves_1_2 = universe.legal_moves_or_stop((1, 2))
         target = {north : (1, 1),
                   east  : (2, 2),
                   south : (1, 3)}
         self.assertEqual(target, legal_moves_1_2)
-        legal_moves_2_2 = universe.get_legal_moves_or_stop((2, 2))
+        legal_moves_2_2 = universe.legal_moves_or_stop((2, 2))
         target = {north : (2, 1),
                   east  : (3, 2),
                   south : (2, 3),
                   west  : (1, 2)}
         self.assertEqual(target, legal_moves_2_2)
-        legal_moves_3_2 = universe.get_legal_moves_or_stop((3, 2))
+        legal_moves_3_2 = universe.legal_moves_or_stop((3, 2))
         target = {south : (3, 3),
                   west  : (2, 2)}
         self.assertEqual(target, legal_moves_3_2)
-        legal_moves_1_3 = universe.get_legal_moves_or_stop((1, 3))
+        legal_moves_1_3 = universe.legal_moves_or_stop((1, 3))
         target = {north : (1, 2),
                   east  : (2, 3)}
         self.assertEqual(target, legal_moves_1_3)
-        legal_moves_2_3 = universe.get_legal_moves_or_stop((2, 3))
+        legal_moves_2_3 = universe.legal_moves_or_stop((2, 3))
         target = {north : (2, 2),
                   east  : (3, 3),
                   west  : (1, 3)}
         self.assertEqual(target, legal_moves_2_3)
         # 3, 3 has the same options as 2, 3
-        legal_moves_4_3 = universe.get_legal_moves_or_stop((4, 3))
+        legal_moves_4_3 = universe.legal_moves_or_stop((4, 3))
         target = {west  : (3, 3)}
         self.assertEqual(target, legal_moves_4_3)
 

@@ -117,7 +117,7 @@ Interfacing with the ``CTFUniverse``
     enemy_team
     enemy_bots
     enemy_food
-    get_legal_moves
+    legal_moves
     other_team_bots
     team_border
     team_bots

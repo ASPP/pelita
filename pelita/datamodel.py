@@ -680,7 +680,7 @@ class CTFUniverse(object):
         game_state = {}
 
         bot = self.bots[bot_id]
-        legal_moves_dict = self.get_legal_moves(bot.current_pos)
+        legal_moves_dict = self.legal_moves(bot.current_pos)
         if move not in legal_moves_dict.keys():
             raise IllegalMoveException(
                 'Illegal move from bot_id %r: %s' % (bot_id, move))
@@ -724,7 +724,7 @@ class CTFUniverse(object):
         # TODO:
         # check for state change
 
-    def get_legal_moves(self, position):
+    def legal_moves(self, position):
         """ Obtain legal moves and where they lead.
 
         Parameters
@@ -748,7 +748,7 @@ class CTFUniverse(object):
                 pass
         return legal_moves_dict
 
-    def get_legal_moves_or_stop(self, position):
+    def legal_moves_or_stop(self, position):
         """ Obtain legal moves (and where they lead)
         or just stop if impossible to move.
 
@@ -762,7 +762,7 @@ class CTFUniverse(object):
         legal_moves : dict mapping strings (moves) to positions (x, y)
             the legal moves and where they would lead.
         """
-        moves = self.get_legal_moves(position)
+        moves = self.legal_moves(position)
 
         if len(moves) > 1:
             del moves[stop]
