@@ -854,6 +854,36 @@ class CTFUniverse(object):
         """
         return dict([(move, new_pos(position, move)) for move in moves])
 
+    def reachable(self, initial_positions):
+        """ Returns all reachable positions starting from a list initial positions.
+
+        Parameters
+        ----------
+        initial_positions : list(pos)
+            list of initial positions
+
+        Returns
+        -------
+        adjacency_list : generator of (pos, list(pos))
+            Generator which contains all reachable positions and their adjacencies
+        """
+        from .graph import iter_adjacencies
+        return (it for it in iter_adjacencies(initial_positions, lambda pos: self.legal_moves(pos).values()))
+
+    def free_positions(self):
+        """ Returns an adjacency list for all Free positions.
+
+        Returns
+        -------
+        adjacency_list : generator of (pos, list(pos))
+            Generator which contains all reachable positions and their adjacencies
+        """
+        # Get the list of all free positions.
+        free_pos = self.maze.pos_of(Free)
+        # Here we use a generator on a dictionary to create the adjacency list.
+        return ((pos, self.legal_moves(pos).values()) for pos in free_pos)
+
+
     def _to_json_dict(self):
         return {"maze": self.maze,
                 "teams": self.teams,

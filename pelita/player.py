@@ -563,7 +563,7 @@ class BFSPlayer(AbstractPlayer):
     """
     def set_initial(self):
         # Before the game starts we initialise our adjacency list.
-        self.adjacency = AdjacencyList(self.current_uni)
+        self.adjacency = AdjacencyList(self.current_uni.reachable([self.initial_pos]))
         self.current_path = self.bfs_food()
 
     def bfs_food(self):
@@ -620,7 +620,7 @@ class BasicDefensePlayer(AbstractPlayer):
 
     """
     def set_initial(self):
-        self.adjacency = AdjacencyList(self.current_uni)
+        self.adjacency = AdjacencyList(self.current_uni.reachable([self.initial_pos]))
         self.path = self.path_to_border
         self.tracking_idx = None
 

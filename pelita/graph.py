@@ -4,7 +4,7 @@
 
 from collections import deque
 import heapq
-from .datamodel import Free, manhattan_dist
+from .datamodel import manhattan_dist
 
 __docformat__ = "restructuredtext"
 
@@ -14,6 +14,36 @@ class NoPathException(Exception):
 class NoPositionException(Exception):
     pass
 
+def iter_adjacencies(initial, adjacencies_for_pos):
+    """ Returns an adjacency list starting at the initial positions.
+
+    Given some starting positions and a method which returns the adjacencies
+    per position, we iterate over all reachable positions and their respective
+    neighbours.
+
+    Parameters
+    ----------
+    initial : list(pos)
+        List of initial positions
+    adjacencies_from_pos : callable
+        Given a position, this function should return all reachable positions.
+
+    Returns
+    -------
+    adjacency_list : generator of (pos, list(pos))
+        Generator which contains all reachable positions and their adjacencies
+    """
+    reached = set()
+    todo = set(initial)
+    while todo:
+        pos = todo.pop()
+        legal_moves = adjacencies_for_pos(pos)
+        for move in legal_moves:
+            if move not in reached:
+                todo.add(move)
+        reached.add(pos)
+        yield (pos, legal_moves)
+
 class AdjacencyList(dict):
     """ Adjacency list [1] representation of a Maze.
 
@@ -22,12 +52,8 @@ class AdjacencyList(dict):
     [1] http://en.wikipedia.org/wiki/Adjacency_list
 
     """
-    def __init__(self, universe):
-        # Get the list of all free positions.
-        free_pos = universe.maze.pos_of(Free)
-        # Here we use a generator on a dictionary to create the adjacency list.
-        gen = ((pos, universe.legal_moves(pos).values()) for pos in free_pos)
-        self.update(gen)
+    def __init__(self, adjacencies):
+        self.update(adjacencies)
 
     def pos_within(self, position, distance):
         """ Position within a certain distance.
