@@ -27,7 +27,7 @@ class AdjacencyList(dict):
         free_pos = universe.maze.pos_of(Free)
         # Here we use a generator on a dictionary to create the adjacency list.
         gen = ((pos, universe.legal_moves(pos).values()) for pos in free_pos)
-        self.update(dict(gen))
+        self.update(gen)
 
     def pos_within(self, position, distance):
         """ Position within a certain distance.
