@@ -3,6 +3,8 @@
 """ The datamodel. """
 
 import copy
+from .graph import new_pos, diff_pos, manhattan_dist
+from .graph import iter_adjacencies
 from .layout import Layout
 from .containers import Mesh
 from .messaging.json_convert import serializable
@@ -20,65 +22,6 @@ moves = [north, south, east, west, stop]
 
 # the number of points to score when killing
 KILLPOINTS=5
-
-def new_pos(position, move):
-    """ Adds a position tuple and a move tuple.
-
-    Parameters
-    ----------
-    position : tuple of int (x, y)
-        current position
-
-    move : tuple of int (x, y)
-        direction vector
-
-    Returns
-    -------
-    new_pos : tuple of int (x, y)
-        new position coordinates
-
-    """
-    pos_x = position[0] + move[0]
-    pos_y = position[1] + move[1]
-    return (pos_x, pos_y)
-
-def diff_pos(initial, target):
-    """ Return the move required to move from one position to another.
-
-    Will return the move required to transition from `initial` to `target`. If
-    `initial` equals `target` this is `stop`.
-
-    Parameters
-    ----------
-    initial : tuple of (int, int)
-        the starting position
-    target : tuple of (int, int)
-        the target position
-
-    Returns
-    -------
-    move : tuple of (int, int)
-        the resulting move
-
-    """
-    return (target[0]-initial[0], target[1]-initial[1])
-
-def manhattan_dist(pos1, pos2):
-    """ Manhattan distance between two points.
-
-    Parameters
-    ----------
-    pos1 : tuple of (int, int)
-        the first position
-    pos2 : tuple of (int, int)
-        the second position
-
-    Returns
-    -------
-    manhattan_dist : int
-        Manhattan distance between two points
-    """
-    return sum(abs(idx) for idx in diff_pos(pos1, pos2))
 
 @serializable
 class Team(object):
@@ -867,7 +810,6 @@ class CTFUniverse(object):
         adjacency_list : generator of (pos, list(pos))
             Generator which contains all reachable positions and their adjacencies
         """
-        from .graph import iter_adjacencies
         return (it for it in iter_adjacencies(initial_positions, lambda pos: self.legal_moves(pos).values()))
 
     def free_positions(self):
