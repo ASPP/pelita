@@ -3,6 +3,7 @@ import json
 from pelita.layout import Layout
 from pelita.containers import Mesh
 from pelita.datamodel import *
+from pelita.graph import new_pos
 from pelita.messaging.json_convert import json_converter
 
 
@@ -11,49 +12,6 @@ from pelita.messaging.json_convert import json_converter
 layout_chars = maze_components
 
 class TestStaticmethods(unittest.TestCase):
-
-    def test_new_pos(self):
-        self.assertEqual(new_pos((1, 1), north), (1, 0))
-        self.assertEqual(new_pos((1, 1), south), (1, 2))
-        self.assertEqual(new_pos((1, 1), east), (2, 1))
-        self.assertEqual(new_pos((1, 1), west), (0, 1))
-        self.assertEqual(new_pos((1, 1), stop), (1, 1))
-        self.assertEqual(new_pos((0, 0), (1, 1)), (1, 1))
-
-    def test_diff_pos(self):
-        self.assertEqual(north, diff_pos((1, 1), (1, 0)))
-        self.assertEqual(south, diff_pos((1, 1), (1, 2)))
-        self.assertEqual(east, diff_pos((1, 1), (2, 1)))
-        self.assertEqual(west, diff_pos((1, 1), (0, 1)))
-        self.assertEqual(stop, diff_pos((1, 1), (1, 1)))
-
-    def test_diff_pos_arbitrary(self):
-        vectors = [(0, 0), (0, 1), (-1, 1), (-2, 3)]
-        orig = (1, 1)
-        for vec in vectors:
-            new = new_pos(orig, vec)
-            self.assertEqual(vec, diff_pos(orig, new))
-
-    def test_manhattan_dist(self):
-        self.assertEqual(0, manhattan_dist((0, 0), (0, 0)))
-        self.assertEqual(0, manhattan_dist((1, 1), (1, 1)))
-        self.assertEqual(0, manhattan_dist((20, 20), (20, 20)))
-
-        self.assertEqual(1, manhattan_dist((0, 0), (1, 0)))
-        self.assertEqual(1, manhattan_dist((0, 0), (0, 1)))
-        self.assertEqual(1, manhattan_dist((1, 0), (0, 0)))
-        self.assertEqual(1, manhattan_dist((0, 1), (0, 0)))
-
-        self.assertEqual(2, manhattan_dist((0, 0), (1, 1)))
-        self.assertEqual(2, manhattan_dist((1, 1), (0, 0)))
-        self.assertEqual(2, manhattan_dist((1, 0), (0, 1)))
-        self.assertEqual(2, manhattan_dist((0, 1), (1, 0)))
-        self.assertEqual(2, manhattan_dist((0, 0), (2, 0)))
-        self.assertEqual(2, manhattan_dist((0, 0), (0, 2)))
-        self.assertEqual(2, manhattan_dist((2, 0), (0, 0)))
-        self.assertEqual(2, manhattan_dist((0, 2), (0, 0)))
-
-        self.assertEqual(4, manhattan_dist((1, 2), (3, 4)))
 
     def test_get_initial_positions(self):
 

@@ -6,9 +6,8 @@ import random
 import sys
 import time
 from . import datamodel
-from .graph import NoPathException
-from .datamodel import CTFUniverse, Bot, Free, manhattan_dist
-from .graph import AdjacencyList
+from .graph import NoPathException, AdjacencyList, manhattan_dist
+from .datamodel import CTFUniverse, Bot, Free
 
 __docformat__ = "restructuredtext"
 

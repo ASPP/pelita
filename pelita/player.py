@@ -10,8 +10,7 @@ import math
 import abc
 import pdb
 from . import datamodel
-from .datamodel import Free, diff_pos
-from .graph import AdjacencyList, NoPathException
+from .graph import AdjacencyList, NoPathException, diff_pos
 
 __docformat__ = "restructuredtext"
 
