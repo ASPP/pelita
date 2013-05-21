@@ -10,9 +10,6 @@ __docformat__ = "restructuredtext"
 class NoPathException(Exception):
     pass
 
-class NoPositionException(Exception):
-    pass
-
 def new_pos(position, move):
     """ Adds a position tuple and a move tuple.
 
@@ -114,7 +111,7 @@ class AdjacencyList(dict):
         self.update(adjacencies)
 
     def pos_within(self, position, distance):
-        """ Position within a certain distance.
+        """ Positions within a certain distance.
 
         Calculates all positions within a certain distance of a target
         `position` in maze space. Within means strictly less than (`<`) in this
@@ -135,13 +132,11 @@ class AdjacencyList(dict):
 
         Raises
         ------
-        NoPositionException
-            if either `initial` or `targets` does not exist
+        NoPathException
+            if `position` does not exist in the adjacency list
 
         """
-        if position not in self.keys():
-            raise NoPositionException("Position %s does not exist." %
-                    repr(position))
+        self._check_pos_exist([position])
         positions = set([position])
         to_visit = [position]
         for i in range(distance):
@@ -153,16 +148,16 @@ class AdjacencyList(dict):
             to_visit = local_to_visit
         return positions
 
-    def _check_pos_exists(self, positions):
+    def _check_pos_exist(self, positions):
         for pos in positions:
             if pos not in self.keys():
-                raise NoPositionException("Position %s does not exist." %
+                raise NoPathException("Position %s does not exist in adjacency list." %
                         repr(pos))
 
     def bfs(self, initial, targets):
         """ Breadth first search (bfs).
 
-        Breadth first search [1] from one position to multiple tragets. The
+        Breadth first search [1] from one position to multiple targets. The
         search will return a path from the `initial` position to the closest
         position in `targets`.
 
@@ -189,7 +184,7 @@ class AdjacencyList(dict):
 
         """
         # First check that the arguments were valid.
-        self._check_pos_exists([initial] + targets)
+        self._check_pos_exist([initial] + targets)
         # Initialise `to_visit` of type `deque` with current position.
         # We use a `deque` since we need to extend to the right
         # but pop from the left, i.e. its a fifo queue.
@@ -263,7 +258,7 @@ class AdjacencyList(dict):
 
         """
         # First check that the arguments were valid.
-        self._check_pos_exists([initial, target])
+        self._check_pos_exist([initial, target])
         to_visit = []
         # Seen needs to be list since we use it for backtracking.
         # A set would make the lookup faster, but backtracking impossible.

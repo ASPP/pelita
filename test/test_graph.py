@@ -2,7 +2,7 @@
 
 import unittest
 from pelita.datamodel import create_CTFUniverse, Free
-from pelita.graph import AdjacencyList, NoPathException, NoPositionException
+from pelita.graph import AdjacencyList, NoPathException
 
 class TestAdjacencyList(unittest.TestCase):
 
@@ -14,12 +14,15 @@ class TestAdjacencyList(unittest.TestCase):
             #     . #  .  .#3#
             ################## """)
         universe = create_CTFUniverse(test_layout, 4)
-        al = AdjacencyList(universe)
+        al = AdjacencyList(universe.free_positions())
         free = set(universe.maze.pos_of(Free))
 
-        self.assertRaises(NoPositionException, al.pos_within, (0, 0), 0)
-        self.assertRaises(NoPositionException, al.pos_within, (6, 2), 0)
+        self.assertFalse((0, 0) in al)
+        self.assertRaises(NoPathException, al.pos_within, (0, 0), 0)
+        self.assertFalse((6, 2) in al)
+        self.assertRaises(NoPathException, al.pos_within, (6, 2), 0)
 
+        self.assertTrue((1, 1) in al)
         self.assertEqual(set([(1, 1)]), al.pos_within((1, 1), 0))
         target = set([(1, 1), (1, 2), (1,3), (2, 3), (3, 3), (3, 3)])
         self.assertEqual(target, al.pos_within((1, 1), 5))
@@ -35,7 +38,7 @@ class TestAdjacencyList(unittest.TestCase):
             #    #
             ###### """)
         universe = create_CTFUniverse(test_layout, 0)
-        al = AdjacencyList(universe)
+        al = AdjacencyList(universe.free_positions())
         target = { (4, 1): [(4, 1), (3, 1)],
                    (1, 1): [(2, 1), (1, 1)],
                    (2, 1): [(3, 1), (2, 1), (1, 1)],
@@ -50,7 +53,7 @@ class TestAdjacencyList(unittest.TestCase):
             #     . #  .  .#1#
             ################## """)
         universe = create_CTFUniverse(test_layout, 2)
-        al = AdjacencyList(universe)
+        al = AdjacencyList(universe.free_positions())
 
         adjacency_target = {(7, 3): [(7, 2), (7, 3), (6, 3)],
          (1, 3): [(1, 2), (2, 3), (1, 3)],
@@ -94,7 +97,7 @@ class TestAdjacencyList(unittest.TestCase):
             #0.     #.1#
             ############ """)
         universe = create_CTFUniverse(test_layout, 2)
-        al = AdjacencyList(universe)
+        al = AdjacencyList(universe.free_positions())
         self.assertEqual([], al.bfs((1,1), [(1, 1), (2, 1)]))
 
     def test_a_star(self):
@@ -105,7 +108,7 @@ class TestAdjacencyList(unittest.TestCase):
             #     . #  .  .#3#
             ################## """)
         universe = create_CTFUniverse(test_layout, 4)
-        al = AdjacencyList(universe)
+        al = AdjacencyList(universe.free_positions())
         # just a simple smoke test
         self.assertEqual(14, len(al.a_star((1, 1), (3, 1))))
 
@@ -115,11 +118,11 @@ class TestAdjacencyList(unittest.TestCase):
             #0.     #.1#
             ############ """)
         universe = create_CTFUniverse(test_layout, 2)
-        al = AdjacencyList(universe)
+        al = AdjacencyList(universe.free_positions())
         self.assertRaises(NoPathException, al.bfs, (1, 1), [(10, 1)])
         self.assertRaises(NoPathException, al.bfs, (1, 1), [(10, 1), (9, 1)])
-        self.assertRaises(NoPositionException, al.bfs, (0, 1), [(10, 1)])
-        self.assertRaises(NoPositionException, al.bfs, (1, 1), [(11, 1)])
+        self.assertRaises(NoPathException, al.bfs, (0, 1), [(10, 1)])
+        self.assertRaises(NoPathException, al.bfs, (1, 1), [(11, 1)])
 
     def test_a_star_exceptions(self):
         test_layout = (
@@ -127,7 +130,7 @@ class TestAdjacencyList(unittest.TestCase):
             #0.     #.1#
             ############ """)
         universe = create_CTFUniverse(test_layout, 2)
-        al = AdjacencyList(universe)
+        al = AdjacencyList(universe.free_positions())
         self.assertRaises(NoPathException, al.a_star, (1, 1), (10, 1))
-        self.assertRaises(NoPositionException, al.a_star, (0, 1), (10, 1))
-        self.assertRaises(NoPositionException, al.a_star, (1, 1), (11, 1))
+        self.assertRaises(NoPathException, al.a_star, (0, 1), (10, 1))
+        self.assertRaises(NoPathException, al.a_star, (1, 1), (11, 1))
