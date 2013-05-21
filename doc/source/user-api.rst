@@ -67,14 +67,6 @@ Accessing ``pelita.datamodel``
 
 .. currentmodule:: pelita.datamodel
 
-.. rubric:: Convenience Functions
-
-.. autosummary::
-
-    diff_pos
-    manhattan_dist
-    new_pos
-
 .. rubric:: Important Classes
 
 .. autosummary::
@@ -91,6 +83,19 @@ Accessing ``pelita.datamodel``
     Wall
     Free
     Food
+
+Helper functions in ``pelita.graph``
+--------------------------
+
+.. currentmodule:: pelita.graph
+
+.. rubric:: Convenience Functions
+
+.. autosummary::
+
+    new_pos
+    diff_pos
+    manhattan_dist
 
 Interfacing with the ``CTFUniverse``
 ------------------------------------

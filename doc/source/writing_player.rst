@@ -199,9 +199,9 @@ Note that Manhattan and maze distances are always integer values.
 In the game, distances are almost always measured either in Manhattan or in 
 maze distance.
 We provide a series of convenience methods for dealing with position 
-and distances in `pelita.datamodel`:
+and distances in `pelita.graph`:
 
-.. currentmodule:: pelita.datamodel
+.. currentmodule:: pelita.graph
 
 .. autosummary::
    :nosignatures:
