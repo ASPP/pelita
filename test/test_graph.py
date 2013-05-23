@@ -2,7 +2,7 @@
 
 import unittest
 from pelita.datamodel import create_CTFUniverse, Free, north, south, west, east, stop
-from pelita.graph import new_pos, diff_pos, manhattan_dist, AdjacencyList, NoPathException
+from pelita.graph import new_pos, diff_pos, manhattan_dist, AdjacencyList, NoPathException, iter_adjacencies
 
 
 class TestStaticmethods(unittest.TestCase):
@@ -50,6 +50,29 @@ class TestStaticmethods(unittest.TestCase):
 
         self.assertEqual(4, manhattan_dist((1, 2), (3, 4)))
 
+    def test_iter_adjacencies(self):
+        def onedim_lattice(n, max_size):
+            return [neighbour for neighbour in [n - 1, n + 1] if abs(neighbour) <= max_size]
+
+        # starting at 0, we’ll get all 21 points:
+        adjs0 = list(iter_adjacencies([0], lambda n: onedim_lattice(n, 10)))
+        self.assertEqual(21, len(adjs0))
+        self.assertEqual(set(range(-10, 11)), set(dict(adjs0).keys()))
+
+        # starting at 11, we’ll get 22 points
+        adjs1 = list(iter_adjacencies([11], lambda n: onedim_lattice(n, 10)))
+        self.assertEqual(22, len(adjs1))
+        self.assertEqual(set(range(-10, 12)), set(dict(adjs1).keys()))
+
+        # starting at 12, we’ll get 1 point
+        adjs2 = list(iter_adjacencies([12], lambda n: onedim_lattice(n, 10)))
+        self.assertEqual(1, len(adjs2))
+        self.assertEqual([(12, [])], list(adjs2))
+
+        # starting at [0, 12], we’ll get adjs0 | adjs2
+        adjs3 = list(iter_adjacencies([0, 12], lambda n: onedim_lattice(n, 10)))
+        self.assertEqual(22, len(adjs3))
+        self.assertEqual(sorted(adjs0 + adjs2), sorted(adjs3))
 
 class TestAdjacencyList(unittest.TestCase):
 
