@@ -102,7 +102,8 @@ def iter_adjacencies(initial, adjacencies_for_pos):
 class AdjacencyList(dict):
     """ Adjacency list [1] representation of a Maze.
 
-    Implemented by inheriting from `dict`.
+    The `AdjacencyList` is mostly a wrapper for a `dict`. Given a position,
+    it returns the positions reachable from there.
 
     [1] http://en.wikipedia.org/wiki/Adjacency_list
 

@@ -233,6 +233,11 @@ above example we initialise the adjacency list representation of the maze. As
 mentioned previously the current state of the universe is always available as
 ``current_uni``. Within ``set_initial()`` this is the starting state.
 
+In order to fill the adjacency list with entries, we make use of the helper
+method ``CTFUniverse.reachable``, which iterates through all positions that are
+reachable from set of initial positions. This ensures that we only deal with
+positions that we can actually move to.
+
 Additionally, there is a low-level dict which includes all other game related
 information: ``current_state``. ``current_state`` is the current copy of the
 internal ``GameMaster.game_state`` dict. It holds for example the current round
