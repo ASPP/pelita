@@ -233,7 +233,7 @@ class AdjacencyList(dict):
 
         A* (A Star) [1] from one position to another. The search will return the
         shortest path from the `initial` position to the `target` using the
-        Manhatten distance as a heuristic.
+        Manhattan distance as a heuristic.
 
         Parameters
         ----------
