@@ -199,16 +199,15 @@ Note that Manhattan and maze distances are always integer values.
 In the game, distances are almost always measured either in Manhattan or in 
 maze distance.
 We provide a series of convenience methods for dealing with position 
-and distances in `pelita.datamodel`:
+and distances in `pelita.graph`:
 
-.. currentmodule:: pelita.datamodel
+.. currentmodule:: pelita.graph
 
 .. autosummary::
    :nosignatures:
 
     new_pos
     diff_pos
-    is_adjacent
     manhattan_dist
 
 A Basic Offensive Player
@@ -233,6 +232,11 @@ stage food is still present, and all bots are at their initial position. In the
 above example we initialise the adjacency list representation of the maze. As
 mentioned previously the current state of the universe is always available as
 ``current_uni``. Within ``set_initial()`` this is the starting state.
+
+In order to fill the adjacency list with entries, we make use of the helper
+method ``CTFUniverse.reachable``, which iterates through all positions that are
+reachable from set of initial positions. This ensures that we only deal with
+positions that we can actually move to.
 
 Additionally, there is a low-level dict which includes all other game related
 information: ``current_state``. ``current_state`` is the current copy of the
@@ -347,9 +351,9 @@ each position, all of them available in ``pelita.datamodel``: ``Wall``,
 
     maze.pos_of(Free)
 
-Then, we use the method ``get_legal_moves(pos).values()`` to obtain the
-adjacent free spaces, for each of the free positions.  The last step is to use
-the ``update`` method to set the generated dictionary, which we can do, since
+Then, we use the method ``legal_moves(pos).values()`` to obtain the adjacent
+free spaces, for each of the free positions.  The last step is to use the
+``update`` method to set the generated dictionary, which we can do, since
 ``AdjacencyList`` inherits from ``dict``.
 
 In addition to ``pos_of``, there are a few additional constructs that are
@@ -441,7 +445,7 @@ example look at the implementation of ``legal_moves``:
 .. literalinclude:: ../../pelita/player.py
    :pyobject: AbstractPlayer.legal_moves
 
-Here we can see that this simply calls the method ``get_legal_moves(pos)``
+Here we can see that this simply calls the method ``legal_moves(pos)``
 which is provided by ``CTFUniverse``. We also see one of the convenience
 properties used in the ``bfs_food()`` method: ``current_pos`` which returns the
 current position of the bot.  Let's have a look at this:

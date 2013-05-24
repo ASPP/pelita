@@ -3,6 +3,8 @@
 """ The datamodel. """
 
 import copy
+from .graph import new_pos, diff_pos, manhattan_dist
+from .graph import iter_adjacencies
 from .layout import Layout
 from .containers import Mesh
 from .messaging.json_convert import serializable
@@ -20,107 +22,6 @@ moves = [north, south, east, west, stop]
 
 # the number of points to score when killing
 KILLPOINTS=5
-
-def new_pos(position, move):
-    """ Adds a position tuple and a move tuple.
-
-    Parameters
-    ----------
-    position : tuple of int (x, y)
-        current position
-
-    move : tuple of int (x, y)
-        direction vector
-
-    Returns
-    -------
-    new_pos : tuple of int (x, y)
-        new position coordinates
-
-    Raises
-    ------
-    ValueError
-        if move is not one of the 5 possible moves
-        (`north`, `south`, `east`, `west` or `stop`)
-
-    """
-    if move not in moves:
-        raise ValueError("%s is not a valid move tuple" % repr(move))
-    pos_x = position[0] + move[0]
-    pos_y = position[1] + move[1]
-    return (pos_x, pos_y)
-
-def diff_pos(initial, target):
-    """ Return the move required to move from one position to another.
-
-    Will return the move required to transition from `initial` to `target`. If
-    `initial` equals `target` this is `stop`. If the two are not adjacent a
-    `ValueError` will be raised.
-
-    Parameters
-    ----------
-    initial : tuple of (int, int)
-        the starting position
-    target : tuple of (int, int)
-        the target position
-
-    Returns
-    -------
-    move : tuple of (int, int)
-        the resulting move
-
-    Raises
-    ------
-    ValueError
-        if `initial` is not adjacent to `target`
-
-    """
-    if initial == target:
-        return stop
-    elif not is_adjacent(initial, target):
-        raise ValueError('%r is not adjacent to %r' % (initial, target))
-    else:
-        return (target[0]-initial[0], target[1]-initial[1])
-
-def is_adjacent(pos1, pos2):
-    """ Check that two positions are adjacent.
-
-    This will check that the Manhattan distance between two positions is exactly
-    one. This function does not take into account if the resulting position is a
-    legal position in a Maze.
-
-    Parameters
-    ----------
-    pos1 : tuple of (int, int)
-        the first position
-    pos2 : tuple of (int, int)
-        the second position
-
-    Returns
-    -------
-    is_adjacent : boolean
-        True if pos1 is adjacent to pos2 and False otherwise
-
-    """
-    return (pos1[0] == pos2[0] and abs(pos1[1] - pos2[1]) == 1 or
-        pos1[1] == pos2[1] and abs(pos1[0] - pos2[0]) == 1)
-
-def manhattan_dist(pos1, pos2):
-    """ Manhattan distance between two points.
-
-    Parameters
-    ----------
-    pos1 : tuple of (int, int)
-        the first position
-    pos2 : tuple of (int, int)
-        the second position
-
-    Returns
-    -------
-    manhattan_dist : int
-        Manhattan distance between two points
-    """
-    return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
 @serializable
 class Team(object):
@@ -722,7 +623,7 @@ class CTFUniverse(object):
         game_state = {}
 
         bot = self.bots[bot_id]
-        legal_moves_dict = self.get_legal_moves(bot.current_pos)
+        legal_moves_dict = self.legal_moves(bot.current_pos)
         if move not in legal_moves_dict.keys():
             raise IllegalMoveException(
                 'Illegal move from bot_id %r: %s' % (bot_id, move))
@@ -766,7 +667,7 @@ class CTFUniverse(object):
         # TODO:
         # check for state change
 
-    def get_legal_moves(self, position):
+    def legal_moves(self, position):
         """ Obtain legal moves and where they lead.
 
         Parameters
@@ -782,11 +683,15 @@ class CTFUniverse(object):
         """
         legal_moves_dict = {}
         for move, new_pos in self.neighbourhood(position).items():
-            if Free in self.maze[new_pos]:
-                legal_moves_dict[move] = new_pos
+            try:
+                if Free in self.maze[new_pos]:
+                    legal_moves_dict[move] = new_pos
+            except IndexError:
+                # If we’re outside the maze, it is not a legal move.
+                pass
         return legal_moves_dict
 
-    def get_legal_moves_or_stop(self, position):
+    def legal_moves_or_stop(self, position):
         """ Obtain legal moves (and where they lead)
         or just stop if impossible to move.
 
@@ -800,7 +705,7 @@ class CTFUniverse(object):
         legal_moves : dict mapping strings (moves) to positions (x, y)
             the legal moves and where they would lead.
         """
-        moves = self.get_legal_moves(position)
+        moves = self.legal_moves(position)
 
         if len(moves) > 1:
             del moves[stop]
@@ -891,6 +796,35 @@ class CTFUniverse(object):
 
         """
         return dict([(move, new_pos(position, move)) for move in moves])
+
+    def reachable(self, initial_positions):
+        """ Returns all reachable positions starting from a list initial positions.
+
+        Parameters
+        ----------
+        initial_positions : list(pos)
+            list of initial positions
+
+        Returns
+        -------
+        adjacency_list : generator of (pos, list(pos))
+            Generator which contains all reachable positions and their adjacencies
+        """
+        return (it for it in iter_adjacencies(initial_positions, lambda pos: self.legal_moves(pos).values()))
+
+    def free_positions(self):
+        """ Returns an adjacency list for all Free positions.
+
+        Returns
+        -------
+        adjacency_list : generator of (pos, list(pos))
+            Generator which contains all reachable positions and their adjacencies
+        """
+        # Get the list of all free positions.
+        free_pos = self.maze.pos_of(Free)
+        # Here we use a generator on a dictionary to create the adjacency list.
+        return ((pos, self.legal_moves(pos).values()) for pos in free_pos)
+
 
     def _to_json_dict(self):
         return {"maze": self.maze,

@@ -4,33 +4,115 @@
 
 from collections import deque
 import heapq
-from .datamodel import Free, manhattan_dist
 
 __docformat__ = "restructuredtext"
 
 class NoPathException(Exception):
     pass
 
-class NoPositionException(Exception):
-    pass
+def new_pos(position, move):
+    """ Adds a position tuple and a move tuple.
+
+    Parameters
+    ----------
+    position : tuple of int (x, y)
+        current position
+
+    move : tuple of int (x, y)
+        direction vector
+
+    Returns
+    -------
+    new_pos : tuple of int (x, y)
+        new position coordinates
+
+    """
+    pos_x = position[0] + move[0]
+    pos_y = position[1] + move[1]
+    return (pos_x, pos_y)
+
+def diff_pos(initial, target):
+    """ Return the move required to move from one position to another.
+
+    Will return the move required to transition from `initial` to `target`. If
+    `initial` equals `target` this is `stop`.
+
+    Parameters
+    ----------
+    initial : tuple of (int, int)
+        the starting position
+    target : tuple of (int, int)
+        the target position
+
+    Returns
+    -------
+    move : tuple of (int, int)
+        the resulting move
+
+    """
+    return (target[0]-initial[0], target[1]-initial[1])
+
+def manhattan_dist(pos1, pos2):
+    """ Manhattan distance between two points.
+
+    Parameters
+    ----------
+    pos1 : tuple of (int, int)
+        the first position
+    pos2 : tuple of (int, int)
+        the second position
+
+    Returns
+    -------
+    manhattan_dist : int
+        Manhattan distance between two points
+    """
+    return sum(abs(idx) for idx in diff_pos(pos1, pos2))
+
+def iter_adjacencies(initial, adjacencies_for_pos):
+    """ Returns an adjacency list starting at the initial positions.
+
+    Given some starting positions and a method which returns the adjacencies
+    per position, we iterate over all reachable positions and their respective
+    neighbours.
+
+    Parameters
+    ----------
+    initial : list(pos)
+        List of initial positions
+    adjacencies_from_pos : callable
+        Given a position, this function should return all reachable positions.
+
+    Returns
+    -------
+    adjacency_list : generator of (pos, list(pos))
+        Generator which contains all reachable positions and their adjacencies
+    """
+    reached = set()
+    todo = set(initial)
+    while todo:
+        pos = todo.pop()
+        legal_moves = adjacencies_for_pos(pos)
+        for move in legal_moves:
+            if move not in reached:
+                todo.add(move)
+        reached.add(pos)
+        yield (pos, legal_moves)
 
 class AdjacencyList(dict):
     """ Adjacency list [1] representation of a Maze.
 
-    Implemented by inheriting from `dict`.
+    The `AdjacencyList` is mostly a wrapper for a `dict`. Given a position,
+    it returns the positions reachable from there.
 
     [1] http://en.wikipedia.org/wiki/Adjacency_list
 
     """
-    def __init__(self, universe):
-        # Get the list of all free positions.
-        free_pos = universe.maze.pos_of(Free)
-        # Here we use a generator on a dictionary to create the adjacency list.
-        gen = ((pos, universe.get_legal_moves(pos).values()) for pos in free_pos)
-        self.update(dict(gen))
+    def __init__(self, adjacencies):
+        self.update(adjacencies)
 
     def pos_within(self, position, distance):
-        """ Position within a certain distance.
+        """ Positions within a certain distance.
 
         Calculates all positions within a certain distance of a target
         `position` in maze space. Within means strictly less than (`<`) in this
@@ -51,13 +133,11 @@ class AdjacencyList(dict):
 
         Raises
         ------
-        NoPositionException
-            if either `initial` or `targets` does not exist
+        NoPathException
+            if `position` does not exist in the adjacency list
 
         """
-        if position not in self.keys():
-            raise NoPositionException("Position %s does not exist." %
-                    repr(position))
+        self._check_pos_exist([position])
         positions = set([position])
         to_visit = [position]
         for i in range(distance):
@@ -69,16 +149,16 @@ class AdjacencyList(dict):
             to_visit = local_to_visit
         return positions
 
-    def _check_pos_exists(self, positions):
+    def _check_pos_exist(self, positions):
         for pos in positions:
             if pos not in self.keys():
-                raise NoPositionException("Position %s does not exist." %
+                raise NoPathException("Position %s does not exist in adjacency list." %
                         repr(pos))
 
     def bfs(self, initial, targets):
         """ Breadth first search (bfs).
 
-        Breadth first search [1] from one position to multiple tragets. The
+        Breadth first search [1] from one position to multiple targets. The
         search will return a path from the `initial` position to the closest
         position in `targets`.
 
@@ -105,7 +185,7 @@ class AdjacencyList(dict):
 
         """
         # First check that the arguments were valid.
-        self._check_pos_exists([initial] + targets)
+        self._check_pos_exist([initial] + targets)
         # Initialise `to_visit` of type `deque` with current position.
         # We use a `deque` since we need to extend to the right
         # but pop from the left, i.e. its a fifo queue.
@@ -154,7 +234,7 @@ class AdjacencyList(dict):
 
         A* (A Star) [1] from one position to another. The search will return the
         shortest path from the `initial` position to the `target` using the
-        Manhatten distance as a heuristic.
+        Manhattan distance as a heuristic.
 
         Parameters
         ----------
@@ -179,7 +259,7 @@ class AdjacencyList(dict):
 
         """
         # First check that the arguments were valid.
-        self._check_pos_exists([initial, target])
+        self._check_pos_exist([initial, target])
         to_visit = []
         # Seen needs to be list since we use it for backtracking.
         # A set would make the lookup faster, but backtracking impossible.

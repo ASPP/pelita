@@ -10,8 +10,7 @@ import math
 import abc
 import pdb
 from . import datamodel
-from .datamodel import Free, diff_pos
-from .graph import AdjacencyList, NoPathException
+from .graph import AdjacencyList, NoPathException, diff_pos
 
 __docformat__ = "restructuredtext"
 
@@ -345,7 +344,7 @@ class AbstractPlayer(object):
         legal_moves : dict mapping moves to positions
             the currently legal moves
         """
-        return self.current_uni.get_legal_moves(self.current_pos)
+        return self.current_uni.legal_moves(self.current_pos)
 
     def time_spent(self):
         """ The approximate amount of time since `get_move` was
@@ -563,7 +562,7 @@ class BFSPlayer(AbstractPlayer):
     """
     def set_initial(self):
         # Before the game starts we initialise our adjacency list.
-        self.adjacency = AdjacencyList(self.current_uni)
+        self.adjacency = AdjacencyList(self.current_uni.reachable([self.initial_pos]))
         self.current_path = self.bfs_food()
 
     def bfs_food(self):
@@ -589,9 +588,12 @@ class BFSPlayer(AbstractPlayer):
         if not self.current_path:
             self.current_path = self.bfs_food()
         new_pos = self.current_path.pop()
-        try:
-            return diff_pos(self.current_pos, new_pos)
-        except ValueError:
+        move = diff_pos(self.current_pos, new_pos)
+
+        if move in self.legal_moves:
+            return move
+        else:
+            # Whoops. We’re lost.
             # If there was a timeout, and we are no longer where we think we
             # were, calculate a new path.
             self.current_path = None
@@ -617,7 +619,7 @@ class BasicDefensePlayer(AbstractPlayer):
 
     """
     def set_initial(self):
-        self.adjacency = AdjacencyList(self.current_uni)
+        self.adjacency = AdjacencyList(self.current_uni.reachable([self.initial_pos]))
         self.path = self.path_to_border
         self.tracking_idx = None
 
