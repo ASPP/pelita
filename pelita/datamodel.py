@@ -18,8 +18,6 @@ west  = (-1, 0)
 east  = (1, 0)
 stop  = (0, 0)
 
-moves = [north, south, east, west, stop]
-
 # the number of points to score when killing
 KILLPOINTS=5
 
@@ -447,6 +445,8 @@ class CTFUniverse(object):
 
         return cls(maze, teams, bots)
 
+    #: All possible (but not necessarily legal) moves
+    _moves = [north, south, east, west, stop]
 
     def __init__(self, maze, teams, bots):
         self.maze = maze
@@ -794,7 +794,7 @@ class CTFUniverse(object):
             mapping of moves to new positions (x, y)
 
         """
-        return dict([(move, new_pos(position, move)) for move in moves])
+        return dict([(move, new_pos(position, move)) for move in self._moves])
 
     def reachable(self, initial_positions):
         """ Returns all reachable positions starting from a list initial positions.
