@@ -6,9 +6,8 @@ import random
 import sys
 import time
 from . import datamodel
-from .graph import NoPathException
-from .datamodel import CTFUniverse, Bot, Free, manhattan_dist
-from .graph import AdjacencyList
+from .graph import NoPathException, AdjacencyList, manhattan_dist
+from .datamodel import CTFUniverse, Bot, Free
 
 __docformat__ = "restructuredtext"
 
@@ -347,7 +346,7 @@ class GameMaster(object):
                                   bot.team_index,
                                   bot.index))
 
-            moves = self.universe.get_legal_moves_or_stop(bot.current_pos).keys()
+            moves = self.universe.legal_moves_or_stop(bot.current_pos).keys()
 
             move = self.rnd.choice(moves)
             move_state = self.universe.move_bot(bot.index, move)
@@ -487,7 +486,7 @@ class UniverseNoiser(object):
     """
 
     def __init__(self, universe, noise_radius=5, sight_distance=5, seed=None):
-        self.adjacency = AdjacencyList(universe)
+        self.adjacency = AdjacencyList(universe.free_positions())
         self.noise_radius = noise_radius
         self.sight_distance = sight_distance
         self.rnd = random.Random(seed)
@@ -544,7 +543,7 @@ class AStarNoiser(UniverseNoiser):
     It uses A* and adjacency maps to measure distances in maze space."""
     def __init__(self, universe, noise_radius=5, sight_distance=5):
         super(AStarNoiser, self).__init__(universe, noise_radius, sight_distance)
-        self.adjacency = AdjacencyList(universe)
+        self.adjacency = AdjacencyList(universe.free_positions())
 
     def distance(self, bot, other_bot):
         try:

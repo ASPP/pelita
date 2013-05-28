@@ -1,8 +1,78 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from pelita.datamodel import create_CTFUniverse, Free
-from pelita.graph import AdjacencyList, NoPathException, NoPositionException
+from pelita.datamodel import create_CTFUniverse, Free, north, south, west, east, stop
+from pelita.graph import new_pos, diff_pos, manhattan_dist, AdjacencyList, NoPathException, iter_adjacencies
+
+
+class TestStaticmethods(unittest.TestCase):
+
+    def test_new_pos(self):
+        self.assertEqual(new_pos((1, 1), north), (1, 0))
+        self.assertEqual(new_pos((1, 1), south), (1, 2))
+        self.assertEqual(new_pos((1, 1), east), (2, 1))
+        self.assertEqual(new_pos((1, 1), west), (0, 1))
+        self.assertEqual(new_pos((1, 1), stop), (1, 1))
+        self.assertEqual(new_pos((0, 0), (1, 1)), (1, 1))
+
+    def test_diff_pos(self):
+        self.assertEqual(north, diff_pos((1, 1), (1, 0)))
+        self.assertEqual(south, diff_pos((1, 1), (1, 2)))
+        self.assertEqual(east, diff_pos((1, 1), (2, 1)))
+        self.assertEqual(west, diff_pos((1, 1), (0, 1)))
+        self.assertEqual(stop, diff_pos((1, 1), (1, 1)))
+
+    def test_diff_pos_arbitrary(self):
+        vectors = [(0, 0), (0, 1), (-1, 1), (-2, 3)]
+        orig = (1, 1)
+        for vec in vectors:
+            new = new_pos(orig, vec)
+            self.assertEqual(vec, diff_pos(orig, new))
+
+    def test_manhattan_dist(self):
+        self.assertEqual(0, manhattan_dist((0, 0), (0, 0)))
+        self.assertEqual(0, manhattan_dist((1, 1), (1, 1)))
+        self.assertEqual(0, manhattan_dist((20, 20), (20, 20)))
+
+        self.assertEqual(1, manhattan_dist((0, 0), (1, 0)))
+        self.assertEqual(1, manhattan_dist((0, 0), (0, 1)))
+        self.assertEqual(1, manhattan_dist((1, 0), (0, 0)))
+        self.assertEqual(1, manhattan_dist((0, 1), (0, 0)))
+
+        self.assertEqual(2, manhattan_dist((0, 0), (1, 1)))
+        self.assertEqual(2, manhattan_dist((1, 1), (0, 0)))
+        self.assertEqual(2, manhattan_dist((1, 0), (0, 1)))
+        self.assertEqual(2, manhattan_dist((0, 1), (1, 0)))
+        self.assertEqual(2, manhattan_dist((0, 0), (2, 0)))
+        self.assertEqual(2, manhattan_dist((0, 0), (0, 2)))
+        self.assertEqual(2, manhattan_dist((2, 0), (0, 0)))
+        self.assertEqual(2, manhattan_dist((0, 2), (0, 0)))
+
+        self.assertEqual(4, manhattan_dist((1, 2), (3, 4)))
+
+    def test_iter_adjacencies(self):
+        def onedim_lattice(n, max_size):
+            return [neighbour for neighbour in [n - 1, n + 1] if abs(neighbour) <= max_size]
+
+        # starting at 0, we’ll get all 21 points:
+        adjs0 = list(iter_adjacencies([0], lambda n: onedim_lattice(n, 10)))
+        self.assertEqual(21, len(adjs0))
+        self.assertEqual(set(range(-10, 11)), set(dict(adjs0).keys()))
+
+        # starting at 11, we’ll get 22 points
+        adjs1 = list(iter_adjacencies([11], lambda n: onedim_lattice(n, 10)))
+        self.assertEqual(22, len(adjs1))
+        self.assertEqual(set(range(-10, 12)), set(dict(adjs1).keys()))
+
+        # starting at 12, we’ll get 1 point
+        adjs2 = list(iter_adjacencies([12], lambda n: onedim_lattice(n, 10)))
+        self.assertEqual(1, len(adjs2))
+        self.assertEqual([(12, [])], list(adjs2))
+
+        # starting at [0, 12], we’ll get adjs0 | adjs2
+        adjs3 = list(iter_adjacencies([0, 12], lambda n: onedim_lattice(n, 10)))
+        self.assertEqual(22, len(adjs3))
+        self.assertEqual(sorted(adjs0 + adjs2), sorted(adjs3))
 
 class TestAdjacencyList(unittest.TestCase):
 
@@ -14,12 +84,15 @@ class TestAdjacencyList(unittest.TestCase):
             #     . #  .  .#3#
             ################## """)
         universe = create_CTFUniverse(test_layout, 4)
-        al = AdjacencyList(universe)
+        al = AdjacencyList(universe.free_positions())
         free = set(universe.maze.pos_of(Free))
 
-        self.assertRaises(NoPositionException, al.pos_within, (0, 0), 0)
-        self.assertRaises(NoPositionException, al.pos_within, (6, 2), 0)
+        self.assertFalse((0, 0) in al)
+        self.assertRaises(NoPathException, al.pos_within, (0, 0), 0)
+        self.assertFalse((6, 2) in al)
+        self.assertRaises(NoPathException, al.pos_within, (6, 2), 0)
 
+        self.assertTrue((1, 1) in al)
         self.assertEqual(set([(1, 1)]), al.pos_within((1, 1), 0))
         target = set([(1, 1), (1, 2), (1,3), (2, 3), (3, 3), (3, 3)])
         self.assertEqual(target, al.pos_within((1, 1), 5))
@@ -35,7 +108,7 @@ class TestAdjacencyList(unittest.TestCase):
             #    #
             ###### """)
         universe = create_CTFUniverse(test_layout, 0)
-        al = AdjacencyList(universe)
+        al = AdjacencyList(universe.free_positions())
         target = { (4, 1): [(4, 1), (3, 1)],
                    (1, 1): [(2, 1), (1, 1)],
                    (2, 1): [(3, 1), (2, 1), (1, 1)],
@@ -50,7 +123,7 @@ class TestAdjacencyList(unittest.TestCase):
             #     . #  .  .#1#
             ################## """)
         universe = create_CTFUniverse(test_layout, 2)
-        al = AdjacencyList(universe)
+        al = AdjacencyList(universe.free_positions())
 
         adjacency_target = {(7, 3): [(7, 2), (7, 3), (6, 3)],
          (1, 3): [(1, 2), (2, 3), (1, 3)],
@@ -94,7 +167,7 @@ class TestAdjacencyList(unittest.TestCase):
             #0.     #.1#
             ############ """)
         universe = create_CTFUniverse(test_layout, 2)
-        al = AdjacencyList(universe)
+        al = AdjacencyList(universe.free_positions())
         self.assertEqual([], al.bfs((1,1), [(1, 1), (2, 1)]))
 
     def test_a_star(self):
@@ -105,7 +178,7 @@ class TestAdjacencyList(unittest.TestCase):
             #     . #  .  .#3#
             ################## """)
         universe = create_CTFUniverse(test_layout, 4)
-        al = AdjacencyList(universe)
+        al = AdjacencyList(universe.free_positions())
         # just a simple smoke test
         self.assertEqual(14, len(al.a_star((1, 1), (3, 1))))
 
@@ -115,11 +188,11 @@ class TestAdjacencyList(unittest.TestCase):
             #0.     #.1#
             ############ """)
         universe = create_CTFUniverse(test_layout, 2)
-        al = AdjacencyList(universe)
+        al = AdjacencyList(universe.free_positions())
         self.assertRaises(NoPathException, al.bfs, (1, 1), [(10, 1)])
         self.assertRaises(NoPathException, al.bfs, (1, 1), [(10, 1), (9, 1)])
-        self.assertRaises(NoPositionException, al.bfs, (0, 1), [(10, 1)])
-        self.assertRaises(NoPositionException, al.bfs, (1, 1), [(11, 1)])
+        self.assertRaises(NoPathException, al.bfs, (0, 1), [(10, 1)])
+        self.assertRaises(NoPathException, al.bfs, (1, 1), [(11, 1)])
 
     def test_a_star_exceptions(self):
         test_layout = (
@@ -127,7 +200,7 @@ class TestAdjacencyList(unittest.TestCase):
             #0.     #.1#
             ############ """)
         universe = create_CTFUniverse(test_layout, 2)
-        al = AdjacencyList(universe)
+        al = AdjacencyList(universe.free_positions())
         self.assertRaises(NoPathException, al.a_star, (1, 1), (10, 1))
-        self.assertRaises(NoPositionException, al.a_star, (0, 1), (10, 1))
-        self.assertRaises(NoPositionException, al.a_star, (1, 1), (11, 1))
+        self.assertRaises(NoPathException, al.a_star, (0, 1), (10, 1))
+        self.assertRaises(NoPathException, al.a_star, (1, 1), (11, 1))
