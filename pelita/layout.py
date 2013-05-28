@@ -88,7 +88,7 @@ def get_layout_by_name(layout_name):
     # decode and return this layout
     try:
         return __layouts.__dict__[layout_name].decode('base64').decode('zlib')
-    except KeyError, ke:
+    except KeyError as ke:
         # This happens if layout_name is not a valid key in the __dict__.
         # I.e. if the layout_name is not available.
         # The error message would be to terse "KeyError: 'non_existing_layout'",
