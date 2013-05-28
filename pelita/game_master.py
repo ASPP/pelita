@@ -5,6 +5,7 @@
 import random
 import sys
 import time
+import abc
 from . import datamodel
 from .graph import NoPathException, AdjacencyList, manhattan_dist
 from .datamodel import CTFUniverse, Bot, Free
@@ -485,6 +486,8 @@ class UniverseNoiser(object):
 
     """
 
+    __metaclass__ =  abc.ABCMeta
+
     def __init__(self, universe, noise_radius=5, sight_distance=5, seed=None):
         self.adjacency = AdjacencyList(universe.free_positions())
         self.noise_radius = noise_radius
@@ -530,11 +533,15 @@ class UniverseNoiser(object):
 
         return universe_copy
 
+    @abc.abstractmethod
     def distance(self, bot, other_bot):
-        return NotImplementedError
+        """ Method to return the noiser-relevant distance between two bots.
+        """
 
+    @abc.abstractmethod
     def alter_pos(self, bot_pos):
-        return NotImplementedError
+        """ Method to return a new position for a bot.
+        """
 
 
 class AStarNoiser(UniverseNoiser):
