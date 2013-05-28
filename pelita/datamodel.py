@@ -359,64 +359,6 @@ def extract_initial_positions(mesh, number_bots):
     return start
 
 
-def create_CTFUniverse(layout_str, number_bots,
-        team_names=None):
-    """ Factory to create a 2-Player Capture The Flag Universe.
-
-    Parameters
-    ----------
-    layout_str : str
-        the string encoding the maze layout
-    number_bots : int
-        the number of bots in the game
-    team_names : length 2 list of strings, optional
-        default = None -> ['black', 'white']
-        the names of the playing teams
-
-    Raises
-    ------
-    UniverseException
-        if the number of bots or layout width are odd
-    LayoutEncodingException
-        if there is something wrong with the layout_str, see `Layout()`
-
-    """
-    if team_names is None:
-        team_names = ["black", "white"]
-
-    layout_chars = maze_components
-
-    if number_bots % 2 != 0:
-        raise UniverseException(
-            "Number of bots in CTF must be even, is: %i"
-            % number_bots)
-    layout = Layout(layout_str, layout_chars, number_bots)
-    layout_mesh = layout.as_mesh()
-    initial_pos = extract_initial_positions(layout_mesh, number_bots)
-    maze = create_maze(layout_mesh)
-    if maze.width % 2 != 0:
-        raise UniverseException(
-            "Width of a layout for CTF must be even, is: %i"
-            % maze.width)
-    homezones = [(0, maze.width // 2 - 1),
-            (maze.width // 2, maze.width - 1)]
-
-    teams = []
-    teams.append(Team(0, team_names[0], homezones[0], bots=range(0,
-        number_bots, 2)))
-    teams.append(Team(1, team_names[1], homezones[1], bots=range(1,
-        number_bots, 2)))
-
-    bots = []
-    for bot_index in range(number_bots):
-        team_index = bot_index % 2
-        bot = Bot(bot_index, initial_pos[bot_index],
-                team_index, homezones[team_index])
-        bots.append(bot)
-
-    return CTFUniverse(maze, teams, bots)
-
-
 class UniverseException(Exception):
     """ Standard error in the Universe. """
     pass
@@ -447,6 +389,63 @@ class CTFUniverse(object):
         the positions of all edible food
 
     """
+
+    @classmethod
+    def create(cls, layout_str, number_bots, team_names=None):
+        """ Factory to create a 2-Player Capture The Flag Universe.
+
+        Parameters
+        ----------
+        layout_str : str
+            the string encoding the maze layout
+        number_bots : int
+            the number of bots in the game
+        team_names : length 2 list of strings, optional
+            default = None -> ['black', 'white']
+            the names of the playing teams
+
+        Raises
+        ------
+        UniverseException
+            if the number of bots or layout width are odd
+        LayoutEncodingException
+            if there is something wrong with the layout_str, see `Layout()`
+
+        """
+        if team_names is None:
+            team_names = ["black", "white"]
+
+        layout_chars = maze_components
+
+        if number_bots % 2 != 0:
+            raise UniverseException(
+                "Number of bots in CTF must be even, is: %i"
+                % number_bots)
+        layout = Layout(layout_str, layout_chars, number_bots)
+        layout_mesh = layout.as_mesh()
+        initial_pos = extract_initial_positions(layout_mesh, number_bots)
+        maze = create_maze(layout_mesh)
+        if maze.width % 2 != 0:
+            raise UniverseException(
+                "Width of a layout for CTF must be even, is: %i"
+                % maze.width)
+        homezones = [(0, maze.width // 2 - 1),
+                (maze.width // 2, maze.width - 1)]
+
+        teams = []
+        teams.append(Team(0, team_names[0], homezones[0], bots=range(0,
+            number_bots, 2)))
+        teams.append(Team(1, team_names[1], homezones[1], bots=range(1,
+            number_bots, 2)))
+
+        bots = []
+        for bot_index in range(number_bots):
+            team_index = bot_index % 2
+            bot = Bot(bot_index, initial_pos[bot_index],
+                    team_index, homezones[team_index])
+            bots.append(bot)
+
+        return cls(maze, teams, bots)
 
 
     def __init__(self, maze, teams, bots):
