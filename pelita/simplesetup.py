@@ -37,7 +37,6 @@ import zmq
 
 from .messaging import DeadConnection
 from .messaging.json_convert import json_converter
-from .layout import get_random_layout, get_layout_by_name
 from .game_master import GameMaster, PlayerTimeout, PlayerDisconnected
 from .viewer import AbstractViewer
 
@@ -241,22 +240,13 @@ class SimpleServer(object):
     -----
     Initialise as follows::
 
-        server = SimpleServer(layout_file="mymaze.layout", rounds=3000)
+        server = SimpleServer(layout=layout, rounds=3000)
         server.run()
-
-    The Parameters 'layout_string', 'layout_name' and 'layout_file' are mutually
-    exclusive. If neither is supplied, a layout will be selected at random.
 
     Parameters
     ----------
-    layout_string : string, optional
-        The layout as a string.
-    layout_name : string, optional
-        The name of an available layout
-    layout_file : filename, optional
-        A file which holds a layout.
-    layout_filter : string, optional
-        A filter to restrict the pool of random layouts
+    layout : string
+        initial layout as string
     teams : int, optional
         The number of Teams used in the layout. Default: 2.
     players : int, optional
@@ -267,6 +257,8 @@ class SimpleServer(object):
         The address(es) which this server uses for its connections. Default: "tcp://*".
     initial_delay : float
         Delays the start of the game by `initial_delay` seconds.
+    layout_name : string, optional
+        The name of the given layout string.
     seed : int, optional
         The initial seed to be passed to GameMaster.
     parseable_output : Boolean
@@ -280,41 +272,19 @@ class SimpleServer(object):
         if layout_file was given, but file does not exist
 
     """
-    def __init__(self, layout_string=None, layout_name=None, layout_file=None,
-                 layout_filter='normal_without_dead_ends',
-                 teams=2, players=4, rounds=3000, bind_addrs="tcp://*",
-                 initial_delay=0.0, max_timeouts=5, timeout_length=3, seed=None,
-                 parseable_output=False):
-
-        if (layout_string and layout_name or
-            layout_string and layout_file or
-            layout_name and layout_file or
-            layout_string and layout_name and layout_file):
-            raise  ValueError("Can only supply one of: 'layout_string'"+\
-                              "'layout_name' or 'layout_file'")
-
-        elif layout_string:
-            self.layout = layout_string
-            self.layout_name = ""
-        elif layout_name:
-            self.layout = get_layout_by_name(layout_name)
-            self.layout_name = layout_name
-        elif layout_file:
-            with open(layout_file) as file:
-                self.layout = file.read()
-                self.layout_name = file.name
-        else:
-            self.layout_name, self.layout = get_random_layout(filter=layout_filter)
+    def __init__(self, layout_string, teams=2, players=4, rounds=3000, bind_addrs="tcp://*",
+                 initial_delay=0.0, max_timeouts=5, timeout_length=3, layout_name=None,
+                 seed=None, parseable_output=False):
 
         self.players = players
         self.number_of_teams = teams
         self.rounds = rounds
 
-        self.game_master = GameMaster(self.layout, self.players, self.rounds,
+        self.game_master = GameMaster(layout_string, self.players, self.rounds,
                                       initial_delay=initial_delay,
                                       max_timeouts=max_timeouts,
                                       timeout_length=timeout_length,
-                                      layout_name=self.layout_name,
+                                      layout_name=layout_name,
                                       seed=seed, parseable_output=parseable_output)
 
         if isinstance(bind_addrs, tuple):
