@@ -4,7 +4,7 @@ import unittest
 import time
 import collections
 import pelita
-from pelita.datamodel import Wall, Free, Food, create_CTFUniverse, KILLPOINTS
+from pelita.datamodel import Wall, Free, Food, CTFUniverse, KILLPOINTS
 
 from pelita.game_master import GameMaster, UniverseNoiser, AStarNoiser, ManhattanNoiser, PlayerTimeout
 from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer, StoppingPlayer
@@ -125,7 +125,7 @@ class TestUniverseNoiser(unittest.TestCase):
             # #####    ##### #
             #  0  . #  .  .#1#
             ################## """)
-        universe = create_CTFUniverse(test_layout, 2)
+        universe = CTFUniverse.create(test_layout, 2)
         noiser = AStarNoiser(universe.copy())
 
         position_bucket = collections.defaultdict(int)
@@ -147,7 +147,7 @@ class TestUniverseNoiser(unittest.TestCase):
             # #####    ##### #
             #  0  . #  .  .#1#
             ################## """)
-        universe = create_CTFUniverse(test_layout, 2)
+        universe = CTFUniverse.create(test_layout, 2)
         noiser = ManhattanNoiser(universe.copy())
 
         position_bucket = collections.defaultdict(int)
@@ -171,7 +171,7 @@ class TestUniverseNoiser(unittest.TestCase):
             # #####    #####3#
             #  0  . #  .  .#1#
             ################## """)
-        universe = create_CTFUniverse(test_layout, 4)
+        universe = CTFUniverse.create(test_layout, 4)
         noiser = AStarNoiser(universe.copy())
 
         expected_0 = [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
@@ -202,7 +202,7 @@ class TestUniverseNoiser(unittest.TestCase):
             # #####    #####3#
             #   0  . # .  .#1#
             ################## """)
-        universe = create_CTFUniverse(test_layout, 4)
+        universe = CTFUniverse.create(test_layout, 4)
         noiser = ManhattanNoiser(universe.copy())
 
         expected_0 = [ (1, 1), (1, 2), (1, 3), (2, 3), (3, 3),
@@ -238,7 +238,7 @@ class TestUniverseNoiser(unittest.TestCase):
             # #####    #####3#
             #  0  . #  .  .#1#
             ################## """)
-        universe = create_CTFUniverse(test_layout, 4)
+        universe = CTFUniverse.create(test_layout, 4)
         noiser = AStarNoiser(universe.copy())
 
         expected_0 = [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
@@ -270,7 +270,7 @@ class TestUniverseNoiser(unittest.TestCase):
             # #####    #####3#
             #  0  . #  .  .#1#
             ################## """)
-        universe = create_CTFUniverse(test_layout, 4)
+        universe = CTFUniverse.create(test_layout, 4)
         noiser = ManhattanNoiser(universe.copy())
 
         expected_0 = [ (1, 1), (3, 1), (4, 1), (5, 1), (6, 1),
@@ -304,7 +304,7 @@ class TestUniverseNoiser(unittest.TestCase):
             #  0# . #  .  . 1#
             ################## """)
         # noiser should not find a connection
-        universe = create_CTFUniverse(test_layout, 4)
+        universe = CTFUniverse.create(test_layout, 4)
 
         positions = [b.current_pos for b in universe.bots]
 
@@ -325,7 +325,7 @@ class TestUniverseNoiser(unittest.TestCase):
             ###0###### .  . 1#
             ################## """)
         # noiser should not find a connection
-        universe = create_CTFUniverse(test_layout, 4)
+        universe = CTFUniverse.create(test_layout, 4)
 
         positions = [b.current_pos for b in universe.bots]
 
@@ -371,7 +371,7 @@ class TestGame(unittest.TestCase):
 
         def create_TestUniverse(layout, black_score=0, white_score=0):
             initial_pos = [(1, 1), (4, 2)]
-            universe = create_CTFUniverse(layout, number_bots)
+            universe = CTFUniverse.create(layout, number_bots)
             universe.teams[0].score = black_score
             universe.teams[1].score = white_score
             for i, pos in enumerate(initial_pos):
