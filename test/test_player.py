@@ -2,7 +2,7 @@ import unittest
 import time
 import random
 from pelita.player import *
-from pelita.datamodel import create_CTFUniverse, north, stop, east, west
+from pelita.datamodel import CTFUniverse, north, stop, east, west
 from pelita.game_master import GameMaster
 from pelita.viewer import AsciiViewer
 
@@ -584,7 +584,7 @@ class TestSimpleTeam(unittest.TestCase):
                 #01#
                 #### """
         )
-        dummy_universe = create_CTFUniverse(layout, 2)
+        dummy_universe = CTFUniverse.create(layout, 2)
         team1 = SimpleTeam(TestPlayer('^'), TestPlayer('>'))
 
         dummy_universe.teams[0].bots = [1, 5, 10]

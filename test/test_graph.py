@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from pelita.datamodel import create_CTFUniverse, Free, north, south, west, east, stop
+from pelita.datamodel import CTFUniverse, Free, north, south, west, east, stop
 from pelita.graph import new_pos, diff_pos, manhattan_dist, AdjacencyList, NoPathException, iter_adjacencies
 
 
@@ -83,7 +83,7 @@ class TestAdjacencyList(unittest.TestCase):
             #2#####    #####1#
             #     . #  .  .#3#
             ################## """)
-        universe = create_CTFUniverse(test_layout, 4)
+        universe = CTFUniverse.create(test_layout, 4)
         al = AdjacencyList(universe.free_positions())
         free = set(universe.maze.pos_of(Free))
 
@@ -107,7 +107,7 @@ class TestAdjacencyList(unittest.TestCase):
         """ ######
             #    #
             ###### """)
-        universe = create_CTFUniverse(test_layout, 0)
+        universe = CTFUniverse.create(test_layout, 0)
         al = AdjacencyList(universe.free_positions())
         target = { (4, 1): [(4, 1), (3, 1)],
                    (1, 1): [(2, 1), (1, 1)],
@@ -122,7 +122,7 @@ class TestAdjacencyList(unittest.TestCase):
             # #####    ##### #
             #     . #  .  .#1#
             ################## """)
-        universe = create_CTFUniverse(test_layout, 2)
+        universe = CTFUniverse.create(test_layout, 2)
         al = AdjacencyList(universe.free_positions())
 
         adjacency_target = {(7, 3): [(7, 2), (7, 3), (6, 3)],
@@ -166,7 +166,7 @@ class TestAdjacencyList(unittest.TestCase):
         """ ############
             #0.     #.1#
             ############ """)
-        universe = create_CTFUniverse(test_layout, 2)
+        universe = CTFUniverse.create(test_layout, 2)
         al = AdjacencyList(universe.free_positions())
         self.assertEqual([], al.bfs((1,1), [(1, 1), (2, 1)]))
 
@@ -177,7 +177,7 @@ class TestAdjacencyList(unittest.TestCase):
             #2#####    #####1#
             #     . #  .  .#3#
             ################## """)
-        universe = create_CTFUniverse(test_layout, 4)
+        universe = CTFUniverse.create(test_layout, 4)
         al = AdjacencyList(universe.free_positions())
         # just a simple smoke test
         self.assertEqual(14, len(al.a_star((1, 1), (3, 1))))
@@ -187,7 +187,7 @@ class TestAdjacencyList(unittest.TestCase):
         """ ############
             #0.     #.1#
             ############ """)
-        universe = create_CTFUniverse(test_layout, 2)
+        universe = CTFUniverse.create(test_layout, 2)
         al = AdjacencyList(universe.free_positions())
         self.assertRaises(NoPathException, al.bfs, (1, 1), [(10, 1)])
         self.assertRaises(NoPathException, al.bfs, (1, 1), [(10, 1), (9, 1)])
@@ -199,7 +199,7 @@ class TestAdjacencyList(unittest.TestCase):
         """ ############
             #0.     #.1#
             ############ """)
-        universe = create_CTFUniverse(test_layout, 2)
+        universe = CTFUniverse.create(test_layout, 2)
         al = AdjacencyList(universe.free_positions())
         self.assertRaises(NoPathException, al.a_star, (1, 1), (10, 1))
         self.assertRaises(NoPathException, al.a_star, (0, 1), (10, 1))
