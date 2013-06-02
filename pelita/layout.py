@@ -13,16 +13,13 @@ class LayoutEncodingException(Exception):
     """ Signifies a problem with the encoding of a layout. """
     pass
 
-def load_layout(layout_string=None, layout_name=None, layout_file=None):
+def load_layout(layout_name=None, layout_file=None):
     """ Returns the layout_name and layout_string for a given parameter.
 
-    The Parameters 'layout_string', 'layout_name' and 'layout_file' are mutually
-    exclusive.
+    The Parameters 'layout_name' and 'layout_file' are mutually exclusive.
 
     Parameters
     ----------
-    layout_string : string, optional
-        The layout as a string.
     layout_name : string, optional
         The name of an available layout
     layout_file : filename, optional
@@ -34,20 +31,15 @@ def load_layout(layout_string=None, layout_name=None, layout_file=None):
         the name of the layout, a random layout string
     """
 
-
-    if layout_string and not layout_name and not layout_file:
-        layout_name = ""
-        layout_string = layout_string
-    elif layout_name and not layout_string and not layout_file:
+    if layout_name and not layout_file:
         layout_name = layout_name
         layout_string = get_layout_by_name(layout_name)
-    elif layout_file and not layout_string and not layout_name:
+    elif layout_file and not layout_name:
         with open(layout_file) as file:
             layout_name = file.name
             layout_string = file.read()
     else:
-        raise  ValueError("Can only supply one of: 'layout_string'"+\
-                          "'layout_name' or 'layout_file'")
+        raise  ValueError("Can only supply one of: 'layout_name' or 'layout_file'")
 
     return layout_name, layout_string
 
