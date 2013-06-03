@@ -18,9 +18,6 @@ west  = (-1, 0)
 east  = (1, 0)
 stop  = (0, 0)
 
-# the number of points to score when killing
-KILLPOINTS=5
-
 @serializable
 class Team(object):
     """ A team of bots.
@@ -448,6 +445,9 @@ class CTFUniverse(object):
     #: All possible (but not necessarily legal) moves
     _moves = [north, south, east, west, stop]
 
+    #: the number of points to score when killing
+    KILLPOINTS = 5
+
     def __init__(self, maze, teams, bots):
         self.maze = maze
         # TODO make a deepcopy here, so that we can big_bang
@@ -659,7 +659,7 @@ class CTFUniverse(object):
             self.teams[self.bots[food_eaten["bot_id"]].team_index].score += 1
 
         for bot_destroyed in game_state["bot_destroyed"]:
-            self.teams[self.bots[bot_destroyed["destroyed_by"]].team_index].score += KILLPOINTS
+            self.teams[self.bots[bot_destroyed["destroyed_by"]].team_index].score += self.KILLPOINTS
 
         return game_state
 
