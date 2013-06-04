@@ -53,7 +53,8 @@ with some predefined players.
 
 Continue reading: :ref:`writing_a_player`.
 
-Contents:
+Contents
+========
 
 .. toctree::
    :maxdepth: 2
