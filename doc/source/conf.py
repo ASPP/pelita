@@ -44,7 +44,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Pelita'
-copyright = u'2012, Valentin Haenel, Rike-Benjamin Shuppner et. al.'
+copyright = u'2012, Valentin Haenel, Rike-Benjamin Schuppner et. al.'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -184,7 +184,7 @@ html_style = 'pelita.css'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'Pelita.tex', u'Pelita Documentation',
-   u'Valentin Haenel, Rike-Benjamin Shuppner', 'manual'),
+   u'Valentin Haenel, Rike-Benjamin Schuppner', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
