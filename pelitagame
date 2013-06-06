@@ -403,7 +403,7 @@ def run_game():
     else:
         layout_name, layout_string = pelita.layout.load_layout(layout_name=args.layout, layout_file=args.layoutfile)
 
-    server = pelita.simplesetup.SimpleServer(layout=layout_string,
+    server = pelita.simplesetup.SimpleServer(layout_string=layout_string,
                                              rounds=args.rounds,
                                              bind_addrs=(addrs_left, addrs_right),
                                              initial_delay=initial_delay,

@@ -240,12 +240,12 @@ class SimpleServer(object):
     -----
     Initialise as follows::
 
-        server = SimpleServer(layout=layout, rounds=3000)
+        server = SimpleServer(layout_string=layout, rounds=3000)
         server.run()
 
     Parameters
     ----------
-    layout : string
+    layout_string : string
         initial layout as string
     teams : int, optional
         The number of Teams used in the layout. Default: 2.
