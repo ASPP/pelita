@@ -5,6 +5,22 @@ from pelita.layout import *
 
 class TestLayoutModule(unittest.TestCase):
 
+    def test_load_layout(self):
+        # check that too many layout args raise an error
+        layout_name = "layout_normal_with_dead_ends_001"
+        layout_file = "test/test_layout.layout"
+        self.assertRaises(ValueError, load_layout,
+                layout_name=layout_name,
+                layout_file=layout_file)
+        # check that unknown layout_name raises an appropriate error
+        self.assertRaises(ValueError, load_layout, layout_name="foobar")
+        # check that a non existent file raises an error
+        self.assertRaises(IOError, load_layout, layout_file="foobar")
+        # check that stuff behaves as it should
+        self.assertEqual("layout_normal_with_dead_ends_001", load_layout(layout_name=layout_name)[0])
+        self.assertEqual("test/test_layout.layout", load_layout(layout_file=layout_file)[0])
+
+
     def test_get_available_layouts(self):
         available = get_available_layouts()
         self.assertEqual(600, len(available))
