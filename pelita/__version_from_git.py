@@ -6,12 +6,12 @@ import subprocess
 __docformat__ = "restructuredtext"
 
 
-def __get_command_output(command_string, cwd=None):
+def __get_command_output(command, cwd=None):
     """ Execute arbitrary commands.
 
     Parameters
     ----------
-    command_list : strings
+    command : list
         the command and its arguments
 
     cwd : string
@@ -23,8 +23,7 @@ def __get_command_output(command_string, cwd=None):
         the raw output of the command executed
     """
 
-    command_list = command_string.split(' ')
-    p = subprocess.Popen(command_list, stdout=subprocess.PIPE,
+    p = subprocess.Popen(command, stdout=subprocess.PIPE,
             stderr=subprocess.PIPE, cwd=cwd)
     p.wait()
     return p.returncode, p.stdout.read(), p.stderr.read()
@@ -32,9 +31,9 @@ def __get_command_output(command_string, cwd=None):
 class __GitException(Exception):
     pass
 
-def __get_git_output(command, directory):
+def __get_git_output(args, directory):
     try:
-        ret_code, output, error = __get_command_output('git %s' % command,
+        ret_code, output, error = __get_command_output(['git'] + args,
             cwd=directory)
     except OSError as e:
         # if git is not installed, an OSError is raised
@@ -46,14 +45,14 @@ def __get_git_output(command, directory):
 
 def __is_git_repo(directory):
     try:
-        __get_git_output('rev-parse', directory)
+        __get_git_output(['rev-parse'], directory)
     except __GitException:
         return False
     else:
         return True
 
 def __git_describe(directory):
-    return __get_git_output('describe', directory)
+    return __get_git_output(['describe'], directory)
 
 def version():
     pelita_dir = os.path.dirname(__file__)
