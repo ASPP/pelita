@@ -191,6 +191,8 @@ parser.add_argument('--max-timeouts', type=int, default=5,
                     dest='max_timeouts', help='maximum number of timeouts allowed (default: 5)')
 parser.add_argument('--parseable-output', action="store_const", const=True,
                     help='Make game result parseable')
+parser.add_argument('--list-teams', action="store_const", const=True,
+                    help='Print the names of the included default teams.')
 parser.add_argument('--check-team', action="store_const", const=True,
                     help='Check that the team is valid (on first sight) and print its name.')
 
@@ -256,7 +258,7 @@ Team Specification:
 
         $ %(prog)s BFSPlayer,RandomPlayer NQRandomPlayer,BasicDefensePlayer
 
-    Use 'list' as a team to get a list of predefined players.
+    Use --list-teams to get a list of predefined players.
 
   - Using custom players (filename):
     The name of a python file (e.g. '~/my_player.py') which defines
@@ -351,7 +353,7 @@ def run_game():
     except AttributeError:
         pass
 
-    if 'list' in (args.left_team, args.right_team):
+    if args.list_teams:
         print '\n'.join(PLAYERS)
         sys.exit(0)
 
