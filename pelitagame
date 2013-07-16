@@ -468,15 +468,16 @@ def run_game():
         # Something on OS X prevents Tk from running in a forked process.
         # Therefore we cannot use multiprocessing here. subprocess works, though.
         delay = int(1000./args.fps)
+
+        viewer_args = [ str(subscribe_sock) ]
         if args.viewer == 'tk':
             sync_address_tk = args.controller.replace('*', 'localhost')
-            tk_open = "TkViewer(%r, %r, geometry=%r, delay=%r).run()" % (subscribe_sock, sync_address_tk, args.geometry, delay)
-        else:
-            tk_open = "TkViewer(%r, geometry=%r, delay=%r).run()" % (subscribe_sock, args.geometry, delay)
+            viewer_args += ["--controller-address", str(sync_address_tk)]
+        if args.geometry:
+            viewer_args += ["--geometry", "{}x{}".format(*args.geometry)]
+        viewer_args += ["--delay", str(delay)]
 
-        tkprocess = subprocess.Popen([get_python_process(),
-                                      "-c",
-                                      "from pelita.ui.tk_viewer import TkViewer\n" + tk_open])
+        tkprocess = subprocess.Popen([get_python_process(), "tkviewer.py"] + viewer_args)
 
         if args.viewer == 'tk-no-sync':
             time.sleep(0.5)
