@@ -548,18 +548,20 @@ class SimplePublisher(AbstractViewer):
         self.socket = self.context.socket(zmq.PUB)
         bind_socket(self.socket, self.address, '--publish')
 
+    def _send(self, message):
+        as_json = json_converter.dumps(message)
+        self.socket.send(as_json)
+
     def set_initial(self, universe):
         message = {"__action__": "set_initial",
                    "__data__": {"universe": universe}}
-        as_json = json_converter.dumps(message)
-        self.socket.send(as_json)
+        self._send(message)
 
     def observe(self, universe, game_state):
         message = {"__action__": "observe",
                    "__data__": {"universe": universe,
                                 "game_state": game_state}}
-        as_json = json_converter.dumps(message)
-        self.socket.send(as_json)
+        self._send(message)
 
 class SimpleSubscriber(AbstractViewer):
     """ Subscribes to a given zmq socket and passes

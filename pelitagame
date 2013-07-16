@@ -8,6 +8,7 @@ import keyword
 import logging
 import subprocess
 import time
+import json
 
 # silence stupid warnings from logging module
 logging.root.manager.emittedNoHandlerWarning = 1
@@ -20,6 +21,50 @@ except ImportError:
     from pelita.compat import argparse
 
 import pelita
+
+class ReplayPublisher(object):
+    def __init__(self, publish_sock, replayfile):
+        with open(replayfile) as f:
+            self.old_game = f.read().split("\x04")
+
+        self.publisher = pelita.simplesetup.SimplePublisher(publish_sock)
+
+    def run(self):
+        for state in self.old_game:
+            if state:
+                message = {"__action__": "observe",
+                           "__data__": json.loads(state)}
+                self.publisher._send(message)
+
+def get_python_process():
+    py_proc = sys.executable
+    if not py_proc:
+        raise RuntimeError("Cannot retrieve current Python executable.")
+    return py_proc
+
+def run_external_viewer(subscribe_sock, controller, geometry, delay):
+    # Something on OS X prevents Tk from running in a forked process.
+    # Therefore we cannot use multiprocessing here. subprocess works, though.
+    viewer_args = [ str(subscribe_sock) ]
+    if controller:
+        viewer_args += ["--controller-address", str(controller)]
+    if geometry:
+        viewer_args += ["--geometry", "{}x{}".format(*geometry)]
+    if delay:
+        viewer_args += ["--delay", str(delay)]
+
+    return subprocess.Popen([get_python_process(), "tkviewer.py"] + viewer_args)
+
+def call_standalone_pelitagame(team_spec, addr):
+    """ Starts another process with the same Python executable,
+    the same start script (pelitagame) and runs `team_spec`
+    as a standalone client on URL `addr`.
+    """
+    return subprocess.Popen([get_python_process(),
+                             sys.argv[0],
+                             "--standalone-client",
+                             team_spec,
+                             addr])
 
 def check_module(filepath):
     "Throws an ValueError is the specified path is neither a module nor a package."
@@ -126,7 +171,7 @@ def prepare_team(team_spec, standalone=False):
         else:
             addrs = "tcp://*"
             team = load_team(team_spec) or sys.exit(1)
-    return addrs, team, team_spec
+    return addrs, team
 
 
 def start_logging(filename):
@@ -153,20 +198,14 @@ def geometry_string(s):
         raise argparse.ArgumentTypeError(msg)
     return geometry
 
-def get_python_process():
-    py_proc = sys.executable
-    if not py_proc:
-        raise RuntimeError("Cannot retrieve current Python executable.")
-    return py_proc
-
 parser = argparse.ArgumentParser(description='Run a single pelita game',
                                  add_help=False,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
 parser._positionals = parser.add_argument_group('Arguments')
-parser.add_argument('left_team', help='team on the left side', nargs='?',
-                    default="random")
-parser.add_argument('right_team', help='team on the right side', nargs='?',
-                    default="random")
+parser.add_argument('spec_left', help='team on the left side (default: random)', nargs='?',
+                    default=None)
+parser.add_argument('spec_right', help='team on the right side (default: random)', nargs='?',
+                    default=None)
 
 parser._optionals = parser.add_argument_group('Options')
 parser.add_argument('--help', '-h', help='show this help message and exit',
@@ -175,6 +214,9 @@ parser.add_argument('--log', help='print debugging log information to'
                                   ' LOGFILE (default \'pelita.log\')',
                     metavar='LOGFILE', default=argparse.SUPPRESS, nargs='?')
 parser.add_argument('--dump', help='print game dumps to file (will be overwritten)'
+                                  ' DUMPFILE (default \'pelita.dump\')',
+                    metavar='DUMPFILE', default=argparse.SUPPRESS, nargs='?')
+parser.add_argument('--replay', help='replay a dumped game'
                                   ' DUMPFILE (default \'pelita.dump\')',
                     metavar='DUMPFILE', default=argparse.SUPPRESS, nargs='?')
 parser.add_argument('--rounds', type=int, default=300,
@@ -358,12 +400,11 @@ def run_game():
         sys.exit(0)
 
     if args.check_team:
+        if not args.spec_left:
+            raise ValueError("No team specified.")
         # only print the team name.
-        print load_team(args.left_team).team_name
+        print load_team(args.spec_left).team_name
         sys.exit(0)
-
-    addrs_left, bads, spec_left = prepare_team(args.left_team, args.standalone_left)
-    addrs_right, goods, spec_right = prepare_team(args.right_team, args.standalone_right)
 
     def print_team_info(addr, team, spec, info):
         if team is not None:
@@ -376,17 +417,11 @@ def run_game():
     # the first positional argument specifies the team to load
     # the second positional argument specifies the address to connect to
     if args.standalone_client:
-        addr = addrs_right.replace('*', 'localhost')
-        print_team_info(addrs_left, bads, spec_left, "standalone")
-        client = pelita.simplesetup.SimpleClient(bads, address=addr)
+        team = load_team(args.spec_left)
+        addr = args.spec_right.replace('*', 'localhost')
+        print_team_info(None, team, args.spec_left, "standalone")
+        client = pelita.simplesetup.SimpleClient(team, address=addr)
         sys.exit(client.run())
-    else:
-        print_team_info(addrs_left, bads, spec_left, "left")
-        print_team_info(addrs_right, goods, spec_right, "right")
-
-
-    if args.dry_run:
-        sys.exit(0)
 
     try:
         # TODO: Re-include the dump.
@@ -394,73 +429,100 @@ def run_game():
     except AttributeError:
         dump = None
 
-    if args.viewer == 'tk-no-sync':
-        # only use delay when not synced.
-        initial_delay = 0.5
-    else:
-        initial_delay = 0.0
+    try:
+        replayfile = args.replay or 'pelita.dump'
+    except AttributeError:
+        replayfile = None
 
-    if args.filter:
-        layout_name, layout_string = pelita.layout.get_random_layout(args.filter)
-    else:
-        layout_name, layout_string = pelita.layout.load_layout(layout_name=args.layout, layout_file=args.layoutfile)
+    external_players = []
+    external_viewers = []
 
-    server = pelita.simplesetup.SimpleServer(layout_string=layout_string,
-                                             rounds=args.rounds,
-                                             bind_addrs=(addrs_left, addrs_right),
-                                             initial_delay=initial_delay,
-                                             max_timeouts=args.max_timeouts,
-                                             timeout_length=args.timeout_length,
-                                             layout_name=layout_name,
-                                             seed=args.seed,
-                                             parseable_output=args.parseable_output)
-
-    player_clients = []
-    for (addr, team) in zip(server.bind_addresses, [bads, goods]):
-        if team:
-            addr = addr.replace('*', 'localhost')
-            client = pelita.simplesetup.SimpleClient(team, address=addr)
-            player_clients.append(client)
-
-    player_procs = []
-    for client in player_clients:
-        proc = client.autoplay_process()
-        player_procs.append(proc)
-
-    def call_standalone_pelitagame(team_spec, addr):
-        """ Starts another process with the same Python executable,
-        the same start script (pelitagame) and runs `team_spec`
-        as a standalone client on URL `addr`.
-        """
-        return subprocess.Popen([get_python_process(),
-                                 sys.argv[0],
-                                 "--standalone-client",
-                                 team_spec,
-                                 addr])
-
-    if args.standalone_left:
-        sub = call_standalone_pelitagame(spec_left, server.bind_addresses[0])
-    if args.standalone_right:
-        sub = call_standalone_pelitagame(spec_right, server.bind_addresses[1])
-
-    # register the viewers
-    if args.publish_to:
+    if replayfile:
         publish_sock = args.publish_to
         subscribe_sock = publish_sock.replace('*', 'localhost')
-
-        publisher = pelita.simplesetup.SimplePublisher(publish_sock)
-        server.game_master.register_viewer(publisher)
+        replay_publisher = ReplayPublisher(publish_sock, replayfile)
+        if args.viewer.startswith("tk"):
+            args.viewer = "tk-no-sync"
+        runner = replay_publisher.run
     else:
-        publish_sock = subscribe_sock = None
+        if not args.spec_left:
+            args.spec_left = "random"
+        if not args.spec_right:
+            args.spec_right = "random"
 
-    if dump:
-        server.game_master.register_viewer(pelita.viewer.DumpingViewer(open(dump, "w")))
-    if args.viewer == 'ascii':
-        server.game_master.register_viewer(pelita.viewer.AsciiViewer())
-    if args.viewer == 'progress':
-        server.game_master.register_viewer(pelita.viewer.ProgressViewer())
-    if args.viewer == 'null':
-        pass
+        addrs_left, team_left = prepare_team(args.spec_left, args.standalone_left)
+        addrs_right, team_right = prepare_team(args.spec_right, args.standalone_right)
+
+        if args.dry_run:
+            sys.exit(0)
+
+        if args.viewer == 'tk-no-sync':
+            # only use delay when not synced.
+            initial_delay = 0.5
+        else:
+            initial_delay = 0.0
+
+        if args.filter:
+            layout_name, layout_string = pelita.layout.get_random_layout(args.filter)
+        else:
+            layout_name, layout_string = pelita.layout.load_layout(layout_name=args.layout, layout_file=args.layoutfile)
+
+        server = pelita.simplesetup.SimpleServer(layout_string=layout_string,
+                                                 rounds=args.rounds,
+                                                 bind_addrs=(addrs_left, addrs_right),
+                                                 initial_delay=initial_delay,
+                                                 max_timeouts=args.max_timeouts,
+                                                 timeout_length=args.timeout_length,
+                                                 layout_name=layout_name,
+                                                 seed=args.seed,
+                                                 parseable_output=args.parseable_output)
+
+        player_clients = []
+        for (addr, team) in zip(server.bind_addresses, [team_left, team_right]):
+            if team:
+                addr = addr.replace('*', 'localhost')
+                client = pelita.simplesetup.SimpleClient(team, address=addr)
+                player_clients.append(client)
+
+        for client in player_clients:
+            proc = client.autoplay_process()
+            external_players.append(proc)
+
+        print_team_info(addrs_left, team_left, args.spec_left, "left")
+        print_team_info(addrs_right, team_right, args.spec_right, "right")
+
+        if args.standalone_left:
+            sub = call_standalone_pelitagame(args.spec_left, server.bind_addresses[0])
+        if args.standalone_right:
+            sub = call_standalone_pelitagame(args.spec_right, server.bind_addresses[1])
+
+        # register the viewers
+        if args.publish_to:
+            publish_sock = args.publish_to
+            subscribe_sock = publish_sock.replace('*', 'localhost')
+
+            publisher = pelita.simplesetup.SimplePublisher(publish_sock)
+            server.game_master.register_viewer(publisher)
+        else:
+            publish_sock = subscribe_sock = None
+
+        if dump:
+            server.game_master.register_viewer(pelita.viewer.DumpingViewer(open(dump, "w")))
+        if args.viewer == 'ascii':
+            server.game_master.register_viewer(pelita.viewer.AsciiViewer())
+        if args.viewer == 'progress':
+            server.game_master.register_viewer(pelita.viewer.ProgressViewer())
+        if args.viewer == 'null':
+            pass
+
+        def runner():
+            if args.viewer == 'tk' or args.external_controller:
+                server.register_teams()
+                controller = pelita.simplesetup.SimpleController(server.game_master, args.controller)
+                controller.run()
+                server.exit_teams()
+            else:
+                server.run()
 
     open_tk = args.viewer.startswith('tk')
 
@@ -468,39 +530,30 @@ def run_game():
         # Something on OS X prevents Tk from running in a forked process.
         # Therefore we cannot use multiprocessing here. subprocess works, though.
         delay = int(1000./args.fps)
-
-        viewer_args = [ str(subscribe_sock) ]
         if args.viewer == 'tk':
             sync_address_tk = args.controller.replace('*', 'localhost')
-            viewer_args += ["--controller-address", str(sync_address_tk)]
-        if args.geometry:
-            viewer_args += ["--geometry", "{}x{}".format(*args.geometry)]
-        viewer_args += ["--delay", str(delay)]
+        else:
+            sync_address_tk = None
+        tkprocess = run_external_viewer(subscribe_sock, sync_address_tk, args.geometry, delay)
 
-        tkprocess = subprocess.Popen([get_python_process(), "tkviewer.py"] + viewer_args)
+        external_viewers.append(tkprocess)
 
         if args.viewer == 'tk-no-sync':
             time.sleep(0.5)
     try:
-        if args.viewer == 'tk' or args.external_controller:
-            server.register_teams()
-            controller = pelita.simplesetup.SimpleController(server.game_master, args.controller)
-            controller.run()
-            server.exit_teams()
-        else:
-            server.run()
+        runner()
     except KeyboardInterrupt:
-        if open_tk:
-            tkprocess.kill()
+        for external_viewer in external_viewers:
+            external_viewer.kill()
     finally:
         # kill all client processes. NOW!
         # (is this too early?)
-        for player_proc in player_procs:
-            _logger.debug("Attempting to terminate %r.", player_proc)
-            player_proc.terminate()
-        for player_proc in player_procs:
-            player_proc.join()
-            _logger.debug("%r terminated.", player_proc)
+        for external_player in external_players:
+            _logger.debug("Attempting to terminate %r.", external_player)
+            external_player.terminate()
+        for external_player in external_players:
+            external_player.join()
+            _logger.debug("%r terminated.", external_player)
 
 if __name__ == '__main__':
     run_game()
