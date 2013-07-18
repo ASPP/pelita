@@ -499,9 +499,9 @@ def run_game():
         # register the viewers
         if args.publish_to:
             publish_sock = args.publish_to
-            subscribe_sock = publish_sock.replace('*', 'localhost')
 
             publisher = pelita.simplesetup.SimplePublisher(publish_sock)
+            subscribe_sock = publisher.socket_addr.replace('*', 'localhost')
             server.game_master.register_viewer(publisher)
         else:
             publish_sock = subscribe_sock = None

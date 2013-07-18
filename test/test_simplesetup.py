@@ -2,7 +2,7 @@
 import unittest
 
 import pelita
-from pelita.simplesetup import SimpleClient, SimpleServer, SimplePublisher, SimpleSubscriber, bind_socket
+from pelita.simplesetup import SimpleClient, SimpleServer, SimplePublisher, SimpleSubscriber, bind_socket, extract_port_range
 from pelita.player import SimpleTeam, RandomPlayer, TestPlayer, AbstractPlayer
 from pelita.viewer import AsciiViewer, AbstractViewer
 from pelita.datamodel import Free
@@ -271,6 +271,21 @@ class TestSimpleSetup(unittest.TestCase):
         self.assertTrue(self.mean_viewer_did_run)
         self.assertTrue(self.test_viewer_did_run)
 
+    def test_extract_port_range(self):
+        test_cases = [
+            ("tcp://*",                     dict(addr="tcp://*")),
+            ("tcp://*:",                    dict(addr="tcp://*:")),
+            ("tcp://*:*",                   dict(addr="tcp://*", port_min=None, port_max=None)),
+            ("tcp://*:123",                 dict(addr="tcp://*:123")),
+            ("tcp://*:[123:124]",           dict(addr="tcp://*", port_min=123, port_max=124)),
+            ("tcp://*:123:[124:125]]",      dict(addr="tcp://*:123", port_min=124, port_max=125)),
+            ("tcp://*:123[124:125]]",       dict(addr="tcp://*:123[124:125]]")),
+            ("ipc:///tmp/pelita-publisher", dict(addr="ipc:///tmp/pelita-publisher"))
+        ]
+
+        for test in test_cases:
+            extracted = extract_port_range(test[0])
+            self.assertEqual(extracted, test[1])
 
 if __name__ == '__main__':
     unittest.main()

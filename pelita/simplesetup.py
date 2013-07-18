@@ -31,6 +31,7 @@ import multiprocessing
 import threading
 import sys
 import traceback
+import re
 
 import uuid
 import zmq
@@ -49,10 +50,44 @@ class DeadConnection(Exception):
 #: The timeout to use during sending
 DEAD_CONNECTION_TIMEOUT = 3.0
 
+def extract_port_range(address):
+    """ We additionally allow for setting a port range in rectangular brackets:
+        tcp://127.0.0.1:[50100:50120]
+    """
+    range_pattern = re.compile(r"(?P<addr>.*?):\[(?P<port_min>\d+):(?P<port_max>\d+)\]")
+    random_pattern = re.compile(r"(?P<addr>.*?):\*")
+    port_pattern = re.compile(r"(?P<addr>.*?):(?P<port>\d+)")
+
+    m = range_pattern.match(address)
+    if m:
+        return {"addr": m.group(1), "port_min": int(m.group(2)), "port_max": int(m.group(3))}
+    m = random_pattern.match(address)
+    if m:
+        return {"addr": m.group(1), "port_min": None, "port_max": None}
+    m = port_pattern.match(address)
+    if m:
+        return {"addr": address}
+    return {"addr": address}
+
 def bind_socket(socket, address, option_hint=None):
     try:
-        socket.bind(address)
-    except zmq.ZMQError as e:
+        address_range = extract_port_range(address)
+        addr = address_range["addr"]
+        try:
+            port_min = address_range["port_min"]
+            port_max = address_range["port_max"]
+            if port_min and port_max:
+                port = socket.bind_to_random_port(addr, port_min, port_max)
+            else:
+                port = socket.bind_to_random_port(addr)
+            bind_addr = "{}:{}".format(addr, port)
+            return bind_addr
+
+        except KeyError:
+            socket.bind(addr)
+            return addr
+
+    except (zmq.ZMQError, zmq.ZMQBindError) as e:
         print >>sys.stderr, 'error binding to address %s: %s' % (address, e)
         if option_hint:
             print >>sys.stderr, 'use %s <address> to specify a different port' %\
@@ -380,7 +415,7 @@ class SimpleController(object):
         # However, we cannot send any information back to them.
         # (Only one DEALER will receive the data.)
         self.socket = self.context.socket(zmq.DEALER)
-        bind_socket(self.socket, self.address, '--controller')
+        self.socket_addr = bind_socket(self.socket, self.address, '--controller')
 
     def run(self):
         self.on_start()
@@ -546,7 +581,7 @@ class SimplePublisher(AbstractViewer):
         self.address = address
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PUB)
-        bind_socket(self.socket, self.address, '--publish')
+        self.socket_addr = bind_socket(self.socket, self.address, '--publish')
 
     def _send(self, message):
         as_json = json_converter.dumps(message)
