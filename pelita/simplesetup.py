@@ -80,7 +80,7 @@ def bind_socket(socket, address, option_hint=None):
                 port = socket.bind_to_random_port(addr, port_min, port_max)
             else:
                 port = socket.bind_to_random_port(addr)
-            bind_addr = "{}:{}".format(addr, port)
+            bind_addr = "{0}:{1}".format(addr, port)
             return bind_addr
 
         except KeyError:

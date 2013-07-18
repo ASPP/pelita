@@ -49,7 +49,7 @@ def run_external_viewer(subscribe_sock, controller, geometry, delay):
     if controller:
         viewer_args += ["--controller-address", str(controller)]
     if geometry:
-        viewer_args += ["--geometry", "{}x{}".format(*geometry)]
+        viewer_args += ["--geometry", "{0}x{1}".format(*geometry)]
     if delay:
         viewer_args += ["--delay", str(delay)]
 
