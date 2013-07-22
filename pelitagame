@@ -376,6 +376,12 @@ Layout specification:
 """
 
 def run_game():
+
+    config = {
+        "publish-addr": None,
+        "controller-addr": None,
+    }
+
     args = parser.parse_args()
     if args.help:
         parser.print_help()
@@ -438,9 +444,10 @@ def run_game():
     external_viewers = []
 
     if replayfile:
-        publish_sock = args.publish_to
-        subscribe_sock = publish_sock.replace('*', 'localhost')
-        replay_publisher = ReplayPublisher(publish_sock, replayfile)
+        replay_publisher = ReplayPublisher(args.publish_to, replayfile)
+        config["publish-addr"] = replay_publisher.publisher.socket_addr
+        subscribe_sock = replay_publisher.publisher.socket_addr.replace('*', 'localhost')
+
         if args.viewer.startswith("tk"):
             args.viewer = "tk-no-sync"
         runner = replay_publisher.run
@@ -498,13 +505,9 @@ def run_game():
 
         # register the viewers
         if args.publish_to:
-            publish_sock = args.publish_to
-
-            publisher = pelita.simplesetup.SimplePublisher(publish_sock)
-            subscribe_sock = publisher.socket_addr.replace('*', 'localhost')
+            publisher = pelita.simplesetup.SimplePublisher(args.publish_to)
+            config["publish-addr"] = publisher.socket_addr
             server.game_master.register_viewer(publisher)
-        else:
-            publish_sock = subscribe_sock = None
 
         if dump:
             server.game_master.register_viewer(pelita.viewer.DumpingViewer(open(dump, "w")))
@@ -515,13 +518,16 @@ def run_game():
         if args.viewer == 'null':
             pass
 
-        def runner():
-            if args.viewer == 'tk' or args.external_controller:
-                server.register_teams()
-                controller = pelita.simplesetup.SimpleController(server.game_master, args.controller)
+        if args.viewer == 'tk' or args.external_controller:
+            server.register_teams()
+            controller = pelita.simplesetup.SimpleController(server.game_master, args.controller)
+            print "Controller listening on %s" % controller.socket_addr
+            config["controller-addr"] = controller.socket_addr
+            def runner():
                 controller.run()
                 server.exit_teams()
-            else:
+        else:
+            def runner():
                 server.run()
 
     open_tk = args.viewer.startswith('tk')
@@ -531,11 +537,12 @@ def run_game():
         # Therefore we cannot use multiprocessing here. subprocess works, though.
         delay = int(1000./args.fps)
         if args.viewer == 'tk':
-            sync_address_tk = args.controller.replace('*', 'localhost')
+            sync_address_tk = config["controller-addr"].replace('*', 'localhost')
         else:
             sync_address_tk = None
-        tkprocess = run_external_viewer(subscribe_sock, sync_address_tk, args.geometry, delay)
 
+        subscribe_sock = config["publish-addr"].replace('*', 'localhost')
+        tkprocess = run_external_viewer(subscribe_sock, sync_address_tk, args.geometry, delay)
         external_viewers.append(tkprocess)
 
         if args.viewer == 'tk-no-sync':
