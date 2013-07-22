@@ -530,9 +530,7 @@ def run_game():
             def runner():
                 server.run()
 
-    open_tk = args.viewer.startswith('tk')
-
-    if open_tk:
+    if args.viewer.startswith('tk'):
         # Something on OS X prevents Tk from running in a forked process.
         # Therefore we cannot use multiprocessing here. subprocess works, though.
         delay = int(1000./args.fps)
@@ -545,7 +543,7 @@ def run_game():
         tkprocess = run_external_viewer(subscribe_sock, sync_address_tk, args.geometry, delay)
         external_viewers.append(tkprocess)
 
-        if args.viewer == 'tk-no-sync':
+        if not sync_address_tk:
             time.sleep(0.5)
     try:
         runner()
