@@ -405,9 +405,6 @@ class SimpleController(object):
         self.game_master = game_master
         self.address = address
 
-    def on_start(self):
-        # We connect here because zmq likes to have its own
-        # thread/process/whatever.
         self.context = zmq.Context()
         # We currently use a DEALER which we bind.
         # This means, other DEALERs can connect and
@@ -418,7 +415,6 @@ class SimpleController(object):
         self.socket_addr = bind_socket(self.socket, self.address, '--controller')
 
     def run(self):
-        self.on_start()
         try:
             while True:
                 self._loop()
