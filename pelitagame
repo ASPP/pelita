@@ -250,10 +250,10 @@ publisher_opt.add_argument('--publish', type=str, metavar='URL',
                            dest='publish_to', help='publish to this zmq socket')
 publisher_opt.add_argument('--no-publish', const=False, action='store_const',
                            dest='publish_to', help='do not publish')
-parser.set_defaults(publish_to="tcp://*:50011")
+parser.set_defaults(publish_to="tcp://*:*")
 
 controller_opt = parser.add_argument_group("Controller")
-controller_opt.add_argument('--controller', type=str, metavar='URL', default="tcp://*:50012",
+controller_opt.add_argument('--controller', type=str, metavar='URL', default="tcp://*:*",
                             help='open a controller on this zmq socket')
 controller_opt.add_argument('--external-controller', const=True, action='store_const',
                             help='force control by an external controller')

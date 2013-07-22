@@ -6,4 +6,4 @@ python:
 install:
   - "pip install pyzmq --use-mirrors"
 # command to run tests
-script: nosetests -v && ./pelitagame --progress --publish tcp://*:*
+script: nosetests -v && ./pelitagame --progress
