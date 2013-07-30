@@ -507,6 +507,7 @@ def run_game():
         if args.publish_to:
             publisher = pelita.simplesetup.SimplePublisher(args.publish_to)
             config["publish-addr"] = publisher.socket_addr
+            print "Publishing to %s" % publisher.socket_addr
             server.game_master.register_viewer(publisher)
 
         if dump:

@@ -30,7 +30,6 @@ def load_layout(layout_name=None, layout_file=None):
     layout : tuple(str, str)
         the name of the layout, a random layout string
     """
-
     if layout_name and not layout_file:
         layout_name = layout_name
         layout_string = get_layout_by_name(layout_name)
