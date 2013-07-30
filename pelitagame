@@ -469,10 +469,10 @@ def run_game():
         else:
             initial_delay = 0.0
 
-        if args.filter:
-            layout_name, layout_string = pelita.layout.get_random_layout(args.filter)
-        else:
+        if args.layout or args.layoutfile:
             layout_name, layout_string = pelita.layout.load_layout(layout_name=args.layout, layout_file=args.layoutfile)
+        else:
+            layout_name, layout_string = pelita.layout.get_random_layout(args.filter)
 
         server = pelita.simplesetup.SimpleServer(layout_string=layout_string,
                                                  rounds=args.rounds,
