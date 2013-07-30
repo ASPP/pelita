@@ -21,7 +21,7 @@ check every 50ms for new messages which accumulates quickly in our scheme.)
 Gevent queues are fast but do not like zeromq (there is a hack, though);
 in a future version we might want to revisit this decision. At the time
 we switch to Python 3.2+, if thread queues might have become fast enough
-(or maybe if the gevent interface likes our messaging layer), we should
+(or maybe if the gevent interface likes our old messaging layer), we should
 re-investigate this decision.
 """
 
@@ -35,7 +35,6 @@ import traceback
 import uuid
 import zmq
 
-from .messaging import DeadConnection
 from .messaging.json_convert import json_converter
 from .game_master import GameMaster, PlayerTimeout, PlayerDisconnected
 from .viewer import AbstractViewer
@@ -43,6 +42,9 @@ from .viewer import AbstractViewer
 _logger = logging.getLogger("pelita.simplesetup")
 
 __docformat__ = "restructuredtext"
+
+class DeadConnection(Exception):
+    """ Raised when the connection has been lost. """
 
 #: The timeout to use during sending
 DEAD_CONNECTION_TIMEOUT = 3.0
@@ -485,7 +487,7 @@ class SimpleClient(object):
             # TODO: This code is dangerous as a malicious message
             # could call anything on this object. This needs to
             # be fixed analogous to the `expose` method in
-            # the messaging framework.
+            # the previous messaging framework.
             retval = getattr(self, action)(**data)
         except (KeyboardInterrupt, ExitLoop):
             raise
