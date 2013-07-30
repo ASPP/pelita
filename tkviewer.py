@@ -33,10 +33,13 @@ parser.add_argument('--delay', type=int,
 
 def run_viewer():
     args = parser.parse_args()
-    v = TkViewer(args.subscribe_sock,
-                 args.controller_address,
-                 geometry=args.geometry,
-                 delay=args.delay)
+    tkargs = {
+        'address': args.subscribe_sock,
+        'controller_address': args.controller_address,
+        'geometry': args.geometry,
+        'delay': args.delay
+    }
+    v = TkViewer(**dict((k, v) for k, v in tkargs.items() if v is not None))
     v.run()
 
 if __name__ == '__main__':
