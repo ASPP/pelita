@@ -154,9 +154,14 @@ class ZMQConnection(object):
         if socks.get(self.socket) == zmq.POLLOUT:
             # I think we need to set NOBLOCK here, else we may run into a
             # race condition if a connection was closed between poll and send.
+            # NOBLOCK should raise, so we can catch that
             message_obj = {"__uuid__": msg_uuid, "__action__": action, "__data__": data}
             json_message = json_converter.dumps(message_obj)
-            self.socket.send(json_message, flags=zmq.NOBLOCK)
+            try:
+                self.socket.send(json_message, flags=zmq.NOBLOCK)
+            except zmq.ZMQError as e:
+                _logger.info("Could not send message. Assume socket is unavailable. %r", e)
+                raise DeadConnection()
         else:
             raise DeadConnection()
         self.last_uuid = msg_uuid
