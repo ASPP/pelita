@@ -19,12 +19,12 @@ SANE_PLAYERS = ['BFSPlayer',
                 'NQRandomPlayer',
                 'RandomPlayer']
 
-class SimpleTeam(object):
+class Squad(object):
     """ Simple class used to register an arbitrary number of (Abstract-)Players.
 
     Each Player is used to control a Bot in the Universe.
 
-    SimpleTeam transforms the `set_initial` and `get_move` messages
+    Squad transforms the `set_initial` and `get_move` messages
     from the GameMaster into `_set_index`, `_set_initial` and `_get_move`
     messages on the Player.
 
@@ -33,7 +33,7 @@ class SimpleTeam(object):
     team_name :
         the name of the team (optional)
     players :
-        the Players who shall join this SimpleTeam
+        the Players who shall join this Squad
     """
     def __init__(self, *args):
         if not args:
@@ -89,7 +89,7 @@ class SimpleTeam(object):
             player._remote_game = self._remote_game
 
     def __repr__(self):
-        return "SimpleTeam(%r, %s)" % (self.team_name, ", ".join(repr(p) for p in self._players))
+        return "Squad(%r, %s)" % (self.team_name, ", ".join(repr(p) for p in self._players))
 
 class AbstractPlayer(object):
     """ Base class for all user implemented Players. """
@@ -97,7 +97,7 @@ class AbstractPlayer(object):
     __metaclass__ =  abc.ABCMeta
 
     def _set_index(self, index):
-        """ Called by SimpleTeam to set this Player's index.
+        """ Called by Squad to set this Player's index.
 
         Parameters
         ----------
@@ -108,7 +108,7 @@ class AbstractPlayer(object):
         self._index = index
 
     def _set_initial(self, universe, game_state):
-        """ Called by SimpleTeam on initialisation.
+        """ Called by Squad on initialisation.
 
         Parameters
         ----------
@@ -146,7 +146,7 @@ class AbstractPlayer(object):
         self.universe_states.append(universe)
 
     def _get_move(self, universe, game_state):
-        """ Called by SimpleTeam to obtain next move.
+        """ Called by Squad to obtain next move.
 
         This will add the universe to the list of universe_states and then call
         `self.get_move()`.

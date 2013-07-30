@@ -431,7 +431,7 @@ class SimpleClient(object):
 
     Usage
     -----
-        client = SimpleClient(SimpleTeam("the good ones", BFSPlayer(), NQRandomPlayer()))
+        client = SimpleClient(Squad("the good ones", BFSPlayer(), NQRandomPlayer()))
         client.run() # runs in the same thread / process
 
         client.autoplay_process() # runs in a background process

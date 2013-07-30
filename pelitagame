@@ -77,7 +77,7 @@ def create_builtin_team(spec):
 
     players = [import_builtin_player(name)() for name in names]
     teamname = 'The %ss' % players[0].__class__.__name__
-    return pelita.player.SimpleTeam(teamname, *players)
+    return pelita.player.Squad(teamname, *players)
 
 def check_team_name(name):
     # Team name must be ascii
@@ -263,11 +263,11 @@ Team Specification:
     a function named 'factory' (you can change the name of the factory
     function by adding ':my_factory' to the filename). The factory
     function must take no arguments and return an instance of
-    pelita.player.SimpleTeam.
+    pelita.player.Squad.
     Example implementation:
 
     def factory():
-        return pelita.player.SimpleTeam("My Team", MyPlayer1(), MyPlayer2())
+        return pelita.player.Squad("My Team", MyPlayer1(), MyPlayer2())
 
     Example usage:
 

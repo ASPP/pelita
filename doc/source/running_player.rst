@@ -80,7 +80,7 @@ tournament.  You will need to create a python package, i.e. a
 directory containing (at least) an ``__init__.py`` file. This package
 must be named ``groupN``, where ``N`` is your group number.
 This package needs to provide a top level function ``factory()`` which
-returns a ``SimpleTeam``.
+returns a ``Squad``.
 
 The file structure should look like::
 

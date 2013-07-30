@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from pelita.player import AbstractPlayer, SimpleTeam
+from pelita.player import AbstractPlayer, Squad
 from pelita.datamodel import stop
 
 
@@ -12,5 +12,5 @@ class MyPlayer(AbstractPlayer):
         return stop
 
 def factory():
-    return SimpleTeam("My Team", MyPlayer(), MyPlayer())
+    return Squad("My Team", MyPlayer(), MyPlayer())
 

@@ -1,6 +1,6 @@
 import unittest
 
-from pelita.player import SimpleTeam
+from pelita.player import Squad
 from pelita.player import RandomPlayer
 
 from pelita.game_master import GameMaster
@@ -9,7 +9,7 @@ from .. import MyPlayer
 
 class MyPlayerTest(unittest.TestCase):
     def test_my_player_is_not_moving(self):
-        my_team = SimpleTeam("test", MyPlayer(), MyPlayer())
+        my_team = Squad("test", MyPlayer(), MyPlayer())
         test_layout = """
             ############
             # 0 #  # 1 #
@@ -23,7 +23,7 @@ class MyPlayerTest(unittest.TestCase):
         gm.register_team(my_team)
 
         # register a pre-defined team as an enemy
-        gm.register_team(SimpleTeam(RandomPlayer(), RandomPlayer()))
+        gm.register_team(Squad(RandomPlayer(), RandomPlayer()))
 
         # play `game_time` rounds
         gm.play()
