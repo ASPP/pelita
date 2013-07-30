@@ -303,18 +303,27 @@ class TestUniverseNoiser(unittest.TestCase):
             # #####    #####3#
             #  0# . #  .  . 1#
             ################## """)
-        # noiser should not find a connection
+        # noiser should not crash when it does not find a connection
         universe = CTFUniverse.create(test_layout, 4)
 
         positions = [b.current_pos for b in universe.bots]
+        team_positions = []
+        enemy_positions = []
 
-        noiser = AStarNoiser(universe.copy())
-        new_uni = noiser.uniform_noise(universe.copy(), 0)
-        new_positions = [b.current_pos for b in new_uni.bots]
+        # We try it a few times to avoid coincidental failure
+        RANDOM_TESTS = 3
+        for i in range(RANDOM_TESTS):
+
+            noiser = AStarNoiser(universe.copy())
+            new_uni = noiser.uniform_noise(universe.copy(), 0)
+            new_positions = [b.current_pos for b in new_uni.bots]
+
+            team_positions += new_positions[0::2]
+            enemy_positions += new_positions[1::2]
 
         # assume not all bots (except 0 and 2) are in the original position anymore
-        self.assertEqual(positions[0::2], new_positions[0::2])
-        self.assertNotEqual(positions[1::2], new_positions[1::2],
+        self.assertEqual(set(positions[0::2]), set(team_positions))
+        self.assertNotEqual(set(positions[1::2]), set(enemy_positions),
                             "Testing randomized function, may fail sometimes.")
 
     def test_noise_manhattan_failure(self):
@@ -324,18 +333,28 @@ class TestUniverseNoiser(unittest.TestCase):
             ########## #####3#
             ###0###### .  . 1#
             ################## """)
-        # noiser should not find a connection
+        # noiser should not crash when it does not find a connection
         universe = CTFUniverse.create(test_layout, 4)
 
         positions = [b.current_pos for b in universe.bots]
 
-        noiser = ManhattanNoiser(universe.copy())
-        new_uni = noiser.uniform_noise(universe.copy(), 0)
-        new_positions = [b.current_pos for b in new_uni.bots]
+        positions = [b.current_pos for b in universe.bots]
+        team_positions = []
+        enemy_positions = []
+
+        # We try it a few times to avoid coincidental failure
+        RANDOM_TESTS = 3
+        for i in range(RANDOM_TESTS):
+            noiser = ManhattanNoiser(universe.copy())
+            new_uni = noiser.uniform_noise(universe.copy(), 0)
+            new_positions = [b.current_pos for b in new_uni.bots]
+
+            team_positions += new_positions[0::2]
+            enemy_positions += new_positions[1::2]
 
         # assume not all bots (except 0 and 2) are in the original position anymore
-        self.assertEqual(positions[0::2], new_positions[0::2])
-        self.assertNotEqual(positions[1::2], new_positions[1::2],
+        self.assertEqual(set(positions[0::2]), set(team_positions))
+        self.assertNotEqual(set(positions[1::2]), set(enemy_positions),
                             "Testing randomized function, may fail sometimes.")
 
 class TestAbstracts(unittest.TestCase):
