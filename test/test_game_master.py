@@ -8,7 +8,7 @@ from pelita.datamodel import Wall, Free, Food, CTFUniverse, KILLPOINTS
 
 from pelita.game_master import GameMaster, UniverseNoiser, AStarNoiser, ManhattanNoiser, PlayerTimeout
 from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer, StoppingPlayer
-from pelita.viewer import AbstractViewer, DevNullViewer
+from pelita.viewer import AbstractViewer
 from pelita.graph import AdjacencyList
 
 
@@ -388,8 +388,6 @@ class TestGame(unittest.TestCase):
         gm = GameMaster(test_start, number_bots, 200)
         gm.register_team(SimpleTeam(TestPlayer('>-v>>>')))
         gm.register_team(SimpleTeam(TestPlayer('<<-<<<')))
-
-        gm.register_viewer(DevNullViewer())
 
         gm.set_initial()
         gm.play_round()

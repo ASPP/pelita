@@ -455,10 +455,10 @@ def run_game():
         server.game_master.register_viewer(pelita.viewer.DumpingViewer(open(dump, "w")))
     if args.viewer == 'ascii':
         server.game_master.register_viewer(pelita.viewer.AsciiViewer())
-    if args.viewer == 'null':
-        server.game_master.register_viewer(pelita.viewer.DevNullViewer())
     if args.viewer == 'progress':
         server.game_master.register_viewer(pelita.viewer.ProgressViewer())
+    if args.viewer == 'null':
+        pass
 
     open_tk = args.viewer.startswith('tk')
 
