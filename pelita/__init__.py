@@ -8,6 +8,7 @@ from . import (compat,
                player,
                simplesetup,
                viewer,
+               utils,
                __version_from_git)
 
 __docformat__ = "restructuredtext"

@@ -9,7 +9,6 @@ For all practical needs, using the simplesetup module should be sufficient.
 import sys
 import subprocess
 
-from pelita.messaging import actor_of, RemoteConnection
 from pelita.simplesetup import SimpleServer, SimplePublisher, SimpleController
 import logging
 from pelita.ui.tk_viewer import TkViewer
