@@ -775,9 +775,66 @@ class TestGame(unittest.TestCase):
         self.assertEqual(tv.cache[-1]["round_index"], gm.game_state["max_timeouts"] - 1)
         self.assertEqual(gm.universe.teams[0].score, 0)
         self.assertEqual(gm.universe.teams[1].score, 0)
+        # the bot moves four times, so after the fourth time,
+        # it is back on its original position
+        self.assertEqual(gm.universe.bots[0].current_pos, (1,1))
+        self.assertTrue(tv.cache[-1]["team_wins"] is not None)
+        self.assertEqual(tv.cache[-1]["team_wins"], 1)
+
+    def test_must_not_move_after_last_timeout(self):
+        # 0 must move back and forth because of random steps
+        # but due to its last timeout, it should be disqualified
+        # immediately
+        test_start = (
+            """ ######
+                ##0.##
+                # ## #
+                ##. 1#
+                ###### """
+        )
+        # the game lasts one round, and then draws
+        gm = GameMaster(test_start, 2, 100, max_timeouts=1)
+        # players do nothing
+        class TimeOutPlayer(AbstractPlayer):
+            def get_move(self):
+                raise PlayerTimeout
+
+        class CheckTestPlayer(AbstractPlayer):
+            def get_move(self):
+                raise RuntimeError("This should never be called")
+
+        gm.register_team(SimpleTeam(TimeOutPlayer()))
+        gm.register_team(SimpleTeam(CheckTestPlayer()))
+
+        # this test viewer caches all events lists seen through observe
+        class TestViewer(AbstractViewer):
+            def __init__(self):
+                self.cache = list()
+            def observe(self, universe, game_state):
+                self.cache.append(game_state)
+
+        # run the game
+        tv = TestViewer()
+        gm.register_viewer(tv)
+        gm.set_initial()
+
+        gm.play()
+        print gm.universe.pretty
+        print gm.game_state
+
+        # check
+        self.assertEqual(gm.game_state["max_timeouts"], 1)
+        self.assertEqual(tv.cache[-1]["round_index"], gm.game_state["max_timeouts"] - 1)
+        self.assertEqual(gm.universe.teams[0].score, 0)
+        self.assertEqual(gm.universe.teams[1].score, 0)
         self.assertEqual(gm.universe.bots[0].current_pos, (2,1))
         self.assertTrue(tv.cache[-1]["team_wins"] is not None)
         self.assertEqual(tv.cache[-1]["team_wins"], 1)
+
+        # the game ends in round 0 with bot_id 0
+        self.assertEqual(gm.game_state["round_index"], 0)
+        self.assertEqual(gm.game_state["bot_id"], 0)
+
 
     def test_play_step(self):
 

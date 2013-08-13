@@ -340,14 +340,16 @@ class GameMaster(object):
             self.game_state["bot_error"] = {bot.index: "timeout"}
 
             if self.game_state["timeout_teams"][bot.team_index] == self.game_state["max_timeouts"]:
+                print "XXXX"
                 self.game_state["teams_disqualified"][bot.team_index] = "timeout"
+            else:
 
-            moves = self.universe.legal_moves_or_stop(bot.current_pos).keys()
+                moves = self.universe.legal_moves_or_stop(bot.current_pos).keys()
 
-            move = self.rnd.choice(moves)
-            move_state = self.universe.move_bot(bot.index, move)
-            for k,v in move_state.iteritems():
-                self.game_state[k] += v
+                move = self.rnd.choice(moves)
+                move_state = self.universe.move_bot(bot.index, move)
+                for k, v in move_state.iteritems():
+                    self.game_state[k] += v
 
         except PlayerDisconnected:
             self.game_state["teams_disqualified"][bot.team_index] = "disconnected"
