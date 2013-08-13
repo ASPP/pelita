@@ -22,11 +22,6 @@ class AbstractViewer(object):
     def observe(self, universe, game_state):
         pass
 
-class DevNullViewer(AbstractViewer):
-    """ A viewer that simply ignores everything. """
-    def observe(self, universe, game_state):
-        pass
-
 class ProgressViewer(AbstractViewer):
     def observe(self, universe, game_state):
         round_index = game_state["round_index"]
