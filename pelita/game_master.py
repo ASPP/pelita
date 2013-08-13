@@ -55,7 +55,7 @@ class GameMaster(object):
     """
     def __init__(self, layout, number_bots, game_time, noise=True, noiser=None,
                  initial_delay=0.0, max_timeouts=5, timeout_length=3, layout_name=None,
-                 seed=None, parseable_output=False):
+                 seed=None):
         self.universe = datamodel.CTFUniverse.create(layout, number_bots)
         self.number_bots = number_bots
         if noiser is None:
@@ -73,8 +73,6 @@ class GameMaster(object):
         # the seed which is passed to the clients with set_initial.
         # Currently, the noiser does not use this rng but has its own.
         self.rnd = random.Random(seed)
-
-        self.parseable_output = parseable_output
 
         #: The pointer to the current iteration.
         self._step_iter = None
@@ -270,8 +268,6 @@ class GameMaster(object):
             self.check_finished()
             self.check_winner()
 
-            self.print_possible_winner()
-
         if self.game_state.get("finished"):
             self.update_viewers()
             raise GameFinished()
@@ -291,8 +287,6 @@ class GameMaster(object):
 
         self.check_finished()
         self.check_winner()
-
-        self.print_possible_winner()
 
         if self.game_state.get("finished"):
             self.update_viewers()
@@ -402,7 +396,6 @@ class GameMaster(object):
                 if to_eat == eaten:
                     self.game_state["finished"] = True
 
-
     def check_winner(self):
         if not self.game_state["finished"]:
             return
@@ -418,39 +411,6 @@ class GameMaster(object):
             self.game_state["team_wins"] = 1
         else:
             self.game_state["game_draw"] = True
-
-    def print_possible_winner(self):
-        """ Checks the event list for a potential winner and prints this information.
-
-        This is needed for scripts parsing the output.
-        """
-        winning_team = self.game_state.get("team_wins")
-        if winning_team is not None:
-            winner = self.universe.teams[winning_team]
-            loser = self.universe.enemy_team(winning_team)
-            msg = "Finished. %r won over %r. (%r:%r)" % (
-                    winner.name, loser.name,
-                    winner.score, loser.score
-                )
-            if self.parseable_output:
-                msg += '\n' + str(winner.index)
-            sys.stdout.flush()
-        elif self.game_state.get("game_draw") is not None:
-            t0 = self.universe.teams[0]
-            t1 = self.universe.teams[1]
-            msg = "Finished. %r and %r had a draw. (%r:%r)" % (
-                    t0.name, t1.name,
-                    t0.score, t1.score
-                )
-            if self.parseable_output:
-                msg += "\n-"
-        else:
-            return
-
-        print msg
-        # We must manually flush, else our forceful stopping of Tk
-        # won't let us pipe it.
-        sys.stdout.flush()
 
 
 class UniverseNoiser(object):

@@ -303,8 +303,6 @@ class SimpleServer(object):
         The name of the given layout string.
     seed : int, optional
         The initial seed to be passed to GameMaster.
-    parseable_output : Boolean
-        Make the result of the game parseable
 
     Raises
     ------
@@ -316,7 +314,7 @@ class SimpleServer(object):
     """
     def __init__(self, layout_string, teams=2, players=4, rounds=3000, bind_addrs="tcp://*",
                  initial_delay=0.0, max_timeouts=5, timeout_length=3, layout_name=None,
-                 seed=None, parseable_output=False):
+                 seed=None):
 
         self.players = players
         self.number_of_teams = teams
@@ -327,7 +325,7 @@ class SimpleServer(object):
                                       max_timeouts=max_timeouts,
                                       timeout_length=timeout_length,
                                       layout_name=layout_name,
-                                      seed=seed, parseable_output=parseable_output)
+                                      seed=seed)
 
         if isinstance(bind_addrs, tuple):
             pass

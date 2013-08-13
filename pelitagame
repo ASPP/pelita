@@ -37,6 +37,47 @@ class ReplayPublisher(object):
                            "__data__": json.loads(state)}
                 self.publisher._send(message)
 
+class ResultPrinter(pelita.viewer.AbstractViewer):
+    def __init__(self, parseable_output):
+        self.parseable_output = parseable_output
+
+    def observe(self, universe, game_state):
+        if game_state["finished"]:
+            self.print_possible_winner(universe, game_state)
+
+    def print_possible_winner(self, universe, game_state):
+        """ Checks the event list for a potential winner and prints this information.
+
+        This is needed for scripts parsing the output.
+        """
+        winning_team = game_state.get("team_wins")
+        if winning_team is not None:
+            winner = universe.teams[winning_team]
+            loser = universe.enemy_team(winning_team)
+            msg = "Finished. '%s' won over '%s'. (%r:%r)" % (
+                    winner.name, loser.name,
+                    winner.score, loser.score
+                )
+            if self.parseable_output:
+                msg += '\n' + str(winner.index)
+            sys.stdout.flush()
+        elif game_state.get("game_draw") is not None:
+            t0 = universe.teams[0]
+            t1 = universe.teams[1]
+            msg = "Finished. '%s' and '%s' had a draw. (%r:%r)" % (
+                    t0.name, t1.name,
+                    t0.score, t1.score
+                )
+            if self.parseable_output:
+                msg += "\n-"
+        else:
+            return
+
+        print msg
+        # We must manually flush, else our forceful stopping of Tk
+        # won't let us pipe it.
+        sys.stdout.flush()
+
 def get_python_process():
     py_proc = sys.executable
     if not py_proc:
@@ -184,7 +225,6 @@ def start_logging(filename):
     hdlr.setFormatter(formatter)
     logger.addHandler(hdlr)
     logger.setLevel(logging.DEBUG)
-
 
 def geometry_string(s):
     """Get a X-style geometry definition and return a tuple.
@@ -415,7 +455,7 @@ def run_game():
 
     def print_team_info(addr, team, spec, info):
         if team is not None:
-            print "Using factory %r -> %r (%s)" % (spec, team.team_name, info)
+            print "Using factory '%s' -> '%s' (%s)" % (spec, team.team_name, info)
         elif "://" in addr:
             print "Waiting for %s team on %s" % (info, addr)
 
@@ -474,6 +514,7 @@ def run_game():
             layout_name, layout_string = pelita.layout.load_layout(layout_name=args.layout, layout_file=args.layoutfile)
         else:
             layout_name, layout_string = pelita.layout.get_random_layout(args.filter)
+        print "Using layout '%s'" % layout_name
 
         server = pelita.simplesetup.SimpleServer(layout_string=layout_string,
                                                  rounds=args.rounds,
@@ -482,8 +523,7 @@ def run_game():
                                                  max_timeouts=args.max_timeouts,
                                                  timeout_length=args.timeout_length,
                                                  layout_name=layout_name,
-                                                 seed=args.seed,
-                                                 parseable_output=args.parseable_output)
+                                                 seed=args.seed)
 
         player_clients = []
         for (addr, team) in zip(server.bind_addresses, [team_left, team_right]):
@@ -519,6 +559,9 @@ def run_game():
             server.game_master.register_viewer(pelita.viewer.ProgressViewer())
         if args.viewer == 'null':
             pass
+
+        # Adding the result printer to the viewers.
+        server.game_master.register_viewer(ResultPrinter(args.parseable_output))
 
         if args.viewer == 'tk' or args.external_controller:
             server.register_teams()
