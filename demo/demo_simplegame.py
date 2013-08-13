@@ -22,13 +22,13 @@ when a new process is started.
 """
 
 from pelita.simplesetup import SimpleClient, SimpleServer
-from pelita.player import RandomPlayer, BFSPlayer, SimpleTeam, BasicDefensePlayer, NQRandomPlayer
+from pelita.player import RandomPlayer, BFSPlayer, Squad, BasicDefensePlayer, NQRandomPlayer
 
 if __name__=="__main__":
-    client = SimpleClient(SimpleTeam("the good ones", NQRandomPlayer(), BFSPlayer()), local=False)
+    client = SimpleClient(Squad("the good ones", NQRandomPlayer(), BFSPlayer()), local=False)
     client.autoplay_background()
 
-    client2 = SimpleClient(SimpleTeam("the bad ones", BFSPlayer(), BasicDefensePlayer()), local=False)
+    client2 = SimpleClient(Squad("the bad ones", BFSPlayer(), BasicDefensePlayer()), local=False)
     client2.autoplay_background()
 
 

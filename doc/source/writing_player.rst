@@ -82,7 +82,7 @@ which simply returns ``stop``:
     fight between two teams of two bots each)::
 
         def factory():
-            return SimpleTeam("MyTeam", StoppingPlayer(), StoppingPlayer())
+            return Squad("MyTeam", StoppingPlayer(), StoppingPlayer())
 
     For more information about this, see also::doc:`running_player`
 

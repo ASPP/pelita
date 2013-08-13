@@ -3,7 +3,7 @@ import unittest
 
 import pelita
 from pelita.simplesetup import SimpleClient, SimpleServer, SimplePublisher, SimpleSubscriber, bind_socket
-from pelita.player import SimpleTeam, RandomPlayer, TestPlayer, AbstractPlayer
+from pelita.player import Squad, RandomPlayer, TestPlayer, AbstractPlayer
 from pelita.viewer import AsciiViewer, AbstractViewer
 from pelita.datamodel import Free
 from pelita.game_master import GameMaster
@@ -36,8 +36,8 @@ class TestSimpleSetup(unittest.TestCase):
         client1_address = server.bind_addresses[0]
         client2_address = server.bind_addresses[1]
 
-        client1 = SimpleClient(SimpleTeam("team1", RandomPlayer()), address=client1_address)
-        client2 = SimpleClient(SimpleTeam("team2", RandomPlayer()), address=client2_address)
+        client1 = SimpleClient(Squad("team1", RandomPlayer()), address=client1_address)
+        client2 = SimpleClient(Squad("team2", RandomPlayer()), address=client2_address)
 
         client1.autoplay_process()
         client2.autoplay_process()
@@ -59,8 +59,8 @@ class TestSimpleSetup(unittest.TestCase):
         client1_address = server.bind_addresses[0].replace("*", "localhost")
         client2_address = server.bind_addresses[1].replace("*", "localhost")
 
-        client1 = SimpleClient(SimpleTeam("team1", TestPlayer("^>>v<")), address=client1_address)
-        client2 = SimpleClient(SimpleTeam("team2", TestPlayer("^<<v>")), address=client2_address)
+        client1 = SimpleClient(Squad("team1", TestPlayer("^>>v<")), address=client1_address)
+        client2 = SimpleClient(Squad("team2", TestPlayer("^<<v>")), address=client2_address)
 
         client1.autoplay_process()
         client2.autoplay_process()
@@ -90,8 +90,8 @@ class TestSimpleSetup(unittest.TestCase):
             def _get_move(self, universe, game_state):
                 pass
 
-        client1 = SimpleClient(SimpleTeam("team1", TestPlayer("^>>v<")), address=client1_address)
-        client2 = SimpleClient(SimpleTeam("team2", FailingPlayer()), address=client2_address)
+        client1 = SimpleClient(Squad("team1", TestPlayer("^>>v<")), address=client1_address)
+        client2 = SimpleClient(Squad("team2", FailingPlayer()), address=client2_address)
 
         client1.autoplay_process()
         client2.autoplay_process()
@@ -126,8 +126,8 @@ class TestSimpleSetup(unittest.TestCase):
         old_timeout = pelita.simplesetup.DEAD_CONNECTION_TIMEOUT
         pelita.simplesetup.DEAD_CONNECTION_TIMEOUT = 0.3
 
-        client1 = SimpleClient(SimpleTeam("team1", FailingPlayer()), address=client1_address)
-        client2 = SimpleClient(SimpleTeam("team2", FailingPlayer()), address=client2_address)
+        client1 = SimpleClient(Squad("team1", FailingPlayer()), address=client1_address)
+        client2 = SimpleClient(Squad("team2", FailingPlayer()), address=client2_address)
 
         client1.autoplay_process()
         client2.autoplay_process()
@@ -161,8 +161,8 @@ class TestSimpleSetup(unittest.TestCase):
         old_timeout = pelita.simplesetup.DEAD_CONNECTION_TIMEOUT
         pelita.simplesetup.DEAD_CONNECTION_TIMEOUT = 0.3
 
-        client1 = SimpleClient(SimpleTeam("team1", FailingPlayer()), address=client1_address)
-        client2 = SimpleClient(SimpleTeam("team2", FailingPlayer()), address=client2_address)
+        client1 = SimpleClient(Squad("team1", FailingPlayer()), address=client1_address)
+        client2 = SimpleClient(Squad("team2", FailingPlayer()), address=client2_address)
 
         client1.autoplay_process()
         client2.autoplay_process()
@@ -197,8 +197,8 @@ class TestSimpleSetup(unittest.TestCase):
         number_bots = 2
 
         gm = GameMaster(test_start, number_bots, 1)
-        gm.register_team(SimpleTeam(TestPlayer([(0,0)])))
-        gm.register_team(SimpleTeam(TestPlayer([(0,0)])))
+        gm.register_team(Squad(TestPlayer([(0,0)])))
+        gm.register_team(Squad(TestPlayer([(0,0)])))
 
         original_universe = gm.universe.copy()
 

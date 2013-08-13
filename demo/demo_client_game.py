@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from pelita.player import RandomPlayer, BFSPlayer, SimpleTeam
+from pelita.player import RandomPlayer, BFSPlayer, Squad
 
 from pelita.simplesetup import SimpleClient
 
@@ -11,10 +11,10 @@ FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s]' + co
 #logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S", level=logging.WARNING)
 
 
-team1 = SimpleTeam("the good ones", BFSPlayer(), BFSPlayer())
+team1 = Squad("the good ones", BFSPlayer(), BFSPlayer())
 client1 = SimpleClient(team1, address="tcp://localhost:50007")
 
-team2 = SimpleTeam("the bad ones", BFSPlayer(), BFSPlayer())
+team2 = Squad("the bad ones", BFSPlayer(), BFSPlayer())
 client2 = SimpleClient(team2, address="tcp://localhost:50008")
 
 client1.autoplay_process()

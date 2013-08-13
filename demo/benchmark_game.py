@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from pelita.game_master import GameMaster
-from pelita.player import StoppingPlayer, SimpleTeam
+from pelita.player import StoppingPlayer, Squad
 from pelita.viewer import AsciiViewer
 
 LAYOUT="""
@@ -47,8 +47,8 @@ if __name__ == '__main__':
     start = time.time()
     layout = LAYOUT
     gm = GameMaster(layout, 4, 10)
-    gm.register_team(SimpleTeam(StoppingPlayer(), StoppingPlayer()))
-    gm.register_team(SimpleTeam(StoppingPlayer(), StoppingPlayer()))
+    gm.register_team(Squad(StoppingPlayer(), StoppingPlayer()))
+    gm.register_team(Squad(StoppingPlayer(), StoppingPlayer()))
     #gm.register_viewer(AsciiViewer())
     gm.play()
     print len(LAYOUT), time.time() - start

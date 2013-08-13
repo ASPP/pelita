@@ -14,14 +14,14 @@ of the program. """
 
 from pelita.simplesetup import SimpleClient, SimpleServer
 from pelita.player import RandomPlayer, NQRandomPlayer,\
-    BFSPlayer, BasicDefensePlayer, SimpleTeam
+    BFSPlayer, BasicDefensePlayer, Squad
 
 client = SimpleClient(
-        SimpleTeam("the good ones", RandomPlayer(), NQRandomPlayer()))
+        Squad("the good ones", RandomPlayer(), NQRandomPlayer()))
 client.autoplay_background()
 
 client2 = SimpleClient(
-        SimpleTeam("the bad ones", BFSPlayer(), BasicDefensePlayer()))
+        Squad("the bad ones", BFSPlayer(), BasicDefensePlayer()))
 client2.autoplay_background()
 
 server = SimpleServer()
