@@ -42,8 +42,32 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
         self.parseable_output = parseable_output
 
     def observe(self, universe, game_state):
+        self.print_bad_bot_status(universe, game_state)
         if game_state["finished"]:
             self.print_possible_winner(universe, game_state)
+
+    def print_bad_bot_status(self, universe, game_state):
+        for bot_id, reason in game_state["bot_error"].iteritems():
+            if reason == "timeout":
+                sys.stderr.write("Timeout #%r for team %r (bot index %r).\n" % (
+                                  game_state["timeout_teams"][universe.bots[bot_id].team_index],
+                                  universe.bots[bot_id].team_index,
+                                  bot_id))
+
+            else:
+                sys.stderr.write("Problem for team %r (bot index %r) (%s).\n" % (
+                                  universe.bots[bot_id].team_index,
+                                  bot_id,
+                                  reason))
+
+        for team_id, reason in enumerate(game_state["teams_disqualified"]):
+            if reason == "timeout":
+                sys.stderr.write("Team %r had too many timeouts. Team disqualified.\n" % team_id)
+            elif reason == "disconnected":
+                sys.stderr.write("Team %r disconnected. Team disqualified.\n" % team_id)
+            elif reason is not None:
+                sys.stderr.write("Team %r disqualified (%r).\n" % (team_id, reason))
+
 
     def print_possible_winner(self, universe, game_state):
         """ Checks the event list for a potential winner and prints this information.

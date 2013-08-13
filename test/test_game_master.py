@@ -799,8 +799,8 @@ class TestGame(unittest.TestCase):
         self.assertEqual(gm.universe.bots[0].current_pos, (3,1))
         self.assertEqual(gm.universe.bots[1].current_pos, (4,2))
         self.assertEqual(gm.game_state["round_index"], 0)
-        self.assertEqual(gm.game_state["bot_id"], 1)
-        self.assertEqual(gm.game_state["finished"], False)
+        self.assertIsNone(gm.game_state["bot_id"])
+        self.assertFalse(gm.game_state["finished"])
 
         gm.play_step()
         self.assertEqual(gm.universe.bots[0].current_pos, (4,1))
@@ -836,7 +836,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual(gm.universe.bots[0].current_pos, (5,1))
         self.assertEqual(gm.universe.bots[1].current_pos, (2,2))
         self.assertEqual(gm.game_state["round_index"], 2)
-        self.assertEqual(gm.game_state["bot_id"], 1)
+        self.assertIsNone(gm.game_state["bot_id"])
         self.assertEqual(gm.game_state["finished"], False)
 
         gm.play_round()
@@ -844,7 +844,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual(gm.universe.bots[0].current_pos, (6,1))
         self.assertEqual(gm.universe.bots[1].current_pos, (1,2))
         self.assertEqual(gm.game_state["round_index"], 3)
-        self.assertEqual(gm.game_state["bot_id"], 1)
+        self.assertIsNone(gm.game_state["bot_id"])
         self.assertEqual(gm.game_state["finished"], True)
 
         # Game finished because all food was eaten
@@ -854,7 +854,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual(gm.universe.bots[0].current_pos, (6,1))
         self.assertEqual(gm.universe.bots[1].current_pos, (1,2))
         self.assertEqual(gm.game_state["round_index"], 3)
-        self.assertEqual(gm.game_state["bot_id"], 1)
+        self.assertIsNone(gm.game_state["bot_id"])
         self.assertEqual(gm.game_state["finished"], True)
 
         # nothing happens anymore
@@ -862,7 +862,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual(gm.universe.bots[0].current_pos, (6,1))
         self.assertEqual(gm.universe.bots[1].current_pos, (1,2))
         self.assertEqual(gm.game_state["round_index"], 3)
-        self.assertEqual(gm.game_state["bot_id"], 1)
+        self.assertIsNone(gm.game_state["bot_id"])
         self.assertEqual(gm.game_state["finished"], True)
 
     def test_kill_count(self):

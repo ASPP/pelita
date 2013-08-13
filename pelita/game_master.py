@@ -117,6 +117,12 @@ class GameMaster(object):
             #: true if game is a draw
             "game_draw": None,
 
+            #: {bot.index: reason} for a misbehaving bot
+            "bot_error": {},
+
+            #: [reason_team_0, reason_team_1] for a team which was disqualified
+            "teams_disqualified": [None] * len(self.universe.teams),
+
             #: maximum number of rounds
             "game_time": game_time,
 
@@ -238,7 +244,7 @@ class GameMaster(object):
             self._step_iter = None
             # at the end of iterations
         except GameFinished:
-            return
+            self.update_viewers()
 
     def play_step(self):
         """ Plays a single step of a bot.
@@ -257,19 +263,14 @@ class GameMaster(object):
             # just try another one
             self.play_step()
         except GameFinished:
-            return
+            self.update_viewers()
 
     def _play_bot_iterator(self):
         """ Returns an iterator which will query a bot at each step.
         """
         self.prepare_next_round()
 
-        if not self.game_state.get("finished"):
-            self.check_finished()
-            self.check_winner()
-
-        if self.game_state.get("finished"):
-            self.update_viewers()
+        if self.check_finished():
             raise GameFinished()
 
         for bot in self.universe.bots:
@@ -280,13 +281,18 @@ class GameMaster(object):
             end_time = time.time()
             self.game_state["running_time"] += (end_time - start_time)
 
+            if self.check_finished():
+                raise GameFinished()
+
             self.update_viewers()
 
             # give control to caller
             yield
 
-        self.check_finished()
-        self.check_winner()
+        self.game_state["bot_id"] = None
+
+        if self.check_finished():
+            raise GameFinished()
 
         if self.game_state.get("finished"):
             self.update_viewers()
@@ -296,6 +302,7 @@ class GameMaster(object):
         self.game_state["bot_moved"] = []
         self.game_state["food_eaten"] = []
         self.game_state["bot_destroyed"] = []
+        self.game_state["bot_timeout"] = None
 
         player_team = self.player_teams[bot.team_index]
         try:
@@ -327,19 +334,10 @@ class GameMaster(object):
         except (datamodel.IllegalMoveException, PlayerTimeout):
             # after max_timeouts timeouts, you lose
             self.game_state["timeout_teams"][bot.team_index] += 1
+            self.game_state["bot_error"] = {bot.index: "timeout"}
 
             if self.game_state["timeout_teams"][bot.team_index] == self.game_state["max_timeouts"]:
-                other_team = self.universe.enemy_team(bot.team_index)
-                self.game_state["team_wins"] = other_team.index
-                sys.stderr.write("Timeout #%r for team %r (bot index %r). Team disqualified.\n" % (
-                                  self.game_state["timeout_teams"][bot.team_index],
-                                  bot.team_index,
-                                  bot.index))
-            else:
-                sys.stderr.write("Timeout #%r for team %r (bot index %r).\n" % (
-                                  self.game_state["timeout_teams"][bot.team_index],
-                                  bot.team_index,
-                                  bot.index))
+                self.game_state["teams_disqualified"][bot.team_index] = "timeout"
 
             moves = self.universe.legal_moves_or_stop(bot.current_pos).keys()
 
@@ -349,12 +347,7 @@ class GameMaster(object):
                 self.game_state[k] += v
 
         except PlayerDisconnected:
-            other_team = self.universe.enemy_team(bot.team_index)
-            self.game_state["team_wins"] = other_team.index
-
-            sys.stderr.write("Team %r (bot index %r) disconnected. Team disqualified.\n" % (
-                              bot.team_index,
-                              bot.index))
+            self.game_state["teams_disqualified"][bot.team_index] = "disconnected"
 
         for food_eaten in self.game_state["food_eaten"]:
             team_id = self.universe.bots[food_eaten["bot_id"]].team_index
@@ -381,36 +374,37 @@ class GameMaster(object):
             self.game_state["finished"] = True
 
     def check_finished(self):
-        self.game_state["finished"] = False
-
         if (self.game_state["team_wins"] is not None or
             self.game_state["game_draw"] is not None):
             self.game_state["finished"] = True
+            return True
 
-        if self.game_state["round_index"] >= self.game_time:
+        teams_left = [team_id for team_id, reason in enumerate(self.game_state["teams_disqualified"]) if reason is None]
+        if len(teams_left) == 1:
+            # we have a survivor
+            self.game_state["team_wins"] = teams_left[0]
             self.game_state["finished"] = True
-            # clear the bot_id of the current bot
-            self.game_state["bot_id"] = None
-        else:
-            for to_eat, eaten in zip(self.game_state["food_to_eat"], self.game_state["food_count"]):
-                if to_eat == eaten:
-                    self.game_state["finished"] = True
+            return True
 
-    def check_winner(self):
-        if not self.game_state["finished"]:
-            return
+        # If the round has finished, we may check, if we can end the game
+        if self.game_state["bot_id"] is None:
+            if self.game_state["round_index"] >= self.game_time:
+                self.game_state["finished"] = True
+            else:
+                for to_eat, eaten in zip(self.game_state["food_to_eat"], self.game_state["food_count"]):
+                    if to_eat == eaten:
+                        self.game_state["finished"] = True
 
-        if (self.game_state["team_wins"] is not None or
-            self.game_state["game_draw"] is not None):
-            # we found out already
-            return
+        if self.game_state["finished"]:
+            if self.universe.teams[0].score > self.universe.teams[1].score:
+                self.game_state["team_wins"] = 0
+            elif self.universe.teams[0].score < self.universe.teams[1].score:
+                self.game_state["team_wins"] = 1
+            else:
+                self.game_state["game_draw"] = True
+            return True
 
-        if self.universe.teams[0].score > self.universe.teams[1].score:
-            self.game_state["team_wins"] = 0
-        elif self.universe.teams[0].score < self.universe.teams[1].score:
-            self.game_state["team_wins"] = 1
-        else:
-            self.game_state["game_draw"] = True
+        return self.game_state["finished"]
 
 
 class UniverseNoiser(object):
