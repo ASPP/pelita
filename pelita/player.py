@@ -549,6 +549,27 @@ class NQRandomPlayer(AbstractPlayer):
         return self.rnd.choice(legal_moves.keys())
 
 
+class RandomExplorerPlayer(AbstractPlayer):
+    """ Least visited random player. Will prefer moving to a position it’s never seen before. """
+    def set_initial(self):
+        self.visited = []
+
+    def get_move(self):
+        if self.current_pos in self.visited:
+            self.visited.remove(self.current_pos)
+        self.visited.insert(0, self.current_pos)
+
+        moves = dict(**self.legal_moves)
+        for pos in self.visited:
+            if len(moves) == 1:
+                return moves.keys()[0]
+            if len(moves) == 0:
+                return datamodel.stop
+            moves = {k: v for k, v in moves.iteritems() if pos != v}
+        # more than one move left
+        return random.choice(moves.keys())
+
+
 class BFSPlayer(AbstractPlayer):
     """ This player uses breadth first search to always go to the closest food.
 
