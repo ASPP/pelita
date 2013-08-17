@@ -17,7 +17,9 @@ __docformat__ = "restructuredtext"
 SANE_PLAYERS = ['BFSPlayer',
                 'BasicDefensePlayer',
                 'NQRandomPlayer',
-                'RandomPlayer']
+                'RandomPlayer',
+                'RandomExplorerPlayer',
+                'FoodEatingPlayer']
 
 class SimpleTeam(object):
     """ Simple class used to register an arbitrary number of (Abstract-)Players.
