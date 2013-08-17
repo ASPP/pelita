@@ -375,6 +375,11 @@ class AbstractPlayer(object):
         """
         self._say = unicode(text, errors='ignore')
 
+    def __str__(self):
+        return "%s(index=%r, current_pos=%r)" % (self.__class__.__name__,
+                getattr(self, "_index", None),
+                getattr(self, "current_pos", None))
+
 class StoppingPlayer(AbstractPlayer):
     """ A Player that just stands still. """
     def get_move(self):

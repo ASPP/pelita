@@ -31,6 +31,7 @@ import multiprocessing
 import threading
 import sys
 import traceback
+import re
 
 import uuid
 import zmq
@@ -49,10 +50,44 @@ class DeadConnection(Exception):
 #: The timeout to use during sending
 DEAD_CONNECTION_TIMEOUT = 3.0
 
+def extract_port_range(address):
+    """ We additionally allow for setting a port range in rectangular brackets:
+        tcp://127.0.0.1:[50100:50120]
+    """
+    range_pattern = re.compile(r"(?P<addr>.*?):\[(?P<port_min>\d+):(?P<port_max>\d+)\]")
+    random_pattern = re.compile(r"(?P<addr>.*?):\*")
+    port_pattern = re.compile(r"(?P<addr>.*?):(?P<port>\d+)")
+
+    m = range_pattern.match(address)
+    if m:
+        return {"addr": m.group(1), "port_min": int(m.group(2)), "port_max": int(m.group(3))}
+    m = random_pattern.match(address)
+    if m:
+        return {"addr": m.group(1), "port_min": None, "port_max": None}
+    m = port_pattern.match(address)
+    if m:
+        return {"addr": address}
+    return {"addr": address}
+
 def bind_socket(socket, address, option_hint=None):
     try:
-        socket.bind(address)
-    except zmq.ZMQError as e:
+        address_range = extract_port_range(address)
+        addr = address_range["addr"]
+        try:
+            port_min = address_range["port_min"]
+            port_max = address_range["port_max"]
+            if port_min and port_max:
+                port = socket.bind_to_random_port(addr, port_min, port_max)
+            else:
+                port = socket.bind_to_random_port(addr)
+            bind_addr = "{0}:{1}".format(addr, port)
+            return bind_addr
+
+        except KeyError:
+            socket.bind(addr)
+            return addr
+
+    except (zmq.ZMQError, zmq.ZMQBindError) as e:
         print >>sys.stderr, 'error binding to address %s: %s' % (address, e)
         if option_hint:
             print >>sys.stderr, 'use %s <address> to specify a different port' %\
@@ -119,9 +154,14 @@ class ZMQConnection(object):
         if socks.get(self.socket) == zmq.POLLOUT:
             # I think we need to set NOBLOCK here, else we may run into a
             # race condition if a connection was closed between poll and send.
+            # NOBLOCK should raise, so we can catch that
             message_obj = {"__uuid__": msg_uuid, "__action__": action, "__data__": data}
             json_message = json_converter.dumps(message_obj)
-            self.socket.send(json_message, flags=zmq.NOBLOCK)
+            try:
+                self.socket.send(json_message, flags=zmq.NOBLOCK)
+            except zmq.ZMQError as e:
+                _logger.info("Could not send message. Assume socket is unavailable. %r", e)
+                raise DeadConnection()
         else:
             raise DeadConnection()
         self.last_uuid = msg_uuid
@@ -201,7 +241,10 @@ class RemoteTeamPlayer(object):
             self.zmqconnection.send("set_initial", {"team_id": team_id,
                                                     "universe": universe,
                                                     "game_state": game_state})
-            return self.zmqconnection.recv()
+            return self.zmqconnection.recv_timeout(game_state["timeout_length"])
+        except ZMQTimeout:
+            # answer did not arrive in time
+            raise PlayerTimeout()
         except DeadConnection:
             _logger.info("Detected a DeadConnection.")
 
@@ -263,8 +306,6 @@ class SimpleServer(object):
         The name of the given layout string.
     seed : int, optional
         The initial seed to be passed to GameMaster.
-    parseable_output : Boolean
-        Make the result of the game parseable
 
     Raises
     ------
@@ -276,7 +317,7 @@ class SimpleServer(object):
     """
     def __init__(self, layout_string, teams=2, players=4, rounds=3000, bind_addrs="tcp://*",
                  initial_delay=0.0, max_timeouts=5, timeout_length=3, layout_name=None,
-                 seed=None, parseable_output=False):
+                 seed=None):
 
         self.players = players
         self.number_of_teams = teams
@@ -287,7 +328,7 @@ class SimpleServer(object):
                                       max_timeouts=max_timeouts,
                                       timeout_length=timeout_length,
                                       layout_name=layout_name,
-                                      seed=seed, parseable_output=parseable_output)
+                                      seed=seed)
 
         if isinstance(bind_addrs, tuple):
             pass
@@ -370,9 +411,6 @@ class SimpleController(object):
         self.game_master = game_master
         self.address = address
 
-    def on_start(self):
-        # We connect here because zmq likes to have its own
-        # thread/process/whatever.
         self.context = zmq.Context()
         # We currently use a DEALER which we bind.
         # This means, other DEALERs can connect and
@@ -380,10 +418,9 @@ class SimpleController(object):
         # However, we cannot send any information back to them.
         # (Only one DEALER will receive the data.)
         self.socket = self.context.socket(zmq.DEALER)
-        bind_socket(self.socket, self.address, '--controller')
+        self.socket_addr = bind_socket(self.socket, self.address, '--controller')
 
     def run(self):
-        self.on_start()
         try:
             while True:
                 self._loop()
@@ -546,20 +583,22 @@ class SimplePublisher(AbstractViewer):
         self.address = address
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PUB)
-        bind_socket(self.socket, self.address, '--publish')
+        self.socket_addr = bind_socket(self.socket, self.address, '--publish')
+
+    def _send(self, message):
+        as_json = json_converter.dumps(message)
+        self.socket.send(as_json)
 
     def set_initial(self, universe):
         message = {"__action__": "set_initial",
                    "__data__": {"universe": universe}}
-        as_json = json_converter.dumps(message)
-        self.socket.send(as_json)
+        self._send(message)
 
     def observe(self, universe, game_state):
         message = {"__action__": "observe",
                    "__data__": {"universe": universe,
                                 "game_state": game_state}}
-        as_json = json_converter.dumps(message)
-        self.socket.send(as_json)
+        self._send(message)
 
 class SimpleSubscriber(AbstractViewer):
     """ Subscribes to a given zmq socket and passes

@@ -182,6 +182,18 @@ class TestAdjacencyList(unittest.TestCase):
         # just a simple smoke test
         self.assertEqual(14, len(al.a_star((1, 1), (3, 1))))
 
+    def test_path_to_same_position(self):
+        test_layout = (
+        """ ##################
+            #0#.  .  # .     #
+            #2#####    #####1#
+            #     . #  .  .#3#
+            ################## """)
+        universe = CTFUniverse.create(test_layout, 4)
+        al = AdjacencyList(universe.free_positions())
+        self.assertEqual([], al.a_star((1, 1), (1, 1)))
+        self.assertEqual([], al.bfs((1, 1), [(1, 1)]))
+
     def test_bfs_exceptions(self):
         test_layout = (
         """ ############

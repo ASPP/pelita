@@ -4,7 +4,7 @@ import unittest
 import time
 import collections
 import pelita
-from pelita.datamodel import Wall, Free, Food, CTFUniverse, KILLPOINTS
+from pelita.datamodel import Wall, Free, Food, CTFUniverse
 
 from pelita.game_master import GameMaster, UniverseNoiser, AStarNoiser, ManhattanNoiser, PlayerTimeout
 from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer, StoppingPlayer
@@ -63,16 +63,16 @@ class TestGameMaster(unittest.TestCase):
             #2#####    #####1#
             #     . #  .  .#3#
             ################## """)
-        
+
         game_master = GameMaster(test_layout, 4, 200)
-        
+
         team_1 = SimpleTeam('team1', TestPlayer([]), TestPlayer([]))
         team_2 = SimpleTeam('team2', TestPlayer([]), TestPlayer([]))
 
         game_master.register_team(team_1)
         game_master.register_team(team_2)
         game_master.set_initial()
-        
+
         self.assertEqual(game_master.universe.teams[0].name, "team1")
         self.assertEqual(game_master.universe.teams[1].name,
                          "team2")
@@ -303,18 +303,27 @@ class TestUniverseNoiser(unittest.TestCase):
             # #####    #####3#
             #  0# . #  .  . 1#
             ################## """)
-        # noiser should not find a connection
+        # noiser should not crash when it does not find a connection
         universe = CTFUniverse.create(test_layout, 4)
 
         positions = [b.current_pos for b in universe.bots]
+        team_positions = []
+        enemy_positions = []
 
-        noiser = AStarNoiser(universe.copy())
-        new_uni = noiser.uniform_noise(universe.copy(), 0)
-        new_positions = [b.current_pos for b in new_uni.bots]
+        # We try it a few times to avoid coincidental failure
+        RANDOM_TESTS = 3
+        for i in range(RANDOM_TESTS):
+
+            noiser = AStarNoiser(universe.copy())
+            new_uni = noiser.uniform_noise(universe.copy(), 0)
+            new_positions = [b.current_pos for b in new_uni.bots]
+
+            team_positions += new_positions[0::2]
+            enemy_positions += new_positions[1::2]
 
         # assume not all bots (except 0 and 2) are in the original position anymore
-        self.assertEqual(positions[0::2], new_positions[0::2])
-        self.assertNotEqual(positions[1::2], new_positions[1::2],
+        self.assertEqual(set(positions[0::2]), set(team_positions))
+        self.assertNotEqual(set(positions[1::2]), set(enemy_positions),
                             "Testing randomized function, may fail sometimes.")
 
     def test_noise_manhattan_failure(self):
@@ -324,18 +333,28 @@ class TestUniverseNoiser(unittest.TestCase):
             ########## #####3#
             ###0###### .  . 1#
             ################## """)
-        # noiser should not find a connection
+        # noiser should not crash when it does not find a connection
         universe = CTFUniverse.create(test_layout, 4)
 
         positions = [b.current_pos for b in universe.bots]
 
-        noiser = ManhattanNoiser(universe.copy())
-        new_uni = noiser.uniform_noise(universe.copy(), 0)
-        new_positions = [b.current_pos for b in new_uni.bots]
+        positions = [b.current_pos for b in universe.bots]
+        team_positions = []
+        enemy_positions = []
+
+        # We try it a few times to avoid coincidental failure
+        RANDOM_TESTS = 3
+        for i in range(RANDOM_TESTS):
+            noiser = ManhattanNoiser(universe.copy())
+            new_uni = noiser.uniform_noise(universe.copy(), 0)
+            new_positions = [b.current_pos for b in new_uni.bots]
+
+            team_positions += new_positions[0::2]
+            enemy_positions += new_positions[1::2]
 
         # assume not all bots (except 0 and 2) are in the original position anymore
-        self.assertEqual(positions[0::2], new_positions[0::2])
-        self.assertNotEqual(positions[1::2], new_positions[1::2],
+        self.assertEqual(set(positions[0::2]), set(team_positions))
+        self.assertNotEqual(set(positions[1::2]), set(enemy_positions),
                             "Testing randomized function, may fail sometimes.")
 
 class TestAbstracts(unittest.TestCase):
@@ -413,7 +432,7 @@ class TestGame(unittest.TestCase):
                 #.0 1#
                 ###### """)
         self.assertEqual(create_TestUniverse(test_third_round,
-            black_score=KILLPOINTS), gm.universe)
+            black_score=gm.universe.KILLPOINTS), gm.universe)
 
         gm.play_round()
         test_fourth_round = (
@@ -422,7 +441,7 @@ class TestGame(unittest.TestCase):
                 #. 1 #
                 ###### """)
         self.assertEqual(create_TestUniverse(test_fourth_round,
-            black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
+            black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS), gm.universe)
 
         gm.play_round()
         test_fifth_round = (
@@ -431,7 +450,7 @@ class TestGame(unittest.TestCase):
                 #.1  #
                 ###### """)
         self.assertEqual(create_TestUniverse(test_fifth_round,
-            black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
+            black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS), gm.universe)
 
         print gm.universe.pretty
         gm.play_round()
@@ -442,7 +461,7 @@ class TestGame(unittest.TestCase):
                 ###### """)
         print gm.universe.pretty
         self.assertEqual(create_TestUniverse(test_sixth_round,
-            black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
+            black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS), gm.universe)
 
         # now play the full game
         gm = GameMaster(test_start, number_bots, 200)
@@ -455,7 +474,7 @@ class TestGame(unittest.TestCase):
                 #1   #
                 ###### """)
         self.assertEqual(create_TestUniverse(test_sixth_round,
-            black_score=KILLPOINTS, white_score=KILLPOINTS), gm.universe)
+            black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS), gm.universe)
 
     def test_malicous_player(self):
         free_obj = Free
@@ -756,9 +775,66 @@ class TestGame(unittest.TestCase):
         self.assertEqual(tv.cache[-1]["round_index"], gm.game_state["max_timeouts"] - 1)
         self.assertEqual(gm.universe.teams[0].score, 0)
         self.assertEqual(gm.universe.teams[1].score, 0)
+        # the bot moves four times, so after the fourth time,
+        # it is back on its original position
+        self.assertEqual(gm.universe.bots[0].current_pos, (1,1))
+        self.assertTrue(tv.cache[-1]["team_wins"] is not None)
+        self.assertEqual(tv.cache[-1]["team_wins"], 1)
+
+    def test_must_not_move_after_last_timeout(self):
+        # 0 must move back and forth because of random steps
+        # but due to its last timeout, it should be disqualified
+        # immediately
+        test_start = (
+            """ ######
+                ##0.##
+                # ## #
+                ##. 1#
+                ###### """
+        )
+        # the game lasts one round, and then draws
+        gm = GameMaster(test_start, 2, 100, max_timeouts=1)
+        # players do nothing
+        class TimeOutPlayer(AbstractPlayer):
+            def get_move(self):
+                raise PlayerTimeout
+
+        class CheckTestPlayer(AbstractPlayer):
+            def get_move(self):
+                raise RuntimeError("This should never be called")
+
+        gm.register_team(SimpleTeam(TimeOutPlayer()))
+        gm.register_team(SimpleTeam(CheckTestPlayer()))
+
+        # this test viewer caches all events lists seen through observe
+        class TestViewer(AbstractViewer):
+            def __init__(self):
+                self.cache = list()
+            def observe(self, universe, game_state):
+                self.cache.append(game_state)
+
+        # run the game
+        tv = TestViewer()
+        gm.register_viewer(tv)
+        gm.set_initial()
+
+        gm.play()
+        print gm.universe.pretty
+        print gm.game_state
+
+        # check
+        self.assertEqual(gm.game_state["max_timeouts"], 1)
+        self.assertEqual(tv.cache[-1]["round_index"], gm.game_state["max_timeouts"] - 1)
+        self.assertEqual(gm.universe.teams[0].score, 0)
+        self.assertEqual(gm.universe.teams[1].score, 0)
         self.assertEqual(gm.universe.bots[0].current_pos, (2,1))
         self.assertTrue(tv.cache[-1]["team_wins"] is not None)
         self.assertEqual(tv.cache[-1]["team_wins"], 1)
+
+        # the game ends in round 0 with bot_id 0
+        self.assertEqual(gm.game_state["round_index"], 0)
+        self.assertEqual(gm.game_state["bot_id"], 0)
+
 
     def test_play_step(self):
 
@@ -780,8 +856,8 @@ class TestGame(unittest.TestCase):
         self.assertEqual(gm.universe.bots[0].current_pos, (3,1))
         self.assertEqual(gm.universe.bots[1].current_pos, (4,2))
         self.assertEqual(gm.game_state["round_index"], 0)
-        self.assertEqual(gm.game_state["bot_id"], 1)
-        self.assertEqual(gm.game_state["finished"], False)
+        self.assertTrue(gm.game_state["bot_id"] is None)
+        self.assertFalse(gm.game_state["finished"])
 
         gm.play_step()
         self.assertEqual(gm.universe.bots[0].current_pos, (4,1))
@@ -817,7 +893,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual(gm.universe.bots[0].current_pos, (5,1))
         self.assertEqual(gm.universe.bots[1].current_pos, (2,2))
         self.assertEqual(gm.game_state["round_index"], 2)
-        self.assertEqual(gm.game_state["bot_id"], 1)
+        self.assertTrue(gm.game_state["bot_id"] is None)
         self.assertEqual(gm.game_state["finished"], False)
 
         gm.play_round()
@@ -825,7 +901,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual(gm.universe.bots[0].current_pos, (6,1))
         self.assertEqual(gm.universe.bots[1].current_pos, (1,2))
         self.assertEqual(gm.game_state["round_index"], 3)
-        self.assertEqual(gm.game_state["bot_id"], 1)
+        self.assertTrue(gm.game_state["bot_id"] is None)
         self.assertEqual(gm.game_state["finished"], True)
 
         # Game finished because all food was eaten
@@ -835,7 +911,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual(gm.universe.bots[0].current_pos, (6,1))
         self.assertEqual(gm.universe.bots[1].current_pos, (1,2))
         self.assertEqual(gm.game_state["round_index"], 3)
-        self.assertEqual(gm.game_state["bot_id"], 1)
+        self.assertTrue(gm.game_state["bot_id"] is None)
         self.assertEqual(gm.game_state["finished"], True)
 
         # nothing happens anymore
@@ -843,7 +919,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual(gm.universe.bots[0].current_pos, (6,1))
         self.assertEqual(gm.universe.bots[1].current_pos, (1,2))
         self.assertEqual(gm.game_state["round_index"], 3)
-        self.assertEqual(gm.game_state["bot_id"], 1)
+        self.assertTrue(gm.game_state["bot_id"] is None)
         self.assertEqual(gm.game_state["finished"], True)
 
     def test_kill_count(self):
