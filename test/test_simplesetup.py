@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import unittest
+import uuid
 
 import pelita
-from pelita.simplesetup import SimpleClient, SimpleServer, SimplePublisher, SimpleSubscriber, bind_socket
+from pelita.simplesetup import SimpleClient, SimpleServer, SimplePublisher, SimpleSubscriber, bind_socket, extract_port_range
 from pelita.player import SimpleTeam, RandomPlayer, TestPlayer, AbstractPlayer
 from pelita.viewer import AsciiViewer, AbstractViewer
 from pelita.datamodel import Free
@@ -13,7 +14,7 @@ import zmq
 class TestSimpleSetup(unittest.TestCase):
     def test_bind_socket(self):
         # check that we cannot bind to a stupid address
-        address = "ipc:///tmp/pelita-test-bind-socket"
+        address = "ipc:///tmp/pelita-test-bind-socket-%s" % uuid.uuid4()
         context = zmq.Context()
         socket = context.socket(zmq.PUB)
         bind_socket(socket, address)
@@ -27,8 +28,8 @@ class TestSimpleSetup(unittest.TestCase):
         ##########
         """
         server = SimpleServer(layout_string=layout, rounds=5, players=2,
-                              bind_addrs=("ipc:///tmp/pelita-testplayer1",
-                                          "ipc:///tmp/pelita-testplayer2"))
+                              bind_addrs=("ipc:///tmp/pelita-testplayer1-%s" % uuid.uuid4(),
+                                          "ipc:///tmp/pelita-testplayer2-%s" % uuid.uuid4()))
 
         for bind_address in server.bind_addresses:
             self.assertTrue(bind_address.startswith("ipc://"))
@@ -233,8 +234,9 @@ class TestSimpleSetup(unittest.TestCase):
             def sync(self):
                 self.has_sync = True
 
-        mean_viewer = SyncedSubscriber(MeanViewer(), "ipc:///tmp/pelita-publisher")
-        test_viewer = SyncedSubscriber(TestViewer(), "ipc:///tmp/pelita-publisher")
+        address = "ipc:///tmp/pelita-publisher-%s" % uuid.uuid4()
+        mean_viewer = SyncedSubscriber(MeanViewer(), address)
+        test_viewer = SyncedSubscriber(TestViewer(), address)
 
         # must be threads because we try to access shared state
         # in the mean_viewer_did_run variable
@@ -242,7 +244,7 @@ class TestSimpleSetup(unittest.TestCase):
         mean_viewer_thread = mean_viewer.autoplay_thread()
         test_viewer_thread = test_viewer.autoplay_thread()
 
-        publisher_viewer = SimplePublisher("ipc:///tmp/pelita-publisher")
+        publisher_viewer = SimplePublisher(address)
 
         viewers = [mean_viewer, test_viewer]
         while not all(getattr(viewer, "has_sync", False) for viewer in viewers):
@@ -271,6 +273,21 @@ class TestSimpleSetup(unittest.TestCase):
         self.assertTrue(self.mean_viewer_did_run)
         self.assertTrue(self.test_viewer_did_run)
 
+    def test_extract_port_range(self):
+        test_cases = [
+            ("tcp://*",                     dict(addr="tcp://*")),
+            ("tcp://*:",                    dict(addr="tcp://*:")),
+            ("tcp://*:*",                   dict(addr="tcp://*", port_min=None, port_max=None)),
+            ("tcp://*:123",                 dict(addr="tcp://*:123")),
+            ("tcp://*:[123:124]",           dict(addr="tcp://*", port_min=123, port_max=124)),
+            ("tcp://*:123:[124:125]]",      dict(addr="tcp://*:123", port_min=124, port_max=125)),
+            ("tcp://*:123[124:125]]",       dict(addr="tcp://*:123[124:125]]")),
+            ("ipc:///tmp/pelita-publisher", dict(addr="ipc:///tmp/pelita-publisher"))
+        ]
+
+        for test in test_cases:
+            extracted = extract_port_range(test[0])
+            self.assertEqual(extracted, test[1])
 
 if __name__ == '__main__':
     unittest.main()

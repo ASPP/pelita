@@ -95,7 +95,7 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual(player_1.previous_pos, (15, 2))
         self.assertEqual(player_1.initial_pos, (15, 2))
         self.assertEqual(player_1.current_state["round_index"], 0)
-        self.assertEqual(player_1.current_state["bot_id"], 3)
+        self.assertTrue(player_1.current_state["bot_id"] is None)
         self.assertEqual(universe.bots[1].current_pos, (15, 1))
         self.assertEqual(universe.bots[1].initial_pos, (15, 2))
         self.assertUniversesEqual(player_1.current_uni, player_1.universe_states[-1])
@@ -106,7 +106,7 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual(player_1.previous_pos, (15, 2))
         self.assertEqual(player_1.initial_pos, (15, 2))
         self.assertEqual(player_1.current_state["round_index"], 1)
-        self.assertEqual(player_1.current_state["bot_id"], 3)
+        self.assertTrue(player_1.current_state["bot_id"] is None)
         self.assertEqual(universe.bots[1].current_pos, (14, 1))
         self.assertEqual(universe.bots[1].initial_pos, (15, 2))
         self.assertUniversesNotEqual(player_1.current_uni,

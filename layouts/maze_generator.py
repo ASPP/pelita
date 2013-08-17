@@ -22,7 +22,7 @@ Completely rewritten by Pietro Berkes
 import numpy
 from mdp.graph import Graph
 
-from pelita.datamodel import moves, north, south, east, west
+from pelita.datamodel import north, south, east, west
 
 # character constants for walls, food, and empty spaces
 W = '#'
@@ -310,3 +310,4 @@ def get_new_maze(height, width, nfood=30, seed=None, dead_ends=False):
     # add food and pacman
     add_pacman_stuff(maze, max_food=2 * nfood)
     return maze_to_str(maze)
+

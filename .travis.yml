@@ -2,8 +2,15 @@ language: python
 python:
   - "2.6"
   - "2.7"
+env:
+  - PYZMQ="pyzmq==2.2.0.1"
+  - PYZMQ="pyzmq"
 # command to install dependencies
 install:
-  - "pip install pyzmq --use-mirrors"
+  - pip install $PYZMQ --install-option="--zmq=bundled" --use-mirrors
 # command to run tests
-script: nosetests -v && ./pelitagame --progress
+script: >
+          python -c "import zmq; print 'Using zmq %s.' % zmq.zmq_version()" &&
+          python -c "import zmq; print 'Using pyzmq %s.' % zmq.pyzmq_version()" &&
+          nosetests -v && ./pelitagame --progress
+
