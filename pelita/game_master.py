@@ -202,6 +202,9 @@ class GameMaster(object):
                 "Universe uses %i teams, but %i are registered."
                 % (len(self.player_teams), len(self.universe.teams)))
 
+        for viewer in self.viewers:
+            viewer.set_initial(self.universe)
+
         for team_id, team in enumerate(self.player_teams):
             # What follows is a small hack:
             # We only send the seed once with the game state
@@ -215,9 +218,6 @@ class GameMaster(object):
                 team.set_initial(team_id, self.universe, team_state)
             except PlayerTimeout:
                 pass
-
-        for viewer in self.viewers:
-            viewer.set_initial(self.universe)
 
     # TODO the game winning detection should be refactored
     def play(self):
