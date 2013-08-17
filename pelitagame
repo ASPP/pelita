@@ -517,6 +517,12 @@ def run_game():
             args.viewer = "tk-no-sync"
         runner = replay_publisher.run
     else:
+        if args.layout or args.layoutfile:
+            layout_name, layout_string = pelita.layout.load_layout(layout_name=args.layout, layout_file=args.layoutfile)
+        else:
+            layout_name, layout_string = pelita.layout.get_random_layout(args.filter)
+        print "Using layout '%s'" % layout_name
+
         if not args.spec_left:
             args.spec_left = "random"
         if not args.spec_right:
@@ -533,12 +539,6 @@ def run_game():
             initial_delay = 0.5
         else:
             initial_delay = 0.0
-
-        if args.layout or args.layoutfile:
-            layout_name, layout_string = pelita.layout.load_layout(layout_name=args.layout, layout_file=args.layoutfile)
-        else:
-            layout_name, layout_string = pelita.layout.get_random_layout(args.filter)
-        print "Using layout '%s'" % layout_name
 
         server = pelita.simplesetup.SimpleServer(layout_string=layout_string,
                                                  rounds=args.rounds,
