@@ -211,7 +211,10 @@ class GameMaster(object):
 
             team_seed = self.rnd.randint(0, sys.maxint)
             team_state = dict({"seed": team_seed}, **self.game_state)
-            team.set_initial(team_id, self.universe, team_state)
+            try:
+                team.set_initial(team_id, self.universe, team_state)
+            except PlayerTimeout:
+                pass
 
         for viewer in self.viewers:
             viewer.set_initial(self.universe)

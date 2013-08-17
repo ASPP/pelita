@@ -241,7 +241,10 @@ class RemoteTeamPlayer(object):
             self.zmqconnection.send("set_initial", {"team_id": team_id,
                                                     "universe": universe,
                                                     "game_state": game_state})
-            return self.zmqconnection.recv()
+            return self.zmqconnection.recv_timeout(game_state["timeout_length"])
+        except ZMQTimeout:
+            # answer did not arrive in time
+            raise PlayerTimeout()
         except DeadConnection:
             _logger.info("Detected a DeadConnection.")
 
