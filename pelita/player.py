@@ -567,7 +567,7 @@ class RandomExplorerPlayer(AbstractPlayer):
                 return moves.keys()[0]
             if len(moves) == 0:
                 return datamodel.stop
-            moves = {k: v for k, v in moves.iteritems() if pos != v}
+            moves = dict((k, v) for k, v in moves.iteritems() if pos != v)
         # more than one move left
         return random.choice(moves.keys())
 
