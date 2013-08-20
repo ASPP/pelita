@@ -241,7 +241,10 @@ def prepare_team(team_spec, standalone=False):
 
 
 def start_logging(filename):
-    hdlr = logging.FileHandler(filename, mode='w')
+    if filename == '-':
+        hdlr = logging.StreamHandler()
+    else:
+        hdlr = logging.FileHandler(filename, mode='w')
     logger = logging.getLogger('pelita')
     FORMAT = \
     '[%(relativeCreated)06d %(name)s:%(levelname).1s][%(funcName)s] %(message)s'
@@ -576,7 +579,10 @@ def run_game():
             server.game_master.register_viewer(publisher)
 
         if dump:
-            server.game_master.register_viewer(pelita.viewer.DumpingViewer(open(dump, "w")))
+            if dump == '-':
+                server.game_master.register_viewer(pelita.viewer.DumpingViewer(sys.stdout))
+            else:
+                server.game_master.register_viewer(pelita.viewer.DumpingViewer(open(dump, "w")))
         if args.viewer == 'ascii':
             server.game_master.register_viewer(pelita.viewer.AsciiViewer())
         if args.viewer == 'progress':
