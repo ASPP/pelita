@@ -170,6 +170,9 @@ class UiCanvas(object):
 
         self._check_grid_toggle_state()
 
+        self.status_fps_info = tkinter.Label(game_speed_frame, text="", fg="#acacac", background="white", anchor="s")
+        self.status_fps_info.pack(side=tkinter.LEFT)
+
         tkinter.Button(game_control_frame,
                        foreground="black",
                        background="white",
@@ -402,7 +405,10 @@ class UiCanvas(object):
         self.fps = (1/diff + (self.FPS_MULT-1) * self.fps)/self.FPS_MULT
         self.timestamp = newtime
 
-        roundturn = "Bot %d / Round % 3d / %.2f fps" % (turn, round, self.fps)
+        roundturn = "Bot %d / Round % 3d" % (turn, round)
+
+        fps_info = "%.f fps" % self.fps
+        self.status_fps_info.config(text=fps_info, )
 
         self.status_round_info.config(text=roundturn)
         self.status_layout_info.config(text=layout_name)
