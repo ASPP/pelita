@@ -820,11 +820,13 @@ class CTFUniverse(object):
 
 
     def _to_json_dict(self):
-        return {"maze": self.maze,
-                "teams": self.teams,
-                "bots": self.bots}
+        return {"maze": self.maze._to_json_dict(),
+                "teams": [team._to_json_dict() for team in self.teams],
+                "bots": [bot._to_json_dict() for bot in self.bots]}
 
     @classmethod
     def _from_json_dict(cls, item):
-        return cls(**item)
+        return cls(maze=Maze._from_json_dict(item["maze"]),
+                   teams=[Team._from_json_dict(team) for team in item["teams"]],
+                   bots=[Bot._from_json_dict(bot) for bot in item["bots"]])
 
