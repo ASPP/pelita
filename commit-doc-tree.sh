@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/sh
 
 # Script to automatically generate documentation and commit this to the gh-pages
 # branch. See http://ASPP.github.com/pelita/development.rst for more
@@ -11,35 +11,32 @@ if ! git diff-index --cached --quiet --ignore-submodules HEAD ; then
 fi
 
 if ! git rev-parse gh-pages &> /dev/null ; then
-    echo "Fatal: no local branch 'gh-pages exists!'"
-    exit 2
+  echo "Fatal: no local branch 'gh-pages exists!'"
+  exit 2
 fi
 
-if [ -z $(git config  branch.gh-pages.remote) ] ; then
-    echo "Fatal: 'gh-pages' does not have a remote branch!'"
-    exit 3
+if [ -z $(git config branch.gh-pages.remote) ] ; then
+  echo "Fatal: 'gh-pages' does not have a remote branch!'"
+  exit 3
 fi
 
-if [ $(git rev-parse gh-pages) != $(git rev-parse $(git config  branch.gh-pages.remote)/gh-pages) ] ; then
-    echo "Fatal: local branch 'gh-pages' and "\
-		"remote branch '$(git config  branch.gh-pages.remote)' are out of sync!"
-    exit 4
+if [ $(git rev-parse gh-pages) != $(git rev-parse $(git config branch.gh-pages.remote)/gh-pages) ] ; then
+  echo "Fatal: local branch 'gh-pages' and "\
+    "remote branch '$(git config branch.gh-pages.remote)' are out of sync!"
+  exit 4
 fi
 
 
 # get the 'git describe' output
-git_describe=$( git describe)
+git_describe=$(git describe)
 
 # make the documentation, hope it doesn't fail
 echo "Generating doc from $git_describe"
-cd doc
-make clean
-if ! make ; then
-    echo "Fatal: 'make'ing the docs failed cannot commit!"
-    exit 5
-    cd ..
+(cd doc; make clean)
+if ! (cd doc; make) ; then
+  echo "Fatal: 'make'ing the docs failed cannot commit!"
+  exit 5
 fi
-cd ..
 
 docdirectory=doc/build/html/
 
@@ -51,7 +48,7 @@ touch $docdirectory".nojekyll"
 git add -f $docdirectory
 
 # writing a tree using the current index
-tree=$(git write-tree --prefix=doc/build/html/)
+tree=$(git write-tree --prefix=$docdirectory)
 
 # we’ll have a commit
 commit=$(echo "DOC: Sphinx generated doc from $git_describe" | git commit-tree $tree -p gh-pages)
