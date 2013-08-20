@@ -14,14 +14,17 @@ pelita.datamodel.CTFUniverse
    
       ~CTFUniverse.__init__
       ~CTFUniverse.copy
+      ~CTFUniverse.create
       ~CTFUniverse.enemy_bots
       ~CTFUniverse.enemy_food
       ~CTFUniverse.enemy_team
-      ~CTFUniverse.get_legal_moves
-      ~CTFUniverse.get_legal_moves_or_stop
+      ~CTFUniverse.free_positions
+      ~CTFUniverse.legal_moves
+      ~CTFUniverse.legal_moves_or_stop
       ~CTFUniverse.move_bot
       ~CTFUniverse.neighbourhood
       ~CTFUniverse.other_team_bots
+      ~CTFUniverse.reachable
       ~CTFUniverse.team_border
       ~CTFUniverse.team_bots
       ~CTFUniverse.team_food
@@ -34,6 +37,7 @@ pelita.datamodel.CTFUniverse
       :toctree:
       :nosignatures:
    
+      ~CTFUniverse.KILLPOINTS
       ~CTFUniverse.bot_positions
       ~CTFUniverse.compact_str
       ~CTFUniverse.food_list

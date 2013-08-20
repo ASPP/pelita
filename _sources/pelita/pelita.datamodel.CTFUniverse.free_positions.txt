@@ -1,0 +1,6 @@
+pelita.datamodel.CTFUniverse.free_positions
+===========================================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: CTFUniverse.free_positions

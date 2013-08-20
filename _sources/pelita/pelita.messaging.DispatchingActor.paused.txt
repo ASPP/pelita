@@ -1,6 +1,0 @@
-pelita.messaging.DispatchingActor.paused
-========================================
-
-.. currentmodule:: pelita.messaging
-
-.. autoattribute:: DispatchingActor.paused

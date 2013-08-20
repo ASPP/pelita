@@ -1,6 +1,0 @@
-pelita.messaging.Actor.on_receive
-=================================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: Actor.on_receive

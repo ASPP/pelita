@@ -1,6 +1,0 @@
-pelita.messaging.RemoteActorReference.__init__
-==============================================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: RemoteActorReference.__init__

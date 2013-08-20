@@ -1,0 +1,6 @@
+pelita.graph.iter_adjacencies
+=============================
+
+.. currentmodule:: pelita.graph
+
+.. autofunction:: iter_adjacencies

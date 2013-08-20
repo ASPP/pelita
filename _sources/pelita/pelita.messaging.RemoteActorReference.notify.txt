@@ -1,6 +1,0 @@
-pelita.messaging.RemoteActorReference.notify
-============================================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: RemoteActorReference.notify

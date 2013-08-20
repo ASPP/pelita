@@ -1,6 +1,0 @@
-pelita.messaging.RemoteActorReference.query
-===========================================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: RemoteActorReference.query

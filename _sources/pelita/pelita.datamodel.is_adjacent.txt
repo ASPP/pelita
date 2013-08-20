@@ -1,6 +1,0 @@
-pelita.datamodel.is_adjacent
-============================
-
-.. currentmodule:: pelita.datamodel
-
-.. autofunction:: is_adjacent

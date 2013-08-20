@@ -1,0 +1,6 @@
+pelita.datamodel.CTFUniverse.KILLPOINTS
+=======================================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoattribute:: CTFUniverse.KILLPOINTS

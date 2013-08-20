@@ -1,6 +1,0 @@
-pelita.game_master.GameMaster.check_winner
-==========================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: GameMaster.check_winner

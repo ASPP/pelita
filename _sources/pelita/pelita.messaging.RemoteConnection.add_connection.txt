@@ -1,6 +1,0 @@
-pelita.messaging.RemoteConnection.add_connection
-================================================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: RemoteConnection.add_connection

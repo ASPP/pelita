@@ -1,6 +1,0 @@
-pelita.messaging.ActorReference.put
-===================================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: ActorReference.put

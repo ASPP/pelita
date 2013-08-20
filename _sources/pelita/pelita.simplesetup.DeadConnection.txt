@@ -1,0 +1,6 @@
+pelita.simplesetup.DeadConnection
+=================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. autoexception:: DeadConnection

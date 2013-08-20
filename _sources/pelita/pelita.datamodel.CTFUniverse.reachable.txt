@@ -1,0 +1,6 @@
+pelita.datamodel.CTFUniverse.reachable
+======================================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: CTFUniverse.reachable

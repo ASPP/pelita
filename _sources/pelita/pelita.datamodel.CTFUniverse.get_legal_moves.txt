@@ -1,6 +1,0 @@
-pelita.datamodel.CTFUniverse.get_legal_moves
-============================================
-
-.. currentmodule:: pelita.datamodel
-
-.. automethod:: CTFUniverse.get_legal_moves

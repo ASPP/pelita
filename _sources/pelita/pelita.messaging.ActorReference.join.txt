@@ -1,6 +1,0 @@
-pelita.messaging.ActorReference.join
-====================================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: ActorReference.join

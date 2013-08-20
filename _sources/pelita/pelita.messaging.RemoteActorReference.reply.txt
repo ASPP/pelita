@@ -1,6 +1,0 @@
-pelita.messaging.RemoteActorReference.reply
-===========================================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: RemoteActorReference.reply

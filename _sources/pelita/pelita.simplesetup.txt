@@ -11,6 +11,7 @@ pelita.simplesetup
       :nosignatures:
    
       ~bind_socket
+      ~extract_port_range
    
 
    
@@ -36,6 +37,7 @@ pelita.simplesetup
       :toctree:
       :nosignatures:
    
+      ~DeadConnection
       ~ExitLoop
       ~UnknownMessageId
       ~ZMQTimeout

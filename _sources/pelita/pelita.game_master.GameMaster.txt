@@ -14,12 +14,10 @@ pelita.game_master.GameMaster
    
       ~GameMaster.__init__
       ~GameMaster.check_finished
-      ~GameMaster.check_winner
       ~GameMaster.play
       ~GameMaster.play_round
       ~GameMaster.play_step
       ~GameMaster.prepare_next_round
-      ~GameMaster.print_possible_winner
       ~GameMaster.register_team
       ~GameMaster.register_viewer
       ~GameMaster.set_initial

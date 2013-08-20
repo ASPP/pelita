@@ -4,41 +4,7 @@ pelita.messaging
 .. automodule:: pelita.messaging
 
    
-   .. rubric:: Functions
-
-   .. autosummary::
-      :toctree:
-      :nosignatures:
-   
-      ~actor_of
-      ~expose
-   
 
    
-   .. rubric:: Classes
 
-   .. autosummary::
-      :toctree:
-      :nosignatures:
-   
-      ~Actor
-      ~ActorReference
-      ~BaseActorReference
-      ~DispatchingActor
-      ~Exit
-      ~RemoteActorReference
-      ~RemoteConnection
-      ~Request
-      ~StopProcessing
-   
-
-   
-   .. rubric:: Exceptions
-
-   .. autosummary::
-      :toctree:
-      :nosignatures:
-   
-      ~ActorNotRunning
-      ~DeadConnection
    

@@ -1,6 +1,0 @@
-pelita.messaging.BaseActorReference.reply
-=========================================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: BaseActorReference.reply

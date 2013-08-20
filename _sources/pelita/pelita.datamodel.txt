@@ -10,13 +10,8 @@ pelita.datamodel
       :toctree:
       :nosignatures:
    
-      ~create_CTFUniverse
       ~create_maze
-      ~diff_pos
       ~extract_initial_positions
-      ~is_adjacent
-      ~manhattan_dist
-      ~new_pos
    
 
    

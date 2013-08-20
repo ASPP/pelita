@@ -1,6 +1,0 @@
-pelita.messaging.RemoteActorReference.channel
-=============================================
-
-.. currentmodule:: pelita.messaging
-
-.. autoattribute:: RemoteActorReference.channel

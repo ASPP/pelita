@@ -1,0 +1,6 @@
+pelita.simplesetup.extract_port_range
+=====================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. autofunction:: extract_port_range

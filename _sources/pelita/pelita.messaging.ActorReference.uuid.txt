@@ -1,6 +1,0 @@
-pelita.messaging.ActorReference.uuid
-====================================
-
-.. currentmodule:: pelita.messaging
-
-.. autoattribute:: ActorReference.uuid

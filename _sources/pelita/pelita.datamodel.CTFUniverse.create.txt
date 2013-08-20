@@ -1,0 +1,6 @@
+pelita.datamodel.CTFUniverse.create
+===================================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: CTFUniverse.create

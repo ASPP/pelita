@@ -1,6 +1,0 @@
-pelita.messaging.Actor.thread
-=============================
-
-.. currentmodule:: pelita.messaging
-
-.. autoattribute:: Actor.thread

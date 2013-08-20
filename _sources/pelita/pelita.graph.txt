@@ -4,6 +4,17 @@ pelita.graph
 .. automodule:: pelita.graph
 
    
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      ~diff_pos
+      ~iter_adjacencies
+      ~manhattan_dist
+      ~new_pos
+   
 
    
    .. rubric:: Classes
@@ -23,5 +34,4 @@ pelita.graph
       :nosignatures:
    
       ~NoPathException
-      ~NoPositionException
    

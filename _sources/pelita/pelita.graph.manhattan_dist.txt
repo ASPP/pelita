@@ -1,0 +1,6 @@
+pelita.graph.manhattan_dist
+===========================
+
+.. currentmodule:: pelita.graph
+
+.. autofunction:: manhattan_dist

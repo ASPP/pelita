@@ -1,6 +1,0 @@
-pelita.messaging.ActorReference.is_running
-==========================================
-
-.. currentmodule:: pelita.messaging
-
-.. autoattribute:: ActorReference.is_running

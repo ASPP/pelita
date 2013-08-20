@@ -1,6 +1,0 @@
-pelita.messaging.Exit.__init__
-==============================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: Exit.__init__

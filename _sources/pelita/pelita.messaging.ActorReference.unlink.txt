@@ -1,6 +1,0 @@
-pelita.messaging.ActorReference.unlink
-======================================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: ActorReference.unlink

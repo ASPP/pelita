@@ -1,6 +1,0 @@
-pelita.messaging.BaseActorReference.channel
-===========================================
-
-.. currentmodule:: pelita.messaging
-
-.. autoattribute:: BaseActorReference.channel

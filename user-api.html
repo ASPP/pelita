@@ -1,22 +1,23 @@
-
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>User API Reference &mdash; Pelita v0.2.0-rc1 documentation</title>
+    <title>User API Reference &mdash; Pelita v0.2.0-76-gd5adc8c documentation</title>
     
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-2.3.2/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/2.3.2/flatly/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-2.3.2/css/bootstrap-responsive.min.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     'v0.2.0-rc1',
+        URL_ROOT:    './',
+        VERSION:     'v0.2.0-76-gd5adc8c',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,57 +26,112 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pelita v0.2.0-rc1 documentation" href="index.html" />
+    <script type="text/javascript" src="_static/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-2.3.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="Pelita v0.2.0-76-gd5adc8c documentation" href="index.html" />
     <link rel="next" title="API reference" href="api.html" />
-    <link rel="prev" title="Development" href="development.html" /> 
+    <link rel="prev" title="Development" href="development.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
   </head>
   <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="np-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="api.html" title="API reference"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="development.html" title="Development"
-             accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pelita v0.2.0-rc1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+  
+  <a href="https://github.com/ASPP/pelita"
+     class="visible-desktop"><img
+    style="position: absolute; top: 56; right: 0; "
+    src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"
+    alt="Fork me on GitHub"></a>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
+
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+
+        <a class="brand" href="index.html">Pelita</a>
+        <span class="navbar-text pull-left"><b>v0.2.0-76-gd5adc8c</b></span>
+
+        <div class="nav-collapse">
+          <ul class="nav">
+            <li class="divider-vertical"></li>
             
-  <div class="section" id="user-api-reference">
-<span id="id1"></span><h1><a class="toc-backref" href="#id2">User API Reference</a><a class="headerlink" href="#user-api-reference" title="Permalink to this headline">¶</a></h1>
-<p>This section summarizes the modules, classes and functions that are relevant
-when writing a player.</p>
-<div class="contents topic" id="contents">
-<p class="topic-title first">Contents</p>
-<ul class="simple">
-<li><a class="reference internal" href="#user-api-reference" id="id2">User API Reference</a><ul>
-<li><a class="reference internal" href="#convenience-properties-of-abstractplayer" id="id3">Convenience Properties of <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt></a></li>
-<li><a class="reference internal" href="#example-players" id="id4">Example Players</a></li>
-<li><a class="reference internal" href="#accessing-pelita-datamodel" id="id5">Accessing <tt class="docutils literal"><span class="pre">pelita.datamodel</span></tt></a></li>
-<li><a class="reference internal" href="#interfacing-with-the-ctfuniverse" id="id6">Interfacing with the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt></a></li>
-<li><a class="reference internal" href="#interfacing-with-the-maze" id="id7">Interfacing with the <tt class="docutils literal"><span class="pre">Maze</span></tt></a></li>
+            
+              <li class="dropdown globaltoc-container">
+  <a href="index.html"
+     class="dropdown-toggle"
+     data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+    ><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_player.html">Running Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">User API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
+</ul>
+</ul>
+</li>
+              <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"><ul>
+<li><a class="reference internal" href="#">User API Reference</a><ul>
+<li><a class="reference internal" href="#convenience-properties-of-abstractplayer">Convenience Properties of <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt></a></li>
+<li><a class="reference internal" href="#example-players">Example Players</a></li>
+<li><a class="reference internal" href="#accessing-pelita-datamodel">Accessing <tt class="docutils literal"><span class="pre">pelita.datamodel</span></tt></a></li>
+<li><a class="reference internal" href="#helper-functions-in-pelita-graph">Helper functions in <tt class="docutils literal"><span class="pre">pelita.graph</span></tt></a></li>
+<li><a class="reference internal" href="#interfacing-with-the-ctfuniverse">Interfacing with the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt></a></li>
+<li><a class="reference internal" href="#interfacing-with-the-maze">Interfacing with the <tt class="docutils literal"><span class="pre">Maze</span></tt></a></li>
 </ul>
 </li>
 </ul>
-</div>
+</ul>
+</li>
+            
+            
+              
+  <li><a href="development.html"
+         title="Previous Chapter: Development">&laquo; Development</a></li>
+  <li><a href="api.html"
+         title="Next Chapter: API reference">API reference &raquo;</a></li>
+            
+            
+              <li>
+  <a href="_sources/user-api.txt"
+     rel="nofollow">Source</a></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-search pull-right" action="search.html" method="get">
+  <input type="text" name="q" class="search-query" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="container">
+  
+  <div class="section" id="user-api-reference">
+<span id="id1"></span><h1>User API Reference<a class="headerlink" href="#user-api-reference" title="Permalink to this headline">¶</a></h1>
+<p>This section summarizes the modules, classes and functions that are relevant
+when writing a player.</p>
 <div class="section" id="convenience-properties-of-abstractplayer">
-<h2><a class="toc-backref" href="#id3">Convenience Properties of <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt></a><a class="headerlink" href="#convenience-properties-of-abstractplayer" title="Permalink to this headline">¶</a></h2>
+<h2>Convenience Properties of <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt><a class="headerlink" href="#convenience-properties-of-abstractplayer" title="Permalink to this headline">¶</a></h2>
 <p class="rubric">Basic Properties</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -159,7 +215,7 @@ when writing a player.</p>
 </table>
 </div>
 <div class="section" id="example-players">
-<h2><a class="toc-backref" href="#id4">Example Players</a><a class="headerlink" href="#example-players" title="Permalink to this headline">¶</a></h2>
+<h2>Example Players<a class="headerlink" href="#example-players" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
@@ -185,28 +241,7 @@ when writing a player.</p>
 </table>
 </div>
 <div class="section" id="accessing-pelita-datamodel">
-<h2><a class="toc-backref" href="#id5">Accessing <tt class="docutils literal"><span class="pre">pelita.datamodel</span></tt></a><a class="headerlink" href="#accessing-pelita-datamodel" title="Permalink to this headline">¶</a></h2>
-<p class="rubric">Convenience Functions</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.diff_pos.html#pelita.datamodel.diff_pos" title="pelita.datamodel.diff_pos"><tt class="xref py py-obj docutils literal"><span class="pre">diff_pos</span></tt></a>(initial,&nbsp;target)</td>
-<td>Return the move required to move from one position to another.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.is_adjacent.html#pelita.datamodel.is_adjacent" title="pelita.datamodel.is_adjacent"><tt class="xref py py-obj docutils literal"><span class="pre">is_adjacent</span></tt></a>(pos1,&nbsp;pos2)</td>
-<td>Check that two positions are adjacent.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.manhattan_dist.html#pelita.datamodel.manhattan_dist" title="pelita.datamodel.manhattan_dist"><tt class="xref py py-obj docutils literal"><span class="pre">manhattan_dist</span></tt></a>(pos1,&nbsp;pos2)</td>
-<td>Manhattan distance between two points.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.new_pos.html#pelita.datamodel.new_pos" title="pelita.datamodel.new_pos"><tt class="xref py py-obj docutils literal"><span class="pre">new_pos</span></tt></a>(position,&nbsp;move)</td>
-<td>Adds a position tuple and a move tuple.</td>
-</tr>
-</tbody>
-</table>
+<h2>Accessing <tt class="docutils literal"><span class="pre">pelita.datamodel</span></tt><a class="headerlink" href="#accessing-pelita-datamodel" title="Permalink to this headline">¶</a></h2>
 <p class="rubric">Important Classes</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -236,19 +271,40 @@ when writing a player.</p>
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">Wall</span></tt></td>
-<td>str(object) -&gt; string</td>
+<td>str(object=&#8217;&#8216;) -&gt; string</td>
 </tr>
 <tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">Free</span></tt></td>
-<td>str(object) -&gt; string</td>
+<td>str(object=&#8217;&#8216;) -&gt; string</td>
 </tr>
 <tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">Food</span></tt></td>
-<td>str(object) -&gt; string</td>
+<td>str(object=&#8217;&#8216;) -&gt; string</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="helper-functions-in-pelita-graph">
+<h2>Helper functions in <tt class="docutils literal"><span class="pre">pelita.graph</span></tt><a class="headerlink" href="#helper-functions-in-pelita-graph" title="Permalink to this headline">¶</a></h2>
+<p class="rubric">Convenience Functions</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.graph.new_pos.html#pelita.graph.new_pos" title="pelita.graph.new_pos"><tt class="xref py py-obj docutils literal"><span class="pre">new_pos</span></tt></a>(position,&nbsp;move)</td>
+<td>Adds a position tuple and a move tuple.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.graph.diff_pos.html#pelita.graph.diff_pos" title="pelita.graph.diff_pos"><tt class="xref py py-obj docutils literal"><span class="pre">diff_pos</span></tt></a>(initial,&nbsp;target)</td>
+<td>Return the move required to move from one position to another.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.graph.manhattan_dist.html#pelita.graph.manhattan_dist" title="pelita.graph.manhattan_dist"><tt class="xref py py-obj docutils literal"><span class="pre">manhattan_dist</span></tt></a>(pos1,&nbsp;pos2)</td>
+<td>Manhattan distance between two points.</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="interfacing-with-the-ctfuniverse">
-<h2><a class="toc-backref" href="#id6">Interfacing with the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt></a><a class="headerlink" href="#interfacing-with-the-ctfuniverse" title="Permalink to this headline">¶</a></h2>
+<h2>Interfacing with the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt><a class="headerlink" href="#interfacing-with-the-ctfuniverse" title="Permalink to this headline">¶</a></h2>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -292,7 +348,7 @@ when writing a player.</p>
 <tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.CTFUniverse.enemy_food.html#pelita.datamodel.CTFUniverse.enemy_food" title="pelita.datamodel.CTFUniverse.enemy_food"><tt class="xref py py-obj docutils literal"><span class="pre">enemy_food</span></tt></a>(team_index)</td>
 <td>Food that is edible by a team</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.CTFUniverse.get_legal_moves.html#pelita.datamodel.CTFUniverse.get_legal_moves" title="pelita.datamodel.CTFUniverse.get_legal_moves"><tt class="xref py py-obj docutils literal"><span class="pre">get_legal_moves</span></tt></a>(position)</td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.CTFUniverse.legal_moves.html#pelita.datamodel.CTFUniverse.legal_moves" title="pelita.datamodel.CTFUniverse.legal_moves"><tt class="xref py py-obj docutils literal"><span class="pre">legal_moves</span></tt></a>(position)</td>
 <td>Obtain legal moves and where they lead.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.CTFUniverse.other_team_bots.html#pelita.datamodel.CTFUniverse.other_team_bots" title="pelita.datamodel.CTFUniverse.other_team_bots"><tt class="xref py py-obj docutils literal"><span class="pre">other_team_bots</span></tt></a>(bot_index)</td>
@@ -311,7 +367,7 @@ when writing a player.</p>
 </table>
 </div>
 <div class="section" id="interfacing-with-the-maze">
-<h2><a class="toc-backref" href="#id7">Interfacing with the <tt class="docutils literal"><span class="pre">Maze</span></tt></a><a class="headerlink" href="#interfacing-with-the-maze" title="Permalink to this headline">¶</a></h2>
+<h2>Interfacing with the <tt class="docutils literal"><span class="pre">Maze</span></tt><a class="headerlink" href="#interfacing-with-the-maze" title="Permalink to this headline">¶</a></h2>
 <p class="rubric">Convenience Properties and Functions</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -334,75 +390,19 @@ when writing a player.</p>
 </div>
 
 
-          </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-<h3><a href="index.html">Table Of Contents</a></h3>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="info.html">Project Information</a></li>
-<li class="toctree-l1"><a class="reference internal" href="writing_player.html">Writing a Player</a></li>
-<li class="toctree-l1"><a class="reference internal" href="running_player.html">Running Players</a></li>
-<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">User API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#convenience-properties-of-abstractplayer">Convenience Properties of <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#example-players">Example Players</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#accessing-pelita-datamodel">Accessing <tt class="docutils literal"><span class="pre">pelita.datamodel</span></tt></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#interfacing-with-the-ctfuniverse">Interfacing with the <tt class="docutils literal"><span class="pre">CTFUniverse</span></tt></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#interfacing-with-the-maze">Interfacing with the <tt class="docutils literal"><span class="pre">Maze</span></tt></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
-</ul>
-
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/user-api.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="np-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="api.html" title="API reference"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="development.html" title="Development"
-             >previous</a> |</li>
-        <li><a href="index.html">Pelita v0.2.0-rc1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer">
-        &copy; Copyright 2012, Valentin Haenel, Rike-Benjamin Shuppner et. al..
-      Last updated on Sep 05, 2012.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
-    </div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2012, Valentin Haenel, Rike-Benjamin Schuppner et. al..<br/>
+      Last updated on Aug 20, 2013.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2b1.<br/>
+    </p>
+  </div>
+</footer>
   </body>
 </html>

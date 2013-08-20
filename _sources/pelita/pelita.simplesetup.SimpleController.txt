@@ -14,7 +14,6 @@ pelita.simplesetup.SimpleController
    
       ~SimpleController.__init__
       ~SimpleController.exit
-      ~SimpleController.on_start
       ~SimpleController.play
       ~SimpleController.play_round
       ~SimpleController.play_step

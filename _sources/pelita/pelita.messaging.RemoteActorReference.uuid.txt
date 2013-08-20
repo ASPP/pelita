@@ -1,6 +1,0 @@
-pelita.messaging.RemoteActorReference.uuid
-==========================================
-
-.. currentmodule:: pelita.messaging
-
-.. autoattribute:: RemoteActorReference.uuid

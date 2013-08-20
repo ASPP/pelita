@@ -1,6 +1,0 @@
-pelita.messaging.RemoteConnection.get_connections
-=================================================
-
-.. currentmodule:: pelita.messaging
-
-.. automethod:: RemoteConnection.get_connections

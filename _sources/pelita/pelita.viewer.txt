@@ -14,7 +14,6 @@ pelita.viewer
    
       ~AbstractViewer
       ~AsciiViewer
-      ~DevNullViewer
       ~DumpingViewer
       ~ProgressViewer
    
