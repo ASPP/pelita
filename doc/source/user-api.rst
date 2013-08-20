@@ -7,8 +7,6 @@ User API Reference
 This section summarizes the modules, classes and functions that are relevant
 when writing a player.
 
-.. contents::
-
 .. currentmodule:: pelita.player.AbstractPlayer
 
 Convenience Properties of ``AbstractPlayer``

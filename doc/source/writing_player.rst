@@ -1,12 +1,8 @@
-.. _writing_a_player:
-
 ================
 Writing a Player
 ================
 
 This section explains how to write a player.
-
-.. contents::
 
 Introduction
 ============
