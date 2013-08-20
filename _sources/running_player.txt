@@ -46,6 +46,7 @@ own layout in a file and load it into the game with::
 A layout file looks like this:
 
 .. literalinclude:: my_player/my_test_layout.txt
+   :language: text
 
 As you can see from the example, only a few characters are needed to encode a
 maze:
