@@ -542,6 +542,16 @@ class TestCTFUniverse(unittest.TestCase):
         universe_json = json_converter.dumps(universe)
         self.assertEqual(json_converter.loads(universe_json), universe)
 
+        universe_dict = json.loads(universe_json)
+        self.assertEqual(universe_dict["__id__"], "pelita.datamodel.CTFUniverse")
+        universe_dict_value = universe_dict["__value__"]
+        self.assertTrue("maze" in universe_dict_value)
+        self.assertEqual(len(universe_dict_value["bots"]), 4)
+        self.assertEqual(len(universe_dict_value["teams"]), 2)
+        # check that bots and teams are directly embedded
+        self.assertEqual([bot["index"] for bot in universe_dict_value["bots"]], range(4))
+        self.assertEqual([team["index"] for team in universe_dict_value["teams"]], range(2))
+
     def test_too_many_enemy_teams(self):
         test_layout3 = (
         """ ##################
