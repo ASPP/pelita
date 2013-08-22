@@ -19,7 +19,8 @@ SANE_PLAYERS = ['BFSPlayer',
                 'NQRandomPlayer',
                 'RandomPlayer',
                 'RandomExplorerPlayer',
-                'FoodEatingPlayer']
+                'FoodEatingPlayer',
+                'SmartRandomPlayer']
 
 class SimpleTeam(object):
     """ Simple class used to register an arbitrary number of (Abstract-)Players.
@@ -550,6 +551,25 @@ class NQRandomPlayer(AbstractPlayer):
         # and select a move at random
         return self.rnd.choice(legal_moves.keys())
 
+class SmartRandomPlayer(AbstractPlayer):
+    def get_move(self):
+        smart_moves = []
+        dangerous_enemy_pos = [bot for bot in self.enemy_bots if bot.is_destroyer]
+        killable_enemy_pos = [bot for bot in self.enemy_bots if bot.is_harvester]
+        for move, new_pos in self.legal_moves.iteritems():
+            if move == datamodel.stop:
+                continue
+            if new_pos in dangerous_enemy_pos:
+                continue
+            if new_pos in killable_enemy_pos:
+                return move
+            if new_pos in self.enemy_food:
+                return move
+            smart_moves.append(move)
+        try:
+            return self.rnd.choice(smart_moves)
+        except IndexError:
+            return datamodel.stop
 
 class RandomExplorerPlayer(AbstractPlayer):
     """ Least visited random player. Will prefer moving to a position it’s never seen before. """
