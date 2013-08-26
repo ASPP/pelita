@@ -119,7 +119,8 @@ def run_external_viewer(subscribe_sock, controller, geometry, delay):
     if delay:
         viewer_args += ["--delay", str(delay)]
 
-    return subprocess.Popen([get_python_process(), "tkviewer.py"] + viewer_args)
+    tkviewer = os.path.join(os.path.dirname(sys.argv[0]), "tkviewer.py")
+    return subprocess.Popen([get_python_process(), tkviewer] + viewer_args)
 
 def call_standalone_pelitagame(team_spec, addr):
     """ Starts another process with the same Python executable,
