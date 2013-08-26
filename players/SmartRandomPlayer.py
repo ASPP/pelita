@@ -6,8 +6,8 @@ from pelita.player import AbstractPlayer, SimpleTeam
 class SmartRandomPlayer(AbstractPlayer):
     def get_move(self):
         smart_moves = []
-        dangerous_enemy_pos = [bot for bot in self.enemy_bots if bot.is_destroyer]
-        killable_enemy_pos = [bot for bot in self.enemy_bots if bot.is_harvester]
+        dangerous_enemy_pos = [bot.current_pos for bot in self.enemy_bots if bot.is_destroyer]
+        killable_enemy_pos = [bot.current_pos for bot in self.enemy_bots if bot.is_harvester]
         for move, new_pos in self.legal_moves.iteritems():
             if move == datamodel.stop:
                 continue
