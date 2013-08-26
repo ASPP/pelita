@@ -3,6 +3,7 @@
 
 import sys
 import os.path
+import inspect
 import random
 import string
 import keyword
@@ -166,13 +167,17 @@ def load_factory(filespec):
         module = __import__(modname, fromlist=[factory_name])
     return getattr(module, factory_name)
 
-PLAYERS = pelita.player.SANE_PLAYERS
+with pelita.utils.with_sys_path("./"):
+    module = __import__("players")
+    PLAYERS = module.SANE_PLAYERS
 
 def import_builtin_player(name):
     if name == 'random':
         name = random.choice(PLAYERS)
         print 'Choosing %s for random player' % name
     try:
+        if inspect.isclass(name) and issubclass(name, pelita.player.AbstractPlayer):
+            return name
         player = getattr(pelita.player, name)
     except AttributeError:
         others = ', '.join(PLAYERS)
