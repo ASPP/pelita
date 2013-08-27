@@ -1,6 +1,0 @@
-pelita.player.BFSPlayer.legal_moves
-===================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: BFSPlayer.legal_moves

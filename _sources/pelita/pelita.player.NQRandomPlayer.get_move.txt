@@ -1,6 +1,0 @@
-pelita.player.NQRandomPlayer.get_move
-=====================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: NQRandomPlayer.get_move

@@ -1,6 +1,0 @@
-pelita.player.NQRandomPlayer.say
-================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: NQRandomPlayer.say

@@ -1,6 +1,0 @@
-pelita.player.RandomPlayer.team
-===============================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: RandomPlayer.team

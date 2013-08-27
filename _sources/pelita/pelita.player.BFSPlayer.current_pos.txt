@@ -1,6 +1,0 @@
-pelita.player.BFSPlayer.current_pos
-===================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: BFSPlayer.current_pos

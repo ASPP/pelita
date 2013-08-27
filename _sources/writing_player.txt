@@ -1,3 +1,5 @@
+.. _writing_a_player:
+
 ================
 Writing a Player
 ================
@@ -92,7 +94,7 @@ Doing More
 A slightly more useful example is the `pelita.player.RandomPlayer` which always
 selects a move at random from the possible moves:
 
-.. literalinclude:: ../../pelita/player.py
+.. literalinclude:: ../../players/RandomPlayers.py
    :pyobject: RandomPlayer
 
 .. warning::
@@ -124,7 +126,7 @@ The next example is the not-quite random player
 ``pelita.player.NQRandomPlayer``.  This one does not move back to the position
 where it was on its last turn and never stops in place:
 
-.. literalinclude:: ../../pelita/player.py
+.. literalinclude:: ../../players/RandomPlayers.py
    :pyobject: NQRandomPlayer
 
 Here we can see the use of another convenience method: ``previous_pos`` which
@@ -213,7 +215,7 @@ A somewhat more elaborate example is the `pelita.player.BFSPlayer` which uses
 *breadth first search* on an *adjacency list* representation of the maze to
 find food:
 
-.. literalinclude:: ../../pelita/player.py
+.. literalinclude:: ../../players/BFSPlayer.py
    :pyobject: BFSPlayer
 
 This next sections will explore the convenience properties of the
@@ -376,7 +378,7 @@ A Basic Defensive Player
 
 As a defensive example we have the ``BasicDefensePlayer``:
 
-.. literalinclude:: ../../pelita/player.py
+.. literalinclude:: ../../players/BasicDefensePlayer.py
    :pyobject: BasicDefensePlayer
 
 Defense is important because your enemy is awarded ``5`` points if he

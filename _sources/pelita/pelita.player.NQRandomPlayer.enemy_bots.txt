@@ -1,6 +1,0 @@
-pelita.player.NQRandomPlayer.enemy_bots
-=======================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: NQRandomPlayer.enemy_bots

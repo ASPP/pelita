@@ -1,6 +1,0 @@
-pelita.player.BFSPlayer.me
-==========================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: BFSPlayer.me

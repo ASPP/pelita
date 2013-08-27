@@ -1,6 +1,0 @@
-pelita.player.BFSPlayer.bfs_food
-================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: BFSPlayer.bfs_food

@@ -1,6 +1,0 @@
-pelita.player.BasicDefensePlayer.current_uni
-============================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: BasicDefensePlayer.current_uni

@@ -1,6 +1,0 @@
-pelita.player.BFSPlayer.enemy_bots
-==================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: BFSPlayer.enemy_bots

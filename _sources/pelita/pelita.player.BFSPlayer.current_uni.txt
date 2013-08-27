@@ -1,6 +1,0 @@
-pelita.player.BFSPlayer.current_uni
-===================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: BFSPlayer.current_uni

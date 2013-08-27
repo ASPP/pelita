@@ -1,6 +1,0 @@
-pelita.player.NQRandomPlayer.set_initial
-========================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: NQRandomPlayer.set_initial

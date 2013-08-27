@@ -1,6 +1,0 @@
-pelita.player.BFSPlayer.enemy_team
-==================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: BFSPlayer.enemy_team

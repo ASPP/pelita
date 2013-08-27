@@ -1,6 +1,0 @@
-pelita.player.BasicDefensePlayer.enemy_team
-===========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: BasicDefensePlayer.enemy_team

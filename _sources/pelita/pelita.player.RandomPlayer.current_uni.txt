@@ -1,6 +1,0 @@
-pelita.player.RandomPlayer.current_uni
-======================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: RandomPlayer.current_uni

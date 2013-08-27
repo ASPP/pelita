@@ -1,6 +1,0 @@
-pelita.player.BFSPlayer.current_state
-=====================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: BFSPlayer.current_state

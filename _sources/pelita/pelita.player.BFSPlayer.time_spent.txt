@@ -1,6 +1,0 @@
-pelita.player.BFSPlayer.time_spent
-==================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: BFSPlayer.time_spent

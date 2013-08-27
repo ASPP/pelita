@@ -1,6 +1,0 @@
-pelita.player.NQRandomPlayer.current_state
-==========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: NQRandomPlayer.current_state

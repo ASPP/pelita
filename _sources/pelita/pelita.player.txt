@@ -13,15 +13,11 @@ pelita.player
       :nosignatures:
    
       ~AbstractPlayer
-      ~BFSPlayer
-      ~BasicDefensePlayer
       ~CPUBoundPlayer
       ~DebuggablePlayer
       ~IOBoundPlayer
       ~InitialExceptionPlayer
       ~MoveExceptionPlayer
-      ~NQRandomPlayer
-      ~RandomPlayer
       ~RoundBasedPlayer
       ~SimpleTeam
       ~SpeakingPlayer

@@ -1,6 +1,0 @@
-pelita.player.BasicDefensePlayer.set_initial
-============================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: BasicDefensePlayer.set_initial

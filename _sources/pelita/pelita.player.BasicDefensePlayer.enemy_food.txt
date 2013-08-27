@@ -1,6 +1,0 @@
-pelita.player.BasicDefensePlayer.enemy_food
-===========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: BasicDefensePlayer.enemy_food

@@ -1,6 +1,0 @@
-pelita.player.BasicDefensePlayer.other_team_bots
-================================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: BasicDefensePlayer.other_team_bots

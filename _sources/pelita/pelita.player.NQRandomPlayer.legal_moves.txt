@@ -1,6 +1,0 @@
-pelita.player.NQRandomPlayer.legal_moves
-========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: NQRandomPlayer.legal_moves

@@ -1,6 +1,0 @@
-pelita.player.BFSPlayer.team_bots
-=================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: BFSPlayer.team_bots

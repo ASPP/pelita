@@ -1,6 +1,0 @@
-pelita.player.BasicDefensePlayer.say
-====================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: BasicDefensePlayer.say
