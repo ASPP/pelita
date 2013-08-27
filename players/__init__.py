@@ -14,3 +14,6 @@ SANE_PLAYERS = [
     FoodEatingPlayer,
     RandomExplorerPlayer,
     SmartRandomPlayer]
+
+__ALL__ = list(SANE_PLAYERS)
+
