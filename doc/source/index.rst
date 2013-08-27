@@ -7,10 +7,18 @@
 Pelita
 ======
 
-.. figure:: images/demogame.png
-   :alt: Screenshot.
+.. container:: row-fluid
 
-   **A first fight:** 'The BasicDefensePlayers' VS. 'The BFSPlayers'
+   .. figure:: images/small-game.png
+      :alt: Screenshot.
+      :figclass: span6
+
+      **A first fight:** ‘The SmartRandomPlayers’ v ‘The FoodEatingPlayers’
+
+   .. container:: span6
+
+      .. literalinclude:: ../../players/SmartRandomPlayer.py
+         :pyobject: SmartRandomPlayer
 
 **Pelita** is Actor-based Toolkit for Interactive Language Education in Python.
 

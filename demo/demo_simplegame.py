@@ -22,16 +22,10 @@ when a new process is started.
 """
 
 from pelita.simplesetup import SimpleClient, SimpleServer
-from pelita.player import RandomPlayer, BFSPlayer, SimpleTeam, BasicDefensePlayer, NQRandomPlayer
+from pelita.player import SimpleTeam
+from players import RandomPlayer, BFSPlayer, BasicDefensePlayer, NQRandomPlayer
 
 if __name__=="__main__":
-    client = SimpleClient(SimpleTeam("the good ones", NQRandomPlayer(), BFSPlayer()), local=False)
-    client.autoplay_background()
-
-    client2 = SimpleClient(SimpleTeam("the bad ones", BFSPlayer(), BasicDefensePlayer()), local=False)
-    client2.autoplay_background()
-
-
     layout = """
     ##################################
     #...   #      .#     #  #       3#
@@ -53,6 +47,19 @@ if __name__=="__main__":
     ##################################
     """
 
-    server = SimpleServer(layout_string=layout, rounds=3000, local=False)
-    server.run_tk()
+    server = SimpleServer(layout_string=layout, rounds=3000)
+
+    def star_to_localhost(str):
+        # server might publish to tcp://* in which case we simply try localhost for the clients
+        return str.replace("*", "localhost")
+
+    client = SimpleClient(SimpleTeam("the good ones", NQRandomPlayer(), BFSPlayer()), address=star_to_localhost(server.bind_addresses[0]))
+    client.autoplay_process()
+
+    client2 = SimpleClient(SimpleTeam("the bad ones", BFSPlayer(), BasicDefensePlayer()), address=star_to_localhost(server.bind_addresses[1]))
+    client2.autoplay_process()
+
+    server.run()
+    print server.game_master.universe.pretty
+    print server.game_master.game_state
 

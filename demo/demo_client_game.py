@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from pelita.player import RandomPlayer, BFSPlayer, SimpleTeam
+from pelita.player import SimpleTeam
+from players import RandomPlayer, BFSPlayer
 
 from pelita.simplesetup import SimpleClient
 
