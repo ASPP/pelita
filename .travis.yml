@@ -12,5 +12,13 @@ install:
 script: >
           python -c "import zmq; print 'Using zmq %s.' % zmq.zmq_version()" &&
           python -c "import zmq; print 'Using pyzmq %s.' % zmq.pyzmq_version()" &&
-          nosetests -v && ./pelitagame --progress
+          nosetests -v && ./pelitagame --progress &&
+          for player in ./players/*Player.py
+            do
+              PYTHONPATH=.
+              res=$(./pelitagame --null --rounds 100 --filter small $player 2>&1)
+              echo $res
+              (echo $res | grep -q Exception) && exit 1
+              echo "" # This resets the error code
+          done
 
