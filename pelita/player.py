@@ -253,6 +253,8 @@ class AbstractPlayer(object):
     def team_food(self):
         """ Food owned by the team which can be eaten by the enemy Player's bot.
 
+        Please note that it is valid for this list to be empty during get_move.
+
         Returns
         -------
         team_food : list of position tuples (int, int)
@@ -264,6 +266,8 @@ class AbstractPlayer(object):
     @property
     def enemy_food(self):
         """ Food owned by the enemy which can be eaten by this Player's bot.
+
+        Please note that it is valid for this list to be empty during get_move.
 
         Returns
         -------

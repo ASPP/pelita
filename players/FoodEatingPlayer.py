@@ -16,6 +16,9 @@ class FoodEatingPlayer(AbstractPlayer):
         # check, if food is still present
         if (self.next_food is None
                 or self.next_food not in self.enemy_food):
+            if not self.enemy_food:
+                # all food has been eaten? ok. i’ll stop
+                return datamodel.stop
             self.next_food = self.rnd.choice(self.enemy_food)
 
         try:
