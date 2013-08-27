@@ -55,6 +55,11 @@ Example Players
 .. autosummary::
 
     StoppingPlayer
+
+.. currentmodule:: players
+
+.. autosummary::
+
     RandomPlayer
     NQRandomPlayer
     BFSPlayer
@@ -83,7 +88,7 @@ Accessing ``pelita.datamodel``
     Food
 
 Helper functions in ``pelita.graph``
---------------------------
+------------------------------------
 
 .. currentmodule:: pelita.graph
 
