@@ -5,6 +5,7 @@ from pelita.player import *
 from pelita.datamodel import CTFUniverse, north, stop, east, west
 from pelita.game_master import GameMaster
 from pelita.viewer import AsciiViewer
+from players import RandomPlayer, NQRandomPlayer, BFSPlayer, BasicDefensePlayer
 
 class TestAbstractPlayer(unittest.TestCase):
     def assertUniversesEqual(self, uni1, uni2):

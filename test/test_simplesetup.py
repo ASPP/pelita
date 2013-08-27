@@ -4,10 +4,11 @@ import uuid
 
 import pelita
 from pelita.simplesetup import SimpleClient, SimpleServer, SimplePublisher, SimpleSubscriber, bind_socket, extract_port_range
-from pelita.player import SimpleTeam, RandomPlayer, TestPlayer, AbstractPlayer
+from pelita.player import SimpleTeam, TestPlayer, AbstractPlayer
 from pelita.viewer import AsciiViewer, AbstractViewer
 from pelita.datamodel import Free
 from pelita.game_master import GameMaster
+from players import RandomPlayer
 
 import zmq
 
