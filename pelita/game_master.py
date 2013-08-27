@@ -340,7 +340,6 @@ class GameMaster(object):
             self.game_state["bot_error"] = {bot.index: "timeout"}
 
             if self.game_state["timeout_teams"][bot.team_index] == self.game_state["max_timeouts"]:
-                print "XXXX"
                 self.game_state["teams_disqualified"][bot.team_index] = "timeout"
             else:
 

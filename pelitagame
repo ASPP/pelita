@@ -3,6 +3,7 @@
 
 import sys
 import os.path
+import inspect
 import random
 import string
 import keyword
@@ -166,19 +167,29 @@ def load_factory(filespec):
         module = __import__(modname, fromlist=[factory_name])
     return getattr(module, factory_name)
 
-PLAYERS = pelita.player.SANE_PLAYERS
-
 def import_builtin_player(name):
+    with pelita.utils.with_sys_path("./"):
+        players_module = __import__("players")
+        sane_players = dict((p.__name__, p) for p in players_module.SANE_PLAYERS)
+
     if name == 'random':
-        name = random.choice(PLAYERS)
-        print 'Choosing %s for random player' % name
-    try:
-        player = getattr(pelita.player, name)
-    except AttributeError:
-        others = ', '.join(PLAYERS)
-        msg = 'Failed to find %s in pelita.player [%s]' % (name, others)
-        raise ImportError(msg)
-    return player
+        player = random.choice(sane_players.values())
+        print 'Choosing %s for random player' % player
+    else:
+        player = sane_players.get(name)
+        if not player:
+            try:
+                # fallback to player in pelita.player
+                player = getattr(pelita.player, name)
+            except AttributeError:
+                others = ', '.join(sane_players.keys())
+                msg = 'Failed to find %s in players. (Available players are: %s).' % (name, others)
+                raise ImportError(msg)
+
+    if inspect.isclass(player) and issubclass(player, pelita.player.AbstractPlayer):
+        return player
+    else:
+        raise ImportError("%r is not a valid player." % player)
 
 def create_builtin_team(spec):
     names = spec.split(',')
