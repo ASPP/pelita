@@ -323,6 +323,17 @@ There is no good way to predict this other than keeping track of one’s
 own execution time and returning early, if necessary. For long lasting
 tasks, it may be a good idea to experiment with concurrency.
 
+.. note::
+
+    A remark on timeout handling during the ``set_initial()`` phase.
+
+    Sometimes, it may seem a good idea to do some pre-calculations during the
+    ``set_initial`` phase. We like to enforce this by also giving each Player
+    some extra time. There is no strict limit, but after three seconds, the
+    ``GameMaster`` is going to move on with its duty. Just make sure you’ll be
+    ready when you receive the first ``get_move()`` call.
+
+
 .. TODO: maybe prepare some graphics for the duplicate timeouts situation
 .. TODO: the universe states will be missing a state
 
