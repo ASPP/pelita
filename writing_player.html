@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Writing a Player &mdash; Pelita v0.2.0-100-g0edac76 documentation</title>
+    <title>Writing a Player &mdash; Pelita v0.2.0-102-ge1e65a9 documentation</title>
     
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'v0.2.0-100-g0edac76',
+        VERSION:     'v0.2.0-102-ge1e65a9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -30,7 +30,7 @@
     <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="_static/bootstrap-2.3.2/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Pelita v0.2.0-100-g0edac76 documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.2.0-102-ge1e65a9 documentation" href="index.html" />
     <link rel="next" title="Running Players" href="running_player.html" />
     <link rel="prev" title="Project Information" href="info.html" />
 <meta charset='utf-8'>
@@ -59,7 +59,7 @@
         </button>
 
         <a class="brand" href="index.html">Pelita</a>
-        <span class="navbar-text pull-left"><b>v0.2.0-100-g0edac76</b></span>
+        <span class="navbar-text pull-left"><b>v0.2.0-102-ge1e65a9</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -535,6 +535,15 @@ cases, it may even generate a second timeout <em>before</em> its execution.</p>
 <p>There is no good way to predict this other than keeping track of one’s
 own execution time and returning early, if necessary. For long lasting
 tasks, it may be a good idea to experiment with concurrency.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>A remark on timeout handling during the <tt class="docutils literal"><span class="pre">set_initial()</span></tt> phase.</p>
+<p class="last">Sometimes, it may seem a good idea to do some pre-calculations during the
+<tt class="docutils literal"><span class="pre">set_initial</span></tt> phase. We like to enforce this by also giving each Player
+some extra time. There is no strict limit, but after three seconds, the
+<tt class="docutils literal"><span class="pre">GameMaster</span></tt> is going to move on with its duty. Just make sure you’ll be
+ready when you receive the first <tt class="docutils literal"><span class="pre">get_move()</span></tt> call.</p>
+</div>
 </div>
 </div>
 <div class="section" id="interacting-with-the-maze">
@@ -889,7 +898,7 @@ respective <tt class="docutils literal"><span class="pre">Team</span></tt> insta
     </p>
     <p>
         &copy; Copyright 2011–2013, Valentin Haenel, Rike-Benjamin Schuppner et. al..<br/>
-      Last updated on Aug 27, 2013.<br/>
+      Last updated on Aug 29, 2013.<br/>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2b1.<br/>
     </p>
   </div>
