@@ -214,8 +214,24 @@ class AbstractPlayer(object):
         return self.current_uni.teams[self.me.team_index]
 
     @property
+    def team_bots(self):
+        """ A list of all Bots that are on this Player's Bot's Team including
+        the current bot.
+
+        Returns
+        -------
+        team_bots : list of Bot objects
+            the team mates, including this Player's Bot
+        """
+        return self.current_uni.team_bots(self.me.team_index)
+
+    @property
     def other_team_bots(self):
-        """ A list of Bots that are on this Player's team.
+        """ A list of Bots that are on this Player's team excluding the current
+        bot.
+
+        Please parse this method mentally as ‘other (team bots)’. These bots
+        are not your enemies. See also: ``enemy_bots``.
 
         Returns
         -------
@@ -224,17 +240,6 @@ class AbstractPlayer(object):
 
         """
         return self.current_uni.other_team_bots(self._index)
-
-    @property
-    def team_bots(self):
-        """ A list of all Bots that are on this Player's Bot's Team.
-
-        Returns
-        -------
-        team_bots : list of Bot objects
-            the team mates, including this Player's Bot
-        """
-        return self.current_uni.team_bots(self.me.team_index)
 
     @property
     def team_border(self):
