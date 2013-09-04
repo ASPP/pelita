@@ -52,7 +52,7 @@ def __is_git_repo(directory):
         return True
 
 def __git_describe(directory):
-    return __get_git_output(['describe'], directory)
+    return __get_git_output(['describe', '--always'], directory)
 
 def version():
     pelita_dir = os.path.dirname(__file__)
