@@ -6,24 +6,25 @@ pelita.player.SpeakingPlayer
 .. autoclass:: SpeakingPlayer
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~SpeakingPlayer.get_move
       ~SpeakingPlayer.say
       ~SpeakingPlayer.set_initial
       ~SpeakingPlayer.time_spent
    
+   
 
+   
    
    .. rubric:: Attributes
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~SpeakingPlayer.current_pos
       ~SpeakingPlayer.current_state
@@ -40,4 +41,5 @@ pelita.player.SpeakingPlayer
       ~SpeakingPlayer.team_border
       ~SpeakingPlayer.team_bots
       ~SpeakingPlayer.team_food
+   
    

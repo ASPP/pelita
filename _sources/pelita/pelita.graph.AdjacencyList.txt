@@ -6,11 +6,11 @@ pelita.graph.AdjacencyList
 .. autoclass:: AdjacencyList
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~AdjacencyList.__init__
       ~AdjacencyList.a_star
@@ -35,5 +35,8 @@ pelita.graph.AdjacencyList
       ~AdjacencyList.viewkeys
       ~AdjacencyList.viewvalues
    
+   
 
+   
+   
    

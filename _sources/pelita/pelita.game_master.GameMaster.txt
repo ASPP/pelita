@@ -6,11 +6,11 @@ pelita.game_master.GameMaster
 .. autoclass:: GameMaster
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~GameMaster.__init__
       ~GameMaster.check_finished
@@ -23,13 +23,15 @@ pelita.game_master.GameMaster
       ~GameMaster.set_initial
       ~GameMaster.update_viewers
    
+   
 
+   
    
    .. rubric:: Attributes
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~GameMaster.game_time
+   
    

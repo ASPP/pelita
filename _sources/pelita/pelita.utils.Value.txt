@@ -6,16 +6,19 @@ pelita.utils.Value
 .. autoclass:: Value
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~Value.__init__
       ~Value.do
       ~Value.get
       ~Value.put
    
+   
 
+   
+   
    

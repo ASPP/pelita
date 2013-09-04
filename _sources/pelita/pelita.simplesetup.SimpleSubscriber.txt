@@ -6,11 +6,11 @@ pelita.simplesetup.SimpleSubscriber
 .. autoclass:: SimpleSubscriber
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~SimpleSubscriber.__init__
       ~SimpleSubscriber.autoplay_process
@@ -21,5 +21,8 @@ pelita.simplesetup.SimpleSubscriber
       ~SimpleSubscriber.run
       ~SimpleSubscriber.set_initial
    
+   
 
+   
+   
    

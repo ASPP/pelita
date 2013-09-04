@@ -6,11 +6,11 @@ pelita.utils.Counter
 .. autoclass:: Counter
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~Counter.__init__
       ~Counter.do
@@ -18,5 +18,8 @@ pelita.utils.Counter
       ~Counter.inc
       ~Counter.put
    
+   
 
+   
+   
    

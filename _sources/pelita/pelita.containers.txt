@@ -10,7 +10,6 @@ pelita.containers
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~Mesh
    

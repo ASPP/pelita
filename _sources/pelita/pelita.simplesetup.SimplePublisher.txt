@@ -6,15 +6,18 @@ pelita.simplesetup.SimplePublisher
 .. autoclass:: SimplePublisher
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~SimplePublisher.__init__
       ~SimplePublisher.observe
       ~SimplePublisher.set_initial
    
+   
 
+   
+   
    

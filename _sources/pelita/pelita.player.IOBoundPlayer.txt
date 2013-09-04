@@ -6,24 +6,25 @@ pelita.player.IOBoundPlayer
 .. autoclass:: IOBoundPlayer
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~IOBoundPlayer.get_move
       ~IOBoundPlayer.say
       ~IOBoundPlayer.set_initial
       ~IOBoundPlayer.time_spent
    
+   
 
+   
    
    .. rubric:: Attributes
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~IOBoundPlayer.current_pos
       ~IOBoundPlayer.current_state
@@ -40,4 +41,5 @@ pelita.player.IOBoundPlayer
       ~IOBoundPlayer.team_border
       ~IOBoundPlayer.team_bots
       ~IOBoundPlayer.team_food
+   
    

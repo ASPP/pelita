@@ -6,25 +6,27 @@ pelita.utils.SuspendableThread
 .. autoclass:: SuspendableThread
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~SuspendableThread.__init__
       ~SuspendableThread.run
       ~SuspendableThread.start
       ~SuspendableThread.stop
    
+   
 
+   
    
    .. rubric:: Attributes
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~SuspendableThread.paused
       ~SuspendableThread.thread
+   
    

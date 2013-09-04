@@ -6,15 +6,18 @@ pelita.viewer.DumpingViewer
 .. autoclass:: DumpingViewer
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~DumpingViewer.__init__
       ~DumpingViewer.observe
       ~DumpingViewer.set_initial
    
+   
 
+   
+   
    

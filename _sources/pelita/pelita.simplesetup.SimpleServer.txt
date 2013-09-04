@@ -6,11 +6,11 @@ pelita.simplesetup.SimpleServer
 .. autoclass:: SimpleServer
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~SimpleServer.__init__
       ~SimpleServer.exit_teams
@@ -18,5 +18,8 @@ pelita.simplesetup.SimpleServer
       ~SimpleServer.run
       ~SimpleServer.shutdown
    
+   
 
+   
+   
    

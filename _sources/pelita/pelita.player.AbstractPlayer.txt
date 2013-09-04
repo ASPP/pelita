@@ -6,24 +6,25 @@ pelita.player.AbstractPlayer
 .. autoclass:: AbstractPlayer
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~AbstractPlayer.get_move
       ~AbstractPlayer.say
       ~AbstractPlayer.set_initial
       ~AbstractPlayer.time_spent
    
+   
 
+   
    
    .. rubric:: Attributes
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~AbstractPlayer.current_pos
       ~AbstractPlayer.current_state
@@ -40,4 +41,5 @@ pelita.player.AbstractPlayer
       ~AbstractPlayer.team_border
       ~AbstractPlayer.team_bots
       ~AbstractPlayer.team_food
+   
    

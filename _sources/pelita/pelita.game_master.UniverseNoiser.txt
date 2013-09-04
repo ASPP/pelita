@@ -6,16 +6,19 @@ pelita.game_master.UniverseNoiser
 .. autoclass:: UniverseNoiser
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~UniverseNoiser.__init__
       ~UniverseNoiser.alter_pos
       ~UniverseNoiser.distance
       ~UniverseNoiser.uniform_noise
    
+   
 
+   
+   
    

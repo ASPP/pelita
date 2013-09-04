@@ -6,11 +6,11 @@ pelita.player.RoundBasedPlayer
 .. autoclass:: RoundBasedPlayer
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~RoundBasedPlayer.__init__
       ~RoundBasedPlayer.get_move
@@ -18,13 +18,14 @@ pelita.player.RoundBasedPlayer
       ~RoundBasedPlayer.set_initial
       ~RoundBasedPlayer.time_spent
    
+   
 
+   
    
    .. rubric:: Attributes
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~RoundBasedPlayer.current_pos
       ~RoundBasedPlayer.current_state
@@ -41,4 +42,5 @@ pelita.player.RoundBasedPlayer
       ~RoundBasedPlayer.team_border
       ~RoundBasedPlayer.team_bots
       ~RoundBasedPlayer.team_food
+   
    

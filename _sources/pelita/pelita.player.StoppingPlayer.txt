@@ -6,24 +6,25 @@ pelita.player.StoppingPlayer
 .. autoclass:: StoppingPlayer
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~StoppingPlayer.get_move
       ~StoppingPlayer.say
       ~StoppingPlayer.set_initial
       ~StoppingPlayer.time_spent
    
+   
 
+   
    
    .. rubric:: Attributes
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~StoppingPlayer.current_pos
       ~StoppingPlayer.current_state
@@ -40,4 +41,5 @@ pelita.player.StoppingPlayer
       ~StoppingPlayer.team_border
       ~StoppingPlayer.team_bots
       ~StoppingPlayer.team_food
+   
    

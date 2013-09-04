@@ -6,23 +6,25 @@ pelita.player.SimpleTeam
 .. autoclass:: SimpleTeam
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~SimpleTeam.__init__
       ~SimpleTeam.get_move
       ~SimpleTeam.set_initial
    
+   
 
+   
    
    .. rubric:: Attributes
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~SimpleTeam.remote_game
+   
    

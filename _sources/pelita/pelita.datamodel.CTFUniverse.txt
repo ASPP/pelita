@@ -6,11 +6,11 @@ pelita.datamodel.CTFUniverse
 .. autoclass:: CTFUniverse
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~CTFUniverse.__init__
       ~CTFUniverse.copy
@@ -29,17 +29,19 @@ pelita.datamodel.CTFUniverse
       ~CTFUniverse.team_bots
       ~CTFUniverse.team_food
    
+   
 
+   
    
    .. rubric:: Attributes
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~CTFUniverse.KILLPOINTS
       ~CTFUniverse.bot_positions
       ~CTFUniverse.compact_str
       ~CTFUniverse.food_list
       ~CTFUniverse.pretty
+   
    

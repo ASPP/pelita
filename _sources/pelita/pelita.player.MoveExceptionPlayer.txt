@@ -6,24 +6,25 @@ pelita.player.MoveExceptionPlayer
 .. autoclass:: MoveExceptionPlayer
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~MoveExceptionPlayer.get_move
       ~MoveExceptionPlayer.say
       ~MoveExceptionPlayer.set_initial
       ~MoveExceptionPlayer.time_spent
    
+   
 
+   
    
    .. rubric:: Attributes
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~MoveExceptionPlayer.current_pos
       ~MoveExceptionPlayer.current_state
@@ -40,4 +41,5 @@ pelita.player.MoveExceptionPlayer
       ~MoveExceptionPlayer.team_border
       ~MoveExceptionPlayer.team_bots
       ~MoveExceptionPlayer.team_food
+   
    

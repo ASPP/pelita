@@ -6,16 +6,19 @@ pelita.game_master.AStarNoiser
 .. autoclass:: AStarNoiser
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~AStarNoiser.__init__
       ~AStarNoiser.alter_pos
       ~AStarNoiser.distance
       ~AStarNoiser.uniform_noise
    
+   
 
+   
+   
    

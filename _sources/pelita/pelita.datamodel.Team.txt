@@ -6,14 +6,17 @@ pelita.datamodel.Team
 .. autoclass:: Team
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~Team.__init__
       ~Team.in_zone
    
+   
 
+   
+   
    

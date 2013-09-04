@@ -6,11 +6,11 @@ pelita.containers.Mesh
 .. autoclass:: Mesh
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~Mesh.__init__
       ~Mesh.copy
@@ -22,14 +22,16 @@ pelita.containers.Mesh
       ~Mesh.keys
       ~Mesh.values
    
+   
 
+   
    
    .. rubric:: Attributes
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~Mesh.compact_str
       ~Mesh.shape
+   
    

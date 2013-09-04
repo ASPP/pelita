@@ -10,7 +10,6 @@ pelita.player
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~AbstractPlayer
       ~CPUBoundPlayer

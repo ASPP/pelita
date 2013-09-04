@@ -6,24 +6,25 @@ pelita.player.DebuggablePlayer
 .. autoclass:: DebuggablePlayer
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~DebuggablePlayer.get_move
       ~DebuggablePlayer.say
       ~DebuggablePlayer.set_initial
       ~DebuggablePlayer.time_spent
    
+   
 
+   
    
    .. rubric:: Attributes
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~DebuggablePlayer.current_pos
       ~DebuggablePlayer.current_state
@@ -40,4 +41,5 @@ pelita.player.DebuggablePlayer
       ~DebuggablePlayer.team_border
       ~DebuggablePlayer.team_bots
       ~DebuggablePlayer.team_food
+   
    

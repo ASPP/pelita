@@ -6,16 +6,19 @@ pelita.simplesetup.RemoteTeamPlayer
 .. autoclass:: RemoteTeamPlayer
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~RemoteTeamPlayer.__init__
       ~RemoteTeamPlayer.get_move
       ~RemoteTeamPlayer.set_initial
       ~RemoteTeamPlayer.team_name
    
+   
 
+   
+   
    

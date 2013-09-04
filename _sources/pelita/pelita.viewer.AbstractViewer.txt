@@ -6,14 +6,17 @@ pelita.viewer.AbstractViewer
 .. autoclass:: AbstractViewer
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~AbstractViewer.observe
       ~AbstractViewer.set_initial
    
+   
 
+   
+   
    

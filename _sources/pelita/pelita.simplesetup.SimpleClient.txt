@@ -6,11 +6,11 @@ pelita.simplesetup.SimpleClient
 .. autoclass:: SimpleClient
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~SimpleClient.__init__
       ~SimpleClient.autoplay_process
@@ -22,5 +22,8 @@ pelita.simplesetup.SimpleClient
       ~SimpleClient.set_initial
       ~SimpleClient.team_name
    
+   
 
+   
+   
    

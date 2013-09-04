@@ -6,11 +6,11 @@ pelita.layout.Layout
 .. autoclass:: Layout
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~Layout.__init__
       ~Layout.as_mesh
@@ -19,5 +19,8 @@ pelita.layout.Layout
       ~Layout.layout_shape
       ~Layout.strip_layout
    
+   
 
+   
+   
    

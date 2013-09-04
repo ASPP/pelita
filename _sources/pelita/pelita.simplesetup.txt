@@ -8,7 +8,6 @@ pelita.simplesetup
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~bind_socket
       ~extract_port_range
@@ -19,7 +18,6 @@ pelita.simplesetup
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~RemoteTeamPlayer
       ~SimpleClient
@@ -35,7 +33,6 @@ pelita.simplesetup
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~DeadConnection
       ~ExitLoop

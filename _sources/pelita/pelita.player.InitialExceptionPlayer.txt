@@ -6,24 +6,25 @@ pelita.player.InitialExceptionPlayer
 .. autoclass:: InitialExceptionPlayer
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~InitialExceptionPlayer.get_move
       ~InitialExceptionPlayer.say
       ~InitialExceptionPlayer.set_initial
       ~InitialExceptionPlayer.time_spent
    
+   
 
+   
    
    .. rubric:: Attributes
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~InitialExceptionPlayer.current_pos
       ~InitialExceptionPlayer.current_state
@@ -40,4 +41,5 @@ pelita.player.InitialExceptionPlayer
       ~InitialExceptionPlayer.team_border
       ~InitialExceptionPlayer.team_bots
       ~InitialExceptionPlayer.team_food
+   
    

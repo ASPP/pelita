@@ -6,16 +6,19 @@ pelita.simplesetup.ZMQConnection
 .. autoclass:: ZMQConnection
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~ZMQConnection.__init__
       ~ZMQConnection.recv
       ~ZMQConnection.recv_timeout
       ~ZMQConnection.send
    
+   
 
+   
+   
    

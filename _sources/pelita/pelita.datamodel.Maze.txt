@@ -6,11 +6,11 @@ pelita.datamodel.Maze
 .. autoclass:: Maze
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~Maze.__init__
       ~Maze.copy
@@ -25,15 +25,17 @@ pelita.datamodel.Maze
       ~Maze.remove_at
       ~Maze.values
    
+   
 
+   
    
    .. rubric:: Attributes
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~Maze.compact_str
       ~Maze.positions
       ~Maze.shape
+   
    

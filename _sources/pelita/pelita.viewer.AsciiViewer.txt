@@ -6,14 +6,17 @@ pelita.viewer.AsciiViewer
 .. autoclass:: AsciiViewer
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~AsciiViewer.observe
       ~AsciiViewer.set_initial
    
+   
 
+   
+   
    

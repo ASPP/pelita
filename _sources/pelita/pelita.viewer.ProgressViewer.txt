@@ -6,14 +6,17 @@ pelita.viewer.ProgressViewer
 .. autoclass:: ProgressViewer
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~ProgressViewer.observe
       ~ProgressViewer.set_initial
    
+   
 
+   
+   
    

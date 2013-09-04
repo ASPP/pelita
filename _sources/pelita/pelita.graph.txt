@@ -8,7 +8,6 @@ pelita.graph
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~diff_pos
       ~iter_adjacencies
@@ -21,7 +20,6 @@ pelita.graph
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~AdjacencyList
    
@@ -31,7 +29,6 @@ pelita.graph
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~NoPathException
    

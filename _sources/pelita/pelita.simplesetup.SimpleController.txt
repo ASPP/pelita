@@ -6,11 +6,11 @@ pelita.simplesetup.SimpleController
 .. autoclass:: SimpleController
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~SimpleController.__init__
       ~SimpleController.exit
@@ -21,5 +21,8 @@ pelita.simplesetup.SimpleController
       ~SimpleController.set_initial
       ~SimpleController.update_viewers
    
+   
 
+   
+   
    

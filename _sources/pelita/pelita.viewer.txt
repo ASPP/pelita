@@ -10,7 +10,6 @@ pelita.viewer
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~AbstractViewer
       ~AsciiViewer

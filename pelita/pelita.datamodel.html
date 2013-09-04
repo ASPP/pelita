@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.datamodel &mdash; Pelita v0.2.0-102-ge1e65a9 documentation</title>
+    <title>pelita.datamodel &mdash; Pelita v0.2.0-106-g5b99530 documentation</title>
     
     <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-102-ge1e65a9',
+        VERSION:     'v0.2.0-106-g5b99530',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -30,7 +30,7 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-2.3.2/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Pelita v0.2.0-102-ge1e65a9 documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.2.0-106-g5b99530 documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
     <link rel="next" title="pelita.datamodel.create_maze" href="pelita.datamodel.create_maze.html" />
     <link rel="prev" title="pelita.containers.Mesh.shape" href="pelita.containers.Mesh.shape.html" />
@@ -60,7 +60,7 @@
         </button>
 
         <a class="brand" href="../index.html">Pelita</a>
-        <span class="navbar-text pull-left"><b>v0.2.0-102-ge1e65a9</b></span>
+        <span class="navbar-text pull-left"><b>v0.2.0-106-g5b99530</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -131,10 +131,10 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.create_maze.html#pelita.datamodel.create_maze" title="pelita.datamodel.create_maze"><tt class="xref py py-obj docutils literal"><span class="pre">create_maze</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.create_maze.html#pelita.datamodel.create_maze" title="pelita.datamodel.create_maze"><tt class="xref py py-obj docutils literal"><span class="pre">create_maze</span></tt></a>(layout_mesh)</td>
 <td>Transforms a layout_mesh into a Maze.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.extract_initial_positions.html#pelita.datamodel.extract_initial_positions" title="pelita.datamodel.extract_initial_positions"><tt class="xref py py-obj docutils literal"><span class="pre">extract_initial_positions</span></tt></a></td>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.extract_initial_positions.html#pelita.datamodel.extract_initial_positions" title="pelita.datamodel.extract_initial_positions"><tt class="xref py py-obj docutils literal"><span class="pre">extract_initial_positions</span></tt></a>(mesh,&nbsp;number_bots)</td>
 <td>Extract initial positions from mesh.</td>
 </tr>
 </tbody>
@@ -146,16 +146,16 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.Bot.html#pelita.datamodel.Bot" title="pelita.datamodel.Bot"><tt class="xref py py-obj docutils literal"><span class="pre">Bot</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.Bot.html#pelita.datamodel.Bot" title="pelita.datamodel.Bot"><tt class="xref py py-obj docutils literal"><span class="pre">Bot</span></tt></a>(index,&nbsp;initial_pos,&nbsp;team_index,&nbsp;homezone)</td>
 <td>A bot on a team.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.CTFUniverse.html#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><tt class="xref py py-obj docutils literal"><span class="pre">CTFUniverse</span></tt></a></td>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.CTFUniverse.html#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><tt class="xref py py-obj docutils literal"><span class="pre">CTFUniverse</span></tt></a>(maze,&nbsp;teams,&nbsp;bots)</td>
 <td>The Universe: representation of the game state.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.Maze.html#pelita.datamodel.Maze" title="pelita.datamodel.Maze"><tt class="xref py py-obj docutils literal"><span class="pre">Maze</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.Maze.html#pelita.datamodel.Maze" title="pelita.datamodel.Maze"><tt class="xref py py-obj docutils literal"><span class="pre">Maze</span></tt></a>(width,&nbsp;height[,&nbsp;data])</td>
 <td>A Mesh of strings of maze component representations.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.Team.html#pelita.datamodel.Team" title="pelita.datamodel.Team"><tt class="xref py py-obj docutils literal"><span class="pre">Team</span></tt></a></td>
+<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.Team.html#pelita.datamodel.Team" title="pelita.datamodel.Team"><tt class="xref py py-obj docutils literal"><span class="pre">Team</span></tt></a>(index,&nbsp;name,&nbsp;zone[,&nbsp;score,&nbsp;bots])</td>
 <td>A team of bots.</td>
 </tr>
 </tbody>
@@ -187,7 +187,7 @@
     </p>
     <p>
         &copy; Copyright 2011–2013, Valentin Haenel, Rike-Benjamin Schuppner et. al..<br/>
-      Last updated on Aug 29, 2013.<br/>
+      Last updated on Sep 04, 2013.<br/>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2b1.<br/>
     </p>
   </div>

@@ -6,25 +6,27 @@ pelita.utils.ThreadInfoLogger
 .. autoclass:: ThreadInfoLogger
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~ThreadInfoLogger.__init__
       ~ThreadInfoLogger.run
       ~ThreadInfoLogger.start
       ~ThreadInfoLogger.stop
    
+   
 
+   
    
    .. rubric:: Attributes
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~ThreadInfoLogger.paused
       ~ThreadInfoLogger.thread
+   
    

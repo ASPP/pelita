@@ -6,24 +6,25 @@ pelita.player.CPUBoundPlayer
 .. autoclass:: CPUBoundPlayer
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~CPUBoundPlayer.get_move
       ~CPUBoundPlayer.say
       ~CPUBoundPlayer.set_initial
       ~CPUBoundPlayer.time_spent
    
+   
 
+   
    
    .. rubric:: Attributes
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~CPUBoundPlayer.current_pos
       ~CPUBoundPlayer.current_state
@@ -40,4 +41,5 @@ pelita.player.CPUBoundPlayer
       ~CPUBoundPlayer.team_border
       ~CPUBoundPlayer.team_bots
       ~CPUBoundPlayer.team_food
+   
    

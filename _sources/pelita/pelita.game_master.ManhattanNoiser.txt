@@ -6,16 +6,19 @@ pelita.game_master.ManhattanNoiser
 .. autoclass:: ManhattanNoiser
 
    
+   
    .. rubric:: Methods
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~ManhattanNoiser.__init__
       ~ManhattanNoiser.alter_pos
       ~ManhattanNoiser.distance
       ~ManhattanNoiser.uniform_noise
    
+   
 
+   
+   
    

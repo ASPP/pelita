@@ -10,7 +10,6 @@ pelita.game_master
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~AStarNoiser
       ~GameMaster
@@ -23,7 +22,6 @@ pelita.game_master
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    
       ~GameFinished
       ~PlayerDisconnected
