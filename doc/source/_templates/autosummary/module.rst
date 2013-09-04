@@ -8,7 +8,6 @@
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    {% for item in pelita_member_filter(fullname, functions) %}
       ~{{ item }}
    {%- endfor %}
@@ -19,7 +18,6 @@
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    {% for item in pelita_member_filter(fullname, classes) %}
       ~{{ item }}
    {%- endfor %}
@@ -30,7 +28,6 @@
 
    .. autosummary::
       :toctree:
-      :nosignatures:
    {% for item in pelita_member_filter(fullname, exceptions) %}
       ~{{ item }}
    {%- endfor %}
