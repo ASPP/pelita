@@ -62,8 +62,9 @@ Example Players
 
     RandomPlayer
     NQRandomPlayer
-    BFSPlayer
-    BasicDefensePlayer
+    SmartRandomPlayer
+    RandomExplorerPlayer
+    FoodEatingPlayer
 
 Accessing ``pelita.datamodel``
 ------------------------------

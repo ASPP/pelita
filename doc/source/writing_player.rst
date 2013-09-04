@@ -208,62 +208,13 @@ and distances in `pelita.graph`:
     diff_pos
     manhattan_dist
 
-A Basic Offensive Player
-========================
-
-A somewhat more elaborate example is the `pelita.player.BFSPlayer` which uses
-*breadth first search* on an *adjacency list* representation of the maze to
-find food:
-
-.. literalinclude:: ../../players/BFSPlayer.py
-   :pyobject: BFSPlayer
-
-This next sections will explore the convenience properties of the
-``AbstractPlayer`` as used in the ``BFSPlayer``.
-
-``current_uni``, ``current_state``, ``current_pos`` and ``enemy_food``
-----------------------------------------------------------------------
-
-The ``BFSPlayer`` makes use of some more advanced concepts. The first thing to
-note is that any player can override the method ``set_initial()``. At this
-stage food is still present, and all bots are at their initial position. In the
-above example we initialise the adjacency list representation of the maze. As
-mentioned previously the current state of the universe is always available as
-``current_uni``. Within ``set_initial()`` this is the starting state.
-
-In order to fill the adjacency list with entries, we make use of the helper
-method ``CTFUniverse.reachable``, which iterates through all positions that are
-reachable from set of initial positions. This ensures that we only deal with
-positions that we can actually move to.
-
-Additionally, there is a low-level dict which includes all other game related
-information: ``current_state``. ``current_state`` is the current copy of the
-internal ``GameMaster.game_state`` dict. It holds for example the current round
-index or which bot is currently playing or how many timeouts each team has
-produced. Some of these values have dedicated properties in ``AbstractPlayer``
-but some are only accessible via ``current_state``. In some special cases
-however, one might want to access the full state of the game. (Minus the
-information the current Player is not allowed to access, of course.)
-The dict is documented in-line in ``pelita/game_state.py``.
-
-The next interesting thing to look at is the ``bfs_food()`` method which simply
-searches the ``AdjacencyList`` to find the closest food and returns a path to
-that food. In the process it makes use of two convenience properties:
-``current_pos`` and ``enemy_food``. The first is the location of the ``Bot``
-controlled by this ``Player`` as a position tuple. The second is a list of
-position tuples of the food owned by the enemy (which can be eaten by this
-bot).
-
-There are a few more convenience properties available from ``AbstractPlayer``,
-you should look at the section :ref:`user_api_reference` for details.
-
 Recovery Strategies in Case of Death or Timeout
 -----------------------------------------------
 
 Lastly, we are going to see some error recovery code in the
-``get_move()`` method of the ``BFSPlayer``.
+``get_move()`` method.
 
-The ``BFSPlayer`` is sometimes killed, as expected for an offensive player. In
+As it happens, an offensive player can get killed every now and then. In
 order to detect this, it's best to compare the current position with its
 initial position using the ``initial_pos`` convenience property, since this is
 where it will respawn. Alternatively, it is also possible to keep track of the
@@ -273,8 +224,7 @@ number of timeouts each team has already used up.
 Your player only has a limited time to return from ``get_move()``. The default
 is approximately three seconds. If your player does not respond in time, the
 ``GameMaster`` will move the bot at random for this turn. It's important to
-recover from such an event. The ``BFSPlayer`` does this by catching the
-``ValueError`` raised by ``diff_pos``.
+recover from such an event.
 
 The main problem with detecting a timeout is that, as long as your
 computationally expensive process is running, there is no way to interrupt it.
@@ -341,16 +291,11 @@ tasks, it may be a good idea to experiment with concurrency.
 Interacting with the Maze
 =========================
 
-The ``BFSPlayer`` above uses the adjacency list representation provided by:
+Players may use an adjacency list representation provided by
 ``pelita.graph.AdjacencyList``. Let's have a quick look at how this is
 generated, in case you would like to implement your own `graph storage
 <http://en.wikipedia.org/wiki/Graph_(data_structure)>`_ or leverage an
 alternative existing package such as `NetworkX <http://networkx.lanl.gov/>`_.
-
-Here it is the ``__init__`` of the ``AdjacencyList``:
-
-.. literalinclude:: ../../pelita/graph.py
-   :lines: 17-30
 
 In order to obtain the positions of all free spaces, the
 `pelita.datamodel.Maze` class provides the function
@@ -382,34 +327,6 @@ remove food to the maze::
     stuff.append(Food)
     maze[0,1] = stuff
 
-
-
-A Basic Defensive Player
-========================
-
-As a defensive example we have the ``BasicDefensePlayer``:
-
-.. literalinclude:: ../../players/BasicDefensePlayer.py
-   :pyobject: BasicDefensePlayer
-
-Defense is important because your enemy is awarded ``5`` points if he
-manages to destroy one of your bots!
-
-The player mostly uses convenience properties already introduced for the
-``BFSPlayer`` in addition to a few others. For example ``path_to_border`` uses
-the ``team_border`` convenience property which gives the positions of the
-border. Also, ``get_move()`` access the ``enemy_bots`` property and then uses
-the ``team.in_zone(position)`` function to check if an enemy position is within
-the zone of this team. Note that ``team`` is a convenience property of the
-``AbstractPlayer`` which in turn gives access to the ``Team`` instance from the
-``CTFUniverse``, which in turn has the method ``in_zone(position)``.
-
-
-For a comprehensive overview of all the properties of ``AbstractPlayer``,
-look at the section :ref:`user_api_reference`.
-
-Note that this player simply ignores the noisy enemy positions (described
-next).
 
 Noisy Enemy Positions
 =====================
