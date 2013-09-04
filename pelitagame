@@ -287,6 +287,8 @@ parser.add_argument('spec_right', help='team on the right side (default: random)
 parser._optionals = parser.add_argument_group('Options')
 parser.add_argument('--help', '-h', help='show this help message and exit',
                     action='store_const', const=True)
+parser.add_argument('--version', help='show the version number and exit',
+                    action='store_const', const=True)
 parser.add_argument('--log', help='print debugging log information to'
                                   ' LOGFILE (default \'pelita.log\')',
                     metavar='LOGFILE', default=argparse.SUPPRESS, nargs='?')
@@ -462,6 +464,9 @@ def run_game():
     args = parser.parse_args()
     if args.help:
         parser.print_help()
+        sys.exit(0)
+    if args.version:
+        print "Pelita %s" % pelita.version
         sys.exit(0)
     if args.layout == 'list':
         layouts = pelita.layout.get_available_layouts()
