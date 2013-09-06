@@ -92,15 +92,12 @@ def set_name(team):
     """Get name of team using a dry-run pelita game"""
     global RNAMES
     args = CMD_STUB.split()
-    args.extend(['--dry-run', team, 'random'])
+    args.extend(['--check-team', team])
     stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE).communicate()
     for line in stdout.splitlines():
-        if line.startswith("Using factory '"):
-            split = line.split("'")
-            tname, rname = split[1], split[3]
-            if tname in RNAMES:
+        if team in RNAMES:
                 # sanitize real names
-                RNAMES[tname] = rname
+            RNAMES[team] = line
     if stderr != '':
         print("*** ERROR: I could not load team", team, ". Please help!",
               speak=False)
