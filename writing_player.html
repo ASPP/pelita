@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Writing a Player &mdash; Pelita v0.2.0-106-g5b99530 documentation</title>
+    <title>Writing a Player &mdash; Pelita v0.2.0-114-g1e33fc9 documentation</title>
     
     <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'v0.2.0-106-g5b99530',
+        VERSION:     'v0.2.0-114-g1e33fc9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -30,7 +30,7 @@
     <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="_static/bootstrap-2.3.2/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Pelita v0.2.0-106-g5b99530 documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.2.0-114-g1e33fc9 documentation" href="index.html" />
     <link rel="next" title="Running Players" href="running_player.html" />
     <link rel="prev" title="Project Information" href="info.html" />
 <meta charset='utf-8'>
@@ -59,7 +59,7 @@
         </button>
 
         <a class="brand" href="index.html">Pelita</a>
-        <span class="navbar-text pull-left"><b>v0.2.0-106-g5b99530</b></span>
+        <span class="navbar-text pull-left"><b>v0.2.0-114-g1e33fc9</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -90,15 +90,10 @@
 <li><a class="reference internal" href="#doing-more">Doing More</a></li>
 <li><a class="reference internal" href="#the-maze-coordinate-system">The Maze Coordinate System</a><ul>
 <li><a class="reference internal" href="#distances-in-the-maze">Distances in the Maze</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#a-basic-offensive-player">A Basic Offensive Player</a><ul>
-<li><a class="reference internal" href="#current-uni-current-state-current-pos-and-enemy-food"><tt class="docutils literal"><span class="pre">current_uni</span></tt>, <tt class="docutils literal"><span class="pre">current_state</span></tt>, <tt class="docutils literal"><span class="pre">current_pos</span></tt> and <tt class="docutils literal"><span class="pre">enemy_food</span></tt></a></li>
 <li><a class="reference internal" href="#recovery-strategies-in-case-of-death-or-timeout">Recovery Strategies in Case of Death or Timeout</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#interacting-with-the-maze">Interacting with the Maze</a></li>
-<li><a class="reference internal" href="#a-basic-defensive-player">A Basic Defensive Player</a></li>
 <li><a class="reference internal" href="#noisy-enemy-positions">Noisy Enemy Positions</a></li>
 <li><a class="reference internal" href="#implementation-details-of-convenience-properties">Implementation Details of Convenience Properties</a></li>
 </ul>
@@ -383,106 +378,11 @@ and distances in <a class="reference internal" href="pelita/pelita.graph.html#mo
 </tbody>
 </table>
 </div>
-</div>
-<div class="section" id="a-basic-offensive-player">
-<h2>A Basic Offensive Player<a class="headerlink" href="#a-basic-offensive-player" title="Permalink to this headline">¶</a></h2>
-<p>A somewhat more elaborate example is the <tt class="xref py py-obj docutils literal"><span class="pre">pelita.player.BFSPlayer</span></tt> which uses
-<em>breadth first search</em> on an <em>adjacency list</em> representation of the maze to
-find food:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">BFSPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; This player uses breadth first search to always go to the closest food.</span>
-
-<span class="sd">    This player uses an adjacency list [1] to store the topology of the</span>
-<span class="sd">    maze. It will then do a breadth first search [2] to search for the</span>
-<span class="sd">    closest food. When found, it will follow the determined path until it</span>
-<span class="sd">    reaches the food. This continues until all food has been eaten or the</span>
-<span class="sd">    enemy wins.</span>
-
-<span class="sd">    The adjacency lits representation (AdjacencyList) and breadth first search</span>
-<span class="sd">    (AdjacencyList.bfs) are imported from pelita.graph.</span>
-
-<span class="sd">    * [1] http://en.wikipedia.org/wiki/Adjacency_list</span>
-<span class="sd">    * [2] http://en.wikipedia.org/wiki/Breadth-first_search</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># Before the game starts we initialise our adjacency list.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span> <span class="o">=</span> <span class="n">AdjacencyList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">reachable</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_pos</span><span class="p">]))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bfs_food</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">bfs_food</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Breadth first search for food.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        path : a list of tuples (int, int)</span>
-<span class="sd">            The positions (x, y) in the path from the current position to the</span>
-<span class="sd">            closest food. The first element is the final destination.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="o">.</span><span class="n">bfs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">enemy_food</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">NoPathException</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pos</span><span class="p">:</span>
-            <span class="c"># we have probably been killed</span>
-            <span class="c"># reset the path</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bfs_food</span><span class="p">()</span>
-        <span class="n">new_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-        <span class="n">move</span> <span class="o">=</span> <span class="n">diff_pos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="n">new_pos</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">move</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_moves</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">move</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c"># Whoops. We’re lost.</span>
-            <span class="c"># If there was a timeout, and we are no longer where we think we</span>
-            <span class="c"># were, calculate a new path.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">current_path</span> <span class="o">=</span> <span class="bp">None</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_move</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>This next sections will explore the convenience properties of the
-<tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt> as used in the <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt>.</p>
-<div class="section" id="current-uni-current-state-current-pos-and-enemy-food">
-<h3><tt class="docutils literal"><span class="pre">current_uni</span></tt>, <tt class="docutils literal"><span class="pre">current_state</span></tt>, <tt class="docutils literal"><span class="pre">current_pos</span></tt> and <tt class="docutils literal"><span class="pre">enemy_food</span></tt><a class="headerlink" href="#current-uni-current-state-current-pos-and-enemy-food" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt> makes use of some more advanced concepts. The first thing to
-note is that any player can override the method <tt class="docutils literal"><span class="pre">set_initial()</span></tt>. At this
-stage food is still present, and all bots are at their initial position. In the
-above example we initialise the adjacency list representation of the maze. As
-mentioned previously the current state of the universe is always available as
-<tt class="docutils literal"><span class="pre">current_uni</span></tt>. Within <tt class="docutils literal"><span class="pre">set_initial()</span></tt> this is the starting state.</p>
-<p>In order to fill the adjacency list with entries, we make use of the helper
-method <tt class="docutils literal"><span class="pre">CTFUniverse.reachable</span></tt>, which iterates through all positions that are
-reachable from set of initial positions. This ensures that we only deal with
-positions that we can actually move to.</p>
-<p>Additionally, there is a low-level dict which includes all other game related
-information: <tt class="docutils literal"><span class="pre">current_state</span></tt>. <tt class="docutils literal"><span class="pre">current_state</span></tt> is the current copy of the
-internal <tt class="docutils literal"><span class="pre">GameMaster.game_state</span></tt> dict. It holds for example the current round
-index or which bot is currently playing or how many timeouts each team has
-produced. Some of these values have dedicated properties in <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt>
-but some are only accessible via <tt class="docutils literal"><span class="pre">current_state</span></tt>. In some special cases
-however, one might want to access the full state of the game. (Minus the
-information the current Player is not allowed to access, of course.)
-The dict is documented in-line in <tt class="docutils literal"><span class="pre">pelita/game_state.py</span></tt>.</p>
-<p>The next interesting thing to look at is the <tt class="docutils literal"><span class="pre">bfs_food()</span></tt> method which simply
-searches the <tt class="docutils literal"><span class="pre">AdjacencyList</span></tt> to find the closest food and returns a path to
-that food. In the process it makes use of two convenience properties:
-<tt class="docutils literal"><span class="pre">current_pos</span></tt> and <tt class="docutils literal"><span class="pre">enemy_food</span></tt>. The first is the location of the <tt class="docutils literal"><span class="pre">Bot</span></tt>
-controlled by this <tt class="docutils literal"><span class="pre">Player</span></tt> as a position tuple. The second is a list of
-position tuples of the food owned by the enemy (which can be eaten by this
-bot).</p>
-<p>There are a few more convenience properties available from <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt>,
-you should look at the section <a class="reference internal" href="user-api.html#user-api-reference"><em>User API Reference</em></a> for details.</p>
-</div>
 <div class="section" id="recovery-strategies-in-case-of-death-or-timeout">
 <h3>Recovery Strategies in Case of Death or Timeout<a class="headerlink" href="#recovery-strategies-in-case-of-death-or-timeout" title="Permalink to this headline">¶</a></h3>
 <p>Lastly, we are going to see some error recovery code in the
-<tt class="docutils literal"><span class="pre">get_move()</span></tt> method of the <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt>.</p>
-<p>The <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt> is sometimes killed, as expected for an offensive player. In
+<tt class="docutils literal"><span class="pre">get_move()</span></tt> method.</p>
+<p>As it happens, an offensive player can get killed every now and then. In
 order to detect this, it&#8217;s best to compare the current position with its
 initial position using the <tt class="docutils literal"><span class="pre">initial_pos</span></tt> convenience property, since this is
 where it will respawn. Alternatively, it is also possible to keep track of the
@@ -491,8 +391,7 @@ number of timeouts each team has already used up.</p>
 <p>Your player only has a limited time to return from <tt class="docutils literal"><span class="pre">get_move()</span></tt>. The default
 is approximately three seconds. If your player does not respond in time, the
 <tt class="docutils literal"><span class="pre">GameMaster</span></tt> will move the bot at random for this turn. It&#8217;s important to
-recover from such an event. The <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt> does this by catching the
-<tt class="docutils literal"><span class="pre">ValueError</span></tt> raised by <tt class="docutils literal"><span class="pre">diff_pos</span></tt>.</p>
+recover from such an event.</p>
 <p>The main problem with detecting a timeout is that, as long as your
 computationally expensive process is running, there is no way to interrupt it.
 Imagine an infinite <tt class="docutils literal"><span class="pre">for</span></tt> loop in your <tt class="docutils literal"><span class="pre">get_move()</span></tt>:</p>
@@ -548,27 +447,10 @@ ready when you receive the first <tt class="docutils literal"><span class="pre">
 </div>
 <div class="section" id="interacting-with-the-maze">
 <h2>Interacting with the Maze<a class="headerlink" href="#interacting-with-the-maze" title="Permalink to this headline">¶</a></h2>
-<p>The <tt class="docutils literal"><span class="pre">BFSPlayer</span></tt> above uses the adjacency list representation provided by:
+<p>Players may use an adjacency list representation provided by
 <tt class="docutils literal"><span class="pre">pelita.graph.AdjacencyList</span></tt>. Let&#8217;s have a quick look at how this is
 generated, in case you would like to implement your own <a class="reference external" href="http://en.wikipedia.org/wiki/Graph_(data_structure)">graph storage</a> or leverage an
 alternative existing package such as <a class="reference external" href="http://networkx.lanl.gov/">NetworkX</a>.</p>
-<p>Here it is the <tt class="docutils literal"><span class="pre">__init__</span></tt> of the <tt class="docutils literal"><span class="pre">AdjacencyList</span></tt>:</p>
-<div class="highlight-python"><pre>    ----------
-    position : tuple of int (x, y)
-        current position
-
-    move : tuple of int (x, y)
-        direction vector
-
-    Returns
-    -------
-    new_pos : tuple of int (x, y)
-        new position coordinates
-
-    """
-    pos_x = position[0] + move[0]
-</pre>
-</div>
 <p>In order to obtain the positions of all free spaces, the
 <a class="reference internal" href="pelita/pelita.datamodel.Maze.html#pelita.datamodel.Maze" title="pelita.datamodel.Maze"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.datamodel.Maze</span></tt></a> class provides the function
 <a class="reference internal" href="pelita/pelita.datamodel.Maze.pos_of.html#pelita.datamodel.Maze.pos_of" title="pelita.datamodel.Maze.pos_of"><tt class="xref py py-obj docutils literal"><span class="pre">pelita.datamodel.Maze.pos_of</span></tt></a>. A maze can hold three different components at
@@ -598,122 +480,6 @@ remove food to the maze:</p>
 <span class="n">maze</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">stuff</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="a-basic-defensive-player">
-<h2>A Basic Defensive Player<a class="headerlink" href="#a-basic-defensive-player" title="Permalink to this headline">¶</a></h2>
-<p>As a defensive example we have the <tt class="docutils literal"><span class="pre">BasicDefensePlayer</span></tt>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">BasicDefensePlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A crude defensive player.</span>
-
-<span class="sd">    Will move towards the border, and as soon as it notices enemies in its</span>
-<span class="sd">    territory, it will start to track them. When it kills the enemy it returns</span>
-<span class="sd">    to the border and waits there for more. Like the BFSPlayer this player</span>
-<span class="sd">    stores the maze as an adjacency list [1] but uses the breadth first search [2] to</span>
-<span class="sd">    find the closest position on the border.  However it additionally uses the</span>
-<span class="sd">    A* (A Star) search [3] to find the shortest path to its target.</span>
-
-<span class="sd">    The adjacency lits representation (AdjacencyList) and A* search</span>
-<span class="sd">    (AdjacencyList.a_star) are imported from pelita.graph.</span>
-
-<span class="sd">    * [1] http://en.wikipedia.org/wiki/Adjacency_list</span>
-<span class="sd">    * [2] http://en.wikipedia.org/wiki/Breadth-first_search</span>
-<span class="sd">    * [3] http://en.wikipedia.org/wiki/A*_search_algorithm</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span> <span class="o">=</span> <span class="n">AdjacencyList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">reachable</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_pos</span><span class="p">]))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_to_border</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tracking_idx</span> <span class="o">=</span> <span class="bp">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">path_to_border</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Path to the closest border position. &quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="o">.</span><span class="n">bfs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_border</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">NoPathException</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">path_to_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Path to the target we are currently tracking. &quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="o">.</span><span class="n">a_star</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">tracking_target</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">NoPathException</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tracking_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Bot object we are currently tracking. &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tracking_idx</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># if we were killed, for whatever reason, reset the path</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pos</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_to_border</span>
-
-        <span class="c"># First we need to check, if our tracked enemy is still</span>
-        <span class="c"># in our zone</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="c"># if the enemy is no longer in our zone</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">in_zone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracking_target</span><span class="o">.</span><span class="n">current_pos</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">tracking_idx</span> <span class="o">=</span> <span class="bp">None</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_to_border</span>
-            <span class="c"># otherwise update the path to the target</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_to_target</span>
-
-        <span class="c"># if we are not currently tracking anything</span>
-        <span class="c"># (need to check explicity for None, because using &#39;if </span>
-        <span class="c"># self.tracking_idx&#39; would evaluate to True also when we are tracking</span>
-        <span class="c"># the bot with index == 0)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking_idx</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="c"># check the enemy positions</span>
-            <span class="n">possible_targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">enemy</span> <span class="k">for</span> <span class="n">enemy</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enemy_bots</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">in_zone</span><span class="p">(</span><span class="n">enemy</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)]</span>
-            <span class="k">if</span> <span class="n">possible_targets</span><span class="p">:</span>
-                <span class="c"># get the path to the closest one</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">possible_paths</span> <span class="o">=</span> <span class="p">[(</span><span class="n">enemy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="o">.</span><span class="n">a_star</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="n">enemy</span><span class="o">.</span><span class="n">current_pos</span><span class="p">))</span>
-                                      <span class="k">for</span> <span class="n">enemy</span> <span class="ow">in</span> <span class="n">possible_targets</span><span class="p">]</span>
-                <span class="k">except</span> <span class="n">NoPathException</span><span class="p">:</span>
-                    <span class="n">possible_paths</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">possible_paths</span> <span class="o">=</span> <span class="p">[]</span>
-
-            <span class="k">if</span> <span class="n">possible_paths</span><span class="p">:</span>
-                <span class="n">closest_enemy</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">possible_paths</span><span class="p">,</span>
-                                          <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">enemy_path</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">enemy_path</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
-
-                <span class="c"># track that bot by using its index</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">tracking_idx</span> <span class="o">=</span> <span class="n">closest_enemy</span><span class="o">.</span><span class="n">index</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c"># otherwise keep going if we aren&#39;t already underway</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_to_border</span>
-
-        <span class="c"># if something above went wrong, just stand still</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">diff_pos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
-</pre></div>
-</div>
-<p>Defense is important because your enemy is awarded <tt class="docutils literal"><span class="pre">5</span></tt> points if he
-manages to destroy one of your bots!</p>
-<p>The player mostly uses convenience properties already introduced for the
-<tt class="docutils literal"><span class="pre">BFSPlayer</span></tt> in addition to a few others. For example <tt class="docutils literal"><span class="pre">path_to_border</span></tt> uses
-the <tt class="docutils literal"><span class="pre">team_border</span></tt> convenience property which gives the positions of the
-border. Also, <tt class="docutils literal"><span class="pre">get_move()</span></tt> access the <tt class="docutils literal"><span class="pre">enemy_bots</span></tt> property and then uses
-the <tt class="docutils literal"><span class="pre">team.in_zone(position)</span></tt> function to check if an enemy position is within
-the zone of this team. Note that <tt class="docutils literal"><span class="pre">team</span></tt> is a convenience property of the
-<tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt> which in turn gives access to the <tt class="docutils literal"><span class="pre">Team</span></tt> instance from the
-<tt class="docutils literal"><span class="pre">CTFUniverse</span></tt>, which in turn has the method <tt class="docutils literal"><span class="pre">in_zone(position)</span></tt>.</p>
-<p>For a comprehensive overview of all the properties of <tt class="docutils literal"><span class="pre">AbstractPlayer</span></tt>,
-look at the section <a class="reference internal" href="user-api.html#user-api-reference"><em>User API Reference</em></a>.</p>
-<p>Note that this player simply ignores the noisy enemy positions (described
-next).</p>
 </div>
 <div class="section" id="noisy-enemy-positions">
 <h2>Noisy Enemy Positions<a class="headerlink" href="#noisy-enemy-positions" title="Permalink to this headline">¶</a></h2>
@@ -898,7 +664,7 @@ respective <tt class="docutils literal"><span class="pre">Team</span></tt> insta
     </p>
     <p>
         &copy; Copyright 2011–2013, Valentin Haenel, Rike-Benjamin Schuppner et. al..<br/>
-      Last updated on Sep 04, 2013.<br/>
+      Last updated on Sep 09, 2013.<br/>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2b1.<br/>
     </p>
   </div>
