@@ -190,12 +190,10 @@ class CI_Engine(object):
                 if r == 0: win += 1
                 elif r == 1: loss += 1
                 elif r == -1: draw += 1
-                else: print 'purrrr!'
             if (idx2 is None and idx == p2) or (idx2 is not None and idx == p2 and idx2 == p1):
                 if r == 1: win += 1
                 elif r == 0: loss += 1
                 elif r == -1: draw += 1
-                else: print 'purrrr!'
         return win, loss, draw
 
     def pretty_print_results(self):
