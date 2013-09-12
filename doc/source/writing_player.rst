@@ -136,7 +136,7 @@ The Maze Coordinate System
 ==========================
 
 The coordinate system is the standard coordinate system used in computer games.
-``x`` increases to the left, and ``y`` increases downwards, and a position is
+``x`` increases to the right, and ``y`` increases downwards, and a position is
 encoded as the tuple ``(x, y)``. There are no negative coordinates. The
 following example illustrates this for a few positions:
 
