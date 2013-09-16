@@ -40,9 +40,10 @@ stabilized.
 from __future__ import division
 
 import ConfigParser
-import random
-import subprocess
 import os
+import random
+import sqlite3
+import subprocess
 
 
 # the path of the configuration file
@@ -55,10 +56,25 @@ class CI_Engine(object):
 
     """
 
-    def __init__(self):
+    def __init__(self, cfgfile=CFG_FILE):
         self.players = []
-        # array of [p1, p2, result, std_out, std_err]
-        self.results = []
+        config = ConfigParser.ConfigParser()
+        config.read(os.path.abspath(cfgfile))
+        for name, path in  config.items('agents'):
+            if os.path.isdir(path):
+                self.players.append({'name' : name,
+                                     'path' : path
+                                     })
+            else:
+                print '%s seems not to be an existing directory, ignoring %s' % (path, name)
+        self.pelita_exe = config.get('general', 'pelita_exe')
+        self.default_args = config.get('general', 'default_args').split()
+        self.db_file = config.get('general', 'db_file')
+        self.dbwrapper = DB_Wrapper(self.db_file)
+        for pname in self.dbwrapper.get_players():
+            if pname not in [p['name'] for p in self.players]:
+                print 'Removing %s from data base, because he is not among the current players.' % (pname)
+                self.dbwrapper.remove_player(pname)
 
     def run_game(self, p1, p2):
         """Run a single game.
@@ -91,32 +107,8 @@ class CI_Engine(object):
             print std_out
             # just ignore this game
             return
-        self.results.append([p1, p2, result, std_out, std_err])
-
-
-    def configure(self, cfgfile=CFG_FILE):
-        """Configure the CI Engine.
-
-        This method reads the configuration file and configures itself.
-        It is mainly used to read in the agents.
-
-        Parameters
-        ----------
-        cfgfile : str, optional
-            path to the configuration file, the default is './ci.cfg'
-
-        """
-        config = ConfigParser.ConfigParser()
-        config.read(os.path.abspath(cfgfile))
-        for name, path in  config.items('agents'):
-            if os.path.isdir(path):
-                self.players.append({'name' : name,
-                                     'path' : path
-                                     })
-            else:
-                print '%s seems not to be an existing directory, ignoring %s' % (path, name)
-        self.pelita_exe = config.get('general', 'pelita_exe')
-        self.default_args = config.get('general', 'default_args').split()
+        p1_name, p2_name = self.players[p1]['name'], self.players[p2]['name']
+        self.dbwrapper.add_gameresult(p1_name, p2_name, result, std_out, std_err)
 
 
     def start(self):
@@ -131,7 +123,6 @@ class CI_Engine(object):
         Examples
         --------
         >>> ci = CI_Engine()
-        >>> ci.configure()
         >>> ci.start()
 
         """
@@ -185,16 +176,20 @@ class CI_Engine(object):
 
         """
         win, loss, draw = 0, 0, 0
-        for p1, p2, r, std_out, std_err in self.results:
-            if (idx2 is None and idx == p1) or (idx2 is not None and idx == p1 and idx2 == p2):
+        p1_name = self.players[idx]['name']
+        p2_name = None if idx2 == None else self.players[idx2]['name']
+        relevant_results = self.dbwrapper.get_results(p1_name, p2_name)
+        for p1, p2, r, std_out, std_err in relevant_results:
+            if (idx2 is None and p1_name == p1) or (idx2 is not None and p1_name == p1 and p2_name == p2):
                 if r == 0: win += 1
                 elif r == 1: loss += 1
                 elif r == -1: draw += 1
-            if (idx2 is None and idx == p2) or (idx2 is not None and idx == p2 and idx2 == p1):
+            if (idx2 is None and p1_name == p2) or (idx2 is not None and p1_name == p2 and p2_name == p1):
                 if r == 1: win += 1
                 elif r == 0: loss += 1
                 elif r == -1: draw += 1
         return win, loss, draw
+
 
     def pretty_print_results(self):
         """Pretty print the current results.
@@ -217,9 +212,121 @@ class CI_Engine(object):
             print "%15s %6.2f" % (name, score)
 
 
+class DB_Wrapper(object):
+    """Wrapper around the games data base."""
+
+    def __init__(self, dbfile):
+        """Initialize the connection to the db ``dbfile``.
+
+        Create table if file does not exist.
+
+        Parameters
+        ----------
+        dbfile : str
+            path to sqlite3 database
+
+        """
+        self.db_file = dbfile
+        if not os.path.exists(self.db_file):
+            self.connection = sqlite3.connect(self.db_file)
+            self.cursor = self.connection.cursor()
+            self.create_table()
+        else:
+            self.connection = sqlite3.connect(self.db_file)
+            self.cursor = self.connection.cursor()
+
+    def create_table(self):
+        """Create table.
+
+        """
+        self.cursor.execute("""
+        CREATE TABLE games
+        (player1 text, player2 text, result int, stdout text, stderr text)
+        """)
+        self.connection.commit()
+
+    def get_players(self):
+        """Get players from the database.
+
+        Returns
+        -------
+        players : list of strings
+            the player names from the database.
+
+        """
+        players = self.cursor.execute("""SELECT player1, player2 from games""").fetchall()
+        players = [p1 for p1, p2 in players] + [p2 for p1, p2 in players]
+        players = list(set(players))
+        return players
+
+    def remove_player(self, pname):
+        """Remove a player from the database.
+
+        Removes all games where the player ``pname`` participated.
+
+        Parameters
+        ----------
+        pname : str
+            the player name of the player to be removed
+
+        """
+        self.cursor.execute("""DELETE FROM games
+        WHERE player1 = '%s' or player2 = '%s'""" % (pname, pname))
+        self.connection.commit()
+
+    def add_gameresult(self, p1_name, p2_name, result, std_out, std_err):
+        """Add a new game result to the database.
+
+        Parameters
+        ----------
+        p1_name, p2_name : str
+            the names of the players
+        result : 0, 1 or -1
+            0 if player 1 won
+            1 of player 2 won
+            -1 if draw
+        std_out, std_err : str
+            STDOUT and STDERR of the game
+
+        """
+        self.cursor.execute("""
+        INSERT INTO games
+        VALUES (?, ?, ?, ?, ?)
+        """, [p1_name, p2_name, result, std_out, std_err])
+        self.connection.commit()
+
+    def get_results(self, p1_name, p2_name=None):
+        """Get all games involving player1 (AND player2 if specified).
+
+        Parameters
+        ----------
+        p1_name : str
+            the  name of player 1
+        p2_name : str, optional
+            the name of player 2, if not specified ``get_results`` will
+            return all games involving player 1 otherwise it will return
+            all games of player1 AND player2
+
+        Returns
+        -------
+        relevant_results : list of gameresults
+
+        """
+        if p2_name is None:
+            self.cursor.execute("""
+            SELECT * FROM games
+            WHERE player1 = '%s' or player2 = '%s'""" % (p1_name, p1_name))
+            relevant_results = self.cursor.fetchall()
+        else:
+            self.cursor.execute("""
+            SELECT * FROM games
+            WHERE (player1 = '%s' and player2 = '%s') or (player1 = '%s' and player2 = '%s')""" % (p1_name, p2_name, p2_name, p1_name))
+            relevant_results = self.cursor.fetchall()
+        return relevant_results
+
+
 if __name__ == '__main__':
     ci_engine = CI_Engine()
-    ci_engine.configure()
     ci_engine.start()
 
 
