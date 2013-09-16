@@ -896,13 +896,14 @@ class TestCTFUniverseRules(unittest.TestCase):
         universe.move_bot(0, east)
         universe.move_bot(1, west)
         game_state = universe.move_bot(1, west)
-        print game_state
         target = {
             "bot_moved": [{"bot_id": 1, "old_pos": (3, 1), "new_pos": (2, 1)}, {"bot_id": 1, "old_pos": (2, 1), "new_pos": (4, 1)}],
             "food_eaten": [],
             "bot_destroyed": [{"bot_id": 1, "destroyed_by": 0}]
         }
         self.assertEqual(game_state, target)
+        self.assertEqual(universe.teams[0].score, universe.KILLPOINTS)
+        self.assertEqual(universe.teams[1].score, 0)
 
 if __name__ == '__main__':
     unittest.main()
