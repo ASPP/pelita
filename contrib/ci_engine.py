@@ -40,11 +40,16 @@ stabilized.
 from __future__ import division
 
 import ConfigParser
+import logging
 import os
 import random
 import sqlite3
 import subprocess
 
+
+logging.basicConfig(format='%(relativeCreated)10.0f %(levelname)8s %(message)s', level=logging.NOTSET)
+logger = logging.getLogger(__name__)
+logger.info('Logger started')
 
 # the path of the configuration file
 CFG_FILE = './ci.cfg'
@@ -66,14 +71,14 @@ class CI_Engine(object):
                                      'path' : path
                                      })
             else:
-                print '%s seems not to be an existing directory, ignoring %s' % (path, name)
+                logger.warning('%s seems not to be an existing directory, ignoring %s' % (path, name))
         self.pelita_exe = config.get('general', 'pelita_exe')
         self.default_args = config.get('general', 'default_args').split()
         self.db_file = config.get('general', 'db_file')
         self.dbwrapper = DB_Wrapper(self.db_file)
         for pname in self.dbwrapper.get_players():
             if pname not in [p['name'] for p in self.players]:
-                print 'Removing %s from data base, because he is not among the current players.' % (pname)
+                logger.debug('Removing %s from data base, because he is not among the current players.' % (pname))
                 self.dbwrapper.remove_player(pname)
 
     def run_game(self, p1, p2):
@@ -100,12 +105,10 @@ class CI_Engine(object):
         try:
             result = -1 if last_line == '-' else int(last_line)
         except ValueError:
-            print "*** Couldn't parse the outcome of the game:"
-            print "*** STDERR:"
-            print std_err
-            print "*** STDOUT:"
-            print std_out
-            # just ignore this game
+            logger.error("Couldn't parse the outcome of the game:")
+            logger.error("STDERR: \n%s" % std_err)
+            logger.error("STDOUT: \n%s" % std_out)
+            logger.error("Ignoring the result.")
             return
         p1_name, p2_name = self.players[p1]['name'], self.players[p2]['name']
         self.dbwrapper.add_gameresult(p1_name, p2_name, result, std_out, std_err)
