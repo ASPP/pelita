@@ -127,7 +127,14 @@ class CI_Engine(object):
 
         """
         while 1:
-            players = range(len(self.players))
+            # choose the player with the least number of played game,
+            # mix him with another random player
+            # mis the sides and let them play
+            game_count = [[sum(self.get_results(i)), i] for i in range(len(self.players))]
+            players_sorted = [idx for count, idx in sorted(game_count)]
+            a, rest = players_sorted[0], players_sorted[1:]
+            b = random.choice(rest)
+            players = [a, b]
             random.shuffle(players)
             self.run_game(players[0], players[1])
             self.pretty_print_results()
