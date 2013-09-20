@@ -435,6 +435,8 @@ def hashdir(pathname):
     files.sort()
     sha1 = hashlib.sha1()
     for filename in files:
+        if filename.endswith('.pyc'):
+            continue
         try:
             with open(filename) as fh:
                 while 1:
