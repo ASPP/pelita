@@ -40,6 +40,7 @@ stabilized.
 from __future__ import division
 
 import ConfigParser
+import hashlib
 import logging
 import os
 import random
@@ -333,6 +334,50 @@ class DB_Wrapper(object):
             WHERE (player1 = '%s' and player2 = '%s') or (player1 = '%s' and player2 = '%s')""" % (p1_name, p2_name, p2_name, p1_name))
             relevant_results = self.cursor.fetchall()
         return relevant_results
+
+
+def hashdir(pathname):
+    """Calculate the SHA1 sum of the contents of a directory.
+
+    It operates by walking trough the directory, collecting all
+    filenames, sorting them alphabetically and calculating the SHA1 of
+    the contents of the files.
+
+    Parameters
+    ----------
+    pathname : str
+        the path of the directory to check
+
+    Returns
+    -------
+    hexdigest : str
+        the SHA1
+
+    Examples
+    --------
+
+    >>> hashdir('/tmp')
+    'cac36aaf1c64d7f93c9d874471f23de1cbfd5249'
+
+    """
+    files = []
+    for path, root, filenames in os.walk(pathname):
+        for filename in filenames:
+            files.append(os.sep.join([path, filename]))
+    files.sort()
+    sha1 = hashlib.sha1()
+    for filename in files:
+        try:
+            with open(filename) as fh:
+                while 1:
+                    buf = fh.read(1024*4)
+                    if not buf:
+                        break
+                    sha1.update(buf)
+        except IOError:
+            logger.debug('could not open %s' % filename)
+            pass
+    return sha1.hexdigest()
 
 
 if __name__ == '__main__':
