@@ -77,10 +77,25 @@ class CI_Engine(object):
         self.default_args = config.get('general', 'default_args').split()
         self.db_file = config.get('general', 'db_file')
         self.dbwrapper = DB_Wrapper(self.db_file)
+        # remove players from db which are not in the config anymore
         for pname in self.dbwrapper.get_players():
             if pname not in [p['name'] for p in self.players]:
                 logger.debug('Removing %s from data base, because he is not among the current players.' % (pname))
                 self.dbwrapper.remove_player(pname)
+        # add new players into db
+        for pname, path in [[p['name'], p['path']] for p in self.players]:
+            if pname not in self.dbwrapper.get_players():
+                logger.debug('Adding %s to data base.' % pname)
+                self.dbwrapper.add_player(pname, hashdir(path))
+        # reset players where the directory hash changed
+        for player in self.players:
+            path = player['path']
+            name = player['name']
+            if hashdir(path) != self.dbwrapper.get_player_hash(name):
+                logger.debug('Resetting %s because his directory hash changed.' % name)
+                self.dbwrapper.remove_player(name)
+                self.dbwrapper.add_player(name, hashdir(path))
+
 
     def run_game(self, p1, p2):
         """Run a single game.
@@ -238,21 +253,26 @@ class DB_Wrapper(object):
 
         """
         self.db_file = dbfile
-        if not os.path.exists(self.db_file):
-            self.connection = sqlite3.connect(self.db_file)
-            self.cursor = self.connection.cursor()
-            self.create_table()
-        else:
-            self.connection = sqlite3.connect(self.db_file)
-            self.cursor = self.connection.cursor()
+        self.connection = sqlite3.connect(self.db_file)
+        self.cursor = self.connection.cursor()
+        self.cursor.execute("PRAGMA foreign_keys = ON;")
+        self.create_tables()
 
-    def create_table(self):
-        """Create table.
+    def create_tables(self):
+        """Create tables.
+
+        This is a no-op if the tables already exist.
 
         """
         self.cursor.execute("""
-        CREATE TABLE games
-        (player1 text, player2 text, result int, stdout text, stderr text)
+        CREATE TABLE IF NOT EXISTS games
+        (player1 text, player2 text, result int, stdout text, stderr text,
+        FOREIGN KEY(player1) REFERENCES players(name) ON DELETE CASCADE,
+        FOREIGN KEY(player2) REFERENCES players(name) ON DELETE CASCADE)
+        """)
+        self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS players
+        (name text PRIMARY KEY, hash text)
         """)
         self.connection.commit()
 
@@ -265,10 +285,49 @@ class DB_Wrapper(object):
             the player names from the database.
 
         """
-        players = self.cursor.execute("""SELECT player1, player2 from games""").fetchall()
-        players = [p1 for p1, p2 in players] + [p2 for p1, p2 in players]
-        players = list(set(players))
+        players = self.cursor.execute("""SELECT name FROM players""").fetchall()
+        players = [row[0] for row in players]
         return players
+
+    def get_player_hash(self, name):
+        """Get the hash stored in the data base for the player.
+
+        Raises
+        ------
+        ValueError : if the player does not exist in the data base
+
+        """
+        h = self.cursor.execute("""
+        SELECT hash
+        FROM players
+        WHERE name = '%s'
+        """ % name).fetchone()
+        if h is None:
+            raise ValueError('Player %s does not exist in data base.' % name)
+        return h[0]
+
+    def add_player(self, name, h):
+        """Add player to data base
+
+        Parameters
+        ----------
+        name : str
+        h : str
+            hash of the player's directory
+
+        Raises
+        ------
+        ValueError : if player already exists in data base
+
+        """
+        try:
+            self.cursor.execute("""
+            INSERT INTO players
+            VALUES (?, ?)
+            """, [name, h])
+            self.connection.commit()
+        except sqlite3.IntegrityError:
+            raise ValueError('Player %s already exists in data base' % name)
 
     def remove_player(self, pname):
         """Remove a player from the database.
@@ -283,6 +342,8 @@ class DB_Wrapper(object):
         """
         self.cursor.execute("""DELETE FROM games
         WHERE player1 = '%s' or player2 = '%s'""" % (pname, pname))
+        self.cursor.execute("""DELETE FROM players
+        WHERE name = '%s'""" % pname)
         self.connection.commit()
 
     def add_gameresult(self, p1_name, p2_name, result, std_out, std_err):
