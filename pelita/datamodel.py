@@ -638,9 +638,20 @@ class CTFUniverse(object):
         for enemy in self.enemy_bots(bot.team_index):
             if enemy.current_pos == bot.current_pos:
                 if enemy.is_destroyer and bot.is_harvester:
-                    game_state["bot_destroyed"] += [{'bot_id': bot.index, 'destroyed_by': enemy.index}]
-                elif enemy.is_harvester and bot.is_destroyer:
-                    game_state["bot_destroyed"] += [{'bot_id': enemy.index, 'destroyed_by': bot.index}]
+                    destroyer = enemy.index
+                    harvester = bot.index
+                elif bot.is_destroyer and enemy.is_harvester:
+                    destroyer = bot.index
+                    harvester = enemy.index
+                else:
+                    continue
+
+                # move on, if harvester is already destroyed
+                if any(bot_destr["bot_id"]==harvester for bot_destr in game_state["bot_destroyed"]):
+                    continue
+
+                # otherwise mark for destruction
+                game_state["bot_destroyed"] += [{'bot_id': harvester, 'destroyed_by': destroyer}]
 
         # reset bots
         for destroyed in game_state["bot_destroyed"]:
