@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # Copyright (c) 2013, Bastian Venthur <venthur@debian.org>
 # All rights reserved.
@@ -491,6 +492,17 @@ class Test_DB_Wrapper(unittest.TestCase):
         self.assertEqual(len(self.wrapper.get_results('p2')), 1)
         # player 3 should be untouched
         self.assertEqual(len(self.wrapper.get_results('p3')), 1)
+
+    def test_add_remove_weirdly_named_player(self):
+        stupid_names = [
+            "Little'",
+            'Bobby"',
+            u"таблицы",
+        ]
+
+        for name in stupid_names:
+            self.wrapper.add_player(name, name)
+            self.wrapper.remove_player(name)
 
     def test_get_players(self):
         players = ['p1', 'p2', 'p3']
