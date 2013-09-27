@@ -313,8 +313,8 @@ class DB_Wrapper(object):
         h = self.cursor.execute("""
         SELECT hash
         FROM players
-        WHERE name = '%s'
-        """ % name).fetchone()
+        WHERE name = ?
+        """, (name,)).fetchone()
         if h is None:
             raise ValueError('Player %s does not exist in data base.' % name)
         return h[0]
@@ -354,9 +354,9 @@ class DB_Wrapper(object):
 
         """
         self.cursor.execute("""DELETE FROM games
-        WHERE player1 = '%s' or player2 = '%s'""" % (pname, pname))
+        WHERE player1 = ? or player2 = ?""", (pname, pname))
         self.cursor.execute("""DELETE FROM players
-        WHERE name = '%s'""" % pname)
+        WHERE name = ?""", (pname,))
         self.connection.commit()
 
     def add_gameresult(self, p1_name, p2_name, result, std_out, std_err):
@@ -400,12 +400,13 @@ class DB_Wrapper(object):
         if p2_name is None:
             self.cursor.execute("""
             SELECT * FROM games
-            WHERE player1 = '%s' or player2 = '%s'""" % (p1_name, p1_name))
+            WHERE player1 = ? or player2 = ?""", (p1_name, p1_name))
             relevant_results = self.cursor.fetchall()
         else:
             self.cursor.execute("""
             SELECT * FROM games
-            WHERE (player1 = '%s' and player2 = '%s') or (player1 = '%s' and player2 = '%s')""" % (p1_name, p2_name, p2_name, p1_name))
+            WHERE (player1 = :p1 and player2 = :p2) or (player1 = :p2 and player2 = :p1)""",
+            dict(p1=p1_name, p2=p2_name))
             relevant_results = self.cursor.fetchall()
         return relevant_results
 
