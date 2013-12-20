@@ -33,7 +33,7 @@ class SimpleTeam(object):
         if not args:
             raise ValueError("No teams given.")
 
-        if isinstance(args[0], basestring):
+        if isinstance(args[0], str):
             self.team_name = args[0]
             players = args[1:]
         else:
@@ -85,10 +85,8 @@ class SimpleTeam(object):
     def __repr__(self):
         return "SimpleTeam(%r, %s)" % (self.team_name, ", ".join(repr(p) for p in self._players))
 
-class AbstractPlayer(object):
+class AbstractPlayer(object, metaclass=abc.ABCMeta):
     """ Base class for all user implemented Players. """
-
-    __metaclass__ =  abc.ABCMeta
 
     def _set_index(self, index):
         """ Called by SimpleTeam to set this Player's index.
@@ -376,7 +374,7 @@ class AbstractPlayer(object):
         text : string
             the text to be shown in the Viewer.
         """
-        self._say = unicode(text, errors='ignore')
+        self._say = str(text, errors='ignore')
 
     def __str__(self):
         return "%s(index=%r, current_pos=%r)" % (self.__class__.__name__,
@@ -392,7 +390,7 @@ class SpeakingPlayer(AbstractPlayer):
     """ A player that makes moves at random and tells us about it. """
 
     def get_move(self):
-        move = self.rnd.choice(self.legal_moves.keys())
+        move = self.rnd.choice(list(self.legal_moves.keys()))
         self.say("Going %r." % (move,))
         return move
 
@@ -420,7 +418,7 @@ class TestPlayer(AbstractPlayer):
               '-': datamodel.stop}
 
     def __init__(self, moves):
-        if isinstance(moves, basestring):
+        if isinstance(moves, str):
             moves = (self._MOVES[move] for move in moves)
         self.moves = iter(moves)
 
@@ -472,7 +470,7 @@ class IOBoundPlayer(AbstractPlayer):
                         sys.stdout.write('.')
                         sys.stdout.flush()
                     if not self.timeouted and self.previous_pos != self.current_pos:
-                        print "Crawling done and timeout received %i" % count
+                        print("Crawling done and timeout received %i" % count)
                         self.timeouted = True
 
 class MoveExceptionPlayer(AbstractPlayer):
@@ -509,7 +507,7 @@ class CPUBoundPlayer(AbstractPlayer):
         self.timeouted = False
         total = 0.0
         count = 0
-        for i in xrange(sys.maxint):
+        for i in range(sys.maxsize):
             total += i*i
             total = math.sin(total)
             count += 1
@@ -517,6 +515,6 @@ class CPUBoundPlayer(AbstractPlayer):
                 sys.stdout.write('.')
                 sys.stdout.flush()
             if not self.timeouted and self.previous_pos != self.current_pos:
-                print "Crawling done and timeout received %i" % count
+                print("Crawling done and timeout received %i" % count)
                 self.timeouted = True
 

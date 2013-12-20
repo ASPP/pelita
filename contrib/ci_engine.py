@@ -43,9 +43,9 @@ stabilized.
 """
 
 
-from __future__ import division
 
-import ConfigParser
+
+import configparser
 import argparse
 import hashlib
 import logging
@@ -77,7 +77,7 @@ class CI_Engine(object):
 
     def __init__(self, cfgfile=CFG_FILE):
         self.players = []
-        config = ConfigParser.ConfigParser()
+        config = configparser.ConfigParser()
         config.read(os.path.abspath(cfgfile))
         for name, path in  config.items('agents'):
             if os.path.isdir(path):
@@ -122,7 +122,7 @@ class CI_Engine(object):
             the indices of the players
 
         """
-        left, right = [self.players[i]['path'] for i in p1, p2]
+        left, right = [self.players[i]['path'] for i in (p1, p2)]
         proc_args = [self.pelita_exe, left, right]
         proc_args.extend(self.default_args)
 
@@ -170,7 +170,7 @@ class CI_Engine(object):
             random.shuffle(players)
             self.run_game(players[0], players[1])
             self.pretty_print_results()
-            print '------------------------------'
+            print('------------------------------')
 
 
     def get_results(self, idx, idx2=None):
@@ -234,21 +234,21 @@ class CI_Engine(object):
         """Pretty print the current results.
 
         """
-        print '                                       ' + ''.join("%14s" % p['name'] for p in self.players)
+        print('                                       ' + ''.join("%14s" % p['name'] for p in self.players))
         result = []
         for idx, p in enumerate(self.players):
             win, loss, draw = self.get_results(idx)
             score = 0 if (win+loss+draw) == 0 else (win-loss) / (win+loss+draw)
             result.append([score, p['name']])
-            print '%13s (%6.2f): %3d,%3d,%3d\t' % (p['name'], score, win, loss, draw),
+            print('%13s (%6.2f): %3d,%3d,%3d\t' % (p['name'], score, win, loss, draw), end=' ')
             for idx2, p2 in enumerate(self.players):
                 win, loss, draw = self.get_results(idx, idx2)
-                print '  %3d,%3d,%3d' % (win, loss, draw),
-            print
-        print
+                print('  %3d,%3d,%3d' % (win, loss, draw), end=' ')
+            print()
+        print()
         result.sort(reverse=True)
         for [score, name] in result:
-            print "%15s %6.2f" % (name, score)
+            print("%15s %6.2f" % (name, score))
 
 
 class DB_Wrapper(object):

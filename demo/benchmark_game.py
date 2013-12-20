@@ -51,4 +51,4 @@ if __name__ == '__main__':
     gm.register_team(SimpleTeam(StoppingPlayer(), StoppingPlayer()))
     #gm.register_viewer(AsciiViewer())
     gm.play()
-    print len(LAYOUT), time.time() - start
+    print(len(LAYOUT), time.time() - start)

@@ -44,8 +44,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Pelita'
-copyright = u'2011–2013, Valentin Haenel, Rike-Benjamin Schuppner et. al.'
+project = 'Pelita'
+copyright = '2011–2013, Valentin Haenel, Rike-Benjamin Schuppner et. al.'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -188,8 +188,8 @@ html_style = 'pelita.css'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Pelita.tex', u'Pelita Documentation',
-   u'Valentin Haenel, Rike-Benjamin Schuppner', 'manual'),
+  ('index', 'Pelita.tex', 'Pelita Documentation',
+   'Valentin Haenel, Rike-Benjamin Schuppner', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
