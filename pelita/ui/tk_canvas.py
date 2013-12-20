@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import tkinter
-import tkinter.font
+from six.moves import tkinter
+from six.moves import tkinter_font
 
 import zmq
 
@@ -16,7 +16,7 @@ _logger = logging.getLogger("pelita.tk")
 def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
     no_lines = display_string.count("\n") + 1
     size_guess = bounding_height // ((3-rel_size) * no_lines)
-    font = tkinter.font.Font(size=size_guess)
+    font = tkinter_font.Font(size=size_guess)
     text_width = font.measure(display_string)
     if text_width > bounding_width:
         font_size = size_guess * bounding_width // text_width
@@ -439,7 +439,7 @@ class TkApplication(object):
 
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
-        self.socket.setsockopt(zmq.SUBSCRIBE, "")
+        self.socket.setsockopt_unicode(zmq.SUBSCRIBE, u"")
         self.socket.connect(address)
         self.poll = zmq.Poller()
         self.poll.register(self.socket, zmq.POLLIN)
@@ -493,7 +493,7 @@ class TkApplication(object):
             # if queue is empty, try again in a few ms
             # we don’t want to block here and lock
             # Tk animations
-            message = self.socket.recv(flags=zmq.NOBLOCK)
+            message = self.socket.recv_unicode(flags=zmq.NOBLOCK)
             message = json_converter.loads(message)
             # we curretly don’t care about the action
             observed = message["__data__"]

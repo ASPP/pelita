@@ -9,6 +9,7 @@ import abc
 from . import datamodel
 from .graph import NoPathException, AdjacencyList, manhattan_dist
 from .datamodel import CTFUniverse, Bot, Free
+import six
 
 __docformat__ = "restructuredtext"
 
@@ -410,8 +411,8 @@ class GameMaster(object):
 
         return self.game_state["finished"]
 
-
-class UniverseNoiser(object, metaclass=abc.ABCMeta):
+@six.add_metaclass(abc.ABCMeta)
+class UniverseNoiser(object):
     """Abstract BaseClass to make bot positions noisy.
 
     Supports uniform noise in maze space. Can be extended to support other types

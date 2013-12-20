@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import tkinter
+from six.moves import tkinter
 
 import logging
 

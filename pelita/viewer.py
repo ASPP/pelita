@@ -4,13 +4,14 @@
 
 import abc
 import sys
+import six
 
 from .messaging.json_convert import json_converter
 
 __docformat__ = "restructuredtext"
 
-
-class AbstractViewer(object, metaclass=abc.ABCMeta):
+@six.add_metaclass(abc.ABCMeta)
+class AbstractViewer(object):
     def set_initial(self, universe):
         """ This method is called when the first universe is ready.
         """

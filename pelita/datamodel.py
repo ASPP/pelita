@@ -3,6 +3,8 @@
 """ The datamodel. """
 
 import copy
+import six
+
 from .graph import new_pos, diff_pos, manhattan_dist
 from .graph import iter_adjacencies
 from .layout import Layout
@@ -213,7 +215,7 @@ class Maze(Mesh):
     def __init__(self, width, height, data=None):
         if not data:
             data = ["" for i in range(width*height)]
-        elif not all(isinstance(s, str) for s in data):
+        elif not all(isinstance(s, six.string_types) for s in data):
             raise TypeError("Maze keyword argument 'data' should be list of " +\
                             "strings, not: %r" % data)
         else:

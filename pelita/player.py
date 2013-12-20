@@ -10,6 +10,7 @@ import math
 import abc
 import pdb
 from . import datamodel
+import six
 
 __docformat__ = "restructuredtext"
 
@@ -85,7 +86,8 @@ class SimpleTeam(object):
     def __repr__(self):
         return "SimpleTeam(%r, %s)" % (self.team_name, ", ".join(repr(p) for p in self._players))
 
-class AbstractPlayer(object, metaclass=abc.ABCMeta):
+@six.add_metaclass(abc.ABCMeta)
+class AbstractPlayer(object):
     """ Base class for all user implemented Players. """
 
     def _set_index(self, index):

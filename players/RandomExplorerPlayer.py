@@ -13,7 +13,7 @@ class RandomExplorerPlayer(AbstractPlayer):
             self.visited.remove(self.current_pos)
         self.visited.insert(0, self.current_pos)
 
-        moves = dict(**self.legal_moves)
+        moves = dict(self.legal_moves)
         for pos in self.visited:
             if len(moves) == 1:
                 return list(moves.keys())[0]

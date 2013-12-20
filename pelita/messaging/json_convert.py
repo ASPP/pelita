@@ -47,7 +47,7 @@ class JsonConverter(object):
 
         # "to_dict" must be an unbound instancemethod
         # (func.__self__ must not exist)
-        if hasattr(encoder, "__self__"):
+        if hasattr(encoder, "__self__") and encoder.__self__ is not None:
             raise ValueError("Class '%s' has no instancemethod '_to_json_dict'." % class_.__name__)
         return encoder
 
