@@ -619,7 +619,7 @@ class CTFUniverse(object):
 
         bot = self.bots[bot_id]
         legal_moves_dict = self.legal_moves(bot.current_pos)
-        if move not in list(legal_moves_dict.keys()):
+        if move not in legal_moves_dict.keys():
             raise IllegalMoveException(
                 'Illegal move from bot_id %r: %s' % (bot_id, move))
         old_pos = bot.current_pos
@@ -688,7 +688,7 @@ class CTFUniverse(object):
 
         """
         legal_moves_dict = {}
-        for move, new_pos in list(self.neighbourhood(position).items()):
+        for move, new_pos in self.neighbourhood(position).items():
             try:
                 if Free in self.maze[new_pos]:
                     legal_moves_dict[move] = new_pos
@@ -816,7 +816,7 @@ class CTFUniverse(object):
         adjacency_list : generator of (pos, list(pos))
             Generator which contains all reachable positions and their adjacencies
         """
-        return (it for it in iter_adjacencies(initial_positions, lambda pos: list(self.legal_moves(pos).values())))
+        return (it for it in iter_adjacencies(initial_positions, lambda pos: self.legal_moves(pos).values()))
 
     def free_positions(self):
         """ Returns an adjacency list for all Free positions.
@@ -829,6 +829,7 @@ class CTFUniverse(object):
         # Get the list of all free positions.
         free_pos = self.maze.pos_of(Free)
         # Here we use a generator on a dictionary to create the adjacency list.
+        # However, for Python 3, we force evaluation on the legal_moves.values
         return ((pos, list(self.legal_moves(pos).values())) for pos in free_pos)
 
 

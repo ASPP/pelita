@@ -620,7 +620,7 @@ class SimpleSubscriber(AbstractViewer):
     def on_start(self):
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
-        self.socket.setsockopt_unicode(zmq.SUBSCRIBE, "")
+        self.socket.setsockopt_unicode(zmq.SUBSCRIBE, u"")
         self.socket.connect(self.address)
 
     def run(self):

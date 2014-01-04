@@ -147,7 +147,7 @@ class TestMesh(unittest.TestCase):
                             {"key": "value"},
                              [3, 6, 9, 27],
                              ["a", "tuple?"],
-                              "ünico∂e",
+                              u"ünico∂e",
                               simple_mesh])
 
         m_json = json_converter.dumps(m)

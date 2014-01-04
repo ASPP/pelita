@@ -151,7 +151,7 @@ class AdjacencyList(dict):
 
     def _check_pos_exist(self, positions):
         for pos in positions:
-            if pos not in list(self.keys()):
+            if pos not in self.keys():
                 raise NoPathException("Position %s does not exist in adjacency list." %
                         repr(pos))
 

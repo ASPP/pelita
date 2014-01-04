@@ -376,7 +376,10 @@ class AbstractPlayer(object):
         text : string
             the text to be shown in the Viewer.
         """
-        self._say = str(text, errors='ignore')
+        if six.PY2:
+            self._say = unicode(text, errors='ignore')
+        else:
+            self._say = text
 
     def __str__(self):
         return "%s(index=%r, current_pos=%r)" % (self.__class__.__name__,

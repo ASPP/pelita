@@ -304,7 +304,7 @@ class TestMaze(unittest.TestCase):
     def test_positions(self):
         maze = Maze(5, 5)
         self.assertEqual([(x, y) for y in range(5) for x in range(5)],
-                maze.positions)
+                         list(maze.positions))
 
     def test_json(self):
         maze = Maze(2, 1, data=["#", " ."])

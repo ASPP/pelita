@@ -159,7 +159,6 @@ class TestSimpleSetup(unittest.TestCase):
         class FailingPlayer(AbstractPlayer):
             def get_move(self):
                 raise ThisIsAnExpectedException()
-
         old_timeout = pelita.simplesetup.DEAD_CONNECTION_TIMEOUT
         pelita.simplesetup.DEAD_CONNECTION_TIMEOUT = 0.3
 
