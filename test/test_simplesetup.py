@@ -20,6 +20,7 @@ class TestSimpleSetup(unittest.TestCase):
         socket = context.socket(zmq.PUB)
         bind_socket(socket, address)
         self.assertRaises(zmq.ZMQError, bind_socket, socket, "bad-address", '--publish')
+        context.destroy()
 
     def test_simple_game(self):
         layout = """
