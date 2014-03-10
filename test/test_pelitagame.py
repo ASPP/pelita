@@ -1,8 +1,10 @@
+import sys
 import unittest
 import pelita
-print dir(pelita)
-with pelita.utils.with_sys_path('test'):
-    import pelitagame
+
+if not sys.platform.startswith("win"):
+    with pelita.utils.with_sys_path('test'):
+        import pelitagame
 
 check_module_cases = [
     ('test/test_pelitagame.py', None),
@@ -14,6 +16,7 @@ check_module_cases = [
     ('doc/source/time', ValueError),
     ]
 
+@unittest.skipIf(sys.platform.startswith("win"), "fails on Windows due to path issues")
 class TestCheckModule(unittest.TestCase):
     def test_check_module(self):
         for path,result in check_module_cases:

@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
 import unittest
 import uuid
+import sys
 
 import pelita
 from pelita.simplesetup import SimpleClient, SimpleServer, SimplePublisher, SimpleSubscriber, bind_socket, extract_port_range
 from pelita.player import SimpleTeam, TestPlayer, AbstractPlayer
-from pelita.viewer import AsciiViewer, AbstractViewer
+from pelita.viewer import AbstractViewer
 from pelita.datamodel import Free
 from pelita.game_master import GameMaster
 from players import RandomPlayer
 
 import zmq
 
+
+@unittest.skipIf(sys.platform.startswith("win"), "ipc transport is not supported on Windows")
 class TestSimpleSetup(unittest.TestCase):
+
     def test_bind_socket(self):
         # check that we cannot bind to a stupid address
         address = "ipc:///tmp/pelita-test-bind-socket-%s" % uuid.uuid4()
