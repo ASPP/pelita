@@ -2,6 +2,7 @@ language: python
 python:
   - "2.7"
   - "3.3"
+  - "3.4"
 env:
   - PYZMQ="pyzmq==2.2.0.1"
   - PYZMQ="pyzmq"
