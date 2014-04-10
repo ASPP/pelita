@@ -1,6 +1,6 @@
 # Pelita
 
-[![Build Status](https://secure.travis-ci.org/ASPP/pelita.png)](http://travis-ci.org/ASPP/pelita)
+[![Build Status](https://travis-ci.org/ASPP/pelita.svg?branch=master)](https://travis-ci.org/ASPP/pelita)
 
 ## Description
 
