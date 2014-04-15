@@ -273,6 +273,8 @@ class UiCanvas(object):
         self.mesh_graph.num_x = universe.maze.width
         self.mesh_graph.num_y = universe.maze.height
 
+
+        self.draw_grid(universe)
         self.draw_background(universe)
         self.draw_maze(universe)
         self.draw_food(universe)
@@ -281,6 +283,28 @@ class UiCanvas(object):
         self.draw_bots(universe, game_state)
 
         self.size_changed = False
+
+    def draw_grid(self, universe):
+        """ Draws a light grid to the background.
+        """
+        if not self.size_changed:
+            return
+        self.canvas.delete("grid")
+
+        scale = self.mesh_graph.half_scale_x * 0.01
+
+        def draw_line(x0, y0, x1, y1):
+            x0_ = self.mesh_graph.mesh_to_screen_x(x0, 0)
+            y0_ = self.mesh_graph.mesh_to_screen_y(y0, 0)
+            x1_ = self.mesh_graph.mesh_to_screen_x(x1, 0)
+            y1_ = self.mesh_graph.mesh_to_screen_y(y1, 0)
+            self.canvas.create_line(x0_, y0_, x1_, y1_, width=0.01, fill="#884488", tag="grid")
+
+        for x in range(self.mesh_graph.mesh_width):
+            draw_line(x - 0.5, 0, x - 0.5, self.mesh_graph.mesh_height - 1)
+
+        for y in range(self.mesh_graph.mesh_height):
+            draw_line(0, y - 0.5, self.mesh_graph.mesh_width - 1, y - 0.5)
 
     def draw_background(self, universe):
         """ Draws a line between blue and red team.
