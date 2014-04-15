@@ -113,7 +113,7 @@ class TestAdjacencyList(unittest.TestCase):
                    (1, 1): [(2, 1), (1, 1)],
                    (2, 1): [(3, 1), (2, 1), (1, 1)],
                    (3, 1): [(4, 1), (3, 1), (2, 1)]}
-        self.assertEqual(target, al)
+        self.assertDictEqual(target, al)
 
     def test_extended_adjacency_list(self):
         test_layout = (

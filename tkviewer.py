@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-try:
-    import argparse
-except ImportError:
-    from pelita.compat import argparse
-
+import argparse
 from pelita.ui.tk_viewer import TkViewer
 
 def geometry_string(s):
@@ -39,7 +35,7 @@ def run_viewer():
         'geometry': args.geometry,
         'delay': args.delay
     }
-    v = TkViewer(**dict((k, v) for k, v in tkargs.items() if v is not None))
+    v = TkViewer(**dict((k, v) for k, v in list(tkargs.items()) if v is not None))
     v.run()
 
 if __name__ == '__main__':

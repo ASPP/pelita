@@ -186,7 +186,7 @@ def walls_to_graph(maze):
     for pos in nodes_dict:
         for dir_ in directions:
             neighbor = (pos[0] + dir_[0], pos[1] + dir_[1])
-            if nodes_dict.has_key(neighbor):
+            if neighbor in nodes_dict:
                 graph.add_edge(nodes_dict[pos], nodes_dict[neighbor],
                                data=[dir_])
 
@@ -241,7 +241,7 @@ def remove_all_dead_ends(maze):
     while True:
         maze_graph, maze_nodes = walls_to_graph(maze[1:height - 1,
                                                      1:width // 2])
-        start_node = maze_nodes.values()[0]
+        start_node = list(maze_nodes.values())[0]
         dead_ends = find_dead_ends(maze_graph,
                                    start_node, width // 2 - 1)
         if len(dead_ends) == 0:

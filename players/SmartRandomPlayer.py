@@ -11,7 +11,7 @@ class SmartRandomPlayer(AbstractPlayer):
             for bot in self.enemy_bots if bot.is_harvester]
 
         smart_moves = []
-        for move, new_pos in self.legal_moves.items():
+        for move, new_pos in list(self.legal_moves.items()):
             if (move == stop or
                 new_pos in dangerous_enemy_pos):
                 continue # bad idea

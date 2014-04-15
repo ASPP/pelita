@@ -6,7 +6,7 @@ The maze will be sent to sys.out .
 
 import sys
 import optparse
-from maze_generator import get_new_maze
+from .maze_generator import get_new_maze
 
 
 def default(str):
@@ -33,8 +33,8 @@ def main(argv):
                       help="do not allow dead ends in the maze [Default]")
 
     opts, args = parser.parse_args()
-    print get_new_maze(opts.height, opts.width, nfood=opts.food,
-                       seed=opts.seed, dead_ends=opts.dead_ends)
+    print(get_new_maze(opts.height, opts.width, nfood=opts.food,
+                       seed=opts.seed, dead_ends=opts.dead_ends))
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ import abc
 from . import datamodel
 from .graph import NoPathException, AdjacencyList, manhattan_dist
 from .datamodel import CTFUniverse, Bot, Free
+import six
 
 __docformat__ = "restructuredtext"
 
@@ -212,7 +213,7 @@ class GameMaster(object):
             # is able to read or guess the seed of the other
             # party.
 
-            team_seed = self.rnd.randint(0, sys.maxint)
+            team_seed = self.rnd.randint(0, sys.maxsize)
             team_state = dict({"seed": team_seed}, **self.game_state)
             try:
                 team.set_initial(team_id, self.universe, team_state)
@@ -242,7 +243,7 @@ class GameMaster(object):
             self._step_iter = self._play_bot_iterator()
         try:
             while True:
-                self._step_iter.next()
+                next(self._step_iter)
         except StopIteration:
             self._step_iter = None
             # at the end of iterations
@@ -259,7 +260,7 @@ class GameMaster(object):
             self._step_iter = self._play_bot_iterator()
 
         try:
-            self._step_iter.next()
+            next(self._step_iter)
         except StopIteration:
             self._step_iter = None
             # we could not make a move:
@@ -331,7 +332,7 @@ class GameMaster(object):
             self.game_state["team_time"][bot.team_index] += team_time_needed
 
             move_state = self.universe.move_bot(bot.index, move)
-            for k, v in move_state.iteritems():
+            for k, v in move_state.items():
                 self.game_state[k] += v
 
         except (datamodel.IllegalMoveException, PlayerTimeout):
@@ -343,11 +344,11 @@ class GameMaster(object):
                 self.game_state["teams_disqualified"][bot.team_index] = "timeout"
             else:
 
-                moves = self.universe.legal_moves_or_stop(bot.current_pos).keys()
+                moves = list(self.universe.legal_moves_or_stop(bot.current_pos).keys())
 
                 move = self.rnd.choice(moves)
                 move_state = self.universe.move_bot(bot.index, move)
-                for k, v in move_state.iteritems():
+                for k, v in move_state.items():
                     self.game_state[k] += v
 
         except PlayerDisconnected:
@@ -410,7 +411,7 @@ class GameMaster(object):
 
         return self.game_state["finished"]
 
-
+@six.add_metaclass(abc.ABCMeta)
 class UniverseNoiser(object):
     """Abstract BaseClass to make bot positions noisy.
 
@@ -443,8 +444,6 @@ class UniverseNoiser(object):
         seed which initialises the internal random number generator
 
     """
-
-    __metaclass__ =  abc.ABCMeta
 
     def __init__(self, universe, noise_radius=5, sight_distance=5, seed=None):
         self.adjacency = AdjacencyList(universe.free_positions())

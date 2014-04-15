@@ -7,7 +7,7 @@ class RandomPlayer(AbstractPlayer):
     """ A player that makes moves at random. """
 
     def get_move(self):
-        return self.rnd.choice(self.legal_moves.keys())
+        return self.rnd.choice(list(self.legal_moves.keys()))
 
 
 class NQRandomPlayer(AbstractPlayer):
@@ -23,7 +23,7 @@ class NQRandomPlayer(AbstractPlayer):
         # now remove the move that would lead to the previous_position
         # unless there is no where else to go.
         if len(legal_moves) > 1:
-            for (k,v) in legal_moves.iteritems():
+            for (k,v) in legal_moves.items():
                 if v == self.previous_pos:
                     break
             del legal_moves[k]
@@ -31,7 +31,7 @@ class NQRandomPlayer(AbstractPlayer):
         if not legal_moves:
             return datamodel.stop
         # and select a move at random
-        return self.rnd.choice(legal_moves.keys())
+        return self.rnd.choice(list(legal_moves.keys()))
 
 def factory():
     return SimpleTeam("The Random Players", RandomPlayer(), NQRandomPlayer())

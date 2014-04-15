@@ -20,6 +20,7 @@ class TestSimpleSetup(unittest.TestCase):
         socket = context.socket(zmq.PUB)
         bind_socket(socket, address)
         self.assertRaises(zmq.ZMQError, bind_socket, socket, "bad-address", '--publish')
+        socket.close()
 
     def test_simple_game(self):
         layout = """
@@ -159,7 +160,6 @@ class TestSimpleSetup(unittest.TestCase):
         class FailingPlayer(AbstractPlayer):
             def get_move(self):
                 raise ThisIsAnExpectedException()
-
         old_timeout = pelita.simplesetup.DEAD_CONNECTION_TIMEOUT
         pelita.simplesetup.DEAD_CONNECTION_TIMEOUT = 0.3
 

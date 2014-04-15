@@ -25,6 +25,8 @@ we switch to Python 3.2+, if thread queues might have become fast enough
 re-investigate this decision.
 """
 
+from __future__ import print_function
+
 import time
 import logging
 import multiprocessing
@@ -88,10 +90,10 @@ def bind_socket(socket, address, option_hint=None):
             return addr
 
     except (zmq.ZMQError, zmq.ZMQBindError) as e:
-        print >>sys.stderr, 'error binding to address %s: %s' % (address, e)
+        print('error binding to address %s: %s' % (address, e), file=sys.stderr)
         if option_hint:
-            print >>sys.stderr, 'use %s <address> to specify a different port' %\
-                (option_hint,)
+            print('use %s <address> to specify a different port' %\
+                (option_hint,), file=sys.stderr)
         raise
 
 class UnknownMessageId(Exception):
@@ -158,7 +160,7 @@ class ZMQConnection(object):
             message_obj = {"__uuid__": msg_uuid, "__action__": action, "__data__": data}
             json_message = json_converter.dumps(message_obj)
             try:
-                self.socket.send(json_message, flags=zmq.NOBLOCK)
+                self.socket.send_unicode(json_message, flags=zmq.NOBLOCK)
             except zmq.ZMQError as e:
                 _logger.info("Could not send message. Assume socket is unavailable. %r", e)
                 raise DeadConnection()
@@ -169,7 +171,7 @@ class ZMQConnection(object):
     def recv(self):
         # return tuple
         # (action, data)
-        json_message = self.socket.recv()
+        json_message = self.socket.recv_unicode()
         py_obj = json_converter.loads(json_message)
         #print repr(json_msg)
         msg_uuid = py_obj["__uuid__"]
@@ -332,7 +334,7 @@ class SimpleServer(object):
 
         if isinstance(bind_addrs, tuple):
             pass
-        elif isinstance(bind_addrs, basestring):
+        elif isinstance(bind_addrs, str):
             if not bind_addrs.startswith("tcp://"):
                 raise ValueError("non-tcp bind_addrs cannot be shared.")
             bind_addrs = (bind_addrs, ) * self.number_of_teams
@@ -439,7 +441,7 @@ class SimpleController(object):
         if uuid_:
             message_obj = {"__uuid__": uuid_, "__return__": retval}
             json_message = json_converter.dumps(message_obj)
-            self.socket.send(json_message)
+            self.socket.send_unicode(json_message)
 
     def set_initial(self, *args, **kwargs):
         return self.game_master.set_initial(*args, **kwargs)
@@ -512,7 +514,7 @@ class SimpleClient(object):
         """ Waits for incoming requests and tries to get a proper
         answer from the player.
         """
-        json_message = self.socket.recv()
+        json_message = self.socket.recv_unicode()
         py_obj = json_converter.loads(json_message)
         uuid_ = py_obj["__uuid__"]
         action = py_obj["__action__"]
@@ -530,7 +532,7 @@ class SimpleClient(object):
             raise
         except Exception as e:
             msg = "Exception in client code for team %s." % self.team
-            print >> sys.stderr, msg
+            print(msg, file=sys.stderr)
             # return None. Let it crash next time the server tries to send.
             retval = None
             raise
@@ -538,7 +540,7 @@ class SimpleClient(object):
             try:
                 message_obj = {"__uuid__": uuid_, "__return__": retval}
                 json_message = json_converter.dumps(message_obj)
-                self.socket.send(json_message)
+                self.socket.send_unicode(json_message)
             except NameError:
                 pass
 
@@ -587,7 +589,7 @@ class SimplePublisher(AbstractViewer):
 
     def _send(self, message):
         as_json = json_converter.dumps(message)
-        self.socket.send(as_json)
+        self.socket.send_unicode(as_json)
 
     def set_initial(self, universe):
         message = {"__action__": "set_initial",
@@ -618,7 +620,7 @@ class SimpleSubscriber(AbstractViewer):
     def on_start(self):
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
-        self.socket.setsockopt(zmq.SUBSCRIBE, "")
+        self.socket.setsockopt_unicode(zmq.SUBSCRIBE, u"")
         self.socket.connect(self.address)
 
     def run(self):
@@ -633,7 +635,7 @@ class SimpleSubscriber(AbstractViewer):
         """ Waits for incoming requests and tries to get a proper
         answer from the player.
         """
-        data = self.socket.recv()
+        data = self.socket.recv_unicode()
         py_obj = json_converter.loads(data)
 
         action = py_obj.get("__action__")

@@ -13,15 +13,15 @@ class RandomExplorerPlayer(AbstractPlayer):
             self.visited.remove(self.current_pos)
         self.visited.insert(0, self.current_pos)
 
-        moves = dict(**self.legal_moves)
+        moves = dict(self.legal_moves)
         for pos in self.visited:
             if len(moves) == 1:
-                return moves.keys()[0]
+                return list(moves.keys())[0]
             if len(moves) == 0:
                 return datamodel.stop
-            moves = dict((k, v) for k, v in moves.iteritems() if pos != v)
+            moves = dict((k, v) for k, v in moves.items() if pos != v)
         # more than one move left
-        return self.rnd.choice(moves.keys())
+        return self.rnd.choice(list(moves.keys()))
 
 def factory():
     return SimpleTeam("Random Explorer Players", RandomExplorerPlayer(), RandomExplorerPlayer())

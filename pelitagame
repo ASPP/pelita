@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 import sys
 import os.path
 import inspect
@@ -11,16 +13,12 @@ import logging
 import subprocess
 import time
 import json
+import argparse
 
 # silence stupid warnings from logging module
 logging.root.manager.emittedNoHandlerWarning = 1
 
 _logger = logging.getLogger("pelita.pelitagame")
-
-try:
-    import argparse
-except ImportError:
-    from pelita.compat import argparse
 
 import pelita
 
@@ -48,7 +46,7 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
             self.print_possible_winner(universe, game_state)
 
     def print_bad_bot_status(self, universe, game_state):
-        for bot_id, reason in game_state["bot_error"].iteritems():
+        for bot_id, reason in game_state["bot_error"].items():
             if reason == "timeout":
                 sys.stderr.write("Timeout #%r for team %r (bot index %r).\n" % (
                                   game_state["timeout_teams"][universe.bots[bot_id].team_index],
@@ -98,7 +96,7 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
         else:
             return
 
-        print msg
+        print(msg)
         # We must manually flush, else our forceful stopping of Tk
         # won't let us pipe it.
         sys.stdout.flush()
@@ -138,7 +136,7 @@ def check_module(filepath):
     "Throws an ValueError is the specified path is neither a module nor a package."
     if not os.path.exists(filepath):
         raise ValueError("'%s' doesn't exist" % filepath)
-    allowed = string.letters + string.digits + '_'
+    allowed = string.ascii_letters + string.digits + '_'
     if filepath.endswith('.py'):
         valid = os.path.isfile(filepath)
         modname = os.path.basename(filepath[:-3])
@@ -173,8 +171,8 @@ def import_builtin_player(name):
         sane_players = dict((p.__name__, p) for p in players_module.SANE_PLAYERS)
 
     if name == 'random':
-        player = random.choice(sane_players.values())
-        print 'Choosing %s for random player' % player
+        player = random.choice(list(sane_players.values()))
+        print('Choosing %s for random player' % player)
     else:
         player = sane_players.get(name)
         if not player:
@@ -182,7 +180,7 @@ def import_builtin_player(name):
                 # fallback to player in pelita.player
                 player = getattr(pelita.player, name)
             except AttributeError:
-                others = ', '.join(sane_players.keys())
+                others = ', '.join(list(sane_players.keys()))
                 msg = 'Failed to find %s in players. (Available players are: %s).' % (name, others)
                 raise ImportError(msg)
 
@@ -232,8 +230,8 @@ def load_team(spec):
         check_team_name(team.team_name)
         return team
     except (ValueError, AttributeError, IOError, ImportError) as e:
-        print >>sys.stderr, "failure while loading team '%s'" % spec
-        print >>sys.stderr, 'ERROR: %s' % e
+        print("failure while loading team '%s'" % spec, file=sys.stderr)
+        print('ERROR: %s' % e, file=sys.stderr)
         raise
 
 def prepare_team(team_spec, standalone=False):
@@ -466,11 +464,11 @@ def run_game():
         parser.print_help()
         sys.exit(0)
     if args.version:
-        print "Pelita %s" % pelita.version
+        print("Pelita %s" % pelita.version)
         sys.exit(0)
     if args.layout == 'list':
         layouts = pelita.layout.get_available_layouts()
-        print '\n'.join(layouts)
+        print('\n'.join(layouts))
         sys.exit(0)
     if args.seed is not None:
         random.seed(args.seed)
@@ -484,21 +482,21 @@ def run_game():
         pass
 
     if args.list_teams:
-        print '\n'.join(PLAYERS)
+        print('\n'.join(PLAYERS))
         sys.exit(0)
 
     if args.check_team:
         if not args.spec_left:
             raise ValueError("No team specified.")
         # only print the team name.
-        print load_team(args.spec_left).team_name
+        print(load_team(args.spec_left).team_name)
         sys.exit(0)
 
     def print_team_info(addr, team, spec, info):
         if team is not None:
-            print "Using factory '%s' -> '%s' (%s)" % (spec, team.team_name, info)
+            print("Using factory '%s' -> '%s' (%s)" % (spec, team.team_name, info))
         elif "://" in addr:
-            print "Waiting for %s team on %s" % (info, addr)
+            print("Waiting for %s team on %s" % (info, addr))
 
     # if standalone_client was specified,
     # we use the following scheme
@@ -538,7 +536,7 @@ def run_game():
             layout_name, layout_string = pelita.layout.load_layout(layout_name=args.layout, layout_file=args.layoutfile)
         else:
             layout_name, layout_string = pelita.layout.get_random_layout(args.filter)
-        print "Using layout '%s'" % layout_name
+        print("Using layout '%s'" % layout_name)
 
         if not args.spec_left:
             args.spec_left = "random"
@@ -589,7 +587,7 @@ def run_game():
         if args.publish_to:
             publisher = pelita.simplesetup.SimplePublisher(args.publish_to)
             config["publish-addr"] = publisher.socket_addr
-            print "Publishing to %s" % publisher.socket_addr
+            print("Publishing to %s" % publisher.socket_addr)
             server.game_master.register_viewer(publisher)
 
         if dump:
@@ -607,7 +605,7 @@ def run_game():
         if args.viewer == 'tk' or args.external_controller:
             server.register_teams()
             controller = pelita.simplesetup.SimpleController(server.game_master, args.controller)
-            print "Controller listening on %s" % controller.socket_addr
+            print("Controller listening on %s" % controller.socket_addr)
             config["controller-addr"] = controller.socket_addr
             def runner():
                 controller.run()

@@ -60,6 +60,6 @@ if __name__=="__main__":
     client2.autoplay_process()
 
     server.run()
-    print server.game_master.universe.pretty
-    print server.game_master.game_state
+    print(server.game_master.universe.pretty)
+    print(server.game_master.game_state)
 
