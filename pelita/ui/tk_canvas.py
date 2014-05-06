@@ -115,6 +115,8 @@ class UiCanvas(object):
 
         self.current_universe = None
 
+        self._grid_enabled = False
+
     def init_canvas(self):
         self.score = tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=40)
         self.score.config(background="white")
@@ -152,6 +154,15 @@ class UiCanvas(object):
         self.button_game_speed_faster.pack(side=tkinter.LEFT)
 
         self.master._check_speed_button_state()
+
+        self.button_game_toggle_grid = tkinter.Button(game_speed_frame,
+            foreground="black",
+            background="white",
+            justify=tkinter.CENTER,
+            command=self.toggle_grid)
+        self.button_game_toggle_grid.pack(side=tkinter.LEFT)
+
+        self._check_grid_toggle_state()
 
         tkinter.Button(game_control_frame,
                        foreground="black",
@@ -273,7 +284,6 @@ class UiCanvas(object):
         self.mesh_graph.num_x = universe.maze.width
         self.mesh_graph.num_y = universe.maze.height
 
-
         self.draw_grid(universe)
         self.draw_background(universe)
         self.draw_maze(universe)
@@ -285,11 +295,14 @@ class UiCanvas(object):
         self.size_changed = False
 
     def draw_grid(self, universe):
-        """ Draws a light grid to the background.
+        """ Draws a light grid on the background.
         """
         if not self.size_changed:
             return
         self.canvas.delete("grid")
+
+        if not self._grid_enabled:
+            return
 
         scale = self.mesh_graph.half_scale_x * 0.01
 
@@ -305,6 +318,17 @@ class UiCanvas(object):
 
         for y in range(self.mesh_graph.mesh_height):
             draw_line(0, y - 0.5, self.mesh_graph.mesh_width - 1, y - 0.5)
+
+    def toggle_grid(self):
+        self._grid_enabled = not self._grid_enabled
+        self.size_changed = True
+        self._check_grid_toggle_state()
+
+    def _check_grid_toggle_state(self):
+        if self._grid_enabled:
+            self.button_game_toggle_grid.config(text="hide grid")
+        else:
+            self.button_game_toggle_grid.config(text="show grid")
 
     def draw_background(self, universe):
         """ Draws a line between blue and red team.
