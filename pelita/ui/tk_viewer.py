@@ -95,6 +95,11 @@ class TkViewer:
 
         self._delay = 2
 
+        if os.getenv("PELITA_DOUBLE_RAINBOW", None):
+            self.rainbow = True
+        else:
+            self.rainbow = False
+
     def run(self):
         try:
             self.root = tkinter.Tk()
@@ -122,7 +127,8 @@ class TkViewer:
                                  delay=self.delay,
                                  stop_after=self.stop_after,
                                  stop_after_kill=self.stop_after_kill,
-                                 fullscreen=self.fullscreen)
+                                 fullscreen=self.fullscreen,
+                                 rainbow=self.rainbow)
         # schedule next read
         self.root.after_idle(self.read_queue)
         try:

@@ -38,6 +38,11 @@ from .tk_sprites import (
 
 _logger = logging.getLogger(__name__)
 
+def col(red, green, blue):
+    """Convert the given colours [0, 255] to HTML hex colours."""
+    return "#%02x%02x%02x" % (red, green, blue)
+
+
 # Design variables
 #
 # The size of the status section on the bottom is generated automatically.
@@ -256,7 +261,7 @@ class Trafo:
 
 class TkApplication:
     def __init__(self, window, controller_address=None,
-                 geometry=None, delay=1, stop_after=None, stop_after_kill=False, fullscreen=False):
+                 geometry=None, delay=1, stop_after=None, stop_after_kill=False, fullscreen=False, rainbow=False):
         self.window = window
         self.window.configure(background="white")
 
@@ -281,6 +286,7 @@ class TkApplication:
         self._default_font_size = self._default_font.cget('size')
 
         self._grid_enabled = False
+        self._rainbow = rainbow
 
         self.selected = None
 
@@ -455,6 +461,14 @@ class TkApplication:
         else:
             if self._default_font.cget('size') != self._default_font_size:
                 self._default_font.configure(size=self._default_font_size)
+
+        if self._rainbow:
+            import random
+            r = random.randint(0, 15)
+            g = random.randint(0, 15)
+            b = random.randint(0, 15)
+            self.ui_game_canvas.configure(background=col(r*16, g*16, b*16))
+            redraw = True
 
         self.draw_universe(game_state, redraw=redraw)
 
@@ -1022,6 +1036,9 @@ class TkApplication:
         # them otherwise
         self.wall_items = []
         num = 0
+        self.t = getattr(self, "t", 0) + 1
+        if self._rainbow:
+            self.t = getattr(self, "t", 0) + 1
         for wall in game_state['walls']:
             model_x, model_y = wall
             wall_neighbors = [(dx, dy)
@@ -1029,7 +1046,10 @@ class TkApplication:
                               for dy in [-1, 0, 1]
                               if (model_x + dx, model_y + dy) in game_state['walls']]
             wall_item = Wall(self.mesh_graph, wall_neighbors=wall_neighbors, position=(model_x, model_y))
-            wall_item.draw(self.ui_game_canvas)
+            if self._rainbow:
+                wall_item.draw(self.ui_game_canvas, self.t)
+            else:
+                wall_item.draw(self.ui_game_canvas)
             self.wall_items.append(wall_item)
             num += 1
 
