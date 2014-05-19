@@ -42,6 +42,7 @@ parser.add_argument('--log', help='print debugging log information to'
                                   ' LOGFILE (default \'stderr\')',
                     metavar='LOGFILE', const='-', nargs='?')
 
+
 def main():
     args = parser.parse_args()
     if args.version:

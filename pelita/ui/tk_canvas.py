@@ -20,7 +20,7 @@ import tkinter.font
 
 from ..game import next_round_turn
 from ..team import _ensure_list_tuples
-from .tk_sprites import BotSprite, Food, Wall, Arrow, RED, BLUE, YELLOW, GREY, BROWN, LIGHT_BLUE, LIGHT_RED, STRONG_BLUE, STRONG_RED
+from .tk_sprites import BotSprite, Food, Wall, Arrow, RED, BLUE, YELLOW, GREY, BROWN, LIGHT_BLUE, LIGHT_RED, STRONG_BLUE, STRONG_RED, col
 from .tk_utils import wm_delete_window_handler
 from .. import layout
 
@@ -141,7 +141,7 @@ class UI:
 
 class TkApplication:
     def __init__(self, window, controller_address=None,
-                 geometry=None, delay=1, stop_after=None):
+                 geometry=None, delay=1, stop_after=None, rainbow=False):
         self.window = window
         self.window.configure(background="white")
 
@@ -166,6 +166,7 @@ class TkApplication:
         self.size_changed = True
 
         self._grid_enabled = False
+        self._rainbow = rainbow
 
         self._times = []
         self._fps = None
@@ -398,6 +399,13 @@ class TkApplication:
         if ((self.mesh_graph.screen_width, self.mesh_graph.screen_height)
             != (self.ui.game_canvas.winfo_width(), self.ui.game_canvas.winfo_height())):
             self.size_changed = True
+
+        if self._rainbow:
+            import random
+            r = random.randint(0, 15)
+            g = random.randint(0, 15)
+            b = random.randint(0, 15)
+            self.ui.game_canvas.configure(background=col(r*16, g*16, b*16))
 
         self.mesh_graph.screen_width = self.ui.game_canvas.winfo_width()
         self.mesh_graph.screen_height = self.ui.game_canvas.winfo_height()
@@ -788,7 +796,7 @@ class TkApplication:
         self.ui.game_canvas.delete(tkinter.ALL)
 
     def draw_food(self, game_state):
-        if not self.size_changed:
+        if not self.size_changed and not self._rainbow:
             return
         self.ui.game_canvas.delete("food")
         self.food_items = {}
@@ -799,7 +807,7 @@ class TkApplication:
             self.food_items[position] = food_item
 
     def draw_maze(self, game_state):
-        if not self.size_changed:
+        if not self.size_changed and not self._rainbow:
             return
         self.ui.game_canvas.delete("wall")
         # we keep all wall items stored in a list
@@ -807,16 +815,23 @@ class TkApplication:
         # them otherwise
         self.wall_items = []
         num = 0
+        self.t = getattr(self, "t", 0) + 1
+        if self._rainbow:
+            self.t = getattr(self, "t", 0) + 1
         for wall in game_state['walls']:
             model_x, model_y = wall
-            wall_neighbors = [(dx, dy)
-                              for dx in [-1, 0, 1]
-                              for dy in [-1, 0, 1]
-                              if (model_x + dx, model_y + dy) in game_state['walls']]
-            wall_item = Wall(self.mesh_graph, wall_neighbors=wall_neighbors, position=(model_x, model_y))
-            wall_item.draw(self.ui.game_canvas)
-            self.wall_items.append(wall_item)
-            num += 1
+            if wall:
+                wall_neighbors = [(dx, dy)
+                                  for dx in [-1, 0, 1]
+                                  for dy in [-1, 0, 1]
+                                  if (model_x + dx, model_y + dy) in game_state['walls']]
+                wall_item = Wall(self.mesh_graph, wall_neighbors=wall_neighbors, position=(model_x, model_y))
+                if self._rainbow:
+                    wall_item.draw(self.ui.game_canvas, self.t)
+                else:
+                    wall_item.draw(self.ui.game_canvas)
+                self.wall_items.append(wall_item)
+                num += 1
 
     def init_bot_sprites(self, bot_positions):
         for sprite in self.bot_sprites.values():
