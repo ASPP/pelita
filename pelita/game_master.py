@@ -307,6 +307,7 @@ class GameMaster(object):
         self.game_state["food_eaten"] = []
         self.game_state["bot_destroyed"] = []
         self.game_state["bot_timeout"] = None
+        self.game_state["bot_error"] = {}
 
         player_team = self.player_teams[bot.team_index]
         try:
