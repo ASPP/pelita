@@ -503,6 +503,10 @@ def run_game():
     # the first positional argument specifies the team to load
     # the second positional argument specifies the address to connect to
     if args.standalone_client:
+        if args.spec_left is None:
+            raise ValueError("The player must be specified.")
+        if args.spec_right is None:
+            raise ValueError("The address to connect to must be specified.")
         team = load_team(args.spec_left)
         addr = args.spec_right.replace('*', 'localhost')
         print_team_info(None, team, args.spec_left, "standalone")
