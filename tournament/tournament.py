@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # -*- coding:utf-8 -*-
 
 from subprocess import Popen, PIPE, STDOUT, check_call
@@ -90,11 +90,13 @@ def set_name(team):
     args = CMD_STUB.split()
     args.extend(['--check-team', team])
     stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE).communicate()
+    stdout = stdout.decode('utf-8')
+    stderr = stderr.decode('utf-8')
     for line in stdout.splitlines():
         if team in RNAMES:
                 # sanitize real names
             RNAMES[team] = line
-    if stderr != '':
+    if stderr:
         print("*** ERROR: I could not load team", team, ". Please help!",
               speak=False)
         print(stderr, speak=False)
@@ -113,6 +115,8 @@ def start_match(team1, team2):
     dumpfile = 'dumpstore/'+time.strftime('%Y%m%d-%H%M%S')
     args.extend([team1, team2, '--dump', dumpfile,'--seed', str(random.randint(0, sys.maxsize))])
     stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE).communicate()
+    stdout = stdout.decode('utf-8')
+    stderr = stderr.decode('utf-8')
     tmp = reversed(stdout.splitlines())
     lastline = None
     for line in tmp:
