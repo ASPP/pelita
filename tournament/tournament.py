@@ -12,7 +12,7 @@ import json
 import argparse
 
 # Location
-LOCATION="Kiel"
+LOCATION="Split"
 
 # Speaking external program.
 # Probably not worth it to make it an option.
