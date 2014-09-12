@@ -69,7 +69,8 @@ def print(*args, **kwargs):
 
 
 def wait_for_keypress():
-    input('---\n')
+    if ARGS.interactive:
+        input('---\n')
 
 
 def present_teams(group_members):
@@ -299,6 +300,9 @@ if __name__ == '__main__':
                         default='tk')
     parser.add_argument('--teams', help='load teams from TEAMFILE',
                     metavar="TEAMFILE.json", default="teams.json")
+    parser.add_argument('--interactive', help='ask before proceeding',
+                        action='store_const', const=True)
+
     parser.epilog = """
 TEAMFILE.json must be of the form:
     { "group0": ["Name0", "Name1", "Name2"],
@@ -308,22 +312,23 @@ TEAMFILE.json must be of the form:
       "group4": ["Name0", "Name1", "Name2"]
     }
 """
-    args = parser.parse_args()
-    if args.help:
+    global ARGS
+    ARGS = parser.parse_args()
+    if ARGS.help:
         parser.print_help()
         sys.exit(0)
 
     # Check that pelitagame can be run
-    if not os.path.exists(args.pelitagame) or not os.path.isfile(args.pelitagame):
-        sys.stderr.write(args.pelitagame+' not found!\n')
+    if not os.path.exists(ARGS.pelitagame) or not os.path.isfile(ARGS.pelitagame):
+        sys.stderr.write(ARGS.pelitagame+' not found!\n')
         sys.exit(2)
     else:
         # Define the command line to run a pelita match
-        CMD_STUB = args.pelitagame+' --rounds=%d'%args.rounds+' --%s'%args.viewer
+        CMD_STUB = ARGS.pelitagame+' --rounds=%d'%ARGS.rounds+' --%s'%ARGS.viewer
 
     # Check speaking support
     SPEAK = False
-    if args.speak:
+    if ARGS.speak:
         if os.path.exists(FLITE):
             SPEAK = True
 
@@ -339,7 +344,7 @@ TEAMFILE.json must be of the form:
     for team in teams:
         set_name(team)
 
-    with open(args.teams) as teamfile:
+    with open(ARGS.teams) as teamfile:
         group_members = json.load(teamfile)
         present_teams(group_members)
     result = round1(teams)
