@@ -101,20 +101,22 @@ def present_teams(group_members):
 
 def set_name(team):
     """Get name of team using a dry-run pelita game"""
-    global RNAMES
+
     args = CMD_STUB + ['--check-team', team]
-    stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE,
-                           universal_newlines=True).communicate()
-    for line in stdout.splitlines():
-        if team in RNAMES:
-            # sanitize real names
-            RNAMES[team] = line
-    if stderr:
+    proc = Popen(args, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    stdout, stderr = proc.communicate()
+    if proc.returncode != 0:
         print('Command failed:', ' '.join(args))
         print("*** ERROR: I could not load team", team, ". Please help!",
               speak=False)
         print(stderr, speak=False)
         sys.exit(1)
+
+    global RNAMES
+    for line in stdout.splitlines():
+        if team in RNAMES:
+            # sanitize real names
+            RNAMES[team] = line
 
 
 def start_match(team1, team2):
