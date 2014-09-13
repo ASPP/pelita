@@ -103,9 +103,8 @@ def set_name(team):
     """Get name of team using a dry-run pelita game"""
     global RNAMES
     args = CMD_STUB + ['--check-team', team]
-    stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE).communicate()
-    stdout = stdout.decode('utf-8')
-    stderr = stderr.decode('utf-8')
+    stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE,
+                           universal_newlines=True).communicate()
     for line in stdout.splitlines():
         if team in RNAMES:
             # sanitize real names
@@ -130,9 +129,8 @@ def start_match(team1, team2):
     args = CMD_STUB + [team1, team2,
                        '--dump', dumpfile,
                        '--seed', str(random.randint(0, sys.maxsize))]
-    stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE).communicate()
-    stdout = stdout.decode('utf-8')
-    stderr = stderr.decode('utf-8')
+    stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE,
+                           universal_newlines=True).communicate()
     tmp = reversed(stdout.splitlines())
     for line in tmp:
         if line.startswith('Finished.'):
