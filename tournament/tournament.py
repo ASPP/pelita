@@ -325,7 +325,7 @@ TEAMFILE.json must be of the form:
         # Define the command line to run a pelita match
         CMD_STUB = [ARGS.pelitagame,
                     '--rounds=%d'%ARGS.rounds,
-                    ' --%s'%ARGS.viewer]
+                    '--%s'%ARGS.viewer]
 
     # Check speaking support
     SPEAK = ARGS.speak and os.path.exists(FLITE)
