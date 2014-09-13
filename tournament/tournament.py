@@ -299,23 +299,29 @@ if __name__ == '__main__':
     # Command line argument parsing.
     # Oh, why must argparse be soo verbose :(
     parser = argparse.ArgumentParser(description='Run a tournament',
-                                 add_help=False,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+                                     add_help=False,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
     parser._positionals = parser.add_argument_group('Arguments')
-    parser.add_argument('pelitagame', help='The pelitagame script')
+    parser.add_argument('pelitagame', help='The pelitagame script',
+                        default=os.path.join(os.path.dirname(sys.argv[0]),
+                                             '../pelitagame'),
+                        nargs='?')
     parser._optionals = parser.add_argument_group('Options')
-    parser.add_argument('--help', '-h', help='show this help message and exit',
-                        action='store_const', const=True)
-    parser.add_argument('--speak', '-s', help='speak loudly every messsage on stdout',
-                        action='store_const', const=True)
-    parser.add_argument('--rounds', '-r', help='maximum number of rounds to play per match',
+    parser.add_argument('--help', '-h',
+                        help='show this help message and exit',
+                        action='store_true')
+    parser.add_argument('--speak', '-s',
+                        help='speak loudly every messsage on stdout',
+                        action='store_true')
+    parser.add_argument('--rounds', '-r',
+                        help='maximum number of rounds to play per match',
                         type=int, default=300)
-    parser.add_argument('--viewer', '-v', help='the pelita viewer to use',
-                        default='tk')
+    parser.add_argument('--viewer', '-v',
+                        help='the pelita viewer to use', default='tk')
     parser.add_argument('--teams', help='load teams from TEAMFILE',
-                    metavar="TEAMFILE.json", default="teams.json")
+                        metavar="TEAMFILE.json", default="teams.json")
     parser.add_argument('--interactive', help='ask before proceeding',
-                        action='store_const', const=True)
+                        action='store_true')
 
     parser.epilog = """
 TEAMFILE.json must be of the form:
@@ -354,10 +360,12 @@ TEAMFILE.json must be of the form:
     LOGFILE = os.fdopen(fd, 'w')
 
     teams = list(RNAMES.keys())
-    random.shuffle(teams)
+
     # load team names
     for team in teams:
         set_name(team)
+
+    random.shuffle(teams)
 
     with open(ARGS.teams) as teamfile:
         group_members = json.load(teamfile)
