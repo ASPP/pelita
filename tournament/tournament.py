@@ -10,6 +10,7 @@ import sys
 import os
 import json
 import argparse
+import itertools
 
 # Location
 LOCATION="Split"
@@ -24,7 +25,7 @@ FLITE = '/usr/bin/flite'
 random.seed(42)
 
 # Tournament log file
-LOGFILE = "tournament.log"
+DUMPSTORE = None
 
 # Number of points a teams gets for matches in the first round
 # Probably not worth it to make it options.
@@ -39,10 +40,13 @@ RNAMES = {'group0' : 'group0',
           'group3' : 'group3',
           'group4' : 'group4' }
 
+SPEAK = False
+LOGFILE = None
+
 def _print(*args, **kwargs):
     __builtins__.print(*args, **kwargs)
-    kwargs['file'] = LOGFILE
-    __builtins__.print(*args, **kwargs)
+    if LOGFILE:
+        __builtins__.print(*args, file=LOGFILE, **kwargs)
 
 def print(*args, **kwargs):
     """Speak while you print. To disable set speak=False.
@@ -72,6 +76,16 @@ def wait_for_keypress():
     if ARGS.interactive:
         input('---\n')
 
+def create_directory(prefix):
+    for suffix in itertools.count(0):
+        name = '{}-{:02d}'.format(prefix, suffix)
+        try:
+            os.mkdir(name)
+        except FileExistsError:
+            pass
+        else:
+            break
+    return name
 
 def present_teams(group_members):
     print('Hello master, I am the Python drone. I am here to serve you.', wait=1.5)
@@ -94,9 +108,10 @@ def set_name(team):
     stderr = stderr.decode('utf-8')
     for line in stdout.splitlines():
         if team in RNAMES:
-                # sanitize real names
+            # sanitize real names
             RNAMES[team] = line
     if stderr:
+        print('Command failed:', ' '.join(args))
         print("*** ERROR: I could not load team", team, ". Please help!",
               speak=False)
         print(stderr, speak=False)
@@ -111,7 +126,7 @@ def start_match(team1, team2):
     print('Starting match: '+ RNAMES[team1]+' vs ' + RNAMES[team2])
     print()
     wait_for_keypress()
-    dumpfile = 'dumpstore/'+time.strftime('%Y%m%d-%H%M%S')
+    dumpfile = os.path.join(DUMPSTORE, time.strftime('%Y%m%d-%H%M%S'))
     args = CMD_STUB + [team1, team2,
                        '--dump', dumpfile,
                        '--seed', str(random.randint(0, sys.maxsize))]
@@ -331,10 +346,12 @@ TEAMFILE.json must be of the form:
     SPEAK = ARGS.speak and os.path.exists(FLITE)
 
     # create a directory for the dumps
-    os.mkdir('dumpstore')
+    DUMPSTORE = create_directory('./dumpstore')
 
     # open the log file (fail if it exists)
-    LOGFILE = os.fdopen(os.open(LOGFILE, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o0666), 'w')
+    logfile = os.path.join(DUMPSTORE, 'log')
+    fd = os.open(logfile, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o0666)
+    LOGFILE = os.fdopen(fd, 'w')
 
     teams = list(RNAMES.keys())
     random.shuffle(teams)
