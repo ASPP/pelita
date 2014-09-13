@@ -88,8 +88,7 @@ def present_teams(group_members):
 def set_name(team):
     """Get name of team using a dry-run pelita game"""
     global RNAMES
-    args = CMD_STUB.split()
-    args.extend(['--check-team', team])
+    args = CMD_STUB + ['--check-team', team]
     stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE).communicate()
     stdout = stdout.decode('utf-8')
     stderr = stderr.decode('utf-8')
@@ -112,25 +111,25 @@ def start_match(team1, team2):
     print('Starting match: '+ RNAMES[team1]+' vs ' + RNAMES[team2])
     print()
     wait_for_keypress()
-    args = CMD_STUB.split()
     dumpfile = 'dumpstore/'+time.strftime('%Y%m%d-%H%M%S')
-    args.extend([team1, team2, '--dump', dumpfile,'--seed', str(random.randint(0, sys.maxsize))])
+    args = CMD_STUB + [team1, team2,
+                       '--dump', dumpfile,
+                       '--seed', str(random.randint(0, sys.maxsize))]
     stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE).communicate()
     stdout = stdout.decode('utf-8')
     stderr = stderr.decode('utf-8')
     tmp = reversed(stdout.splitlines())
-    lastline = None
     for line in tmp:
         if line.startswith('Finished.'):
             lastline = line
             break
-    if not lastline:
+    else:
         print("*** ERROR: Apparently the game crashed. At least I could not find the outcome of the game.")
         print("*** Maybe stderr helps you to debug the problem")
         print(stderr, speak=False)
         print("***", speak=False)
         return 0
-    if stderr != '':
+    if stderr:
         print("***", stderr, speak=False)
     print('***', lastline)
     if lastline.find('had a draw.') >= 0:
@@ -319,18 +318,17 @@ TEAMFILE.json must be of the form:
         sys.exit(0)
 
     # Check that pelitagame can be run
-    if not os.path.exists(ARGS.pelitagame) or not os.path.isfile(ARGS.pelitagame):
+    if not os.path.isfile(ARGS.pelitagame):
         sys.stderr.write(ARGS.pelitagame+' not found!\n')
         sys.exit(2)
     else:
         # Define the command line to run a pelita match
-        CMD_STUB = ARGS.pelitagame+' --rounds=%d'%ARGS.rounds+' --%s'%ARGS.viewer
+        CMD_STUB = [ARGS.pelitagame,
+                    '--rounds=%d'%ARGS.rounds,
+                    ' --%s'%ARGS.viewer]
 
     # Check speaking support
-    SPEAK = False
-    if ARGS.speak:
-        if os.path.exists(FLITE):
-            SPEAK = True
+    SPEAK = ARGS.speak and os.path.exists(FLITE)
 
     # create a directory for the dumps
     os.mkdir('dumpstore')
