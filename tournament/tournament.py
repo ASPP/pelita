@@ -132,9 +132,8 @@ def start_match(team1, team2):
     stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE,
                            universal_newlines=True).communicate()
     tmp = reversed(stdout.splitlines())
-    for line in tmp:
-        if line.startswith('Finished.'):
-            lastline = line
+    for lastline in tmp:
+        if lastline.startswith('Finished.'):
             break
     else:
         print("*** ERROR: Apparently the game crashed. At least I could not find the outcome of the game.")
@@ -145,7 +144,7 @@ def start_match(team1, team2):
     if stderr:
         print("***", stderr, speak=False)
     print('***', lastline)
-    if lastline.find('had a draw.') >= 0:
+    if 'had a draw.' in lastline:
         return 0
     else:
         tmp = lastline.split("'")
