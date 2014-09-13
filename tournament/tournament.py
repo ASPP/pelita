@@ -46,7 +46,8 @@ LOGFILE = None
 def _print(*args, **kwargs):
     __builtins__.print(*args, **kwargs)
     if LOGFILE:
-        __builtins__.print(*args, file=LOGFILE, **kwargs)
+        kwargs['file'] = LOGFILE
+        __builtins__.print(*args, **kwargs)
 
 def print(*args, **kwargs):
     """Speak while you print. To disable set speak=False.
@@ -65,7 +66,7 @@ def print(*args, **kwargs):
         string = stream.getvalue()
         _print(string, end='')
         sys.stdout.flush()
-        with tempfile.NamedTemporaryFile() as text:
+        with tempfile.NamedTemporaryFile('wt') as text:
             text.write(string+'\n')
             text.flush()
             festival = check_call(FLITE.split()+[text.name])
