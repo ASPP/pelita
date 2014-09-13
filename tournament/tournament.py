@@ -1,15 +1,16 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # -*- coding:utf-8 -*-
-from __future__ import print_function
+
 from subprocess import Popen, PIPE, STDOUT, check_call
 import random
 import time
 import tempfile
-import cStringIO
+import io
 import sys
 import os
 import json
 import argparse
+import itertools
 
 # Location
 LOCATION="Split"
@@ -24,7 +25,7 @@ FLITE = '/usr/bin/flite'
 random.seed(42)
 
 # Tournament log file
-LOGFILE = "tournament.log"
+DUMPSTORE = None
 
 # Number of points a teams gets for matches in the first round
 # Probably not worth it to make it options.
@@ -39,10 +40,13 @@ RNAMES = {'group0' : 'group0',
           'group3' : 'group3',
           'group4' : 'group4' }
 
+SPEAK = False
+LOGFILE = None
+
 def _print(*args, **kwargs):
     __builtins__.print(*args, **kwargs)
-    kwargs['file'] = LOGFILE
-    __builtins__.print(*args, **kwargs)
+    if LOGFILE:
+        __builtins__.print(*args, file=LOGFILE, **kwargs)
 
 def print(*args, **kwargs):
     """Speak while you print. To disable set speak=False.
@@ -51,7 +55,7 @@ def print(*args, **kwargs):
     if len(args) == 0:
         _print()
         return
-    stream = cStringIO.StringIO()
+    stream = io.StringIO()
     wait = kwargs.pop('wait', 0.5)
     want_speak = kwargs.pop('speak', SPEAK)
     if not want_speak:
@@ -69,8 +73,19 @@ def print(*args, **kwargs):
 
 
 def wait_for_keypress():
-    raw_input('---\n')
+    if ARGS.interactive:
+        input('---\n')
 
+def create_directory(prefix):
+    for suffix in itertools.count(0):
+        name = '{}-{:02d}'.format(prefix, suffix)
+        try:
+            os.mkdir(name)
+        except FileExistsError:
+            pass
+        else:
+            break
+    return name
 
 def present_teams(group_members):
     print('Hello master, I am the Python drone. I am here to serve you.', wait=1.5)
@@ -86,19 +101,22 @@ def present_teams(group_members):
 
 def set_name(team):
     """Get name of team using a dry-run pelita game"""
-    global RNAMES
-    args = CMD_STUB.split()
-    args.extend(['--check-team', team])
-    stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE).communicate()
-    for line in stdout.splitlines():
-        if team in RNAMES:
-                # sanitize real names
-            RNAMES[team] = line
-    if stderr != '':
+
+    args = CMD_STUB + ['--check-team', team]
+    proc = Popen(args, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    stdout, stderr = proc.communicate()
+    if proc.returncode != 0:
+        print('Command failed:', ' '.join(args))
         print("*** ERROR: I could not load team", team, ". Please help!",
               speak=False)
         print(stderr, speak=False)
         sys.exit(1)
+
+    global RNAMES
+    for line in stdout.splitlines():
+        if team in RNAMES:
+            # sanitize real names
+            RNAMES[team] = line
 
 
 def start_match(team1, team2):
@@ -109,26 +127,26 @@ def start_match(team1, team2):
     print('Starting match: '+ RNAMES[team1]+' vs ' + RNAMES[team2])
     print()
     wait_for_keypress()
-    args = CMD_STUB.split()
-    dumpfile = 'dumpstore/'+time.strftime('%Y%m%d-%H%M%S')
-    args.extend([team1, team2, '--dump', dumpfile,'--seed', str(random.randint(0, sys.maxint))])
-    stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE).communicate()
+    dumpfile = os.path.join(DUMPSTORE, time.strftime('%Y%m%d-%H%M%S'))
+    args = CMD_STUB + [team1, team2,
+                       '--dump', dumpfile,
+                       '--seed', str(random.randint(0, sys.maxsize))]
+    stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE,
+                           universal_newlines=True).communicate()
     tmp = reversed(stdout.splitlines())
-    lastline = None
-    for line in tmp:
-        if line.startswith('Finished.'):
-            lastline = line
+    for lastline in tmp:
+        if lastline.startswith('Finished.'):
             break
-    if not lastline:
+    else:
         print("*** ERROR: Apparently the game crashed. At least I could not find the outcome of the game.")
         print("*** Maybe stderr helps you to debug the problem")
         print(stderr, speak=False)
         print("***", speak=False)
         return 0
-    if stderr != '':
+    if stderr:
         print("***", stderr, speak=False)
     print('***', lastline)
-    if lastline.find('had a draw.') >= 0:
+    if 'had a draw.' in lastline:
         return 0
     else:
         tmp = lastline.split("'")
@@ -217,7 +235,7 @@ def pp_round2_results(teams, w1, w2, w3, w4):
     """
     names = dict(RNAMES)
     names['???'] = '???'
-    feed = max(len(item) for item in RNAMES.values())+2
+    feed = max(len(item) for item in list(RNAMES.values()))+2
     lengths={}
     for name in names:
         lengths[name] = feed - len(names[name])
@@ -280,21 +298,30 @@ if __name__ == '__main__':
     # Command line argument parsing.
     # Oh, why must argparse be soo verbose :(
     parser = argparse.ArgumentParser(description='Run a tournament',
-                                 add_help=False,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+                                     add_help=False,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
     parser._positionals = parser.add_argument_group('Arguments')
-    parser.add_argument('pelitagame', help='The pelitagame script')
+    parser.add_argument('pelitagame', help='The pelitagame script',
+                        default=os.path.join(os.path.dirname(sys.argv[0]),
+                                             '../pelitagame'),
+                        nargs='?')
     parser._optionals = parser.add_argument_group('Options')
-    parser.add_argument('--help', '-h', help='show this help message and exit',
-                        action='store_const', const=True)
-    parser.add_argument('--speak', '-s', help='speak loudly every messsage on stdout',
-                        action='store_const', const=True)
-    parser.add_argument('--rounds', '-r', help='maximum number of rounds to play per match',
+    parser.add_argument('--help', '-h',
+                        help='show this help message and exit',
+                        action='store_true')
+    parser.add_argument('--speak', '-s',
+                        help='speak loudly every messsage on stdout',
+                        action='store_true')
+    parser.add_argument('--rounds', '-r',
+                        help='maximum number of rounds to play per match',
                         type=int, default=300)
-    parser.add_argument('--viewer', '-v', help='the pelita viewer to use',
-                        default='tk')
+    parser.add_argument('--viewer', '-v',
+                        help='the pelita viewer to use', default='tk')
     parser.add_argument('--teams', help='load teams from TEAMFILE',
-                    metavar="TEAMFILE.json", default="teams.json")
+                        metavar="TEAMFILE.json", default="teams.json")
+    parser.add_argument('--interactive', help='ask before proceeding',
+                        action='store_true')
+
     parser.epilog = """
 TEAMFILE.json must be of the form:
     { "group0": ["Name0", "Name1", "Name2"],
@@ -304,38 +331,42 @@ TEAMFILE.json must be of the form:
       "group4": ["Name0", "Name1", "Name2"]
     }
 """
-    args = parser.parse_args()
-    if args.help:
+    global ARGS
+    ARGS = parser.parse_args()
+    if ARGS.help:
         parser.print_help()
         sys.exit(0)
 
     # Check that pelitagame can be run
-    if not os.path.exists(args.pelitagame) or not os.path.isfile(args.pelitagame):
-        sys.stderr.write(args.pelitagame+' not found!\n')
+    if not os.path.isfile(ARGS.pelitagame):
+        sys.stderr.write(ARGS.pelitagame+' not found!\n')
         sys.exit(2)
     else:
         # Define the command line to run a pelita match
-        CMD_STUB = args.pelitagame+' --rounds=%d'%args.rounds+' --%s'%args.viewer
+        CMD_STUB = [ARGS.pelitagame,
+                    '--rounds=%d'%ARGS.rounds,
+                    '--%s'%ARGS.viewer]
 
     # Check speaking support
-    SPEAK = False
-    if args.speak:
-        if os.path.exists(FLITE):
-            SPEAK = True
+    SPEAK = ARGS.speak and os.path.exists(FLITE)
 
     # create a directory for the dumps
-    os.mkdir('dumpstore')
+    DUMPSTORE = create_directory('./dumpstore')
 
     # open the log file (fail if it exists)
-    LOGFILE = os.fdopen(os.open(LOGFILE, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o0666), 'w')
+    logfile = os.path.join(DUMPSTORE, 'log')
+    fd = os.open(logfile, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o0666)
+    LOGFILE = os.fdopen(fd, 'w')
 
-    teams = RNAMES.keys()
-    random.shuffle(teams)
+    teams = list(RNAMES.keys())
+
     # load team names
     for team in teams:
         set_name(team)
 
-    with open(args.teams) as teamfile:
+    random.shuffle(teams)
+
+    with open(ARGS.teams) as teamfile:
         group_members = json.load(teamfile)
         present_teams(group_members)
     result = round1(teams)
