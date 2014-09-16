@@ -154,7 +154,11 @@ class SimpleTeam(AbstractTeam):
         -------
         move : dict
         """
-        return self._bot_players[bot_id]._get_move(universe, game_state)
+        try:
+            bot_player = self._bot_players[bot_id]
+        except KeyError:
+            raise RuntimeError("Trying to call ‘get_move’ on undefined player. ‘set_initial’ may have not been called. Aborting.")
+        return bot_player._get_move(universe, game_state)
 
     @property
     def remote_game(self):
