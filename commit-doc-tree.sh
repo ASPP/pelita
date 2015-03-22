@@ -33,7 +33,7 @@ git_describe=$(git describe)
 # make the documentation, hope it doesn't fail
 echo "Generating doc from $git_describe"
 (cd doc; make clean)
-if ! (cd doc; make) ; then
+if ! (cd doc; make html) ; then
   echo "Fatal: 'make'ing the docs failed cannot commit!"
   exit 5
 fi
