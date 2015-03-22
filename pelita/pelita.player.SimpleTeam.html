@@ -1,23 +1,20 @@
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.player.SimpleTeam &mdash; Pelita v0.2.0-114-g1e33fc9 documentation</title>
+    <title>pelita.player.SimpleTeam &mdash; Pelita v0.2.0-178-g6b6e9f5 documentation</title>
     
-    <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootstrap-2.3.2/css/bootstrap.min.css" type="text/css" />
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/2.3.2/flatly/bootstrap.min.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootstrap-2.3.2/css/bootstrap-responsive.min.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-114-g1e33fc9',
+        VERSION:     'v0.2.0-178-g6b6e9f5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,117 +23,61 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/js/jquery-1.9.1.min.js"></script>
-    <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="../_static/bootstrap-2.3.2/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Pelita v0.2.0-114-g1e33fc9 documentation" href="../index.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Pelita v0.2.0-178-g6b6e9f5 documentation" href="../index.html" />
     <link rel="up" title="pelita.player" href="pelita.player.html" />
-    <link rel="next" title="pelita.player.SimpleTeam.__init__" href="pelita.player.SimpleTeam.__init__.html" />
+    <link rel="next" title="pelita.player.SimpleTeam.get_move" href="pelita.player.SimpleTeam.get_move.html" />
     <link rel="prev" title="pelita.player.RoundBasedPlayer.team_food" href="pelita.player.RoundBasedPlayer.team_food.html" />
-<meta charset='utf-8'>
-<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
-<meta name="apple-mobile-web-app-capable" content="yes">
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
-  
-  <a href="https://github.com/ASPP/pelita"
-     class="visible-desktop"><img
-    style="position: absolute; top: 56; right: 0; "
-    src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"
-    alt="Fork me on GitHub"></a>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pelita.player.SimpleTeam.get_move.html" title="pelita.player.SimpleTeam.get_move"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pelita.player.RoundBasedPlayer.team_food.html" title="pelita.player.RoundBasedPlayer.team_food"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Pelita v0.2.0-178-g6b6e9f5 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="pelita.player.html" accesskey="U">pelita.player</a> &raquo;</li> 
+      </ul>
+    </div>  
 
-
-  <div id="navbar" class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-      <div class="container">
-        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
-        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-
-        <a class="brand" href="../index.html">Pelita</a>
-        <span class="navbar-text pull-left"><b>v0.2.0-114-g1e33fc9</b></span>
-
-        <div class="nav-collapse">
-          <ul class="nav">
-            <li class="divider-vertical"></li>
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
             
-            
-              <li class="dropdown globaltoc-container">
-  <a href="../index.html"
-     class="dropdown-toggle"
-     data-toggle="dropdown">Site <b class="caret"></b></a>
-  <ul class="dropdown-menu globaltoc"
-    ><ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../info.html">Project Information</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../writing_player.html">Writing a Player</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../running_player.html">Running Players</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user-api.html">User API Reference</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a></li>
-</ul>
-</ul>
-</li>
-              <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
-  <ul class="dropdown-menu localtoc"><ul>
-<li><a class="reference internal" href="#">pelita.player.SimpleTeam</a><ul>
-</ul>
-</li>
-</ul>
-</ul>
-</li>
-            
-            
-              
-  <li><a href="pelita.player.RoundBasedPlayer.team_food.html"
-         title="Previous Chapter: pelita.player.RoundBasedPlayer.team_food">&laquo; pelita.player.Ro...</a></li>
-  <li><a href="pelita.player.SimpleTeam.__init__.html"
-         title="Next Chapter: pelita.player.SimpleTeam.__init__">pelita.player.Si... &raquo;</a></li>
-            
-            
-              <li>
-  <a href="../_sources/pelita/pelita.player.SimpleTeam.txt"
-     rel="nofollow">Source</a></li>
-            
-          </ul>
-
-          
-            
-<form class="navbar-search pull-right" action="../search.html" method="get">
-  <input type="text" name="q" class="search-query" placeholder="Search" />
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
-          
-        </div>
-      </div>
-    </div>
-  </div>
-
-<div class="container">
-  
   <div class="section" id="pelita-player-simpleteam">
 <h1>pelita.player.SimpleTeam<a class="headerlink" href="#pelita-player-simpleteam" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pelita.player.SimpleTeam">
-<em class="property">class </em><tt class="descclassname">pelita.player.</tt><tt class="descname">SimpleTeam</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#pelita.player.SimpleTeam" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Simple class used to register an arbitrary number of (Abstract-)Players.</p>
+<em class="property">class </em><code class="descclassname">pelita.player.</code><code class="descname">SimpleTeam</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/player.html#SimpleTeam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.SimpleTeam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple class used to register an arbitrary number of (Abstract-)Players.</p>
 <p>Each Player is used to control a Bot in the Universe.</p>
-<p>SimpleTeam transforms the <a class="reference internal" href="pelita.player.SimpleTeam.set_initial.html#pelita.player.SimpleTeam.set_initial" title="pelita.player.SimpleTeam.set_initial"><tt class="xref py py-obj docutils literal"><span class="pre">set_initial</span></tt></a> and <a class="reference internal" href="pelita.player.SimpleTeam.get_move.html#pelita.player.SimpleTeam.get_move" title="pelita.player.SimpleTeam.get_move"><tt class="xref py py-obj docutils literal"><span class="pre">get_move</span></tt></a> messages
-from the GameMaster into <tt class="xref py py-obj docutils literal"><span class="pre">_set_index</span></tt>, <tt class="xref py py-obj docutils literal"><span class="pre">_set_initial</span></tt> and <tt class="xref py py-obj docutils literal"><span class="pre">_get_move</span></tt>
+<p>SimpleTeam transforms the <cite>set_initial</cite> and <cite>get_move</cite> messages
+from the GameMaster into <cite>_set_index</cite>, <cite>_set_initial</cite> and <cite>_get_move</cite>
 messages on the Player.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>team_name :</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>team_name :</strong> :</p>
 <blockquote>
 <div><p>the name of the team (optional)</p>
 </div></blockquote>
@@ -155,13 +96,28 @@ messages on the Player.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.player.SimpleTeam.__init__.html#pelita.player.SimpleTeam.__init__" title="pelita.player.SimpleTeam.__init__"><tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt></a>(*args)</td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.player.SimpleTeam.get_move.html#pelita.player.SimpleTeam.get_move" title="pelita.player.SimpleTeam.get_move"><code class="xref py py-obj docutils literal"><span class="pre">get_move</span></code></a>(bot_id,&nbsp;universe,&nbsp;game_state)</td>
+<td>Requests a move from the Player who controls the Bot with id <cite>bot_id</cite>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="pelita.player.SimpleTeam.set_initial.html#pelita.player.SimpleTeam.set_initial" title="pelita.player.SimpleTeam.set_initial"><code class="xref py py-obj docutils literal"><span class="pre">set_initial</span></code></a>(team_id,&nbsp;universe,&nbsp;game_state)</td>
 <td></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.player.SimpleTeam.get_move.html#pelita.player.SimpleTeam.get_move" title="pelita.player.SimpleTeam.get_move"><tt class="xref py py-obj docutils literal"><span class="pre">get_move</span></tt></a>(bot_id,&nbsp;universe,&nbsp;game_state)</td>
-<td>Requests a move from the Player who controls the Bot with id <tt class="xref py py-obj docutils literal"><span class="pre">bot_id</span></tt>.</td>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.player.SimpleTeam.__init__.html#pelita.player.SimpleTeam.__init__" title="pelita.player.SimpleTeam.__init__"><code class="xref py py-obj docutils literal"><span class="pre">__init__</span></code></a>(*args)</td>
+<td></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.player.SimpleTeam.set_initial.html#pelita.player.SimpleTeam.set_initial" title="pelita.player.SimpleTeam.set_initial"><tt class="xref py py-obj docutils literal"><span class="pre">set_initial</span></tt></a>(team_id,&nbsp;universe,&nbsp;game_state)</td>
+<tr class="row-even"><td><a class="reference internal" href="pelita.player.SimpleTeam.get_move.html#pelita.player.SimpleTeam.get_move" title="pelita.player.SimpleTeam.get_move"><code class="xref py py-obj docutils literal"><span class="pre">get_move</span></code></a>(bot_id,&nbsp;universe,&nbsp;game_state)</td>
+<td>Requests a move from the Player who controls the Bot with id <cite>bot_id</cite>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.player.SimpleTeam.set_initial.html#pelita.player.SimpleTeam.set_initial" title="pelita.player.SimpleTeam.set_initial"><code class="xref py py-obj docutils literal"><span class="pre">set_initial</span></code></a>(team_id,&nbsp;universe,&nbsp;game_state)</td>
 <td></td>
 </tr>
 </tbody>
@@ -173,7 +129,7 @@ messages on the Player.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.player.SimpleTeam.remote_game.html#pelita.player.SimpleTeam.remote_game" title="pelita.player.SimpleTeam.remote_game"><tt class="xref py py-obj docutils literal"><span class="pre">remote_game</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita.player.SimpleTeam.remote_game.html#pelita.player.SimpleTeam.remote_game" title="pelita.player.SimpleTeam.remote_game"><code class="xref py py-obj docutils literal"><span class="pre">remote_game</span></code></a></td>
 <td></td>
 </tr>
 </tbody>
@@ -183,19 +139,101 @@ messages on the Player.</p>
 </div>
 
 
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Pelita</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=&repo=&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running_player.html">Running Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-api.html">User API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pelita.__layouts.html">pelita.__layouts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.__version_from_git.html">pelita.__version_from_git</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.containers.html">pelita.containers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.datamodel.html">pelita.datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.game_master.html">pelita.game_master</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.graph.html">pelita.graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.layout.html">pelita.layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.messaging.html">pelita.messaging</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pelita.player.html">pelita.player</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pelita.player.AbstractPlayer.html">pelita.player.AbstractPlayer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pelita.player.CPUBoundPlayer.html">pelita.player.CPUBoundPlayer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pelita.player.DebuggablePlayer.html">pelita.player.DebuggablePlayer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pelita.player.IOBoundPlayer.html">pelita.player.IOBoundPlayer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pelita.player.InitialExceptionPlayer.html">pelita.player.InitialExceptionPlayer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pelita.player.MoveExceptionPlayer.html">pelita.player.MoveExceptionPlayer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pelita.player.RoundBasedPlayer.html">pelita.player.RoundBasedPlayer</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="">pelita.player.SimpleTeam</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pelita.player.SimpleTeam.get_move.html">pelita.player.SimpleTeam.get_move</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pelita.player.SimpleTeam.set_initial.html">pelita.player.SimpleTeam.set_initial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pelita.player.SimpleTeam.__init__.html">pelita.player.SimpleTeam.__init__</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pelita.player.SimpleTeam.get_move.html">pelita.player.SimpleTeam.get_move</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pelita.player.SimpleTeam.set_initial.html">pelita.player.SimpleTeam.set_initial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pelita.player.SimpleTeam.remote_game.html">pelita.player.SimpleTeam.remote_game</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pelita.player.SpeakingPlayer.html">pelita.player.SpeakingPlayer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pelita.player.StoppingPlayer.html">pelita.player.StoppingPlayer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pelita.player.TestPlayer.html">pelita.player.TestPlayer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.simplesetup.html">pelita.simplesetup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.ui.html">pelita.ui</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.utils.html">pelita.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelita.viewer.html">pelita.viewer</a></li>
+</ul>
+</li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
-<footer class="footer">
-  <div class="container">
-    <p class="pull-right">
-      <a href="#">Back to top</a>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
-    </p>
-    <p>
-        &copy; Copyright 2011–2013, Valentin Haenel, Rike-Benjamin Schuppner et. al..<br/>
-      Last updated on Sep 09, 2013.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2b1.<br/>
-    </p>
-  </div>
-</footer>
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.2</a>
+      
+      |
+      <a href="../_sources/pelita/pelita.player.SimpleTeam.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
   </body>
 </html>

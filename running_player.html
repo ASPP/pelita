@@ -1,23 +1,20 @@
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Running Players &mdash; Pelita v0.2.0-114-g1e33fc9 documentation</title>
+    <title>Running Players &mdash; Pelita v0.2.0-178-g6b6e9f5 documentation</title>
     
-    <link rel="stylesheet" href="_static/pelita.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap-2.3.2/css/bootstrap.min.css" type="text/css" />
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/2.3.2/flatly/bootstrap.min.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap-2.3.2/css/bootstrap-responsive.min.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'v0.2.0-114-g1e33fc9',
+        VERSION:     'v0.2.0-178-g6b6e9f5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,117 +23,54 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/js/jquery-1.9.1.min.js"></script>
-    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-2.3.2/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Pelita v0.2.0-114-g1e33fc9 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Pelita v0.2.0-178-g6b6e9f5 documentation" href="index.html" />
     <link rel="next" title="Development" href="development.html" />
     <link rel="prev" title="Writing a Player" href="writing_player.html" />
-<meta charset='utf-8'>
-<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
-<meta name="apple-mobile-web-app-capable" content="yes">
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
-  
-  <a href="https://github.com/ASPP/pelita"
-     class="visible-desktop"><img
-    style="position: absolute; top: 56; right: 0; "
-    src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"
-    alt="Fork me on GitHub"></a>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="development.html" title="Development"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="writing_player.html" title="Writing a Player"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Pelita v0.2.0-178-g6b6e9f5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
 
-
-  <div id="navbar" class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-      <div class="container">
-        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
-        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-
-        <a class="brand" href="index.html">Pelita</a>
-        <span class="navbar-text pull-left"><b>v0.2.0-114-g1e33fc9</b></span>
-
-        <div class="nav-collapse">
-          <ul class="nav">
-            <li class="divider-vertical"></li>
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
             
-            
-              <li class="dropdown globaltoc-container">
-  <a href="index.html"
-     class="dropdown-toggle"
-     data-toggle="dropdown">Site <b class="caret"></b></a>
-  <ul class="dropdown-menu globaltoc"
-    ><ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="info.html">Project Information</a></li>
-<li class="toctree-l1"><a class="reference internal" href="writing_player.html">Writing a Player</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Running Players</a></li>
-<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user-api.html">User API Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
-</ul>
-</ul>
-</li>
-              <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
-  <ul class="dropdown-menu localtoc"><ul>
-<li><a class="reference internal" href="#">Running Players</a><ul>
-<li><a class="reference internal" href="#where-to-place-your-files">Where to Place Your Files</a></li>
-<li><a class="reference internal" href="#load-custom-layouts">Load Custom Layouts</a><ul>
-<li><a class="reference internal" href="#tournament-setup">Tournament Setup</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#debugging">Debugging</a></li>
-</ul>
-</li>
-</ul>
-</ul>
-</li>
-            
-            
-              
-  <li><a href="writing_player.html"
-         title="Previous Chapter: Writing a Player">&laquo; Writing a Player</a></li>
-  <li><a href="development.html"
-         title="Next Chapter: Development">Development &raquo;</a></li>
-            
-            
-              <li>
-  <a href="_sources/running_player.txt"
-     rel="nofollow">Source</a></li>
-            
-          </ul>
-
-          
-            
-<form class="navbar-search pull-right" action="search.html" method="get">
-  <input type="text" name="q" class="search-query" placeholder="Search" />
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
-          
-        </div>
-      </div>
-    </div>
-  </div>
-
-<div class="container">
-  
   <div class="section" id="running-players">
 <h1>Running Players<a class="headerlink" href="#running-players" title="Permalink to this headline">¶</a></h1>
 <p>To run a game using your player, you should use the command-line interface:
-<tt class="docutils literal"><span class="pre">pelitagame</span></tt>. Run it with the <tt class="docutils literal"><span class="pre">--help</span></tt> option to get a detailed usage
+<code class="docutils literal"><span class="pre">pelitagame</span></code>. Run it with the <code class="docutils literal"><span class="pre">--help</span></code> option to get a detailed usage
 description.</p>
 <div class="section" id="where-to-place-your-files">
 <h2>Where to Place Your Files<a class="headerlink" href="#where-to-place-your-files" title="Permalink to this headline">¶</a></h2>
 <p>To begin using your own player you need to put its definition in a place
-where <tt class="docutils literal"><span class="pre">pelitagame</span></tt> can find it.</p>
+where <code class="docutils literal"><span class="pre">pelitagame</span></code> can find it.</p>
 <p>Put the definition of your player in a file outside the Pelita source
-code directory, for example in <tt class="docutils literal"><span class="pre">/home/student/my_player.py</span></tt>. Besides
+code directory, for example in <code class="docutils literal"><span class="pre">/home/student/my_player.py</span></code>. Besides
 the definition of your player, this file must contain a factory
 function that returns a team (remember that the default game is a
 fight between two teams of two bots each):</p>
@@ -161,7 +95,8 @@ fight between two teams of two bots each):</p>
 players into the game.
 To run a game using your players against some predefined players in
 Pelita you can run</p>
-<div class="highlight-python"><pre>$ ~/pelita/pelitagame /home/student/my_player.py BFSPlayer,BasicDefensePlayer</pre>
+<div class="highlight-python"><div class="highlight"><pre>$ ~/pelita/pelitagame /home/student/my_player.py FoodEatingPlayer,SmartRandomPlayer
+</pre></div>
 </div>
 <p>This setup is fine for small tests, but if you plan to have a more
 complicated directory structure, for example to load additional
@@ -173,7 +108,8 @@ utilities located in different files, read on to section
 <p>For testing purposes it may be useful to use small hand-crafted maze
 layouts instead of the default big ones. You can easily define your
 own layout in a file and load it into the game with:</p>
-<div class="highlight-python"><pre>$ ~/pelita/pelitagame --layoutfile my_test_layout.txt /home/student/my_player.py BFSPlayer,BasicDefensePlayer</pre>
+<div class="highlight-python"><div class="highlight"><pre>$ ~/pelita/pelitagame --layoutfile my_test_layout.txt /home/student/my_player.py FoodEatingPlayer,SmartRandomPlayer
+</pre></div>
 </div>
 <p>A layout file looks like this:</p>
 <div class="highlight-text"><div class="highlight"><pre>################################
@@ -200,16 +136,16 @@ maze:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name"><tt class="docutils literal"><span class="pre">'#'</span></tt>:</th><td class="field-body">wall</td>
+<tr class="field-odd field"><th class="field-name"><code class="docutils literal"><span class="pre">'#'</span></code>:</th><td class="field-body">wall</td>
 </tr>
-<tr class="field-even field"><th class="field-name"><tt class="docutils literal"><span class="pre">'</span> <span class="pre">'</span></tt>:</th><td class="field-body">free space</td>
+<tr class="field-even field"><th class="field-name"><code class="docutils literal"><span class="pre">'</span> <span class="pre">'</span></code>:</th><td class="field-body">free space</td>
 </tr>
-<tr class="field-odd field"><th class="field-name"><tt class="docutils literal"><span class="pre">'.'</span></tt>:</th><td class="field-body">food</td>
+<tr class="field-odd field"><th class="field-name"><code class="docutils literal"><span class="pre">'.'</span></code>:</th><td class="field-body">food</td>
 </tr>
 </tbody>
 </table>
 <p>In addition, the starting position of each bot is specified by a number. In the
-above example <tt class="docutils literal"><span class="pre">0</span></tt> and <tt class="docutils literal"><span class="pre">2</span></tt> are on the team on the left and <tt class="docutils literal"><span class="pre">1</span></tt> and <tt class="docutils literal"><span class="pre">3</span></tt>
+above example <code class="docutils literal"><span class="pre">0</span></code> and <code class="docutils literal"><span class="pre">2</span></code> are on the team on the left and <code class="docutils literal"><span class="pre">1</span></code> and <code class="docutils literal"><span class="pre">3</span></code>
 are on the team on the right.  There are some restrictions on the encoding
 however:</p>
 <ul class="simple">
@@ -226,18 +162,19 @@ detected.</p>
 2011</a>, use the following instructions to
 organize your files such that we can load your players during the
 tournament.  You will need to create a python package, i.e. a
-directory containing (at least) an <tt class="docutils literal"><span class="pre">__init__.py</span></tt> file. This package
-must be named <tt class="docutils literal"><span class="pre">groupN</span></tt>, where <tt class="docutils literal"><span class="pre">N</span></tt> is your group number.
-This package needs to provide a top level function <tt class="docutils literal"><span class="pre">factory()</span></tt> which
-returns a <tt class="docutils literal"><span class="pre">SimpleTeam</span></tt>.</p>
+directory containing (at least) an <code class="docutils literal"><span class="pre">__init__.py</span></code> file. This package
+must be named <code class="docutils literal"><span class="pre">groupN</span></code>, where <code class="docutils literal"><span class="pre">N</span></code> is your group number.
+This package needs to provide a top level function <code class="docutils literal"><span class="pre">factory()</span></code> which
+returns a <code class="docutils literal"><span class="pre">SimpleTeam</span></code>.</p>
 <p>The file structure should look like:</p>
-<div class="highlight-python"><pre>groupN
+<div class="highlight-python"><div class="highlight"><pre>groupN
 ├── __init__.py
 ├── utils.py
-└── my_player.py</pre>
+└── my_player.py
+</pre></div>
 </div>
-<p>Download a <a class="reference download internal" href="_downloads/groupN-template.zip"><tt class="xref download docutils literal"><span class="pre">template</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">file</span> <span class="pre">structure</span></tt></a>.</p>
-<p>Your <tt class="docutils literal"><span class="pre">__init__.py</span></tt> could look like:</p>
+<p>Download a <a class="reference download internal" href="_downloads/groupN-template.zip"><code class="xref download docutils literal"><span class="pre">template</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">file</span> <span class="pre">structure</span></code></a>.</p>
+<p>Your <code class="docutils literal"><span class="pre">__init__.py</span></code> could look like:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
 <span class="c"># -*- coding: utf-8 -*-</span>
 
@@ -264,8 +201,8 @@ returns a <tt class="docutils literal"><span class="pre">SimpleTeam</span></tt>.
 </div>
 <p>Your are encouraged to structure your code base into packages.
 Always remember to use <a class="reference external" href="http://www.python.org/dev/peps/pep-0328/">relative imports</a>. Note that relative imports only
-work for modules, so you must provide a <tt class="docutils literal"><span class="pre">__init__.py</span></tt> file in that case.
-For example the function <tt class="docutils literal"><span class="pre">utility</span></tt> is provided by the module <tt class="docutils literal"><span class="pre">groupN.utils</span></tt>:</p>
+work for modules, so you must provide a <code class="docutils literal"><span class="pre">__init__.py</span></code> file in that case.
+For example the function <code class="docutils literal"><span class="pre">utility</span></code> is provided by the module <code class="docutils literal"><span class="pre">groupN.utils</span></code>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
 <span class="c"># -*- coding: utf-8 -*-</span>
 
@@ -275,8 +212,8 @@ For example the function <tt class="docutils literal"><span class="pre">utility<
     <span class="k">pass</span>
 </pre></div>
 </div>
-<p>To use this module in your <tt class="docutils literal"><span class="pre">my_player.py</span></tt> module, a relative import
-<tt class="docutils literal"><span class="pre">from</span> <span class="pre">.utils</span> <span class="pre">import</span> <span class="pre">utility</span></tt> is used:</p>
+<p>To use this module in your <code class="docutils literal"><span class="pre">my_player.py</span></code> module, a relative import
+<code class="docutils literal"><span class="pre">from</span> <span class="pre">.utils</span> <span class="pre">import</span> <span class="pre">utility</span></code> is used:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
 <span class="c"># -*- coding: utf-8 -*-</span>
 
@@ -296,25 +233,27 @@ For example the function <tt class="docutils literal"><span class="pre">utility<
 </div>
 <p>Also, please perform any additional initialisation inside this
 function, since it will be called once for every game.</p>
-<p>To run a game from a module, ensure that it exports the <tt class="xref py py-obj docutils literal"><span class="pre">factory()</span></tt> function,
-as it was done in <tt class="docutils literal"><span class="pre">__init__.py</span></tt> above, which will return your actual team.
+<p>To run a game from a module, ensure that it exports the <cite>factory()</cite> function,
+as it was done in <code class="docutils literal"><span class="pre">__init__.py</span></code> above, which will return your actual team.
 Also, for a module, you would not reference the Python file but only the
 module itself:</p>
-<div class="highlight-python"><pre>$ ~/pelita/pelitagame /home/student/groupN/ BFSPlayer,BasicDefensePlayer</pre>
+<div class="highlight-python"><div class="highlight"><pre>$ ~/pelita/pelitagame /home/student/groupN/ FoodEatingPlayer,SmartRandomPlayer
+</pre></div>
 </div>
 <p>or, if you would be using a differently named factory method:</p>
-<div class="highlight-python"><pre>$ ~/pelita/pelitagame /home/student/groupN/:second_factory BFSPlayer,BasicDefensePlayer</pre>
+<div class="highlight-python"><div class="highlight"><pre>$ ~/pelita/pelitagame /home/student/groupN/:second_factory FoodEatingPlayer,SmartRandomPlayer
+</pre></div>
 </div>
 </div>
 </div>
 <div class="section" id="debugging">
 <h2>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h2>
-<p>The <tt class="docutils literal"><span class="pre">pelitagame</span></tt> script runs the client code in another process. Therefore,
+<p>The <code class="docutils literal"><span class="pre">pelitagame</span></code> script runs the client code in another process. Therefore,
 it is not possible from the client process to halt the program and interact
 with standard input. In order to use debugging methods, one has to somehow run
 the player code in the main process. Depending on whether one wants to check
-the left or the right, one has to use the flags <tt class="xref py py-obj docutils literal"><span class="pre">--standalone-left</span></tt> and
-<tt class="xref py py-obj docutils literal"><span class="pre">--standalone-right</span></tt>, respectively.</p>
+the left or the right, one has to use the flags <cite>&#8211;standalone-left</cite> and
+<cite>&#8211;standalone-right</cite>, respectively.</p>
 <p>For a start, let us consider a Player which does nothing but call the Python
 debugger for help:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">pdb</span>
@@ -332,11 +271,12 @@ debugger for help:</p>
 </div>
 <p>We want to use this player in our left team and let the server choose a random
 team for the right hand side. Additionally, we disable the timeouts:</p>
-<div class="highlight-python"><pre>$ ~/pelita/pelitagame --standalone-left --no-timeout DebuggablePlayer</pre>
+<div class="highlight-python"><div class="highlight"><pre>$ ~/pelita/pelitagame --standalone-left --no-timeout DebuggablePlayer
+</pre></div>
 </div>
 <p>We now can interact with the game by manually setting the direction at
 each step:</p>
-<div class="highlight-python"><pre>&gt; ./pelita/player.py(494)get_move()
+<div class="highlight-python"><div class="highlight"><pre>&gt; ./pelita/player.py(494)get_move()
 -&gt; return direction
 (Pdb) direction = (1,0)
 (Pdb) c
@@ -346,7 +286,8 @@ each step:</p>
 (Pdb) c
 &gt; ./pelita/player.py(494)get_move()
 -&gt; return direction
-(Pdb)</pre>
+(Pdb)
+</pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -359,19 +300,73 @@ useful to press the keyboard interrupt (CTRL+C) a couple of times.</p>
 </div>
 
 
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Pelita</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=&repo=&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Running Players</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#where-to-place-your-files">Where to Place Your Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#load-custom-layouts">Load Custom Layouts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tournament-setup">Tournament Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#debugging">Debugging</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-api.html">User API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
-<footer class="footer">
-  <div class="container">
-    <p class="pull-right">
-      <a href="#">Back to top</a>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
-    </p>
-    <p>
-        &copy; Copyright 2011–2013, Valentin Haenel, Rike-Benjamin Schuppner et. al..<br/>
-      Last updated on Sep 09, 2013.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2b1.<br/>
-    </p>
-  </div>
-</footer>
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.2</a>
+      
+      |
+      <a href="_sources/running_player.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
   </body>
 </html>

@@ -19,11 +19,7 @@ pelita.graph.AdjacencyList
       ~AdjacencyList.copy
       ~AdjacencyList.fromkeys
       ~AdjacencyList.get
-      ~AdjacencyList.has_key
       ~AdjacencyList.items
-      ~AdjacencyList.iteritems
-      ~AdjacencyList.iterkeys
-      ~AdjacencyList.itervalues
       ~AdjacencyList.keys
       ~AdjacencyList.pop
       ~AdjacencyList.popitem
@@ -31,9 +27,6 @@ pelita.graph.AdjacencyList
       ~AdjacencyList.setdefault
       ~AdjacencyList.update
       ~AdjacencyList.values
-      ~AdjacencyList.viewitems
-      ~AdjacencyList.viewkeys
-      ~AdjacencyList.viewvalues
    
    
 

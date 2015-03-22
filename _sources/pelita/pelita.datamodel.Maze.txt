@@ -17,9 +17,6 @@ pelita.datamodel.Maze
       ~Maze.get
       ~Maze.get_at
       ~Maze.items
-      ~Maze.iteritems
-      ~Maze.iterkeys
-      ~Maze.itervalues
       ~Maze.keys
       ~Maze.pos_of
       ~Maze.remove_at

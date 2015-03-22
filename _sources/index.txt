@@ -1,24 +1,23 @@
-.. Pelita documentation master file, created by
-   sphinx-quickstart on Mon Jul 18 14:32:16 2011.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 ======
 Pelita
 ======
 
-.. container:: row-fluid
+.. container:: container-fluid
 
-   .. figure:: images/small-game.png
-      :alt: Screenshot.
-      :figclass: span6
+   .. container:: row
 
-      **A first fight:** ‘The SmartRandomPlayers’ v ‘The FoodEatingPlayers’
+      .. container:: col-md-6
 
-   .. container:: span6
+         .. image:: images/small-game.png
+            :alt: Screenshot.
+            :class: img-responsive
 
-      .. literalinclude:: ../../players/SmartRandomPlayer.py
-         :pyobject: SmartRandomPlayer
+         **A first fight:** ‘The SmartRandomPlayers’ v ‘The FoodEatingPlayers’
+
+      .. container:: col-md-6
+
+         .. literalinclude:: ../../players/SmartRandomPlayer.py
+            :pyobject: SmartRandomPlayer
 
 **Pelita** is Actor-based Toolkit for Interactive Language Education in Python.
 
@@ -65,7 +64,7 @@ Contents
 ========
 
 .. toctree::
-   :maxdepth: 2
+   :hidden:
 
    info
    writing_player
@@ -80,3 +79,4 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+

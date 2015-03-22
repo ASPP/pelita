@@ -1,6 +1,0 @@
-pelita.datamodel.Maze.itervalues
-================================
-
-.. currentmodule:: pelita.datamodel
-
-.. automethod:: Maze.itervalues

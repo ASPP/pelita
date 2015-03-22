@@ -1,12 +1,1 @@
 
-p.caption { font-size: 90%; font-style: italic; }
-
-a.headerlink { visibility: hidden; }
-
-/* Fix too large code font sizes. */
-
-pre, code {
-  font-size: 85% !important; /* when using 14px in the body font, the code font looks best with 12px */
-  line-height: 19px !important;
-}
-

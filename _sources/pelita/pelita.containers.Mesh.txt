@@ -16,9 +16,6 @@ pelita.containers.Mesh
       ~Mesh.copy
       ~Mesh.get
       ~Mesh.items
-      ~Mesh.iteritems
-      ~Mesh.iterkeys
-      ~Mesh.itervalues
       ~Mesh.keys
       ~Mesh.values
    

@@ -1,6 +1,0 @@
-pelita.containers.Mesh.iteritems
-================================
-
-.. currentmodule:: pelita.containers
-
-.. automethod:: Mesh.iteritems

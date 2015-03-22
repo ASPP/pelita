@@ -1,0 +1,421 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pelita.graph &mdash; Pelita v0.2.0-178-g6b6e9f5 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     'v0.2.0-178-g6b6e9f5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Pelita v0.2.0-178-g6b6e9f5 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pelita v0.2.0-178-g6b6e9f5 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pelita.graph</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot; Basic graph module &quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
+<span class="kn">import</span> <span class="nn">heapq</span>
+
+<span class="n">__docformat__</span> <span class="o">=</span> <span class="s">&quot;restructuredtext&quot;</span>
+
+<div class="viewcode-block" id="NoPathException"><a class="viewcode-back" href="../../pelita/pelita.graph.NoPathException.html#pelita.graph.NoPathException">[docs]</a><span class="k">class</span> <span class="nc">NoPathException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="new_pos"><a class="viewcode-back" href="../../pelita/pelita.graph.new_pos.html#pelita.graph.new_pos">[docs]</a><span class="k">def</span> <span class="nf">new_pos</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">move</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Adds a position tuple and a move tuple.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    position : tuple of int (x, y)</span>
+<span class="sd">        current position</span>
+
+<span class="sd">    move : tuple of int (x, y)</span>
+<span class="sd">        direction vector</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    new_pos : tuple of int (x, y)</span>
+<span class="sd">        new position coordinates</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pos_x</span> <span class="o">=</span> <span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">move</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">pos_y</span> <span class="o">=</span> <span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">move</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">pos_x</span><span class="p">,</span> <span class="n">pos_y</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="diff_pos"><a class="viewcode-back" href="../../pelita/pelita.graph.diff_pos.html#pelita.graph.diff_pos">[docs]</a><span class="k">def</span> <span class="nf">diff_pos</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Return the move required to move from one position to another.</span>
+
+<span class="sd">    Will return the move required to transition from `initial` to `target`. If</span>
+<span class="sd">    `initial` equals `target` this is `stop`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    initial : tuple of (int, int)</span>
+<span class="sd">        the starting position</span>
+<span class="sd">    target : tuple of (int, int)</span>
+<span class="sd">        the target position</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    move : tuple of (int, int)</span>
+<span class="sd">        the resulting move</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">initial</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">target</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">initial</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="manhattan_dist"><a class="viewcode-back" href="../../pelita/pelita.graph.manhattan_dist.html#pelita.graph.manhattan_dist">[docs]</a><span class="k">def</span> <span class="nf">manhattan_dist</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Manhattan distance between two points.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pos1 : tuple of (int, int)</span>
+<span class="sd">        the first position</span>
+<span class="sd">    pos2 : tuple of (int, int)</span>
+<span class="sd">        the second position</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    manhattan_dist : int</span>
+<span class="sd">        Manhattan distance between two points</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">diff_pos</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="iter_adjacencies"><a class="viewcode-back" href="../../pelita/pelita.graph.iter_adjacencies.html#pelita.graph.iter_adjacencies">[docs]</a><span class="k">def</span> <span class="nf">iter_adjacencies</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">adjacencies_for_pos</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Returns an adjacency list starting at the initial positions.</span>
+
+<span class="sd">    Given some starting positions and a method which returns the adjacencies</span>
+<span class="sd">    per position, we iterate over all reachable positions and their respective</span>
+<span class="sd">    neighbours.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    initial : list(pos)</span>
+<span class="sd">        List of initial positions</span>
+<span class="sd">    adjacencies_from_pos : callable</span>
+<span class="sd">        Given a position, this function should return all reachable positions.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    adjacency_list : generator of (pos, list(pos))</span>
+<span class="sd">        Generator which contains all reachable positions and their adjacencies</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reached</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">todo</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">initial</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">todo</span><span class="p">:</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">todo</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="n">legal_moves</span> <span class="o">=</span> <span class="n">adjacencies_for_pos</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">move</span> <span class="ow">in</span> <span class="n">legal_moves</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">move</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">reached</span><span class="p">:</span>
+                <span class="n">todo</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">move</span><span class="p">)</span>
+        <span class="n">reached</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">legal_moves</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="AdjacencyList"><a class="viewcode-back" href="../../pelita/pelita.graph.AdjacencyList.html#pelita.graph.AdjacencyList">[docs]</a><span class="k">class</span> <span class="nc">AdjacencyList</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Adjacency list [1] representation of a Maze.</span>
+
+<span class="sd">    The `AdjacencyList` is mostly a wrapper for a `dict`. Given a position,</span>
+<span class="sd">    it returns the positions reachable from there.</span>
+
+<span class="sd">    [1] http://en.wikipedia.org/wiki/Adjacency_list</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="AdjacencyList.__init__"><a class="viewcode-back" href="../../pelita/pelita.graph.AdjacencyList.__init__.html#pelita.graph.AdjacencyList.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adjacencies</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">adjacencies</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="AdjacencyList.pos_within"><a class="viewcode-back" href="../../pelita/pelita.graph.AdjacencyList.pos_within.html#pelita.graph.AdjacencyList.pos_within">[docs]</a>    <span class="k">def</span> <span class="nf">pos_within</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Positions within a certain distance.</span>
+
+<span class="sd">        Calculates all positions within a certain distance of a target</span>
+<span class="sd">        `position` in maze space. Within means strictly less than (`&lt;`) in this</span>
+<span class="sd">        case.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        position : tuple of (int, int)</span>
+<span class="sd">            the first position</span>
+
+<span class="sd">        distance : int</span>
+<span class="sd">            the distance in maze space</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pos_within : set of tuple of (int, int)</span>
+<span class="sd">            the positions within the given distance</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        NoPathException</span>
+<span class="sd">            if `position` does not exist in the adjacency list</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_pos_exist</span><span class="p">([</span><span class="n">position</span><span class="p">])</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">position</span><span class="p">])</span>
+        <span class="n">to_visit</span> <span class="o">=</span> <span class="p">[</span><span class="n">position</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">distance</span><span class="p">):</span>
+            <span class="n">local_to_visit</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">to_visit</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">pos</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">positions</span><span class="p">:</span>
+                    <span class="n">positions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+                <span class="n">local_to_visit</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">pos</span><span class="p">])</span>
+            <span class="n">to_visit</span> <span class="o">=</span> <span class="n">local_to_visit</span>
+        <span class="k">return</span> <span class="n">positions</span>
+</div>
+    <span class="k">def</span> <span class="nf">_check_pos_exist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">positions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pos</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="n">NoPathException</span><span class="p">(</span><span class="s">&quot;Position </span><span class="si">%s</span><span class="s"> does not exist in adjacency list.&quot;</span> <span class="o">%</span>
+                        <span class="nb">repr</span><span class="p">(</span><span class="n">pos</span><span class="p">))</span>
+
+<div class="viewcode-block" id="AdjacencyList.bfs"><a class="viewcode-back" href="../../pelita/pelita.graph.AdjacencyList.bfs.html#pelita.graph.AdjacencyList.bfs">[docs]</a>    <span class="k">def</span> <span class="nf">bfs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Breadth first search (bfs).</span>
+
+<span class="sd">        Breadth first search [1] from one position to multiple targets. The</span>
+<span class="sd">        search will return a path from the `initial` position to the closest</span>
+<span class="sd">        position in `targets`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        initial : tuple of (int, int)</span>
+<span class="sd">            the first position</span>
+<span class="sd">        targets : list of tuple of (int, int)</span>
+<span class="sd">            the target positions</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        path : lits of tuple of (int, int)</span>
+<span class="sd">            the path from `initial` to the closest `target`</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        NoPathException</span>
+<span class="sd">            if no path from `initial` to one of `targets`</span>
+<span class="sd">        NoPositionException</span>
+<span class="sd">            if either `initial` or `targets` does not exist</span>
+
+<span class="sd">        [1] http://en.wikipedia.org/wiki/Breadth-first_search</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># First check that the arguments were valid.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_pos_exist</span><span class="p">([</span><span class="n">initial</span><span class="p">]</span> <span class="o">+</span> <span class="n">targets</span><span class="p">)</span>
+        <span class="c"># Initialise `to_visit` of type `deque` with current position.</span>
+        <span class="c"># We use a `deque` since we need to extend to the right</span>
+        <span class="c"># but pop from the left, i.e. its a fifo queue.</span>
+        <span class="n">to_visit</span> <span class="o">=</span> <span class="n">deque</span><span class="p">([</span><span class="n">initial</span><span class="p">])</span>
+        <span class="c"># `seen` is a list of nodes we have seen already</span>
+        <span class="c"># We append to right and later pop from right, so a list will do.</span>
+        <span class="c"># Order is important for the back-track later on, so don&#39;t use a set.</span>
+        <span class="n">seen</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">while</span> <span class="n">to_visit</span><span class="p">:</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="n">to_visit</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">current</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                <span class="c"># This node has been seen, ignore it.</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="n">current</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+                <span class="c"># We found some food, break and back-track path.</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># Otherwise keep going, i.e. add adjacent nodes to seen list.</span>
+                <span class="n">seen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+                <span class="n">to_visit</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">current</span><span class="p">])</span>
+        <span class="c"># if we did not find any of the targets, raise an Exception</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NoPathException</span><span class="p">(</span><span class="s">&quot;BFS: No path from </span><span class="si">%r</span><span class="s"> to </span><span class="si">%r</span><span class="s">.&quot;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">targets</span><span class="p">))</span>
+        <span class="c"># Now back-track using seen to determine how we got here.</span>
+        <span class="c"># Initialise the path with current node, i.e. position of food.</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">current</span><span class="p">]</span>
+        <span class="k">while</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="c"># Pop the latest node in seen</span>
+            <span class="n">next_</span> <span class="o">=</span> <span class="n">seen</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="c"># If that&#39;s adjacent to the current node</span>
+            <span class="c"># it&#39;s in the path</span>
+            <span class="k">if</span> <span class="n">next_</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">current</span><span class="p">]:</span>
+                <span class="c"># So add it to the path</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">next_</span><span class="p">)</span>
+                <span class="c"># And continue back-tracking from there</span>
+                <span class="n">current</span> <span class="o">=</span> <span class="n">next_</span>
+        <span class="c"># The last element is the current position, we don&#39;t need that in our</span>
+        <span class="c"># path, so don&#39;t include it.</span>
+        <span class="k">return</span> <span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="AdjacencyList.a_star"><a class="viewcode-back" href="../../pelita/pelita.graph.AdjacencyList.a_star.html#pelita.graph.AdjacencyList.a_star">[docs]</a>    <span class="k">def</span> <span class="nf">a_star</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; A* search.</span>
+
+<span class="sd">        A* (A Star) [1] from one position to another. The search will return the</span>
+<span class="sd">        shortest path from the `initial` position to the `target` using the</span>
+<span class="sd">        Manhattan distance as a heuristic.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        initial : tuple of (int, int)</span>
+<span class="sd">            the first position</span>
+<span class="sd">        target : tuple of (int, int)</span>
+<span class="sd">            the target position</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        path : lits of tuple of (int, int)</span>
+<span class="sd">            the path from `initial` to the closest `target`</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        NoPathException</span>
+<span class="sd">            if no path from `initial` to one of `targets`</span>
+<span class="sd">        NoPositionException</span>
+<span class="sd">            if either `initial` or `targets` does not exist</span>
+
+<span class="sd">        [1] http://en.wikipedia.org/wiki/A*_search_algorithm</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># First check that the arguments were valid.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_pos_exist</span><span class="p">([</span><span class="n">initial</span><span class="p">,</span> <span class="n">target</span><span class="p">])</span>
+        <span class="n">to_visit</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c"># Seen needs to be list since we use it for backtracking.</span>
+        <span class="c"># A set would make the lookup faster, but backtracking impossible.</span>
+        <span class="n">seen</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c"># Since it&#39;s A* we use a heap queue to ensure that we always</span>
+        <span class="c"># get the next node with to lowest manhattan distance to the</span>
+        <span class="c"># current node.</span>
+        <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">to_visit</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">initial</span><span class="p">)))</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">while</span> <span class="n">to_visit</span><span class="p">:</span>
+            <span class="n">man_dist</span><span class="p">,</span> <span class="n">current</span> <span class="o">=</span> <span class="n">heapq</span><span class="o">.</span><span class="n">heappop</span><span class="p">(</span><span class="n">to_visit</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">current</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="n">current</span> <span class="o">==</span> <span class="n">target</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">seen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">current</span><span class="p">]:</span>
+                    <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">to_visit</span><span class="p">,</span> <span class="p">(</span><span class="n">manhattan_dist</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">pos</span><span class="p">),</span> <span class="p">(</span><span class="n">pos</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NoPathException</span><span class="p">(</span><span class="s">&quot;BFS: No path from </span><span class="si">%r</span><span class="s"> to </span><span class="si">%r</span><span class="s">.&quot;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
+
+        <span class="c"># Now back-track using seen to determine how we got here.</span>
+        <span class="c"># Initialise the path with current node, i.e. position of food.</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">current</span><span class="p">]</span>
+        <span class="k">while</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="c"># Pop the latest node in seen</span>
+            <span class="n">next_</span> <span class="o">=</span> <span class="n">seen</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="c"># If that&#39;s adjacent to the current node</span>
+            <span class="c"># it&#39;s in the path</span>
+            <span class="k">if</span> <span class="n">next_</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">current</span><span class="p">]:</span>
+                <span class="c"># So add it to the path</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">next_</span><span class="p">)</span>
+                <span class="c"># And continue back-tracking from there</span>
+                <span class="n">current</span> <span class="o">=</span> <span class="n">next_</span>
+        <span class="c"># The last element is the current position, we don&#39;t need that in our</span>
+        <span class="c"># path, so don&#39;t include it.</span>
+        <span class="k">return</span> <span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Pelita</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=&repo=&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../running_player.html">Running Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user-api.html">User API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.2</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

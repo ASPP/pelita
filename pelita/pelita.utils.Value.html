@@ -1,23 +1,20 @@
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.utils.Value &mdash; Pelita v0.2.0-114-g1e33fc9 documentation</title>
+    <title>pelita.utils.Value &mdash; Pelita v0.2.0-178-g6b6e9f5 documentation</title>
     
-    <link rel="stylesheet" href="../_static/pelita.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootstrap-2.3.2/css/bootstrap.min.css" type="text/css" />
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/2.3.2/flatly/bootstrap.min.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootstrap-2.3.2/css/bootstrap-responsive.min.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-114-g1e33fc9',
+        VERSION:     'v0.2.0-178-g6b6e9f5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,108 +23,41 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/js/jquery-1.9.1.min.js"></script>
-    <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="../_static/bootstrap-2.3.2/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Pelita v0.2.0-114-g1e33fc9 documentation" href="../index.html" />
-    <link rel="up" title="pelita.utils" href="pelita.utils.html" />
-    <link rel="next" title="pelita.utils.Value.__init__" href="pelita.utils.Value.__init__.html" />
-    <link rel="prev" title="pelita.utils.ThreadInfoLogger.thread" href="pelita.utils.ThreadInfoLogger.thread.html" />
-<meta charset='utf-8'>
-<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
-<meta name="apple-mobile-web-app-capable" content="yes">
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Pelita v0.2.0-178-g6b6e9f5 documentation" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
-  
-  <a href="https://github.com/ASPP/pelita"
-     class="visible-desktop"><img
-    style="position: absolute; top: 56; right: 0; "
-    src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"
-    alt="Fork me on GitHub"></a>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Pelita v0.2.0-178-g6b6e9f5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
 
-
-  <div id="navbar" class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-      <div class="container">
-        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
-        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-
-        <a class="brand" href="../index.html">Pelita</a>
-        <span class="navbar-text pull-left"><b>v0.2.0-114-g1e33fc9</b></span>
-
-        <div class="nav-collapse">
-          <ul class="nav">
-            <li class="divider-vertical"></li>
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
             
-            
-              <li class="dropdown globaltoc-container">
-  <a href="../index.html"
-     class="dropdown-toggle"
-     data-toggle="dropdown">Site <b class="caret"></b></a>
-  <ul class="dropdown-menu globaltoc"
-    ><ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../info.html">Project Information</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../writing_player.html">Writing a Player</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../running_player.html">Running Players</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user-api.html">User API Reference</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a></li>
-</ul>
-</ul>
-</li>
-              <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
-  <ul class="dropdown-menu localtoc"><ul>
-<li><a class="reference internal" href="#">pelita.utils.Value</a><ul>
-</ul>
-</li>
-</ul>
-</ul>
-</li>
-            
-            
-              
-  <li><a href="pelita.utils.ThreadInfoLogger.thread.html"
-         title="Previous Chapter: pelita.utils.ThreadInfoLogger.thread">&laquo; pelita.utils.Thr...</a></li>
-  <li><a href="pelita.utils.Value.__init__.html"
-         title="Next Chapter: pelita.utils.Value.__init__">pelita.utils.Val... &raquo;</a></li>
-            
-            
-              <li>
-  <a href="../_sources/pelita/pelita.utils.Value.txt"
-     rel="nofollow">Source</a></li>
-            
-          </ul>
-
-          
-            
-<form class="navbar-search pull-right" action="../search.html" method="get">
-  <input type="text" name="q" class="search-query" placeholder="Search" />
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
-          
-        </div>
-      </div>
-    </div>
-  </div>
-
-<div class="container">
-  
   <div class="section" id="pelita-utils-value">
 <h1>pelita.utils.Value<a class="headerlink" href="#pelita-utils-value" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pelita.utils.Value">
-<em class="property">class </em><tt class="descclassname">pelita.utils.</tt><tt class="descname">Value</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#pelita.utils.Value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Simple wrapper around a value. All access must be done through get, put and do.</p>
+<em class="property">class </em><code class="descclassname">pelita.utils.</code><code class="descname">Value</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/utils/threading_helpers.html#Value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.utils.Value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple wrapper around a value. All access must be done through get, put and do.</p>
 <p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -135,18 +65,15 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.utils.Value.__init__.html#pelita.utils.Value.__init__" title="pelita.utils.Value.__init__"><tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt></a>(value)</td>
-<td></td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.utils.Value.do.html#pelita.utils.Value.do" title="pelita.utils.Value.do"><tt class="xref py py-obj docutils literal"><span class="pre">do</span></tt></a>(fun)</td>
-<td>Execute fun on the value.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.utils.Value.get.html#pelita.utils.Value.get" title="pelita.utils.Value.get"><tt class="xref py py-obj docutils literal"><span class="pre">get</span></tt></a>()</td>
-<td>Return the internal value.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.utils.Value.put.html#pelita.utils.Value.put" title="pelita.utils.Value.put"><tt class="xref py py-obj docutils literal"><span class="pre">put</span></tt></a>(value)</td>
-<td>Set the internal value to value.</td>
-</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
 </tbody>
 </table>
 </dd></dl>
@@ -154,19 +81,65 @@
 </div>
 
 
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Pelita</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=&repo=&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running_player.html">Running Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-api.html">User API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
-<footer class="footer">
-  <div class="container">
-    <p class="pull-right">
-      <a href="#">Back to top</a>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
-    </p>
-    <p>
-        &copy; Copyright 2011–2013, Valentin Haenel, Rike-Benjamin Schuppner et. al..<br/>
-      Last updated on Sep 09, 2013.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2b1.<br/>
-    </p>
-  </div>
-</footer>
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.2</a>
+      
+      |
+      <a href="../_sources/pelita/pelita.utils.Value.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
   </body>
 </html>

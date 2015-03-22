@@ -1,0 +1,420 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pelita.layout &mdash; Pelita v0.2.0-178-g6b6e9f5 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     'v0.2.0-178-g6b6e9f5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Pelita v0.2.0-178-g6b6e9f5 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pelita v0.2.0-178-g6b6e9f5 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pelita.layout</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot; Maze layout parsing. &quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">zlib</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">six</span>
+
+<span class="kn">from</span> <span class="nn">.containers</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">__layouts</span>
+
+<span class="n">__docformat__</span> <span class="o">=</span> <span class="s">&quot;restructuredtext&quot;</span>
+
+
+<div class="viewcode-block" id="LayoutEncodingException"><a class="viewcode-back" href="../../pelita/pelita.layout.LayoutEncodingException.html#pelita.layout.LayoutEncodingException">[docs]</a><span class="k">class</span> <span class="nc">LayoutEncodingException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Signifies a problem with the encoding of a layout. &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="load_layout"><a class="viewcode-back" href="../../pelita/pelita.layout.load_layout.html#pelita.layout.load_layout">[docs]</a><span class="k">def</span> <span class="nf">load_layout</span><span class="p">(</span><span class="n">layout_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">layout_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Returns the layout_name and layout_string for a given parameter.</span>
+
+<span class="sd">    The Parameters &#39;layout_name&#39; and &#39;layout_file&#39; are mutually exclusive.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    layout_name : string, optional</span>
+<span class="sd">        The name of an available layout</span>
+<span class="sd">    layout_file : filename, optional</span>
+<span class="sd">        A file which holds a layout</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    layout : tuple(str, str)</span>
+<span class="sd">        the name of the layout, a random layout string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">layout_name</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">layout_file</span><span class="p">:</span>
+        <span class="n">layout_name</span> <span class="o">=</span> <span class="n">layout_name</span>
+        <span class="n">layout_string</span> <span class="o">=</span> <span class="n">get_layout_by_name</span><span class="p">(</span><span class="n">layout_name</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">layout_file</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">layout_name</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">layout_file</span><span class="p">)</span> <span class="k">as</span> <span class="nb">file</span><span class="p">:</span>
+            <span class="n">layout_name</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">layout_string</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span>  <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Can only supply one of: &#39;layout_name&#39; or &#39;layout_file&#39;&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">layout_name</span><span class="p">,</span> <span class="n">layout_string</span>
+</div>
+<div class="viewcode-block" id="get_random_layout"><a class="viewcode-back" href="../../pelita/pelita.layout.get_random_layout.html#pelita.layout.get_random_layout">[docs]</a><span class="k">def</span> <span class="nf">get_random_layout</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Return a random layout string from the available ones.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filter : str</span>
+<span class="sd">        only return layouts which contain &quot;filter&quot; in their name.</span>
+<span class="sd">        Default is no filter.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    layout : tuple(str, str)</span>
+<span class="sd">        the name of the layout, a random layout string</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    To only get layouts without dead ends you may use:</span>
+
+<span class="sd">        &gt;&gt;&gt; get_random_layout(filter=&#39;without_dead_ends&#39;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">layouts_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">get_available_layouts</span><span class="p">()</span> <span class="k">if</span> <span class="nb">filter</span> <span class="ow">in</span> <span class="n">item</span><span class="p">]</span>
+    <span class="n">layout_choice</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">layouts_names</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">layout_choice</span><span class="p">,</span> <span class="n">get_layout_by_name</span><span class="p">(</span><span class="n">layout_choice</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="get_available_layouts"><a class="viewcode-back" href="../../pelita/pelita.layout.get_available_layouts.html#pelita.layout.get_available_layouts">[docs]</a><span class="k">def</span> <span class="nf">get_available_layouts</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The names of the available layouts.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filter : str</span>
+<span class="sd">        only return layouts which contain &#39;filter&#39; in their name.</span>
+<span class="sd">        Default is no filter.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    layout_names : list of str</span>
+<span class="sd">        the available layouts</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    To only get layouts without dead ends you may use:</span>
+
+<span class="sd">        &gt;&gt;&gt; get_available_layouts(filter=&#39;without_dead_ends&#39;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># loop in layouts dictionary and look for layout strings</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">__layouts</span><span class="p">)</span> <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;layout_&#39;</span><span class="p">)</span> <span class="ow">and</span>
+            <span class="nb">filter</span> <span class="ow">in</span> <span class="n">item</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="get_layout_by_name"><a class="viewcode-back" href="../../pelita/pelita.layout.get_layout_by_name.html#pelita.layout.get_layout_by_name">[docs]</a><span class="k">def</span> <span class="nf">get_layout_by_name</span><span class="p">(</span><span class="n">layout_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Get a layout.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    layout_name : str</span>
+<span class="sd">        a valid layout name</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    layout_str : str</span>
+<span class="sd">        the layout as a string</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    KeyError</span>
+<span class="sd">        if the layout_name is not known</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    get_available_layouts</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># decode and return this layout</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">six</span><span class="o">.</span><span class="n">PY2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">__layouts</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">layout_name</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;base64&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;zlib&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">zlib</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">base64</span><span class="o">.</span><span class="n">decodebytes</span><span class="p">(</span><span class="n">__layouts</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">layout_name</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">()))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">ke</span><span class="p">:</span>
+        <span class="c"># This happens if layout_name is not a valid key in the __dict__.</span>
+        <span class="c"># I.e. if the layout_name is not available.</span>
+        <span class="c"># The error message would be to terse &quot;KeyError: &#39;non_existing_layout&#39;&quot;,</span>
+        <span class="c"># thus reraise as ValueError with appropriate error message.</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Layout: &#39;</span><span class="si">%s</span><span class="s">&#39; is not known.&quot;</span> <span class="o">%</span> <span class="n">ke</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Layout"><a class="viewcode-back" href="../../pelita/pelita.layout.Layout.html#pelita.layout.Layout">[docs]</a><span class="k">class</span> <span class="nc">Layout</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Auxiliary class to parse string encodings of mazes.</span>
+
+<span class="sd">    Basically a parser for string encoded maze representations. This class can</span>
+<span class="sd">    strip such strings, determine the maze shape, check their validity based on</span>
+<span class="sd">    set of legal encoding characters and covert to a `Mesh`.</span>
+
+<span class="sd">    When initialised through the constructor we first strip leading and trailing</span>
+<span class="sd">    whitespace (mainly space and newline chars). Then we perform several check</span>
+<span class="sd">    on the data to see if it is rectangular, if it contains the correct number of</span>
+<span class="sd">    bot_positions and if it is composed of legal characters only. Lastly you can</span>
+<span class="sd">    use `as_mesh()` to convert the layout into a Mesh of characters.</span>
+
+<span class="sd">    The class provides much of its functionality via staticmethods so that reuse</span>
+<span class="sd">    of these code-parts is easy if needed. Also you can subclass it in case you</span>
+<span class="sd">    need additional checks for example for mazes that need to be not only</span>
+<span class="sd">    rectangular, but also square.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    layout_str : str</span>
+<span class="sd">        the layout to work on</span>
+<span class="sd">    layout_chars : list of str</span>
+<span class="sd">        the list of legal characters</span>
+<span class="sd">    number_bots : int</span>
+<span class="sd">        the number of bots to look for</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    layout_chars : list of str</span>
+<span class="sd">        the list of legal characters to use</span>
+<span class="sd">    stripped : str</span>
+<span class="sd">        the whitespace stripped version</span>
+<span class="sd">    shape : tuple of two ints</span>
+<span class="sd">        height and width of the layout</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Layout.__init__"><a class="viewcode-back" href="../../pelita/pelita.layout.Layout.__init__.html#pelita.layout.Layout.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout_str</span><span class="p">,</span> <span class="n">layout_chars</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_bots</span> <span class="o">=</span> <span class="n">number_bots</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout_chars</span> <span class="o">=</span> <span class="n">layout_chars</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stripped</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strip_layout</span><span class="p">(</span><span class="n">layout_str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_layout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stripped</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout_chars</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_bots</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout_shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stripped</span><span class="p">)</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Layout.strip_layout"><a class="viewcode-back" href="../../pelita/pelita.layout.Layout.strip_layout.html#pelita.layout.Layout.strip_layout">[docs]</a>    <span class="k">def</span> <span class="nf">strip_layout</span><span class="p">(</span><span class="n">layout_str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Remove leading and trailing whitespace from a string encoded layout.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layout_str : str</span>
+<span class="sd">            the layout, possibly with whitespace</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        layout_str : str</span>
+<span class="sd">            the layout with whitespace removed</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">layout_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)])</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Layout.check_layout"><a class="viewcode-back" href="../../pelita/pelita.layout.Layout.check_layout.html#pelita.layout.Layout.check_layout">[docs]</a>    <span class="k">def</span> <span class="nf">check_layout</span><span class="p">(</span><span class="n">layout_str</span><span class="p">,</span> <span class="n">layout_chars</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Check the legality of the layout string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layout_str : str</span>
+<span class="sd">            the layout string</span>
+<span class="sd">        number_bots : int</span>
+<span class="sd">            the total number of bots that should be present</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        LayoutEncodingException</span>
+<span class="sd">            if an illegal character is encountered</span>
+<span class="sd">        LayoutEncodingException</span>
+<span class="sd">            if a bot-id is missing</span>
+<span class="sd">        LayoutEncodingException</span>
+<span class="sd">            if a bot-id is specified twice</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bot_ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_bots</span><span class="p">)]</span>
+        <span class="n">existing_bots</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">legal</span> <span class="o">=</span> <span class="n">layout_chars</span> <span class="o">+</span> <span class="n">bot_ids</span> <span class="o">+</span> <span class="p">[</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">layout_str</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">legal</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">LayoutEncodingException</span><span class="p">(</span>
+                    <span class="s">&quot;Char: &#39;</span><span class="si">%c</span><span class="s">&#39; is not a legal layout character&quot;</span> <span class="o">%</span> <span class="n">c</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">bot_ids</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">existing_bots</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">LayoutEncodingException</span><span class="p">(</span>
+                        <span class="s">&quot;Bot-ID: &#39;</span><span class="si">%c</span><span class="s">&#39; was specified twice&quot;</span> <span class="o">%</span> <span class="n">c</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">existing_bots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+        <span class="n">existing_bots</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">bot_ids</span> <span class="o">!=</span> <span class="n">existing_bots</span><span class="p">:</span>
+            <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">bot_ids</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">existing_bots</span><span class="p">))]</span>
+            <span class="n">missing</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">LayoutEncodingException</span><span class="p">(</span>
+                <span class="s">&#39;Layout is invalid for </span><span class="si">%i</span><span class="s"> bots, The following IDs were missing: </span><span class="si">%s</span><span class="s"> &#39;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">number_bots</span><span class="p">,</span> <span class="n">missing</span><span class="p">))</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">layout_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="n">LayoutEncodingException</span><span class="p">(</span>
+                    <span class="s">&#39;The layout must be rectangular, &#39;</span> <span class="o">+</span>\
+                    <span class="s">&#39;line </span><span class="si">%i</span><span class="s"> has length </span><span class="si">%i</span><span class="s"> instead of </span><span class="si">%i</span><span class="s">&#39;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Layout.layout_shape"><a class="viewcode-back" href="../../pelita/pelita.layout.Layout.layout_shape.html#pelita.layout.Layout.layout_shape">[docs]</a>    <span class="k">def</span> <span class="nf">layout_shape</span><span class="p">(</span><span class="n">layout_str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Determine shape of layout.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layout_str : str</span>
+<span class="sd">            a checked and stripped layout string</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        width : int</span>
+<span class="sd">        height : int</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">layout_str</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">layout_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)))</span>
+</div>
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">__dict__</span>
+
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stripped</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s">&quot;Layout(</span><span class="si">%r</span><span class="s">, </span><span class="si">%s</span><span class="s">, </span><span class="si">%i</span><span class="s">)&quot;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stripped</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout_chars</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_bots</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Layout.as_mesh"><a class="viewcode-back" href="../../pelita/pelita.layout.Layout.as_mesh.html#pelita.layout.Layout.as_mesh">[docs]</a>    <span class="k">def</span> <span class="nf">as_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Convert to a Mesh.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        mesh : Mesh</span>
+<span class="sd">            this layout as a Mesh</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">Mesh</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">mesh</span><span class="o">.</span><span class="n">_set_data</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stripped</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">))))</span>
+        <span class="k">return</span> <span class="n">mesh</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Layout.from_file"><a class="viewcode-back" href="../../pelita/pelita.layout.Layout.from_file.html#pelita.layout.Layout.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">layout_chars</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Loads a layout from file `filename`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            the file with the saved layout</span>
+<span class="sd">        layout_chars : list of str</span>
+<span class="sd">            the list of legal characters</span>
+<span class="sd">        number_bots : int</span>
+<span class="sd">            the number of bots to look for</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="nb">file</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">layout_chars</span><span class="o">=</span><span class="n">layout_chars</span><span class="p">,</span> <span class="n">number_bots</span><span class="o">=</span><span class="n">number_bots</span><span class="p">)</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Pelita</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=&repo=&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../running_player.html">Running Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user-api.html">User API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.2</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

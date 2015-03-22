@@ -1,6 +1,0 @@
-pelita.containers.Mesh.iterkeys
-===============================
-
-.. currentmodule:: pelita.containers
-
-.. automethod:: Mesh.iterkeys
