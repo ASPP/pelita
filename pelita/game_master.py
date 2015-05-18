@@ -278,11 +278,11 @@ class GameMaster(object):
             raise GameFinished()
 
         for bot in self.universe.bots:
-            start_time = time.time()
+            start_time = time.monotonic() if six.PY3 else time.time()
 
             self._play_bot(bot)
 
-            end_time = time.time()
+            end_time = time.monotonic() if six.PY3 else time.time()
             self.game_state["running_time"] += (end_time - start_time)
 
             if self.check_finished():
@@ -316,7 +316,7 @@ class GameMaster(object):
             else:
                 universe = self.universe
 
-            team_time_begin = time.time()
+            team_time_begin = time.monotonic() if six.PY3 else time.time()
 
             player_state = player_team.get_move(bot.index, universe, self.game_state)
             try:
@@ -329,7 +329,8 @@ class GameMaster(object):
 
             self.game_state["bot_talk"][bot.index] = bot_talk
 
-            team_time_needed = time.time() - team_time_begin
+            team_time_end = time.monotonic() if six.PY3 else time.time()
+            team_time_needed = team_time_end - team_time_begin
             self.game_state["team_time"][bot.team_index] += team_time_needed
 
             move_state = self.universe.move_bot(bot.index, move)
