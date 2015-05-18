@@ -152,7 +152,7 @@ class AbstractPlayer(object):
 
         """
         #: Used for the `time_spent` method.
-        self.__time_in_get_move = time.time()
+        self.__time_in_get_move = time.monotonic() if six.PY3 else time.time()
         self._current_state = game_state
         self._store_universe(universe)
         self._say = ""
@@ -364,7 +364,8 @@ class AbstractPlayer(object):
             time in seconds
         """
         try:
-            return time.time() - self.__time_in_get_move
+            current_time = time.monotonic() if six.PY3 else time.time()
+            return current_time - self.__time_in_get_move
         except AttributeError:
             return None
 
