@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head><meta content="text/html; charset=UTF-8" http-equiv="content-type" /><title>Pelita</title>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+    <script type="text/javascript" src="http://coffeescript.org/extras/coffee-script.js"></script>
+    <script type="text/coffeescript" src="pelita-canvas.coffee"></script>
+  </head>
+  <body>
+    <div id="main">
+
+      <article class="match">
+        <header>
+          <h3><i class="match-state"></i><span class="teamA">Team A</span> <span>:</span> <span class="teamB">Team B</span></h3>
+          <h4><span class="scoreA">Score A</span> <span>:</span> <span class="scoreB">Score B</span></h4>
+        </header>
+        <canvas class="live-canvas"></canvas>
+      </article>
+
+      <script type="text/javascript">
+          var loc = window.location, ws_uri;
+          ws_uri = (loc.protocol === "https:") ? "wss:" : "ws:";
+          ws_uri += "//" + loc.host;
+          ws_uri += "/ws-echo";
+
+          var ws = new WebSocket(ws_uri);
+          ws.onmessage = function(event) {
+            data = JSON.parse(event.data);
+
+            walls = data.walls;
+            food = data.food;
+            state = data.state;
+            teams = data.teams;
+
+            createMaze($(".live-canvas"), data.width, data.height, walls, data.bots);
+          };
+
+        var ws_status = $("#ws_status");
+        ws.onerror = function(event) {
+          ws_status.addClass("label-warning");
+          ws_status.removeClass("label-success");
+          ws_status.text("Websocket error");
+        };
+
+        ws.onopen = function(event) {
+          ws_status.addClass("label-success");
+          ws_status.removeClass("label-warning");
+          ws_status.text("Connected to " + ws_uri);
+        };
+
+        ws.onclose = function(event) {
+          ws_status.removeClass("label-success");
+          ws_status.removeClass("label-warning");
+          ws_status.text("Connection closed");
+        };
+      </script>
+    </div>
+  </body>
+</html>
