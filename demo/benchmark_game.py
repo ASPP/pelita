@@ -42,13 +42,17 @@ LAYOUT="""
 ##################################
 """
 
-if __name__ == '__main__':
-    import time
-    start = time.time()
+def run_game():
     layout = LAYOUT
     gm = GameMaster(layout, 4, 10)
     gm.register_team(SimpleTeam(StoppingPlayer(), StoppingPlayer()))
     gm.register_team(SimpleTeam(StoppingPlayer(), StoppingPlayer()))
-    #gm.register_viewer(AsciiViewer())
+    # gm.register_viewer(AsciiViewer())
     gm.play()
-    print(len(LAYOUT), time.time() - start)
+
+if __name__ == '__main__':
+    import timeit
+    REPEAT = 5
+    NUMBER = 10
+    result = min(timeit.repeat(run_game, repeat=REPEAT, number=NUMBER))
+    print("Fastest out of {}: {}".format(REPEAT, result))
