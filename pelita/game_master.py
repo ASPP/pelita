@@ -104,6 +104,9 @@ class GameMaster(object):
             #: true if finished
             "finished": False,
 
+            #: [team_name_0, team_name_1]
+            "team_name": [""] * len(self.universe.teams),
+
             #: [running_time_team_0, running_time_team_1]
             "team_time": [0] * len(self.universe.teams),
 
@@ -170,9 +173,9 @@ class GameMaster(object):
 
         # set the name in the universe
         if team_name:
-            self.universe.teams[team_idx].name = team_name
+            self.game_state["team_name"][team_idx] = team_name
         elif team.team_name:
-            self.universe.teams[team_idx].name = team.team_name
+            self.game_state["team_name"][team_idx] = team.team_name
 
     def register_viewer(self, viewer):
         """ Register a viewer to display the game state as it progresses.

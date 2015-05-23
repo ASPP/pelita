@@ -271,7 +271,7 @@ class UiCanvas(object):
 
             winning_team_idx = game_state.get("team_wins")
             if winning_team_idx is not None:
-                team_name = universe.teams[winning_team_idx].name
+                team_name = game_state["team_name"][winning_team_idx]
                 self.game_finish_overlay = lambda: self.draw_game_over(team_name)
 
             if game_state.get("game_draw"):
@@ -349,6 +349,9 @@ class UiCanvas(object):
 
     def draw_title(self, universe, game_state):
         self.score.delete("title")
+        if not game_state:
+            return
+
         center = self.mesh_graph.screen_width // 2
 
         try:
@@ -356,8 +359,8 @@ class UiCanvas(object):
         except (KeyError, TypeError):
             team_time = [0, 0]
 
-        left_team = "(%.2f) %s %d " % (team_time[0], universe.teams[0].name, universe.teams[0].score)
-        right_team = " %d %s (%.2f)" % (universe.teams[1].score, universe.teams[1].name, team_time[1])
+        left_team = "(%.2f) %s %d " % (team_time[0], game_state["team_name"][0], universe.teams[0].score)
+        right_team = " %d %s (%.2f)" % (universe.teams[1].score, game_state["team_name"][1], team_time[1])
         font_size = guess_size(left_team+':'+right_team,
                                self.mesh_graph.screen_width,
                                30,

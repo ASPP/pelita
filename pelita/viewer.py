@@ -59,7 +59,7 @@ class AsciiViewer(AbstractViewer):
         winning_team_idx = game_state.get("team_wins")
         if winning_team_idx is not None:
             print(("Game Over: Team: '%s' wins!" %
-                universe.teams[winning_team_idx].name))
+                game_state["team_name"][winning_team_idx]))
 
 class DumpingViewer(AbstractViewer):
     """ A viewer which dumps to a given stream.

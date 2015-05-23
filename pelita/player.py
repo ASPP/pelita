@@ -54,17 +54,17 @@ class SimpleTeam(object):
         # only iterate about those player which are in bot_players
         # we might have defined more players than we have received
         # indexes for.
-        team = universe.teams[team_id]
+        team_bots = universe.team_bots(team_id)
 
-        if len(team.bots) > len(self._players):
-            raise ValueError("Tried to set %d bot_ids with only %d Players." % (len(team.bots), len(self._players)))
+        if len(team_bots) > len(self._players):
+            raise ValueError("Tried to set %d bot_ids with only %d Players." % (len(team_bots), len(self._players)))
 
-        for bot_id, player in zip(team.bots, self._players):
+        for bot, player in zip(team_bots, self._players):
             # tell the player its index
-            player._set_index(bot_id)
+            player._set_index(bot.index)
             # tell the player about the initial universe
             player._set_initial(universe, game_state)
-            self._bot_players[bot_id] = player
+            self._bot_players[bot.index] = player
 
     def get_move(self, bot_id, universe, game_state):
         """ Requests a move from the Player who controls the Bot with id `bot_id`.

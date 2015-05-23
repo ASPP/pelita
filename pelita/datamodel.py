@@ -25,38 +25,16 @@ class Team(object):
     ----------
     index : int
         the index of the team within the Universe
-    name : str
-        the name of the team
     zone : tuple of int (x_min, x_max)
         the homezone of this team
     score : int, optional, default = 0
         the score of this team
-    bots : list of int, optional, default = None (creates an empty list)
-        the bot indices that belong to this team
 
     """
-    def __init__(self, index, name, zone, score=0, bots=None):
+    def __init__(self, index, zone, score=0):
         self.index = index
-        self.name = name
         self.zone = zone
         self.score = score
-        # we can't use a keyword argument here, because that would create a
-        # single list object for all our Teams.
-        if bots is None:
-            self.bots = []
-        else:
-            self.bots = bots
-
-    def _add_bot(self, bot):
-        """ Add a bot to this team.
-
-        Parameters
-        ----------
-        bot : int
-            the index of the bot to add
-
-        """
-        self.bots.append(bot)
 
     def in_zone(self, position):
         """ Check if a position is within the zone of this team.
@@ -82,12 +60,9 @@ class Team(object):
         """ Score several points. """
         self.score += points
 
-    def __str__(self):
-        return self.name
-
     def __repr__(self):
-        return ('Team(%i, %r, %s, score=%i, bots=%r)' %
-                (self.index, self.name, self.zone, self.score, self.bots))
+        return ('Team(%i, %s, score=%i)' %
+                (self.index, self.zone, self.score))
 
     def __eq__(self, other):
         return type(self) == type(other) and self.__dict__ == other.__dict__
@@ -97,10 +72,8 @@ class Team(object):
 
     def _to_json_dict(self):
         return {"index": self.index,
-                "name": self.name,
                 "zone": self.zone,
-                "score": self.score,
-                "bots": self.bots}
+                "score": self.score}
 
     @classmethod
     def _from_json_dict(cls, item):
@@ -379,7 +352,7 @@ class CTFUniverse(object):
     """
 
     @classmethod
-    def create(cls, layout_str, number_bots, team_names=None):
+    def create(cls, layout_str, number_bots):
         """ Factory to create a 2-Player Capture The Flag Universe.
 
         Parameters
@@ -388,9 +361,6 @@ class CTFUniverse(object):
             the string encoding the maze layout
         number_bots : int
             the number of bots in the game
-        team_names : length 2 list of strings, optional
-            default = None -> ['black', 'white']
-            the names of the playing teams
 
         Raises
         ------
@@ -400,9 +370,6 @@ class CTFUniverse(object):
             if there is something wrong with the layout_str, see `Layout()`
 
         """
-        if team_names is None:
-            team_names = ["black", "white"]
-
         layout_chars = maze_components
 
         if number_bots % 2 != 0:
@@ -421,10 +388,8 @@ class CTFUniverse(object):
                 (maze.width // 2, maze.width - 1)]
 
         teams = []
-        teams.append(Team(0, team_names[0], homezones[0], bots=list(range(0,
-            number_bots, 2))))
-        teams.append(Team(1, team_names[1], homezones[1], bots=list(range(1,
-            number_bots, 2))))
+        teams.append(Team(0, homezones[0]))
+        teams.append(Team(1, homezones[1]))
 
         bots = []
         for bot_index in range(number_bots):
@@ -508,8 +473,9 @@ class CTFUniverse(object):
             the other bots on the team, excluding the desired bot
 
         """
-        team = self.teams[self.bots[bot_index].team_index]
-        return [self.bots[i] for i in team.bots if i != bot_index]
+        team_index = self.bots[bot_index].team_index
+        return [bot for bot in self.team_bots(team_index)
+                if not bot.index == bot_index]
 
     def team_bots(self, team_index):
         """ Obtain all Bot objects in a Team.
@@ -524,7 +490,8 @@ class CTFUniverse(object):
         team_bots : list of Bot objects
 
         """
-        return [self.bots[i] for i in self.teams[team_index].bots]
+        return [bot for bot in self.bots
+                if bot.team_index == team_index]
 
     def enemy_bots(self, team_index):
         """ Obtain enemy bot objects.
@@ -539,7 +506,8 @@ class CTFUniverse(object):
         enemy_bots : list of Bot objects
 
         """
-        return [self.bots[i] for i in self.enemy_team(team_index).bots]
+        return [bot for bot in self.bots
+                if not bot.team_index == team_index]
 
     def enemy_team(self, team_index):
         """ Obtain the enemy team.
@@ -779,8 +747,8 @@ class CTFUniverse(object):
         for team in self.teams:
             out += repr(team)
             out += '\n'
-            for i in team.bots:
-                out += '\t' + repr(self.bots[i])
+            for bot in self.team_bots(team.index):
+                out += '\t' + repr(bot)
                 out += '\n'
         return out
 

@@ -42,19 +42,19 @@ class TestGameMaster(unittest.TestCase):
         game_master.register_team(team_2, team_name="team2")
 
         game_master.set_initial()
-        self.assertEqual(game_master.universe.teams[0].name, "team1")
-        self.assertEqual(game_master.universe.teams[1].name, "team2")
+        self.assertEqual(game_master.game_state["team_name"][0], "team1")
+        self.assertEqual(game_master.game_state["team_name"][1], "team2")
 
         # check that all players know it, before the game started
-        self.assertEqual(team_1._players[0].current_uni.teams[0].name, "team1")
-        self.assertEqual(team_1._players[0].current_uni.teams[1].name, "team2")
-        self.assertEqual(team_1._players[1].current_uni.teams[0].name, "team1")
-        self.assertEqual(team_1._players[1].current_uni.teams[1].name, "team2")
+        self.assertEqual(team_1._players[0].current_state["team_name"][0], "team1")
+        self.assertEqual(team_1._players[0].current_state["team_name"][1], "team2")
+        self.assertEqual(team_1._players[1].current_state["team_name"][0], "team1")
+        self.assertEqual(team_1._players[1].current_state["team_name"][1], "team2")
 
-        self.assertEqual(team_2._players[0].current_uni.teams[0].name, "team1")
-        self.assertEqual(team_2._players[0].current_uni.teams[1].name, "team2")
-        self.assertEqual(team_2._players[1].current_uni.teams[0].name, "team1")
-        self.assertEqual(team_2._players[1].current_uni.teams[1].name, "team2")
+        self.assertEqual(team_2._players[0].current_state["team_name"][0], "team1")
+        self.assertEqual(team_2._players[0].current_state["team_name"][1], "team2")
+        self.assertEqual(team_2._players[1].current_state["team_name"][0], "team1")
+        self.assertEqual(team_2._players[1].current_state["team_name"][1], "team2")
 
     def test_team_names_in_simpleteam(self):
         test_layout = (
@@ -73,9 +73,8 @@ class TestGameMaster(unittest.TestCase):
         game_master.register_team(team_2)
         game_master.set_initial()
 
-        self.assertEqual(game_master.universe.teams[0].name, "team1")
-        self.assertEqual(game_master.universe.teams[1].name,
-                         "team2")
+        self.assertEqual(game_master.game_state["team_name"][0], "team1")
+        self.assertEqual(game_master.game_state["team_name"][1], "team2")
 
 
     def test_too_few_registered_teams(self):

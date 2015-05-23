@@ -76,9 +76,11 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
         winning_team = game_state.get("team_wins")
         if winning_team is not None:
             winner = universe.teams[winning_team]
+            winner_name = game_state["team_name"][winner.index]
             loser = universe.enemy_team(winning_team)
+            loser_name = game_state["team_name"][loser.index]
             msg = "Finished. '%s' won over '%s'. (%r:%r)" % (
-                    winner.name, loser.name,
+                    winner_name, loser_name,
                     winner.score, loser.score
                 )
             if self.parseable_output:
@@ -86,9 +88,11 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
             sys.stdout.flush()
         elif game_state.get("game_draw") is not None:
             t0 = universe.teams[0]
+            t0_name = game_state["team_name"][t0.index]
             t1 = universe.teams[1]
+            t1_name = game_state["team_name"][t1.index]
             msg = "Finished. '%s' and '%s' had a draw. (%r:%r)" % (
-                    t0.name, t1.name,
+                    t0_name, t1_name,
                     t0.score, t1.score
                 )
             if self.parseable_output:

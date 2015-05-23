@@ -131,29 +131,21 @@ class TestBot(unittest.TestCase):
 class TestTeam(unittest.TestCase):
 
     def test_init(self):
-        team_black = Team(0, 'black', (0, 2))
-        team_white = Team(1, 'white', (3, 6), score=5, bots=[1, 3, 5])
+        team_black = Team(0, (0, 2))
+        team_white = Team(1, (3, 6), score=5)
 
         self.assertEqual(team_black.index, 0)
-        self.assertEqual(team_black.name, 'black')
         self.assertEqual(team_black.score, 0)
         self.assertEqual(team_black.zone, (0, 2))
-        self.assertEqual(team_black.bots, [])
 
         self.assertEqual(team_white.index, 1)
-        self.assertEqual(team_white.name, 'white')
         self.assertEqual(team_white.score, 5)
         self.assertEqual(team_white.zone, (3, 6))
-        self.assertEqual(team_white.bots, [1, 3, 5])
 
     def test_methods(self):
-        team_black = Team(0, 'black', (0, 2))
-        team_white = Team(1, 'white', (3, 6), score=5, bots=[1, 3, 5])
+        team_black = Team(0, (0, 2))
+        team_white = Team(1, (3, 6), score=5)
 
-        team_black._add_bot(0)
-        self.assertEqual(team_black.bots, [0])
-        team_white._add_bot(7)
-        self.assertEqual(team_white.bots, [1, 3, 5, 7])
         self.assertTrue(team_black.in_zone((1, 5)))
         self.assertFalse(team_black.in_zone((5, 1)))
         self.assertTrue(team_white.in_zone((5, 1)))
@@ -164,38 +156,34 @@ class TestTeam(unittest.TestCase):
         self.assertEqual(team_white.score, 6)
 
     def test_str_repr_eq(self):
-        team_black = Team(0, 'black', (0, 2))
-        team_white = Team(1, 'white', (3, 6), score=5, bots=[1, 3, 5])
-        team_black2 = Team(0, 'black', (0, 2))
+        team_black = Team(0, (0, 2))
+        team_white = Team(1, (3, 6), score=5)
+        team_black2 = Team(0, (0, 2))
         self.assertEqual(team_black, team_black)
         self.assertEqual(team_black, team_black2)
         self.assertNotEqual(team_black, team_white)
-        self.assertEqual(team_black.__str__(), 'black')
-        self.assertEqual(team_white.__str__(), 'white')
+        self.assertEqual(team_black.__str__(), "Team(0, (0, 2), score=0)")
+        self.assertEqual(team_white.__str__(), "Team(1, (3, 6), score=5)")
         team_black3 = eval(repr(team_black))
         self.assertEqual(team_black, team_black3)
         team_white2 = eval(repr(team_white))
         self.assertEqual(team_white, team_white2)
 
     def test_json_serialization(self):
-        team_black = Team(0, 'black', (0, 2))
-        team_white = Team(1, 'white', (3, 6), score=5, bots=[1, 3, 5])
+        team_black = Team(0, (0, 2))
+        team_white = Team(1, (3, 6), score=5)
 
         team_black_json = json_converter.dumps(team_black)
         team_white_json = json_converter.dumps(team_white)
 
         team_black_json_target = {"__id__": "pelita.datamodel.Team",
                                   "__value__": {"index": 0,
-                                                "bots": [],
                                                 "score": 0,
-                                                "name": "black",
                                                 "zone": [0, 2]}}
 
         team_white_json_target = {"__id__": "pelita.datamodel.Team",
                                   "__value__": {"index": 1,
-                                                "bots": [1, 3, 5],
                                                 "score": 5,
-                                                "name": "white",
                                                 "zone": [3, 6]}}
 
         self.assertEqual(json.loads(team_black_json), team_black_json_target)
@@ -384,10 +372,6 @@ class TestCTFUniverse(unittest.TestCase):
                 #### """)
         self.assertRaises(UniverseException, CTFUniverse.create, odd_bots, 3)
 
-        universe = CTFUniverse.create(test_layout3, 4, team_names=['orange', 'purple'])
-        self.assertEqual(universe.teams[0].name, 'orange')
-        self.assertEqual(universe.teams[1].name, 'purple')
-
     def test_neighbourhood(self):
         test_layout = (
             """ ######
@@ -493,10 +477,10 @@ class TestCTFUniverse(unittest.TestCase):
             "#1#####    #####2#\n"
             "#     . #  .  .#3#\n"
             "##################\n"
-            "Team(0, 'black', (0, 8), score=0, bots=[0, 2])\n"
+            "Team(0, (0, 8), score=0)\n"
             "\tBot(0, (1, 1), 0, (0, 8) , current_pos=(1, 1), noisy=False)\n"
             "\tBot(2, (16, 2), 0, (0, 8) , current_pos=(16, 2), noisy=False)\n"
-            "Team(1, 'white', (9, 17), score=0, bots=[1, 3])\n"
+            "Team(1, (9, 17), score=0)\n"
             "\tBot(1, (1, 2), 1, (9, 17) , current_pos=(1, 2), noisy=False)\n"
             "\tBot(3, (16, 3), 1, (9, 17) , current_pos=(16, 3), noisy=False)\n")
         self.assertEqual(pretty_target, universe.pretty)
@@ -510,8 +494,8 @@ class TestCTFUniverse(unittest.TestCase):
                 ###### """)
         universe = CTFUniverse.create(test_layout4, 4)
 
-        team_black = Team(0, 'black', (0, 2), bots=[0, 2])
-        team_white = Team(1, 'white', (3, 5), bots=[1, 3])
+        team_black = Team(0, (0, 2))
+        team_white = Team(1, (3, 5))
 
         self.assertEqual(universe.teams[0], team_black)
         self.assertEqual(universe.teams[1], team_white)

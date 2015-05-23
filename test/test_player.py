@@ -441,30 +441,16 @@ class TestSimpleTeam(unittest.TestCase):
         self.assertEqual(team4.team_name, "")
         self.assertEqual(len(team4._players), 2)
 
-    def test_bot_ids(self):
+    def test_too_few_players(self):
         layout = (
-            """ ####
-                #01#
-                #### """
+            """ ######
+                #0123#
+                ###### """
         )
-        dummy_universe = CTFUniverse.create(layout, 2)
-        team1 = SimpleTeam(TestPlayer('^'), TestPlayer('>'))
+        dummy_universe = CTFUniverse.create(layout, 4)
+        team1 = SimpleTeam(TestPlayer('^'))
 
-        dummy_universe.teams[0].bots = [1, 5, 10]
         self.assertRaises(ValueError, team1.set_initial, 0, dummy_universe, {})
-
-        dummy_universe.teams[0].bots = [1, 5]
-        team1.set_initial(0, dummy_universe, {})
-        self.assertEqual(team1.get_move(1, dummy_universe, {}), {"move": north, "say": ""})
-        self.assertEqual(team1.get_move(5, dummy_universe, {}), {"move": east, "say": ""})
-        self.assertRaises(KeyError, team1.get_move, 6, dummy_universe, {})
-
-        team2 = SimpleTeam(TestPlayer('^'), TestPlayer('>'))
-
-        team2.set_initial(1, dummy_universe, {})
-        self.assertEqual(team2.get_move(1, dummy_universe, {}), {"move": north, "say": ""})
-        self.assertRaises(KeyError, team2.get_move, 0, dummy_universe, {})
-        self.assertRaises(KeyError, team2.get_move, 2, dummy_universe, {})
 
 class TestAbstracts(unittest.TestCase):
     class BrokenPlayer(AbstractPlayer):
