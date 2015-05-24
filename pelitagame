@@ -611,7 +611,6 @@ def run_game():
         server.game_master.register_viewer(ResultPrinter(args.parseable_output))
 
         if args.viewer == 'tk' or args.external_controller:
-            server.register_teams()
             controller = pelita.simplesetup.SimpleController(server.game_master, args.controller)
             print("Controller listening on %s" % controller.socket_addr)
             config["controller-addr"] = controller.socket_addr

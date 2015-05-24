@@ -31,6 +31,8 @@ class GameMaster(object):
     ----------
     layout : string
         initial layout as string
+    teams : list of teams
+        the teams to play the game
     number_bots : int
         the total number of bots
     game_time : int
@@ -52,7 +54,7 @@ class GameMaster(object):
         the viewers that are observing this game
 
     """
-    def __init__(self, layout, number_bots, game_time, noise=True, noiser=None,
+    def __init__(self, layout, teams, number_bots, game_time, noise=True, noiser=None,
                  initial_delay=0.0, max_timeouts=5, timeout_length=3, layout_name=None,
                  seed=None):
         self.universe = datamodel.CTFUniverse.create(layout, number_bots)
@@ -153,29 +155,24 @@ class GameMaster(object):
             "noise_sight_distance": self.noiser and self.noiser.sight_distance
         }
 
+        self._register_teams(teams)
+
     @property
     def game_time(self):
         return self.game_state["game_time"]
 
-    def register_team(self, team, team_name=""):
+    def _register_teams(self, teams):
         """ Register a client TeamPlayer class.
 
         Parameters
         ----------
-        team : class which calculates a new move for
-            each Bot of the team.
+        teams : list of teams
         """
-        self.player_teams.append(team)
-        self.player_teams_timeouts.append(0)
+        if not len(teams) == len(self.universe.teams):
+            raise ValueError("Number of registered teams does not match the universe.")
 
-        # map a player_team to a universe.team 1:1
-        team_idx = len(self.player_teams) - 1
-
-        # set the name in the universe
-        if team_name:
-            self.game_state["team_name"][team_idx] = team_name
-        elif team.team_name:
-            self.game_state["team_name"][team_idx] = team.team_name
+        self.player_teams = teams
+        self.player_teams_timeouts = [0 for team in self.player_teams]
 
     def register_viewer(self, viewer):
         """ Register a viewer to display the game state as it progresses.
@@ -217,7 +214,8 @@ class GameMaster(object):
             team_seed = self.rnd.randint(0, sys.maxsize)
             team_state = dict({"seed": team_seed}, **self.game_state)
             try:
-                team.set_initial(team_id, self.universe, team_state)
+                team_name = team.set_initial(team_id, self.universe, team_state)
+                self.game_state["team_name"][team_id] = team_name
             except PlayerTimeout:
                 pass
 

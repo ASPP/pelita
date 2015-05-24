@@ -325,13 +325,6 @@ class SimpleServer(object):
         self.number_of_teams = teams
         self.rounds = rounds
 
-        self.game_master = GameMaster(layout_string, self.players, self.rounds,
-                                      initial_delay=initial_delay,
-                                      max_timeouts=max_timeouts,
-                                      timeout_length=timeout_length,
-                                      layout_name=layout_name,
-                                      seed=seed)
-
         if isinstance(bind_addrs, tuple):
             pass
         elif isinstance(bind_addrs, str):
@@ -376,12 +369,13 @@ class SimpleServer(object):
             team_player = RemoteTeamPlayer(socket)
             self.team_players.append(team_player)
 
-    def register_teams(self):
-        # At this point the clients should have been started as well.
-        for team in self.team_players:
-            _logger.info("Registering team %r.", team)
-            team_name = team.team_name()
-            self.game_master.register_team(team, team_name)
+        self.game_master = GameMaster(layout_string, self.team_players,
+                                      self.players, self.rounds,
+                                      initial_delay=initial_delay,
+                                      max_timeouts=max_timeouts,
+                                      timeout_length=timeout_length,
+                                      layout_name=layout_name,
+                                      seed=seed)
 
     def exit_teams(self):
         for team_player in self.team_players:
@@ -396,8 +390,6 @@ class SimpleServer(object):
             socket.close()
 
     def run(self):
-        self.register_teams()
-
         self.game_master.play()
 
         self.exit_teams()

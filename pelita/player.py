@@ -66,6 +66,8 @@ class SimpleTeam(object):
             player._set_initial(universe, game_state)
             self._bot_players[bot.index] = player
 
+        return self.team_name
+
     def get_move(self, bot_id, universe, game_state):
         """ Requests a move from the Player who controls the Bot with id `bot_id`.
         """

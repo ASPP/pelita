@@ -13,18 +13,6 @@ from pelita.graph import AdjacencyList
 
 
 class TestGameMaster(unittest.TestCase):
-    test_layout = """ ####
-                      #01#
-                      #### """
-    game_master = GameMaster(test_layout, 2, 200)
-
-    class BrokenViewer_without_observe(object):
-        pass
-
-    def test_viewer_api_methods(self):
-        viewer = self.BrokenViewer_without_observe()
-        self.game_master.register_viewer(viewer)
-
     def test_team_names(self):
         test_layout = (
         """ ##################
@@ -33,13 +21,12 @@ class TestGameMaster(unittest.TestCase):
             #     . #  .  .#3#
             ################## """)
 
-        game_master = GameMaster(test_layout, 4, 200)
+        team_1 = SimpleTeam("team1", TestPlayer([]), TestPlayer([]))
+        team_2 = SimpleTeam("team2", TestPlayer([]), TestPlayer([]))
+        game_master = GameMaster(test_layout, [team_1, team_2], 4, 200)
 
-        team_1 = SimpleTeam(TestPlayer([]), TestPlayer([]))
-        team_2 = SimpleTeam(TestPlayer([]), TestPlayer([]))
-
-        game_master.register_team(team_1, team_name="team1")
-        game_master.register_team(team_2, team_name="team2")
+        self.assertEqual(game_master.game_state["team_name"][0], "")
+        self.assertEqual(game_master.game_state["team_name"][1], "")
 
         game_master.set_initial()
         self.assertEqual(game_master.game_state["team_name"][0], "team1")
@@ -64,18 +51,14 @@ class TestGameMaster(unittest.TestCase):
             #     . #  .  .#3#
             ################## """)
 
-        game_master = GameMaster(test_layout, 4, 200)
-
         team_1 = SimpleTeam('team1', TestPlayer([]), TestPlayer([]))
         team_2 = SimpleTeam('team2', TestPlayer([]), TestPlayer([]))
 
-        game_master.register_team(team_1)
-        game_master.register_team(team_2)
+        game_master = GameMaster(test_layout, [team_1, team_2], 4, 200)
         game_master.set_initial()
 
         self.assertEqual(game_master.game_state["team_name"][0], "team1")
         self.assertEqual(game_master.game_state["team_name"][1], "team2")
-
 
     def test_too_few_registered_teams(self):
         test_layout_4 = (
@@ -84,13 +67,8 @@ class TestGameMaster(unittest.TestCase):
             #2#####    #####1#
             #     . #  .  .#3#
             ################## """)
-        game_master = GameMaster(test_layout_4, 4, 200)
-
         team_1 = SimpleTeam(TestPlayer([]), TestPlayer([]))
-        game_master.register_team(team_1)
-
-        self.assertEqual(len(game_master.universe.teams), 2)
-        self.assertRaises(IndexError, game_master.play)
+        self.assertRaises(ValueError, GameMaster, test_layout_4, [team_1], 4, 200)
 
     def test_too_many_registered_teams(self):
         test_layout_4 = (
@@ -99,18 +77,12 @@ class TestGameMaster(unittest.TestCase):
             #2#####    #####1#
             #     . #  .  .#3#
             ################## """)
-        game_master = GameMaster(test_layout_4, 4, 200)
 
         team_1 = SimpleTeam(TestPlayer([]), TestPlayer([]))
         team_2 = SimpleTeam(TestPlayer([]), TestPlayer([]))
         team_3 = SimpleTeam(TestPlayer([]), TestPlayer([]))
-        game_master.register_team(team_1)
-        game_master.register_team(team_2)
-        game_master.register_team(team_3)
 
-        self.assertEqual(len(game_master.universe.teams), 2)
-        self.assertRaises(IndexError, game_master.play)
-
+        self.assertRaises(ValueError, GameMaster, test_layout_4, [team_1, team_2, team_3], 4, 200)
 
 class TestUniverseNoiser(unittest.TestCase):
     if not hasattr(unittest.TestCase, 'assertItemsEqual'):
@@ -403,9 +375,8 @@ class TestGame(unittest.TestCase):
             return universe
 
 
-        gm = GameMaster(test_start, number_bots, 200)
-        gm.register_team(SimpleTeam(TestPlayer('>-v>>>')))
-        gm.register_team(SimpleTeam(TestPlayer('<<-<<<')))
+        teams = [SimpleTeam(TestPlayer('>-v>>>')), SimpleTeam(TestPlayer('<<-<<<'))]
+        gm = GameMaster(test_start, teams, number_bots, 200)
 
         gm.set_initial()
         gm.play_round()
@@ -462,10 +433,9 @@ class TestGame(unittest.TestCase):
         self.assertEqual(create_TestUniverse(test_sixth_round,
             black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS), gm.universe)
 
+        teams = [SimpleTeam(TestPlayer('>-v>>>')), SimpleTeam(TestPlayer('<<-<<<'))]
         # now play the full game
-        gm = GameMaster(test_start, number_bots, 200)
-        gm.register_team(SimpleTeam(TestPlayer('>-v>>>')))
-        gm.register_team(SimpleTeam(TestPlayer('<<-<<<')))
+        gm = GameMaster(test_start, teams, number_bots, 200)
         gm.play()
         test_sixth_round = (
             """ ######
@@ -493,13 +463,12 @@ class TestGame(unittest.TestCase):
                 #0 . #
                 #.. 1#
                 ###### """)
-        gm = GameMaster(test_layout, 2, 200)
-
-        original_universe = gm.universe.copy()
 
         test_self = self
+        original_universe = None
         class TestMaliciousPlayer(AbstractPlayer):
             def get_move(self):
+                test_self.assertIsNotNone(original_universe)
                 print(id(original_universe.maze))
                 print(id(gm.universe.maze))
                 # universe should have been altered because the
@@ -507,8 +476,12 @@ class TestGame(unittest.TestCase):
                 test_self.assertNotEqual(original_universe, gm.universe)
                 return (0,0)
 
-        gm.register_team(SimpleTeam(MaliciousPlayer()))
-        gm.register_team(SimpleTeam(TestMaliciousPlayer()))
+        teams = [
+            SimpleTeam(MaliciousPlayer()),
+            SimpleTeam(TestMaliciousPlayer())
+        ]
+        gm = GameMaster(test_layout, teams, 2, 200)
+        original_universe = gm.universe.copy()
 
         gm.set_initial()
         gm.play_round()
@@ -525,10 +498,9 @@ class TestGame(unittest.TestCase):
                 #0 . #
                 #.. 1#
                 ###### """)
-        gm = GameMaster(test_layout, 2, 1)
+        teams = [SimpleTeam(FailingPlayer()), SimpleTeam(TestPlayer("^"))]
 
-        gm.register_team(SimpleTeam(FailingPlayer()))
-        gm.register_team(SimpleTeam(TestPlayer("^")))
+        gm = GameMaster(test_layout, teams, 2, 1)
 
         gm.play()
         self.assertEqual(gm.game_state["timeout_teams"], [1, 0])
@@ -555,9 +527,11 @@ class TestGame(unittest.TestCase):
 
         number_bots = 2
 
-        gm = GameMaster(test_start, number_bots, 200)
-        gm.register_team(SimpleTeam(TestPlayer([(0,0)])))
-        gm.register_team(SimpleTeam(TestPlayer([(0,0)])))
+        teams = [
+            SimpleTeam(TestPlayer([(0,0)])),
+            SimpleTeam(TestPlayer([(0,0)]))
+        ]
+        gm = GameMaster(test_start, teams, number_bots, 200)
 
         original_universe = gm.universe.copy()
 
@@ -583,10 +557,12 @@ class TestGame(unittest.TestCase):
                 ###### """)
         # the game lasts two rounds, enough time for bot 1 to eat food
         NUM_ROUNDS = 2
-        gm = GameMaster(test_start, 2, game_time=NUM_ROUNDS)
         # bot 1 moves east twice to eat the single food
-        gm.register_team(SimpleTeam(TestPlayer('>>')))
-        gm.register_team(SimpleTeam(StoppingPlayer()))
+        teams = [
+            SimpleTeam(TestPlayer('>>')),
+            SimpleTeam(StoppingPlayer())
+        ]
+        gm = GameMaster(test_start, teams, 2, game_time=NUM_ROUNDS)
 
         # this test viewer caches all events lists seen through observe
         class TestViewer(AbstractViewer):
@@ -614,10 +590,12 @@ class TestGame(unittest.TestCase):
                 ###### """)
         # the game lasts two rounds, enough time for bot 1 to eat food
         NUM_ROUNDS = 2
-        gm = GameMaster(test_start, 2, game_time=NUM_ROUNDS)
-        gm.register_team(SimpleTeam(StoppingPlayer()))
-        # bot 1 moves west twice to eat the single food
-        gm.register_team(SimpleTeam(TestPlayer('<<')))
+
+        teams = [
+            SimpleTeam(StoppingPlayer()),
+            SimpleTeam(TestPlayer('<<')) # bot 1 moves west twice to eat the single food
+        ]
+        gm = GameMaster(test_start, teams, 2, game_time=NUM_ROUNDS)
 
         # this test viewer caches all events lists seen through observe
         class TestViewer(AbstractViewer):
@@ -645,10 +623,9 @@ class TestGame(unittest.TestCase):
                 ###### """)
         # the game lasts one round, and then draws
         NUM_ROUNDS = 1
-        gm = GameMaster(test_start, 2, game_time=NUM_ROUNDS)
         # players do nothing
-        gm.register_team(SimpleTeam(StoppingPlayer()))
-        gm.register_team(SimpleTeam(StoppingPlayer()))
+        teams = [SimpleTeam(StoppingPlayer()), SimpleTeam(StoppingPlayer())]
+        gm = GameMaster(test_start, teams, 2, game_time=NUM_ROUNDS)
 
         # this test viewer caches all events lists seen through observe
         class TestViewer(AbstractViewer):
@@ -674,11 +651,12 @@ class TestGame(unittest.TestCase):
                 # . 1#
                 ###### """
         )
+        teams = [
+            SimpleTeam(StoppingPlayer()),
+            SimpleTeam(TestPlayer('<<<'))
+        ]
         # bot 1 eats all the food and the game stops
-        gm = GameMaster(test_start, 2, 100)
-        # players do nothing
-        gm.register_team(SimpleTeam(StoppingPlayer()))
-        gm.register_team(SimpleTeam(TestPlayer('<<<')))
+        gm = GameMaster(test_start, teams, 2, 100)
 
         # this test viewer caches all events lists seen through observe
         class TestViewer(AbstractViewer):
@@ -706,11 +684,12 @@ class TestGame(unittest.TestCase):
                 # . 1#
                 ###### """
         )
+        teams = [
+            SimpleTeam(StoppingPlayer()),
+            SimpleTeam(TestPlayer('<<<'))
+        ]
         # bot 1 eats all the food and the game stops
-        gm = GameMaster(test_start, 2, 100)
-        # players do nothing
-        gm.register_team(SimpleTeam(StoppingPlayer()))
-        gm.register_team(SimpleTeam(TestPlayer('<<<')))
+        gm = GameMaster(test_start, teams, 2, 100)
         gm.universe.teams[0].score = 2
 
         # this test viewer caches all events lists seen through observe
@@ -743,15 +722,17 @@ class TestGame(unittest.TestCase):
                 ##. 1#
                 ###### """
         )
-        # the game lasts one round, and then draws
-        gm = GameMaster(test_start, 2, 100, max_timeouts=5)
         # players do nothing
         class TimeOutPlayer(AbstractPlayer):
             def get_move(self):
                 raise PlayerTimeout
 
-        gm.register_team(SimpleTeam(TimeOutPlayer()))
-        gm.register_team(SimpleTeam(StoppingPlayer()))
+        teams = [
+            SimpleTeam(TimeOutPlayer()),
+            SimpleTeam(StoppingPlayer())
+        ]
+        # the game lasts one round, and then draws
+        gm = GameMaster(test_start, teams, 2, 100, max_timeouts=5)
 
         # this test viewer caches all events lists seen through observe
         class TestViewer(AbstractViewer):
@@ -791,8 +772,6 @@ class TestGame(unittest.TestCase):
                 ##. 1#
                 ###### """
         )
-        # the game lasts one round, and then draws
-        gm = GameMaster(test_start, 2, 100, max_timeouts=1)
         # players do nothing
         class TimeOutPlayer(AbstractPlayer):
             def get_move(self):
@@ -802,8 +781,12 @@ class TestGame(unittest.TestCase):
             def get_move(self):
                 raise RuntimeError("This should never be called")
 
-        gm.register_team(SimpleTeam(TimeOutPlayer()))
-        gm.register_team(SimpleTeam(CheckTestPlayer()))
+        teams = [
+            SimpleTeam(TimeOutPlayer()),
+            SimpleTeam(CheckTestPlayer())
+        ]
+        # the game lasts one round, and then draws
+        gm = GameMaster(test_start, teams, 2, 100, max_timeouts=1)
 
         # this test viewer caches all events lists seen through observe
         class TestViewer(AbstractViewer):
@@ -845,9 +828,12 @@ class TestGame(unittest.TestCase):
 
         number_bots = 2
 
-        gm = GameMaster(test_start, number_bots, 4)
-        gm.register_team(SimpleTeam(TestPlayer('>>>>')))
-        gm.register_team(SimpleTeam(TestPlayer('<<<<')))
+
+        teams = [
+            SimpleTeam(TestPlayer('>>>>')),
+            SimpleTeam(TestPlayer('<<<<'))
+        ]
+        gm = GameMaster(test_start, teams, number_bots, 4)
 
         gm.set_initial()
 
@@ -939,10 +925,11 @@ class TestGame(unittest.TestCase):
                 ###### """)
         # the game lasts two rounds, enough time for bot 1 to eat food
         NUM_ROUNDS = 5
-        gm = GameMaster(test_start, 2, game_time=NUM_ROUNDS)
-        gm.register_team(SimpleTeam(TestPlayer('>--->')))
-        # bot 1 moves west twice to eat the single food
-        gm.register_team(SimpleTeam(TestPlayer('<<<<<')))
+        teams = [
+            SimpleTeam(TestPlayer('>--->')),
+            SimpleTeam(TestPlayer('<<<<<')) # bot 1 moves west twice to eat the single food
+        ]
+        gm = GameMaster(test_start, teams, 2, game_time=NUM_ROUNDS)
 
         gm.set_initial()
         gm.play_round()

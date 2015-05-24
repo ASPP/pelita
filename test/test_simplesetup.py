@@ -198,9 +198,11 @@ class TestSimpleSetup(unittest.TestCase):
 
         number_bots = 2
 
-        gm = GameMaster(test_start, number_bots, 1)
-        gm.register_team(SimpleTeam(TestPlayer([(0,0)])))
-        gm.register_team(SimpleTeam(TestPlayer([(0,0)])))
+        teams = [
+                SimpleTeam(TestPlayer([(0,0)])),
+                SimpleTeam(TestPlayer([(0,0)]))
+        ]
+        gm = GameMaster(test_start, teams, number_bots, 1)
 
         original_universe = gm.universe.copy()
 
