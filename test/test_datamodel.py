@@ -223,71 +223,11 @@ class TestMazeComponents(unittest.TestCase):
 
 
 class TestMaze(unittest.TestCase):
-
     def test_init(self):
         # check we get errors with wrong stuff
         self.assertRaises(TypeError, Maze, 1, 1, data=[1])
-        self.assertRaises(ValueError, Maze, 1, 1, data=["", ""])
-
-    def test_in(self):
-        maze = Maze(2, 1, data=[Wall + Free, Food + Wall])
-        self.assertEqual(Wall in maze[0, 0], True)
-        self.assertEqual(Free in maze[0, 0], True)
-        self.assertEqual(Food in maze[1, 0], True)
-        self.assertEqual(Wall in maze[1, 0], True)
-
-        self.assertEqual(Food in maze[0, 0], False)
-        self.assertEqual(Free in maze[1, 0], False)
-
-    def test_get_at(self):
-        maze = Maze(2, 1, data=[Wall + Free, Food + Wall])
-        self.assertEqual(maze.get_at(Wall, (0, 0)), [Wall])
-        self.assertEqual(maze.get_at(Free, (0, 0)), [Free])
-        self.assertEqual(maze.get_at(Food, (1, 0)), [Food])
-        self.assertEqual(maze.get_at(Wall, (1, 0)), [Wall])
-
-        self.assertEqual(maze.get_at(Food, (0, 0)), [])
-        self.assertEqual(maze.get_at(Free, (1, 0)), [])
-
-    def test_remove_at(self):
-        maze = Maze(2, 1, data=["#", " ."])
-        maze.remove_at(Wall, (0, 0))
-        self.assertEqual(list(maze[0, 0]), [])
-
-        maze = Maze(2, 1, data=["#", " ."])
-        self.assertRaises(ValueError, maze.remove_at, Free, (0, 0))
-
-        maze = Maze(2, 1, data=["#", " ."])
-        maze.remove_at(Free, (1, 0))
-        self.assertEqual(list(maze[1, 0]), [Food])
-        maze.remove_at(Food, (1, 0))
-        self.assertEqual(list(maze[1, 0]), [])
-
-    def test_pos_of(self):
-        maze = Maze(2, 1, data=["#", " ."])
-        self.assertEqual([(0,0)], maze.pos_of(Wall))
-        self.assertEqual([(1,0)], maze.pos_of(Food))
-        test_layout3 = (
-        """ ##################
-            # #.  .  # .     #
-            # #####    ##### #
-            #     . #  .  .# #
-            ################## """)
-        data = [l.strip() for l in test_layout3.split('\n')]
-        data = reduce(lambda x,y: x + y, data)
-        data = [d for d in data]
-        maze = Maze(18, 5, data=data)
-        walls = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8,
-            0), (9, 0), (10, 0), (11, 0), (12, 0), (13, 0), (14, 0), (15, 0),
-            (16, 0), (17, 0), (0, 1), (2, 1), (9, 1), (17, 1), (0, 2), (2, 2),
-            (3, 2), (4, 2), (5, 2), (6, 2), (11, 2), (12, 2), (13, 2), (14, 2),
-            (15, 2), (17, 2), (0, 3), (8, 3), (15, 3), (17, 3), (0, 4), (1, 4),
-            (2, 4), (3, 4), (4, 4), (5, 4), (6, 4), (7, 4), (8, 4), (9, 4),
-            (10, 4), (11, 4), (12, 4), (13, 4), (14, 4), (15, 4), (16, 4), (17,
-                4)]
-        foods = [(3, 1), (6, 1), (11, 1), (6, 3), (11, 3), (14, 3)]
-        self.assertEqual(walls, maze.pos_of(Wall))
-        self.assertEqual(foods, maze.pos_of(Food))
+        self.assertRaises(TypeError, Maze, 1, 1, data=[""])
+        self.assertRaises(ValueError, Maze, 1, 1, data=[True, False])
 
     def test_positions(self):
         maze = Maze(5, 5)
@@ -295,24 +235,13 @@ class TestMaze(unittest.TestCase):
                          list(maze.positions))
 
     def test_json(self):
-        maze = Maze(2, 1, data=["#", " ."])
+        maze = Maze(2, 1, data=[True, False])
         maze_json = json_converter.dumps(maze)
         self.assertEqual(json_converter.loads(maze_json), maze)
 
     def test_eq_repr(self):
-        maze = Maze(2, 1, data=["#", " ."])
+        maze = Maze(2, 1, data=[True, False])
         self.assertEqual(maze, eval(repr(maze)))
-
-    def test_is_always_sorted_and_unique(self):
-        maze_1 = Maze(2, 1, data=["#", " ."])
-        maze_2 = Maze(2, 1, data=["#", ". "])
-        self.assertEqual(maze_1, maze_2)
-
-        maze_1[0,0] = "abcd"
-        maze_1[1,0] = "bcda"
-        self.assertEqual(maze_1[0,0], maze_1[1,0])
-        self.assertEqual(maze_1[0,0], "abcd")
-        self.assertEqual(maze_1[1,0], "abcd")
 
 
 class TestCTFUniverse(unittest.TestCase):
@@ -329,16 +258,16 @@ class TestCTFUniverse(unittest.TestCase):
         # positions from the raw layout
         target_mesh = Mesh(18, 5, data = list('################### #.  .  # .     #'+\
                 '# #####    ##### ##     . #  .  .# ###################'))
-        target_mesh = create_maze(target_mesh)
+        target_mesh, target_food = create_maze(target_mesh)
         self.assertEqual(target_mesh, universe.maze)
         target_food_list = [(3, 1), (6, 1), (11, 1), (6, 3), (11, 3), (14, 3),  ]
-        self.assertEqual(target_food_list, universe.food_list)
+        self.assertItemsEqual(target_food_list, universe.food_list)
         team_black_food = [(3, 1), (6, 1), (6, 3)]
         team_white_food = [(11, 1), (11, 3), (14, 3)]
-        self.assertEqual(universe.team_food(0), team_black_food)
-        self.assertEqual(universe.enemy_food(0), team_white_food)
-        self.assertEqual(universe.team_food(1), team_white_food)
-        self.assertEqual(universe.enemy_food(1), team_black_food)
+        self.assertItemsEqual(universe.team_food(0), team_black_food)
+        self.assertItemsEqual(universe.enemy_food(0), team_white_food)
+        self.assertItemsEqual(universe.team_food(1), team_white_food)
+        self.assertItemsEqual(universe.enemy_food(1), team_black_food)
 
         self.assertEqual([b.initial_pos for b in universe.bots],
                 [(1, 1), (1, 2), (16, 2), (16, 3)])
@@ -429,7 +358,6 @@ class TestCTFUniverse(unittest.TestCase):
 
         self.assertEqual(universe, universe2)
         self.assertEqual(universe, eval(repr(universe)))
-        self.assertFalse(universe != eval(repr(universe)))
 
     def test_copy(self):
         test_layout3 = (
@@ -443,8 +371,7 @@ class TestCTFUniverse(unittest.TestCase):
         self.assertEqual(universe, uni_copy)
         # this is just a smoke test for the most volatile aspect of
         # of copying the universe
-        for food_pos in universe.food_list:
-            universe.maze.remove_at(Food, food_pos)
+        universe.food.pop()
         self.assertNotEqual(universe, uni_copy)
         self.assertEqual(universe, universe.copy())
 
@@ -771,9 +698,9 @@ class TestCTFUniverseRules(unittest.TestCase):
             universe.teams[1].score = white_score
             for i, pos in enumerate(initial_pos):
                 universe.bots[i].initial_pos = pos
-            if not Food in universe.maze[1, 2]:
+            if not (1, 2) in universe.food_list:
                 universe.teams[1]._score_point()
-            if not Food in universe.maze[3, 1]:
+            if not (3, 1) in universe.food_list:
                 universe.teams[0]._score_point()
             return universe
 
@@ -804,10 +731,10 @@ class TestCTFUniverseRules(unittest.TestCase):
                 #0 . #
                 #1   #
                 ###### """)
-        self.assertEqual(universe.food_list, [(3, 1), (1, 2)])
+        self.assertItemsEqual(universe.food_list, [(3, 1), (1, 2)])
         game_state = universe.move_bot(1, west)
         self.assertEqual(create_TestUniverse(test_eat_food), universe)
-        self.assertEqual(universe.food_list, [(3, 1)])
+        self.assertItemsEqual(universe.food_list, [(3, 1)])
         self.assertEqual(universe.teams[1].score, 1)
         self.assertEqual(game_state, {
             "bot_moved": [{"bot_id": 1, "old_pos": (2, 2), "new_pos": (1, 2)}],
@@ -839,7 +766,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         game_state = universe.move_bot(0, east)
         self.assertEqual(create_TestUniverse(test_black_score,
             black_score=universe.KILLPOINTS), universe)
-        self.assertEqual(universe.food_list, [])
+        self.assertItemsEqual(universe.food_list, [])
         self.assertEqual(universe.teams[0].score, universe.KILLPOINTS+1)
         self.assertEqual(game_state, {
             "bot_moved": [{"bot_id": 0, "old_pos": (2, 1), "new_pos": (3, 1)}],
@@ -871,7 +798,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         universe = CTFUniverse.create(test_start, number_bots)
         universe.move_bot(1, north)
         game_state = universe.move_bot(1, west)
-        self.assertEqual(universe.food_list, [(3, 1), (1, 2)])
+        self.assertItemsEqual(universe.food_list, [(3, 1), (1, 2)])
         self.assertEqual(game_state["bot_moved"][0], {"bot_id": 1, "old_pos": (4, 1), "new_pos": (3, 1)})
 
     def test_suicide_win(self):

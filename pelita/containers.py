@@ -194,8 +194,8 @@ class Mesh(Mapping):
         return self.width * self.height
 
     def __repr__(self):
-        return ('Mesh(%i, %i, data=%r)'
-            % (self.width, self.height, self._data))
+        return ('%s(%i, %i, data=%r)'
+            % (self.__class__.__name__, self.width, self.height, self._data))
 
     def __str__(self):
         output = str()

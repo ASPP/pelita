@@ -4,7 +4,7 @@ import unittest
 import time
 import collections
 import pelita
-from pelita.datamodel import Wall, Free, Food, CTFUniverse
+from pelita.datamodel import CTFUniverse
 
 from pelita.game_master import GameMaster, UniverseNoiser, AStarNoiser, ManhattanNoiser, PlayerTimeout
 from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer, StoppingPlayer
@@ -366,11 +366,11 @@ class TestGame(unittest.TestCase):
             universe.teams[1].score = white_score
             for i, pos in enumerate(initial_pos):
                 universe.bots[i].initial_pos = pos
-            if not Food in universe.maze[1, 2]:
+            if not (1, 2) in universe.food_list:
                 universe.teams[1]._score_point()
-            if not Food in universe.maze[2, 2]:
+            if not (2, 2) in universe.food_list:
                 universe.teams[1]._score_point()
-            if not Food in universe.maze[3, 1]:
+            if not (3, 1) in universe.food_list:
                 universe.teams[0]._score_point()
             return universe
 
@@ -446,13 +446,12 @@ class TestGame(unittest.TestCase):
             black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS), gm.universe)
 
     def test_malicous_player(self):
-        free_obj = Free
 
         class MaliciousPlayer(AbstractPlayer):
             def _get_move(self, universe, game_state):
                 universe.teams[0].score = 100
                 universe.bots[0].current_pos = (2,2)
-                universe.maze[0,0] = free_obj
+                universe.maze[0,0] = False
                 return {"move": (0,0)}
 
             def get_move(self):
@@ -506,7 +505,6 @@ class TestGame(unittest.TestCase):
         self.assertEqual(gm.game_state["timeout_teams"], [1, 0])
 
     def test_viewer_may_change_gm(self):
-        free_obj = Free
 
         class MeanViewer(AbstractViewer):
             def set_initial(self, universe):
@@ -515,7 +513,7 @@ class TestGame(unittest.TestCase):
             def observe(self, universe, game_state):
                 universe.teams[0].score = 100
                 universe.bots[0].current_pos = (4,2)
-                universe.maze[0,0] = free_obj
+                universe.maze[0,0] = False
 
                 game_state["team_wins"] = 0
 

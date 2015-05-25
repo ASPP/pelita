@@ -8,7 +8,7 @@ import time
 import abc
 from . import datamodel
 from .graph import NoPathException, AdjacencyList, manhattan_dist
-from .datamodel import CTFUniverse, Bot, Free
+from .datamodel import CTFUniverse, Bot
 import six
 
 class GameFinished(Exception):
@@ -475,7 +475,7 @@ class UniverseNoiser(object):
             universe with noisy enemy positions
 
         """
-        universe_copy = CTFUniverse(maze=universe.maze, teams=universe.teams, bots=[Bot._from_json_dict(bot._to_json_dict()) for bot in universe.bots])
+        universe_copy = CTFUniverse(maze=universe.maze, food=universe.food, teams=universe.teams, bots=[Bot._from_json_dict(bot._to_json_dict()) for bot in universe.bots])
         self.universe = universe_copy
         bot = universe_copy.bots[bot_index]
         bots_to_noise = universe_copy.enemy_bots(bot.team_index)
@@ -549,7 +549,7 @@ class ManhattanNoiser(UniverseNoiser):
         for pos in possible_positions:
             try:
                 # check that the bot can really fit in here
-                if Free in self.universe.maze[pos]:
+                if not self.universe.maze[pos]:
                     return pos
             except IndexError:
                 pass

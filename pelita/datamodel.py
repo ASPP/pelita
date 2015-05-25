@@ -173,62 +173,13 @@ maze_components = [Food, Free, Wall]
 
 @serializable
 class Maze(Mesh):
-    """ A Mesh of strings of maze component representations.
-
-    This is a container class to represent a game maze. It is a two-dimensional
-    structure (Mesh) which contains a representation of maze components at each
-    position. This is implemented using sequences of characters, i.e. strings.
-    At each position we store the characters corresponding to the maze
-    components at this position.
-    """
-
     def __init__(self, width, height, data=None):
         if not data:
-            data = ["" for i in range(width*height)]
-        elif not all(isinstance(s, six.string_types) for s in data):
-            raise TypeError("Maze keyword argument 'data' should be list of " +\
-                            "strings, not: %r" % data)
-        else:
-            # sort the data items
-            data = ["".join(sorted(v)) for v in data]
+            data = [False for _ in range(width * height)]
+        elif not all(isinstance(s, bool) for s in data):
+            raise TypeError("Maze keyword argument 'data' should be a list of of " +\
+                            "bools, not: %r" % data)
         super(Maze, self).__init__(width, height, data)
-
-    def __setitem__(self, key, value):
-        super(Maze, self).__setitem__(key, "".join(sorted(value)))
-
-    def get_at(self, char, pos):
-        """ Get all objects of a given char representation at certain position.
-
-        Parameters
-        ----------
-        char : char
-            the char representation of maze components to look for
-        pos : tuple of (int, int)
-            the position to look at
-
-        Returns
-        -------
-        objs : list
-            the objects at that position
-
-        """
-        return [item for item in self[pos] if item == char]
-
-    def remove_at(self, char, pos):
-        """ Remove all objects of a given char representation at a certain position.
-
-        Parameters
-        ----------
-        char : char
-            the char representation to remove from the Maze
-        pos : tuple of (int, int)
-            the position to look at
-
-        """
-        if char in self[pos]:
-            self[pos] = [item for item in self[pos] if item != char]
-        else:
-            raise ValueError
 
     @property
     def positions(self):
@@ -241,33 +192,6 @@ class Maze(Mesh):
 
         """
         return list(self.keys())
-
-    def pos_of(self, char):
-        """ The indices of positions which have a maze component.
-
-        Parameters
-        ----------
-        char : maze component char
-            the char of maze component to look for
-
-        Examples
-        --------
-        >>> universe.maze.pos_of(Free)
-        [(1, 1),
-        (3, 1),
-        (4, 1),
-        (5, 1),
-        (6, 1),
-        (7, 1),
-        ...
-
-        """
-        return [pos for pos, val in self.items() if char in val]
-
-    def __repr__(self):
-        return ('Maze(%i, %i, data=%r)'
-            % (self.width, self.height, self._data))
-
 
 def create_maze(layout_mesh):
     """ Transforms a layout_mesh into a Maze.
@@ -284,15 +208,13 @@ def create_maze(layout_mesh):
 
     """
     maze = Maze(layout_mesh.width, layout_mesh.height)
-    for index in maze.keys():
-        if layout_mesh[index] == Wall:
-            maze[index] = maze[index] + Wall
-        else:
-            maze[index] = maze[index] + Free
-        if layout_mesh[index] == Food:
-            maze[index] = maze[index] + Food
-    return maze
-
+    food = []
+    for pos, items in layout_mesh.items():
+        if Wall in items:
+            maze[pos] = True
+        if Food in items:
+            food.append(pos)
+    return maze, food
 
 def extract_initial_positions(mesh, number_bots):
     """ Extract initial positions from mesh.
@@ -379,7 +301,7 @@ class CTFUniverse(object):
         layout = Layout(layout_str, layout_chars, number_bots)
         layout_mesh = layout.as_mesh()
         initial_pos = extract_initial_positions(layout_mesh, number_bots)
-        maze = create_maze(layout_mesh)
+        maze, food = create_maze(layout_mesh)
         if maze.width % 2 != 0:
             raise UniverseException(
                 "Width of a layout for CTF must be even, is: %i"
@@ -398,7 +320,7 @@ class CTFUniverse(object):
                     team_index, homezones[team_index])
             bots.append(bot)
 
-        return cls(maze, teams, bots)
+        return cls(maze, food, teams, bots)
 
     #: All possible (but not necessarily legal) moves
     _moves = [north, south, east, west, stop]
@@ -406,9 +328,9 @@ class CTFUniverse(object):
     #: the number of points to score when killing
     KILLPOINTS = 5
 
-    def __init__(self, maze, teams, bots):
+    def __init__(self, maze, food, teams, bots):
         self.maze = maze
-        # TODO make a deepcopy here, so that we can big_bang
+        self.food = set(tuple(f) for f in food)
         self.teams = teams
         self.bots = bots
 
@@ -433,7 +355,7 @@ class CTFUniverse(object):
             the positions of all food
 
         """
-        return self.maze.pos_of(Food)
+        return self.food
 
     def team_food(self, team_index):
         """ Food that is owned by a team
@@ -554,8 +476,7 @@ class CTFUniverse(object):
             border_x = team_zone[1]
         else:
             border_x = team_zone[0]
-        return [(border_x, y) for y in range(self.maze.shape[1]) if
-                Free in self.maze[border_x, y]]
+        return [(border_x, y) for y in range(self.maze.shape[1]) if not self.maze[border_x, y]]
 
     def move_bot(self, bot_id, move):
         """ Move a bot in certain direction.
@@ -595,8 +516,8 @@ class CTFUniverse(object):
         team = self.teams[bot.team_index]
         # check for food being eaten
         game_state["food_eaten"] = []
-        if Food in self.maze[bot.current_pos] and not bot.in_own_zone:
-            self.maze.remove_at(Food, bot.current_pos)
+        if bot.current_pos in self.food_list and not bot.in_own_zone:
+            self.food.remove(bot.current_pos)
 
             game_state["food_eaten"] += [{"food_pos": bot.current_pos, "bot_id": bot_id}]
 
@@ -655,7 +576,7 @@ class CTFUniverse(object):
         legal_moves_dict = {}
         for move, new_pos in self.neighbourhood(position).items():
             try:
-                if Free in self.maze[new_pos]:
+                if not self.maze[new_pos]:
                     legal_moves_dict[move] = new_pos
             except IndexError:
                 # If we’re outside the maze, it is not a legal move.
@@ -683,8 +604,8 @@ class CTFUniverse(object):
         return moves
 
     def __repr__(self):
-        return ("CTFUniverse(%r, %r, %r)" %
-            (self.maze, self.teams, self.bots))
+        return ("CTFUniverse(%r, %r, %r, %r)" %
+            (self.maze, self.food, self.teams, self.bots))
 
     def __eq__(self, other):
         return type(self) == type(other) and self.__dict__ == other.__dict__
@@ -696,12 +617,12 @@ class CTFUniverse(object):
     def _char_mesh(self):
         char_mesh = Mesh(self.maze.width, self.maze.height)
         for pos in self.maze.positions:
-                if Wall in self.maze[pos]:
-                    char_mesh[pos] = Wall
-                elif Food in self.maze[pos]:
-                    char_mesh[pos] = Food
-                elif Free in self.maze[pos]:
-                    char_mesh[pos] = Free
+            if self.maze[pos]:
+                char_mesh[pos] = Wall
+            elif pos in self.food:
+                char_mesh[pos] = Food
+            else:
+                char_mesh[pos] = Free
         for bot in self.bots:
             # TODO what about bots on the same space?
             char_mesh[bot.current_pos] = str(bot.index)
@@ -711,7 +632,7 @@ class CTFUniverse(object):
         return str(self._char_mesh)
 
     def copy(self):
-        return copy.deepcopy(self)
+        return self._from_json_dict(self._to_json_dict())
 
     @property
     def compact_str(self):
@@ -797,7 +718,8 @@ class CTFUniverse(object):
             Generator which contains all reachable positions and their adjacencies
         """
         # Get the list of all free positions.
-        free_pos = self.maze.pos_of(Free)
+        free_pos = [pos for pos, val in self.maze.items() if not val]
+
         # Here we use a generator on a dictionary to create the adjacency list.
         # However, for Python 3, we force evaluation on the legal_moves.values
         return ((pos, list(self.legal_moves(pos).values())) for pos in free_pos)
@@ -805,12 +727,14 @@ class CTFUniverse(object):
 
     def _to_json_dict(self):
         return {"maze": self.maze._to_json_dict(),
+                "food": list(self.food),
                 "teams": [team._to_json_dict() for team in self.teams],
                 "bots": [bot._to_json_dict() for bot in self.bots]}
 
     @classmethod
     def _from_json_dict(cls, item):
         return cls(maze=Maze._from_json_dict(item["maze"]),
+                   food=item["food"],
                    teams=[Team._from_json_dict(team) for team in item["teams"]],
                    bots=[Bot._from_json_dict(bot) for bot in item["bots"]])
 

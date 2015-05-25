@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from pelita.datamodel import CTFUniverse, Free, north, south, west, east, stop
+from pelita.datamodel import CTFUniverse, north, south, west, east, stop
 from pelita.graph import new_pos, diff_pos, manhattan_dist, AdjacencyList, NoPathException, iter_adjacencies
 
 
@@ -85,7 +85,7 @@ class TestAdjacencyList(unittest.TestCase):
             ################## """)
         universe = CTFUniverse.create(test_layout, 4)
         al = AdjacencyList(universe.free_positions())
-        free = set(universe.maze.pos_of(Free))
+        free = set(pos for pos, val in universe.maze.items() if not val)
 
         self.assertFalse((0, 0) in al)
         self.assertRaises(NoPathException, al.pos_within, (0, 0), 0)
