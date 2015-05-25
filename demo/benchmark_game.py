@@ -44,7 +44,7 @@ LAYOUT="""
 
 def run_game():
     layout = LAYOUT
-    gm = GameMaster(layout, 4, 10)
+    gm = GameMaster(layout, 4, 100)
     gm.register_team(SimpleTeam(StoppingPlayer(), StoppingPlayer()))
     gm.register_team(SimpleTeam(StoppingPlayer(), StoppingPlayer()))
     # gm.register_viewer(AsciiViewer())
