@@ -44,10 +44,12 @@ LAYOUT="""
 
 def run_game():
     layout = LAYOUT
-    gm = GameMaster(layout, 4, 100)
-    gm.register_team(SimpleTeam(StoppingPlayer(), StoppingPlayer()))
-    gm.register_team(SimpleTeam(StoppingPlayer(), StoppingPlayer()))
-    # gm.register_viewer(AsciiViewer())
+    teams = [
+        SimpleTeam(StoppingPlayer(), StoppingPlayer()),
+        SimpleTeam(StoppingPlayer(), StoppingPlayer())
+    ]
+    gm = GameMaster(layout, teams, 4, 10)
+    #gm.register_viewer(AsciiViewer())
     gm.play()
 
 if __name__ == '__main__':
