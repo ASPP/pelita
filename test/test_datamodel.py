@@ -1,3 +1,5 @@
+
+import six
 import unittest
 import json
 from pelita.layout import Layout
@@ -261,13 +263,13 @@ class TestCTFUniverse(unittest.TestCase):
         target_mesh, target_food = create_maze(target_mesh)
         self.assertEqual(target_mesh, universe.maze)
         target_food_list = [(3, 1), (6, 1), (11, 1), (6, 3), (11, 3), (14, 3),  ]
-        self.assertItemsEqual(target_food_list, universe.food_list)
+        six.assertCountEqual(self, target_food_list, universe.food_list)
         team_black_food = [(3, 1), (6, 1), (6, 3)]
         team_white_food = [(11, 1), (11, 3), (14, 3)]
-        self.assertItemsEqual(universe.team_food(0), team_black_food)
-        self.assertItemsEqual(universe.enemy_food(0), team_white_food)
-        self.assertItemsEqual(universe.team_food(1), team_white_food)
-        self.assertItemsEqual(universe.enemy_food(1), team_black_food)
+        six.assertCountEqual(self, universe.team_food(0), team_black_food)
+        six.assertCountEqual(self, universe.enemy_food(0), team_white_food)
+        six.assertCountEqual(self, universe.team_food(1), team_white_food)
+        six.assertCountEqual(self, universe.enemy_food(1), team_black_food)
 
         self.assertEqual([b.initial_pos for b in universe.bots],
                 [(1, 1), (1, 2), (16, 2), (16, 3)])
@@ -731,10 +733,10 @@ class TestCTFUniverseRules(unittest.TestCase):
                 #0 . #
                 #1   #
                 ###### """)
-        self.assertItemsEqual(universe.food_list, [(3, 1), (1, 2)])
+        six.assertCountEqual(self, universe.food_list, [(3, 1), (1, 2)])
         game_state = universe.move_bot(1, west)
         self.assertEqual(create_TestUniverse(test_eat_food), universe)
-        self.assertItemsEqual(universe.food_list, [(3, 1)])
+        six.assertCountEqual(self, universe.food_list, [(3, 1)])
         self.assertEqual(universe.teams[1].score, 1)
         self.assertEqual(game_state, {
             "bot_moved": [{"bot_id": 1, "old_pos": (2, 2), "new_pos": (1, 2)}],
@@ -766,7 +768,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         game_state = universe.move_bot(0, east)
         self.assertEqual(create_TestUniverse(test_black_score,
             black_score=universe.KILLPOINTS), universe)
-        self.assertItemsEqual(universe.food_list, [])
+        six.assertCountEqual(self, universe.food_list, [])
         self.assertEqual(universe.teams[0].score, universe.KILLPOINTS+1)
         self.assertEqual(game_state, {
             "bot_moved": [{"bot_id": 0, "old_pos": (2, 1), "new_pos": (3, 1)}],
@@ -798,7 +800,7 @@ class TestCTFUniverseRules(unittest.TestCase):
         universe = CTFUniverse.create(test_start, number_bots)
         universe.move_bot(1, north)
         game_state = universe.move_bot(1, west)
-        self.assertItemsEqual(universe.food_list, [(3, 1), (1, 2)])
+        six.assertCountEqual(self, universe.food_list, [(3, 1), (1, 2)])
         self.assertEqual(game_state["bot_moved"][0], {"bot_id": 1, "old_pos": (4, 1), "new_pos": (3, 1)})
 
     def test_suicide_win(self):
