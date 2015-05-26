@@ -5,8 +5,7 @@
 import abc
 import sys
 import six
-
-from .messaging.json_convert import json_converter
+import json
 
 @six.add_metaclass(abc.ABCMeta)
 class AbstractViewer(object):
@@ -68,7 +67,7 @@ class DumpingViewer(AbstractViewer):
         self.stream = stream
 
     def set_initial(self, universe):
-        self.stream.write(json_converter.dumps({"universe": universe}))
+        self.stream.write(json.dumps({"universe": universe}))
         self.stream.write("\x04")
 
     def observe(self, universe, game_state):
@@ -77,5 +76,5 @@ class DumpingViewer(AbstractViewer):
             "game_state": game_state
         }
 
-        self.stream.write(json_converter.dumps(kwargs))
+        self.stream.write(json.dumps(kwargs))
         self.stream.write("\x04")

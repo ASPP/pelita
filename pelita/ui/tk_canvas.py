@@ -5,9 +5,10 @@ from six.moves import tkinter
 from six.moves import tkinter_font
 
 import zmq
+import json
 
+from ..datamodel import CTFUniverse
 from .tk_sprites import BotSprite, Wall, Food, col
-from ..messaging.json_convert import json_converter
 from ..utils.signal_handlers import wm_delete_window_handler
 
 _logger = logging.getLogger("pelita.tk")
@@ -544,7 +545,7 @@ class TkApplication(object):
             # we don’t want to block here and lock
             # Tk animations
             message = self.socket.recv_unicode(flags=zmq.NOBLOCK)
-            message = json_converter.loads(message)
+            message = json.loads(message)
             # we curretly don’t care about the action
             observed = message["__data__"]
             self.observe(observed)
@@ -582,6 +583,7 @@ class TkApplication(object):
 
     def observe(self, observed):
         universe = observed.get("universe")
+        universe = CTFUniverse._from_json_dict(universe) if universe else None
         game_state = observed.get("game_state")
 
         self.ui_canvas.update(universe, game_state)
@@ -621,4 +623,3 @@ class TkApplication(object):
                 self.ui_canvas.button_game_speed_faster.config(state=tkinter.NORMAL)
         except AttributeError:
             pass
-

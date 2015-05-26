@@ -9,7 +9,6 @@ from .graph import new_pos, diff_pos, manhattan_dist
 from .graph import iter_adjacencies
 from .layout import Layout
 from .containers import Mesh
-from .messaging.json_convert import serializable
 
 north = (0, -1)
 south = (0, 1)
@@ -17,7 +16,6 @@ west  = (-1, 0)
 east  = (1, 0)
 stop  = (0, 0)
 
-@serializable
 class Team(object):
     """ A team of bots.
 
@@ -81,7 +79,6 @@ class Team(object):
         item["zone"] = tuple(item["zone"])
         return cls(**item)
 
-@serializable
 class Bot(object):
     """ A bot on a team.
 
@@ -171,7 +168,6 @@ Food = '.'
 
 maze_components = [Food, Free, Wall]
 
-@serializable
 class Maze(Mesh):
     def __init__(self, width, height, data=None):
         if not data:
@@ -251,7 +247,6 @@ class IllegalMoveException(Exception):
     """ Raised when a bot attempts to make an illegal move. """
     pass
 
-@serializable
 class CTFUniverse(object):
     """ The Universe: representation of the game state.
 
@@ -737,4 +732,3 @@ class CTFUniverse(object):
                    food=item["food"],
                    teams=[Team._from_json_dict(team) for team in item["teams"]],
                    bots=[Bot._from_json_dict(bot) for bot in item["bots"]])
-

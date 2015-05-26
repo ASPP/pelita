@@ -6,7 +6,6 @@ from pelita.layout import Layout
 from pelita.containers import Mesh
 from pelita.datamodel import *
 from pelita.graph import new_pos
-from pelita.messaging.json_convert import json_converter
 from functools import reduce
 
 
@@ -101,34 +100,6 @@ class TestBot(unittest.TestCase):
         self.assertEqual(white.current_pos, (6, 6))
         self.assertTrue(white.is_destroyer)
 
-    def test_json_serialization(self):
-        black = Bot(0, (1, 1), 0, (0, 3))
-        white = Bot(1, (6, 6), 1, (3, 6), current_pos = (1, 1))
-
-        black_json = json_converter.dumps(black)
-        white_json = json_converter.dumps(white)
-
-        black_json_target = {'__id__': 'pelita.datamodel.Bot',
-                             '__value__': {'current_pos': [1, 1],
-                                           'homezone': [0, 3],
-                                           'index': 0,
-                                           'initial_pos': [1, 1],
-                                           'team_index': 0,
-                                           'noisy': False}}
-
-        white_json_target = {'__id__': 'pelita.datamodel.Bot',
-                             '__value__': {'current_pos': [1, 1],
-                                           'homezone': [3, 6],
-                                           'index': 1,
-                                           'initial_pos': [6, 6],
-                                           'team_index': 1,
-                                           'noisy': False}}
-
-        self.assertEqual(json.loads(black_json), black_json_target)
-        self.assertEqual(json.loads(white_json), white_json_target)
-
-        self.assertEqual(json_converter.loads(black_json), black)
-        self.assertEqual(json_converter.loads(white_json), white)
 
 class TestTeam(unittest.TestCase):
 
@@ -171,29 +142,6 @@ class TestTeam(unittest.TestCase):
         team_white2 = eval(repr(team_white))
         self.assertEqual(team_white, team_white2)
 
-    def test_json_serialization(self):
-        team_black = Team(0, (0, 2))
-        team_white = Team(1, (3, 6), score=5)
-
-        team_black_json = json_converter.dumps(team_black)
-        team_white_json = json_converter.dumps(team_white)
-
-        team_black_json_target = {"__id__": "pelita.datamodel.Team",
-                                  "__value__": {"index": 0,
-                                                "score": 0,
-                                                "zone": [0, 2]}}
-
-        team_white_json_target = {"__id__": "pelita.datamodel.Team",
-                                  "__value__": {"index": 1,
-                                                "score": 5,
-                                                "zone": [3, 6]}}
-
-        self.assertEqual(json.loads(team_black_json), team_black_json_target)
-        self.assertEqual(json.loads(team_white_json), team_white_json_target)
-
-        self.assertEqual(json_converter.loads(team_black_json), team_black)
-        self.assertEqual(json_converter.loads(team_white_json), team_white)
-
 
 class TestMazeComponents(unittest.TestCase):
 
@@ -235,11 +183,6 @@ class TestMaze(unittest.TestCase):
         maze = Maze(5, 5)
         self.assertEqual([(x, y) for y in range(5) for x in range(5)],
                          list(maze.positions))
-
-    def test_json(self):
-        maze = Maze(2, 1, data=[True, False])
-        maze_json = json_converter.dumps(maze)
-        self.assertEqual(json_converter.loads(maze_json), maze)
 
     def test_eq_repr(self):
         maze = Maze(2, 1, data=[True, False])
@@ -474,18 +417,37 @@ class TestCTFUniverse(unittest.TestCase):
             #     . #  .  .#3#
             ################## """)
         universe = CTFUniverse.create(test_layout3, 4)
-        universe_json = json_converter.dumps(universe)
-        self.assertEqual(json_converter.loads(universe_json), universe)
+        maze_data = universe.maze._data
 
-        universe_dict = json.loads(universe_json)
-        self.assertEqual(universe_dict["__id__"], "pelita.datamodel.CTFUniverse")
-        universe_dict_value = universe_dict["__value__"]
-        self.assertTrue("maze" in universe_dict_value)
-        self.assertEqual(len(universe_dict_value["bots"]), 4)
-        self.assertEqual(len(universe_dict_value["teams"]), 2)
-        # check that bots and teams are directly embedded
-        self.assertEqual([bot["index"] for bot in universe_dict_value["bots"]], list(range(4)))
-        self.assertEqual([team["index"] for team in universe_dict_value["teams"]], list(range(2)))
+        universe_json = {
+                "maze": {
+                    "height": 5,
+                    "width": 18,
+                    "data": maze_data[:],
+                },
+                "food": [(6, 1), (3, 1), (11, 3), (6, 3), (11, 1), (14, 3)],
+                "teams": [
+                    {'score': 0, 'zone': (0, 8), 'index': 0},
+                    {'score': 0, 'zone': (9, 17), 'index': 1}
+                ],
+                "bots": [
+                    {'team_index': 0, 'homezone': (0, 8), 'noisy': False,
+                        'current_pos': (1, 1), 'index': 0, 'initial_pos': (1, 1)},
+                    {'team_index': 1, 'homezone': (9, 17), 'noisy': False,
+                        'current_pos': (1, 2), 'index': 1, 'initial_pos': (1, 2)},
+                    {'team_index': 0, 'homezone': (0, 8), 'noisy': False,
+                        'current_pos': (16, 2), 'index': 2, 'initial_pos': (16, 2)},
+                    {'team_index': 1, 'homezone': (9, 17), 'noisy': False,
+                        'current_pos': (16, 3), 'index': 3, 'initial_pos': (16, 3)}
+                ]
+            }
+
+        universe_dict = universe._to_json_dict()
+        self.assertEqual(universe_json, universe_dict)
+
+        universe2 = CTFUniverse._from_json_dict(universe_json)
+        self.assertEqual(universe, universe2)
+
 
     def test_too_many_enemy_teams(self):
         test_layout3 = (

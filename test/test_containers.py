@@ -3,7 +3,6 @@
 import unittest
 import json
 from pelita.containers import *
-from pelita.messaging.json_convert import json_converter
 
 class TestMesh(unittest.TestCase):
 
@@ -123,33 +122,3 @@ class TestMesh(unittest.TestCase):
         self.assertTrue(m2[1, 1])
         self.assertFalse(m3[1, 1])
 
-    def test_json(self):
-        m = Mesh(2, 3, data=[1, 2, 3, 4, 5, 6])
-        m_json = json_converter.dumps(m)
-        m_json_target = {"__id__": "pelita.containers.Mesh",
-                         "__value__": {"width": 2,
-                                       "data": [1, 2, 3, 4, 5, 6],
-                                       "height": 3}}
-
-        self.assertEqual(json.loads(m_json), m_json_target)
-        self.assertEqual(json_converter.loads(m_json), m)
-
-    def test_json_non_trivial(self):
-        simple_mesh = Mesh(2, 3, data=[1, 2, 3, 4, 5, 6])
-        m = Mesh(2, 3, data=[1,
-                            {"key": "value"},
-                             [3, 6, 9, 27],
-                             ("a", "tuple?"),
-                              "ünico∂e",
-                              simple_mesh])
-
-        m_no_tuple = Mesh(2, 3, data=[1,
-                            {"key": "value"},
-                             [3, 6, 9, 27],
-                             ["a", "tuple?"],
-                              u"ünico∂e",
-                              simple_mesh])
-
-        m_json = json_converter.dumps(m)
-
-        self.assertEqual(json_converter.loads(m_json), m_no_tuple)
