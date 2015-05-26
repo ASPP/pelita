@@ -56,3 +56,6 @@ if __name__ == '__main__':
     NUMBER = 10
     result = min(timeit.repeat(run_game, repeat=REPEAT, number=NUMBER))
     print("Fastest out of {}: {}".format(REPEAT, result))
+
+    import cProfile
+    cProfile.runctx("""run_game()""", globals(), locals())
