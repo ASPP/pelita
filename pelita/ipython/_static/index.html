@@ -2,7 +2,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head><meta content="text/html; charset=UTF-8" http-equiv="content-type" /><title>Pelita</title>
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-
     <script type="text/javascript" src="http://coffeescript.org/extras/coffee-script.js"></script>
     <script type="text/coffeescript" src="pelita-canvas.coffee"></script>
   </head>
@@ -18,27 +17,27 @@
       </article>
 
       <script type="text/javascript">
-          var loc = window.location, ws_uri;
-          ws_uri = (loc.protocol === "https:") ? "wss:" : "ws:";
-          ws_uri += "//" + loc.host;
-          ws_uri += "/ws-echo";
+        var loc = window.location, ws_uri;
+        ws_uri = (loc.protocol === "https:") ? "wss:" : "ws:";
+        ws_uri += "//" + loc.host;
+        ws_uri += "/ws-echo";
 
-          var ws = new WebSocket(ws_uri);
-          ws.onmessage = function(event) {
-            data = JSON.parse(event.data);
+        var ws = new WebSocket(ws_uri);
+        ws.onmessage = function(event) {
+          data = JSON.parse(event.data);
 
-            walls = data.walls;
-            food = data.food;
-            state = data.state;
-            teams = data.teams;
+          walls = data.walls;
+          food = data.food;
+          state = data.state;
+          teams = data.teams;
 
-            $(".teamA").text(data.teams[0].name);
-            $(".teamB").text(data.teams[1].name);
-            $(".scoreA").text(data.teams[0].score);
-            $(".scoreB").text(data.teams[1].score);
+          $(".teamA").text(data.teams[0].name);
+          $(".teamB").text(data.teams[1].name);
+          $(".scoreA").text(data.teams[0].score);
+          $(".scoreB").text(data.teams[1].score);
 
-            createMaze($(".live-canvas"), data.width, data.height, walls, food, data.bots);
-          };
+          createMaze($(".live-canvas"), data.width, data.height, walls, food, data.bots);
+        };
 
         var ws_status = $("#ws_status");
         ws.onerror = function(event) {

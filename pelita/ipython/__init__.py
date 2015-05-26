@@ -19,15 +19,6 @@ from ..datamodel import Wall, Food
 
 import json
 
-class WebWrapper:
-    def __init__(self):
-        pass
-
-    def show(self):
-        pass
-
-
-
 class ZMQPubSub:
     def __init__(self, callback):
         self.callback = callback
@@ -46,23 +37,12 @@ class Application(tornado.web.Application):
     def __init__(self):
         self.path = 'ipc:///tmp/pelita.%i' % id(self)
         handlers = [
-            (r"/", HomePageHandler),
             (r"/static/(.*)", tornado.web.StaticFileHandler, {'path': os.path.join(os.path.dirname(__file__), '_static')}),
             (r"/ws-echo", EchoWebSocket, {'path': self.path})
         ]
         tornado.web.Application.__init__(self, handlers, debug=True)
 
-# Handle the home page/index request.
-# @route("/").
-class HomePageHandler(tornado.web.RequestHandler):
-    def get(self):
-        #       self.render("index.html")
-        self.render_string("index.html")
-        self.write("hi")
-
 class EchoWebSocket(tornado.websocket.WebSocketHandler):
-
-
     def initialize(self, path):
         self.path = path
         self._walls = None
@@ -79,7 +59,6 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         pass
-        # self.write_message(u"You said: " + message)
 
     def on_close(self):
         print("WebSocket closed")
@@ -111,8 +90,11 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
                 bot_data = bot.current_pos
                 bots.append(bot_data)
 
-            teams = [{"name": game_state["team_name"][idx], "score": t.score}
-                        for idx, t in enumerate(universe.teams)]
+            if game_state:
+                teams = [{"name": game_state["team_name"][idx], "score": t.score}
+                          for idx, t in enumerate(universe.teams)]
+            else:
+                teams = []
 
             data = {'walls': self._walls,
                     'width': width,
@@ -123,15 +105,9 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
                     'state': game_state
                     }
             data_json = json.dumps(data)
-            # print data_json
             self.write_message(data_json)
 
-
-IFRAME = """
-
-"""
-
-def printit():
+def init_app():
     application = Application()
     sockets = tornado.netutil.bind_sockets(0, '', family=socket.AF_INET)
     server = tornado.httpserver.HTTPServer(application)
@@ -140,5 +116,4 @@ def printit():
     for s in sockets:
         print('Listening on %s, port %d' % s.getsockname()[:2])
 
-#    tornado.ioloop.IOLoop.current().start()
     return application, sockets
