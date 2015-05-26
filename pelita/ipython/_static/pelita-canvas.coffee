@@ -14,7 +14,7 @@ CanvasRenderingContext2D::roundRect = (x, y, w, h, r) ->
 
 this.Maze = class Maze
 
-  constructor: (@canvas, @width, @height, @maze, @bot_positions) ->
+  constructor: (@canvas, @width, @height, @maze, @food, @bot_positions) ->
     #@width ?= @canvas.data("maze-width")
     #@height ?= @canvas.data("maze-height")
     #@maze ?= @canvas.data("maze-walls")
@@ -23,6 +23,7 @@ this.Maze = class Maze
     @canvas.data("maze-width", @width)
     @canvas.data("maze-height", @height)
     @canvas.data("maze-walls", @maze)
+    @canvas.data("maze-food", @maze)
     @canvas.data("maze-bot-positions", @bot_positions)
 
     @ctx = @canvas[0].getContext "2d"
@@ -110,8 +111,8 @@ this.Maze = class Maze
           #@ctx.roundRect(i * @scale, j * @scale, @scale, @scale, 2)
           #@ctx.fill()
           @ctx.fillRect(i * @scale, j * @scale, @scale, @scale)
-        if "." in @maze[j * @width + i]
-          @draw_food(i, j)
+    for [i, j] in @food
+      @draw_food(i, j)
     return
 
 this.createMaze = (args...) ->

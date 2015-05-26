@@ -32,7 +32,12 @@
             state = data.state;
             teams = data.teams;
 
-            createMaze($(".live-canvas"), data.width, data.height, walls, data.bots);
+            $(".teamA").text(data.teams[0].name);
+            $(".teamB").text(data.teams[1].name);
+            $(".scoreA").text(data.teams[0].score);
+            $(".scoreB").text(data.teams[1].score);
+
+            createMaze($(".live-canvas"), data.width, data.height, walls, food, data.bots);
           };
 
         var ws_status = $("#ws_status");

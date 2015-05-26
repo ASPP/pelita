@@ -96,21 +96,12 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
             self._walls = []
             for y in range(universe.maze.height):
                 for x in range(universe.maze.width):
-                    if Wall in universe.maze[x, y]:
+                    if universe.maze[x, y]:
                         self._walls.append("#")
-                    elif Food in universe.maze[x, y]:
-                        self._walls.append(".")
                     else:
                         self._walls.append(" ")
 
             self._walls = "".join(self._walls)
-
-            food = []
-            for x in range(universe.maze.width):
-                col = []
-                for y in range(universe.maze.height):
-                    col += [Food in universe.maze[x, y]]
-                food.append(col)
 
             width = universe.maze.width
             height = universe.maze.height
@@ -120,13 +111,14 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
                 bot_data = bot.current_pos
                 bots.append(bot_data)
 
-            teams = [{"name": t.name, "score": t.score} for t in universe.teams]
+            teams = [{"name": game_state["team_name"][idx], "score": t.score}
+                        for idx, t in enumerate(universe.teams)]
 
             data = {'walls': self._walls,
                     'width': width,
                     'height': height,
                     'bots': bots,
-                    'food': food,
+                    'food': [list(f) for f in universe.food],
                     'teams': teams,
                     'state': game_state
                     }
