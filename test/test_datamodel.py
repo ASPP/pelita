@@ -404,6 +404,27 @@ class TestCTFUniverse(unittest.TestCase):
                     east  : (3, 2),
                     stop  : (2, 2) }
         self.assertEqual(target, new)
+        current_position = (1, 1)
+        new = universe.neighbourhood(current_position)
+        target = { north : (1, 0),
+                    south : (1, 2),
+                    west  : (0, 1),
+                    east  : (2, 1),
+                    stop  : (1, 1) }
+        self.assertEqual(target, new)
+        current_position = (0, 0)
+        new = universe.neighbourhood(current_position)
+        target = {  south : (0, 1),
+                    east  : (1, 0),
+                    stop  : (0, 0) }
+        self.assertEqual(target, new)
+        current_position = (5, 4)
+        new = universe.neighbourhood(current_position)
+        target = { west: (4, 4),
+                   north: (5, 3),
+                   stop: (5, 4) }
+        self.assertEqual(target, new)
+
 
     def test_repr_eq(self):
         test_layout3 = (
