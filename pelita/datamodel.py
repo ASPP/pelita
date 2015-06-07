@@ -801,7 +801,12 @@ class CTFUniverse(object):
             mapping of moves to new positions (x, y)
 
         """
-        return dict([(move, new_pos(position, move)) for move in self._moves])
+        def iter_pos():
+            for move in self._moves:
+                pos = new_pos(position, move)
+                if pos in self.maze:
+                    yield move, pos
+        return dict(iter_pos())
 
     def reachable(self, initial_positions):
         """ Returns all reachable positions starting from a list initial positions.

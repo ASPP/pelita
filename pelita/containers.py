@@ -109,28 +109,8 @@ class Mesh(Mapping):
         """
         return (self.width, self.height)
 
-    def _check_index(self, index):
-        """ Checks that `index` is inside the boundaries.
-
-        Parameters
-        ----------
-        index : tuple of (int, int)
-            index (x, y) into the Mesh
-
-        Raises
-        ------
-        IndexError
-            if the index is not within the range of the Mesh
-
-        """
-        if not 0 <= index[0] < self.width:
-            raise IndexError(
-                'Mesh indexing error, requested x-coordinate: %i, but width is: %i'
-                % (index[0], self.width))
-        elif not 0 <= index[1] < self.height:
-            raise IndexError(
-                'Mesh indexing error, requested y-coordinate: %i, but height is: %i'
-                % (index[1], self.height))
+    def __contains__(self, index):
+        return 0 <= index[0] < self.width and 0 <= index[1] < self.height
 
     def _index_linear_to_tuple(self, index_linear):
         """ Convert a linear index to a tuple.
@@ -163,8 +143,17 @@ class Mesh(Mapping):
         index_linear : int
             index into the underlying list
 
+        Raises
+        ------
+        IndexError
+            if the index is not within the range of the Mesh
+
         """
-        self._check_index(index_tuple)
+        if index_tuple not in self:
+            raise IndexError(
+                'Mesh indexing error, requested coordinate: %r, but size is: (%i, %i)'
+                % (index_tuple, self.width, self.height))
+
         return index_tuple[0] + index_tuple[1] * self.width
 
     def _set_data(self, new_data):
