@@ -420,7 +420,7 @@ class UniverseNoiser(object):
     of noise. Noise will only be applied if the enemy bot is with a certain
     threshold (`sight_distance`).
 
-    Derived classes will need to implement distance and the alter_pos methods
+    Derived classes will need to implement distance and the altered_pos methods
 
     Methods
     -------
@@ -430,7 +430,7 @@ class UniverseNoiser(object):
         is measured in the space relevant to the particular algorithm implemented
         in the subclass, e.g. maze distance, manhattan distance, euclidean distance...
 
-    alter_pos(bot_pos):
+    altered_pos(bot_pos):
         return the noised new position of an enemy bot.
 
     Parameters
@@ -475,18 +475,23 @@ class UniverseNoiser(object):
             universe with noisy enemy positions
 
         """
-        universe_copy = CTFUniverse(maze=universe.maze, food=universe.food, teams=universe.teams, bots=[Bot._from_json_dict(bot._to_json_dict()) for bot in universe.bots])
+        # Prepare a copy of the universe with all bots cloned so that their position
+        # can be changed without altering the original universe.
+        universe_copy = CTFUniverse(maze=universe.maze,
+                                    food=universe.food,
+                                    teams=universe.teams,
+                                    bots=[Bot._from_json_dict(bot._to_json_dict()) for bot in universe.bots])
         self.universe = universe_copy
-        bot = universe_copy.bots[bot_index]
-        bots_to_noise = universe_copy.enemy_bots(bot.team_index)
-        for b in bots_to_noise:
+        current_bot = universe_copy.bots[bot_index]
+        enemy_bots = universe_copy.enemy_bots(current_bot.team_index)
+        for b in enemy_bots:
             # Check that the distance between this bot and the enemy is larger
             # than `sight_distance`.
-            distance = self.distance(bot, b)
+            distance = self.distance(current_bot, b)
 
             if distance is None or distance > self.sight_distance:
                 # If so then alter the position of the enemy
-                b.current_pos = self.alter_pos(b.current_pos)
+                b.current_pos = self.altered_pos(b.current_pos)
                 b.noisy = True
 
         return universe_copy
@@ -497,7 +502,7 @@ class UniverseNoiser(object):
         """
 
     @abc.abstractmethod
-    def alter_pos(self, bot_pos):
+    def altered_pos(self, bot_pos):
         """ Method to return a new position for a bot.
         """
 
@@ -517,7 +522,7 @@ class AStarNoiser(UniverseNoiser):
             # We cannot see it: Apply the noise anyway
             return None
 
-    def alter_pos(self, bot_pos):
+    def altered_pos(self, bot_pos):
         possible_positions = list(self.adjacency.pos_within(bot_pos,
                                                             self.noise_radius))
         if len(possible_positions) > 0:
@@ -535,7 +540,7 @@ class ManhattanNoiser(UniverseNoiser):
     def distance(self, bot, other_bot):
         return manhattan_dist(bot.current_pos, other_bot.current_pos)
 
-    def alter_pos(self, bot_pos):
+    def altered_pos(self, bot_pos):
         # get a list of possible positions
         noise_radius = self.noise_radius
         x_min, x_max = bot_pos[0] - noise_radius, bot_pos[0] + noise_radius
