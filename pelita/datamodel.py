@@ -161,6 +161,33 @@ Food = '.'
 maze_components = [Food, Free, Wall]
 
 class Maze(Mesh):
+    """ The `Maze` object holds the walls of the universe.
+
+    Data is stored and given in row-based order, eg.
+
+    >>> m = Maze(4, 3, data=[True, False, True, True] + [True, False, False, True] + 4*[True])
+
+    specifies the maze
+
+        # ##
+        #  #
+        ####
+
+    Parameters
+    ----------
+    width : int
+        the width of the maze
+    height : int
+        the height of the maze
+    data : iterable of bools
+        the walls of the maze (True) or free space (False) in row-based order
+
+    Attributes
+    ----------
+    shape : (int, int)
+        tuple of width and height
+
+    """
     def __init__(self, width, height, data=None):
         if not data:
             data = [False for _ in range(width * height)]
