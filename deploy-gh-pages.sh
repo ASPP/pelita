@@ -17,7 +17,7 @@ if
   cd $HOME
   git config --global user.email "travis@travis-ci.org"
   git config --global user.name "travis-ci"
-  git clone --branch=$BRANCH https://${GH_TOKEN}@github.com/${REPO} pelitadoc
+  git clone --quiet --branch=$BRANCH https://${GH_TOKEN}@github.com/${REPO} pelitadoc
 
   cd pelitadoc
 
@@ -39,6 +39,6 @@ if
   # move the branch to the commit we made, i.e. one up
   git update-ref refs/heads/gh-pages $commit
 
-  git push origin gh-pages
+  git push -q origin gh-pages
 
 fi
