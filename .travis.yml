@@ -24,4 +24,5 @@ script: >
               (echo $res | grep -q Exception) && exit 1
               echo "" # This resets the error code
           done
-
+after_success:
+  - ./deploy-gh-pages.sh
