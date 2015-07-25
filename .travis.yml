@@ -5,8 +5,12 @@ python:
   - "3.3"
   - "3.4"
 env:
-  - PYZMQ="pyzmq==2.2.0.1"
-  - PYZMQ="pyzmq"
+  global:
+    - secure: "fHTmXSkUyVFu7lJ4upcu4Xhv+5cTGq+SJ+GV9UUJ9guZYVWafxJw3CRmd/qqjucQzOTPg/2JA4/9XqDZDSWKKBwGTOgeiFjKaa4xPFO/bvpbECqR4y7TDh7k7zSjMCDD624b8k6LyWiaerh50ShU2CSi3cTjpyZWloolQWRotLM="
+    - REPO: "ASPP/pelita"
+  matrix:
+    - PYZMQ: "pyzmq"
+    - PYZMQ: "pyzmq==2.2.0.1"
 # command to install dependencies
 install:
   - pip install six
@@ -24,4 +28,5 @@ script: >
               (echo $res | grep -q Exception) && exit 1
               echo "" # This resets the error code
           done
-
+after_success:
+  - ./deploy-gh-pages.sh

@@ -3,32 +3,32 @@
 
 .. automodule:: {{ fullname }}
 
-   {% if pelita_member_filter(fullname, functions) %}
+   {% if functions %}
    .. rubric:: Functions
 
    .. autosummary::
       :toctree:
-   {% for item in pelita_member_filter(fullname, functions) %}
+   {% for item in functions %}
       ~{{ item }}
    {%- endfor %}
    {% endif %}
 
-   {% if pelita_member_filter(fullname, classes) %}
+   {% if classes %}
    .. rubric:: Classes
 
    .. autosummary::
       :toctree:
-   {% for item in pelita_member_filter(fullname, classes) %}
+   {% for item in classes %}
       ~{{ item }}
    {%- endfor %}
    {% endif %}
 
-   {% if pelita_member_filter(fullname, exceptions) %}
+   {% if exceptions %}
    .. rubric:: Exceptions
 
    .. autosummary::
       :toctree:
-   {% for item in pelita_member_filter(fullname, exceptions) %}
+   {% for item in exceptions %}
       ~{{ item }}
    {%- endfor %}
    {% endif %}
