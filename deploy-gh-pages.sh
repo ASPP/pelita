@@ -1,29 +1,34 @@
-#!/bin/sh
+#!/bin/bash
+
+BRANCH="master"
 
 if
-  [ "$TRAVIS_REPO_SLUG" == "ASPP/pelita" ] &&
+  [ "$TRAVIS_REPO_SLUG" == "$REPO" ] &&
   [ "$TRAVIS_PULL_REQUEST" == "false" ] &&
   [ "$TRAVIS_PYTHON_VERSION" == "3.4" ] &&
   [ "$PYZMQ" == "pyzmq" ] &&
-  [ "$TRAVIS_BRANCH" == "master" ]; then
+  [ "$TRAVIS_BRANCH" == "$BRANCH" ]; then
 
   echo "Trying to build documentation."
-
-  cd $HOME
-  git config --global user.email "travis@travis-ci.org"
-  git config --global user.name "travis-ci"
-  git clone --quiet --branch=master https://${GH_TOKEN}@github.com/ASPP/pelita pelitadoc
 
   pip install Sphinx
   pip install numpydoc
 
+  cd $HOME
+  git config --global user.email "travis@travis-ci.org"
+  git config --global user.name "travis-ci"
+  git clone --branch=$BRANCH https://${GH_TOKEN}@github.com/${REPO} pelitadoc
+
   cd pelitadoc
+
+  git checkout gh-pages
+  git checkout $BRANCH
 
   TREEFILE=$(mktemp TREE.XXXXXX)
 
   ./make-doc-tree.sh $TREEFILE
 
-  TREE=$(cat $TREEFILE)
+  tree=$(cat $TREEFILE)
 
   # get the ‘git describe’ output
   git_describe=$(git describe)
@@ -34,6 +39,6 @@ if
   # move the branch to the commit we made, i.e. one up
   git update-ref refs/heads/gh-pages $commit
 
-  git push -fq origin gh-pages
+  git push origin gh-pages
 
 fi
