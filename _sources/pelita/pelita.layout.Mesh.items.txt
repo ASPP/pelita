@@ -1,0 +1,6 @@
+pelita.layout.Mesh.items
+========================
+
+.. currentmodule:: pelita.layout
+
+.. automethod:: Mesh.items

@@ -1,0 +1,6 @@
+pelita.game_master.CTFUniverse.copy
+===================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: CTFUniverse.copy

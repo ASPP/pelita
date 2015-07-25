@@ -1,0 +1,6 @@
+pelita.containers.MutableSequence.reverse
+=========================================
+
+.. currentmodule:: pelita.containers
+
+.. automethod:: MutableSequence.reverse

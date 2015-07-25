@@ -1,0 +1,6 @@
+pelita.datamodel.Layout.from_file
+=================================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: Layout.from_file

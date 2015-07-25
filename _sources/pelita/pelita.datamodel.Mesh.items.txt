@@ -1,0 +1,6 @@
+pelita.datamodel.Mesh.items
+===========================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: Mesh.items

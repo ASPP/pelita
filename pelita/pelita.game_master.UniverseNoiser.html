@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.game_master.UniverseNoiser &mdash; Pelita v0.2.0-178-g6b6e9f5 documentation</title>
+    <title>pelita.game_master.UniverseNoiser &mdash; Pelita v0.2.0-194-gd7e8735 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-178-g6b6e9f5',
+        VERSION:     'v0.2.0-194-gd7e8735',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-178-g6b6e9f5 documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.2.0-194-gd7e8735 documentation" href="../index.html" />
     <link rel="up" title="pelita.game_master" href="pelita.game_master.html" />
     <link rel="next" title="pelita.game_master.UniverseNoiser.__init__" href="pelita.game_master.UniverseNoiser.__init__.html" />
     <link rel="prev" title="pelita.game_master.ManhattanNoiser.uniform_noise" href="pelita.game_master.ManhattanNoiser.uniform_noise.html" />
@@ -33,30 +33,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../np-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="pelita.game_master.UniverseNoiser.__init__.html" title="pelita.game_master.UniverseNoiser.__init__"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="pelita.game_master.ManhattanNoiser.uniform_noise.html" title="pelita.game_master.ManhattanNoiser.uniform_noise"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pelita v0.2.0-178-g6b6e9f5 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="pelita.game_master.html" accesskey="U">pelita.game_master</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body role="document">  
 
     <div class="document">
       <div class="documentwrapper">
@@ -68,7 +45,8 @@
 <dl class="class">
 <dt id="pelita.game_master.UniverseNoiser">
 <em class="property">class </em><code class="descclassname">pelita.game_master.</code><code class="descname">UniverseNoiser</code><span class="sig-paren">(</span><em>universe</em>, <em>noise_radius=5</em>, <em>sight_distance=5</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/game_master.html#UniverseNoiser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.game_master.UniverseNoiser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Abstract BaseClass to make bot positions noisy.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Abstract BaseClass to make bot positions noisy.</p>
 <p>Supports uniform noise in maze space. Can be extended to support other types
 of noise. Noise will only be applied if the enemy bot is with a certain
 threshold (<cite>sight_distance</cite>).</p>
@@ -100,14 +78,12 @@ threshold (<cite>sight_distance</cite>).</p>
 <p class="rubric">Methods</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="24%" />
-<col width="76%" />
+<col width="10%" />
+<col width="90%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td>distance(bot, other_bot):</td>
-<td>return distance between current bot and bot to be noised. Distance
-is measured in the space relevant to the particular algorithm implemented
-in the subclass, e.g. maze distance, manhattan distance, euclidean distance...</td>
+<td>return distance between current bot and bot to be noised. Distance is measured in the space relevant to the particular algorithm implemented in the subclass, e.g. maze distance, manhattan distance, euclidean distance...</td>
 </tr>
 <tr class="row-even"><td>alter_pos(bot_pos):</td>
 <td>return the noised new position of an enemy bot.</td>
@@ -219,12 +195,12 @@ in the subclass, e.g. maze distance, manhattan distance, euclidean distance...</
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
       
       |
       <a href="../_sources/pelita/pelita.game_master.UniverseNoiser.txt"
-          rel="nofollow">Page source</a></li>
+          rel="nofollow">Page source</a>
     </div>
 
     

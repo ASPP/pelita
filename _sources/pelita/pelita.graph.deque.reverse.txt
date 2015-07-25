@@ -1,0 +1,6 @@
+pelita.graph.deque.reverse
+==========================
+
+.. currentmodule:: pelita.graph
+
+.. automethod:: deque.reverse

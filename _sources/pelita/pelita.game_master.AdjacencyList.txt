@@ -1,0 +1,35 @@
+pelita.game_master.AdjacencyList
+================================
+
+.. currentmodule:: pelita.game_master
+
+.. autoclass:: AdjacencyList
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      ~AdjacencyList.__init__
+      ~AdjacencyList.a_star
+      ~AdjacencyList.bfs
+      ~AdjacencyList.clear
+      ~AdjacencyList.copy
+      ~AdjacencyList.fromkeys
+      ~AdjacencyList.get
+      ~AdjacencyList.items
+      ~AdjacencyList.keys
+      ~AdjacencyList.pop
+      ~AdjacencyList.popitem
+      ~AdjacencyList.pos_within
+      ~AdjacencyList.setdefault
+      ~AdjacencyList.update
+      ~AdjacencyList.values
+   
+   
+
+   
+   
+   

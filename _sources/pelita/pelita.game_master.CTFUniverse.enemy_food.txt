@@ -1,0 +1,6 @@
+pelita.game_master.CTFUniverse.enemy_food
+=========================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: CTFUniverse.enemy_food

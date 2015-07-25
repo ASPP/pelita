@@ -1,0 +1,6 @@
+pelita.layout.Mesh.values
+=========================
+
+.. currentmodule:: pelita.layout
+
+.. automethod:: Mesh.values

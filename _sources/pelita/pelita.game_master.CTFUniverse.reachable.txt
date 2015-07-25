@@ -1,0 +1,6 @@
+pelita.game_master.CTFUniverse.reachable
+========================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: CTFUniverse.reachable

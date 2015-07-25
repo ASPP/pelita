@@ -1,0 +1,6 @@
+pelita.game_master.AdjacencyList.clear
+======================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: AdjacencyList.clear

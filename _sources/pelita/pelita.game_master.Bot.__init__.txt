@@ -1,0 +1,6 @@
+pelita.game_master.Bot.__init__
+===============================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: Bot.__init__

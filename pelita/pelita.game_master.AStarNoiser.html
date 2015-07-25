@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.game_master.AStarNoiser &mdash; Pelita v0.2.0-178-g6b6e9f5 documentation</title>
+    <title>pelita.game_master.AStarNoiser &mdash; Pelita v0.2.0-194-gd7e8735 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-178-g6b6e9f5',
+        VERSION:     'v0.2.0-194-gd7e8735',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,39 +24,16 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-178-g6b6e9f5 documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.2.0-194-gd7e8735 documentation" href="../index.html" />
     <link rel="up" title="pelita.game_master" href="pelita.game_master.html" />
-    <link rel="next" title="pelita.game_master.AStarNoiser.alter_pos" href="pelita.game_master.AStarNoiser.alter_pos.html" />
+    <link rel="next" title="pelita.game_master.AStarNoiser.__init__" href="pelita.game_master.AStarNoiser.__init__.html" />
     <link rel="prev" title="pelita.game_master.PlayerTimeout" href="pelita.game_master.PlayerTimeout.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../np-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="pelita.game_master.AStarNoiser.alter_pos.html" title="pelita.game_master.AStarNoiser.alter_pos"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="pelita.game_master.PlayerTimeout.html" title="pelita.game_master.PlayerTimeout"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pelita v0.2.0-178-g6b6e9f5 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="pelita.game_master.html" accesskey="U">pelita.game_master</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body role="document">  
 
     <div class="document">
       <div class="documentwrapper">
@@ -68,26 +45,9 @@
 <dl class="class">
 <dt id="pelita.game_master.AStarNoiser">
 <em class="property">class </em><code class="descclassname">pelita.game_master.</code><code class="descname">AStarNoiser</code><span class="sig-paren">(</span><em>universe</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/game_master.html#AStarNoiser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.game_master.AStarNoiser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Noiser in maze space.</p>
+<dd><p>Bases: <a class="reference internal" href="pelita.game_master.UniverseNoiser.html#pelita.game_master.UniverseNoiser" title="pelita.game_master.UniverseNoiser"><code class="xref py py-class docutils literal"><span class="pre">pelita.game_master.UniverseNoiser</span></code></a></p>
+<p>Noiser in maze space.</p>
 <p>It uses A* and adjacency maps to measure distances in maze space.</p>
-<p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.game_master.AStarNoiser.alter_pos.html#pelita.game_master.AStarNoiser.alter_pos" title="pelita.game_master.AStarNoiser.alter_pos"><code class="xref py py-obj docutils literal"><span class="pre">alter_pos</span></code></a>(bot_pos)</td>
-<td></td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.game_master.AStarNoiser.distance.html#pelita.game_master.AStarNoiser.distance" title="pelita.game_master.AStarNoiser.distance"><code class="xref py py-obj docutils literal"><span class="pre">distance</span></code></a>(bot,&nbsp;other_bot)</td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.game_master.AStarNoiser.uniform_noise.html#pelita.game_master.AStarNoiser.uniform_noise" title="pelita.game_master.AStarNoiser.uniform_noise"><code class="xref py py-obj docutils literal"><span class="pre">uniform_noise</span></code></a>(universe,&nbsp;bot_index)</td>
-<td>Apply uniform noise to the enemies of a Bot.</td>
-</tr>
-</tbody>
-</table>
 <p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -145,9 +105,6 @@
 <li class="toctree-l2"><a class="reference internal" href="pelita.datamodel.html">pelita.datamodel</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="pelita.game_master.html">pelita.game_master</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="">pelita.game_master.AStarNoiser</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pelita.game_master.AStarNoiser.alter_pos.html">pelita.game_master.AStarNoiser.alter_pos</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pelita.game_master.AStarNoiser.distance.html">pelita.game_master.AStarNoiser.distance</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pelita.game_master.AStarNoiser.uniform_noise.html">pelita.game_master.AStarNoiser.uniform_noise</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pelita.game_master.AStarNoiser.__init__.html">pelita.game_master.AStarNoiser.__init__</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pelita.game_master.AStarNoiser.alter_pos.html">pelita.game_master.AStarNoiser.alter_pos</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pelita.game_master.AStarNoiser.distance.html">pelita.game_master.AStarNoiser.distance</a></li>
@@ -196,12 +153,12 @@
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
       
       |
       <a href="../_sources/pelita/pelita.game_master.AStarNoiser.txt"
-          rel="nofollow">Page source</a></li>
+          rel="nofollow">Page source</a>
     </div>
 
     

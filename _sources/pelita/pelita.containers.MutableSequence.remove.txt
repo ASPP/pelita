@@ -1,0 +1,6 @@
+pelita.containers.MutableSequence.remove
+========================================
+
+.. currentmodule:: pelita.containers
+
+.. automethod:: MutableSequence.remove

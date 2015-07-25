@@ -10,7 +10,11 @@ pelita.datamodel
       :toctree:
    
       ~create_maze
+      ~diff_pos
       ~extract_initial_positions
+      ~iter_adjacencies
+      ~manhattan_dist
+      ~new_pos
    
 
    
@@ -21,7 +25,9 @@ pelita.datamodel
    
       ~Bot
       ~CTFUniverse
+      ~Layout
       ~Maze
+      ~Mesh
       ~Team
    
 

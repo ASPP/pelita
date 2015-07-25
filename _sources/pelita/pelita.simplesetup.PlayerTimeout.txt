@@ -1,0 +1,6 @@
+pelita.simplesetup.PlayerTimeout
+================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. autoexception:: PlayerTimeout

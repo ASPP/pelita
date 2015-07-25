@@ -1,0 +1,6 @@
+pelita.game_master.AdjacencyList.a_star
+=======================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: AdjacencyList.a_star

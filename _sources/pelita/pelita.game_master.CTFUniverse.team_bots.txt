@@ -1,0 +1,6 @@
+pelita.game_master.CTFUniverse.team_bots
+========================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: CTFUniverse.team_bots

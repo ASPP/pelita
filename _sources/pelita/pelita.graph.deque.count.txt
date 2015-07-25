@@ -1,0 +1,6 @@
+pelita.graph.deque.count
+========================
+
+.. currentmodule:: pelita.graph
+
+.. automethod:: deque.count

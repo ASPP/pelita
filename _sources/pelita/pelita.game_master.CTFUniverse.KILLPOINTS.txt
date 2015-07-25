@@ -1,0 +1,6 @@
+pelita.game_master.CTFUniverse.KILLPOINTS
+=========================================
+
+.. currentmodule:: pelita.game_master
+
+.. autoattribute:: CTFUniverse.KILLPOINTS

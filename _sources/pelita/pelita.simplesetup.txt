@@ -19,6 +19,8 @@ pelita.simplesetup
    .. autosummary::
       :toctree:
    
+      ~AbstractViewer
+      ~GameMaster
       ~RemoteTeamPlayer
       ~SimpleClient
       ~SimpleController
@@ -36,6 +38,8 @@ pelita.simplesetup
    
       ~DeadConnection
       ~ExitLoop
+      ~PlayerDisconnected
+      ~PlayerTimeout
       ~UnknownMessageId
       ~ZMQTimeout
    

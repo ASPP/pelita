@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pelita.simplesetup.GameMaster &mdash; Pelita v0.2.0-194-gd7e8735 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'v0.2.0-194-gd7e8735',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Pelita v0.2.0-194-gd7e8735 documentation" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pelita-simplesetup-gamemaster">
+<h1>pelita.simplesetup.GameMaster<a class="headerlink" href="#pelita-simplesetup-gamemaster" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pelita.simplesetup.GameMaster">
+<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">GameMaster</code><span class="sig-paren">(</span><em>layout</em>, <em>number_bots</em>, <em>game_time</em>, <em>noise=True</em>, <em>noiser=None</em>, <em>initial_delay=0.0</em>, <em>max_timeouts=5</em>, <em>timeout_length=3</em>, <em>layout_name=None</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/game_master.html#GameMaster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.GameMaster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Controller of player moves and universe updates.</p>
+<p>This object coordinates the moves of the player implementations with the
+updating of the universe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>layout</strong> : string</p>
+<blockquote>
+<div><p>initial layout as string</p>
+</div></blockquote>
+<p><strong>number_bots</strong> : int</p>
+<blockquote>
+<div><p>the total number of bots</p>
+</div></blockquote>
+<p><strong>game_time</strong> : int</p>
+<blockquote>
+<div><p>the total permitted number of rounds</p>
+</div></blockquote>
+<p><strong>noise</strong> : boolean</p>
+<blockquote>
+<div><p>should enemy positions be noisy</p>
+</div></blockquote>
+<p><strong>seed</strong> : int, optional</p>
+<blockquote class="last">
+<div><p>seed which initialises the internal random number generator</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>universe</td>
+<td>(CTFUniverse) the game state</td>
+</tr>
+<tr class="row-even"><td>noiser</td>
+<td>(UniverseNoiser or None) object to add noise to enemy positions</td>
+</tr>
+<tr class="row-odd"><td>player_teams</td>
+<td>(list) the participating player teams</td>
+</tr>
+<tr class="row-even"><td>viewers</td>
+<td>(list of subclasses of AbstractViewer) the viewers that are observing this game</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.GameMaster.game_time.html#pelita.simplesetup.GameMaster.game_time" title="pelita.simplesetup.GameMaster.game_time"><code class="xref py py-obj docutils literal"><span class="pre">game_time</span></code></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Pelita</a></h1>
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=&repo=&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_player.html">Writing a Player</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running_player.html">Running Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-api.html">User API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="../_sources/pelita/pelita.simplesetup.GameMaster.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

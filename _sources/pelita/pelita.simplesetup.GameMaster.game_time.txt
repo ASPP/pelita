@@ -1,0 +1,6 @@
+pelita.simplesetup.GameMaster.game_time
+=======================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. autoattribute:: GameMaster.game_time

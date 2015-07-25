@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.graph.AdjacencyList &mdash; Pelita v0.2.0-178-g6b6e9f5 documentation</title>
+    <title>pelita.graph.AdjacencyList &mdash; Pelita v0.2.0-194-gd7e8735 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-178-g6b6e9f5',
+        VERSION:     'v0.2.0-194-gd7e8735',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,39 +24,16 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-178-g6b6e9f5 documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.2.0-194-gd7e8735 documentation" href="../index.html" />
     <link rel="up" title="pelita.graph" href="pelita.graph.html" />
-    <link rel="next" title="pelita.graph.AdjacencyList.a_star" href="pelita.graph.AdjacencyList.a_star.html" />
+    <link rel="next" title="pelita.graph.AdjacencyList.__init__" href="pelita.graph.AdjacencyList.__init__.html" />
     <link rel="prev" title="pelita.graph.new_pos" href="pelita.graph.new_pos.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../np-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="pelita.graph.AdjacencyList.a_star.html" title="pelita.graph.AdjacencyList.a_star"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="pelita.graph.new_pos.html" title="pelita.graph.new_pos"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pelita v0.2.0-178-g6b6e9f5 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="pelita.graph.html" accesskey="U">pelita.graph</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body role="document">  
 
     <div class="document">
       <div class="documentwrapper">
@@ -68,61 +45,11 @@
 <dl class="class">
 <dt id="pelita.graph.AdjacencyList">
 <em class="property">class </em><code class="descclassname">pelita.graph.</code><code class="descname">AdjacencyList</code><span class="sig-paren">(</span><em>adjacencies</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#AdjacencyList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.AdjacencyList" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adjacency list [1] representation of a Maze.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">dict</span></code></p>
+<p>Adjacency list [1] representation of a Maze.</p>
 <p>The <cite>AdjacencyList</cite> is mostly a wrapper for a <cite>dict</cite>. Given a position,
 it returns the positions reachable from there.</p>
 <p>[1] <a class="reference external" href="http://en.wikipedia.org/wiki/Adjacency_list">http://en.wikipedia.org/wiki/Adjacency_list</a></p>
-<p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.graph.AdjacencyList.a_star.html#pelita.graph.AdjacencyList.a_star" title="pelita.graph.AdjacencyList.a_star"><code class="xref py py-obj docutils literal"><span class="pre">a_star</span></code></a>(initial,&nbsp;target)</td>
-<td>A* search.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.graph.AdjacencyList.bfs.html#pelita.graph.AdjacencyList.bfs" title="pelita.graph.AdjacencyList.bfs"><code class="xref py py-obj docutils literal"><span class="pre">bfs</span></code></a>(initial,&nbsp;targets)</td>
-<td>Breadth first search (bfs).</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.graph.AdjacencyList.clear.html#pelita.graph.AdjacencyList.clear" title="pelita.graph.AdjacencyList.clear"><code class="xref py py-obj docutils literal"><span class="pre">clear</span></code></a>(()&nbsp;-&gt;&nbsp;None.&nbsp;&nbsp;Remove&nbsp;all&nbsp;items&nbsp;from&nbsp;D.)</td>
-<td></td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.graph.AdjacencyList.copy.html#pelita.graph.AdjacencyList.copy" title="pelita.graph.AdjacencyList.copy"><code class="xref py py-obj docutils literal"><span class="pre">copy</span></code></a>(()&nbsp;-&gt;&nbsp;a&nbsp;shallow&nbsp;copy&nbsp;of&nbsp;D)</td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.graph.AdjacencyList.fromkeys.html#pelita.graph.AdjacencyList.fromkeys" title="pelita.graph.AdjacencyList.fromkeys"><code class="xref py py-obj docutils literal"><span class="pre">fromkeys</span></code></a></td>
-<td>Returns a new dict with keys from iterable and values equal to value.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.graph.AdjacencyList.get.html#pelita.graph.AdjacencyList.get" title="pelita.graph.AdjacencyList.get"><code class="xref py py-obj docutils literal"><span class="pre">get</span></code></a>((k[,d])&nbsp;-&gt;&nbsp;D[k]&nbsp;if&nbsp;k&nbsp;in&nbsp;D,&nbsp;...)</td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.graph.AdjacencyList.items.html#pelita.graph.AdjacencyList.items" title="pelita.graph.AdjacencyList.items"><code class="xref py py-obj docutils literal"><span class="pre">items</span></code></a>(...)</td>
-<td></td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.graph.AdjacencyList.keys.html#pelita.graph.AdjacencyList.keys" title="pelita.graph.AdjacencyList.keys"><code class="xref py py-obj docutils literal"><span class="pre">keys</span></code></a>(...)</td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.graph.AdjacencyList.pop.html#pelita.graph.AdjacencyList.pop" title="pelita.graph.AdjacencyList.pop"><code class="xref py py-obj docutils literal"><span class="pre">pop</span></code></a>((k[,d])&nbsp;-&gt;&nbsp;v,&nbsp;...)</td>
-<td>If key is not found, d is returned if given, otherwise KeyError is raised</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.graph.AdjacencyList.popitem.html#pelita.graph.AdjacencyList.popitem" title="pelita.graph.AdjacencyList.popitem"><code class="xref py py-obj docutils literal"><span class="pre">popitem</span></code></a>(()&nbsp;-&gt;&nbsp;(k,&nbsp;v),&nbsp;...)</td>
-<td>2-tuple; but raise KeyError if D is empty.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.graph.AdjacencyList.pos_within.html#pelita.graph.AdjacencyList.pos_within" title="pelita.graph.AdjacencyList.pos_within"><code class="xref py py-obj docutils literal"><span class="pre">pos_within</span></code></a>(position,&nbsp;distance)</td>
-<td>Positions within a certain distance.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.graph.AdjacencyList.setdefault.html#pelita.graph.AdjacencyList.setdefault" title="pelita.graph.AdjacencyList.setdefault"><code class="xref py py-obj docutils literal"><span class="pre">setdefault</span></code></a>((k[,d])&nbsp;-&gt;&nbsp;D.get(k,d),&nbsp;...)</td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.graph.AdjacencyList.update.html#pelita.graph.AdjacencyList.update" title="pelita.graph.AdjacencyList.update"><code class="xref py py-obj docutils literal"><span class="pre">update</span></code></a>(([E,&nbsp;...)</td>
-<td>If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.graph.AdjacencyList.values.html#pelita.graph.AdjacencyList.values" title="pelita.graph.AdjacencyList.values"><code class="xref py py-obj docutils literal"><span class="pre">values</span></code></a>(...)</td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -218,20 +145,6 @@ it returns the positions reachable from there.</p>
 <li class="toctree-l3"><a class="reference internal" href="pelita.graph.manhattan_dist.html">pelita.graph.manhattan_dist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pelita.graph.new_pos.html">pelita.graph.new_pos</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="">pelita.graph.AdjacencyList</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pelita.graph.AdjacencyList.a_star.html">pelita.graph.AdjacencyList.a_star</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pelita.graph.AdjacencyList.bfs.html">pelita.graph.AdjacencyList.bfs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pelita.graph.AdjacencyList.clear.html">pelita.graph.AdjacencyList.clear</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pelita.graph.AdjacencyList.copy.html">pelita.graph.AdjacencyList.copy</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pelita.graph.AdjacencyList.fromkeys.html">pelita.graph.AdjacencyList.fromkeys</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pelita.graph.AdjacencyList.get.html">pelita.graph.AdjacencyList.get</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pelita.graph.AdjacencyList.items.html">pelita.graph.AdjacencyList.items</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pelita.graph.AdjacencyList.keys.html">pelita.graph.AdjacencyList.keys</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pelita.graph.AdjacencyList.pop.html">pelita.graph.AdjacencyList.pop</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pelita.graph.AdjacencyList.popitem.html">pelita.graph.AdjacencyList.popitem</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pelita.graph.AdjacencyList.pos_within.html">pelita.graph.AdjacencyList.pos_within</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pelita.graph.AdjacencyList.setdefault.html">pelita.graph.AdjacencyList.setdefault</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pelita.graph.AdjacencyList.update.html">pelita.graph.AdjacencyList.update</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pelita.graph.AdjacencyList.values.html">pelita.graph.AdjacencyList.values</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pelita.graph.AdjacencyList.__init__.html">pelita.graph.AdjacencyList.__init__</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pelita.graph.AdjacencyList.a_star.html">pelita.graph.AdjacencyList.a_star</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pelita.graph.AdjacencyList.bfs.html">pelita.graph.AdjacencyList.bfs</a></li>
@@ -285,12 +198,12 @@ it returns the positions reachable from there.</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
       
       |
       <a href="../_sources/pelita/pelita.graph.AdjacencyList.txt"
-          rel="nofollow">Page source</a></li>
+          rel="nofollow">Page source</a>
     </div>
 
     

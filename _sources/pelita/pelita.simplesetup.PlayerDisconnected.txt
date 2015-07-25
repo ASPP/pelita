@@ -1,0 +1,6 @@
+pelita.simplesetup.PlayerDisconnected
+=====================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. autoexception:: PlayerDisconnected

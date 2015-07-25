@@ -1,0 +1,30 @@
+pelita.game_master.Bot
+======================
+
+.. currentmodule:: pelita.game_master
+
+.. autoclass:: Bot
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      ~Bot.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ~Bot.in_own_zone
+      ~Bot.is_destroyer
+      ~Bot.is_harvester
+   
+   

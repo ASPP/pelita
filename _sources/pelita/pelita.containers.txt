@@ -11,7 +11,9 @@ pelita.containers
    .. autosummary::
       :toctree:
    
+      ~Mapping
       ~Mesh
+      ~MutableSequence
    
 
    

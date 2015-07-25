@@ -1,0 +1,6 @@
+pelita.graph.deque.popleft
+==========================
+
+.. currentmodule:: pelita.graph
+
+.. automethod:: deque.popleft

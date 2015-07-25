@@ -1,0 +1,6 @@
+pelita.game_master.CTFUniverse.enemy_team
+=========================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: CTFUniverse.enemy_team

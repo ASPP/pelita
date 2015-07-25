@@ -1,0 +1,6 @@
+pelita.game_master.CTFUniverse.__init__
+=======================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: CTFUniverse.__init__

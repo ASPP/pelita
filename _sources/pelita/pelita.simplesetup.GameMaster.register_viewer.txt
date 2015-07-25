@@ -1,0 +1,6 @@
+pelita.simplesetup.GameMaster.register_viewer
+=============================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: GameMaster.register_viewer

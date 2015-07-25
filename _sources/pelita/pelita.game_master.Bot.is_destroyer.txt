@@ -1,0 +1,6 @@
+pelita.game_master.Bot.is_destroyer
+===================================
+
+.. currentmodule:: pelita.game_master
+
+.. autoattribute:: Bot.is_destroyer

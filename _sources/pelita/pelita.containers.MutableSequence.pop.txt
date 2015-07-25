@@ -1,0 +1,6 @@
+pelita.containers.MutableSequence.pop
+=====================================
+
+.. currentmodule:: pelita.containers
+
+.. automethod:: MutableSequence.pop

@@ -1,0 +1,6 @@
+pelita.game_master.CTFUniverse.move_bot
+=======================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: CTFUniverse.move_bot

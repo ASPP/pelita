@@ -1,0 +1,6 @@
+pelita.graph.deque.appendleft
+=============================
+
+.. currentmodule:: pelita.graph
+
+.. automethod:: deque.appendleft

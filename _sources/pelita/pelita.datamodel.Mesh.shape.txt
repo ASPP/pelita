@@ -1,0 +1,6 @@
+pelita.datamodel.Mesh.shape
+===========================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoattribute:: Mesh.shape

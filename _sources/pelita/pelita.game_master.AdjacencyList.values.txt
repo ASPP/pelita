@@ -1,0 +1,6 @@
+pelita.game_master.AdjacencyList.values
+=======================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: AdjacencyList.values

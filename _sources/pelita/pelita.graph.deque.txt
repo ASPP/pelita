@@ -1,0 +1,38 @@
+pelita.graph.deque
+==================
+
+.. currentmodule:: pelita.graph
+
+.. autoclass:: deque
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      ~deque.append
+      ~deque.appendleft
+      ~deque.clear
+      ~deque.count
+      ~deque.extend
+      ~deque.extendleft
+      ~deque.pop
+      ~deque.popleft
+      ~deque.remove
+      ~deque.reverse
+      ~deque.rotate
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ~deque.maxlen
+   
+   

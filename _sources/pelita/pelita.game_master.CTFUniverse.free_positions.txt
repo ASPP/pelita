@@ -1,0 +1,6 @@
+pelita.game_master.CTFUniverse.free_positions
+=============================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: CTFUniverse.free_positions

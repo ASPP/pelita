@@ -22,6 +22,7 @@ pelita.layout
       :toctree:
    
       ~Layout
+      ~Mesh
    
 
    

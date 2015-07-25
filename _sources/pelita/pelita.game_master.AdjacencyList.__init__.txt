@@ -1,0 +1,6 @@
+pelita.game_master.AdjacencyList.__init__
+=========================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: AdjacencyList.__init__

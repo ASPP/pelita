@@ -1,0 +1,24 @@
+pelita.containers.Mapping
+=========================
+
+.. currentmodule:: pelita.containers
+
+.. autoclass:: Mapping
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      ~Mapping.get
+      ~Mapping.items
+      ~Mapping.keys
+      ~Mapping.values
+   
+   
+
+   
+   
+   

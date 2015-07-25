@@ -1,0 +1,26 @@
+pelita.datamodel.Layout
+=======================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: Layout
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      ~Layout.__init__
+      ~Layout.as_mesh
+      ~Layout.check_layout
+      ~Layout.from_file
+      ~Layout.layout_shape
+      ~Layout.strip_layout
+   
+   
+
+   
+   
+   

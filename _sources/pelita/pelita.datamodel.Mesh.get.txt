@@ -1,0 +1,6 @@
+pelita.datamodel.Mesh.get
+=========================
+
+.. currentmodule:: pelita.datamodel
+
+.. automethod:: Mesh.get

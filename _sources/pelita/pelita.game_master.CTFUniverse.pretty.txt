@@ -1,0 +1,6 @@
+pelita.game_master.CTFUniverse.pretty
+=====================================
+
+.. currentmodule:: pelita.game_master
+
+.. autoattribute:: CTFUniverse.pretty

@@ -1,0 +1,6 @@
+pelita.simplesetup.AbstractViewer.observe
+=========================================
+
+.. currentmodule:: pelita.simplesetup
+
+.. automethod:: AbstractViewer.observe

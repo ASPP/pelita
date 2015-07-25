@@ -1,0 +1,6 @@
+pelita.graph.deque.append
+=========================
+
+.. currentmodule:: pelita.graph
+
+.. automethod:: deque.append

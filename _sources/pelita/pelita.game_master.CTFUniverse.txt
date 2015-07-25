@@ -1,0 +1,47 @@
+pelita.game_master.CTFUniverse
+==============================
+
+.. currentmodule:: pelita.game_master
+
+.. autoclass:: CTFUniverse
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      ~CTFUniverse.__init__
+      ~CTFUniverse.copy
+      ~CTFUniverse.create
+      ~CTFUniverse.enemy_bots
+      ~CTFUniverse.enemy_food
+      ~CTFUniverse.enemy_team
+      ~CTFUniverse.free_positions
+      ~CTFUniverse.legal_moves
+      ~CTFUniverse.legal_moves_or_stop
+      ~CTFUniverse.move_bot
+      ~CTFUniverse.neighbourhood
+      ~CTFUniverse.other_team_bots
+      ~CTFUniverse.reachable
+      ~CTFUniverse.team_border
+      ~CTFUniverse.team_bots
+      ~CTFUniverse.team_food
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ~CTFUniverse.KILLPOINTS
+      ~CTFUniverse.bot_positions
+      ~CTFUniverse.compact_str
+      ~CTFUniverse.food_list
+      ~CTFUniverse.pretty
+   
+   

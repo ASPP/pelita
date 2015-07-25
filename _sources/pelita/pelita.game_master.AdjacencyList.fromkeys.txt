@@ -1,0 +1,6 @@
+pelita.game_master.AdjacencyList.fromkeys
+=========================================
+
+.. currentmodule:: pelita.game_master
+
+.. automethod:: AdjacencyList.fromkeys

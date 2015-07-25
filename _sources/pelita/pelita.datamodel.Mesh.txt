@@ -1,0 +1,34 @@
+pelita.datamodel.Mesh
+=====================
+
+.. currentmodule:: pelita.datamodel
+
+.. autoclass:: Mesh
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      ~Mesh.__init__
+      ~Mesh.copy
+      ~Mesh.get
+      ~Mesh.items
+      ~Mesh.keys
+      ~Mesh.values
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ~Mesh.compact_str
+      ~Mesh.shape
+   
+   
