@@ -39,10 +39,9 @@ Pelita is licensed under the terms of the `Simplified (two-clause) BSD License
 <http://www.opensource.org/licenses/BSD-2-Clause>`_.
 A copy of the license is included with the source, in the file ``COPYING``.
 
-To generate API documentation from the docstring we ship a copy of the `numpydoc
-<http://pypi.python.org/pypi/numpydoc>`_ sphinx extension in
-``doc/sphinxext/numpydoc``. Numpydoc is licensed under various licenses, see the
-file ``doc/sphinxext/numpydoc/LICENSE.txt`` for details.
+To generate API documentation from the docstring one needs a recent copy of
+`Sphinx<http://sphinx-doc.org>_` and of the `numpydoc
+<http://pypi.python.org/pypi/numpydoc>`_ sphinx extension.
 
 Acknowledgements
 ================
