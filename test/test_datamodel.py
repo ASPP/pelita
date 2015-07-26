@@ -123,10 +123,6 @@ class TestTeam(unittest.TestCase):
         self.assertFalse(team_black.in_zone((5, 1)))
         self.assertTrue(team_white.in_zone((5, 1)))
         self.assertFalse(team_white.in_zone((1, 5)))
-        team_black._score_point()
-        self.assertEqual(team_black.score, 1)
-        team_white._score_point()
-        self.assertEqual(team_white.score, 6)
 
     def test_str_repr_eq(self):
         team_black = Team(0, (0, 2))
@@ -663,9 +659,9 @@ class TestCTFUniverseRules(unittest.TestCase):
             for i, pos in enumerate(initial_pos):
                 universe.bots[i].initial_pos = pos
             if not (1, 2) in universe.food_list:
-                universe.teams[1]._score_point()
+                universe.teams[1].score += 1
             if not (3, 1) in universe.food_list:
-                universe.teams[0]._score_point()
+                universe.teams[0].score += 1
             return universe
 
         test_start = (

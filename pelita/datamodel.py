@@ -50,14 +50,6 @@ class Team(object):
         """
         return self.zone[0] <= position[0] <= self.zone[1]
 
-    def _score_point(self):
-        """ Score a single point. """
-        self.score += 1
-
-    def _score_points(self, points):
-        """ Score several points. """
-        self.score += points
-
     def __repr__(self):
         return ('Team(%i, %s, score=%i)' %
                 (self.index, self.zone, self.score))

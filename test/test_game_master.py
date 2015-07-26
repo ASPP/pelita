@@ -368,11 +368,11 @@ class TestGame(unittest.TestCase):
             for i, pos in enumerate(initial_pos):
                 universe.bots[i].initial_pos = pos
             if not (1, 2) in universe.food_list:
-                universe.teams[1]._score_point()
+                universe.teams[1].score += 1
             if not (2, 2) in universe.food_list:
-                universe.teams[1]._score_point()
+                universe.teams[1].score += 1
             if not (3, 1) in universe.food_list:
-                universe.teams[0]._score_point()
+                universe.teams[0].score += 1
             return universe
 
 
