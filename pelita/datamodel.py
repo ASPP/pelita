@@ -124,7 +124,7 @@ class Bot(object):
     def is_harvester(self):
         return not self.is_destroyer
 
-    def _reset(self):
+    def _to_initial(self):
         """ Reset this bot to its initial position. """
         self.current_pos = self.initial_pos
 
@@ -531,7 +531,7 @@ class CTFUniverse(object):
         # reset bots
         for destroyed in game_state["bot_destroyed"]:
             old_pos = bot.current_pos
-            self.bots[destroyed["bot_id"]]._reset()
+            self.bots[destroyed["bot_id"]]._to_initial()
             new_pos = bot.current_pos
             game_state["bot_moved"] += [{"bot_id": bot_id, "old_pos": old_pos, "new_pos": new_pos}]
 
