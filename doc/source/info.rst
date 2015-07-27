@@ -5,24 +5,8 @@ Project Information
 Authors and Contributors
 ========================
 
-As of ``v0.2.0-177`` the developers and contributors are::
+.. include:: _contributors.rst
 
-    zsh» git shortlog -sn | cut -f1 --complement
-    Rike-Benjamin Schuppner
-    Valentin Haenel
-    Tiziano Zito
-    Zbigniew Jędrzejewski-Szmek
-    Bastian Venthur
-    Pietro Berkes
-    Nicola Chiapolini
-    Pauli Virtanen
-    abject
-    Christian Steigies
-    Sasza Kijek
-    Francesc Alted
-    Ola Pidde
-    Bartosz Telenczuk
-    Anna Chabuda
 
 Getting in Touch
 ================
