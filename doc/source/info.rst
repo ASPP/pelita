@@ -47,8 +47,8 @@ Acknowledgements
 ================
 
 The game is inspired by the `“Pac-Man Projects”
-<http://inst.eecs.berkeley.edu/~cs188/pacman/pacman.html>`_  developed by John
-DeNero and Dan Klein at Berkeley University for their artificial intelligence
+<http://inst.eecs.berkeley.edu/~cs188/pacman/project_overview.html>`_  developed
+by John DeNero and Dan Klein at Berkeley University for their artificial intelligence
 introductory course [DeNeroKlein]_.
 
 This software was developed for the “Advanced Scientific Programming in Python”
