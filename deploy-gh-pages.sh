@@ -12,7 +12,6 @@ if
   echo "Trying to build documentation."
 
   pip install Sphinx
-  pip install numpydoc
 
   cd $HOME
   git config --global user.email "travis@travis-ci.org"

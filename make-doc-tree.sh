@@ -4,8 +4,6 @@
 # to a git tree. See http://ASPP.github.com/pelita/development.rst
 # for more information.
 
-FILE=$1
-
 # check, if index is empty
 if ! git diff-index --cached --quiet --ignore-submodules HEAD ; then
   echo "Fatal: cannot work with indexed files!"
@@ -14,6 +12,14 @@ fi
 
 # get the 'git describe' output
 git_describe=$(git describe)
+
+
+# Generate _contributors.rst
+CONTRIBUTORS=doc/source/_contributors.rst
+
+echo "As of \`\`${git_describe}\`\` the developers and contributors are::" > $CONTRIBUTORS
+echo "" >> $CONTRIBUTORS
+git shortlog -sn | awk '{first = $1; $1 = "   "; print $0; }' >> $CONTRIBUTORS
 
 # make the documentation, hope it doesn't fail
 echo "Generating doc from $git_describe"
@@ -39,6 +45,9 @@ tree=$(git write-tree --prefix=$docdirectory)
 # reset the index
 git reset HEAD
 
-echo "New tree $tree. Writing to file $FILE"
-
-echo $tree > $1
+if [ "$#" -eq 1 ]; then
+  echo "New tree $tree. Writing to file $FILE"
+  echo $tree > $1
+else
+  echo "New tree $tree."
+fi

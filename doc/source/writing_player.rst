@@ -61,7 +61,7 @@ To subclass from ``AbstractPlayer`` import this with::
 In order to make your player do something useful you must implement at least the
 method ``get_move()`` to return a move. This can be one of::
 
-    (north, south, west, east, stop)
+    [north, south, west, east, stop]
 
 The moves are provided by the `pelita.datamodel`, import them with::
 
