@@ -1,6 +1,0 @@
-pelita.simplesetup.GameMaster.set_initial
-=========================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: GameMaster.set_initial

@@ -1,6 +1,0 @@
-pelita.game_master.GameMaster.register_viewer
-=============================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: GameMaster.register_viewer

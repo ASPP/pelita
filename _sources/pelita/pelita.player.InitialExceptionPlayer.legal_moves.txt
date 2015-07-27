@@ -1,6 +1,0 @@
-pelita.player.InitialExceptionPlayer.legal_moves
-================================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: InitialExceptionPlayer.legal_moves

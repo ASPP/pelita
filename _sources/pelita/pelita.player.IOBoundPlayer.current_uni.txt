@@ -1,6 +1,0 @@
-pelita.player.IOBoundPlayer.current_uni
-=======================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: IOBoundPlayer.current_uni

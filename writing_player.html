@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Writing a Player &mdash; Pelita v0.2.0-195-ga562aaf documentation</title>
+    <title>Writing a Player &mdash; Pelita v0.2.0-202-g4c5382a documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'v0.2.0-195-ga562aaf',
+        VERSION:     'v0.2.0-202-g4c5382a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-195-ga562aaf documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.2.0-202-g4c5382a documentation" href="index.html" />
     <link rel="next" title="Running Players" href="running_player.html" />
     <link rel="prev" title="Project Information" href="info.html" />
    
@@ -92,7 +92,7 @@ to actually control the bot.</p>
 </div>
 <p>In order to make your player do something useful you must implement at least the
 method <code class="docutils literal"><span class="pre">get_move()</span></code> to return a move. This can be one of:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="n">north</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">west</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">stop</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">north</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">west</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">stop</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>The moves are provided by the <cite>pelita.datamodel</cite>, import them with:</p>
@@ -274,13 +274,13 @@ and distances in <cite>pelita.graph</cite>:</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.graph.new_pos.html#pelita.graph.new_pos" title="pelita.graph.new_pos"><code class="xref py py-obj docutils literal"><span class="pre">new_pos</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.graph.html#pelita.graph.new_pos" title="pelita.graph.new_pos"><code class="xref py py-obj docutils literal"><span class="pre">new_pos</span></code></a></td>
 <td>Adds a position tuple and a move tuple.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.graph.diff_pos.html#pelita.graph.diff_pos" title="pelita.graph.diff_pos"><code class="xref py py-obj docutils literal"><span class="pre">diff_pos</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.graph.html#pelita.graph.diff_pos" title="pelita.graph.diff_pos"><code class="xref py py-obj docutils literal"><span class="pre">diff_pos</span></code></a></td>
 <td>Return the move required to move from one position to another.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.graph.manhattan_dist.html#pelita.graph.manhattan_dist" title="pelita.graph.manhattan_dist"><code class="xref py py-obj docutils literal"><span class="pre">manhattan_dist</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.graph.html#pelita.graph.manhattan_dist" title="pelita.graph.manhattan_dist"><code class="xref py py-obj docutils literal"><span class="pre">manhattan_dist</span></code></a></td>
 <td>Manhattan distance between two points.</td>
 </tr>
 </tbody>

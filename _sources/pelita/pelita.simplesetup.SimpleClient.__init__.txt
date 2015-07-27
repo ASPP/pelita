@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleClient.__init__
-========================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleClient.__init__

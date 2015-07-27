@@ -1,6 +1,0 @@
-pelita.player.RoundBasedPlayer.time_spent
-=========================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: RoundBasedPlayer.time_spent

@@ -1,6 +1,0 @@
-pelita.game_master.AdjacencyList.bfs
-====================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: AdjacencyList.bfs

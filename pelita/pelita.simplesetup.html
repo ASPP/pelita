@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.simplesetup &mdash; Pelita v0.2.0-195-ga562aaf documentation</title>
+    <title>pelita.simplesetup &mdash; Pelita v0.2.0-202-g4c5382a documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-195-ga562aaf',
+        VERSION:     'v0.2.0-202-g4c5382a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,10 +24,10 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-195-ga562aaf documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.2.0-202-g4c5382a documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
-    <link rel="next" title="pelita.simplesetup.bind_socket" href="pelita.simplesetup.bind_socket.html" />
-    <link rel="prev" title="pelita.player.TestPlayer.team_food" href="pelita.player.TestPlayer.team_food.html" />
+    <link rel="next" title="pelita.ui" href="pelita.ui.html" />
+    <link rel="prev" title="pelita.player" href="pelita.player.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -44,7 +44,7 @@
 <span id="pelita-simplesetup"></span><h1>pelita.simplesetup<a class="headerlink" href="#module-pelita.simplesetup" title="Permalink to this headline">¶</a></h1>
 <p>simplesetup.py defines the SimpleServer and SimpleClient classes
 which allow for easy game setup via zmq sockets.</p>
-<p>Notes / TODO</p>
+<p class="rubric">Notes</p>
 <p>Timeout handling was far more elegant (imho) with actors / futures.
 Back then, timeouts were reply-based which meant that no other incoming
 messages would change the timeouts of other messages.</p>
@@ -66,10 +66,10 @@ re-investigate this decision.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.bind_socket.html#pelita.simplesetup.bind_socket" title="pelita.simplesetup.bind_socket"><code class="xref py py-obj docutils literal"><span class="pre">bind_socket</span></code></a>(socket,&nbsp;address[,&nbsp;option_hint])</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">bind_socket</span></code>(socket,&nbsp;address[,&nbsp;option_hint])</td>
 <td></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.extract_port_range.html#pelita.simplesetup.extract_port_range" title="pelita.simplesetup.extract_port_range"><code class="xref py py-obj docutils literal"><span class="pre">extract_port_range</span></code></a>(address)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.extract_port_range" title="pelita.simplesetup.extract_port_range"><code class="xref py py-obj docutils literal"><span class="pre">extract_port_range</span></code></a>(address)</td>
 <td>We additionally allow for setting a port range in rectangular brackets:</td>
 </tr>
 </tbody>
@@ -81,25 +81,25 @@ re-investigate this decision.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.RemoteTeamPlayer.html#pelita.simplesetup.RemoteTeamPlayer" title="pelita.simplesetup.RemoteTeamPlayer"><code class="xref py py-obj docutils literal"><span class="pre">RemoteTeamPlayer</span></code></a>(socket)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.RemoteTeamPlayer" title="pelita.simplesetup.RemoteTeamPlayer"><code class="xref py py-obj docutils literal"><span class="pre">RemoteTeamPlayer</span></code></a>(socket)</td>
 <td>This class is registered server-side with the GameMaster</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.SimpleClient.html#pelita.simplesetup.SimpleClient" title="pelita.simplesetup.SimpleClient"><code class="xref py py-obj docutils literal"><span class="pre">SimpleClient</span></code></a>(team[,&nbsp;team_name,&nbsp;address])</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.SimpleClient" title="pelita.simplesetup.SimpleClient"><code class="xref py py-obj docutils literal"><span class="pre">SimpleClient</span></code></a>(team[,&nbsp;team_name,&nbsp;address])</td>
 <td>Sets up a simple Client with most settings pre-configured.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.SimpleController.html#pelita.simplesetup.SimpleController" title="pelita.simplesetup.SimpleController"><code class="xref py py-obj docutils literal"><span class="pre">SimpleController</span></code></a>(game_master,&nbsp;address)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.SimpleController" title="pelita.simplesetup.SimpleController"><code class="xref py py-obj docutils literal"><span class="pre">SimpleController</span></code></a>(game_master,&nbsp;address)</td>
 <td>Sets up a simple Controller to interact with GameMaster.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.SimplePublisher.html#pelita.simplesetup.SimplePublisher" title="pelita.simplesetup.SimplePublisher"><code class="xref py py-obj docutils literal"><span class="pre">SimplePublisher</span></code></a>(address)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.SimplePublisher" title="pelita.simplesetup.SimplePublisher"><code class="xref py py-obj docutils literal"><span class="pre">SimplePublisher</span></code></a>(address)</td>
 <td>Sets up a simple Publisher which sends all viewed events over a zmq connection.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.SimpleServer.html#pelita.simplesetup.SimpleServer" title="pelita.simplesetup.SimpleServer"><code class="xref py py-obj docutils literal"><span class="pre">SimpleServer</span></code></a>(layout_string[,&nbsp;teams,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.SimpleServer" title="pelita.simplesetup.SimpleServer"><code class="xref py py-obj docutils literal"><span class="pre">SimpleServer</span></code></a>(layout_string[,&nbsp;teams,&nbsp;...])</td>
 <td>Sets up a simple Server with most settings pre-configured.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.SimpleSubscriber.html#pelita.simplesetup.SimpleSubscriber" title="pelita.simplesetup.SimpleSubscriber"><code class="xref py py-obj docutils literal"><span class="pre">SimpleSubscriber</span></code></a>(viewer,&nbsp;address)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.SimpleSubscriber" title="pelita.simplesetup.SimpleSubscriber"><code class="xref py py-obj docutils literal"><span class="pre">SimpleSubscriber</span></code></a>(viewer,&nbsp;address)</td>
 <td>Subscribes to a given zmq socket and passes all incoming data to a viewer.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.ZMQConnection.html#pelita.simplesetup.ZMQConnection" title="pelita.simplesetup.ZMQConnection"><code class="xref py py-obj docutils literal"><span class="pre">ZMQConnection</span></code></a>(socket)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.ZMQConnection" title="pelita.simplesetup.ZMQConnection"><code class="xref py py-obj docutils literal"><span class="pre">ZMQConnection</span></code></a>(socket)</td>
 <td>This class is supposed to ease request–reply connections through a zmq socket.</td>
 </tr>
 </tbody>
@@ -111,20 +111,254 @@ re-investigate this decision.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.DeadConnection.html#pelita.simplesetup.DeadConnection" title="pelita.simplesetup.DeadConnection"><code class="xref py py-obj docutils literal"><span class="pre">DeadConnection</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.DeadConnection" title="pelita.simplesetup.DeadConnection"><code class="xref py py-obj docutils literal"><span class="pre">DeadConnection</span></code></a></td>
 <td>Raised when the connection has been lost.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.ExitLoop.html#pelita.simplesetup.ExitLoop" title="pelita.simplesetup.ExitLoop"><code class="xref py py-obj docutils literal"><span class="pre">ExitLoop</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.ExitLoop" title="pelita.simplesetup.ExitLoop"><code class="xref py py-obj docutils literal"><span class="pre">ExitLoop</span></code></a></td>
 <td>If this is raised, we’ll close the inner loop.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.simplesetup.UnknownMessageId.html#pelita.simplesetup.UnknownMessageId" title="pelita.simplesetup.UnknownMessageId"><code class="xref py py-obj docutils literal"><span class="pre">UnknownMessageId</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.UnknownMessageId" title="pelita.simplesetup.UnknownMessageId"><code class="xref py py-obj docutils literal"><span class="pre">UnknownMessageId</span></code></a></td>
 <td>Is raised when a reply arrives with unexpected id.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.simplesetup.ZMQTimeout.html#pelita.simplesetup.ZMQTimeout" title="pelita.simplesetup.ZMQTimeout"><code class="xref py py-obj docutils literal"><span class="pre">ZMQTimeout</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.ZMQTimeout" title="pelita.simplesetup.ZMQTimeout"><code class="xref py py-obj docutils literal"><span class="pre">ZMQTimeout</span></code></a></td>
 <td>Is raised when an ZMQ socket does not answer in time.</td>
 </tr>
 </tbody>
 </table>
+<dl class="data">
+<dt id="pelita.simplesetup.DEAD_CONNECTION_TIMEOUT">
+<code class="descclassname">pelita.simplesetup.</code><code class="descname">DEAD_CONNECTION_TIMEOUT</code><em class="property"> = 3.0</em><a class="headerlink" href="#pelita.simplesetup.DEAD_CONNECTION_TIMEOUT" title="Permalink to this definition">¶</a></dt>
+<dd><p>The timeout to use during sending</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pelita.simplesetup.DeadConnection">
+<em class="property">exception </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">DeadConnection</code><a class="reference internal" href="../_modules/pelita/simplesetup.html#DeadConnection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.DeadConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<p>Raised when the connection has been lost.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pelita.simplesetup.ExitLoop">
+<em class="property">exception </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">ExitLoop</code><a class="reference internal" href="../_modules/pelita/simplesetup.html#ExitLoop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.ExitLoop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<p>If this is raised, we’ll close the inner loop.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.simplesetup.RemoteTeamPlayer">
+<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">RemoteTeamPlayer</code><span class="sig-paren">(</span><em>socket</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#RemoteTeamPlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.RemoteTeamPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class is registered server-side with the GameMaster
+and sends all requests to the attached zmq socket (to which
+a client player has connected.)</p>
+<p>It also does some basic checks for correct return values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>socket</strong> (<em>zmq socket</em>) &#8211; The zmq socket of this connection</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.simplesetup.SimpleClient">
+<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">SimpleClient</code><span class="sig-paren">(</span><em>team</em>, <em>team_name=''</em>, <em>address=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#SimpleClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.SimpleClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Sets up a simple Client with most settings pre-configured.</p>
+<p class="rubric">Example</p>
+<p>client = SimpleClient(SimpleTeam(&#8220;the good ones&#8221;, BFSPlayer(), NQRandomPlayer()))
+client.run() # runs in the same thread / process</p>
+<p>client.autoplay_process() # runs in a background process</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>team</strong> (<em>PlayerTeam</em>) &#8211; A Player which defines the algorithms for each Bot.</li>
+<li><strong>team_name</strong> (<em>string</em>) &#8211; The name of the team. (optional, if not defined in team)</li>
+<li><strong>address</strong> (<em>string</em>) &#8211; The address which the client has to connect to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.simplesetup.SimpleController">
+<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">SimpleController</code><span class="sig-paren">(</span><em>game_master</em>, <em>address</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#SimpleController"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.SimpleController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Sets up a simple Controller to interact with GameMaster.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.simplesetup.SimplePublisher">
+<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">SimplePublisher</code><span class="sig-paren">(</span><em>address</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#SimplePublisher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.SimplePublisher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pelita.viewer.AbstractViewer</span></code></p>
+<p>Sets up a simple Publisher which sends all viewed events
+over a zmq connection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>address</strong> (<em>string</em>) &#8211; The address which the publisher binds.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.simplesetup.SimpleServer">
+<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">SimpleServer</code><span class="sig-paren">(</span><em>layout_string</em>, <em>teams=2</em>, <em>players=4</em>, <em>rounds=3000</em>, <em>bind_addrs='tcp://*'</em>, <em>initial_delay=0.0</em>, <em>max_timeouts=5</em>, <em>timeout_length=3</em>, <em>layout_name=None</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#SimpleServer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.SimpleServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Sets up a simple Server with most settings pre-configured.</p>
+<p class="rubric">Example</p>
+<p>Initialise as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">server</span> <span class="o">=</span> <span class="n">SimpleServer</span><span class="p">(</span><span class="n">layout_string</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">3000</span><span class="p">)</span>
+<span class="n">server</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>layout_string</strong> (<em>string</em>) &#8211; initial layout as string</li>
+<li><strong>teams</strong> (<em>int, optional</em>) &#8211; The number of Teams used in the layout. Default: 2.</li>
+<li><strong>players</strong> (<em>int, optional</em>) &#8211; The number of Players/Bots used in the layout. Default: 4.</li>
+<li><strong>rounds</strong> (<em>int, optional</em>) &#8211; The number of rounds played. Default: 3000.</li>
+<li><strong>bind_addrs</strong> (<em>string or tuple, optional</em>) &#8211; The address(es) which this server uses for its connections. Default: &#8220;<a class="reference external" href="tcp://">tcp://</a><a href="#id1"><span class="problematic" id="id2">*</span></a>&#8221;.</li>
+<li><strong>initial_delay</strong> (<em>float</em>) &#8211; Delays the start of the game by <cite>initial_delay</cite> seconds.</li>
+<li><strong>layout_name</strong> (<em>string, optional</em>) &#8211; The name of the given layout string.</li>
+<li><strong>seed</strong> (<em>int, optional</em>) &#8211; The initial seed to be passed to GameMaster.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> &#8211;
+if more than one layout keyword is specified</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">IOError</span></code> &#8211;
+if layout_file was given, but file does not exist</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pelita.simplesetup.SimpleServer.bind_addresses">
+<code class="descname">bind_addresses</code><em class="property"> = None</em><a class="headerlink" href="#pelita.simplesetup.SimpleServer.bind_addresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>the bind addresses</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.simplesetup.SimpleServer.context">
+<code class="descname">context</code><em class="property"> = None</em><a class="headerlink" href="#pelita.simplesetup.SimpleServer.context" title="Permalink to this definition">¶</a></dt>
+<dd><p>declare the zmq Context for this server thread</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.simplesetup.SimpleServer.shutdown">
+<code class="descname">shutdown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#SimpleServer.shutdown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.SimpleServer.shutdown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the sockets.</p>
+<p>To be used with care.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.simplesetup.SimpleServer.sockets">
+<code class="descname">sockets</code><em class="property"> = None</em><a class="headerlink" href="#pelita.simplesetup.SimpleServer.sockets" title="Permalink to this definition">¶</a></dt>
+<dd><p>the sockets being used</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.simplesetup.SimpleServer.team_players">
+<code class="descname">team_players</code><em class="property"> = None</em><a class="headerlink" href="#pelita.simplesetup.SimpleServer.team_players" title="Permalink to this definition">¶</a></dt>
+<dd><p>the remote team players which are used for sending</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.simplesetup.SimpleSubscriber">
+<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">SimpleSubscriber</code><span class="sig-paren">(</span><em>viewer</em>, <em>address</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#SimpleSubscriber"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.SimpleSubscriber" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pelita.viewer.AbstractViewer</span></code></p>
+<p>Subscribes to a given zmq socket and passes
+all incoming data to a viewer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>viewer</strong> (<em>Viewer</em>) &#8211; Viewer with AbstractPlayer-like interface</li>
+<li><strong>address</strong> (<em>string</em>) &#8211; The address of the publisher we want to subscribe to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pelita.simplesetup.UnknownMessageId">
+<em class="property">exception </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">UnknownMessageId</code><a class="reference internal" href="../_modules/pelita/simplesetup.html#UnknownMessageId"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.UnknownMessageId" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<p>Is raised when a reply arrives with unexpected id.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.simplesetup.ZMQConnection">
+<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">ZMQConnection</code><span class="sig-paren">(</span><em>socket</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#ZMQConnection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.ZMQConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class is supposed to ease request–reply connections
+through a zmq socket. It does so by attaching a uuid to each
+request. It will only accept a reply if this also includes
+this uuid. All other incoming messages will be discarded.</p>
+<dl class="docutils">
+<dt>Please note the following:</dt>
+<dd><ul class="first last simple">
+<li>This class is not thread-safe!</li>
+<li>There can only be one request at a time. Only the reply for
+the most recent request (= uuid) will be received. Non-matching
+uuids are discarded.</li>
+<li>There is no storage of messages.</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>socket</strong> (<em>zmq socket</em>) &#8211; The zmq socket of this connection</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>socket</strong> (<em>zmq socket</em>) &#8211; The zmq socket of this connection</li>
+<li><strong>pollin</strong> (<em>zmq poller</em>) &#8211; Poller for incoming connections</li>
+<li><strong>pollout</strong> (<em>zmq poller</em>) &#8211; Poller for outgoing connections</li>
+<li><strong>last_uuid</strong> (<em>uuid</em>) &#8211; Uuid which the next incoming message has to match</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pelita.simplesetup.ZMQTimeout">
+<em class="property">exception </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">ZMQTimeout</code><a class="reference internal" href="../_modules/pelita/simplesetup.html#ZMQTimeout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.ZMQTimeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<p>Is raised when an ZMQ socket does not answer in time.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pelita.simplesetup.extract_port_range">
+<code class="descclassname">pelita.simplesetup.</code><code class="descname">extract_port_range</code><span class="sig-paren">(</span><em>address</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#extract_port_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.extract_port_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>We additionally allow for setting a port range in rectangular brackets:
+<a class="reference external" href="tcp://127.0.0.1:[50100:50120">tcp://127.0.0.1:[50100:50120</a>]</p>
+</dd></dl>
+
 </div>
 
 
@@ -160,24 +394,8 @@ re-investigate this decision.</p>
 <li class="toctree-l2"><a class="reference internal" href="pelita.game_master.html">pelita.game_master</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.graph.html">pelita.graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.layout.html">pelita.layout</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pelita.messaging.html">pelita.messaging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.player.html">pelita.player</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">pelita.simplesetup</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pelita.simplesetup.bind_socket.html">pelita.simplesetup.bind_socket</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.simplesetup.extract_port_range.html">pelita.simplesetup.extract_port_range</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.simplesetup.RemoteTeamPlayer.html">pelita.simplesetup.RemoteTeamPlayer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.simplesetup.SimpleClient.html">pelita.simplesetup.SimpleClient</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.simplesetup.SimpleController.html">pelita.simplesetup.SimpleController</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.simplesetup.SimplePublisher.html">pelita.simplesetup.SimplePublisher</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.simplesetup.SimpleServer.html">pelita.simplesetup.SimpleServer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.simplesetup.SimpleSubscriber.html">pelita.simplesetup.SimpleSubscriber</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.simplesetup.ZMQConnection.html">pelita.simplesetup.ZMQConnection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.simplesetup.DeadConnection.html">pelita.simplesetup.DeadConnection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.simplesetup.ExitLoop.html">pelita.simplesetup.ExitLoop</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.simplesetup.UnknownMessageId.html">pelita.simplesetup.UnknownMessageId</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.simplesetup.ZMQTimeout.html">pelita.simplesetup.ZMQTimeout</a></li>
-</ul>
-</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">pelita.simplesetup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.ui.html">pelita.ui</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.utils.html">pelita.utils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.viewer.html">pelita.viewer</a></li>

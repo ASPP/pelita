@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleClient.set_initial
-===========================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleClient.set_initial

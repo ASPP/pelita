@@ -1,6 +1,0 @@
-pelita.game_master.GameMaster.prepare_next_round
-================================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: GameMaster.prepare_next_round

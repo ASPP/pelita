@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.layout &mdash; Pelita v0.2.0-195-ga562aaf documentation</title>
+    <title>pelita.layout &mdash; Pelita v0.2.0-202-g4c5382a documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-195-ga562aaf',
+        VERSION:     'v0.2.0-202-g4c5382a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,10 +24,10 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-195-ga562aaf documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.2.0-202-g4c5382a documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
-    <link rel="next" title="pelita.layout.get_available_layouts" href="pelita.layout.get_available_layouts.html" />
-    <link rel="prev" title="pelita.graph.NoPathException" href="pelita.graph.NoPathException.html" />
+    <link rel="next" title="pelita.player" href="pelita.player.html" />
+    <link rel="prev" title="pelita.graph" href="pelita.graph.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -50,16 +50,16 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.layout.get_available_layouts.html#pelita.layout.get_available_layouts" title="pelita.layout.get_available_layouts"><code class="xref py py-obj docutils literal"><span class="pre">get_available_layouts</span></code></a>([filter])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.layout.get_available_layouts" title="pelita.layout.get_available_layouts"><code class="xref py py-obj docutils literal"><span class="pre">get_available_layouts</span></code></a>([filter])</td>
 <td>The names of the available layouts.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.layout.get_layout_by_name.html#pelita.layout.get_layout_by_name" title="pelita.layout.get_layout_by_name"><code class="xref py py-obj docutils literal"><span class="pre">get_layout_by_name</span></code></a>(layout_name)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.layout.get_layout_by_name" title="pelita.layout.get_layout_by_name"><code class="xref py py-obj docutils literal"><span class="pre">get_layout_by_name</span></code></a>(layout_name)</td>
 <td>Get a layout.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.layout.get_random_layout.html#pelita.layout.get_random_layout" title="pelita.layout.get_random_layout"><code class="xref py py-obj docutils literal"><span class="pre">get_random_layout</span></code></a>([filter])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.layout.get_random_layout" title="pelita.layout.get_random_layout"><code class="xref py py-obj docutils literal"><span class="pre">get_random_layout</span></code></a>([filter])</td>
 <td>Return a random layout string from the available ones.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.layout.load_layout.html#pelita.layout.load_layout" title="pelita.layout.load_layout"><code class="xref py py-obj docutils literal"><span class="pre">load_layout</span></code></a>([layout_name,&nbsp;layout_file])</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.layout.load_layout" title="pelita.layout.load_layout"><code class="xref py py-obj docutils literal"><span class="pre">load_layout</span></code></a>([layout_name,&nbsp;layout_file])</td>
 <td>Returns the layout_name and layout_string for a given parameter.</td>
 </tr>
 </tbody>
@@ -71,7 +71,7 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.layout.Layout.html#pelita.layout.Layout" title="pelita.layout.Layout"><code class="xref py py-obj docutils literal"><span class="pre">Layout</span></code></a>(layout_str,&nbsp;layout_chars,&nbsp;number_bots)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.layout.Layout" title="pelita.layout.Layout"><code class="xref py py-obj docutils literal"><span class="pre">Layout</span></code></a>(layout_str,&nbsp;layout_chars,&nbsp;number_bots)</td>
 <td>Auxiliary class to parse string encodings of mazes.</td>
 </tr>
 </tbody>
@@ -83,11 +83,262 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.layout.LayoutEncodingException.html#pelita.layout.LayoutEncodingException" title="pelita.layout.LayoutEncodingException"><code class="xref py py-obj docutils literal"><span class="pre">LayoutEncodingException</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.layout.LayoutEncodingException" title="pelita.layout.LayoutEncodingException"><code class="xref py py-obj docutils literal"><span class="pre">LayoutEncodingException</span></code></a></td>
 <td>Signifies a problem with the encoding of a layout.</td>
 </tr>
 </tbody>
 </table>
+<dl class="class">
+<dt id="pelita.layout.Layout">
+<em class="property">class </em><code class="descclassname">pelita.layout.</code><code class="descname">Layout</code><span class="sig-paren">(</span><em>layout_str</em>, <em>layout_chars</em>, <em>number_bots</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#Layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.Layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Auxiliary class to parse string encodings of mazes.</p>
+<p>Basically a parser for string encoded maze representations. This class can
+strip such strings, determine the maze shape, check their validity based on
+set of legal encoding characters and covert to a <cite>Mesh</cite>.</p>
+<p>When initialised through the constructor we first strip leading and trailing
+whitespace (mainly space and newline chars). Then we perform several check
+on the data to see if it is rectangular, if it contains the correct number of
+bot_positions and if it is composed of legal characters only. Lastly you can
+use <cite>as_mesh()</cite> to convert the layout into a Mesh of characters.</p>
+<p>The class provides much of its functionality via staticmethods so that reuse
+of these code-parts is easy if needed. Also you can subclass it in case you
+need additional checks for example for mazes that need to be not only
+rectangular, but also square.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>layout_str</strong> (<em>str</em>) &#8211; the layout to work on</li>
+<li><strong>layout_chars</strong> (<em>list of str</em>) &#8211; the list of legal characters</li>
+<li><strong>number_bots</strong> (<em>int</em>) &#8211; the number of bots to look for</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>layout_chars</strong> (<em>list of str</em>) &#8211; the list of legal characters to use</li>
+<li><strong>stripped</strong> (<em>str</em>) &#8211; the whitespace stripped version</li>
+<li><a class="reference internal" href="pelita.containers.html#pelita.containers.Mesh.shape" title="pelita.containers.Mesh.shape"><strong>shape</strong></a> (<em>tuple of two ints</em>) &#8211; height and width of the layout</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pelita.layout.Layout.as_mesh">
+<code class="descname">as_mesh</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#Layout.as_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.Layout.as_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert to a Mesh.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>mesh</strong> &#8211;
+this layout as a Mesh</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pelita.containers.html#pelita.containers.Mesh" title="pelita.containers.Mesh">Mesh</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pelita.layout.Layout.check_layout">
+<em class="property">static </em><code class="descname">check_layout</code><span class="sig-paren">(</span><em>layout_str</em>, <em>layout_chars</em>, <em>number_bots</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#Layout.check_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.Layout.check_layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check the legality of the layout string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>layout_str</strong> (<em>str</em>) &#8211; the layout string</li>
+<li><strong>number_bots</strong> (<em>int</em>) &#8211; the total number of bots that should be present</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#pelita.layout.LayoutEncodingException" title="pelita.layout.LayoutEncodingException"><code class="xref py py-exc docutils literal"><span class="pre">LayoutEncodingException</span></code></a> &#8211;
+if an illegal character is encountered</li>
+<li><a class="reference internal" href="#pelita.layout.LayoutEncodingException" title="pelita.layout.LayoutEncodingException"><code class="xref py py-exc docutils literal"><span class="pre">LayoutEncodingException</span></code></a> &#8211;
+if a bot-id is missing</li>
+<li><a class="reference internal" href="#pelita.layout.LayoutEncodingException" title="pelita.layout.LayoutEncodingException"><code class="xref py py-exc docutils literal"><span class="pre">LayoutEncodingException</span></code></a> &#8211;
+if a bot-id is specified twice</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pelita.layout.Layout.from_file">
+<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em>, <em>layout_chars</em>, <em>number_bots</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#Layout.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.Layout.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a layout from file <cite>filename</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> (<em>str</em>) &#8211; the file with the saved layout</li>
+<li><strong>layout_chars</strong> (<em>list of str</em>) &#8211; the list of legal characters</li>
+<li><strong>number_bots</strong> (<em>int</em>) &#8211; the number of bots to look for</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pelita.layout.Layout.layout_shape">
+<em class="property">static </em><code class="descname">layout_shape</code><span class="sig-paren">(</span><em>layout_str</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#Layout.layout_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.Layout.layout_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine shape of layout.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>layout_str</strong> (<em>str</em>) &#8211; a checked and stripped layout string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><strong>width</strong> (<em>int</em>)</li>
+<li><strong>height</strong> (<em>int</em>)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pelita.layout.Layout.strip_layout">
+<em class="property">static </em><code class="descname">strip_layout</code><span class="sig-paren">(</span><em>layout_str</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#Layout.strip_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.Layout.strip_layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove leading and trailing whitespace from a string encoded layout.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>layout_str</strong> (<em>str</em>) &#8211; the layout, possibly with whitespace</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>layout_str</strong> &#8211;
+the layout with whitespace removed</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pelita.layout.LayoutEncodingException">
+<em class="property">exception </em><code class="descclassname">pelita.layout.</code><code class="descname">LayoutEncodingException</code><a class="reference internal" href="../_modules/pelita/layout.html#LayoutEncodingException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.LayoutEncodingException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<p>Signifies a problem with the encoding of a layout.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pelita.layout.get_available_layouts">
+<code class="descclassname">pelita.layout.</code><code class="descname">get_available_layouts</code><span class="sig-paren">(</span><em>filter=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#get_available_layouts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.get_available_layouts" title="Permalink to this definition">¶</a></dt>
+<dd><p>The names of the available layouts.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filter</strong> (<em>str</em>) &#8211; only return layouts which contain &#8216;filter&#8217; in their name.
+Default is no filter.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>layout_names</strong> &#8211;
+the available layouts</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of str</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>To only get layouts without dead ends you may use:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_available_layouts</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s">&#39;without_dead_ends&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pelita.layout.get_layout_by_name">
+<code class="descclassname">pelita.layout.</code><code class="descname">get_layout_by_name</code><span class="sig-paren">(</span><em>layout_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#get_layout_by_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.get_layout_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a layout.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>layout_name</strong> (<em>str</em>) &#8211; a valid layout name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>layout_str</strong> &#8211;
+the layout as a string</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">KeyError</span></code> &#8211;
+if the layout_name is not known</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#pelita.layout.get_available_layouts" title="pelita.layout.get_available_layouts"><code class="xref py py-func docutils literal"><span class="pre">get_available_layouts()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pelita.layout.get_random_layout">
+<code class="descclassname">pelita.layout.</code><code class="descname">get_random_layout</code><span class="sig-paren">(</span><em>filter=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#get_random_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.get_random_layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a random layout string from the available ones.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filter</strong> (<em>str</em>) &#8211; only return layouts which contain &#8220;filter&#8221; in their name.
+Default is no filter.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>layout</strong> &#8211;
+the name of the layout, a random layout string</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">tuple(str, str)</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>To only get layouts without dead ends you may use:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_random_layout</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s">&#39;without_dead_ends&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pelita.layout.load_layout">
+<code class="descclassname">pelita.layout.</code><code class="descname">load_layout</code><span class="sig-paren">(</span><em>layout_name=None</em>, <em>layout_file=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#load_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.load_layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the layout_name and layout_string for a given parameter.</p>
+<p>The Parameters &#8216;layout_name&#8217; and &#8216;layout_file&#8217; are mutually exclusive.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>layout_name</strong> (<em>string, optional</em>) &#8211; The name of an available layout</li>
+<li><strong>layout_file</strong> (<em>filename, optional</em>) &#8211; A file which holds a layout</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>layout</strong> &#8211;
+the name of the layout, a random layout string</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple(str, str)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -122,16 +373,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pelita.datamodel.html">pelita.datamodel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.game_master.html">pelita.game_master</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.graph.html">pelita.graph</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">pelita.layout</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pelita.layout.get_available_layouts.html">pelita.layout.get_available_layouts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.layout.get_layout_by_name.html">pelita.layout.get_layout_by_name</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.layout.get_random_layout.html">pelita.layout.get_random_layout</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.layout.load_layout.html">pelita.layout.load_layout</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.layout.Layout.html">pelita.layout.Layout</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.layout.LayoutEncodingException.html">pelita.layout.LayoutEncodingException</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pelita.messaging.html">pelita.messaging</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">pelita.layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.player.html">pelita.player</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.simplesetup.html">pelita.simplesetup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.ui.html">pelita.ui</a></li>

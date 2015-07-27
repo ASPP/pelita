@@ -1,6 +1,0 @@
-pelita.game_master.GameMaster.__init__
-======================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: GameMaster.__init__

@@ -1,6 +1,0 @@
-pelita.datamodel.Layout.check_layout
-====================================
-
-.. currentmodule:: pelita.datamodel
-
-.. automethod:: Layout.check_layout

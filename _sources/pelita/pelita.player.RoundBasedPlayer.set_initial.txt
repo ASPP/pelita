@@ -1,6 +1,0 @@
-pelita.player.RoundBasedPlayer.set_initial
-==========================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: RoundBasedPlayer.set_initial

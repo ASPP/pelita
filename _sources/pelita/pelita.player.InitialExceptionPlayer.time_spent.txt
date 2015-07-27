@@ -1,6 +1,0 @@
-pelita.player.InitialExceptionPlayer.time_spent
-===============================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: InitialExceptionPlayer.time_spent

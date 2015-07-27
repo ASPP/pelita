@@ -1,6 +1,0 @@
-pelita.player.DebuggablePlayer.legal_moves
-==========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: DebuggablePlayer.legal_moves

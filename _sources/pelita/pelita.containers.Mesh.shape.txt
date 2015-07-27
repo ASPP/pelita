@@ -1,6 +1,0 @@
-pelita.containers.Mesh.shape
-============================
-
-.. currentmodule:: pelita.containers
-
-.. autoattribute:: Mesh.shape

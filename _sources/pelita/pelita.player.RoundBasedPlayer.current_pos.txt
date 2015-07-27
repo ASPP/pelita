@@ -1,6 +1,0 @@
-pelita.player.RoundBasedPlayer.current_pos
-==========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: RoundBasedPlayer.current_pos

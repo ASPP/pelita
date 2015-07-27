@@ -1,6 +1,0 @@
-pelita.player.SpeakingPlayer.current_uni
-========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: SpeakingPlayer.current_uni

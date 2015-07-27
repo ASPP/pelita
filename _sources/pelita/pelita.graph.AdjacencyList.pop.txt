@@ -1,6 +1,0 @@
-pelita.graph.AdjacencyList.pop
-==============================
-
-.. currentmodule:: pelita.graph
-
-.. automethod:: AdjacencyList.pop

@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleSubscriber.on_start
-============================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleSubscriber.on_start

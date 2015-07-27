@@ -1,6 +1,0 @@
-pelita.containers.MutableSequence.count
-=======================================
-
-.. currentmodule:: pelita.containers
-
-.. automethod:: MutableSequence.count

@@ -1,6 +1,0 @@
-pelita.layout.Mesh.copy
-=======================
-
-.. currentmodule:: pelita.layout
-
-.. automethod:: Mesh.copy

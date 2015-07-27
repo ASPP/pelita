@@ -1,6 +1,0 @@
-pelita.game_master.AdjacencyList.popitem
-========================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: AdjacencyList.popitem

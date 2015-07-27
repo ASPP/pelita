@@ -1,6 +1,0 @@
-pelita.player.IOBoundPlayer.current_pos
-=======================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: IOBoundPlayer.current_pos

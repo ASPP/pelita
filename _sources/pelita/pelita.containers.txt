@@ -4,16 +4,21 @@ pelita.containers
 .. automodule:: pelita.containers
 
    
+   
+   
 
+   
    
    .. rubric:: Classes
 
    .. autosummary::
-      :toctree:
    
-      ~Mapping
-      ~Mesh
-      ~MutableSequence
+      Mapping
+      Mesh
+      MutableSequence
+   
    
 
+   
+   
    

@@ -1,6 +1,0 @@
-pelita.datamodel.Mesh.values
-============================
-
-.. currentmodule:: pelita.datamodel
-
-.. automethod:: Mesh.values

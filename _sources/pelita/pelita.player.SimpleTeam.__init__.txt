@@ -1,6 +1,0 @@
-pelita.player.SimpleTeam.__init__
-=================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: SimpleTeam.__init__

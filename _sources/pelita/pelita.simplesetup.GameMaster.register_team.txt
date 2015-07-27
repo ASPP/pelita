@@ -1,6 +1,0 @@
-pelita.simplesetup.GameMaster.register_team
-===========================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: GameMaster.register_team

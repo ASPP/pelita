@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.player &mdash; Pelita v0.2.0-195-ga562aaf documentation</title>
+    <title>pelita.player &mdash; Pelita v0.2.0-202-g4c5382a documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-195-ga562aaf',
+        VERSION:     'v0.2.0-202-g4c5382a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,10 +24,10 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-195-ga562aaf documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.2.0-202-g4c5382a documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
-    <link rel="next" title="pelita.player.AbstractPlayer" href="pelita.player.AbstractPlayer.html" />
-    <link rel="prev" title="pelita.messaging" href="pelita.messaging.html" />
+    <link rel="next" title="pelita.simplesetup" href="pelita.simplesetup.html" />
+    <link rel="prev" title="pelita.layout" href="pelita.layout.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -50,41 +50,473 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.player.AbstractPlayer.html#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><code class="xref py py-obj docutils literal"><span class="pre">AbstractPlayer</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><code class="xref py py-obj docutils literal"><span class="pre">AbstractPlayer</span></code></a></td>
 <td>Base class for all user implemented Players.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.player.CPUBoundPlayer.html#pelita.player.CPUBoundPlayer" title="pelita.player.CPUBoundPlayer"><code class="xref py py-obj docutils literal"><span class="pre">CPUBoundPlayer</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.player.CPUBoundPlayer" title="pelita.player.CPUBoundPlayer"><code class="xref py py-obj docutils literal"><span class="pre">CPUBoundPlayer</span></code></a></td>
 <td>Player that does loads of computation.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.player.DebuggablePlayer.html#pelita.player.DebuggablePlayer" title="pelita.player.DebuggablePlayer"><code class="xref py py-obj docutils literal"><span class="pre">DebuggablePlayer</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.player.DebuggablePlayer" title="pelita.player.DebuggablePlayer"><code class="xref py py-obj docutils literal"><span class="pre">DebuggablePlayer</span></code></a></td>
 <td>Player which invokes pdb on each move.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.player.IOBoundPlayer.html#pelita.player.IOBoundPlayer" title="pelita.player.IOBoundPlayer"><code class="xref py py-obj docutils literal"><span class="pre">IOBoundPlayer</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.player.IOBoundPlayer" title="pelita.player.IOBoundPlayer"><code class="xref py py-obj docutils literal"><span class="pre">IOBoundPlayer</span></code></a></td>
 <td>IO Bound player that crawls the file system.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.player.InitialExceptionPlayer.html#pelita.player.InitialExceptionPlayer" title="pelita.player.InitialExceptionPlayer"><code class="xref py py-obj docutils literal"><span class="pre">InitialExceptionPlayer</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.player.InitialExceptionPlayer" title="pelita.player.InitialExceptionPlayer"><code class="xref py py-obj docutils literal"><span class="pre">InitialExceptionPlayer</span></code></a></td>
 <td>Player that raises an Exception on set_initial().</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.player.MoveExceptionPlayer.html#pelita.player.MoveExceptionPlayer" title="pelita.player.MoveExceptionPlayer"><code class="xref py py-obj docutils literal"><span class="pre">MoveExceptionPlayer</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.player.MoveExceptionPlayer" title="pelita.player.MoveExceptionPlayer"><code class="xref py py-obj docutils literal"><span class="pre">MoveExceptionPlayer</span></code></a></td>
 <td>Player that raises an Exception on get_move().</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.player.RoundBasedPlayer.html#pelita.player.RoundBasedPlayer" title="pelita.player.RoundBasedPlayer"><code class="xref py py-obj docutils literal"><span class="pre">RoundBasedPlayer</span></code></a>(moves)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.player.RoundBasedPlayer" title="pelita.player.RoundBasedPlayer"><code class="xref py py-obj docutils literal"><span class="pre">RoundBasedPlayer</span></code></a>(moves)</td>
 <td>A Player which makes a decision dependent on the round index in a dict or list.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.player.SimpleTeam.html#pelita.player.SimpleTeam" title="pelita.player.SimpleTeam"><code class="xref py py-obj docutils literal"><span class="pre">SimpleTeam</span></code></a>(*args)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.player.SimpleTeam" title="pelita.player.SimpleTeam"><code class="xref py py-obj docutils literal"><span class="pre">SimpleTeam</span></code></a>(*args)</td>
 <td>Simple class used to register an arbitrary number of (Abstract-)Players.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.player.SpeakingPlayer.html#pelita.player.SpeakingPlayer" title="pelita.player.SpeakingPlayer"><code class="xref py py-obj docutils literal"><span class="pre">SpeakingPlayer</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.player.SpeakingPlayer" title="pelita.player.SpeakingPlayer"><code class="xref py py-obj docutils literal"><span class="pre">SpeakingPlayer</span></code></a></td>
 <td>A player that makes moves at random and tells us about it.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.player.StoppingPlayer.html#pelita.player.StoppingPlayer" title="pelita.player.StoppingPlayer"><code class="xref py py-obj docutils literal"><span class="pre">StoppingPlayer</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.player.StoppingPlayer" title="pelita.player.StoppingPlayer"><code class="xref py py-obj docutils literal"><span class="pre">StoppingPlayer</span></code></a></td>
 <td>A Player that just stands still.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.player.TestPlayer.html#pelita.player.TestPlayer" title="pelita.player.TestPlayer"><code class="xref py py-obj docutils literal"><span class="pre">TestPlayer</span></code></a>(moves)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.player.TestPlayer" title="pelita.player.TestPlayer"><code class="xref py py-obj docutils literal"><span class="pre">TestPlayer</span></code></a>(moves)</td>
 <td>A Player with predetermined set of moves.</td>
 </tr>
 </tbody>
 </table>
+<dl class="class">
+<dt id="pelita.player.AbstractPlayer">
+<em class="property">class </em><code class="descclassname">pelita.player.</code><code class="descname">AbstractPlayer</code><a class="reference internal" href="../_modules/pelita/player.html#AbstractPlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.AbstractPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Base class for all user implemented Players.</p>
+<dl class="attribute">
+<dt id="pelita.player.AbstractPlayer.current_pos">
+<code class="descname">current_pos</code><a class="headerlink" href="#pelita.player.AbstractPlayer.current_pos" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current position of this bot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>current_pos</strong> &#8211;
+the current position (x, y) of this bot</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">tuple of (int, int)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.player.AbstractPlayer.current_state">
+<code class="descname">current_state</code><a class="headerlink" href="#pelita.player.AbstractPlayer.current_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current game state.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>game_state</strong> &#8211;
+The current game_state dict</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.player.AbstractPlayer.current_uni">
+<code class="descname">current_uni</code><a class="headerlink" href="#pelita.player.AbstractPlayer.current_uni" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current Universe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>universe</strong> &#8211;
+the current Universe</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Universe</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.player.AbstractPlayer.enemy_bots">
+<code class="descname">enemy_bots</code><a class="headerlink" href="#pelita.player.AbstractPlayer.enemy_bots" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of enemy Bots.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>enemy_bots</strong> &#8211;
+all Bots on all enemy teams</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of Bot objects</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.player.AbstractPlayer.enemy_food">
+<code class="descname">enemy_food</code><a class="headerlink" href="#pelita.player.AbstractPlayer.enemy_food" title="Permalink to this definition">¶</a></dt>
+<dd><p>Food owned by the enemy which can be eaten by this Player&#8217;s bot.</p>
+<p>Please note that it is valid for this list to be empty during get_move.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>enemy_food</strong> &#8211;
+The positions (x, y) of edible food</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of position tuples (int, int)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.player.AbstractPlayer.enemy_team">
+<code class="descname">enemy_team</code><a class="headerlink" href="#pelita.player.AbstractPlayer.enemy_team" title="Permalink to this definition">¶</a></dt>
+<dd><p>The enemy Team.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>enemy_team</strong> &#8211;
+the enemy teams</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Team object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.player.AbstractPlayer.get_move">
+<code class="descname">get_move</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/player.html#AbstractPlayer.get_move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.AbstractPlayer.get_move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subclasses _must_ override this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.player.AbstractPlayer.initial_pos">
+<code class="descname">initial_pos</code><a class="headerlink" href="#pelita.player.AbstractPlayer.initial_pos" title="Permalink to this definition">¶</a></dt>
+<dd><p>The initial_pos of this bot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>initial_pos</strong> &#8211;
+the initial position (x, y) of this bot</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">tuple of (int, int)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.player.AbstractPlayer.legal_moves">
+<code class="descname">legal_moves</code><a class="headerlink" href="#pelita.player.AbstractPlayer.legal_moves" title="Permalink to this definition">¶</a></dt>
+<dd><p>The currently possible moves, and where they lead.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>legal_moves</strong> &#8211;
+the currently legal moves</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict mapping moves to positions</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.player.AbstractPlayer.me">
+<code class="descname">me</code><a class="headerlink" href="#pelita.player.AbstractPlayer.me" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Bot object this Player controls.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>me</strong> &#8211;
+the bot controlled by this player</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pelita.datamodel.html#pelita.datamodel.Bot" title="pelita.datamodel.Bot">Bot</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.player.AbstractPlayer.other_team_bots">
+<code class="descname">other_team_bots</code><a class="headerlink" href="#pelita.player.AbstractPlayer.other_team_bots" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of Bots that are on this Player&#8217;s team excluding the current
+bot.</p>
+<p>Please parse this method mentally as ‘other (team bots)’. These bots
+are not your enemies. See also: <code class="docutils literal"><span class="pre">enemy_bots</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>other_team_bots</strong> &#8211;
+the team mates, excluding this Player&#8217;s Bot</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of Bot objects</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.player.AbstractPlayer.previous_pos">
+<code class="descname">previous_pos</code><a class="headerlink" href="#pelita.player.AbstractPlayer.previous_pos" title="Permalink to this definition">¶</a></dt>
+<dd><p>The previous position of the bot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>previous_pos</strong> &#8211;
+the previous position (x, y) of this bot</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">tuple of (int, int)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.player.AbstractPlayer.say">
+<code class="descname">say</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/player.html#AbstractPlayer.say"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.AbstractPlayer.say" title="Permalink to this definition">¶</a></dt>
+<dd><p>Let the bot speak.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>text</strong> (<em>string</em>) &#8211; the text to be shown in the Viewer.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.player.AbstractPlayer.set_initial">
+<code class="descname">set_initial</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/player.html#AbstractPlayer.set_initial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.AbstractPlayer.set_initial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subclasses can override this if desired.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.player.AbstractPlayer.team">
+<code class="descname">team</code><a class="headerlink" href="#pelita.player.AbstractPlayer.team" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Team object this Player&#8217;s Bot is on.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>team</strong> &#8211;
+the team of the bot controlled by this player</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pelita.datamodel.html#pelita.datamodel.Team" title="pelita.datamodel.Team">Team</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.player.AbstractPlayer.team_border">
+<code class="descname">team_border</code><a class="headerlink" href="#pelita.player.AbstractPlayer.team_border" title="Permalink to this definition">¶</a></dt>
+<dd><p>Positions of the border positions.
+These are the last positions in the zone of the team.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>team_border</strong> &#8211;
+the border positions</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of tuple of (int, int)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.player.AbstractPlayer.team_bots">
+<code class="descname">team_bots</code><a class="headerlink" href="#pelita.player.AbstractPlayer.team_bots" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of all Bots that are on this Player&#8217;s Bot&#8217;s Team including
+the current bot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>team_bots</strong> &#8211;
+the team mates, including this Player&#8217;s Bot</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of Bot objects</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.player.AbstractPlayer.team_food">
+<code class="descname">team_food</code><a class="headerlink" href="#pelita.player.AbstractPlayer.team_food" title="Permalink to this definition">¶</a></dt>
+<dd><p>Food owned by the team which can be eaten by the enemy Player&#8217;s bot.</p>
+<p>Please note that it is valid for this list to be empty during get_move.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>team_food</strong> &#8211;
+The positions (x, y) of food edible by the enemy</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of position tuples (int, int)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.player.AbstractPlayer.time_spent">
+<code class="descname">time_spent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/player.html#AbstractPlayer.time_spent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.AbstractPlayer.time_spent" title="Permalink to this definition">¶</a></dt>
+<dd><p>The approximate amount of time since <cite>get_move</cite> was
+called.</p>
+<p>Note: Due to delays in network communication and serialisation,
+this method is not completely reliable concerning the timeout
+handling. It may however be useful for debugging and as a
+rough estimation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>time_needed</strong> &#8211;
+time in seconds</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.player.CPUBoundPlayer">
+<em class="property">class </em><code class="descclassname">pelita.player.</code><code class="descname">CPUBoundPlayer</code><a class="reference internal" href="../_modules/pelita/player.html#CPUBoundPlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.CPUBoundPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><code class="xref py py-class docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></code></a></p>
+<p>Player that does loads of computation.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.player.DebuggablePlayer">
+<em class="property">class </em><code class="descclassname">pelita.player.</code><code class="descname">DebuggablePlayer</code><a class="reference internal" href="../_modules/pelita/player.html#DebuggablePlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.DebuggablePlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><code class="xref py py-class docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></code></a></p>
+<p>Player which invokes pdb on each move.</p>
+<p>Setting <code class="docutils literal"><span class="pre">direction</span></code> inside the debugger will change
+its behaviour.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.player.IOBoundPlayer">
+<em class="property">class </em><code class="descclassname">pelita.player.</code><code class="descname">IOBoundPlayer</code><a class="reference internal" href="../_modules/pelita/player.html#IOBoundPlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.IOBoundPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><code class="xref py py-class docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></code></a></p>
+<p>IO Bound player that crawls the file system.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.player.InitialExceptionPlayer">
+<em class="property">class </em><code class="descclassname">pelita.player.</code><code class="descname">InitialExceptionPlayer</code><a class="reference internal" href="../_modules/pelita/player.html#InitialExceptionPlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.InitialExceptionPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><code class="xref py py-class docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></code></a></p>
+<p>Player that raises an Exception on set_initial().</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.player.MoveExceptionPlayer">
+<em class="property">class </em><code class="descclassname">pelita.player.</code><code class="descname">MoveExceptionPlayer</code><a class="reference internal" href="../_modules/pelita/player.html#MoveExceptionPlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.MoveExceptionPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><code class="xref py py-class docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></code></a></p>
+<p>Player that raises an Exception on get_move().</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.player.RoundBasedPlayer">
+<em class="property">class </em><code class="descclassname">pelita.player.</code><code class="descname">RoundBasedPlayer</code><span class="sig-paren">(</span><em>moves</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/player.html#RoundBasedPlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.RoundBasedPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><code class="xref py py-class docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></code></a></p>
+<p>A Player which makes a decision dependent on the round index
+in a dict or list. (Or anything which responds to moves[idx].)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>moves</strong> (<em>list or dict of moves</em>) &#8211; the moves to make, a move is determined by moves[round]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.player.SimpleTeam">
+<em class="property">class </em><code class="descclassname">pelita.player.</code><code class="descname">SimpleTeam</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/player.html#SimpleTeam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.SimpleTeam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Simple class used to register an arbitrary number of (Abstract-)Players.</p>
+<p>Each Player is used to control a Bot in the Universe.</p>
+<p>SimpleTeam transforms the <cite>set_initial</cite> and <cite>get_move</cite> messages
+from the GameMaster into <cite>_set_index</cite>, <cite>_set_initial</cite> and <cite>_get_move</cite>
+messages on the Player.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>team_name</strong> &#8211; the name of the team (optional)</li>
+<li><strong>players</strong> &#8211; the Players who shall join this SimpleTeam</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pelita.player.SimpleTeam.get_move">
+<code class="descname">get_move</code><span class="sig-paren">(</span><em>bot_id</em>, <em>universe</em>, <em>game_state</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/player.html#SimpleTeam.get_move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.SimpleTeam.get_move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requests a move from the Player who controls the Bot with id <cite>bot_id</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.player.SpeakingPlayer">
+<em class="property">class </em><code class="descclassname">pelita.player.</code><code class="descname">SpeakingPlayer</code><a class="reference internal" href="../_modules/pelita/player.html#SpeakingPlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.SpeakingPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><code class="xref py py-class docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></code></a></p>
+<p>A player that makes moves at random and tells us about it.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.player.StoppingPlayer">
+<em class="property">class </em><code class="descclassname">pelita.player.</code><code class="descname">StoppingPlayer</code><a class="reference internal" href="../_modules/pelita/player.html#StoppingPlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.StoppingPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><code class="xref py py-class docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></code></a></p>
+<p>A Player that just stands still.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.player.TestPlayer">
+<em class="property">class </em><code class="descclassname">pelita.player.</code><code class="descname">TestPlayer</code><span class="sig-paren">(</span><em>moves</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/player.html#TestPlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.TestPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><code class="xref py py-class docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></code></a></p>
+<p>A Player with predetermined set of moves.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>moves</strong> (<em>list of moves or str of shorthand symbols</em>) &#8211; the moves to make in order, see notes below</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The <code class="docutils literal"><span class="pre">moves</span></code> argument can either be a list of moves, e.g. <code class="docutils literal"><span class="pre">[west,</span> <span class="pre">east,</span>
+<span class="pre">south,</span> <span class="pre">north,</span> <span class="pre">stop]</span></code> or a string of shorthand symbols, where the equivalent
+of the previous example is: <code class="docutils literal"><span class="pre">'&gt;&lt;v^-'</span></code>.</p>
+</dd></dl>
+
 </div>
 
 
@@ -120,21 +552,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pelita.game_master.html">pelita.game_master</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.graph.html">pelita.graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.layout.html">pelita.layout</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pelita.messaging.html">pelita.messaging</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">pelita.player</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pelita.player.AbstractPlayer.html">pelita.player.AbstractPlayer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.player.CPUBoundPlayer.html">pelita.player.CPUBoundPlayer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.player.DebuggablePlayer.html">pelita.player.DebuggablePlayer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.player.IOBoundPlayer.html">pelita.player.IOBoundPlayer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.player.InitialExceptionPlayer.html">pelita.player.InitialExceptionPlayer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.player.MoveExceptionPlayer.html">pelita.player.MoveExceptionPlayer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.player.RoundBasedPlayer.html">pelita.player.RoundBasedPlayer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.player.SimpleTeam.html">pelita.player.SimpleTeam</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.player.SpeakingPlayer.html">pelita.player.SpeakingPlayer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.player.StoppingPlayer.html">pelita.player.StoppingPlayer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.player.TestPlayer.html">pelita.player.TestPlayer</a></li>
-</ul>
-</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">pelita.player</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.simplesetup.html">pelita.simplesetup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.ui.html">pelita.ui</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.utils.html">pelita.utils</a></li>

@@ -1,6 +1,0 @@
-pelita.datamodel.CTFUniverse.move_bot
-=====================================
-
-.. currentmodule:: pelita.datamodel
-
-.. automethod:: CTFUniverse.move_bot

@@ -1,6 +1,0 @@
-pelita.simplesetup.GameMaster.__init__
-======================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: GameMaster.__init__

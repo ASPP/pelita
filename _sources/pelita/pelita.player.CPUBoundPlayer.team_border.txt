@@ -1,6 +1,0 @@
-pelita.player.CPUBoundPlayer.team_border
-========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: CPUBoundPlayer.team_border

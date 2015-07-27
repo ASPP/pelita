@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.graph &mdash; Pelita v0.2.0-195-ga562aaf documentation</title>
+    <title>pelita.graph &mdash; Pelita v0.2.0-202-g4c5382a documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-195-ga562aaf',
+        VERSION:     'v0.2.0-202-g4c5382a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-195-ga562aaf documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-202-g4c5382a documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
@@ -48,10 +48,10 @@
 
 <span class="n">__docformat__</span> <span class="o">=</span> <span class="s">&quot;restructuredtext&quot;</span>
 
-<div class="viewcode-block" id="NoPathException"><a class="viewcode-back" href="../../pelita/pelita.graph.NoPathException.html#pelita.datamodel.NoPathException">[docs]</a><span class="k">class</span> <span class="nc">NoPathException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">NoPathException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
-</div>
-<div class="viewcode-block" id="new_pos"><a class="viewcode-back" href="../../pelita/pelita.graph.new_pos.html#pelita.datamodel.new_pos">[docs]</a><span class="k">def</span> <span class="nf">new_pos</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">move</span><span class="p">):</span>
+
+<div class="viewcode-block" id="new_pos"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.new_pos">[docs]</a><span class="k">def</span> <span class="nf">new_pos</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">move</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Adds a position tuple and a move tuple.</span>
 
 <span class="sd">    Parameters</span>
@@ -72,7 +72,7 @@
     <span class="n">pos_y</span> <span class="o">=</span> <span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">move</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">pos_x</span><span class="p">,</span> <span class="n">pos_y</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="diff_pos"><a class="viewcode-back" href="../../pelita/pelita.graph.diff_pos.html#pelita.datamodel.diff_pos">[docs]</a><span class="k">def</span> <span class="nf">diff_pos</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+<div class="viewcode-block" id="diff_pos"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.diff_pos">[docs]</a><span class="k">def</span> <span class="nf">diff_pos</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Return the move required to move from one position to another.</span>
 
 <span class="sd">    Will return the move required to transition from `initial` to `target`. If</span>
@@ -93,7 +93,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">initial</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">target</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">initial</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 </div>
-<div class="viewcode-block" id="manhattan_dist"><a class="viewcode-back" href="../../pelita/pelita.graph.manhattan_dist.html#pelita.datamodel.manhattan_dist">[docs]</a><span class="k">def</span> <span class="nf">manhattan_dist</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
+<div class="viewcode-block" id="manhattan_dist"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.manhattan_dist">[docs]</a><span class="k">def</span> <span class="nf">manhattan_dist</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Manhattan distance between two points.</span>
 
 <span class="sd">    Parameters</span>
@@ -110,7 +110,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">diff_pos</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">))</span>
 </div>
-<div class="viewcode-block" id="iter_adjacencies"><a class="viewcode-back" href="../../pelita/pelita.graph.iter_adjacencies.html#pelita.datamodel.iter_adjacencies">[docs]</a><span class="k">def</span> <span class="nf">iter_adjacencies</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">adjacencies_for_pos</span><span class="p">):</span>
+<div class="viewcode-block" id="iter_adjacencies"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.iter_adjacencies">[docs]</a><span class="k">def</span> <span class="nf">iter_adjacencies</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">adjacencies_for_pos</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Returns an adjacency list starting at the initial positions.</span>
 
 <span class="sd">    Given some starting positions and a method which returns the adjacencies</span>
@@ -140,7 +140,7 @@
         <span class="n">reached</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
         <span class="k">yield</span> <span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">legal_moves</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="AdjacencyList"><a class="viewcode-back" href="../../pelita/pelita.graph.AdjacencyList.html#pelita.datamodel.AdjacencyList">[docs]</a><span class="k">class</span> <span class="nc">AdjacencyList</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="AdjacencyList"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.AdjacencyList">[docs]</a><span class="k">class</span> <span class="nc">AdjacencyList</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Adjacency list [1] representation of a Maze.</span>
 
 <span class="sd">    The `AdjacencyList` is mostly a wrapper for a `dict`. Given a position,</span>
@@ -149,10 +149,10 @@
 <span class="sd">    [1] http://en.wikipedia.org/wiki/Adjacency_list</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="AdjacencyList.__init__"><a class="viewcode-back" href="../../pelita/pelita.graph.AdjacencyList.__init__.html#pelita.datamodel.AdjacencyList.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adjacencies</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adjacencies</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">adjacencies</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="AdjacencyList.pos_within"><a class="viewcode-back" href="../../pelita/pelita.graph.AdjacencyList.pos_within.html#pelita.datamodel.AdjacencyList.pos_within">[docs]</a>    <span class="k">def</span> <span class="nf">pos_within</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AdjacencyList.pos_within"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.AdjacencyList.pos_within">[docs]</a>    <span class="k">def</span> <span class="nf">pos_within</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Positions within a certain distance.</span>
 
 <span class="sd">        Calculates all positions within a certain distance of a target</span>
@@ -196,7 +196,7 @@
                 <span class="k">raise</span> <span class="n">NoPathException</span><span class="p">(</span><span class="s">&quot;Position </span><span class="si">%s</span><span class="s"> does not exist in adjacency list.&quot;</span> <span class="o">%</span>
                         <span class="nb">repr</span><span class="p">(</span><span class="n">pos</span><span class="p">))</span>
 
-<div class="viewcode-block" id="AdjacencyList.bfs"><a class="viewcode-back" href="../../pelita/pelita.graph.AdjacencyList.bfs.html#pelita.datamodel.AdjacencyList.bfs">[docs]</a>    <span class="k">def</span> <span class="nf">bfs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
+<div class="viewcode-block" id="AdjacencyList.bfs"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.AdjacencyList.bfs">[docs]</a>    <span class="k">def</span> <span class="nf">bfs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Breadth first search (bfs).</span>
 
 <span class="sd">        Breadth first search [1] from one position to multiple targets. The</span>
@@ -270,7 +270,7 @@
         <span class="c"># path, so don&#39;t include it.</span>
         <span class="k">return</span> <span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 </div>
-<div class="viewcode-block" id="AdjacencyList.a_star"><a class="viewcode-back" href="../../pelita/pelita.graph.AdjacencyList.a_star.html#pelita.datamodel.AdjacencyList.a_star">[docs]</a>    <span class="k">def</span> <span class="nf">a_star</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+<div class="viewcode-block" id="AdjacencyList.a_star"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.AdjacencyList.a_star">[docs]</a>    <span class="k">def</span> <span class="nf">a_star</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; A* search.</span>
 
 <span class="sd">        A* (A Star) [1] from one position to another. The search will return the</span>

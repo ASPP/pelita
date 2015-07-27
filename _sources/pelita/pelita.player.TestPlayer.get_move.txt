@@ -1,6 +1,0 @@
-pelita.player.TestPlayer.get_move
-=================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: TestPlayer.get_move

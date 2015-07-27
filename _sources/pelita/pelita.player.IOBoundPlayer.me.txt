@@ -1,6 +1,0 @@
-pelita.player.IOBoundPlayer.me
-==============================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: IOBoundPlayer.me

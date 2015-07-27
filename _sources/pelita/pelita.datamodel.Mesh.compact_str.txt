@@ -1,6 +1,0 @@
-pelita.datamodel.Mesh.compact_str
-=================================
-
-.. currentmodule:: pelita.datamodel
-
-.. autoattribute:: Mesh.compact_str

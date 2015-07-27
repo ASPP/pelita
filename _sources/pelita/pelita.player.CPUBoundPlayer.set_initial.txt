@@ -1,6 +1,0 @@
-pelita.player.CPUBoundPlayer.set_initial
-========================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: CPUBoundPlayer.set_initial

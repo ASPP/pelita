@@ -1,6 +1,0 @@
-pelita.graph.deque.remove
-=========================
-
-.. currentmodule:: pelita.graph
-
-.. automethod:: deque.remove

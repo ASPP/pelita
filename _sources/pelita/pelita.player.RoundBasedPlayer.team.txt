@@ -1,6 +1,0 @@
-pelita.player.RoundBasedPlayer.team
-===================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: RoundBasedPlayer.team

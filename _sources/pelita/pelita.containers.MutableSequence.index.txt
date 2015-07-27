@@ -1,6 +1,0 @@
-pelita.containers.MutableSequence.index
-=======================================
-
-.. currentmodule:: pelita.containers
-
-.. automethod:: MutableSequence.index

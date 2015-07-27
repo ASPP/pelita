@@ -4,32 +4,35 @@ pelita.graph
 .. automodule:: pelita.graph
 
    
+   
    .. rubric:: Functions
 
    .. autosummary::
-      :toctree:
    
-      ~diff_pos
-      ~iter_adjacencies
-      ~manhattan_dist
-      ~new_pos
+      diff_pos
+      iter_adjacencies
+      manhattan_dist
+      new_pos
+   
    
 
+   
    
    .. rubric:: Classes
 
    .. autosummary::
-      :toctree:
    
-      ~AdjacencyList
-      ~deque
+      AdjacencyList
+      deque
+   
    
 
+   
    
    .. rubric:: Exceptions
 
    .. autosummary::
-      :toctree:
    
-      ~NoPathException
+      NoPathException
+   
    

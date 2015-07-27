@@ -1,6 +1,0 @@
-pelita.layout.Layout.strip_layout
-=================================
-
-.. currentmodule:: pelita.layout
-
-.. automethod:: Layout.strip_layout

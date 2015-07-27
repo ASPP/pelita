@@ -1,6 +1,0 @@
-pelita.graph.AdjacencyList.popitem
-==================================
-
-.. currentmodule:: pelita.graph
-
-.. automethod:: AdjacencyList.popitem

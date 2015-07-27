@@ -1,6 +1,0 @@
-pelita.utils.Counter.inc
-========================
-
-.. currentmodule:: pelita.utils
-
-.. automethod:: Counter.inc

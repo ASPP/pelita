@@ -1,6 +1,0 @@
-pelita.datamodel.manhattan_dist
-===============================
-
-.. currentmodule:: pelita.datamodel
-
-.. autofunction:: manhattan_dist

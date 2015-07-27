@@ -1,6 +1,0 @@
-pelita.player.RoundBasedPlayer.get_move
-=======================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: RoundBasedPlayer.get_move

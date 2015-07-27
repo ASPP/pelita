@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleController.run
-=======================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleController.run

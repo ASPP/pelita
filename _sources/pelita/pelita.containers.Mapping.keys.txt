@@ -1,6 +1,0 @@
-pelita.containers.Mapping.keys
-==============================
-
-.. currentmodule:: pelita.containers
-
-.. automethod:: Mapping.keys

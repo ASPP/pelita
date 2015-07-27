@@ -1,6 +1,0 @@
-pelita.graph.deque.extend
-=========================
-
-.. currentmodule:: pelita.graph
-
-.. automethod:: deque.extend

@@ -1,6 +1,0 @@
-pelita.datamodel.CTFUniverse.team_bots
-======================================
-
-.. currentmodule:: pelita.datamodel
-
-.. automethod:: CTFUniverse.team_bots

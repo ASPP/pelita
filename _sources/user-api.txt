@@ -142,5 +142,3 @@ Interfacing with the ``Maze``
 .. autosummary::
 
     shape
-    positions
-    pos_of

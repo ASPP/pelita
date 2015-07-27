@@ -1,6 +1,0 @@
-pelita.game_master.ManhattanNoiser.alter_pos
-============================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: ManhattanNoiser.alter_pos

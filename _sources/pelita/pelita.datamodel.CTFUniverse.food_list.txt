@@ -1,6 +1,0 @@
-pelita.datamodel.CTFUniverse.food_list
-======================================
-
-.. currentmodule:: pelita.datamodel
-
-.. autoattribute:: CTFUniverse.food_list

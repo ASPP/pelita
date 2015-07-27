@@ -1,6 +1,0 @@
-pelita.game_master.AdjacencyList.keys
-=====================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: AdjacencyList.keys

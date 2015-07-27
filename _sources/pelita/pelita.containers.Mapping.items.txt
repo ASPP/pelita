@@ -1,6 +1,0 @@
-pelita.containers.Mapping.items
-===============================
-
-.. currentmodule:: pelita.containers
-
-.. automethod:: Mapping.items

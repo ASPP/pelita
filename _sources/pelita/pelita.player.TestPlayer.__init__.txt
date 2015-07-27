@@ -1,6 +1,0 @@
-pelita.player.TestPlayer.__init__
-=================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: TestPlayer.__init__

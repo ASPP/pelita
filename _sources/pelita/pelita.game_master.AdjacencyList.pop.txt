@@ -1,6 +1,0 @@
-pelita.game_master.AdjacencyList.pop
-====================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: AdjacencyList.pop

@@ -1,6 +1,0 @@
-pelita.layout.load_layout
-=========================
-
-.. currentmodule:: pelita.layout
-
-.. autofunction:: load_layout

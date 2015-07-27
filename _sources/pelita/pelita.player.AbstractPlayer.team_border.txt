@@ -1,6 +1,0 @@
-pelita.player.AbstractPlayer.team_border
-========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: AbstractPlayer.team_border

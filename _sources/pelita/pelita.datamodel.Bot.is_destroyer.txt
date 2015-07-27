@@ -1,6 +1,0 @@
-pelita.datamodel.Bot.is_destroyer
-=================================
-
-.. currentmodule:: pelita.datamodel
-
-.. autoattribute:: Bot.is_destroyer

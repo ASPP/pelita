@@ -1,6 +1,0 @@
-pelita.game_master.ManhattanNoiser.distance
-===========================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: ManhattanNoiser.distance

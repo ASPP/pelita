@@ -1,6 +1,0 @@
-pelita.game_master.manhattan_dist
-=================================
-
-.. currentmodule:: pelita.game_master
-
-.. autofunction:: manhattan_dist

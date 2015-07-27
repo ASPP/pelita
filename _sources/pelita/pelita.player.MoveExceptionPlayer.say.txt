@@ -1,6 +1,0 @@
-pelita.player.MoveExceptionPlayer.say
-=====================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: MoveExceptionPlayer.say

@@ -1,6 +1,0 @@
-pelita.datamodel.iter_adjacencies
-=================================
-
-.. currentmodule:: pelita.datamodel
-
-.. autofunction:: iter_adjacencies

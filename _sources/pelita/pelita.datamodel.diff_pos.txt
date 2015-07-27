@@ -1,6 +1,0 @@
-pelita.datamodel.diff_pos
-=========================
-
-.. currentmodule:: pelita.datamodel
-
-.. autofunction:: diff_pos

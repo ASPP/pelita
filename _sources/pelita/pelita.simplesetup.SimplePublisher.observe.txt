@@ -1,6 +1,0 @@
-pelita.simplesetup.SimplePublisher.observe
-==========================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimplePublisher.observe

@@ -1,6 +1,0 @@
-pelita.player.DebuggablePlayer.enemy_team
-=========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: DebuggablePlayer.enemy_team

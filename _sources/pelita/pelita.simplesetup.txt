@@ -4,42 +4,45 @@ pelita.simplesetup
 .. automodule:: pelita.simplesetup
 
    
+   
    .. rubric:: Functions
 
    .. autosummary::
-      :toctree:
    
-      ~bind_socket
-      ~extract_port_range
+      bind_socket
+      extract_port_range
+   
    
 
+   
    
    .. rubric:: Classes
 
    .. autosummary::
-      :toctree:
    
-      ~AbstractViewer
-      ~GameMaster
-      ~RemoteTeamPlayer
-      ~SimpleClient
-      ~SimpleController
-      ~SimplePublisher
-      ~SimpleServer
-      ~SimpleSubscriber
-      ~ZMQConnection
+      AbstractViewer
+      GameMaster
+      RemoteTeamPlayer
+      SimpleClient
+      SimpleController
+      SimplePublisher
+      SimpleServer
+      SimpleSubscriber
+      ZMQConnection
+   
    
 
+   
    
    .. rubric:: Exceptions
 
    .. autosummary::
-      :toctree:
    
-      ~DeadConnection
-      ~ExitLoop
-      ~PlayerDisconnected
-      ~PlayerTimeout
-      ~UnknownMessageId
-      ~ZMQTimeout
+      DeadConnection
+      ExitLoop
+      PlayerDisconnected
+      PlayerTimeout
+      UnknownMessageId
+      ZMQTimeout
+   
    

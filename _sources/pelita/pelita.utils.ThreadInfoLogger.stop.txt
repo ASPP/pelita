@@ -1,6 +1,0 @@
-pelita.utils.ThreadInfoLogger.stop
-==================================
-
-.. currentmodule:: pelita.utils
-
-.. automethod:: ThreadInfoLogger.stop

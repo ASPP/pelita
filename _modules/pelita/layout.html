@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.layout &mdash; Pelita v0.2.0-195-ga562aaf documentation</title>
+    <title>pelita.layout &mdash; Pelita v0.2.0-202-g4c5382a documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-195-ga562aaf',
+        VERSION:     'v0.2.0-202-g4c5382a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-195-ga562aaf documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-202-g4c5382a documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
@@ -53,11 +53,11 @@
 <span class="n">__docformat__</span> <span class="o">=</span> <span class="s">&quot;restructuredtext&quot;</span>
 
 
-<div class="viewcode-block" id="LayoutEncodingException"><a class="viewcode-back" href="../../pelita/pelita.layout.LayoutEncodingException.html#pelita.datamodel.LayoutEncodingException">[docs]</a><span class="k">class</span> <span class="nc">LayoutEncodingException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutEncodingException"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.LayoutEncodingException">[docs]</a><span class="k">class</span> <span class="nc">LayoutEncodingException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Signifies a problem with the encoding of a layout. &quot;&quot;&quot;</span>
     <span class="k">pass</span>
 </div>
-<div class="viewcode-block" id="load_layout"><a class="viewcode-back" href="../../pelita/pelita.layout.load_layout.html#pelita.datamodel.load_layout">[docs]</a><span class="k">def</span> <span class="nf">load_layout</span><span class="p">(</span><span class="n">layout_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">layout_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="load_layout"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.load_layout">[docs]</a><span class="k">def</span> <span class="nf">load_layout</span><span class="p">(</span><span class="n">layout_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">layout_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Returns the layout_name and layout_string for a given parameter.</span>
 
 <span class="sd">    The Parameters &#39;layout_name&#39; and &#39;layout_file&#39; are mutually exclusive.</span>
@@ -86,7 +86,7 @@
 
     <span class="k">return</span> <span class="n">layout_name</span><span class="p">,</span> <span class="n">layout_string</span>
 </div>
-<div class="viewcode-block" id="get_random_layout"><a class="viewcode-back" href="../../pelita/pelita.layout.get_random_layout.html#pelita.datamodel.get_random_layout">[docs]</a><span class="k">def</span> <span class="nf">get_random_layout</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="get_random_layout"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.get_random_layout">[docs]</a><span class="k">def</span> <span class="nf">get_random_layout</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Return a random layout string from the available ones.</span>
 
 <span class="sd">    Parameters</span>
@@ -111,7 +111,7 @@
     <span class="n">layout_choice</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">layouts_names</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">layout_choice</span><span class="p">,</span> <span class="n">get_layout_by_name</span><span class="p">(</span><span class="n">layout_choice</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="get_available_layouts"><a class="viewcode-back" href="../../pelita/pelita.layout.get_available_layouts.html#pelita.datamodel.get_available_layouts">[docs]</a><span class="k">def</span> <span class="nf">get_available_layouts</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="get_available_layouts"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.get_available_layouts">[docs]</a><span class="k">def</span> <span class="nf">get_available_layouts</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; The names of the available layouts.</span>
 
 <span class="sd">    Parameters</span>
@@ -136,7 +136,7 @@
     <span class="k">return</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">__layouts</span><span class="p">)</span> <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;layout_&#39;</span><span class="p">)</span> <span class="ow">and</span>
             <span class="nb">filter</span> <span class="ow">in</span> <span class="n">item</span><span class="p">]</span>
 </div>
-<div class="viewcode-block" id="get_layout_by_name"><a class="viewcode-back" href="../../pelita/pelita.layout.get_layout_by_name.html#pelita.datamodel.get_layout_by_name">[docs]</a><span class="k">def</span> <span class="nf">get_layout_by_name</span><span class="p">(</span><span class="n">layout_name</span><span class="p">):</span>
+<div class="viewcode-block" id="get_layout_by_name"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.get_layout_by_name">[docs]</a><span class="k">def</span> <span class="nf">get_layout_by_name</span><span class="p">(</span><span class="n">layout_name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Get a layout.</span>
 
 <span class="sd">    Parameters</span>
@@ -172,7 +172,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Layout: &#39;</span><span class="si">%s</span><span class="s">&#39; is not known.&quot;</span> <span class="o">%</span> <span class="n">ke</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="Layout"><a class="viewcode-back" href="../../pelita/pelita.layout.Layout.html#pelita.datamodel.Layout">[docs]</a><span class="k">class</span> <span class="nc">Layout</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Layout"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.Layout">[docs]</a><span class="k">class</span> <span class="nc">Layout</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Auxiliary class to parse string encodings of mazes.</span>
 
 <span class="sd">    Basically a parser for string encoded maze representations. This class can</span>
@@ -209,15 +209,15 @@
 <span class="sd">        height and width of the layout</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Layout.__init__"><a class="viewcode-back" href="../../pelita/pelita.layout.Layout.__init__.html#pelita.datamodel.Layout.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout_str</span><span class="p">,</span> <span class="n">layout_chars</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout_str</span><span class="p">,</span> <span class="n">layout_chars</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">number_bots</span> <span class="o">=</span> <span class="n">number_bots</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">layout_chars</span> <span class="o">=</span> <span class="n">layout_chars</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stripped</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strip_layout</span><span class="p">(</span><span class="n">layout_str</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_layout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stripped</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout_chars</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_bots</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout_shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stripped</span><span class="p">)</span>
-</div>
+
     <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Layout.strip_layout"><a class="viewcode-back" href="../../pelita/pelita.layout.Layout.strip_layout.html#pelita.datamodel.Layout.strip_layout">[docs]</a>    <span class="k">def</span> <span class="nf">strip_layout</span><span class="p">(</span><span class="n">layout_str</span><span class="p">):</span>
+<div class="viewcode-block" id="Layout.strip_layout"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.Layout.strip_layout">[docs]</a>    <span class="k">def</span> <span class="nf">strip_layout</span><span class="p">(</span><span class="n">layout_str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Remove leading and trailing whitespace from a string encoded layout.</span>
 
 <span class="sd">        Parameters</span>
@@ -234,7 +234,7 @@
         <span class="k">return</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">layout_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)])</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 </div>
     <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Layout.check_layout"><a class="viewcode-back" href="../../pelita/pelita.layout.Layout.check_layout.html#pelita.datamodel.Layout.check_layout">[docs]</a>    <span class="k">def</span> <span class="nf">check_layout</span><span class="p">(</span><span class="n">layout_str</span><span class="p">,</span> <span class="n">layout_chars</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">):</span>
+<div class="viewcode-block" id="Layout.check_layout"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.Layout.check_layout">[docs]</a>    <span class="k">def</span> <span class="nf">check_layout</span><span class="p">(</span><span class="n">layout_str</span><span class="p">,</span> <span class="n">layout_chars</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Check the legality of the layout string.</span>
 
 <span class="sd">        Parameters</span>
@@ -283,7 +283,7 @@
                     <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
 </div>
     <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Layout.layout_shape"><a class="viewcode-back" href="../../pelita/pelita.layout.Layout.layout_shape.html#pelita.datamodel.Layout.layout_shape">[docs]</a>    <span class="k">def</span> <span class="nf">layout_shape</span><span class="p">(</span><span class="n">layout_str</span><span class="p">):</span>
+<div class="viewcode-block" id="Layout.layout_shape"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.Layout.layout_shape">[docs]</a>    <span class="k">def</span> <span class="nf">layout_shape</span><span class="p">(</span><span class="n">layout_str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Determine shape of layout.</span>
 
 <span class="sd">        Parameters</span>
@@ -312,7 +312,7 @@
         <span class="k">return</span> <span class="p">(</span><span class="s">&quot;Layout(</span><span class="si">%r</span><span class="s">, </span><span class="si">%s</span><span class="s">, </span><span class="si">%i</span><span class="s">)&quot;</span>
             <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stripped</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout_chars</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_bots</span><span class="p">))</span>
 
-<div class="viewcode-block" id="Layout.as_mesh"><a class="viewcode-back" href="../../pelita/pelita.layout.Layout.as_mesh.html#pelita.datamodel.Layout.as_mesh">[docs]</a>    <span class="k">def</span> <span class="nf">as_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Layout.as_mesh"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.Layout.as_mesh">[docs]</a>    <span class="k">def</span> <span class="nf">as_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Convert to a Mesh.</span>
 
 <span class="sd">        Returns</span>
@@ -326,7 +326,7 @@
         <span class="k">return</span> <span class="n">mesh</span>
 </div>
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Layout.from_file"><a class="viewcode-back" href="../../pelita/pelita.layout.Layout.from_file.html#pelita.datamodel.Layout.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">layout_chars</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">):</span>
+<div class="viewcode-block" id="Layout.from_file"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.Layout.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">layout_chars</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Loads a layout from file `filename`.</span>
 
 <span class="sd">        Parameters</span>

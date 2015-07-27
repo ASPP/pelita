@@ -1,6 +1,0 @@
-pelita.layout.Mesh.keys
-=======================
-
-.. currentmodule:: pelita.layout
-
-.. automethod:: Mesh.keys

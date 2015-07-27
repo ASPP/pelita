@@ -1,6 +1,0 @@
-pelita.game_master.CTFUniverse.legal_moves_or_stop
-==================================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: CTFUniverse.legal_moves_or_stop

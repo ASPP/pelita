@@ -1,6 +1,0 @@
-pelita.containers.Mesh.items
-============================
-
-.. currentmodule:: pelita.containers
-
-.. automethod:: Mesh.items

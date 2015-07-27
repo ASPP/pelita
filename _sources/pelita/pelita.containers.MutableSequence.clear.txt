@@ -1,6 +1,0 @@
-pelita.containers.MutableSequence.clear
-=======================================
-
-.. currentmodule:: pelita.containers
-
-.. automethod:: MutableSequence.clear

@@ -1,6 +1,0 @@
-pelita.player.IOBoundPlayer.enemy_team
-======================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: IOBoundPlayer.enemy_team

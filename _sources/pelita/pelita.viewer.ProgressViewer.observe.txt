@@ -1,6 +1,0 @@
-pelita.viewer.ProgressViewer.observe
-====================================
-
-.. currentmodule:: pelita.viewer
-
-.. automethod:: ProgressViewer.observe

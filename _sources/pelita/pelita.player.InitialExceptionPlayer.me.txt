@@ -1,6 +1,0 @@
-pelita.player.InitialExceptionPlayer.me
-=======================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: InitialExceptionPlayer.me

@@ -1,6 +1,0 @@
-pelita.game_master.Bot.is_harvester
-===================================
-
-.. currentmodule:: pelita.game_master
-
-.. autoattribute:: Bot.is_harvester

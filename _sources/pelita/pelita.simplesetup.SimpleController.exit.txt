@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleController.exit
-========================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleController.exit

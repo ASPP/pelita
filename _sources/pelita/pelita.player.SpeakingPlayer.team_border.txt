@@ -1,6 +1,0 @@
-pelita.player.SpeakingPlayer.team_border
-========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: SpeakingPlayer.team_border

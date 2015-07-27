@@ -1,6 +1,0 @@
-pelita.player.MoveExceptionPlayer.team_food
-===========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: MoveExceptionPlayer.team_food

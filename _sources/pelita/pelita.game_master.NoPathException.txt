@@ -1,6 +1,0 @@
-pelita.game_master.NoPathException
-==================================
-
-.. currentmodule:: pelita.game_master
-
-.. autoexception:: NoPathException

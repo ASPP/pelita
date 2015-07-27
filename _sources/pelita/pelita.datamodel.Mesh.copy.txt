@@ -1,6 +1,0 @@
-pelita.datamodel.Mesh.copy
-==========================
-
-.. currentmodule:: pelita.datamodel
-
-.. automethod:: Mesh.copy

@@ -1,6 +1,0 @@
-pelita.player.RoundBasedPlayer.current_uni
-==========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: RoundBasedPlayer.current_uni

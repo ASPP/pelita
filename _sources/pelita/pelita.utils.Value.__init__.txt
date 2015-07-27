@@ -1,6 +1,0 @@
-pelita.utils.Value.__init__
-===========================
-
-.. currentmodule:: pelita.utils
-
-.. automethod:: Value.__init__

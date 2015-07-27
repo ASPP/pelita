@@ -1,6 +1,0 @@
-pelita.utils.Value.get
-======================
-
-.. currentmodule:: pelita.utils
-
-.. automethod:: Value.get

@@ -1,6 +1,0 @@
-pelita.layout.Mesh.compact_str
-==============================
-
-.. currentmodule:: pelita.layout
-
-.. autoattribute:: Mesh.compact_str

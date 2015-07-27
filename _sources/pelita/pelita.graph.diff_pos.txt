@@ -1,6 +1,0 @@
-pelita.graph.diff_pos
-=====================
-
-.. currentmodule:: pelita.graph
-
-.. autofunction:: diff_pos

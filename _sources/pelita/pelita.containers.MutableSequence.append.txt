@@ -1,6 +1,0 @@
-pelita.containers.MutableSequence.append
-========================================
-
-.. currentmodule:: pelita.containers
-
-.. automethod:: MutableSequence.append

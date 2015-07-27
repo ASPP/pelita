@@ -1,6 +1,0 @@
-pelita.graph.new_pos
-====================
-
-.. currentmodule:: pelita.graph
-
-.. autofunction:: new_pos

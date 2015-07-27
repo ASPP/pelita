@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.viewer &mdash; Pelita v0.2.0-195-ga562aaf documentation</title>
+    <title>pelita.viewer &mdash; Pelita v0.2.0-202-g4c5382a documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-195-ga562aaf',
+        VERSION:     'v0.2.0-202-g4c5382a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-195-ga562aaf documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-202-g4c5382a documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
@@ -52,18 +52,18 @@
 <span class="n">__docformat__</span> <span class="o">=</span> <span class="s">&quot;restructuredtext&quot;</span>
 
 <span class="nd">@six.add_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)</span>
-<div class="viewcode-block" id="AbstractViewer"><a class="viewcode-back" href="../../pelita/pelita.viewer.AbstractViewer.html#pelita.simplesetup.AbstractViewer">[docs]</a><span class="k">class</span> <span class="nc">AbstractViewer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<div class="viewcode-block" id="AbstractViewer.set_initial"><a class="viewcode-back" href="../../pelita/pelita.viewer.AbstractViewer.set_initial.html#pelita.simplesetup.AbstractViewer.set_initial">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">AbstractViewer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; This method is called when the first universe is ready.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
-</div>
+
     <span class="nd">@abc.abstractmethod</span>
-<div class="viewcode-block" id="AbstractViewer.observe"><a class="viewcode-back" href="../../pelita/pelita.viewer.AbstractViewer.observe.html#pelita.simplesetup.AbstractViewer.observe">[docs]</a>    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="k">pass</span>
-</div></div>
-<div class="viewcode-block" id="ProgressViewer"><a class="viewcode-back" href="../../pelita/pelita.viewer.ProgressViewer.html#pelita.simplesetup.ProgressViewer">[docs]</a><span class="k">class</span> <span class="nc">ProgressViewer</span><span class="p">(</span><span class="n">AbstractViewer</span><span class="p">):</span>
-<div class="viewcode-block" id="ProgressViewer.observe"><a class="viewcode-back" href="../../pelita/pelita.viewer.ProgressViewer.observe.html#pelita.simplesetup.ProgressViewer.observe">[docs]</a>    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
+
+<span class="k">class</span> <span class="nc">ProgressViewer</span><span class="p">(</span><span class="n">AbstractViewer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="n">round_index</span> <span class="o">=</span> <span class="n">game_state</span><span class="p">[</span><span class="s">&quot;round_index&quot;</span><span class="p">]</span>
         <span class="n">game_time</span> <span class="o">=</span> <span class="n">game_state</span><span class="p">[</span><span class="s">&quot;game_time&quot;</span><span class="p">]</span>
         <span class="n">percentage</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">100.0</span> <span class="o">*</span> <span class="n">round_index</span> <span class="o">/</span> <span class="n">game_time</span><span class="p">)</span>
@@ -81,11 +81,11 @@
         <span class="k">if</span> <span class="n">game_state</span><span class="p">[</span><span class="s">&quot;finished&quot;</span><span class="p">]:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
             <span class="k">print</span><span class="p">(</span><span class="s">&quot;Final state:&quot;</span><span class="p">,</span> <span class="n">game_state</span><span class="p">)</span>
-</div></div>
-<div class="viewcode-block" id="AsciiViewer"><a class="viewcode-back" href="../../pelita/pelita.viewer.AsciiViewer.html#pelita.simplesetup.AsciiViewer">[docs]</a><span class="k">class</span> <span class="nc">AsciiViewer</span><span class="p">(</span><span class="n">AbstractViewer</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AsciiViewer"><a class="viewcode-back" href="../../pelita/pelita.viewer.html#pelita.viewer.AsciiViewer">[docs]</a><span class="k">class</span> <span class="nc">AsciiViewer</span><span class="p">(</span><span class="n">AbstractViewer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A viewer that dumps ASCII charts on stdout. &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="AsciiViewer.observe"><a class="viewcode-back" href="../../pelita/pelita.viewer.AsciiViewer.observe.html#pelita.simplesetup.AsciiViewer.observe">[docs]</a>    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="n">info</span> <span class="o">=</span> <span class="p">(</span>
             <span class="s">&quot;Round: {round!r} Turn: {turn!r} Score {s0}:{s1}</span><span class="se">\n</span><span class="s">&quot;</span>
             <span class="s">&quot;Game State: {game_state!r}</span><span class="se">\n</span><span class="s">&quot;</span>
@@ -103,25 +103,25 @@
         <span class="k">if</span> <span class="n">winning_team_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">print</span><span class="p">((</span><span class="s">&quot;Game Over: Team: &#39;</span><span class="si">%s</span><span class="s">&#39; wins!&quot;</span> <span class="o">%</span>
                 <span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="n">winning_team_idx</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-</div></div>
-<div class="viewcode-block" id="DumpingViewer"><a class="viewcode-back" href="../../pelita/pelita.viewer.DumpingViewer.html#pelita.simplesetup.DumpingViewer">[docs]</a><span class="k">class</span> <span class="nc">DumpingViewer</span><span class="p">(</span><span class="n">AbstractViewer</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="DumpingViewer"><a class="viewcode-back" href="../../pelita/pelita.viewer.html#pelita.viewer.DumpingViewer">[docs]</a><span class="k">class</span> <span class="nc">DumpingViewer</span><span class="p">(</span><span class="n">AbstractViewer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A viewer which dumps to a given stream.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="DumpingViewer.__init__"><a class="viewcode-back" href="../../pelita/pelita.viewer.DumpingViewer.__init__.html#pelita.simplesetup.DumpingViewer.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stream</span> <span class="o">=</span> <span class="n">stream</span>
-</div>
-<div class="viewcode-block" id="DumpingViewer.set_initial"><a class="viewcode-back" href="../../pelita/pelita.viewer.DumpingViewer.set_initial.html#pelita.simplesetup.DumpingViewer.set_initial">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json_converter</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="p">}))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\x04</span><span class="s">&quot;</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="DumpingViewer.observe"><a class="viewcode-back" href="../../pelita/pelita.viewer.DumpingViewer.observe.html#pelita.simplesetup.DumpingViewer.observe">[docs]</a>    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="p">,</span>
             <span class="s">&quot;game_state&quot;</span><span class="p">:</span> <span class="n">game_state</span>
         <span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json_converter</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\x04</span><span class="s">&quot;</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\x04</span><span class="s">&quot;</span><span class="p">)</span></div>
 </pre></div>
 
           </div>

@@ -1,6 +1,0 @@
-pelita.datamodel.create_maze
-============================
-
-.. currentmodule:: pelita.datamodel
-
-.. autofunction:: create_maze

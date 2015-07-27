@@ -1,6 +1,0 @@
-pelita.player.InitialExceptionPlayer.get_move
-=============================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: InitialExceptionPlayer.get_move

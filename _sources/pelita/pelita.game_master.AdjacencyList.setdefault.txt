@@ -1,6 +1,0 @@
-pelita.game_master.AdjacencyList.setdefault
-===========================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: AdjacencyList.setdefault

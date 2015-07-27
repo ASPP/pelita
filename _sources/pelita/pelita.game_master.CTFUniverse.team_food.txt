@@ -1,6 +1,0 @@
-pelita.game_master.CTFUniverse.team_food
-========================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: CTFUniverse.team_food

@@ -1,6 +1,0 @@
-pelita.simplesetup.SimplePublisher.set_initial
-==============================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimplePublisher.set_initial

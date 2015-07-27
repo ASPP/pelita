@@ -1,6 +1,0 @@
-pelita.containers.Mesh.__init__
-===============================
-
-.. currentmodule:: pelita.containers
-
-.. automethod:: Mesh.__init__

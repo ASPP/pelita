@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleController.set_initial
-===============================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleController.set_initial

@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleSubscriber.autoplay_thread
-===================================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleSubscriber.autoplay_thread

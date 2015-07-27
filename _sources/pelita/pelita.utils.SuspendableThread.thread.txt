@@ -1,6 +1,0 @@
-pelita.utils.SuspendableThread.thread
-=====================================
-
-.. currentmodule:: pelita.utils
-
-.. autoattribute:: SuspendableThread.thread

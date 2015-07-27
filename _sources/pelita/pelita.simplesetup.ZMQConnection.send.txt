@@ -1,6 +1,0 @@
-pelita.simplesetup.ZMQConnection.send
-=====================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: ZMQConnection.send

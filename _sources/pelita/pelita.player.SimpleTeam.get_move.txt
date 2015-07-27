@@ -1,6 +1,0 @@
-pelita.player.SimpleTeam.get_move
-=================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: SimpleTeam.get_move

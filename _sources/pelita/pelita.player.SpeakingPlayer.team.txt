@@ -1,6 +1,0 @@
-pelita.player.SpeakingPlayer.team
-=================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: SpeakingPlayer.team

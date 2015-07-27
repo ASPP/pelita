@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.game_master &mdash; Pelita v0.2.0-195-ga562aaf documentation</title>
+    <title>pelita.game_master &mdash; Pelita v0.2.0-202-g4c5382a documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-195-ga562aaf',
+        VERSION:     'v0.2.0-202-g4c5382a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-195-ga562aaf documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-202-g4c5382a documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
@@ -54,16 +54,16 @@
 
 <span class="n">__docformat__</span> <span class="o">=</span> <span class="s">&quot;restructuredtext&quot;</span>
 
-<div class="viewcode-block" id="GameFinished"><a class="viewcode-back" href="../../pelita/pelita.game_master.GameFinished.html#pelita.game_master.GameFinished">[docs]</a><span class="k">class</span> <span class="nc">GameFinished</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">GameFinished</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
-</div>
-<div class="viewcode-block" id="PlayerTimeout"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.PlayerTimeout.html#pelita.game_master.PlayerTimeout">[docs]</a><span class="k">class</span> <span class="nc">PlayerTimeout</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+
+<span class="k">class</span> <span class="nc">PlayerTimeout</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
-</div>
-<div class="viewcode-block" id="PlayerDisconnected"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.PlayerDisconnected.html#pelita.game_master.PlayerDisconnected">[docs]</a><span class="k">class</span> <span class="nc">PlayerDisconnected</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+
+<span class="k">class</span> <span class="nc">PlayerDisconnected</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
-</div>
-<div class="viewcode-block" id="GameMaster"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.GameMaster.html#pelita.game_master.GameMaster">[docs]</a><span class="k">class</span> <span class="nc">GameMaster</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="GameMaster"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.GameMaster">[docs]</a><span class="k">class</span> <span class="nc">GameMaster</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Controller of player moves and universe updates.</span>
 
 <span class="sd">    This object coordinates the moves of the player implementations with the</span>
@@ -95,7 +95,7 @@
 <span class="sd">        the viewers that are observing this game</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="GameMaster.__init__"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.GameMaster.__init__.html#pelita.game_master.GameMaster.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">,</span> <span class="n">game_time</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">noiser</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">,</span> <span class="n">game_time</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">noiser</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">initial_delay</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_timeouts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">timeout_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layout_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">universe</span> <span class="o">=</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">CTFUniverse</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">)</span>
@@ -192,12 +192,12 @@
             <span class="c">#: sight distance of the noise</span>
             <span class="s">&quot;noise_sight_distance&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">noiser</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">noiser</span><span class="o">.</span><span class="n">sight_distance</span>
         <span class="p">}</span>
-</div>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">game_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s">&quot;game_time&quot;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="GameMaster.register_team"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.GameMaster.register_team.html#pelita.game_master.GameMaster.register_team">[docs]</a>    <span class="k">def</span> <span class="nf">register_team</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team</span><span class="p">,</span> <span class="n">team_name</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="GameMaster.register_team"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.GameMaster.register_team">[docs]</a>    <span class="k">def</span> <span class="nf">register_team</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team</span><span class="p">,</span> <span class="n">team_name</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Register a client TeamPlayer class.</span>
 
 <span class="sd">        Parameters</span>
@@ -217,7 +217,7 @@
         <span class="k">elif</span> <span class="n">team</span><span class="o">.</span><span class="n">team_name</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="n">team_idx</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">team</span><span class="o">.</span><span class="n">team_name</span>
 </div>
-<div class="viewcode-block" id="GameMaster.register_viewer"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.GameMaster.register_viewer.html#pelita.game_master.GameMaster.register_viewer">[docs]</a>    <span class="k">def</span> <span class="nf">register_viewer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">viewer</span><span class="p">):</span>
+<div class="viewcode-block" id="GameMaster.register_viewer"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.GameMaster.register_viewer">[docs]</a>    <span class="k">def</span> <span class="nf">register_viewer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">viewer</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Register a viewer to display the game state as it progresses.</span>
 
 <span class="sd">        Parameters</span>
@@ -227,14 +227,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">viewers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">viewer</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="GameMaster.update_viewers"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.GameMaster.update_viewers.html#pelita.game_master.GameMaster.update_viewers">[docs]</a>    <span class="k">def</span> <span class="nf">update_viewers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="GameMaster.update_viewers"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.GameMaster.update_viewers">[docs]</a>    <span class="k">def</span> <span class="nf">update_viewers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Call the &#39;observe&#39; method on all registered viewers.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">viewer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">viewers</span><span class="p">:</span>
             <span class="n">viewer</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="p">,</span>
                            <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="GameMaster.set_initial"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.GameMaster.set_initial.html#pelita.game_master.GameMaster.set_initial">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="GameMaster.set_initial"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.GameMaster.set_initial">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; This method needs to be called before a game is started.</span>
 <span class="sd">        It notifies the PlayerTeams and the Viewers of the initial</span>
 <span class="sd">        universes and tells the PlayerTeams what team_id they have.</span>
@@ -262,7 +262,7 @@
                 <span class="k">pass</span>
 
     <span class="c"># TODO the game winning detection should be refactored</span></div>
-<div class="viewcode-block" id="GameMaster.play"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.GameMaster.play.html#pelita.game_master.GameMaster.play">[docs]</a>    <span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="GameMaster.play"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.GameMaster.play">[docs]</a>    <span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Play game until finished. &quot;&quot;&quot;</span>
         <span class="c"># notify all PlayerTeams</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_initial</span><span class="p">()</span>
@@ -272,7 +272,7 @@
         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;finished&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">play_round</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="GameMaster.play_round"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.GameMaster.play_round.html#pelita.game_master.GameMaster.play_round">[docs]</a>    <span class="k">def</span> <span class="nf">play_round</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="GameMaster.play_round"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.GameMaster.play_round">[docs]</a>    <span class="k">def</span> <span class="nf">play_round</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Finishes the current round.</span>
 
 <span class="sd">        A round is defined as all bots moving once.</span>
@@ -291,7 +291,7 @@
         <span class="k">except</span> <span class="n">GameFinished</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_viewers</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="GameMaster.play_step"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.GameMaster.play_step.html#pelita.game_master.GameMaster.play_step">[docs]</a>    <span class="k">def</span> <span class="nf">play_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="GameMaster.play_step"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.GameMaster.play_step">[docs]</a>    <span class="k">def</span> <span class="nf">play_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Plays a single step of a bot.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s">&quot;finished&quot;</span><span class="p">]:</span>
@@ -405,7 +405,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s">&quot;times_killed&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="n">destroyed</span><span class="p">[</span><span class="s">&quot;bot_id&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">team_index</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
 
 
-<div class="viewcode-block" id="GameMaster.prepare_next_round"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.GameMaster.prepare_next_round.html#pelita.game_master.GameMaster.prepare_next_round">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_next_round</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="GameMaster.prepare_next_round"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.GameMaster.prepare_next_round">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_next_round</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Increases `game_state[&quot;round_index&quot;]`, if possible</span>
 <span class="sd">        and resets `game_state[&quot;bot_id&quot;]`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -421,7 +421,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s">&quot;finished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
 </div>
-<div class="viewcode-block" id="GameMaster.check_finished"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.GameMaster.check_finished.html#pelita.game_master.GameMaster.check_finished">[docs]</a>    <span class="k">def</span> <span class="nf">check_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">check_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s">&quot;team_wins&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">or</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s">&quot;game_draw&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s">&quot;finished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
@@ -453,9 +453,9 @@
             <span class="k">return</span> <span class="bp">True</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s">&quot;finished&quot;</span><span class="p">]</span>
-</div></div>
+</div>
 <span class="nd">@six.add_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)</span>
-<div class="viewcode-block" id="UniverseNoiser"><a class="viewcode-back" href="../../pelita/pelita.game_master.UniverseNoiser.html#pelita.game_master.UniverseNoiser">[docs]</a><span class="k">class</span> <span class="nc">UniverseNoiser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="UniverseNoiser"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.UniverseNoiser">[docs]</a><span class="k">class</span> <span class="nc">UniverseNoiser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Abstract BaseClass to make bot positions noisy.</span>
 
 <span class="sd">    Supports uniform noise in maze space. Can be extended to support other types</span>
@@ -488,13 +488,13 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="UniverseNoiser.__init__"><a class="viewcode-back" href="../../pelita/pelita.game_master.UniverseNoiser.__init__.html#pelita.game_master.UniverseNoiser.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">noise_radius</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sight_distance</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">noise_radius</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sight_distance</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span> <span class="o">=</span> <span class="n">AdjacencyList</span><span class="p">(</span><span class="n">universe</span><span class="o">.</span><span class="n">free_positions</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">noise_radius</span> <span class="o">=</span> <span class="n">noise_radius</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sight_distance</span> <span class="o">=</span> <span class="n">sight_distance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rnd</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="UniverseNoiser.uniform_noise"><a class="viewcode-back" href="../../pelita/pelita.game_master.UniverseNoiser.uniform_noise.html#pelita.game_master.UniverseNoiser.uniform_noise">[docs]</a>    <span class="k">def</span> <span class="nf">uniform_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">bot_index</span><span class="p">):</span>
+
+<div class="viewcode-block" id="UniverseNoiser.uniform_noise"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.UniverseNoiser.uniform_noise">[docs]</a>    <span class="k">def</span> <span class="nf">uniform_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">bot_index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Apply uniform noise to the enemies of a Bot.</span>
 
 <span class="sd">        Given a `bot_index` the method looks up the enemies of this bot. It then</span>
@@ -534,50 +534,50 @@
         <span class="k">return</span> <span class="n">universe_copy</span>
 </div>
     <span class="nd">@abc.abstractmethod</span>
-<div class="viewcode-block" id="UniverseNoiser.distance"><a class="viewcode-back" href="../../pelita/pelita.game_master.UniverseNoiser.distance.html#pelita.game_master.UniverseNoiser.distance">[docs]</a>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot</span><span class="p">,</span> <span class="n">other_bot</span><span class="p">):</span>
+<div class="viewcode-block" id="UniverseNoiser.distance"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.UniverseNoiser.distance">[docs]</a>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot</span><span class="p">,</span> <span class="n">other_bot</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Method to return the noiser-relevant distance between two bots.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 </div>
     <span class="nd">@abc.abstractmethod</span>
-<div class="viewcode-block" id="UniverseNoiser.alter_pos"><a class="viewcode-back" href="../../pelita/pelita.game_master.UniverseNoiser.alter_pos.html#pelita.game_master.UniverseNoiser.alter_pos">[docs]</a>    <span class="k">def</span> <span class="nf">alter_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_pos</span><span class="p">):</span>
+<div class="viewcode-block" id="UniverseNoiser.alter_pos"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.UniverseNoiser.alter_pos">[docs]</a>    <span class="k">def</span> <span class="nf">alter_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_pos</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Method to return a new position for a bot.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
 </div></div>
-<div class="viewcode-block" id="AStarNoiser"><a class="viewcode-back" href="../../pelita/pelita.game_master.AStarNoiser.html#pelita.game_master.AStarNoiser">[docs]</a><span class="k">class</span> <span class="nc">AStarNoiser</span><span class="p">(</span><span class="n">UniverseNoiser</span><span class="p">):</span>
+<div class="viewcode-block" id="AStarNoiser"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.AStarNoiser">[docs]</a><span class="k">class</span> <span class="nc">AStarNoiser</span><span class="p">(</span><span class="n">UniverseNoiser</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Noiser in maze space.</span>
 
 <span class="sd">    It uses A* and adjacency maps to measure distances in maze space.&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="AStarNoiser.__init__"><a class="viewcode-back" href="../../pelita/pelita.game_master.AStarNoiser.__init__.html#pelita.game_master.AStarNoiser.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">AStarNoiser</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">universe</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span> <span class="o">=</span> <span class="n">AdjacencyList</span><span class="p">(</span><span class="n">universe</span><span class="o">.</span><span class="n">free_positions</span><span class="p">())</span>
-</div>
-<div class="viewcode-block" id="AStarNoiser.distance"><a class="viewcode-back" href="../../pelita/pelita.game_master.AStarNoiser.distance.html#pelita.game_master.AStarNoiser.distance">[docs]</a>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot</span><span class="p">,</span> <span class="n">other_bot</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot</span><span class="p">,</span> <span class="n">other_bot</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="o">.</span><span class="n">a_star</span><span class="p">(</span><span class="n">bot</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="n">other_bot</span><span class="o">.</span><span class="n">current_pos</span><span class="p">))</span>
         <span class="k">except</span> <span class="n">NoPathException</span><span class="p">:</span>
             <span class="c"># We cannot see it: Apply the noise anyway</span>
             <span class="k">return</span> <span class="bp">None</span>
-</div>
-<div class="viewcode-block" id="AStarNoiser.alter_pos"><a class="viewcode-back" href="../../pelita/pelita.game_master.AStarNoiser.alter_pos.html#pelita.game_master.AStarNoiser.alter_pos">[docs]</a>    <span class="k">def</span> <span class="nf">alter_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_pos</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">alter_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_pos</span><span class="p">):</span>
         <span class="n">possible_positions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="o">.</span><span class="n">pos_within</span><span class="p">(</span><span class="n">bot_pos</span><span class="p">,</span>
                                                             <span class="bp">self</span><span class="o">.</span><span class="n">noise_radius</span><span class="p">))</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">possible_positions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnd</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">possible_positions</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">bot_pos</span>
-</div></div>
-<div class="viewcode-block" id="ManhattanNoiser"><a class="viewcode-back" href="../../pelita/pelita.game_master.ManhattanNoiser.html#pelita.game_master.ManhattanNoiser">[docs]</a><span class="k">class</span> <span class="nc">ManhattanNoiser</span><span class="p">(</span><span class="n">UniverseNoiser</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="ManhattanNoiser"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.ManhattanNoiser">[docs]</a><span class="k">class</span> <span class="nc">ManhattanNoiser</span><span class="p">(</span><span class="n">UniverseNoiser</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Noiser in Manhattan space.</span>
 
 <span class="sd">    It uses Manhattan distance. This noiser is much faster than AStarNoiser,</span>
 <span class="sd">    but Manhattan distance is less relevant to the game. For example, a bot</span>
 <span class="sd">    distant 1 in Manhattan space could still be much further in maze distance.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ManhattanNoiser.distance"><a class="viewcode-back" href="../../pelita/pelita.game_master.ManhattanNoiser.distance.html#pelita.game_master.ManhattanNoiser.distance">[docs]</a>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot</span><span class="p">,</span> <span class="n">other_bot</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot</span><span class="p">,</span> <span class="n">other_bot</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">manhattan_dist</span><span class="p">(</span><span class="n">bot</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="n">other_bot</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="ManhattanNoiser.alter_pos"><a class="viewcode-back" href="../../pelita/pelita.game_master.ManhattanNoiser.alter_pos.html#pelita.game_master.ManhattanNoiser.alter_pos">[docs]</a>    <span class="k">def</span> <span class="nf">alter_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_pos</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">alter_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_pos</span><span class="p">):</span>
         <span class="c"># get a list of possible positions</span>
         <span class="n">noise_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_radius</span>
         <span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">=</span> <span class="n">bot_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">noise_radius</span><span class="p">,</span> <span class="n">bot_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">noise_radius</span>
@@ -596,7 +596,7 @@
             <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
                 <span class="k">pass</span>
         <span class="c"># if we land here, no valid position has been found</span>
-        <span class="k">return</span> <span class="n">bot_pos</span></div></div>
+        <span class="k">return</span> <span class="n">bot_pos</span></div>
 </pre></div>
 
           </div>

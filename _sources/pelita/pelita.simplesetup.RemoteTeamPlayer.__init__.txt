@@ -1,6 +1,0 @@
-pelita.simplesetup.RemoteTeamPlayer.__init__
-============================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: RemoteTeamPlayer.__init__

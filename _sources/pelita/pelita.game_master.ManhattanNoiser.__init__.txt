@@ -1,6 +1,0 @@
-pelita.game_master.ManhattanNoiser.__init__
-===========================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: ManhattanNoiser.__init__

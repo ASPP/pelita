@@ -1,6 +1,0 @@
-pelita.simplesetup.AbstractViewer.set_initial
-=============================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: AbstractViewer.set_initial

@@ -1,6 +1,0 @@
-pelita.game_master.CTFUniverse.neighbourhood
-============================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: CTFUniverse.neighbourhood

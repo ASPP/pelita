@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleServer.register_teams
-==============================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleServer.register_teams

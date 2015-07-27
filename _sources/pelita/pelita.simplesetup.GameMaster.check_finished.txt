@@ -1,6 +1,0 @@
-pelita.simplesetup.GameMaster.check_finished
-============================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: GameMaster.check_finished

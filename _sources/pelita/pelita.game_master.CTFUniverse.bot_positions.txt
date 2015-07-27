@@ -1,6 +1,0 @@
-pelita.game_master.CTFUniverse.bot_positions
-============================================
-
-.. currentmodule:: pelita.game_master
-
-.. autoattribute:: CTFUniverse.bot_positions

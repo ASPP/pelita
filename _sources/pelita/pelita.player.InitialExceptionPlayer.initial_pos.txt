@@ -1,6 +1,0 @@
-pelita.player.InitialExceptionPlayer.initial_pos
-================================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: InitialExceptionPlayer.initial_pos

@@ -1,6 +1,0 @@
-pelita.player.TestPlayer.team
-=============================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: TestPlayer.team

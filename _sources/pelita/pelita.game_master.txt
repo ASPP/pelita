@@ -4,37 +4,40 @@ pelita.game_master
 .. automodule:: pelita.game_master
 
    
+   
    .. rubric:: Functions
 
    .. autosummary::
-      :toctree:
    
-      ~manhattan_dist
+      manhattan_dist
+   
    
 
+   
    
    .. rubric:: Classes
 
    .. autosummary::
-      :toctree:
    
-      ~AStarNoiser
-      ~AdjacencyList
-      ~Bot
-      ~CTFUniverse
-      ~GameMaster
-      ~ManhattanNoiser
-      ~UniverseNoiser
+      AStarNoiser
+      AdjacencyList
+      Bot
+      CTFUniverse
+      GameMaster
+      ManhattanNoiser
+      UniverseNoiser
+   
    
 
+   
    
    .. rubric:: Exceptions
 
    .. autosummary::
-      :toctree:
    
-      ~GameFinished
-      ~NoPathException
-      ~PlayerDisconnected
-      ~PlayerTimeout
+      GameFinished
+      NoPathException
+      PlayerDisconnected
+      PlayerTimeout
+   
    

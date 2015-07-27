@@ -1,6 +1,0 @@
-pelita.viewer.DumpingViewer.observe
-===================================
-
-.. currentmodule:: pelita.viewer
-
-.. automethod:: DumpingViewer.observe

@@ -1,6 +1,0 @@
-pelita.player.TestPlayer.previous_pos
-=====================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: TestPlayer.previous_pos

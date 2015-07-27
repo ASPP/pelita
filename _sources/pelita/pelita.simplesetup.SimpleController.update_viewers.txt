@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleController.update_viewers
-==================================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleController.update_viewers

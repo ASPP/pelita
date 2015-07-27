@@ -1,6 +1,0 @@
-pelita.player.RoundBasedPlayer.enemy_food
-=========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: RoundBasedPlayer.enemy_food

@@ -1,6 +1,0 @@
-pelita.graph.AdjacencyList.__init__
-===================================
-
-.. currentmodule:: pelita.graph
-
-.. automethod:: AdjacencyList.__init__

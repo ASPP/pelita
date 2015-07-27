@@ -1,6 +1,0 @@
-pelita.game_master.GameMaster.update_viewers
-============================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: GameMaster.update_viewers

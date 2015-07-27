@@ -1,6 +1,0 @@
-pelita.graph.AdjacencyList.update
-=================================
-
-.. currentmodule:: pelita.graph
-
-.. automethod:: AdjacencyList.update

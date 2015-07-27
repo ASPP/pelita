@@ -1,6 +1,0 @@
-pelita.player.MoveExceptionPlayer.me
-====================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: MoveExceptionPlayer.me

@@ -4,17 +4,22 @@ pelita.viewer
 .. automodule:: pelita.viewer
 
    
+   
+   
 
+   
    
    .. rubric:: Classes
 
    .. autosummary::
-      :toctree:
    
-      ~AbstractViewer
-      ~AsciiViewer
-      ~DumpingViewer
-      ~ProgressViewer
+      AbstractViewer
+      AsciiViewer
+      DumpingViewer
+      ProgressViewer
+   
    
 
+   
+   
    

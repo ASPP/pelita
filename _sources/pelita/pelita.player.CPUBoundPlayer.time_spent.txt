@@ -1,6 +1,0 @@
-pelita.player.CPUBoundPlayer.time_spent
-=======================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: CPUBoundPlayer.time_spent

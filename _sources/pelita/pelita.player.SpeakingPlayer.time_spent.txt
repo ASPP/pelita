@@ -1,6 +1,0 @@
-pelita.player.SpeakingPlayer.time_spent
-=======================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: SpeakingPlayer.time_spent

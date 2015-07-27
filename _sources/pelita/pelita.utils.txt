@@ -4,31 +4,34 @@ pelita.utils
 .. automodule:: pelita.utils
 
    
+   
    .. rubric:: Functions
 
    .. autosummary::
-      :toctree:
    
-      ~with_sys_path
+      with_sys_path
+   
    
 
+   
    
    .. rubric:: Classes
 
    .. autosummary::
-      :toctree:
    
-      ~Counter
-      ~SuspendableThread
-      ~ThreadInfoLogger
-      ~Value
+      Counter
+      SuspendableThread
+      ThreadInfoLogger
+      Value
+   
    
 
+   
    
    .. rubric:: Exceptions
 
    .. autosummary::
-      :toctree:
    
-      ~CloseThread
+      CloseThread
+   
    

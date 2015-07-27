@@ -1,6 +1,0 @@
-pelita.player.MoveExceptionPlayer.current_state
-===============================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: MoveExceptionPlayer.current_state

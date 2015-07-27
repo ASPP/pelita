@@ -1,6 +1,0 @@
-pelita.game_master.UniverseNoiser.alter_pos
-===========================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: UniverseNoiser.alter_pos

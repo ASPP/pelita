@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleServer.exit_teams
-==========================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleServer.exit_teams

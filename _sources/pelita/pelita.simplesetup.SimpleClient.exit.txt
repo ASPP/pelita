@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleClient.exit
-====================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleClient.exit

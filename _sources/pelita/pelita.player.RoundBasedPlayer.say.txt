@@ -1,6 +1,0 @@
-pelita.player.RoundBasedPlayer.say
-==================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: RoundBasedPlayer.say

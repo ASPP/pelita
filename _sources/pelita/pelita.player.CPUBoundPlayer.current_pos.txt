@@ -1,6 +1,0 @@
-pelita.player.CPUBoundPlayer.current_pos
-========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: CPUBoundPlayer.current_pos

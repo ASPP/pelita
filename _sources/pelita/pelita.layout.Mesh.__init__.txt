@@ -1,6 +1,0 @@
-pelita.layout.Mesh.__init__
-===========================
-
-.. currentmodule:: pelita.layout
-
-.. automethod:: Mesh.__init__

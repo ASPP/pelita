@@ -1,6 +1,0 @@
-pelita.simplesetup.SimplePublisher.__init__
-===========================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimplePublisher.__init__

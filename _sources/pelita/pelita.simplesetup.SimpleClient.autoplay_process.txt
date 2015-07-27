@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleClient.autoplay_process
-================================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleClient.autoplay_process

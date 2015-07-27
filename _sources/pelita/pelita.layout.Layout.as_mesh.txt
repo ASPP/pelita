@@ -1,6 +1,0 @@
-pelita.layout.Layout.as_mesh
-============================
-
-.. currentmodule:: pelita.layout
-
-.. automethod:: Layout.as_mesh

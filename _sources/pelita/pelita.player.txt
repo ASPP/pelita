@@ -4,24 +4,29 @@ pelita.player
 .. automodule:: pelita.player
 
    
+   
+   
 
+   
    
    .. rubric:: Classes
 
    .. autosummary::
-      :toctree:
    
-      ~AbstractPlayer
-      ~CPUBoundPlayer
-      ~DebuggablePlayer
-      ~IOBoundPlayer
-      ~InitialExceptionPlayer
-      ~MoveExceptionPlayer
-      ~RoundBasedPlayer
-      ~SimpleTeam
-      ~SpeakingPlayer
-      ~StoppingPlayer
-      ~TestPlayer
+      AbstractPlayer
+      CPUBoundPlayer
+      DebuggablePlayer
+      IOBoundPlayer
+      InitialExceptionPlayer
+      MoveExceptionPlayer
+      RoundBasedPlayer
+      SimpleTeam
+      SpeakingPlayer
+      StoppingPlayer
+      TestPlayer
+   
    
 
+   
+   
    

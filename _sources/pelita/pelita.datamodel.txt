@@ -4,39 +4,42 @@ pelita.datamodel
 .. automodule:: pelita.datamodel
 
    
+   
    .. rubric:: Functions
 
    .. autosummary::
-      :toctree:
    
-      ~create_maze
-      ~diff_pos
-      ~extract_initial_positions
-      ~iter_adjacencies
-      ~manhattan_dist
-      ~new_pos
+      create_maze
+      diff_pos
+      extract_initial_positions
+      iter_adjacencies
+      manhattan_dist
+      new_pos
+   
    
 
+   
    
    .. rubric:: Classes
 
    .. autosummary::
-      :toctree:
    
-      ~Bot
-      ~CTFUniverse
-      ~Layout
-      ~Maze
-      ~Mesh
-      ~Team
+      Bot
+      CTFUniverse
+      Layout
+      Maze
+      Mesh
+      Team
+   
    
 
+   
    
    .. rubric:: Exceptions
 
    .. autosummary::
-      :toctree:
    
-      ~IllegalMoveException
-      ~UniverseException
+      IllegalMoveException
+      UniverseException
+   
    

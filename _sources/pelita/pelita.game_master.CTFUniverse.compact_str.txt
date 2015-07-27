@@ -1,6 +1,0 @@
-pelita.game_master.CTFUniverse.compact_str
-==========================================
-
-.. currentmodule:: pelita.game_master
-
-.. autoattribute:: CTFUniverse.compact_str

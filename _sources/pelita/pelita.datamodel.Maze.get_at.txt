@@ -1,6 +1,0 @@
-pelita.datamodel.Maze.get_at
-============================
-
-.. currentmodule:: pelita.datamodel
-
-.. automethod:: Maze.get_at

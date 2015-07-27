@@ -1,6 +1,0 @@
-pelita.player.IOBoundPlayer.legal_moves
-=======================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: IOBoundPlayer.legal_moves

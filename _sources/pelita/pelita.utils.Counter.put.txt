@@ -1,6 +1,0 @@
-pelita.utils.Counter.put
-========================
-
-.. currentmodule:: pelita.utils
-
-.. automethod:: Counter.put

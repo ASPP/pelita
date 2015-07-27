@@ -1,6 +1,0 @@
-pelita.game_master.PlayerTimeout
-================================
-
-.. currentmodule:: pelita.game_master
-
-.. autoexception:: PlayerTimeout

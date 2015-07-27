@@ -1,6 +1,0 @@
-pelita.datamodel.Maze.__init__
-==============================
-
-.. currentmodule:: pelita.datamodel
-
-.. automethod:: Maze.__init__

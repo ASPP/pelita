@@ -1,6 +1,0 @@
-pelita.player.InitialExceptionPlayer.set_initial
-================================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: InitialExceptionPlayer.set_initial

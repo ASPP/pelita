@@ -1,6 +1,0 @@
-pelita.player.StoppingPlayer.current_uni
-========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: StoppingPlayer.current_uni

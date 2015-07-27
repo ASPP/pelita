@@ -1,6 +1,0 @@
-pelita.player.MoveExceptionPlayer.enemy_bots
-============================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: MoveExceptionPlayer.enemy_bots

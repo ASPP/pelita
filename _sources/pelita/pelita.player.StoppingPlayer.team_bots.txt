@@ -1,6 +1,0 @@
-pelita.player.StoppingPlayer.team_bots
-======================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: StoppingPlayer.team_bots

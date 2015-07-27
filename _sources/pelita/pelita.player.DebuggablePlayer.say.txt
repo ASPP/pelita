@@ -1,6 +1,0 @@
-pelita.player.DebuggablePlayer.say
-==================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: DebuggablePlayer.say

@@ -1,6 +1,0 @@
-pelita.utils.Value.do
-=====================
-
-.. currentmodule:: pelita.utils
-
-.. automethod:: Value.do

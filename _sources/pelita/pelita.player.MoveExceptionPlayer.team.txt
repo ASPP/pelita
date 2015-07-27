@@ -1,6 +1,0 @@
-pelita.player.MoveExceptionPlayer.team
-======================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: MoveExceptionPlayer.team

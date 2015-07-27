@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.player &mdash; Pelita v0.2.0-195-ga562aaf documentation</title>
+    <title>pelita.player &mdash; Pelita v0.2.0-202-g4c5382a documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-195-ga562aaf',
+        VERSION:     'v0.2.0-202-g4c5382a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-195-ga562aaf documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-202-g4c5382a documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
@@ -55,7 +55,7 @@
 
 <span class="n">__docformat__</span> <span class="o">=</span> <span class="s">&quot;restructuredtext&quot;</span>
 
-<div class="viewcode-block" id="SimpleTeam"><a class="viewcode-back" href="../../pelita/pelita.player.SimpleTeam.html#pelita.player.SimpleTeam">[docs]</a><span class="k">class</span> <span class="nc">SimpleTeam</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="SimpleTeam"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.SimpleTeam">[docs]</a><span class="k">class</span> <span class="nc">SimpleTeam</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Simple class used to register an arbitrary number of (Abstract-)Players.</span>
 
 <span class="sd">    Each Player is used to control a Bot in the Universe.</span>
@@ -71,7 +71,7 @@
 <span class="sd">    players :</span>
 <span class="sd">        the Players who shall join this SimpleTeam</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="SimpleTeam.__init__"><a class="viewcode-back" href="../../pelita/pelita.player.SimpleTeam.__init__.html#pelita.player.SimpleTeam.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;No teams given.&quot;</span><span class="p">)</span>
 
@@ -92,8 +92,8 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_remote_game</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">remote_game</span> <span class="o">=</span> <span class="bp">False</span>
-</div>
-<div class="viewcode-block" id="SimpleTeam.set_initial"><a class="viewcode-back" href="../../pelita/pelita.player.SimpleTeam.set_initial.html#pelita.player.SimpleTeam.set_initial">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="c"># only iterate about those player which are in bot_players</span>
         <span class="c"># we might have defined more players than we have received</span>
         <span class="c"># indexes for.</span>
@@ -108,8 +108,8 @@
             <span class="c"># tell the player about the initial universe</span>
             <span class="n">player</span><span class="o">.</span><span class="n">_set_initial</span><span class="p">(</span><span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_bot_players</span><span class="p">[</span><span class="n">bot_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">player</span>
-</div>
-<div class="viewcode-block" id="SimpleTeam.get_move"><a class="viewcode-back" href="../../pelita/pelita.player.SimpleTeam.get_move.html#pelita.player.SimpleTeam.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SimpleTeam.get_move"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.SimpleTeam.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Requests a move from the Player who controls the Bot with id `bot_id`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bot_players</span><span class="p">[</span><span class="n">bot_id</span><span class="p">]</span><span class="o">.</span><span class="n">_get_move</span><span class="p">(</span><span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">)</span>
@@ -128,7 +128,7 @@
         <span class="k">return</span> <span class="s">&quot;SimpleTeam(</span><span class="si">%r</span><span class="s">, </span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">team_name</span><span class="p">,</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_players</span><span class="p">))</span>
 </div>
 <span class="nd">@six.add_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)</span>
-<div class="viewcode-block" id="AbstractPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.AbstractPlayer.html#pelita.player.AbstractPlayer">[docs]</a><span class="k">class</span> <span class="nc">AbstractPlayer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.AbstractPlayer">[docs]</a><span class="k">class</span> <span class="nc">AbstractPlayer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Base class for all user implemented Players. &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_set_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
@@ -170,7 +170,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_initial</span><span class="p">()</span>
 
-<div class="viewcode-block" id="AbstractPlayer.set_initial"><a class="viewcode-back" href="../../pelita/pelita.player.AbstractPlayer.set_initial.html#pelita.player.AbstractPlayer.set_initial">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractPlayer.set_initial"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.AbstractPlayer.set_initial">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Subclasses can override this if desired. &quot;&quot;&quot;</span>
         <span class="k">pass</span>
 </div>
@@ -204,7 +204,7 @@
         <span class="p">}</span>
 
     <span class="nd">@abc.abstractmethod</span>
-<div class="viewcode-block" id="AbstractPlayer.get_move"><a class="viewcode-back" href="../../pelita/pelita.player.AbstractPlayer.get_move.html#pelita.player.AbstractPlayer.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractPlayer.get_move"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.AbstractPlayer.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Subclasses _must_ override this. &quot;&quot;&quot;</span>
 </div>
     <span class="nd">@property</span>
@@ -390,7 +390,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">legal_moves</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AbstractPlayer.time_spent"><a class="viewcode-back" href="../../pelita/pelita.player.AbstractPlayer.time_spent.html#pelita.player.AbstractPlayer.time_spent">[docs]</a>    <span class="k">def</span> <span class="nf">time_spent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractPlayer.time_spent"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.AbstractPlayer.time_spent">[docs]</a>    <span class="k">def</span> <span class="nf">time_spent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The approximate amount of time since `get_move` was</span>
 <span class="sd">        called.</span>
 
@@ -410,7 +410,7 @@
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">None</span>
 </div>
-<div class="viewcode-block" id="AbstractPlayer.say"><a class="viewcode-back" href="../../pelita/pelita.player.AbstractPlayer.say.html#pelita.player.AbstractPlayer.say">[docs]</a>    <span class="k">def</span> <span class="nf">say</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractPlayer.say"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.AbstractPlayer.say">[docs]</a>    <span class="k">def</span> <span class="nf">say</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Let the bot speak.</span>
 
 <span class="sd">        Parameters</span>
@@ -428,20 +428,20 @@
                 <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;_index&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
                 <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;current_pos&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
 </div>
-<div class="viewcode-block" id="StoppingPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.StoppingPlayer.html#pelita.player.StoppingPlayer">[docs]</a><span class="k">class</span> <span class="nc">StoppingPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+<div class="viewcode-block" id="StoppingPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.StoppingPlayer">[docs]</a><span class="k">class</span> <span class="nc">StoppingPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A Player that just stands still. &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="StoppingPlayer.get_move"><a class="viewcode-back" href="../../pelita/pelita.player.StoppingPlayer.get_move.html#pelita.player.StoppingPlayer.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span>
-</div></div>
-<div class="viewcode-block" id="SpeakingPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.SpeakingPlayer.html#pelita.player.SpeakingPlayer">[docs]</a><span class="k">class</span> <span class="nc">SpeakingPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="SpeakingPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.SpeakingPlayer">[docs]</a><span class="k">class</span> <span class="nc">SpeakingPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A player that makes moves at random and tells us about it. &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SpeakingPlayer.get_move"><a class="viewcode-back" href="../../pelita/pelita.player.SpeakingPlayer.get_move.html#pelita.player.SpeakingPlayer.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">move</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnd</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">legal_moves</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">say</span><span class="p">(</span><span class="s">&quot;Going </span><span class="si">%r</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">move</span><span class="p">,))</span>
         <span class="k">return</span> <span class="n">move</span>
-</div></div>
-<div class="viewcode-block" id="TestPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.TestPlayer.html#pelita.player.TestPlayer">[docs]</a><span class="k">class</span> <span class="nc">TestPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="TestPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.TestPlayer">[docs]</a><span class="k">class</span> <span class="nc">TestPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A Player with predetermined set of moves.</span>
 
 <span class="sd">    Parameters</span>
@@ -464,18 +464,18 @@
               <span class="s">&#39;&gt;&#39;</span><span class="p">:</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">east</span><span class="p">,</span>
               <span class="s">&#39;-&#39;</span><span class="p">:</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span><span class="p">}</span>
 
-<div class="viewcode-block" id="TestPlayer.__init__"><a class="viewcode-back" href="../../pelita/pelita.player.TestPlayer.__init__.html#pelita.player.TestPlayer.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">moves</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">moves</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">moves</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">moves</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MOVES</span><span class="p">[</span><span class="n">move</span><span class="p">]</span> <span class="k">for</span> <span class="n">move</span> <span class="ow">in</span> <span class="n">moves</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">moves</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">moves</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="TestPlayer.get_move"><a class="viewcode-back" href="../../pelita/pelita.player.TestPlayer.get_move.html#pelita.player.TestPlayer.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moves</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
-</div></div>
-<div class="viewcode-block" id="RoundBasedPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.RoundBasedPlayer.html#pelita.player.RoundBasedPlayer">[docs]</a><span class="k">class</span> <span class="nc">RoundBasedPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="RoundBasedPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.RoundBasedPlayer">[docs]</a><span class="k">class</span> <span class="nc">RoundBasedPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A Player which makes a decision dependent on the round index</span>
 <span class="sd">    in a dict or list. (Or anything which responds to moves[idx].)</span>
 
@@ -484,11 +484,11 @@
 <span class="sd">    moves : list or dict of moves</span>
 <span class="sd">        the moves to make, a move is determined by moves[round]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="RoundBasedPlayer.__init__"><a class="viewcode-back" href="../../pelita/pelita.player.RoundBasedPlayer.__init__.html#pelita.player.RoundBasedPlayer.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">moves</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">moves</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">moves</span> <span class="o">=</span> <span class="n">moves</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">round_index</span> <span class="o">=</span> <span class="bp">None</span>
-</div>
-<div class="viewcode-block" id="RoundBasedPlayer.get_move"><a class="viewcode-back" href="../../pelita/pelita.player.RoundBasedPlayer.get_move.html#pelita.player.RoundBasedPlayer.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">round_index</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">round_index</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">else</span><span class="p">:</span>
@@ -498,11 +498,11 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">moves</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">round_index</span><span class="p">]</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span>
-</div></div>
-<div class="viewcode-block" id="IOBoundPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.IOBoundPlayer.html#pelita.player.IOBoundPlayer">[docs]</a><span class="k">class</span> <span class="nc">IOBoundPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="IOBoundPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.IOBoundPlayer">[docs]</a><span class="k">class</span> <span class="nc">IOBoundPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; IO Bound player that crawls the file system. &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="IOBoundPlayer.get_move"><a class="viewcode-back" href="../../pelita/pelita.player.IOBoundPlayer.get_move.html#pelita.player.IOBoundPlayer.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timeouted</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
@@ -519,38 +519,38 @@
                     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeouted</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_pos</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">:</span>
                         <span class="k">print</span><span class="p">(</span><span class="s">&quot;Crawling done and timeout received </span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">count</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">timeouted</span> <span class="o">=</span> <span class="bp">True</span>
-</div></div>
-<div class="viewcode-block" id="MoveExceptionPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.MoveExceptionPlayer.html#pelita.player.MoveExceptionPlayer">[docs]</a><span class="k">class</span> <span class="nc">MoveExceptionPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="MoveExceptionPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.MoveExceptionPlayer">[docs]</a><span class="k">class</span> <span class="nc">MoveExceptionPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Player that raises an Exception on get_move(). &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="MoveExceptionPlayer.get_move"><a class="viewcode-back" href="../../pelita/pelita.player.MoveExceptionPlayer.get_move.html#pelita.player.MoveExceptionPlayer.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Exception from MoveExceptionPlayer.&quot;</span><span class="p">)</span>
 
-</div></div>
-<div class="viewcode-block" id="InitialExceptionPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.InitialExceptionPlayer.html#pelita.player.InitialExceptionPlayer">[docs]</a><span class="k">class</span> <span class="nc">InitialExceptionPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="InitialExceptionPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.InitialExceptionPlayer">[docs]</a><span class="k">class</span> <span class="nc">InitialExceptionPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Player that raises an Exception on set_initial(). &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="InitialExceptionPlayer.set_initial"><a class="viewcode-back" href="../../pelita/pelita.player.InitialExceptionPlayer.set_initial.html#pelita.player.InitialExceptionPlayer.set_initial">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Exception from InitialExceptionPlayer.&quot;</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="InitialExceptionPlayer.get_move"><a class="viewcode-back" href="../../pelita/pelita.player.InitialExceptionPlayer.get_move.html#pelita.player.InitialExceptionPlayer.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
-</div></div>
-<div class="viewcode-block" id="DebuggablePlayer"><a class="viewcode-back" href="../../pelita/pelita.player.DebuggablePlayer.html#pelita.player.DebuggablePlayer">[docs]</a><span class="k">class</span> <span class="nc">DebuggablePlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="DebuggablePlayer"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.DebuggablePlayer">[docs]</a><span class="k">class</span> <span class="nc">DebuggablePlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Player which invokes pdb on each move. </span>
 
 <span class="sd">    Setting ``direction`` inside the debugger will change</span>
 <span class="sd">    its behaviour.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="DebuggablePlayer.get_move"><a class="viewcode-back" href="../../pelita/pelita.player.DebuggablePlayer.get_move.html#pelita.player.DebuggablePlayer.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">direction</span> <span class="o">=</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span>
         <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">direction</span>
-</div></div>
-<div class="viewcode-block" id="CPUBoundPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.CPUBoundPlayer.html#pelita.player.CPUBoundPlayer">[docs]</a><span class="k">class</span> <span class="nc">CPUBoundPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="CPUBoundPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.CPUBoundPlayer">[docs]</a><span class="k">class</span> <span class="nc">CPUBoundPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Player that does loads of computation. &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="CPUBoundPlayer.get_move"><a class="viewcode-back" href="../../pelita/pelita.player.CPUBoundPlayer.get_move.html#pelita.player.CPUBoundPlayer.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timeouted</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="n">total</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
@@ -564,7 +564,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeouted</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_pos</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">:</span>
                 <span class="k">print</span><span class="p">(</span><span class="s">&quot;Crawling done and timeout received </span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">count</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">timeouted</span> <span class="o">=</span> <span class="bp">True</span>
-</pre></div></div></div>
+</pre></div></div>
 
           </div>
         </div>

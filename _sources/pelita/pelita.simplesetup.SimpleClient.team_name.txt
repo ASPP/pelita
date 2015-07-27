@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleClient.team_name
-=========================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleClient.team_name

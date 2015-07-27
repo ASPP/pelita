@@ -8,7 +8,8 @@ Pelita
 
       .. container:: col-md-6
 
-         .. image:: images/small-game.png
+         .. image:: images/small-game@2x.png
+            :scale: 50%
             :alt: Screenshot.
             :class: img-responsive
 
@@ -79,4 +80,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

@@ -1,6 +1,0 @@
-pelita.datamodel.CTFUniverse.neighbourhood
-==========================================
-
-.. currentmodule:: pelita.datamodel
-
-.. automethod:: CTFUniverse.neighbourhood

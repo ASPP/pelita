@@ -1,6 +1,0 @@
-pelita.simplesetup.bind_socket
-==============================
-
-.. currentmodule:: pelita.simplesetup
-
-.. autofunction:: bind_socket

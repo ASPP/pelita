@@ -4,32 +4,35 @@ pelita.layout
 .. automodule:: pelita.layout
 
    
+   
    .. rubric:: Functions
 
    .. autosummary::
-      :toctree:
    
-      ~get_available_layouts
-      ~get_layout_by_name
-      ~get_random_layout
-      ~load_layout
+      get_available_layouts
+      get_layout_by_name
+      get_random_layout
+      load_layout
+   
    
 
+   
    
    .. rubric:: Classes
 
    .. autosummary::
-      :toctree:
    
-      ~Layout
-      ~Mesh
+      Layout
+      Mesh
+   
    
 
+   
    
    .. rubric:: Exceptions
 
    .. autosummary::
-      :toctree:
    
-      ~LayoutEncodingException
+      LayoutEncodingException
+   
    

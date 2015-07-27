@@ -1,6 +1,0 @@
-pelita.player.DebuggablePlayer.enemy_food
-=========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: DebuggablePlayer.enemy_food

@@ -1,6 +1,0 @@
-pelita.graph.AdjacencyList.a_star
-=================================
-
-.. currentmodule:: pelita.graph
-
-.. automethod:: AdjacencyList.a_star

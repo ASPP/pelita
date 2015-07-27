@@ -1,6 +1,0 @@
-pelita.player.CPUBoundPlayer.enemy_team
-=======================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: CPUBoundPlayer.enemy_team

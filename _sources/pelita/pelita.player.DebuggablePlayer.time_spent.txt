@@ -1,6 +1,0 @@
-pelita.player.DebuggablePlayer.time_spent
-=========================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: DebuggablePlayer.time_spent

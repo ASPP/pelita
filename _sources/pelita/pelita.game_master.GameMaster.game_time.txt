@@ -1,6 +1,0 @@
-pelita.game_master.GameMaster.game_time
-=======================================
-
-.. currentmodule:: pelita.game_master
-
-.. autoattribute:: GameMaster.game_time

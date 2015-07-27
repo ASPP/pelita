@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleServer.__init__
-========================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleServer.__init__

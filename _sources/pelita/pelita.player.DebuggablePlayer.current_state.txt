@@ -1,6 +1,0 @@
-pelita.player.DebuggablePlayer.current_state
-============================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: DebuggablePlayer.current_state

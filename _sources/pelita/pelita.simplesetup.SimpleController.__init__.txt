@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleController.__init__
-============================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleController.__init__

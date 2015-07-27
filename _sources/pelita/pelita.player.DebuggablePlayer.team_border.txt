@@ -1,6 +1,0 @@
-pelita.player.DebuggablePlayer.team_border
-==========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: DebuggablePlayer.team_border

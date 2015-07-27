@@ -1,6 +1,0 @@
-pelita.player.SpeakingPlayer.initial_pos
-========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: SpeakingPlayer.initial_pos

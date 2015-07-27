@@ -1,6 +1,0 @@
-pelita.datamodel.Layout.__init__
-================================
-
-.. currentmodule:: pelita.datamodel
-
-.. automethod:: Layout.__init__

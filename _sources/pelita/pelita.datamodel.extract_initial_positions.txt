@@ -1,6 +1,0 @@
-pelita.datamodel.extract_initial_positions
-==========================================
-
-.. currentmodule:: pelita.datamodel
-
-.. autofunction:: extract_initial_positions

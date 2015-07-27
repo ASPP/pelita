@@ -1,6 +1,0 @@
-pelita.game_master.AdjacencyList.pos_within
-===========================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: AdjacencyList.pos_within

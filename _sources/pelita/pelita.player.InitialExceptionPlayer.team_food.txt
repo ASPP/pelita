@@ -1,6 +1,0 @@
-pelita.player.InitialExceptionPlayer.team_food
-==============================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: InitialExceptionPlayer.team_food

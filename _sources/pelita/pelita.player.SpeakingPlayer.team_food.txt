@@ -1,6 +1,0 @@
-pelita.player.SpeakingPlayer.team_food
-======================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: SpeakingPlayer.team_food

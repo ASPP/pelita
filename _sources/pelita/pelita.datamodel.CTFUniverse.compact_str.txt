@@ -1,6 +1,0 @@
-pelita.datamodel.CTFUniverse.compact_str
-========================================
-
-.. currentmodule:: pelita.datamodel
-
-.. autoattribute:: CTFUniverse.compact_str

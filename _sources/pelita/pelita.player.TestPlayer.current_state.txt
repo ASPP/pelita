@@ -1,6 +1,0 @@
-pelita.player.TestPlayer.current_state
-======================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: TestPlayer.current_state

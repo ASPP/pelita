@@ -1,6 +1,0 @@
-pelita.player.RoundBasedPlayer.__init__
-=======================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: RoundBasedPlayer.__init__

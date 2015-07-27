@@ -1,6 +1,0 @@
-pelita.viewer.AsciiViewer.observe
-=================================
-
-.. currentmodule:: pelita.viewer
-
-.. automethod:: AsciiViewer.observe

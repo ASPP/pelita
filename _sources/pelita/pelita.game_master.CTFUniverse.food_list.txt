@@ -1,6 +1,0 @@
-pelita.game_master.CTFUniverse.food_list
-========================================
-
-.. currentmodule:: pelita.game_master
-
-.. autoattribute:: CTFUniverse.food_list

@@ -1,6 +1,0 @@
-pelita.game_master.Bot.in_own_zone
-==================================
-
-.. currentmodule:: pelita.game_master
-
-.. autoattribute:: Bot.in_own_zone

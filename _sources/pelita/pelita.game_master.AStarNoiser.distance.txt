@@ -1,6 +1,0 @@
-pelita.game_master.AStarNoiser.distance
-=======================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: AStarNoiser.distance

@@ -1,6 +1,0 @@
-pelita.layout.get_layout_by_name
-================================
-
-.. currentmodule:: pelita.layout
-
-.. autofunction:: get_layout_by_name

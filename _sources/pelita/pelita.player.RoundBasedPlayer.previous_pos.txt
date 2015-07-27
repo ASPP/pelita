@@ -1,6 +1,0 @@
-pelita.player.RoundBasedPlayer.previous_pos
-===========================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: RoundBasedPlayer.previous_pos

@@ -1,6 +1,0 @@
-pelita.game_master.AdjacencyList.items
-======================================
-
-.. currentmodule:: pelita.game_master
-
-.. automethod:: AdjacencyList.items

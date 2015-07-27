@@ -1,6 +1,0 @@
-pelita.player.TestPlayer.time_spent
-===================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: TestPlayer.time_spent

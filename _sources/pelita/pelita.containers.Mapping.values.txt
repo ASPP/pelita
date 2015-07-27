@@ -1,6 +1,0 @@
-pelita.containers.Mapping.values
-================================
-
-.. currentmodule:: pelita.containers
-
-.. automethod:: Mapping.values

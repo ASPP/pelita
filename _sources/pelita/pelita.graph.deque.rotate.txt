@@ -1,6 +1,0 @@
-pelita.graph.deque.rotate
-=========================
-
-.. currentmodule:: pelita.graph
-
-.. automethod:: deque.rotate

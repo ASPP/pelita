@@ -1,6 +1,0 @@
-pelita.layout.Mesh.get
-======================
-
-.. currentmodule:: pelita.layout
-
-.. automethod:: Mesh.get

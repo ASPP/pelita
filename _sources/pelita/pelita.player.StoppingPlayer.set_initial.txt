@@ -1,6 +1,0 @@
-pelita.player.StoppingPlayer.set_initial
-========================================
-
-.. currentmodule:: pelita.player
-
-.. automethod:: StoppingPlayer.set_initial

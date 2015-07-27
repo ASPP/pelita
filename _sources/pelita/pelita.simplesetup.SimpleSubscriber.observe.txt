@@ -1,6 +1,0 @@
-pelita.simplesetup.SimpleSubscriber.observe
-===========================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: SimpleSubscriber.observe

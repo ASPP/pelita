@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.simplesetup &mdash; Pelita v0.2.0-195-ga562aaf documentation</title>
+    <title>pelita.simplesetup &mdash; Pelita v0.2.0-202-g4c5382a documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-195-ga562aaf',
+        VERSION:     'v0.2.0-202-g4c5382a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-195-ga562aaf documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-202-g4c5382a documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
@@ -44,7 +44,8 @@
 <span class="sd">&quot;&quot;&quot; simplesetup.py defines the SimpleServer and SimpleClient classes</span>
 <span class="sd">which allow for easy game setup via zmq sockets.</span>
 
-<span class="sd">Notes / TODO</span>
+<span class="sd">Notes</span>
+<span class="sd">-----</span>
 
 <span class="sd">Timeout handling was far more elegant (imho) with actors / futures.</span>
 <span class="sd">Back then, timeouts were reply-based which meant that no other incoming</span>
@@ -88,13 +89,13 @@
 
 <span class="n">__docformat__</span> <span class="o">=</span> <span class="s">&quot;restructuredtext&quot;</span>
 
-<div class="viewcode-block" id="DeadConnection"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.DeadConnection.html#pelita.simplesetup.DeadConnection">[docs]</a><span class="k">class</span> <span class="nc">DeadConnection</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="DeadConnection"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.DeadConnection">[docs]</a><span class="k">class</span> <span class="nc">DeadConnection</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Raised when the connection has been lost. &quot;&quot;&quot;</span>
 
 <span class="c">#: The timeout to use during sending</span></div>
 <span class="n">DEAD_CONNECTION_TIMEOUT</span> <span class="o">=</span> <span class="mf">3.0</span>
 
-<div class="viewcode-block" id="extract_port_range"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.extract_port_range.html#pelita.simplesetup.extract_port_range">[docs]</a><span class="k">def</span> <span class="nf">extract_port_range</span><span class="p">(</span><span class="n">address</span><span class="p">):</span>
+<div class="viewcode-block" id="extract_port_range"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.extract_port_range">[docs]</a><span class="k">def</span> <span class="nf">extract_port_range</span><span class="p">(</span><span class="n">address</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; We additionally allow for setting a port range in rectangular brackets:</span>
 <span class="sd">        tcp://127.0.0.1:[50100:50120]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -113,7 +114,7 @@
         <span class="k">return</span> <span class="p">{</span><span class="s">&quot;addr&quot;</span><span class="p">:</span> <span class="n">address</span><span class="p">}</span>
     <span class="k">return</span> <span class="p">{</span><span class="s">&quot;addr&quot;</span><span class="p">:</span> <span class="n">address</span><span class="p">}</span>
 </div>
-<div class="viewcode-block" id="bind_socket"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.bind_socket.html#pelita.simplesetup.bind_socket">[docs]</a><span class="k">def</span> <span class="nf">bind_socket</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">option_hint</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">bind_socket</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">option_hint</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">address_range</span> <span class="o">=</span> <span class="n">extract_port_range</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
         <span class="n">addr</span> <span class="o">=</span> <span class="n">address_range</span><span class="p">[</span><span class="s">&quot;addr&quot;</span><span class="p">]</span>
@@ -137,18 +138,18 @@
             <span class="k">print</span><span class="p">(</span><span class="s">&#39;use </span><span class="si">%s</span><span class="s"> &lt;address&gt; to specify a different port&#39;</span> <span class="o">%</span>\
                 <span class="p">(</span><span class="n">option_hint</span><span class="p">,),</span> <span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">raise</span>
-</div>
-<div class="viewcode-block" id="UnknownMessageId"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.UnknownMessageId.html#pelita.simplesetup.UnknownMessageId">[docs]</a><span class="k">class</span> <span class="nc">UnknownMessageId</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+
+<div class="viewcode-block" id="UnknownMessageId"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.UnknownMessageId">[docs]</a><span class="k">class</span> <span class="nc">UnknownMessageId</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Is raised when a reply arrives with unexpected id.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span>
 </div>
-<div class="viewcode-block" id="ZMQTimeout"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.ZMQTimeout.html#pelita.simplesetup.ZMQTimeout">[docs]</a><span class="k">class</span> <span class="nc">ZMQTimeout</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="ZMQTimeout"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.ZMQTimeout">[docs]</a><span class="k">class</span> <span class="nc">ZMQTimeout</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Is raised when an ZMQ socket does not answer in time.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span>
 </div>
-<div class="viewcode-block" id="ZMQConnection"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.ZMQConnection.html#pelita.simplesetup.ZMQConnection">[docs]</a><span class="k">class</span> <span class="nc">ZMQConnection</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ZMQConnection"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.ZMQConnection">[docs]</a><span class="k">class</span> <span class="nc">ZMQConnection</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; This class is supposed to ease request–reply connections</span>
 <span class="sd">    through a zmq socket. It does so by attaching a uuid to each</span>
 <span class="sd">    request. It will only accept a reply if this also includes</span>
@@ -177,7 +178,7 @@
 <span class="sd">    last_uuid : uuid</span>
 <span class="sd">        Uuid which the next incoming message has to match</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="ZMQConnection.__init__"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.ZMQConnection.__init__.html#pelita.simplesetup.ZMQConnection.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">socket</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">socket</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="n">socket</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pollin</span> <span class="o">=</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Poller</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pollin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">zmq</span><span class="o">.</span><span class="n">POLLIN</span><span class="p">)</span>
@@ -185,8 +186,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pollout</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">zmq</span><span class="o">.</span><span class="n">POLLOUT</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">last_uuid</span> <span class="o">=</span> <span class="bp">None</span>
-</div>
-<div class="viewcode-block" id="ZMQConnection.send"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.ZMQConnection.send.html#pelita.simplesetup.ZMQConnection.send">[docs]</a>    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">timeout</span> <span class="o">=</span> <span class="n">DEAD_CONNECTION_TIMEOUT</span>
 
@@ -209,8 +210,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">DeadConnection</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_uuid</span> <span class="o">=</span> <span class="n">msg_uuid</span>
-</div>
-<div class="viewcode-block" id="ZMQConnection.recv"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.ZMQConnection.recv.html#pelita.simplesetup.ZMQConnection.recv">[docs]</a>    <span class="k">def</span> <span class="nf">recv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">recv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c"># return tuple</span>
         <span class="c"># (action, data)</span>
         <span class="n">json_message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">recv_unicode</span><span class="p">()</span>
@@ -226,8 +227,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">last_uuid</span> <span class="o">=</span> <span class="bp">None</span>
             <span class="k">raise</span> <span class="n">UnknownMessageId</span><span class="p">()</span>
-</div>
-<div class="viewcode-block" id="ZMQConnection.recv_timeout"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.ZMQConnection.recv_timeout.html#pelita.simplesetup.ZMQConnection.recv_timeout">[docs]</a>    <span class="k">def</span> <span class="nf">recv_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">recv_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
 
@@ -252,12 +253,12 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">ZMQTimeout</span><span class="p">()</span>
         <span class="k">raise</span> <span class="n">ZMQTimeout</span><span class="p">()</span>
-</div>
+
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s">&quot;ZMQConnection(</span><span class="si">%r</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span>
 
 </div>
-<div class="viewcode-block" id="RemoteTeamPlayer"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.RemoteTeamPlayer.html#pelita.simplesetup.RemoteTeamPlayer">[docs]</a><span class="k">class</span> <span class="nc">RemoteTeamPlayer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="RemoteTeamPlayer"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.RemoteTeamPlayer">[docs]</a><span class="k">class</span> <span class="nc">RemoteTeamPlayer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; This class is registered server-side with the GameMaster</span>
 <span class="sd">    and sends all requests to the attached zmq socket (to which</span>
 <span class="sd">    a client player has connected.)</span>
@@ -269,18 +270,18 @@
 <span class="sd">    socket : zmq socket</span>
 <span class="sd">        The zmq socket of this connection</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="RemoteTeamPlayer.__init__"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.RemoteTeamPlayer.__init__.html#pelita.simplesetup.RemoteTeamPlayer.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">socket</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">socket</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span> <span class="o">=</span> <span class="n">ZMQConnection</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="RemoteTeamPlayer.team_name"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.RemoteTeamPlayer.team_name.html#pelita.simplesetup.RemoteTeamPlayer.team_name">[docs]</a>    <span class="k">def</span> <span class="nf">team_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">team_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">&quot;team_name&quot;</span><span class="p">,</span> <span class="p">{})</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">DeadConnection</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Detected a DeadConnection, returning a string nonetheless.&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="s">&quot;</span><span class="si">%e</span><span class="s">rror%&quot;</span>
-</div>
-<div class="viewcode-block" id="RemoteTeamPlayer.set_initial"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.RemoteTeamPlayer.set_initial.html#pelita.simplesetup.RemoteTeamPlayer.set_initial">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">&quot;set_initial&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;team_id&quot;</span><span class="p">:</span> <span class="n">team_id</span><span class="p">,</span>
                                                     <span class="s">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="p">,</span>
@@ -291,8 +292,8 @@
             <span class="k">raise</span> <span class="n">PlayerTimeout</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">DeadConnection</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Detected a DeadConnection.&quot;</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="RemoteTeamPlayer.get_move"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.RemoteTeamPlayer.get_move.html#pelita.simplesetup.RemoteTeamPlayer.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">&quot;get_move&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;bot_id&quot;</span><span class="p">:</span> <span class="n">bot_id</span><span class="p">,</span>
                                                  <span class="s">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="p">,</span>
@@ -312,7 +313,7 @@
         <span class="k">except</span> <span class="n">DeadConnection</span><span class="p">:</span>
             <span class="c"># if the remote connection is closed</span>
             <span class="k">raise</span> <span class="n">PlayerDisconnected</span><span class="p">()</span>
-</div>
+
     <span class="k">def</span> <span class="nf">_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">&quot;exit&quot;</span><span class="p">,</span> <span class="p">{})</span>
@@ -322,11 +323,11 @@
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s">&quot;RemoteTeamPlayer(</span><span class="si">%r</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span>
 </div>
-<div class="viewcode-block" id="SimpleServer"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleServer.html#pelita.simplesetup.SimpleServer">[docs]</a><span class="k">class</span> <span class="nc">SimpleServer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="SimpleServer"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.SimpleServer">[docs]</a><span class="k">class</span> <span class="nc">SimpleServer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Sets up a simple Server with most settings pre-configured.</span>
 
-<span class="sd">    Usage</span>
-<span class="sd">    -----</span>
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
 <span class="sd">    Initialise as follows::</span>
 
 <span class="sd">        server = SimpleServer(layout_string=layout, rounds=3000)</span>
@@ -359,7 +360,7 @@
 <span class="sd">        if layout_file was given, but file does not exist</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="SimpleServer.__init__"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleServer.__init__.html#pelita.simplesetup.SimpleServer.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout_string</span><span class="p">,</span> <span class="n">teams</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">players</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">3000</span><span class="p">,</span> <span class="n">bind_addrs</span><span class="o">=</span><span class="s">&quot;tcp://*&quot;</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout_string</span><span class="p">,</span> <span class="n">teams</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">players</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">3000</span><span class="p">,</span> <span class="n">bind_addrs</span><span class="o">=</span><span class="s">&quot;tcp://*&quot;</span><span class="p">,</span>
                  <span class="n">initial_delay</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_timeouts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">timeout_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layout_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 
@@ -417,19 +418,19 @@
 
             <span class="n">team_player</span> <span class="o">=</span> <span class="n">RemoteTeamPlayer</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">team_players</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">team_player</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="SimpleServer.register_teams"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleServer.register_teams.html#pelita.simplesetup.SimpleServer.register_teams">[docs]</a>    <span class="k">def</span> <span class="nf">register_teams</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">register_teams</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c"># At this point the clients should have been started as well.</span>
         <span class="k">for</span> <span class="n">team</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_players</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Registering team </span><span class="si">%r</span><span class="s">.&quot;</span><span class="p">,</span> <span class="n">team</span><span class="p">)</span>
             <span class="n">team_name</span> <span class="o">=</span> <span class="n">team</span><span class="o">.</span><span class="n">team_name</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">game_master</span><span class="o">.</span><span class="n">register_team</span><span class="p">(</span><span class="n">team</span><span class="p">,</span> <span class="n">team_name</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="SimpleServer.exit_teams"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleServer.exit_teams.html#pelita.simplesetup.SimpleServer.exit_teams">[docs]</a>    <span class="k">def</span> <span class="nf">exit_teams</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">exit_teams</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">team_player</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_players</span><span class="p">:</span>
             <span class="n">team_player</span><span class="o">.</span><span class="n">_exit</span><span class="p">()</span>
-</div>
-<div class="viewcode-block" id="SimpleServer.shutdown"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleServer.shutdown.html#pelita.simplesetup.SimpleServer.shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SimpleServer.shutdown"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.SimpleServer.shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Closes the sockets.</span>
 
 <span class="sd">        To be used with care.</span>
@@ -437,21 +438,21 @@
         <span class="k">for</span> <span class="n">socket</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sockets</span><span class="p">:</span>
             <span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="SimpleServer.run"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleServer.run.html#pelita.simplesetup.SimpleServer.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">register_teams</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">game_master</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">exit_teams</span><span class="p">()</span>
-</div></div>
-<div class="viewcode-block" id="ExitLoop"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.ExitLoop.html#pelita.simplesetup.ExitLoop">[docs]</a><span class="k">class</span> <span class="nc">ExitLoop</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="ExitLoop"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.ExitLoop">[docs]</a><span class="k">class</span> <span class="nc">ExitLoop</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; If this is raised, we’ll close the inner loop.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 </div>
-<div class="viewcode-block" id="SimpleController"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleController.html#pelita.simplesetup.SimpleController">[docs]</a><span class="k">class</span> <span class="nc">SimpleController</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="SimpleController"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.SimpleController">[docs]</a><span class="k">class</span> <span class="nc">SimpleController</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Sets up a simple Controller to interact with GameMaster. &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SimpleController.__init__"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleController.__init__.html#pelita.simplesetup.SimpleController.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game_master</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game_master</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">game_master</span> <span class="o">=</span> <span class="n">game_master</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">address</span>
 
@@ -463,14 +464,14 @@
         <span class="c"># (Only one DEALER will receive the data.)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">DEALER</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">socket_addr</span> <span class="o">=</span> <span class="n">bind_socket</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s">&#39;--controller&#39;</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="SimpleController.run"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleController.run.html#pelita.simplesetup.SimpleController.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">()</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">KeyboardInterrupt</span><span class="p">,</span> <span class="n">ExitLoop</span><span class="p">):</span>
             <span class="k">pass</span>
-</div>
+
     <span class="k">def</span> <span class="nf">_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">py_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">recv_json</span><span class="p">()</span>
         <span class="n">uuid_</span> <span class="o">=</span> <span class="n">py_obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;__uuid__&quot;</span><span class="p">)</span>
@@ -485,33 +486,33 @@
             <span class="n">json_message</span> <span class="o">=</span> <span class="n">json_converter</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">message_obj</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send_unicode</span><span class="p">(</span><span class="n">json_message</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SimpleController.set_initial"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleController.set_initial.html#pelita.simplesetup.SimpleController.set_initial">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_master</span><span class="o">.</span><span class="n">set_initial</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="SimpleController.play"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleController.play.html#pelita.simplesetup.SimpleController.play">[docs]</a>    <span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_master</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="SimpleController.play_round"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleController.play_round.html#pelita.simplesetup.SimpleController.play_round">[docs]</a>    <span class="k">def</span> <span class="nf">play_round</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">play_round</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_master</span><span class="o">.</span><span class="n">play_round</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="SimpleController.play_step"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleController.play_step.html#pelita.simplesetup.SimpleController.play_step">[docs]</a>    <span class="k">def</span> <span class="nf">play_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">play_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_master</span><span class="o">.</span><span class="n">play_step</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="SimpleController.update_viewers"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleController.update_viewers.html#pelita.simplesetup.SimpleController.update_viewers">[docs]</a>    <span class="k">def</span> <span class="nf">update_viewers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">update_viewers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_master</span><span class="o">.</span><span class="n">update_viewers</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="SimpleController.exit"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleController.exit.html#pelita.simplesetup.SimpleController.exit">[docs]</a>    <span class="k">def</span> <span class="nf">exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">ExitLoop</span><span class="p">()</span>
-</div>
+
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s">&quot;SimpleController(</span><span class="si">%r</span><span class="s">, </span><span class="si">%r</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game_master</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="SimpleClient"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleClient.html#pelita.simplesetup.SimpleClient">[docs]</a><span class="k">class</span> <span class="nc">SimpleClient</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="SimpleClient"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.SimpleClient">[docs]</a><span class="k">class</span> <span class="nc">SimpleClient</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Sets up a simple Client with most settings pre-configured.</span>
 
-<span class="sd">    Usage</span>
-<span class="sd">    -----</span>
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
 <span class="sd">        client = SimpleClient(SimpleTeam(&quot;the good ones&quot;, BFSPlayer(), NQRandomPlayer()))</span>
 <span class="sd">        client.run() # runs in the same thread / process</span>
 
@@ -526,14 +527,14 @@
 <span class="sd">    address : string</span>
 <span class="sd">        The address which the client has to connect to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="SimpleClient.__init__"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleClient.__init__.html#pelita.simplesetup.SimpleClient.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team</span><span class="p">,</span> <span class="n">team_name</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team</span><span class="p">,</span> <span class="n">team_name</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">team</span> <span class="o">=</span> <span class="n">team</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">remote_game</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_team_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="p">,</span> <span class="s">&quot;team_name&quot;</span><span class="p">,</span> <span class="n">team_name</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">address</span>
-</div>
-<div class="viewcode-block" id="SimpleClient.on_start"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleClient.on_start.html#pelita.simplesetup.SimpleClient.on_start">[docs]</a>    <span class="k">def</span> <span class="nf">on_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">on_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c"># We connect here because zmq likes to have its own</span>
         <span class="c"># thread/process/whatever.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Context</span><span class="p">()</span>
@@ -543,15 +544,15 @@
         <span class="k">except</span> <span class="n">zmq</span><span class="o">.</span><span class="n">ZMQError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s">&#39;failed to connect the client to address </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span>
                           <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
-</div>
-<div class="viewcode-block" id="SimpleClient.run"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleClient.run.html#pelita.simplesetup.SimpleClient.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">on_start</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">()</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">KeyboardInterrupt</span><span class="p">,</span> <span class="n">ExitLoop</span><span class="p">):</span>
             <span class="k">pass</span>
-</div>
+
     <span class="k">def</span> <span class="nf">_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Waits for incoming requests and tries to get a proper</span>
 <span class="sd">        answer from the player.</span>
@@ -586,35 +587,35 @@
             <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
                 <span class="k">pass</span>
 
-<div class="viewcode-block" id="SimpleClient.set_initial"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleClient.set_initial.html#pelita.simplesetup.SimpleClient.set_initial">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">set_initial</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="SimpleClient.get_move"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleClient.get_move.html#pelita.simplesetup.SimpleClient.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">get_move</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="SimpleClient.exit"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleClient.exit.html#pelita.simplesetup.SimpleClient.exit">[docs]</a>    <span class="k">def</span> <span class="nf">exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">ExitLoop</span><span class="p">()</span>
-</div>
-<div class="viewcode-block" id="SimpleClient.team_name"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleClient.team_name.html#pelita.simplesetup.SimpleClient.team_name">[docs]</a>    <span class="k">def</span> <span class="nf">team_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">team_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_team_name</span>
-</div>
-<div class="viewcode-block" id="SimpleClient.autoplay_process"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleClient.autoplay_process.html#pelita.simplesetup.SimpleClient.autoplay_process">[docs]</a>    <span class="k">def</span> <span class="nf">autoplay_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">autoplay_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c"># We use a multiprocessing because it behaves well with KeyboardInterrupt.</span>
         <span class="n">background_process</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
         <span class="n">background_process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">background_process</span>
-</div>
-<div class="viewcode-block" id="SimpleClient.autoplay_thread"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleClient.autoplay_thread.html#pelita.simplesetup.SimpleClient.autoplay_thread">[docs]</a>    <span class="k">def</span> <span class="nf">autoplay_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">autoplay_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c"># Threading has problems with KeyboardInterrupts but makes it easier</span>
         <span class="c"># (though not simpler) to share state.</span>
         <span class="n">background_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
         <span class="n">background_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">background_thread</span>
-</div>
+
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s">&quot;SimpleClient(</span><span class="si">%r</span><span class="s">, </span><span class="si">%r</span><span class="s">, </span><span class="si">%r</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_name</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="SimplePublisher"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimplePublisher.html#pelita.simplesetup.SimplePublisher">[docs]</a><span class="k">class</span> <span class="nc">SimplePublisher</span><span class="p">(</span><span class="n">AbstractViewer</span><span class="p">):</span>
+<div class="viewcode-block" id="SimplePublisher"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.SimplePublisher">[docs]</a><span class="k">class</span> <span class="nc">SimplePublisher</span><span class="p">(</span><span class="n">AbstractViewer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Sets up a simple Publisher which sends all viewed events</span>
 <span class="sd">    over a zmq connection.</span>
 
@@ -623,28 +624,28 @@
 <span class="sd">    address : string</span>
 <span class="sd">        The address which the publisher binds.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="SimplePublisher.__init__"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimplePublisher.__init__.html#pelita.simplesetup.SimplePublisher.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">address</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Context</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">PUB</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">socket_addr</span> <span class="o">=</span> <span class="n">bind_socket</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s">&#39;--publish&#39;</span><span class="p">)</span>
-</div>
+
     <span class="k">def</span> <span class="nf">_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
         <span class="n">as_json</span> <span class="o">=</span> <span class="n">json_converter</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send_unicode</span><span class="p">(</span><span class="n">as_json</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SimplePublisher.set_initial"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimplePublisher.set_initial.html#pelita.simplesetup.SimplePublisher.set_initial">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
         <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;__action__&quot;</span><span class="p">:</span> <span class="s">&quot;set_initial&quot;</span><span class="p">,</span>
                    <span class="s">&quot;__data__&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="p">}}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="SimplePublisher.observe"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimplePublisher.observe.html#pelita.simplesetup.SimplePublisher.observe">[docs]</a>    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;__action__&quot;</span><span class="p">:</span> <span class="s">&quot;observe&quot;</span><span class="p">,</span>
                    <span class="s">&quot;__data__&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="p">,</span>
                                 <span class="s">&quot;game_state&quot;</span><span class="p">:</span> <span class="n">game_state</span><span class="p">}}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-</div></div>
-<div class="viewcode-block" id="SimpleSubscriber"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleSubscriber.html#pelita.simplesetup.SimpleSubscriber">[docs]</a><span class="k">class</span> <span class="nc">SimpleSubscriber</span><span class="p">(</span><span class="n">AbstractViewer</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="SimpleSubscriber"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.SimpleSubscriber">[docs]</a><span class="k">class</span> <span class="nc">SimpleSubscriber</span><span class="p">(</span><span class="n">AbstractViewer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Subscribes to a given zmq socket and passes</span>
 <span class="sd">    all incoming data to a viewer.</span>
 
@@ -655,24 +656,24 @@
 <span class="sd">    address : string</span>
 <span class="sd">        The address of the publisher we want to subscribe to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="SimpleSubscriber.__init__"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleSubscriber.__init__.html#pelita.simplesetup.SimpleSubscriber.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">viewer</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">viewer</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span> <span class="o">=</span> <span class="n">viewer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">address</span>
-</div>
-<div class="viewcode-block" id="SimpleSubscriber.on_start"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleSubscriber.on_start.html#pelita.simplesetup.SimpleSubscriber.on_start">[docs]</a>    <span class="k">def</span> <span class="nf">on_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">on_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Context</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">SUB</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">setsockopt_unicode</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">SUBSCRIBE</span><span class="p">,</span> <span class="s">u&quot;&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="SimpleSubscriber.run"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleSubscriber.run.html#pelita.simplesetup.SimpleSubscriber.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">on_start</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">()</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">KeyboardInterrupt</span><span class="p">,</span> <span class="n">ExitLoop</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</div>
+
     <span class="k">def</span> <span class="nf">_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Waits for incoming requests and tries to get a proper</span>
 <span class="sd">        answer from the player.</span>
@@ -685,28 +686,28 @@
 
         <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">)(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SimpleSubscriber.set_initial"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleSubscriber.set_initial.html#pelita.simplesetup.SimpleSubscriber.set_initial">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">set_initial</span><span class="p">(</span><span class="n">universe</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="SimpleSubscriber.observe"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleSubscriber.observe.html#pelita.simplesetup.SimpleSubscriber.observe">[docs]</a>    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="SimpleSubscriber.exit"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleSubscriber.exit.html#pelita.simplesetup.SimpleSubscriber.exit">[docs]</a>    <span class="k">def</span> <span class="nf">exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">ExitLoop</span><span class="p">()</span>
-</div>
-<div class="viewcode-block" id="SimpleSubscriber.autoplay_process"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleSubscriber.autoplay_process.html#pelita.simplesetup.SimpleSubscriber.autoplay_process">[docs]</a>    <span class="k">def</span> <span class="nf">autoplay_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">autoplay_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c"># We use a multiprocessing because it behaves well with KeyboardInterrupt.</span>
         <span class="n">background_process</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
         <span class="n">background_process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">background_process</span>
-</div>
-<div class="viewcode-block" id="SimpleSubscriber.autoplay_thread"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.SimpleSubscriber.autoplay_thread.html#pelita.simplesetup.SimpleSubscriber.autoplay_thread">[docs]</a>    <span class="k">def</span> <span class="nf">autoplay_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">autoplay_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c"># Threading has problems with KeyboardInterrupts but makes it easier</span>
         <span class="c"># (though not simpler) to share state.</span>
         <span class="n">background_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
         <span class="n">background_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">background_thread</span>
-</div>
+
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s">&quot;SimpleSubscriber(</span><span class="si">%r</span><span class="s">, </span><span class="si">%r</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span></div>
 </pre></div>

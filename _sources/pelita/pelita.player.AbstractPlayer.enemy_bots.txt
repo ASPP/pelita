@@ -1,6 +1,0 @@
-pelita.player.AbstractPlayer.enemy_bots
-=======================================
-
-.. currentmodule:: pelita.player
-
-.. autoattribute:: AbstractPlayer.enemy_bots

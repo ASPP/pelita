@@ -1,6 +1,0 @@
-pelita.graph.NoPathException
-============================
-
-.. currentmodule:: pelita.graph
-
-.. autoexception:: NoPathException

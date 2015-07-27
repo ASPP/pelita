@@ -5,24 +5,8 @@ Project Information
 Authors and Contributors
 ========================
 
-As of ``v0.2.0-177`` the developers and contributors are::
+.. include:: _contributors.rst
 
-    zsh» git shortlog -sn | cut -f1 --complement
-    Rike-Benjamin Schuppner
-    Valentin Haenel
-    Tiziano Zito
-    Zbigniew Jędrzejewski-Szmek
-    Bastian Venthur
-    Pietro Berkes
-    Nicola Chiapolini
-    Pauli Virtanen
-    abject
-    Christian Steigies
-    Sasza Kijek
-    Francesc Alted
-    Ola Pidde
-    Bartosz Telenczuk
-    Anna Chabuda
 
 Getting in Touch
 ================
@@ -47,8 +31,8 @@ Acknowledgements
 ================
 
 The game is inspired by the `“Pac-Man Projects”
-<http://inst.eecs.berkeley.edu/~cs188/pacman/pacman.html>`_  developed by John
-DeNero and Dan Klein at Berkeley University for their artificial intelligence
+<http://inst.eecs.berkeley.edu/~cs188/pacman/project_overview.html>`_  developed
+by John DeNero and Dan Klein at Berkeley University for their artificial intelligence
 introductory course [DeNeroKlein]_.
 
 This software was developed for the “Advanced Scientific Programming in Python”
@@ -56,10 +40,13 @@ summer school, as a teaching aid for the group project.
 
 Future:
 
-* `Kiel, Germany, September 2012 <https://python.g-node.org/wiki/start>`_
+* `Munich, Germany, 2015 <https://python.g-node.org/wiki/start>`_
 
 Past:
 
+* `Split, Croatia, 2014 <https://python.g-node.org/python-summerschool-2014/>`_
+* `Zürich, Switzerland, <https://python.g-node.org/python-summerschool-2013/>`_
+* `Kiel, Germany, <https://python.g-node.org/python-summerschool-2012/>`_
 * `St Andrews, Scotland, 2011 <https://python.g-node.org/python-summerschool-2011>`_
 * `Trento, Italy, 2010 <https://python.g-node.org/python-autumnschool-2010/>`_
 * `Warsaw, Poland, 2010 <https://python.g-node.org/python-winterschool-2010>`_

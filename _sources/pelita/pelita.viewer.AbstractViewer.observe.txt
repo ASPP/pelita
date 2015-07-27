@@ -1,6 +1,0 @@
-pelita.viewer.AbstractViewer.observe
-====================================
-
-.. currentmodule:: pelita.viewer
-
-.. automethod:: AbstractViewer.observe

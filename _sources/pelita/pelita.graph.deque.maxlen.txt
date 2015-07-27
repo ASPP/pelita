@@ -1,6 +1,0 @@
-pelita.graph.deque.maxlen
-=========================
-
-.. currentmodule:: pelita.graph
-
-.. autoattribute:: deque.maxlen

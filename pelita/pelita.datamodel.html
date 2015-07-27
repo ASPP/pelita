@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.datamodel &mdash; Pelita v0.2.0-195-ga562aaf documentation</title>
+    <title>pelita.datamodel &mdash; Pelita v0.2.0-202-g4c5382a documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-195-ga562aaf',
+        VERSION:     'v0.2.0-202-g4c5382a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,10 +24,10 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-195-ga562aaf documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.2.0-202-g4c5382a documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
-    <link rel="next" title="pelita.datamodel.create_maze" href="pelita.datamodel.create_maze.html" />
-    <link rel="prev" title="pelita.containers.Mesh.shape" href="pelita.containers.Mesh.shape.html" />
+    <link rel="next" title="pelita.game_master" href="pelita.game_master.html" />
+    <link rel="prev" title="pelita.containers" href="pelita.containers.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -50,10 +50,10 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.create_maze.html#pelita.datamodel.create_maze" title="pelita.datamodel.create_maze"><code class="xref py py-obj docutils literal"><span class="pre">create_maze</span></code></a>(layout_mesh)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.datamodel.create_maze" title="pelita.datamodel.create_maze"><code class="xref py py-obj docutils literal"><span class="pre">create_maze</span></code></a>(layout_mesh)</td>
 <td>Transforms a layout_mesh into a Maze.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.extract_initial_positions.html#pelita.datamodel.extract_initial_positions" title="pelita.datamodel.extract_initial_positions"><code class="xref py py-obj docutils literal"><span class="pre">extract_initial_positions</span></code></a>(mesh,&nbsp;number_bots)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.datamodel.extract_initial_positions" title="pelita.datamodel.extract_initial_positions"><code class="xref py py-obj docutils literal"><span class="pre">extract_initial_positions</span></code></a>(mesh,&nbsp;number_bots)</td>
 <td>Extract initial positions from mesh.</td>
 </tr>
 </tbody>
@@ -65,16 +65,16 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.Bot.html#pelita.datamodel.Bot" title="pelita.datamodel.Bot"><code class="xref py py-obj docutils literal"><span class="pre">Bot</span></code></a>(index,&nbsp;initial_pos,&nbsp;team_index,&nbsp;homezone)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.datamodel.Bot" title="pelita.datamodel.Bot"><code class="xref py py-obj docutils literal"><span class="pre">Bot</span></code></a>(index,&nbsp;initial_pos,&nbsp;team_index,&nbsp;homezone)</td>
 <td>A bot on a team.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.CTFUniverse.html#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><code class="xref py py-obj docutils literal"><span class="pre">CTFUniverse</span></code></a>(maze,&nbsp;teams,&nbsp;bots)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><code class="xref py py-obj docutils literal"><span class="pre">CTFUniverse</span></code></a>(maze,&nbsp;teams,&nbsp;bots)</td>
 <td>The Universe: representation of the game state.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.Maze.html#pelita.datamodel.Maze" title="pelita.datamodel.Maze"><code class="xref py py-obj docutils literal"><span class="pre">Maze</span></code></a>(width,&nbsp;height[,&nbsp;data])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.datamodel.Maze" title="pelita.datamodel.Maze"><code class="xref py py-obj docutils literal"><span class="pre">Maze</span></code></a>(width,&nbsp;height[,&nbsp;data])</td>
 <td>A Mesh of strings of maze component representations.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.Team.html#pelita.datamodel.Team" title="pelita.datamodel.Team"><code class="xref py py-obj docutils literal"><span class="pre">Team</span></code></a>(index,&nbsp;name,&nbsp;zone[,&nbsp;score,&nbsp;bots])</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.datamodel.Team" title="pelita.datamodel.Team"><code class="xref py py-obj docutils literal"><span class="pre">Team</span></code></a>(index,&nbsp;name,&nbsp;zone[,&nbsp;score,&nbsp;bots])</td>
 <td>A team of bots.</td>
 </tr>
 </tbody>
@@ -86,14 +86,621 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita.datamodel.IllegalMoveException.html#pelita.datamodel.IllegalMoveException" title="pelita.datamodel.IllegalMoveException"><code class="xref py py-obj docutils literal"><span class="pre">IllegalMoveException</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.datamodel.IllegalMoveException" title="pelita.datamodel.IllegalMoveException"><code class="xref py py-obj docutils literal"><span class="pre">IllegalMoveException</span></code></a></td>
 <td>Raised when a bot attempts to make an illegal move.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita.datamodel.UniverseException.html#pelita.datamodel.UniverseException" title="pelita.datamodel.UniverseException"><code class="xref py py-obj docutils literal"><span class="pre">UniverseException</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.datamodel.UniverseException" title="pelita.datamodel.UniverseException"><code class="xref py py-obj docutils literal"><span class="pre">UniverseException</span></code></a></td>
 <td>Standard error in the Universe.</td>
 </tr>
 </tbody>
 </table>
+<dl class="class">
+<dt id="pelita.datamodel.Bot">
+<em class="property">class </em><code class="descclassname">pelita.datamodel.</code><code class="descname">Bot</code><span class="sig-paren">(</span><em>index</em>, <em>initial_pos</em>, <em>team_index</em>, <em>homezone</em>, <em>current_pos=None</em>, <em>noisy=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#Bot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.Bot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>A bot on a team.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>index</strong> (<em>int</em>) &#8211; the index of this bot within the Universe</li>
+<li><strong>initial_pos</strong> (<em>tuple of int (x, y)</em>) &#8211; the initial position for this bot</li>
+<li><strong>team_index</strong> (<em>int</em>) &#8211; the index of the team that this bot is on</li>
+<li><strong>homezone</strong> (<em>tuple of int (x_min, x_max)</em>) &#8211; the homezone of this team</li>
+<li><strong>current_pos</strong> (<em>tuple of int (x, y), optional</em>) &#8211; the current position of this bot
+default = None (will be set to initial_pos)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>in_own_zone</strong> (<em>boolean, property</em>) &#8211; True if in its own homezone and False otherwise</li>
+<li><strong>is_destroyer</strong> (<em>boolean, property</em>) &#8211; True if a destroyer, False otherwise</li>
+<li><strong>is_harvester</strong> (<em>boolean, property</em>) &#8211; not is_destroyer</li>
+<li><strong>noisy</strong> (<em>boolean</em>) &#8211; True if the position is noisy, False if it is exact</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.datamodel.CTFUniverse">
+<em class="property">class </em><code class="descclassname">pelita.datamodel.</code><code class="descname">CTFUniverse</code><span class="sig-paren">(</span><em>maze</em>, <em>teams</em>, <em>bots</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#CTFUniverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.CTFUniverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>The Universe: representation of the game state.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>maze</strong> (<em>Maze object</em>) &#8211; the maze</li>
+<li><strong>teams</strong> (<em>list of Team objects</em>) &#8211; the teams</li>
+<li><strong>bots</strong> (<em>list of Bot objects</em>) &#8211; the bots</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#pelita.datamodel.CTFUniverse.bot_positions" title="pelita.datamodel.CTFUniverse.bot_positions"><strong>bot_positions</strong></a> (<em>list of tuple of ints (x, y), property</em>) &#8211; the current position of all bots</li>
+<li><a class="reference internal" href="#pelita.datamodel.CTFUniverse.food_list" title="pelita.datamodel.CTFUniverse.food_list"><strong>food_list</strong></a> (<em>list of tuple of ints (x, y), property</em>) &#8211; the positions of all edible food</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pelita.datamodel.CTFUniverse.KILLPOINTS">
+<code class="descname">KILLPOINTS</code><em class="property"> = 5</em><a class="headerlink" href="#pelita.datamodel.CTFUniverse.KILLPOINTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>the number of points to score when killing</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.datamodel.CTFUniverse.bot_positions">
+<code class="descname">bot_positions</code><a class="headerlink" href="#pelita.datamodel.CTFUniverse.bot_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Current positions of all bots.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>bot_positions</strong> &#8211;
+the positions of all bots</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of tuple of (int, int)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pelita.datamodel.CTFUniverse.create">
+<em class="property">classmethod </em><code class="descname">create</code><span class="sig-paren">(</span><em>layout_str</em>, <em>number_bots</em>, <em>team_names=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#CTFUniverse.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.CTFUniverse.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory to create a 2-Player Capture The Flag Universe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>layout_str</strong> (<em>str</em>) &#8211; the string encoding the maze layout</li>
+<li><strong>number_bots</strong> (<em>int</em>) &#8211; the number of bots in the game</li>
+<li><strong>team_names</strong> (<em>length 2 list of strings, optional</em>) &#8211; default = None -&gt; [&#8216;black&#8217;, &#8216;white&#8217;]
+the names of the playing teams</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#pelita.datamodel.UniverseException" title="pelita.datamodel.UniverseException"><code class="xref py py-exc docutils literal"><span class="pre">UniverseException</span></code></a> &#8211;
+if the number of bots or layout width are odd</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">LayoutEncodingException</span></code> &#8211;
+if there is something wrong with the layout_str, see <cite>Layout()</cite></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.datamodel.CTFUniverse.enemy_bots">
+<code class="descname">enemy_bots</code><span class="sig-paren">(</span><em>team_index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#CTFUniverse.enemy_bots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.CTFUniverse.enemy_bots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain enemy bot objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>team_index</strong> (<em>int</em>) &#8211; the index of the &#8216;friendly&#8217; team</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>enemy_bots</strong></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of Bot objects</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.datamodel.CTFUniverse.enemy_food">
+<code class="descname">enemy_food</code><span class="sig-paren">(</span><em>team_index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#CTFUniverse.enemy_food"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.CTFUniverse.enemy_food" title="Permalink to this definition">¶</a></dt>
+<dd><p>Food that is edible by a team</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>team_food</strong> &#8211;
+food edible by team</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of tuple of (int, int)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.datamodel.CTFUniverse.enemy_team">
+<code class="descname">enemy_team</code><span class="sig-paren">(</span><em>team_index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#CTFUniverse.enemy_team"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.CTFUniverse.enemy_team" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain the enemy team.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>team_index</strong> (<em>int</em>) &#8211; the index of the &#8216;friendly&#8217; team</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>enemy_team</strong></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Team object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#pelita.datamodel.UniverseException" title="pelita.datamodel.UniverseException"><code class="xref py py-exc docutils literal"><span class="pre">UniverseException</span></code></a> &#8211;
+if there is more than one enemy team</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.datamodel.CTFUniverse.food_list">
+<code class="descname">food_list</code><a class="headerlink" href="#pelita.datamodel.CTFUniverse.food_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Positions of all the food.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>food_positions</strong> &#8211;
+the positions of all food</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of tuple of (int, int)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.datamodel.CTFUniverse.free_positions">
+<code class="descname">free_positions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#CTFUniverse.free_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.CTFUniverse.free_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an adjacency list for all Free positions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>adjacency_list</strong> &#8211;
+Generator which contains all reachable positions and their adjacencies</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">generator of (pos, list(pos))</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.datamodel.CTFUniverse.legal_moves">
+<code class="descname">legal_moves</code><span class="sig-paren">(</span><em>position</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#CTFUniverse.legal_moves"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.CTFUniverse.legal_moves" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain legal moves and where they lead.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int (x, y)</em>) &#8211; the position to start at</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>legal_moves_dict</strong> &#8211;
+the legal moves and where they would lead.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict mapping strings (moves) to positions (x, y)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.datamodel.CTFUniverse.legal_moves_or_stop">
+<code class="descname">legal_moves_or_stop</code><span class="sig-paren">(</span><em>position</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#CTFUniverse.legal_moves_or_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.CTFUniverse.legal_moves_or_stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain legal moves (and where they lead)
+or just stop if impossible to move.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int (x, y)</em>) &#8211; the position to start at</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>legal_moves</strong> &#8211;
+the legal moves and where they would lead.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict mapping strings (moves) to positions (x, y)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.datamodel.CTFUniverse.move_bot">
+<code class="descname">move_bot</code><span class="sig-paren">(</span><em>bot_id</em>, <em>move</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#CTFUniverse.move_bot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.CTFUniverse.move_bot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move a bot in certain direction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>bot_id</strong> (<em>int</em>) &#8211; index of the bot</li>
+<li><strong>move</strong> (<em>tuple of (int, int)</em>) &#8211; direction to move in</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>game_state</strong> &#8211;
+the current game_state</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">dict</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pelita.datamodel.IllegalMoveException" title="pelita.datamodel.IllegalMoveException"><code class="xref py py-exc docutils literal"><span class="pre">IllegalMoveException</span></code></a> &#8211;
+if the move is invalid or impossible</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.datamodel.CTFUniverse.neighbourhood">
+<code class="descname">neighbourhood</code><span class="sig-paren">(</span><em>position</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#CTFUniverse.neighbourhood"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.CTFUniverse.neighbourhood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine where a move will lead.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int (x, y)</em>) &#8211; current position</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>new_pos</strong> &#8211;
+mapping of moves to new positions (x, y)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.datamodel.CTFUniverse.other_team_bots">
+<code class="descname">other_team_bots</code><span class="sig-paren">(</span><em>bot_index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#CTFUniverse.other_team_bots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.CTFUniverse.other_team_bots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain other bots on team.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bot_index</strong> (<em>int</em>) &#8211; index of the bot in question</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>other_team_bots</strong> &#8211;
+the other bots on the team, excluding the desired bot</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of Bot objects</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.datamodel.CTFUniverse.pretty">
+<code class="descname">pretty</code><a class="headerlink" href="#pelita.datamodel.CTFUniverse.pretty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide detailed, readable info about universe state.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>pretty</strong> &#8211;
+detailed, readable string version of this universe</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">universe</span><span class="o">.</span><span class="n">pretty</span>
+<span class="go">##################</span>
+<span class="go">#0#.  .  # .     #</span>
+<span class="go">#1#####    #####2#</span>
+<span class="go">#     . #  .  .#3#</span>
+<span class="go">##################</span>
+<span class="go">Team(0, &#39;black&#39;, (0, 8), score=0, bots=[0, 2])</span>
+<span class="go">    Bot(0, (1, 1), 0, (0, 8) , current_pos=(1, 1))</span>
+<span class="go">    Bot(2, (16, 2), 0, (0, 8) , current_pos=(16, 2))</span>
+<span class="go">Team(1, &#39;white&#39;, (9, 17), score=0, bots=[1, 3])</span>
+<span class="go">    Bot(1, (1, 2), 1, (9, 17) , current_pos=(1, 2))</span>
+<span class="go">    Bot(3, (16, 3), 1, (9, 17) , current_pos=(16, 3))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.datamodel.CTFUniverse.reachable">
+<code class="descname">reachable</code><span class="sig-paren">(</span><em>initial_positions</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#CTFUniverse.reachable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.CTFUniverse.reachable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all reachable positions starting from a list initial positions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>initial_positions</strong> (<em>list(pos)</em>) &#8211; list of initial positions</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>adjacency_list</strong> &#8211;
+Generator which contains all reachable positions and their adjacencies</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">generator of (pos, list(pos))</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.datamodel.CTFUniverse.team_border">
+<code class="descname">team_border</code><span class="sig-paren">(</span><em>team_index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#CTFUniverse.team_border"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.CTFUniverse.team_border" title="Permalink to this definition">¶</a></dt>
+<dd><p>Positions of the border positions.</p>
+<p>These are the last positions in the zone of the team.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>team_index</strong> (<em>int</em>) &#8211; the index of the &#8216;friendly&#8217; team</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>team_border</strong> &#8211;
+the border positions</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of tuple of (int, int)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.datamodel.CTFUniverse.team_bots">
+<code class="descname">team_bots</code><span class="sig-paren">(</span><em>team_index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#CTFUniverse.team_bots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.CTFUniverse.team_bots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain all Bot objects in a Team.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>team_index</strong> (<em>int</em>) &#8211; the index of the desired team</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>team_bots</strong></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of Bot objects</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.datamodel.CTFUniverse.team_food">
+<code class="descname">team_food</code><span class="sig-paren">(</span><em>team_index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#CTFUniverse.team_food"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.CTFUniverse.team_food" title="Permalink to this definition">¶</a></dt>
+<dd><p>Food that is owned by a team</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>team_food</strong> &#8211;
+food owned by team</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of tuple of (int, int)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pelita.datamodel.IllegalMoveException">
+<em class="property">exception </em><code class="descclassname">pelita.datamodel.</code><code class="descname">IllegalMoveException</code><a class="reference internal" href="../_modules/pelita/datamodel.html#IllegalMoveException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.IllegalMoveException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<p>Raised when a bot attempts to make an illegal move.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.datamodel.Maze">
+<em class="property">class </em><code class="descclassname">pelita.datamodel.</code><code class="descname">Maze</code><span class="sig-paren">(</span><em>width</em>, <em>height</em>, <em>data=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#Maze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.Maze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pelita.containers.html#pelita.containers.Mesh" title="pelita.containers.Mesh"><code class="xref py py-class docutils literal"><span class="pre">pelita.containers.Mesh</span></code></a></p>
+<p>A Mesh of strings of maze component representations.</p>
+<p>This is a container class to represent a game maze. It is a two-dimensional
+structure (Mesh) which contains a representation of maze components at each
+position. This is implemented using sequences of characters, i.e. strings.
+At each position we store the characters corresponding to the maze
+components at this position.</p>
+<dl class="method">
+<dt id="pelita.datamodel.Maze.get_at">
+<code class="descname">get_at</code><span class="sig-paren">(</span><em>char</em>, <em>pos</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#Maze.get_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.Maze.get_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all objects of a given char representation at certain position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>char</strong> (<em>char</em>) &#8211; the char representation of maze components to look for</li>
+<li><strong>pos</strong> (<em>tuple of (int, int)</em>) &#8211; the position to look at</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>objs</strong> &#8211;
+the objects at that position</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.datamodel.Maze.pos_of">
+<code class="descname">pos_of</code><span class="sig-paren">(</span><em>char</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#Maze.pos_of"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.Maze.pos_of" title="Permalink to this definition">¶</a></dt>
+<dd><p>The indices of positions which have a maze component.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>char</strong> (<em>maze component char</em>) &#8211; the char of maze component to look for</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">universe</span><span class="o">.</span><span class="n">maze</span><span class="o">.</span><span class="n">pos_of</span><span class="p">(</span><span class="n">Free</span><span class="p">)</span>
+<span class="go">[(1, 1),</span>
+<span class="go">(3, 1),</span>
+<span class="go">(4, 1),</span>
+<span class="go">(5, 1),</span>
+<span class="go">(6, 1),</span>
+<span class="go">(7, 1),</span>
+<span class="gp">...</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pelita.datamodel.Maze.positions">
+<code class="descname">positions</code><a class="headerlink" href="#pelita.datamodel.Maze.positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>The indices of positions in the Maze.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>positions</strong> &#8211;
+the positions (x, y) in the Maze</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of tuple of (int, int)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelita.datamodel.Maze.remove_at">
+<code class="descname">remove_at</code><span class="sig-paren">(</span><em>char</em>, <em>pos</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#Maze.remove_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.Maze.remove_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all objects of a given char representation at a certain position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>char</strong> (<em>char</em>) &#8211; the char representation to remove from the Maze</li>
+<li><strong>pos</strong> (<em>tuple of (int, int)</em>) &#8211; the position to look at</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pelita.datamodel.Team">
+<em class="property">class </em><code class="descclassname">pelita.datamodel.</code><code class="descname">Team</code><span class="sig-paren">(</span><em>index</em>, <em>name</em>, <em>zone</em>, <em>score=0</em>, <em>bots=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#Team"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.Team" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>A team of bots.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>index</strong> (<em>int</em>) &#8211; the index of the team within the Universe</li>
+<li><strong>name</strong> (<em>str</em>) &#8211; the name of the team</li>
+<li><strong>zone</strong> (<em>tuple of int (x_min, x_max)</em>) &#8211; the homezone of this team</li>
+<li><strong>score</strong> (<em>int, optional, default = 0</em>) &#8211; the score of this team</li>
+<li><strong>bots</strong> (<em>list of int, optional, default = None (creates an empty list)</em>) &#8211; the bot indices that belong to this team</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pelita.datamodel.Team.in_zone">
+<code class="descname">in_zone</code><span class="sig-paren">(</span><em>position</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#Team.in_zone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.Team.in_zone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a position is within the zone of this team.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int (x, y)</em>) &#8211; the position to check</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>is_in_zone</strong> &#8211;
+True if the position is in the homezone and False otherwise</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pelita.datamodel.UniverseException">
+<em class="property">exception </em><code class="descclassname">pelita.datamodel.</code><code class="descname">UniverseException</code><a class="reference internal" href="../_modules/pelita/datamodel.html#UniverseException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.UniverseException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<p>Standard error in the Universe.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pelita.datamodel.create_maze">
+<code class="descclassname">pelita.datamodel.</code><code class="descname">create_maze</code><span class="sig-paren">(</span><em>layout_mesh</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#create_maze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.create_maze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms a layout_mesh into a Maze.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>layout_mesh</strong> (<em>Mesh of single char strings</em>) &#8211; Mesh of single character strings describing the layout</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>maze</strong> &#8211;
+the Maze</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pelita.datamodel.Maze" title="pelita.datamodel.Maze">Maze</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pelita.datamodel.extract_initial_positions">
+<code class="descclassname">pelita.datamodel.</code><code class="descname">extract_initial_positions</code><span class="sig-paren">(</span><em>mesh</em>, <em>number_bots</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/datamodel.html#extract_initial_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.datamodel.extract_initial_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract initial positions from mesh.</p>
+<p>Also replaces the initial positions in the mesh with free spaces.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>mesh</strong> (<em>Mesh of characters</em>) &#8211; the layout in mesh format</li>
+<li><strong>number_bots</strong> (<em>int</em>) &#8211; the number of bots for which to find initial positions</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>initial pos</strong> &#8211;
+the initial positions for all the bots</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list of tuples</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -125,21 +732,10 @@
 <li class="toctree-l2"><a class="reference internal" href="pelita.__layouts.html">pelita.__layouts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.__version_from_git.html">pelita.__version_from_git</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.containers.html">pelita.containers</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">pelita.datamodel</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pelita.datamodel.create_maze.html">pelita.datamodel.create_maze</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.datamodel.extract_initial_positions.html">pelita.datamodel.extract_initial_positions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.datamodel.Bot.html">pelita.datamodel.Bot</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.datamodel.CTFUniverse.html">pelita.datamodel.CTFUniverse</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.datamodel.Maze.html">pelita.datamodel.Maze</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.datamodel.Team.html">pelita.datamodel.Team</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.datamodel.IllegalMoveException.html">pelita.datamodel.IllegalMoveException</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pelita.datamodel.UniverseException.html">pelita.datamodel.UniverseException</a></li>
-</ul>
-</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">pelita.datamodel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.game_master.html">pelita.game_master</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.graph.html">pelita.graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.layout.html">pelita.layout</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pelita.messaging.html">pelita.messaging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.player.html">pelita.player</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.simplesetup.html">pelita.simplesetup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.ui.html">pelita.ui</a></li>

@@ -1,6 +1,0 @@
-pelita.simplesetup.GameMaster.play
-==================================
-
-.. currentmodule:: pelita.simplesetup
-
-.. automethod:: GameMaster.play

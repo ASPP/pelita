@@ -1,6 +1,0 @@
-pelita.layout.Mesh.shape
-========================
-
-.. currentmodule:: pelita.layout
-
-.. autoattribute:: Mesh.shape

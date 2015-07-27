@@ -1,6 +1,0 @@
-pelita.graph.AdjacencyList.keys
-===============================
-
-.. currentmodule:: pelita.graph
-
-.. automethod:: AdjacencyList.keys
