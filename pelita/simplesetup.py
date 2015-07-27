@@ -3,7 +3,8 @@
 """ simplesetup.py defines the SimpleServer and SimpleClient classes
 which allow for easy game setup via zmq sockets.
 
-Notes / TODO
+Notes
+-----
 
 Timeout handling was far more elegant (imho) with actors / futures.
 Back then, timeouts were reply-based which meant that no other incoming
@@ -284,8 +285,8 @@ class RemoteTeamPlayer(object):
 class SimpleServer(object):
     """ Sets up a simple Server with most settings pre-configured.
 
-    Usage
-    -----
+    Example
+    -------
     Initialise as follows::
 
         server = SimpleServer(layout_string=layout, rounds=3000)
@@ -469,8 +470,8 @@ class SimpleController(object):
 class SimpleClient(object):
     """ Sets up a simple Client with most settings pre-configured.
 
-    Usage
-    -----
+    Example
+    -------
         client = SimpleClient(SimpleTeam("the good ones", BFSPlayer(), NQRandomPlayer()))
         client.run() # runs in the same thread / process
 

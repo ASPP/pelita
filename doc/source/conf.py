@@ -40,13 +40,14 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
-    'numpydoc'
+    'sphinx.ext.napoleon'
 ]
 
 autosummary_generate = True
-autodoc_default_flags = ['show-inheritance']
+autodoc_default_flags = ['members', 'show-inheritance']
 autoclass_content = 'both'
-numpydoc_show_class_members = False
+
+napoleon_use_ivar = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
