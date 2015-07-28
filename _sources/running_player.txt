@@ -90,7 +90,7 @@ The file structure should look like::
     ├── utils.py
     └── my_player.py
 
-Download a :download:`template for this file structure <groupN-template.zip>`.
+An example repository has been provided at `github.com/ASPP/pelita_player <https://github.com/ASPP/pelita_player>`_
 
 Your ``__init__.py`` could look like:
 
@@ -167,4 +167,3 @@ each step::
     the occasional not responding on keystrokes, garbled output and the
     failure to automatically shutdown the program. In these cases, it is
     useful to press the keyboard interrupt (CTRL+C) a couple of times.
-
