@@ -130,129 +130,26 @@ def call_standalone_pelitagame(team_spec, addr):
     the same start script (pelitagame) and runs `team_spec`
     as a standalone client on URL `addr`.
     """
+    player_path = os.path.dirname(sys.argv[0])
+    player = os.path.join(player_path, "module_player.py")
     return subprocess.Popen([get_python_process(),
-                             sys.argv[0],
-                             "--standalone-client",
+                             player,
                              team_spec,
                              addr])
 
-def check_module(filepath):
-    "Throws an ValueError is the specified path is neither a module nor a package."
-    if not os.path.exists(filepath):
-        raise ValueError("'%s' doesn't exist" % filepath)
-    allowed = string.ascii_letters + string.digits + '_'
-    if filepath.endswith('.py'):
-        valid = os.path.isfile(filepath)
-        modname = os.path.basename(filepath[:-3])
-    else:
-        initpy = os.path.join(filepath, '__init__.py')
-        valid = os.path.isdir(filepath) and os.path.isfile(initpy)
-        modname = os.path.basename(filepath.rstrip(os.path.sep))
-    if (set(modname) - set(allowed) or
-        modname[0] in string.digits or
-        modname in keyword.kwlist or
-        modname.startswith('__')):
-        raise ValueError("invalid module name: '%s'" % modname)
-
-    if not valid:
-        raise ValueError("'%s': neither a module nor a package" % filepath )
-
-def load_factory(filespec):
-    filename, _, factory_name = filespec.partition(':')
-    check_module(filename)
-    filename = filename.rstrip(os.path.sep)
-    dirname = os.path.dirname(filename)
-    modname = os.path.splitext(os.path.basename(filename))[0]
-
-    factory_name = factory_name or 'factory'
-    with pelita.utils.with_sys_path(dirname):
-        module = __import__(modname, fromlist=[factory_name])
-    return getattr(module, factory_name)
-
-def import_builtin_player(name):
-    with pelita.utils.with_sys_path("./"):
-        players_module = __import__("players")
-        sane_players = dict((p.__name__, p) for p in players_module.SANE_PLAYERS)
-
-    if name == 'random':
-        player = random.choice(list(sane_players.values()))
-        print('Choosing %s for random player' % player)
-    else:
-        player = sane_players.get(name)
-        if not player:
-            try:
-                # fallback to player in pelita.player
-                player = getattr(pelita.player, name)
-            except AttributeError:
-                others = ', '.join(list(sane_players.keys()))
-                msg = 'Failed to find %s in players. (Available players are: %s).' % (name, others)
-                raise ImportError(msg)
-
-    if inspect.isclass(player) and issubclass(player, pelita.player.AbstractPlayer):
-        return player
-    else:
-        raise ImportError("%r is not a valid player." % player)
-
-def create_builtin_team(spec):
-    names = spec.split(',')
-    if len(names) == 1:
-        names *= 2
-    elif len(names) > 2:
-        raise ValueError('need two comma separated names')
-
-    players = [import_builtin_player(name)() for name in names]
-    teamname = 'The %ss' % players[0].__class__.__name__
-    return pelita.player.SimpleTeam(teamname, *players)
-
-def check_team_name(name):
-    # Team name must be ascii
-    try:
-        name.encode('ascii')
-    except UnicodeDecodeError:
-        raise ValueError('Invalid team name (non ascii): "%s".'%name)
-    # Team name must be shorter than 25 characters
-    if len(name) > 25:
-        raise ValueError('Invalid team name (longer than 25): "%s".'%name)
-    if len(name) == 0:
-        raise ValueError('Invalid team name (too short).')
-    # Check every character and make sure it is either
-    # a letter or a number. Nothing else is allowed.
-    for char in name:
-        if (not char.isalnum()) and (char != ' '):
-            raise ValueError('Invalid team name (only alphanumeric '
-                             'chars or blanks): "%s"'%name)
-    if name.isspace():
-        raise ValueError('Invalid team name (no letters): "%s"'%name)
 
 
-def load_team(spec):
-    try:
-        if '/' in spec or spec.endswith('.py') or os.path.exists(spec):
-            team = load_factory(spec)()
-        else:
-            team = create_builtin_team(spec)
-        check_team_name(team.team_name)
-        return team
-    except (ValueError, AttributeError, IOError, ImportError) as e:
-        print("failure while loading team '%s'" % spec, file=sys.stderr)
-        print('ERROR: %s' % e, file=sys.stderr)
-        raise
 
-def prepare_team(team_spec, standalone=False):
+def prepare_team(team_spec):
     # check if we've been given an address which a remote
     # player wants to connect to
-    if standalone:
-        addrs = "tcp://*"
+    if "://" in team_spec:
+        addrs = team_spec
         team = None
     else:
-        if "://" in team_spec:
-            addrs = team_spec
-            team = None
-        else:
-            addrs = "tcp://*"
-            team = load_team(team_spec) or sys.exit(1)
+        addrs = "tcp://*"
+        team = team_spec
     return addrs, team
-
 
 def start_logging(filename):
     if filename:
@@ -367,14 +264,6 @@ layout_opt.add_argument('--filter', metavar='STRING',
                         ' name contains STRING.'
                         ' Default: \'normal_without_dead_ends\'')
 
-client_opt = parser.add_mutually_exclusive_group()
-client_opt.add_argument('--standalone-client', action='store_true',
-                        help='run standalone game')
-client_opt.add_argument('--standalone-left', action='store_true',
-                        help='run standalone game for the left team')
-client_opt.add_argument('--standalone-right', action='store_true',
-                        help='run standalone game for the right team')
-
 parser.epilog = """\
 Team Specification:
   - Using predefined players:
@@ -426,33 +315,6 @@ Team Specification:
 
         $ %(prog)s tcp://*:9005 NQRandomPlayer,BasicDefensePlayer
 
-Standalone mode:
-  When --standalone-client is specified, the first positional argument
-  is taken as a team specification, whereas the second positional argument
-  is used to specify the address where the Player should connect to.
-
-  The user code then runs in the main thread of the process and as such
-  may be interrupted with the Python debugger pdb. (For best results,
-  it may be necessary to increase (or turn off) the timeout in the server.
-
-  Example usage. A server bound to two different ports:
-
-      $ %(prog)s tcp://*:51025 tcp://*:51027
-
-  Now we can start two clients connected to their respective sockets:
-
-      $ %(prog)s --standalone-client BFSPlayer,RandomPlayer tcp://localhost:51025
-      $ %(prog)s --standalone-client ~/my_player.py tcp://localhost:51027
-
-  A much simpler way, which avoids both the need to specify an available port
-  and to manually open up a new process is provided by the --standalone-left and
-  --standalone-right arguments. The following line automatically runs
-  the left team in standalone mode where it is possible to intercept with
-  the Python debugger. (Provided this is included in the code.)
-
-      $ %(prog)s --standalone-left --no-timeout DebuggablePlayer,MyTestPlayer \
-                                                BFSPlayer,RandomPlayer
-
 Layout specification:
   If neither --layoutfile nor --layout are specified, the maze is
   chosen at random from the pool of available layouts.
@@ -482,7 +344,6 @@ def run_game():
     if args.viewer.startswith('tk') and not args.publish_to:
         raise ValueError("Options --tk (or --tk-no-sync) and --no-publish are mutually exclusive.")
 
-
     try:
         start_logging(args.log)
     except AttributeError:
@@ -500,25 +361,8 @@ def run_game():
         sys.exit(0)
 
     def print_team_info(addr, team, spec, info):
-        if team is not None:
-            print("Using factory '%s' -> '%s' (%s)" % (spec, team.team_name, info))
-        elif "://" in addr:
-            print("Waiting for %s team on %s" % (info, addr))
-
-    # if standalone_client was specified,
-    # we use the following scheme
-    # the first positional argument specifies the team to load
-    # the second positional argument specifies the address to connect to
-    if args.standalone_client:
-        if args.spec_left is None:
-            raise ValueError("The player must be specified.")
-        if args.spec_right is None:
-            raise ValueError("The address to connect to must be specified.")
-        team = load_team(args.spec_left)
-        addr = args.spec_right.replace('*', 'localhost')
-        print_team_info(None, team, args.spec_left, "standalone")
-        client = pelita.simplesetup.SimpleClient(team, address=addr)
-        sys.exit(client.run())
+        if "://" in addr:
+            print("Waiting for %s team on %s (%s, %s)" % (info, addr, team, spec))
 
     try:
         # TODO: Re-include the dump.
@@ -554,8 +398,8 @@ def run_game():
         if not args.spec_right:
             args.spec_right = "random"
 
-        addrs_left, team_left = prepare_team(args.spec_left, args.standalone_left)
-        addrs_right, team_right = prepare_team(args.spec_right, args.standalone_right)
+        addrs_left, team_left = prepare_team(args.spec_left)
+        addrs_right, team_right = prepare_team(args.spec_right)
 
         if args.dry_run:
             sys.exit(0)
@@ -575,24 +419,14 @@ def run_game():
                                                  layout_name=layout_name,
                                                  seed=args.seed)
 
-        player_clients = []
-        for (addr, team) in zip(server.bind_addresses, [team_left, team_right]):
-            if team:
-                addr = addr.replace('*', 'localhost')
-                client = pelita.simplesetup.SimpleClient(team, address=addr)
-                player_clients.append(client)
-
-        for client in player_clients:
-            proc = client.autoplay_process()
-            external_players.append(proc)
-
         print_team_info(addrs_left, team_left, args.spec_left, "left")
         print_team_info(addrs_right, team_right, args.spec_right, "right")
 
-        if args.standalone_left:
-            sub = call_standalone_pelitagame(args.spec_left, server.bind_addresses[0])
-        if args.standalone_right:
-            sub = call_standalone_pelitagame(args.spec_right, server.bind_addresses[1])
+        subs = [
+            call_standalone_pelitagame(args.spec_left, server.bind_addresses[0]),
+            call_standalone_pelitagame(args.spec_right, server.bind_addresses[1])
+        ]
+        #[s.wait() for s in subs]
 
         # register the viewers
         if args.publish_to:
