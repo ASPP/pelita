@@ -161,7 +161,7 @@ As a result we obtain the following direction vectors::
 Distances in the Maze
 ---------------------
 
-There are different ways of measuring distances between objects in the maze. 
+There are different ways of measuring distances between objects in the maze.
 The `Euclidean distance <http://en.wikipedia.org/wiki/Euclidean_distance>`_
 is the length of the vector connecting the centers
 of the cells where the objects are located:
@@ -170,19 +170,19 @@ of the cells where the objects are located:
    :alt: Euclidean distance.
    :width: 300px
 
-   **Euclidean distance:** The Euclidean distance between the two bots is 
-   sqrt((x1-x2)**2 + (y1-y2)**2) = sqrt((4.5-2.5)**2+(0.5-1.5)**2) = 2.236...
+   **Euclidean distance:** The Euclidean distance between the two bots is
+   :math:`\sqrt{(x_1-x_2)^2 + (y_1-y_2)^2} = \sqrt{(4.5-2.5)^2+(0.5-1.5)^2} = \sqrt 5 \approx 2.236...`
 
 The `Manhattan distance <http://en.wikipedia.org/wiki/Taxicab_geometry>`_,
 also known as L1-distance or taxicab-distance, is the
-absolute difference of the coordinates of the two objects: 
+absolute difference of the coordinates of the two objects:
 
 .. figure:: images/distance_manhattan.png
    :alt: Manhattan distance.
    :width: 300px
 
-   **Manhattan distance:** The Manhattan distance between the two bots is 
-   abs(x1-x2) + abs(y1-y2) = abs(4-2) + abs(0-1) = 3
+   **Manhattan distance:** The Manhattan distance between the two bots is
+   :math:`\left|x_1-x_2\right| + \left|y_1-y_2\right| = \left|4-2\right| + \left|0-1\right| = 3`
 
 The maze distance counts the number of cells of the shortest path that
 connects the two objects:
@@ -191,12 +191,12 @@ connects the two objects:
    :alt: Maze distance.
    :width: 300px
 
-   **Maze distance:** The Maze distance between the two bots is 5.
+   **Maze distance:** The Maze distance between the two bots is :math:`5`.
 
 Note that Manhattan and maze distances are always integer values.
-In the game, distances are almost always measured either in Manhattan or in 
+In the game, distances are almost always measured either in Manhattan or in
 maze distance.
-We provide a series of convenience methods for dealing with position 
+We provide a series of convenience methods for dealing with position
 and distances in `pelita.graph`:
 
 .. currentmodule:: pelita.graph
@@ -291,6 +291,27 @@ tasks, it may be a good idea to experiment with concurrency.
 Interacting with the Maze
 =========================
 
+For a simple test whether a certain position on the maze is free or not,
+we can check the ``pelita.datamodel.Maze`` class which has an instance in
+our universe.::
+
+    pos = (3, 3)
+    if maze[pos]:
+        # has a wall
+    else:
+        # is free
+
+.. note::
+
+    Please compare the above syntax with::
+
+        pos = (3, 3)
+        if pos in maze:
+            pass
+
+    This checks whether a coordinate is valid.
+
+
 Players may use an adjacency list representation provided by
 ``pelita.graph.AdjacencyList``. Let's have a quick look at how this is
 generated, in case you would like to implement your own `graph storage
@@ -298,8 +319,8 @@ generated, in case you would like to implement your own `graph storage
 alternative existing package such as `NetworkX <http://networkx.lanl.gov/>`_.
 
 In order to obtain the positions of all free spaces, the
-`pelita.datamodel.Maze` class provides the function
-`pelita.datamodel.Maze.pos_of`. A maze can hold three different components at
+``pelita.datamodel.CTFUniverse`` class provides the method
+``pelita.datamodel.CTFUniverse.free_positions()``. A maze can hold three different components at
 each position, all of them available in ``pelita.datamodel``: ``Wall``,
 ``Free``, ``Food``. We thus can get a list of all positions by calling::
 
