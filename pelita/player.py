@@ -458,33 +458,11 @@ class RoundBasedPlayer(AbstractPlayer):
         except (IndexError, KeyError):
             return datamodel.stop
 
-class IOBoundPlayer(AbstractPlayer):
-    """ IO Bound player that crawls the file system. """
-
-    def get_move(self):
-        count = 0
-        self.timeouted = False
-        for root, dirs, files in os.walk('/'):
-            for f in files:
-                try:
-                    os.stat(os.path.join(root, f))
-                except OSError:
-                    pass
-                finally:
-                    count += 1
-                    if count % 1000 == 0:
-                        sys.stdout.write('.')
-                        sys.stdout.flush()
-                    if not self.timeouted and self.previous_pos != self.current_pos:
-                        print("Crawling done and timeout received %i" % count)
-                        self.timeouted = True
-
 class MoveExceptionPlayer(AbstractPlayer):
     """ Player that raises an Exception on get_move(). """
 
     def get_move(self):
         raise Exception("Exception from MoveExceptionPlayer.")
-
 
 class InitialExceptionPlayer(AbstractPlayer):
     """ Player that raises an Exception on set_initial(). """
@@ -505,22 +483,3 @@ class DebuggablePlayer(AbstractPlayer):
         direction = datamodel.stop
         pdb.set_trace()
         return direction
-
-class CPUBoundPlayer(AbstractPlayer):
-    """ Player that does loads of computation. """
-
-    def get_move(self):
-        self.timeouted = False
-        total = 0.0
-        count = 0
-        for i in range(sys.maxsize):
-            total += i*i
-            total = math.sin(total)
-            count += 1
-            if count % 1000 == 0:
-                sys.stdout.write('.')
-                sys.stdout.flush()
-            if not self.timeouted and self.previous_pos != self.current_pos:
-                print("Crawling done and timeout received %i" % count)
-                self.timeouted = True
-
