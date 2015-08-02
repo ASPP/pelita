@@ -190,7 +190,7 @@ class Maze(Mesh):
     """
     def __init__(self, width, height, data=None):
         if not data:
-            data = [False for _ in range(width * height)]
+            data = [False] * (width * height)
         elif not all(isinstance(s, bool) for s in data):
             raise TypeError("Maze keyword argument 'data' should be a list of of " +\
                             "bools, not: %r" % data)
