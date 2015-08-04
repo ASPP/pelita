@@ -125,20 +125,62 @@ def run_external_viewer(subscribe_sock, controller, geometry, delay):
     tkviewer = os.path.join(os.path.dirname(sys.argv[0]), "tkviewer.py")
     return subprocess.Popen([get_python_process(), tkviewer] + viewer_args)
 
+class ModuleRunner(object):
+    def __init__(self, team_spec):
+        self.team_spec = team_spec
+
+class DefaultRunner(ModuleRunner):
+    def run(self, addr):
+        player_path = os.path.dirname(sys.argv[0])
+        player = os.path.join(player_path, "module_player.py")
+        return subprocess.Popen([get_python_process(),
+                                 player,
+                                 self.team_spec,
+                                 addr])
+
+class Py2Runner(ModuleRunner):
+    def run(self, addr):
+        player_path = os.path.dirname(sys.argv[0])
+        player = os.path.join(player_path, "module_player.py")
+        return subprocess.Popen(["python2",
+                                 player,
+                                 self.team_spec,
+                                 addr])
+
+class Py3Runner(ModuleRunner):
+    def run(self, addr):
+        player_path = os.path.dirname(sys.argv[0])
+        player = os.path.join(player_path, "module_player.py")
+        return subprocess.Popen(["python3",
+                                 player,
+                                 self.team_spec,
+                                 addr])
+
+
 def call_standalone_pelitagame(team_spec, addr):
     """ Starts another process with the same Python executable,
     the same start script (pelitagame) and runs `team_spec`
     as a standalone client on URL `addr`.
     """
-    player_path = os.path.dirname(sys.argv[0])
-    player = os.path.join(player_path, "module_player.py")
-    return subprocess.Popen([get_python_process(),
-                             player,
-                             team_spec,
-                             addr])
+    defined_runners = {
+        "py": DefaultRunner,
+        "py2": Py2Runner,
+        "py3": Py3Runner
+    }
 
+    if "@" in team_spec:
+        try:
+            runner_, spec = team_spec.split("@")
+            runner = defined_runners[runner_]
+        except ValueError:
+            raise ValueError("Bad spec: {}.".format(team_spec))
+        except KeyError:
+            raise ValueError("Unknown runner: {}:".format(runner))
+    else:
+        runner = DefaultRunner
+        spec = team_spec
 
-
+    return runner(spec).run(addr)
 
 def prepare_team(team_spec):
     # check if we've been given an address which a remote
