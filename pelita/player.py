@@ -12,8 +12,6 @@ import pdb
 from . import datamodel
 import six
 
-__docformat__ = "restructuredtext"
-
 class SimpleTeam(object):
     """ Simple class used to register an arbitrary number of (Abstract-)Players.
 

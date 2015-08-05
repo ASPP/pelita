@@ -8,8 +8,6 @@ import six
 
 from .messaging.json_convert import json_converter
 
-__docformat__ = "restructuredtext"
-
 @six.add_metaclass(abc.ABCMeta)
 class AbstractViewer(object):
     def set_initial(self, universe):

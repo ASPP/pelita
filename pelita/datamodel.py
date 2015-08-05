@@ -11,9 +11,6 @@ from .layout import Layout
 from .containers import Mesh
 from .messaging.json_convert import serializable
 
-
-__docformat__ = "restructuredtext"
-
 north = (0, -1)
 south = (0, 1)
 west  = (-1, 0)

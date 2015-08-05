@@ -5,8 +5,6 @@ import contextlib as _contextlib
 from .threading_helpers import *
 from .debug import *
 
-__docformat__ = "restructuredtext"
-
 @_contextlib.contextmanager
 def with_sys_path(dirname):
     sys.path.insert(0, dirname)
