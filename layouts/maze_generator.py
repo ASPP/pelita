@@ -20,14 +20,14 @@ Completely rewritten by Pietro Berkes
 """
 
 import numpy
-from mdp.graph import Graph
+import networkx as nx
 
 from pelita.datamodel import north, south, east, west
 
 # character constants for walls, food, and empty spaces
-W = '#'
-F = '.'
-E = ' '
+W = b'#'
+F = b'.'
+E = b' '
 
 
 def empty_maze(height, width):
@@ -51,9 +51,9 @@ def empty_maze(height, width):
 
 def maze_to_str(maze):
     """Return string representation of maze."""
-    lines = [''.join(maze[i,:])
+    lines = [b''.join(maze[i,:])
              for i in range(maze.shape[0])]
-    return '\n'.join(lines)
+    return b'\n'.join(lines)
 
 
 def str_to_maze(str):
@@ -166,31 +166,29 @@ def walls_to_graph(maze):
 
     Returns:
     graph -- a Graph
-    nodes_dict -- a dictionary that maps coordinates into nodes
-                  e.g. nodes_dict[(3,4)] == node that represents coord x=3,y=4
+    first_node -- the first node in the Graph
     """
 
     h, w = maze.shape
 
-    graph = Graph()
+    graph = nx.Graph()
     # define nodes for maze
-    nodes_dict = {}
     for x in range(w):
         for y in range(h):
             if maze[y, x] != W:
-                nodes_dict[(x, y)] = graph.add_node((x, y))
+                graph.add_node((x, y))
 
     directions = [west, east, north, south]
 
     # add edges
-    for pos in nodes_dict:
+    nodes = graph.nodes()
+    for pos in nodes:
         for dir_ in directions:
             neighbor = (pos[0] + dir_[0], pos[1] + dir_[1])
-            if neighbor in nodes_dict:
-                graph.add_edge(nodes_dict[pos], nodes_dict[neighbor],
-                               data=[dir_])
+            if neighbor in nodes:
+                graph.add_edge(pos, neighbor, data=[dir_])
 
-    return graph, nodes_dict
+    return graph, nodes[0]
 
 
 def find_dead_ends(graph, start_node, width):
@@ -198,14 +196,15 @@ def find_dead_ends(graph, start_node, width):
 
     dead_ends = []
     def collect_dead_ends(node):
-        x = node.data[0]
+        x = node[0]
         # do not consider dead ends on the right side of the maze, as those
         # represents passages to the enemy's side
-        if node.in_degree() == 1 and x < width - 1:
+        if graph.degree(node) == 1 and x < width - 1:
             dead_ends.append(node)
 
-    graph.bfs(start_node,
-              visit_fct=collect_dead_ends)
+    for node in nx.bfs_successors(graph, start_node):
+        collect_dead_ends(node)
+
     return dead_ends
 
 
@@ -239,9 +238,8 @@ def remove_dead_end(dead_node, maze):
 def remove_all_dead_ends(maze):
     height, width = maze.shape
     while True:
-        maze_graph, maze_nodes = walls_to_graph(maze[1:height - 1,
+        maze_graph, start_node = walls_to_graph(maze[1:height - 1,
                                                      1:width // 2])
-        start_node = list(maze_nodes.values())[0]
         dead_ends = find_dead_ends(maze_graph,
                                    start_node, width // 2 - 1)
         if len(dead_ends) == 0:
@@ -310,4 +308,3 @@ def get_new_maze(height, width, nfood=30, seed=None, dead_ends=False):
     # add food and pacman
     add_pacman_stuff(maze, max_food=2 * nfood)
     return maze_to_str(maze)
-

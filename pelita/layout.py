@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 """ Maze layout parsing. """
 import random
 import zlib
@@ -7,7 +9,12 @@ import base64
 import six
 
 from .containers import Mesh
-from . import __layouts
+
+try:
+    from . import __layouts
+except SyntaxError as err:
+    print("Invalid syntax in __layouts module. Pelita will not be able to use built-in layouts.")
+    print(err)
 
 __docformat__ = "restructuredtext"
 
