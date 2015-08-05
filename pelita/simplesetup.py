@@ -31,7 +31,6 @@ from __future__ import print_function
 import time
 import logging
 import multiprocessing
-import threading
 import sys
 import traceback
 import re
@@ -555,13 +554,6 @@ class SimpleClient(object):
         background_process.start()
         return background_process
 
-    def autoplay_thread(self):
-        # Threading has problems with KeyboardInterrupts but makes it easier
-        # (though not simpler) to share state.
-        background_thread = threading.Thread(target=self.run)
-        background_thread.start()
-        return background_thread
-
     def __repr__(self):
         return "SimpleClient(%r, %r, %r)" % (self.team, self.team_name(), self.address)
 
@@ -650,13 +642,6 @@ class SimpleSubscriber(AbstractViewer):
         background_process = multiprocessing.Process(target=self.run)
         background_process.start()
         return background_process
-
-    def autoplay_thread(self):
-        # Threading has problems with KeyboardInterrupts but makes it easier
-        # (though not simpler) to share state.
-        background_thread = threading.Thread(target=self.run)
-        background_thread.start()
-        return background_thread
 
     def __repr__(self):
         return "SimpleSubscriber(%r, %r)" % (self.viewer, self.address)
