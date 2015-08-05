@@ -13,7 +13,13 @@ from pelita.simplesetup import SimpleServer, SimplePublisher, SimpleController
 import logging
 from pelita.ui.tk_viewer import TkViewer
 
-from pelita.utils.colorama_wrapper import colorama
+try:
+    import colorama
+    MAGENTA = colorama.Fore.MAGENTA
+    RESET = colorama.Fore.RESET
+except ImportError:
+    MAGENTA = ""
+    RESET = ""
 
 def get_python_process():
     py_proc = sys.executable
@@ -21,7 +27,7 @@ def get_python_process():
         raise RuntimeError("Cannot retrieve current Python executable.")
     return py_proc
 
-FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s]' + colorama.Fore.MAGENTA + ' %(message)s' + colorama.Fore.RESET
+FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s]' + MAGENTA + ' %(message)s' + RESET
 logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S", level=logging.INFO)
 
 layout = (

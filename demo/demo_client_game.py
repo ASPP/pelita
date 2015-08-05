@@ -6,9 +6,15 @@ from players import RandomPlayer, BFSPlayer
 from pelita.simplesetup import SimpleClient
 
 import logging
-from pelita.utils.colorama_wrapper import colorama
+try:
+    import colorama
+    MAGENTA = colorama.Fore.MAGENTA
+    RESET = colorama.Fore.RESET
+except ImportError:
+    MAGENTA = ""
+    RESET = ""
 
-FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s]' + colorama.Fore.MAGENTA + ' %(message)s' + colorama.Fore.RESET
+FORMAT = '[%(asctime)s,%(msecs)03d][%(name)s][%(levelname)s][%(funcName)s]' + MAGENTA + ' %(message)s' + RESET
 #logging.basicConfig(format=FORMAT, datefmt="%H:%M:%S", level=logging.WARNING)
 
 
