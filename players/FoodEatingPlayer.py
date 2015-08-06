@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from pelita import datamodel
-from pelita.player import AbstractPlayer, SimpleTeam
 from pelita.graph import AdjacencyList, NoPathException, diff_pos
+from pelita.player import AbstractPlayer, SimpleTeam
+
 
 class FoodEatingPlayer(AbstractPlayer):
     def set_initial(self):
@@ -30,4 +31,3 @@ class FoodEatingPlayer(AbstractPlayer):
 
 def factory():
     return SimpleTeam("The Food Eating Players", FoodEatingPlayer(), FoodEatingPlayer())
-

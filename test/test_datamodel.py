@@ -1,13 +1,9 @@
+import unittest
 
 import six
-import unittest
-import json
-from pelita.layout import Layout
-from pelita.containers import Mesh
-from pelita.datamodel import *
-from pelita.graph import new_pos
-from functools import reduce
 
+from pelita.datamodel import *
+from pelita.layout import Layout
 
 # the legal chars for a basic CTFUniverse
 # see also: CTFUniverse.create factory.
@@ -800,4 +796,3 @@ class TestCTFUniverseRules(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

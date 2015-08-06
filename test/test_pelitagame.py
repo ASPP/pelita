@@ -1,5 +1,7 @@
 import unittest
+
 import pelita
+
 print(dir(pelita))
 with pelita.utils.with_sys_path('test'):
     import module_player

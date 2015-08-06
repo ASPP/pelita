@@ -1,7 +1,8 @@
 import unittest
-from pelita.containers import Mesh
+
 from pelita.datamodel import maze_components
 from pelita.layout import *
+
 
 class TestLayoutModule(unittest.TestCase):
 
@@ -224,4 +225,3 @@ class TestLayoutChecks(unittest.TestCase):
                 ###### """)
         layout = Layout.from_file("test/test_layout.layout", TestLayoutChecks.layout_chars, 2)
         self.assertEqual(layout, Layout(test_l, TestLayoutChecks.layout_chars, 2))
-

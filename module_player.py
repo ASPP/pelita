@@ -3,14 +3,15 @@
 
 from __future__ import print_function
 
-import os
-import sys
-import random
 import argparse
-import pelita
-import string
-import keyword
 import inspect
+import keyword
+import os
+import random
+import string
+import sys
+
+import pelita
 
 parser = argparse.ArgumentParser(description="Runs a Python pelita module.")
 parser.add_argument('team')

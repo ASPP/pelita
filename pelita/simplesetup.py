@@ -28,20 +28,19 @@ re-investigate this decision.
 
 from __future__ import print_function
 
-import time
+import json
 import logging
 import multiprocessing
-import sys
-import traceback
 import re
-import six
-
-import json
+import sys
+import time
 import uuid
+
+import six
 import zmq
 
 from .datamodel import CTFUniverse
-from .game_master import GameMaster, PlayerTimeout, PlayerDisconnected
+from .game_master import GameMaster, PlayerDisconnected, PlayerTimeout
 from .viewer import AbstractViewer
 
 _logger = logging.getLogger("pelita.simplesetup")

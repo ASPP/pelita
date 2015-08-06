@@ -3,11 +3,11 @@
 """ Signal handlers.
 """
 
-import os
-import sys
 import logging
-import signal
+import os
 import platform
+import signal
+import sys
 
 # make a logger for these handlers that prints info messages to stderr
 _logger = logging.getLogger("signal_handlers")
@@ -44,4 +44,3 @@ def keyboard_interrupt_handler(signo, frame):
 def wm_delete_window_handler():
     _logger.info("Got WM_DELETE_WINDOW. Exit!")
     exit_handler()
-

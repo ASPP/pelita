@@ -2,15 +2,13 @@
 import unittest
 import uuid
 
+import zmq
+
 import pelita
-from pelita.simplesetup import SimpleClient, SimpleServer, SimplePublisher, SimpleSubscriber, bind_socket, extract_port_range
-from pelita.player import SimpleTeam, TestPlayer, AbstractPlayer
-from pelita.viewer import AsciiViewer, AbstractViewer
-from pelita.datamodel import Free
-from pelita.game_master import GameMaster
+from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer
+from pelita.simplesetup import SimpleClient, SimpleServer, bind_socket, extract_port_range
 from players import RandomPlayer
 
-import zmq
 
 class TestSimpleSetup(unittest.TestCase):
     def test_bind_socket(self):

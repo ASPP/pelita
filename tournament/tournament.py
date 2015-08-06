@@ -1,16 +1,16 @@
 #!/usr/bin/python3
 # -*- coding:utf-8 -*-
 
-from subprocess import Popen, PIPE, STDOUT, check_call
-import random
-import time
-import tempfile
-import io
-import sys
-import os
-import json
 import argparse
+import io
 import itertools
+import json
+import os
+import random
+import sys
+import tempfile
+import time
+from subprocess import PIPE, STDOUT, Popen, check_call
 
 # Location
 LOCATION="Split"

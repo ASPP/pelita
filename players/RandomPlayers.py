@@ -3,6 +3,7 @@
 from pelita import datamodel
 from pelita.player import AbstractPlayer, SimpleTeam
 
+
 class RandomPlayer(AbstractPlayer):
     """ A player that makes moves at random. """
 
@@ -35,4 +36,3 @@ class NQRandomPlayer(AbstractPlayer):
 
 def factory():
     return SimpleTeam("The Random Players", RandomPlayer(), NQRandomPlayer())
-

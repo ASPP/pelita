@@ -2,13 +2,9 @@
 
 """ The datamodel. """
 
-import copy
-import six
-
-from .graph import new_pos, diff_pos, manhattan_dist
-from .graph import iter_adjacencies
-from .layout import Layout
 from .containers import Mesh
+from .graph import iter_adjacencies, new_pos
+from .layout import Layout
 
 north = (0, -1)
 south = (0, 1)

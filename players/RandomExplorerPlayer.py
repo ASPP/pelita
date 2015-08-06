@@ -3,6 +3,7 @@
 from pelita import datamodel
 from pelita.player import AbstractPlayer, SimpleTeam
 
+
 class RandomExplorerPlayer(AbstractPlayer):
     """ Least visited random player. Will prefer moving to a position it’s never seen before. """
     def set_initial(self):
@@ -25,4 +26,3 @@ class RandomExplorerPlayer(AbstractPlayer):
 
 def factory():
     return SimpleTeam("Random Explorer Players", RandomExplorerPlayer(), RandomExplorerPlayer())
-

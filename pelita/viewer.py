@@ -3,9 +3,11 @@
 """ The observers. """
 
 import abc
-import sys
-import six
 import json
+import sys
+
+import six
+
 
 @six.add_metaclass(abc.ABCMeta)
 class AbstractViewer(object):

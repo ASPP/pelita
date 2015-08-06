@@ -2,13 +2,16 @@
 
 from __future__ import print_function
 
-""" Maze layout parsing. """
+import base64
 import random
 import zlib
-import base64
+
 import six
 
 from .containers import Mesh
+
+""" Maze layout parsing. """
+
 
 try:
     from . import __layouts
@@ -304,4 +307,3 @@ class Layout(object):
         with open(filename) as file:
             lines = file.read()
         return cls(lines, layout_chars=layout_chars, number_bots=number_bots)
-
