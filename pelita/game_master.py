@@ -63,7 +63,6 @@ class GameMaster(object):
             noiser = ManhattanNoiser
         self.noiser = noiser(self.universe, seed=seed) if noise else None
         self.player_teams = []
-        self.player_teams_timeouts = []
         self.viewers = []
         self.initial_delay = initial_delay
 
@@ -172,7 +171,6 @@ class GameMaster(object):
             raise ValueError("Number of registered teams does not match the universe.")
 
         self.player_teams = teams
-        self.player_teams_timeouts = [0 for team in self.player_teams]
 
     def register_viewer(self, viewer):
         """ Register a viewer to display the game state as it progresses.
