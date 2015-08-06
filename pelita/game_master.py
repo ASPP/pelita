@@ -11,8 +11,6 @@ from .graph import NoPathException, AdjacencyList, manhattan_dist
 from .datamodel import CTFUniverse, Bot, Free
 import six
 
-__docformat__ = "restructuredtext"
-
 class GameFinished(Exception):
     pass
 

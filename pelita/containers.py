@@ -8,9 +8,6 @@ from collections import Mapping, MutableSequence
 
 from .messaging.json_convert import serializable
 
-__docformat__ = "restructuredtext"
-
-
 @serializable
 class Mesh(Mapping):
     """ A mapping from a two-dimensional coordinate system into object space.

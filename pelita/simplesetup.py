@@ -46,8 +46,6 @@ from .viewer import AbstractViewer
 
 _logger = logging.getLogger("pelita.simplesetup")
 
-__docformat__ = "restructuredtext"
-
 class DeadConnection(Exception):
     """ Raised when the connection has been lost. """
 

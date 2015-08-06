@@ -3,9 +3,6 @@
 import os
 import subprocess
 
-__docformat__ = "restructuredtext"
-
-
 def __get_command_output(command, cwd=None):
     """ Execute arbitrary commands.
 

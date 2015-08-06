@@ -5,8 +5,6 @@
 from collections import deque
 import heapq
 
-__docformat__ = "restructuredtext"
-
 class NoPathException(Exception):
     pass
 

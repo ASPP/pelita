@@ -10,6 +10,4 @@ from . import (containers,
                utils,
                __version_from_git)
 
-__docformat__ = "restructuredtext"
-
 version = __version_from_git.version()

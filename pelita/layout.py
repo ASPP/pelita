@@ -16,9 +16,6 @@ except SyntaxError as err:
     print("Invalid syntax in __layouts module. Pelita will not be able to use built-in layouts.")
     print(err)
 
-__docformat__ = "restructuredtext"
-
-
 class LayoutEncodingException(Exception):
     """ Signifies a problem with the encoding of a layout. """
     pass
