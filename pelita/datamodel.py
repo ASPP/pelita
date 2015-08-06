@@ -289,7 +289,7 @@ class CTFUniverse(object):
 
     @classmethod
     def create(cls, layout_str, number_bots):
-        """ Factory to create a 2-Player Capture The Flag Universe.
+        """ Factory to create a 2 team Capture The Flag Universe.
 
         Parameters
         ----------
@@ -320,12 +320,13 @@ class CTFUniverse(object):
             raise UniverseException(
                 "Width of a layout for CTF must be even, is: %i"
                 % maze.width)
-        homezones = [(0, maze.width // 2 - 1),
-                (maze.width // 2, maze.width - 1)]
 
-        teams = []
-        teams.append(Team(0, homezones[0]))
-        teams.append(Team(1, homezones[1]))
+        homezones = [
+            (0, maze.width // 2 - 1),
+            (maze.width // 2, maze.width - 1)
+        ]
+
+        teams = [Team(idx, homezone) for idx, homezone in enumerate(homezones)]
 
         bots = []
         for bot_index in range(number_bots):
