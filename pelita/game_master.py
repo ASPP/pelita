@@ -59,10 +59,15 @@ class GameMaster(object):
                  seed=None):
         self.universe = datamodel.CTFUniverse.create(layout, number_bots)
         self.number_bots = number_bots
+
+        if not len(teams) == len(self.universe.teams):
+            raise ValueError("Number of registered teams does not match the universe.")
+        self.player_teams = teams
+
         if noiser is None:
             noiser = ManhattanNoiser
         self.noiser = noiser(self.universe, seed=seed) if noise else None
-        self.player_teams = []
+
         self.viewers = []
         self.initial_delay = initial_delay
 
@@ -154,23 +159,9 @@ class GameMaster(object):
             "noise_sight_distance": self.noiser and self.noiser.sight_distance
         }
 
-        self._register_teams(teams)
-
     @property
     def game_time(self):
         return self.game_state["game_time"]
-
-    def _register_teams(self, teams):
-        """ Register a client TeamPlayer class.
-
-        Parameters
-        ----------
-        teams : list of teams
-        """
-        if not len(teams) == len(self.universe.teams):
-            raise ValueError("Number of registered teams does not match the universe.")
-
-        self.player_teams = teams
 
     def register_viewer(self, viewer):
         """ Register a viewer to display the game state as it progresses.
