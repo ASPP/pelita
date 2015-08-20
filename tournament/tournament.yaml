@@ -1,0 +1,28 @@
+---
+location: Munich
+date: 2015
+team_prefix: group
+seed: null
+bonusmatch: True
+teams:
+  - spec: StoppingPlayer
+    members:
+      - "Stopper"
+  - spec: SpeakingPlayer
+    members:
+      - "Speaker"
+  - spec: FoodEatingPlayer
+    members:
+      - "Food Eater"
+  - spec: RandomExplorerPlayer
+    members:
+      - "Random Explorer"
+  - spec: RandomPlayer
+    members:
+      - "Random Player"
+  - spec: NQRandomPlayer
+    members:
+      - "Not quite Random Player"
+  - spec: SmartRandomPlayer
+    members:
+      - "Smarter Random Player"

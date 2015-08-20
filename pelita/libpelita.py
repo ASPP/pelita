@@ -31,7 +31,7 @@ class ModuleRunner(object):
 
 class DefaultRunner(ModuleRunner):
     def run(self, addr):
-        player_path = os.path.dirname(sys.argv[0])
+        player_path = os.environ.get("PELITA_PATH") or os.path.dirname(sys.argv[0])
         player = os.path.join(player_path, "module_player.py")
         external_call = [get_python_process(),
                          player,

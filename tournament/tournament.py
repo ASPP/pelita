@@ -13,17 +13,16 @@ import tempfile
 import time
 from subprocess import PIPE, STDOUT, Popen, check_call
 
-# Location
-LOCATION="Split"
+import yaml
+
+from pelita import libpelita
+import roundrobin
+import komode
 
 # Speaking external program.
 # Probably not worth it to make it an option.
 FLITE = '/usr/bin/flite'
 
-# Global random seed. Keep it fixed or it may be impossible
-# to replicate a tournament.
-# Individual matches will get a random seed derived from this.
-random.seed(42)
 
 # Tournament log file
 DUMPSTORE = None
@@ -33,16 +32,49 @@ DUMPSTORE = None
 POINTS_DRAW = 1
 POINTS_WIN = 2
 
-# The real names of the teams (instead of "group0" ... "group4").
-# They are collected while the tournament goes
-RNAMES = {'group0' : 'group0',
-          'group1' : 'group1',
-          'group2' : 'group2',
-          'group3' : 'group3',
-          'group4' : 'group4' }
-
-SPEAK = False
+SPEAK = True
 LOGFILE = None
+
+os.environ["PELITA_PATH"] = os.path.join(os.path.dirname(sys.argv[0]), "..")
+
+class Config:
+    def __init__(self, config):
+        self.teams = {}
+
+        teams = config["teams"]
+        team_prefix = config["team_prefix"]
+        # load team names
+        for idx, team in enumerate(teams):
+            team_id = team.get("id") or "{team_prefix}{id}".format(team_prefix=team_prefix, id=idx)
+            team_spec = team["spec"]
+            team_name = set_name(team_spec)
+            self.teams[team_id] = {
+                "spec": team_spec,
+                "name": team_name,
+                "members": team["members"]
+            }
+
+        self.location = config["location"]
+
+        #: Global random seed.
+        #: Keep it fixed or it may be impossible to replicate a tournament.
+        #: Individual matches will get a random seed derived from this.
+        self.seed = config.get("seed", 42)
+
+        self.bonusmatch = config["bonusmatch"]
+
+    @property
+    def team_ids(self):
+        return self.teams.keys()
+
+    def team_name(self, team):
+        return self.teams[team]["name"]
+
+    def team_spec(self, team):
+        return self.teams[team]["spec"]
+
+class State:
+    pass
 
 def _print(*args, **kwargs):
     builtins.print(*args, **kwargs)
@@ -71,7 +103,7 @@ def print(*args, **kwargs):
             text.write(string+'\n')
             text.flush()
             festival = check_call(FLITE.split()+[text.name])
-        time.sleep(wait)
+        #time.sleep(wait)
 
 
 def wait_for_keypress():
@@ -89,51 +121,47 @@ def create_directory(prefix):
             break
     return name
 
-def present_teams(group_members):
+def present_teams(config):
     print('Hello master, I am the Python drone. I am here to serve you.', wait=1.5)
-    print('Welcome to the %s Pelita tournament'%LOCATION, wait=1.5)
+    print('Welcome to the %s Pelita tournament' % config.location, wait=1.5)
     print('This evening the teams are:', wait=1.5)
-    for group in sorted(RNAMES.keys()):
-        print(group+':', '"'+RNAMES[group]+'"')
-        [print(member, wait=0.1) for member in group_members[group]]
-        time.sleep(1)
+    for team_id, team in config.teams.items():
+        print("{team_id}: {team_name}".format(team_id=team_id, team_name=team["name"]))
+        for member in team["members"]:
+            print("{member}".format(member=member), wait=0.1)
+        # time.sleep(1)
         print()
     print('These were the teams. Now you ready for the fight?')
 
 
 def set_name(team):
-    """Get name of team using a dry-run pelita game"""
+    """Get name of team."""
 
-    args = CMD_STUB + ['--check-team', team]
-    proc = Popen(args, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    stdout, stderr = proc.communicate()
-    if proc.returncode != 0:
-        print('Command failed:', ' '.join(args))
-        print("*** ERROR: I could not load team", team, ". Please help!",
-              speak=False)
-        print(stderr, speak=False)
-        sys.exit(1)
-
-    global RNAMES
-    for line in stdout.splitlines():
-        if team in RNAMES:
-            # sanitize real names
-            RNAMES[team] = line
+    try:
+        team = libpelita.prepare_team(team)
+        return libpelita.check_team(team)
+    except Exception:
+        print("*** ERROR: I could not load team", team, ". Please help!", speak=False)
+        print(sys.stderr, speak=False)
+        raise
 
 
-def start_match(team1, team2):
+def start_match(config, team1, team2):
     """Start a match between team1 and team2. Return which team won (1 or 2) or
     0 if there was a draw.
     """
     print()
-    print('Starting match: '+ RNAMES[team1]+' vs ' + RNAMES[team2])
+    print('Starting match: '+ config.team_name(team1)+' vs ' + config.team_name(team2))
     print()
     wait_for_keypress()
-    dumpfile = os.path.join(DUMPSTORE, time.strftime('%Y%m%d-%H%M%S'))
-    args = CMD_STUB + [team1, team2,
-                       '--dump', dumpfile,
+    cmd = CMD_STUB + [config.team_spec(team1), config.team_spec(team2),
                        '--seed', str(random.randint(0, sys.maxsize))]
-    stdout, stderr = Popen(args, stdout=PIPE, stderr=PIPE,
+    global ARGS
+    if not ARGS.no_log:
+        dumpfile = os.path.join(DUMPSTORE, time.strftime('%Y%m%d-%H%M%S'))
+        cmd += ['--dump', dumpfile]
+
+    stdout, stderr = Popen(cmd, stdout=PIPE, stderr=PIPE,
                            universal_newlines=True).communicate()
     tmp = reversed(stdout.splitlines())
     for lastline in tmp:
@@ -154,23 +182,26 @@ def start_match(team1, team2):
         tmp = lastline.split("'")
         winner = tmp[1]
         loser = tmp[3]
-        if winner == RNAMES[team1]:
-            print(RNAMES[team1], 'wins.')
+        if winner == config.team_name(team1):
+            print(config.team_name(team1), 'wins.')
             return 1
-        elif winner == RNAMES[team2]:
-            print(RNAMES[team2], 'wins.')
+        elif winner == config.team_name(team2):
+            print(config.team_name(team2), 'wins.')
             return 2
         else:
             print("Unable to parse winning result :(")
             return 0
 
 
-def start_deathmatch(team1, team2):
+def start_deathmatch(config, team1, team2):
     """Start a match between team1 and team2 until one of them wins (ie no
     draw.)
     """
+    print()
+    print()
+    print("{} v {}".format(team1, team2))
     for i in range(3):
-        r = start_match(team1, team2)
+        r = start_match(config, team1, team2)
         if r == 0:
             print('Draw -> Now go for a Death Match!')
             continue
@@ -183,18 +214,27 @@ def start_deathmatch(team1, team2):
     print('And the winner is', winner)
     return winner
 
+def round1_ranking(config, rr_played):
+    import collections
+    points = collections.Counter()
+    for match in rr_played:
+        winner = match["winner"]
+        if winner:
+            points[match["winner"]] += POINTS_WIN
+        else:
+            for team in match["match"]:
+                points[team] += POINTS_DRAW
+    team_points = [(team_id, points[team_id]) for team_id in config.team_ids]
+    return sorted(team_points, key=lambda elem: elem[1], reverse=True)
 
-def pp_round1_results(teams, points):
+def pp_round1_results(config, rr_played):
     """Pretty print the current result of the matches."""
-    result = sorted(zip(points, teams), reverse=True)
     print('Current Ranking:')
-    for p, t in result:
-        print("  %25s %d" % (RNAMES[t], p))
+    for team_id, p in round1_ranking(config, rr_played):
+        print("  %25s %d" % (config.team_name(team_id), p))
     print()
 
-
-
-def round1(teams):
+def round1(config, rr_unplayed, rr_played):
     """Run the first round and return a sorted list of team names.
 
     teams is the sorted list [group0, group1, ...] and not the actual names of
@@ -205,28 +245,20 @@ def round1(teams):
     print("ROUND 1 (Everybody vs Everybody)")
     print('================================', speak=False)
     print()
-    points = [0 for i in range(len(teams))]
-    round1 = []
-    for i in range(5):
-        for j in range(i+1, 5):
-            ij = [i, j]
-            random.shuffle(ij)
-            round1.append(ij)
-    # shuffle the matches for more fun
-    random.shuffle(round1)
-    for t1, t2 in round1:
-        winner = start_match(teams[t1], teams[t2])
-        if winner == 0:
-            points[t1] += POINTS_DRAW
-            points[t2] += POINTS_DRAW
-        else:
-            points[[t1, t2][winner-1]] += POINTS_WIN
-        pp_round1_results(teams, points)
 
-    # Sort the teams by points and return the team names as a list
-    result = sorted(zip(points, teams), reverse=True)
-    result = [t for p, t in result]
-    return result
+    while rr_unplayed:
+        match = rr_unplayed.pop()
+
+        winner = start_match(config, match[0], match[1])
+
+        if winner == 0:
+            rr_played.append({ "match": match, "winner": False })
+        else:
+            rr_played.append({ "match": match, "winner": match[winner-1] })
+
+        pp_round1_results(config, rr_played)
+
+    return [team_id for team_id, p in round1_ranking(config, rr_played)]
 
 
 def pp_round2_results(teams, w1, w2, w3, w4):
@@ -265,9 +297,23 @@ def pp_round2_results(teams, w1, w2, w3, w4):
     print(looser, speak=False)
     print()
 
+def recur_matches(do_deathmatch, match):
+    print("Trying match", match)
+    if isinstance(match, komode.Match) and match.winner is None:
+        t1 = recur_matches(do_deathmatch, match[0])
+        t2 = recur_matches(do_deathmatch, match[1])
+
+        winner = do_deathmatch(t1, t2)
+        match.winner = winner
+        return winner
+    elif isinstance(match, komode.Bye):
+        return match.team.name
+    elif isinstance(match, komode.Team):
+        return match.name
+    return None
 
 
-def round2(teams):
+def round2(config, teams):
     """Run the second round and return the name of the winning team.
 
     teams is the list [group0, group1, ...] not the names of the agens, sorted
@@ -278,22 +324,25 @@ def round2(teams):
     print('==============', speak=False)
     print()
     wait_for_keypress()
-    w1, w2, w3, w4 = "???", "???", "???", "???"
-    pp_round2_results(teams, w1, w2, w3, w4)
-    # 1 vs 4
-    w1 = start_deathmatch(teams[0], teams[3])
-    pp_round2_results(teams, w1, w2, w3, w4)
-    # 2 vs 3
-    w2 = start_deathmatch(teams[1], teams[2])
-    pp_round2_results(teams, w1, w2, w3, w4)
-    # w1 vs w2
-    w3 = start_deathmatch(w1, w2)
-    pp_round2_results(teams, w1, w2, w3, w4)
-    # W vs team5
-    w4 = start_deathmatch(w3, teams[4])
-    pp_round2_results(teams, w1, w2, w3, w4)
+
+
+    last_match = komode.prepare_matches(teams)
+    komode.print_knockout(*komode.tree_enumerate(last_match), bonusmatch=config.bonusmatch)
+
+    print(type(last_match))
+
+    def do_deathmatch(config):
+        def inner(t1, t2):
+            komode.print_tree(last_match)
+            winner = start_deathmatch(config, t1, t2)
+            return winner
+        return inner
+
+    recur_matches(do_deathmatch(config), last_match)
+
     wait_for_keypress()
-    return w4
+
+    return last_match.winner
 
 
 if __name__ == '__main__':
@@ -319,27 +368,21 @@ if __name__ == '__main__':
                         type=int, default=300)
     parser.add_argument('--viewer', '-v',
                         help='the pelita viewer to use', default='tk')
-    parser.add_argument('--teams', help='load teams from TEAMFILE',
-                        metavar="TEAMFILE.json", default="teams.json")
+    parser.add_argument('--config', help='tournament data',
+                        metavar="CONFIG_YAML", default="tournament.yaml")
     parser.add_argument('--interactive', help='ask before proceeding',
                         action='store_true')
     parser.add_argument('--no-log', help='do not store the log data',
                         action='store_true')
+    parser.add_argument('--dry-run', help='do not actually play',
+                        action='store_true')
 
-    parser.epilog = """
-TEAMFILE.json must be of the form:
-    { "group0": ["Name0", "Name1", "Name2"],
-      "group1": ["Name0", "Name1", "Name2"],
-      "group2": ["Name0", "Name1", "Name2"],
-      "group3": ["Name0", "Name1", "Name2"],
-      "group4": ["Name0", "Name1", "Name2"]
-    }
-"""
     global ARGS
     ARGS = parser.parse_args()
     if ARGS.help:
         parser.print_help()
         sys.exit(0)
+
 
     # Check that pelitagame can be run
     if not os.path.isfile(ARGS.pelitagame):
@@ -363,19 +406,33 @@ TEAMFILE.json must be of the form:
         fd = os.open(logfile, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o0666)
         LOGFILE = os.fdopen(fd, 'w')
 
-    teams = list(RNAMES.keys())
+    with open(ARGS.config) as f:
+        global config
+        config = Config(yaml.load(f))
 
-    # load team names
-    for team in teams:
-        set_name(team)
+    random.seed(config.seed)
 
-    random.shuffle(teams)
+    present_teams(config)
 
-    with open(ARGS.teams) as teamfile:
-        group_members = json.load(teamfile)
-        present_teams(group_members)
-    result = round1(teams)
-    winner = round2(result)
-    print('The winner of the %s Pelita tournament is...'%LOCATION, wait=2)
-    print(RNAMES[winner], '. Congratulations!', wait=2)
+    state = {
+        "round1": {
+            "played": [],
+            "unplayed": roundrobin.initial_state(config.team_ids)
+        },
+        "round2": {
+
+        }
+    }
+
+    rr_ranking = round1(config, state["round1"]["unplayed"], state["round1"]["played"])
+    if config.bonusmatch:
+        sorted_ranking = komode.sort_ranks(rr_ranking[:-1]) + [rr_ranking[-1]]
+    else:
+        sorted_ranking = komode.sort_ranks(rr_ranking)
+
+    winner = round2(config, sorted_ranking)
+
+    print('The winner of the %s Pelita tournament is...' % config.location, wait=2)
+    print('{team_name}. Congratulations'.format(config.team_name(winner)), wait=2)
     print('Good evening master. It was a pleasure to serve you.')
+
