@@ -511,6 +511,7 @@ class TkApplication(object):
 
         self.running = True
 
+        self.master.bind('q', lambda event: self.quit())
         self.master.createcommand('exit', self.quit)
         self.master.protocol("WM_DELETE_WINDOW", self.quit)
 
