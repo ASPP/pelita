@@ -120,3 +120,24 @@ def check_team(team_spec):
         name = team_player.team_name()
 
     return name
+
+def strip_module_prefix(module):
+    if "@" in module:
+        try:
+            prefix, module = module.split("@")
+            return ModuleSpec(prefix=prefix, module=module)
+        except ValueError:
+            raise ValueError("Bad module definition: {}.".format(module))
+    else:
+        return ModuleSpec(prefix=None, module=module)
+
+def prepare_team(team_spec):
+    # check if we've been given an address which a remote
+    # player wants to connect to
+    if "://" in team_spec:
+        module = None
+        address = team_spec
+    else:
+        module = strip_module_prefix(team_spec)
+        address = "tcp://127.0.0.1"
+    return TeamSpec(module, address)

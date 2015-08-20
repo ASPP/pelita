@@ -7,11 +7,14 @@ import argparse
 import contextlib
 import json
 import logging
+import os
 import random
+import subprocess
+import sys
 import time
 
 import pelita
-from pelita.libpelita import *
+from pelita.libpelita import check_team, prepare_team, call_standalone_pelitagame, get_python_process
 
 # silence stupid warnings from logging module
 logging.root.manager.emittedNoHandlerWarning = 1
@@ -114,28 +117,6 @@ def run_external_viewer(subscribe_sock, controller, geometry, delay):
     external_call = [get_python_process(), tkviewer] + viewer_args
     _logger.debug("Executing: %r", external_call)
     return subprocess.Popen(external_call)
-
-
-def strip_module_prefix(module):
-    if "@" in module:
-        try:
-            prefix, module = module.split("@")
-            return ModuleSpec(prefix=prefix, module=module)
-        except ValueError:
-            raise ValueError("Bad module definition: {}.".format(module))
-    else:
-        return ModuleSpec(prefix=None, module=module)
-
-def prepare_team(team_spec):
-    # check if we've been given an address which a remote
-    # player wants to connect to
-    if "://" in team_spec:
-        module = None
-        address = team_spec
-    else:
-        module = strip_module_prefix(team_spec)
-        address = "tcp://127.0.0.1"
-    return TeamSpec(module, address)
 
 def start_logging(filename):
     if filename:
