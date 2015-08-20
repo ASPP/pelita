@@ -14,9 +14,9 @@ used throughout this documentation.
 
 
 `pelita.datamodel.CTFUniverse`:
-    The game state. Holds a list of ``Bot`` instances, a list of ``Team``
-    instances and a single ``Maze`` object. Can be queried to obtain
-    information about the game.
+    The game’s universe. Holds a list of ``Bot`` instances, a list of ``Team``
+    instances, a single ``Maze`` object and a list with the positions of food.
+    Can be queried to obtain information about the game.
 
 `pelita.datamodel.Bot`:
     The data structure used to store the bot. This holds the position of the
@@ -25,11 +25,10 @@ used throughout this documentation.
 
 `pelita.datamodel.Team`:
     In capture-the-flag each ``Bot`` belongs to a ``Team``. The team stores the
-    indices of its bot, the score, the team name etc..
+    homezone of a team and its score.
 
 `pelita.datamodel.Maze`:
-    Data structure that stores the maze or layout, i.e. where walls and food
-    are.
+    Data structure that stores the maze or layout, i.e. where walls are.
 
 `pelita.game_master.GameMaster`:
     Controller object that asks players for moves and updates the ``Universe``.
@@ -320,33 +319,11 @@ alternative existing package such as `NetworkX <http://networkx.lanl.gov/>`_.
 
 In order to obtain the positions of all free spaces, the
 ``pelita.datamodel.CTFUniverse`` class provides the method
-``pelita.datamodel.CTFUniverse.free_positions()``. A maze can hold three different components at
-each position, all of them available in ``pelita.datamodel``: ``Wall``,
-``Free``, ``Food``. We thus can get a list of all positions by calling::
+``pelita.datamodel.CTFUniverse.free_positions()``.
 
-    maze.pos_of(Free)
-
-Then, we use the method ``legal_moves(pos).values()`` to obtain the adjacent
-free spaces, for each of the free positions.  The last step is to use the
-``update`` method to set the generated dictionary, which we can do, since
-``AdjacencyList`` inherits from ``dict``.
-
-In addition to ``pos_of``, there are a few additional constructs that are
+There are a few additional constructs that are
 useful when dealing with the maze. The property ``positions`` gives all the
-positions in the maze. To check if a given maze component is at a certain
-position use the ``in`` operator::
-
-    Free in maze[2, 3]
-
-Sometimes, when exploring future states of the universe, you may want to add or
-remove food to the maze::
-
-    # removing items
-    maze.remove_at(Food, (2,3))
-    # adding items
-    stuff = maze[2,3]
-    stuff.append(Food)
-    maze[0,1] = stuff
+positions in the maze.
 
 
 Noisy Enemy Positions
