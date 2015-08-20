@@ -12,9 +12,7 @@ import zmq
 
 from .simplesetup import RemoteTeamPlayer
 
-# silence stupid warnings from logging module
-logging.root.manager.emittedNoHandlerWarning = 1
-_logger = logging.getLogger("pelita.pelitagame")
+_logger = logging.getLogger("pelita.libpelita")
 
 TeamSpec = namedtuple("TeamSpec", ["module", "address"])
 ModuleSpec = namedtuple("ModuleSpec", ["prefix", "module"])

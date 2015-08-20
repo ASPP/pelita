@@ -6,12 +6,16 @@ from __future__ import print_function
 import argparse
 import contextlib
 import json
+import logging
 import random
 import time
 
 import pelita
 from pelita.libpelita import *
-_logger = pelita.libpelita._logger
+
+# silence stupid warnings from logging module
+logging.root.manager.emittedNoHandlerWarning = 1
+_logger = logging.getLogger("pelitagame")
 
 class ReplayPublisher(object):
     def __init__(self, publish_sock, replayfile):
