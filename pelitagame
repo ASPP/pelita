@@ -4,12 +4,9 @@
 from __future__ import print_function
 
 import argparse
+import contextlib
 import json
-import logging
-import os.path
 import random
-import subprocess
-import sys
 import time
 
 import pelita
@@ -161,6 +158,23 @@ def geometry_string(s):
         msg = "%s is not a valid geometry specification" %s
         raise argparse.ArgumentTypeError(msg)
     return geometry
+
+@contextlib.contextmanager
+def autoclose_externals(external_viewers, external_players):
+    try:
+        yield
+    except KeyboardInterrupt:
+        for external_viewer in external_viewers:
+            external_viewer.kill()
+    finally:
+        # kill all client processes. NOW!
+        # (is this too early?)
+        for external_player in external_players:
+            _logger.debug("Attempting to terminate %r.", external_player)
+            external_player.terminate()
+        for external_player in external_players:
+            external_player.wait()
+            _logger.debug("%r terminated.", external_player)
 
 parser = argparse.ArgumentParser(description='Run a single pelita game',
                                  add_help=False,
@@ -484,23 +498,6 @@ def run_game():
         runner()
 
 
-import contextlib
-@contextlib.contextmanager
-def autoclose_externals(external_viewers, external_players):
-    try:
-        yield
-    except KeyboardInterrupt:
-        for external_viewer in external_viewers:
-            external_viewer.kill()
-    finally:
-        # kill all client processes. NOW!
-        # (is this too early?)
-        for external_player in external_players:
-            _logger.debug("Attempting to terminate %r.", external_player)
-            external_player.terminate()
-        for external_player in external_players:
-            external_player.wait()
-            _logger.debug("%r terminated.", external_player)
-
 if __name__ == '__main__':
     run_game()
+
