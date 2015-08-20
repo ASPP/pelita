@@ -17,7 +17,7 @@ parser = argparse.ArgumentParser(description="Runs a Python pelita module.")
 parser.add_argument('team')
 parser.add_argument('address')
 
-def run_module():
+def make_client():
     args = parser.parse_args()
 
     team = load_team(args.team)
@@ -26,7 +26,7 @@ def run_module():
     addr = args.address
     addr = addr.replace('*', 'localhost')
     client = pelita.simplesetup.SimpleClient(team, address=addr)
-    sys.exit(client.run())
+    return client
 
 def check_module(filepath):
     "Throws an ValueError is the specified path is neither a module nor a package."
@@ -132,4 +132,7 @@ def import_builtin_player(name):
         raise ImportError("%r is not a valid player." % player)
 
 if __name__ == '__main__':
-    run_module()
+    client = make_client()
+    ret = client.run()
+    sys.exit(ret)
+

@@ -148,7 +148,7 @@ class ZMQConnection(object):
             timeout = DEAD_CONNECTION_TIMEOUT
 
         msg_uuid = str(uuid.uuid4())
-        _logger.debug("---> %s", msg_uuid)
+        _logger.debug("---> %r [%s]", action, msg_uuid)
 
         # Check before sending. Forever is a long time.
         socks = dict(self.pollout.poll(timeout * 1000))
@@ -174,8 +174,9 @@ class ZMQConnection(object):
         py_obj = json.loads(json_message)
         #print repr(json_msg)
         msg_uuid = py_obj["__uuid__"]
+        msg_action = py_obj.get("__action__")
 
-        _logger.debug("<--- %s", msg_uuid)
+        _logger.debug("<--- %r [%s]", msg_action, msg_uuid)
 
         if msg_uuid == self.last_uuid:
             self.last_uuid = None
@@ -232,7 +233,10 @@ class RemoteTeamPlayer(object):
     def team_name(self):
         try:
             self.zmqconnection.send("team_name", {})
-            return self.zmqconnection.recv()
+            return self.zmqconnection.recv_timeout(DEAD_CONNECTION_TIMEOUT)
+        except ZMQTimeout:
+            _logger.info("Detected a timeout, returning a string nonetheless.")
+            return "%error%"
         except DeadConnection:
             _logger.info("Detected a DeadConnection, returning a string nonetheless.")
             return "%error%"
@@ -272,7 +276,7 @@ class RemoteTeamPlayer(object):
 
     def _exit(self):
         try:
-            self.zmqconnection.send("exit", {})
+            self.zmqconnection.send("exit", {}, timeout=1)
         except DeadConnection:
             _logger.info("Remote Player %r is already dead during exit. Ignoring.", self)
 
@@ -299,8 +303,9 @@ class SimpleServer(object):
         The number of Players/Bots used in the layout. Default: 4.
     rounds : int, optional
         The number of rounds played. Default: 3000.
-    bind_addrs : string or tuple, optional
-        The address(es) which this server uses for its connections. Default: "tcp://*".
+    bind_addrs : list of strings, optional
+        The address(es) which this server uses for its connections.
+        Defaults to ["tcp://*"] * teams, if not given.
     initial_delay : float
         Delays the start of the game by `initial_delay` seconds.
     layout_name : string, optional
@@ -316,7 +321,7 @@ class SimpleServer(object):
         if layout_file was given, but file does not exist
 
     """
-    def __init__(self, layout_string, teams=2, players=4, rounds=3000, bind_addrs="tcp://*",
+    def __init__(self, layout_string, teams=2, players=4, rounds=3000, bind_addrs=None,
                  initial_delay=0.0, max_timeouts=5, timeout_length=3, layout_name=None,
                  seed=None):
 
@@ -324,14 +329,8 @@ class SimpleServer(object):
         self.number_of_teams = teams
         self.rounds = rounds
 
-        if isinstance(bind_addrs, tuple):
-            pass
-        elif isinstance(bind_addrs, str):
-            if not bind_addrs.startswith("tcp://"):
-                raise ValueError("non-tcp bind_addrs cannot be shared.")
-            bind_addrs = (bind_addrs, ) * self.number_of_teams
-        else:
-            raise TypeError("bind_addrs must be tuple or string.")
+        if bind_addrs is None:
+            bind_addrs = ["tcp://*"] * self.number_of_teams
 
         #: declare the zmq Context for this server thread
         self.context = zmq.Context()
@@ -356,11 +355,15 @@ class SimpleServer(object):
                     # assume no port has been given:
                     bind_to_random = True
 
-            if bind_to_random:
-                socket_port = socket.bind_to_random_port(address)
-                address = address + (":%d" % socket_port)
-            else:
-                socket.bind(address)
+            try:
+                if bind_to_random:
+                    socket_port = socket.bind_to_random_port(address)
+                    address = address + (":%d" % socket_port)
+                else:
+                    socket.bind(address)
+            except zmq.ZMQError:
+                print("ZMQError while trying to bind {}".format(address))
+                raise
 
             self.sockets.append(socket)
             self.bind_addresses.append(address)

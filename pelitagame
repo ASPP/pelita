@@ -13,12 +13,8 @@ import sys
 import time
 
 import pelita
-
-# silence stupid warnings from logging module
-logging.root.manager.emittedNoHandlerWarning = 1
-
-_logger = logging.getLogger("pelita.pelitagame")
-
+from pelita.libpelita import *
+_logger = pelita.libpelita._logger
 
 class ReplayPublisher(object):
     def __init__(self, publish_sock, replayfile):
@@ -30,8 +26,7 @@ class ReplayPublisher(object):
     def run(self):
         for state in self.old_game:
             if state:
-                message = {"__action__": "observe",
-                           "__data__": json.loads(state)}
+                message = json.loads(state)
                 self.publisher._send(message)
 
 class ResultPrinter(pelita.viewer.AbstractViewer):
@@ -103,12 +98,6 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
         # won't let us pipe it.
         sys.stdout.flush()
 
-def get_python_process():
-    py_proc = sys.executable
-    if not py_proc:
-        raise RuntimeError("Cannot retrieve current Python executable.")
-    return py_proc
-
 def run_external_viewer(subscribe_sock, controller, geometry, delay):
     # Something on OS X prevents Tk from running in a forked process.
     # Therefore we cannot use multiprocessing here. subprocess works, though.
@@ -121,75 +110,31 @@ def run_external_viewer(subscribe_sock, controller, geometry, delay):
         viewer_args += ["--delay", str(delay)]
 
     tkviewer = os.path.join(os.path.dirname(sys.argv[0]), "tkviewer.py")
-    return subprocess.Popen([get_python_process(), tkviewer] + viewer_args)
-
-class ModuleRunner(object):
-    def __init__(self, team_spec):
-        self.team_spec = team_spec
-
-class DefaultRunner(ModuleRunner):
-    def run(self, addr):
-        player_path = os.path.dirname(sys.argv[0])
-        player = os.path.join(player_path, "module_player.py")
-        return subprocess.Popen([get_python_process(),
-                                 player,
-                                 self.team_spec,
-                                 addr])
-
-class Py2Runner(ModuleRunner):
-    def run(self, addr):
-        player_path = os.path.dirname(sys.argv[0])
-        player = os.path.join(player_path, "module_player.py")
-        return subprocess.Popen(["python2",
-                                 player,
-                                 self.team_spec,
-                                 addr])
-
-class Py3Runner(ModuleRunner):
-    def run(self, addr):
-        player_path = os.path.dirname(sys.argv[0])
-        player = os.path.join(player_path, "module_player.py")
-        return subprocess.Popen(["python3",
-                                 player,
-                                 self.team_spec,
-                                 addr])
+    external_call = [get_python_process(), tkviewer] + viewer_args
+    _logger.debug("Executing: %r", external_call)
+    return subprocess.Popen(external_call)
 
 
-def call_standalone_pelitagame(team_spec, addr):
-    """ Starts another process with the same Python executable,
-    the same start script (pelitagame) and runs `team_spec`
-    as a standalone client on URL `addr`.
-    """
-    defined_runners = {
-        "py": DefaultRunner,
-        "py2": Py2Runner,
-        "py3": Py3Runner
-    }
-
-    if "@" in team_spec:
+def strip_module_prefix(module):
+    if "@" in module:
         try:
-            runner_, spec = team_spec.split("@")
-            runner = defined_runners[runner_]
+            prefix, module = module.split("@")
+            return ModuleSpec(prefix=prefix, module=module)
         except ValueError:
-            raise ValueError("Bad spec: {}.".format(team_spec))
-        except KeyError:
-            raise ValueError("Unknown runner: {}:".format(runner))
+            raise ValueError("Bad module definition: {}.".format(module))
     else:
-        runner = DefaultRunner
-        spec = team_spec
-
-    return runner(spec).run(addr)
+        return ModuleSpec(prefix=None, module=module)
 
 def prepare_team(team_spec):
     # check if we've been given an address which a remote
     # player wants to connect to
     if "://" in team_spec:
-        addrs = team_spec
-        team = None
+        module = None
+        address = team_spec
     else:
-        addrs = "tcp://*"
-        team = team_spec
-    return addrs, team
+        module = strip_module_prefix(team_spec)
+        address = "tcp://127.0.0.1"
+    return TeamSpec(module, address)
 
 def start_logging(filename):
     if filename:
@@ -221,10 +166,7 @@ parser = argparse.ArgumentParser(description='Run a single pelita game',
                                  add_help=False,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
 parser._positionals = parser.add_argument_group('Arguments')
-parser.add_argument('spec_left', help='team on the left side (default: random)', nargs='?',
-                    default=None)
-parser.add_argument('spec_right', help='team on the right side (default: random)', nargs='?',
-                    default=None)
+parser.add_argument('team_specs', help='teams (default: random)', nargs='*', default=None)
 
 parser._optionals = parser.add_argument_group('Options')
 parser.add_argument('--help', '-h', help='show this help message and exit',
@@ -274,7 +216,7 @@ publisher_opt.add_argument('--no-publish', const=False, action='store_const',
 parser.set_defaults(publish_to="tcp://*:*")
 
 controller_opt = parser.add_argument_group("Controller")
-controller_opt.add_argument('--controller', type=str, metavar='URL', default="tcp://*:*",
+controller_opt.add_argument('--controller', type=str, metavar='URL', default="tcp://127.0.0.1:*",
                             help='open a controller on this zmq socket')
 controller_opt.add_argument('--external-controller', const=True, action='store_const',
                             help='force control by an external controller')
@@ -341,6 +283,16 @@ Team Specification:
 
         $ %(prog)s my_player NQRandomPlayer,BasicDefensePlayer
 
+  - Using a different Python version:
+    Additionally, player specifications may use a prefix (ending with @)
+    to use a different executable for the subprocess.
+
+        $ %(prog)s py3@my_new_player py2@my_old_player
+
+    runs the first player with Python 3 and the second player with Python 2.
+    A non-existing prefix is taken as ‘py@’ that is the very same Python version
+    the pelitagame script is run with.
+
   - Using custom players (simpleclient):
     The address the server should bind on and wait for a client
     to connect to.
@@ -366,6 +318,8 @@ def run_game():
     config = {
         "publish-addr": None,
         "controller-addr": None,
+        "viewers": [],
+        "external-viewers": []
     }
 
     args = parser.parse_args()
@@ -390,19 +344,17 @@ def run_game():
         pass
 
     if args.list_teams:
-        print('\n'.join(PLAYERS))
+        from players import SANE_PLAYERS
+        print('\n'.join(p.__name__ for p in SANE_PLAYERS))
         sys.exit(0)
 
     if args.check_team:
-        if not args.spec_left:
-            raise ValueError("No team specified.")
-        # only print the team name.
-        print(load_team(args.spec_left).team_name)
+        if not args.team_specs:
+            raise ValueError("No teams specified.")
+        for team_spec in args.team_specs:
+            team_name = check_team(prepare_team(team_spec))
+            print("NAME:", team_name)
         sys.exit(0)
-
-    def print_team_info(addr, team, spec, info):
-        if "://" in addr:
-            print("Waiting for %s team on %s (%s, %s)" % (info, addr, team, spec))
 
     try:
         # TODO: Re-include the dump.
@@ -433,13 +385,17 @@ def run_game():
             layout_name, layout_string = pelita.layout.get_random_layout(args.filter)
         print("Using layout '%s'" % layout_name)
 
-        if not args.spec_left:
-            args.spec_left = "random"
-        if not args.spec_right:
-            args.spec_right = "random"
+        num_teams = 2
+        team_specs = args.team_specs
+        while len(team_specs) < num_teams:
+            team_specs.append("random")
+        if len(team_specs) > num_teams:
+            raise RuntimeError("Too many teams given. Must be < {}.".format(num_teams))
 
-        addrs_left, team_left = prepare_team(args.spec_left)
-        addrs_right, team_right = prepare_team(args.spec_right)
+        teams = [prepare_team(team_spec) for team_spec in team_specs]
+
+
+        print(teams)
 
         if args.dry_run:
             sys.exit(0)
@@ -452,20 +408,30 @@ def run_game():
 
         server = pelita.simplesetup.SimpleServer(layout_string=layout_string,
                                                  rounds=args.rounds,
-                                                 bind_addrs=(addrs_left, addrs_right),
+                                                 bind_addrs=[team.address for team in teams],
                                                  initial_delay=initial_delay,
                                                  max_timeouts=args.max_timeouts,
                                                  timeout_length=args.timeout_length,
                                                  layout_name=layout_name,
                                                  seed=args.seed)
 
-        print_team_info(addrs_left, team_left, args.spec_left, "left")
-        print_team_info(addrs_right, team_right, args.spec_right, "right")
-
-        subs = [
-            call_standalone_pelitagame(args.spec_left, server.bind_addresses[0]),
-            call_standalone_pelitagame(args.spec_right, server.bind_addresses[1])
+        # Update our teams with the bound addresses
+        teams = [
+            team._replace(address=address)
+            for team, address in zip(teams, server.bind_addresses)
         ]
+
+        for idx, team in enumerate(teams):
+            if team.module is None:
+                print("Waiting for external team %d to connect to %s." % (idx, team.address))
+
+        external_players = [
+            call_standalone_pelitagame(team.module, team.address)
+            for team in teams
+            if team.module
+        ]
+
+       # print([sub.returncode for sub in subs])
         #[s.wait() for s in subs]
 
         # register the viewers
@@ -513,8 +479,16 @@ def run_game():
 
         if not sync_address_tk:
             time.sleep(0.5)
-    try:
+
+    with autoclose_externals(external_viewers, external_players):
         runner()
+
+
+import contextlib
+@contextlib.contextmanager
+def autoclose_externals(external_viewers, external_players):
+    try:
+        yield
     except KeyboardInterrupt:
         for external_viewer in external_viewers:
             external_viewer.kill()
@@ -525,7 +499,7 @@ def run_game():
             _logger.debug("Attempting to terminate %r.", external_player)
             external_player.terminate()
         for external_player in external_players:
-            external_player.join()
+            external_player.wait()
             _logger.debug("%r terminated.", external_player)
 
 if __name__ == '__main__':

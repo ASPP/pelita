@@ -166,6 +166,10 @@ class GameMaster(object):
     def game_time(self):
         return self.game_state["game_time"]
 
+    @property
+    def finished(self):
+        return self.game_state["finished"]
+
     def register_viewer(self, viewer):
         """ Register a viewer to display the game state as it progresses.
 

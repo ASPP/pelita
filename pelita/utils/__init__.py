@@ -10,3 +10,4 @@ def with_sys_path(dirname):
         yield
     finally:
         sys.path.remove(dirname)
+

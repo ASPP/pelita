@@ -68,15 +68,19 @@ class DumpingViewer(AbstractViewer):
     def __init__(self, stream):
         self.stream = stream
 
-    def set_initial(self, universe):
-        self.stream.write(json.dumps({"universe": universe}))
+    def _send(self, message):
+        as_json = json.dumps(message)
+        self.stream.write(as_json)
         self.stream.write("\x04")
+
+    def set_initial(self, universe):
+        message = {"__action__": "set_initial",
+                   "__data__": {"universe": universe._to_json_dict()}}
+        self._send(message)
 
     def observe(self, universe, game_state):
-        kwargs = {
-            "universe": universe,
-            "game_state": game_state
-        }
+        message = {"__action__": "observe",
+                   "__data__": {"universe": universe._to_json_dict(),
+                                "game_state": game_state}}
+        self._send(message)
 
-        self.stream.write(json.dumps(kwargs))
-        self.stream.write("\x04")
