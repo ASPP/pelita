@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 
 import argparse
+import builtins
 import io
 import itertools
 import json
@@ -44,10 +45,10 @@ SPEAK = False
 LOGFILE = None
 
 def _print(*args, **kwargs):
-    __builtins__.print(*args, **kwargs)
+    builtins.print(*args, **kwargs)
     if LOGFILE:
         kwargs['file'] = LOGFILE
-        __builtins__.print(*args, **kwargs)
+        builtins.print(*args, **kwargs)
 
 def print(*args, **kwargs):
     """Speak while you print. To disable set speak=False.
