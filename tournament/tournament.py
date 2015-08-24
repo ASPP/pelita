@@ -298,14 +298,14 @@ def round2(config, teams):
 
     def do_deathmatch(config):
         def inner(t1, t2):
-            komode.print_tree(last_match)
+            komode.print_knockout(last_match)
             winner = start_deathmatch(config, t1, t2)
             return winner
         return inner
 
     recur_matches(do_deathmatch(config), last_match)
 
-    komode.print_tree(last_match)
+    komode.print_knockout(last_match)
 
     wait_for_keypress()
 

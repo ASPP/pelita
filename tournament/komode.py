@@ -94,10 +94,11 @@ class BorderBottom(namedtuple("BorderBottom", ["team", "tight"]), MatrixElem):
         fillElem = "━"
         return self.box("", prefix=prefix, postfix=postfix, padLeft=padLeft, padRight=padRight, fillElem=fillElem, size=size)
 
-def knockout_matrix(*teams):
+def knockout_matrix(tree):
     """
     For now teams is a list (cols) of list (rows) of teams
     """
+    teams = tree_enumerate(tree)
 
     initial_teams = teams[0]
     N = len(initial_teams)
@@ -136,8 +137,8 @@ def knockout_matrix(*teams):
 
     return matrix, last_match
 
-def print_knockout(*teams, bonusmatch=False):
-    matrix, final_match = knockout_matrix(*teams)
+def print_knockout(tree):
+    matrix, final_match = knockout_matrix(tree)
 
     winner_row = final_match[0]
     winning_team = matrix[final_match].winner
@@ -188,10 +189,6 @@ def prepare_matches(teams, bonusmatch=False):
     else:
         final_match = makepairs([Team(t) for t in teams])
     return final_match
-
-def print_tree(tree):
-    return print_knockout(*tree_enumerate(tree))
-
 
 def is_balanced(tree):
     if isinstance(tree, Match):
