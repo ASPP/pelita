@@ -322,6 +322,8 @@ if __name__ == '__main__':
                         metavar="TEAMFILE.json", default="teams.json")
     parser.add_argument('--interactive', help='ask before proceeding',
                         action='store_true')
+    parser.add_argument('--no-log', help='do not store the log data',
+                        action='store_true')
 
     parser.epilog = """
 TEAMFILE.json must be of the form:
@@ -351,13 +353,14 @@ TEAMFILE.json must be of the form:
     # Check speaking support
     SPEAK = ARGS.speak and os.path.exists(FLITE)
 
-    # create a directory for the dumps
-    DUMPSTORE = create_directory('./dumpstore')
+    if not ARGS.no_log:
+        # create a directory for the dumps
+        DUMPSTORE = create_directory('./dumpstore')
 
-    # open the log file (fail if it exists)
-    logfile = os.path.join(DUMPSTORE, 'log')
-    fd = os.open(logfile, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o0666)
-    LOGFILE = os.fdopen(fd, 'w')
+        # open the log file (fail if it exists)
+        logfile = os.path.join(DUMPSTORE, 'log')
+        fd = os.open(logfile, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o0666)
+        LOGFILE = os.fdopen(fd, 'w')
 
     teams = list(RNAMES.keys())
 
