@@ -102,86 +102,42 @@ def knockout_matrix(*teams):
     initial_teams = teams[0]
     N = len(initial_teams)
     height = N * 2 - 1
-    width = math.ceil(math.log(N, 2)) + 1
+    width = len(teams)
     matrix = np.empty([height, width], dtype=np.object_)
 
     matrix.fill(Empty())
 
-    matrix[::2, 0] = [Team(t) for t in initial_teams]
+    matrix[::2, 0] = initial_teams
 
-    for col in range(1, width):
-        start = None
-        end = None
-        last_match = None
-        rowIdx = 0
-        for row in range(height):
-            left_elem = matrix[row, col - 1]
-            if isinstance(left_elem, Team) or isinstance(left_elem, Match) or isinstance(left_elem, Bye):
-                # left of us is a team
-                if start is None:
-                    start = row
-                else:
-                    end = row
-                    middle = math.floor(start + (end - start) / 2)
-                    t1 = matrix[start, col - 1]
-                    t2 = matrix[end, col - 1]
-                    match = Match(t1=t1, t2=t2)
-                    match.winner=teams[col][rowIdx]
-                    rowIdx += 1
-                    matrix[start:end, col].fill(Element('│'))
-                    matrix[start, col] = Element('┐')
-                    matrix[end, col] = Element('┘')
-                    matrix[middle, col] = match
-                    last_match = (middle, col)
-                    start = end = None
-        else:
-            if start is not None:
-                team = matrix[start, col - 1]
-                matrix[start, col] = Bye(team=team)
-                last_match = (start, col)
+    last_match = None
 
-    # Decorate the winner column
-    isMatch = np.vectorize(lambda elem: not isinstance(elem, Empty))
+    for g_idx, generation in enumerate(teams):
+        # print("G:", generation)
+        if g_idx == 0:
+            continue
+        col = g_idx
+        left_col = g_idx - 1
+        for m_idx, match in enumerate(generation):
+        #    print("M:", match)
+            if isinstance(match, Match):
+                start_row = matrix[:, left_col].tolist().index(match.t1)
+                end_row = matrix[:, left_col].tolist().index(match.t2)
+                middle_row = math.floor(start_row + (end_row - start_row) / 2)
+
+                matrix[start_row:end_row, col].fill(Element('│'))
+                matrix[start_row, col] = Element('┐')
+                matrix[end_row, col] = Element('┘')
+                matrix[middle_row, col] = match
+                last_match = (middle_row, col)
+
+            if isinstance(match, Bye):
+                row = matrix[:, left_col].tolist().index(match.team)
+                matrix[row, col] = match
 
     return matrix, last_match
 
 def print_knockout(*teams, bonusmatch=False):
-    if bonusmatch:
-        bonus_team = teams[0][-1]
-        bonus_final = teams[-1][0]
-
-        teams = [t[:] for t in teams]
-        del teams[0][-1]
-        del teams[-1]
-        matrix, final_match = knockout_matrix(*teams)
-        winner_row = final_match[0]
-
-        enlarged_height = matrix.shape[0] + 2
-        enlarged_width = matrix.shape[1] + 1
-        enlarged_matrix = np.empty([enlarged_height, enlarged_width], dtype=np.object_)
-        enlarged_matrix.fill(Empty())
-        for row in range(matrix.shape[0]):
-            for col in range(0, matrix.shape[1]):
-                enlarged_matrix[row, col] = matrix[row, col]
-        matrix = enlarged_matrix
-
-        matrix[-1, 0] = Team(bonus_team)
-        matrix[-1, 1:-1].fill(Bye(team=matrix[-1, 0]))
-
-        col = -1
-        start = winner_row
-        end = matrix.shape[0] - 1
-        middle = math.floor(start + (end - start) / 2)
-
-        matrix[start:end, col].fill(Element('│'))
-        matrix[start, col] = Element('┐')
-        matrix[end, col] = Element('┘')
-        matrix[middle, col] = Match(".", ".")
-        matrix[middle, col].winner = teams[col][0]
-
-        final_match = (middle, col)
-    else:
-        matrix, final_match = knockout_matrix(*teams)
+    matrix, final_match = knockout_matrix(*teams)
 
     winner_row = final_match[0]
     winning_team = matrix[final_match].winner
@@ -221,26 +177,20 @@ def makepairs(matches):
     return matches[0]
 
 def prepare_matches(teams, bonusmatch=False):
-    final_match = makepairs([Team(t) for t in teams])
+    if bonusmatch:
+        *good_teams, loser_team = teams
+        matches = makepairs([Team(t) for t in good_teams])
+        team = Team(loser_team)
+        for _depth in range(tree_depth(matches) - 1):
+            team = Bye(team)
+        final_match = Match(matches, team)
+        assert is_balanced(final_match)
+    else:
+        final_match = makepairs([Team(t) for t in teams])
     return final_match
 
-def print_tree(tree, bonusmatch=False):
-    enumerated = tree_enumerate(tree)
-    def show(elem):
-        if isinstance(elem, Match):
-            if elem.winner is not None:
-                return elem.winner
-            else:
-                return "???"
-        if isinstance(elem, Team):
-            return elem.name
-        if isinstance(elem, Bye):
-            return show(elem.team)
-    enumerated = [
-        [show(elem) for elem in elems] for elems in enumerated
-    ]
-
-    return print_knockout(*enumerated, bonusmatch=bonusmatch)
+def print_tree(tree):
+    return print_knockout(*tree_enumerate(tree))
 
 
 def is_balanced(tree):

@@ -325,8 +325,7 @@ def round2(config, teams):
     wait_for_keypress()
 
 
-    last_match = komode.prepare_matches(teams)
-    komode.print_knockout(*komode.tree_enumerate(last_match), bonusmatch=config.bonusmatch)
+    last_match = komode.prepare_matches(teams, bonusmatch=config.bonusmatch)
 
     def do_deathmatch(config):
         def inner(t1, t2):
