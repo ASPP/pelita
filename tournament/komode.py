@@ -184,7 +184,9 @@ def print_knockout(*teams, bonusmatch=False):
         matrix, final_match = knockout_matrix(*teams)
 
     winner_row = final_match[0]
+    winning_team = matrix[final_match].winner
     winner = matrix[final_match] = FinalMatch(* matrix[final_match])
+    winner.winner = winning_team
 
     def is_tight(elem):
         return not isinstance(elem, Empty) and not isinstance(elem, Element)
@@ -223,7 +225,22 @@ def prepare_matches(teams, bonusmatch=False):
     return final_match
 
 def print_tree(tree, bonusmatch=False):
-    return print_knockout(*tree_enumerate(tree), bonusmatch=bonusmatch)
+    enumerated = tree_enumerate(tree)
+    def show(elem):
+        if isinstance(elem, Match):
+            if elem.winner is not None:
+                return elem.winner
+            else:
+                return "???"
+        if isinstance(elem, Team):
+            return elem.name
+        if isinstance(elem, Bye):
+            return show(elem.team)
+    enumerated = [
+        [show(elem) for elem in elems] for elems in enumerated
+    ]
+
+    return print_knockout(*enumerated, bonusmatch=bonusmatch)
 
 
 def is_balanced(tree):

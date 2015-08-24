@@ -298,7 +298,6 @@ def pp_round2_results(teams, w1, w2, w3, w4):
     print()
 
 def recur_matches(do_deathmatch, match):
-    print("Trying match", match)
     if isinstance(match, komode.Match) and match.winner is None:
         t1 = recur_matches(do_deathmatch, match[0])
         t2 = recur_matches(do_deathmatch, match[1])
@@ -329,8 +328,6 @@ def round2(config, teams):
     last_match = komode.prepare_matches(teams)
     komode.print_knockout(*komode.tree_enumerate(last_match), bonusmatch=config.bonusmatch)
 
-    print(type(last_match))
-
     def do_deathmatch(config):
         def inner(t1, t2):
             komode.print_tree(last_match)
@@ -339,6 +336,8 @@ def round2(config, teams):
         return inner
 
     recur_matches(do_deathmatch(config), last_match)
+
+    komode.print_tree(last_match)
 
     wait_for_keypress()
 
