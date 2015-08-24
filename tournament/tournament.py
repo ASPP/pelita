@@ -311,7 +311,7 @@ def recur_matches(do_deathmatch, match):
         match.winner = winner
         return winner
     elif isinstance(match, komode.Bye):
-        return match.team.name
+        return recur_matches(do_deathmatch, match.team)
     elif isinstance(match, komode.Team):
         return match.name
     return None
