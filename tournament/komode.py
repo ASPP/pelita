@@ -23,7 +23,7 @@ class MatrixElem:
     def size(self):
         return len(self.to_s())
 
-    def show(self, team, *, prefix=None, postfix=None, size=None, padLeft="", padRight="", fillElem="─"):
+    def box(self, team, *, prefix=None, postfix=None, size=None, padLeft="", padRight="", fillElem="─"):
         if prefix is None:
             prefix = ""
         if postfix is None:
@@ -38,13 +38,13 @@ class MatrixElem:
 
 class Team(namedtuple("Team", ["name"]), MatrixElem):
     def to_s(self, size=None):
-        return self.show(self.name, size=size, prefix="", padLeft=" ", padRight=" ")
+        return self.box(self.name, size=size, prefix="", padLeft=" ", padRight=" ")
 
 class Bye(namedtuple("Bye", ["team"]), MatrixElem):
     def to_s(self, size=None):
         prefix = "──"
         # return show_team("…", prefix=prefix, padLeft=" ", padRight=" ", size=size)
-        return self.show("", size=size)
+        return self.box("", size=size)
 
 class Match(namedtuple("Match", ["t1", "t2"]), MatrixElem):
     def __init__(self, *args, **kwargs):
@@ -56,7 +56,7 @@ class Match(namedtuple("Match", ["t1", "t2"]), MatrixElem):
     def to_s(self, size=None):
         prefix = "├─"
         name = self.winner if self.winner else "unknown"
-        return self.show(name, prefix=prefix, padLeft=" ", padRight=" ", size=size)
+        return self.box(name, prefix=prefix, padLeft=" ", padRight=" ", size=size)
 
 class FinalMatch(namedtuple("FinalMatch", ["t1", "t2"]), MatrixElem):
     def __init__(self, *args, **kwargs):
@@ -66,15 +66,15 @@ class FinalMatch(namedtuple("FinalMatch", ["t1", "t2"]), MatrixElem):
         postfix = "┃"
         fillElem = " "
         name = self.winner if self.winner else "unknown"
-        return self.show(name, prefix=prefix, postfix=postfix, padLeft=" ", padRight=" ", fillElem=fillElem, size=size)
+        return self.box(name, prefix=prefix, postfix=postfix, padLeft=" ", padRight=" ", fillElem=fillElem, size=size)
 
 class Element(namedtuple("Element", ["char"]), MatrixElem):
     def to_s(self, size=None):
-        return self.show(self.char, size=size, fillElem=" ")
+        return self.box(self.char, size=size, fillElem=" ")
 
 class Empty(namedtuple("Empty", []), MatrixElem):
     def to_s(self, size=None):
-        return self.show(" ", size=size, fillElem=" ")
+        return self.box(" ", size=size, fillElem=" ")
 
 class BorderTop(namedtuple("BorderTop", ["team", "tight"]), MatrixElem):
     def to_s(self, size=None):
@@ -83,7 +83,7 @@ class BorderTop(namedtuple("BorderTop", ["team", "tight"]), MatrixElem):
         padLeft = "┏"
         postfix = "┓"
         fillElem = "━"
-        return self.show("", prefix=prefix, postfix=postfix, padLeft=padLeft, padRight=padRight, fillElem=fillElem, size=size)
+        return self.box("", prefix=prefix, postfix=postfix, padLeft=padLeft, padRight=padRight, fillElem=fillElem, size=size)
 
 class BorderBottom(namedtuple("BorderBottom", ["team", "tight"]), MatrixElem):
     def to_s(self, size=None):
@@ -92,7 +92,7 @@ class BorderBottom(namedtuple("BorderBottom", ["team", "tight"]), MatrixElem):
         padLeft = "┗"
         postfix = "┛"
         fillElem = "━"
-        return self.show("", prefix=prefix, postfix=postfix, padLeft=padLeft, padRight=padRight, fillElem=fillElem, size=size)
+        return self.box("", prefix=prefix, postfix=postfix, padLeft=padLeft, padRight=padRight, fillElem=fillElem, size=size)
 
 def knockout_matrix(*teams):
     """
