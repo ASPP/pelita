@@ -432,7 +432,7 @@ if __name__ == '__main__':
 
     winner = round2(config, sorted_ranking)
 
-    print('The winner of the %s Pelita tournament is...' % config.location, wait=2)
-    print('{team_name}. Congratulations'.format(config.team_name(winner)), wait=2)
+    print('The winner of the %s Pelita tournament is...' % config.location, wait=2, end=" ")
+    print('{team_name}. Congratulations'.format(team_name=config.team_name(winner)), wait=2)
     print('Good evening master. It was a pleasure to serve you.')
 
