@@ -55,7 +55,7 @@ class Match(namedtuple("Match", ["t1", "t2"]), MatrixElem):
 
     def to_s(self, size=None):
         prefix = "├─"
-        name = self.winner if self.winner else "unknown"
+        name = self.winner if self.winner else "???"
         return self.box(name, prefix=prefix, padLeft=" ", padRight=" ", size=size)
 
 class FinalMatch(namedtuple("FinalMatch", ["t1", "t2"]), MatrixElem):
@@ -65,7 +65,7 @@ class FinalMatch(namedtuple("FinalMatch", ["t1", "t2"]), MatrixElem):
         prefix = "├──┨"
         postfix = "┃"
         fillElem = " "
-        name = self.winner if self.winner else "unknown"
+        name = self.winner if self.winner else "???"
         return self.box(name, prefix=prefix, postfix=postfix, padLeft=" ", padRight=" ", fillElem=fillElem, size=size)
 
 class Element(namedtuple("Element", ["char"]), MatrixElem):
