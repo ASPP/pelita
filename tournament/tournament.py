@@ -266,42 +266,6 @@ def round1(config, rr_unplayed, rr_played):
     return [team_id for team_id, p in round1_ranking(config, rr_played)]
 
 
-def pp_round2_results(teams, w1, w2, w3, w4):
-    """Pretty print the results for the K.O. round.
-
-    teams is the list [group0, group1, ...] not the names of the agens, sorted
-    by the result of the first round.
-    """
-    names = dict(RNAMES)
-    names['???'] = '???'
-    feed = max(len(item) for item in list(RNAMES.values()))+2
-    lengths={}
-    for name in names:
-        lengths[name] = feed - len(names[name])
-
-    semifinal_top_up = names[teams[0]]+' '+"─"*lengths[teams[0]]+'┐'
-    final_top = " "*feed+' ├─ '+names[w1]+' '+'─'*lengths[w1]+'┐'
-    semifinal_top_down = names[teams[3]]+' '+"─"*lengths[teams[3]]+'┘'
-    preliminary_winner = (" "*(2*feed+5)+'├─ '+names[w3]+' '+
-                          '─'*lengths[w3]+'┐ ')
-    semifinal_bottom_up = names[teams[1]]+' '+"─"*lengths[teams[1]]+'┐'
-    final_bottom = " "*feed+' ├─ '+names[w2]+' '+'─'*lengths[w2]+'┘'
-    semifinal_bottom_down = names[teams[2]]+' '+"─"*lengths[teams[2]]+'┘'
-    looser = names[teams[4]]+' '+"─"*lengths[teams[4]]+'─'*(2*feed+8)+'┘'
-    winner = " "*(3*feed+9)+'├─ '+names[w4]
-    print()
-    print(semifinal_top_up, speak=False)
-    print(final_top, speak=False)
-    print(semifinal_top_down+' '*(feed+3)+'│', speak=False)
-    print(preliminary_winner, speak=False)
-    print(semifinal_bottom_up+' '*(feed+3)+'│'+' '*(feed+3)+'│', speak=False)
-    print(final_bottom+' '*(feed+3)+'└ '+names[w4], speak=False)
-    print(semifinal_bottom_down+' '*(feed+3)+' '+' '*(feed+3)+
-          '┌ '+'═'*len(names[w4]), speak=False)
-    print(" "*(3*feed+9)+'│')
-    print(looser, speak=False)
-    print()
-
 def recur_matches(do_deathmatch, match):
     if isinstance(match, komode.Match) and match.winner is None:
         t1 = recur_matches(do_deathmatch, match[0])
