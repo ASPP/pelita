@@ -266,18 +266,15 @@ def round1(config, rr_unplayed, rr_played):
     return [team_id for team_id, p in round1_ranking(config, rr_played)]
 
 
-def recur_matches(do_deathmatch, match):
-    if isinstance(match, komode.Match) and match.winner is None:
-        t1 = recur_matches(do_deathmatch, match[0])
-        t2 = recur_matches(do_deathmatch, match[1])
-
-        winner = do_deathmatch(t1, t2)
-        match.winner = winner
-        return winner
+def recur_match_winner(match):
+    if isinstance(match, komode.Match) and match.winner is not None:
+        return recur_match_winner(match.winner)
     elif isinstance(match, komode.Bye):
-        return recur_matches(do_deathmatch, match.team)
+        return recur_match_winner(match.team)
     elif isinstance(match, komode.Team):
         return match.name
+    elif isinstance(match, str):
+        return match
     return None
 
 
@@ -295,15 +292,15 @@ def round2(config, teams):
 
 
     last_match = komode.prepare_matches(teams, bonusmatch=config.bonusmatch)
+    tournament = komode.tree_enumerate(last_match)
 
-    def do_deathmatch(config):
-        def inner(t1, t2):
-            komode.print_knockout(last_match)
-            winner = start_deathmatch(config, t1, t2)
-            return winner
-        return inner
-
-    recur_matches(do_deathmatch(config), last_match)
+    for round in tournament:
+        for match in round:
+            if isinstance(match, komode.Match):
+                komode.print_knockout(last_match)
+                match.winner = start_deathmatch(config,
+                                                recur_match_winner(match.t1),
+                                                recur_match_winner(match.t2))
 
     komode.print_knockout(last_match)
 
