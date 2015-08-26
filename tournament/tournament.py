@@ -297,12 +297,12 @@ def round2(config, teams):
     for round in tournament:
         for match in round:
             if isinstance(match, komode.Match):
-                komode.print_knockout(last_match)
+                komode.print_knockout(last_match, config.team_name)
                 match.winner = start_deathmatch(config,
                                                 recur_match_winner(match.t1),
                                                 recur_match_winner(match.t2))
 
-    komode.print_knockout(last_match)
+    komode.print_knockout(last_match, config.team_name)
 
     wait_for_keypress()
 
