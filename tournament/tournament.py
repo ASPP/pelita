@@ -290,7 +290,6 @@ def round2(config, teams):
     print()
     wait_for_keypress()
 
-
     last_match = komode.prepare_matches(teams, bonusmatch=config.bonusmatch)
     tournament = komode.tree_enumerate(last_match)
 

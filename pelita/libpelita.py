@@ -10,7 +10,8 @@ import sys
 
 import zmq
 
-from .simplesetup import RemoteTeamPlayer
+from . import layout
+from .simplesetup import RemoteTeamPlayer, SimpleController, SimplePublisher, SimpleServer
 
 _logger = logging.getLogger("pelita.libpelita")
 
@@ -148,3 +149,53 @@ def prepare_team(team_spec):
         module = strip_module_prefix(team_spec)
         address = "tcp://127.0.0.1"
     return TeamSpec(module, address)
+
+def run_game(team_specs, game_config):
+    if game_config["layout"] or game_config["layoutfile"]:
+        layout_name, layout_string = layout.load_layout(layout_name=game_config["layout"], layout_file=game_config["layoutfile"])
+    else:
+        layout_name, layout_string = layout.get_random_layout(game_config["filter"])
+
+    print("Using layout '%s'" % layout_name)
+
+    teams = [prepare_team(team_spec) for team_spec in team_specs]
+
+    server = SimpleServer(layout_string=layout_string,
+                                             rounds=game_config["rounds"],
+                                             bind_addrs=[team.address for team in teams],
+                                             initial_delay=game_config["initial_delay"],
+                                             max_timeouts=game_config["max_timeouts"],
+                                             timeout_length=game_config["timeout_length"],
+                                             layout_name=layout_name,
+                                             seed=game_config["seed"])
+
+    # Update our teams with the bound addresses
+    teams = [
+        team._replace(address=address)
+        for team, address in zip(teams, server.bind_addresses)
+    ]
+
+    for idx, team in enumerate(teams):
+        if team.module is None:
+            print("Waiting for external team %d to connect to %s." % (idx, team.address))
+
+    external_players = [
+        call_standalone_pelitagame(team.module, team.address)
+        for team in teams
+        if team.module
+    ]
+
+    publisher = SimplePublisher(game_config["publish_to"])
+#    config["publish-addr"] = publisher.socket_addr
+    print("Publishing to %s" % publisher.socket_addr)
+    server.game_master.register_viewer(publisher)
+
+    if game_config.get("controller"):
+        controller = SimpleController(server.game_master, game_config["controller"])
+        controller.run()
+        server.exit_teams()
+    else:
+
+        server.run()
+    return server.game_master.game_state
+
