@@ -10,7 +10,6 @@ import sys
 
 import zmq
 
-from . import layout
 from .simplesetup import RemoteTeamPlayer, SimpleController, SimplePublisher, SimpleServer
 
 _logger = logging.getLogger("pelita.libpelita")
@@ -150,24 +149,20 @@ def prepare_team(team_spec):
         address = "tcp://127.0.0.1"
     return TeamSpec(module, address)
 
-def run_game(team_specs, game_config):
-    if game_config["layout"] or game_config["layoutfile"]:
-        layout_name, layout_string = layout.load_layout(layout_name=game_config["layout"], layout_file=game_config["layoutfile"])
-    else:
-        layout_name, layout_string = layout.get_random_layout(game_config["filter"])
-
-    print("Using layout '%s'" % layout_name)
+def run_game(team_specs, game_config, viewers=None, controller=None):
+    if viewers is None:
+        viewers = []
 
     teams = [prepare_team(team_spec) for team_spec in team_specs]
 
-    server = SimpleServer(layout_string=layout_string,
-                                             rounds=game_config["rounds"],
-                                             bind_addrs=[team.address for team in teams],
-                                             initial_delay=game_config["initial_delay"],
-                                             max_timeouts=game_config["max_timeouts"],
-                                             timeout_length=game_config["timeout_length"],
-                                             layout_name=layout_name,
-                                             seed=game_config["seed"])
+    server = SimpleServer(layout_string=game_config["layout_string"],
+                          rounds=game_config["rounds"],
+                          bind_addrs=[team.address for team in teams],
+                          initial_delay=game_config["initial_delay"],
+                          max_timeouts=game_config["max_timeouts"],
+                          timeout_length=game_config["timeout_length"],
+                          layout_name=game_config["layout_name"],
+                          seed=game_config["seed"])
 
     # Update our teams with the bound addresses
     teams = [
@@ -185,17 +180,64 @@ def run_game(team_specs, game_config):
         if team.module
     ]
 
-    publisher = SimplePublisher(game_config["publish_to"])
-#    config["publish-addr"] = publisher.socket_addr
-    print("Publishing to %s" % publisher.socket_addr)
-    server.game_master.register_viewer(publisher)
+    for viewer in viewers:
+        server.game_master.register_viewer(viewer)
 
-    if game_config.get("controller"):
-        controller = SimpleController(server.game_master, game_config["controller"])
-        controller.run()
-        server.exit_teams()
-    else:
+    if game_config.get("publisher"):
+        server.game_master.register_viewer(game_config["publisher"])
 
-        server.run()
-    return server.game_master.game_state
+    with autoclose_subprocesses(external_players):
+        if controller is not None:
+            if controller.game_master is None:
+                controller.game_master = server.game_master
+            controller.run()
+            server.exit_teams()
+        else:
+            server.run()
+        return server.game_master.game_state
 
+@contextlib.contextmanager
+def tk_viewer(geometry=None, delay=None):
+    publisher = SimplePublisher("tcp://127.0.0.1:*")
+    controller = SimpleController(None, "tcp://127.0.0.1:*")
+
+    viewer = run_external_viewer(publisher.socket_addr, controller.socket_addr,
+                                 geometry=geometry, delay=delay)
+    yield { "publisher": publisher, "controller": controller }
+
+def run_external_viewer(subscribe_sock, controller, geometry, delay):
+    # Something on OS X prevents Tk from running in a forked process.
+    # Therefore we cannot use multiprocessing here. subprocess works, though.
+    viewer_args = [ str(subscribe_sock) ]
+    if controller:
+        viewer_args += ["--controller-address", str(controller)]
+    if geometry:
+        viewer_args += ["--geometry", "{0}x{1}".format(*geometry)]
+    if delay:
+        viewer_args += ["--delay", str(delay)]
+
+    tkviewer = os.path.join(os.path.dirname(sys.argv[0]), "tkviewer.py")
+    external_call = [get_python_process(), tkviewer] + viewer_args
+    _logger.debug("Executing: %r", external_call)
+    return subprocess.Popen(external_call)
+
+@contextlib.contextmanager
+def autoclose_subprocesses(subprocesses):
+    """
+    Automatically close subprocesses when the context ends.
+    This needs to be done to shut down misbehaving bots
+    when the main program finishes.
+    """
+    try:
+        yield
+    except KeyboardInterrupt:
+        pass
+    finally:
+        # kill all client processes. NOW!
+        # (is ths too early?)
+        for sp in subprocesses:
+            _logger.debug("Attempting to terminate %r.", sp)
+            sp.terminate()
+        for sp in subprocesses:
+            sp.wait()
+            _logger.debug("%r terminated.", sp)
