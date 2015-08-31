@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.player &mdash; Pelita v0.2.0-212-g597fe16 documentation</title>
+    <title>pelita.player &mdash; Pelita v0.2.0-232-gc741287 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-212-g597fe16',
+        VERSION:     'v0.2.0-232-gc741287',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-212-g597fe16 documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-232-gc741287 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
@@ -95,17 +95,19 @@
         <span class="c"># only iterate about those player which are in bot_players</span>
         <span class="c"># we might have defined more players than we have received</span>
         <span class="c"># indexes for.</span>
-        <span class="n">team</span> <span class="o">=</span> <span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="n">team_id</span><span class="p">]</span>
+        <span class="n">team_bots</span> <span class="o">=</span> <span class="n">universe</span><span class="o">.</span><span class="n">team_bots</span><span class="p">(</span><span class="n">team_id</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">team</span><span class="o">.</span><span class="n">bots</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_players</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Tried to set </span><span class="si">%d</span><span class="s"> bot_ids with only </span><span class="si">%d</span><span class="s"> Players.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">team</span><span class="o">.</span><span class="n">bots</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_players</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">team_bots</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_players</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Tried to set </span><span class="si">%d</span><span class="s"> bot_ids with only </span><span class="si">%d</span><span class="s"> Players.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">team_bots</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_players</span><span class="p">)))</span>
 
-        <span class="k">for</span> <span class="n">bot_id</span><span class="p">,</span> <span class="n">player</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">team</span><span class="o">.</span><span class="n">bots</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_players</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">bot</span><span class="p">,</span> <span class="n">player</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">team_bots</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_players</span><span class="p">):</span>
             <span class="c"># tell the player its index</span>
-            <span class="n">player</span><span class="o">.</span><span class="n">_set_index</span><span class="p">(</span><span class="n">bot_id</span><span class="p">)</span>
+            <span class="n">player</span><span class="o">.</span><span class="n">_set_index</span><span class="p">(</span><span class="n">bot</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
             <span class="c"># tell the player about the initial universe</span>
             <span class="n">player</span><span class="o">.</span><span class="n">_set_initial</span><span class="p">(</span><span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_bot_players</span><span class="p">[</span><span class="n">bot_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">player</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bot_players</span><span class="p">[</span><span class="n">bot</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">player</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_name</span>
 
 <div class="viewcode-block" id="SimpleTeam.get_move"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.SimpleTeam.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Requests a move from the Player who controls the Bot with id `bot_id`.</span>
@@ -497,33 +499,11 @@
         <span class="k">except</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span>
 </div>
-<div class="viewcode-block" id="IOBoundPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.IOBoundPlayer">[docs]</a><span class="k">class</span> <span class="nc">IOBoundPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; IO Bound player that crawls the file system. &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timeouted</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
-                <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
-                    <span class="k">pass</span>
-                <span class="k">finally</span><span class="p">:</span>
-                    <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="mi">1000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
-                        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeouted</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_pos</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">:</span>
-                        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Crawling done and timeout received </span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">count</span><span class="p">)</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">timeouted</span> <span class="o">=</span> <span class="bp">True</span>
-</div>
 <div class="viewcode-block" id="MoveExceptionPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.MoveExceptionPlayer">[docs]</a><span class="k">class</span> <span class="nc">MoveExceptionPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Player that raises an Exception on get_move(). &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Exception from MoveExceptionPlayer.&quot;</span><span class="p">)</span>
-
 </div>
 <div class="viewcode-block" id="InitialExceptionPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.InitialExceptionPlayer">[docs]</a><span class="k">class</span> <span class="nc">InitialExceptionPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Player that raises an Exception on set_initial(). &quot;&quot;&quot;</span>
@@ -543,26 +523,8 @@
     <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">direction</span> <span class="o">=</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span>
         <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">direction</span>
-</div>
-<div class="viewcode-block" id="CPUBoundPlayer"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.CPUBoundPlayer">[docs]</a><span class="k">class</span> <span class="nc">CPUBoundPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Player that does loads of computation. &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timeouted</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="n">total</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">):</span>
-            <span class="n">total</span> <span class="o">+=</span> <span class="n">i</span><span class="o">*</span><span class="n">i</span>
-            <span class="n">total</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">total</span><span class="p">)</span>
-            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="mi">1000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
-                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeouted</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_pos</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&quot;Crawling done and timeout received </span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">count</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">timeouted</span> <span class="o">=</span> <span class="bp">True</span>
-</pre></div></div>
+        <span class="k">return</span> <span class="n">direction</span></div>
+</pre></div>
 
           </div>
         </div>

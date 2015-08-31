@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.simplesetup &mdash; Pelita v0.2.0-212-g597fe16 documentation</title>
+    <title>pelita.simplesetup &mdash; Pelita v0.2.0-232-gc741287 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-212-g597fe16',
+        VERSION:     'v0.2.0-232-gc741287',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-212-g597fe16 documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-232-gc741287 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
@@ -78,10 +78,11 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">six</span>
 
+<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">uuid</span>
 <span class="kn">import</span> <span class="nn">zmq</span>
 
-<span class="kn">from</span> <span class="nn">.messaging.json_convert</span> <span class="kn">import</span> <span class="n">json_converter</span>
+<span class="kn">from</span> <span class="nn">.datamodel</span> <span class="kn">import</span> <span class="n">CTFUniverse</span>
 <span class="kn">from</span> <span class="nn">.game_master</span> <span class="kn">import</span> <span class="n">GameMaster</span><span class="p">,</span> <span class="n">PlayerTimeout</span><span class="p">,</span> <span class="n">PlayerDisconnected</span>
 <span class="kn">from</span> <span class="nn">.viewer</span> <span class="kn">import</span> <span class="n">AbstractViewer</span>
 
@@ -199,7 +200,7 @@
             <span class="c"># race condition if a connection was closed between poll and send.</span>
             <span class="c"># NOBLOCK should raise, so we can catch that</span>
             <span class="n">message_obj</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;__uuid__&quot;</span><span class="p">:</span> <span class="n">msg_uuid</span><span class="p">,</span> <span class="s">&quot;__action__&quot;</span><span class="p">:</span> <span class="n">action</span><span class="p">,</span> <span class="s">&quot;__data__&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">}</span>
-            <span class="n">json_message</span> <span class="o">=</span> <span class="n">json_converter</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">message_obj</span><span class="p">)</span>
+            <span class="n">json_message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">message_obj</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send_unicode</span><span class="p">(</span><span class="n">json_message</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">zmq</span><span class="o">.</span><span class="n">NOBLOCK</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">zmq</span><span class="o">.</span><span class="n">ZMQError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -213,7 +214,7 @@
         <span class="c"># return tuple</span>
         <span class="c"># (action, data)</span>
         <span class="n">json_message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">recv_unicode</span><span class="p">()</span>
-        <span class="n">py_obj</span> <span class="o">=</span> <span class="n">json_converter</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_message</span><span class="p">)</span>
+        <span class="n">py_obj</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_message</span><span class="p">)</span>
         <span class="c">#print repr(json_msg)</span>
         <span class="n">msg_uuid</span> <span class="o">=</span> <span class="n">py_obj</span><span class="p">[</span><span class="s">&quot;__uuid__&quot;</span><span class="p">]</span>
 
@@ -282,7 +283,7 @@
     <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">&quot;set_initial&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;team_id&quot;</span><span class="p">:</span> <span class="n">team_id</span><span class="p">,</span>
-                                                    <span class="s">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="p">,</span>
+                                                    <span class="s">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="o">.</span><span class="n">_to_json_dict</span><span class="p">(),</span>
                                                     <span class="s">&quot;game_state&quot;</span><span class="p">:</span> <span class="n">game_state</span><span class="p">})</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">recv_timeout</span><span class="p">(</span><span class="n">game_state</span><span class="p">[</span><span class="s">&quot;timeout_length&quot;</span><span class="p">])</span>
         <span class="k">except</span> <span class="n">ZMQTimeout</span><span class="p">:</span>
@@ -294,7 +295,7 @@
     <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">&quot;get_move&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;bot_id&quot;</span><span class="p">:</span> <span class="n">bot_id</span><span class="p">,</span>
-                                                 <span class="s">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="p">,</span>
+                                                 <span class="s">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="o">.</span><span class="n">_to_json_dict</span><span class="p">(),</span>
                                                  <span class="s">&quot;game_state&quot;</span><span class="p">:</span> <span class="n">game_state</span><span class="p">})</span>
             <span class="n">reply</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">recv_timeout</span><span class="p">(</span><span class="n">game_state</span><span class="p">[</span><span class="s">&quot;timeout_length&quot;</span><span class="p">])</span>
             <span class="c"># make sure it is a dict</span>
@@ -366,13 +367,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">number_of_teams</span> <span class="o">=</span> <span class="n">teams</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rounds</span> <span class="o">=</span> <span class="n">rounds</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">game_master</span> <span class="o">=</span> <span class="n">GameMaster</span><span class="p">(</span><span class="n">layout_string</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">players</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rounds</span><span class="p">,</span>
-                                      <span class="n">initial_delay</span><span class="o">=</span><span class="n">initial_delay</span><span class="p">,</span>
-                                      <span class="n">max_timeouts</span><span class="o">=</span><span class="n">max_timeouts</span><span class="p">,</span>
-                                      <span class="n">timeout_length</span><span class="o">=</span><span class="n">timeout_length</span><span class="p">,</span>
-                                      <span class="n">layout_name</span><span class="o">=</span><span class="n">layout_name</span><span class="p">,</span>
-                                      <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bind_addrs</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
             <span class="k">pass</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bind_addrs</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -417,12 +411,13 @@
             <span class="n">team_player</span> <span class="o">=</span> <span class="n">RemoteTeamPlayer</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">team_players</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">team_player</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">register_teams</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># At this point the clients should have been started as well.</span>
-        <span class="k">for</span> <span class="n">team</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_players</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Registering team </span><span class="si">%r</span><span class="s">.&quot;</span><span class="p">,</span> <span class="n">team</span><span class="p">)</span>
-            <span class="n">team_name</span> <span class="o">=</span> <span class="n">team</span><span class="o">.</span><span class="n">team_name</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">game_master</span><span class="o">.</span><span class="n">register_team</span><span class="p">(</span><span class="n">team</span><span class="p">,</span> <span class="n">team_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_master</span> <span class="o">=</span> <span class="n">GameMaster</span><span class="p">(</span><span class="n">layout_string</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_players</span><span class="p">,</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">players</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rounds</span><span class="p">,</span>
+                                      <span class="n">initial_delay</span><span class="o">=</span><span class="n">initial_delay</span><span class="p">,</span>
+                                      <span class="n">max_timeouts</span><span class="o">=</span><span class="n">max_timeouts</span><span class="p">,</span>
+                                      <span class="n">timeout_length</span><span class="o">=</span><span class="n">timeout_length</span><span class="p">,</span>
+                                      <span class="n">layout_name</span><span class="o">=</span><span class="n">layout_name</span><span class="p">,</span>
+                                      <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">exit_teams</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">team_player</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_players</span><span class="p">:</span>
@@ -437,8 +432,6 @@
             <span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </div>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">register_teams</span><span class="p">()</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">game_master</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">exit_teams</span><span class="p">()</span>
@@ -481,7 +474,7 @@
 
         <span class="k">if</span> <span class="n">uuid_</span><span class="p">:</span>
             <span class="n">message_obj</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;__uuid__&quot;</span><span class="p">:</span> <span class="n">uuid_</span><span class="p">,</span> <span class="s">&quot;__return__&quot;</span><span class="p">:</span> <span class="n">retval</span><span class="p">}</span>
-            <span class="n">json_message</span> <span class="o">=</span> <span class="n">json_converter</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">message_obj</span><span class="p">)</span>
+            <span class="n">json_message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">message_obj</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send_unicode</span><span class="p">(</span><span class="n">json_message</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -556,7 +549,7 @@
 <span class="sd">        answer from the player.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">json_message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">recv_unicode</span><span class="p">()</span>
-        <span class="n">py_obj</span> <span class="o">=</span> <span class="n">json_converter</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_message</span><span class="p">)</span>
+        <span class="n">py_obj</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_message</span><span class="p">)</span>
         <span class="n">uuid_</span> <span class="o">=</span> <span class="n">py_obj</span><span class="p">[</span><span class="s">&quot;__uuid__&quot;</span><span class="p">]</span>
         <span class="n">action</span> <span class="o">=</span> <span class="n">py_obj</span><span class="p">[</span><span class="s">&quot;__action__&quot;</span><span class="p">]</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">py_obj</span><span class="p">[</span><span class="s">&quot;__data__&quot;</span><span class="p">]</span>
@@ -580,16 +573,16 @@
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">message_obj</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;__uuid__&quot;</span><span class="p">:</span> <span class="n">uuid_</span><span class="p">,</span> <span class="s">&quot;__return__&quot;</span><span class="p">:</span> <span class="n">retval</span><span class="p">}</span>
-                <span class="n">json_message</span> <span class="o">=</span> <span class="n">json_converter</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">message_obj</span><span class="p">)</span>
+                <span class="n">json_message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">message_obj</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send_unicode</span><span class="p">(</span><span class="n">json_message</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
                 <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">set_initial</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">set_initial</span><span class="p">(</span><span class="n">team_id</span><span class="p">,</span> <span class="n">CTFUniverse</span><span class="o">.</span><span class="n">_from_json_dict</span><span class="p">(</span><span class="n">universe</span><span class="p">),</span> <span class="n">game_state</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">get_move</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">get_move</span><span class="p">(</span><span class="n">bot_id</span><span class="p">,</span> <span class="n">CTFUniverse</span><span class="o">.</span><span class="n">_from_json_dict</span><span class="p">(</span><span class="n">universe</span><span class="p">),</span> <span class="n">game_state</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">ExitLoop</span><span class="p">()</span>
@@ -629,17 +622,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">socket_addr</span> <span class="o">=</span> <span class="n">bind_socket</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s">&#39;--publish&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-        <span class="n">as_json</span> <span class="o">=</span> <span class="n">json_converter</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="n">as_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send_unicode</span><span class="p">(</span><span class="n">as_json</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
         <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;__action__&quot;</span><span class="p">:</span> <span class="s">&quot;set_initial&quot;</span><span class="p">,</span>
-                   <span class="s">&quot;__data__&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="p">}}</span>
+                   <span class="s">&quot;__data__&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="o">.</span><span class="n">_to_json_dict</span><span class="p">()}}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;__action__&quot;</span><span class="p">:</span> <span class="s">&quot;observe&quot;</span><span class="p">,</span>
-                   <span class="s">&quot;__data__&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="p">,</span>
+                   <span class="s">&quot;__data__&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="o">.</span><span class="n">_to_json_dict</span><span class="p">(),</span>
                                 <span class="s">&quot;game_state&quot;</span><span class="p">:</span> <span class="n">game_state</span><span class="p">}}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </div>
@@ -677,7 +670,7 @@
 <span class="sd">        answer from the player.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">recv_unicode</span><span class="p">()</span>
-        <span class="n">py_obj</span> <span class="o">=</span> <span class="n">json_converter</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">py_obj</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
         <span class="n">action</span> <span class="o">=</span> <span class="n">py_obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;__action__&quot;</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">py_obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;__data__&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
@@ -685,10 +678,10 @@
         <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">)(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">set_initial</span><span class="p">(</span><span class="n">universe</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">set_initial</span><span class="p">(</span><span class="n">CTFUniverse</span><span class="o">.</span><span class="n">_from_json_dict</span><span class="p">(</span><span class="n">universe</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">CTFUniverse</span><span class="o">.</span><span class="n">_from_json_dict</span><span class="p">(</span><span class="n">universe</span><span class="p">),</span> <span class="n">game_state</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">ExitLoop</span><span class="p">()</span>

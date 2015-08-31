@@ -14,9 +14,7 @@ pelita.player
    .. autosummary::
    
       AbstractPlayer
-      CPUBoundPlayer
       DebuggablePlayer
-      IOBoundPlayer
       InitialExceptionPlayer
       MoveExceptionPlayer
       RoundBasedPlayer

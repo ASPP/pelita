@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.containers &mdash; Pelita v0.2.0-212-g597fe16 documentation</title>
+    <title>pelita.containers &mdash; Pelita v0.2.0-232-gc741287 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-212-g597fe16',
+        VERSION:     'v0.2.0-232-gc741287',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-212-g597fe16 documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-232-gc741287 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
@@ -47,9 +47,6 @@
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">MutableSequence</span>
 
-<span class="kn">from</span> <span class="nn">.messaging.json_convert</span> <span class="kn">import</span> <span class="n">serializable</span>
-
-<span class="nd">@serializable</span>
 <div class="viewcode-block" id="Mesh"><a class="viewcode-back" href="../../pelita/pelita.containers.html#pelita.containers.Mesh">[docs]</a><span class="k">class</span> <span class="nc">Mesh</span><span class="p">(</span><span class="n">Mapping</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A mapping from a two-dimensional coordinate system into object space.</span>
 
@@ -235,8 +232,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="s">&#39;Mesh(</span><span class="si">%i</span><span class="s">, </span><span class="si">%i</span><span class="s">, data=</span><span class="si">%r</span><span class="s">)&#39;</span>
-            <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">(</span><span class="si">%i</span><span class="s">, </span><span class="si">%i</span><span class="s">, data=</span><span class="si">%r</span><span class="s">)&#39;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">output</span> <span class="o">=</span> <span class="nb">str</span><span class="p">()</span>
@@ -304,8 +301,8 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_from_json_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="o">**</span><span class="n">item</span><span class="p">)</span>
-</pre></div></div>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="o">**</span><span class="n">item</span><span class="p">)</span></div>
+</pre></div>
 
           </div>
         </div>

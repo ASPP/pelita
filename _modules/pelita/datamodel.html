@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.datamodel &mdash; Pelita v0.2.0-212-g597fe16 documentation</title>
+    <title>pelita.datamodel &mdash; Pelita v0.2.0-232-gc741287 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-212-g597fe16',
+        VERSION:     'v0.2.0-232-gc741287',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-212-g597fe16 documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-232-gc741287 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
@@ -50,7 +50,6 @@
 <span class="kn">from</span> <span class="nn">.graph</span> <span class="kn">import</span> <span class="n">iter_adjacencies</span>
 <span class="kn">from</span> <span class="nn">.layout</span> <span class="kn">import</span> <span class="n">Layout</span>
 <span class="kn">from</span> <span class="nn">.containers</span> <span class="kn">import</span> <span class="n">Mesh</span>
-<span class="kn">from</span> <span class="nn">.messaging.json_convert</span> <span class="kn">import</span> <span class="n">serializable</span>
 
 <span class="n">north</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">south</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -58,7 +57,6 @@
 <span class="n">east</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 <span class="n">stop</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
-<span class="nd">@serializable</span>
 <div class="viewcode-block" id="Team"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.Team">[docs]</a><span class="k">class</span> <span class="nc">Team</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A team of bots.</span>
 
@@ -66,38 +64,16 @@
 <span class="sd">    ----------</span>
 <span class="sd">    index : int</span>
 <span class="sd">        the index of the team within the Universe</span>
-<span class="sd">    name : str</span>
-<span class="sd">        the name of the team</span>
 <span class="sd">    zone : tuple of int (x_min, x_max)</span>
 <span class="sd">        the homezone of this team</span>
 <span class="sd">    score : int, optional, default = 0</span>
 <span class="sd">        the score of this team</span>
-<span class="sd">    bots : list of int, optional, default = None (creates an empty list)</span>
-<span class="sd">        the bot indices that belong to this team</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">zone</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bots</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">zone</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zone</span> <span class="o">=</span> <span class="n">zone</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="n">score</span>
-        <span class="c"># we can&#39;t use a keyword argument here, because that would create a</span>
-        <span class="c"># single list object for all our Teams.</span>
-        <span class="k">if</span> <span class="n">bots</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bots</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bots</span> <span class="o">=</span> <span class="n">bots</span>
-
-    <span class="k">def</span> <span class="nf">_add_bot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Add a bot to this team.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        bot : int</span>
-<span class="sd">            the index of the bot to add</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Team.in_zone"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.Team.in_zone">[docs]</a>    <span class="k">def</span> <span class="nf">in_zone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Check if a position is within the zone of this team.</span>
@@ -115,20 +91,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zone</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zone</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </div>
-    <span class="k">def</span> <span class="nf">_score_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Score a single point. &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">+=</span> <span class="mi">1</span>
-
-    <span class="k">def</span> <span class="nf">_score_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Score several points. &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">+=</span> <span class="n">points</span>
-
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
-
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="s">&#39;Team(</span><span class="si">%i</span><span class="s">, </span><span class="si">%r</span><span class="s">, </span><span class="si">%s</span><span class="s">, score=</span><span class="si">%i</span><span class="s">, bots=</span><span class="si">%r</span><span class="s">)&#39;</span> <span class="o">%</span>
-                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zone</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bots</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s">&#39;Team(</span><span class="si">%i</span><span class="s">, </span><span class="si">%s</span><span class="s">, score=</span><span class="si">%i</span><span class="s">)&#39;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zone</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">__dict__</span>
@@ -138,10 +103,8 @@
 
     <span class="k">def</span> <span class="nf">_to_json_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="s">&quot;index&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
-                <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="s">&quot;zone&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">zone</span><span class="p">,</span>
-                <span class="s">&quot;score&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">,</span>
-                <span class="s">&quot;bots&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">bots</span><span class="p">}</span>
+                <span class="s">&quot;score&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">}</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_from_json_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
@@ -149,7 +112,6 @@
         <span class="n">item</span><span class="p">[</span><span class="s">&quot;zone&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s">&quot;zone&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="o">**</span><span class="n">item</span><span class="p">)</span>
 </div>
-<span class="nd">@serializable</span>
 <div class="viewcode-block" id="Bot"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.Bot">[docs]</a><span class="k">class</span> <span class="nc">Bot</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A bot on a team.</span>
 
@@ -203,7 +165,7 @@
     <span class="k">def</span> <span class="nf">is_harvester</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_destroyer</span>
 
-    <span class="k">def</span> <span class="nf">_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_to_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Reset this bot to its initial position. &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pos</span>
 
@@ -239,65 +201,42 @@
 
 <span class="n">maze_components</span> <span class="o">=</span> <span class="p">[</span><span class="n">Food</span><span class="p">,</span> <span class="n">Free</span><span class="p">,</span> <span class="n">Wall</span><span class="p">]</span>
 
-<span class="nd">@serializable</span>
 <div class="viewcode-block" id="Maze"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.Maze">[docs]</a><span class="k">class</span> <span class="nc">Maze</span><span class="p">(</span><span class="n">Mesh</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A Mesh of strings of maze component representations.</span>
+    <span class="sd">&quot;&quot;&quot; The `Maze` object holds the walls of the universe.</span>
 
-<span class="sd">    This is a container class to represent a game maze. It is a two-dimensional</span>
-<span class="sd">    structure (Mesh) which contains a representation of maze components at each</span>
-<span class="sd">    position. This is implemented using sequences of characters, i.e. strings.</span>
-<span class="sd">    At each position we store the characters corresponding to the maze</span>
-<span class="sd">    components at this position.</span>
+<span class="sd">    Data is stored and given in row-based order, eg.</span>
+
+<span class="sd">    &gt;&gt;&gt; m = Maze(4, 3, data=[True, False, True, True] + [True, False, False, True] + 4*[True])</span>
+
+<span class="sd">    specifies the maze</span>
+
+<span class="sd">        # ##</span>
+<span class="sd">        #  #</span>
+<span class="sd">        ####</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    width : int</span>
+<span class="sd">        the width of the maze</span>
+<span class="sd">    height : int</span>
+<span class="sd">        the height of the maze</span>
+<span class="sd">    data : iterable of bools</span>
+<span class="sd">        the walls of the maze (True) or free space (False) in row-based order</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    shape : (int, int)</span>
+<span class="sd">        tuple of width and height</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">width</span><span class="o">*</span><span class="n">height</span><span class="p">)]</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">data</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;Maze keyword argument &#39;data&#39; should be list of &quot;</span> <span class="o">+</span>\
-                            <span class="s">&quot;strings, not: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">data</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c"># sort the data items</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">width</span> <span class="o">*</span> <span class="n">height</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">data</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;Maze keyword argument &#39;data&#39; should be a list of of &quot;</span> <span class="o">+</span>\
+                            <span class="s">&quot;bools, not: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">data</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Maze</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Maze</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
-
-<div class="viewcode-block" id="Maze.get_at"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.Maze.get_at">[docs]</a>    <span class="k">def</span> <span class="nf">get_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">char</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Get all objects of a given char representation at certain position.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        char : char</span>
-<span class="sd">            the char representation of maze components to look for</span>
-<span class="sd">        pos : tuple of (int, int)</span>
-<span class="sd">            the position to look at</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        objs : list</span>
-<span class="sd">            the objects at that position</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="k">if</span> <span class="n">item</span> <span class="o">==</span> <span class="n">char</span><span class="p">]</span>
-</div>
-<div class="viewcode-block" id="Maze.remove_at"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.Maze.remove_at">[docs]</a>    <span class="k">def</span> <span class="nf">remove_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">char</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Remove all objects of a given char representation at a certain position.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        char : char</span>
-<span class="sd">            the char representation to remove from the Maze</span>
-<span class="sd">        pos : tuple of (int, int)</span>
-<span class="sd">            the position to look at</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">char</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">pos</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="k">if</span> <span class="n">item</span> <span class="o">!=</span> <span class="n">char</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span>
-</div>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The indices of positions in the Maze.</span>
@@ -309,33 +248,6 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-
-<div class="viewcode-block" id="Maze.pos_of"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.Maze.pos_of">[docs]</a>    <span class="k">def</span> <span class="nf">pos_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">char</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; The indices of positions which have a maze component.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        char : maze component char</span>
-<span class="sd">            the char of maze component to look for</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; universe.maze.pos_of(Free)</span>
-<span class="sd">        [(1, 1),</span>
-<span class="sd">        (3, 1),</span>
-<span class="sd">        (4, 1),</span>
-<span class="sd">        (5, 1),</span>
-<span class="sd">        (6, 1),</span>
-<span class="sd">        (7, 1),</span>
-<span class="sd">        ...</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">pos</span> <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">val</span><span class="p">]</span>
-</div>
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="s">&#39;Maze(</span><span class="si">%i</span><span class="s">, </span><span class="si">%i</span><span class="s">, data=</span><span class="si">%r</span><span class="s">)&#39;</span>
-            <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">))</span>
-
 </div>
 <div class="viewcode-block" id="create_maze"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.create_maze">[docs]</a><span class="k">def</span> <span class="nf">create_maze</span><span class="p">(</span><span class="n">layout_mesh</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Transforms a layout_mesh into a Maze.</span>
@@ -352,15 +264,13 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">maze</span> <span class="o">=</span> <span class="n">Maze</span><span class="p">(</span><span class="n">layout_mesh</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">layout_mesh</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">maze</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">layout_mesh</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="n">Wall</span><span class="p">:</span>
-            <span class="n">maze</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">maze</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">+</span> <span class="n">Wall</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">maze</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">maze</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">+</span> <span class="n">Free</span>
-        <span class="k">if</span> <span class="n">layout_mesh</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="n">Food</span><span class="p">:</span>
-            <span class="n">maze</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">maze</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">+</span> <span class="n">Food</span>
-    <span class="k">return</span> <span class="n">maze</span>
-
+    <span class="n">food</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">items</span> <span class="ow">in</span> <span class="n">layout_mesh</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">Wall</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+            <span class="n">maze</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="n">Food</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+            <span class="n">food</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">maze</span><span class="p">,</span> <span class="n">food</span>
 </div>
 <div class="viewcode-block" id="extract_initial_positions"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.extract_initial_positions">[docs]</a><span class="k">def</span> <span class="nf">extract_initial_positions</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Extract initial positions from mesh.</span>
@@ -397,7 +307,6 @@
     <span class="sd">&quot;&quot;&quot; Raised when a bot attempts to make an illegal move. &quot;&quot;&quot;</span>
     <span class="k">pass</span>
 </div>
-<span class="nd">@serializable</span>
 <div class="viewcode-block" id="CTFUniverse"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse">[docs]</a><span class="k">class</span> <span class="nc">CTFUniverse</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; The Universe: representation of the game state.</span>
 
@@ -420,7 +329,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="CTFUniverse.create"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">layout_str</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">,</span> <span class="n">team_names</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="CTFUniverse.create"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">layout_str</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Factory to create a 2-Player Capture The Flag Universe.</span>
 
 <span class="sd">        Parameters</span>
@@ -429,9 +338,6 @@
 <span class="sd">            the string encoding the maze layout</span>
 <span class="sd">        number_bots : int</span>
 <span class="sd">            the number of bots in the game</span>
-<span class="sd">        team_names : length 2 list of strings, optional</span>
-<span class="sd">            default = None -&gt; [&#39;black&#39;, &#39;white&#39;]</span>
-<span class="sd">            the names of the playing teams</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -441,9 +347,6 @@
 <span class="sd">            if there is something wrong with the layout_str, see `Layout()`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">team_names</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">team_names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="s">&quot;white&quot;</span><span class="p">]</span>
-
         <span class="n">layout_chars</span> <span class="o">=</span> <span class="n">maze_components</span>
 
         <span class="k">if</span> <span class="n">number_bots</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
@@ -453,7 +356,7 @@
         <span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="p">(</span><span class="n">layout_str</span><span class="p">,</span> <span class="n">layout_chars</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">)</span>
         <span class="n">layout_mesh</span> <span class="o">=</span> <span class="n">layout</span><span class="o">.</span><span class="n">as_mesh</span><span class="p">()</span>
         <span class="n">initial_pos</span> <span class="o">=</span> <span class="n">extract_initial_positions</span><span class="p">(</span><span class="n">layout_mesh</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">)</span>
-        <span class="n">maze</span> <span class="o">=</span> <span class="n">create_maze</span><span class="p">(</span><span class="n">layout_mesh</span><span class="p">)</span>
+        <span class="n">maze</span><span class="p">,</span> <span class="n">food</span> <span class="o">=</span> <span class="n">create_maze</span><span class="p">(</span><span class="n">layout_mesh</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">maze</span><span class="o">.</span><span class="n">width</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">UniverseException</span><span class="p">(</span>
                 <span class="s">&quot;Width of a layout for CTF must be even, is: </span><span class="si">%i</span><span class="s">&quot;</span>
@@ -462,10 +365,8 @@
                 <span class="p">(</span><span class="n">maze</span><span class="o">.</span><span class="n">width</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">maze</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
 
         <span class="n">teams</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">teams</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Team</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">team_names</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">homezones</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bots</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span>
-            <span class="n">number_bots</span><span class="p">,</span> <span class="mi">2</span><span class="p">))))</span>
-        <span class="n">teams</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Team</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">team_names</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">homezones</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">bots</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span>
-            <span class="n">number_bots</span><span class="p">,</span> <span class="mi">2</span><span class="p">))))</span>
+        <span class="n">teams</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Team</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">homezones</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">teams</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Team</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">homezones</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
 
         <span class="n">bots</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">bot_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_bots</span><span class="p">):</span>
@@ -474,7 +375,7 @@
                     <span class="n">team_index</span><span class="p">,</span> <span class="n">homezones</span><span class="p">[</span><span class="n">team_index</span><span class="p">])</span>
             <span class="n">bots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">maze</span><span class="p">,</span> <span class="n">teams</span><span class="p">,</span> <span class="n">bots</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">maze</span><span class="p">,</span> <span class="n">food</span><span class="p">,</span> <span class="n">teams</span><span class="p">,</span> <span class="n">bots</span><span class="p">)</span>
 
     <span class="c">#: All possible (but not necessarily legal) moves</span></div>
     <span class="n">_moves</span> <span class="o">=</span> <span class="p">[</span><span class="n">north</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">west</span><span class="p">,</span> <span class="n">stop</span><span class="p">]</span>
@@ -482,9 +383,9 @@
     <span class="c">#: the number of points to score when killing</span>
     <span class="n">KILLPOINTS</span> <span class="o">=</span> <span class="mi">5</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maze</span><span class="p">,</span> <span class="n">teams</span><span class="p">,</span> <span class="n">bots</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maze</span><span class="p">,</span> <span class="n">food</span><span class="p">,</span> <span class="n">teams</span><span class="p">,</span> <span class="n">bots</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maze</span> <span class="o">=</span> <span class="n">maze</span>
-        <span class="c"># TODO make a deepcopy here, so that we can big_bang</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">food</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">food</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">teams</span> <span class="o">=</span> <span class="n">teams</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bots</span> <span class="o">=</span> <span class="n">bots</span>
 
@@ -509,7 +410,7 @@
 <span class="sd">            the positions of all food</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="o">.</span><span class="n">pos_of</span><span class="p">(</span><span class="n">Food</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">food</span>
 
 <div class="viewcode-block" id="CTFUniverse.team_food"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.team_food">[docs]</a>    <span class="k">def</span> <span class="nf">team_food</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team_index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Food that is owned by a team</span>
@@ -549,8 +450,9 @@
 <span class="sd">            the other bots on the team, excluding the desired bot</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">team</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="n">bot_index</span><span class="p">]</span><span class="o">.</span><span class="n">team_index</span><span class="p">]</span>
-        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">team</span><span class="o">.</span><span class="n">bots</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">bot_index</span><span class="p">]</span>
+        <span class="n">team_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="n">bot_index</span><span class="p">]</span><span class="o">.</span><span class="n">team_index</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">bot</span> <span class="k">for</span> <span class="n">bot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_bots</span><span class="p">(</span><span class="n">team_index</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">bot</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="n">bot_index</span><span class="p">]</span>
 </div>
 <div class="viewcode-block" id="CTFUniverse.team_bots"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.team_bots">[docs]</a>    <span class="k">def</span> <span class="nf">team_bots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team_index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Obtain all Bot objects in a Team.</span>
@@ -565,7 +467,8 @@
 <span class="sd">        team_bots : list of Bot objects</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="n">team_index</span><span class="p">]</span><span class="o">.</span><span class="n">bots</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">bot</span> <span class="k">for</span> <span class="n">bot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bots</span>
+                <span class="k">if</span> <span class="n">bot</span><span class="o">.</span><span class="n">team_index</span> <span class="o">==</span> <span class="n">team_index</span><span class="p">]</span>
 </div>
 <div class="viewcode-block" id="CTFUniverse.enemy_bots"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.enemy_bots">[docs]</a>    <span class="k">def</span> <span class="nf">enemy_bots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team_index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Obtain enemy bot objects.</span>
@@ -580,7 +483,8 @@
 <span class="sd">        enemy_bots : list of Bot objects</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enemy_team</span><span class="p">(</span><span class="n">team_index</span><span class="p">)</span><span class="o">.</span><span class="n">bots</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">bot</span> <span class="k">for</span> <span class="n">bot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bots</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">bot</span><span class="o">.</span><span class="n">team_index</span> <span class="o">==</span> <span class="n">team_index</span><span class="p">]</span>
 </div>
 <div class="viewcode-block" id="CTFUniverse.enemy_team"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.enemy_team">[docs]</a>    <span class="k">def</span> <span class="nf">enemy_team</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team_index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Obtain the enemy team.</span>
@@ -627,8 +531,7 @@
             <span class="n">border_x</span> <span class="o">=</span> <span class="n">team_zone</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">border_x</span> <span class="o">=</span> <span class="n">team_zone</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">return</span> <span class="p">[(</span><span class="n">border_x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span>
-                <span class="n">Free</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="p">[</span><span class="n">border_x</span><span class="p">,</span> <span class="n">y</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">border_x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="p">[</span><span class="n">border_x</span><span class="p">,</span> <span class="n">y</span><span class="p">]]</span>
 </div>
 <div class="viewcode-block" id="CTFUniverse.move_bot"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.move_bot">[docs]</a>    <span class="k">def</span> <span class="nf">move_bot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_id</span><span class="p">,</span> <span class="n">move</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Move a bot in certain direction.</span>
@@ -668,8 +571,8 @@
         <span class="n">team</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="n">bot</span><span class="o">.</span><span class="n">team_index</span><span class="p">]</span>
         <span class="c"># check for food being eaten</span>
         <span class="n">game_state</span><span class="p">[</span><span class="s">&quot;food_eaten&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="n">Food</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="p">[</span><span class="n">bot</span><span class="o">.</span><span class="n">current_pos</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">bot</span><span class="o">.</span><span class="n">in_own_zone</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="o">.</span><span class="n">remove_at</span><span class="p">(</span><span class="n">Food</span><span class="p">,</span> <span class="n">bot</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bot</span><span class="o">.</span><span class="n">current_pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">food_list</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">bot</span><span class="o">.</span><span class="n">in_own_zone</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">food</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">bot</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)</span>
 
             <span class="n">game_state</span><span class="p">[</span><span class="s">&quot;food_eaten&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[{</span><span class="s">&quot;food_pos&quot;</span><span class="p">:</span> <span class="n">bot</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="s">&quot;bot_id&quot;</span><span class="p">:</span> <span class="n">bot_id</span><span class="p">}]</span>
 
@@ -696,7 +599,7 @@
         <span class="c"># reset bots</span>
         <span class="k">for</span> <span class="n">destroyed</span> <span class="ow">in</span> <span class="n">game_state</span><span class="p">[</span><span class="s">&quot;bot_destroyed&quot;</span><span class="p">]:</span>
             <span class="n">old_pos</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">current_pos</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="n">destroyed</span><span class="p">[</span><span class="s">&quot;bot_id&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">_reset</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="n">destroyed</span><span class="p">[</span><span class="s">&quot;bot_id&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">_to_initial</span><span class="p">()</span>
             <span class="n">new_pos</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">current_pos</span>
             <span class="n">game_state</span><span class="p">[</span><span class="s">&quot;bot_moved&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[{</span><span class="s">&quot;bot_id&quot;</span><span class="p">:</span> <span class="n">bot_id</span><span class="p">,</span> <span class="s">&quot;old_pos&quot;</span><span class="p">:</span> <span class="n">old_pos</span><span class="p">,</span> <span class="s">&quot;new_pos&quot;</span><span class="p">:</span> <span class="n">new_pos</span><span class="p">}]</span>
 
@@ -728,7 +631,7 @@
         <span class="n">legal_moves_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">move</span><span class="p">,</span> <span class="n">new_pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbourhood</span><span class="p">(</span><span class="n">position</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">Free</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="p">[</span><span class="n">new_pos</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="p">[</span><span class="n">new_pos</span><span class="p">]:</span>
                     <span class="n">legal_moves_dict</span><span class="p">[</span><span class="n">move</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_pos</span>
             <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
                 <span class="c"># If we’re outside the maze, it is not a legal move.</span>
@@ -756,8 +659,8 @@
         <span class="k">return</span> <span class="n">moves</span>
 </div>
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="s">&quot;CTFUniverse(</span><span class="si">%r</span><span class="s">, </span><span class="si">%r</span><span class="s">, </span><span class="si">%r</span><span class="s">)&quot;</span> <span class="o">%</span>
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">teams</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bots</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s">&quot;CTFUniverse(</span><span class="si">%r</span><span class="s">, </span><span class="si">%r</span><span class="s">, </span><span class="si">%r</span><span class="s">, </span><span class="si">%r</span><span class="s">)&quot;</span> <span class="o">%</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">food</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">teams</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bots</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">__dict__</span>
@@ -769,12 +672,12 @@
     <span class="k">def</span> <span class="nf">_char_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">char_mesh</span> <span class="o">=</span> <span class="n">Mesh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="o">.</span><span class="n">positions</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">Wall</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="p">[</span><span class="n">pos</span><span class="p">]:</span>
-                    <span class="n">char_mesh</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">Wall</span>
-                <span class="k">elif</span> <span class="n">Food</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="p">[</span><span class="n">pos</span><span class="p">]:</span>
-                    <span class="n">char_mesh</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">Food</span>
-                <span class="k">elif</span> <span class="n">Free</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="p">[</span><span class="n">pos</span><span class="p">]:</span>
-                    <span class="n">char_mesh</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">Free</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="p">[</span><span class="n">pos</span><span class="p">]:</span>
+                <span class="n">char_mesh</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">Wall</span>
+            <span class="k">elif</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">food</span><span class="p">:</span>
+                <span class="n">char_mesh</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">Food</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">char_mesh</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">Free</span>
         <span class="k">for</span> <span class="n">bot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bots</span><span class="p">:</span>
             <span class="c"># TODO what about bots on the same space?</span>
             <span class="n">char_mesh</span><span class="p">[</span><span class="n">bot</span><span class="o">.</span><span class="n">current_pos</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">bot</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
@@ -784,7 +687,7 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_char_mesh</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from_json_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_to_json_dict</span><span class="p">())</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">compact_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -807,10 +710,10 @@
 <span class="sd">        #1#####    #####2#</span>
 <span class="sd">        #     . #  .  .#3#</span>
 <span class="sd">        ##################</span>
-<span class="sd">        Team(0, &#39;black&#39;, (0, 8), score=0, bots=[0, 2])</span>
+<span class="sd">        Team(0, (0, 8), score=0)</span>
 <span class="sd">            Bot(0, (1, 1), 0, (0, 8) , current_pos=(1, 1))</span>
 <span class="sd">            Bot(2, (16, 2), 0, (0, 8) , current_pos=(16, 2))</span>
-<span class="sd">        Team(1, &#39;white&#39;, (9, 17), score=0, bots=[1, 3])</span>
+<span class="sd">        Team(1, (9, 17), score=0)</span>
 <span class="sd">            Bot(1, (1, 2), 1, (9, 17) , current_pos=(1, 2))</span>
 <span class="sd">            Bot(3, (16, 3), 1, (9, 17) , current_pos=(16, 3))</span>
 
@@ -820,8 +723,8 @@
         <span class="k">for</span> <span class="n">team</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">teams</span><span class="p">:</span>
             <span class="n">out</span> <span class="o">+=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">team</span><span class="p">)</span>
             <span class="n">out</span> <span class="o">+=</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">team</span><span class="o">.</span><span class="n">bots</span><span class="p">:</span>
-                <span class="n">out</span> <span class="o">+=</span> <span class="s">&#39;</span><span class="se">\t</span><span class="s">&#39;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">bot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_bots</span><span class="p">(</span><span class="n">team</span><span class="o">.</span><span class="n">index</span><span class="p">):</span>
+                <span class="n">out</span> <span class="o">+=</span> <span class="s">&#39;</span><span class="se">\t</span><span class="s">&#39;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
                 <span class="n">out</span> <span class="o">+=</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
         <span class="k">return</span> <span class="n">out</span>
 
@@ -870,7 +773,8 @@
 <span class="sd">            Generator which contains all reachable positions and their adjacencies</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Get the list of all free positions.</span>
-        <span class="n">free_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="o">.</span><span class="n">pos_of</span><span class="p">(</span><span class="n">Free</span><span class="p">)</span>
+        <span class="n">free_pos</span> <span class="o">=</span> <span class="p">[</span><span class="n">pos</span> <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">val</span><span class="p">]</span>
+
         <span class="c"># Here we use a generator on a dictionary to create the adjacency list.</span>
         <span class="c"># However, for Python 3, we force evaluation on the legal_moves.values</span>
         <span class="k">return</span> <span class="p">((</span><span class="n">pos</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">legal_moves</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">free_pos</span><span class="p">)</span>
@@ -878,15 +782,17 @@
 </div>
     <span class="k">def</span> <span class="nf">_to_json_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="s">&quot;maze&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">maze</span><span class="o">.</span><span class="n">_to_json_dict</span><span class="p">(),</span>
+                <span class="s">&quot;food&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">food</span><span class="p">),</span>
                 <span class="s">&quot;teams&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">team</span><span class="o">.</span><span class="n">_to_json_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">team</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">teams</span><span class="p">],</span>
                 <span class="s">&quot;bots&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">bot</span><span class="o">.</span><span class="n">_to_json_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">bot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bots</span><span class="p">]}</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_from_json_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">maze</span><span class="o">=</span><span class="n">Maze</span><span class="o">.</span><span class="n">_from_json_dict</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s">&quot;maze&quot;</span><span class="p">]),</span>
+                   <span class="n">food</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s">&quot;food&quot;</span><span class="p">],</span>
                    <span class="n">teams</span><span class="o">=</span><span class="p">[</span><span class="n">Team</span><span class="o">.</span><span class="n">_from_json_dict</span><span class="p">(</span><span class="n">team</span><span class="p">)</span> <span class="k">for</span> <span class="n">team</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s">&quot;teams&quot;</span><span class="p">]],</span>
-                   <span class="n">bots</span><span class="o">=</span><span class="p">[</span><span class="n">Bot</span><span class="o">.</span><span class="n">_from_json_dict</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span> <span class="k">for</span> <span class="n">bot</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s">&quot;bots&quot;</span><span class="p">]])</span>
-</pre></div></div>
+                   <span class="n">bots</span><span class="o">=</span><span class="p">[</span><span class="n">Bot</span><span class="o">.</span><span class="n">_from_json_dict</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span> <span class="k">for</span> <span class="n">bot</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s">&quot;bots&quot;</span><span class="p">]])</span></div>
+</pre></div>
 
           </div>
         </div>

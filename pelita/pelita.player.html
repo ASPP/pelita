@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.player &mdash; Pelita v0.2.0-212-g597fe16 documentation</title>
+    <title>pelita.player &mdash; Pelita v0.2.0-232-gc741287 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-212-g597fe16',
+        VERSION:     'v0.2.0-232-gc741287',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-212-g597fe16 documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.2.0-232-gc741287 documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
     <link rel="next" title="pelita.simplesetup" href="pelita.simplesetup.html" />
     <link rel="prev" title="pelita.layout" href="pelita.layout.html" />
@@ -53,14 +53,8 @@
 <tr class="row-odd"><td><a class="reference internal" href="#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><code class="xref py py-obj docutils literal"><span class="pre">AbstractPlayer</span></code></a></td>
 <td>Base class for all user implemented Players.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.player.CPUBoundPlayer" title="pelita.player.CPUBoundPlayer"><code class="xref py py-obj docutils literal"><span class="pre">CPUBoundPlayer</span></code></a></td>
-<td>Player that does loads of computation.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pelita.player.DebuggablePlayer" title="pelita.player.DebuggablePlayer"><code class="xref py py-obj docutils literal"><span class="pre">DebuggablePlayer</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.player.DebuggablePlayer" title="pelita.player.DebuggablePlayer"><code class="xref py py-obj docutils literal"><span class="pre">DebuggablePlayer</span></code></a></td>
 <td>Player which invokes pdb on each move.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.player.IOBoundPlayer" title="pelita.player.IOBoundPlayer"><code class="xref py py-obj docutils literal"><span class="pre">IOBoundPlayer</span></code></a></td>
-<td>IO Bound player that crawls the file system.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pelita.player.InitialExceptionPlayer" title="pelita.player.InitialExceptionPlayer"><code class="xref py py-obj docutils literal"><span class="pre">InitialExceptionPlayer</span></code></a></td>
 <td>Player that raises an Exception on set_initial().</td>
@@ -403,26 +397,12 @@ time in seconds</td>
 </dd></dl>
 
 <dl class="class">
-<dt id="pelita.player.CPUBoundPlayer">
-<em class="property">class </em><code class="descclassname">pelita.player.</code><code class="descname">CPUBoundPlayer</code><a class="reference internal" href="../_modules/pelita/player.html#CPUBoundPlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.CPUBoundPlayer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><code class="xref py py-class docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></code></a></p>
-<p>Player that does loads of computation.</p>
-</dd></dl>
-
-<dl class="class">
 <dt id="pelita.player.DebuggablePlayer">
 <em class="property">class </em><code class="descclassname">pelita.player.</code><code class="descname">DebuggablePlayer</code><a class="reference internal" href="../_modules/pelita/player.html#DebuggablePlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.DebuggablePlayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><code class="xref py py-class docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></code></a></p>
 <p>Player which invokes pdb on each move.</p>
 <p>Setting <code class="docutils literal"><span class="pre">direction</span></code> inside the debugger will change
 its behaviour.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="pelita.player.IOBoundPlayer">
-<em class="property">class </em><code class="descclassname">pelita.player.</code><code class="descname">IOBoundPlayer</code><a class="reference internal" href="../_modules/pelita/player.html#IOBoundPlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.player.IOBoundPlayer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pelita.player.AbstractPlayer" title="pelita.player.AbstractPlayer"><code class="xref py py-class docutils literal"><span class="pre">pelita.player.AbstractPlayer</span></code></a></p>
-<p>IO Bound player that crawls the file system.</p>
 </dd></dl>
 
 <dl class="class">

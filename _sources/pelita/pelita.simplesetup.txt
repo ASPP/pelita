@@ -21,6 +21,7 @@ pelita.simplesetup
    .. autosummary::
    
       AbstractViewer
+      CTFUniverse
       GameMaster
       RemoteTeamPlayer
       SimpleClient

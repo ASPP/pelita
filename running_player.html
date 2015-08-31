@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Running Players &mdash; Pelita v0.2.0-212-g597fe16 documentation</title>
+    <title>Running Players &mdash; Pelita v0.2.0-232-gc741287 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'v0.2.0-212-g597fe16',
+        VERSION:     'v0.2.0-232-gc741287',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-212-g597fe16 documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.2.0-232-gc741287 documentation" href="index.html" />
     <link rel="next" title="Development" href="development.html" />
     <link rel="prev" title="Writing a Player" href="writing_player.html" />
    
@@ -227,12 +227,8 @@ module itself:</p>
 </div>
 <div class="section" id="debugging">
 <h2>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">pelitagame</span></code> script runs the client code in another process. Therefore,
-it is not possible from the client process to halt the program and interact
-with standard input. In order to use debugging methods, one has to somehow run
-the player code in the main process. Depending on whether one wants to check
-the left or the right, one has to use the flags <cite>&#8211;standalone-left</cite> and
-<cite>&#8211;standalone-right</cite>, respectively.</p>
+<p>The <code class="docutils literal"><span class="pre">pelitagame</span></code> script runs the client code in a subprocess. When started
+from a terminal, the client code can be made to interact with user input.</p>
 <p>For a start, let us consider a Player which does nothing but call the Python
 debugger for help:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">pdb</span>
@@ -250,7 +246,7 @@ debugger for help:</p>
 </div>
 <p>We want to use this player in our left team and let the server choose a random
 team for the right hand side. Additionally, we disable the timeouts:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ ~/pelita/pelitagame --standalone-left --no-timeout DebuggablePlayer
+<div class="highlight-python"><div class="highlight"><pre>$ ~/pelita/pelitagame --no-timeout DebuggablePlayer
 </pre></div>
 </div>
 <p>We now can interact with the game by manually setting the direction at
@@ -270,10 +266,12 @@ each step:</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The standalone mode may sometimes misbehave. Possible issues may include
+<p>Taking standard input may sometimes misbehave. Possible issues may include
 the occasional not responding on keystrokes, garbled output and the
 failure to automatically shutdown the program. In these cases, it is
 useful to press the keyboard interrupt (CTRL+C) a couple of times.</p>
+<p class="last">Obviously, mixing two DebuggingPlayers, both waiting on input will lead to
+confusion.</p>
 </div>
 </div>
 </div>

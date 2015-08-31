@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.game_master &mdash; Pelita v0.2.0-212-g597fe16 documentation</title>
+    <title>pelita.game_master &mdash; Pelita v0.2.0-232-gc741287 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-212-g597fe16',
+        VERSION:     'v0.2.0-232-gc741287',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-212-g597fe16 documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.2.0-232-gc741287 documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
     <link rel="next" title="pelita.graph" href="pelita.graph.html" />
     <link rel="prev" title="pelita.datamodel" href="pelita.datamodel.html" />
@@ -62,7 +62,7 @@
 <tr class="row-odd"><td><a class="reference internal" href="#pelita.game_master.AStarNoiser" title="pelita.game_master.AStarNoiser"><code class="xref py py-obj docutils literal"><span class="pre">AStarNoiser</span></code></a>(universe,&nbsp;*args,&nbsp;**kwargs)</td>
 <td>Noiser in maze space.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.game_master.GameMaster" title="pelita.game_master.GameMaster"><code class="xref py py-obj docutils literal"><span class="pre">GameMaster</span></code></a>(layout,&nbsp;number_bots,&nbsp;game_time[,&nbsp;...])</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.game_master.GameMaster" title="pelita.game_master.GameMaster"><code class="xref py py-obj docutils literal"><span class="pre">GameMaster</span></code></a>(layout,&nbsp;teams,&nbsp;number_bots,&nbsp;game_time)</td>
 <td>Controller of player moves and universe updates.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pelita.game_master.ManhattanNoiser" title="pelita.game_master.ManhattanNoiser"><code class="xref py py-obj docutils literal"><span class="pre">ManhattanNoiser</span></code></a>(universe[,&nbsp;noise_radius,&nbsp;...])</td>
@@ -101,7 +101,7 @@
 
 <dl class="class">
 <dt id="pelita.game_master.GameMaster">
-<em class="property">class </em><code class="descclassname">pelita.game_master.</code><code class="descname">GameMaster</code><span class="sig-paren">(</span><em>layout</em>, <em>number_bots</em>, <em>game_time</em>, <em>noise=True</em>, <em>noiser=None</em>, <em>initial_delay=0.0</em>, <em>max_timeouts=5</em>, <em>timeout_length=3</em>, <em>layout_name=None</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/game_master.html#GameMaster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.game_master.GameMaster" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pelita.game_master.</code><code class="descname">GameMaster</code><span class="sig-paren">(</span><em>layout</em>, <em>teams</em>, <em>number_bots</em>, <em>game_time</em>, <em>noise=True</em>, <em>noiser=None</em>, <em>initial_delay=0.0</em>, <em>max_timeouts=5</em>, <em>timeout_length=3</em>, <em>layout_name=None</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/game_master.html#GameMaster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.game_master.GameMaster" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Controller of player moves and universe updates.</p>
 <p>This object coordinates the moves of the player implementations with the
@@ -112,6 +112,7 @@ updating of the universe.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>layout</strong> (<em>string</em>) &#8211; initial layout as string</li>
+<li><strong>teams</strong> (<em>list of teams</em>) &#8211; the teams to play the game</li>
 <li><strong>number_bots</strong> (<em>int</em>) &#8211; the total number of bots</li>
 <li><strong>game_time</strong> (<em>int</em>) &#8211; the total permitted number of rounds</li>
 <li><strong>noise</strong> (<em>boolean</em>) &#8211; should enemy positions be noisy</li>
@@ -153,20 +154,6 @@ updating of the universe.</p>
 <code class="descname">prepare_next_round</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/game_master.html#GameMaster.prepare_next_round"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.game_master.GameMaster.prepare_next_round" title="Permalink to this definition">¶</a></dt>
 <dd><p>Increases <cite>game_state[&#8220;round_index&#8221;]</cite>, if possible
 and resets <cite>game_state[&#8220;bot_id&#8221;]</cite>.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pelita.game_master.GameMaster.register_team">
-<code class="descname">register_team</code><span class="sig-paren">(</span><em>team</em>, <em>team_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/game_master.html#GameMaster.register_team"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.game_master.GameMaster.register_team" title="Permalink to this definition">¶</a></dt>
-<dd><p>Register a client TeamPlayer class.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>team</strong> (<em>class which calculates a new move for</em>) &#8211; each Bot of the team.</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="method">
@@ -217,7 +204,7 @@ distant 1 in Manhattan space could still be much further in maze distance.</p>
 <p>Supports uniform noise in maze space. Can be extended to support other types
 of noise. Noise will only be applied if the enemy bot is with a certain
 threshold (<cite>sight_distance</cite>).</p>
-<p>Derived classes will need to implement distance and the alter_pos methods</p>
+<p>Derived classes will need to implement distance and the altered_pos methods</p>
 <dl class="method">
 <dt>
 <code class="descname">distance(bot, other_bot):</code></dt>
@@ -228,7 +215,7 @@ in the subclass, e.g. maze distance, manhattan distance, euclidean distance...</
 
 <dl class="method">
 <dt>
-<code class="descname">alter_pos(bot_pos):</code></dt>
+<code class="descname">altered_pos(bot_pos):</code></dt>
 <dd><p>return the noised new position of an enemy bot.</p>
 </dd></dl>
 
@@ -247,8 +234,8 @@ in the subclass, e.g. maze distance, manhattan distance, euclidean distance...</
 </tbody>
 </table>
 <dl class="method">
-<dt id="pelita.game_master.UniverseNoiser.alter_pos">
-<code class="descname">alter_pos</code><span class="sig-paren">(</span><em>bot_pos</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/game_master.html#UniverseNoiser.alter_pos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.game_master.UniverseNoiser.alter_pos" title="Permalink to this definition">¶</a></dt>
+<dt id="pelita.game_master.UniverseNoiser.altered_pos">
+<code class="descname">altered_pos</code><span class="sig-paren">(</span><em>bot_pos</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/game_master.html#UniverseNoiser.altered_pos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.game_master.UniverseNoiser.altered_pos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to return a new position for a bot.</p>
 </dd></dl>
 

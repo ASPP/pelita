@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>User API Reference &mdash; Pelita v0.2.0-212-g597fe16 documentation</title>
+    <title>User API Reference &mdash; Pelita v0.2.0-232-gc741287 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'v0.2.0-212-g597fe16',
+        VERSION:     'v0.2.0-232-gc741287',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-212-g597fe16 documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.2.0-232-gc741287 documentation" href="index.html" />
     <link rel="next" title="API reference" href="api.html" />
     <link rel="prev" title="Development" href="development.html" />
    
@@ -158,17 +158,17 @@ when writing a player.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><code class="xref py py-obj docutils literal"><span class="pre">CTFUniverse</span></code></a>(maze,&nbsp;teams,&nbsp;bots)</td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><code class="xref py py-obj docutils literal"><span class="pre">CTFUniverse</span></code></a>(maze,&nbsp;food,&nbsp;teams,&nbsp;bots)</td>
 <td>The Universe: representation of the game state.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.Bot" title="pelita.datamodel.Bot"><code class="xref py py-obj docutils literal"><span class="pre">Bot</span></code></a>(index,&nbsp;initial_pos,&nbsp;team_index,&nbsp;homezone)</td>
 <td>A bot on a team.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.Team" title="pelita.datamodel.Team"><code class="xref py py-obj docutils literal"><span class="pre">Team</span></code></a>(index,&nbsp;name,&nbsp;zone[,&nbsp;score,&nbsp;bots])</td>
+<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.Team" title="pelita.datamodel.Team"><code class="xref py py-obj docutils literal"><span class="pre">Team</span></code></a>(index,&nbsp;zone[,&nbsp;score])</td>
 <td>A team of bots.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.Maze" title="pelita.datamodel.Maze"><code class="xref py py-obj docutils literal"><span class="pre">Maze</span></code></a>(width,&nbsp;height[,&nbsp;data])</td>
-<td>A Mesh of strings of maze component representations.</td>
+<td>The <cite>Maze</cite> object holds the walls of the universe.</td>
 </tr>
 </tbody>
 </table>
@@ -229,6 +229,9 @@ when writing a player.</p>
 </tr>
 <tr class="row-odd"><td>bots</td>
 <td>list of instances of <cite>pelita.datamodel.Bot</cite></td>
+</tr>
+<tr class="row-even"><td>food</td>
+<td>list of positions of food</td>
 </tr>
 </tbody>
 </table>

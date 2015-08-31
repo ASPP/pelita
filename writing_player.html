@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Writing a Player &mdash; Pelita v0.2.0-212-g597fe16 documentation</title>
+    <title>Writing a Player &mdash; Pelita v0.2.0-232-gc741287 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'v0.2.0-212-g597fe16',
+        VERSION:     'v0.2.0-232-gc741287',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-212-g597fe16 documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.2.0-232-gc741287 documentation" href="index.html" />
     <link rel="next" title="Running Players" href="running_player.html" />
     <link rel="prev" title="Project Information" href="info.html" />
    
@@ -48,19 +48,18 @@
 used throughout this documentation.</p>
 <dl class="docutils">
 <dt><cite>pelita.datamodel.CTFUniverse</cite>:</dt>
-<dd>The game state. Holds a list of <code class="docutils literal"><span class="pre">Bot</span></code> instances, a list of <code class="docutils literal"><span class="pre">Team</span></code>
-instances and a single <code class="docutils literal"><span class="pre">Maze</span></code> object. Can be queried to obtain
-information about the game.</dd>
+<dd>The game’s universe. Holds a list of <code class="docutils literal"><span class="pre">Bot</span></code> instances, a list of <code class="docutils literal"><span class="pre">Team</span></code>
+instances, a single <code class="docutils literal"><span class="pre">Maze</span></code> object and a list with the positions of food.
+Can be queried to obtain information about the game.</dd>
 <dt><cite>pelita.datamodel.Bot</cite>:</dt>
 <dd>The data structure used to store the bot. This holds the position of the
 <code class="docutils literal"><span class="pre">Bot</span></code> inside the Maze, its initial position, which team it belongs to
 etc..</dd>
 <dt><cite>pelita.datamodel.Team</cite>:</dt>
 <dd>In capture-the-flag each <code class="docutils literal"><span class="pre">Bot</span></code> belongs to a <code class="docutils literal"><span class="pre">Team</span></code>. The team stores the
-indices of its bot, the score, the team name etc..</dd>
+homezone of a team and its score.</dd>
 <dt><cite>pelita.datamodel.Maze</cite>:</dt>
-<dd>Data structure that stores the maze or layout, i.e. where walls and food
-are.</dd>
+<dd>Data structure that stores the maze or layout, i.e. where walls are.</dd>
 <dt><cite>pelita.game_master.GameMaster</cite>:</dt>
 <dd>Controller object that asks players for moves and updates the <code class="docutils literal"><span class="pre">Universe</span></code>.
 You will never need to interact with this object but it&#8217;s good to know that
@@ -247,7 +246,7 @@ of the cells where the objects are located:</p>
 <div class="figure" id="id2">
 <a class="reference internal image-reference" href="_images/distance_euclidean.png"><img alt="Euclidean distance." src="_images/distance_euclidean.png" style="width: 300px;" /></a>
 <p class="caption"><span class="caption-text"><strong>Euclidean distance:</strong> The Euclidean distance between the two bots is
-sqrt((x1-x2)**2 + (y1-y2)**2) = sqrt((4.5-2.5)**2+(0.5-1.5)**2) = 2.236...</span></p>
+<span class="math">\(\sqrt{(x_1-x_2)^2 + (y_1-y_2)^2} = \sqrt{(4.5-2.5)^2+(0.5-1.5)^2} = \sqrt 5 \approx 2.236...\)</span></span></p>
 </div>
 <p>The <a class="reference external" href="http://en.wikipedia.org/wiki/Taxicab_geometry">Manhattan distance</a>,
 also known as L1-distance or taxicab-distance, is the
@@ -255,13 +254,13 @@ absolute difference of the coordinates of the two objects:</p>
 <div class="figure" id="id3">
 <a class="reference internal image-reference" href="_images/distance_manhattan.png"><img alt="Manhattan distance." src="_images/distance_manhattan.png" style="width: 300px;" /></a>
 <p class="caption"><span class="caption-text"><strong>Manhattan distance:</strong> The Manhattan distance between the two bots is
-abs(x1-x2) + abs(y1-y2) = abs(4-2) + abs(0-1) = 3</span></p>
+<span class="math">\(\left|x_1-x_2\right| + \left|y_1-y_2\right| = \left|4-2\right| + \left|0-1\right| = 3\)</span></span></p>
 </div>
 <p>The maze distance counts the number of cells of the shortest path that
 connects the two objects:</p>
 <div class="figure" id="id4">
 <a class="reference internal image-reference" href="_images/distance_maze.png"><img alt="Maze distance." src="_images/distance_maze.png" style="width: 300px;" /></a>
-<p class="caption"><span class="caption-text"><strong>Maze distance:</strong> The Maze distance between the two bots is 5.</span></p>
+<p class="caption"><span class="caption-text"><strong>Maze distance:</strong> The Maze distance between the two bots is <span class="math">\(5\)</span>.</span></p>
 </div>
 <p>Note that Manhattan and maze distances are always integer values.
 In the game, distances are almost always measured either in Manhattan or in
@@ -355,39 +354,36 @@ ready when you receive the first <code class="docutils literal"><span class="pre
 </div>
 <div class="section" id="interacting-with-the-maze">
 <h2>Interacting with the Maze<a class="headerlink" href="#interacting-with-the-maze" title="Permalink to this headline">¶</a></h2>
+<p>For a simple test whether a certain position on the maze is free or not,
+we can check the <code class="docutils literal"><span class="pre">pelita.datamodel.Maze</span></code> class which has an instance in
+our universe.:</p>
+<div class="highlight-python"><div class="highlight"><pre>pos = (3, 3)
+if maze[pos]:
+    # has a wall
+else:
+    # is free
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Please compare the above syntax with:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pos</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">maze</span><span class="p">:</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p class="last">This checks whether a coordinate is valid.</p>
+</div>
 <p>Players may use an adjacency list representation provided by
 <code class="docutils literal"><span class="pre">pelita.graph.AdjacencyList</span></code>. Let&#8217;s have a quick look at how this is
 generated, in case you would like to implement your own <a class="reference external" href="http://en.wikipedia.org/wiki/Graph_(data_structure)">graph storage</a> or leverage an
 alternative existing package such as <a class="reference external" href="http://networkx.lanl.gov/">NetworkX</a>.</p>
 <p>In order to obtain the positions of all free spaces, the
-<cite>pelita.datamodel.Maze</cite> class provides the function
-<cite>pelita.datamodel.Maze.pos_of</cite>. A maze can hold three different components at
-each position, all of them available in <code class="docutils literal"><span class="pre">pelita.datamodel</span></code>: <code class="docutils literal"><span class="pre">Wall</span></code>,
-<code class="docutils literal"><span class="pre">Free</span></code>, <code class="docutils literal"><span class="pre">Food</span></code>. We thus can get a list of all positions by calling:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">maze</span><span class="o">.</span><span class="n">pos_of</span><span class="p">(</span><span class="n">Free</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Then, we use the method <code class="docutils literal"><span class="pre">legal_moves(pos).values()</span></code> to obtain the adjacent
-free spaces, for each of the free positions.  The last step is to use the
-<code class="docutils literal"><span class="pre">update</span></code> method to set the generated dictionary, which we can do, since
-<code class="docutils literal"><span class="pre">AdjacencyList</span></code> inherits from <code class="docutils literal"><span class="pre">dict</span></code>.</p>
-<p>In addition to <code class="docutils literal"><span class="pre">pos_of</span></code>, there are a few additional constructs that are
+<code class="docutils literal"><span class="pre">pelita.datamodel.CTFUniverse</span></code> class provides the method
+<code class="docutils literal"><span class="pre">pelita.datamodel.CTFUniverse.free_positions()</span></code>.</p>
+<p>There are a few additional constructs that are
 useful when dealing with the maze. The property <code class="docutils literal"><span class="pre">positions</span></code> gives all the
-positions in the maze. To check if a given maze component is at a certain
-position use the <code class="docutils literal"><span class="pre">in</span></code> operator:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">Free</span> <span class="ow">in</span> <span class="n">maze</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
-</pre></div>
-</div>
-<p>Sometimes, when exploring future states of the universe, you may want to add or
-remove food to the maze:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># removing items</span>
-<span class="n">maze</span><span class="o">.</span><span class="n">remove_at</span><span class="p">(</span><span class="n">Food</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
-<span class="c"># adding items</span>
-<span class="n">stuff</span> <span class="o">=</span> <span class="n">maze</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
-<span class="n">stuff</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Food</span><span class="p">)</span>
-<span class="n">maze</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">stuff</span>
-</pre></div>
-</div>
+positions in the maze.</p>
 </div>
 <div class="section" id="noisy-enemy-positions">
 <h2>Noisy Enemy Positions<a class="headerlink" href="#noisy-enemy-positions" title="Permalink to this headline">¶</a></h2>
