@@ -28,6 +28,7 @@ def new_pos(position, move):
     """
     pos_x = position[0] + move[0]
     pos_y = position[1] + move[1]
+    print position[0]
     return (pos_x, pos_y)
 
 def diff_pos(initial, target):
