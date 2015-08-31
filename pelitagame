@@ -255,7 +255,10 @@ def prepare_team(team_spec, standalone=False):
 
 
 def start_logging(filename):
-    hdlr = logging.FileHandler(filename, mode='w')
+    if filename:
+        hdlr = logging.FileHandler(filename, mode='w')
+    else:
+        hdlr = logging.StreamHandler()
     logger = logging.getLogger('pelita')
     FORMAT = \
     '[%(relativeCreated)06d %(name)s:%(levelname).1s][%(funcName)s] %(message)s'
@@ -292,7 +295,7 @@ parser.add_argument('--help', '-h', help='show this help message and exit',
 parser.add_argument('--version', help='show the version number and exit',
                     action='store_const', const=True)
 parser.add_argument('--log', help='print debugging log information to'
-                                  ' LOGFILE (default \'pelita.log\')',
+                                  ' LOGFILE (default \'stderr\')',
                     metavar='LOGFILE', default=argparse.SUPPRESS, nargs='?')
 parser.add_argument('--dump', help='print game dumps to file (will be overwritten)'
                                   ' DUMPFILE (default \'pelita.dump\')',
@@ -481,7 +484,7 @@ def run_game():
 
 
     try:
-        start_logging(args.log or 'pelita.log')
+        start_logging(args.log)
     except AttributeError:
         pass
 
