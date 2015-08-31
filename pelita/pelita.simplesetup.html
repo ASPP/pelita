@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.simplesetup &mdash; Pelita v0.2.0-234-gf871b0b documentation</title>
+    <title>pelita.simplesetup &mdash; Pelita v0.2.0-246-g6b7e2e5 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-234-gf871b0b',
+        VERSION:     'v0.2.0-246-g6b7e2e5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-234-gf871b0b documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.2.0-246-g6b7e2e5 documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
     <link rel="next" title="pelita.ui" href="pelita.ui.html" />
     <link rel="prev" title="pelita.player" href="pelita.player.html" />
@@ -212,7 +212,7 @@ over a zmq connection.</p>
 
 <dl class="class">
 <dt id="pelita.simplesetup.SimpleServer">
-<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">SimpleServer</code><span class="sig-paren">(</span><em>layout_string</em>, <em>teams=2</em>, <em>players=4</em>, <em>rounds=3000</em>, <em>bind_addrs='tcp://*'</em>, <em>initial_delay=0.0</em>, <em>max_timeouts=5</em>, <em>timeout_length=3</em>, <em>layout_name=None</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#SimpleServer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.SimpleServer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">SimpleServer</code><span class="sig-paren">(</span><em>layout_string</em>, <em>teams=2</em>, <em>players=4</em>, <em>rounds=3000</em>, <em>bind_addrs=None</em>, <em>initial_delay=0.0</em>, <em>max_timeouts=5</em>, <em>timeout_length=3</em>, <em>layout_name=None</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#SimpleServer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.SimpleServer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Sets up a simple Server with most settings pre-configured.</p>
 <p class="rubric">Example</p>
@@ -230,7 +230,8 @@ over a zmq connection.</p>
 <li><strong>teams</strong> (<em>int, optional</em>) &#8211; The number of Teams used in the layout. Default: 2.</li>
 <li><strong>players</strong> (<em>int, optional</em>) &#8211; The number of Players/Bots used in the layout. Default: 4.</li>
 <li><strong>rounds</strong> (<em>int, optional</em>) &#8211; The number of rounds played. Default: 3000.</li>
-<li><strong>bind_addrs</strong> (<em>string or tuple, optional</em>) &#8211; The address(es) which this server uses for its connections. Default: &#8220;<a class="reference external" href="tcp://">tcp://</a><a href="#id1"><span class="problematic" id="id2">*</span></a>&#8221;.</li>
+<li><strong>bind_addrs</strong> (<em>list of strings, optional</em>) &#8211; The address(es) which this server uses for its connections.
+Defaults to [&#8220;<a class="reference external" href="tcp://">tcp://</a><a href="#id1"><span class="problematic" id="id2">*</span></a>&#8220;] * teams, if not given.</li>
 <li><strong>initial_delay</strong> (<em>float</em>) &#8211; Delays the start of the game by <cite>initial_delay</cite> seconds.</li>
 <li><strong>layout_name</strong> (<em>string, optional</em>) &#8211; The name of the given layout string.</li>
 <li><strong>seed</strong> (<em>int, optional</em>) &#8211; The initial seed to be passed to GameMaster.</li>

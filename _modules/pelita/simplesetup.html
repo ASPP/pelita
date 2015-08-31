@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.simplesetup &mdash; Pelita v0.2.0-234-gf871b0b documentation</title>
+    <title>pelita.simplesetup &mdash; Pelita v0.2.0-246-g6b7e2e5 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-234-gf871b0b',
+        VERSION:     'v0.2.0-246-g6b7e2e5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-234-gf871b0b documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-246-g6b7e2e5 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
@@ -69,21 +69,19 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
-<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
-<span class="kn">import</span> <span class="nn">threading</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">traceback</span>
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">six</span>
-
-<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">uuid</span>
+
+<span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">import</span> <span class="nn">zmq</span>
 
 <span class="kn">from</span> <span class="nn">.datamodel</span> <span class="kn">import</span> <span class="n">CTFUniverse</span>
-<span class="kn">from</span> <span class="nn">.game_master</span> <span class="kn">import</span> <span class="n">GameMaster</span><span class="p">,</span> <span class="n">PlayerTimeout</span><span class="p">,</span> <span class="n">PlayerDisconnected</span>
+<span class="kn">from</span> <span class="nn">.game_master</span> <span class="kn">import</span> <span class="n">GameMaster</span><span class="p">,</span> <span class="n">PlayerDisconnected</span><span class="p">,</span> <span class="n">PlayerTimeout</span>
 <span class="kn">from</span> <span class="nn">.viewer</span> <span class="kn">import</span> <span class="n">AbstractViewer</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&quot;pelita.simplesetup&quot;</span><span class="p">)</span>
@@ -191,7 +189,7 @@
             <span class="n">timeout</span> <span class="o">=</span> <span class="n">DEAD_CONNECTION_TIMEOUT</span>
 
         <span class="n">msg_uuid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;---&gt; </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">msg_uuid</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;---&gt; </span><span class="si">%r</span><span class="s"> [</span><span class="si">%s</span><span class="s">]&quot;</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">msg_uuid</span><span class="p">)</span>
 
         <span class="c"># Check before sending. Forever is a long time.</span>
         <span class="n">socks</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pollout</span><span class="o">.</span><span class="n">poll</span><span class="p">(</span><span class="n">timeout</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
@@ -217,8 +215,9 @@
         <span class="n">py_obj</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_message</span><span class="p">)</span>
         <span class="c">#print repr(json_msg)</span>
         <span class="n">msg_uuid</span> <span class="o">=</span> <span class="n">py_obj</span><span class="p">[</span><span class="s">&quot;__uuid__&quot;</span><span class="p">]</span>
+        <span class="n">msg_action</span> <span class="o">=</span> <span class="n">py_obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;__action__&quot;</span><span class="p">)</span>
 
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;&lt;--- </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">msg_uuid</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;&lt;--- </span><span class="si">%r</span><span class="s"> [</span><span class="si">%s</span><span class="s">]&quot;</span><span class="p">,</span> <span class="n">msg_action</span><span class="p">,</span> <span class="n">msg_uuid</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">msg_uuid</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_uuid</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">last_uuid</span> <span class="o">=</span> <span class="bp">None</span>
@@ -275,7 +274,10 @@
     <span class="k">def</span> <span class="nf">team_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">&quot;team_name&quot;</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">recv_timeout</span><span class="p">(</span><span class="n">DEAD_CONNECTION_TIMEOUT</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ZMQTimeout</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Detected a timeout, returning a string nonetheless.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s">&quot;</span><span class="si">%e</span><span class="s">rror%&quot;</span>
         <span class="k">except</span> <span class="n">DeadConnection</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Detected a DeadConnection, returning a string nonetheless.&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="s">&quot;</span><span class="si">%e</span><span class="s">rror%&quot;</span>
@@ -315,7 +317,7 @@
 
     <span class="k">def</span> <span class="nf">_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">&quot;exit&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">&quot;exit&quot;</span><span class="p">,</span> <span class="p">{},</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">DeadConnection</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Remote Player </span><span class="si">%r</span><span class="s"> is already dead during exit. Ignoring.&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
@@ -342,8 +344,9 @@
 <span class="sd">        The number of Players/Bots used in the layout. Default: 4.</span>
 <span class="sd">    rounds : int, optional</span>
 <span class="sd">        The number of rounds played. Default: 3000.</span>
-<span class="sd">    bind_addrs : string or tuple, optional</span>
-<span class="sd">        The address(es) which this server uses for its connections. Default: &quot;tcp://*&quot;.</span>
+<span class="sd">    bind_addrs : list of strings, optional</span>
+<span class="sd">        The address(es) which this server uses for its connections.</span>
+<span class="sd">        Defaults to [&quot;tcp://*&quot;] * teams, if not given.</span>
 <span class="sd">    initial_delay : float</span>
 <span class="sd">        Delays the start of the game by `initial_delay` seconds.</span>
 <span class="sd">    layout_name : string, optional</span>
@@ -359,7 +362,7 @@
 <span class="sd">        if layout_file was given, but file does not exist</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout_string</span><span class="p">,</span> <span class="n">teams</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">players</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">3000</span><span class="p">,</span> <span class="n">bind_addrs</span><span class="o">=</span><span class="s">&quot;tcp://*&quot;</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout_string</span><span class="p">,</span> <span class="n">teams</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">players</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">3000</span><span class="p">,</span> <span class="n">bind_addrs</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">initial_delay</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_timeouts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">timeout_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layout_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 
@@ -367,14 +370,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">number_of_teams</span> <span class="o">=</span> <span class="n">teams</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rounds</span> <span class="o">=</span> <span class="n">rounds</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bind_addrs</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
-            <span class="k">pass</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bind_addrs</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">bind_addrs</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;tcp://&quot;</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;non-tcp bind_addrs cannot be shared.&quot;</span><span class="p">)</span>
-            <span class="n">bind_addrs</span> <span class="o">=</span> <span class="p">(</span><span class="n">bind_addrs</span><span class="p">,</span> <span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_teams</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;bind_addrs must be tuple or string.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bind_addrs</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">bind_addrs</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;tcp://*&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_teams</span>
 
         <span class="c">#: declare the zmq Context for this server thread</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Context</span><span class="p">()</span>
@@ -399,11 +396,15 @@
                     <span class="c"># assume no port has been given:</span>
                     <span class="n">bind_to_random</span> <span class="o">=</span> <span class="bp">True</span>
 
-            <span class="k">if</span> <span class="n">bind_to_random</span><span class="p">:</span>
-                <span class="n">socket_port</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">bind_to_random_port</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
-                <span class="n">address</span> <span class="o">=</span> <span class="n">address</span> <span class="o">+</span> <span class="p">(</span><span class="s">&quot;:</span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">socket_port</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">socket</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">bind_to_random</span><span class="p">:</span>
+                    <span class="n">socket_port</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">bind_to_random_port</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+                    <span class="n">address</span> <span class="o">=</span> <span class="n">address</span> <span class="o">+</span> <span class="p">(</span><span class="s">&quot;:</span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">socket_port</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">socket</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">zmq</span><span class="o">.</span><span class="n">ZMQError</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">&quot;ZMQError while trying to bind {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">address</span><span class="p">))</span>
+                <span class="k">raise</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">sockets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">bind_addresses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
@@ -596,13 +597,6 @@
         <span class="n">background_process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">background_process</span>
 
-    <span class="k">def</span> <span class="nf">autoplay_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># Threading has problems with KeyboardInterrupts but makes it easier</span>
-        <span class="c"># (though not simpler) to share state.</span>
-        <span class="n">background_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
-        <span class="n">background_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">background_thread</span>
-
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s">&quot;SimpleClient(</span><span class="si">%r</span><span class="s">, </span><span class="si">%r</span><span class="s">, </span><span class="si">%r</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_name</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
 </div>
@@ -691,13 +685,6 @@
         <span class="n">background_process</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
         <span class="n">background_process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">background_process</span>
-
-    <span class="k">def</span> <span class="nf">autoplay_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># Threading has problems with KeyboardInterrupts but makes it easier</span>
-        <span class="c"># (though not simpler) to share state.</span>
-        <span class="n">background_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
-        <span class="n">background_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">background_thread</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s">&quot;SimpleSubscriber(</span><span class="si">%r</span><span class="s">, </span><span class="si">%r</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span></div>

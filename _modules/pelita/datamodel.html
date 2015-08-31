@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.datamodel &mdash; Pelita v0.2.0-234-gf871b0b documentation</title>
+    <title>pelita.datamodel &mdash; Pelita v0.2.0-246-g6b7e2e5 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-234-gf871b0b',
+        VERSION:     'v0.2.0-246-g6b7e2e5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-234-gf871b0b documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-246-g6b7e2e5 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
@@ -43,13 +43,9 @@
 
 <span class="sd">&quot;&quot;&quot; The datamodel. &quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">six</span>
-
-<span class="kn">from</span> <span class="nn">.graph</span> <span class="kn">import</span> <span class="n">new_pos</span><span class="p">,</span> <span class="n">diff_pos</span><span class="p">,</span> <span class="n">manhattan_dist</span>
-<span class="kn">from</span> <span class="nn">.graph</span> <span class="kn">import</span> <span class="n">iter_adjacencies</span>
-<span class="kn">from</span> <span class="nn">.layout</span> <span class="kn">import</span> <span class="n">Layout</span>
 <span class="kn">from</span> <span class="nn">.containers</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="kn">from</span> <span class="nn">.graph</span> <span class="kn">import</span> <span class="n">iter_adjacencies</span><span class="p">,</span> <span class="n">new_pos</span>
+<span class="kn">from</span> <span class="nn">.layout</span> <span class="kn">import</span> <span class="n">Layout</span>
 
 <span class="n">north</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">south</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -330,7 +326,7 @@
 
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="CTFUniverse.create"><a class="viewcode-back" href="../../pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">layout_str</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Factory to create a 2-Player Capture The Flag Universe.</span>
+        <span class="sd">&quot;&quot;&quot; Factory to create a 2 team Capture The Flag Universe.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -361,12 +357,13 @@
             <span class="k">raise</span> <span class="n">UniverseException</span><span class="p">(</span>
                 <span class="s">&quot;Width of a layout for CTF must be even, is: </span><span class="si">%i</span><span class="s">&quot;</span>
                 <span class="o">%</span> <span class="n">maze</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
-        <span class="n">homezones</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="n">maze</span><span class="o">.</span><span class="n">width</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">maze</span><span class="o">.</span><span class="n">width</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">maze</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
 
-        <span class="n">teams</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">teams</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Team</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">homezones</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-        <span class="n">teams</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Team</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">homezones</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">homezones</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">maze</span><span class="o">.</span><span class="n">width</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">maze</span><span class="o">.</span><span class="n">width</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">maze</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="n">teams</span> <span class="o">=</span> <span class="p">[</span><span class="n">Team</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">homezone</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">homezone</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">homezones</span><span class="p">)]</span>
 
         <span class="n">bots</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">bot_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_bots</span><span class="p">):</span>

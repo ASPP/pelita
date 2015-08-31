@@ -10,10 +10,8 @@ pelita.datamodel
    .. autosummary::
    
       create_maze
-      diff_pos
       extract_initial_positions
       iter_adjacencies
-      manhattan_dist
       new_pos
    
    

@@ -15,23 +15,8 @@ pelita.utils
 
    
    
-   .. rubric:: Classes
-
-   .. autosummary::
-   
-      Counter
-      SuspendableThread
-      ThreadInfoLogger
-      Value
-   
    
 
    
-   
-   .. rubric:: Exceptions
-
-   .. autosummary::
-   
-      CloseThread
    
    
