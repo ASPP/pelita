@@ -2,9 +2,8 @@
 
 """ Advanced container classes. """
 
-import sys
-import inspect
-from collections import Mapping, MutableSequence
+from collections import Mapping
+
 
 class Mesh(Mapping):
     """ A mapping from a two-dimensional coordinate system into object space.

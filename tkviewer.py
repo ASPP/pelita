@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+
 from pelita.ui.tk_viewer import TkViewer
+
 
 def geometry_string(s):
     """Get a X-style geometry definition and return a tuple.
@@ -40,4 +42,3 @@ def run_viewer():
 
 if __name__ == '__main__':
     run_viewer()
-

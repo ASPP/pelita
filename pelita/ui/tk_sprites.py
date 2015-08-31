@@ -3,6 +3,7 @@
 import cmath
 import math
 
+
 def col(red, green, blue):
     """Convert the given colours [0, 255] to HTML hex colours."""
     return "#%02x%02x%02x" % (red, green, blue)

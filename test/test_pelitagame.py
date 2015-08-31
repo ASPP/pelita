@@ -1,8 +1,10 @@
 import unittest
+
 import pelita
+
 print(dir(pelita))
 with pelita.utils.with_sys_path('test'):
-    import pelitagame
+    import module_player
 
 check_module_cases = [
     ('test/test_pelitagame.py', None),
@@ -19,6 +21,6 @@ class TestCheckModule(unittest.TestCase):
         for path,result in check_module_cases:
             print(path, result)
             if result is not None:
-                self.assertRaises(result, pelitagame.check_module, path)
+                self.assertRaises(result, module_player.check_module, path)
             else:
-                pelitagame.check_module(path)
+                module_player.check_module(path)

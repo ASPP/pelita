@@ -2,14 +2,17 @@
 
 """ The controller """
 
+import abc
 import random
 import sys
 import time
-import abc
-from . import datamodel
-from .graph import NoPathException, AdjacencyList, manhattan_dist
-from .datamodel import CTFUniverse, Bot
+
 import six
+
+from . import datamodel
+from .datamodel import Bot, CTFUniverse
+from .graph import AdjacencyList, NoPathException, manhattan_dist
+
 
 class GameFinished(Exception):
     pass
@@ -162,6 +165,10 @@ class GameMaster(object):
     @property
     def game_time(self):
         return self.game_state["game_time"]
+
+    @property
+    def finished(self):
+        return self.game_state["finished"]
 
     def register_viewer(self, viewer):
         """ Register a viewer to display the game state as it progresses.

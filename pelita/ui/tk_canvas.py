@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
+import json
 import logging
-from six.moves import tkinter
-from six.moves import tkinter_font
 
 import zmq
-import json
+
+from six.moves import tkinter, tkinter_font
 
 from ..datamodel import CTFUniverse
-from .tk_sprites import BotSprite, Wall, Food, col
 from ..utils.signal_handlers import wm_delete_window_handler
+from .tk_sprites import BotSprite, Food, Wall, col
 
 _logger = logging.getLogger("pelita.tk")
 

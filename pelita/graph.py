@@ -2,8 +2,9 @@
 
 """ Basic graph module """
 
-from collections import deque
 import heapq
+from collections import deque
+
 
 class NoPathException(Exception):
     pass

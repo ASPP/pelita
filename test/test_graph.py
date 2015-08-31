@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from pelita.datamodel import CTFUniverse, north, south, west, east, stop
-from pelita.graph import new_pos, diff_pos, manhattan_dist, AdjacencyList, NoPathException, iter_adjacencies
+
+from pelita.datamodel import CTFUniverse, east, north, south, stop, west
+from pelita.graph import (AdjacencyList, NoPathException, diff_pos, iter_adjacencies,
+                          manhattan_dist, new_pos)
 
 
 class TestStaticmethods(unittest.TestCase):

@@ -2,8 +2,6 @@
 
 import sys
 import contextlib as _contextlib
-from .threading_helpers import *
-from .debug import *
 
 @_contextlib.contextmanager
 def with_sys_path(dirname):
@@ -12,3 +10,4 @@ def with_sys_path(dirname):
         yield
     finally:
         sys.path.remove(dirname)
+

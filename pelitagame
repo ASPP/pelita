@@ -3,24 +3,22 @@
 
 from __future__ import print_function
 
-import sys
-import os.path
-import inspect
-import random
-import string
-import keyword
-import logging
-import subprocess
-import time
-import json
 import argparse
+import contextlib
+import json
+import logging
+import os
+import random
+import subprocess
+import sys
+import time
+
+import pelita
+from pelita.libpelita import check_team, prepare_team, call_standalone_pelitagame, get_python_process
 
 # silence stupid warnings from logging module
 logging.root.manager.emittedNoHandlerWarning = 1
-
-_logger = logging.getLogger("pelita.pelitagame")
-
-import pelita
+_logger = logging.getLogger("pelitagame")
 
 class ReplayPublisher(object):
     def __init__(self, publish_sock, replayfile):
@@ -32,8 +30,7 @@ class ReplayPublisher(object):
     def run(self):
         for state in self.old_game:
             if state:
-                message = {"__action__": "observe",
-                           "__data__": json.loads(state)}
+                message = json.loads(state)
                 self.publisher._send(message)
 
 class ResultPrinter(pelita.viewer.AbstractViewer):
@@ -105,12 +102,6 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
         # won't let us pipe it.
         sys.stdout.flush()
 
-def get_python_process():
-    py_proc = sys.executable
-    if not py_proc:
-        raise RuntimeError("Cannot retrieve current Python executable.")
-    return py_proc
-
 def run_external_viewer(subscribe_sock, controller, geometry, delay):
     # Something on OS X prevents Tk from running in a forked process.
     # Therefore we cannot use multiprocessing here. subprocess works, though.
@@ -123,136 +114,9 @@ def run_external_viewer(subscribe_sock, controller, geometry, delay):
         viewer_args += ["--delay", str(delay)]
 
     tkviewer = os.path.join(os.path.dirname(sys.argv[0]), "tkviewer.py")
-    return subprocess.Popen([get_python_process(), tkviewer] + viewer_args)
-
-def call_standalone_pelitagame(team_spec, addr):
-    """ Starts another process with the same Python executable,
-    the same start script (pelitagame) and runs `team_spec`
-    as a standalone client on URL `addr`.
-    """
-    return subprocess.Popen([get_python_process(),
-                             sys.argv[0],
-                             "--standalone-client",
-                             team_spec,
-                             addr])
-
-def check_module(filepath):
-    "Throws an ValueError is the specified path is neither a module nor a package."
-    if not os.path.exists(filepath):
-        raise ValueError("'%s' doesn't exist" % filepath)
-    allowed = string.ascii_letters + string.digits + '_'
-    if filepath.endswith('.py'):
-        valid = os.path.isfile(filepath)
-        modname = os.path.basename(filepath[:-3])
-    else:
-        initpy = os.path.join(filepath, '__init__.py')
-        valid = os.path.isdir(filepath) and os.path.isfile(initpy)
-        modname = os.path.basename(filepath.rstrip(os.path.sep))
-    if (set(modname) - set(allowed) or
-        modname[0] in string.digits or
-        modname in keyword.kwlist or
-        modname.startswith('__')):
-        raise ValueError("invalid module name: '%s'" % modname)
-
-    if not valid:
-        raise ValueError("'%s': neither a module nor a package" % filepath )
-
-def load_factory(filespec):
-    filename, _, factory_name = filespec.partition(':')
-    check_module(filename)
-    filename = filename.rstrip(os.path.sep)
-    dirname = os.path.dirname(filename)
-    modname = os.path.splitext(os.path.basename(filename))[0]
-
-    factory_name = factory_name or 'factory'
-    with pelita.utils.with_sys_path(dirname):
-        module = __import__(modname, fromlist=[factory_name])
-    return getattr(module, factory_name)
-
-def import_builtin_player(name):
-    with pelita.utils.with_sys_path("./"):
-        players_module = __import__("players")
-        sane_players = dict((p.__name__, p) for p in players_module.SANE_PLAYERS)
-
-    if name == 'random':
-        player = random.choice(list(sane_players.values()))
-        print('Choosing %s for random player' % player)
-    else:
-        player = sane_players.get(name)
-        if not player:
-            try:
-                # fallback to player in pelita.player
-                player = getattr(pelita.player, name)
-            except AttributeError:
-                others = ', '.join(list(sane_players.keys()))
-                msg = 'Failed to find %s in players. (Available players are: %s).' % (name, others)
-                raise ImportError(msg)
-
-    if inspect.isclass(player) and issubclass(player, pelita.player.AbstractPlayer):
-        return player
-    else:
-        raise ImportError("%r is not a valid player." % player)
-
-def create_builtin_team(spec):
-    names = spec.split(',')
-    if len(names) == 1:
-        names *= 2
-    elif len(names) > 2:
-        raise ValueError('need two comma separated names')
-
-    players = [import_builtin_player(name)() for name in names]
-    teamname = 'The %ss' % players[0].__class__.__name__
-    return pelita.player.SimpleTeam(teamname, *players)
-
-def check_team_name(name):
-    # Team name must be ascii
-    try:
-        name.encode('ascii')
-    except UnicodeDecodeError:
-        raise ValueError('Invalid team name (non ascii): "%s".'%name)
-    # Team name must be shorter than 25 characters
-    if len(name) > 25:
-        raise ValueError('Invalid team name (longer than 25): "%s".'%name)
-    if len(name) == 0:
-        raise ValueError('Invalid team name (too short).')
-    # Check every character and make sure it is either
-    # a letter or a number. Nothing else is allowed.
-    for char in name:
-        if (not char.isalnum()) and (char != ' '):
-            raise ValueError('Invalid team name (only alphanumeric '
-                             'chars or blanks): "%s"'%name)
-    if name.isspace():
-        raise ValueError('Invalid team name (no letters): "%s"'%name)
-
-
-def load_team(spec):
-    try:
-        if '/' in spec or spec.endswith('.py') or os.path.exists(spec):
-            team = load_factory(spec)()
-        else:
-            team = create_builtin_team(spec)
-        check_team_name(team.team_name)
-        return team
-    except (ValueError, AttributeError, IOError, ImportError) as e:
-        print("failure while loading team '%s'" % spec, file=sys.stderr)
-        print('ERROR: %s' % e, file=sys.stderr)
-        raise
-
-def prepare_team(team_spec, standalone=False):
-    # check if we've been given an address which a remote
-    # player wants to connect to
-    if standalone:
-        addrs = "tcp://*"
-        team = None
-    else:
-        if "://" in team_spec:
-            addrs = team_spec
-            team = None
-        else:
-            addrs = "tcp://*"
-            team = load_team(team_spec) or sys.exit(1)
-    return addrs, team
-
+    external_call = [get_python_process(), tkviewer] + viewer_args
+    _logger.debug("Executing: %r", external_call)
+    return subprocess.Popen(external_call)
 
 def start_logging(filename):
     if filename:
@@ -280,14 +144,28 @@ def geometry_string(s):
         raise argparse.ArgumentTypeError(msg)
     return geometry
 
+@contextlib.contextmanager
+def autoclose_externals(external_viewers, external_players):
+    try:
+        yield
+    except KeyboardInterrupt:
+        for external_viewer in external_viewers:
+            external_viewer.kill()
+    finally:
+        # kill all client processes. NOW!
+        # (is this too early?)
+        for external_player in external_players:
+            _logger.debug("Attempting to terminate %r.", external_player)
+            external_player.terminate()
+        for external_player in external_players:
+            external_player.wait()
+            _logger.debug("%r terminated.", external_player)
+
 parser = argparse.ArgumentParser(description='Run a single pelita game',
                                  add_help=False,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
 parser._positionals = parser.add_argument_group('Arguments')
-parser.add_argument('spec_left', help='team on the left side (default: random)', nargs='?',
-                    default=None)
-parser.add_argument('spec_right', help='team on the right side (default: random)', nargs='?',
-                    default=None)
+parser.add_argument('team_specs', help='teams (default: random)', nargs='*', default=None)
 
 parser._optionals = parser.add_argument_group('Options')
 parser.add_argument('--help', '-h', help='show this help message and exit',
@@ -337,7 +215,7 @@ publisher_opt.add_argument('--no-publish', const=False, action='store_const',
 parser.set_defaults(publish_to="tcp://*:*")
 
 controller_opt = parser.add_argument_group("Controller")
-controller_opt.add_argument('--controller', type=str, metavar='URL', default="tcp://*:*",
+controller_opt.add_argument('--controller', type=str, metavar='URL', default="tcp://127.0.0.1:*",
                             help='open a controller on this zmq socket')
 controller_opt.add_argument('--external-controller', const=True, action='store_const',
                             help='force control by an external controller')
@@ -366,14 +244,6 @@ layout_opt.add_argument('--filter', metavar='STRING',
                         help='retrict the pool of random layouts to those whose'
                         ' name contains STRING.'
                         ' Default: \'normal_without_dead_ends\'')
-
-client_opt = parser.add_mutually_exclusive_group()
-client_opt.add_argument('--standalone-client', action='store_true',
-                        help='run standalone game')
-client_opt.add_argument('--standalone-left', action='store_true',
-                        help='run standalone game for the left team')
-client_opt.add_argument('--standalone-right', action='store_true',
-                        help='run standalone game for the right team')
 
 parser.epilog = """\
 Team Specification:
@@ -412,6 +282,16 @@ Team Specification:
 
         $ %(prog)s my_player NQRandomPlayer,BasicDefensePlayer
 
+  - Using a different Python version:
+    Additionally, player specifications may use a prefix (ending with @)
+    to use a different executable for the subprocess.
+
+        $ %(prog)s py3@my_new_player py2@my_old_player
+
+    runs the first player with Python 3 and the second player with Python 2.
+    A non-existing prefix is taken as ‘py@’ that is the very same Python version
+    the pelitagame script is run with.
+
   - Using custom players (simpleclient):
     The address the server should bind on and wait for a client
     to connect to.
@@ -426,33 +306,6 @@ Team Specification:
 
         $ %(prog)s tcp://*:9005 NQRandomPlayer,BasicDefensePlayer
 
-Standalone mode:
-  When --standalone-client is specified, the first positional argument
-  is taken as a team specification, whereas the second positional argument
-  is used to specify the address where the Player should connect to.
-
-  The user code then runs in the main thread of the process and as such
-  may be interrupted with the Python debugger pdb. (For best results,
-  it may be necessary to increase (or turn off) the timeout in the server.
-
-  Example usage. A server bound to two different ports:
-
-      $ %(prog)s tcp://*:51025 tcp://*:51027
-
-  Now we can start two clients connected to their respective sockets:
-
-      $ %(prog)s --standalone-client BFSPlayer,RandomPlayer tcp://localhost:51025
-      $ %(prog)s --standalone-client ~/my_player.py tcp://localhost:51027
-
-  A much simpler way, which avoids both the need to specify an available port
-  and to manually open up a new process is provided by the --standalone-left and
-  --standalone-right arguments. The following line automatically runs
-  the left team in standalone mode where it is possible to intercept with
-  the Python debugger. (Provided this is included in the code.)
-
-      $ %(prog)s --standalone-left --no-timeout DebuggablePlayer,MyTestPlayer \
-                                                BFSPlayer,RandomPlayer
-
 Layout specification:
   If neither --layoutfile nor --layout are specified, the maze is
   chosen at random from the pool of available layouts.
@@ -464,6 +317,8 @@ def run_game():
     config = {
         "publish-addr": None,
         "controller-addr": None,
+        "viewers": [],
+        "external-viewers": []
     }
 
     args = parser.parse_args()
@@ -482,43 +337,23 @@ def run_game():
     if args.viewer.startswith('tk') and not args.publish_to:
         raise ValueError("Options --tk (or --tk-no-sync) and --no-publish are mutually exclusive.")
 
-
     try:
         start_logging(args.log)
     except AttributeError:
         pass
 
     if args.list_teams:
-        print('\n'.join(PLAYERS))
+        from players import SANE_PLAYERS
+        print('\n'.join(p.__name__ for p in SANE_PLAYERS))
         sys.exit(0)
 
     if args.check_team:
-        if not args.spec_left:
-            raise ValueError("No team specified.")
-        # only print the team name.
-        print(load_team(args.spec_left).team_name)
+        if not args.team_specs:
+            raise ValueError("No teams specified.")
+        for team_spec in args.team_specs:
+            team_name = check_team(prepare_team(team_spec))
+            print("NAME:", team_name)
         sys.exit(0)
-
-    def print_team_info(addr, team, spec, info):
-        if team is not None:
-            print("Using factory '%s' -> '%s' (%s)" % (spec, team.team_name, info))
-        elif "://" in addr:
-            print("Waiting for %s team on %s" % (info, addr))
-
-    # if standalone_client was specified,
-    # we use the following scheme
-    # the first positional argument specifies the team to load
-    # the second positional argument specifies the address to connect to
-    if args.standalone_client:
-        if args.spec_left is None:
-            raise ValueError("The player must be specified.")
-        if args.spec_right is None:
-            raise ValueError("The address to connect to must be specified.")
-        team = load_team(args.spec_left)
-        addr = args.spec_right.replace('*', 'localhost')
-        print_team_info(None, team, args.spec_left, "standalone")
-        client = pelita.simplesetup.SimpleClient(team, address=addr)
-        sys.exit(client.run())
 
     try:
         # TODO: Re-include the dump.
@@ -549,13 +384,17 @@ def run_game():
             layout_name, layout_string = pelita.layout.get_random_layout(args.filter)
         print("Using layout '%s'" % layout_name)
 
-        if not args.spec_left:
-            args.spec_left = "random"
-        if not args.spec_right:
-            args.spec_right = "random"
+        num_teams = 2
+        team_specs = args.team_specs
+        while len(team_specs) < num_teams:
+            team_specs.append("random")
+        if len(team_specs) > num_teams:
+            raise RuntimeError("Too many teams given. Must be < {}.".format(num_teams))
 
-        addrs_left, team_left = prepare_team(args.spec_left, args.standalone_left)
-        addrs_right, team_right = prepare_team(args.spec_right, args.standalone_right)
+        teams = [prepare_team(team_spec) for team_spec in team_specs]
+
+
+        print(teams)
 
         if args.dry_run:
             sys.exit(0)
@@ -568,31 +407,31 @@ def run_game():
 
         server = pelita.simplesetup.SimpleServer(layout_string=layout_string,
                                                  rounds=args.rounds,
-                                                 bind_addrs=(addrs_left, addrs_right),
+                                                 bind_addrs=[team.address for team in teams],
                                                  initial_delay=initial_delay,
                                                  max_timeouts=args.max_timeouts,
                                                  timeout_length=args.timeout_length,
                                                  layout_name=layout_name,
                                                  seed=args.seed)
 
-        player_clients = []
-        for (addr, team) in zip(server.bind_addresses, [team_left, team_right]):
-            if team:
-                addr = addr.replace('*', 'localhost')
-                client = pelita.simplesetup.SimpleClient(team, address=addr)
-                player_clients.append(client)
+        # Update our teams with the bound addresses
+        teams = [
+            team._replace(address=address)
+            for team, address in zip(teams, server.bind_addresses)
+        ]
 
-        for client in player_clients:
-            proc = client.autoplay_process()
-            external_players.append(proc)
+        for idx, team in enumerate(teams):
+            if team.module is None:
+                print("Waiting for external team %d to connect to %s." % (idx, team.address))
 
-        print_team_info(addrs_left, team_left, args.spec_left, "left")
-        print_team_info(addrs_right, team_right, args.spec_right, "right")
+        external_players = [
+            call_standalone_pelitagame(team.module, team.address)
+            for team in teams
+            if team.module
+        ]
 
-        if args.standalone_left:
-            sub = call_standalone_pelitagame(args.spec_left, server.bind_addresses[0])
-        if args.standalone_right:
-            sub = call_standalone_pelitagame(args.spec_right, server.bind_addresses[1])
+       # print([sub.returncode for sub in subs])
+        #[s.wait() for s in subs]
 
         # register the viewers
         if args.publish_to:
@@ -639,20 +478,11 @@ def run_game():
 
         if not sync_address_tk:
             time.sleep(0.5)
-    try:
+
+    with autoclose_externals(external_viewers, external_players):
         runner()
-    except KeyboardInterrupt:
-        for external_viewer in external_viewers:
-            external_viewer.kill()
-    finally:
-        # kill all client processes. NOW!
-        # (is this too early?)
-        for external_player in external_players:
-            _logger.debug("Attempting to terminate %r.", external_player)
-            external_player.terminate()
-        for external_player in external_players:
-            external_player.join()
-            _logger.debug("%r terminated.", external_player)
+
 
 if __name__ == '__main__':
     run_game()
+

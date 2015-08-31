@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from six.moves import tkinter
-
 import logging
+
+from six.moves import tkinter
 
 from .tk_canvas import TkApplication
 

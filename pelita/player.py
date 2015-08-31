@@ -2,15 +2,15 @@
 
 """ Base classes for player implementations. """
 
-import os
-import random
-import sys
-import time
-import math
 import abc
 import pdb
-from . import datamodel
+import random
+import time
+
 import six
+
+from . import datamodel
+
 
 class SimpleTeam(object):
     """ Simple class used to register an arbitrary number of (Abstract-)Players.

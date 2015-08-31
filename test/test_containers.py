@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-import json
+
 from pelita.containers import *
+
 
 class TestMesh(unittest.TestCase):
 
@@ -121,4 +122,3 @@ class TestMesh(unittest.TestCase):
         m[1, 1] = True
         self.assertTrue(m2[1, 1])
         self.assertFalse(m3[1, 1])
-

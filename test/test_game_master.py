@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import six
-import unittest
-import time
 import collections
-import pelita
-from pelita.datamodel import CTFUniverse
+import unittest
 
-from pelita.game_master import GameMaster, UniverseNoiser, AStarNoiser, ManhattanNoiser, PlayerTimeout
-from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer, StoppingPlayer
+import six
+
+from pelita.datamodel import CTFUniverse
+from pelita.game_master import AStarNoiser, GameMaster, ManhattanNoiser, PlayerTimeout
+from pelita.player import AbstractPlayer, SimpleTeam, StoppingPlayer, TestPlayer
 from pelita.viewer import AbstractViewer
-from pelita.graph import AdjacencyList
 
 
 class TestGameMaster(unittest.TestCase):

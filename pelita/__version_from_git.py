@@ -3,6 +3,7 @@
 import os
 import subprocess
 
+
 def __get_command_output(command, cwd=None):
     """ Execute arbitrary commands.
 

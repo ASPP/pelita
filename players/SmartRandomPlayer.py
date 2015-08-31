@@ -3,6 +3,7 @@
 from pelita.datamodel import stop
 from pelita.player import AbstractPlayer, SimpleTeam
 
+
 class SmartRandomPlayer(AbstractPlayer):
     def get_move(self):
         dangerous_enemy_pos = [bot.current_pos
@@ -29,4 +30,3 @@ class SmartRandomPlayer(AbstractPlayer):
 
 def factory():
     return SimpleTeam("The Smart Random Players", SmartRandomPlayer(), SmartRandomPlayer())
-
