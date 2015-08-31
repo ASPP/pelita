@@ -6,9 +6,6 @@ import sys
 import inspect
 from collections import Mapping, MutableSequence
 
-from .messaging.json_convert import serializable
-
-@serializable
 class Mesh(Mapping):
     """ A mapping from a two-dimensional coordinate system into object space.
 
@@ -194,8 +191,8 @@ class Mesh(Mapping):
         return self.width * self.height
 
     def __repr__(self):
-        return ('Mesh(%i, %i, data=%r)'
-            % (self.width, self.height, self._data))
+        return ('%s(%i, %i, data=%r)'
+            % (self.__class__.__name__, self.width, self.height, self._data))
 
     def __str__(self):
         output = str()
@@ -264,4 +261,3 @@ class Mesh(Mapping):
     @classmethod
     def _from_json_dict(cls, item):
         return cls(**item)
-

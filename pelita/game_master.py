@@ -8,7 +8,7 @@ import time
 import abc
 from . import datamodel
 from .graph import NoPathException, AdjacencyList, manhattan_dist
-from .datamodel import CTFUniverse, Bot, Free
+from .datamodel import CTFUniverse, Bot
 import six
 
 class GameFinished(Exception):
@@ -31,6 +31,8 @@ class GameMaster(object):
     ----------
     layout : string
         initial layout as string
+    teams : list of teams
+        the teams to play the game
     number_bots : int
         the total number of bots
     game_time : int
@@ -52,16 +54,20 @@ class GameMaster(object):
         the viewers that are observing this game
 
     """
-    def __init__(self, layout, number_bots, game_time, noise=True, noiser=None,
+    def __init__(self, layout, teams, number_bots, game_time, noise=True, noiser=None,
                  initial_delay=0.0, max_timeouts=5, timeout_length=3, layout_name=None,
                  seed=None):
         self.universe = datamodel.CTFUniverse.create(layout, number_bots)
         self.number_bots = number_bots
+
+        if not len(teams) == len(self.universe.teams):
+            raise ValueError("Number of registered teams does not match the universe.")
+        self.player_teams = teams
+
         if noiser is None:
             noiser = ManhattanNoiser
         self.noiser = noiser(self.universe, seed=seed) if noise else None
-        self.player_teams = []
-        self.player_teams_timeouts = []
+
         self.viewers = []
         self.initial_delay = initial_delay
 
@@ -103,6 +109,9 @@ class GameMaster(object):
 
             #: true if finished
             "finished": False,
+
+            #: [team_name_0, team_name_1]
+            "team_name": [""] * len(self.universe.teams),
 
             #: [running_time_team_0, running_time_team_1]
             "team_time": [0] * len(self.universe.teams),
@@ -154,26 +163,6 @@ class GameMaster(object):
     def game_time(self):
         return self.game_state["game_time"]
 
-    def register_team(self, team, team_name=""):
-        """ Register a client TeamPlayer class.
-
-        Parameters
-        ----------
-        team : class which calculates a new move for
-            each Bot of the team.
-        """
-        self.player_teams.append(team)
-        self.player_teams_timeouts.append(0)
-
-        # map a player_team to a universe.team 1:1
-        team_idx = len(self.player_teams) - 1
-
-        # set the name in the universe
-        if team_name:
-            self.universe.teams[team_idx].name = team_name
-        elif team.team_name:
-            self.universe.teams[team_idx].name = team.team_name
-
     def register_viewer(self, viewer):
         """ Register a viewer to display the game state as it progresses.
 
@@ -214,7 +203,8 @@ class GameMaster(object):
             team_seed = self.rnd.randint(0, sys.maxsize)
             team_state = dict({"seed": team_seed}, **self.game_state)
             try:
-                team.set_initial(team_id, self.universe, team_state)
+                team_name = team.set_initial(team_id, self.universe, team_state)
+                self.game_state["team_name"][team_id] = team_name
             except PlayerTimeout:
                 pass
 
@@ -419,7 +409,7 @@ class UniverseNoiser(object):
     of noise. Noise will only be applied if the enemy bot is with a certain
     threshold (`sight_distance`).
 
-    Derived classes will need to implement distance and the alter_pos methods
+    Derived classes will need to implement distance and the altered_pos methods
 
     Methods
     -------
@@ -429,7 +419,7 @@ class UniverseNoiser(object):
         is measured in the space relevant to the particular algorithm implemented
         in the subclass, e.g. maze distance, manhattan distance, euclidean distance...
 
-    alter_pos(bot_pos):
+    altered_pos(bot_pos):
         return the noised new position of an enemy bot.
 
     Parameters
@@ -474,18 +464,23 @@ class UniverseNoiser(object):
             universe with noisy enemy positions
 
         """
-        universe_copy = CTFUniverse(maze=universe.maze, teams=universe.teams, bots=[Bot._from_json_dict(bot._to_json_dict()) for bot in universe.bots])
+        # Prepare a copy of the universe with all bots cloned so that their position
+        # can be changed without altering the original universe.
+        universe_copy = CTFUniverse(maze=universe.maze,
+                                    food=universe.food,
+                                    teams=universe.teams,
+                                    bots=[Bot._from_json_dict(bot._to_json_dict()) for bot in universe.bots])
         self.universe = universe_copy
-        bot = universe_copy.bots[bot_index]
-        bots_to_noise = universe_copy.enemy_bots(bot.team_index)
-        for b in bots_to_noise:
+        current_bot = universe_copy.bots[bot_index]
+        enemy_bots = universe_copy.enemy_bots(current_bot.team_index)
+        for b in enemy_bots:
             # Check that the distance between this bot and the enemy is larger
             # than `sight_distance`.
-            distance = self.distance(bot, b)
+            distance = self.distance(current_bot, b)
 
             if distance is None or distance > self.sight_distance:
                 # If so then alter the position of the enemy
-                b.current_pos = self.alter_pos(b.current_pos)
+                b.current_pos = self.altered_pos(b.current_pos)
                 b.noisy = True
 
         return universe_copy
@@ -496,7 +491,7 @@ class UniverseNoiser(object):
         """
 
     @abc.abstractmethod
-    def alter_pos(self, bot_pos):
+    def altered_pos(self, bot_pos):
         """ Method to return a new position for a bot.
         """
 
@@ -516,7 +511,7 @@ class AStarNoiser(UniverseNoiser):
             # We cannot see it: Apply the noise anyway
             return None
 
-    def alter_pos(self, bot_pos):
+    def altered_pos(self, bot_pos):
         possible_positions = list(self.adjacency.pos_within(bot_pos,
                                                             self.noise_radius))
         if len(possible_positions) > 0:
@@ -534,7 +529,7 @@ class ManhattanNoiser(UniverseNoiser):
     def distance(self, bot, other_bot):
         return manhattan_dist(bot.current_pos, other_bot.current_pos)
 
-    def alter_pos(self, bot_pos):
+    def altered_pos(self, bot_pos):
         # get a list of possible positions
         noise_radius = self.noise_radius
         x_min, x_max = bot_pos[0] - noise_radius, bot_pos[0] + noise_radius
@@ -548,7 +543,7 @@ class ManhattanNoiser(UniverseNoiser):
         for pos in possible_positions:
             try:
                 # check that the bot can really fit in here
-                if Free in self.universe.maze[pos]:
+                if not self.universe.maze[pos]:
                     return pos
             except IndexError:
                 pass

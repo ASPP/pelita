@@ -5,10 +5,10 @@ from six.moves import tkinter
 from six.moves import tkinter_font
 
 import zmq
+import json
 
-from .. import datamodel
+from ..datamodel import CTFUniverse
 from .tk_sprites import BotSprite, Wall, Food, col
-from ..messaging.json_convert import json_converter
 from ..utils.signal_handlers import wm_delete_window_handler
 
 _logger = logging.getLogger("pelita.tk")
@@ -271,7 +271,7 @@ class UiCanvas(object):
 
             winning_team_idx = game_state.get("team_wins")
             if winning_team_idx is not None:
-                team_name = universe.teams[winning_team_idx].name
+                team_name = game_state["team_name"][winning_team_idx]
                 self.game_finish_overlay = lambda: self.draw_game_over(team_name)
 
             if game_state.get("game_draw"):
@@ -349,6 +349,9 @@ class UiCanvas(object):
 
     def draw_title(self, universe, game_state):
         self.score.delete("title")
+        if not game_state:
+            return
+
         center = self.mesh_graph.screen_width // 2
 
         try:
@@ -356,8 +359,8 @@ class UiCanvas(object):
         except (KeyError, TypeError):
             team_time = [0, 0]
 
-        left_team = "(%.2f) %s %d " % (team_time[0], universe.teams[0].name, universe.teams[0].score)
-        right_team = " %d %s (%.2f)" % (universe.teams[1].score, universe.teams[1].name, team_time[1])
+        left_team = "(%.2f) %s %d " % (team_time[0], game_state["team_name"][0], universe.teams[0].score)
+        right_team = " %d %s (%.2f)" % (universe.teams[1].score, game_state["team_name"][1], team_time[1])
         font_size = guess_size(left_team+':'+right_team,
                                self.mesh_graph.screen_width,
                                30,
@@ -442,25 +445,24 @@ class UiCanvas(object):
         if not self.size_changed:
             return
         self.canvas.delete("food")
-        for position, items in universe.maze.items():
+        for position in universe.food_list:
             model_x, model_y = position
-            if datamodel.Food in items:
-                food_item = Food(self.mesh_graph, model_x, model_y)
-                food_item.draw(self.canvas)
+            food_item = Food(self.mesh_graph, model_x, model_y)
+            food_item.draw(self.canvas)
 
     def draw_maze(self, universe):
         if not self.size_changed:
             return
         self.canvas.delete("wall")
-        for position, items in universe.maze.items():
+        for position, wall in universe.maze.items():
             model_x, model_y = position
-            if datamodel.Wall in items:
+            if wall:
                 wall_item = Wall(self.mesh_graph, model_x, model_y)
                 wall_item.wall_neighbours = []
                 for dx in [-1, 0, 1]:
                     for dy in [-1, 0, 1]:
                         try:
-                            if datamodel.Wall in universe.maze[model_x + dx, model_y + dy]:
+                            if universe.maze[model_x + dx, model_y + dy]:
                                 wall_item.wall_neighbours.append( (dx, dy) )
                         except IndexError:
                             pass
@@ -543,7 +545,7 @@ class TkApplication(object):
             # we don’t want to block here and lock
             # Tk animations
             message = self.socket.recv_unicode(flags=zmq.NOBLOCK)
-            message = json_converter.loads(message)
+            message = json.loads(message)
             # we curretly don’t care about the action
             observed = message["__data__"]
             self.observe(observed)
@@ -581,6 +583,7 @@ class TkApplication(object):
 
     def observe(self, observed):
         universe = observed.get("universe")
+        universe = CTFUniverse._from_json_dict(universe) if universe else None
         game_state = observed.get("game_state")
 
         self.ui_canvas.update(universe, game_state)
@@ -620,4 +623,3 @@ class TkApplication(object):
                 self.ui_canvas.button_game_speed_faster.config(state=tkinter.NORMAL)
         except AttributeError:
             pass
-

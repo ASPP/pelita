@@ -54,17 +54,19 @@ class SimpleTeam(object):
         # only iterate about those player which are in bot_players
         # we might have defined more players than we have received
         # indexes for.
-        team = universe.teams[team_id]
+        team_bots = universe.team_bots(team_id)
 
-        if len(team.bots) > len(self._players):
-            raise ValueError("Tried to set %d bot_ids with only %d Players." % (len(team.bots), len(self._players)))
+        if len(team_bots) > len(self._players):
+            raise ValueError("Tried to set %d bot_ids with only %d Players." % (len(team_bots), len(self._players)))
 
-        for bot_id, player in zip(team.bots, self._players):
+        for bot, player in zip(team_bots, self._players):
             # tell the player its index
-            player._set_index(bot_id)
+            player._set_index(bot.index)
             # tell the player about the initial universe
             player._set_initial(universe, game_state)
-            self._bot_players[bot_id] = player
+            self._bot_players[bot.index] = player
+
+        return self.team_name
 
     def get_move(self, bot_id, universe, game_state):
         """ Requests a move from the Player who controls the Bot with id `bot_id`.
@@ -456,33 +458,11 @@ class RoundBasedPlayer(AbstractPlayer):
         except (IndexError, KeyError):
             return datamodel.stop
 
-class IOBoundPlayer(AbstractPlayer):
-    """ IO Bound player that crawls the file system. """
-
-    def get_move(self):
-        count = 0
-        self.timeouted = False
-        for root, dirs, files in os.walk('/'):
-            for f in files:
-                try:
-                    os.stat(os.path.join(root, f))
-                except OSError:
-                    pass
-                finally:
-                    count += 1
-                    if count % 1000 == 0:
-                        sys.stdout.write('.')
-                        sys.stdout.flush()
-                    if not self.timeouted and self.previous_pos != self.current_pos:
-                        print("Crawling done and timeout received %i" % count)
-                        self.timeouted = True
-
 class MoveExceptionPlayer(AbstractPlayer):
     """ Player that raises an Exception on get_move(). """
 
     def get_move(self):
         raise Exception("Exception from MoveExceptionPlayer.")
-
 
 class InitialExceptionPlayer(AbstractPlayer):
     """ Player that raises an Exception on set_initial(). """
@@ -503,22 +483,3 @@ class DebuggablePlayer(AbstractPlayer):
         direction = datamodel.stop
         pdb.set_trace()
         return direction
-
-class CPUBoundPlayer(AbstractPlayer):
-    """ Player that does loads of computation. """
-
-    def get_move(self):
-        self.timeouted = False
-        total = 0.0
-        count = 0
-        for i in range(sys.maxsize):
-            total += i*i
-            total = math.sin(total)
-            count += 1
-            if count % 1000 == 0:
-                sys.stdout.write('.')
-                sys.stdout.flush()
-            if not self.timeouted and self.previous_pos != self.current_pos:
-                print("Crawling done and timeout received %i" % count)
-                self.timeouted = True
-

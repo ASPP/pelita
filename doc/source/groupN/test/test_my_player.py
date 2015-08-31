@@ -17,13 +17,14 @@ class MyPlayerTest(unittest.TestCase):
             # 2 .  . 3 #
             ############
         """
-        gm = GameMaster(test_layout, number_bots=4, game_time=5, seed=20)
+        teams = [
+            # register my_team for bots 0, 2
+            my_team,
+            # register a pre-defined team as an enemy
+            SimpleTeam(RandomPlayer(), RandomPlayer())
+        ]
 
-        # register my_team for bots 0, 2
-        gm.register_team(my_team)
-
-        # register a pre-defined team as an enemy
-        gm.register_team(SimpleTeam(RandomPlayer(), RandomPlayer()))
+        gm = GameMaster(test_layout, teams, number_bots=4, game_time=5, seed=20)
 
         # play `game_time` rounds
         gm.play()

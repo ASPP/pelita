@@ -37,10 +37,11 @@ import traceback
 import re
 import six
 
+import json
 import uuid
 import zmq
 
-from .messaging.json_convert import json_converter
+from .datamodel import CTFUniverse
 from .game_master import GameMaster, PlayerTimeout, PlayerDisconnected
 from .viewer import AbstractViewer
 
@@ -158,7 +159,7 @@ class ZMQConnection(object):
             # race condition if a connection was closed between poll and send.
             # NOBLOCK should raise, so we can catch that
             message_obj = {"__uuid__": msg_uuid, "__action__": action, "__data__": data}
-            json_message = json_converter.dumps(message_obj)
+            json_message = json.dumps(message_obj)
             try:
                 self.socket.send_unicode(json_message, flags=zmq.NOBLOCK)
             except zmq.ZMQError as e:
@@ -172,7 +173,7 @@ class ZMQConnection(object):
         # return tuple
         # (action, data)
         json_message = self.socket.recv_unicode()
-        py_obj = json_converter.loads(json_message)
+        py_obj = json.loads(json_message)
         #print repr(json_msg)
         msg_uuid = py_obj["__uuid__"]
 
@@ -241,7 +242,7 @@ class RemoteTeamPlayer(object):
     def set_initial(self, team_id, universe, game_state):
         try:
             self.zmqconnection.send("set_initial", {"team_id": team_id,
-                                                    "universe": universe,
+                                                    "universe": universe._to_json_dict(),
                                                     "game_state": game_state})
             return self.zmqconnection.recv_timeout(game_state["timeout_length"])
         except ZMQTimeout:
@@ -253,7 +254,7 @@ class RemoteTeamPlayer(object):
     def get_move(self, bot_id, universe, game_state):
         try:
             self.zmqconnection.send("get_move", {"bot_id": bot_id,
-                                                 "universe": universe,
+                                                 "universe": universe._to_json_dict(),
                                                  "game_state": game_state})
             reply = self.zmqconnection.recv_timeout(game_state["timeout_length"])
             # make sure it is a dict
@@ -325,13 +326,6 @@ class SimpleServer(object):
         self.number_of_teams = teams
         self.rounds = rounds
 
-        self.game_master = GameMaster(layout_string, self.players, self.rounds,
-                                      initial_delay=initial_delay,
-                                      max_timeouts=max_timeouts,
-                                      timeout_length=timeout_length,
-                                      layout_name=layout_name,
-                                      seed=seed)
-
         if isinstance(bind_addrs, tuple):
             pass
         elif isinstance(bind_addrs, str):
@@ -376,12 +370,13 @@ class SimpleServer(object):
             team_player = RemoteTeamPlayer(socket)
             self.team_players.append(team_player)
 
-    def register_teams(self):
-        # At this point the clients should have been started as well.
-        for team in self.team_players:
-            _logger.info("Registering team %r.", team)
-            team_name = team.team_name()
-            self.game_master.register_team(team, team_name)
+        self.game_master = GameMaster(layout_string, self.team_players,
+                                      self.players, self.rounds,
+                                      initial_delay=initial_delay,
+                                      max_timeouts=max_timeouts,
+                                      timeout_length=timeout_length,
+                                      layout_name=layout_name,
+                                      seed=seed)
 
     def exit_teams(self):
         for team_player in self.team_players:
@@ -396,8 +391,6 @@ class SimpleServer(object):
             socket.close()
 
     def run(self):
-        self.register_teams()
-
         self.game_master.play()
 
         self.exit_teams()
@@ -440,7 +433,7 @@ class SimpleController(object):
 
         if uuid_:
             message_obj = {"__uuid__": uuid_, "__return__": retval}
-            json_message = json_converter.dumps(message_obj)
+            json_message = json.dumps(message_obj)
             self.socket.send_unicode(json_message)
 
     def set_initial(self, *args, **kwargs):
@@ -515,7 +508,7 @@ class SimpleClient(object):
         answer from the player.
         """
         json_message = self.socket.recv_unicode()
-        py_obj = json_converter.loads(json_message)
+        py_obj = json.loads(json_message)
         uuid_ = py_obj["__uuid__"]
         action = py_obj["__action__"]
         data = py_obj["__data__"]
@@ -539,16 +532,16 @@ class SimpleClient(object):
         finally:
             try:
                 message_obj = {"__uuid__": uuid_, "__return__": retval}
-                json_message = json_converter.dumps(message_obj)
+                json_message = json.dumps(message_obj)
                 self.socket.send_unicode(json_message)
             except NameError:
                 pass
 
-    def set_initial(self, *args, **kwargs):
-        return self.team.set_initial(*args, **kwargs)
+    def set_initial(self, team_id, universe, game_state):
+        return self.team.set_initial(team_id, CTFUniverse._from_json_dict(universe), game_state)
 
-    def get_move(self, *args, **kwargs):
-        return self.team.get_move(*args, **kwargs)
+    def get_move(self, bot_id, universe, game_state):
+        return self.team.get_move(bot_id, CTFUniverse._from_json_dict(universe), game_state)
 
     def exit(self):
         raise ExitLoop()
@@ -588,17 +581,17 @@ class SimplePublisher(AbstractViewer):
         self.socket_addr = bind_socket(self.socket, self.address, '--publish')
 
     def _send(self, message):
-        as_json = json_converter.dumps(message)
+        as_json = json.dumps(message)
         self.socket.send_unicode(as_json)
 
     def set_initial(self, universe):
         message = {"__action__": "set_initial",
-                   "__data__": {"universe": universe}}
+                   "__data__": {"universe": universe._to_json_dict()}}
         self._send(message)
 
     def observe(self, universe, game_state):
         message = {"__action__": "observe",
-                   "__data__": {"universe": universe,
+                   "__data__": {"universe": universe._to_json_dict(),
                                 "game_state": game_state}}
         self._send(message)
 
@@ -636,7 +629,7 @@ class SimpleSubscriber(AbstractViewer):
         answer from the player.
         """
         data = self.socket.recv_unicode()
-        py_obj = json_converter.loads(data)
+        py_obj = json.loads(data)
 
         action = py_obj.get("__action__")
         data = py_obj.get("__data__") or {}
@@ -644,10 +637,10 @@ class SimpleSubscriber(AbstractViewer):
         getattr(self, action)(**data)
 
     def set_initial(self, universe):
-        return self.viewer.set_initial(universe)
+        return self.viewer.set_initial(CTFUniverse._from_json_dict(universe))
 
     def observe(self, universe, game_state):
-        return self.viewer.observe(universe, game_state)
+        return self.viewer.observe(CTFUniverse._from_json_dict(universe), game_state)
 
     def exit(self):
         raise ExitLoop()

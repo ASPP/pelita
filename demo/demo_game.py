@@ -11,8 +11,10 @@ if __name__ == '__main__':
             #2#####    #####1#
             #     . #  .  .#3#
             ################## """)
-    gm = GameMaster(layout, 4, 200)
-    gm.register_team(SimpleTeam(StoppingPlayer(), NQRandomPlayer()))
-    gm.register_team(SimpleTeam(NQRandomPlayer(), NQRandomPlayer()))
+    teams = [
+        SimpleTeam(StoppingPlayer(), NQRandomPlayer()),
+        SimpleTeam(StoppingPlayer(), NQRandomPlayer())
+    ]
+    gm = GameMaster(layout, teams, 4, 200)
     gm.register_viewer(AsciiViewer())
     gm.play()

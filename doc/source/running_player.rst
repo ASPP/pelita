@@ -127,12 +127,8 @@ or, if you would be using a differently named factory method::
 Debugging
 =========
 
-The ``pelitagame`` script runs the client code in another process. Therefore,
-it is not possible from the client process to halt the program and interact
-with standard input. In order to use debugging methods, one has to somehow run
-the player code in the main process. Depending on whether one wants to check
-the left or the right, one has to use the flags `--standalone-left` and
-`--standalone-right`, respectively.
+The ``pelitagame`` script runs the client code in a subprocess. When started
+from a terminal, the client code can be made to interact with user input.
 
 For a start, let us consider a Player which does nothing but call the Python
 debugger for help:
@@ -144,7 +140,7 @@ debugger for help:
 We want to use this player in our left team and let the server choose a random
 team for the right hand side. Additionally, we disable the timeouts::
 
-    $ ~/pelita/pelitagame --standalone-left --no-timeout DebuggablePlayer
+    $ ~/pelita/pelitagame --no-timeout DebuggablePlayer
 
 We now can interact with the game by manually setting the direction at
 each step::
@@ -163,7 +159,11 @@ each step::
 
 .. note::
 
-    The standalone mode may sometimes misbehave. Possible issues may include
+    Taking standard input may sometimes misbehave. Possible issues may include
     the occasional not responding on keystrokes, garbled output and the
     failure to automatically shutdown the program. In these cases, it is
     useful to press the keyboard interrupt (CTRL+C) a couple of times.
+
+    Obviously, mixing two DebuggingPlayers, both waiting on input will lead to
+    confusion.
+

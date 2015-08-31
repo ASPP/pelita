@@ -113,6 +113,8 @@ Interfacing with the ``CTFUniverse``
 +---------+----------------------------------------------+
 | bots    | list of instances of `pelita.datamodel.Bot`  |
 +---------+----------------------------------------------+
+| food    | list of positions of food                    |
++---------+----------------------------------------------+
 
 .. currentmodule:: pelita.datamodel.CTFUniverse
 

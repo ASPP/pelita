@@ -9,7 +9,6 @@ from .graph import new_pos, diff_pos, manhattan_dist
 from .graph import iter_adjacencies
 from .layout import Layout
 from .containers import Mesh
-from .messaging.json_convert import serializable
 
 north = (0, -1)
 south = (0, 1)
@@ -17,7 +16,6 @@ west  = (-1, 0)
 east  = (1, 0)
 stop  = (0, 0)
 
-@serializable
 class Team(object):
     """ A team of bots.
 
@@ -25,38 +23,16 @@ class Team(object):
     ----------
     index : int
         the index of the team within the Universe
-    name : str
-        the name of the team
     zone : tuple of int (x_min, x_max)
         the homezone of this team
     score : int, optional, default = 0
         the score of this team
-    bots : list of int, optional, default = None (creates an empty list)
-        the bot indices that belong to this team
 
     """
-    def __init__(self, index, name, zone, score=0, bots=None):
+    def __init__(self, index, zone, score=0):
         self.index = index
-        self.name = name
         self.zone = zone
         self.score = score
-        # we can't use a keyword argument here, because that would create a
-        # single list object for all our Teams.
-        if bots is None:
-            self.bots = []
-        else:
-            self.bots = bots
-
-    def _add_bot(self, bot):
-        """ Add a bot to this team.
-
-        Parameters
-        ----------
-        bot : int
-            the index of the bot to add
-
-        """
-        self.bots.append(bot)
 
     def in_zone(self, position):
         """ Check if a position is within the zone of this team.
@@ -74,20 +50,9 @@ class Team(object):
         """
         return self.zone[0] <= position[0] <= self.zone[1]
 
-    def _score_point(self):
-        """ Score a single point. """
-        self.score += 1
-
-    def _score_points(self, points):
-        """ Score several points. """
-        self.score += points
-
-    def __str__(self):
-        return self.name
-
     def __repr__(self):
-        return ('Team(%i, %r, %s, score=%i, bots=%r)' %
-                (self.index, self.name, self.zone, self.score, self.bots))
+        return ('Team(%i, %s, score=%i)' %
+                (self.index, self.zone, self.score))
 
     def __eq__(self, other):
         return type(self) == type(other) and self.__dict__ == other.__dict__
@@ -97,10 +62,8 @@ class Team(object):
 
     def _to_json_dict(self):
         return {"index": self.index,
-                "name": self.name,
                 "zone": self.zone,
-                "score": self.score,
-                "bots": self.bots}
+                "score": self.score}
 
     @classmethod
     def _from_json_dict(cls, item):
@@ -108,7 +71,6 @@ class Team(object):
         item["zone"] = tuple(item["zone"])
         return cls(**item)
 
-@serializable
 class Bot(object):
     """ A bot on a team.
 
@@ -162,7 +124,7 @@ class Bot(object):
     def is_harvester(self):
         return not self.is_destroyer
 
-    def _reset(self):
+    def _to_initial(self):
         """ Reset this bot to its initial position. """
         self.current_pos = self.initial_pos
 
@@ -198,64 +160,41 @@ Food = '.'
 
 maze_components = [Food, Free, Wall]
 
-@serializable
 class Maze(Mesh):
-    """ A Mesh of strings of maze component representations.
+    """ The `Maze` object holds the walls of the universe.
 
-    This is a container class to represent a game maze. It is a two-dimensional
-    structure (Mesh) which contains a representation of maze components at each
-    position. This is implemented using sequences of characters, i.e. strings.
-    At each position we store the characters corresponding to the maze
-    components at this position.
+    Data is stored and given in row-based order, eg.
+
+    >>> m = Maze(4, 3, data=[True, False, True, True] + [True, False, False, True] + 4*[True])
+
+    specifies the maze
+
+        # ##
+        #  #
+        ####
+
+    Parameters
+    ----------
+    width : int
+        the width of the maze
+    height : int
+        the height of the maze
+    data : iterable of bools
+        the walls of the maze (True) or free space (False) in row-based order
+
+    Attributes
+    ----------
+    shape : (int, int)
+        tuple of width and height
+
     """
-
     def __init__(self, width, height, data=None):
         if not data:
-            data = ["" for i in range(width*height)]
-        elif not all(isinstance(s, six.string_types) for s in data):
-            raise TypeError("Maze keyword argument 'data' should be list of " +\
-                            "strings, not: %r" % data)
-        else:
-            # sort the data items
-            data = ["".join(sorted(v)) for v in data]
+            data = [False] * (width * height)
+        elif not all(isinstance(s, bool) for s in data):
+            raise TypeError("Maze keyword argument 'data' should be a list of of " +\
+                            "bools, not: %r" % data)
         super(Maze, self).__init__(width, height, data)
-
-    def __setitem__(self, key, value):
-        super(Maze, self).__setitem__(key, "".join(sorted(value)))
-
-    def get_at(self, char, pos):
-        """ Get all objects of a given char representation at certain position.
-
-        Parameters
-        ----------
-        char : char
-            the char representation of maze components to look for
-        pos : tuple of (int, int)
-            the position to look at
-
-        Returns
-        -------
-        objs : list
-            the objects at that position
-
-        """
-        return [item for item in self[pos] if item == char]
-
-    def remove_at(self, char, pos):
-        """ Remove all objects of a given char representation at a certain position.
-
-        Parameters
-        ----------
-        char : char
-            the char representation to remove from the Maze
-        pos : tuple of (int, int)
-            the position to look at
-
-        """
-        if char in self[pos]:
-            self[pos] = [item for item in self[pos] if item != char]
-        else:
-            raise ValueError
 
     @property
     def positions(self):
@@ -268,33 +207,6 @@ class Maze(Mesh):
 
         """
         return list(self.keys())
-
-    def pos_of(self, char):
-        """ The indices of positions which have a maze component.
-
-        Parameters
-        ----------
-        char : maze component char
-            the char of maze component to look for
-
-        Examples
-        --------
-        >>> universe.maze.pos_of(Free)
-        [(1, 1),
-        (3, 1),
-        (4, 1),
-        (5, 1),
-        (6, 1),
-        (7, 1),
-        ...
-
-        """
-        return [pos for pos, val in self.items() if char in val]
-
-    def __repr__(self):
-        return ('Maze(%i, %i, data=%r)'
-            % (self.width, self.height, self._data))
-
 
 def create_maze(layout_mesh):
     """ Transforms a layout_mesh into a Maze.
@@ -311,15 +223,13 @@ def create_maze(layout_mesh):
 
     """
     maze = Maze(layout_mesh.width, layout_mesh.height)
-    for index in maze.keys():
-        if layout_mesh[index] == Wall:
-            maze[index] = maze[index] + Wall
-        else:
-            maze[index] = maze[index] + Free
-        if layout_mesh[index] == Food:
-            maze[index] = maze[index] + Food
-    return maze
-
+    food = []
+    for pos, items in layout_mesh.items():
+        if Wall in items:
+            maze[pos] = True
+        if Food in items:
+            food.append(pos)
+    return maze, food
 
 def extract_initial_positions(mesh, number_bots):
     """ Extract initial positions from mesh.
@@ -356,7 +266,6 @@ class IllegalMoveException(Exception):
     """ Raised when a bot attempts to make an illegal move. """
     pass
 
-@serializable
 class CTFUniverse(object):
     """ The Universe: representation of the game state.
 
@@ -379,7 +288,7 @@ class CTFUniverse(object):
     """
 
     @classmethod
-    def create(cls, layout_str, number_bots, team_names=None):
+    def create(cls, layout_str, number_bots):
         """ Factory to create a 2-Player Capture The Flag Universe.
 
         Parameters
@@ -388,9 +297,6 @@ class CTFUniverse(object):
             the string encoding the maze layout
         number_bots : int
             the number of bots in the game
-        team_names : length 2 list of strings, optional
-            default = None -> ['black', 'white']
-            the names of the playing teams
 
         Raises
         ------
@@ -400,9 +306,6 @@ class CTFUniverse(object):
             if there is something wrong with the layout_str, see `Layout()`
 
         """
-        if team_names is None:
-            team_names = ["black", "white"]
-
         layout_chars = maze_components
 
         if number_bots % 2 != 0:
@@ -412,7 +315,7 @@ class CTFUniverse(object):
         layout = Layout(layout_str, layout_chars, number_bots)
         layout_mesh = layout.as_mesh()
         initial_pos = extract_initial_positions(layout_mesh, number_bots)
-        maze = create_maze(layout_mesh)
+        maze, food = create_maze(layout_mesh)
         if maze.width % 2 != 0:
             raise UniverseException(
                 "Width of a layout for CTF must be even, is: %i"
@@ -421,10 +324,8 @@ class CTFUniverse(object):
                 (maze.width // 2, maze.width - 1)]
 
         teams = []
-        teams.append(Team(0, team_names[0], homezones[0], bots=list(range(0,
-            number_bots, 2))))
-        teams.append(Team(1, team_names[1], homezones[1], bots=list(range(1,
-            number_bots, 2))))
+        teams.append(Team(0, homezones[0]))
+        teams.append(Team(1, homezones[1]))
 
         bots = []
         for bot_index in range(number_bots):
@@ -433,7 +334,7 @@ class CTFUniverse(object):
                     team_index, homezones[team_index])
             bots.append(bot)
 
-        return cls(maze, teams, bots)
+        return cls(maze, food, teams, bots)
 
     #: All possible (but not necessarily legal) moves
     _moves = [north, south, east, west, stop]
@@ -441,9 +342,9 @@ class CTFUniverse(object):
     #: the number of points to score when killing
     KILLPOINTS = 5
 
-    def __init__(self, maze, teams, bots):
+    def __init__(self, maze, food, teams, bots):
         self.maze = maze
-        # TODO make a deepcopy here, so that we can big_bang
+        self.food = set(tuple(f) for f in food)
         self.teams = teams
         self.bots = bots
 
@@ -468,7 +369,7 @@ class CTFUniverse(object):
             the positions of all food
 
         """
-        return self.maze.pos_of(Food)
+        return self.food
 
     def team_food(self, team_index):
         """ Food that is owned by a team
@@ -508,8 +409,9 @@ class CTFUniverse(object):
             the other bots on the team, excluding the desired bot
 
         """
-        team = self.teams[self.bots[bot_index].team_index]
-        return [self.bots[i] for i in team.bots if i != bot_index]
+        team_index = self.bots[bot_index].team_index
+        return [bot for bot in self.team_bots(team_index)
+                if not bot.index == bot_index]
 
     def team_bots(self, team_index):
         """ Obtain all Bot objects in a Team.
@@ -524,7 +426,8 @@ class CTFUniverse(object):
         team_bots : list of Bot objects
 
         """
-        return [self.bots[i] for i in self.teams[team_index].bots]
+        return [bot for bot in self.bots
+                if bot.team_index == team_index]
 
     def enemy_bots(self, team_index):
         """ Obtain enemy bot objects.
@@ -539,7 +442,8 @@ class CTFUniverse(object):
         enemy_bots : list of Bot objects
 
         """
-        return [self.bots[i] for i in self.enemy_team(team_index).bots]
+        return [bot for bot in self.bots
+                if not bot.team_index == team_index]
 
     def enemy_team(self, team_index):
         """ Obtain the enemy team.
@@ -586,8 +490,7 @@ class CTFUniverse(object):
             border_x = team_zone[1]
         else:
             border_x = team_zone[0]
-        return [(border_x, y) for y in range(self.maze.shape[1]) if
-                Free in self.maze[border_x, y]]
+        return [(border_x, y) for y in range(self.maze.shape[1]) if not self.maze[border_x, y]]
 
     def move_bot(self, bot_id, move):
         """ Move a bot in certain direction.
@@ -627,8 +530,8 @@ class CTFUniverse(object):
         team = self.teams[bot.team_index]
         # check for food being eaten
         game_state["food_eaten"] = []
-        if Food in self.maze[bot.current_pos] and not bot.in_own_zone:
-            self.maze.remove_at(Food, bot.current_pos)
+        if bot.current_pos in self.food_list and not bot.in_own_zone:
+            self.food.remove(bot.current_pos)
 
             game_state["food_eaten"] += [{"food_pos": bot.current_pos, "bot_id": bot_id}]
 
@@ -655,7 +558,7 @@ class CTFUniverse(object):
         # reset bots
         for destroyed in game_state["bot_destroyed"]:
             old_pos = bot.current_pos
-            self.bots[destroyed["bot_id"]]._reset()
+            self.bots[destroyed["bot_id"]]._to_initial()
             new_pos = bot.current_pos
             game_state["bot_moved"] += [{"bot_id": bot_id, "old_pos": old_pos, "new_pos": new_pos}]
 
@@ -687,7 +590,7 @@ class CTFUniverse(object):
         legal_moves_dict = {}
         for move, new_pos in self.neighbourhood(position).items():
             try:
-                if Free in self.maze[new_pos]:
+                if not self.maze[new_pos]:
                     legal_moves_dict[move] = new_pos
             except IndexError:
                 # If we’re outside the maze, it is not a legal move.
@@ -715,8 +618,8 @@ class CTFUniverse(object):
         return moves
 
     def __repr__(self):
-        return ("CTFUniverse(%r, %r, %r)" %
-            (self.maze, self.teams, self.bots))
+        return ("CTFUniverse(%r, %r, %r, %r)" %
+            (self.maze, self.food, self.teams, self.bots))
 
     def __eq__(self, other):
         return type(self) == type(other) and self.__dict__ == other.__dict__
@@ -728,12 +631,12 @@ class CTFUniverse(object):
     def _char_mesh(self):
         char_mesh = Mesh(self.maze.width, self.maze.height)
         for pos in self.maze.positions:
-                if Wall in self.maze[pos]:
-                    char_mesh[pos] = Wall
-                elif Food in self.maze[pos]:
-                    char_mesh[pos] = Food
-                elif Free in self.maze[pos]:
-                    char_mesh[pos] = Free
+            if self.maze[pos]:
+                char_mesh[pos] = Wall
+            elif pos in self.food:
+                char_mesh[pos] = Food
+            else:
+                char_mesh[pos] = Free
         for bot in self.bots:
             # TODO what about bots on the same space?
             char_mesh[bot.current_pos] = str(bot.index)
@@ -743,7 +646,7 @@ class CTFUniverse(object):
         return str(self._char_mesh)
 
     def copy(self):
-        return copy.deepcopy(self)
+        return self._from_json_dict(self._to_json_dict())
 
     @property
     def compact_str(self):
@@ -766,10 +669,10 @@ class CTFUniverse(object):
         #1#####    #####2#
         #     . #  .  .#3#
         ##################
-        Team(0, 'black', (0, 8), score=0, bots=[0, 2])
+        Team(0, (0, 8), score=0)
             Bot(0, (1, 1), 0, (0, 8) , current_pos=(1, 1))
             Bot(2, (16, 2), 0, (0, 8) , current_pos=(16, 2))
-        Team(1, 'white', (9, 17), score=0, bots=[1, 3])
+        Team(1, (9, 17), score=0)
             Bot(1, (1, 2), 1, (9, 17) , current_pos=(1, 2))
             Bot(3, (16, 3), 1, (9, 17) , current_pos=(16, 3))
 
@@ -779,8 +682,8 @@ class CTFUniverse(object):
         for team in self.teams:
             out += repr(team)
             out += '\n'
-            for i in team.bots:
-                out += '\t' + repr(self.bots[i])
+            for bot in self.team_bots(team.index):
+                out += '\t' + repr(bot)
                 out += '\n'
         return out
 
@@ -829,7 +732,8 @@ class CTFUniverse(object):
             Generator which contains all reachable positions and their adjacencies
         """
         # Get the list of all free positions.
-        free_pos = self.maze.pos_of(Free)
+        free_pos = [pos for pos, val in self.maze.items() if not val]
+
         # Here we use a generator on a dictionary to create the adjacency list.
         # However, for Python 3, we force evaluation on the legal_moves.values
         return ((pos, list(self.legal_moves(pos).values())) for pos in free_pos)
@@ -837,12 +741,13 @@ class CTFUniverse(object):
 
     def _to_json_dict(self):
         return {"maze": self.maze._to_json_dict(),
+                "food": list(self.food),
                 "teams": [team._to_json_dict() for team in self.teams],
                 "bots": [bot._to_json_dict() for bot in self.bots]}
 
     @classmethod
     def _from_json_dict(cls, item):
         return cls(maze=Maze._from_json_dict(item["maze"]),
+                   food=item["food"],
                    teams=[Team._from_json_dict(team) for team in item["teams"]],
                    bots=[Bot._from_json_dict(bot) for bot in item["bots"]])
-
