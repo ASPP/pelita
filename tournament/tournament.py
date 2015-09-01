@@ -161,6 +161,11 @@ def start_match(config, team1, team2):
         dumpfile = os.path.join(DUMPSTORE, time.strftime('%Y%m%d-%H%M%S'))
         cmd += ['--dump', dumpfile]
 
+    if ARGS.dry_run:
+        print("Would run: {cmd}".format(cmd=cmd))
+        print("Choosing winner at random.")
+        return random.choice([0, 1, 2])
+
     stdout, stderr = Popen(cmd, stdout=PIPE, stderr=PIPE,
                            universal_newlines=True).communicate()
     tmp = reversed(stdout.splitlines())
