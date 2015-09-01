@@ -74,19 +74,35 @@ class Config:
         return self.teams[team]["spec"]
 
 class State:
-    def __init__(self):
-        self.round1 = {
-            "played": [],
-            "unplayed": roundrobin.initial_state(config.team_ids)
-        }
-        self.round2 = {}
+    def __init__(self, config, state=None):
+        if state is None:
+            self.state = {
+                "round1": {
+                    "played": [],
+                    "unplayed": roundrobin.initial_state(config.team_ids)
+                },
+                "round2": {}
+            }
+        else:
+            self.state = state
+
+    @property
+    def round1(self):
+        return self.state["round1"]
+
+    @property
+    def round2(self):
+        return self.state["round2"]
 
     def save(self, filename):
-        pass
+        with open(filename, 'w') as f:
+            json.dump(self.state, f, indent=2)
 
-    @staticmethod
-    def load(self, filename):
-        pass
+    @classmethod
+    def load(cls, config, filename):
+        with open(filename) as f:
+            return cls(config=config, state=json.load(f))
+
 
 def _print(*args, **kwargs):
     builtins.print(*args, **kwargs)
@@ -250,12 +266,15 @@ def pp_round1_results(config, rr_played):
         print("  %25s %d" % (config.team_name(team_id), p))
     print()
 
-def round1(config, rr_unplayed, rr_played):
+def round1(config, state):
     """Run the first round and return a sorted list of team names.
 
     teams is the sorted list [group0, group1, ...] and not the actual names of
     the agents. This is necessary to start the agents.
     """
+    rr_unplayed = state.round1["unplayed"]
+    rr_played = state.round1["played"]
+
     wait_for_keypress()
     print()
     print("ROUND 1 (Everybody vs Everybody)")
@@ -274,8 +293,9 @@ def round1(config, rr_unplayed, rr_played):
 
         pp_round1_results(config, rr_played)
 
-    return [team_id for team_id, p in round1_ranking(config, rr_played)]
+        state.save(ARGS.state)
 
+    return [team_id for team_id, p in round1_ranking(config, rr_played)]
 
 def recur_match_winner(match):
     if isinstance(match, komode.Match) and match.winner is not None:
@@ -289,7 +309,7 @@ def recur_match_winner(match):
     return None
 
 
-def round2(config, teams):
+def round2(config, teams, state):
     """Run the second round and return the name of the winning team.
 
     teams is the list [group0, group1, ...] not the names of the agens, sorted
@@ -304,13 +324,21 @@ def round2(config, teams):
     last_match = komode.prepare_matches(teams, bonusmatch=config.bonusmatch)
     tournament = komode.tree_enumerate(last_match)
 
+    state.round2["tournament"] = tournament
+
     for round in tournament:
         for match in round:
             if isinstance(match, komode.Match):
-                komode.print_knockout(last_match, config.team_name)
-                match.winner = start_deathmatch(config,
-                                                recur_match_winner(match.t1),
-                                                recur_match_winner(match.t2))
+                if not match.winner:
+                    komode.print_knockout(last_match, config.team_name)
+                    match.winner = start_deathmatch(config,
+                                                    recur_match_winner(match.t1),
+                                                    recur_match_winner(match.t2))
+
+                    state.round2["tournament"] = tournament
+                    state.save(ARGS.state)
+                else:
+                    print("Already played {match}. Skipping".format(match=match))
 
     komode.print_knockout(last_match, config.team_name)
 
@@ -345,6 +373,10 @@ if __name__ == '__main__':
     parser.add_argument('--config', help='tournament data',
                         metavar="CONFIG_YAML", default="tournament.yaml")
     parser.add_argument('--interactive', help='ask before proceeding',
+                        action='store_true')
+    parser.add_argument('--state', help='store state',
+                        metavar="STATEFILE", default='state.json')
+    parser.add_argument('--load-state', help='load state from file',
                         action='store_true')
     parser.add_argument('--no-log', help='do not store the log data',
                         action='store_true')
@@ -384,17 +416,29 @@ if __name__ == '__main__':
         global config
         config = Config(yaml.load(f))
 
+    if os.path.isfile(ARGS.state):
+        if not ARGS.load_state:
+            print("Found state file in {state_file}. Restore with --load-state. Aborting.".format(state_file=ARGS.state))
+            sys.exit(-1)
+        else:
+            state = State.load(config, ARGS.state)
+    else:
+        state = State(config)
+
     random.seed(config.seed)
 
     present_teams(config)
 
-    rr_ranking = round1(config, state["round1"]["unplayed"], state["round1"]["played"])
+    rr_ranking = round1(config, state)
+    state.round2["round_robin_ranking"] = rr_ranking
+    state.save(ARGS.state)
+
     if config.bonusmatch:
         sorted_ranking = komode.sort_ranks(rr_ranking[:-1]) + [rr_ranking[-1]]
     else:
         sorted_ranking = komode.sort_ranks(rr_ranking)
 
-    winner = round2(config, sorted_ranking)
+    winner = round2(config, sorted_ranking, state)
 
     print('The winner of the %s Pelita tournament is...' % config.location, wait=2, end=" ")
     print('{team_name}. Congratulations'.format(team_name=config.team_name(winner)), wait=2)
