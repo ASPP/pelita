@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Copyright (c) 2013, Bastian Venthur <venthur@debian.org>
@@ -445,7 +445,7 @@ def hashdir(pathname):
         if filename.endswith('.pyc'):
             continue
         try:
-            with open(filename) as fh:
+            with open(filename, 'rb') as fh:
                 while 1:
                     buf = fh.read(1024*4)
                     if not buf:
