@@ -42,18 +42,19 @@ class DefaultRunner(ModuleRunner):
 
 class Py2Runner(ModuleRunner):
     def run(self, addr):
-        player_path = os.path.dirname(sys.argv[0])
+        player_path = os.environ.get("PELITA_PATH") or os.path.dirname(sys.argv[0])
         player = os.path.join(player_path, "module_player.py")
         external_call = ["python2",
                          player,
                          self.team_spec,
                          addr]
+        print(external_call)
         _logger.debug("Executing: %r", external_call)
         return subprocess.Popen(external_call)
 
 class Py3Runner(ModuleRunner):
     def run(self, addr):
-        player_path = os.path.dirname(sys.argv[0])
+        player_path = os.environ.get("PELITA_PATH") or os.path.dirname(sys.argv[0])
         player = os.path.join(player_path, "module_player.py")
         external_call = ["python3",
                          player,
