@@ -259,9 +259,14 @@ def round1_ranking(config, rr_played):
     team_points = [(team_id, points[team_id]) for team_id in config.team_ids]
     return sorted(team_points, key=lambda elem: elem[1], reverse=True)
 
-def pp_round1_results(config, rr_played):
+def pp_round1_results(config, rr_played, rr_unplayed):
     """Pretty print the current result of the matches."""
-    print('Current Ranking:')
+    n_played = len(rr_played)
+    es = "es" if n_played != 1 else ""
+    n_togo = len(rr_unplayed)
+
+    print()
+    print('Ranking after {n_played} match{es} ({n_togo} to go):'.format(n_played=n_played, es=es, n_togo=n_togo))
     for team_id, p in round1_ranking(config, rr_played):
         print("  %25s %d" % (config.team_name(team_id), p))
     print()
@@ -291,7 +296,7 @@ def round1(config, state):
         else:
             rr_played.append({ "match": match, "winner": match[winner-1] })
 
-        pp_round1_results(config, rr_played)
+        pp_round1_results(config, rr_played, rr_unplayed)
 
         state.save(ARGS.state)
 
