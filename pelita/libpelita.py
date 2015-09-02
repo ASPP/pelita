@@ -62,6 +62,12 @@ class Py3Runner(ModuleRunner):
         _logger.debug("Executing: %r", external_call)
         return subprocess.Popen(external_call)
 
+class BinRunner(ModuleRunner):
+    def run(self, addr):
+        external_call = [self.team_spec,
+                         addr]
+        _logger.debug("Executing: %r", external_call)
+        return subprocess.Popen(external_call)
 
 @contextlib.contextmanager
 def _call_standalone_pelitagame(module_spec, address):
@@ -84,7 +90,8 @@ def call_standalone_pelitagame(module_spec, address):
     defined_runners = {
         "py": DefaultRunner,
         "py2": Py2Runner,
-        "py3": Py3Runner
+        "py3": Py3Runner,
+        "bin": BinRunner,
     }
 
     if module_spec.prefix is not None:
