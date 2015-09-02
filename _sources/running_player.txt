@@ -74,8 +74,8 @@ detected.
 Tournament Setup
 ----------------
 
-If you are participating in the `Python Summer School, St Andrews, Scotland,
-2011 <https://python.g-node.org/wiki/>`_, use the following instructions to
+If you are participating in the `Python Summer School, Munich, Germany,
+2015 <https://python.g-node.org/wiki/>`_, use the following instructions to
 organize your files such that we can load your players during the
 tournament.  You will need to create a python package, i.e. a
 directory containing (at least) an ``__init__.py`` file. This package

@@ -1,4 +1,4 @@
-As of ``v0.2.0-259-ge269308`` the developers and contributors are::
+As of ``v0.2.0-261-g5043f4a`` the developers and contributors are::
 
     Rike-Benjamin Schuppner
     Valentin Haenel
@@ -13,6 +13,7 @@ As of ``v0.2.0-259-ge269308`` the developers and contributors are::
     Bartosz Telenczuk
     Christian Steigies
     Francesc Alted
+    Jakob Jordan
     Ola Pidde
     Sasza Kijek
     Zbigniew Jędrzejewski-Szmek
