@@ -198,8 +198,10 @@ def run_game(team_specs, game_config, viewers=None, controller=None):
         return server.game_master.game_state
 
 @contextlib.contextmanager
-def tk_viewer(geometry=None, delay=None):
-    publisher = SimplePublisher("tcp://127.0.0.1:*")
+def tk_viewer(publish_to=None, geometry=None, delay=None):
+    if publish_to is None:
+        publish_to = "tcp://127.0.0.1:*"
+    publisher = SimplePublisher(publish_to)
     controller = SimpleController(None, "tcp://127.0.0.1:*")
 
     viewer = run_external_viewer(publisher.socket_addr, controller.socket_addr,

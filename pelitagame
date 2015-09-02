@@ -195,7 +195,7 @@ publisher_opt.add_argument('--publish', type=str, metavar='URL',
                            dest='publish_to', help='publish to this zmq socket')
 publisher_opt.add_argument('--no-publish', const=False, action='store_const',
                            dest='publish_to', help='do not publish')
-parser.set_defaults(publish_to="tcp://*:*")
+parser.set_defaults(publish_to="tcp://127.0.0.1:*")
 
 controller_opt = parser.add_argument_group("Controller")
 controller_opt.add_argument('--controller', type=str, metavar='URL', default="tcp://127.0.0.1:*",
@@ -406,7 +406,7 @@ def run_game():
         if args.viewer.startswith('tk'):
             geometry = args.geometry
             delay = int(1000./args.fps)
-            with libpelita.tk_viewer(geometry=geometry, delay=delay) as external_viewer:
+            with libpelita.tk_viewer(publish_to=args.publish_to, geometry=geometry, delay=delay) as external_viewer:
                 controller = external_viewer["controller"]
                 publisher = external_viewer["publisher"]
                 game_config["publisher"] = publisher
