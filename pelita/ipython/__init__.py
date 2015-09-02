@@ -11,13 +11,10 @@ import socket
 import zmq
 from zmq.eventloop.zmqstream import ZMQStream
 
-from IPython.core.display import HTML
 import os
 
-from ..messaging.json_convert import json_converter
-from ..datamodel import Wall, Food
-
 import json
+import pelita
 
 class ZMQPubSub:
     def __init__(self, callback):
@@ -64,11 +61,11 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         print("WebSocket closed")
 
     def on_data(self, data):
-        msg_objs = json_converter.loads(data[0].decode())
-
-        data = msg_objs.get("__data__") or {}
+        py_obj = json.loads(data[0].decode())
+        data = py_obj.get("__data__") or {}
 
         universe = data.get("universe")
+        universe = pelita.datamodel.CTFUniverse._from_json_dict(universe)
         game_state = data.get("game_state")
         if universe:
 
