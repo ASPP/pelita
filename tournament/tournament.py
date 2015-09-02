@@ -74,7 +74,19 @@ class Config:
         return self.teams[team]["spec"]
 
 class State:
-    pass
+    def __init__(self):
+        self.round1 = {
+            "played": [],
+            "unplayed": roundrobin.initial_state(config.team_ids)
+        }
+        self.round2 = {}
+
+    def save(self, filename):
+        pass
+
+    @staticmethod
+    def load(self, filename):
+        pass
 
 def _print(*args, **kwargs):
     builtins.print(*args, **kwargs)
@@ -136,7 +148,6 @@ def present_teams(config):
 
 def set_name(team):
     """Get name of team."""
-
     try:
         team = libpelita.prepare_team(team)
         return libpelita.check_team(team)
@@ -376,16 +387,6 @@ if __name__ == '__main__':
     random.seed(config.seed)
 
     present_teams(config)
-
-    state = {
-        "round1": {
-            "played": [],
-            "unplayed": roundrobin.initial_state(config.team_ids)
-        },
-        "round2": {
-
-        }
-    }
 
     rr_ranking = round1(config, state["round1"]["unplayed"], state["round1"]["played"])
     if config.bonusmatch:
