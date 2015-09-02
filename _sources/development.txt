@@ -112,11 +112,21 @@ Initially we used the manual commands, and then these were then
 converted into a script. Unfortunately, the script
 was subsequently upgraded multiple times and hence the manual commands and
 the script are completely out of sync. As a consequence, the command listing is only
-provided as a reference and **all website updates should be performed
+provided as a reference and **all website updates had to be performed
 using the script**.
+Eventually, everything was automated using travis-ci, which is now the only way to
+generate documentation. The good thing about this: As a contributor you don’t need
+to do anything (as long as your documentation changes compile).
 
-Automatic
+Travis CI
 ---------
+
+Whenever a pull request is merged onto the ``master`` branch of the ``ASPP/pelita``
+repository, travis will run a ``cd doc ; make html`` on the documentation
+and subsequently create a new commit on the ``gh-pages`` branch.
+
+Semi-automatic
+--------------
 
 Use the `commit-tree-doc.sh script
 <https://github.com/ASPP/pelita/blob/develop/commit-doc-tree.sh>`_.  This

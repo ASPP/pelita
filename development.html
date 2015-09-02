@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Development &mdash; Pelita v0.2.0-257-g1bb11b9 documentation</title>
+    <title>Development &mdash; Pelita v0.2.0-259-ge269308 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'v0.2.0-257-g1bb11b9',
+        VERSION:     'v0.2.0-259-ge269308',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-257-g1bb11b9 documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.2.0-259-ge269308 documentation" href="index.html" />
     <link rel="next" title="User API Reference" href="user-api.html" />
     <link rel="prev" title="Running Players" href="running_player.html" />
    
@@ -174,10 +174,19 @@ Initially we used the manual commands, and then these were then
 converted into a script. Unfortunately, the script
 was subsequently upgraded multiple times and hence the manual commands and
 the script are completely out of sync. As a consequence, the command listing is only
-provided as a reference and <strong>all website updates should be performed
-using the script</strong>.</p>
-<div class="section" id="automatic">
-<h3>Automatic<a class="headerlink" href="#automatic" title="Permalink to this headline">¶</a></h3>
+provided as a reference and <strong>all website updates had to be performed
+using the script</strong>.
+Eventually, everything was automated using travis-ci, which is now the only way to
+generate documentation. The good thing about this: As a contributor you don’t need
+to do anything (as long as your documentation changes compile).</p>
+<div class="section" id="travis-ci">
+<h3>Travis CI<a class="headerlink" href="#travis-ci" title="Permalink to this headline">¶</a></h3>
+<p>Whenever a pull request is merged onto the <code class="docutils literal"><span class="pre">master</span></code> branch of the <code class="docutils literal"><span class="pre">ASPP/pelita</span></code>
+repository, travis will run a <code class="docutils literal"><span class="pre">cd</span> <span class="pre">doc</span> <span class="pre">;</span> <span class="pre">make</span> <span class="pre">html</span></code> on the documentation
+and subsequently create a new commit on the <code class="docutils literal"><span class="pre">gh-pages</span></code> branch.</p>
+</div>
+<div class="section" id="semi-automatic">
+<h3>Semi-automatic<a class="headerlink" href="#semi-automatic" title="Permalink to this headline">¶</a></h3>
 <p>Use the <a class="reference external" href="https://github.com/ASPP/pelita/blob/develop/commit-doc-tree.sh">commit-tree-doc.sh script</a>.  This
 will automatically make the commit of the latest version of the documentation on
 the <code class="docutils literal"><span class="pre">gh-pages</span></code> branch. After checking that everything is in order you still need
@@ -311,7 +320,8 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#project-website">Project Website</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#automatic">Automatic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#travis-ci">Travis CI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#semi-automatic">Semi-automatic</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#manual">Manual</a></li>
 </ul>
 </li>
