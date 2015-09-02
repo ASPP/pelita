@@ -80,7 +80,14 @@ class CI_Engine(object):
         config = configparser.ConfigParser()
         config.read(os.path.abspath(cfgfile))
         for name, path in  config.items('agents'):
-            if os.path.isdir(path):
+            if name == '*':
+                import glob
+                paths = glob.glob(path)
+                for p in paths:
+                    self.players.append({'name': os.path.basename(p),
+                                         'path': p
+                    })
+            elif os.path.isdir(path):
                 self.players.append({'name' : name,
                                      'path' : path
                                      })
