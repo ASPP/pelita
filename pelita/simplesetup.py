@@ -174,7 +174,7 @@ class ZMQConnection(object):
         py_obj = json.loads(json_message)
         #print repr(json_msg)
         msg_uuid = py_obj["__uuid__"]
-        msg_action = py_obj.get("__action__")
+        msg_action = py_obj.get("__action__") or py_obj.get("__return__")
 
         _logger.debug("<--- %r [%s]", msg_action, msg_uuid)
 

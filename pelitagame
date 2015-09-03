@@ -14,7 +14,7 @@ import sys
 import time
 
 import pelita
-from pelita.libpelita import check_team, prepare_team, call_standalone_pelitagame, get_python_process
+from pelita import libpelita
 
 # silence stupid warnings from logging module
 logging.root.manager.emittedNoHandlerWarning = 1
@@ -114,7 +114,7 @@ def run_external_viewer(subscribe_sock, controller, geometry, delay):
         viewer_args += ["--delay", str(delay)]
 
     tkviewer = os.path.join(os.path.dirname(sys.argv[0]), "tkviewer.py")
-    external_call = [get_python_process(), tkviewer] + viewer_args
+    external_call = [libpelita.get_python_process(), tkviewer] + viewer_args
     _logger.debug("Executing: %r", external_call)
     return subprocess.Popen(external_call)
 
@@ -143,23 +143,6 @@ def geometry_string(s):
         msg = "%s is not a valid geometry specification" %s
         raise argparse.ArgumentTypeError(msg)
     return geometry
-
-@contextlib.contextmanager
-def autoclose_externals(external_viewers, external_players):
-    try:
-        yield
-    except KeyboardInterrupt:
-        for external_viewer in external_viewers:
-            external_viewer.kill()
-    finally:
-        # kill all client processes. NOW!
-        # (is this too early?)
-        for external_player in external_players:
-            _logger.debug("Attempting to terminate %r.", external_player)
-            external_player.terminate()
-        for external_player in external_players:
-            external_player.wait()
-            _logger.debug("%r terminated.", external_player)
 
 parser = argparse.ArgumentParser(description='Run a single pelita game',
                                  add_help=False,
@@ -212,7 +195,7 @@ publisher_opt.add_argument('--publish', type=str, metavar='URL',
                            dest='publish_to', help='publish to this zmq socket')
 publisher_opt.add_argument('--no-publish', const=False, action='store_const',
                            dest='publish_to', help='do not publish')
-parser.set_defaults(publish_to="tcp://*:*")
+parser.set_defaults(publish_to="tcp://127.0.0.1:*")
 
 controller_opt = parser.add_argument_group("Controller")
 controller_opt.add_argument('--controller', type=str, metavar='URL', default="tcp://127.0.0.1:*",
@@ -351,7 +334,7 @@ def run_game():
         if not args.team_specs:
             raise ValueError("No teams specified.")
         for team_spec in args.team_specs:
-            team_name = check_team(prepare_team(team_spec))
+            team_name = libpelita.check_team(libpelita.prepare_team(team_spec))
             print("NAME:", team_name)
         sys.exit(0)
 
@@ -365,9 +348,6 @@ def run_game():
         replayfile = args.replay or 'pelita.dump'
     except AttributeError:
         replayfile = None
-
-    external_players = []
-    external_viewers = []
 
     if replayfile:
         replay_publisher = ReplayPublisher(args.publish_to, replayfile)
@@ -391,11 +371,6 @@ def run_game():
         if len(team_specs) > num_teams:
             raise RuntimeError("Too many teams given. Must be < {}.".format(num_teams))
 
-        teams = [prepare_team(team_spec) for team_spec in team_specs]
-
-
-        print(teams)
-
         if args.dry_run:
             sys.exit(0)
 
@@ -405,82 +380,39 @@ def run_game():
         else:
             initial_delay = 0.0
 
-        server = pelita.simplesetup.SimpleServer(layout_string=layout_string,
-                                                 rounds=args.rounds,
-                                                 bind_addrs=[team.address for team in teams],
-                                                 initial_delay=initial_delay,
-                                                 max_timeouts=args.max_timeouts,
-                                                 timeout_length=args.timeout_length,
-                                                 layout_name=layout_name,
-                                                 seed=args.seed)
+        game_config = {
+            "rounds": args.rounds,
+            "initial_delay": initial_delay,
+            "max_timeouts": args.max_timeouts,
+            "timeout_length": args.timeout_length,
+            "layout_name": layout_name,
+            "layout_string": layout_string,
+            "seed": args.seed,
+        }
 
-        # Update our teams with the bound addresses
-        teams = [
-            team._replace(address=address)
-            for team, address in zip(teams, server.bind_addresses)
-        ]
-
-        for idx, team in enumerate(teams):
-            if team.module is None:
-                print("Waiting for external team %d to connect to %s." % (idx, team.address))
-
-        external_players = [
-            call_standalone_pelitagame(team.module, team.address)
-            for team in teams
-            if team.module
-        ]
-
-       # print([sub.returncode for sub in subs])
-        #[s.wait() for s in subs]
-
-        # register the viewers
-        if args.publish_to:
-            publisher = pelita.simplesetup.SimplePublisher(args.publish_to)
-            config["publish-addr"] = publisher.socket_addr
-            print("Publishing to %s" % publisher.socket_addr)
-            server.game_master.register_viewer(publisher)
-
+        viewers = []
         if dump:
-            server.game_master.register_viewer(pelita.viewer.DumpingViewer(open(dump, "w")))
+            viewers.append(pelita.viewer.DumpingViewer(open(dump, "w")))
         if args.viewer == 'ascii':
-            server.game_master.register_viewer(pelita.viewer.AsciiViewer())
+            viewers.append(pelita.viewer.AsciiViewer())
         if args.viewer == 'progress':
-            server.game_master.register_viewer(pelita.viewer.ProgressViewer())
+            viewers.append(pelita.viewer.ProgressViewer())
         if args.viewer == 'null':
             pass
 
         # Adding the result printer to the viewers.
-        server.game_master.register_viewer(ResultPrinter(args.parseable_output))
+        viewers.append(ResultPrinter(args.parseable_output))
 
-        if args.viewer == 'tk' or args.external_controller:
-            controller = pelita.simplesetup.SimpleController(server.game_master, args.controller)
-            print("Controller listening on %s" % controller.socket_addr)
-            config["controller-addr"] = controller.socket_addr
-            def runner():
-                controller.run()
-                server.exit_teams()
+        if args.viewer.startswith('tk'):
+            geometry = args.geometry
+            delay = int(1000./args.fps)
+            with libpelita.tk_viewer(publish_to=args.publish_to, geometry=geometry, delay=delay) as external_viewer:
+                controller = external_viewer["controller"]
+                publisher = external_viewer["publisher"]
+                game_config["publisher"] = publisher
+                libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers, controller=controller)
         else:
-            def runner():
-                server.run()
-
-    if args.viewer.startswith('tk'):
-        # Something on OS X prevents Tk from running in a forked process.
-        # Therefore we cannot use multiprocessing here. subprocess works, though.
-        delay = int(1000./args.fps)
-        if args.viewer == 'tk':
-            sync_address_tk = config["controller-addr"].replace('*', 'localhost')
-        else:
-            sync_address_tk = None
-
-        subscribe_sock = config["publish-addr"].replace('*', 'localhost')
-        tkprocess = run_external_viewer(subscribe_sock, sync_address_tk, args.geometry, delay)
-        external_viewers.append(tkprocess)
-
-        if not sync_address_tk:
-            time.sleep(0.5)
-
-    with autoclose_externals(external_viewers, external_players):
-        runner()
+            libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers)
 
 
 if __name__ == '__main__':
