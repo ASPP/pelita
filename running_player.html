@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Running Players &mdash; Pelita v0.2.0-265-g54681da documentation</title>
+    <title>Running Players &mdash; Pelita v0.2.0-268-g069a94a documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'v0.2.0-265-g54681da',
+        VERSION:     'v0.2.0-268-g069a94a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-265-g54681da documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.2.0-268-g069a94a documentation" href="index.html" />
     <link rel="next" title="Development" href="development.html" />
     <link rel="prev" title="Writing a Player" href="writing_player.html" />
    
@@ -53,7 +53,7 @@ code directory, for example in <code class="docutils literal"><span class="pre">
 the definition of your player, this file must contain a factory
 function that returns a team (remember that the default game is a
 fight between two teams of two bots each):</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python3</span>
 <span class="c"># -*- coding: utf-8 -*-</span>
 
 <span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">AbstractPlayer</span><span class="p">,</span> <span class="n">SimpleTeam</span>
@@ -154,7 +154,7 @@ returns a <code class="docutils literal"><span class="pre">SimpleTeam</span></co
 </div>
 <p>An example repository has been provided at <a class="reference external" href="https://github.com/ASPP/pelita_player">github.com/ASPP/pelita_player</a></p>
 <p>Your <code class="docutils literal"><span class="pre">__init__.py</span></code> could look like:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python3</span>
 <span class="c"># -*- coding: utf-8 -*-</span>
 
 <span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">SimpleTeam</span>
@@ -182,7 +182,7 @@ returns a <code class="docutils literal"><span class="pre">SimpleTeam</span></co
 Always remember to use <a class="reference external" href="http://www.python.org/dev/peps/pep-0328/">relative imports</a>. Note that relative imports only
 work for modules, so you must provide a <code class="docutils literal"><span class="pre">__init__.py</span></code> file in that case.
 For example the function <code class="docutils literal"><span class="pre">utility</span></code> is provided by the module <code class="docutils literal"><span class="pre">groupN.utils</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python3</span>
 <span class="c"># -*- coding: utf-8 -*-</span>
 
 <span class="c"># This would be a good place for utility functions.</span>
@@ -193,7 +193,7 @@ For example the function <code class="docutils literal"><span class="pre">utilit
 </div>
 <p>To use this module in your <code class="docutils literal"><span class="pre">my_player.py</span></code> module, a relative import
 <code class="docutils literal"><span class="pre">from</span> <span class="pre">.utils</span> <span class="pre">import</span> <span class="pre">utility</span></code> is used:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python3</span>
 <span class="c"># -*- coding: utf-8 -*-</span>
 
 <span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">AbstractPlayer</span>
