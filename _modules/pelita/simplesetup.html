@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.simplesetup &mdash; Pelita v0.2.0-272-g1f2740f documentation</title>
+    <title>pelita.simplesetup &mdash; Pelita v0.2.0-294-gf45995b documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-272-g1f2740f',
+        VERSION:     'v0.2.0-294-gf45995b',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-272-g1f2740f documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-294-gf45995b documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
@@ -215,7 +215,7 @@
         <span class="n">py_obj</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_message</span><span class="p">)</span>
         <span class="c">#print repr(json_msg)</span>
         <span class="n">msg_uuid</span> <span class="o">=</span> <span class="n">py_obj</span><span class="p">[</span><span class="s">&quot;__uuid__&quot;</span><span class="p">]</span>
-        <span class="n">msg_action</span> <span class="o">=</span> <span class="n">py_obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;__action__&quot;</span><span class="p">)</span>
+        <span class="n">msg_action</span> <span class="o">=</span> <span class="n">py_obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;__action__&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">py_obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;__return__&quot;</span><span class="p">)</span>
 
         <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;&lt;--- </span><span class="si">%r</span><span class="s"> [</span><span class="si">%s</span><span class="s">]&quot;</span><span class="p">,</span> <span class="n">msg_action</span><span class="p">,</span> <span class="n">msg_uuid</span><span class="p">)</span>
 
