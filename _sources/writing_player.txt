@@ -131,6 +131,9 @@ where it was on its last turn and never stops in place:
 Here we can see the use of another convenience method: ``previous_pos`` which
 gives the position the bot had in the previous round.
 
+Additional information about the bot and game state can also be retrieved
+with the ``current_state`` dictionary.
+
 The Maze Coordinate System
 ==========================
 
