@@ -59,6 +59,7 @@ import unittest
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', '--test', help="run unittests", action="store_true")
+parser.add_argument('-n', help="run N times", type=int, default=0)
 args = parser.parse_args()
 
 logging.basicConfig(format='%(relativeCreated)10.0f %(levelname)8s %(message)s', level=logging.NOTSET)
@@ -150,7 +151,7 @@ class CI_Engine(object):
         self.dbwrapper.add_gameresult(p1_name, p2_name, result, std_out, std_err)
 
 
-    def start(self):
+    def start(self, n):
         """Start the Engine.
 
         This method will start and infinite loop, testing each agent
@@ -165,7 +166,10 @@ class CI_Engine(object):
         >>> ci.start()
 
         """
-        while 1:
+        import itertools
+        loop = itertools.repeat(None) if n == 0 else itertools.repeat(None, n)
+
+        for _ in  loop:
             # choose the player with the least number of played game,
             # mix him with another random player
             # mis the sides and let them play
@@ -551,6 +555,6 @@ if __name__ == '__main__':
         unittest.main(argv=sys.argv[:1], verbosity=2)
     else:
         ci_engine = CI_Engine()
-        ci_engine.start()
+        ci_engine.start(args.n)
 
 
