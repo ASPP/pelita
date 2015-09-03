@@ -305,6 +305,17 @@ class AbstractPlayer(object):
         return self.current_uni.enemy_team(self.me.team_index)
 
     @property
+    def enemy_name(self):
+        """ The name of the enemy Team.
+
+        Returns
+        -------
+        enemy_name : string
+            the name of the enemy team
+        """
+        return self.current_state["team_name"][self.enemy_team.index]
+
+    @property
     def current_pos(self):
         """ The current position of this bot.
 
