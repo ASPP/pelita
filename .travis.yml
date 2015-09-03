@@ -19,12 +19,12 @@ install:
 script: >
           python -c "from __future__ import print_function; import zmq; print('Using zmq %s.' % zmq.zmq_version())" &&
           python -c "from __future__ import print_function; import zmq; print('Using pyzmq %s.' % zmq.pyzmq_version())" &&
-          nosetests -v && ./pelitagame --progress &&
+          nosetests -v && python ./pelitagame --progress &&
           for player in ./players/*Player.py
             do
               PYTHONPATH=.
-              ./pelitagame --check-team $player || exit 1
-              res=$(./pelitagame --null --rounds 100 --filter small $player 2>&1)
+              python ./pelitagame --check-team $player || exit 1
+              res=$(python ./pelitagame --null --rounds 100 --filter small $player 2>&1)
               echo $res
               (echo $res | grep -q Exception) && exit 1
               echo "" # This resets the error code
