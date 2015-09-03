@@ -307,6 +307,7 @@ class AbstractPlayer(object):
     @property
     def enemy_name(self):
         """ The name of the enemy Team.
+        (This information will not be available in set_initial).
 
         Returns
         -------
