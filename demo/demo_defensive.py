@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 from pelita.game_master import GameMaster
 from pelita.player import SimpleTeam, StoppingPlayer
 from pelita.viewer import AsciiViewer
