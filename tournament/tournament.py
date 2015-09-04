@@ -19,11 +19,6 @@ from pelita import libpelita
 import roundrobin
 import komode
 
-# Speaking external program.
-# Probably not worth it to make it an option.
-FLITE = '/usr/bin/flite'
-
-
 # Tournament log file
 DUMPSTORE = None
 
@@ -62,6 +57,8 @@ class Config:
         self.seed = config.get("seed", 42)
 
         self.bonusmatch = config["bonusmatch"]
+
+        self.speaker = config.get("speaker")
 
     @property
     def team_ids(self):
@@ -113,7 +110,7 @@ def _print(*args, **kwargs):
 def print(*args, **kwargs):
     """Speak while you print. To disable set speak=False.
     You need the program %s to be able to speak.
-    Set wait=X to wait X seconds after speaking."""%FLITE
+    Set wait=X to wait X seconds after speaking.""" % ARGS.speaker
     if len(args) == 0:
         _print()
         return
@@ -130,7 +127,7 @@ def print(*args, **kwargs):
         with tempfile.NamedTemporaryFile('wt') as text:
             text.write(string+'\n')
             text.flush()
-            festival = check_call(FLITE.split()+[text.name])
+            festival = check_call([ARGS.speaker] + [text.name])
         #time.sleep(wait)
 
 
@@ -370,6 +367,9 @@ if __name__ == '__main__':
     parser.add_argument('--speak', '-s',
                         help='speak loudly every messsage on stdout',
                         action='store_true')
+    parser.add_argument('--speaker',
+                        help='tool to say stuff',
+                        type=str, default="/usr/bin/flite")
     parser.add_argument('--rounds', '-r',
                         help='maximum number of rounds to play per match',
                         type=int, default=300)
@@ -405,9 +405,6 @@ if __name__ == '__main__':
                     '--rounds=%d'%ARGS.rounds,
                     '--%s'%ARGS.viewer]
 
-    # Check speaking support
-    SPEAK = ARGS.speak and os.path.exists(FLITE)
-
     if not ARGS.no_log:
         # create a directory for the dumps
         DUMPSTORE = create_directory('./dumpstore')
@@ -420,6 +417,9 @@ if __name__ == '__main__':
     with open(ARGS.config) as f:
         global config
         config = Config(yaml.load(f))
+
+    # Check speaking support
+    SPEAK = ARGS.speak and os.path.exists(ARGS.speaker)
 
     if os.path.isfile(ARGS.state):
         if not ARGS.load_state:
