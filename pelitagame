@@ -315,8 +315,15 @@ def run_game():
         layouts = pelita.layout.get_available_layouts()
         print('\n'.join(layouts))
         sys.exit(0)
-    if args.seed is not None:
-        random.seed(args.seed)
+
+    if args.seed is None:
+        seed = random.randint(0, sys.maxsize)
+        args.seed = seed
+        print("Replay this game with --seed {seed}".format(seed=seed))
+    else:
+        pass
+    random.seed(args.seed)
+
     if args.viewer.startswith('tk') and not args.publish_to:
         raise ValueError("Options --tk (or --tk-no-sync) and --no-publish are mutually exclusive.")
 
