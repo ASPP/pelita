@@ -1,0 +1,53 @@
+---
+location: Munich
+date: 2015
+team_prefix: group
+seed: 42
+bonusmatch: True
+teams:
+  - spec: ../Python-School/2015/group0/team
+    members: [
+        "Geoffrey Wolfer",
+        "Seetha Krishnan",
+        "Hai Dao",
+        "Simon Weber",
+        "Dorothea Mücke-Herzberg",
+        "Lyuba Zehl"
+    ]
+  - spec: ../Python-School/2015/group1/team
+    members: [
+        "Nicholas Del Grosso",
+        "Claudia Wagner",
+        "Aina Frau-Pascual",
+        "Rob Modini",
+        "Martino Sorbaro Sindaci",
+        "Julia Huntenburg"
+    ]
+  - spec: ../Python-School/2015/group2/team
+    members: [
+        "Julia Gustavsen",
+        "Franziskus Liem",
+        "Eduardo Emilio Sánchez Leon",
+        "Daniel Miner",
+        "Salma Bougacha",
+        "Eleonore Duvelle"
+    ]
+  - spec: ../Python-School/2015/group3/team
+    members: [
+        "Rosina Savisaar",
+        "Dominik Krzemiński",
+        "Kwangjun Lee",
+        "Taylor Oshan",
+        "Ksenia Yashina",
+        "Franziska Bertelshofer"
+    ]
+  - spec: ../Python-School/2015/group4/team
+    members: [
+        "Hector Yamil Vidal Dos Santos",
+        "Dirk Boonzajer Flaes",
+        "Tim Schröder",
+        "Anna Samoilenko",
+        "Incinur Temizer",
+        "Farnaz Heidar-Zadeh"
+    ]
+
