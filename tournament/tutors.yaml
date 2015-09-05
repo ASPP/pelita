@@ -1,0 +1,19 @@
+---
+location: Munich
+date: 2015
+team_prefix: group
+seed: null
+bonusmatch: True
+teams:
+  - spec: ../Python-School/players/rike
+    members:
+      - "Rike-Benjamin Schuppner"
+  - spec: ../Python-School/players/pietro
+    members:
+      - "Pietro Berkes"
+  - spec: ../Python-School/players/munich_orga
+    members:
+      - "Christopher Roppelt"
+      - "Christoph Hartmann"
+      - "Jakob Jordan"
+        
