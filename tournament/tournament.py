@@ -50,6 +50,7 @@ class Config:
             }
 
         self.location = config["location"]
+        self.date = config["date"]
 
         #: Global random seed.
         #: Keep it fixed or it may be impossible to replicate a tournament.
@@ -148,7 +149,7 @@ def create_directory(prefix):
 
 def present_teams(config):
     print('Hello master, I am the Python drone. I am here to serve you.', wait=1.5)
-    print('Welcome to the %s Pelita tournament' % config.location, wait=1.5)
+    print('Welcome to the %s Pelita tournament %s' % (config.location, config.date), wait=1.5)
     print('This evening the teams are:', wait=1.5)
     for team_id, team in config.teams.items():
         print("{team_id}: {team_name}".format(team_id=team_id, team_name=team["name"]))
@@ -179,6 +180,7 @@ def start_match(config, team1, team2):
     print()
     wait_for_keypress()
     cmd = CMD_STUB + [config.team_spec(team1), config.team_spec(team2),
+                       '--parseable-output',
                        '--seed', str(random.randint(0, sys.maxsize))]
     global ARGS
     if not ARGS.no_log:
@@ -193,10 +195,14 @@ def start_match(config, team1, team2):
     stdout, stderr = Popen(cmd, stdout=PIPE, stderr=PIPE,
                            universal_newlines=True).communicate()
     tmp = reversed(stdout.splitlines())
-    for lastline in tmp:
-        if lastline.startswith('Finished.'):
+    for gameres in tmp:
+        if gameres.startswith('Finished.'):
+            print(gameres)
             break
-    else:
+    lastline = stdout.strip().splitlines()[-1]
+    try:
+        result = -1 if lastline == '-' else int(lastline)
+    except ValueError:
         print("*** ERROR: Apparently the game crashed. At least I could not find the outcome of the game.")
         print("*** Maybe stderr helps you to debug the problem")
         print(stderr, speak=False)
@@ -205,21 +211,19 @@ def start_match(config, team1, team2):
     if stderr:
         print("***", stderr, speak=False)
     print('***', lastline)
-    if 'had a draw.' in lastline:
+    if lastline == '-':
+        print('‘{t1}’ and ‘{t2}’ had a draw.'.format(t1=config.team_name(team1),
+                                                     t2=config.team_name(team2)))
         return 0
+    elif lastline == '1':
+        print('‘{t1}’ wins'.format(t1=config.team_name(team1)))
+        return 1
+    elif lastline == '2':
+        print('‘{t2}’ wins'.format(t2=config.team_name(team2)))
+        return 2
     else:
-        tmp = lastline.split("'")
-        winner = tmp[1]
-        loser = tmp[3]
-        if winner == config.team_name(team1):
-            print(config.team_name(team1), 'wins.')
-            return 1
-        elif winner == config.team_name(team2):
-            print(config.team_name(team2), 'wins.')
-            return 2
-        else:
-            print("Unable to parse winning result :(")
-            return 0
+        print("Unable to parse winning result :(")
+        return 0
 
 
 def start_deathmatch(config, team1, team2):
