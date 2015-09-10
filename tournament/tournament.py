@@ -15,8 +15,8 @@ from subprocess import PIPE, STDOUT, Popen, check_call
 import yaml
 
 from pelita import libpelita
-import roundrobin
-import komode
+from . import roundrobin
+from . import komode
 
 # Tournament log file
 DUMPSTORE = None
@@ -29,17 +29,16 @@ POINTS_WIN = 2
 SPEAK = True
 LOGFILE = None
 
-os.environ["PELITA_PATH"] = os.path.join(os.path.dirname(sys.argv[0]), "..")
+os.environ["PELITA_PATH"] = os.environ.get("PELITA_PATH") or os.path.join(os.path.dirname(sys.argv[0]), "..")
 
 class Config:
     def __init__(self, config):
         self.teams = {}
 
         teams = config["teams"]
-        team_prefix = config["team_prefix"]
         # load team names
         for idx, team in enumerate(teams):
-            team_id = team.get("id") or "{team_prefix}{id}".format(team_prefix=team_prefix, id=idx)
+            team_id = team.get("id") or "{team_prefix}{id}".format(team_prefix=config["team_prefix"], id=idx)
             team_spec = team["spec"]
             team_name = set_name(team_spec)
             self.teams[team_id] = {
@@ -110,7 +109,7 @@ def _print(*args, **kwargs):
 def print(*args, **kwargs):
     """Speak while you print. To disable set speak=False.
     You need the program %s to be able to speak.
-    Set wait=X to wait X seconds after speaking.""" % ARGS.speaker
+    Set wait=X to wait X seconds after speaking.""" #% ARGS.speaker
     if len(args) == 0:
         _print()
         return
@@ -127,13 +126,13 @@ def print(*args, **kwargs):
         with tempfile.NamedTemporaryFile('wt') as text:
             text.write(string+'\n')
             text.flush()
-            festival = check_call([ARGS.speaker] + [text.name])
+            #festival = check_call([ARGS.speaker] + [text.name])
         #time.sleep(wait)
 
 
 def wait_for_keypress():
-    if ARGS.interactive:
-        input('---\n')
+    pass#if ARGS.interactive:
+        #input('---\n')
 
 def create_directory(prefix):
     for suffix in itertools.count(0):
@@ -170,26 +169,30 @@ def set_name(team):
         raise
 
 
-def start_match(config, team1, team2):
-    """Start a match between team1 and team2. Return which team won (1 or 2) or
-    0 if there was a draw.
+def start_match(config, teams):
+    """Start a match between a list of teams. Return the index of the team that won
+    False if there was a draw.
     """
+    assert len(teams) == 2
+
+    team1, team2 = teams
+
     print()
     print('Starting match: '+ config.team_name(team1)+' vs ' + config.team_name(team2))
     print()
     wait_for_keypress()
-    cmd = CMD_STUB + [config.team_spec(team1), config.team_spec(team2),
+    cmd = ["./pelitagame", "--null"] + [config.team_spec(team1), config.team_spec(team2),
                        '--parseable-output',
                        '--seed', str(random.randint(0, sys.maxsize))]
-    global ARGS
-    if not ARGS.no_log:
-        dumpfile = os.path.join(DUMPSTORE, time.strftime('%Y%m%d-%H%M%S'))
-        cmd += ['--dump', dumpfile]
+   # global ARGS
+   # if not ARGS.no_log:
+   #     dumpfile = os.path.join(DUMPSTORE, time.strftime('%Y%m%d-%H%M%S'))
+   #     cmd += ['--dump', dumpfile]
 
-    if ARGS.dry_run:
-        print("Would run: {cmd}".format(cmd=cmd))
-        print("Choosing winner at random.")
-        return random.choice([0, 1, 2])
+    #if ARGS.dry_run:
+    #    print("Would run: {cmd}".format(cmd=cmd))
+    #    print("Choosing winner at random.")
+    #    return random.choice([0, 1, 2])
 
     stdout, stderr = Popen(cmd, stdout=PIPE, stderr=PIPE,
                            universal_newlines=True).communicate()
@@ -206,23 +209,23 @@ def start_match(config, team1, team2):
         print("*** Maybe stderr helps you to debug the problem")
         print(stderr, speak=False)
         print("***", speak=False)
-        return 0
+        return None
     if stderr:
         print("***", stderr, speak=False)
     print('***', lastline)
     if lastline == '-':
         print('‘{t1}’ and ‘{t2}’ had a draw.'.format(t1=config.team_name(team1),
                                                      t2=config.team_name(team2)))
+        return False
+    elif lastline == '0':
+        print('‘{t1}’ wins'.format(t1=config.team_name(team1)))
         return 0
     elif lastline == '1':
-        print('‘{t1}’ wins'.format(t1=config.team_name(team1)))
-        return 1
-    elif lastline == '2':
         print('‘{t2}’ wins'.format(t2=config.team_name(team2)))
-        return 2
+        return 1
     else:
         print("Unable to parse winning result :(")
-        return 0
+        return None
 
 
 def start_deathmatch(config, team1, team2):
@@ -233,11 +236,11 @@ def start_deathmatch(config, team1, team2):
     print()
     print("{} v {}".format(team1, team2))
     for i in range(3):
-        r = start_match(config, team1, team2)
-        if r == 0:
+        r = start_match(config, [team1, team2])
+        if r is False or r is None:
             print('Draw -> Now go for a Death Match!')
             continue
-        winner = team1 if r == 1 else team2
+        winner = team1 if r == 0 else team2
         return winner
     # if we are here, we have no winner after 3 death matches
     # just assign a random winner
@@ -289,12 +292,12 @@ def round1(config, state):
     while rr_unplayed:
         match = rr_unplayed.pop()
 
-        winner = start_match(config, match[0], match[1])
+        winner = start_match(config, match)
 
-        if winner == 0:
+        if winner is False or winner is None:
             rr_played.append({ "match": match, "winner": False })
         else:
-            rr_played.append({ "match": match, "winner": match[winner-1] })
+            rr_played.append({ "match": match, "winner": match[winner] })
 
         pp_round1_results(config, rr_played, rr_unplayed)
 
