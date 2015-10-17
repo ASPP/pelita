@@ -31,6 +31,12 @@ LOGFILE = None
 
 os.environ["PELITA_PATH"] = os.environ.get("PELITA_PATH") or os.path.join(os.path.dirname(sys.argv[0]), "..")
 
+def _print(*args, **kwargs):
+    builtins.print(*args, **kwargs)
+    if LOGFILE:
+        kwargs['file'] = LOGFILE
+        builtins.print(*args, **kwargs)
+
 class Config:
     def __init__(self, config):
         self.teams = {}
@@ -57,6 +63,7 @@ class Config:
 
         self.bonusmatch = config["bonusmatch"]
 
+        self.speak = config.get("speak")
         self.speaker = config.get("speaker")
 
     @property
@@ -68,6 +75,29 @@ class Config:
 
     def team_spec(self, team):
         return self.teams[team]["spec"]
+
+    def print(*args, **kwargs):
+        """Speak while you print. To disable set speak=False.
+        You need the program %s to be able to speak.
+        Set wait=X to wait X seconds after speaking."""
+        if len(args) == 0:
+            _print()
+            return
+        stream = io.StringIO()
+        wait = kwargs.pop('wait', 0.5)
+        want_speak = kwargs.pop('speak', SPEAK)
+        if not want_speak:
+            _print(*args, **kwargs)
+        else:
+            _print(*args, file=stream, **kwargs)
+            string = stream.getvalue()
+            _print(string, end='')
+            sys.stdout.flush()
+            with tempfile.NamedTemporaryFile('wt') as text:
+                text.write(string+'\n')
+                text.flush()
+                festival = check_call([self.speaker, text.name])
+            time.sleep(wait)
 
 class State:
     def __init__(self, config, state=None):
@@ -100,35 +130,6 @@ class State:
             return cls(config=config, state=json.load(f))
 
 
-def _print(*args, **kwargs):
-    builtins.print(*args, **kwargs)
-    if LOGFILE:
-        kwargs['file'] = LOGFILE
-        builtins.print(*args, **kwargs)
-
-def print(*args, **kwargs):
-    """Speak while you print. To disable set speak=False.
-    You need the program %s to be able to speak.
-    Set wait=X to wait X seconds after speaking.""" #% ARGS.speaker
-    if len(args) == 0:
-        _print()
-        return
-    stream = io.StringIO()
-    wait = kwargs.pop('wait', 0.5)
-    want_speak = kwargs.pop('speak', SPEAK)
-    if not want_speak:
-        _print(*args, **kwargs)
-    else:
-        _print(*args, file=stream, **kwargs)
-        string = stream.getvalue()
-        _print(string, end='')
-        sys.stdout.flush()
-        with tempfile.NamedTemporaryFile('wt') as text:
-            text.write(string+'\n')
-            text.flush()
-            #festival = check_call([ARGS.speaker] + [text.name])
-        #time.sleep(wait)
-
 
 def wait_for_keypress():
     pass#if ARGS.interactive:
@@ -146,16 +147,16 @@ def create_directory(prefix):
     return name
 
 def present_teams(config):
-    print('Hello master, I am the Python drone. I am here to serve you.', wait=1.5)
-    print('Welcome to the %s Pelita tournament %s' % (config.location, config.date), wait=1.5)
-    print('This evening the teams are:', wait=1.5)
+    config.print('Hello master, I am the Python drone. I am here to serve you.', wait=1.5)
+    config.print('Welcome to the %s Pelita tournament %s' % (config.location, config.date), wait=1.5)
+    config.print('This evening the teams are:', wait=1.5)
     for team_id, team in config.teams.items():
-        print("{team_id}: {team_name}".format(team_id=team_id, team_name=team["name"]))
+        config.print("{team_id}: {team_name}".format(team_id=team_id, team_name=team["name"]))
         for member in team["members"]:
-            print("{member}".format(member=member), wait=0.1)
+            config.print("{member}".format(member=member), wait=0.1)
         # time.sleep(1)
-        print()
-    print('These were the teams. Now you ready for the fight?')
+        config.print()
+    config.print('These were the teams. Now you ready for the fight?')
 
 
 def set_name(team):
@@ -164,8 +165,8 @@ def set_name(team):
         team = libpelita.prepare_team(team)
         return libpelita.check_team(team)
     except Exception:
-        print("*** ERROR: I could not load team", team, ". Please help!", speak=False)
-        print(sys.stderr, speak=False)
+        config.print("*** ERROR: I could not load team", team, ". Please help!", speak=False)
+        config.print(sys.stderr, speak=False)
         raise
 
 
@@ -177,9 +178,9 @@ def start_match(config, teams):
 
     team1, team2 = teams
 
-    print()
-    print('Starting match: '+ config.team_name(team1)+' vs ' + config.team_name(team2))
-    print()
+    config.print()
+    config.print('Starting match: '+ config.team_name(team1)+' vs ' + config.team_name(team2))
+    config.print()
     wait_for_keypress()
     cmd = ["./pelitagame", "--null"] + [config.team_spec(team1), config.team_spec(team2),
                        '--parseable-output',
@@ -199,32 +200,32 @@ def start_match(config, teams):
     tmp = reversed(stdout.splitlines())
     for gameres in tmp:
         if gameres.startswith('Finished.'):
-            print(gameres)
+            config.print(gameres)
             break
     lastline = stdout.strip().splitlines()[-1]
     try:
         result = -1 if lastline == '-' else int(lastline)
     except ValueError:
-        print("*** ERROR: Apparently the game crashed. At least I could not find the outcome of the game.")
-        print("*** Maybe stderr helps you to debug the problem")
-        print(stderr, speak=False)
-        print("***", speak=False)
+        config.print("*** ERROR: Apparently the game crashed. At least I could not find the outcome of the game.")
+        config.print("*** Maybe stderr helps you to debug the problem")
+        config.print(stderr, speak=False)
+        config.print("***", speak=False)
         return None
     if stderr:
-        print("***", stderr, speak=False)
-    print('***', lastline)
+        config.print("***", stderr, speak=False)
+    config.print('***', lastline)
     if lastline == '-':
-        print('‘{t1}’ and ‘{t2}’ had a draw.'.format(t1=config.team_name(team1),
+        config.print('‘{t1}’ and ‘{t2}’ had a draw.'.format(t1=config.team_name(team1),
                                                      t2=config.team_name(team2)))
         return False
     elif lastline == '0':
-        print('‘{t1}’ wins'.format(t1=config.team_name(team1)))
+        config.print('‘{t1}’ wins'.format(t1=config.team_name(team1)))
         return 0
     elif lastline == '1':
-        print('‘{t2}’ wins'.format(t2=config.team_name(team2)))
+        config.print('‘{t2}’ wins'.format(t2=config.team_name(team2)))
         return 1
     else:
-        print("Unable to parse winning result :(")
+        config.print("Unable to parse winning result :(")
         return None
 
 
@@ -232,21 +233,21 @@ def start_deathmatch(config, team1, team2):
     """Start a match between team1 and team2 until one of them wins (ie no
     draw.)
     """
-    print()
-    print()
-    print("{} v {}".format(team1, team2))
+    config.print()
+    config.print()
+    config.print("{} v {}".format(team1, team2))
     for i in range(3):
         r = start_match(config, [team1, team2])
         if r is False or r is None:
-            print('Draw -> Now go for a Death Match!')
+            config.print('Draw -> Now go for a Death Match!')
             continue
         winner = team1 if r == 0 else team2
         return winner
     # if we are here, we have no winner after 3 death matches
     # just assign a random winner
-    print('No winner after 3 Death Matches. Choose a winner at random:', wait=2)
+    config.print('No winner after 3 Death Matches. Choose a winner at random:', wait=2)
     winner = random.choice((team1, team2))
-    print('And the winner is', winner)
+    config.print('And the winner is', winner)
     return winner
 
 def round1_ranking(config, rr_played):
@@ -268,11 +269,11 @@ def pp_round1_results(config, rr_played, rr_unplayed):
     es = "es" if n_played != 1 else ""
     n_togo = len(rr_unplayed)
 
-    print()
-    print('Ranking after {n_played} match{es} ({n_togo} to go):'.format(n_played=n_played, es=es, n_togo=n_togo))
+    config.print()
+    config.print('Ranking after {n_played} match{es} ({n_togo} to go):'.format(n_played=n_played, es=es, n_togo=n_togo))
     for team_id, p in round1_ranking(config, rr_played):
-        print("  %25s %d" % (config.team_name(team_id), p))
-    print()
+        config.print("  %25s %d" % (config.team_name(team_id), p))
+    config.print()
 
 def round1(config, state):
     """Run the first round and return a sorted list of team names.
@@ -284,10 +285,10 @@ def round1(config, state):
     rr_played = state.round1["played"]
 
     wait_for_keypress()
-    print()
-    print("ROUND 1 (Everybody vs Everybody)")
-    print('================================', speak=False)
-    print()
+    config.print()
+    config.print("ROUND 1 (Everybody vs Everybody)")
+    config.print('================================', speak=False)
+    config.print()
 
     while rr_unplayed:
         match = rr_unplayed.pop()
@@ -323,10 +324,10 @@ def round2(config, teams, state):
     teams is the list [group0, group1, ...] not the names of the agens, sorted
     by the result of the first round.
     """
-    print()
-    print('ROUND 2 (K.O.)')
-    print('==============', speak=False)
-    print()
+    config.print()
+    config.print('ROUND 2 (K.O.)')
+    config.print('==============', speak=False)
+    config.print()
     wait_for_keypress()
 
     last_match = komode.prepare_matches(teams, bonusmatch=config.bonusmatch)
@@ -346,7 +347,7 @@ def round2(config, teams, state):
                     state.round2["tournament"] = tournament
                     state.save(ARGS.state)
                 else:
-                    print("Already played {match}. Skipping".format(match=match))
+                    config.print("Already played {match}. Skipping".format(match=match))
 
     komode.print_knockout(last_match, config.team_name)
 
@@ -429,7 +430,7 @@ if __name__ == '__main__':
 
     if os.path.isfile(ARGS.state):
         if not ARGS.load_state:
-            print("Found state file in {state_file}. Restore with --load-state. Aborting.".format(state_file=ARGS.state))
+            config.print("Found state file in {state_file}. Restore with --load-state. Aborting.".format(state_file=ARGS.state))
             sys.exit(-1)
         else:
             state = State.load(config, ARGS.state)
@@ -451,7 +452,6 @@ if __name__ == '__main__':
 
     winner = round2(config, sorted_ranking, state)
 
-    print('The winner of the %s Pelita tournament is...' % config.location, wait=2, end=" ")
-    print('{team_name}. Congratulations'.format(team_name=config.team_name(winner)), wait=2)
-    print('Good evening master. It was a pleasure to serve you.')
-
+    config.print('The winner of the %s Pelita tournament is...' % config.location, wait=2, end=" ")
+    config.print('{team_name}. Congratulations'.format(team_name=config.team_name(winner)), wait=2)
+    config.print('Good evening master. It was a pleasure to serve you.')

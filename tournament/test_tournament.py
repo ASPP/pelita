@@ -46,3 +46,23 @@ class TestTournament(unittest.TestCase):
         self.assertEqual(False, tournament.start_match(config, ["group0", "group0"]))
 
 
+    def test_game_winner(self):
+        c = {
+            "location": None,
+            "date": None,
+            "bonusmatch": None,
+            "teams": [
+                {"id": "group0", "spec": "StoppingPlayer", "members": []},
+                {"id": "group1", "spec": "FoodEatingPlayer", "members": []},
+                {"id": "group2", "spec": "StoppingPlayer", "members": []},
+                {"id": "group3", "spec": "StoppingPlayer", "members": []},
+                {"id": "group4", "spec": "StoppingPlayer", "members": []},
+            ]
+
+        }
+        config = tournament.Config(c)
+
+        # group1 should win
+        self.assertEqual(1, tournament.start_match(config, ["group0", "group1"]))
+        self.assertEqual(0, tournament.start_match(config, ["group1", "group0"]))
+        self.assertEqual(False, tournament.start_match(config, ["group0", "group0"]))
