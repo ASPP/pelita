@@ -4,6 +4,9 @@ python:
   - "2.7"
   - "3.3"
   - "3.4"
+  - "3.5"
+  - "pypy"
+  - "pypy3"
 env:
   global:
     - secure: "fHTmXSkUyVFu7lJ4upcu4Xhv+5cTGq+SJ+GV9UUJ9guZYVWafxJw3CRmd/qqjucQzOTPg/2JA4/9XqDZDSWKKBwGTOgeiFjKaa4xPFO/bvpbECqR4y7TDh7k7zSjMCDD624b8k6LyWiaerh50ShU2CSi3cTjpyZWloolQWRotLM="
@@ -14,7 +17,7 @@ env:
 # command to install dependencies
 install:
   - pip install six
-  - pip install $PYZMQ --install-option="--zmq=bundled" --use-mirrors
+  - pip install $PYZMQ --install-option="--zmq=bundled"
 # command to run tests
 script: >
           python -c "from __future__ import print_function; import zmq; print('Using zmq %s.' % zmq.zmq_version())" &&

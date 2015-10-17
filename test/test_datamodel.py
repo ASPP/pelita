@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import unittest
 
 import six
@@ -435,6 +437,10 @@ class TestCTFUniverse(unittest.TestCase):
             }
 
         universe_dict = universe._to_json_dict()
+        # we don’t guarantee the order of the food items
+        universe_dict["food"].sort()
+        universe_json["food"].sort()
+
         self.assertEqual(universe_json, universe_dict)
 
         universe2 = CTFUniverse._from_json_dict(universe_json)

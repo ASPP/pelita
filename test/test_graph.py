@@ -115,7 +115,14 @@ class TestAdjacencyList(unittest.TestCase):
                    (1, 1): [(2, 1), (1, 1)],
                    (2, 1): [(3, 1), (2, 1), (1, 1)],
                    (3, 1): [(4, 1), (3, 1), (2, 1)]}
-        self.assertDictEqual(target, al)
+
+        for val in al.values():
+            val.sort()
+
+        for val in target.values():
+            val.sort()
+
+        self.assertEqual(target, al)
 
     def test_extended_adjacency_list(self):
         test_layout = (
@@ -161,6 +168,13 @@ class TestAdjacencyList(unittest.TestCase):
          (4, 3): [(5, 3), (4, 3), (3, 3)],
          (14, 3): [(14, 3), (13, 3)],
          (10, 2): [(10, 3), (10, 1), (10, 2), (9, 2)]}
+
+        for val in al.values():
+            val.sort()
+
+        for val in adjacency_target.values():
+            val.sort()
+
         self.assertEqual(adjacency_target, al)
 
     def test_bfs_to_self(self):
