@@ -1,4 +1,8 @@
+# -*- coding: utf-8 -*-
+
 import unittest
+
+import six
 
 from pelita.datamodel import CTFUniverse, east, stop, west
 from pelita.game_master import GameMaster
@@ -68,15 +72,15 @@ class TestAbstractPlayer(unittest.TestCase):
         self.assertEqual(universe.teams[0], player_1.enemy_team)
         self.assertEqual(universe.teams[0], player_3.enemy_team)
 
-        self.assertEqual(player_0.enemy_food, universe.enemy_food(player_0.team.index))
-        self.assertEqual(player_1.enemy_food, universe.enemy_food(player_1.team.index))
-        self.assertEqual(player_2.enemy_food, universe.enemy_food(player_2.team.index))
-        self.assertEqual(player_3.enemy_food, universe.enemy_food(player_3.team.index))
+        six.assertCountEqual(self, player_0.enemy_food, universe.enemy_food(player_0.team.index))
+        six.assertCountEqual(self, player_1.enemy_food, universe.enemy_food(player_1.team.index))
+        six.assertCountEqual(self, player_2.enemy_food, universe.enemy_food(player_2.team.index))
+        six.assertCountEqual(self, player_3.enemy_food, universe.enemy_food(player_3.team.index))
 
-        self.assertEqual(player_0.team_food, universe.team_food(player_0.team.index))
-        self.assertEqual(player_1.team_food, universe.team_food(player_1.team.index))
-        self.assertEqual(player_2.team_food, universe.team_food(player_2.team.index))
-        self.assertEqual(player_3.team_food, universe.team_food(player_3.team.index))
+        six.assertCountEqual(self, player_0.team_food, universe.team_food(player_0.team.index))
+        six.assertCountEqual(self, player_1.team_food, universe.team_food(player_1.team.index))
+        six.assertCountEqual(self, player_2.team_food, universe.team_food(player_2.team.index))
+        six.assertCountEqual(self, player_3.team_food, universe.team_food(player_3.team.index))
 
         self.assertEqual({(0, 1): (1, 2), (0, 0): (1, 1)},
                 player_0.legal_moves)
