@@ -6,6 +6,8 @@
 
 Actor-based Toolkit for Interactive Language Education in Python
 
+![](doc/source/images/small-game.png)
+
 ## Website
 
 Current, up-to-date documentation can found on: http://aspp.github.com/pelita
