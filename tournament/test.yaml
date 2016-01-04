@@ -1,0 +1,18 @@
+---
+location: Munich
+date: 2015
+team_prefix: group
+speak: false
+seed: null
+bonusmatch: True
+teams:
+  - spec: RandomPlayer
+    members:
+      - "Member One"
+  - spec: StoppingPlayer
+    members:
+      - "I stop"
+  - spec: SmartRandomPlayer
+    members:
+      - "I am smart"
+

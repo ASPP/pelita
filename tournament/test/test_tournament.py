@@ -2,8 +2,8 @@
 
 import unittest
 
-from . import komode
-from . import tournament
+from tournament import komode
+from tournament import tournament
 
 class TestKoMode(unittest.TestCase):
     def test_sort_ranks(self):
@@ -60,7 +60,9 @@ class TestTournament(unittest.TestCase):
             ]
 
         }
+        print(12345)
         config = tournament.Config(c)
+        print(12345)
 
         # group1 should win
         self.assertEqual(1, tournament.start_match(config, ["group0", "group1"]))
