@@ -70,7 +70,7 @@ logger.info('Logger started')
 CFG_FILE = './ci.cfg'
 
 
-class CI_Engine(object):
+class CI_Engine:
     """Continuous Integration Engine.
 
 
@@ -262,7 +262,7 @@ class CI_Engine(object):
             print("%15s %6.2f" % (name, score))
 
 
-class DB_Wrapper(object):
+class DB_Wrapper:
     """Wrapper around the games data base."""
 
     def __init__(self, dbfile):

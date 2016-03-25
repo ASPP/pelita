@@ -429,14 +429,14 @@ class TestSpeakingPlayer(unittest.TestCase):
 
 class TestSimpleTeam(unittest.TestCase):
 
-    class BrokenPlayer_with_nothing(object):
+    class BrokenPlayer_with_nothing:
         pass
 
-    class BrokenPlayer_without_set_initial(object):
+    class BrokenPlayer_without_set_initial:
         def _set_initial(self, universe):
             pass
 
-    class BrokenPlayer_without_get_move(object):
+    class BrokenPlayer_without_get_move:
         def _set_initial(self, universe):
             pass
 

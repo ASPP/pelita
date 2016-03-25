@@ -21,7 +21,7 @@ class PlayerTimeout(Exception):
 class PlayerDisconnected(Exception):
     pass
 
-class GameMaster(object):
+class GameMaster:
     """ Controller of player moves and universe updates.
 
     This object coordinates the moves of the player implementations with the
@@ -406,7 +406,7 @@ class GameMaster(object):
 
         return self.game_state["finished"]
 
-class UniverseNoiser(object, metaclass=abc.ABCMeta):
+class UniverseNoiser(metaclass=abc.ABCMeta):
     """Abstract BaseClass to make bot positions noisy.
 
     Supports uniform noise in maze space. Can be extended to support other types

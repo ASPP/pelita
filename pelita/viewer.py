@@ -7,7 +7,7 @@ import json
 import sys
 
 
-class AbstractViewer(object, metaclass=abc.ABCMeta):
+class AbstractViewer(metaclass=abc.ABCMeta):
     def set_initial(self, universe):
         """ This method is called when the first universe is ready.
         """

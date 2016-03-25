@@ -133,7 +133,7 @@ def get_layout_by_name(layout_name):
         raise ValueError("Layout: '%s' is not known." % ke.args)
 
 
-class Layout(object):
+class Layout:
     """ Auxiliary class to parse string encodings of mazes.
 
     Basically a parser for string encoded maze representations. This class can

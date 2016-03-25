@@ -10,7 +10,7 @@ import time
 from . import datamodel
 
 
-class SimpleTeam(object):
+class SimpleTeam:
     """ Simple class used to register an arbitrary number of (Abstract-)Players.
 
     Each Player is used to control a Bot in the Universe.
@@ -84,7 +84,7 @@ class SimpleTeam(object):
     def __repr__(self):
         return "SimpleTeam(%r, %s)" % (self.team_name, ", ".join(repr(p) for p in self._players))
 
-class AbstractPlayer(object, metaclass=abc.ABCMeta):
+class AbstractPlayer(metaclass=abc.ABCMeta):
     """ Base class for all user implemented Players. """
 
     def _set_index(self, index):

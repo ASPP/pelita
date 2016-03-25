@@ -104,7 +104,7 @@ class ZMQTimeout(Exception):
     """
     pass
 
-class ZMQConnection(object):
+class ZMQConnection:
     """ This class is supposed to ease request–reply connections
     through a zmq socket. It does so by attaching a uuid to each
     request. It will only accept a reply if this also includes
@@ -214,7 +214,7 @@ class ZMQConnection(object):
         return "ZMQConnection(%r)" % self.socket
 
 
-class RemoteTeamPlayer(object):
+class RemoteTeamPlayer:
     """ This class is registered server-side with the GameMaster
     and sends all requests to the attached zmq socket (to which
     a client player has connected.)
@@ -282,7 +282,7 @@ class RemoteTeamPlayer(object):
     def __repr__(self):
         return "RemoteTeamPlayer(%r)" % self.zmqconnection
 
-class SimpleServer(object):
+class SimpleServer:
     """ Sets up a simple Server with most settings pre-configured.
 
     Example
@@ -399,7 +399,7 @@ class ExitLoop(Exception):
     """ If this is raised, we’ll close the inner loop.
     """
 
-class SimpleController(object):
+class SimpleController:
     """ Sets up a simple Controller to interact with GameMaster. """
 
     def __init__(self, game_master, address):
@@ -458,7 +458,7 @@ class SimpleController(object):
         return "SimpleController(%r, %r)" % (self.game_master, self.address)
 
 
-class SimpleClient(object):
+class SimpleClient:
     """ Sets up a simple Client with most settings pre-configured.
 
     Example

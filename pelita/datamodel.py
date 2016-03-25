@@ -12,7 +12,7 @@ west  = (-1, 0)
 east  = (1, 0)
 stop  = (0, 0)
 
-class Team(object):
+class Team:
     """ A team of bots.
 
     Parameters
@@ -67,7 +67,7 @@ class Team(object):
         item["zone"] = tuple(item["zone"])
         return cls(**item)
 
-class Bot(object):
+class Bot:
     """ A bot on a team.
 
     Parameters
@@ -262,7 +262,7 @@ class IllegalMoveException(Exception):
     """ Raised when a bot attempts to make an illegal move. """
     pass
 
-class CTFUniverse(object):
+class CTFUniverse:
     """ The Universe: representation of the game state.
 
     Parameters

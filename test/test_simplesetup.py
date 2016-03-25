@@ -83,7 +83,7 @@ class TestSimpleSetup(unittest.TestCase):
         client1_address = server.bind_addresses[0].replace("*", "localhost")
         client2_address = server.bind_addresses[1].replace("*", "localhost")
 
-        class FailingPlayer(object):
+        class FailingPlayer:
             def _set_initial(self, dummy, dummy2):
                 pass
             def _set_index(self, dummy):

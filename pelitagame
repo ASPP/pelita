@@ -20,7 +20,7 @@ from pelita import libpelita
 logging.root.manager.emittedNoHandlerWarning = 1
 _logger = logging.getLogger("pelitagame")
 
-class ReplayPublisher(object):
+class ReplayPublisher:
     def __init__(self, publish_sock, replayfile):
         with open(replayfile) as f:
             self.old_game = f.read().split("\x04")
