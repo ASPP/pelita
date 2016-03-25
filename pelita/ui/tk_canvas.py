@@ -7,8 +7,8 @@ import time
 
 import zmq
 
-from six.moves import tkinter
-from six.moves import tkinter_font
+import tkinter
+import tkinter.font
 
 from ..datamodel import CTFUniverse
 from ..utils.signal_handlers import wm_delete_window_handler
@@ -19,7 +19,7 @@ _logger = logging.getLogger("pelita.tk")
 def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
     no_lines = display_string.count("\n") + 1
     size_guess = bounding_height // ((3-rel_size) * no_lines)
-    font = tkinter_font.Font(size=size_guess)
+    font = tkinter.font.Font(size=size_guess)
     text_width = font.measure(display_string)
     if text_width > bounding_width:
         font_size = size_guess * bounding_width // text_width

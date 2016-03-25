@@ -2,10 +2,6 @@ language: python
 sudo: false
 matrix:
   include:
-    - python: "2.7"
-      env: PYZMQ="pyzmq"
-    - python: "2.7"
-      env: PYZMQ="pyzmq==2.2.0.1"
     - python: "3.3"
       env: PYZMQ="pyzmq"
     - python: "3.4"
@@ -20,7 +16,6 @@ env:
     - REPO: "ASPP/pelita"
 # command to install dependencies
 install:
-  - pip install six
   - pip install $PYZMQ --install-option="--zmq=bundled"
 # command to run tests
 script: >

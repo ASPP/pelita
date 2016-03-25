@@ -6,8 +6,6 @@ import base64
 import random
 import zlib
 
-import six
-
 from .containers import Mesh
 
 """ Maze layout parsing. """
@@ -126,10 +124,7 @@ def get_layout_by_name(layout_name):
     """
     # decode and return this layout
     try:
-        if six.PY2:
-            return __layouts.__dict__[layout_name].decode('base64').decode('zlib')
-        else:
-            return zlib.decompress(base64.decodebytes(__layouts.__dict__[layout_name].encode())).decode()
+        return zlib.decompress(base64.decodebytes(__layouts.__dict__[layout_name].encode())).decode()
     except KeyError as ke:
         # This happens if layout_name is not a valid key in the __dict__.
         # I.e. if the layout_name is not available.

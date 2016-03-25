@@ -2,7 +2,7 @@
 
 import logging
 
-from six.moves import tkinter
+import tkinter
 
 from .tk_canvas import TkApplication
 

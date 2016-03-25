@@ -7,8 +7,6 @@ import pdb
 import random
 import time
 
-import six
-
 from . import datamodel
 
 
@@ -86,8 +84,7 @@ class SimpleTeam(object):
     def __repr__(self):
         return "SimpleTeam(%r, %s)" % (self.team_name, ", ".join(repr(p) for p in self._players))
 
-@six.add_metaclass(abc.ABCMeta)
-class AbstractPlayer(object):
+class AbstractPlayer(object, metaclass=abc.ABCMeta):
     """ Base class for all user implemented Players. """
 
     def _set_index(self, index):
@@ -152,7 +149,7 @@ class AbstractPlayer(object):
 
         """
         #: Used for the `time_spent` method.
-        self.__time_in_get_move = time.monotonic() if six.PY3 else time.time()
+        self.__time_in_get_move = time.monotonic()
         self._current_state = game_state
         self._store_universe(universe)
         self._say = ""
@@ -376,7 +373,7 @@ class AbstractPlayer(object):
             time in seconds
         """
         try:
-            current_time = time.monotonic() if six.PY3 else time.time()
+            current_time = time.monotonic()
             return current_time - self.__time_in_get_move
         except AttributeError:
             return None
@@ -389,10 +386,7 @@ class AbstractPlayer(object):
         text : string
             the text to be shown in the Viewer.
         """
-        if six.PY2:
-            self._say = unicode(text, errors='ignore')
-        else:
-            self._say = text
+        self._say = text
 
     def __str__(self):
         return "%s(index=%r, current_pos=%r)" % (self.__class__.__name__,

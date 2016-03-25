@@ -6,11 +6,8 @@ import abc
 import json
 import sys
 
-import six
 
-
-@six.add_metaclass(abc.ABCMeta)
-class AbstractViewer(object):
+class AbstractViewer(object, metaclass=abc.ABCMeta):
     def set_initial(self, universe):
         """ This method is called when the first universe is ready.
         """

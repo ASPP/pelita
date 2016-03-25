@@ -36,7 +36,6 @@ import sys
 import time
 import uuid
 
-import six
 import zmq
 
 from .datamodel import CTFUniverse
@@ -189,7 +188,7 @@ class ZMQConnection(object):
         if timeout is None:
             return self.recv()
 
-        time_now = time.monotonic() if six.PY3 else time.time()
+        time_now = time.monotonic()
         #: calculate until when it may take
         timeout_until = time_now + timeout
 
@@ -204,7 +203,7 @@ class ZMQConnection(object):
                     return reply
                 except UnknownMessageId:
                     # Okay, false alarm. Reset the current time and try again.
-                    time_now = time.monotonic() if six.PY3 else time.time()
+                    time_now = time.monotonic()
                     continue
                 # answer did not arrive in time
             else:

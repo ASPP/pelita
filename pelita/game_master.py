@@ -7,8 +7,6 @@ import random
 import sys
 import time
 
-import six
-
 from . import datamodel
 from .datamodel import Bot, CTFUniverse
 from .graph import AdjacencyList, NoPathException, manhattan_dist
@@ -273,11 +271,11 @@ class GameMaster(object):
             raise GameFinished()
 
         for bot in self.universe.bots:
-            start_time = time.monotonic() if six.PY3 else time.time()
+            start_time = time.monotonic()
 
             self._play_bot(bot)
 
-            end_time = time.monotonic() if six.PY3 else time.time()
+            end_time = time.monotonic()
             self.game_state["running_time"] += (end_time - start_time)
 
             if self.check_finished():
@@ -311,7 +309,7 @@ class GameMaster(object):
             else:
                 universe = self.universe
 
-            team_time_begin = time.monotonic() if six.PY3 else time.time()
+            team_time_begin = time.monotonic()
 
             player_state = player_team.get_move(bot.index, universe, self.game_state)
             try:
@@ -324,7 +322,7 @@ class GameMaster(object):
 
             self.game_state["bot_talk"][bot.index] = bot_talk
 
-            team_time_end = time.monotonic() if six.PY3 else time.time()
+            team_time_end = time.monotonic()
             team_time_needed = team_time_end - team_time_begin
             self.game_state["team_time"][bot.team_index] += team_time_needed
 
@@ -408,8 +406,7 @@ class GameMaster(object):
 
         return self.game_state["finished"]
 
-@six.add_metaclass(abc.ABCMeta)
-class UniverseNoiser(object):
+class UniverseNoiser(object, metaclass=abc.ABCMeta):
     """Abstract BaseClass to make bot positions noisy.
 
     Supports uniform noise in maze space. Can be extended to support other types
