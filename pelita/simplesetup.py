@@ -26,8 +26,6 @@ we switch to Python 3.2+, if thread queues might have become fast enough
 re-investigate this decision.
 """
 
-from __future__ import print_function
-
 import json
 import logging
 import multiprocessing
