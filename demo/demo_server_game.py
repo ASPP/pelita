@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Verbose demonstration of how to set up a server and run a remote game.
 

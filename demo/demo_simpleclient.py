@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 We start a client using the SimpleClient class and
 a couple of previously defined Players.

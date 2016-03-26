@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from . import (containers,
                datamodel,
                game_master,

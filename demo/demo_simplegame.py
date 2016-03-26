@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Defining a game server and clients in one and the same file is also possible.
 (For setup using multiple files, see demo_simpleclient.py and demo_simpleserver.py.)

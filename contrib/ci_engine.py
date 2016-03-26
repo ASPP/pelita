@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Copyright (c) 2013, Bastian Venthur <venthur@debian.org>
 # All rights reserved.

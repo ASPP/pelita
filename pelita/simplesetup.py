@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """ simplesetup.py defines the SimpleServer and SimpleClient classes
 which allow for easy game setup via zmq sockets.
 

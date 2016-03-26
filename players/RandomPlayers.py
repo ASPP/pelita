@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from pelita import datamodel
 from pelita.player import AbstractPlayer, SimpleTeam
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # Pelita documentation build configuration file, created by
 # sphinx-quickstart on Mon Mar 16 22:22:36 2015.

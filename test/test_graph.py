@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 
 from pelita.datamodel import CTFUniverse, east, north, south, stop, west

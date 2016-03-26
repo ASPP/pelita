@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """ Base classes for player implementations. """
 
 import abc

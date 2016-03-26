@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """ The datamodel. """
 
 from .containers import Mesh
