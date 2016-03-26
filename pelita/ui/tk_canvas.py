@@ -509,7 +509,7 @@ class TkApplication:
 
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
-        self.socket.setsockopt_unicode(zmq.SUBSCRIBE, u"")
+        self.socket.setsockopt_unicode(zmq.SUBSCRIBE, "")
         self.socket.connect(address)
         self.poll = zmq.Poller()
         self.poll.register(self.socket, zmq.POLLIN)

@@ -509,7 +509,7 @@ class Test_DB_Wrapper(unittest.TestCase):
         stupid_names = [
             "Little'",
             'Bobby"',
-            u"таблицы",
+            "таблицы",
         ]
 
         for name in stupid_names:
