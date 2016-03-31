@@ -57,12 +57,12 @@ class TestStaticmethods(unittest.TestCase):
         # starting at 0, we’ll get all 21 points:
         adjs0 = list(iter_adjacencies([0], lambda n: onedim_lattice(n, 10)))
         self.assertEqual(21, len(adjs0))
-        self.assertEqual(set(range(-10, 11)), set(dict(adjs0).keys()))
+        self.assertCountEqual(range(-10, 11), dict(adjs0).keys())
 
         # starting at 11, we’ll get 22 points
         adjs1 = list(iter_adjacencies([11], lambda n: onedim_lattice(n, 10)))
         self.assertEqual(22, len(adjs1))
-        self.assertEqual(set(range(-10, 12)), set(dict(adjs1).keys()))
+        self.assertCountEqual(range(-10, 12), dict(adjs1).keys())
 
         # starting at 12, we’ll get 1 point
         adjs2 = list(iter_adjacencies([12], lambda n: onedim_lattice(n, 10)))
@@ -72,7 +72,7 @@ class TestStaticmethods(unittest.TestCase):
         # starting at [0, 12], we’ll get adjs0 | adjs2
         adjs3 = list(iter_adjacencies([0, 12], lambda n: onedim_lattice(n, 10)))
         self.assertEqual(22, len(adjs3))
-        self.assertEqual(sorted(adjs0 + adjs2), sorted(adjs3))
+        self.assertCountEqual(adjs0 + adjs2, adjs3)
 
 class TestAdjacencyList(unittest.TestCase):
 
@@ -93,9 +93,9 @@ class TestAdjacencyList(unittest.TestCase):
         self.assertRaises(NoPathException, al.pos_within, (6, 2), 0)
 
         self.assertTrue((1, 1) in al)
-        self.assertEqual(set([(1, 1)]), al.pos_within((1, 1), 0))
-        target = set([(1, 1), (1, 2), (1,3), (2, 3), (3, 3), (3, 3)])
-        self.assertEqual(target, al.pos_within((1, 1), 5))
+        self.assertCountEqual([(1, 1)], al.pos_within((1, 1), 0))
+        target = [(1, 1), (1, 2), (1,3), (2, 3), (3, 3)]
+        self.assertCountEqual(target, al.pos_within((1, 1), 5))
         # assuming a_star is working properly
         for pos in target:
             self.assertTrue(len(al.a_star((1, 1), pos)) < 5)
