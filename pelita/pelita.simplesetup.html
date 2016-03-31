@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.simplesetup &mdash; Pelita v0.2.0-305-g1c883fc documentation</title>
+    <title>pelita.simplesetup &mdash; Pelita v0.2.0-314-g70820f3 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-305-g1c883fc',
+        VERSION:     'v0.2.0-314-g70820f3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,13 +24,13 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-305-g1c883fc documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.2.0-314-g70820f3 documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
     <link rel="next" title="pelita.ui" href="pelita.ui.html" />
     <link rel="prev" title="pelita.player" href="pelita.player.html" />
    
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
   <body role="document">  
@@ -81,25 +81,34 @@ re-investigate this decision.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.RemoteTeamPlayer" title="pelita.simplesetup.RemoteTeamPlayer"><code class="xref py py-obj docutils literal"><span class="pre">RemoteTeamPlayer</span></code></a>(socket)</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">AbstractViewer</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">CTFUniverse</span></code>(maze,&nbsp;food,&nbsp;teams,&nbsp;bots)</td>
+<td>The Universe: representation of the game state.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">GameMaster</span></code>(layout,&nbsp;teams,&nbsp;number_bots,&nbsp;game_time)</td>
+<td>Controller of player moves and universe updates.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.RemoteTeamPlayer" title="pelita.simplesetup.RemoteTeamPlayer"><code class="xref py py-obj docutils literal"><span class="pre">RemoteTeamPlayer</span></code></a>(socket)</td>
 <td>This class is registered server-side with the GameMaster</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.SimpleClient" title="pelita.simplesetup.SimpleClient"><code class="xref py py-obj docutils literal"><span class="pre">SimpleClient</span></code></a>(team[,&nbsp;team_name,&nbsp;address])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.SimpleClient" title="pelita.simplesetup.SimpleClient"><code class="xref py py-obj docutils literal"><span class="pre">SimpleClient</span></code></a>(team[,&nbsp;team_name,&nbsp;address])</td>
 <td>Sets up a simple Client with most settings pre-configured.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.SimpleController" title="pelita.simplesetup.SimpleController"><code class="xref py py-obj docutils literal"><span class="pre">SimpleController</span></code></a>(game_master,&nbsp;address)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.SimpleController" title="pelita.simplesetup.SimpleController"><code class="xref py py-obj docutils literal"><span class="pre">SimpleController</span></code></a>(game_master,&nbsp;address)</td>
 <td>Sets up a simple Controller to interact with GameMaster.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.SimplePublisher" title="pelita.simplesetup.SimplePublisher"><code class="xref py py-obj docutils literal"><span class="pre">SimplePublisher</span></code></a>(address)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.SimplePublisher" title="pelita.simplesetup.SimplePublisher"><code class="xref py py-obj docutils literal"><span class="pre">SimplePublisher</span></code></a>(address)</td>
 <td>Sets up a simple Publisher which sends all viewed events over a zmq connection.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.SimpleServer" title="pelita.simplesetup.SimpleServer"><code class="xref py py-obj docutils literal"><span class="pre">SimpleServer</span></code></a>(layout_string[,&nbsp;teams,&nbsp;...])</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.SimpleServer" title="pelita.simplesetup.SimpleServer"><code class="xref py py-obj docutils literal"><span class="pre">SimpleServer</span></code></a>(layout_string[,&nbsp;teams,&nbsp;...])</td>
 <td>Sets up a simple Server with most settings pre-configured.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.SimpleSubscriber" title="pelita.simplesetup.SimpleSubscriber"><code class="xref py py-obj docutils literal"><span class="pre">SimpleSubscriber</span></code></a>(viewer,&nbsp;address)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.SimpleSubscriber" title="pelita.simplesetup.SimpleSubscriber"><code class="xref py py-obj docutils literal"><span class="pre">SimpleSubscriber</span></code></a>(viewer,&nbsp;address)</td>
 <td>Subscribes to a given zmq socket and passes all incoming data to a viewer.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.ZMQConnection" title="pelita.simplesetup.ZMQConnection"><code class="xref py py-obj docutils literal"><span class="pre">ZMQConnection</span></code></a>(socket)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.ZMQConnection" title="pelita.simplesetup.ZMQConnection"><code class="xref py py-obj docutils literal"><span class="pre">ZMQConnection</span></code></a>(socket)</td>
 <td>This class is supposed to ease request–reply connections through a zmq socket.</td>
 </tr>
 </tbody>
@@ -116,6 +125,12 @@ re-investigate this decision.</p>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.ExitLoop" title="pelita.simplesetup.ExitLoop"><code class="xref py py-obj docutils literal"><span class="pre">ExitLoop</span></code></a></td>
 <td>If this is raised, we’ll close the inner loop.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">PlayerDisconnected</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">PlayerTimeout</span></code></td>
+<td></td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.UnknownMessageId" title="pelita.simplesetup.UnknownMessageId"><code class="xref py py-obj docutils literal"><span class="pre">UnknownMessageId</span></code></a></td>
 <td>Is raised when a reply arrives with unexpected id.</td>
@@ -217,7 +232,7 @@ over a zmq connection.</p>
 <p>Sets up a simple Server with most settings pre-configured.</p>
 <p class="rubric">Example</p>
 <p>Initialise as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">server</span> <span class="o">=</span> <span class="n">SimpleServer</span><span class="p">(</span><span class="n">layout_string</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">3000</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">server</span> <span class="o">=</span> <span class="n">SimpleServer</span><span class="p">(</span><span class="n">layout_string</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">3000</span><span class="p">)</span>
 <span class="n">server</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -239,10 +254,8 @@ Defaults to [&#8220;<a class="reference external" href="tcp://">tcp://</a><a hre
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> &#8211;
-if more than one layout keyword is specified</li>
-<li><code class="xref py py-exc docutils literal"><span class="pre">IOError</span></code> &#8211;
-if layout_file was given, but file does not exist</li>
+<li>ValueError: &#8211; if more than one layout keyword is specified</li>
+<li>IOError: &#8211; if layout_file was given, but file does not exist</li>
 </ul>
 </td>
 </tr>
@@ -380,6 +393,8 @@ uuids are discarded.</li>
 </p>
 
 
+
+
 <h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../info.html">Project Information</a></li>
@@ -396,7 +411,7 @@ uuids are discarded.</li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.graph.html">pelita.graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.layout.html">pelita.layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.player.html">pelita.player</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">pelita.simplesetup</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pelita.simplesetup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.ui.html">pelita.ui</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.utils.html">pelita.utils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.viewer.html">pelita.viewer</a></li>
@@ -413,9 +428,6 @@ uuids are discarded.</li>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -426,8 +438,8 @@ uuids are discarded.</li>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
       |
       <a href="../_sources/pelita/pelita.simplesetup.txt"

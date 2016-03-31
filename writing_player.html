@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Writing a Player &mdash; Pelita v0.2.0-305-g1c883fc documentation</title>
+    <title>Writing a Player &mdash; Pelita v0.2.0-314-g70820f3 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'v0.2.0-305-g1c883fc',
+        VERSION:     'v0.2.0-314-g70820f3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,12 +24,12 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-305-g1c883fc documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.2.0-314-g70820f3 documentation" href="index.html" />
     <link rel="next" title="Running Players" href="running_player.html" />
     <link rel="prev" title="Project Information" href="info.html" />
    
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
   <body role="document">  
@@ -86,21 +86,21 @@ several convenience methods and properties to interrogate the universe
 including the bot instance that this player controls, but lacks the functions
 to actually control the bot.</p>
 <p>To subclass from <code class="docutils literal"><span class="pre">AbstractPlayer</span></code> import this with:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">AbstractPlayer</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pelita.player</span> <span class="k">import</span> <span class="n">AbstractPlayer</span>
 </pre></div>
 </div>
 <p>In order to make your player do something useful you must implement at least the
 method <code class="docutils literal"><span class="pre">get_move()</span></code> to return a move. This can be one of:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">north</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">west</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">stop</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">north</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">west</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">stop</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>The moves are provided by the <cite>pelita.datamodel</cite>, import them with:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pelita.datamodel</span> <span class="kn">import</span> <span class="n">north</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">west</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">stop</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pelita.datamodel</span> <span class="k">import</span> <span class="n">north</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">west</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">stop</span>
 </pre></div>
 </div>
 <p>An example of such a player is the trivial <cite>pelita.player.StoppingPlayer</cite>
 which simply returns <code class="docutils literal"><span class="pre">stop</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">StoppingPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StoppingPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A Player that just stands still. &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span>
@@ -111,11 +111,11 @@ which simply returns <code class="docutils literal"><span class="pre">stop</span
 <p>Besides the definition of your player, this file must contain a factory
 function that returns a team (remember that the default game is a
 fight between two teams of two bots each):</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">factory</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">SimpleTeam</span><span class="p">(</span><span class="s">&quot;MyTeam&quot;</span><span class="p">,</span> <span class="n">StoppingPlayer</span><span class="p">(),</span> <span class="n">StoppingPlayer</span><span class="p">())</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">factory</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">SimpleTeam</span><span class="p">(</span><span class="s2">&quot;MyTeam&quot;</span><span class="p">,</span> <span class="n">StoppingPlayer</span><span class="p">(),</span> <span class="n">StoppingPlayer</span><span class="p">())</span>
 </pre></div>
 </div>
-<p class="last">For more information about this, see also:<a class="reference internal" href="running_player.html"><em>Running Players</em></a></p>
+<p class="last">For more information about this, see also:<a class="reference internal" href="running_player.html"><span class="doc">Running Players</span></a></p>
 </div>
 <p>Note: the current state or the <code class="docutils literal"><span class="pre">CTFUniverse</span></code> is always implicitly available
 via the <code class="docutils literal"><span class="pre">current_uni</span></code> property inherited from <code class="docutils literal"><span class="pre">AbstractPlayer</span></code>. But more
@@ -125,7 +125,7 @@ about that later.</p>
 <h2>Doing More<a class="headerlink" href="#doing-more" title="Permalink to this headline">¶</a></h2>
 <p>A slightly more useful example is the <cite>pelita.player.RandomPlayer</cite> which always
 selects a move at random from the possible moves:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">RandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">RandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A player that makes moves at random. &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -147,8 +147,8 @@ because we can replay previous test games with improved algorithms.</p>
 <p>To make the above example (and many of the following examples) work, it
 might be necessary to add appropriate imports to your python source file,
 for example:</p>
-<div class="last highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pelita.player</span> <span class="kn">import</span> <span class="n">AbstractPlayer</span>
-<span class="kn">from</span> <span class="nn">pelita.datamodel</span> <span class="kn">import</span> <span class="n">north</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">west</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">stop</span>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pelita.player</span> <span class="k">import</span> <span class="n">AbstractPlayer</span>
+<span class="kn">from</span> <span class="nn">pelita.datamodel</span> <span class="k">import</span> <span class="n">north</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">west</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">stop</span>
 </pre></div>
 </div>
 </div>
@@ -159,27 +159,27 @@ moves there. <code class="docutils literal"><span class="pre">legal_moves</span>
 <p>The next example is the not-quite random player
 <code class="docutils literal"><span class="pre">pelita.player.NQRandomPlayer</span></code>.  This one does not move back to the position
 where it was on its last turn and never stops in place:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">NQRandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">NQRandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Not-Quite-RandomPlayer that will move randomly but not stop or reverse. &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">legal_moves</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_moves</span>
-        <span class="c"># Remove stop</span>
+        <span class="c1"># Remove stop</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">del</span> <span class="n">legal_moves</span><span class="p">[</span><span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">pass</span>
-        <span class="c"># now remove the move that would lead to the previous_position</span>
-        <span class="c"># unless there is no where else to go.</span>
+        <span class="c1"># now remove the move that would lead to the previous_position</span>
+        <span class="c1"># unless there is no where else to go.</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">legal_moves</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">legal_moves</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_pos</span><span class="p">:</span>
                     <span class="k">break</span>
             <span class="k">del</span> <span class="n">legal_moves</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-        <span class="c"># just in case, there is really no way to go to:</span>
+        <span class="c1"># just in case, there is really no way to go to:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">legal_moves</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span>
-        <span class="c"># and select a move at random</span>
+        <span class="c1"># and select a move at random</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnd</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">legal_moves</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
 </pre></div>
 </div>
@@ -232,7 +232,7 @@ following example illustrates this for a few positions:</p>
 </table>
 </div></blockquote>
 <p>As a result we obtain the following direction vectors:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">north</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">north</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">south</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">west</span>  <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 <span class="n">east</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -304,7 +304,7 @@ recover from such an event.</p>
 <p>The main problem with detecting a timeout is that, as long as your
 computationally expensive process is running, there is no way to interrupt it.
 Imagine an infinite <code class="docutils literal"><span class="pre">for</span></code> loop in your <code class="docutils literal"><span class="pre">get_move()</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
     <span class="k">pass</span>
 </pre></div>
 </div>
@@ -313,18 +313,18 @@ important to ensure that your search algorithms are efficient and fast.</p>
 <p>For convenience <code class="docutils literal"><span class="pre">AbstractPlayer</span></code> has a <code class="docutils literal"><span class="pre">time_spent()</span></code> method, which
 shows the approximate time since <code class="docutils literal"><span class="pre">get_move()</span></code> has been called. A simple
 approach using this method could be as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">get_move</span><span class="p">():</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_move</span><span class="p">():</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">best_move</span> <span class="o">=</span> <span class="n">stop</span>
-    <span class="n">MAX_TIME</span> <span class="o">=</span> <span class="mi">3</span> <span class="c"># whatever the rules tell you</span>
+    <span class="n">MAX_TIME</span> <span class="o">=</span> <span class="mi">3</span> <span class="c1"># whatever the rules tell you</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_spent</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">MAX_TIME</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_move</span>
-    <span class="c"># do some iterative data mining and eventually</span>
-    <span class="c"># change the value of self.best_move</span>
+    <span class="c1"># do some iterative data mining and eventually</span>
+    <span class="c1"># change the value of self.best_move</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">do_first_calculation</span><span class="p">()</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_spent</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">MAX_TIME</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_move</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">do_second_calculation</span><span class="p">()</span>
-    <span class="c"># ...</span>
+    <span class="c1"># ...</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -359,17 +359,17 @@ ready when you receive the first <code class="docutils literal"><span class="pre
 <p>For a simple test whether a certain position on the maze is free or not,
 we can check the <code class="docutils literal"><span class="pre">pelita.datamodel.Maze</span></code> class which has an instance in
 our universe.:</p>
-<div class="highlight-python"><div class="highlight"><pre>pos = (3, 3)
-if maze[pos]:
-    # has a wall
-else:
-    # is free
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pos</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">maze</span><span class="p">[</span><span class="n">pos</span><span class="p">]:</span>
+    <span class="c1"># has a wall</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># is free</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p>Please compare the above syntax with:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">pos</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pos</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">maze</span><span class="p">:</span>
     <span class="k">pass</span>
 </pre></div>
@@ -398,7 +398,7 @@ make it appear as if it were only 2 squares away. Thus, you can check if a bot
 position is noisy using the <code class="docutils literal"><span class="pre">noisy</span></code> attribute of the bot instance, in
 combination with the <code class="docutils literal"><span class="pre">enemy_bots</span></code> convenience property provided by
 <code class="docutils literal"><span class="pre">AbstractPlayer</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">enemy_bots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">noisy</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">enemy_bots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">noisy</span>
 </pre></div>
 </div>
 <p>One idea is to implement probabilistic tracking using a <a class="reference external" href="http://en.wikipedia.org/wiki/Kalman_filter">Kalman filter</a></p>
@@ -412,7 +412,7 @@ properties of <code class="docutils literal"><span class="pre">AbstractPlayer</s
 be of interest to the curious reader.</p>
 <p>Let&#8217;s take a quick look as the implementation
 of <code class="docutils literal"><span class="pre">current_uni</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">current_uni</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">current_uni</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The current Universe.</span>
 
 <span class="sd">        Returns</span>
@@ -429,7 +429,7 @@ of previous states of the Universe called <code class="docutils literal"><span c
 As we can see <code class="docutils literal"><span class="pre">current_uni</span></code> is simply the top element of this stack. This
 allows us to access the properties and methods of the <code class="docutils literal"><span class="pre">CTFUniverse</span></code>, for
 example look at the implementation of <code class="docutils literal"><span class="pre">legal_moves</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">legal_moves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">legal_moves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The currently possible moves, and where they lead.</span>
 
 <span class="sd">        Returns</span>
@@ -444,7 +444,7 @@ example look at the implementation of <code class="docutils literal"><span class
 which is provided by <code class="docutils literal"><span class="pre">CTFUniverse</span></code>. We also see one of the convenience
 properties used in the <code class="docutils literal"><span class="pre">bfs_food()</span></code> method: <code class="docutils literal"><span class="pre">current_pos</span></code> which returns the
 current position of the bot.  Let&#8217;s have a look at this:</p>
-<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">current_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">current_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The current position of this bot.</span>
 
 <span class="sd">        Returns</span>
@@ -456,7 +456,7 @@ current position of the bot.  Let&#8217;s have a look at this:</p>
 </pre></div>
 </div>
 <p>We see that this makes use of the <code class="docutils literal"><span class="pre">me</span></code> property which is defined as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">me</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">me</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The Bot object this Player controls.</span>
 
 <span class="sd">        Returns</span>
@@ -475,7 +475,7 @@ the player. In practice, you should be able to avoid having to use the
 wish to do something exotic.</p>
 <p>Lets now have a look at the convenience property <code class="docutils literal"><span class="pre">enemy_food</span></code> Again, this is
 simply forwarded to the <code class="docutils literal"><span class="pre">CTFUniverse</span></code> using <code class="docutils literal"><span class="pre">current_uni</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">enemy_food</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">enemy_food</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Food owned by the enemy which can be eaten by this Player&#39;s bot.</span>
 
 <span class="sd">        Please note that it is valid for this list to be empty during get_move.</span>
@@ -499,7 +499,7 @@ at the source code.</p>
 <p>Now that you know about <code class="docutils literal"><span class="pre">universe_states</span></code>, <code class="docutils literal"><span class="pre">_index</span></code> and <code class="docutils literal"><span class="pre">current_pos</span></code>
 let&#8217;s have a look at how the <code class="docutils literal"><span class="pre">previous_pos</span></code> property (used in the
 <code class="docutils literal"><span class="pre">NQRandomPlayer</span></code>) is implemented:</p>
-<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">previous_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">previous_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The previous position of the bot.</span>
 
 <span class="sd">        Returns</span>
@@ -519,7 +519,7 @@ obtain its previous position.</p>
 <p>The <code class="docutils literal"><span class="pre">team</span></code> property uses the <code class="docutils literal"><span class="pre">me</span></code> property to access the bots
 <code class="docutils literal"><span class="pre">team_index</span></code> which it then uses in <code class="docutils literal"><span class="pre">current_uni.teams</span></code> to get the
 respective <code class="docutils literal"><span class="pre">Team</span></code> instance:</p>
-<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">team</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">team</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The Team object this Player&#39;s Bot is on.</span>
 
 <span class="sd">        Returns</span>
@@ -532,7 +532,7 @@ respective <code class="docutils literal"><span class="pre">Team</span></code> i
 </pre></div>
 </div>
 <p>Something similar is achieved for the <code class="docutils literal"><span class="pre">team_border</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">team_border</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">team_border</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Positions of the border positions.</span>
 <span class="sd">        These are the last positions in the zone of the team.</span>
 
@@ -546,7 +546,7 @@ respective <code class="docutils literal"><span class="pre">Team</span></code> i
 </pre></div>
 </div>
 <p>And again for <code class="docutils literal"><span class="pre">enemy_bots</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">enemy_bots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">enemy_bots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; A list of enemy Bots.</span>
 
 <span class="sd">        Returns</span>
@@ -578,10 +578,12 @@ respective <code class="docutils literal"><span class="pre">Team</span></code> i
 </p>
 
 
+
+
 <h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="info.html">Project Information</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Writing a Player</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Writing a Player</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#player-basics">Player Basics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#doing-more">Doing More</a></li>
@@ -610,9 +612,6 @@ respective <code class="docutils literal"><span class="pre">Team</span></code> i
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -623,8 +622,8 @@ respective <code class="docutils literal"><span class="pre">Team</span></code> i
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
       |
       <a href="_sources/writing_player.txt"

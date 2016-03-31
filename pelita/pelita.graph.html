@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.graph &mdash; Pelita v0.2.0-305-g1c883fc documentation</title>
+    <title>pelita.graph &mdash; Pelita v0.2.0-314-g70820f3 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-305-g1c883fc',
+        VERSION:     'v0.2.0-314-g70820f3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,13 +24,13 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-305-g1c883fc documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.2.0-314-g70820f3 documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
     <link rel="next" title="pelita.layout" href="pelita.layout.html" />
     <link rel="prev" title="pelita.game_master" href="pelita.game_master.html" />
    
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
   <body role="document">  
@@ -74,6 +74,9 @@
 <tr class="row-odd"><td><a class="reference internal" href="#pelita.graph.AdjacencyList" title="pelita.graph.AdjacencyList"><code class="xref py py-obj docutils literal"><span class="pre">AdjacencyList</span></code></a>(adjacencies)</td>
 <td>Adjacency list [1] representation of a Maze.</td>
 </tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">deque</span></code></td>
+<td>deque([iterable[, maxlen]]) &#8211;&gt; deque object</td>
+</tr>
 </tbody>
 </table>
 <p class="rubric">Exceptions</p>
@@ -113,19 +116,16 @@ Manhattan distance as a heuristic.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>path</strong> &#8211;
-the path from <cite>initial</cite> to the closest <cite>target</cite></p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>path</strong> &#8211; the path from <cite>initial</cite> to the closest <cite>target</cite></p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">lits of tuple of (int, int)</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal"><span class="pre">NoPathException</span></code> &#8211;
-if no path from <cite>initial</cite> to one of <cite>targets</cite></li>
-<li><code class="xref py py-exc docutils literal"><span class="pre">NoPositionException</span></code> &#8211;
-if either <cite>initial</cite> or <cite>targets</cite> does not exist</li>
-<li><strong>[1] http</strong> (<em>//en.wikipedia.org/wiki/A*_search_algorithm</em>)</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">NoPathException</span></code> &#8211; if no path from <cite>initial</cite> to one of <cite>targets</cite></li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">NoPositionException</span></code> &#8211; if either <cite>initial</cite> or <cite>targets</cite> does not exist</li>
+<li>[1] <a class="reference external" href="http://en.wikipedia.org/wiki/A*_search_algorithm">http://en.wikipedia.org/wiki/A*_search_algorithm</a></li>
 </ul>
 </td>
 </tr>
@@ -150,19 +150,16 @@ position in <cite>targets</cite>.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>path</strong> &#8211;
-the path from <cite>initial</cite> to the closest <cite>target</cite></p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>path</strong> &#8211; the path from <cite>initial</cite> to the closest <cite>target</cite></p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">lits of tuple of (int, int)</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal"><span class="pre">NoPathException</span></code> &#8211;
-if no path from <cite>initial</cite> to one of <cite>targets</cite></li>
-<li><code class="xref py py-exc docutils literal"><span class="pre">NoPositionException</span></code> &#8211;
-if either <cite>initial</cite> or <cite>targets</cite> does not exist</li>
-<li><strong>[1] http</strong> (<em>//en.wikipedia.org/wiki/Breadth-first_search</em>)</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">NoPathException</span></code> &#8211; if no path from <cite>initial</cite> to one of <cite>targets</cite></li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">NoPositionException</span></code> &#8211; if either <cite>initial</cite> or <cite>targets</cite> does not exist</li>
+<li>[1] <a class="reference external" href="http://en.wikipedia.org/wiki/Breadth-first_search">http://en.wikipedia.org/wiki/Breadth-first_search</a></li>
 </ul>
 </td>
 </tr>
@@ -187,15 +184,13 @@ case.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>pos_within</strong> &#8211;
-the positions within the given distance</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>pos_within</strong> &#8211; the positions within the given distance</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">set of tuple of (int, int)</p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">NoPathException</span></code> &#8211;
-if <cite>position</cite> does not exist in the adjacency list</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">NoPathException</span></code> &#8211; if <cite>position</cite> does not exist in the adjacency list</p>
 </td>
 </tr>
 </tbody>
@@ -220,8 +215,7 @@ if <cite>position</cite> does not exist in the adjacency list</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>move</strong> &#8211;
-the resulting move</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>move</strong> &#8211; the resulting move</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple of (int, int)</p>
@@ -248,8 +242,7 @@ neighbours.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>adjacency_list</strong> &#8211;
-Generator which contains all reachable positions and their adjacencies</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>adjacency_list</strong> &#8211; Generator which contains all reachable positions and their adjacencies</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">generator of (pos, list(pos))</p>
@@ -273,8 +266,7 @@ Generator which contains all reachable positions and their adjacencies</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>manhattan_dist</strong> &#8211;
-Manhattan distance between two points</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>manhattan_dist</strong> &#8211; Manhattan distance between two points</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
@@ -298,8 +290,7 @@ Manhattan distance between two points</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>new_pos</strong> &#8211;
-new position coordinates</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>new_pos</strong> &#8211; new position coordinates</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple of int (x, y)</p>
@@ -329,6 +320,8 @@ new position coordinates</p>
 </p>
 
 
+
+
 <h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../info.html">Project Information</a></li>
@@ -342,7 +335,7 @@ new position coordinates</p>
 <li class="toctree-l2"><a class="reference internal" href="pelita.containers.html">pelita.containers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.datamodel.html">pelita.datamodel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.game_master.html">pelita.game_master</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">pelita.graph</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pelita.graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.layout.html">pelita.layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.player.html">pelita.player</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.simplesetup.html">pelita.simplesetup</a></li>
@@ -362,9 +355,6 @@ new position coordinates</p>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -375,8 +365,8 @@ new position coordinates</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
       |
       <a href="../_sources/pelita/pelita.graph.txt"

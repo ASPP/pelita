@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.layout &mdash; Pelita v0.2.0-305-g1c883fc documentation</title>
+    <title>pelita.layout &mdash; Pelita v0.2.0-314-g70820f3 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-305-g1c883fc',
+        VERSION:     'v0.2.0-314-g70820f3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,13 +24,13 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-305-g1c883fc documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.2.0-314-g70820f3 documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
     <link rel="next" title="pelita.player" href="pelita.player.html" />
     <link rel="prev" title="pelita.graph" href="pelita.graph.html" />
    
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
   <body role="document">  
@@ -72,6 +72,9 @@
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="#pelita.layout.Layout" title="pelita.layout.Layout"><code class="xref py py-obj docutils literal"><span class="pre">Layout</span></code></a>(layout_str,&nbsp;layout_chars,&nbsp;number_bots)</td>
 <td>Auxiliary class to parse string encodings of mazes.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">Mesh</span></code>(width,&nbsp;height[,&nbsp;data])</td>
+<td>A mapping from a two-dimensional coordinate system into object space.</td>
 </tr>
 </tbody>
 </table>
@@ -132,8 +135,7 @@ rectangular, but also square.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>mesh</strong> &#8211;
-this layout as a Mesh</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>mesh</strong> &#8211; this layout as a Mesh</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pelita.containers.html#pelita.containers.Mesh" title="pelita.containers.Mesh">Mesh</a></td>
 </tr>
@@ -156,12 +158,9 @@ this layout as a Mesh</td>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><a class="reference internal" href="#pelita.layout.LayoutEncodingException" title="pelita.layout.LayoutEncodingException"><code class="xref py py-exc docutils literal"><span class="pre">LayoutEncodingException</span></code></a> &#8211;
-if an illegal character is encountered</li>
-<li><a class="reference internal" href="#pelita.layout.LayoutEncodingException" title="pelita.layout.LayoutEncodingException"><code class="xref py py-exc docutils literal"><span class="pre">LayoutEncodingException</span></code></a> &#8211;
-if a bot-id is missing</li>
-<li><a class="reference internal" href="#pelita.layout.LayoutEncodingException" title="pelita.layout.LayoutEncodingException"><code class="xref py py-exc docutils literal"><span class="pre">LayoutEncodingException</span></code></a> &#8211;
-if a bot-id is specified twice</li>
+<li><a class="reference internal" href="#pelita.layout.LayoutEncodingException" title="pelita.layout.LayoutEncodingException"><code class="xref py py-exc docutils literal"><span class="pre">LayoutEncodingException</span></code></a> &#8211; if an illegal character is encountered</li>
+<li><a class="reference internal" href="#pelita.layout.LayoutEncodingException" title="pelita.layout.LayoutEncodingException"><code class="xref py py-exc docutils literal"><span class="pre">LayoutEncodingException</span></code></a> &#8211; if a bot-id is missing</li>
+<li><a class="reference internal" href="#pelita.layout.LayoutEncodingException" title="pelita.layout.LayoutEncodingException"><code class="xref py py-exc docutils literal"><span class="pre">LayoutEncodingException</span></code></a> &#8211; if a bot-id is specified twice</li>
 </ul>
 </td>
 </tr>
@@ -218,8 +217,7 @@ if a bot-id is specified twice</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>layout_str</strong> (<em>str</em>) &#8211; the layout, possibly with whitespace</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>layout_str</strong> &#8211;
-the layout with whitespace removed</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>layout_str</strong> &#8211; the layout with whitespace removed</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
 </tr>
@@ -247,8 +245,7 @@ the layout with whitespace removed</td>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filter</strong> (<em>str</em>) &#8211; only return layouts which contain &#8216;filter&#8217; in their name.
 Default is no filter.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>layout_names</strong> &#8211;
-the available layouts</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>layout_names</strong> &#8211; the available layouts</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of str</td>
 </tr>
@@ -256,7 +253,7 @@ the available layouts</td>
 </table>
 <p class="rubric">Examples</p>
 <p>To only get layouts without dead ends you may use:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_available_layouts</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s">&#39;without_dead_ends&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_available_layouts</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;without_dead_ends&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -271,13 +268,11 @@ the available layouts</td>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>layout_name</strong> (<em>str</em>) &#8211; a valid layout name</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>layout_str</strong> &#8211;
-the layout as a string</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>layout_str</strong> &#8211; the layout as a string</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">KeyError</span></code> &#8211;
-if the layout_name is not known</td>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">KeyError</span></code> &#8211; if the layout_name is not known</td>
 </tr>
 </tbody>
 </table>
@@ -298,8 +293,7 @@ if the layout_name is not known</td>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filter</strong> (<em>str</em>) &#8211; only return layouts which contain &#8220;filter&#8221; in their name.
 Default is no filter.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>layout</strong> &#8211;
-the name of the layout, a random layout string</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>layout</strong> &#8211; the name of the layout, a random layout string</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">tuple(str, str)</td>
 </tr>
@@ -307,7 +301,7 @@ the name of the layout, a random layout string</td>
 </table>
 <p class="rubric">Examples</p>
 <p>To only get layouts without dead ends you may use:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_random_layout</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s">&#39;without_dead_ends&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_random_layout</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;without_dead_ends&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -327,8 +321,7 @@ the name of the layout, a random layout string</td>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>layout</strong> &#8211;
-the name of the layout, a random layout string</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>layout</strong> &#8211; the name of the layout, a random layout string</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple(str, str)</p>
@@ -358,6 +351,8 @@ the name of the layout, a random layout string</p>
 </p>
 
 
+
+
 <h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../info.html">Project Information</a></li>
@@ -372,7 +367,7 @@ the name of the layout, a random layout string</p>
 <li class="toctree-l2"><a class="reference internal" href="pelita.datamodel.html">pelita.datamodel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.game_master.html">pelita.game_master</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.graph.html">pelita.graph</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">pelita.layout</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pelita.layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.player.html">pelita.player</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.simplesetup.html">pelita.simplesetup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.ui.html">pelita.ui</a></li>
@@ -391,9 +386,6 @@ the name of the layout, a random layout string</p>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -404,8 +396,8 @@ the name of the layout, a random layout string</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
       |
       <a href="../_sources/pelita/pelita.layout.txt"

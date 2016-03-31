@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.viewer &mdash; Pelita v0.2.0-305-g1c883fc documentation</title>
+    <title>pelita.viewer &mdash; Pelita v0.2.0-314-g70820f3 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-305-g1c883fc',
+        VERSION:     'v0.2.0-314-g70820f3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,11 +24,11 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-305-g1c883fc documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-314-g70820f3 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
   <body role="document">  
@@ -39,19 +39,14 @@
           <div class="body" role="main">
             
   <h1>Source code for pelita.viewer</h1><div class="highlight"><pre>
-<span class="c"># -*- coding: utf-8 -*-</span>
-
-<span class="sd">&quot;&quot;&quot; The observers. &quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot; The observers. &quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
-<span class="kn">import</span> <span class="nn">six</span>
 
-
-<span class="nd">@six.add_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">AbstractViewer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">AbstractViewer</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; This method is called when the first universe is ready.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -63,46 +58,46 @@
 
 <span class="k">class</span> <span class="nc">ProgressViewer</span><span class="p">(</span><span class="n">AbstractViewer</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
-        <span class="n">round_index</span> <span class="o">=</span> <span class="n">game_state</span><span class="p">[</span><span class="s">&quot;round_index&quot;</span><span class="p">]</span>
-        <span class="n">game_time</span> <span class="o">=</span> <span class="n">game_state</span><span class="p">[</span><span class="s">&quot;game_time&quot;</span><span class="p">]</span>
+        <span class="n">round_index</span> <span class="o">=</span> <span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;round_index&quot;</span><span class="p">]</span>
+        <span class="n">game_time</span> <span class="o">=</span> <span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;game_time&quot;</span><span class="p">]</span>
         <span class="n">percentage</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">100.0</span> <span class="o">*</span> <span class="n">round_index</span> <span class="o">/</span> <span class="n">game_time</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">game_state</span><span class="p">[</span><span class="s">&quot;bot_id&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">bot_sign</span> <span class="o">=</span> <span class="n">game_state</span><span class="p">[</span><span class="s">&quot;bot_id&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_id&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">bot_sign</span> <span class="o">=</span> <span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_id&quot;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">bot_sign</span> <span class="o">=</span> <span class="s">&#39; &#39;</span>
-        <span class="n">string</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;[</span><span class="si">%s</span><span class="s">] </span><span class="si">%3i%%</span><span class="s"> (</span><span class="si">%i</span><span class="s"> / </span><span class="si">%i</span><span class="s">) [</span><span class="si">%s</span><span class="s">]&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">bot_sign</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] </span><span class="si">%3i%%</span><span class="s2"> (</span><span class="si">%i</span><span class="s2"> / </span><span class="si">%i</span><span class="s2">) [</span><span class="si">%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="p">(</span>
                     <span class="n">bot_sign</span><span class="p">,</span> <span class="n">percentage</span><span class="p">,</span>
                     <span class="n">round_index</span><span class="p">,</span> <span class="n">game_time</span><span class="p">,</span>
-                    <span class="s">&quot;:&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">score</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">)))</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">string</span> <span class="o">+</span> <span class="p">(</span><span class="s">&quot;</span><span class="se">\b</span><span class="s">&quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">string</span><span class="p">)))</span>
+                    <span class="s2">&quot;:&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">score</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">)))</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">string</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\b</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">string</span><span class="p">)))</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">game_state</span><span class="p">[</span><span class="s">&quot;finished&quot;</span><span class="p">]:</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Final state:&quot;</span><span class="p">,</span> <span class="n">game_state</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Final state:&quot;</span><span class="p">,</span> <span class="n">game_state</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AsciiViewer"><a class="viewcode-back" href="../../pelita/pelita.viewer.html#pelita.viewer.AsciiViewer">[docs]</a><span class="k">class</span> <span class="nc">AsciiViewer</span><span class="p">(</span><span class="n">AbstractViewer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A viewer that dumps ASCII charts on stdout. &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="n">info</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s">&quot;Round: {round!r} Turn: {turn!r} Score {s0}:{s1}</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;Game State: {game_state!r}</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;{universe}&quot;</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">round</span><span class="o">=</span><span class="n">game_state</span><span class="p">[</span><span class="s">&quot;round_index&quot;</span><span class="p">],</span>
-                 <span class="n">turn</span><span class="o">=</span><span class="n">game_state</span><span class="p">[</span><span class="s">&quot;bot_id&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;Round: {round!r} Turn: {turn!r} Score {s0}:{s1}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Game State: {game_state!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;{universe}&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">round</span><span class="o">=</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;round_index&quot;</span><span class="p">],</span>
+                 <span class="n">turn</span><span class="o">=</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_id&quot;</span><span class="p">],</span>
                  <span class="n">s0</span><span class="o">=</span><span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">score</span><span class="p">,</span>
                  <span class="n">s1</span><span class="o">=</span><span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">score</span><span class="p">,</span>
                  <span class="n">game_state</span><span class="o">=</span><span class="n">game_state</span><span class="p">,</span>
                  <span class="n">universe</span><span class="o">=</span><span class="n">universe</span><span class="o">.</span><span class="n">compact_str</span><span class="p">)</span>
 
         <span class="k">print</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
-        <span class="n">winning_team_idx</span> <span class="o">=</span> <span class="n">game_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;team_wins&quot;</span><span class="p">)</span>
+        <span class="n">winning_team_idx</span> <span class="o">=</span> <span class="n">game_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;team_wins&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">winning_team_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">((</span><span class="s">&quot;Game Over: Team: &#39;</span><span class="si">%s</span><span class="s">&#39; wins!&quot;</span> <span class="o">%</span>
-                <span class="n">game_state</span><span class="p">[</span><span class="s">&quot;team_name&quot;</span><span class="p">][</span><span class="n">winning_team_idx</span><span class="p">]))</span>
-</div>
+            <span class="k">print</span><span class="p">((</span><span class="s2">&quot;Game Over: Team: &#39;</span><span class="si">%s</span><span class="s2">&#39; wins!&quot;</span> <span class="o">%</span>
+                <span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;team_name&quot;</span><span class="p">][</span><span class="n">winning_team_idx</span><span class="p">]))</span></div>
+
 <div class="viewcode-block" id="DumpingViewer"><a class="viewcode-back" href="../../pelita/pelita.viewer.html#pelita.viewer.DumpingViewer">[docs]</a><span class="k">class</span> <span class="nc">DumpingViewer</span><span class="p">(</span><span class="n">AbstractViewer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A viewer which dumps to a given stream.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -112,19 +107,20 @@
     <span class="k">def</span> <span class="nf">_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
         <span class="n">as_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">as_json</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\x04</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\x04</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
-        <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;__action__&quot;</span><span class="p">:</span> <span class="s">&quot;set_initial&quot;</span><span class="p">,</span>
-                   <span class="s">&quot;__data__&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="o">.</span><span class="n">_to_json_dict</span><span class="p">()}}</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;__action__&quot;</span><span class="p">:</span> <span class="s2">&quot;set_initial&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;__data__&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="o">.</span><span class="n">_to_json_dict</span><span class="p">()}}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
-        <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;__action__&quot;</span><span class="p">:</span> <span class="s">&quot;observe&quot;</span><span class="p">,</span>
-                   <span class="s">&quot;__data__&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="o">.</span><span class="n">_to_json_dict</span><span class="p">(),</span>
-                                <span class="s">&quot;game_state&quot;</span><span class="p">:</span> <span class="n">game_state</span><span class="p">}}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-</pre></div></div>
+        <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;__action__&quot;</span><span class="p">:</span> <span class="s2">&quot;observe&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;__data__&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="o">.</span><span class="n">_to_json_dict</span><span class="p">(),</span>
+                                <span class="s2">&quot;game_state&quot;</span><span class="p">:</span> <span class="n">game_state</span><span class="p">}}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+
+</pre></div>
 
           </div>
         </div>
@@ -141,6 +137,8 @@
 <iframe src="https://ghbtns.com/github-btn.html?user=&repo=&type=watch&count=true&size=large"
   allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
+
+
 
 
 <h3>Navigation</h3>
@@ -162,9 +160,6 @@
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -175,8 +170,8 @@
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
     </div>
 
