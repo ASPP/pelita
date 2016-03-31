@@ -85,7 +85,7 @@ class TestAdjacencyList(unittest.TestCase):
             ################## """)
         universe = CTFUniverse.create(test_layout, 4)
         al = AdjacencyList(universe.free_positions())
-        free = set(pos for pos, val in universe.maze.items() if not val)
+        free = {pos for pos, val in universe.maze.items() if not val}
 
         self.assertFalse((0, 0) in al)
         self.assertRaises(NoPathException, al.pos_within, (0, 0), 0)

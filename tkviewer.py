@@ -36,7 +36,7 @@ def run_viewer():
         'geometry': args.geometry,
         'delay': args.delay
     }
-    v = TkViewer(**dict((k, v) for k, v in list(tkargs.items()) if v is not None))
+    v = TkViewer(**{k: v for k, v in list(tkargs.items()) if v is not None})
     v.run()
 
 if __name__ == '__main__':
