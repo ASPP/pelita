@@ -1,14 +1,11 @@
-# -*- coding: utf-8 -*-
-from __future__ import division
-
 import json
 import logging
 import time
 
 import zmq
 
-from six.moves import tkinter
-from six.moves import tkinter_font
+import tkinter
+import tkinter.font
 
 from ..datamodel import CTFUniverse
 from ..utils.signal_handlers import wm_delete_window_handler
@@ -19,7 +16,7 @@ _logger = logging.getLogger("pelita.tk")
 def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
     no_lines = display_string.count("\n") + 1
     size_guess = bounding_height // ((3-rel_size) * no_lines)
-    font = tkinter_font.Font(size=size_guess)
+    font = tkinter.font.Font(size=size_guess)
     text_width = font.measure(display_string)
     if text_width > bounding_width:
         font_size = size_guess * bounding_width // text_width
@@ -27,7 +24,7 @@ def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
         font_size = size_guess
     return font_size
 
-class MeshGraph(object):
+class MeshGraph:
     """ A `MeshGraph` is a structure of `mesh_width` * `mesh_height` rectangles,
     covering an area of `screen_width`, `screen_height`.
     """
@@ -86,7 +83,7 @@ class MeshGraph(object):
         return "MeshGraph(%d, %d, %d, %d)" % (self.mesh_width, self.mesh_height,
                                               self.screen_width, self.screen_height)
 
-class Trafo(object):
+class Trafo:
     def __init__(self, mesh_graph, mesh_x, mesh_y):
         self.mesh_graph = mesh_graph
         self.mesh_x = mesh_x
@@ -103,7 +100,7 @@ class Trafo(object):
 
 
 
-class UiCanvas(object):
+class UiCanvas:
     def __init__(self, master, geometry=None):
         self.game_finish_overlay = lambda: None
         self.game_status_info = lambda: None
@@ -503,7 +500,7 @@ class UiCanvas(object):
             bot_sprite.move_to(universe.bots[bot_sprite.bot_id].current_pos, self.canvas, universe, force=self.size_changed, say=say)
 
 
-class TkApplication(object):
+class TkApplication:
     def __init__(self, master, address, controller_address=None,
                  geometry=None, delay=1):
         self.master = master
@@ -511,7 +508,7 @@ class TkApplication(object):
 
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
-        self.socket.setsockopt_unicode(zmq.SUBSCRIBE, u"")
+        self.socket.setsockopt_unicode(zmq.SUBSCRIBE, "")
         self.socket.connect(address)
         self.poll = zmq.Poller()
         self.poll.register(self.socket, zmq.POLLIN)

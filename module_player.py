@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-from __future__ import print_function
 
 import argparse
 import inspect
@@ -110,7 +107,7 @@ def load_factory(filespec):
 def import_builtin_player(name):
     with pelita.utils.with_sys_path("./"):
         players_module = __import__("players")
-        sane_players = dict((p.__name__, p) for p in players_module.SANE_PLAYERS)
+        sane_players = {p.__name__: p for p in players_module.SANE_PLAYERS}
 
     if name == 'random':
         player = random.choice(list(sane_players.values()))

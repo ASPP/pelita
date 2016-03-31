@@ -1,15 +1,13 @@
-# -*- coding: utf-8 -*-
-
 import logging
 
-from six.moves import tkinter
+import tkinter
 
 from .tk_canvas import TkApplication
 
 _logger = logging.getLogger("pelita.tk_viewer")
 _logger.setLevel(logging.DEBUG)
 
-class TkViewer(object):
+class TkViewer:
     """ Initialises Tk based viewer for the game.
 
     The viewer may be passed to a GameMaster instance by calling::

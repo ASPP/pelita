@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 We start a server using the SimpleServer class and a layout
 given by the specified layout file.

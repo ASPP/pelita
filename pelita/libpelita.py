@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 from collections import namedtuple
 import contextlib
@@ -25,7 +24,7 @@ def get_python_process():
     return py_proc
 
 
-class ModuleRunner(object):
+class ModuleRunner:
     def __init__(self, team_spec):
         self.team_spec = team_spec
 

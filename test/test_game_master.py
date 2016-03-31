@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
-
 import collections
 import unittest
-
-import six
 
 from pelita.datamodel import CTFUniverse
 from pelita.game_master import AStarNoiser, GameMaster, ManhattanNoiser, PlayerTimeout
@@ -84,10 +80,6 @@ class TestGameMaster(unittest.TestCase):
         self.assertRaises(ValueError, GameMaster, test_layout_4, [team_1, team_2, team_3], 4, 200)
 
 class TestUniverseNoiser(unittest.TestCase):
-    if not hasattr(unittest.TestCase, 'assertItemsEqual'):
-        def assertItemsEqual(self, a, b, disp):
-            self.assertEqual(sorted(a), sorted(b), disp)
-
     def test_uniform_noise_a_star(self):
         test_layout = (
         """ ##################
@@ -108,7 +100,7 @@ class TestUniverseNoiser(unittest.TestCase):
         # our tests. We check that each position was selected at least once.
         expected = [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
                     (2, 3), (4, 3), (1, 1), (5, 3)]
-        six.assertCountEqual(self, position_bucket, expected, position_bucket)
+        self.assertCountEqual(position_bucket, expected, position_bucket)
 
     def test_uniform_noise_manhattan(self):
         test_layout = (
@@ -131,7 +123,7 @@ class TestUniverseNoiser(unittest.TestCase):
         expected = [ (1, 1), (1, 2), (1, 3), (2, 3), (3, 3),
                      (4, 3), (5, 3), (6, 3), (7, 3), (7, 2),
                      (6, 1), (5, 1), (4, 1), (3, 1) ]
-        six.assertCountEqual(self, position_bucket, expected, position_bucket)
+        self.assertCountEqual(position_bucket, expected, position_bucket)
     
 
     def test_uniform_noise_4_bots_a_star(self):
@@ -162,8 +154,8 @@ class TestUniverseNoiser(unittest.TestCase):
         self.assertEqual(100, sum(position_bucket_2.values()))
         # Since this is a randomized algorithm we need to be a bit lenient with
         # our tests. We check that each position was selected at least once.
-        six.assertCountEqual(self, position_bucket_0, expected_0, sorted(position_bucket_0.keys()))
-        six.assertCountEqual(self, position_bucket_2, expected_2, sorted(position_bucket_2.keys()))
+        self.assertCountEqual(position_bucket_0, expected_0, sorted(position_bucket_0.keys()))
+        self.assertCountEqual(position_bucket_2, expected_2, sorted(position_bucket_2.keys()))
 
     def test_uniform_noise_4_bots_manhattan(self):
         test_layout = (
@@ -198,8 +190,8 @@ class TestUniverseNoiser(unittest.TestCase):
         self.assertEqual(200, sum(position_bucket_2.values()))
         # Since this is a randomized algorithm we need to be a bit lenient with
         # our tests. We check that each position was selected at least once.
-        six.assertCountEqual(self, position_bucket_0, expected_0, sorted(position_bucket_0.keys()))
-        six.assertCountEqual(self, position_bucket_2, expected_2, sorted(position_bucket_2.keys()))
+        self.assertCountEqual(position_bucket_0, expected_0, sorted(position_bucket_0.keys()))
+        self.assertCountEqual(position_bucket_2, expected_2, sorted(position_bucket_2.keys()))
 
     def test_uniform_noise_4_bots_no_noise_a_star(self):
         test_layout = (
@@ -228,7 +220,7 @@ class TestUniverseNoiser(unittest.TestCase):
         self.assertEqual(100, sum(position_bucket_2.values()))
         # Since this is a randomized algorithm we need to be a bit lenient with
         # our tests. We check that each position was selected at least once.
-        six.assertCountEqual(self, position_bucket_0, expected_0, position_bucket_0)
+        self.assertCountEqual(position_bucket_0, expected_0, position_bucket_0)
 
         # bots should never have been noised
         self.assertEqual(100, position_bucket_2[bot_2_pos])
@@ -261,7 +253,7 @@ class TestUniverseNoiser(unittest.TestCase):
         self.assertEqual(200, sum(position_bucket_2.values()))
         # Since this is a randomized algorithm we need to be a bit lenient with
         # our tests. We check that each position was selected at least once.
-        six.assertCountEqual(self, position_bucket_0, expected_0, position_bucket_0)
+        self.assertCountEqual(position_bucket_0, expected_0, position_bucket_0)
 
         # bots should never have been noised
         self.assertEqual(200, position_bucket_2[bot_2_pos])

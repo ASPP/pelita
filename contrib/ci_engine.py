@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Copyright (c) 2013, Bastian Venthur <venthur@debian.org>
 # All rights reserved.
@@ -70,7 +69,7 @@ logger.info('Logger started')
 CFG_FILE = './ci.cfg'
 
 
-class CI_Engine(object):
+class CI_Engine:
     """Continuous Integration Engine.
 
 
@@ -262,7 +261,7 @@ class CI_Engine(object):
             print("%15s %6.2f" % (name, score))
 
 
-class DB_Wrapper(object):
+class DB_Wrapper:
     """Wrapper around the games data base."""
 
     def __init__(self, dbfile):
@@ -509,7 +508,7 @@ class Test_DB_Wrapper(unittest.TestCase):
         stupid_names = [
             "Little'",
             'Bobby"',
-            u"таблицы",
+            "таблицы",
         ]
 
         for name in stupid_names:

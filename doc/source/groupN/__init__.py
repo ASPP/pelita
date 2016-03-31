@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 from pelita.player import SimpleTeam
 from .my_player import MyPlayer

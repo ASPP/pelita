@@ -2,17 +2,11 @@ language: python
 sudo: false
 matrix:
   include:
-    - python: "2.7"
-      env: PYZMQ="pyzmq"
-    - python: "2.7"
-      env: PYZMQ="pyzmq==2.2.0.1"
     - python: "3.3"
       env: PYZMQ="pyzmq"
     - python: "3.4"
       env: PYZMQ="pyzmq"
     - python: "3.5"
-      env: PYZMQ="pyzmq"
-    - python: "pypy"
       env: PYZMQ="pyzmq"
 env:
   global:
@@ -20,12 +14,11 @@ env:
     - REPO: "ASPP/pelita"
 # command to install dependencies
 install:
-  - pip install six
   - pip install $PYZMQ --install-option="--zmq=bundled"
 # command to run tests
 script: >
-          python -c "from __future__ import print_function; import zmq; print('Using zmq %s.' % zmq.zmq_version())" &&
-          python -c "from __future__ import print_function; import zmq; print('Using pyzmq %s.' % zmq.pyzmq_version())" &&
+          python -c "import zmq; print('Using zmq %s.' % zmq.zmq_version())" &&
+          python -c "import zmq; print('Using pyzmq %s.' % zmq.pyzmq_version())" &&
           nosetests -v && python ./pelitagame --progress &&
           for player in ./players/*Player.py
             do

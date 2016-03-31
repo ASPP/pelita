@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from pelita import datamodel
 from pelita.graph import AdjacencyList, NoPathException, diff_pos
 from pelita.player import AbstractPlayer, SimpleTeam

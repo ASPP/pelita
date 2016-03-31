@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import cmath
 import math
 
@@ -12,7 +10,7 @@ def rotate(arc, rotation):
     """Helper for rotation normalisation."""
     return (arc + rotation) % 360
 
-class TkSprite(object):
+class TkSprite:
     def __init__(self, mesh, x=0, y=0, direction=0, _tag=None):
         self.mesh = mesh
 

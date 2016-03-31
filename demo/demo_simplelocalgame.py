@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 
 """
 This file demonstrates setting up a server and two clients using local connections.

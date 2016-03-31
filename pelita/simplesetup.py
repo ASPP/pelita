@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """ simplesetup.py defines the SimpleServer and SimpleClient classes
 which allow for easy game setup via zmq sockets.
 
@@ -26,8 +24,6 @@ we switch to Python 3.2+, if thread queues might have become fast enough
 re-investigate this decision.
 """
 
-from __future__ import print_function
-
 import json
 import logging
 import multiprocessing
@@ -36,7 +32,6 @@ import sys
 import time
 import uuid
 
-import six
 import zmq
 
 from .datamodel import CTFUniverse
@@ -105,7 +100,7 @@ class ZMQTimeout(Exception):
     """
     pass
 
-class ZMQConnection(object):
+class ZMQConnection:
     """ This class is supposed to ease request–reply connections
     through a zmq socket. It does so by attaching a uuid to each
     request. It will only accept a reply if this also includes
@@ -189,7 +184,7 @@ class ZMQConnection(object):
         if timeout is None:
             return self.recv()
 
-        time_now = time.monotonic() if six.PY3 else time.time()
+        time_now = time.monotonic()
         #: calculate until when it may take
         timeout_until = time_now + timeout
 
@@ -204,7 +199,7 @@ class ZMQConnection(object):
                     return reply
                 except UnknownMessageId:
                     # Okay, false alarm. Reset the current time and try again.
-                    time_now = time.monotonic() if six.PY3 else time.time()
+                    time_now = time.monotonic()
                     continue
                 # answer did not arrive in time
             else:
@@ -215,7 +210,7 @@ class ZMQConnection(object):
         return "ZMQConnection(%r)" % self.socket
 
 
-class RemoteTeamPlayer(object):
+class RemoteTeamPlayer:
     """ This class is registered server-side with the GameMaster
     and sends all requests to the attached zmq socket (to which
     a client player has connected.)
@@ -283,7 +278,7 @@ class RemoteTeamPlayer(object):
     def __repr__(self):
         return "RemoteTeamPlayer(%r)" % self.zmqconnection
 
-class SimpleServer(object):
+class SimpleServer:
     """ Sets up a simple Server with most settings pre-configured.
 
     Example
@@ -400,7 +395,7 @@ class ExitLoop(Exception):
     """ If this is raised, we’ll close the inner loop.
     """
 
-class SimpleController(object):
+class SimpleController:
     """ Sets up a simple Controller to interact with GameMaster. """
 
     def __init__(self, game_master, address):
@@ -459,7 +454,7 @@ class SimpleController(object):
         return "SimpleController(%r, %r)" % (self.game_master, self.address)
 
 
-class SimpleClient(object):
+class SimpleClient:
     """ Sets up a simple Client with most settings pre-configured.
 
     Example
@@ -607,7 +602,7 @@ class SimpleSubscriber(AbstractViewer):
     def on_start(self):
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
-        self.socket.setsockopt_unicode(zmq.SUBSCRIBE, u"")
+        self.socket.setsockopt_unicode(zmq.SUBSCRIBE, "")
         self.socket.connect(self.address)
 
     def run(self):
