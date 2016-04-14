@@ -10,35 +10,45 @@ def rotate(arc, rotation):
     """Helper for rotation normalisation."""
     return (arc + rotation) % 360
 
+def pos_to_complex(pos):
+    x, y = pos
+    return x - y * 1j
+
 class TkSprite:
-    def __init__(self, mesh, x=0, y=0, direction=0, _tag=None):
+    def __init__(self, mesh, *, position=None, _tag=None):
         self.mesh = mesh
 
-        self.x = x
-        self.y = y
-
+        self._position = position
+        self._direction = None
         self._tag = _tag
 
-        self.direction = direction
+    @property
+    def direction(self):
+        return self._direction
 
     @property
     def position(self):
-        return (self.x, self.y)
+        return self._position
 
     @position.setter
     def position(self, position):
-        old = self.x - self.y * 1j
+        if self.position is None:
+            self._direction = None
+            self._position = position
+            return
 
-        self.x = position[0]
-        self.y = position[1]
+        old_pos = self._position
+        new_pos = position
 
-        new = self.x - self.y * 1j
+        self._position = new_pos
+
         # automatic rotation
-        if new != old:
-            self.direction = math.degrees(cmath.phase(new - old))
+        if new_pos != old_pos:
+            self._direction = math.degrees(cmath.phase(pos_to_complex(new_pos) - pos_to_complex(old_pos)))
 
     def screen(self, shift=(0, 0)):
-        return self.mesh.mesh_trafo(self.x, self.y).screen(*shift)
+        x, y = self.position
+        return self.mesh.mesh_trafo(x, y).screen(*shift)
 
     def draw(self, canvas, universe=None):
         raise NotImplementedError
@@ -90,6 +100,8 @@ class BotSprite(TkSprite):
 
     def draw_bot(self, canvas, outer_col, eye_col, mirror=False):
         direction = self.direction
+        if direction is None:
+            direction = 0 if mirror else 180
 
         # bot body
         canvas.create_arc(self.bounding_box(), start=rotate(20, direction), extent=320, style="pieslice",
@@ -98,13 +110,13 @@ class BotSprite(TkSprite):
         # bot eye
         # first locate eye in the center
         eye_size = 0.15
-        eye_box = (-eye_size -eye_size*1j, eye_size + eye_size*1j)
+        eye_box = (-eye_size - eye_size * 1j, eye_size + eye_size * 1j)
         # shift it to the middle of the bot just over the mouth
         # take also care of mirroring
         mirror = -1 if mirror else 1
-        eye_box = [item+ 0.4 + mirror*0.6j for item in eye_box]
+        eye_box = [item + 0.4 + mirror * 0.6j for item in eye_box]
         # rotate based on direction
-        eye_box = [cmath.exp(1j*math.radians(-direction)) * item for item in eye_box]
+        eye_box = [cmath.exp(1j * math.radians(-direction)) * item for item in eye_box]
         eye_box = [self.screen((item.real, item.imag)) for item in eye_box]
         canvas.create_oval(eye_box, fill=eye_col, width=0, tag=self.tag)
 

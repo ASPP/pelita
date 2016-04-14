@@ -466,7 +466,7 @@ class UiCanvas:
         self.canvas.delete("food")
         for position in universe.food_list:
             model_x, model_y = position
-            food_item = Food(self.mesh_graph, model_x, model_y)
+            food_item = Food(self.mesh_graph, position=(model_x, model_y))
             food_item.draw(self.canvas)
 
     def draw_maze(self, universe):
@@ -476,7 +476,7 @@ class UiCanvas:
         for position, wall in universe.maze.items():
             model_x, model_y = position
             if wall:
-                wall_item = Wall(self.mesh_graph, model_x, model_y)
+                wall_item = Wall(self.mesh_graph, position=(model_x, model_y))
                 wall_item.wall_neighbours = []
                 for dx in [-1, 0, 1]:
                     for dy in [-1, 0, 1]:
