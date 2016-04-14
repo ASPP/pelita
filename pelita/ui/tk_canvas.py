@@ -495,6 +495,9 @@ class UiCanvas:
             bot_sprite.position = bot.current_pos
 
     def draw_bots(self, universe, game_state):
+        if game_state:
+            for bot in game_state["bot_destroyed"]:
+                self.bot_sprites[bot["bot_id"]].position = None
         for bot_id, bot_sprite in self.bot_sprites.items():
             say = game_state and game_state["bot_talk"][bot_id]
             bot_sprite.move_to(universe.bots[bot_sprite.bot_id].current_pos, self.canvas, universe, force=self.size_changed, say=say)

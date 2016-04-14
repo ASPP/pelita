@@ -32,7 +32,7 @@ class TkSprite:
 
     @position.setter
     def position(self, position):
-        if self.position is None:
+        if self.position is None or position is None:
             self._direction = None
             self._position = position
             return
@@ -82,6 +82,8 @@ class BotSprite(TkSprite):
         old_position = self.position
 
         self.position = new_pos
+        if old_position is None:
+            old_position = self.position
         if old_direction != self.direction or force or self.is_harvester != universe.bots[self.bot_id].is_harvester:
             self.redraw(canvas, universe)
         else:
