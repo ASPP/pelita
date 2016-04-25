@@ -547,7 +547,7 @@ class ManhattanNoiser(UniverseNoiser):
                 # check that the bot can really fit in here
                 if not self.universe.maze[pos]:
                     return pos
-            except IndexError:
+            except KeyError:
                 pass
         # if we land here, no valid position has been found
         return bot_pos

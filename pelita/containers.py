@@ -136,12 +136,12 @@ class Mesh(Mapping):
 
         Raises
         ------
-        IndexError
+        KeyError
             if the index is not within the range of the Mesh
 
         """
         if index_tuple not in self:
-            raise IndexError(
+            raise KeyError(
                 'Mesh indexing error, requested coordinate: %r, but size is: (%i, %i)'
                 % (index_tuple, self.width, self.height))
 
