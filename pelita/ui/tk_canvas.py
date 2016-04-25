@@ -476,15 +476,11 @@ class UiCanvas:
         for position, wall in universe.maze.items():
             model_x, model_y = position
             if wall:
-                wall_item = Wall(self.mesh_graph, position=(model_x, model_y))
-                wall_item.wall_neighbours = []
-                for dx in [-1, 0, 1]:
-                    for dy in [-1, 0, 1]:
-                        try:
-                            if universe.maze[model_x + dx, model_y + dy]:
-                                wall_item.wall_neighbours.append( (dx, dy) )
-                        except IndexError:
-                            pass
+                wall_neighbors = [(dx, dy)
+                                  for dx in [-1, 0, 1]
+                                  for dy in [-1, 0, 1]
+                                  if universe.maze.get((model_x + dx, model_y + dy), None)]
+                wall_item = Wall(self.mesh_graph, wall_neighbors=wall_neighbors, position=(model_x, model_y))
                 wall_item.draw(self.canvas)
 
     def init_bots(self, universe):

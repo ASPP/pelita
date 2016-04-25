@@ -172,12 +172,21 @@ class BotSprite(TkSprite):
         canvas.create_oval(eye_box_l, fill=eye_col, width=0, tag=self.tag)
 
 class Wall(TkSprite):
+    def __init__(self, mesh, wall_neighbors=None, **kwargs):
+        if wall_neighbors is None:
+            self.wall_neighbors = []
+        else:
+            self.wall_neighbors = wall_neighbors
+
+        super(Wall, self).__init__(mesh, **kwargs)
+
+
     def draw(self, canvas, universe=None):
         scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5
-        if not ((0, 1) in self.wall_neighbours or
-                (1, 0) in self.wall_neighbours or
-                (0, -1) in self.wall_neighbours or
-                (-1, 0) in self.wall_neighbours):
+        if not ((0, 1) in self.wall_neighbors or
+                (1, 0) in self.wall_neighbors or
+                (0, -1) in self.wall_neighbors or
+                (-1, 0) in self.wall_neighbors):
             # if there is no direct neighbour, we can’t connect.
             # draw only a small dot.
             # TODO add diagonal lines
@@ -187,14 +196,14 @@ class Wall(TkSprite):
             neighbours = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
             for dx in [-1, 0, 1]:
                 for dy in [-1, 0, 1]:
-                    if (dx, dy) in self.wall_neighbours:
+                    if (dx, dy) in self.wall_neighbors:
                         if dx == dy == 0:
                             continue
                         if dx * dy != 0:
                             continue
                         index = neighbours.index((dx, dy))
-                        if (neighbours[(index + 1) % len(neighbours)] in self.wall_neighbours and
-                            neighbours[(index - 1) % len(neighbours)] in self.wall_neighbours):
+                        if (neighbours[(index + 1) % len(neighbours)] in self.wall_neighbors and
+                            neighbours[(index - 1) % len(neighbours)] in self.wall_neighbors):
                             pass
                         else:
                             canvas.create_line(self.screen((0, 0)), self.screen((2*dx, 2*dy)), fill=col(48, 26, 22),
