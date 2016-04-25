@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.game_master &mdash; Pelita v0.2.0-314-g70820f3 documentation</title>
+    <title>pelita.game_master &mdash; Pelita v0.2.0-316-g1b25ae1 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-314-g70820f3',
+        VERSION:     'v0.2.0-316-g1b25ae1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-314-g70820f3 documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-316-g1b25ae1 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
@@ -588,7 +588,7 @@
                 <span class="c1"># check that the bot can really fit in here</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">maze</span><span class="p">[</span><span class="n">pos</span><span class="p">]:</span>
                     <span class="k">return</span> <span class="n">pos</span>
-            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">pass</span>
         <span class="c1"># if we land here, no valid position has been found</span>
         <span class="k">return</span> <span class="n">bot_pos</span></div>
@@ -642,7 +642,7 @@
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
     </div>
