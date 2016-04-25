@@ -41,10 +41,18 @@ class TestMesh(unittest.TestCase):
         self.assertEqual(m[1, 0], 2)
         self.assertEqual(m[0, 1], 3)
         self.assertEqual(m[1, 1], 4)
-        self.assertRaises(IndexError, m.__getitem__, (3, 0))
-        self.assertRaises(IndexError, m.__getitem__, (-1, 0))
-        self.assertRaises(IndexError, m.__getitem__, (0, 3))
-        self.assertRaises(IndexError, m.__getitem__, (0, -1))
+        self.assertRaises(KeyError, m.__getitem__, (3, 0))
+        self.assertRaises(KeyError, m.__getitem__, (-1, 0))
+        self.assertRaises(KeyError, m.__getitem__, (0, 3))
+        self.assertRaises(KeyError, m.__getitem__, (0, -1))
+        self.assertEqual(m.get((0, 0), 10), 1)
+        self.assertEqual(m.get((1, 0), 10), 2)
+        self.assertEqual(m.get((0, 1), 10), 3)
+        self.assertEqual(m.get((1, 1), 10), 4)
+        self.assertEqual(m.get((3, 0), 10), 10)
+        self.assertEqual(m.get((-1, 0), 10), 10)
+        self.assertEqual(m.get((0, 3), 10), 10)
+        self.assertEqual(m.get((0, -1), 10), 10)
 
     def test_setitem(self):
         m = Mesh(2, 2)
@@ -53,10 +61,10 @@ class TestMesh(unittest.TestCase):
         m[0, 1] = 3
         m[1, 1] = 4
         self.assertEqual(m._data, [1, 2, 3, 4])
-        self.assertRaises(IndexError, m.__setitem__, (3, 0), 1)
-        self.assertRaises(IndexError, m.__setitem__, (-1, 0), 1)
-        self.assertRaises(IndexError, m.__setitem__, (0, 3), 1)
-        self.assertRaises(IndexError, m.__setitem__, (0, -1), 1)
+        self.assertRaises(KeyError, m.__setitem__, (3, 0), 1)
+        self.assertRaises(KeyError, m.__setitem__, (-1, 0), 1)
+        self.assertRaises(KeyError, m.__setitem__, (0, 3), 1)
+        self.assertRaises(KeyError, m.__setitem__, (0, -1), 1)
 
     def test_iter(self):
         m = Mesh(2, 3)
