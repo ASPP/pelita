@@ -466,7 +466,7 @@ class UiCanvas:
         self.canvas.delete("food")
         for position in universe.food_list:
             model_x, model_y = position
-            food_item = Food(self.mesh_graph, model_x, model_y)
+            food_item = Food(self.mesh_graph, position=(model_x, model_y))
             food_item.draw(self.canvas)
 
     def draw_maze(self, universe):
@@ -476,15 +476,11 @@ class UiCanvas:
         for position, wall in universe.maze.items():
             model_x, model_y = position
             if wall:
-                wall_item = Wall(self.mesh_graph, model_x, model_y)
-                wall_item.wall_neighbours = []
-                for dx in [-1, 0, 1]:
-                    for dy in [-1, 0, 1]:
-                        try:
-                            if universe.maze[model_x + dx, model_y + dy]:
-                                wall_item.wall_neighbours.append( (dx, dy) )
-                        except IndexError:
-                            pass
+                wall_neighbors = [(dx, dy)
+                                  for dx in [-1, 0, 1]
+                                  for dy in [-1, 0, 1]
+                                  if universe.maze.get((model_x + dx, model_y + dy), None)]
+                wall_item = Wall(self.mesh_graph, wall_neighbors=wall_neighbors, position=(model_x, model_y))
                 wall_item.draw(self.canvas)
 
     def init_bots(self, universe):
@@ -495,6 +491,9 @@ class UiCanvas:
             bot_sprite.position = bot.current_pos
 
     def draw_bots(self, universe, game_state):
+        if game_state:
+            for bot in game_state["bot_destroyed"]:
+                self.bot_sprites[bot["bot_id"]].position = None
         for bot_id, bot_sprite in self.bot_sprites.items():
             say = game_state and game_state["bot_talk"][bot_id]
             bot_sprite.move_to(universe.bots[bot_sprite.bot_id].current_pos, self.canvas, universe, force=self.size_changed, say=say)
