@@ -153,7 +153,10 @@ class BotSprite(TkSprite):
         x_spacing = period/points_per_period
         x = [start[0]+i*x_spacing for i in range(periods*points_per_period)]
         x.append(end[0])
-        y = [amplitude*math.cos(2*math.pi*(x_i-start[0])/period) + start[1] for x_i in x]
+        if period == 0:
+            y = [start[1] for x_i in x]
+        else:
+            y = [amplitude*math.cos(2*math.pi*(x_i-start[0])/period) + start[1] for x_i in x]
         # add container edges for the polygon
         x.insert(0, box_ll[0]); y.insert(0, box_ll[1] - 1)
         x.append(box_tr[0]); y.append(box_ll[1] - 1)
