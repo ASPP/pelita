@@ -2,7 +2,7 @@ import collections
 import unittest
 
 from pelita.datamodel import CTFUniverse
-from pelita.game_master import AStarNoiser, GameMaster, ManhattanNoiser, PlayerTimeout
+from pelita.game_master import GameMaster, ManhattanNoiser, PlayerTimeout
 from pelita.player import AbstractPlayer, SimpleTeam, StoppingPlayer, TestPlayer
 from pelita.viewer import AbstractViewer
 
@@ -80,28 +80,6 @@ class TestGameMaster(unittest.TestCase):
         self.assertRaises(ValueError, GameMaster, test_layout_4, [team_1, team_2, team_3], 4, 200)
 
 class TestUniverseNoiser(unittest.TestCase):
-    def test_uniform_noise_a_star(self):
-        test_layout = (
-        """ ##################
-            # #.  .  # .     #
-            # #####    ##### #
-            #  0  . #  .  .#1#
-            ################## """)
-        universe = CTFUniverse.create(test_layout, 2)
-        noiser = AStarNoiser(universe.copy())
-
-        position_bucket = collections.defaultdict(int)
-        for i in range(100):
-            new = noiser.uniform_noise(universe.copy(), 1)
-            self.assertTrue(new.bots[0].noisy)
-            position_bucket[new.bots[0].current_pos] += 1
-        self.assertEqual(100, sum(position_bucket.values()))
-        # Since this is a randomized algorithm we need to be a bit lenient with
-        # our tests. We check that each position was selected at least once.
-        expected = [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
-                    (2, 3), (4, 3), (1, 1), (5, 3)]
-        self.assertCountEqual(position_bucket, expected, position_bucket)
-
     def test_uniform_noise_manhattan(self):
         test_layout = (
         """ ##################
@@ -125,37 +103,6 @@ class TestUniverseNoiser(unittest.TestCase):
                      (6, 1), (5, 1), (4, 1), (3, 1) ]
         self.assertCountEqual(position_bucket, expected, position_bucket)
     
-
-    def test_uniform_noise_4_bots_a_star(self):
-        test_layout = (
-        """ ##################
-            # #. 2.  # .     #
-            # #####    #####3#
-            #  0  . #  .  .#1#
-            ################## """)
-        universe = CTFUniverse.create(test_layout, 4)
-        noiser = AStarNoiser(universe.copy())
-
-        expected_0 = [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
-                      (2, 3), (4, 3), (1, 1), (5, 3)]
-        position_bucket_0 = collections.defaultdict(int)
-
-        expected_2 = [(7, 3), (8, 2), (7, 1), (8, 1), (6, 1), (3, 1), (5, 1),
-                      (4, 1), (7, 2)]
-        position_bucket_2 = collections.defaultdict(int)
-
-        for i in range(100):
-            new = noiser.uniform_noise(universe.copy(), 1)
-            self.assertTrue(new.bots[0].noisy)
-            self.assertTrue(new.bots[2].noisy)
-            position_bucket_0[new.bots[0].current_pos] += 1
-            position_bucket_2[new.bots[2].current_pos] += 1
-        self.assertEqual(100, sum(position_bucket_0.values()))
-        self.assertEqual(100, sum(position_bucket_2.values()))
-        # Since this is a randomized algorithm we need to be a bit lenient with
-        # our tests. We check that each position was selected at least once.
-        self.assertCountEqual(position_bucket_0, expected_0, sorted(position_bucket_0.keys()))
-        self.assertCountEqual(position_bucket_2, expected_2, sorted(position_bucket_2.keys()))
 
     def test_uniform_noise_4_bots_manhattan(self):
         test_layout = (
@@ -193,37 +140,6 @@ class TestUniverseNoiser(unittest.TestCase):
         self.assertCountEqual(position_bucket_0, expected_0, sorted(position_bucket_0.keys()))
         self.assertCountEqual(position_bucket_2, expected_2, sorted(position_bucket_2.keys()))
 
-    def test_uniform_noise_4_bots_no_noise_a_star(self):
-        test_layout = (
-        """ ##################
-            # #.  .  # . 2   #
-            # #####    #####3#
-            #  0  . #  .  .#1#
-            ################## """)
-        universe = CTFUniverse.create(test_layout, 4)
-        noiser = AStarNoiser(universe.copy())
-
-        expected_0 = [(1, 2), (7, 3), (1, 3), (3, 3), (6, 3),
-                      (2, 3), (4, 3), (1, 1), (5, 3)]
-        position_bucket_0 = collections.defaultdict(int)
-
-        bot_2_pos = (13, 1)
-        position_bucket_2 = {bot_2_pos : 0}
-
-        for i in range(100):
-            new = noiser.uniform_noise(universe.copy(), 1)
-            self.assertTrue(new.bots[0].noisy)
-            self.assertFalse(new.bots[2].noisy)
-            position_bucket_0[new.bots[0].current_pos] += 1
-            position_bucket_2[new.bots[2].current_pos] += 1
-        self.assertEqual(100, sum(position_bucket_0.values()))
-        self.assertEqual(100, sum(position_bucket_2.values()))
-        # Since this is a randomized algorithm we need to be a bit lenient with
-        # our tests. We check that each position was selected at least once.
-        self.assertCountEqual(position_bucket_0, expected_0, position_bucket_0)
-
-        # bots should never have been noised
-        self.assertEqual(100, position_bucket_2[bot_2_pos])
 
     def test_uniform_noise_4_bots_no_noise_manhattan(self):
         test_layout = (
@@ -258,35 +174,6 @@ class TestUniverseNoiser(unittest.TestCase):
         # bots should never have been noised
         self.assertEqual(200, position_bucket_2[bot_2_pos])
 
-    def test_noise_a_star_failure(self):
-        test_layout = (
-        """ ##################
-            # #.  .  # . 2   #
-            # #####    #####3#
-            #  0# . #  .  . 1#
-            ################## """)
-        # noiser should not crash when it does not find a connection
-        universe = CTFUniverse.create(test_layout, 4)
-
-        positions = [b.current_pos for b in universe.bots]
-        team_positions = []
-        enemy_positions = []
-
-        # We try it a few times to avoid coincidental failure
-        RANDOM_TESTS = 3
-        for i in range(RANDOM_TESTS):
-
-            noiser = AStarNoiser(universe.copy())
-            new_uni = noiser.uniform_noise(universe.copy(), 0)
-            new_positions = [b.current_pos for b in new_uni.bots]
-
-            team_positions += new_positions[0::2]
-            enemy_positions += new_positions[1::2]
-
-        # assume not all bots (except 0 and 2) are in the original position anymore
-        self.assertEqual(set(positions[0::2]), set(team_positions))
-        self.assertNotEqual(set(positions[1::2]), set(enemy_positions),
-                            "Testing randomized function, may fail sometimes.")
 
     def test_noise_manhattan_failure(self):
         test_layout = (

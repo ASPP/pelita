@@ -497,36 +497,11 @@ class UniverseNoiser(metaclass=abc.ABCMeta):
         """ Method to return a new position for a bot.
         """
 
-
-class AStarNoiser(UniverseNoiser):
-    """Noiser in maze space.
-
-    It uses A* and adjacency maps to measure distances in maze space."""
-    def __init__(self, universe, *args, **kwargs):
-        super(AStarNoiser, self).__init__(universe, *args, **kwargs)
-        self.adjacency = AdjacencyList(universe.free_positions())
-
-    def distance(self, bot, other_bot):
-        try:
-            return len(self.adjacency.a_star(bot.current_pos, other_bot.current_pos))
-        except NoPathException:
-            # We cannot see it: Apply the noise anyway
-            return None
-
-    def altered_pos(self, bot_pos):
-        possible_positions = list(self.adjacency.pos_within(bot_pos,
-                                                            self.noise_radius))
-        if len(possible_positions) > 0:
-            return self.rnd.choice(possible_positions)
-        else:
-            return bot_pos
-
 class ManhattanNoiser(UniverseNoiser):
     """Noiser in Manhattan space.
 
-    It uses Manhattan distance. This noiser is much faster than AStarNoiser,
-    but Manhattan distance is less relevant to the game. For example, a bot
-    distant 1 in Manhattan space could still be much further in maze distance."""
+    It uses Manhattan distance. A bot distance of 1 in Manhattan space
+    could still be much further away in maze distance."""
 
     def distance(self, bot, other_bot):
         return manhattan_dist(bot.current_pos, other_bot.current_pos)
