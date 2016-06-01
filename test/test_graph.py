@@ -2,18 +2,18 @@ import unittest
 
 from pelita.datamodel import CTFUniverse, east, north, south, stop, west
 from pelita.graph import (AdjacencyList, NoPathException, diff_pos, iter_adjacencies,
-                          manhattan_dist, new_pos)
+                          manhattan_dist, move_pos)
 
 
 class TestStaticmethods(unittest.TestCase):
 
     def test_new_pos(self):
-        self.assertEqual(new_pos((1, 1), north), (1, 0))
-        self.assertEqual(new_pos((1, 1), south), (1, 2))
-        self.assertEqual(new_pos((1, 1), east), (2, 1))
-        self.assertEqual(new_pos((1, 1), west), (0, 1))
-        self.assertEqual(new_pos((1, 1), stop), (1, 1))
-        self.assertEqual(new_pos((0, 0), (1, 1)), (1, 1))
+        self.assertEqual(move_pos((1, 1), north), (1, 0))
+        self.assertEqual(move_pos((1, 1), south), (1, 2))
+        self.assertEqual(move_pos((1, 1), east), (2, 1))
+        self.assertEqual(move_pos((1, 1), west), (0, 1))
+        self.assertEqual(move_pos((1, 1), stop), (1, 1))
+        self.assertEqual(move_pos((0, 0), (1, 1)), (1, 1))
 
     def test_diff_pos(self):
         self.assertEqual(north, diff_pos((1, 1), (1, 0)))
@@ -26,7 +26,7 @@ class TestStaticmethods(unittest.TestCase):
         vectors = [(0, 0), (0, 1), (-1, 1), (-2, 3)]
         orig = (1, 1)
         for vec in vectors:
-            new = new_pos(orig, vec)
+            new = move_pos(orig, vec)
             self.assertEqual(vec, diff_pos(orig, new))
 
     def test_manhattan_dist(self):
