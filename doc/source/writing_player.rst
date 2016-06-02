@@ -170,10 +170,10 @@ of the cells where the objects are located:
 
 .. figure:: images/distance_euclidean.png
    :alt: Euclidean distance.
-   :width: 300px
+   :width: 252px
 
    **Euclidean distance:** The Euclidean distance between the two bots is
-   :math:`\sqrt{(x_1-x_2)^2 + (y_1-y_2)^2} = \sqrt{(4.5-2.5)^2+(0.5-1.5)^2} = \sqrt 5 \approx 2.236...`
+   :math:`\sqrt{(x_1-x_2)^2 + (y_1-y_2)^2} = \sqrt{2^2+2^2} = \sqrt 8 \approx 2.83...`
 
 The `Manhattan distance <http://en.wikipedia.org/wiki/Taxicab_geometry>`_,
 also known as L1-distance or taxicab-distance, is the
@@ -181,19 +181,18 @@ absolute difference of the coordinates of the two objects:
 
 .. figure:: images/distance_manhattan.png
    :alt: Manhattan distance.
-   :width: 300px
+   :width: 252px
 
-   **Manhattan distance:** The Manhattan distance between the two bots is
-   :math:`\left|x_1-x_2\right| + \left|y_1-y_2\right| = \left|4-2\right| + \left|0-1\right| = 3`
+   **Manhattan distance:** The Manhattan distance between the two bots is :math:`4`.
 
 The maze distance counts the number of cells of the shortest path that
 connects the two objects:
 
 .. figure:: images/distance_maze.png
    :alt: Maze distance.
-   :width: 300px
+   :width: 252px
 
-   **Maze distance:** The Maze distance between the two bots is :math:`5`.
+   **Maze distance:** The Maze distance between the two bots is :math:`6`.
 
 Note that Manhattan and maze distances are always integer values.
 In the game, distances are almost always measured either in Manhattan or in
