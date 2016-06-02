@@ -333,14 +333,14 @@ Noisy Enemy Positions
 =====================
 
 In general, the ``CTFUniverse`` you receive is noisy. This means that you can
-only obtain an accurate fix on the enemy bots if they are within 5 squares maze
-distance (otherwise, the position is noisy with a uniform radius of 5 squares
-maze distance). These two values may lead to confusing values: for example if
-the bot is 6 squares away, but the added noise of 4 squares towards your bot,
-make it appear as if it were only 2 squares away. Thus, you can check if a bot
-position is noisy using the ``noisy`` attribute of the bot instance, in
-combination with the ``enemy_bots`` convenience property provided by
-``AbstractPlayer``::
+only obtain an accurate fix on the enemy bots if they are within 5 squares of
+manhattan distance. Otherwise, the position is noisy with a uniform radius of
+5 squares manhattan distance. These two values may lead to confusing values:
+for example if the bot is 6 squares away, but the added noise of 4 squares
+towards your bot, make it appear as if it were only 2 squares away.
+Thus, you can check if a bot position is noisy using the ``noisy`` attribute
+of the bot instance, in combination with the ``enemy_bots`` convenience property
+provided by ``AbstractPlayer``::
 
     self.enemy_bots[0].noisy
 
@@ -349,6 +349,11 @@ One idea is to implement probabilistic tracking using a `Kalman filter
 
 If you wish to know how the noise is implemented, look at the class:
 ``pelita.game_master.UniverseNoiser``.
+
+As a special note regarding the ``ManhattanNoiser`` that is being used: All noised
+positions are still going to be valid free positions inside the maze. That is, the
+noiser will not return a position that has a wall. It may however return an impossible
+game situation in that a bot may show as sitting upon a food item without eating it.
 
 Implementation Details of Convenience Properties
 ================================================
