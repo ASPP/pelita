@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.game_master &mdash; Pelita v0.2.0-324-ga965a81 documentation</title>
+    <title>pelita.game_master &mdash; Pelita v0.2.0-328-ga264338 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-324-ga965a81',
+        VERSION:     'v0.2.0-328-ga264338',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-324-ga965a81 documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.2.0-328-ga264338 documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
     <link rel="next" title="pelita.graph" href="pelita.graph.html" />
     <link rel="prev" title="pelita.datamodel" href="pelita.datamodel.html" />
@@ -64,25 +64,22 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pelita.game_master.AStarNoiser" title="pelita.game_master.AStarNoiser"><code class="xref py py-obj docutils literal"><span class="pre">AStarNoiser</span></code></a>(universe,&nbsp;*args,&nbsp;**kwargs)</td>
-<td>Noiser in maze space.</td>
-</tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">AdjacencyList</span></code>(adjacencies)</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">AdjacencyList</span></code>(adjacencies)</td>
 <td>Adjacency list [1] representation of a Maze.</td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">Bot</span></code>(index,&nbsp;initial_pos,&nbsp;team_index,&nbsp;homezone)</td>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">Bot</span></code>(index,&nbsp;initial_pos,&nbsp;team_index,&nbsp;homezone)</td>
 <td>A bot on a team.</td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">CTFUniverse</span></code>(maze,&nbsp;food,&nbsp;teams,&nbsp;bots)</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">CTFUniverse</span></code>(maze,&nbsp;food,&nbsp;teams,&nbsp;bots)</td>
 <td>The Universe: representation of the game state.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pelita.game_master.GameMaster" title="pelita.game_master.GameMaster"><code class="xref py py-obj docutils literal"><span class="pre">GameMaster</span></code></a>(layout,&nbsp;teams,&nbsp;number_bots,&nbsp;game_time)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.game_master.GameMaster" title="pelita.game_master.GameMaster"><code class="xref py py-obj docutils literal"><span class="pre">GameMaster</span></code></a>(layout,&nbsp;teams,&nbsp;number_bots,&nbsp;game_time)</td>
 <td>Controller of player moves and universe updates.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.game_master.ManhattanNoiser" title="pelita.game_master.ManhattanNoiser"><code class="xref py py-obj docutils literal"><span class="pre">ManhattanNoiser</span></code></a>(universe[,&nbsp;noise_radius,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.game_master.ManhattanNoiser" title="pelita.game_master.ManhattanNoiser"><code class="xref py py-obj docutils literal"><span class="pre">ManhattanNoiser</span></code></a>(universe[,&nbsp;noise_radius,&nbsp;...])</td>
 <td>Noiser in Manhattan space.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pelita.game_master.UniverseNoiser" title="pelita.game_master.UniverseNoiser"><code class="xref py py-obj docutils literal"><span class="pre">UniverseNoiser</span></code></a>(universe[,&nbsp;noise_radius,&nbsp;...])</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.game_master.UniverseNoiser" title="pelita.game_master.UniverseNoiser"><code class="xref py py-obj docutils literal"><span class="pre">UniverseNoiser</span></code></a>(universe[,&nbsp;noise_radius,&nbsp;...])</td>
 <td>Abstract BaseClass to make bot positions noisy.</td>
 </tr>
 </tbody>
@@ -108,14 +105,6 @@
 </tr>
 </tbody>
 </table>
-<dl class="class">
-<dt id="pelita.game_master.AStarNoiser">
-<em class="property">class </em><code class="descclassname">pelita.game_master.</code><code class="descname">AStarNoiser</code><span class="sig-paren">(</span><em>universe</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/game_master.html#AStarNoiser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.game_master.AStarNoiser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pelita.game_master.UniverseNoiser" title="pelita.game_master.UniverseNoiser"><code class="xref py py-class docutils literal"><span class="pre">pelita.game_master.UniverseNoiser</span></code></a></p>
-<p>Noiser in maze space.</p>
-<p>It uses A* and adjacency maps to measure distances in maze space.</p>
-</dd></dl>
-
 <dl class="class">
 <dt id="pelita.game_master.GameMaster">
 <em class="property">class </em><code class="descclassname">pelita.game_master.</code><code class="descname">GameMaster</code><span class="sig-paren">(</span><em>layout</em>, <em>teams</em>, <em>number_bots</em>, <em>game_time</em>, <em>noise=True</em>, <em>noiser=None</em>, <em>initial_delay=0.0</em>, <em>max_timeouts=5</em>, <em>timeout_length=3</em>, <em>layout_name=None</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/game_master.html#GameMaster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.game_master.GameMaster" title="Permalink to this definition">¶</a></dt>
@@ -208,9 +197,8 @@ universes and tells the PlayerTeams what team_id they have.</p>
 <em class="property">class </em><code class="descclassname">pelita.game_master.</code><code class="descname">ManhattanNoiser</code><span class="sig-paren">(</span><em>universe</em>, <em>noise_radius=5</em>, <em>sight_distance=5</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/game_master.html#ManhattanNoiser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.game_master.ManhattanNoiser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pelita.game_master.UniverseNoiser" title="pelita.game_master.UniverseNoiser"><code class="xref py py-class docutils literal"><span class="pre">pelita.game_master.UniverseNoiser</span></code></a></p>
 <p>Noiser in Manhattan space.</p>
-<p>It uses Manhattan distance. This noiser is much faster than AStarNoiser,
-but Manhattan distance is less relevant to the game. For example, a bot
-distant 1 in Manhattan space could still be much further in maze distance.</p>
+<p>It uses Manhattan distance. A bot distance of 1 in Manhattan space
+could still be much further away in maze distance.</p>
 </dd></dl>
 
 <dl class="class">

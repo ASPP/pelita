@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Writing a Player &mdash; Pelita v0.2.0-324-ga965a81 documentation</title>
+    <title>Writing a Player &mdash; Pelita v0.2.0-328-ga264338 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'v0.2.0-324-ga965a81',
+        VERSION:     'v0.2.0-328-ga264338',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-324-ga965a81 documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.2.0-328-ga264338 documentation" href="index.html" />
     <link rel="next" title="Running Players" href="running_player.html" />
     <link rel="prev" title="Project Information" href="info.html" />
    
@@ -248,23 +248,22 @@ The <a class="reference external" href="http://en.wikipedia.org/wiki/Euclidean_d
 is the length of the vector connecting the centers
 of the cells where the objects are located:</p>
 <div class="figure" id="id2">
-<a class="reference internal image-reference" href="_images/distance_euclidean.png"><img alt="Euclidean distance." src="_images/distance_euclidean.png" style="width: 300px;" /></a>
+<a class="reference internal image-reference" href="_images/distance_euclidean.png"><img alt="Euclidean distance." src="_images/distance_euclidean.png" style="width: 252px;" /></a>
 <p class="caption"><span class="caption-text"><strong>Euclidean distance:</strong> The Euclidean distance between the two bots is
-<span class="math">\(\sqrt{(x_1-x_2)^2 + (y_1-y_2)^2} = \sqrt{(4.5-2.5)^2+(0.5-1.5)^2} = \sqrt 5 \approx 2.236...\)</span></span></p>
+<span class="math">\(\sqrt{(x_1-x_2)^2 + (y_1-y_2)^2} = \sqrt{2^2+2^2} = \sqrt 8 \approx 2.83...\)</span></span></p>
 </div>
 <p>The <a class="reference external" href="http://en.wikipedia.org/wiki/Taxicab_geometry">Manhattan distance</a>,
 also known as L1-distance or taxicab-distance, is the
 absolute difference of the coordinates of the two objects:</p>
 <div class="figure" id="id3">
-<a class="reference internal image-reference" href="_images/distance_manhattan.png"><img alt="Manhattan distance." src="_images/distance_manhattan.png" style="width: 300px;" /></a>
-<p class="caption"><span class="caption-text"><strong>Manhattan distance:</strong> The Manhattan distance between the two bots is
-<span class="math">\(\left|x_1-x_2\right| + \left|y_1-y_2\right| = \left|4-2\right| + \left|0-1\right| = 3\)</span></span></p>
+<a class="reference internal image-reference" href="_images/distance_manhattan.png"><img alt="Manhattan distance." src="_images/distance_manhattan.png" style="width: 252px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Manhattan distance:</strong> The Manhattan distance between the two bots is <span class="math">\(4\)</span>.</span></p>
 </div>
 <p>The maze distance counts the number of cells of the shortest path that
 connects the two objects:</p>
 <div class="figure" id="id4">
-<a class="reference internal image-reference" href="_images/distance_maze.png"><img alt="Maze distance." src="_images/distance_maze.png" style="width: 300px;" /></a>
-<p class="caption"><span class="caption-text"><strong>Maze distance:</strong> The Maze distance between the two bots is <span class="math">\(5\)</span>.</span></p>
+<a class="reference internal image-reference" href="_images/distance_maze.png"><img alt="Maze distance." src="_images/distance_maze.png" style="width: 252px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Maze distance:</strong> The Maze distance between the two bots is <span class="math">\(6\)</span>.</span></p>
 </div>
 <p>Note that Manhattan and maze distances are always integer values.
 In the game, distances are almost always measured either in Manhattan or in
@@ -392,20 +391,24 @@ positions in the maze.</p>
 <div class="section" id="noisy-enemy-positions">
 <h2>Noisy Enemy Positions<a class="headerlink" href="#noisy-enemy-positions" title="Permalink to this headline">¶</a></h2>
 <p>In general, the <code class="docutils literal"><span class="pre">CTFUniverse</span></code> you receive is noisy. This means that you can
-only obtain an accurate fix on the enemy bots if they are within 5 squares maze
-distance (otherwise, the position is noisy with a uniform radius of 5 squares
-maze distance). These two values may lead to confusing values: for example if
-the bot is 6 squares away, but the added noise of 4 squares towards your bot,
-make it appear as if it were only 2 squares away. Thus, you can check if a bot
-position is noisy using the <code class="docutils literal"><span class="pre">noisy</span></code> attribute of the bot instance, in
-combination with the <code class="docutils literal"><span class="pre">enemy_bots</span></code> convenience property provided by
-<code class="docutils literal"><span class="pre">AbstractPlayer</span></code>:</p>
+only obtain an accurate fix on the enemy bots if they are within 5 squares of
+manhattan distance. Otherwise, the position is noisy with a uniform radius of
+5 squares manhattan distance. These two values may lead to confusing values:
+for example if the bot is 6 squares away, but the added noise of 4 squares
+towards your bot, make it appear as if it were only 2 squares away.
+Thus, you can check if a bot position is noisy using the <code class="docutils literal"><span class="pre">noisy</span></code> attribute
+of the bot instance, in combination with the <code class="docutils literal"><span class="pre">enemy_bots</span></code> convenience property
+provided by <code class="docutils literal"><span class="pre">AbstractPlayer</span></code>:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">enemy_bots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">noisy</span>
 </pre></div>
 </div>
 <p>One idea is to implement probabilistic tracking using a <a class="reference external" href="http://en.wikipedia.org/wiki/Kalman_filter">Kalman filter</a></p>
 <p>If you wish to know how the noise is implemented, look at the class:
 <code class="docutils literal"><span class="pre">pelita.game_master.UniverseNoiser</span></code>.</p>
+<p>As a special note regarding the <code class="docutils literal"><span class="pre">ManhattanNoiser</span></code> that is being used: All noised
+positions are still going to be valid free positions inside the maze. That is, the
+noiser will not return a position that has a wall. It may however return an impossible
+game situation in that a bot may show as sitting upon a food item without eating it.</p>
 </div>
 <div class="section" id="implementation-details-of-convenience-properties">
 <h2>Implementation Details of Convenience Properties<a class="headerlink" href="#implementation-details-of-convenience-properties" title="Permalink to this headline">¶</a></h2>

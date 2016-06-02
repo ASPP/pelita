@@ -170,10 +170,10 @@ of the cells where the objects are located:
 
 .. figure:: images/distance_euclidean.png
    :alt: Euclidean distance.
-   :width: 300px
+   :width: 252px
 
    **Euclidean distance:** The Euclidean distance between the two bots is
-   :math:`\sqrt{(x_1-x_2)^2 + (y_1-y_2)^2} = \sqrt{(4.5-2.5)^2+(0.5-1.5)^2} = \sqrt 5 \approx 2.236...`
+   :math:`\sqrt{(x_1-x_2)^2 + (y_1-y_2)^2} = \sqrt{2^2+2^2} = \sqrt 8 \approx 2.83...`
 
 The `Manhattan distance <http://en.wikipedia.org/wiki/Taxicab_geometry>`_,
 also known as L1-distance or taxicab-distance, is the
@@ -181,19 +181,18 @@ absolute difference of the coordinates of the two objects:
 
 .. figure:: images/distance_manhattan.png
    :alt: Manhattan distance.
-   :width: 300px
+   :width: 252px
 
-   **Manhattan distance:** The Manhattan distance between the two bots is
-   :math:`\left|x_1-x_2\right| + \left|y_1-y_2\right| = \left|4-2\right| + \left|0-1\right| = 3`
+   **Manhattan distance:** The Manhattan distance between the two bots is :math:`4`.
 
 The maze distance counts the number of cells of the shortest path that
 connects the two objects:
 
 .. figure:: images/distance_maze.png
    :alt: Maze distance.
-   :width: 300px
+   :width: 252px
 
-   **Maze distance:** The Maze distance between the two bots is :math:`5`.
+   **Maze distance:** The Maze distance between the two bots is :math:`6`.
 
 Note that Manhattan and maze distances are always integer values.
 In the game, distances are almost always measured either in Manhattan or in
@@ -333,14 +332,14 @@ Noisy Enemy Positions
 =====================
 
 In general, the ``CTFUniverse`` you receive is noisy. This means that you can
-only obtain an accurate fix on the enemy bots if they are within 5 squares maze
-distance (otherwise, the position is noisy with a uniform radius of 5 squares
-maze distance). These two values may lead to confusing values: for example if
-the bot is 6 squares away, but the added noise of 4 squares towards your bot,
-make it appear as if it were only 2 squares away. Thus, you can check if a bot
-position is noisy using the ``noisy`` attribute of the bot instance, in
-combination with the ``enemy_bots`` convenience property provided by
-``AbstractPlayer``::
+only obtain an accurate fix on the enemy bots if they are within 5 squares of
+manhattan distance. Otherwise, the position is noisy with a uniform radius of
+5 squares manhattan distance. These two values may lead to confusing values:
+for example if the bot is 6 squares away, but the added noise of 4 squares
+towards your bot, make it appear as if it were only 2 squares away.
+Thus, you can check if a bot position is noisy using the ``noisy`` attribute
+of the bot instance, in combination with the ``enemy_bots`` convenience property
+provided by ``AbstractPlayer``::
 
     self.enemy_bots[0].noisy
 
@@ -349,6 +348,11 @@ One idea is to implement probabilistic tracking using a `Kalman filter
 
 If you wish to know how the noise is implemented, look at the class:
 ``pelita.game_master.UniverseNoiser``.
+
+As a special note regarding the ``ManhattanNoiser`` that is being used: All noised
+positions are still going to be valid free positions inside the maze. That is, the
+noiser will not return a position that has a wall. It may however return an impossible
+game situation in that a bot may show as sitting upon a food item without eating it.
 
 Implementation Details of Convenience Properties
 ================================================

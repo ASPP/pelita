@@ -19,7 +19,6 @@ pelita.game_master
 
    .. autosummary::
    
-      AStarNoiser
       AdjacencyList
       Bot
       CTFUniverse

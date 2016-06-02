@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.game_master &mdash; Pelita v0.2.0-324-ga965a81 documentation</title>
+    <title>pelita.game_master &mdash; Pelita v0.2.0-328-ga264338 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-324-ga965a81',
+        VERSION:     'v0.2.0-328-ga264338',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-324-ga965a81 documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-328-ga264338 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -540,36 +540,11 @@
         <span class="sd">&quot;&quot;&quot; Method to return a new position for a bot.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div></div>
 
-
-<div class="viewcode-block" id="AStarNoiser"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.AStarNoiser">[docs]</a><span class="k">class</span> <span class="nc">AStarNoiser</span><span class="p">(</span><span class="n">UniverseNoiser</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Noiser in maze space.</span>
-
-<span class="sd">    It uses A* and adjacency maps to measure distances in maze space.&quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">AStarNoiser</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">universe</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span> <span class="o">=</span> <span class="n">AdjacencyList</span><span class="p">(</span><span class="n">universe</span><span class="o">.</span><span class="n">free_positions</span><span class="p">())</span>
-
-    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot</span><span class="p">,</span> <span class="n">other_bot</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="o">.</span><span class="n">a_star</span><span class="p">(</span><span class="n">bot</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="n">other_bot</span><span class="o">.</span><span class="n">current_pos</span><span class="p">))</span>
-        <span class="k">except</span> <span class="n">NoPathException</span><span class="p">:</span>
-            <span class="c1"># We cannot see it: Apply the noise anyway</span>
-            <span class="k">return</span> <span class="bp">None</span>
-
-    <span class="k">def</span> <span class="nf">altered_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_pos</span><span class="p">):</span>
-        <span class="n">possible_positions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="o">.</span><span class="n">pos_within</span><span class="p">(</span><span class="n">bot_pos</span><span class="p">,</span>
-                                                            <span class="bp">self</span><span class="o">.</span><span class="n">noise_radius</span><span class="p">))</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">possible_positions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnd</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">possible_positions</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">bot_pos</span></div>
-
 <div class="viewcode-block" id="ManhattanNoiser"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.ManhattanNoiser">[docs]</a><span class="k">class</span> <span class="nc">ManhattanNoiser</span><span class="p">(</span><span class="n">UniverseNoiser</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Noiser in Manhattan space.</span>
 
-<span class="sd">    It uses Manhattan distance. This noiser is much faster than AStarNoiser,</span>
-<span class="sd">    but Manhattan distance is less relevant to the game. For example, a bot</span>
-<span class="sd">    distant 1 in Manhattan space could still be much further in maze distance.&quot;&quot;&quot;</span>
+<span class="sd">    It uses Manhattan distance. A bot distance of 1 in Manhattan space</span>
+<span class="sd">    could still be much further away in maze distance.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot</span><span class="p">,</span> <span class="n">other_bot</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">manhattan_dist</span><span class="p">(</span><span class="n">bot</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="n">other_bot</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)</span>
