@@ -1,7 +1,7 @@
 """ The datamodel. """
 
 from .containers import Mesh
-from .graph import iter_adjacencies, new_pos
+from .graph import iter_adjacencies, move_pos
 from .layout import Layout
 
 north = (0, -1)
@@ -698,7 +698,7 @@ class CTFUniverse:
         """
         def iter_pos():
             for move in self._moves:
-                pos = new_pos(position, move)
+                pos = move_pos(position, move)
                 if pos in self.maze:
                     yield move, pos
         return dict(iter_pos())

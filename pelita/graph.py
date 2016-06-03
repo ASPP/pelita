@@ -7,7 +7,7 @@ from collections import deque
 class NoPathException(Exception):
     pass
 
-def new_pos(position, move):
+def move_pos(position, move):
     """ Adds a position tuple and a move tuple.
 
     Parameters
@@ -20,7 +20,7 @@ def new_pos(position, move):
 
     Returns
     -------
-    new_pos : tuple of int (x, y)
+    move_pos : tuple of int (x, y)
         new position coordinates
 
     """

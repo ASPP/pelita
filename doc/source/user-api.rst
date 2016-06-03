@@ -97,7 +97,7 @@ Helper functions in ``pelita.graph``
 
 .. autosummary::
 
-    new_pos
+    move_pos
     diff_pos
     manhattan_dist
 
