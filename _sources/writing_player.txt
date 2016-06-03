@@ -205,7 +205,7 @@ and distances in `pelita.graph`:
 .. autosummary::
    :nosignatures:
 
-    new_pos
+    move_pos
     diff_pos
     manhattan_dist
 

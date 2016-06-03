@@ -12,7 +12,7 @@ pelita.graph
       diff_pos
       iter_adjacencies
       manhattan_dist
-      new_pos
+      move_pos
    
    
 

@@ -12,7 +12,7 @@ pelita.datamodel
       create_maze
       extract_initial_positions
       iter_adjacencies
-      new_pos
+      move_pos
    
    
 
