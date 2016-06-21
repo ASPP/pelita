@@ -164,7 +164,7 @@ Distances in the Maze
 ---------------------
 
 There are different ways of measuring distances between objects in the maze.
-The `Euclidean distance <http://en.wikipedia.org/wiki/Euclidean_distance>`_
+The `Euclidean distance <https://en.wikipedia.org/wiki/Euclidean_distance>`_
 is the length of the vector connecting the centers
 of the cells where the objects are located:
 
@@ -175,7 +175,7 @@ of the cells where the objects are located:
    **Euclidean distance:** The Euclidean distance between the two bots is
    :math:`\sqrt{(x_1-x_2)^2 + (y_1-y_2)^2} = \sqrt{2^2+2^2} = \sqrt 8 \approx 2.83...`
 
-The `Manhattan distance <http://en.wikipedia.org/wiki/Taxicab_geometry>`_,
+The `Manhattan distance <https://en.wikipedia.org/wiki/Taxicab_geometry>`_,
 also known as L1-distance or taxicab-distance, is the
 absolute difference of the coordinates of the two objects:
 
@@ -316,8 +316,8 @@ our universe.::
 Players may use an adjacency list representation provided by
 ``pelita.graph.AdjacencyList``. Let's have a quick look at how this is
 generated, in case you would like to implement your own `graph storage
-<http://en.wikipedia.org/wiki/Graph_(data_structure)>`_ or leverage an
-alternative existing package such as `NetworkX <http://networkx.lanl.gov/>`_.
+<https://en.wikipedia.org/wiki/Graph_(data_structure)>`_ or leverage an
+alternative existing package such as `NetworkX <https://networkx.github.io>`_.
 
 In order to obtain the positions of all free spaces, the
 ``pelita.datamodel.CTFUniverse`` class provides the method
@@ -344,7 +344,7 @@ provided by ``AbstractPlayer``::
     self.enemy_bots[0].noisy
 
 One idea is to implement probabilistic tracking using a `Kalman filter
-<http://en.wikipedia.org/wiki/Kalman_filter>`_
+<https://en.wikipedia.org/wiki/Kalman_filter>`_
 
 If you wish to know how the noise is implemented, look at the class:
 ``pelita.game_master.UniverseNoiser``.
