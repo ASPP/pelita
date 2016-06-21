@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Writing a Player &mdash; Pelita v0.2.0-330-ga02025f documentation</title>
+    <title>Writing a Player &mdash; Pelita v0.2.0-332-g2e84159 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'v0.2.0-330-ga02025f',
+        VERSION:     'v0.2.0-332-g2e84159',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-330-ga02025f documentation" href="index.html" />
+    <link rel="top" title="Pelita v0.2.0-332-g2e84159 documentation" href="index.html" />
     <link rel="next" title="Running Players" href="running_player.html" />
     <link rel="prev" title="Project Information" href="info.html" />
    
@@ -244,7 +244,7 @@ following example illustrates this for a few positions:</p>
 <div class="section" id="distances-in-the-maze">
 <h3>Distances in the Maze<a class="headerlink" href="#distances-in-the-maze" title="Permalink to this headline">¶</a></h3>
 <p>There are different ways of measuring distances between objects in the maze.
-The <a class="reference external" href="http://en.wikipedia.org/wiki/Euclidean_distance">Euclidean distance</a>
+The <a class="reference external" href="https://en.wikipedia.org/wiki/Euclidean_distance">Euclidean distance</a>
 is the length of the vector connecting the centers
 of the cells where the objects are located:</p>
 <div class="figure" id="id2">
@@ -252,7 +252,7 @@ of the cells where the objects are located:</p>
 <p class="caption"><span class="caption-text"><strong>Euclidean distance:</strong> The Euclidean distance between the two bots is
 <span class="math">\(\sqrt{(x_1-x_2)^2 + (y_1-y_2)^2} = \sqrt{2^2+2^2} = \sqrt 8 \approx 2.83...\)</span></span></p>
 </div>
-<p>The <a class="reference external" href="http://en.wikipedia.org/wiki/Taxicab_geometry">Manhattan distance</a>,
+<p>The <a class="reference external" href="https://en.wikipedia.org/wiki/Taxicab_geometry">Manhattan distance</a>,
 also known as L1-distance or taxicab-distance, is the
 absolute difference of the coordinates of the two objects:</p>
 <div class="figure" id="id3">
@@ -379,8 +379,8 @@ our universe.:</p>
 </div>
 <p>Players may use an adjacency list representation provided by
 <code class="docutils literal"><span class="pre">pelita.graph.AdjacencyList</span></code>. Let&#8217;s have a quick look at how this is
-generated, in case you would like to implement your own <a class="reference external" href="http://en.wikipedia.org/wiki/Graph_(data_structure)">graph storage</a> or leverage an
-alternative existing package such as <a class="reference external" href="http://networkx.lanl.gov/">NetworkX</a>.</p>
+generated, in case you would like to implement your own <a class="reference external" href="https://en.wikipedia.org/wiki/Graph_(data_structure)">graph storage</a> or leverage an
+alternative existing package such as <a class="reference external" href="https://networkx.github.io">NetworkX</a>.</p>
 <p>In order to obtain the positions of all free spaces, the
 <code class="docutils literal"><span class="pre">pelita.datamodel.CTFUniverse</span></code> class provides the method
 <code class="docutils literal"><span class="pre">pelita.datamodel.CTFUniverse.free_positions()</span></code>.</p>
@@ -402,7 +402,7 @@ provided by <code class="docutils literal"><span class="pre">AbstractPlayer</spa
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">enemy_bots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">noisy</span>
 </pre></div>
 </div>
-<p>One idea is to implement probabilistic tracking using a <a class="reference external" href="http://en.wikipedia.org/wiki/Kalman_filter">Kalman filter</a></p>
+<p>One idea is to implement probabilistic tracking using a <a class="reference external" href="https://en.wikipedia.org/wiki/Kalman_filter">Kalman filter</a></p>
 <p>If you wish to know how the noise is implemented, look at the class:
 <code class="docutils literal"><span class="pre">pelita.game_master.UniverseNoiser</span></code>.</p>
 <p>As a special note regarding the <code class="docutils literal"><span class="pre">ManhattanNoiser</span></code> that is being used: All noised
@@ -629,7 +629,7 @@ respective <code class="docutils literal"><span class="pre">Team</span></code> i
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |

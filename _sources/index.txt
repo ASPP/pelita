@@ -24,7 +24,7 @@ Pelita
 
 Resources
 =========
-- `Documentation <http://aspp.github.com/pelita/>`_
+- `Documentation <https://aspp.github.com/pelita/>`_
 - `Source code <https://github.com/ASPP/pelita>`_
 - `Issue tracker <https://github.com/ASPP/pelita/issues>`_
 
@@ -49,14 +49,14 @@ Quick Start
 
 First clone the source code repository::
 
-    $ git clone http://github.com/ASPP/pelita.git
+    $ git clone https://github.com/ASPP/pelita.git
 
 And launch the command-line interface::
 
     $ ~/pelita/pelitagame
 
 This will start a demo game using the `TkInter
-<http://wiki.python.org/moin/TkInter>`_ interface on a random maze
+<https://wiki.python.org/moin/TkInter>`_ interface on a random maze
 with some predefined players.
 
 Continue reading: :ref:`writing_a_player`.

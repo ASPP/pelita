@@ -20,7 +20,7 @@ License
 =======
 
 Pelita is licensed under the terms of the `Simplified (two-clause) BSD License
-<http://www.opensource.org/licenses/BSD-2-Clause>`_.
+<https://www.opensource.org/licenses/BSD-2-Clause>`_.
 A copy of the license is included with the source, in the file ``COPYING``.
 
 To generate API documentation from the docstring one needs a recent copy of
