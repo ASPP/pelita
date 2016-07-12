@@ -356,6 +356,7 @@ class SimpleServer:
                     address = address + (":%d" % socket_port)
                 else:
                     socket.bind(address)
+                _logger.info("Binding to %s", address)
             except zmq.ZMQError:
                 print("ZMQError while trying to bind {}".format(address))
                 raise
@@ -403,12 +404,10 @@ class SimpleController:
         self.address = address
 
         self.context = zmq.Context()
-        # We currently use a DEALER which we bind.
+        # We currently use a ROUTER which we bind.
         # This means, other DEALERs can connect and
         # each one can take over the control.
-        # However, we cannot send any information back to them.
-        # (Only one DEALER will receive the data.)
-        self.socket = self.context.socket(zmq.DEALER)
+        self.socket = self.context.socket(zmq.ROUTER)
         self.socket_addr = bind_socket(self.socket, self.address, '--controller')
 
     def run(self):
@@ -419,7 +418,9 @@ class SimpleController:
             pass
 
     def _loop(self):
-        py_obj = self.socket.recv_json()
+        addr, py_obj_raw = self.socket.recv_multipart()
+        print(addr, py_obj_raw)
+        py_obj = json.loads(py_obj_raw.decode('utf-8'))
         uuid_ = py_obj.get("__uuid__")
         action = py_obj["__action__"]
         data = py_obj.get("__data__") or {}
