@@ -182,7 +182,6 @@ def start_match(config, teams):
     wait_for_keypress()
     cmd = ["./pelitagame"] + [config.team_spec(team1), config.team_spec(team2),
                                         '--publish', 'tcp://127.0.0.1:54399',
-                                        '--parseable-output',
                                         '--seed', str(random.randint(0, sys.maxsize))]
     print(cmd)
     # global ARGS

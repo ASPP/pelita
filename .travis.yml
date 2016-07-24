@@ -22,7 +22,7 @@ script:
       python -c "import zmq; print('Using zmq %s.' % zmq.zmq_version())" &&
       python -c "import zmq; print('Using pyzmq %s.' % zmq.pyzmq_version())" &&
       PYTHONPATH=. py.test -v test/ &&
-      python ./pelitagame --progress --parseable-output &&
+      python ./pelitagame --progress &&
       for player in ./players/*Player.py ; do
           PYTHONPATH=.
           python ./pelitagame --check-team $player || exit 1
