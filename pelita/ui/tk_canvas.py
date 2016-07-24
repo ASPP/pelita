@@ -532,6 +532,12 @@ class TkApplication:
         self.running = True
 
         self.master.bind('q', lambda event: self.quit())
+        self.master.bind('<numbersign>', lambda event: self.ui_canvas.toggle_grid())
+        self.master.bind('<greater>', lambda event: self.delay_dec())
+        self.master.bind('<less>', lambda event: self.delay_inc())
+        self.master.bind('<space>', lambda event: self.toggle_running())
+        self.master.bind('<Return>', lambda event: self.request_step())
+        self.master.bind('<Shift-Return>', lambda event: self.request_round())
         self.master.createcommand('exit', self.quit)
         self.master.protocol("WM_DELETE_WINDOW", self.quit)
 
