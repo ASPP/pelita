@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.simplesetup &mdash; Pelita v0.2.0-332-g2e84159 documentation</title>
+    <title>pelita.simplesetup &mdash; Pelita v0.2.0-336-gb426be3 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-332-g2e84159',
+        VERSION:     'v0.2.0-336-gb426be3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-332-g2e84159 documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-336-gb426be3 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -77,9 +77,9 @@
 
 <span class="kn">import</span> <span class="nn">zmq</span>
 
-<span class="kn">from</span> <span class="nn">.datamodel</span> <span class="kn">import</span> <span class="n">CTFUniverse</span>
-<span class="kn">from</span> <span class="nn">.game_master</span> <span class="kn">import</span> <span class="n">GameMaster</span><span class="p">,</span> <span class="n">PlayerDisconnected</span><span class="p">,</span> <span class="n">PlayerTimeout</span>
-<span class="kn">from</span> <span class="nn">.viewer</span> <span class="kn">import</span> <span class="n">AbstractViewer</span>
+<span class="kn">from</span> <span class="nn">.datamodel</span> <span class="k">import</span> <span class="n">CTFUniverse</span>
+<span class="kn">from</span> <span class="nn">.game_master</span> <span class="k">import</span> <span class="n">GameMaster</span><span class="p">,</span> <span class="n">PlayerDisconnected</span><span class="p">,</span> <span class="n">PlayerTimeout</span>
+<span class="kn">from</span> <span class="nn">.viewer</span> <span class="k">import</span> <span class="n">AbstractViewer</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;pelita.simplesetup&quot;</span><span class="p">)</span>
 
@@ -102,13 +102,13 @@
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;addr&quot;</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;port_min&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span> <span class="s2">&quot;port_max&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))}</span>
     <span class="n">m</span> <span class="o">=</span> <span class="n">random_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;addr&quot;</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;port_min&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s2">&quot;port_max&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;addr&quot;</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;port_min&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;port_max&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
     <span class="n">m</span> <span class="o">=</span> <span class="n">port_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;addr&quot;</span><span class="p">:</span> <span class="n">address</span><span class="p">}</span>
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;addr&quot;</span><span class="p">:</span> <span class="n">address</span><span class="p">}</span></div>
 
-<span class="k">def</span> <span class="nf">bind_socket</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">option_hint</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">bind_socket</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">option_hint</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">address_range</span> <span class="o">=</span> <span class="n">extract_port_range</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
         <span class="n">addr</span> <span class="o">=</span> <span class="n">address_range</span><span class="p">[</span><span class="s2">&quot;addr&quot;</span><span class="p">]</span>
@@ -119,7 +119,7 @@
                 <span class="n">port</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">bind_to_random_port</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">port_min</span><span class="p">,</span> <span class="n">port_max</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">port</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">bind_to_random_port</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
-            <span class="n">bind_addr</span> <span class="o">=</span> <span class="s2">&quot;{0}:{1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+            <span class="n">bind_addr</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">:</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">bind_addr</span>
 
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -127,10 +127,10 @@
             <span class="k">return</span> <span class="n">addr</span>
 
     <span class="k">except</span> <span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">ZMQError</span><span class="p">,</span> <span class="n">zmq</span><span class="o">.</span><span class="n">ZMQBindError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;error binding to address </span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">e</span><span class="p">),</span> <span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;error binding to address </span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">e</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">option_hint</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;use </span><span class="si">%s</span><span class="s1"> &lt;address&gt; to specify a different port&#39;</span> <span class="o">%</span>\
-                <span class="p">(</span><span class="n">option_hint</span><span class="p">,),</span> <span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;use </span><span class="si">%s</span><span class="s1"> &lt;address&gt; to specify a different port&#39;</span> <span class="o">%</span>\
+                <span class="p">(</span><span class="n">option_hint</span><span class="p">,),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">raise</span>
 
 <div class="viewcode-block" id="UnknownMessageId"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.UnknownMessageId">[docs]</a><span class="k">class</span> <span class="nc">UnknownMessageId</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -179,10 +179,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pollout</span> <span class="o">=</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Poller</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pollout</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">zmq</span><span class="o">.</span><span class="n">POLLOUT</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">last_uuid</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_uuid</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">timeout</span> <span class="o">=</span> <span class="n">DEAD_CONNECTION_TIMEOUT</span>
 
         <span class="n">msg_uuid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
@@ -217,14 +217,14 @@
         <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;&lt;--- </span><span class="si">%r</span><span class="s2"> [</span><span class="si">%s</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">msg_action</span><span class="p">,</span> <span class="n">msg_uuid</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">msg_uuid</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_uuid</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">last_uuid</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_uuid</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">return</span> <span class="n">py_obj</span><span class="p">[</span><span class="s2">&quot;__return__&quot;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">last_uuid</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_uuid</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">raise</span> <span class="n">UnknownMessageId</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">recv_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
 
         <span class="n">time_now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
@@ -307,7 +307,7 @@
             <span class="k">raise</span> <span class="n">PlayerTimeout</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
             <span class="c1"># if we could not convert into a tuple or dict (e.g. bad reply)</span>
-            <span class="k">return</span> <span class="bp">None</span>
+            <span class="k">return</span> <span class="kc">None</span>
         <span class="k">except</span> <span class="n">DeadConnection</span><span class="p">:</span>
             <span class="c1"># if the remote connection is closed</span>
             <span class="k">raise</span> <span class="n">PlayerDisconnected</span><span class="p">()</span>
@@ -359,15 +359,15 @@
 <span class="sd">        if layout_file was given, but file does not exist</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout_string</span><span class="p">,</span> <span class="n">teams</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">players</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">3000</span><span class="p">,</span> <span class="n">bind_addrs</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">initial_delay</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_timeouts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">timeout_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layout_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout_string</span><span class="p">,</span> <span class="n">teams</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">players</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">3000</span><span class="p">,</span> <span class="n">bind_addrs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">initial_delay</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_timeouts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">timeout_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layout_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">players</span> <span class="o">=</span> <span class="n">players</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">number_of_teams</span> <span class="o">=</span> <span class="n">teams</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rounds</span> <span class="o">=</span> <span class="n">rounds</span>
 
-        <span class="k">if</span> <span class="n">bind_addrs</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">bind_addrs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">bind_addrs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tcp://*&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_teams</span>
 
         <span class="c1">#: declare the zmq Context for this server thread</span>
@@ -386,12 +386,12 @@
             <span class="n">socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">PAIR</span><span class="p">)</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Binding to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span>
 
-            <span class="n">bind_to_random</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">bind_to_random</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">if</span> <span class="n">address</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;tcp://&quot;</span><span class="p">):</span>
                 <span class="n">split_address</span> <span class="o">=</span> <span class="n">address</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;tcp://&quot;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">split_address</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
                     <span class="c1"># assume no port has been given:</span>
-                    <span class="n">bind_to_random</span> <span class="o">=</span> <span class="bp">True</span>
+                    <span class="n">bind_to_random</span> <span class="o">=</span> <span class="kc">True</span>
 
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">bind_to_random</span><span class="p">:</span>
@@ -400,7 +400,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">socket</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">zmq</span><span class="o">.</span><span class="n">ZMQError</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s2">&quot;ZMQError while trying to bind {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">address</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ZMQError while trying to bind </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">address</span><span class="p">))</span>
                 <span class="k">raise</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">sockets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
@@ -456,7 +456,7 @@
 
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">()</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">KeyboardInterrupt</span><span class="p">,</span> <span class="n">ExitLoop</span><span class="p">):</span>
             <span class="k">pass</span>
@@ -516,9 +516,9 @@
 <span class="sd">    address : string</span>
 <span class="sd">        The address which the client has to connect to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team</span><span class="p">,</span> <span class="n">team_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team</span><span class="p">,</span> <span class="n">team_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">team</span> <span class="o">=</span> <span class="n">team</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">remote_game</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">remote_game</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_team_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="p">,</span> <span class="s2">&quot;team_name&quot;</span><span class="p">,</span> <span class="n">team_name</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">address</span>
@@ -537,7 +537,7 @@
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">on_start</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">()</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">KeyboardInterrupt</span><span class="p">,</span> <span class="n">ExitLoop</span><span class="p">):</span>
             <span class="k">pass</span>
@@ -564,9 +564,9 @@
             <span class="k">raise</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Exception in client code for team </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">team</span>
-            <span class="k">print</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
             <span class="c1"># return None. Let it crash next time the server tries to send.</span>
-            <span class="n">retval</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">retval</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">raise</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -651,7 +651,7 @@
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">on_start</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">()</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">KeyboardInterrupt</span><span class="p">,</span> <span class="n">ExitLoop</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -737,7 +737,7 @@
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
     </div>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.game_master &mdash; Pelita v0.2.0-332-g2e84159 documentation</title>
+    <title>pelita.game_master &mdash; Pelita v0.2.0-336-gb426be3 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-332-g2e84159',
+        VERSION:     'v0.2.0-336-gb426be3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-332-g2e84159 documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-336-gb426be3 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -48,9 +48,9 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">datamodel</span>
-<span class="kn">from</span> <span class="nn">.datamodel</span> <span class="kn">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">CTFUniverse</span>
-<span class="kn">from</span> <span class="nn">.graph</span> <span class="kn">import</span> <span class="n">AdjacencyList</span><span class="p">,</span> <span class="n">NoPathException</span><span class="p">,</span> <span class="n">manhattan_dist</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">datamodel</span>
+<span class="kn">from</span> <span class="nn">.datamodel</span> <span class="k">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">CTFUniverse</span>
+<span class="kn">from</span> <span class="nn">.graph</span> <span class="k">import</span> <span class="n">AdjacencyList</span><span class="p">,</span> <span class="n">NoPathException</span><span class="p">,</span> <span class="n">manhattan_dist</span>
 
 
 <span class="k">class</span> <span class="nc">GameFinished</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -96,9 +96,9 @@
 <span class="sd">        the viewers that are observing this game</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">teams</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">,</span> <span class="n">game_time</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">noiser</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">initial_delay</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_timeouts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">timeout_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layout_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">teams</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">,</span> <span class="n">game_time</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">noiser</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">initial_delay</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_timeouts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">timeout_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layout_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">universe</span> <span class="o">=</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">CTFUniverse</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">number_bots</span> <span class="o">=</span> <span class="n">number_bots</span>
 
@@ -106,9 +106,9 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of registered teams does not match the universe.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">player_teams</span> <span class="o">=</span> <span class="n">teams</span>
 
-        <span class="k">if</span> <span class="n">noiser</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">noiser</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">noiser</span> <span class="o">=</span> <span class="n">ManhattanNoiser</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">noiser</span> <span class="o">=</span> <span class="n">noiser</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span> <span class="k">if</span> <span class="n">noise</span> <span class="k">else</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noiser</span> <span class="o">=</span> <span class="n">noiser</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span> <span class="k">if</span> <span class="n">noise</span> <span class="k">else</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">viewers</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initial_delay</span> <span class="o">=</span> <span class="n">initial_delay</span>
@@ -122,7 +122,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">rnd</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
 
         <span class="c1">#: The pointer to the current iteration.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_step_iter</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_step_iter</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span> <span class="o">=</span> <span class="p">{</span>
             <span class="c1">#: holds a list of bot movements for this step</span>
@@ -141,16 +141,16 @@
             <span class="s2">&quot;timeout_teams&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">),</span>
 
             <span class="c1">#: bot.index of the bot which is about to move or None</span>
-            <span class="s2">&quot;bot_id&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s2">&quot;bot_id&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
 
             <span class="c1">#: round_index or None,</span>
-            <span class="s2">&quot;round_index&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s2">&quot;round_index&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
 
             <span class="c1">#: time for all teams together</span>
             <span class="s2">&quot;running_time&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
 
             <span class="c1">#: true if finished</span>
-            <span class="s2">&quot;finished&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+            <span class="s2">&quot;finished&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
 
             <span class="c1">#: [team_name_0, team_name_1]</span>
             <span class="s2">&quot;team_name&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">),</span>
@@ -162,16 +162,16 @@
             <span class="s2">&quot;times_killed&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">),</span>
 
             <span class="c1">#: team.index of the team winning or None</span>
-            <span class="s2">&quot;team_wins&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s2">&quot;team_wins&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
 
             <span class="c1">#: true if game is a draw</span>
-            <span class="s2">&quot;game_draw&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s2">&quot;game_draw&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
 
             <span class="c1">#: {bot.index: reason} for a misbehaving bot</span>
             <span class="s2">&quot;bot_error&quot;</span><span class="p">:</span> <span class="p">{},</span>
 
             <span class="c1">#: [reason_team_0, reason_team_1] for a team which was disqualified</span>
-            <span class="s2">&quot;teams_disqualified&quot;</span><span class="p">:</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">),</span>
+            <span class="s2">&quot;teams_disqualified&quot;</span><span class="p">:</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">),</span>
 
             <span class="c1">#: maximum number of rounds</span>
             <span class="s2">&quot;game_time&quot;</span><span class="p">:</span> <span class="n">game_time</span><span class="p">,</span>
@@ -273,13 +273,13 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]:</span>
             <span class="k">return</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step_iter</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step_iter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_step_iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_play_bot_iterator</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_step_iter</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_step_iter</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_step_iter</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="c1"># at the end of iterations</span>
         <span class="k">except</span> <span class="n">GameFinished</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_viewers</span><span class="p">()</span></div>
@@ -290,13 +290,13 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]:</span>
             <span class="k">return</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step_iter</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step_iter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_step_iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_play_bot_iterator</span><span class="p">()</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_step_iter</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_step_iter</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_step_iter</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="c1"># we could not make a move:</span>
             <span class="c1"># just try another one</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">play_step</span><span class="p">()</span>
@@ -327,7 +327,7 @@
             <span class="c1"># give control to caller</span>
             <span class="k">yield</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_finished</span><span class="p">():</span>
             <span class="k">raise</span> <span class="n">GameFinished</span><span class="p">()</span>
@@ -340,7 +340,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_moved&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;food_eaten&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_destroyed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_timeout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_timeout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="n">player_team</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">player_teams</span><span class="p">[</span><span class="n">bot</span><span class="o">.</span><span class="n">team_index</span><span class="p">]</span>
@@ -405,36 +405,36 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;finished&quot;</span><span class="p">):</span>
             <span class="k">return</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;round_index&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;round_index&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;round_index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;round_index&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_time</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;round_index&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span></div>
 
     <span class="k">def</span> <span class="nf">check_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;team_wins&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">or</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;game_draw&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;team_wins&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;game_draw&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="n">teams_left</span> <span class="o">=</span> <span class="p">[</span><span class="n">team_id</span> <span class="k">for</span> <span class="n">team_id</span><span class="p">,</span> <span class="n">reason</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;teams_disqualified&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">reason</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">]</span>
+        <span class="n">teams_left</span> <span class="o">=</span> <span class="p">[</span><span class="n">team_id</span> <span class="k">for</span> <span class="n">team_id</span><span class="p">,</span> <span class="n">reason</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;teams_disqualified&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">reason</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">teams_left</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="c1"># we have a survivor</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;team_wins&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">teams_left</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-            <span class="k">return</span> <span class="bp">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">True</span>
 
         <span class="c1"># If the round has finished, we may check, if we can end the game</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_id&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_id&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;round_index&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_time</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">to_eat</span><span class="p">,</span> <span class="n">eaten</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;food_to_eat&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;food_count&quot;</span><span class="p">]):</span>
                     <span class="k">if</span> <span class="n">to_eat</span> <span class="o">==</span> <span class="n">eaten</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">score</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">score</span><span class="p">:</span>
@@ -442,8 +442,8 @@
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">score</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">score</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;team_wins&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;game_draw&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-            <span class="k">return</span> <span class="bp">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;game_draw&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">True</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]</span></div>
 
@@ -480,7 +480,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">noise_radius</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sight_distance</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">noise_radius</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sight_distance</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span> <span class="o">=</span> <span class="n">AdjacencyList</span><span class="p">(</span><span class="n">universe</span><span class="o">.</span><span class="n">free_positions</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">noise_radius</span> <span class="o">=</span> <span class="n">noise_radius</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sight_distance</span> <span class="o">=</span> <span class="n">sight_distance</span>
@@ -523,19 +523,19 @@
             <span class="c1"># than `sight_distance`.</span>
             <span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">current_bot</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">distance</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">distance</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sight_distance</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">distance</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">distance</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sight_distance</span><span class="p">:</span>
                 <span class="c1"># If so then alter the position of the enemy</span>
                 <span class="n">b</span><span class="o">.</span><span class="n">current_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">altered_pos</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)</span>
-                <span class="n">b</span><span class="o">.</span><span class="n">noisy</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="n">b</span><span class="o">.</span><span class="n">noisy</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">return</span> <span class="n">universe_copy</span></div>
 
-    <span class="nd">@abc.abstractmethod</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
 <div class="viewcode-block" id="UniverseNoiser.distance"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.UniverseNoiser.distance">[docs]</a>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot</span><span class="p">,</span> <span class="n">other_bot</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Method to return the noiser-relevant distance between two bots.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-    <span class="nd">@abc.abstractmethod</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
 <div class="viewcode-block" id="UniverseNoiser.altered_pos"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.UniverseNoiser.altered_pos">[docs]</a>    <span class="k">def</span> <span class="nf">altered_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_pos</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Method to return a new position for a bot.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div></div>
@@ -621,7 +621,7 @@
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
     </div>
