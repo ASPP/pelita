@@ -399,7 +399,7 @@ class ExitLoop(Exception):
 class SimpleController:
     """ Sets up a simple Controller to interact with GameMaster. """
 
-    def __init__(self, game_master, address):
+    def __init__(self, game_master, address, reply_to=None):
         self.game_master = game_master
         self.address = address
 

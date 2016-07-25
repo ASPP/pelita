@@ -8,16 +8,20 @@ import itertools
 import json
 import os
 import random
+import shlex
 import sys
 import tempfile
 import time
-from subprocess import PIPE, STDOUT, Popen, check_call
+from subprocess import PIPE, Popen, check_call
 
 import yaml
+import zmq
 
 from pelita import libpelita
 from . import roundrobin
 from . import komode
+
+_logger = libpelita.logging.getLogger("pelita-tournament.tournament")
 
 # Tournament log file
 DUMPSTORE = None
@@ -62,6 +66,13 @@ class Config:
         self.location = config["location"]
         self.date = config["date"]
 
+        self.rounds = config.get("rounds")
+        self.filter = config.get("filter")
+
+        self.viewer = config.get("viewer")
+        self.interactive = config.get("interactive")
+        self.statefile = config.get("statefile")
+
         #: Global random seed.
         #: Keep it fixed or it may be impossible to replicate a tournament.
         #: Individual matches will get a random seed derived from this.
@@ -105,6 +116,13 @@ class Config:
                 festival = check_call([self.speaker, text.name])
             time.sleep(wait)
 
+    def wait_for_keypress(self):
+        if self.interactive:
+            input('---\n')
+        else:
+            _logger.debug("Noninteractive. Not asking for keypress.")
+
+
 class State:
     def __init__(self, config, state=None):
         if state is None:
@@ -127,19 +145,16 @@ class State:
         return self.state["round2"]
 
     def save(self, filename):
-        with open(filename, 'w') as f:
-            json.dump(self.state, f, indent=2)
+        if filename:
+            with open(filename, 'w') as f:
+                yaml.dump(self.state, f, indent=2)
 
     @classmethod
     def load(cls, config, filename):
-        with open(filename) as f:
-            return cls(config=config, state=json.load(f))
+        if filename:
+            with open(filename) as f:
+                return cls(config=config, state=yaml.load(f))
 
-
-
-def wait_for_keypress():
-    pass#if ARGS.interactive:
-    #input('---\n')
 
 def present_teams(config):
     config.print('Hello master, I am the Python drone. I am here to serve you.', wait=1.5)
@@ -162,28 +177,35 @@ def set_name(team):
         team = libpelita.prepare_team(team)
         return libpelita.check_team(team)
     except Exception:
-        config.print("*** ERROR: I could not load team", team, ". Please help!", speak=False)
-        config.print(sys.stderr, speak=False)
+        print("*** ERROR: I could not load team {team}. Please help!".format(team=team))
+        print(sys.stderr)
         raise
 
 
-def start_match(config, teams):
-    """Start a match between a list of teams. Return the index of the team that won
-    False if there was a draw.
-    """
-    assert len(teams) == 2
-    print(config, teams)
-
+def run_match(config, teams):
     team1, team2 = teams
 
-    config.print()
-    config.print('Starting match: '+ config.team_name(team1)+' vs ' + config.team_name(team2))
-    config.print()
-    wait_for_keypress()
-    cmd = ["./pelitagame"] + [config.team_spec(team1), config.team_spec(team2),
-                                        '--publish', 'tcp://127.0.0.1:54399',
-                                        '--seed', str(random.randint(0, sys.maxsize))]
-    print(cmd)
+    ctx = zmq.Context()
+    reply_addr = "ipc://tournament-reply#{pid}".format(pid=os.getpid())
+    reply_sock = ctx.socket(zmq.PAIR)
+    reply_sock.bind(reply_addr)
+
+    rounds = ['--rounds', str(config.rounds)] if config.rounds else []
+    filter = ['--filter', config.filter] if config.filter else []
+    viewer = ['--' + config.viewer] if config.viewer else []
+
+    cmd = [libpelita.get_python_process()] + ["./pelitagame"] + [config.team_spec(team1), config.team_spec(team2),
+                              '--reply-to', reply_addr,
+                              '--seed', str(random.randint(0, sys.maxsize)),
+                              *filter,
+                              *rounds,
+                              *viewer]
+
+    _logger.debug("Executing: {}".format(" ".join(shlex.quote(arg) for arg in cmd)))
+
+    proc = Popen(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True, env=dict(os.environ, PYTHONUNBUFFERED='x'))
+
+
     # global ARGS
     # if not ARGS.no_log:
     #     dumpfile = os.path.join(DUMPSTORE, time.strftime('%Y%m%d-%H%M%S'))
@@ -193,54 +215,78 @@ def start_match(config, teams):
     #    print("Would run: {cmd}".format(cmd=cmd))
     #    print("Choosing winner at random.")
     #    return random.choice([0, 1, 2])
-    import zmq
-    def fetch_all(sub):
-        ctx = zmq.Context()
-        sock = ctx.socket(zmq.SUB)
-        sock.setsockopt_unicode(zmq.SUBSCRIBE, "")
-        sock.connect(sub)
-        poll = zmq.Poller()
-        poll.register(sock, zmq.POLLIN)
-        while True:
-            print(".")
-            print(sock.recv())
-
-    import multiprocessing
-    # t = multiprocessing.Process(target=lambda: fetch_all("tcp://127.0.0.1:54399"), daemon=True)
-    # t.start()
 
 
-    proc = Popen(cmd, stdout=PIPE, stderr=PIPE,
-                           universal_newlines=True)#.communicate()
-    ctx = zmq.Context()
-    sock = ctx.socket(zmq.SUB)
-    sock.setsockopt_unicode(zmq.SUBSCRIBE, "")
-    sock.connect("tcp://127.0.0.1:54399")
+
     poll = zmq.Poller()
-    poll.register(sock, zmq.POLLIN)
+    poll.register(reply_sock, zmq.POLLIN)
     poll.register(proc.stdout.fileno(), zmq.POLLIN)
     poll.register(proc.stderr.fileno(), zmq.POLLIN)
 
     while True:
         evts = dict(poll.poll(1000))
-        stdout_ready = evts.get(proc.stdout.fileno(), False)
+        stdout_ready = (not proc.stdout.closed) and evts.get(proc.stdout.fileno(), False)
         if stdout_ready:
             line = proc.stdout.readline()
             if line:
-                print("STDOUT", line)
+                pass
+                #print("STDOUT", line, end='')
             else:
-                break
-        stderr_ready = evts.get(proc.stdout.fileno(), False)
+                poll.unregister(proc.stdout.fileno())
+                proc.stdout.close()
+        stderr_ready = (not proc.stderr.closed) and evts.get(proc.stderr.fileno(), False)
         if stderr_ready:
             line = proc.stderr.readline()
             if line:
-                print("STDERR", line)
+                pass
+                #print("STDERR", line)
             else:
-                break
-        socket_ready = evts.get(sock, False)
+                poll.unregister(proc.stderr.fileno())
+                proc.stderr.close()
+        socket_ready = evts.get(reply_sock, False)
         if socket_ready:
-            print(sock.recv())
+            try:
+                pelita_status = json.loads(reply_sock.recv_string())
+                game_state = pelita_status['__data__']['game_state']
+                finished = game_state.get("finished", None)
+                team_wins = game_state.get("team_wins", None)
+                game_draw = game_state.get("game_draw", None)
+                if finished:
+                    print(proc.returncode)
+                    return game_state
+            except json.JSONDecodeError:
+                pass
+            except KeyError:
+                pass
 
+
+def start_match(config, teams):
+    """Start a match between a list of teams. Return the index of the team that won
+    False if there was a draw.
+    """
+    assert len(teams) == 2
+    team1, team2 = teams
+
+    config.print()
+    config.print('Starting match: '+ config.team_name(team1)+' vs ' + config.team_name(team2))
+    config.print()
+    config.wait_for_keypress()
+
+    final_state = run_match(config, teams)
+    game_draw = final_state['game_draw']
+    team_wins = final_state['team_wins']
+
+    if game_draw:
+        config.print('‘{t1}’ and ‘{t2}’ had a draw.'.format(t1=config.team_name(team1),
+                                                            t2=config.team_name(team2)))
+        return False
+    elif team_wins == 0 or team_wins == 1:
+        winner = teams[team_wins]
+        config.print('‘{team}’ wins'.format(team=config.team_name(winner)))
+        return winner
+    else:
+        config.print("Unable to parse winning result :(")
+        return None
 
     tmp = reversed(stdout.splitlines())
     for gameres in tmp:
@@ -253,10 +299,10 @@ def start_match(config, teams):
     except ValueError:
         config.print("*** ERROR: Apparently the game crashed. At least I could not find the outcome of the game.")
         config.print("*** Maybe stdout helps you to debug the problem")
-        config.print(stdout, speak=False)
+        print(stdout)
         config.print("*** Maybe stderr helps you to debug the problem")
-        config.print(stderr, speak=False)
-        config.print("***", speak=False)
+        print(stderr)
+        print("***")
         return None
     if stderr:
         config.print("***", stderr, speak=False)
@@ -282,20 +328,20 @@ def start_deathmatch(config, team1, team2):
     """
     config.print()
     config.print()
-    config.print("{} v {}".format(team1, team2))
+    config.print("{} v {}".format(config.team_name(team1), config.team_name(team2)))
     for i in range(3):
-        r = start_match(config, [team1, team2])
-        if r is False or r is None:
+        winner = start_match(config, [team1, team2])
+        if winner is False or winner is None:
             config.print('Draw -> Now go for a Death Match!')
             continue
-        winner = team1 if r == 0 else team2
         return winner
     # if we are here, we have no winner after 3 death matches
     # just assign a random winner
     config.print('No winner after 3 Death Matches. Choose a winner at random:', wait=2)
     winner = random.choice((team1, team2))
-    config.print('And the winner is', winner)
+    config.print('And the winner is', config.team_name(winner))
     return winner
+
 
 def round1_ranking(config, rr_played):
     import collections
@@ -310,6 +356,7 @@ def round1_ranking(config, rr_played):
     team_points = [(team_id, points[team_id]) for team_id in config.team_ids]
     return sorted(team_points, key=lambda elem: elem[1], reverse=True)
 
+
 def pp_round1_results(config, rr_played, rr_unplayed):
     """Pretty print the current result of the matches."""
     n_played = len(rr_played)
@@ -322,6 +369,7 @@ def pp_round1_results(config, rr_played, rr_unplayed):
         config.print("  %25s %d" % (config.team_name(team_id), p))
     config.print()
 
+
 def round1(config, state):
     """Run the first round and return a sorted list of team names.
 
@@ -331,7 +379,7 @@ def round1(config, state):
     rr_unplayed = state.round1["unplayed"]
     rr_played = state.round1["played"]
 
-    wait_for_keypress()
+    config.wait_for_keypress()
     config.print()
     config.print("ROUND 1 (Everybody vs Everybody)")
     config.print('================================', speak=False)
@@ -345,13 +393,14 @@ def round1(config, state):
         if winner is False or winner is None:
             rr_played.append({ "match": match, "winner": False })
         else:
-            rr_played.append({ "match": match, "winner": match[winner] })
+            rr_played.append({ "match": match, "winner": winner })
 
         pp_round1_results(config, rr_played, rr_unplayed)
 
-        state.save(ARGS.state)
+        state.save(config.statefile)
 
     return [team_id for team_id, p in round1_ranking(config, rr_played)]
+
 
 def recur_match_winner(match):
     if isinstance(match, komode.Match) and match.winner is not None:
@@ -360,7 +409,7 @@ def recur_match_winner(match):
         return recur_match_winner(match.team)
     elif isinstance(match, komode.Team):
         return match.name
-    elif isinstance(match, str):
+    elif isinstance(match, str) or isinstance(match, int):
         return match
     return None
 
@@ -375,30 +424,37 @@ def round2(config, teams, state):
     config.print('ROUND 2 (K.O.)')
     config.print('==============', speak=False)
     config.print()
-    wait_for_keypress()
+    config.wait_for_keypress()
 
-    last_match = komode.prepare_matches(teams, bonusmatch=config.bonusmatch)
-    tournament = komode.tree_enumerate(last_match)
+    tournament = state.round2.get("tournament")
+    last_match = state.round2.get("last_match")
+    if tournament and last_match:
+        print("Loading from state.")
+    else:
+        last_match = komode.prepare_matches(teams, bonusmatch=config.bonusmatch)
+        tournament = komode.tree_enumerate(last_match)
 
-    state.round2["tournament"] = tournament
+        state.round2["last_match"] = last_match
+        state.round2["tournament"] = tournament
 
     for round in tournament:
         for match in round:
             if isinstance(match, komode.Match):
                 if not match.winner:
-                    komode.print_knockout(last_match, config.team_name)
-                    match.winner = start_deathmatch(config,
-                                                    recur_match_winner(match.t1),
-                                                    recur_match_winner(match.t2))
+                    print(komode.print_knockout(last_match, config.team_name))
+                    winner = start_deathmatch(config,
+                                              recur_match_winner(match.t1),
+                                              recur_match_winner(match.t2))
+                    match.winner = winner
 
                     state.round2["tournament"] = tournament
-                    state.save(ARGS.state)
+                    state.save(config.statefile)
                 else:
                     config.print("Already played {match}. Skipping".format(match=match))
 
-    komode.print_knockout(last_match, config.team_name)
+    print(komode.print_knockout(last_match, config.team_name))
 
-    wait_for_keypress()
+    config.wait_for_keypress()
 
     return last_match.winner
 

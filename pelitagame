@@ -178,6 +178,9 @@ timeout_opt.add_argument('--no-timeout', const=None, action='store_const',
                          dest='timeout_length', help='run game with no timeouts')
 parser.set_defaults(timeout_length=3)
 
+parser.add_argument('--reply-to', type=str, metavar='URL',
+                    dest='reply_to', help='Reply channel')
+
 publisher_opt = parser.add_mutually_exclusive_group()
 publisher_opt.add_argument('--publish', type=str, metavar='URL',
                            dest='publish_to', help='publish to this zmq socket')
@@ -392,13 +395,28 @@ def run_game():
             viewers.append(pelita.viewer.AsciiViewer())
         if args.viewer == 'progress':
             viewers.append(pelita.viewer.ProgressViewer())
+        if args.reply_to:
+            viewers.append(pelita.viewer.ReplyToViewer(args.reply_to))
         if args.viewer == 'null':
             pass
+
+        with libpelita.channel_setup(publish_to=args.publish_to) as channels:
+            if args.viewer.startswith('tk'):
+                geometry = args.geometry
+                delay = int(1000./args.fps)
+                controller = channels["controller"]
+                publisher = channels["publisher"]
+                game_config["publisher"] = publisher
+                viewer = run_external_viewer(publisher.socket_addr, controller.socket_addr, geometry=geometry, delay=delay)
+                libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers, controller=controller)
+            else:
+                libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers)
+        sys.exit()
 
         if args.viewer.startswith('tk'):
             geometry = args.geometry
             delay = int(1000./args.fps)
-            with libpelita.tk_viewer(publish_to=args.publish_to, geometry=geometry, delay=delay) as external_viewer:
+            with libpelita.tk_viewer(publish_to=args.publish_to, reply_to=args.reply_to, geometry=geometry, delay=delay) as external_viewer:
                 controller = external_viewer["controller"]
                 publisher = external_viewer["publisher"]
                 game_config["publisher"] = publisher

@@ -4,7 +4,6 @@ import argparse
 import builtins
 import io
 import itertools
-import json
 import os
 import random
 import sys
@@ -30,6 +29,7 @@ LOGFILE = None
 
 os.environ["PELITA_PATH"] = os.environ.get("PELITA_PATH") or os.path.join(os.path.dirname(sys.argv[0]), "..")
 
+DEFAULT_PELITAGAME = os.path.join(os.path.dirname(sys.argv[0]), '../pelitagame')
 
 def create_directory(prefix):
     for suffix in itertools.count(0):
@@ -49,9 +49,7 @@ if __name__ == '__main__':
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser._positionals = parser.add_argument_group('Arguments')
     parser.add_argument('pelitagame', help='The pelitagame script',
-                        default=os.path.join(os.path.dirname(sys.argv[0]),
-                                             '../pelitagame'),
-                        nargs='?')
+                        default=DEFAULT_PELITAGAME, nargs='?')
     parser._optionals = parser.add_argument_group('Options')
     parser.add_argument('--help', '-h',
                         help='show this help message and exit',
@@ -64,15 +62,15 @@ if __name__ == '__main__':
                         type=str, default="/usr/bin/flite")
     parser.add_argument('--rounds', '-r',
                         help='maximum number of rounds to play per match',
-                        type=int, default=300)
+                        type=int)
     parser.add_argument('--viewer', '-v',
-                        help='the pelita viewer to use', default='tk')
+                        type=str, help='the pelita viewer to use (default: tk)')
     parser.add_argument('--config', help='tournament data',
                         metavar="CONFIG_YAML", default="tournament.yaml")
     parser.add_argument('--interactive', help='ask before proceeding',
-                        action='store_true')
+                        action='store_true', default=False)
     parser.add_argument('--state', help='store state',
-                        metavar="STATEFILE", default='state.json')
+                        metavar="STATEFILE", default='state.yaml')
     parser.add_argument('--load-state', help='load state from file',
                         action='store_true')
     parser.add_argument('--no-log', help='do not store the log data',
@@ -109,8 +107,15 @@ if __name__ == '__main__':
         LOGFILE = os.fdopen(fd, 'w')
 
     with open(ARGS.config) as f:
-        global config
-        config = Config(yaml.load(f))
+        config_data = yaml.load(f)
+        config_data['viewer'] = ARGS.viewer or config_data.get('viewer', 'tk')
+        config_data['interactive'] = ARGS.interactive
+        config_data['statefile'] = ARGS.state
+
+        config = Config(config_data)
+
+    if ARGS.rounds:
+        config.rounds = ARGS.rounds
 
     # Check speaking support
     SPEAK = ARGS.speak and os.path.exists(ARGS.speaker)
@@ -133,9 +138,9 @@ if __name__ == '__main__':
     state.save(ARGS.state)
 
     if config.bonusmatch:
-        sorted_ranking = komode.sort_ranks(rr_ranking[:-1]) + [rr_ranking[-1]]
+        sorted_ranking = tournament.komode.sort_ranks(rr_ranking[:-1]) + [rr_ranking[-1]]
     else:
-        sorted_ranking = komode.sort_ranks(rr_ranking)
+        sorted_ranking = tournament.komode.sort_ranks(rr_ranking)
 
     winner = tournament.round2(config, sorted_ranking, state)
 

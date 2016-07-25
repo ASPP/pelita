@@ -101,7 +101,6 @@ def call_standalone_pelitagame(module_spec, address):
             raise ValueError("Unknown runner: {}:".format(module_spec.prefix))
     else:
         runner = DefaultRunner
-
     return runner(module_spec.module).run(address)
 
 def check_team(team_spec):
@@ -206,6 +205,18 @@ def tk_viewer(publish_to=None, geometry=None, delay=None):
     viewer = run_external_viewer(publisher.socket_addr, controller.socket_addr,
                                  geometry=geometry, delay=delay)
     yield { "publisher": publisher, "controller": controller }
+
+
+@contextlib.contextmanager
+def channel_setup(publish_to=None, reply_to=None):
+    if publish_to is None:
+        publish_to = "tcp://127.0.0.1:*"
+    publisher = SimplePublisher(publish_to)
+    controller = SimpleController(None, "tcp://127.0.0.1:*", reply_to=reply_to)
+
+    yield { "publisher": publisher, "controller": controller }
+
+
 
 def run_external_viewer(subscribe_sock, controller, geometry, delay):
     # Something on OS X prevents Tk from running in a forked process.
