@@ -1,4 +1,7 @@
 import logging
+import os
+import shutil
+import sys
 
 import tkinter
 
@@ -6,6 +9,18 @@ from .tk_canvas import TkApplication
 
 _logger = logging.getLogger("pelita.tk_viewer")
 _logger.setLevel(logging.DEBUG)
+
+def force_frontmost():
+    """ This hack was discussed in https://github.com/ASPP/pelita/issues/345
+    and uses Apple Script to tell OS X’s System Events to put a certain
+    process in the foreground, focused and at the top position in the
+    application stack. (I.e. cmd+tab behaves as expected.)
+    """
+    if sys.platform == 'darwin' and shutil.which('/usr/bin/osascript'):
+        script = 'tell application "System Events" \
+                  to set frontmost of the first process whose unix id is {pid} to true'.format(pid=os.getpid())
+        os.system("/usr/bin/osascript -e '{script}'".format(script=script))
+
 
 class TkViewer:
     """ Initialises Tk based viewer for the game.
@@ -78,6 +93,10 @@ class TkViewer:
         # schedule next read
         self.root.after_idle(self.app.read_queue)
         try:
+            # Try our best to get the application to the front.
+            self.root.lift()
+            force_frontmost()
+
             self.root.mainloop()
         except KeyboardInterrupt:
             pass
