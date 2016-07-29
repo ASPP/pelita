@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import unittest
+from unittest.mock import MagicMock
 
 import re
 from textwrap import dedent
@@ -8,6 +9,7 @@ from textwrap import dedent
 from tournament import komode, roundrobin, tournament
 from tournament.komode import Team, Match, Bye
 from tournament import tournament
+
 
 class TestKoMode(unittest.TestCase):
     def test_sort_ranks(self):
@@ -122,27 +124,108 @@ class TestRoundRobin(unittest.TestCase):
         # TODO: Test that order is actually shuffled
 
 
-class TestTournament(unittest.TestCase):
-    def test_match_winner(self):
-        c = {
-            "location": None,
-            "date": None,
-            "bonusmatch": None,
-            "teams": [
-                {"id": "group0", "spec": "StoppingPlayer", "members": []},
-                {"id": "group1", "spec": "FoodEatingPlayer", "members": []},
-            ]
+### ASSERTIONS:
+# There must be exactly one game_state with finished=True
 
+class TestSingleMatch(unittest.TestCase):
+    def test_run_match(self):
+        config = MagicMock()
+        config.rounds = 200
+        config.team_spec = lambda x: x
+        config.viewer = 'ascii'
+        config.filter = 'small'
+
+        teams = ["StoppingPlayer", "StoppingPlayer"]
+        state = tournament.run_match(config, teams)
+        self.assertEqual(state['team_wins'], None)
+        self.assertEqual(state['game_draw'], True)
+
+        config.rounds = 200
+        config.team_spec = lambda x: x
+        config.viewer = 'ascii'
+        teams = ["SmartRandomPlayer", "StoppingPlayer"]
+        state = tournament.run_match(config, teams)
+        print(state)
+        self.assertEqual(state['team_wins'], 0)
+        self.assertEqual(state['game_draw'], None)
+
+        config.rounds = 200
+        config.team_spec = lambda x: x
+        config.viewer = 'ascii'
+        teams = ["StoppingPlayer", "SmartRandomPlayer"]
+        state = tournament.run_match(config, teams)
+        self.assertEqual(state['team_wins'], 1)
+        self.assertEqual(state['game_draw'], None)
+
+    def test_start_match(self):
+        stdout = []
+
+        def mock_print(str="", *args, **kwargs):
+            print(str)
+            stdout.append(str)
+
+        teams = {
+            "first_id": "StoppingPlayer",
+            "second_id": "FoodEatingPlayer",
         }
-        config = tournament.Config(c)
 
-        # group1 should win
-        self.assertEqual(1, tournament.start_match(config, ["group0", "group1"]))
-        self.assertEqual(0, tournament.start_match(config, ["group1", "group0"]))
-        self.assertEqual(False, tournament.start_match(config, ["group0", "group0"]))
+        config = MagicMock()
+        config.rounds = 200
+        config.team_spec = lambda x: teams[x]
+        config.team_name = lambda x: teams[x]
+        config.viewer = 'ascii'
+        config.filter = 'small'
+        config.print = mock_print
+
+        team_ids = ["first_id", "first_id"]
+        result = tournament.start_match(config, team_ids)
+        self.assertEqual(result, False)
+        self.assertEqual(stdout[-1], '‘StoppingPlayer’ and ‘StoppingPlayer’ had a draw.')
+
+        team_ids = ["second_id", "first_id"]
+        result = tournament.start_match(config, team_ids)
+        self.assertEqual(result, "second_id")
+        self.assertEqual(stdout[-1], '‘FoodEatingPlayer’ wins')
+
+        team_ids = ["first_id", "second_id"]
+        result = tournament.start_match(config, team_ids)
+        self.assertEqual(result, "second_id")
+        self.assertEqual(stdout[-1], '‘FoodEatingPlayer’ wins')
 
 
-    def test_game_winner(self):
+    def test_deathmatch(self):
+        stdout = []
+
+        def mock_print(str="", *args, **kwargs):
+            stdout.append(str)
+
+        teams = {
+            "first_id": "StoppingPlayer",
+            "second_id": "StoppingPlayer",
+        }
+
+        config = MagicMock()
+        config.rounds = 200
+        config.teams = teams
+        config.team_spec = lambda x: teams[x]
+        config.team_name = lambda x: teams[x]
+        config.viewer = 'ascii'
+        config.filter = 'small'
+        config.print = mock_print
+
+        result = tournament.start_deathmatch(config, *teams.keys())
+        self.assertIsNotNone(result)
+        self.assertIn(result, ["first_id", "second_id"])
+
+
+
+class TestTournament(unittest.TestCase):
+    def test_tournament_winner(self):
+        stdout = []
+
+        def mock_print(str="", *args, **kwargs):
+            stdout.append(str)
+
         c = {
             "location": None,
             "date": None,
@@ -153,14 +236,28 @@ class TestTournament(unittest.TestCase):
                 {"id": "group2", "spec": "StoppingPlayer", "members": []},
                 {"id": "group3", "spec": "StoppingPlayer", "members": []},
                 {"id": "group4", "spec": "StoppingPlayer", "members": []},
-            ]
-
+            ],
+            "filter": "small",
         }
-        print(12345)
         config = tournament.Config(c)
-        print(12345)
+        config.print = mock_print
+        config.viewer = 'null'
+        config.state = None
 
         # group1 should win
         self.assertEqual(1, tournament.start_match(config, ["group0", "group1"]))
         self.assertEqual(0, tournament.start_match(config, ["group1", "group0"]))
         self.assertEqual(False, tournament.start_match(config, ["group0", "group0"]))
+
+        tournament.present_teams(config)
+
+        state = tournament.State(config)
+        rr_ranking = tournament.round1(config, state)
+
+        if config.bonusmatch:
+            sorted_ranking = komode.sort_ranks(rr_ranking[:-1]) + [rr_ranking[-1]]
+        else:
+            sorted_ranking = komode.sort_ranks(rr_ranking)
+
+        winner = tournament.round2(config, sorted_ranking, state)
+        self.assertEqual(winner, 'group1')
