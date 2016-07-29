@@ -30,6 +30,9 @@ POINTS_WIN = 2
 SPEAK = True
 LOGFILE = None
 
+if os.name != 'posix':
+    raise RuntimeError("Tournament can only run on Posix systems.")
+
 # TODO: The PELITA_PATH environment variable tells pelita where to find the modules that
 # in turn are able to run the user’s code.
 os.environ["PELITA_PATH"] = os.environ.get("PELITA_PATH") or os.path.join(os.path.dirname(sys.argv[0]), "..")
@@ -177,7 +180,8 @@ def start_match(config, teams):
     config.print('Starting match: '+ config.team_name(team1)+' vs ' + config.team_name(team2))
     config.print()
     wait_for_keypress()
-    cmd = ["./pelitagame", "--null"] + [config.team_spec(team1), config.team_spec(team2),
+    cmd = ["./pelitagame"] + [config.team_spec(team1), config.team_spec(team2),
+                                        '--publish', 'tcp://127.0.0.1:54399',
                                         '--parseable-output',
                                         '--seed', str(random.randint(0, sys.maxsize))]
     print(cmd)
@@ -190,9 +194,55 @@ def start_match(config, teams):
     #    print("Would run: {cmd}".format(cmd=cmd))
     #    print("Choosing winner at random.")
     #    return random.choice([0, 1, 2])
+    import zmq
+    def fetch_all(sub):
+        ctx = zmq.Context()
+        sock = ctx.socket(zmq.SUB)
+        sock.setsockopt_unicode(zmq.SUBSCRIBE, "")
+        sock.connect(sub)
+        poll = zmq.Poller()
+        poll.register(sock, zmq.POLLIN)
+        while True:
+            print(".")
+            print(sock.recv())
 
-    stdout, stderr = Popen(cmd, stdout=PIPE, stderr=PIPE,
-                           universal_newlines=True).communicate()
+    import multiprocessing
+    # t = multiprocessing.Process(target=lambda: fetch_all("tcp://127.0.0.1:54399"), daemon=True)
+    # t.start()
+
+
+    proc = Popen(cmd, stdout=PIPE, stderr=PIPE,
+                           universal_newlines=True)#.communicate()
+    ctx = zmq.Context()
+    sock = ctx.socket(zmq.SUB)
+    sock.setsockopt_unicode(zmq.SUBSCRIBE, "")
+    sock.connect("tcp://127.0.0.1:54399")
+    poll = zmq.Poller()
+    poll.register(sock, zmq.POLLIN)
+    poll.register(proc.stdout.fileno(), zmq.POLLIN)
+    poll.register(proc.stderr.fileno(), zmq.POLLIN)
+
+    while True:
+        evts = dict(poll.poll(1000))
+        stdout_ready = evts.get(proc.stdout.fileno(), False)
+        if stdout_ready:
+            line = proc.stdout.readline()
+            if line:
+                print("STDOUT", line)
+            else:
+                break
+        stderr_ready = evts.get(proc.stdout.fileno(), False)
+        if stderr_ready:
+            line = proc.stderr.readline()
+            if line:
+                print("STDERR", line)
+            else:
+                break
+        socket_ready = evts.get(sock, False)
+        if socket_ready:
+            print(sock.recv())
+
+
     tmp = reversed(stdout.splitlines())
     for gameres in tmp:
         if gameres.startswith('Finished.'):
@@ -203,6 +253,8 @@ def start_match(config, teams):
         result = -1 if lastline == '-' else int(lastline)
     except ValueError:
         config.print("*** ERROR: Apparently the game crashed. At least I could not find the outcome of the game.")
+        config.print("*** Maybe stdout helps you to debug the problem")
+        config.print(stdout, speak=False)
         config.print("*** Maybe stderr helps you to debug the problem")
         config.print(stderr, speak=False)
         config.print("***", speak=False)
