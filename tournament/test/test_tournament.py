@@ -143,7 +143,7 @@ class TestSingleMatch(unittest.TestCase):
         config.rounds = 200
         config.team_spec = lambda x: x
         config.viewer = 'ascii'
-        teams = ["SmartRandomPlayer", "StoppingPlayer"]
+        teams = ["FoodEatingPlayer", "StoppingPlayer"]
         state = tournament.run_match(config, teams)
         print(state)
         self.assertEqual(state['team_wins'], 0)
@@ -152,7 +152,7 @@ class TestSingleMatch(unittest.TestCase):
         config.rounds = 200
         config.team_spec = lambda x: x
         config.viewer = 'ascii'
-        teams = ["StoppingPlayer", "SmartRandomPlayer"]
+        teams = ["StoppingPlayer", "FoodEatingPlayer"]
         state = tournament.run_match(config, teams)
         self.assertEqual(state['team_wins'], 1)
         self.assertEqual(state['game_draw'], None)
