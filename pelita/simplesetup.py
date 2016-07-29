@@ -419,7 +419,6 @@ class SimpleController:
 
     def _loop(self):
         addr, py_obj_raw = self.socket.recv_multipart()
-        print(addr, py_obj_raw)
         py_obj = json.loads(py_obj_raw.decode('utf-8'))
         uuid_ = py_obj.get("__uuid__")
         action = py_obj["__action__"]
@@ -431,7 +430,7 @@ class SimpleController:
         if uuid_:
             message_obj = {"__uuid__": uuid_, "__return__": retval}
             json_message = json.dumps(message_obj)
-            self.socket.send_unicode(json_message)
+            self.socket.send_multipart([addr, json_message.encode()])
 
     def set_initial(self, *args, **kwargs):
         return self.game_master.set_initial(*args, **kwargs)
