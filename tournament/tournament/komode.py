@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from io import StringIO
 import itertools
 import math
 import queue
@@ -8,6 +9,22 @@ from collections import defaultdict, namedtuple
 import numpy as np
 
 def sort_ranks(teams):
+    """ Re-orders a list
+
+    Parameters
+    ----------
+    new_data : list of appropriate length
+        the new data
+
+    Raises
+    ------
+    TypeError
+        if new_data is not a list
+    ValueError
+        if new_data has inappropriate length
+
+    """
+
     l = len(teams)
     if l % 2 != 0:
         bonus = [teams[-1]]
@@ -154,15 +171,18 @@ def print_knockout(tree, name_trafo=identity):
 
     colwidths = np.amax(np.vectorize(lambda self: self.size(trafo=name_trafo))(matrix), axis=0)
 
-    for row in range(matrix.shape[0]):
-        for col in range(0, matrix.shape[1]):
-            try:
-                print(matrix[row, col].to_s(colwidths[col], trafo=name_trafo), end="")
-            except AttributeError:
-                print("Here:", end="")
-                print(row, col, matrix[row, col])
-                raise
-        print()
+    with StringIO() as output:
+        for row in range(matrix.shape[0]):
+            for col in range(0, matrix.shape[1]):
+                try:
+                    print(matrix[row, col].to_s(colwidths[col], trafo=name_trafo), end="", file=output)
+                except AttributeError:
+                    print("Here:", end="")
+                    print(row, col, matrix[row, col])
+                    raise
+            print(file=output)
+        return output.getvalue()
+
 
 def makepairs(matches):
     if len(matches) == 0:
@@ -179,8 +199,13 @@ def makepairs(matches):
     return matches[0]
 
 def prepare_matches(teams, bonusmatch=False):
-    if bonusmatch:
-        *good_teams, loser_team = teams
+    if not teams:
+        raise ValueError("No teams given to sort.")
+
+    if bonusmatch and len(teams) > 1:
+        good_teams = sort_ranks(teams[:-1])
+        loser_team = teams[-1]
+
         matches = makepairs([Team(t) for t in good_teams])
         team = Team(loser_team)
         for _depth in range(tree_depth(matches) - 1):

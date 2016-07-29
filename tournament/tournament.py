@@ -95,7 +95,9 @@ if __name__ == '__main__':
         # Define the command line to run a pelita match
         CMD_STUB = [ARGS.pelitagame,
                     '--rounds=%d'%ARGS.rounds,
-                    '--%s'%ARGS.viewer]
+        #            '--%s'%ARGS.viewer]
+        '--publish-to', 'tcp://127.0.0.1:51234'
+                        ] # '%ARGS.viewer]
 
     if not ARGS.no_log:
         # create a directory for the dumps

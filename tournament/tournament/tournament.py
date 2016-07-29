@@ -47,7 +47,7 @@ class Config:
         teams = config["teams"]
         # load team names
         for idx, team in enumerate(teams):
-            team_id = team.get("id") or "{team_prefix}{id}".format(team_prefix=config["team_prefix"], id=idx)
+            team_id = team.get("id") or idx
             team_spec = team["spec"]
             team_name = set_name(team_spec)
             self.teams[team_id] = {
@@ -143,6 +143,8 @@ def present_teams(config):
     config.print('Welcome to the %s Pelita tournament %s' % (config.location, config.date), wait=1.5)
     config.print('This evening the teams are:', wait=1.5)
     for team_id, team in config.teams.items():
+        if isinstance(team_id, int):
+            team_id = "#{team_id}".format(team_id=team_id)
         config.print("{team_id}: {team_name}".format(team_id=team_id, team_name=team["name"]))
         for member in team["members"]:
             config.print("{member}".format(member=member), wait=0.1)
