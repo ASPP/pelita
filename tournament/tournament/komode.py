@@ -73,7 +73,7 @@ class Match(namedtuple("Match", ["t1", "t2"]), MatrixElem):
 
     def to_s(self, size=None, trafo=identity):
         prefix = "├─"
-        name = trafo(self.winner) if self.winner else "???"
+        name = trafo(self.winner) if (self.winner is not None) else "???"
         return self.box(name, prefix=prefix, padLeft=" ", padRight=" ", size=size)
 
 class FinalMatch(namedtuple("FinalMatch", ["t1", "t2"]), MatrixElem):
@@ -83,7 +83,7 @@ class FinalMatch(namedtuple("FinalMatch", ["t1", "t2"]), MatrixElem):
         prefix = "├──┨"
         postfix = "┃"
         fillElem = " "
-        name = trafo(self.winner) if self.winner else "???"
+        name = trafo(self.winner) if (self.winner is not None) else "???"
         return self.box(name, prefix=prefix, postfix=postfix, padLeft=" ", padRight=" ", fillElem=fillElem, size=size)
 
 class Element(namedtuple("Element", ["char"]), MatrixElem):
