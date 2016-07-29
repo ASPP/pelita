@@ -356,7 +356,12 @@ def round1_ranking(config, rr_played):
     return sorted(team_points, key=lambda elem: elem[1], reverse=True)
 
 
-def pp_round1_results(config, rr_played, rr_unplayed):
+def pp_round1_results(config, rr_played, rr_unplayed, highlight=None):
+    if highlight is None:
+        highlight = []
+    BOLD = '\033[1m'
+    END = '\033[0m'
+
     """Pretty print the current result of the matches."""
     n_played = len(rr_played)
     es = "es" if n_played != 1 else ""
@@ -365,7 +370,10 @@ def pp_round1_results(config, rr_played, rr_unplayed):
     config.print()
     config.print('Ranking after {n_played} match{es} ({n_togo} to go):'.format(n_played=n_played, es=es, n_togo=n_togo))
     for team_id, p in round1_ranking(config, rr_played):
-        config.print("  %25s %d" % (config.team_name(team_id), p))
+        if team_id in highlight:
+            config.print("  {BOLD}{:>25}{END} {}".format(config.team_name(team_id), p, BOLD=BOLD, END=END))
+        else:
+            config.print("  {:>25} {}".format(config.team_name(team_id), p))
     config.print()
 
 
@@ -394,7 +402,7 @@ def round1(config, state):
         else:
             rr_played.append({ "match": match, "winner": winner })
 
-        pp_round1_results(config, rr_played, rr_unplayed)
+        pp_round1_results(config, rr_played, rr_unplayed, highlight=match)
 
         state.save(config.statefile)
 
