@@ -444,22 +444,24 @@ def round2(config, teams, state):
         state.round2["last_match"] = last_match
         state.round2["tournament"] = tournament
 
+    print(komode.print_knockout(last_match, config.team_name))
+
     for round in tournament:
         for match in round:
             if isinstance(match, komode.Match):
                 if not match.winner:
-                    print(komode.print_knockout(last_match, config.team_name))
                     winner = start_deathmatch(config,
                                               recur_match_winner(match.t1),
                                               recur_match_winner(match.t2))
                     match.winner = winner
+
+                    print(komode.print_knockout(last_match, config.team_name, highlight=[match]))
 
                     state.round2["tournament"] = tournament
                     state.save(config.statefile)
                 else:
                     config.print("Already played {match}. Skipping".format(match=match))
 
-    print(komode.print_knockout(last_match, config.team_name))
 
     config.wait_for_keypress()
 
