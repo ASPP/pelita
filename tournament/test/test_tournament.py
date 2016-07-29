@@ -170,7 +170,7 @@ class TestSingleMatch(unittest.TestCase):
         }
 
         config = MagicMock()
-        config.rounds = 200
+        config.rounds = 300
         config.team_spec = lambda x: teams[x]
         config.team_name = lambda x: teams[x]
         config.viewer = 'ascii'
@@ -245,8 +245,8 @@ class TestTournament(unittest.TestCase):
         config.state = None
 
         # group1 should win
-        self.assertEqual(1, tournament.start_match(config, ["group0", "group1"]))
-        self.assertEqual(0, tournament.start_match(config, ["group1", "group0"]))
+        self.assertEqual("group1", tournament.start_match(config, ["group0", "group1"]))
+        self.assertEqual("group1", tournament.start_match(config, ["group1", "group0"]))
         self.assertEqual(False, tournament.start_match(config, ["group0", "group0"]))
 
         tournament.present_teams(config)
