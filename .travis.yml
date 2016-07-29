@@ -31,7 +31,7 @@ script:
           (echo $res | grep -q Exception) && exit 1
           echo "" # This resets the error code
       done
-  - PELITA_PATH=. PYTHONPATH=.:tournament py.test -sv tournament/test/
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.5 ]]; then PELITA_PATH=. PYTHONPATH=.:tournament py.test -sv tournament/test/ ; fi
 
 after_success:
   - ./deploy-gh-pages.sh
