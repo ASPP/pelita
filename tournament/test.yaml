@@ -1,6 +1,6 @@
 ---
-location: Munich
-date: 2015
+location: Pelipolis
+date: 2525
 team_prefix: group
 speak: false
 seed: null
@@ -15,4 +15,8 @@ teams:
   - spec: SmartRandomPlayer
     members:
       - "I am smart"
+  - spec: FoodEatingPlayer
+    members:
+      - "no-one"
+    id: group3
 
