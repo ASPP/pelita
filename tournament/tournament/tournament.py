@@ -252,7 +252,6 @@ def run_match(config, teams):
                 team_wins = game_state.get("team_wins", None)
                 game_draw = game_state.get("game_draw", None)
                 if finished:
-                    print(proc.returncode)
                     return game_state
             except json.JSONDecodeError:
                 pass
