@@ -400,6 +400,9 @@ def run_game():
         if args.viewer == 'null':
             pass
 
+        # Adding the result printer to the viewers.
+        viewers.append(ResultPrinter())
+
         with libpelita.channel_setup(publish_to=args.publish_to) as channels:
             if args.viewer.startswith('tk'):
                 geometry = args.geometry
