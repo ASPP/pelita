@@ -136,7 +136,7 @@ class TestSingleMatch(unittest.TestCase):
         config.filter = 'small'
 
         teams = ["StoppingPlayer", "StoppingPlayer"]
-        state = tournament.run_match(config, teams)
+        (state, stdout, stderr) = tournament.run_match(config, teams)
         self.assertEqual(state['team_wins'], None)
         self.assertEqual(state['game_draw'], True)
 
@@ -144,7 +144,7 @@ class TestSingleMatch(unittest.TestCase):
         config.team_spec = lambda x: x
         config.viewer = 'ascii'
         teams = ["FoodEatingPlayer", "StoppingPlayer"]
-        state = tournament.run_match(config, teams)
+        (state, stdout, stderr) = tournament.run_match(config, teams)
         print(state)
         self.assertEqual(state['team_wins'], 0)
         self.assertEqual(state['game_draw'], None)
@@ -153,7 +153,7 @@ class TestSingleMatch(unittest.TestCase):
         config.team_spec = lambda x: x
         config.viewer = 'ascii'
         teams = ["StoppingPlayer", "FoodEatingPlayer"]
-        state = tournament.run_match(config, teams)
+        (state, stdout, stderr) = tournament.run_match(config, teams)
         self.assertEqual(state['team_wins'], 1)
         self.assertEqual(state['game_draw'], None)
 

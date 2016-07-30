@@ -203,6 +203,7 @@ def run_match(config, teams):
 
     _logger.debug("Executing: {}".format(" ".join(shlex.quote(arg) for arg in cmd)))
 
+    # We use the environment variable PYTHONUNBUFFERED here to retrieve stdout without buffering
     proc = Popen(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True, env=dict(os.environ, PYTHONUNBUFFERED='x'))
 
 
@@ -223,40 +224,50 @@ def run_match(config, teams):
     poll.register(proc.stdout.fileno(), zmq.POLLIN)
     poll.register(proc.stderr.fileno(), zmq.POLLIN)
 
-    while True:
-        evts = dict(poll.poll(1000))
-        stdout_ready = (not proc.stdout.closed) and evts.get(proc.stdout.fileno(), False)
-        if stdout_ready:
-            line = proc.stdout.readline()
-            if line:
-                pass
-                #print("STDOUT", line, end='')
-            else:
-                poll.unregister(proc.stdout.fileno())
-                proc.stdout.close()
-        stderr_ready = (not proc.stderr.closed) and evts.get(proc.stderr.fileno(), False)
-        if stderr_ready:
-            line = proc.stderr.readline()
-            if line:
-                pass
-                #print("STDERR", line)
-            else:
-                poll.unregister(proc.stderr.fileno())
-                proc.stderr.close()
-        socket_ready = evts.get(reply_sock, False)
-        if socket_ready:
-            try:
-                pelita_status = json.loads(reply_sock.recv_string())
-                game_state = pelita_status['__data__']['game_state']
-                finished = game_state.get("finished", None)
-                team_wins = game_state.get("team_wins", None)
-                game_draw = game_state.get("game_draw", None)
-                if finished:
-                    return game_state
-            except json.JSONDecodeError:
-                pass
-            except KeyError:
-                pass
+    with io.StringIO() as stdout_buf, io.StringIO() as stderr_buf:
+        final_game_state = None
+
+        while True:
+            evts = dict(poll.poll(1000))
+
+            if not evts and proc.poll() is not None:
+                # no more events and proc has finished.
+                # we give up
+                break
+
+            stdout_ready = (not proc.stdout.closed) and evts.get(proc.stdout.fileno(), False)
+            if stdout_ready:
+                line = proc.stdout.readline()
+                if line:
+                    print(line, end='', file=stdout_buf)
+                else:
+                    poll.unregister(proc.stdout.fileno())
+                    proc.stdout.close()
+            stderr_ready = (not proc.stderr.closed) and evts.get(proc.stderr.fileno(), False)
+            if stderr_ready:
+                line = proc.stderr.readline()
+                if line:
+                    print(line, end='', file=stderr_buf)
+                else:
+                    poll.unregister(proc.stderr.fileno())
+                    proc.stderr.close()
+            socket_ready = evts.get(reply_sock, False)
+            if socket_ready:
+                try:
+                    pelita_status = json.loads(reply_sock.recv_string())
+                    game_state = pelita_status['__data__']['game_state']
+                    finished = game_state.get("finished", None)
+                    team_wins = game_state.get("team_wins", None)
+                    game_draw = game_state.get("game_draw", None)
+                    if finished:
+                        final_game_state = game_state
+                        break
+                except json.JSONDecodeError:
+                    pass
+                except KeyError:
+                    pass
+
+        return (final_game_state, stdout_buf.getvalue(), stderr_buf.getvalue())
 
 
 def start_match(config, teams):
@@ -271,53 +282,29 @@ def start_match(config, teams):
     config.print()
     config.wait_for_keypress()
 
-    final_state = run_match(config, teams)
-    game_draw = final_state['game_draw']
-    team_wins = final_state['team_wins']
-
-    if game_draw:
-        config.print('‘{t1}’ and ‘{t2}’ had a draw.'.format(t1=config.team_name(team1),
-                                                            t2=config.team_name(team2)))
-        return False
-    elif team_wins == 0 or team_wins == 1:
-        winner = teams[team_wins]
-        config.print('‘{team}’ wins'.format(team=config.team_name(winner)))
-        return winner
-    else:
-        config.print("Unable to parse winning result :(")
-        return None
-
-    tmp = reversed(stdout.splitlines())
-    for gameres in tmp:
-        if gameres.startswith('Finished.'):
-            config.print(gameres)
-            break
-    lastline = stdout.strip().splitlines()[-1]
+    (final_state, stdout, stderr) = run_match(config, teams)
     try:
-        result = -1 if lastline == '-' else int(lastline)
-    except ValueError:
+        game_draw = final_state['game_draw']
+        team_wins = final_state['team_wins']
+
+        if game_draw:
+            config.print('‘{t1}’ and ‘{t2}’ had a draw.'.format(t1=config.team_name(team1),
+                                                                t2=config.team_name(team2)))
+            return False
+        elif team_wins == 0 or team_wins == 1:
+            winner = teams[team_wins]
+            config.print('‘{team}’ wins'.format(team=config.team_name(winner)))
+            return winner
+        else:
+            raise ValueError
+    except (TypeError, ValueError, KeyError):
+        config.print("Unable to parse winning result :(")
         config.print("*** ERROR: Apparently the game crashed. At least I could not find the outcome of the game.")
         config.print("*** Maybe stdout helps you to debug the problem")
         print(stdout)
         config.print("*** Maybe stderr helps you to debug the problem")
         print(stderr)
         print("***")
-        return None
-    if stderr:
-        config.print("***", stderr, speak=False)
-    config.print('***', lastline)
-    if lastline == '-':
-        config.print('‘{t1}’ and ‘{t2}’ had a draw.'.format(t1=config.team_name(team1),
-                                                            t2=config.team_name(team2)))
-        return False
-    elif lastline == '0':
-        config.print('‘{t1}’ wins'.format(t1=config.team_name(team1)))
-        return 0
-    elif lastline == '1':
-        config.print('‘{t2}’ wins'.format(t2=config.team_name(team2)))
-        return 1
-    else:
-        config.print("Unable to parse winning result :(")
         return None
 
 
