@@ -392,6 +392,21 @@ def round1(config, state):
     config.print('================================', speak=False)
     config.print()
 
+    for played_match in rr_played:
+        _logger.debug("Skipping played match {}.".format(played_match))
+        t1_id, t2_id = played_match["match"]
+        winner = played_match["winner"]
+        if winner is False or winner is None:
+            config.print("Already played match between {t1} and {t2}. (Draw.) Skipping.".format(t1=config.team_name(t1_id),
+                                                                                                t2=config.team_name(t2_id)))
+        else:
+            config.print("Already played match between {t1} and {t2}. ({winner} won.) Skipping.".format(t1=config.team_name(t1_id),
+                                                                                                        t2=config.team_name(t2_id),
+                                                                                                        winner=config.team_name(winner)))
+
+    if not rr_unplayed:
+        pp_round1_results(config, rr_played, rr_unplayed)
+
     while rr_unplayed:
         match = rr_unplayed.pop()
 
@@ -475,7 +490,7 @@ def round2(config, teams, state):
                     state.save(config.statefile)
                 else:
                     _logger.debug("Skipping match {}.".format(match))
-                    config.print("Already played match between {t1} and {t2}. ({winner} won). Skipping.".format(t1=config.team_name(t1_id),
+                    config.print("Already played match between {t1} and {t2}. ({winner} won.) Skipping.".format(t1=config.team_name(t1_id),
                                                                                                                 t2=config.team_name(t2_id),
                                                                                                                 winner=config.team_name(match.winner)))
 
