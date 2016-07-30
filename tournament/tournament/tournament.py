@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-import argparse
 import builtins
 import io
-import itertools
 import json
 import os
 import random

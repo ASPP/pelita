@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
 
 import argparse
-import builtins
-import io
 import itertools
 import os
 import random
 import sys
-import tempfile
-import time
-from subprocess import PIPE, STDOUT, Popen, check_call
 
 import yaml
 
@@ -89,13 +84,6 @@ if __name__ == '__main__':
     if not os.path.isfile(ARGS.pelitagame):
         sys.stderr.write(ARGS.pelitagame+' not found!\n')
         sys.exit(2)
-    else:
-        # Define the command line to run a pelita match
-        CMD_STUB = [ARGS.pelitagame,
-                    '--rounds=%d'%ARGS.rounds,
-        #            '--%s'%ARGS.viewer]
-        '--publish-to', 'tcp://127.0.0.1:51234'
-                        ] # '%ARGS.viewer]
 
     if not ARGS.no_log:
         # create a directory for the dumps

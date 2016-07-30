@@ -117,7 +117,6 @@ def check_team(team_spec):
         team_spec = team_spec._replace(address="%s:%d" % (team_spec.address, socket_port))
 
     team_player = RemoteTeamPlayer(socket)
-    print(team_player)
 
     if team_spec.module:
         with _call_standalone_pelitagame(team_spec.module, team_spec.address):

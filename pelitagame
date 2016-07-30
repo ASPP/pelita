@@ -414,18 +414,6 @@ def run_game():
                 libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers, controller=controller)
             else:
                 libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers)
-        sys.exit()
-
-        if args.viewer.startswith('tk'):
-            geometry = args.geometry
-            delay = int(1000./args.fps)
-            with libpelita.tk_viewer(publish_to=args.publish_to, reply_to=args.reply_to, geometry=geometry, delay=delay) as external_viewer:
-                controller = external_viewer["controller"]
-                publisher = external_viewer["publisher"]
-                game_config["publisher"] = publisher
-                libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers, controller=controller)
-        else:
-            libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers)
 
 
 if __name__ == '__main__':
