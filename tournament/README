@@ -1,8 +1,0 @@
-Just copy five directories with the names group0, group1, ..., group4 into this
-directory and start tournament.py
-
-The directories should be of course the agents/bots packages...
-
-
--- Bastian Venthur <bastian venthur at tu-berlin de>
-
