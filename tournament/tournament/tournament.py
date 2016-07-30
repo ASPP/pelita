@@ -116,6 +116,15 @@ class Config:
                 festival = check_call([self.speaker, text.name])
             time.sleep(wait)
 
+    def input(self, str, values=None):
+        if not values:
+            values = []
+        res = input(str)
+        while not res[0] in values:
+            res = input(str)
+        return res.strip()
+
+
     def wait_for_keypress(self):
         if self.interactive:
             input('---\n')
@@ -308,6 +317,25 @@ def start_match(config, teams):
         return None
 
 
+def start_match_with_replay(config, match):
+    """ Runs start_match until it returns a proper output or manual intervention. """
+
+    winner = start_match(config, match)
+    while winner is None:
+        config.print("Do you want to re-play the game or enter a winner manually?")
+        res = config.input("(r)e-play/(0){}/(1){}/(d)raw > ".format(config.team_name(match[0]),
+                                                                    config.team_name(match[1])), values="r01d")
+        if res == 'r':
+            winner = start_match(config, match)
+        elif res == '0':
+            winner = match[0]
+        elif res == '1':
+            winner = match[1]
+        elif res == 'd':
+            winner = False
+    return winner
+
+
 def start_deathmatch(config, team1, team2):
     """Start a match between team1 and team2 until one of them wins (ie no
     draw.)
@@ -316,7 +344,8 @@ def start_deathmatch(config, team1, team2):
     config.print()
     config.print("{} v {}".format(config.team_name(team1), config.team_name(team2)))
     for i in range(3):
-        winner = start_match(config, [team1, team2])
+        winner = start_match_with_replay(config, [team1, team2])
+
         if winner is False or winner is None:
             config.print('Draw -> Now go for a Death Match!')
             continue
@@ -397,7 +426,7 @@ def round1(config, state):
     while rr_unplayed:
         match = rr_unplayed.pop()
 
-        winner = start_match(config, match)
+        winner = start_match_with_replay(config, match)
 
         if winner is False or winner is None:
             rr_played.append({ "match": match, "winner": False })
