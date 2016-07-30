@@ -410,6 +410,20 @@ def round1(config, state):
 
 
 def recur_match_winner(match):
+    """ Returns the team id of the unambiguous winner.
+
+    Parameters
+    ----------
+    match : one of Match, Bye, Team or a team id (str or int)
+        Match to get the id for
+
+    Returns
+    -------
+    team_id or None :
+        The config id of the team.
+
+    """
+
     if isinstance(match, komode.Match) and match.winner is not None:
         return recur_match_winner(match.winner)
     elif isinstance(match, komode.Bye):
@@ -449,10 +463,10 @@ def round2(config, teams, state):
     for round in tournament:
         for match in round:
             if isinstance(match, komode.Match):
+                t1_id = recur_match_winner(match.t1)
+                t2_id = recur_match_winner(match.t2)
                 if not match.winner:
-                    winner = start_deathmatch(config,
-                                              recur_match_winner(match.t1),
-                                              recur_match_winner(match.t2))
+                    winner = start_deathmatch(config, t1_id, t2_id)
                     match.winner = winner
 
                     print(komode.print_knockout(last_match, config.team_name, highlight=[match]))
@@ -460,7 +474,10 @@ def round2(config, teams, state):
                     state.round2["tournament"] = tournament
                     state.save(config.statefile)
                 else:
-                    config.print("Already played {match}. Skipping".format(match=match))
+                    _logger.debug("Skipping match {}.".format(match))
+                    config.print("Already played match between {t1} and {t2}. ({winner} won). Skipping.".format(t1=config.team_name(t1_id),
+                                                                                                                t2=config.team_name(t2_id),
+                                                                                                                winner=config.team_name(match.winner)))
 
 
     config.wait_for_keypress()
