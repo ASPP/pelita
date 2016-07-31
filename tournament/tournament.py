@@ -99,6 +99,8 @@ if __name__ == '__main__':
         config_data['viewer'] = ARGS.viewer or config_data.get('viewer', 'tk')
         config_data['interactive'] = ARGS.interactive
         config_data['statefile'] = ARGS.state
+        config_data['speak'] = ARGS.speak
+        config_data['speaker'] = ARGS.speaker
 
         config = Config(config_data)
 

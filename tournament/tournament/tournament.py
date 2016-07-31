@@ -111,7 +111,8 @@ class Config:
             with tempfile.NamedTemporaryFile('wt') as text:
                 text.write(string+'\n')
                 text.flush()
-                festival = check_call([self.speaker, text.name])
+                cmd = shlex.split(self.speaker)
+                festival = check_call([*cmd, text.name])
             time.sleep(wait)
 
     def input(self, str, values=None):

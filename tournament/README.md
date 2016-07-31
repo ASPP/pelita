@@ -43,3 +43,13 @@ From the root of the pelita repository, one could start a tournament as follows:
 
     export PYTHONPATH=.
     python3 tournament/tournament.py --config tournament/test.yaml --rounds 300
+
+## Speech synthesis
+
+Spoken output can be activated with the command line flag `--speak` and defaults to `/usr/bin/flite`.
+Alternative outputs can be specified with the `--speaker flag`, which can be any callable expression that expects a file parameter (containing the text) as last argument.
+
+An example using OS X’s `say`:
+
+    python3 tournament/tournament.py --config tournament/test.yaml \
+        --speak --speaker "/usr/bin/say -v 'Good News' -f"
