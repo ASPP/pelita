@@ -112,7 +112,14 @@ if __name__ == '__main__':
 
     random.seed(config.seed)
 
-    tournament.present_teams(config)
+    if state.round1['played']:
+        # We have already played one match. Do not speak the introduction.
+        old_speak = config.speak
+        config.speak = False
+        tournament.present_teams(config)
+        config.speak = old_speak
+    else:
+        tournament.present_teams(config)
 
     rr_ranking = tournament.round1(config, state)
     state.round2["round_robin_ranking"] = rr_ranking
