@@ -6,6 +6,7 @@ import io
 import json
 import os
 import random
+import re
 import shlex
 import sys
 import tempfile
@@ -108,6 +109,9 @@ class Config:
             _print(string, end='')
             sys.stdout.flush()
             with tempfile.NamedTemporaryFile('wt') as text:
+                ansi_seqs = re.compile(r'\x1b[^m]*m')
+                string = ansi_seqs.sub('', string)
+
                 text.write(string+'\n')
                 text.flush()
                 cmd = shlex.split(self.speaker)
