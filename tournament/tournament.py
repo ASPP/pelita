@@ -14,12 +14,6 @@ from tournament.tournament import Config, State
 # Tournament log file
 DUMPSTORE = None
 
-# Number of points a teams gets for matches in the first round
-# Probably not worth it to make it options.
-POINTS_DRAW = 1
-POINTS_WIN = 2
-
-SPEAK = True
 LOGFILE = None
 
 os.environ["PELITA_PATH"] = os.environ.get("PELITA_PATH") or os.path.join(os.path.dirname(sys.argv[0]), "..")
@@ -106,9 +100,6 @@ if __name__ == '__main__':
 
     if ARGS.rounds:
         config.rounds = ARGS.rounds
-
-    # Check speaking support
-    SPEAK = ARGS.speak and os.path.exists(ARGS.speaker)
 
     if os.path.isfile(ARGS.state):
         if not ARGS.load_state:

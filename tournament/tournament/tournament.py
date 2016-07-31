@@ -29,7 +29,6 @@ DUMPSTORE = None
 POINTS_DRAW = 1
 POINTS_WIN = 2
 
-SPEAK = True
 LOGFILE = None
 
 if os.name != 'posix':
@@ -100,8 +99,8 @@ class Config:
             return
         stream = io.StringIO()
         wait = kwargs.pop('wait', 0.5)
-        want_speak = kwargs.pop('speak', SPEAK)
-        if not want_speak or not self.speak:
+        want_speak = kwargs.pop('speak', None)
+        if (want_speak is False) or not self.speak:
             _print(*args, **kwargs)
         else:
             _print(*args, file=stream, **kwargs)
