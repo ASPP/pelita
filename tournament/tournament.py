@@ -56,8 +56,8 @@ if __name__ == '__main__':
                         type=str, help='the pelita viewer to use (default: tk)')
     parser.add_argument('--config', help='tournament data',
                         metavar="CONFIG_YAML", default="tournament.yaml")
-    parser.add_argument('--interactive', help='ask before proceeding',
-                        action='store_true', default=False)
+    parser.add_argument('--non-interactive', help='do not ask before proceeding',
+                        action='store_true')
     parser.add_argument('--state', help='store state',
                         metavar="STATEFILE", default='state.yaml')
     parser.add_argument('--load-state', help='load state from file',
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     with open(ARGS.config) as f:
         config_data = yaml.load(f)
         config_data['viewer'] = ARGS.viewer or config_data.get('viewer', 'tk')
-        config_data['interactive'] = ARGS.interactive
+        config_data['interactive'] = not ARGS.non_interactive
         config_data['statefile'] = ARGS.state
         config_data['speak'] = ARGS.speak
         config_data['speaker'] = ARGS.speaker
