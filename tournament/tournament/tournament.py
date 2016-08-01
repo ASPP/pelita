@@ -129,7 +129,7 @@ class Config:
 
     def wait_for_keypress(self):
         if self.interactive:
-            input('---\n')
+            input('--- (press ENTER to continue) ---\n')
         else:
             _logger.debug("Noninteractive. Not asking for keypress.")
 
