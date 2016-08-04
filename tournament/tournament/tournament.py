@@ -8,10 +8,10 @@ import os
 import random
 import re
 import shlex
+import subprocess
 import sys
 import tempfile
 import time
-from subprocess import PIPE, Popen, check_call
 
 import yaml
 import zmq
@@ -108,15 +108,46 @@ class Config:
             string = stream.getvalue()
             _print(string, end='')
             sys.stdout.flush()
-            with tempfile.NamedTemporaryFile('wt') as text:
-                ansi_seqs = re.compile(r'\x1b[^m]*m')
-                string = ansi_seqs.sub('', string)
-
-                text.write(string+'\n')
-                text.flush()
-                cmd = shlex.split(self.speaker)
-                festival = check_call([*cmd, text.name])
+            self.say(string)
             time.sleep(wait)
+
+    def say(self, string):
+        with tempfile.NamedTemporaryFile('w+t') as tmp:
+            ansi_seqs = re.compile(r'\x1b[^m]*m')
+            string = ansi_seqs.sub('', string)
+
+            tmp.write(string+'\n')
+            tmp.flush()
+            cmd = shlex.split(self.speaker)
+            full_cmd = [*cmd, tmp.name]
+            try:
+                festival = subprocess.check_call(full_cmd)
+            except FileNotFoundError:
+                # If we could not find the executable then there is not need to keep on trying.
+                # Disabling speak. (Although self.say() will still attempt to speak.)
+
+                print("Could not find executable in call {!r}".format(full_cmd))
+                print("Disabling speech synthesis.")
+
+                _logger.warn("Could not find executable in call {!r}".format(full_cmd))
+                _logger.warn("Disabling speech synthesis.")
+
+                self.speak = False
+                self.wait_for_keypress()
+            except subprocess.CalledProcessError as err:
+                # A non-zero return value could mean that the call syntax is wrong.
+                # However, it could also be a one-time error (maybe the program did
+                # not like a character in the string or something like that).
+                # We only print the error the first time and only log it afterwards.
+
+                if not getattr(self, '_say_process_error', False):
+                    print(err)
+                    print("Ignoring this error.")
+                    self._say_process_error = True
+                    self.wait_for_keypress()
+                else:
+                    _logger.warn(err)
+
 
     def input(self, str, values=None):
         if not values:
@@ -215,7 +246,8 @@ def run_match(config, teams):
     _logger.debug("Executing: {}".format(" ".join(shlex.quote(arg) for arg in cmd)))
 
     # We use the environment variable PYTHONUNBUFFERED here to retrieve stdout without buffering
-    proc = Popen(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True, env=dict(os.environ, PYTHONUNBUFFERED='x'))
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            universal_newlines=True, env=dict(os.environ, PYTHONUNBUFFERED='x'))
 
 
     # global ARGS
