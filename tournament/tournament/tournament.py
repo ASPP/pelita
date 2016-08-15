@@ -243,7 +243,7 @@ def run_match(config, teams):
                               *rounds,
                               *viewer]
 
-    _logger.debug("Executing: {}".format(libpelita.cmd_unsplit(cmd)))
+    _logger.debug("Executing: {}".format(libpelita.shlex_unsplit(cmd)))
 
     # We use the environment variable PYTHONUNBUFFERED here to retrieve stdout without buffering
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
