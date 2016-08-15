@@ -4,6 +4,7 @@ from collections import namedtuple
 import contextlib
 import logging
 import os
+import shlex
 import subprocess
 import sys
 
@@ -22,6 +23,28 @@ def get_python_process():
     if not py_proc:
         raise RuntimeError("Cannot retrieve current Python executable.")
     return py_proc
+
+
+def shlex_unsplit(cmd):
+    """
+    Translates a list of command arguments into bash-like ‘human’ readable form.
+    Pseudo-reverses shlex.split()
+
+    Example
+    -------
+        >>> shlex_unsplit(["command", "-f", "Hello World"])
+        "command -f 'Hello World'"
+
+    Parameters
+    ----------
+    cmd : list of string
+        command + parameter list
+
+    Returns
+    -------
+    string
+    """
+    return " ".join(shlex.quote(arg) for arg in cmd)
 
 
 class ModuleRunner:
