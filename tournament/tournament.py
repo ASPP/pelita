@@ -4,6 +4,7 @@ import argparse
 import datetime
 import itertools
 import os
+import pathlib
 import random
 import re
 import shlex
@@ -116,6 +117,17 @@ def setup():
             del config["teams"]
             del config["bonusmatch"]
             break
+
+    print("Specify the folder where we should look for teams (or none)")
+    folder = input().strip()
+    if folder:
+        try:
+            subfolders = [x.as_posix() for x in pathlib.Path(folder).iterdir() if x.is_dir()
+                                                                               and not x.name.startswith('.')
+                                                                               and not x.name.startswith('_')]
+            config["teams"] = [{ 'spec': folder, 'members': []} for folder in subfolders]
+        except FileNotFoundError:
+            print("Invalid path: {}".format(folder))
 
     def escape(str):
         return "-" + re.sub(r'[\W]', '_', str) if str else ""
