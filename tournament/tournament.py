@@ -129,6 +129,12 @@ def setup():
         except FileNotFoundError:
             print("Invalid path: {}".format(folder))
 
+    res = input_choice("Should a bonus match be played? (y/n/i)", [], "yni")
+    if res == "y":
+        config['bonusmatch'] = True
+    elif res == "n":
+        config['bonusmatch'] = False
+
     def escape(str):
         return "-" + re.sub(r'[\W]', '_', str) if str else ""
 
