@@ -33,6 +33,11 @@ script:
           echo "" # This resets the error code
       done
   - if [[ $TRAVIS_PYTHON_VERSION == 3.5 ]]; then PELITA_PATH=. PYTHONPATH=.:tournament py.test --cov=tournament --cov-append -sv tournament/test/ ; fi
+  - >
+      # Testing the team generation algorithm
+      teamdir=$(mktemp -d -t team)
+      (cd $teamdir ; python $TRAVIS_BUILD_DIR/pelitagame --gen-team "My Team" Player Player)
+      python ./pelitagame --check-team $teamdir/team | grep "TEAM: My Team"
 
 after_success:
   - codecov

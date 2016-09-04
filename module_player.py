@@ -5,6 +5,7 @@ import inspect
 import keyword
 import os
 import random
+import re
 import string
 import sys
 
@@ -14,8 +15,147 @@ parser = argparse.ArgumentParser(description="Runs a Python pelita module.")
 parser.add_argument('team')
 parser.add_argument('address')
 
-def make_client():
-    args = parser.parse_args()
+
+INIT_PY = '''\
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+from pelita.player import SimpleTeam
+
+{player_imports}
+
+
+# The default factory method, which this module must export.
+# It must return an instance of `SimpleTeam`  containing
+# the name of the team and the respective instances for
+# the first and second player.
+
+def factory():
+    return SimpleTeam({team_name}, {player_instances})
+
+# For testing purposes, one may use alternate factory methods::
+#
+#def testfactory():
+#    return SimpleTeam("NiceTeam", OurFoodEater(), OurHunter())
+
+'''
+
+
+PLAYER_CLASS_PY = '''
+# -*- coding: utf-8 -*-
+
+from pelita.player import AbstractPlayer
+from pelita.datamodel import stop
+
+# use relative imports for things inside your module
+from .utils import utility_function
+
+class {player_class}(AbstractPlayer):
+    """ Basically a clone of the RandomPlayer. """
+
+    def __init__(self):
+        # Do some basic initialisation here. You may also accept additional
+        # parameters which you can specify in your factory.
+        # Note that any other game variables have not been set yet. So there is
+        # no ``self.current_uni`` or ``self.current_state``
+        self.sleep_rounds = 0
+
+    def set_initial(self):
+        # Now ``self.current_uni`` and ``self.current_state`` are known.
+        # ``set_initial`` is always called before ``get_move``, so we can do some
+        # additional initialisation here
+
+        # Just printing the universe to give you an idea, please remove all
+        # print statements in the final player.
+        print(self.current_uni.pretty)
+
+    def check_pause(self):
+        # make a pause every fourth step because whatever :)
+        if self.sleep_rounds <= 0:
+            if self.rnd.random() > 0.75:
+                self.sleep_rounds = 3
+
+        if self.sleep_rounds > 0:
+            self.sleep_rounds -= 1
+            texts = ["What a headache!", "#aspp2015", "Python School Munich"]
+            self.say(self.rnd.choice(texts))
+            return stop
+
+    def get_move(self):
+        utility_function()
+
+        self.check_pause()
+
+        # legal_moves returns a dict {{move: position}}
+        # we always need to return a move
+        possible_moves = list(self.legal_moves.keys())
+        # selecting one of the moves
+        return self.rnd.choice(possible_moves)
+
+'''
+
+
+UTILS_INIT_PY = '''
+# -*- coding: utf-8 -*-
+
+# This module would be a good place to put utility functions and classes.
+# You don’t need to use this module but it may be a good idea to structurise
+# your projects from the beginning.
+
+# using a relative import to export this function
+from .helper import utility_function
+
+'''
+
+
+UTILS_HELPER_PY = '''
+# -*- coding: utf-8 -*-
+
+def utility_function():
+    pass
+'''
+
+
+def generate_team(path, team_name, *players):
+    if os.listdir(path):
+        raise RuntimeError("Cannot create team here. Directory {cwd} not empty".format(cwd=os.getcwd()))
+
+    def sanitize(cls):
+        return cls
+
+    def to_lower(name):
+        s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+        return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+    files_classes = {
+        to_lower(player): sanitize(player) for player in players
+    }
+
+    player_imports = "\n".join('from .{file} import {cls}'.format(file=file_name, cls=class_name)
+                               for file_name, class_name in files_classes.items())
+
+    player_instances = {"{cls}()".format(cls=player_class) for player_class in files_classes.values()}
+
+    init_py = INIT_PY.format(team_name=repr(team_name),
+                             player_instances=', '.join(player_instances),
+                             player_imports=player_imports)
+
+    os.makedirs('team')
+    with open(os.path.join('team', '__init__.py'), 'w') as f:
+        f.write(init_py)
+    for file_name, class_name in files_classes.items():
+        with open(os.path.join('team', '{file}.py'.format(file=file_name)), 'w') as f:
+            player_class_py = PLAYER_CLASS_PY.format(player_class=class_name)
+            f.write(player_class_py)
+    team_utils = os.path.join('team', 'utils')
+    os.makedirs(team_utils)
+    with open(os.path.join(team_utils, '__init__.py'), 'w') as f:
+        f.write(UTILS_INIT_PY)
+    with open(os.path.join(team_utils, 'helper.py'), 'w') as f:
+        f.write(UTILS_HELPER_PY)
+    os.makedirs('test')
+
+
+def make_client(args):
 
     team = load_team(args.team)
     print("Using factory '%s' -> '%s'" % (args.team, team.team_name))
@@ -129,7 +269,16 @@ def import_builtin_player(name):
         raise ImportError("%r is not a valid player." % player)
 
 if __name__ == '__main__':
-    client = make_client()
+    try:
+        if sys.argv[1] == '--gen-team':
+            generate_team('.', sys.argv[2], *sys.argv[3:])
+            sys.exit()
+    except IndexError:
+        pass
+
+    args = parser.parse_args()
+
+    client = make_client(args)
     ret = client.run()
     sys.exit(ret)
 
