@@ -152,10 +152,13 @@ class Config:
     def input(self, str, values=None):
         if not values:
             values = []
-        res = input(str)
-        while not res[0] in values:
+        while True:
             res = input(str)
-        return res.strip()
+            try:
+                if res[0] in values:
+                    return res[0]
+            except IndexError:
+                pass
 
 
     def wait_for_keypress(self):
