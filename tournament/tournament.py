@@ -167,12 +167,13 @@ if __name__ == '__main__':
     parser.add_argument('--help', '-h',
                         help='show this help message and exit',
                         action='store_true')
-    parser.add_argument('--speak', '-s',
-                        help='speak loudly every messsage on stdout',
-                        action='store_true')
-    parser.add_argument('--speaker',
-                        help='tool to say stuff',
-                        type=str, default="/usr/bin/flite")
+
+    parser.add_argument('--speak', dest='speak', action='store_true', help='speak loudly every messsage on stdout')
+    parser.add_argument('--no-speak', dest='speak', action='store_false', help='do not speak every messsage on stdout')
+    parser.set_defaults(speak=None)
+
+    parser.add_argument('--speaker', help='tool to say stuff', type=str)
+    
     parser.add_argument('--rounds', '-r',
                         help='maximum number of rounds to play per match',
                         type=int)
@@ -218,15 +219,15 @@ if __name__ == '__main__':
         """
         Return the first argument not None.
         """
-        return next(filter(None, args), None)
+        return next(filter(lambda x: x is not None, args), None)
 
     with open(ARGS.config) as f:
         config_data = yaml.load(f)
         config_data['viewer'] = ARGS.viewer or config_data.get('viewer', 'tk')
         config_data['interactive'] = firstNN(ARGS.viewer, config_data.get('interactive'), 'True')
         config_data['statefile'] = ARGS.state
-        config_data['speak'] = ARGS.speak
-        config_data['speaker'] = ARGS.speaker
+        config_data['speak'] = firstNN(ARGS.speak, config_data.get('speak'))
+        config_data['speaker'] = ARGS.speaker or config_data.get('speaker')
 
         config = Config(config_data)
 
