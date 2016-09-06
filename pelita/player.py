@@ -7,8 +7,60 @@ import time
 
 from . import datamodel
 
+class AbstractTeam(metaclass=abc.ABCMeta):
+    """ Abstract team class.
 
-class SimpleTeam:
+    Players who want to write their own Team class (instead of using
+    `SimpleTeam` together with a number of independent `AbstractPlayer` subclasses),
+    should inherit from `AbstractTeam` (though this is not strictly necessary).
+    """
+
+    @abc.abstractmethod
+    def set_initial(self, team_id, universe, game_state):
+        """ Tells the team about its id and gives initial information
+         about the universe and game state.
+
+        Players who want write their own team class need to supply
+        a method with the same signature.
+
+        Parameters
+        ----------
+        team_id : int
+            The id of the team
+        universe : Universe
+            The initial universe
+        game_state : dict
+            The initial game state
+
+        Returns
+        -------
+        Team name : string
+            The name of the team
+        """
+
+    @abc.abstractmethod
+    def get_move(self, bot_id, universe, game_state):
+        """ Requests a move from the bot with id `bot_id`.
+
+        This method returns a dict with a key `move` and a value specifying the direction
+        in a tuple. Additionally, a key `say` can be added with a textual value.
+
+        Parameters
+        ----------
+        bot_id : int
+            The id of the bot who needs to play
+        universe : Universe
+            The initial universe
+        game_state : dict
+            The initial game state
+
+        Returns
+        -------
+        move : dict
+        """
+
+
+class SimpleTeam(AbstractTeam):
     """ Simple class used to register an arbitrary number of (Abstract-)Players.
 
     Each Player is used to control a Bot in the Universe.
@@ -47,6 +99,25 @@ class SimpleTeam:
         self.remote_game = False
 
     def set_initial(self, team_id, universe, game_state):
+        """ Sets the bot indices for the team and tells each player
+        about the universe and game state by calling `_set_index` and `_set_initial`.
+
+        Parameters
+        ----------
+        team_id : int
+            The id of the team
+        universe : Universe
+            The initial universe
+        game_state : dict
+            The initial game state
+
+        Returns
+        -------
+        Team name : string
+            The name of the team
+
+        """
+
         # only iterate about those player which are in bot_players
         # we might have defined more players than we have received
         # indexes for.
@@ -66,6 +137,22 @@ class SimpleTeam:
 
     def get_move(self, bot_id, universe, game_state):
         """ Requests a move from the Player who controls the Bot with id `bot_id`.
+
+        This method returns a dict with a key `move` and a value specifying the direction
+        in a tuple. Additionally, a key `say` can be added with a textual value.
+
+        Parameters
+        ----------
+        bot_id : int
+            The id of the bot who needs to play
+        universe : Universe
+            The initial universe
+        game_state : dict
+            The initial game state
+
+        Returns
+        -------
+        move : dict
         """
         return self._bot_players[bot_id]._get_move(universe, game_state)
 
