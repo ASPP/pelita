@@ -16,7 +16,7 @@ env:
 install:
   - pip install $PYZMQ --install-option="--zmq=bundled"
   - pip install pyyaml
-  - pip install codecov
+  - pip install pytest-cov codecov
 # command to run tests
 script:
   - >
