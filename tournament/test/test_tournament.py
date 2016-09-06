@@ -134,6 +134,7 @@ class TestSingleMatch(unittest.TestCase):
         config.team_spec = lambda x: x
         config.viewer = 'ascii'
         config.filter = 'small'
+        config.tournament_log_folder = None
 
         teams = ["StoppingPlayer", "StoppingPlayer"]
         (state, stdout, stderr) = tournament.run_match(config, teams)
@@ -176,6 +177,7 @@ class TestSingleMatch(unittest.TestCase):
         config.viewer = 'ascii'
         config.filter = 'small'
         config.print = mock_print
+        config.tournament_log_folder = None
 
         team_ids = ["first_id", "first_id"]
         result = tournament.start_match(config, team_ids)
@@ -212,6 +214,7 @@ class TestSingleMatch(unittest.TestCase):
         config.viewer = 'ascii'
         config.filter = 'small'
         config.print = mock_print
+        config.tournament_log_folder = None
 
         result = tournament.start_deathmatch(config, *teams.keys())
         self.assertIsNotNone(result)
@@ -243,6 +246,7 @@ class TestTournament(unittest.TestCase):
         config.print = mock_print
         config.viewer = 'null'
         config.state = None
+        config.tournament_log_folder = None
 
         # group1 should win
         self.assertEqual("group1", tournament.start_match(config, ["group0", "group1"]))
