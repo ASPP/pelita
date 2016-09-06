@@ -173,7 +173,7 @@ if __name__ == '__main__':
     parser.set_defaults(speak=None)
 
     parser.add_argument('--speaker', help='tool to say stuff', type=str)
-    
+
     parser.add_argument('--rounds', '-r',
                         help='maximum number of rounds to play per match',
                         type=int)
@@ -182,11 +182,9 @@ if __name__ == '__main__':
     parser.add_argument('--config', help='tournament data',
                         metavar="CONFIG_YAML", default="tournament.yaml")
 
-    interactivity = parser.add_mutually_exclusive_group()
-    interactivity.add_argument('--non-interactive', help='do not ask before proceeding',
-                                dest='interactive', action='store_const', const=False)
-    interactivity.add_argument('--interactive', help='ask before proceeding',
-                               dest='interactive', action='store_const', const=True)
+    parser.add_argument('--interactive', dest='interactive', action='store_true', help='do not ask before proceeding')
+    parser.add_argument('--non-interactive', dest='interactive', action='store_false', help='do not ask before proceeding')
+    parser.set_defaults(interactive=None)
 
     parser.add_argument('--setup', action='store_true')
 
@@ -224,7 +222,7 @@ if __name__ == '__main__':
     with open(ARGS.config) as f:
         config_data = yaml.load(f)
         config_data['viewer'] = ARGS.viewer or config_data.get('viewer', 'tk')
-        config_data['interactive'] = firstNN(ARGS.viewer, config_data.get('interactive'), 'True')
+        config_data['interactive'] = firstNN(ARGS.interactive, config_data.get('interactive'), True)
         config_data['statefile'] = ARGS.state
         config_data['speak'] = firstNN(ARGS.speak, config_data.get('speak'))
         config_data['speaker'] = ARGS.speaker or config_data.get('speaker')
