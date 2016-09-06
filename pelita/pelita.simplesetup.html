@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.simplesetup &mdash; Pelita v0.2.0-336-gb426be3 documentation</title>
+    <title>pelita.simplesetup &#8212; Pelita v0.2.0-379-g27302b0 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-336-gb426be3',
+        VERSION:     'v0.2.0-379-g27302b0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,12 +24,13 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-336-gb426be3 documentation" href="../index.html" />
+    <link rel="top" title="Pelita v0.2.0-379-g27302b0 documentation" href="../index.html" />
     <link rel="up" title="API reference" href="../api.html" />
     <link rel="next" title="pelita.ui" href="pelita.ui.html" />
     <link rel="prev" title="pelita.player" href="pelita.player.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
@@ -98,7 +99,7 @@ re-investigate this decision.</p>
 <tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.SimpleClient" title="pelita.simplesetup.SimpleClient"><code class="xref py py-obj docutils literal"><span class="pre">SimpleClient</span></code></a>(team[,&nbsp;team_name,&nbsp;address])</td>
 <td>Sets up a simple Client with most settings pre-configured.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.SimpleController" title="pelita.simplesetup.SimpleController"><code class="xref py py-obj docutils literal"><span class="pre">SimpleController</span></code></a>(game_master,&nbsp;address)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.SimpleController" title="pelita.simplesetup.SimpleController"><code class="xref py py-obj docutils literal"><span class="pre">SimpleController</span></code></a>(game_master,&nbsp;address[,&nbsp;...])</td>
 <td>Sets up a simple Controller to interact with GameMaster.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.SimplePublisher" title="pelita.simplesetup.SimplePublisher"><code class="xref py py-obj docutils literal"><span class="pre">SimplePublisher</span></code></a>(address)</td>
@@ -206,7 +207,7 @@ client.run() # runs in the same thread / process</p>
 
 <dl class="class">
 <dt id="pelita.simplesetup.SimpleController">
-<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">SimpleController</code><span class="sig-paren">(</span><em>game_master</em>, <em>address</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#SimpleController"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.SimpleController" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">SimpleController</code><span class="sig-paren">(</span><em>game_master</em>, <em>address</em>, <em>reply_to=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#SimpleController"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.SimpleController" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Sets up a simple Controller to interact with GameMaster.</p>
 </dd></dl>
@@ -442,8 +443,8 @@ uuids are discarded.</li>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
       <a href="../_sources/pelita/pelita.simplesetup.txt"
