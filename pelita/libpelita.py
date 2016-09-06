@@ -47,6 +47,29 @@ def shlex_unsplit(cmd):
     return " ".join(shlex.quote(arg) for arg in cmd)
 
 
+def firstNN(*args):
+    """
+    Return the first argument not None.
+
+    Example
+    -------
+        >>> firstNN(None, False, True)
+        False
+        >>> firstNN(True, False, True)
+        True
+        >>> firstNN(None, None, True)
+        True
+        >>> firstNN(None, 2, True)
+        2
+        >>> firstNN(None, None, None)
+        None
+        >>> firstNN()
+        None
+    """
+    return next(filter(lambda x: x is not None, args), None)
+
+
+
 class ModuleRunner:
     def __init__(self, team_spec):
         self.team_spec = team_spec

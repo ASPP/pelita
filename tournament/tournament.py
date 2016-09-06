@@ -213,18 +213,12 @@ if __name__ == '__main__':
         sys.exit(2)
 
 
-    def firstNN(*args):
-        """
-        Return the first argument not None.
-        """
-        return next(filter(lambda x: x is not None, args), None)
-
     with open(ARGS.config) as f:
         config_data = yaml.load(f)
         config_data['viewer'] = ARGS.viewer or config_data.get('viewer', 'tk')
-        config_data['interactive'] = firstNN(ARGS.interactive, config_data.get('interactive'), True)
+        config_data['interactive'] = libpelita.firstNN(ARGS.interactive, config_data.get('interactive'), True)
         config_data['statefile'] = ARGS.state
-        config_data['speak'] = firstNN(ARGS.speak, config_data.get('speak'))
+        config_data['speak'] = libpelita.firstNN(ARGS.speak, config_data.get('speak'))
         config_data['speaker'] = ARGS.speaker or config_data.get('speaker')
 
         config = Config(config_data)
