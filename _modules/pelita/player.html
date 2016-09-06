@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.player &#8212; Pelita v0.2.0-383-g6aacd3c documentation</title>
+    <title>pelita.player &#8212; Pelita v0.2.0-387-ge403821 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-383-g6aacd3c',
+        VERSION:     'v0.2.0-387-ge403821',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-383-g6aacd3c documentation" href="../../index.html" />
+    <link rel="top" title="Pelita v0.2.0-387-ge403821 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -51,8 +51,60 @@
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">datamodel</span>
 
+<div class="viewcode-block" id="AbstractTeam"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.AbstractTeam">[docs]</a><span class="k">class</span> <span class="nc">AbstractTeam</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Abstract team class.</span>
 
-<div class="viewcode-block" id="SimpleTeam"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.SimpleTeam">[docs]</a><span class="k">class</span> <span class="nc">SimpleTeam</span><span class="p">:</span>
+<span class="sd">    Players who want to write their own Team class (instead of using</span>
+<span class="sd">    `SimpleTeam` together with a number of independent `AbstractPlayer` subclasses),</span>
+<span class="sd">    should inherit from `AbstractTeam` (though this is not strictly necessary).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+<div class="viewcode-block" id="AbstractTeam.set_initial"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.AbstractTeam.set_initial">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Tells the team about its id and gives initial information</span>
+<span class="sd">         about the universe and game state.</span>
+
+<span class="sd">        Players who want write their own team class need to supply</span>
+<span class="sd">        a method with the same signature.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        team_id : int</span>
+<span class="sd">            The id of the team</span>
+<span class="sd">        universe : Universe</span>
+<span class="sd">            The initial universe</span>
+<span class="sd">        game_state : dict</span>
+<span class="sd">            The initial game state</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Team name : string</span>
+<span class="sd">            The name of the team</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+<div class="viewcode-block" id="AbstractTeam.get_move"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.AbstractTeam.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Requests a move from the bot with id `bot_id`.</span>
+
+<span class="sd">        This method returns a dict with a key `move` and a value specifying the direction</span>
+<span class="sd">        in a tuple. Additionally, a key `say` can be added with a textual value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bot_id : int</span>
+<span class="sd">            The id of the bot who needs to play</span>
+<span class="sd">        universe : Universe</span>
+<span class="sd">            The initial universe</span>
+<span class="sd">        game_state : dict</span>
+<span class="sd">            The initial game state</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        move : dict</span>
+<span class="sd">        &quot;&quot;&quot;</span></div></div>
+
+
+<div class="viewcode-block" id="SimpleTeam"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.SimpleTeam">[docs]</a><span class="k">class</span> <span class="nc">SimpleTeam</span><span class="p">(</span><span class="n">AbstractTeam</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Simple class used to register an arbitrary number of (Abstract-)Players.</span>
 
 <span class="sd">    Each Player is used to control a Bot in the Universe.</span>
@@ -90,7 +142,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_remote_game</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">remote_game</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
+<div class="viewcode-block" id="SimpleTeam.set_initial"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.SimpleTeam.set_initial">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Sets the bot indices for the team and tells each player</span>
+<span class="sd">        about the universe and game state by calling `_set_index` and `_set_initial`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        team_id : int</span>
+<span class="sd">            The id of the team</span>
+<span class="sd">        universe : Universe</span>
+<span class="sd">            The initial universe</span>
+<span class="sd">        game_state : dict</span>
+<span class="sd">            The initial game state</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Team name : string</span>
+<span class="sd">            The name of the team</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="c1"># only iterate about those player which are in bot_players</span>
         <span class="c1"># we might have defined more players than we have received</span>
         <span class="c1"># indexes for.</span>
@@ -106,10 +177,26 @@
             <span class="n">player</span><span class="o">.</span><span class="n">_set_initial</span><span class="p">(</span><span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_bot_players</span><span class="p">[</span><span class="n">bot</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">player</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_name</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_name</span></div>
 
 <div class="viewcode-block" id="SimpleTeam.get_move"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.SimpleTeam.get_move">[docs]</a>    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Requests a move from the Player who controls the Bot with id `bot_id`.</span>
+
+<span class="sd">        This method returns a dict with a key `move` and a value specifying the direction</span>
+<span class="sd">        in a tuple. Additionally, a key `say` can be added with a textual value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bot_id : int</span>
+<span class="sd">            The id of the bot who needs to play</span>
+<span class="sd">        universe : Universe</span>
+<span class="sd">            The initial universe</span>
+<span class="sd">        game_state : dict</span>
+<span class="sd">            The initial game state</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        move : dict</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bot_players</span><span class="p">[</span><span class="n">bot_id</span><span class="p">]</span><span class="o">.</span><span class="n">_get_move</span><span class="p">(</span><span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">)</span></div>
 
