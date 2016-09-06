@@ -16,12 +16,13 @@ env:
 install:
   - pip install $PYZMQ --install-option="--zmq=bundled"
   - pip install pyyaml
+  - pip install pytest-cov codecov coveralls
 # command to run tests
 script:
   - >
       python -c "import zmq; print('Using zmq %s.' % zmq.zmq_version())" &&
       python -c "import zmq; print('Using pyzmq %s.' % zmq.pyzmq_version())" &&
-      PYTHONPATH=. py.test -v test/ &&
+      PYTHONPATH=. py.test --cov=pelita -v test/ &&
       python ./pelitagame --progress &&
       for player in ./players/*Player.py ; do
           PYTHONPATH=.
@@ -31,7 +32,9 @@ script:
           (echo $res | grep -q Exception) && exit 1
           echo "" # This resets the error code
       done
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.5 ]]; then PELITA_PATH=. PYTHONPATH=.:tournament py.test -sv tournament/test/ ; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.5 ]]; then PELITA_PATH=. PYTHONPATH=.:tournament py.test --cov=tournament --cov-append -sv tournament/test/ ; fi
 
 after_success:
+  - codecov
+  - coveralls
   - ./deploy-gh-pages.sh
