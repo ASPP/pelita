@@ -20,10 +20,7 @@ from pelita import libpelita
 from . import roundrobin
 from . import komode
 
-_logger = libpelita.logging.getLogger("pelita-tournament.tournament")
-
-# Tournament log file
-DUMPSTORE = None
+_logger = libpelita.logging.getLogger("pelita-tournament")
 
 # Number of points a teams gets for matches in the first round
 # Probably not worth it to make it options.
@@ -39,11 +36,6 @@ if os.name != 'posix':
 # in turn are able to run the user’s code.
 os.environ["PELITA_PATH"] = os.environ.get("PELITA_PATH") or os.path.join(os.path.dirname(sys.argv[0]), "..")
 
-def _print(*args, **kwargs):
-    builtins.print(*args, **kwargs)
-    if LOGFILE:
-        kwargs['file'] = LOGFILE
-        builtins.print(*args, **kwargs)
 
 class Config:
     def __init__(self, config):
@@ -81,6 +73,9 @@ class Config:
         self.speak = config.get("speak")
         self.speaker = config.get("speaker")
 
+        self.tournament_log_folder = None
+        self.tournament_log_file = None
+
     @property
     def team_ids(self):
         return self.teams.keys()
@@ -91,22 +86,29 @@ class Config:
     def team_spec(self, team):
         return self.teams[team]["spec"]
 
+    def _print(self, *args, **kwargs):
+        print(*args, **kwargs)
+        if self.tournament_log_file:
+            with open(self.tournament_log_file, 'a') as f:
+                kwargs['file'] = f
+                print(*args, **kwargs)
+
     def print(self, *args, **kwargs):
         """Speak while you print. To disable set speak=False.
         You need the program %s to be able to speak.
         Set wait=X to wait X seconds after speaking."""
         if len(args) == 0:
-            _print()
+            self._print()
             return
         stream = io.StringIO()
         wait = kwargs.pop('wait', 0.5)
         want_speak = kwargs.pop('speak', None)
         if (want_speak is False) or not self.speak:
-            _print(*args, **kwargs)
+            self._print(*args, **kwargs)
         else:
-            _print(*args, file=stream, **kwargs)
+            self._print(*args, file=stream, **kwargs)
             string = stream.getvalue()
-            _print(string, end='')
+            self._print(string, end='')
             sys.stdout.flush()
             self.say(string)
             time.sleep(wait)
@@ -238,10 +240,16 @@ def run_match(config, teams):
     rounds = ['--rounds', str(config.rounds)] if config.rounds else []
     filter = ['--filter', config.filter] if config.filter else []
     viewer = ['--' + config.viewer] if config.viewer else []
+    if config.tournament_log_folder:
+        dumpfile = os.path.join(config.tournament_log_folder, "dump-{time}".format(time=time.strftime('%Y%m%d-%H%M%S')))
+        dump = ['--dump', dumpfile]
+    else:
+        dump = []
 
     cmd = [libpelita.get_python_process()] + ["./pelitagame"] + [config.team_spec(team1), config.team_spec(team2),
                               '--reply-to', reply_addr,
                               '--seed', str(random.randint(0, sys.maxsize)),
+                              *dump,
                               *filter,
                               *rounds,
                               *viewer]
@@ -253,16 +261,10 @@ def run_match(config, teams):
                             universal_newlines=True, env=dict(os.environ, PYTHONUNBUFFERED='x'))
 
 
-    # global ARGS
-    # if not ARGS.no_log:
-    #     dumpfile = os.path.join(DUMPSTORE, time.strftime('%Y%m%d-%H%M%S'))
-    #     cmd += ['--dump', dumpfile]
-
     #if ARGS.dry_run:
     #    print("Would run: {cmd}".format(cmd=cmd))
     #    print("Choosing winner at random.")
     #    return random.choice([0, 1, 2])
-
 
 
     poll = zmq.Poller()
@@ -347,10 +349,10 @@ def start_match(config, teams):
         config.print("Unable to parse winning result :(")
         config.print("*** ERROR: Apparently the game crashed. At least I could not find the outcome of the game.")
         config.print("*** Maybe stdout helps you to debug the problem")
-        print(stdout)
+        config.print(stdout, speak=False)
         config.print("*** Maybe stderr helps you to debug the problem")
-        print(stderr)
-        print("***")
+        config.print(stderr, speak=False)
+        config.print("***", speak=False)
         return None
 
 
@@ -518,7 +520,7 @@ def round2(config, teams, state):
     tournament = state.round2.get("tournament")
     last_match = state.round2.get("last_match")
     if tournament and last_match:
-        print("Loading from state.")
+        config.print("Loading from state.", speak=False)
     else:
         last_match = komode.prepare_matches(teams, bonusmatch=config.bonusmatch)
         tournament = komode.tree_enumerate(last_match)
@@ -526,7 +528,7 @@ def round2(config, teams, state):
         state.round2["last_match"] = last_match
         state.round2["tournament"] = tournament
 
-    print(komode.print_knockout(last_match, config.team_name))
+    config.print(komode.print_knockout(last_match, config.team_name), speak=False)
 
     for round in tournament:
         for match in round:
@@ -537,7 +539,7 @@ def round2(config, teams, state):
                     winner = start_deathmatch(config, t1_id, t2_id)
                     match.winner = winner
 
-                    print(komode.print_knockout(last_match, config.team_name, highlight=[match]))
+                    config.print(komode.print_knockout(last_match, config.team_name, highlight=[match]), speak=False)
 
                     state.round2["tournament"] = tournament
                     state.save(config.statefile)

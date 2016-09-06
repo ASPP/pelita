@@ -3,6 +3,7 @@
 import argparse
 import datetime
 import itertools
+import logging
 import os
 import pathlib
 import random
@@ -17,14 +18,23 @@ from pelita import libpelita
 from tournament import tournament
 from tournament.tournament import Config, State
 
-# Tournament log file
-DUMPSTORE = None
-
-LOGFILE = None
-
 os.environ["PELITA_PATH"] = os.environ.get("PELITA_PATH") or os.path.join(os.path.dirname(sys.argv[0]), "..")
 
 DEFAULT_PELITAGAME = os.path.join(os.path.dirname(sys.argv[0]), '../pelitagame')
+
+
+def start_logging(filename):
+    if filename:
+        hdlr = logging.FileHandler(filename, mode='w')
+    else:
+        hdlr = logging.StreamHandler()
+    logger = logging.getLogger('pelita-tournament')
+    FORMAT = '[%(relativeCreated)06d %(name)s:%(levelname).1s][%(funcName)s] %(message)s'
+    formatter = logging.Formatter(FORMAT)
+    hdlr.setFormatter(formatter)
+    logger.addHandler(hdlr)
+    logger.setLevel(logging.DEBUG)
+
 
 def create_directory(prefix):
     for suffix in itertools.count(0):
@@ -203,14 +213,6 @@ if __name__ == '__main__':
         sys.stderr.write(ARGS.pelitagame+' not found!\n')
         sys.exit(2)
 
-    if not ARGS.no_log:
-        # create a directory for the dumps
-        DUMPSTORE = create_directory('./dumpstore')
-
-        # open the log file (fail if it exists)
-        logfile = os.path.join(DUMPSTORE, 'log')
-        fd = os.open(logfile, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o0666)
-        LOGFILE = os.fdopen(fd, 'w')
 
     def firstNN(*args):
         """
@@ -227,6 +229,26 @@ if __name__ == '__main__':
         config_data['speaker'] = ARGS.speaker
 
         config = Config(config_data)
+
+    if not ARGS.no_log:
+        # create a directory for the dumps
+        def escape(s):
+            return "-" + re.sub(r'[\W]', '_', str(s)) if s else ""
+
+        storage_folder = create_directory('./store{location}{year}'.format(location=escape(config.location),
+                                                                      year=escape(config.date)))
+
+        config.tournament_log_folder = storage_folder
+
+        # open the log file (fail if it exists)
+        logfile = os.path.join(storage_folder, 'tournament.out')
+        #fd = os.open(logfile, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o0666)
+        config.tournament_log_file = logfile #os.fdopen(fd, 'w')
+
+        try:
+            start_logging(os.path.join(storage_folder, 'tournament.log'))
+        except AttributeError:
+            pass
 
     if ARGS.rounds:
         config.rounds = ARGS.rounds
