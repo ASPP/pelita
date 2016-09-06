@@ -4,6 +4,7 @@ import abc
 import json
 import sys
 
+import zmq
 
 class AbstractViewer(metaclass=abc.ABCMeta):
     def set_initial(self, universe):
@@ -56,6 +57,41 @@ class AsciiViewer(AbstractViewer):
         if winning_team_idx is not None:
             print(("Game Over: Team: '%s' wins!" %
                 game_state["team_name"][winning_team_idx]))
+
+
+class ReplyToViewer(AbstractViewer):
+    """ A viewer which dumps to a given stream.
+    """
+    def __init__(self, reply_to):
+        ctx = zmq.Context()
+        self.sock = ctx.socket(zmq.PAIR)
+
+        # Wait max linger ms for a socket to connect
+        # before giving up.
+        self.sock.linger = 1000
+
+        self.sock.connect(reply_to)
+
+        self.pollout = zmq.Poller()
+        self.pollout.register(self.sock, zmq.POLLOUT)
+
+    def _send(self, message):
+        socks = dict(self.pollout.poll(300))
+        if socks.get(self.sock) == zmq.POLLOUT:
+            as_json = json.dumps(message)
+            self.sock.send_unicode(as_json, flags=zmq.NOBLOCK)
+
+    def set_initial(self, universe):
+        message = {"__action__": "set_initial",
+                   "__data__": {"universe": universe._to_json_dict()}}
+        self._send(message)
+
+    def observe(self, universe, game_state):
+        message = {"__action__": "observe",
+                   "__data__": {"universe": universe._to_json_dict(),
+                                "game_state": game_state}}
+        self._send(message)
+
 
 class DumpingViewer(AbstractViewer):
     """ A viewer which dumps to a given stream.

@@ -8,7 +8,7 @@ def initial_state(teams):
     for pair in itertools.combinations(teams, 2):
         match = list(pair)
         random.shuffle(match)
-        rr.append(match)
+        rr.append(tuple(match))
     # shuffle the matches for more fun
     random.shuffle(rr)
     return rr

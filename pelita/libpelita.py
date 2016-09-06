@@ -4,6 +4,7 @@ from collections import namedtuple
 import contextlib
 import logging
 import os
+import shlex
 import subprocess
 import sys
 
@@ -22,6 +23,28 @@ def get_python_process():
     if not py_proc:
         raise RuntimeError("Cannot retrieve current Python executable.")
     return py_proc
+
+
+def shlex_unsplit(cmd):
+    """
+    Translates a list of command arguments into bash-like ‘human’ readable form.
+    Pseudo-reverses shlex.split()
+
+    Example
+    -------
+        >>> shlex_unsplit(["command", "-f", "Hello World"])
+        "command -f 'Hello World'"
+
+    Parameters
+    ----------
+    cmd : list of string
+        command + parameter list
+
+    Returns
+    -------
+    string
+    """
+    return " ".join(shlex.quote(arg) for arg in cmd)
 
 
 class ModuleRunner:
@@ -101,7 +124,6 @@ def call_standalone_pelitagame(module_spec, address):
             raise ValueError("Unknown runner: {}:".format(module_spec.prefix))
     else:
         runner = DefaultRunner
-
     return runner(module_spec.module).run(address)
 
 def check_team(team_spec):
@@ -118,7 +140,6 @@ def check_team(team_spec):
         team_spec = team_spec._replace(address="%s:%d" % (team_spec.address, socket_port))
 
     team_player = RemoteTeamPlayer(socket)
-    print(team_player)
 
     if team_spec.module:
         with _call_standalone_pelitagame(team_spec.module, team_spec.address):
@@ -206,6 +227,18 @@ def tk_viewer(publish_to=None, geometry=None, delay=None):
     viewer = run_external_viewer(publisher.socket_addr, controller.socket_addr,
                                  geometry=geometry, delay=delay)
     yield { "publisher": publisher, "controller": controller }
+
+
+@contextlib.contextmanager
+def channel_setup(publish_to=None, reply_to=None):
+    if publish_to is None:
+        publish_to = "tcp://127.0.0.1:*"
+    publisher = SimplePublisher(publish_to)
+    controller = SimpleController(None, "tcp://127.0.0.1:*", reply_to=reply_to)
+
+    yield { "publisher": publisher, "controller": controller }
+
+
 
 def run_external_viewer(subscribe_sock, controller, geometry, delay):
     # Something on OS X prevents Tk from running in a forked process.

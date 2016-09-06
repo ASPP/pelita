@@ -31,9 +31,6 @@ class ReplayPublisher:
                 self.publisher._send(message)
 
 class ResultPrinter(pelita.viewer.AbstractViewer):
-    def __init__(self, parseable_output):
-        self.parseable_output = parseable_output
-
     def observe(self, universe, game_state):
         self.print_bad_bot_status(universe, game_state)
         if game_state["finished"]:
@@ -77,8 +74,6 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
                     winner_name, loser_name,
                     winner.score, loser.score
                 )
-            if self.parseable_output:
-                msg += '\n' + str(winner.index)
             sys.stdout.flush()
         elif game_state.get("game_draw") is not None:
             t0 = universe.teams[0]
@@ -89,8 +84,6 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
                     t0_name, t1_name,
                     t0.score, t1.score
                 )
-            if self.parseable_output:
-                msg += "\n-"
         else:
             return
 
@@ -173,8 +166,6 @@ parser.add_argument('--dry-run', const=True, action='store_const',
                     help='load players but do not actually play the game')
 parser.add_argument('--max-timeouts', type=int, default=5,
                     dest='max_timeouts', help='maximum number of timeouts allowed (default: 5)')
-parser.add_argument('--parseable-output', action="store_const", const=True,
-                    help='Make game result parseable')
 parser.add_argument('--list-teams', action="store_const", const=True,
                     help='Print the names of the included default teams.')
 parser.add_argument('--check-team', action="store_const", const=True,
@@ -186,6 +177,9 @@ timeout_opt.add_argument('--timeout', type=float, metavar="SEC",
 timeout_opt.add_argument('--no-timeout', const=None, action='store_const',
                          dest='timeout_length', help='run game with no timeouts')
 parser.set_defaults(timeout_length=3)
+
+parser.add_argument('--reply-to', type=str, metavar='URL',
+                    dest='reply_to', help='Reply channel')
 
 publisher_opt = parser.add_mutually_exclusive_group()
 publisher_opt.add_argument('--publish', type=str, metavar='URL',
@@ -401,22 +395,25 @@ def run_game():
             viewers.append(pelita.viewer.AsciiViewer())
         if args.viewer == 'progress':
             viewers.append(pelita.viewer.ProgressViewer())
+        if args.reply_to:
+            viewers.append(pelita.viewer.ReplyToViewer(args.reply_to))
         if args.viewer == 'null':
             pass
 
         # Adding the result printer to the viewers.
-        viewers.append(ResultPrinter(args.parseable_output))
+        viewers.append(ResultPrinter())
 
-        if args.viewer.startswith('tk'):
-            geometry = args.geometry
-            delay = int(1000./args.fps)
-            with libpelita.tk_viewer(publish_to=args.publish_to, geometry=geometry, delay=delay) as external_viewer:
-                controller = external_viewer["controller"]
-                publisher = external_viewer["publisher"]
+        with libpelita.channel_setup(publish_to=args.publish_to) as channels:
+            if args.viewer.startswith('tk'):
+                geometry = args.geometry
+                delay = int(1000./args.fps)
+                controller = channels["controller"]
+                publisher = channels["publisher"]
                 game_config["publisher"] = publisher
+                viewer = run_external_viewer(publisher.socket_addr, controller.socket_addr, geometry=geometry, delay=delay)
                 libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers, controller=controller)
-        else:
-            libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers)
+            else:
+                libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers)
 
 
 if __name__ == '__main__':

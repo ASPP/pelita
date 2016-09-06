@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from io import StringIO
 import itertools
 import math
 import queue
@@ -8,6 +9,22 @@ from collections import defaultdict, namedtuple
 import numpy as np
 
 def sort_ranks(teams):
+    """ Re-orders a list
+
+    Parameters
+    ----------
+    new_data : list of appropriate length
+        the new data
+
+    Raises
+    ------
+    TypeError
+        if new_data is not a list
+    ValueError
+        if new_data has inappropriate length
+
+    """
+
     l = len(teams)
     if l % 2 != 0:
         bonus = [teams[-1]]
@@ -24,7 +41,7 @@ class MatrixElem:
     def size(self, trafo=identity):
         return len(self.to_s(trafo=trafo))
 
-    def box(self, team, *, prefix=None, postfix=None, size=None, padLeft="", padRight="", fillElem="─"):
+    def box(self, team, *, prefix=None, postfix=None, size=None, padLeft="", padRight="", fillElem="─", highlighted=False):
         if prefix is None:
             prefix = ""
         if postfix is None:
@@ -34,15 +51,22 @@ class MatrixElem:
             size = 0
         else:
             size = size - len(prefix) - len(postfix)
+
+        BOLD = '\033[1m'
+        END = '\033[0m'
+
         padded = "{padLeft}{team}{padRight}".format(team=team, padLeft=padLeft, padRight=padRight)
-        return "{prefix}{team:{fillElem}<{size}}{postfix}".format(team=padded, prefix=prefix, postfix=postfix, size=size, fillElem=fillElem)
+        return "{prefix}{BOLD}{team:{fillElem}<{size}}{END}{postfix}".format(team=padded, prefix=prefix, postfix=postfix,
+                                                                             size=size, fillElem=fillElem,
+                                                                             BOLD=BOLD if highlighted else "",
+                                                                             END=END if highlighted else "")
 
 class Team(namedtuple("Team", ["name"]), MatrixElem):
-    def to_s(self, size=None, trafo=identity):
-        return self.box(trafo(self.name), size=size, prefix="", padLeft=" ", padRight=" ")
+    def to_s(self, size=None, trafo=identity, highlighted=False):
+        return self.box(trafo(self.name), size=size, prefix="", padLeft=" ", padRight=" ", highlighted=highlighted)
 
 class Bye(namedtuple("Bye", ["team"]), MatrixElem):
-    def to_s(self, size=None, trafo=identity):
+    def to_s(self, size=None, trafo=identity, highlighted=False):
         prefix = "──"
         # return show_team("…", prefix=prefix, padLeft=" ", padRight=" ", size=size)
         return self.box("", size=size)
@@ -54,31 +78,31 @@ class Match(namedtuple("Match", ["t1", "t2"]), MatrixElem):
     def __repr__(self):
         return "Match(t1={}, t2={}, winner={})".format(self.t1, self.t2, self.winner)
 
-    def to_s(self, size=None, trafo=identity):
+    def to_s(self, size=None, trafo=identity, highlighted=False):
         prefix = "├─"
-        name = trafo(self.winner) if self.winner else "???"
-        return self.box(name, prefix=prefix, padLeft=" ", padRight=" ", size=size)
+        name = trafo(self.winner) if (self.winner is not None) else "???"
+        return self.box(name, prefix=prefix, padLeft=" ", padRight=" ", size=size, highlighted=highlighted)
 
 class FinalMatch(namedtuple("FinalMatch", ["t1", "t2"]), MatrixElem):
     def __init__(self, *args, **kwargs):
         self.winner = None
-    def to_s(self, size=None, trafo=identity):
+    def to_s(self, size=None, trafo=identity, highlighted=False):
         prefix = "├──┨"
         postfix = "┃"
         fillElem = " "
-        name = trafo(self.winner) if self.winner else "???"
-        return self.box(name, prefix=prefix, postfix=postfix, padLeft=" ", padRight=" ", fillElem=fillElem, size=size)
+        name = trafo(self.winner) if (self.winner is not None) else "???"
+        return self.box(name, prefix=prefix, postfix=postfix, padLeft=" ", padRight=" ", fillElem=fillElem, size=size, highlighted=highlighted)
 
 class Element(namedtuple("Element", ["char"]), MatrixElem):
-    def to_s(self, size=None, trafo=identity):
-        return self.box(self.char, size=size, fillElem=" ")
+    def to_s(self, size=None, trafo=identity, highlighted=False):
+        return self.box(self.char, size=size, fillElem=" ", highlighted=highlighted)
 
 class Empty(namedtuple("Empty", []), MatrixElem):
-    def to_s(self, size=None, trafo=identity):
+    def to_s(self, size=None, trafo=identity, highlighted=False):
         return self.box(" ", size=size, fillElem=" ")
 
 class BorderTop(namedtuple("BorderTop", ["team", "tight"]), MatrixElem):
-    def to_s(self, size=None, trafo=identity):
+    def to_s(self, size=None, trafo=identity, highlighted=False):
         prefix = "│  " if not self.tight else "┐  "
         padRight = ""
         padLeft = "┏"
@@ -87,7 +111,7 @@ class BorderTop(namedtuple("BorderTop", ["team", "tight"]), MatrixElem):
         return self.box("", prefix=prefix, postfix=postfix, padLeft=padLeft, padRight=padRight, fillElem=fillElem, size=size)
 
 class BorderBottom(namedtuple("BorderBottom", ["team", "tight"]), MatrixElem):
-    def to_s(self, size=None, trafo=identity):
+    def to_s(self, size=None, trafo=identity, highlighted=False):
         prefix = "│  " if not self.tight else "┘  "
         padRight = ""
         padLeft = "┗"
@@ -138,7 +162,10 @@ def knockout_matrix(tree):
 
     return matrix, last_match
 
-def print_knockout(tree, name_trafo=identity):
+def print_knockout(tree, name_trafo=identity, highlight=None):
+    if highlight is None:
+        highlight = []
+
     matrix, final_match = knockout_matrix(tree)
 
     winner_row = final_match[0]
@@ -154,15 +181,21 @@ def print_knockout(tree, name_trafo=identity):
 
     colwidths = np.amax(np.vectorize(lambda self: self.size(trafo=name_trafo))(matrix), axis=0)
 
-    for row in range(matrix.shape[0]):
-        for col in range(0, matrix.shape[1]):
-            try:
-                print(matrix[row, col].to_s(colwidths[col], trafo=name_trafo), end="")
-            except AttributeError:
-                print("Here:", end="")
-                print(row, col, matrix[row, col])
-                raise
-        print()
+    with StringIO() as output:
+        for row in range(matrix.shape[0]):
+            for col in range(0, matrix.shape[1]):
+                try:
+                    elem = matrix[row, col]
+
+                    str = elem.to_s(colwidths[col], trafo=name_trafo, highlighted=elem in highlight)
+                    print(str, end="", file=output)
+                except AttributeError:
+                    print("Here:", end="")
+                    print(row, col, matrix[row, col])
+                    raise
+            print(file=output)
+        return output.getvalue()
+
 
 def makepairs(matches):
     if len(matches) == 0:
@@ -179,8 +212,13 @@ def makepairs(matches):
     return matches[0]
 
 def prepare_matches(teams, bonusmatch=False):
-    if bonusmatch:
-        *good_teams, loser_team = teams
+    if not teams:
+        raise ValueError("No teams given to sort.")
+
+    if bonusmatch and len(teams) > 1:
+        good_teams = sort_ranks(teams[:-1])
+        loser_team = teams[-1]
+
         matches = makepairs([Team(t) for t in good_teams])
         team = Team(loser_team)
         for _depth in range(tree_depth(matches) - 1):

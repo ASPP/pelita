@@ -15,19 +15,23 @@ env:
 # command to install dependencies
 install:
   - pip install $PYZMQ --install-option="--zmq=bundled"
+  - pip install pyyaml
 # command to run tests
-script: >
-          python -c "import zmq; print('Using zmq %s.' % zmq.zmq_version())" &&
-          python -c "import zmq; print('Using pyzmq %s.' % zmq.pyzmq_version())" &&
-          nosetests -v && python ./pelitagame --progress &&
-          for player in ./players/*Player.py
-            do
-              PYTHONPATH=.
-              python ./pelitagame --check-team $player || exit 1
-              res=$(python ./pelitagame --null --rounds 100 --filter small $player 2>&1)
-              echo $res
-              (echo $res | grep -q Exception) && exit 1
-              echo "" # This resets the error code
-          done
+script:
+  - >
+      python -c "import zmq; print('Using zmq %s.' % zmq.zmq_version())" &&
+      python -c "import zmq; print('Using pyzmq %s.' % zmq.pyzmq_version())" &&
+      PYTHONPATH=. py.test -v test/ &&
+      python ./pelitagame --progress &&
+      for player in ./players/*Player.py ; do
+          PYTHONPATH=.
+          python ./pelitagame --check-team $player || exit 1
+          res=$(python ./pelitagame --null --rounds 100 --filter small $player 2>&1)
+          echo $res
+          (echo $res | grep -q Exception) && exit 1
+          echo "" # This resets the error code
+      done
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.5 ]]; then PELITA_PATH=. PYTHONPATH=.:tournament py.test -sv tournament/test/ ; fi
+
 after_success:
   - ./deploy-gh-pages.sh

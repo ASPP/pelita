@@ -1,138 +1,40 @@
 #!/usr/bin/env python3
 
 import argparse
-import builtins
-import io
+import datetime
 import itertools
-import json
+import logging
 import os
+import pathlib
 import random
+import re
+import shlex
 import sys
-import tempfile
-import time
-from subprocess import PIPE, STDOUT, Popen, check_call
 
+import shutil
 import yaml
 
 from pelita import libpelita
-import roundrobin
-import komode
+from tournament import tournament
+from tournament.tournament import Config, State
 
-# Tournament log file
-DUMPSTORE = None
+os.environ["PELITA_PATH"] = os.environ.get("PELITA_PATH") or os.path.join(os.path.dirname(sys.argv[0]), "..")
 
-# Number of points a teams gets for matches in the first round
-# Probably not worth it to make it options.
-POINTS_DRAW = 1
-POINTS_WIN = 2
-
-SPEAK = True
-LOGFILE = None
-
-os.environ["PELITA_PATH"] = os.path.join(os.path.dirname(sys.argv[0]), "..")
-
-class Config:
-    def __init__(self, config):
-        self.teams = {}
-
-        teams = config["teams"]
-        team_prefix = config["team_prefix"]
-        # load team names
-        for idx, team in enumerate(teams):
-            team_id = team.get("id") or "{team_prefix}{id}".format(team_prefix=team_prefix, id=idx)
-            team_spec = team["spec"]
-            team_name = set_name(team_spec)
-            self.teams[team_id] = {
-                "spec": team_spec,
-                "name": team_name,
-                "members": team["members"]
-            }
-
-        self.location = config["location"]
-
-        #: Global random seed.
-        #: Keep it fixed or it may be impossible to replicate a tournament.
-        #: Individual matches will get a random seed derived from this.
-        self.seed = config.get("seed", 42)
-
-        self.bonusmatch = config["bonusmatch"]
-
-        self.speaker = config.get("speaker")
-
-    @property
-    def team_ids(self):
-        return self.teams.keys()
-
-    def team_name(self, team):
-        return self.teams[team]["name"]
-
-    def team_spec(self, team):
-        return self.teams[team]["spec"]
-
-class State:
-    def __init__(self, config, state=None):
-        if state is None:
-            self.state = {
-                "round1": {
-                    "played": [],
-                    "unplayed": roundrobin.initial_state(config.team_ids)
-                },
-                "round2": {}
-            }
-        else:
-            self.state = state
-
-    @property
-    def round1(self):
-        return self.state["round1"]
-
-    @property
-    def round2(self):
-        return self.state["round2"]
-
-    def save(self, filename):
-        with open(filename, 'w') as f:
-            json.dump(self.state, f, indent=2)
-
-    @classmethod
-    def load(cls, config, filename):
-        with open(filename) as f:
-            return cls(config=config, state=json.load(f))
+DEFAULT_PELITAGAME = os.path.join(os.path.dirname(sys.argv[0]), '../pelitagame')
 
 
-def _print(*args, **kwargs):
-    builtins.print(*args, **kwargs)
-    if LOGFILE:
-        kwargs['file'] = LOGFILE
-        builtins.print(*args, **kwargs)
-
-def print(*args, **kwargs):
-    """Speak while you print. To disable set speak=False.
-    You need the program %s to be able to speak.
-    Set wait=X to wait X seconds after speaking.""" % ARGS.speaker
-    if len(args) == 0:
-        _print()
-        return
-    stream = io.StringIO()
-    wait = kwargs.pop('wait', 0.5)
-    want_speak = kwargs.pop('speak', SPEAK)
-    if not want_speak:
-        _print(*args, **kwargs)
+def start_logging(filename):
+    if filename:
+        hdlr = logging.FileHandler(filename, mode='w')
     else:
-        _print(*args, file=stream, **kwargs)
-        string = stream.getvalue()
-        _print(string, end='')
-        sys.stdout.flush()
-        with tempfile.NamedTemporaryFile('wt') as text:
-            text.write(string+'\n')
-            text.flush()
-            festival = check_call([ARGS.speaker] + [text.name])
-        #time.sleep(wait)
+        hdlr = logging.StreamHandler()
+    logger = logging.getLogger('pelita-tournament')
+    FORMAT = '[%(relativeCreated)06d %(name)s:%(levelname).1s][%(funcName)s] %(message)s'
+    formatter = logging.Formatter(FORMAT)
+    hdlr.setFormatter(formatter)
+    logger.addHandler(hdlr)
+    logger.setLevel(logging.DEBUG)
 
-
-def wait_for_keypress():
-    if ARGS.interactive:
-        input('---\n')
 
 def create_directory(prefix):
     for suffix in itertools.count(0):
@@ -145,220 +47,122 @@ def create_directory(prefix):
             break
     return name
 
-def present_teams(config):
-    print('Hello master, I am the Python drone. I am here to serve you.', wait=1.5)
-    print('Welcome to the %s Pelita tournament' % config.location, wait=1.5)
-    print('This evening the teams are:', wait=1.5)
-    for team_id, team in config.teams.items():
-        print("{team_id}: {team_name}".format(team_id=team_id, team_name=team["name"]))
-        for member in team["members"]:
-            print("{member}".format(member=member), wait=0.1)
-        # time.sleep(1)
-        print()
-    print('These were the teams. Now you ready for the fight?')
+def input_choice(text, choices, vars):
+    selected = ""
+    while not selected or selected not in vars:
+        print(text)
+        for choice in choices:
+            print(choice)
+        selected = input().strip()
+    return selected
 
 
-def set_name(team):
-    """Get name of team."""
-    try:
-        team = libpelita.prepare_team(team)
-        return libpelita.check_team(team)
-    except Exception:
-        print("*** ERROR: I could not load team", team, ". Please help!", speak=False)
-        print(sys.stderr, speak=False)
-        raise
+def autoconf_sound():
+    res = {}
+    which_say = shutil.which("say")
+    if which_say:
+        res["say"] = [which_say, "-f"]
+    which_flite = shutil.which("flite")
+    if which_flite:
+        res["flite"] = [which_flite]
+    return res
 
 
-def start_match(config, team1, team2):
-    """Start a match between team1 and team2. Return which team won (1 or 2) or
-    0 if there was a draw.
-    """
-    print()
-    print('Starting match: '+ config.team_name(team1)+' vs ' + config.team_name(team2))
-    print()
-    wait_for_keypress()
-    cmd = CMD_STUB + [config.team_spec(team1), config.team_spec(team2),
-                       '--seed', str(random.randint(0, sys.maxsize))]
-    global ARGS
-    if not ARGS.no_log:
-        dumpfile = os.path.join(DUMPSTORE, time.strftime('%Y%m%d-%H%M%S'))
-        cmd += ['--dump', dumpfile]
+def setup():
+    config = {}
+    print("Where should the next tournament be?")
+    config['location'] = input()
+    print("When should the next tournament be? (ex. {year})".format(year=datetime.datetime.now().year))
+    config['date'] = input()
 
-    if ARGS.dry_run:
-        print("Would run: {cmd}".format(cmd=cmd))
-        print("Choosing winner at random.")
-        return random.choice([0, 1, 2])
+    while True:
+        sound = autoconf_sound()
+        sound_options = [
+            "(e)nter manually",
+        ]
+        keys = "e"
 
-    stdout, stderr = Popen(cmd, stdout=PIPE, stderr=PIPE,
-                           universal_newlines=True).communicate()
-    tmp = reversed(stdout.splitlines())
-    for lastline in tmp:
-        if lastline.startswith('Finished.'):
+        try:
+            which_say = sound["say"]
+            sound_options.append("(s)ay ({})".format(sound["say"]))
+            keys += "s"
+        except KeyError:
+            pass
+
+        try:
+            which_say = sound["flite"]
+            sound_options.append("(f)flite ({})".format(sound["flite"]))
+            keys += "f"
+        except KeyError:
+            pass
+
+        sound_options.append("(n)o sound")
+        keys += "n"
+        sound_options.append("(r)etry search")
+        keys += "r"
+
+        res = input_choice("Enable sound?", sound_options, keys)
+        if res == "n":
+            config["speak"] = False
             break
-    else:
-        print("*** ERROR: Apparently the game crashed. At least I could not find the outcome of the game.")
-        print("*** Maybe stderr helps you to debug the problem")
-        print(stderr, speak=False)
-        print("***", speak=False)
-        return 0
-    if stderr:
-        print("***", stderr, speak=False)
-    print('***', lastline)
-    if 'had a draw.' in lastline:
-        return 0
-    else:
-        tmp = lastline.split("'")
-        winner = tmp[1]
-        loser = tmp[3]
-        if winner == config.team_name(team1):
-            print(config.team_name(team1), 'wins.')
-            return 1
-        elif winner == config.team_name(team2):
-            print(config.team_name(team2), 'wins.')
-            return 2
+        elif res == "e":
+            print("Please enter the location of the sound-giving binary:")
+            sound_path = input()
+        elif res == "s":
+            sound_path = libpelita.shlex_unsplit(sound["say"])
+        elif res == "f":
+            sound_path = libpelita.shlex_unsplit(sound["flite"])
         else:
-            print("Unable to parse winning result :(")
-            return 0
-
-
-def start_deathmatch(config, team1, team2):
-    """Start a match between team1 and team2 until one of them wins (ie no
-    draw.)
-    """
-    print()
-    print()
-    print("{} v {}".format(team1, team2))
-    for i in range(3):
-        r = start_match(config, team1, team2)
-        if r == 0:
-            print('Draw -> Now go for a Death Match!')
             continue
-        winner = team1 if r == 1 else team2
-        return winner
-    # if we are here, we have no winner after 3 death matches
-    # just assign a random winner
-    print('No winner after 3 Death Matches. Choose a winner at random:', wait=2)
-    winner = random.choice((team1, team2))
-    print('And the winner is', winner)
-    return winner
 
-def round1_ranking(config, rr_played):
-    import collections
-    points = collections.Counter()
-    for match in rr_played:
-        winner = match["winner"]
-        if winner:
-            points[match["winner"]] += POINTS_WIN
-        else:
-            for team in match["match"]:
-                points[team] += POINTS_DRAW
-    team_points = [(team_id, points[team_id]) for team_id in config.team_ids]
-    return sorted(team_points, key=lambda elem: elem[1], reverse=True)
+        print("Now trying to speak:")
+        config["speak"] = True
+        config['speaker'] = sound_path
+        # must set a few dummy variables
+        config['teams'] = []
+        config['bonusmatch'] = []
+        Config(config).say("Hello my master.")
+        success = input_choice("Did you hear any sound? (y/n)", [], "yn")
+        if success == "y":
+            del config["teams"]
+            del config["bonusmatch"]
+            break
 
-def pp_round1_results(config, rr_played, rr_unplayed):
-    """Pretty print the current result of the matches."""
-    n_played = len(rr_played)
-    es = "es" if n_played != 1 else ""
-    n_togo = len(rr_unplayed)
+    print("Specify the folder where we should look for teams (or none)")
+    folder = input().strip()
+    if folder:
+        try:
+            subfolders = [x.as_posix() for x in pathlib.Path(folder).iterdir() if x.is_dir()
+                                                                               and not x.name.startswith('.')
+                                                                               and not x.name.startswith('_')]
+            config["teams"] = [{ 'spec': folder, 'members': []} for folder in subfolders]
+        except FileNotFoundError:
+            print("Invalid path: {}".format(folder))
 
-    print()
-    print('Ranking after {n_played} match{es} ({n_togo} to go):'.format(n_played=n_played, es=es, n_togo=n_togo))
-    for team_id, p in round1_ranking(config, rr_played):
-        print("  %25s %d" % (config.team_name(team_id), p))
-    print()
+    res = input_choice("Should a bonus match be played? (y/n/i)", [], "yni")
+    if res == "y":
+        config['bonusmatch'] = True
+    elif res == "n":
+        config['bonusmatch'] = False
 
-def round1(config, state):
-    """Run the first round and return a sorted list of team names.
+    def escape(str):
+        return "-" + re.sub(r'[\W]', '_', str) if str else ""
 
-    teams is the sorted list [group0, group1, ...] and not the actual names of
-    the agents. This is necessary to start the agents.
-    """
-    rr_unplayed = state.round1["unplayed"]
-    rr_played = state.round1["played"]
+    file_name = "tournament{location}{year}.yaml".format(location=escape(config["location"]),
+                                                         year=escape(config["date"]))
 
-    wait_for_keypress()
-    print()
-    print("ROUND 1 (Everybody vs Everybody)")
-    print('================================', speak=False)
-    print()
-
-    while rr_unplayed:
-        match = rr_unplayed.pop()
-
-        winner = start_match(config, match[0], match[1])
-
-        if winner == 0:
-            rr_played.append({ "match": match, "winner": False })
-        else:
-            rr_played.append({ "match": match, "winner": match[winner-1] })
-
-        pp_round1_results(config, rr_played, rr_unplayed)
-
-        state.save(ARGS.state)
-
-    return [team_id for team_id, p in round1_ranking(config, rr_played)]
-
-def recur_match_winner(match):
-    if isinstance(match, komode.Match) and match.winner is not None:
-        return recur_match_winner(match.winner)
-    elif isinstance(match, komode.Bye):
-        return recur_match_winner(match.team)
-    elif isinstance(match, komode.Team):
-        return match.name
-    elif isinstance(match, str):
-        return match
-    return None
-
-
-def round2(config, teams, state):
-    """Run the second round and return the name of the winning team.
-
-    teams is the list [group0, group1, ...] not the names of the agens, sorted
-    by the result of the first round.
-    """
-    print()
-    print('ROUND 2 (K.O.)')
-    print('==============', speak=False)
-    print()
-    wait_for_keypress()
-
-    last_match = komode.prepare_matches(teams, bonusmatch=config.bonusmatch)
-    tournament = komode.tree_enumerate(last_match)
-
-    state.round2["tournament"] = tournament
-
-    for round in tournament:
-        for match in round:
-            if isinstance(match, komode.Match):
-                if not match.winner:
-                    komode.print_knockout(last_match, config.team_name)
-                    match.winner = start_deathmatch(config,
-                                                    recur_match_winner(match.t1),
-                                                    recur_match_winner(match.t2))
-
-                    state.round2["tournament"] = tournament
-                    state.save(ARGS.state)
-                else:
-                    print("Already played {match}. Skipping".format(match=match))
-
-    komode.print_knockout(last_match, config.team_name)
-
-    wait_for_keypress()
-
-    return last_match.winner
+    print("Writing to: {file_name}".format(file_name=file_name))
+    with open(file_name, "x") as f:
+        yaml.dump(config, f, default_flow_style=False)
 
 
 if __name__ == '__main__':
-    # Command line argument parsing.
-    # Oh, why must argparse be soo verbose :(
     parser = argparse.ArgumentParser(description='Run a tournament',
                                      add_help=False,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser._positionals = parser.add_argument_group('Arguments')
     parser.add_argument('pelitagame', help='The pelitagame script',
-                        default=os.path.join(os.path.dirname(sys.argv[0]),
-                                             '../pelitagame'),
-                        nargs='?')
+                        default=DEFAULT_PELITAGAME, nargs='?')
     parser._optionals = parser.add_argument_group('Options')
     parser.add_argument('--help', '-h',
                         help='show this help message and exit',
@@ -371,15 +175,22 @@ if __name__ == '__main__':
                         type=str, default="/usr/bin/flite")
     parser.add_argument('--rounds', '-r',
                         help='maximum number of rounds to play per match',
-                        type=int, default=300)
+                        type=int)
     parser.add_argument('--viewer', '-v',
-                        help='the pelita viewer to use', default='tk')
+                        type=str, help='the pelita viewer to use (default: tk)')
     parser.add_argument('--config', help='tournament data',
                         metavar="CONFIG_YAML", default="tournament.yaml")
-    parser.add_argument('--interactive', help='ask before proceeding',
-                        action='store_true')
+
+    interactivity = parser.add_mutually_exclusive_group()
+    interactivity.add_argument('--non-interactive', help='do not ask before proceeding',
+                                dest='interactive', action='store_const', const=False)
+    interactivity.add_argument('--interactive', help='ask before proceeding',
+                               dest='interactive', action='store_const', const=True)
+
+    parser.add_argument('--setup', action='store_true')
+
     parser.add_argument('--state', help='store state',
-                        metavar="STATEFILE", default='state.json')
+                        metavar="STATEFILE", default='state.yaml')
     parser.add_argument('--load-state', help='load state from file',
                         action='store_true')
     parser.add_argument('--no-log', help='do not store the log data',
@@ -392,37 +203,59 @@ if __name__ == '__main__':
     if ARGS.help:
         parser.print_help()
         sys.exit(0)
+    elif ARGS.setup:
+        setup()
+        sys.exit(0)
 
 
     # Check that pelitagame can be run
     if not os.path.isfile(ARGS.pelitagame):
         sys.stderr.write(ARGS.pelitagame+' not found!\n')
         sys.exit(2)
-    else:
-        # Define the command line to run a pelita match
-        CMD_STUB = [ARGS.pelitagame,
-                    '--rounds=%d'%ARGS.rounds,
-                    '--%s'%ARGS.viewer]
+
+
+    def firstNN(*args):
+        """
+        Return the first argument not None.
+        """
+        return next(filter(None, args), None)
+
+    with open(ARGS.config) as f:
+        config_data = yaml.load(f)
+        config_data['viewer'] = ARGS.viewer or config_data.get('viewer', 'tk')
+        config_data['interactive'] = firstNN(ARGS.viewer, config_data.get('interactive'), 'True')
+        config_data['statefile'] = ARGS.state
+        config_data['speak'] = ARGS.speak
+        config_data['speaker'] = ARGS.speaker
+
+        config = Config(config_data)
 
     if not ARGS.no_log:
         # create a directory for the dumps
-        DUMPSTORE = create_directory('./dumpstore')
+        def escape(s):
+            return "-" + re.sub(r'[\W]', '_', str(s)) if s else ""
+
+        storage_folder = create_directory('./store{location}{year}'.format(location=escape(config.location),
+                                                                      year=escape(config.date)))
+
+        config.tournament_log_folder = storage_folder
 
         # open the log file (fail if it exists)
-        logfile = os.path.join(DUMPSTORE, 'log')
-        fd = os.open(logfile, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o0666)
-        LOGFILE = os.fdopen(fd, 'w')
+        logfile = os.path.join(storage_folder, 'tournament.out')
+        #fd = os.open(logfile, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o0666)
+        config.tournament_log_file = logfile #os.fdopen(fd, 'w')
 
-    with open(ARGS.config) as f:
-        global config
-        config = Config(yaml.load(f))
+        try:
+            start_logging(os.path.join(storage_folder, 'tournament.log'))
+        except AttributeError:
+            pass
 
-    # Check speaking support
-    SPEAK = ARGS.speak and os.path.exists(ARGS.speaker)
+    if ARGS.rounds:
+        config.rounds = ARGS.rounds
 
     if os.path.isfile(ARGS.state):
         if not ARGS.load_state:
-            print("Found state file in {state_file}. Restore with --load-state. Aborting.".format(state_file=ARGS.state))
+            config.print("Found state file in {state_file}. Restore with --load-state. Aborting.".format(state_file=ARGS.state))
             sys.exit(-1)
         else:
             state = State.load(config, ARGS.state)
@@ -431,20 +264,26 @@ if __name__ == '__main__':
 
     random.seed(config.seed)
 
-    present_teams(config)
+    if state.round1['played']:
+        # We have already played one match. Do not speak the introduction.
+        old_speak = config.speak
+        config.speak = False
+        tournament.present_teams(config)
+        config.speak = old_speak
+    else:
+        tournament.present_teams(config)
 
-    rr_ranking = round1(config, state)
+    rr_ranking = tournament.round1(config, state)
     state.round2["round_robin_ranking"] = rr_ranking
     state.save(ARGS.state)
 
     if config.bonusmatch:
-        sorted_ranking = komode.sort_ranks(rr_ranking[:-1]) + [rr_ranking[-1]]
+        sorted_ranking = tournament.komode.sort_ranks(rr_ranking[:-1]) + [rr_ranking[-1]]
     else:
-        sorted_ranking = komode.sort_ranks(rr_ranking)
+        sorted_ranking = tournament.komode.sort_ranks(rr_ranking)
 
-    winner = round2(config, sorted_ranking, state)
+    winner = tournament.round2(config, sorted_ranking, state)
 
-    print('The winner of the %s Pelita tournament is...' % config.location, wait=2, end=" ")
-    print('{team_name}. Congratulations'.format(team_name=config.team_name(winner)), wait=2)
-    print('Good evening master. It was a pleasure to serve you.')
-
+    config.print('The winner of the %s Pelita tournament is...' % config.location, wait=2, end=" ")
+    config.print('{team_name}. Congratulations'.format(team_name=config.team_name(winner)), wait=2)
+    config.print('Good evening master. It was a pleasure to serve you.')
