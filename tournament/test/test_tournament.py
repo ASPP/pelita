@@ -144,7 +144,7 @@ class TestSingleMatch(unittest.TestCase):
         config.rounds = 200
         config.team_spec = lambda x: x
         config.viewer = 'ascii'
-        teams = ["FoodEatingPlayer", "StoppingPlayer"]
+        teams = ["SmartEatingPlayer", "StoppingPlayer"]
         (state, stdout, stderr) = tournament.run_match(config, teams)
         print(state)
         self.assertEqual(state['team_wins'], 0)
@@ -153,7 +153,7 @@ class TestSingleMatch(unittest.TestCase):
         config.rounds = 200
         config.team_spec = lambda x: x
         config.viewer = 'ascii'
-        teams = ["StoppingPlayer", "FoodEatingPlayer"]
+        teams = ["StoppingPlayer", "SmartEatingPlayer"]
         (state, stdout, stderr) = tournament.run_match(config, teams)
         self.assertEqual(state['team_wins'], 1)
         self.assertEqual(state['game_draw'], None)
@@ -167,7 +167,7 @@ class TestSingleMatch(unittest.TestCase):
 
         teams = {
             "first_id": "StoppingPlayer",
-            "second_id": "FoodEatingPlayer",
+            "second_id": "SmartEatingPlayer",
         }
 
         config = MagicMock()
@@ -187,12 +187,12 @@ class TestSingleMatch(unittest.TestCase):
         team_ids = ["second_id", "first_id"]
         result = tournament.start_match(config, team_ids)
         self.assertEqual(result, "second_id")
-        self.assertEqual(stdout[-1], '‘FoodEatingPlayer’ wins')
+        self.assertEqual(stdout[-1], '‘SmartEatingPlayer’ wins')
 
         team_ids = ["first_id", "second_id"]
         result = tournament.start_match(config, team_ids)
         self.assertEqual(result, "second_id")
-        self.assertEqual(stdout[-1], '‘FoodEatingPlayer’ wins')
+        self.assertEqual(stdout[-1], '‘SmartEatingPlayer’ wins')
 
 
     def test_deathmatch(self):
@@ -235,7 +235,7 @@ class TestTournament(unittest.TestCase):
             "bonusmatch": None,
             "teams": [
                 {"id": "group0", "spec": "StoppingPlayer", "members": []},
-                {"id": "group1", "spec": "FoodEatingPlayer", "members": []},
+                {"id": "group1", "spec": "SmartEatingPlayer", "members": []},
                 {"id": "group2", "spec": "StoppingPlayer", "members": []},
                 {"id": "group3", "spec": "StoppingPlayer", "members": []},
                 {"id": "group4", "spec": "StoppingPlayer", "members": []},
