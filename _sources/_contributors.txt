@@ -1,4 +1,4 @@
-As of ``v0.2.0-391-g5089f30`` the developers and contributors are::
+As of ``v0.2.0-394-g81d0832`` the developers and contributors are::
 
     Rike-Benjamin Schuppner
     Valentin Haenel
@@ -6,6 +6,7 @@ As of ``v0.2.0-391-g5089f30`` the developers and contributors are::
     Zbigniew Jędrzejewski-Szmek
     Bastian Venthur
     Pietro Berkes
+    Jakob Jordan
     Nicola Chiapolini
     Pauli Virtanen
     abject
@@ -13,7 +14,6 @@ As of ``v0.2.0-391-g5089f30`` the developers and contributors are::
     Bartosz Telenczuk
     Christian Steigies
     Francesc Alted
-    Jakob Jordan
     Ola Pidde
     Sasza Kijek
     Zbigniew Jędrzejewski-Szmek
