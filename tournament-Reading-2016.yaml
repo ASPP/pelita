@@ -1,0 +1,58 @@
+---
+bonusmatch: true
+date: "2016"
+location: Reading
+speak: true
+speaker: "/usr/bin/say -f"
+teams:
+  -
+    id: group0
+    members:
+      - "Bruno Del Papa"
+      - "Hakan Kucukdereli"
+      - "Dorota Jarecka"
+      - "Bo Zhang"
+      - "Asad Malik"
+      - "Cornelia Klein"
+    spec: StoppingPlayer
+  -
+    id: group1
+    members:
+      - "Rivo Randrianarivony"
+      - "Wioleta Kijewska"
+      - "Luis G. Ramos T. López"
+      - "Greta Fastrich"
+      - "Jorge Ibáñez"
+      - "Zahara Girones"
+    spec: StoppingPlayer
+  -
+    id: group2
+    members:
+      - "Michael Pohlen"
+      - "Dorieke Grijseels"
+      - "Catriona Scrivener"
+      - "Benedikt Daurer"
+      - "Pavel Soriano"
+      - "Klara Gerlei"
+    spec: StoppingPlayer
+  -
+    id: group3
+    members:
+      - "Michael Lindner"
+      - "Zohreh Shams"
+      - "Thomas Donoghue"
+      - "Seraphim Alvanides"
+      - "Maria Florencia Noriega Romero Vargas"
+      - "Alireza Chenani"
+      - "Etienne Roesch"
+    spec: StoppingPlayer
+  -
+    id: group4
+    members:
+      - "Anna Jaruga"
+      - "Matthias Luethi"
+      - "Tadeo Corradi"
+      - "Miguel Obando"
+      - "Julia Sprenger"
+      - "Katharina Heining"
+    spec: StoppingPlayer
