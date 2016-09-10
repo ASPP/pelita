@@ -204,6 +204,8 @@ class State:
 
 
 def present_teams(config):
+    config.wait_for_keypress()
+    print("\33[H\33[2J")  # clear the screen
     config.print('Hello master, I am the Python drone. I am here to serve you.', wait=1.5)
     config.print('Welcome to the %s Pelita tournament %s' % (config.location, config.date), wait=1.5)
     config.print('This evening the teams are:', wait=1.5)
