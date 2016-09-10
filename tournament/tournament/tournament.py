@@ -386,6 +386,7 @@ def start_deathmatch(config, team1, team2):
     config.print("{} v {}".format(config.team_name(team1), config.team_name(team2)))
     for i in range(3):
         winner = start_match_with_replay(config, [team1, team2])
+        config.wait_for_keypress()
 
         if winner is False or winner is None:
             config.print('Draw -> Now go for a Death Match!')
@@ -468,6 +469,7 @@ def round1(config, state):
         match = rr_unplayed.pop()
 
         winner = start_match_with_replay(config, match)
+        config.wait_for_keypress()
 
         if winner is False or winner is None:
             rr_played.append({ "match": match, "winner": False })
