@@ -405,7 +405,7 @@ def round1_ranking(config, rr_played):
     points = collections.Counter()
     for match in rr_played:
         winner = match["winner"]
-        if winner:
+        if winner is not False and winner is not None:
             points[match["winner"]] += POINTS_WIN
         else:
             for team in match["match"]:
