@@ -276,7 +276,7 @@ class AdjacencyList(dict):
             else:
                 seen.append(current)
                 for pos in self[current]:
-                    heapq.heappush(to_visit, (manhattan_dist(target, pos), (pos)))
+                    heapq.heappush(to_visit, (man_dist + manhattan_dist(target, pos), (pos)))
 
         if not found:
             raise NoPathException("BFS: No path from %r to %r."
