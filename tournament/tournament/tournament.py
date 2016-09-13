@@ -320,11 +320,17 @@ def run_match(config, teams):
         return (final_game_state, stdout_buf.getvalue(), stderr_buf.getvalue())
 
 
-def start_match(config, teams):
+def start_match(config, teams, shuffle=False):
     """Start a match between a list of teams. Return the index of the team that won
     False if there was a draw.
     """
     assert len(teams) == 2
+    # Should we insist that all teams be different in a match?
+    # assert len(teams) == len(set(teams))
+
+    if shuffle:
+        random.shuffle(teams)
+
     team1, team2 = teams
 
     config.print()
@@ -358,16 +364,16 @@ def start_match(config, teams):
         return None
 
 
-def start_match_with_replay(config, match):
+def start_match_with_replay(config, match, shuffle=False):
     """ Runs start_match until it returns a proper output or manual intervention. """
 
-    winner = start_match(config, match)
+    winner = start_match(config, match, shuffle=shuffle)
     while winner is None:
         config.print("Do you want to re-play the game or enter a winner manually?")
         res = config.input("(r)e-play/(0){}/(1){}/(d)raw > ".format(config.team_name(match[0]),
                                                                     config.team_name(match[1])), values="r01d")
         if res == 'r':
-            winner = start_match(config, match)
+            winner = start_match(config, match, shuffle=shuffle)
         elif res == '0':
             winner = match[0]
         elif res == '1':
@@ -385,7 +391,7 @@ def start_deathmatch(config, team1, team2):
     config.print()
     config.print("{} v {}".format(config.team_name(team1), config.team_name(team2)))
     for i in range(3):
-        winner = start_match_with_replay(config, [team1, team2])
+        winner = start_match_with_replay(config, [team1, team2], shuffle=True)
         config.wait_for_keypress()
 
         if winner is False or winner is None:
