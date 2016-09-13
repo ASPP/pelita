@@ -187,14 +187,44 @@ class TestAdjacencyList(unittest.TestCase):
     def test_a_star(self):
         test_layout = (
         """ ##################
-            #0#.  .  # .     #
-            #2#####    #####1#
-            #     . #  .  .#3#
+            #02.# .  # .  #  #
+            #   ###    ####1 #
+            # ### . #  .  ##3#
+            #                #
             ################## """)
         universe = CTFUniverse.create(test_layout, 4)
         al = AdjacencyList(universe.free_positions())
-        # just a simple smoke test
-        self.assertEqual(14, len(al.a_star((1, 1), (3, 1))))
+        #Test distance to middle from both sides
+        self.assertEqual(11, len(al.a_star((1, 1), (7, 2))))
+        self.assertEqual(12, len(al.a_star((2, 1), (7, 2))))
+        self.assertEqual(14, len(al.a_star((16, 1), (7, 2))))
+        self.assertEqual(15, len(al.a_star((15, 1), (7, 2))))    
+
+    def test_a_star_left_right(self):
+        def len_of_shortest_path(layout):
+            uni = CTFUniverse.create(layout, 2)
+            al = AdjacencyList(uni.free_positions())
+            path = al.a_star(uni.bots[0].current_pos, uni.bots[1].current_pos)
+            return len(path)
+
+        l1 = """
+        ##################
+        #  1  #    #  0  #
+        #     #    #     #
+        # #####    ##### #
+        #                #
+        ##################
+        """
+
+        l2 = """
+        ##################
+        #  0  #    #  1  #
+        #     #    #     #
+        # #####    ##### #
+        #                #
+        ##################
+        """
+        self.assertEqual(len_of_shortest_path(l1), len_of_shortest_path(l2))
 
     def test_path_to_same_position(self):
         test_layout = (
