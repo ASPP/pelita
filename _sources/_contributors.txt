@@ -1,4 +1,4 @@
-As of ``v0.2.0-394-g81d0832`` the developers and contributors are::
+As of ``v0.2.0-399-g7efc02c`` the developers and contributors are::
 
     Rike-Benjamin Schuppner
     Valentin Haenel
@@ -9,6 +9,7 @@ As of ``v0.2.0-394-g81d0832`` the developers and contributors are::
     Jakob Jordan
     Nicola Chiapolini
     Pauli Virtanen
+    DoriekeG
     abject
     Anna Chabuda
     Bartosz Telenczuk
