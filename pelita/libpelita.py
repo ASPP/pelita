@@ -116,10 +116,10 @@ class BinRunner(ModuleRunner):
         return subprocess.Popen(external_call)
 
 @contextlib.contextmanager
-def _call_standalone_pelitagame(module_spec, address):
+def _call_pelita_player(module_spec, address):
     proc = None
     try:
-        proc = call_standalone_pelitagame(module_spec, address)
+        proc = call_pelita_player(module_spec, address)
         yield proc
     finally:
         if proc is None:
@@ -128,7 +128,7 @@ def _call_standalone_pelitagame(module_spec, address):
             _logger.debug("Terminating proc %r", proc)
             proc.terminate()
 
-def call_standalone_pelitagame(module_spec, address):
+def call_pelita_player(module_spec, address):
     """ Starts another process with the same Python executable,
     the same start script (pelitagame) and runs `team_spec`
     as a standalone client on URL `addr`.
@@ -165,7 +165,7 @@ def check_team(team_spec):
     team_player = RemoteTeamPlayer(socket)
 
     if team_spec.module:
-        with _call_standalone_pelitagame(team_spec.module, team_spec.address):
+        with _call_pelita_player(team_spec.module, team_spec.address):
             name = team_player.team_name()
     else:
         name = team_player.team_name()
@@ -219,7 +219,7 @@ def run_game(team_specs, game_config, viewers=None, controller=None):
             print("Waiting for external team %d to connect to %s." % (idx, team.address))
 
     external_players = [
-        call_standalone_pelitagame(team.module, team.address)
+        call_pelita_player(team.module, team.address)
         for team in teams
         if team.module
     ]
