@@ -2,6 +2,8 @@
 
 from collections import namedtuple
 import contextlib
+import io
+import json
 import logging
 import os
 import shlex
@@ -171,6 +173,90 @@ def check_team(team_spec):
         name = team_player.team_name()
 
     return name
+
+
+def call_pelitagame(args):
+    """ Calls the pelitagame script with the given additional arguments.
+
+    The function uses a zmq.PAIR socket through an ipc connection.
+
+    Returns
+    -------
+    (final_game_state, stdout, stderr)
+
+    """
+
+    ctx = zmq.Context()
+    reply_addr = "ipc://tournament-reply#{pid}".format(pid=os.getpid())
+    reply_sock = ctx.socket(zmq.PAIR)
+    reply_sock.bind(reply_addr)
+
+    pelitagame = os.path.join(os.environ.get("PELITA_PATH") or os.path.dirname(sys.argv[0]), './pelitagame')
+    cmd = [get_python_process(), pelitagame] + ['--reply-to', reply_addr] + args
+
+    _logger.debug("Executing: {}".format(shlex_unsplit(cmd)))
+
+    # We use the environment variable PYTHONUNBUFFERED here to retrieve stdout without buffering
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            universal_newlines=True, env=dict(os.environ, PYTHONUNBUFFERED='x'))
+
+
+    #if ARGS.dry_run:
+    #    print("Would run: {cmd}".format(cmd=cmd))
+    #    print("Choosing winner at random.")
+    #    return random.choice([0, 1, 2])
+
+
+    poll = zmq.Poller()
+    poll.register(reply_sock, zmq.POLLIN)
+    poll.register(proc.stdout.fileno(), zmq.POLLIN)
+    poll.register(proc.stderr.fileno(), zmq.POLLIN)
+
+    with io.StringIO() as stdout_buf, io.StringIO() as stderr_buf:
+        final_game_state = None
+
+        while True:
+            evts = dict(poll.poll(1000))
+
+            if not evts and proc.poll() is not None:
+                # no more events and proc has finished.
+                # we give up
+                break
+
+            stdout_ready = (not proc.stdout.closed) and evts.get(proc.stdout.fileno(), False)
+            if stdout_ready:
+                line = proc.stdout.readline()
+                if line:
+                    print(line, end='', file=stdout_buf)
+                else:
+                    poll.unregister(proc.stdout.fileno())
+                    proc.stdout.close()
+            stderr_ready = (not proc.stderr.closed) and evts.get(proc.stderr.fileno(), False)
+            if stderr_ready:
+                line = proc.stderr.readline()
+                if line:
+                    print(line, end='', file=stderr_buf)
+                else:
+                    poll.unregister(proc.stderr.fileno())
+                    proc.stderr.close()
+            socket_ready = evts.get(reply_sock, False)
+            if socket_ready:
+                try:
+                    pelita_status = json.loads(reply_sock.recv_string())
+                    game_state = pelita_status['__data__']['game_state']
+                    finished = game_state.get("finished", None)
+                    team_wins = game_state.get("team_wins", None)
+                    game_draw = game_state.get("game_draw", None)
+                    if finished:
+                        final_game_state = game_state
+                        break
+                except json.JSONDecodeError:
+                    pass
+                except KeyError:
+                    pass
+
+        return final_game_state, stdout_buf.getvalue(), stderr_buf.getvalue()
+
 
 def strip_module_prefix(module):
     if "@" in module:
