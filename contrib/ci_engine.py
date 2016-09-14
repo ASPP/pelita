@@ -129,17 +129,80 @@ class CI_Engine:
             the indices of the players
 
         """
+        import zmq
+
+        ctx = zmq.Context()
+        reply_addr = "ipc://tournament-reply#{pid}".format(pid=os.getpid())
+        reply_sock = ctx.socket(zmq.PAIR)
+        reply_sock.bind(reply_addr)
+
+
         left, right = [self.players[i]['path'] for i in (p1, p2)]
         proc_args = [self.pelita_exe, left, right]
         proc_args.extend(self.default_args)
+        proc_args.extend(['--reply-to', reply_addr])
 
         proc = subprocess.Popen(proc_args,
                                 stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
-        std_out, std_err = proc.communicate()
-        last_line = std_out.strip().splitlines()[-1]
+                                stderr=subprocess.PIPE,
+                                universal_newlines=True, env=dict(os.environ, PYTHONUNBUFFERED='x'))
+
+
+        import io, json
+        poll = zmq.Poller()
+        poll.register(reply_sock, zmq.POLLIN)
+        poll.register(proc.stdout.fileno(), zmq.POLLIN)
+        poll.register(proc.stderr.fileno(), zmq.POLLIN)
+
+        with io.StringIO() as stdout_buf, io.StringIO() as stderr_buf:
+            final_game_state = None
+
+            while True:
+                evts = dict(poll.poll(1000))
+
+                if not evts and proc.poll() is not None:
+                    # no more events and proc has finished.
+                    # we give up
+                    break
+
+                stdout_ready = (not proc.stdout.closed) and evts.get(proc.stdout.fileno(), False)
+                if stdout_ready:
+                    line = proc.stdout.readline()
+                    if line:
+                        print(line, end='', file=stdout_buf)
+                    else:
+                        poll.unregister(proc.stdout.fileno())
+                        proc.stdout.close()
+                stderr_ready = (not proc.stderr.closed) and evts.get(proc.stderr.fileno(), False)
+                if stderr_ready:
+                    line = proc.stderr.readline()
+                    if line:
+                        print(line, end='', file=stderr_buf)
+                    else:
+                        poll.unregister(proc.stderr.fileno())
+                        proc.stderr.close()
+                socket_ready = evts.get(reply_sock, False)
+                if socket_ready:
+                    try:
+                        pelita_status = json.loads(reply_sock.recv_string())
+                        game_state = pelita_status['__data__']['game_state']
+                        finished = game_state.get("finished", None)
+                        team_wins = game_state.get("team_wins", None)
+                        game_draw = game_state.get("game_draw", None)
+                        if finished:
+                            final_game_state = game_state
+                            break
+                    except json.JSONDecodeError:
+                        pass
+                    except KeyError:
+                        pass
+
+            # return (final_game_state, stdout_buf.getvalue(), stderr_buf.getvalue())
+            std_out = stdout_buf.getvalue()
+            std_err = stderr_buf.getvalue()
+
         try:
-            result = -1 if last_line == '-' else int(last_line)
+            result = -1 if game_draw else team_wins
         except ValueError:
             logger.error("Couldn't parse the outcome of the game:")
             logger.error("STDERR: \n%s" % std_err)
@@ -147,6 +210,7 @@ class CI_Engine:
             logger.error("Ignoring the result.")
             return
         p1_name, p2_name = self.players[p1]['name'], self.players[p2]['name']
+
         self.dbwrapper.add_gameresult(p1_name, p2_name, result, std_out, std_err)
 
 
