@@ -44,6 +44,8 @@ def create_team_id(team_id, idx):
         return "#" + str(idx)
     elif not isinstance(team_id, str):
         raise ValueError("team_id must be string or None.")
+    elif not team_id:
+        raise ValueError("team_id must not be empty.")
     elif team_id.startswith("#"):
         raise ValueError("team_id must not start with #.")
     else:

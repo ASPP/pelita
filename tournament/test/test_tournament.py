@@ -225,6 +225,8 @@ class TestTournament:
             tournament.create_team_id(1, 0)
         with pytest.raises(ValueError):
             tournament.create_team_id("#abc", 0)
+        with pytest.raises(ValueError):
+            tournament.create_team_id("", 0)
         assert tournament.create_team_id(None, 3) == "#3"
         assert tournament.create_team_id("abc", 3) == "abc"
 
