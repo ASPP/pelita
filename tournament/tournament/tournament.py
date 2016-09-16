@@ -249,7 +249,21 @@ def set_name(team):
         raise
 
 
-def run_match(config, teams):
+def play_game_with_config(config, teams):
+    """ Plays a game between two teams with a given configuration and returns the result.
+
+    Parameters
+    ----------
+    config : Config
+        The configuration
+    teams : list of two team_ids
+        The teams which play this game
+
+    Returns
+    -------
+    (final_game_state, stdout, stderr)
+    """
+
     team1, team2 = teams
 
     rounds = ['--rounds', str(config.rounds)] if config.rounds else []
@@ -290,7 +304,7 @@ def start_match(config, teams, shuffle=False):
     config.print()
     config.wait_for_keypress()
 
-    (final_state, stdout, stderr) = run_match(config, teams)
+    (final_state, stdout, stderr) = play_game_with_config(config, teams)
     try:
         game_draw = final_state['game_draw']
         team_wins = final_state['team_wins']
