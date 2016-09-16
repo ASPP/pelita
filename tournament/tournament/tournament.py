@@ -37,6 +37,19 @@ if os.name != 'posix':
 os.environ["PELITA_PATH"] = os.environ.get("PELITA_PATH") or os.path.join(os.path.dirname(sys.argv[0]), "..")
 
 
+def create_team_id(team_id, idx):
+    """ Checks that the team_id in the config is valid or else
+    creates one from the given index. """
+    if team_id is None:
+        return "#" + str(idx)
+    elif not isinstance(team_id, str):
+        raise ValueError("team_id must be string or None.")
+    elif team_id.startswith("#"):
+        raise ValueError("team_id must not start with #.")
+    else:
+        return team_id
+
+
 class Config:
     def __init__(self, config):
         self.teams = {}
@@ -44,14 +57,19 @@ class Config:
         teams = config["teams"]
         # load team names
         for idx, team in enumerate(teams):
-            team_id = team.get("id") or idx
+            team_id = create_team_id(team.get("id"), idx)
             team_spec = team["spec"]
             team_name = set_name(team_spec)
+
+            if team_id in self.teams:
+                raise ValueError("Duplicate team_id {} given.".format(team_id))
+
             self.teams[team_id] = {
                 "spec": team_spec,
                 "name": team_name,
                 "members": team["members"]
             }
+
 
         self.location = config["location"]
         self.date = config["date"]

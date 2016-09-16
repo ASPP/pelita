@@ -219,8 +219,15 @@ class TestSingleMatch:
         assert result in ["first_id", "second_id"]
 
 
-
 class TestTournament:
+    def test_team_id_check(self):
+        with pytest.raises(ValueError):
+            tournament.create_team_id(1, 0)
+        with pytest.raises(ValueError):
+            tournament.create_team_id("#abc", 0)
+        assert tournament.create_team_id(None, 3) == "#3"
+        assert tournament.create_team_id("abc", 3) == "abc"
+
     def test_tournament_winner(self):
         stdout = []
 
@@ -263,3 +270,4 @@ class TestTournament:
 
         winner = tournament.round2(config, sorted_ranking, state)
         assert winner == 'group1'
+
