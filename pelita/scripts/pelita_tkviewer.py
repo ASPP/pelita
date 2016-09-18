@@ -28,7 +28,7 @@ parser.add_argument('--geometry', type=geometry_string,
 parser.add_argument('--delay', type=int,
                     help='delay')
 
-def run_viewer():
+def main():
     args = parser.parse_args()
     tkargs = {
         'address': args.subscribe_sock,
@@ -40,4 +40,4 @@ def run_viewer():
     v.run()
 
 if __name__ == '__main__':
-    run_viewer()
+    main()

@@ -62,7 +62,7 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
     def print_possible_winner(self, universe, game_state):
         """ Checks the event list for a potential winner and prints this information.
 
-        This is needed for scripts parsing the output.
+        This is needed for pelita.scripts parsing the output.
         """
         winning_team = game_state.get("team_wins")
         if winning_team is not None:
@@ -103,8 +103,8 @@ def run_external_viewer(subscribe_sock, controller, geometry, delay):
     if delay:
         viewer_args += ["--delay", str(delay)]
 
-    tkviewer = os.path.join(os.path.dirname(sys.argv[0]), "tkviewer.py")
-    external_call = [libpelita.get_python_process(), tkviewer] + viewer_args
+    tkviewer = 'pelita.scripts.pelita_tkviewer'
+    external_call = [libpelita.get_python_process(), '-m', tkviewer] + viewer_args
     _logger.debug("Executing: %r", external_call)
     return subprocess.Popen(external_call)
 
@@ -286,8 +286,8 @@ Layout specification:
   You can restrict this pool by using --filter.
 """
 
-def run_game():
 
+def main():
     config = {
         "publish-addr": None,
         "controller-addr": None,
@@ -417,5 +417,5 @@ def run_game():
 
 
 if __name__ == '__main__':
-    run_game()
+    main()
 

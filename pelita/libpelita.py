@@ -77,8 +77,9 @@ class ModuleRunner:
 class DefaultRunner(ModuleRunner):
     def run(self, addr):
         player_path = os.environ.get("PELITA_PATH") or os.path.dirname(sys.argv[0])
-        player = os.path.join(player_path, "module_player.py")
+        player = 'pelita.scripts.pelita_player'
         external_call = [get_python_process(),
+                         '-m',
                          player,
                          self.team_spec,
                          addr]
@@ -274,7 +275,7 @@ def run_external_viewer(subscribe_sock, controller, geometry, delay):
     if delay:
         viewer_args += ["--delay", str(delay)]
 
-    tkviewer = os.path.join(os.path.dirname(sys.argv[0]), "tkviewer.py")
+    tkviewer = os.path.join(os.path.dirname(sys.argv[0]), "pelita-tkviewer")
     external_call = [get_python_process(), tkviewer] + viewer_args
     _logger.debug("Executing: %r", external_call)
     return subprocess.Popen(external_call)
