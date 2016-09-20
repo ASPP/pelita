@@ -2,7 +2,7 @@
 
 import heapq
 from collections import deque
-
+from .utils.Node import Node
 
 class NoPathException(Exception):
     pass
@@ -254,6 +254,61 @@ class AdjacencyList(dict):
 
         [1] http://en.wikipedia.org/wiki/A*_search_algorithm
 
+        """
+        # First check that the arguments were valid.
+        self._check_pos_exist([initial, target])
+        to_visit = []
+        seen = []
+        # Since it's A* we use a heap queue to ensure that we always
+        # get the next node with to lowest manhattan distance to the
+        # current node.
+        initial_node = Node(0, initial)
+        heapq.heappush(to_visit, initial_node)
+        found = False
+        while to_visit:
+            current_node = heapq.heappop(to_visit)
+            current = current_node.coordinates
+            value = current_node.value
+            if current in seen:
+                continue
+            elif current == target:
+                found = True
+                break
+            else:
+                seen.append(current)
+                for pos in self[current]:
+                    heapq.heappush(to_visit, Node(value + manhattan_dist(target, pos), (pos), current_node))
+        if not found:
+            raise NoPathException("BFS: No path from %r to %r."
+                    % (initial, target))
+
+        # Now back-track using seen to determine how we got here.
+        # Initialise the path with current node, i.e. position of food.
+        
+        return current_node.backtrack()[:-1]
+        
+    def old_a_star(self, initial, target):
+        """ A* search.
+        A* (A Star) [1] from one position to another. The search will return the
+        shortest path from the `initial` position to the `target` using the
+        Manhattan distance as a heuristic.
+        Parameters
+        ----------
+        initial : tuple of (int, int)
+            the first position
+        target : tuple of (int, int)
+            the target position
+        Returns
+        -------
+        path : lits of tuple of (int, int)
+            the path from `initial` to the closest `target`
+        Raises
+        ------
+        NoPathException
+            if no path from `initial` to one of `targets`
+        NoPositionException
+            if either `initial` or `targets` does not exist
+        [1] http://en.wikipedia.org/wiki/A*_search_algorithm
         """
         # First check that the arguments were valid.
         self._check_pos_exist([initial, target])
