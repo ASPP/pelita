@@ -3,6 +3,7 @@
 import heapq
 from collections import deque
 from .utils.Node import Node
+import time
 
 class NoPathException(Exception):
     pass
@@ -284,72 +285,6 @@ class AdjacencyList(dict):
 
         # Now back-track using seen to determine how we got here.
         # Initialise the path with current node, i.e. position of food.
+        path = current_node.backtrack()[1:][::-1]
+        return path
         
-        return current_node.backtrack()[:-1]
-        
-    def old_a_star(self, initial, target):
-        """ A* search.
-        A* (A Star) [1] from one position to another. The search will return the
-        shortest path from the `initial` position to the `target` using the
-        Manhattan distance as a heuristic.
-        Parameters
-        ----------
-        initial : tuple of (int, int)
-            the first position
-        target : tuple of (int, int)
-            the target position
-        Returns
-        -------
-        path : lits of tuple of (int, int)
-            the path from `initial` to the closest `target`
-        Raises
-        ------
-        NoPathException
-            if no path from `initial` to one of `targets`
-        NoPositionException
-            if either `initial` or `targets` does not exist
-        [1] http://en.wikipedia.org/wiki/A*_search_algorithm
-        """
-        # First check that the arguments were valid.
-        self._check_pos_exist([initial, target])
-        to_visit = []
-        # Seen needs to be list since we use it for backtracking.
-        # A set would make the lookup faster, but backtracking impossible.
-        seen = []
-        # Since it's A* we use a heap queue to ensure that we always
-        # get the next node with to lowest manhattan distance to the
-        # current node.
-        heapq.heappush(to_visit, (0, (initial)))
-        found = False
-        while to_visit:
-            man_dist, current = heapq.heappop(to_visit)
-            if current in seen:
-                continue
-            elif current == target:
-                found = True
-                break
-            else:
-                seen.append(current)
-                for pos in self[current]:
-                    heapq.heappush(to_visit, (man_dist + manhattan_dist(target, pos), (pos)))
-
-        if not found:
-            raise NoPathException("BFS: No path from %r to %r."
-                    % (initial, target))
-
-        # Now back-track using seen to determine how we got here.
-        # Initialise the path with current node, i.e. position of food.
-        path = [current]
-        while seen:
-            # Pop the latest node in seen
-            next_ = seen.pop()
-            # If that's adjacent to the current node
-            # it's in the path
-            if next_ in self[current]:
-                # So add it to the path
-                path.append(next_)
-                # And continue back-tracking from there
-                current = next_
-        # The last element is the current position, we don't need that in our
-        # path, so don't include it.
-        return path[:-1]
