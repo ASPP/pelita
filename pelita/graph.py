@@ -227,74 +227,62 @@ class AdjacencyList(dict):
         return path[:-1]
 
     def a_star(self, initial, target):
-        """ A* search.
+        # The set of nodes already evaluated.
+        closed_set = set()
+        # the set of currently discovered nodes still to be evaluated.
+        # initially, only the start node is known.
+        open_set = {initial}
+        # for each node, which node it can most efficiently be reached from.
+        # if a node can be reached from many nodes, cameFrom will eventually contain the
+        # most efficient previous step.
+        came_from = dict()
 
-        A* (A Star) [1] from one position to another. The search will return the
-        shortest path from the `initial` position to the `target` using the
-        Manhattan distance as a heuristic.
+        # for each node, the cost of getting from the start node to that node.
+        import collections
+        import math
+        g_score = collections.defaultdict(default_factory=lambda k: math.inf)
+        # the cost of going from start to start is zero.
+        g_score[initial]= 0
 
-        Parameters
-        ----------
-        initial : tuple of (int, int)
-            the first position
-        target : tuple of (int, int)
-            the target position
+        # for each node, the total cost of getting from the start node to the goal
+        # by passing by that node. That value is partly known, partly heuristic.
+        f_score = collections.defaultdict(default_factory=lambda k: math.inf)
+        # for the first node, that value is completely heuristic.
+        f_score[initial] = manhattan_dist(initial, target)
 
-        Returns
-        -------
-        path : lits of tuple of (int, int)
-            the path from `initial` to the closest `target`
+        while open_set:
+            current = sorted((f_score[node], node) for node in open_set)[0][1]# the node in openSet having the lowest fScore[] value
+            if current == target:
+                return reconstruct_path(came_from, current)[:-1]
 
-        Raises
-        ------
-        NoPathException
-            if no path from `initial` to one of `targets`
-        NoPositionException
-            if either `initial` or `targets` does not exist
+            open_set.remove(current)
+            closed_set.add(current)
+            try:
+                neighbors = self[current]
+            except KeyError:
+                raise NoPathException("A*: No path from %r to %r." % (initial, target))
 
-        [1] http://en.wikipedia.org/wiki/A*_search_algorithm
+            for neighbor in neighbors:
+                if neighbor in closed_set:
+                    continue           # Ignore the neighbor which is already evaluated.
+                # the distance from start to a neighbor
+                tentative_g_score = g_score[current] + 1
+                if neighbor not in open_set:  # Discover a new node
+                    open_set.add(neighbor)
+                elif tentative_g_score >= g_score[neighbor]:
+                    continue           # This is not a better path.
 
-        """
-        # First check that the arguments were valid.
-        self._check_pos_exist([initial, target])
-        to_visit = []
-        # Seen needs to be list since we use it for backtracking.
-        # A set would make the lookup faster, but backtracking impossible.
-        seen = []
-        # Since it's A* we use a heap queue to ensure that we always
-        # get the next node with to lowest manhattan distance to the
-        # current node.
-        heapq.heappush(to_visit, (0, (initial)))
-        found = False
-        while to_visit:
-            man_dist, current = heapq.heappop(to_visit)
-            if current in seen:
-                continue
-            elif current == target:
-                found = True
-                break
-            else:
-                seen.append(current)
-                for pos in self[current]:
-                    heapq.heappush(to_visit, (man_dist + manhattan_dist(target, pos), (pos)))
+                # this path is the best until now. Record it!
+                came_from[neighbor] = current
+                g_score[neighbor] = tentative_g_score
+                f_score[neighbor] = g_score[neighbor] + manhattan_dist(neighbor, target)
 
-        if not found:
-            raise NoPathException("BFS: No path from %r to %r."
-                    % (initial, target))
+        raise NoPathException("A*: No path from %r to %r." % (initial, target))
 
-        # Now back-track using seen to determine how we got here.
-        # Initialise the path with current node, i.e. position of food.
-        path = [current]
-        while seen:
-            # Pop the latest node in seen
-            next_ = seen.pop()
-            # If that's adjacent to the current node
-            # it's in the path
-            if next_ in self[current]:
-                # So add it to the path
-                path.append(next_)
-                # And continue back-tracking from there
-                current = next_
-        # The last element is the current position, we don't need that in our
-        # path, so don't include it.
-        return path[:-1]
+def reconstruct_path(came_from, current):
+    total_path = [current]
+    while current in came_from.keys():
+        current = came_from[current]
+        total_path.append(current)
+    return total_path
+
