@@ -464,7 +464,7 @@ class TestCTFUniverse(unittest.TestCase):
             ################## """)
         universe = CTFUniverse.create(test_layout, 4)
         reachable = [universe.reachable([bot.initial_pos]) for bot in universe.bots]
-        self.assertTrue(bot.initial_pos in reachable[i] for i, bot in enumerate(universe.bots))
+        self.assertTrue(all(bot.initial_pos in reachable[i] for i, bot in enumerate(universe.bots)))
         self.assertTrue(universe.bots[0].initial_pos in dict(reachable[1]))
         self.assertFalse(universe.bots[3].initial_pos in dict(reachable[0]))
         self.assertFalse(universe.bots[0].initial_pos in dict(reachable[3]))
