@@ -64,7 +64,7 @@ def manhattan_dist(pos1, pos2):
     manhattan_dist : int
         Manhattan distance between two points
     """
-    return sum(abs(idx) for idx in diff_pos(pos1, pos2))
+    return abs(pos1[0]-pos2[0]) + abs(pos1[1]-pos2[1])
 
 def iter_adjacencies(initial, adjacencies_for_pos):
     """ Returns an adjacency list starting at the initial positions.
