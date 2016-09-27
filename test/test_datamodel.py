@@ -463,11 +463,11 @@ class TestCTFUniverse(unittest.TestCase):
             #     . #  .  .#3#
             ################## """)
         universe = CTFUniverse.create(test_layout, 4)
-        reachable = [universe.reachable([bot.initial_pos]) for bot in universe.bots]
+        reachable = [dict(universe.reachable([bot.initial_pos])) for bot in universe.bots]
         self.assertTrue(all(bot.initial_pos in reachable[i] for i, bot in enumerate(universe.bots)))
-        self.assertTrue(universe.bots[0].initial_pos in dict(reachable[1]))
-        self.assertFalse(universe.bots[3].initial_pos in dict(reachable[0]))
-        self.assertFalse(universe.bots[0].initial_pos in dict(reachable[3]))
+        self.assertTrue(universe.bots[0].initial_pos in reachable[1])
+        self.assertFalse(universe.bots[3].initial_pos in reachable[0])
+        self.assertFalse(universe.bots[0].initial_pos in reachable[3])
 
 class TestCTFUniverseRules(unittest.TestCase):
 
