@@ -3,52 +3,53 @@ import unittest
 from pelita.datamodel import CTFUniverse, east, north, south, stop, west
 from pelita.graph import (AdjacencyList, NoPathException, diff_pos, iter_adjacencies,
                           manhattan_dist, move_pos)
+import pytest
 
 
 class TestStaticmethods(unittest.TestCase):
 
     def test_new_pos(self):
-        self.assertEqual(move_pos((1, 1), north), (1, 0))
-        self.assertEqual(move_pos((1, 1), south), (1, 2))
-        self.assertEqual(move_pos((1, 1), east), (2, 1))
-        self.assertEqual(move_pos((1, 1), west), (0, 1))
-        self.assertEqual(move_pos((1, 1), stop), (1, 1))
-        self.assertEqual(move_pos((0, 0), (1, 1)), (1, 1))
+        assert move_pos((1, 1), north) == (1, 0)
+        assert move_pos((1, 1), south) == (1, 2)
+        assert move_pos((1, 1), east) == (2, 1)
+        assert move_pos((1, 1), west) == (0, 1)
+        assert move_pos((1, 1), stop) == (1, 1)
+        assert move_pos((0, 0), (1, 1)) == (1, 1)
 
     def test_diff_pos(self):
-        self.assertEqual(north, diff_pos((1, 1), (1, 0)))
-        self.assertEqual(south, diff_pos((1, 1), (1, 2)))
-        self.assertEqual(east, diff_pos((1, 1), (2, 1)))
-        self.assertEqual(west, diff_pos((1, 1), (0, 1)))
-        self.assertEqual(stop, diff_pos((1, 1), (1, 1)))
+        assert north == diff_pos((1, 1), (1, 0))
+        assert south == diff_pos((1, 1), (1, 2))
+        assert east == diff_pos((1, 1), (2, 1))
+        assert west == diff_pos((1, 1), (0, 1))
+        assert stop == diff_pos((1, 1), (1, 1))
 
     def test_diff_pos_arbitrary(self):
         vectors = [(0, 0), (0, 1), (-1, 1), (-2, 3)]
         orig = (1, 1)
         for vec in vectors:
             new = move_pos(orig, vec)
-            self.assertEqual(vec, diff_pos(orig, new))
+            assert vec == diff_pos(orig, new)
 
     def test_manhattan_dist(self):
-        self.assertEqual(0, manhattan_dist((0, 0), (0, 0)))
-        self.assertEqual(0, manhattan_dist((1, 1), (1, 1)))
-        self.assertEqual(0, manhattan_dist((20, 20), (20, 20)))
+        assert 0 == manhattan_dist((0, 0), (0, 0))
+        assert 0 == manhattan_dist((1, 1), (1, 1))
+        assert 0 == manhattan_dist((20, 20), (20, 20))
 
-        self.assertEqual(1, manhattan_dist((0, 0), (1, 0)))
-        self.assertEqual(1, manhattan_dist((0, 0), (0, 1)))
-        self.assertEqual(1, manhattan_dist((1, 0), (0, 0)))
-        self.assertEqual(1, manhattan_dist((0, 1), (0, 0)))
+        assert 1 == manhattan_dist((0, 0), (1, 0))
+        assert 1 == manhattan_dist((0, 0), (0, 1))
+        assert 1 == manhattan_dist((1, 0), (0, 0))
+        assert 1 == manhattan_dist((0, 1), (0, 0))
 
-        self.assertEqual(2, manhattan_dist((0, 0), (1, 1)))
-        self.assertEqual(2, manhattan_dist((1, 1), (0, 0)))
-        self.assertEqual(2, manhattan_dist((1, 0), (0, 1)))
-        self.assertEqual(2, manhattan_dist((0, 1), (1, 0)))
-        self.assertEqual(2, manhattan_dist((0, 0), (2, 0)))
-        self.assertEqual(2, manhattan_dist((0, 0), (0, 2)))
-        self.assertEqual(2, manhattan_dist((2, 0), (0, 0)))
-        self.assertEqual(2, manhattan_dist((0, 2), (0, 0)))
+        assert 2 == manhattan_dist((0, 0), (1, 1))
+        assert 2 == manhattan_dist((1, 1), (0, 0))
+        assert 2 == manhattan_dist((1, 0), (0, 1))
+        assert 2 == manhattan_dist((0, 1), (1, 0))
+        assert 2 == manhattan_dist((0, 0), (2, 0))
+        assert 2 == manhattan_dist((0, 0), (0, 2))
+        assert 2 == manhattan_dist((2, 0), (0, 0))
+        assert 2 == manhattan_dist((0, 2), (0, 0))
 
-        self.assertEqual(4, manhattan_dist((1, 2), (3, 4)))
+        assert 4 == manhattan_dist((1, 2), (3, 4))
 
     def test_iter_adjacencies(self):
         def onedim_lattice(n, max_size):
@@ -56,22 +57,22 @@ class TestStaticmethods(unittest.TestCase):
 
         # starting at 0, we’ll get all 21 points:
         adjs0 = list(iter_adjacencies([0], lambda n: onedim_lattice(n, 10)))
-        self.assertEqual(21, len(adjs0))
+        assert 21 == len(adjs0)
         self.assertCountEqual(range(-10, 11), dict(adjs0).keys())
 
         # starting at 11, we’ll get 22 points
         adjs1 = list(iter_adjacencies([11], lambda n: onedim_lattice(n, 10)))
-        self.assertEqual(22, len(adjs1))
+        assert 22 == len(adjs1)
         self.assertCountEqual(range(-10, 12), dict(adjs1).keys())
 
         # starting at 12, we’ll get 1 point
         adjs2 = list(iter_adjacencies([12], lambda n: onedim_lattice(n, 10)))
-        self.assertEqual(1, len(adjs2))
-        self.assertEqual([(12, [])], list(adjs2))
+        assert 1 == len(adjs2)
+        assert [(12, [])] == list(adjs2)
 
         # starting at [0, 12], we’ll get adjs0 | adjs2
         adjs3 = list(iter_adjacencies([0, 12], lambda n: onedim_lattice(n, 10)))
-        self.assertEqual(22, len(adjs3))
+        assert 22 == len(adjs3)
         self.assertCountEqual(adjs0 + adjs2, adjs3)
 
 class TestAdjacencyList(unittest.TestCase):
@@ -87,20 +88,22 @@ class TestAdjacencyList(unittest.TestCase):
         al = AdjacencyList(universe.free_positions())
         free = {pos for pos, val in universe.maze.items() if not val}
 
-        self.assertFalse((0, 0) in al)
-        self.assertRaises(NoPathException, al.pos_within, (0, 0), 0)
-        self.assertFalse((6, 2) in al)
-        self.assertRaises(NoPathException, al.pos_within, (6, 2), 0)
+        assert not ((0, 0) in al)
+        with pytest.raises(NoPathException):
+            al.pos_within((0, 0), 0)
+        assert not ((6, 2) in al)
+        with pytest.raises(NoPathException):
+            al.pos_within((6, 2), 0)
 
-        self.assertTrue((1, 1) in al)
+        assert (1, 1) in al
         self.assertCountEqual([(1, 1)], al.pos_within((1, 1), 0))
         target = [(1, 1), (1, 2), (1,3), (2, 3), (3, 3)]
         self.assertCountEqual(target, al.pos_within((1, 1), 5))
         # assuming a_star is working properly
         for pos in target:
-            self.assertTrue(len(al.a_star((1, 1), pos)) < 5)
+            assert len(al.a_star((1, 1), pos)) < 5
         for pos in free.difference(target):
-            self.assertTrue(len(al.a_star((1, 1), pos)) >= 5)
+            assert len(al.a_star((1, 1), pos)) >= 5
 
     def test_basic_adjacency_list(self):
         test_layout = (
@@ -120,7 +123,7 @@ class TestAdjacencyList(unittest.TestCase):
         for val in target.values():
             val.sort()
 
-        self.assertEqual(target, al)
+        assert target == al
 
     def test_extended_adjacency_list(self):
         test_layout = (
@@ -173,7 +176,7 @@ class TestAdjacencyList(unittest.TestCase):
         for val in adjacency_target.values():
             val.sort()
 
-        self.assertEqual(adjacency_target, al)
+        assert adjacency_target == al
 
     def test_bfs_to_self(self):
         test_layout = (
@@ -182,7 +185,7 @@ class TestAdjacencyList(unittest.TestCase):
             ############ """)
         universe = CTFUniverse.create(test_layout, 2)
         al = AdjacencyList(universe.free_positions())
-        self.assertEqual([], al.bfs((1,1), [(1, 1), (2, 1)]))
+        assert [] == al.bfs((1,1), [(1, 1), (2, 1)])
 
     def test_a_star(self):
         test_layout = (
@@ -195,10 +198,10 @@ class TestAdjacencyList(unittest.TestCase):
         universe = CTFUniverse.create(test_layout, 4)
         al = AdjacencyList(universe.free_positions())
         #Test distance to middle from both sides
-        self.assertEqual(11, len(al.a_star((1, 1), (7, 2))))
-        self.assertEqual(12, len(al.a_star((2, 1), (7, 2))))
-        self.assertEqual(14, len(al.a_star((16, 1), (7, 2))))
-        self.assertEqual(15, len(al.a_star((15, 1), (7, 2))))    
+        assert 11 == len(al.a_star((1, 1), (7, 2)))
+        assert 12 == len(al.a_star((2, 1), (7, 2)))
+        assert 14 == len(al.a_star((16, 1), (7, 2)))
+        assert 15 == len(al.a_star((15, 1), (7, 2)))    
 
     def test_a_star_left_right(self):
         def len_of_shortest_path(layout):
@@ -224,7 +227,7 @@ class TestAdjacencyList(unittest.TestCase):
         #                #
         ##################
         """
-        self.assertEqual(len_of_shortest_path(l1), len_of_shortest_path(l2))
+        assert len_of_shortest_path(l1) == len_of_shortest_path(l2)
 
     def test_path_to_same_position(self):
         test_layout = (
@@ -235,8 +238,8 @@ class TestAdjacencyList(unittest.TestCase):
             ################## """)
         universe = CTFUniverse.create(test_layout, 4)
         al = AdjacencyList(universe.free_positions())
-        self.assertEqual([], al.a_star((1, 1), (1, 1)))
-        self.assertEqual([], al.bfs((1, 1), [(1, 1)]))
+        assert [] == al.a_star((1, 1), (1, 1))
+        assert [] == al.bfs((1, 1), [(1, 1)])
 
     def test_bfs_exceptions(self):
         test_layout = (
@@ -245,10 +248,14 @@ class TestAdjacencyList(unittest.TestCase):
             ############ """)
         universe = CTFUniverse.create(test_layout, 2)
         al = AdjacencyList(universe.free_positions())
-        self.assertRaises(NoPathException, al.bfs, (1, 1), [(10, 1)])
-        self.assertRaises(NoPathException, al.bfs, (1, 1), [(10, 1), (9, 1)])
-        self.assertRaises(NoPathException, al.bfs, (0, 1), [(10, 1)])
-        self.assertRaises(NoPathException, al.bfs, (1, 1), [(11, 1)])
+        with pytest.raises(NoPathException):
+            al.bfs((1, 1), [(10, 1)])
+        with pytest.raises(NoPathException):
+            al.bfs((1, 1), [(10, 1), (9, 1)])
+        with pytest.raises(NoPathException):
+            al.bfs((0, 1), [(10, 1)])
+        with pytest.raises(NoPathException):
+            al.bfs((1, 1), [(11, 1)])
 
     def test_a_star_exceptions(self):
         test_layout = (
@@ -257,6 +264,9 @@ class TestAdjacencyList(unittest.TestCase):
             ############ """)
         universe = CTFUniverse.create(test_layout, 2)
         al = AdjacencyList(universe.free_positions())
-        self.assertRaises(NoPathException, al.a_star, (1, 1), (10, 1))
-        self.assertRaises(NoPathException, al.a_star, (0, 1), (10, 1))
-        self.assertRaises(NoPathException, al.a_star, (1, 1), (11, 1))
+        with pytest.raises(NoPathException):
+            al.a_star((1, 1), (10, 1))
+        with pytest.raises(NoPathException):
+            al.a_star((0, 1), (10, 1))
+        with pytest.raises(NoPathException):
+            al.a_star((1, 1), (11, 1))

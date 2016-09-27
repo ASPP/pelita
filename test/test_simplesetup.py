@@ -7,6 +7,7 @@ import pelita
 from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer
 from pelita.simplesetup import SimpleClient, SimpleServer, bind_socket, extract_port_range
 from players import RandomPlayer
+import pytest
 
 
 class TestSimpleSetup(unittest.TestCase):
@@ -16,7 +17,8 @@ class TestSimpleSetup(unittest.TestCase):
         context = zmq.Context()
         socket = context.socket(zmq.PUB)
         bind_socket(socket, address)
-        self.assertRaises(zmq.ZMQError, bind_socket, socket, "bad-address", '--publish')
+        with pytest.raises(zmq.ZMQError):
+            bind_socket(socket, "bad-address", '--publish')
         socket.close()
 
     def test_simple_game(self):
@@ -31,7 +33,7 @@ class TestSimpleSetup(unittest.TestCase):
                                           "ipc:///tmp/pelita-testplayer2-%s" % uuid.uuid4()))
 
         for bind_address in server.bind_addresses:
-            self.assertTrue(bind_address.startswith("ipc://"))
+            assert bind_address.startswith("ipc://")
 
         client1_address = server.bind_addresses[0]
         client2_address = server.bind_addresses[1]
@@ -54,7 +56,7 @@ class TestSimpleSetup(unittest.TestCase):
         server = SimpleServer(layout_string=layout, rounds=5, players=2)
 
         for bind_address in server.bind_addresses:
-            self.assertTrue(bind_address.startswith("tcp://"))
+            assert bind_address.startswith("tcp://")
 
         client1_address = server.bind_addresses[0].replace("*", "localhost")
         client2_address = server.bind_addresses[1].replace("*", "localhost")
@@ -77,7 +79,7 @@ class TestSimpleSetup(unittest.TestCase):
         server = SimpleServer(layout_string=layout, rounds=5, players=2)
 
         for bind_address in server.bind_addresses:
-            self.assertTrue(bind_address.startswith("tcp://"))
+            assert bind_address.startswith("tcp://")
 
         client1_address = server.bind_addresses[0].replace("*", "localhost")
         client2_address = server.bind_addresses[1].replace("*", "localhost")
@@ -108,7 +110,7 @@ class TestSimpleSetup(unittest.TestCase):
         server = SimpleServer(layout_string=layout, rounds=5, players=2, timeout_length=0.3)
 
         for bind_address in server.bind_addresses:
-            self.assertTrue(bind_address.startswith("tcp://"))
+            assert bind_address.startswith("tcp://")
 
         client1_address = server.bind_addresses[0].replace("*", "localhost")
         client2_address = server.bind_addresses[1].replace("*", "localhost")
@@ -146,7 +148,7 @@ class TestSimpleSetup(unittest.TestCase):
         server = SimpleServer(layout_string=layout, rounds=5, players=2, timeout_length=0.3)
 
         for bind_address in server.bind_addresses:
-            self.assertTrue(bind_address.startswith("tcp://"))
+            assert bind_address.startswith("tcp://")
 
         client1_address = server.bind_addresses[0].replace("*", "localhost")
         client2_address = server.bind_addresses[1].replace("*", "localhost")
@@ -184,7 +186,7 @@ class TestSimpleSetup(unittest.TestCase):
 
         for test in test_cases:
             extracted = extract_port_range(test[0])
-            self.assertEqual(extracted, test[1])
+            assert extracted == test[1]
 
 if __name__ == '__main__':
     unittest.main()
