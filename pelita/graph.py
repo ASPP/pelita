@@ -249,8 +249,6 @@ class AdjacencyList(dict):
         ------
         NoPathException
             if no path from `initial` to one of `targets`
-        NoPositionException
-            if either `initial` or `targets` does not exist
 
         [1] http://en.wikipedia.org/wiki/A*_search_algorithm
 
@@ -258,43 +256,43 @@ class AdjacencyList(dict):
         # First check that the arguments were valid.
         self._check_pos_exist([initial, target])
         to_visit = []
-        # Seen needs to be list since we use it for backtracking.
+        # Initialize the dicts that help us keep track
         # A set would make the lookup faster, but backtracking impossible.
-        seen = []
+        came_from = {}
+        cost_so_far = {}
+        came_from[initial] = None
+        cost_so_far[initial] = 0
         # Since it's A* we use a heap queue to ensure that we always
         # get the next node with to lowest manhattan distance to the
         # current node.
         heapq.heappush(to_visit, (0, (initial)))
         found = False
         while to_visit:
-            man_dist, current = heapq.heappop(to_visit)
-            if current in seen:
-                continue
-            elif current == target:
+            old_prio, current = heapq.heappop(to_visit)
+
+            if current == target:
                 found = True
                 break
-            else:
-                seen.append(current)
-                for pos in self[current]:
-                    heapq.heappush(to_visit, (man_dist + manhattan_dist(target, pos), (pos)))
+
+            for next in self[current]:
+                new_cost = cost_so_far[current] + 1 # 1 is the cost to the neighbor
+                if next not in cost_so_far or new_cost < cost_so_far[next]: # only choose unvisited and ‘worthy’ nodes
+                    cost_so_far[next] = new_cost
+                    priority = new_cost + manhattan_dist(target, next)
+                    heapq.heappush(to_visit, (priority, next))
+                    came_from[next] = current
 
         if not found:
-            raise NoPathException("BFS: No path from %r to %r."
-                    % (initial, target))
+            raise NoPathException("BFS: No path from %r to %r." % (initial, target))
 
         # Now back-track using seen to determine how we got here.
         # Initialise the path with current node, i.e. position of food.
+        current = target
         path = [current]
-        while seen:
-            # Pop the latest node in seen
-            next_ = seen.pop()
-            # If that's adjacent to the current node
-            # it's in the path
-            if next_ in self[current]:
-                # So add it to the path
-                path.append(next_)
-                # And continue back-tracking from there
-                current = next_
+        while current != initial:
+            current = came_from[current]
+            path.append(current)
         # The last element is the current position, we don't need that in our
         # path, so don't include it.
         return path[:-1]
+
