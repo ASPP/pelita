@@ -266,12 +266,11 @@ class AdjacencyList(dict):
         # get the next node with to lowest manhattan distance to the
         # current node.
         heapq.heappush(to_visit, (0, (initial)))
-        found = False
+
         while to_visit:
             old_prio, current = heapq.heappop(to_visit)
 
             if current == target:
-                found = True
                 break
 
             for next in self[current]:
@@ -281,8 +280,8 @@ class AdjacencyList(dict):
                     priority = new_cost + manhattan_dist(target, next)
                     heapq.heappush(to_visit, (priority, next))
                     came_from[next] = current
-
-        if not found:
+        else:
+            # no target found
             raise NoPathException("BFS: No path from %r to %r." % (initial, target))
 
         # Now back-track using seen to determine how we got here.
