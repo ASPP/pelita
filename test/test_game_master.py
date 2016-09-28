@@ -1,5 +1,7 @@
-import collections
+import pytest
 import unittest
+
+import collections
 
 from pelita.datamodel import CTFUniverse
 from pelita.game_master import GameMaster, ManhattanNoiser, PlayerTimeout
@@ -7,7 +9,7 @@ from pelita.player import AbstractPlayer, SimpleTeam, StoppingPlayer, TestPlayer
 from pelita.viewer import AbstractViewer
 
 
-class TestGameMaster(unittest.TestCase):
+class TestGameMaster:
     def test_team_names(self):
         test_layout = (
         """ ##################
@@ -20,23 +22,23 @@ class TestGameMaster(unittest.TestCase):
         team_2 = SimpleTeam("team2", TestPlayer([]), TestPlayer([]))
         game_master = GameMaster(test_layout, [team_1, team_2], 4, 200)
 
-        self.assertEqual(game_master.game_state["team_name"][0], "")
-        self.assertEqual(game_master.game_state["team_name"][1], "")
+        assert game_master.game_state["team_name"][0] == ""
+        assert game_master.game_state["team_name"][1] == ""
 
         game_master.set_initial()
-        self.assertEqual(game_master.game_state["team_name"][0], "team1")
-        self.assertEqual(game_master.game_state["team_name"][1], "team2")
+        assert game_master.game_state["team_name"][0] == "team1"
+        assert game_master.game_state["team_name"][1] == "team2"
 
         # check that all players know it, before the game started
-        self.assertEqual(team_1._players[0].current_state["team_name"][0], "team1")
-        self.assertEqual(team_1._players[0].current_state["team_name"][1], "team2")
-        self.assertEqual(team_1._players[1].current_state["team_name"][0], "team1")
-        self.assertEqual(team_1._players[1].current_state["team_name"][1], "team2")
+        assert team_1._players[0].current_state["team_name"][0] == "team1"
+        assert team_1._players[0].current_state["team_name"][1] == "team2"
+        assert team_1._players[1].current_state["team_name"][0] == "team1"
+        assert team_1._players[1].current_state["team_name"][1] == "team2"
 
-        self.assertEqual(team_2._players[0].current_state["team_name"][0], "team1")
-        self.assertEqual(team_2._players[0].current_state["team_name"][1], "team2")
-        self.assertEqual(team_2._players[1].current_state["team_name"][0], "team1")
-        self.assertEqual(team_2._players[1].current_state["team_name"][1], "team2")
+        assert team_2._players[0].current_state["team_name"][0] == "team1"
+        assert team_2._players[0].current_state["team_name"][1] == "team2"
+        assert team_2._players[1].current_state["team_name"][0] == "team1"
+        assert team_2._players[1].current_state["team_name"][1] == "team2"
 
     def test_team_names_in_simpleteam(self):
         test_layout = (
@@ -52,8 +54,8 @@ class TestGameMaster(unittest.TestCase):
         game_master = GameMaster(test_layout, [team_1, team_2], 4, 200)
         game_master.set_initial()
 
-        self.assertEqual(game_master.game_state["team_name"][0], "team1")
-        self.assertEqual(game_master.game_state["team_name"][1], "team2")
+        assert game_master.game_state["team_name"][0] == "team1"
+        assert game_master.game_state["team_name"][1] == "team2"
 
     def test_too_few_registered_teams(self):
         test_layout_4 = (
@@ -63,7 +65,8 @@ class TestGameMaster(unittest.TestCase):
             #     . #  .  .#3#
             ################## """)
         team_1 = SimpleTeam(TestPlayer([]), TestPlayer([]))
-        self.assertRaises(ValueError, GameMaster, test_layout_4, [team_1], 4, 200)
+        with pytest.raises(ValueError):
+            GameMaster(test_layout_4, [team_1], 4, 200)
 
     def test_too_many_registered_teams(self):
         test_layout_4 = (
@@ -77,9 +80,10 @@ class TestGameMaster(unittest.TestCase):
         team_2 = SimpleTeam(TestPlayer([]), TestPlayer([]))
         team_3 = SimpleTeam(TestPlayer([]), TestPlayer([]))
 
-        self.assertRaises(ValueError, GameMaster, test_layout_4, [team_1, team_2, team_3], 4, 200)
+        with pytest.raises(ValueError):
+            GameMaster(test_layout_4, [team_1, team_2, team_3], 4, 200)
 
-class TestUniverseNoiser(unittest.TestCase):
+class TestUniverseNoiser:
     def test_uniform_noise_manhattan(self):
         test_layout = (
         """ ##################
@@ -93,15 +97,15 @@ class TestUniverseNoiser(unittest.TestCase):
         position_bucket = collections.defaultdict(int)
         for i in range(200):
             new = noiser.uniform_noise(universe.copy(), 1)
-            self.assertTrue(new.bots[0].noisy)
+            assert new.bots[0].noisy
             position_bucket[new.bots[0].current_pos] += 1
-        self.assertEqual(200, sum(position_bucket.values()))
+        assert 200 == sum(position_bucket.values())
         # Since this is a randomized algorithm we need to be a bit lenient with
         # our tests. We check that each position was selected at least once.
         expected = [ (1, 1), (1, 2), (1, 3), (2, 3), (3, 3),
                      (4, 3), (5, 3), (6, 3), (7, 3), (7, 2),
                      (6, 1), (5, 1), (4, 1), (3, 1) ]
-        self.assertCountEqual(position_bucket, expected, position_bucket)
+        unittest.TestCase().assertCountEqual(position_bucket, expected, position_bucket)
     
 
     def test_uniform_noise_4_bots_manhattan(self):
@@ -129,16 +133,16 @@ class TestUniverseNoiser(unittest.TestCase):
 
         for i in range(200):
             new = noiser.uniform_noise(universe.copy(), 1)
-            self.assertTrue(new.bots[0].noisy)
-            self.assertTrue(new.bots[2].noisy)
+            assert new.bots[0].noisy
+            assert new.bots[2].noisy
             position_bucket_0[new.bots[0].current_pos] += 1
             position_bucket_2[new.bots[2].current_pos] += 1
-        self.assertEqual(200, sum(position_bucket_0.values()))
-        self.assertEqual(200, sum(position_bucket_2.values()))
+        assert 200 == sum(position_bucket_0.values())
+        assert 200 == sum(position_bucket_2.values())
         # Since this is a randomized algorithm we need to be a bit lenient with
         # our tests. We check that each position was selected at least once.
-        self.assertCountEqual(position_bucket_0, expected_0, sorted(position_bucket_0.keys()))
-        self.assertCountEqual(position_bucket_2, expected_2, sorted(position_bucket_2.keys()))
+        unittest.TestCase().assertCountEqual(position_bucket_0, expected_0, sorted(position_bucket_0.keys()))
+        unittest.TestCase().assertCountEqual(position_bucket_2, expected_2, sorted(position_bucket_2.keys()))
 
 
     def test_uniform_noise_4_bots_no_noise_manhattan(self):
@@ -161,18 +165,18 @@ class TestUniverseNoiser(unittest.TestCase):
 
         for i in range(200):
             new = noiser.uniform_noise(universe.copy(), 1)
-            self.assertTrue(new.bots[0].noisy)
-            self.assertFalse(new.bots[2].noisy)
+            assert new.bots[0].noisy
+            assert not new.bots[2].noisy
             position_bucket_0[new.bots[0].current_pos] += 1
             position_bucket_2[new.bots[2].current_pos] += 1
-        self.assertEqual(200, sum(position_bucket_0.values()))
-        self.assertEqual(200, sum(position_bucket_2.values()))
+        assert 200 == sum(position_bucket_0.values())
+        assert 200 == sum(position_bucket_2.values())
         # Since this is a randomized algorithm we need to be a bit lenient with
         # our tests. We check that each position was selected at least once.
-        self.assertCountEqual(position_bucket_0, expected_0, position_bucket_0)
+        unittest.TestCase().assertCountEqual(position_bucket_0, expected_0, position_bucket_0)
 
         # bots should never have been noised
-        self.assertEqual(200, position_bucket_2[bot_2_pos])
+        assert 200 == position_bucket_2[bot_2_pos]
 
 
     def test_noise_manhattan_failure(self):
@@ -202,21 +206,23 @@ class TestUniverseNoiser(unittest.TestCase):
             enemy_positions += new_positions[1::2]
 
         # assume not all bots (except 0 and 2) are in the original position anymore
-        self.assertEqual(set(positions[0::2]), set(team_positions))
-        self.assertNotEqual(set(positions[1::2]), set(enemy_positions),
-                            "Testing randomized function, may fail sometimes.")
+        assert set(positions[0::2]) == set(team_positions)
+        assert set(positions[1::2]) != set(enemy_positions), \
+                            "Testing randomized function, may fail sometimes."
 
-class TestAbstracts(unittest.TestCase):
+class TestAbstracts:
     class BrokenViewer(AbstractViewer):
         pass
 
     def test_AbstractViewer(self):
-        self.assertRaises(TypeError, AbstractViewer)
+        with pytest.raises(TypeError):
+            AbstractViewer()
 
     def test_BrokenViewer(self):
-        self.assertRaises(TypeError, self.BrokenViewer)
+        with pytest.raises(TypeError):
+            self.BrokenViewer()
 
-class TestGame(unittest.TestCase):
+class TestGame:
 
     def test_game(self):
 
@@ -263,7 +269,7 @@ class TestGame(unittest.TestCase):
                 # 0. #
                 #..1 #
                 ###### """)
-        self.assertEqual(create_TestUniverse(test_first_round), gm.universe)
+        assert create_TestUniverse(test_first_round) == gm.universe
 
         gm.play_round()
         test_second_round = (
@@ -271,7 +277,7 @@ class TestGame(unittest.TestCase):
                 # 0. #
                 #.1  #
                 ###### """)
-        self.assertEqual(create_TestUniverse(test_second_round), gm.universe)
+        assert create_TestUniverse(test_second_round) == gm.universe
 
         gm.play_round()
         test_third_round = (
@@ -279,8 +285,8 @@ class TestGame(unittest.TestCase):
                 #  . #
                 #.0 1#
                 ###### """)
-        self.assertEqual(create_TestUniverse(test_third_round,
-            black_score=gm.universe.KILLPOINTS), gm.universe)
+        assert create_TestUniverse(test_third_round,
+            black_score=gm.universe.KILLPOINTS) == gm.universe
 
         gm.play_round()
         test_fourth_round = (
@@ -288,8 +294,8 @@ class TestGame(unittest.TestCase):
                 #0 . #
                 #. 1 #
                 ###### """)
-        self.assertEqual(create_TestUniverse(test_fourth_round,
-            black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS), gm.universe)
+        assert create_TestUniverse(test_fourth_round,
+            black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS) == gm.universe
 
         gm.play_round()
         test_fifth_round = (
@@ -297,8 +303,8 @@ class TestGame(unittest.TestCase):
                 # 0. #
                 #.1  #
                 ###### """)
-        self.assertEqual(create_TestUniverse(test_fifth_round,
-            black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS), gm.universe)
+        assert create_TestUniverse(test_fifth_round,
+            black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS) == gm.universe
 
         print(gm.universe.pretty)
         gm.play_round()
@@ -308,8 +314,8 @@ class TestGame(unittest.TestCase):
                 #1   #
                 ###### """)
         print(gm.universe.pretty)
-        self.assertEqual(create_TestUniverse(test_sixth_round,
-            black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS), gm.universe)
+        assert create_TestUniverse(test_sixth_round,
+            black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS) == gm.universe
 
         teams = [SimpleTeam(TestPlayer('>-v>>>')), SimpleTeam(TestPlayer('<<-<<<'))]
         # now play the full game
@@ -320,8 +326,8 @@ class TestGame(unittest.TestCase):
                 #  0 #
                 #1   #
                 ###### """)
-        self.assertEqual(create_TestUniverse(test_sixth_round,
-            black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS), gm.universe)
+        assert create_TestUniverse(test_sixth_round,
+            black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS) == gm.universe
 
     def test_malicous_player(self):
 
@@ -341,16 +347,15 @@ class TestGame(unittest.TestCase):
                 #.. 1#
                 ###### """)
 
-        test_self = self
         original_universe = None
         class TestMaliciousPlayer(AbstractPlayer):
             def get_move(self):
-                test_self.assertIsNotNone(original_universe)
+                assert original_universe is not None
                 print(id(original_universe.maze))
                 print(id(gm.universe.maze))
                 # universe should have been altered because the
                 # Player is really malicious
-                test_self.assertNotEqual(original_universe, gm.universe)
+                assert original_universe != gm.universe
                 return (0,0)
 
         teams = [
@@ -363,7 +368,7 @@ class TestGame(unittest.TestCase):
         gm.set_initial()
         gm.play_round()
 
-        test_self.assertNotEqual(original_universe, gm.universe)
+        assert original_universe != gm.universe
 
     def test_failing_player(self):
         class FailingPlayer(AbstractPlayer):
@@ -380,7 +385,7 @@ class TestGame(unittest.TestCase):
         gm = GameMaster(test_layout, teams, 2, 1)
 
         gm.play()
-        self.assertEqual(gm.game_state["timeout_teams"], [1, 0])
+        assert gm.game_state["timeout_teams"] == [1, 0]
 
     def test_viewer_may_change_gm(self):
 
@@ -411,11 +416,10 @@ class TestGame(unittest.TestCase):
 
         original_universe = gm.universe.copy()
 
-        test_self = self
         class TestViewer(AbstractViewer):
             def observe(self, universe, game_state):
                 # universe has been altered
-                test_self.assertNotEqual(original_universe, gm.universe)
+                assert original_universe != gm.universe
 
         gm.register_viewer(MeanViewer())
         gm.register_viewer(TestViewer())
@@ -423,7 +427,7 @@ class TestGame(unittest.TestCase):
         gm.set_initial()
         gm.play_round()
 
-        self.assertNotEqual(original_universe, gm.universe)
+        assert original_universe != gm.universe
 
     def test_win_on_timeout_team_0(self):
         test_start = (
@@ -454,9 +458,9 @@ class TestGame(unittest.TestCase):
         gm.play()
 
         # check
-        self.assertTrue(tv.cache[-1]["team_wins"] is not None)
-        self.assertEqual(tv.cache[-1]["team_wins"], 0)
-        self.assertEqual(gm.game_state["round_index"], NUM_ROUNDS)
+        assert tv.cache[-1]["team_wins"] is not None
+        assert tv.cache[-1]["team_wins"] == 0
+        assert gm.game_state["round_index"] == NUM_ROUNDS
 
     def test_win_on_timeout_team_1(self):
         test_start = (
@@ -487,9 +491,9 @@ class TestGame(unittest.TestCase):
         gm.play()
 
         # check
-        self.assertTrue(tv.cache[-1]["team_wins"] is not None)
-        self.assertEqual(tv.cache[-1]["team_wins"], 1)
-        self.assertEqual(gm.game_state["round_index"], NUM_ROUNDS)
+        assert tv.cache[-1]["team_wins"] is not None
+        assert tv.cache[-1]["team_wins"] == 1
+        assert gm.game_state["round_index"] == NUM_ROUNDS
 
     def test_draw_on_timeout(self):
         test_start = (
@@ -517,8 +521,8 @@ class TestGame(unittest.TestCase):
         gm.play()
 
         # check
-        self.assertTrue(tv.cache[-1]["game_draw"])
-        self.assertEqual(gm.game_state["round_index"], NUM_ROUNDS)
+        assert tv.cache[-1]["game_draw"]
+        assert gm.game_state["round_index"] == NUM_ROUNDS
 
     def test_win_on_eating_all(self):
         test_start = (
@@ -548,10 +552,10 @@ class TestGame(unittest.TestCase):
         gm.play()
 
         # check
-        self.assertTrue(tv.cache[-1]["team_wins"] is not None)
-        self.assertEqual(tv.cache[-1]["team_wins"], 1)
-        self.assertEqual(tv.cache[-1]["round_index"], 1)
-        self.assertEqual(gm.game_state["round_index"], 1)
+        assert tv.cache[-1]["team_wins"] is not None
+        assert tv.cache[-1]["team_wins"] == 1
+        assert tv.cache[-1]["round_index"] == 1
+        assert gm.game_state["round_index"] == 1
 
     def test_lose_on_eating_all(self):
         test_start = (
@@ -582,12 +586,12 @@ class TestGame(unittest.TestCase):
         gm.play()
 
         # check
-        self.assertEqual(tv.cache[-1]["round_index"], 1)
-        self.assertEqual(gm.universe.teams[0].score, 2)
-        self.assertEqual(gm.universe.teams[1].score, 1)
-        self.assertTrue(tv.cache[-1]["team_wins"] is not None)
-        self.assertEqual(tv.cache[-1]["team_wins"], 0)
-        self.assertEqual(gm.game_state["round_index"], 1)
+        assert tv.cache[-1]["round_index"] == 1
+        assert gm.universe.teams[0].score == 2
+        assert gm.universe.teams[1].score == 1
+        assert tv.cache[-1]["team_wins"] is not None
+        assert tv.cache[-1]["team_wins"] == 0
+        assert gm.game_state["round_index"] == 1
 
     def test_lose_5_timeouts(self):
         # 0 must move back and forth because of random steps
@@ -622,20 +626,20 @@ class TestGame(unittest.TestCase):
         gm.register_viewer(tv)
         gm.set_initial()
 
-        self.assertEqual(gm.universe.bots[0].current_pos, (1,1))
+        assert gm.universe.bots[0].current_pos == (1,1)
 
         gm.play()
 
         # check
-        self.assertEqual(gm.game_state["max_timeouts"], 5)
-        self.assertEqual(tv.cache[-1]["round_index"], gm.game_state["max_timeouts"] - 1)
-        self.assertEqual(gm.universe.teams[0].score, 0)
-        self.assertEqual(gm.universe.teams[1].score, 0)
+        assert gm.game_state["max_timeouts"] == 5
+        assert tv.cache[-1]["round_index"] == gm.game_state["max_timeouts"] - 1
+        assert gm.universe.teams[0].score == 0
+        assert gm.universe.teams[1].score == 0
         # the bot moves four times, so after the fourth time,
         # it is back on its original position
-        self.assertEqual(gm.universe.bots[0].current_pos, (1,1))
-        self.assertTrue(tv.cache[-1]["team_wins"] is not None)
-        self.assertEqual(tv.cache[-1]["team_wins"], 1)
+        assert gm.universe.bots[0].current_pos == (1,1)
+        assert tv.cache[-1]["team_wins"] is not None
+        assert tv.cache[-1]["team_wins"] == 1
 
     def test_must_not_move_after_last_timeout(self):
         # 0 must move back and forth because of random steps
@@ -681,17 +685,17 @@ class TestGame(unittest.TestCase):
         print(gm.game_state)
 
         # check
-        self.assertEqual(gm.game_state["max_timeouts"], 1)
-        self.assertEqual(tv.cache[-1]["round_index"], gm.game_state["max_timeouts"] - 1)
-        self.assertEqual(gm.universe.teams[0].score, 0)
-        self.assertEqual(gm.universe.teams[1].score, 0)
-        self.assertEqual(gm.universe.bots[0].current_pos, (2,1))
-        self.assertTrue(tv.cache[-1]["team_wins"] is not None)
-        self.assertEqual(tv.cache[-1]["team_wins"], 1)
+        assert gm.game_state["max_timeouts"] == 1
+        assert tv.cache[-1]["round_index"] == gm.game_state["max_timeouts"] - 1
+        assert gm.universe.teams[0].score == 0
+        assert gm.universe.teams[1].score == 0
+        assert gm.universe.bots[0].current_pos == (2,1)
+        assert tv.cache[-1]["team_wins"] is not None
+        assert tv.cache[-1]["team_wins"] == 1
 
         # the game ends in round 0 with bot_id 0
-        self.assertEqual(gm.game_state["round_index"], 0)
-        self.assertEqual(gm.game_state["bot_id"], 0)
+        assert gm.game_state["round_index"] == 0
+        assert gm.game_state["bot_id"] == 0
 
 
     def test_play_step(self):
@@ -714,60 +718,60 @@ class TestGame(unittest.TestCase):
         gm.set_initial()
 
         gm.play_round()
-        self.assertEqual(gm.universe.bots[0].current_pos, (3,1))
-        self.assertEqual(gm.universe.bots[1].current_pos, (4,2))
-        self.assertEqual(gm.game_state["round_index"], 0)
-        self.assertTrue(gm.game_state["bot_id"] is None)
-        self.assertFalse(gm.game_state["finished"])
+        assert gm.universe.bots[0].current_pos == (3,1)
+        assert gm.universe.bots[1].current_pos == (4,2)
+        assert gm.game_state["round_index"] == 0
+        assert gm.game_state["bot_id"] is None
+        assert not gm.game_state["finished"]
 
         gm.play_step()
-        self.assertEqual(gm.universe.bots[0].current_pos, (4,1))
-        self.assertEqual(gm.universe.bots[1].current_pos, (4,2))
-        self.assertEqual(gm.game_state["round_index"], 1)
-        self.assertEqual(gm.game_state["bot_id"], 0)
-        self.assertEqual(gm.game_state["finished"], False)
+        assert gm.universe.bots[0].current_pos == (4,1)
+        assert gm.universe.bots[1].current_pos == (4,2)
+        assert gm.game_state["round_index"] == 1
+        assert gm.game_state["bot_id"] == 0
+        assert gm.game_state["finished"] == False
 
         gm.play_step()
-        self.assertEqual(gm.universe.bots[0].current_pos, (4,1))
-        self.assertEqual(gm.universe.bots[1].current_pos, (3,2))
-        self.assertEqual(gm.game_state["round_index"], 1)
-        self.assertEqual(gm.game_state["bot_id"], 1)
-        self.assertEqual(gm.game_state["finished"], False)
+        assert gm.universe.bots[0].current_pos == (4,1)
+        assert gm.universe.bots[1].current_pos == (3,2)
+        assert gm.game_state["round_index"] == 1
+        assert gm.game_state["bot_id"] == 1
+        assert gm.game_state["finished"] == False
 
         gm.play_step()
-        self.assertEqual(gm.universe.bots[0].current_pos, (5,1))
-        self.assertEqual(gm.universe.bots[1].current_pos, (3,2))
-        self.assertEqual(gm.game_state["round_index"], 2)
-        self.assertEqual(gm.game_state["bot_id"], 0)
-        self.assertEqual(gm.game_state["finished"], False)
+        assert gm.universe.bots[0].current_pos == (5,1)
+        assert gm.universe.bots[1].current_pos == (3,2)
+        assert gm.game_state["round_index"] == 2
+        assert gm.game_state["bot_id"] == 0
+        assert gm.game_state["finished"] == False
 
         gm.play_step()
-        self.assertEqual(gm.universe.bots[0].current_pos, (5,1))
-        self.assertEqual(gm.universe.bots[1].current_pos, (2,2))
-        self.assertEqual(gm.game_state["round_index"], 2)
-        self.assertEqual(gm.game_state["bot_id"], 1)
-        self.assertEqual(gm.game_state["finished"], False)
+        assert gm.universe.bots[0].current_pos == (5,1)
+        assert gm.universe.bots[1].current_pos == (2,2)
+        assert gm.game_state["round_index"] == 2
+        assert gm.game_state["bot_id"] == 1
+        assert gm.game_state["finished"] == False
 
         gm.play_round()
         # first call tries to finish current round (which already is finished)
         # so nothing happens
-        self.assertEqual(gm.universe.bots[0].current_pos, (5,1))
-        self.assertEqual(gm.universe.bots[1].current_pos, (2,2))
-        self.assertEqual(gm.game_state["round_index"], 2)
-        self.assertTrue(gm.game_state["bot_id"] is None)
-        self.assertEqual(gm.game_state["finished"], False)
-        self.assertEqual(gm.game_state["team_wins"], None)
-        self.assertEqual(gm.game_state["game_draw"], None)
+        assert gm.universe.bots[0].current_pos == (5,1)
+        assert gm.universe.bots[1].current_pos == (2,2)
+        assert gm.game_state["round_index"] == 2
+        assert gm.game_state["bot_id"] is None
+        assert gm.game_state["finished"] == False
+        assert gm.game_state["team_wins"] == None
+        assert gm.game_state["game_draw"] == None
 
         gm.play_round()
         # second call works
-        self.assertEqual(gm.universe.bots[0].current_pos, (6,1))
-        self.assertEqual(gm.universe.bots[1].current_pos, (1,2))
-        self.assertEqual(gm.game_state["round_index"], 3)
-        self.assertTrue(gm.game_state["bot_id"] is None)
-        self.assertEqual(gm.game_state["finished"], True)
-        self.assertEqual(gm.game_state["team_wins"], None)
-        self.assertEqual(gm.game_state["game_draw"], True)
+        assert gm.universe.bots[0].current_pos == (6,1)
+        assert gm.universe.bots[1].current_pos == (1,2)
+        assert gm.game_state["round_index"] == 3
+        assert gm.game_state["bot_id"] is None
+        assert gm.game_state["finished"] == True
+        assert gm.game_state["team_wins"] == None
+        assert gm.game_state["game_draw"] == True
 
         # Game finished because all food was eaten
         # team 0 finished first but the round was played regularly to the end
@@ -775,23 +779,23 @@ class TestGame(unittest.TestCase):
 
         # nothing happens anymore
         gm.play_round()
-        self.assertEqual(gm.universe.bots[0].current_pos, (6,1))
-        self.assertEqual(gm.universe.bots[1].current_pos, (1,2))
-        self.assertEqual(gm.game_state["round_index"], 3)
-        self.assertTrue(gm.game_state["bot_id"] is None)
-        self.assertEqual(gm.game_state["finished"], True)
-        self.assertEqual(gm.game_state["team_wins"], None)
-        self.assertEqual(gm.game_state["game_draw"], True)
+        assert gm.universe.bots[0].current_pos == (6,1)
+        assert gm.universe.bots[1].current_pos == (1,2)
+        assert gm.game_state["round_index"] == 3
+        assert gm.game_state["bot_id"] is None
+        assert gm.game_state["finished"] == True
+        assert gm.game_state["team_wins"] == None
+        assert gm.game_state["game_draw"] == True
 
         # nothing happens anymore
         gm.play_round()
-        self.assertEqual(gm.universe.bots[0].current_pos, (6,1))
-        self.assertEqual(gm.universe.bots[1].current_pos, (1,2))
-        self.assertEqual(gm.game_state["round_index"], 3)
-        self.assertTrue(gm.game_state["bot_id"] is None)
-        self.assertEqual(gm.game_state["finished"], True)
-        self.assertEqual(gm.game_state["team_wins"], None)
-        self.assertEqual(gm.game_state["game_draw"], True)
+        assert gm.universe.bots[0].current_pos == (6,1)
+        assert gm.universe.bots[1].current_pos == (1,2)
+        assert gm.game_state["round_index"] == 3
+        assert gm.game_state["bot_id"] is None
+        assert gm.game_state["finished"] == True
+        assert gm.game_state["team_wins"] == None
+        assert gm.game_state["game_draw"] == True
 
     def test_kill_count(self):
         test_start = (
@@ -809,12 +813,12 @@ class TestGame(unittest.TestCase):
 
         gm.set_initial()
         gm.play_round()
-        self.assertEqual(gm.game_state["times_killed"], [0, 0])
+        assert gm.game_state["times_killed"] == [0, 0]
         gm.play_round()
-        self.assertEqual(gm.game_state["times_killed"], [0, 1])
+        assert gm.game_state["times_killed"] == [0, 1]
         gm.play_round()
-        self.assertEqual(gm.game_state["times_killed"], [0, 1])
+        assert gm.game_state["times_killed"] == [0, 1]
         gm.play_round()
-        self.assertEqual(gm.game_state["times_killed"], [0, 2])
+        assert gm.game_state["times_killed"] == [0, 2]
         gm.play_round()
-        self.assertEqual(gm.game_state["times_killed"], [1, 2])
+        assert gm.game_state["times_killed"] == [1, 2]

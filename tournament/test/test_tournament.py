@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-
-import unittest
+import pytest
 from unittest.mock import MagicMock
 
 import re
@@ -11,56 +9,56 @@ from tournament.komode import Team, Match, Bye
 from tournament import tournament
 
 
-class TestKoMode(unittest.TestCase):
+class TestKoMode:
     def test_sort_ranks(self):
         sort_ranks = komode.sort_ranks
-        self.assertListEqual(sort_ranks(range(7)), [0, 5, 1, 4, 2, 3, 6])
-        self.assertListEqual(sort_ranks(range(4)), [0, 3, 1, 2])
-        self.assertListEqual(sort_ranks(range(2)), [0, 1])
-        self.assertListEqual(sort_ranks(range(1)), [0])
-        self.assertListEqual(sort_ranks([]), [])
+        assert sort_ranks(range(7)) == [0, 5, 1, 4, 2, 3, 6]
+        assert sort_ranks(range(4)) == [0, 3, 1, 2]
+        assert sort_ranks(range(2)) == [0, 1]
+        assert sort_ranks(range(1)) == [0]
+        assert sort_ranks([]) == []
 
     def test_prepared_matches(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             none = komode.prepare_matches([])
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             none = komode.prepare_matches([], bonusmatch=True)
 
         single = komode.prepare_matches([1])
-        self.assertEqual(single, komode.Team(name=1))
+        assert single == komode.Team(name=1)
         single = komode.prepare_matches([1], bonusmatch=True)
-        self.assertEqual(single, komode.Team(name=1))
+        assert single == komode.Team(name=1)
 
         pair = komode.prepare_matches([1,2])
-        self.assertEqual(pair, Match(t1=Team(name=1), t2=Team(name=2)))
+        assert pair == Match(t1=Team(name=1), t2=Team(name=2))
         pair = komode.prepare_matches([1,2], bonusmatch=True)
-        self.assertEqual(pair, Match(t1=Team(name=1), t2=Team(name=2)))
+        assert pair == Match(t1=Team(name=1), t2=Team(name=2))
 
         triple = komode.prepare_matches([1,2,3])
-        self.assertEqual(triple, Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Bye(team=Team(name=3))))
+        assert triple == Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Bye(team=Team(name=3)))
         triple = komode.prepare_matches([1,2,3], bonusmatch=True)
-        self.assertEqual(triple, Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Bye(team=Team(name=3))))
+        assert triple == Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Bye(team=Team(name=3)))
 
         matches = komode.prepare_matches([1,2,3,4])
         outcome = Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Match(t1=Team(name=3), t2=Team(name=4)))
-        self.assertEqual(matches, outcome)
+        assert matches == outcome
         matches = komode.prepare_matches([1,2,3,4], bonusmatch=True)
         outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Bye(team=Team(name=3))), t2=Bye(team=Bye(team=Team(name=4))))
-        self.assertEqual(matches, outcome)
+        assert matches == outcome
 
         matches = komode.prepare_matches([1,2,3,4,5])
         outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Match(t1=Team(name=3), t2=Team(name=4))), t2=Bye(team=Bye(team=Team(name=5))))
-        self.assertEqual(matches, outcome)
+        assert matches == outcome
         matches = komode.prepare_matches([1,2,3,4,5], bonusmatch=True)
         outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=4)), t2=Match(t1=Team(name=2), t2=Team(name=3))), t2=Bye(team=Bye(team=Team(name=5))))
-        self.assertEqual(matches, outcome)
+        assert matches == outcome
 
         matches = komode.prepare_matches([1,2,3,4,5,6])
         outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Match(t1=Team(name=3), t2=Team(name=4))), t2=Bye(team=Match(t1=Team(name=5), t2=Team(name=6))))
-        self.assertEqual(matches, outcome)
+        assert matches == outcome
         matches = komode.prepare_matches([1,2,3,4,5,6], bonusmatch=True)
         outcome = Match(t1=Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=4)), t2=Match(t1=Team(name=2), t2=Team(name=3))), t2=Bye(team=Bye(team=Team(name=5)))), t2=Bye(team=Bye(team=Bye(team=Team(name=6)))))
-        self.assertEqual(matches, outcome)
+        assert matches == outcome
 
     def test_output(self):
         matches = komode.prepare_matches([1,2,3,4,5,6])
@@ -79,7 +77,7 @@ class TestKoMode(unittest.TestCase):
          5 ┐             │
            ├─ ??? ───────┘
          6 ┘"""
-        self.assertEqual(dedent(printed), dedent(outcome))
+        assert dedent(printed) == dedent(outcome)
 
         matches = komode.prepare_matches([1,2,3,4,5,6], bonusmatch=True)
         printed = komode.print_knockout(matches)
@@ -98,10 +96,10 @@ class TestKoMode(unittest.TestCase):
          5 ──────────────┘      │  ┗━━━━━┛
                                 │
          6 ─────────────────────┘"""
-        self.assertEqual(dedent(printed), dedent(outcome))
+        assert dedent(printed) == dedent(outcome)
 
 
-class TestRoundRobin(unittest.TestCase):
+class TestRoundRobin:
     def test_shuffle(self):
         data = [
             ([], []),
@@ -118,8 +116,8 @@ class TestRoundRobin(unittest.TestCase):
             d = roundrobin.initial_state(input)
             d = [tuple_sort(x) for x in d]
             output = [tuple_sort(x) for x in output]
-            self.assertEqual(len(d), len(output))
-            self.assertEqual(set(d), set(output))
+            assert len(d) == len(output)
+            assert set(d) == set(output)
 
         # TODO: Test that order is actually shuffled
 
@@ -127,7 +125,7 @@ class TestRoundRobin(unittest.TestCase):
 ### ASSERTIONS:
 # There must be exactly one game_state with finished=True
 
-class TestSingleMatch(unittest.TestCase):
+class TestSingleMatch:
     def test_run_match(self):
         config = MagicMock()
         config.rounds = 200
@@ -138,8 +136,8 @@ class TestSingleMatch(unittest.TestCase):
 
         teams = ["StoppingPlayer", "StoppingPlayer"]
         (state, stdout, stderr) = tournament.run_match(config, teams)
-        self.assertEqual(state['team_wins'], None)
-        self.assertEqual(state['game_draw'], True)
+        assert state['team_wins'] == None
+        assert state['game_draw'] == True
 
         config.rounds = 200
         config.team_spec = lambda x: x
@@ -147,16 +145,16 @@ class TestSingleMatch(unittest.TestCase):
         teams = ["SmartEatingPlayer", "StoppingPlayer"]
         (state, stdout, stderr) = tournament.run_match(config, teams)
         print(state)
-        self.assertEqual(state['team_wins'], 0)
-        self.assertEqual(state['game_draw'], None)
+        assert state['team_wins'] == 0
+        assert state['game_draw'] == None
 
         config.rounds = 200
         config.team_spec = lambda x: x
         config.viewer = 'ascii'
         teams = ["StoppingPlayer", "SmartEatingPlayer"]
         (state, stdout, stderr) = tournament.run_match(config, teams)
-        self.assertEqual(state['team_wins'], 1)
-        self.assertEqual(state['game_draw'], None)
+        assert state['team_wins'] == 1
+        assert state['game_draw'] == None
 
     def test_start_match(self):
         stdout = []
@@ -181,18 +179,18 @@ class TestSingleMatch(unittest.TestCase):
 
         team_ids = ["first_id", "first_id"]
         result = tournament.start_match(config, team_ids)
-        self.assertEqual(result, False)
-        self.assertEqual(stdout[-1], '‘StoppingPlayer’ and ‘StoppingPlayer’ had a draw.')
+        assert result == False
+        assert stdout[-1] == '‘StoppingPlayer’ and ‘StoppingPlayer’ had a draw.'
 
         team_ids = ["second_id", "first_id"]
         result = tournament.start_match(config, team_ids)
-        self.assertEqual(result, "second_id")
-        self.assertEqual(stdout[-1], '‘SmartEatingPlayer’ wins')
+        assert result == "second_id"
+        assert stdout[-1] == '‘SmartEatingPlayer’ wins'
 
         team_ids = ["first_id", "second_id"]
         result = tournament.start_match(config, team_ids)
-        self.assertEqual(result, "second_id")
-        self.assertEqual(stdout[-1], '‘SmartEatingPlayer’ wins')
+        assert result == "second_id"
+        assert stdout[-1] == '‘SmartEatingPlayer’ wins'
 
 
     def test_deathmatch(self):
@@ -217,12 +215,12 @@ class TestSingleMatch(unittest.TestCase):
         config.tournament_log_folder = None
 
         result = tournament.start_deathmatch(config, *teams.keys())
-        self.assertIsNotNone(result)
-        self.assertIn(result, ["first_id", "second_id"])
+        assert result is not None
+        assert result in ["first_id", "second_id"]
 
 
 
-class TestTournament(unittest.TestCase):
+class TestTournament:
     def test_tournament_winner(self):
         stdout = []
 
@@ -249,9 +247,9 @@ class TestTournament(unittest.TestCase):
         config.tournament_log_folder = None
 
         # group1 should win
-        self.assertEqual("group1", tournament.start_match(config, ["group0", "group1"]))
-        self.assertEqual("group1", tournament.start_match(config, ["group1", "group0"]))
-        self.assertEqual(False, tournament.start_match(config, ["group0", "group0"]))
+        assert "group1" == tournament.start_match(config, ["group0", "group1"])
+        assert "group1" == tournament.start_match(config, ["group1", "group0"])
+        assert False == tournament.start_match(config, ["group0", "group0"])
 
         tournament.present_teams(config)
 
@@ -264,4 +262,4 @@ class TestTournament(unittest.TestCase):
             sorted_ranking = komode.sort_ranks(rr_ranking)
 
         winner = tournament.round2(config, sorted_ranking, state)
-        self.assertEqual(winner, 'group1')
+        assert winner == 'group1'

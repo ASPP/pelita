@@ -1,4 +1,4 @@
-import unittest
+import pytest
 
 import pelita
 
@@ -16,11 +16,12 @@ check_module_cases = [
     ('doc/source/time', ValueError),
     ]
 
-class TestCheckModule(unittest.TestCase):
+class TestCheckModule:
     def test_check_module(self):
         for path,result in check_module_cases:
             print(path, result)
             if result is not None:
-                self.assertRaises(result, module_player.check_module, path)
+                with pytest.raises(result):
+                    module_player.check_module(path)
             else:
                 module_player.check_module(path)
