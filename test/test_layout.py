@@ -1,11 +1,10 @@
-import unittest
+import pytest
 
 from pelita.datamodel import maze_components
 from pelita.layout import *
-import pytest
 
 
-class TestLayoutModule(unittest.TestCase):
+class TestLayoutModule:
 
     def test_load_layout(self):
         # check that too many layout args raise an error
@@ -52,7 +51,7 @@ class TestLayoutModule(unittest.TestCase):
         assert layout == layout2
 
 
-class TestLayoutChecks(unittest.TestCase):
+class TestLayoutChecks:
     layout_chars = maze_components
 
     def test_strip_layout(self):

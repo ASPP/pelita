@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-
-import unittest
+import pytest
 from unittest.mock import MagicMock
 
 import re
@@ -9,10 +7,9 @@ from textwrap import dedent
 from tournament import komode, roundrobin, tournament
 from tournament.komode import Team, Match, Bye
 from tournament import tournament
-import pytest
 
 
-class TestKoMode(unittest.TestCase):
+class TestKoMode:
     def test_sort_ranks(self):
         sort_ranks = komode.sort_ranks
         assert sort_ranks(range(7)) == [0, 5, 1, 4, 2, 3, 6]
@@ -102,7 +99,7 @@ class TestKoMode(unittest.TestCase):
         assert dedent(printed) == dedent(outcome)
 
 
-class TestRoundRobin(unittest.TestCase):
+class TestRoundRobin:
     def test_shuffle(self):
         data = [
             ([], []),
@@ -128,7 +125,7 @@ class TestRoundRobin(unittest.TestCase):
 ### ASSERTIONS:
 # There must be exactly one game_state with finished=True
 
-class TestSingleMatch(unittest.TestCase):
+class TestSingleMatch:
     def test_run_match(self):
         config = MagicMock()
         config.rounds = 200
@@ -223,7 +220,7 @@ class TestSingleMatch(unittest.TestCase):
 
 
 
-class TestTournament(unittest.TestCase):
+class TestTournament:
     def test_tournament_winner(self):
         stdout = []
 

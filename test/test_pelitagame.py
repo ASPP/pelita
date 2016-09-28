@@ -1,7 +1,6 @@
-import unittest
+import pytest
 
 import pelita
-import pytest
 
 print(dir(pelita))
 with pelita.utils.with_sys_path('test'):
@@ -17,7 +16,7 @@ check_module_cases = [
     ('doc/source/time', ValueError),
     ]
 
-class TestCheckModule(unittest.TestCase):
+class TestCheckModule:
     def test_check_module(self):
         for path,result in check_module_cases:
             print(path, result)

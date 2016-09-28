@@ -1,4 +1,5 @@
-import unittest
+import pytest
+
 import uuid
 
 import zmq
@@ -7,10 +8,9 @@ import pelita
 from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer
 from pelita.simplesetup import SimpleClient, SimpleServer, bind_socket, extract_port_range
 from players import RandomPlayer
-import pytest
 
 
-class TestSimpleSetup(unittest.TestCase):
+class TestSimpleSetup:
     def test_bind_socket(self):
         # check that we cannot bind to a stupid address
         address = "ipc:///tmp/pelita-test-bind-socket-%s" % uuid.uuid4()
@@ -188,5 +188,3 @@ class TestSimpleSetup(unittest.TestCase):
             extracted = extract_port_range(test[0])
             assert extracted == test[1]
 
-if __name__ == '__main__':
-    unittest.main()

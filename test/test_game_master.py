@@ -1,14 +1,15 @@
-import collections
+import pytest
 import unittest
+
+import collections
 
 from pelita.datamodel import CTFUniverse
 from pelita.game_master import GameMaster, ManhattanNoiser, PlayerTimeout
 from pelita.player import AbstractPlayer, SimpleTeam, StoppingPlayer, TestPlayer
 from pelita.viewer import AbstractViewer
-import pytest
 
 
-class TestGameMaster(unittest.TestCase):
+class TestGameMaster:
     def test_team_names(self):
         test_layout = (
         """ ##################
@@ -82,7 +83,7 @@ class TestGameMaster(unittest.TestCase):
         with pytest.raises(ValueError):
             GameMaster(test_layout_4, [team_1, team_2, team_3], 4, 200)
 
-class TestUniverseNoiser(unittest.TestCase):
+class TestUniverseNoiser:
     def test_uniform_noise_manhattan(self):
         test_layout = (
         """ ##################
@@ -104,7 +105,7 @@ class TestUniverseNoiser(unittest.TestCase):
         expected = [ (1, 1), (1, 2), (1, 3), (2, 3), (3, 3),
                      (4, 3), (5, 3), (6, 3), (7, 3), (7, 2),
                      (6, 1), (5, 1), (4, 1), (3, 1) ]
-        self.assertCountEqual(position_bucket, expected, position_bucket)
+        unittest.TestCase().assertCountEqual(position_bucket, expected, position_bucket)
     
 
     def test_uniform_noise_4_bots_manhattan(self):
@@ -140,8 +141,8 @@ class TestUniverseNoiser(unittest.TestCase):
         assert 200 == sum(position_bucket_2.values())
         # Since this is a randomized algorithm we need to be a bit lenient with
         # our tests. We check that each position was selected at least once.
-        self.assertCountEqual(position_bucket_0, expected_0, sorted(position_bucket_0.keys()))
-        self.assertCountEqual(position_bucket_2, expected_2, sorted(position_bucket_2.keys()))
+        unittest.TestCase().assertCountEqual(position_bucket_0, expected_0, sorted(position_bucket_0.keys()))
+        unittest.TestCase().assertCountEqual(position_bucket_2, expected_2, sorted(position_bucket_2.keys()))
 
 
     def test_uniform_noise_4_bots_no_noise_manhattan(self):
@@ -172,7 +173,7 @@ class TestUniverseNoiser(unittest.TestCase):
         assert 200 == sum(position_bucket_2.values())
         # Since this is a randomized algorithm we need to be a bit lenient with
         # our tests. We check that each position was selected at least once.
-        self.assertCountEqual(position_bucket_0, expected_0, position_bucket_0)
+        unittest.TestCase().assertCountEqual(position_bucket_0, expected_0, position_bucket_0)
 
         # bots should never have been noised
         assert 200 == position_bucket_2[bot_2_pos]
@@ -209,7 +210,7 @@ class TestUniverseNoiser(unittest.TestCase):
         assert set(positions[1::2]) != set(enemy_positions), \
                             "Testing randomized function, may fail sometimes."
 
-class TestAbstracts(unittest.TestCase):
+class TestAbstracts:
     class BrokenViewer(AbstractViewer):
         pass
 
@@ -221,7 +222,7 @@ class TestAbstracts(unittest.TestCase):
         with pytest.raises(TypeError):
             self.BrokenViewer()
 
-class TestGame(unittest.TestCase):
+class TestGame:
 
     def test_game(self):
 
@@ -346,16 +347,15 @@ class TestGame(unittest.TestCase):
                 #.. 1#
                 ###### """)
 
-        test_self = self
         original_universe = None
         class TestMaliciousPlayer(AbstractPlayer):
             def get_move(self):
-                test_self.assertIsNotNone(original_universe)
+                assert original_universe is not None
                 print(id(original_universe.maze))
                 print(id(gm.universe.maze))
                 # universe should have been altered because the
                 # Player is really malicious
-                test_self.assertNotEqual(original_universe, gm.universe)
+                assert original_universe != gm.universe
                 return (0,0)
 
         teams = [
@@ -368,7 +368,7 @@ class TestGame(unittest.TestCase):
         gm.set_initial()
         gm.play_round()
 
-        test_self.assertNotEqual(original_universe, gm.universe)
+        assert original_universe != gm.universe
 
     def test_failing_player(self):
         class FailingPlayer(AbstractPlayer):
@@ -416,11 +416,10 @@ class TestGame(unittest.TestCase):
 
         original_universe = gm.universe.copy()
 
-        test_self = self
         class TestViewer(AbstractViewer):
             def observe(self, universe, game_state):
                 # universe has been altered
-                test_self.assertNotEqual(original_universe, gm.universe)
+                assert original_universe != gm.universe
 
         gm.register_viewer(MeanViewer())
         gm.register_viewer(TestViewer())

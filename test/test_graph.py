@@ -1,12 +1,12 @@
+import pytest
 import unittest
 
 from pelita.datamodel import CTFUniverse, east, north, south, stop, west
 from pelita.graph import (AdjacencyList, NoPathException, diff_pos, iter_adjacencies,
                           manhattan_dist, move_pos)
-import pytest
 
 
-class TestStaticmethods(unittest.TestCase):
+class TestStaticmethods:
 
     def test_new_pos(self):
         assert move_pos((1, 1), north) == (1, 0)
@@ -58,12 +58,12 @@ class TestStaticmethods(unittest.TestCase):
         # starting at 0, we’ll get all 21 points:
         adjs0 = list(iter_adjacencies([0], lambda n: onedim_lattice(n, 10)))
         assert 21 == len(adjs0)
-        self.assertCountEqual(range(-10, 11), dict(adjs0).keys())
+        unittest.TestCase().assertCountEqual(range(-10, 11), dict(adjs0).keys())
 
         # starting at 11, we’ll get 22 points
         adjs1 = list(iter_adjacencies([11], lambda n: onedim_lattice(n, 10)))
         assert 22 == len(adjs1)
-        self.assertCountEqual(range(-10, 12), dict(adjs1).keys())
+        unittest.TestCase().assertCountEqual(range(-10, 12), dict(adjs1).keys())
 
         # starting at 12, we’ll get 1 point
         adjs2 = list(iter_adjacencies([12], lambda n: onedim_lattice(n, 10)))
@@ -73,9 +73,9 @@ class TestStaticmethods(unittest.TestCase):
         # starting at [0, 12], we’ll get adjs0 | adjs2
         adjs3 = list(iter_adjacencies([0, 12], lambda n: onedim_lattice(n, 10)))
         assert 22 == len(adjs3)
-        self.assertCountEqual(adjs0 + adjs2, adjs3)
+        unittest.TestCase().assertCountEqual(adjs0 + adjs2, adjs3)
 
-class TestAdjacencyList(unittest.TestCase):
+class TestAdjacencyList:
 
     def test_pos_within(self):
         test_layout = (
@@ -96,9 +96,9 @@ class TestAdjacencyList(unittest.TestCase):
             al.pos_within((6, 2), 0)
 
         assert (1, 1) in al
-        self.assertCountEqual([(1, 1)], al.pos_within((1, 1), 0))
+        unittest.TestCase().assertCountEqual([(1, 1)], al.pos_within((1, 1), 0))
         target = [(1, 1), (1, 2), (1,3), (2, 3), (3, 3)]
-        self.assertCountEqual(target, al.pos_within((1, 1), 5))
+        unittest.TestCase().assertCountEqual(target, al.pos_within((1, 1), 5))
         # assuming a_star is working properly
         for pos in target:
             assert len(al.a_star((1, 1), pos)) < 5

@@ -1,8 +1,6 @@
-import unittest
-
 from pelita import libpelita
 
-class TestLibpelitaUtils(unittest.TestCase):
+class TestLibpelitaUtils:
     def test_firstNN(self):
         assert libpelita.firstNN(None, False, True) == False
         assert libpelita.firstNN(True, False, True) == True

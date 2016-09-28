@@ -1,13 +1,13 @@
+import pytest
 import unittest
 
 from pelita.datamodel import CTFUniverse, east, stop, west
 from pelita.game_master import GameMaster
 from pelita.player import *
 from players import NQRandomPlayer, RandomPlayer
-import pytest
 
 
-class TestAbstractPlayer(unittest.TestCase):
+class TestAbstractPlayer:
     def assertUniversesEqual(self, uni1, uni2):
         assert uni1 == uni2, '\n' + uni1.pretty + '\n' + uni2.pretty
 
@@ -69,15 +69,15 @@ class TestAbstractPlayer(unittest.TestCase):
         assert universe.teams[0] == player_1.enemy_team
         assert universe.teams[0] == player_3.enemy_team
 
-        self.assertCountEqual(player_0.enemy_food, universe.enemy_food(player_0.team.index))
-        self.assertCountEqual(player_1.enemy_food, universe.enemy_food(player_1.team.index))
-        self.assertCountEqual(player_2.enemy_food, universe.enemy_food(player_2.team.index))
-        self.assertCountEqual(player_3.enemy_food, universe.enemy_food(player_3.team.index))
+        unittest.TestCase().assertCountEqual(player_0.enemy_food, universe.enemy_food(player_0.team.index))
+        unittest.TestCase().assertCountEqual(player_1.enemy_food, universe.enemy_food(player_1.team.index))
+        unittest.TestCase().assertCountEqual(player_2.enemy_food, universe.enemy_food(player_2.team.index))
+        unittest.TestCase().assertCountEqual(player_3.enemy_food, universe.enemy_food(player_3.team.index))
 
-        self.assertCountEqual(player_0.team_food, universe.team_food(player_0.team.index))
-        self.assertCountEqual(player_1.team_food, universe.team_food(player_1.team.index))
-        self.assertCountEqual(player_2.team_food, universe.team_food(player_2.team.index))
-        self.assertCountEqual(player_3.team_food, universe.team_food(player_3.team.index))
+        unittest.TestCase().assertCountEqual(player_0.team_food, universe.team_food(player_0.team.index))
+        unittest.TestCase().assertCountEqual(player_1.team_food, universe.team_food(player_1.team.index))
+        unittest.TestCase().assertCountEqual(player_2.team_food, universe.team_food(player_2.team.index))
+        unittest.TestCase().assertCountEqual(player_3.team_food, universe.team_food(player_3.team.index))
 
         assert {(0, 1): (1, 2), (0, 0): (1, 1)} == \
                 player_0.legal_moves
@@ -116,8 +116,6 @@ class TestAbstractPlayer(unittest.TestCase):
                                      player_1.universe_states[-2])
 
     def test_time_spent(self):
-        outer = self
-
         class TimeSpendingPlayer(AbstractPlayer):
             def get_move(self):
                 time_spent_begin = self.time_spent()
@@ -127,11 +125,11 @@ class TestAbstractPlayer(unittest.TestCase):
 
                 time_spent_end = self.time_spent()
 
-                outer.assertTrue(0 <= time_spent_begin < time_spent_end)
+                assert 0 <= time_spent_begin < time_spent_end
 
                 time_diff = abs(time_spent_begin + sleep_time - time_spent_end)
                 delta = 0.05
-                outer.assertTrue(time_diff < delta)
+                assert time_diff < delta
                 return stop
 
         test_layout = (
@@ -146,20 +144,18 @@ class TestAbstractPlayer(unittest.TestCase):
         gm.play()
 
     def test_rnd(self):
-        outer = self
-
         class RndPlayer(AbstractPlayer):
             def set_initial(self):
                 original_seed = self.current_state["seed"]
                 original_rand = self.rnd.randint(10, 100)
-                outer.assertTrue(10 <= original_rand <= 100)
+                assert 10 <= original_rand <= 100
 
                 # now check
                 test_rnd = random.Random(original_seed + self._index)
-                outer.assertEqual(test_rnd.randint(10, 100), original_rand)
+                assert test_rnd.randint(10, 100), original_rand
 
             def get_move(self):
-                outer.assertTrue(10 <= self.rnd.randint(10, 100) <= 100)
+                assert 10 <= self.rnd.randint(10, 100) <= 100
                 return datamodel.stop
 
 
@@ -174,10 +170,10 @@ class TestAbstractPlayer(unittest.TestCase):
 
                 # now check
                 test_rnd = random.Random(original_seed + self.seed_offset)
-                outer.assertEqual(test_rnd.randint(0, 100), original_rand)
+                assert test_rnd.randint(0, 100), original_rand
 
             def get_move(self):
-                outer.assertTrue(10 <= self.rnd.randint(10, 100) <= 100)
+                assert 10 <= self.rnd.randint(10, 100) <= 100
                 return datamodel.stop
 
         test_layout = (
@@ -192,7 +188,7 @@ class TestAbstractPlayer(unittest.TestCase):
         gm.play()
 
 
-class TestTestPlayer(unittest.TestCase):
+class TestTestPlayer:
     def test_test_players(self):
         test_layout = (
         """ ############
@@ -257,7 +253,7 @@ class TestTestPlayer(unittest.TestCase):
         with pytest.raises(ValueError):
             gm.play()
 
-class TestRoundBasedPlayer(unittest.TestCase):
+class TestRoundBasedPlayer:
     def test_round_based_players(self):
         test_layout = (
         """ ############
@@ -284,7 +280,7 @@ class TestRoundBasedPlayer(unittest.TestCase):
         assert gm.universe.bots[2].current_pos == (3, 2)
         assert gm.universe.bots[3].current_pos == (9, 2)
 
-class TestRandomPlayerSeeds(unittest.TestCase):
+class TestRandomPlayerSeeds:
     def test_demo_players(self):
         test_layout = (
         """ ################
@@ -379,7 +375,7 @@ class TestRandomPlayerSeeds(unittest.TestCase):
         assert random_numbers_a != random_numbers_c
 
 
-class TestNQRandom_Player(unittest.TestCase):
+class TestNQRandom_Player:
     def test_demo_players(self):
         test_layout = (
         """ ############
@@ -411,7 +407,7 @@ class TestNQRandom_Player(unittest.TestCase):
         assert gm.universe.bots[1].current_pos == (10, 3)
 
 
-class TestSpeakingPlayer(unittest.TestCase):
+class TestSpeakingPlayer:
     def test_demo_players(self):
         test_layout = (
         """ ############
@@ -427,7 +423,7 @@ class TestSpeakingPlayer(unittest.TestCase):
         assert gm.game_state["bot_talk"][1] == ""
 
 
-class TestSimpleTeam(unittest.TestCase):
+class TestSimpleTeam:
 
     class BrokenPlayer_with_nothing:
         pass
@@ -487,7 +483,7 @@ class TestSimpleTeam(unittest.TestCase):
         with pytest.raises(ValueError):
             team1.set_initial(0, dummy_universe, {})
 
-class TestAbstracts(unittest.TestCase):
+class TestAbstracts:
     class BrokenPlayer(AbstractPlayer):
         pass
 

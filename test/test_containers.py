@@ -1,11 +1,9 @@
-import unittest
-
-from pelita.containers import *
 import pytest
 
+from pelita.containers import *
 
-class TestMesh(unittest.TestCase):
 
+class TestMesh:
     def test_init(self):
         m = Mesh(2, 2)
         assert list(m.values()) == [None, None, None, None]
