@@ -374,7 +374,11 @@ class UiCanvas:
 
         def status(team_idx):
             try:
-                return "Timeouts: %i, Killed: %i" % (game_state["timeout_teams"][team_idx], game_state["times_killed"][team_idx])
+                ret = "Timeouts: %i, Killed: %i" % (game_state["timeout_teams"][team_idx], game_state["times_killed"][team_idx])
+                disqualified = game_state["teams_disqualified"][team_idx]
+                if disqualified is not None:
+                    ret += ", Disqualified: %s" % disqualified
+                return ret
             except TypeError:
                 return ""
 
