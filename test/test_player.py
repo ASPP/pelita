@@ -152,7 +152,7 @@ class TestAbstractPlayer:
 
                 # now check
                 test_rnd = random.Random(original_seed + self._index)
-                assert test_rnd.randint(10, 100), original_rand
+                assert test_rnd.randint(10, 100) == original_rand
 
             def get_move(self):
                 assert 10 <= self.rnd.randint(10, 100) <= 100
@@ -170,7 +170,7 @@ class TestAbstractPlayer:
 
                 # now check
                 test_rnd = random.Random(original_seed + self.seed_offset)
-                assert test_rnd.randint(0, 100), original_rand
+                assert test_rnd.randint(0, 100) == original_rand
 
             def get_move(self):
                 assert 10 <= self.rnd.randint(10, 100) <= 100
