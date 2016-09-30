@@ -2,7 +2,8 @@
 
 import heapq
 from collections import deque
-
+from .utils.Node import Node
+import time
 
 class NoPathException(Exception):
     pass
@@ -258,16 +259,17 @@ class AdjacencyList(dict):
         # First check that the arguments were valid.
         self._check_pos_exist([initial, target])
         to_visit = []
-        # Seen needs to be list since we use it for backtracking.
-        # A set would make the lookup faster, but backtracking impossible.
         seen = []
         # Since it's A* we use a heap queue to ensure that we always
         # get the next node with to lowest manhattan distance to the
         # current node.
-        heapq.heappush(to_visit, (0, (initial)))
+        initial_node = Node(0, initial)
+        heapq.heappush(to_visit, initial_node)
         found = False
         while to_visit:
-            man_dist, current = heapq.heappop(to_visit)
+            current_node = heapq.heappop(to_visit)
+            current = current_node.coordinates
+            value = current_node.value
             if current in seen:
                 continue
             elif current == target:
@@ -276,25 +278,13 @@ class AdjacencyList(dict):
             else:
                 seen.append(current)
                 for pos in self[current]:
-                    heapq.heappush(to_visit, (man_dist + manhattan_dist(target, pos), (pos)))
-
+                    heapq.heappush(to_visit, Node(value + manhattan_dist(target, pos), (pos), current_node))
         if not found:
             raise NoPathException("BFS: No path from %r to %r."
                     % (initial, target))
 
         # Now back-track using seen to determine how we got here.
         # Initialise the path with current node, i.e. position of food.
-        path = [current]
-        while seen:
-            # Pop the latest node in seen
-            next_ = seen.pop()
-            # If that's adjacent to the current node
-            # it's in the path
-            if next_ in self[current]:
-                # So add it to the path
-                path.append(next_)
-                # And continue back-tracking from there
-                current = next_
-        # The last element is the current position, we don't need that in our
-        # path, so don't include it.
-        return path[:-1]
+        path = current_node.backtrack()[1:][::-1]
+        return path
+        
