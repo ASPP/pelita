@@ -232,18 +232,20 @@ class AdjacencyList(dict):
         A* (A Star) [1] from one position to another. The search will return the
         shortest path from the `initial` position to the `target` using the
         Manhattan distance as a heuristic.
+        Algorithm here is partially taken from [2] and inlined for speed.
 
         Parameters
         ----------
-        initial : tuple of (int, int)
-            the first position
-        target : tuple of (int, int)
+        initial : (int, int)
+            the initial position
+        target : (int, int)
             the target position
 
         Returns
         -------
-        path : lits of tuple of (int, int)
-            the path from `initial` to the closest `target`
+        path : list of (int, int)
+            one of the the shortest paths from `initial` to the closest `target`
+            (excluding the `initial` position itself)
 
         Raises
         ------
@@ -251,21 +253,22 @@ class AdjacencyList(dict):
             if no path from `initial` to one of `targets`
 
         [1] http://en.wikipedia.org/wiki/A*_search_algorithm
+        [2] http://www.redblobgames.com/pathfinding/a-star/implementation.html#python
 
         """
         # First check that the arguments were valid.
         self._check_pos_exist([initial, target])
-        to_visit = []
+
         # Initialize the dicts that help us keep track
-        # A set would make the lookup faster, but backtracking impossible.
         came_from = {}
         cost_so_far = {}
         came_from[initial] = None
         cost_so_far[initial] = 0
-        # Since it's A* we use a heap queue to ensure that we always
-        # get the next node with to lowest manhattan distance to the
-        # current node.
-        heapq.heappush(to_visit, (0, (initial)))
+
+        # Since it’s A* we use a heap queue to ensure that we always get the next node
+        # with to lowest *guesstimated* distance to the current node.
+        to_visit = []
+        heapq.heappush(to_visit, (0, initial))
 
         while to_visit:
             old_prio, current = heapq.heappop(to_visit)
@@ -275,11 +278,13 @@ class AdjacencyList(dict):
 
             for next in self[current]:
                 new_cost = cost_so_far[current] + 1 # 1 is the cost to the neighbor
-                if next not in cost_so_far or new_cost < cost_so_far[next]: # only choose unvisited and ‘worthy’ nodes
+                if next not in cost_so_far or new_cost < cost_so_far[next]:  # only choose unvisited and ‘worthy’ nodes
                     cost_so_far[next] = new_cost
+                    came_from[next] = current
+
+                    # Add the node with an estimated distance to the heap
                     priority = new_cost + manhattan_dist(target, next)
                     heapq.heappush(to_visit, (priority, next))
-                    came_from[next] = current
         else:
             # no target found
             raise NoPathException("BFS: No path from %r to %r." % (initial, target))
@@ -291,7 +296,7 @@ class AdjacencyList(dict):
         while current != initial:
             current = came_from[current]
             path.append(current)
-        # The last element is the current position, we don't need that in our
-        # path, so don't include it.
+        # The last element is the current position, we don’t need that in our
+        # path, so don’t include it.
         return path[:-1]
 
