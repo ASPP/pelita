@@ -64,7 +64,7 @@ def manhattan_dist(pos1, pos2):
     manhattan_dist : int
         Manhattan distance between two points
     """
-    return sum(abs(idx) for idx in diff_pos(pos1, pos2))
+    return abs(pos1[0]-pos2[0]) + abs(pos1[1]-pos2[1])
 
 def iter_adjacencies(initial, adjacencies_for_pos):
     """ Returns an adjacency list starting at the initial positions.
@@ -232,69 +232,71 @@ class AdjacencyList(dict):
         A* (A Star) [1] from one position to another. The search will return the
         shortest path from the `initial` position to the `target` using the
         Manhattan distance as a heuristic.
+        Algorithm here is partially taken from [2] and inlined for speed.
 
         Parameters
         ----------
-        initial : tuple of (int, int)
-            the first position
-        target : tuple of (int, int)
+        initial : (int, int)
+            the initial position
+        target : (int, int)
             the target position
 
         Returns
         -------
-        path : lits of tuple of (int, int)
-            the path from `initial` to the closest `target`
+        path : list of (int, int)
+            one of the the shortest paths from `initial` to the closest `target`
+            (excluding the `initial` position itself)
 
         Raises
         ------
         NoPathException
             if no path from `initial` to one of `targets`
-        NoPositionException
-            if either `initial` or `targets` does not exist
 
         [1] http://en.wikipedia.org/wiki/A*_search_algorithm
+        [2] http://www.redblobgames.com/pathfinding/a-star/implementation.html#python
 
         """
         # First check that the arguments were valid.
         self._check_pos_exist([initial, target])
-        to_visit = []
-        # Seen needs to be list since we use it for backtracking.
-        # A set would make the lookup faster, but backtracking impossible.
-        seen = []
-        # Since it's A* we use a heap queue to ensure that we always
-        # get the next node with to lowest manhattan distance to the
-        # current node.
-        heapq.heappush(to_visit, (0, (initial)))
-        found = False
-        while to_visit:
-            man_dist, current = heapq.heappop(to_visit)
-            if current in seen:
-                continue
-            elif current == target:
-                found = True
-                break
-            else:
-                seen.append(current)
-                for pos in self[current]:
-                    heapq.heappush(to_visit, (man_dist + manhattan_dist(target, pos), (pos)))
 
-        if not found:
-            raise NoPathException("BFS: No path from %r to %r."
-                    % (initial, target))
+        # Initialize the dicts that help us keep track
+        came_from = {}
+        cost_so_far = {}
+        came_from[initial] = None
+        cost_so_far[initial] = 0
+
+        # Since it’s A* we use a heap queue to ensure that we always get the next node
+        # with to lowest *guesstimated* distance to the current node.
+        to_visit = []
+        heapq.heappush(to_visit, (0, initial))
+
+        while to_visit:
+            old_prio, current = heapq.heappop(to_visit)
+
+            if current == target:
+                break
+
+            for next in self[current]:
+                new_cost = cost_so_far[current] + 1 # 1 is the cost to the neighbor
+                if next not in cost_so_far or new_cost < cost_so_far[next]:  # only choose unvisited and ‘worthy’ nodes
+                    cost_so_far[next] = new_cost
+                    came_from[next] = current
+
+                    # Add the node with an estimated distance to the heap
+                    priority = new_cost + manhattan_dist(target, next)
+                    heapq.heappush(to_visit, (priority, next))
+        else:
+            # no target found
+            raise NoPathException("BFS: No path from %r to %r." % (initial, target))
 
         # Now back-track using seen to determine how we got here.
         # Initialise the path with current node, i.e. position of food.
+        current = target
         path = [current]
-        while seen:
-            # Pop the latest node in seen
-            next_ = seen.pop()
-            # If that's adjacent to the current node
-            # it's in the path
-            if next_ in self[current]:
-                # So add it to the path
-                path.append(next_)
-                # And continue back-tracking from there
-                current = next_
-        # The last element is the current position, we don't need that in our
-        # path, so don't include it.
+        while current != initial:
+            current = came_from[current]
+            path.append(current)
+        # The last element is the current position, we don’t need that in our
+        # path, so don’t include it.
         return path[:-1]
+
