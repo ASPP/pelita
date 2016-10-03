@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.graph &#8212; Pelita v0.2.0-412-gc694faa documentation</title>
+    <title>pelita.graph &#8212; Pelita v0.2.0-418-g83e0b66 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-412-gc694faa',
+        VERSION:     'v0.2.0-418-g83e0b66',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,9 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pelita v0.2.0-412-gc694faa documentation" href="../../index.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="Pelita v0.2.0-418-g83e0b66 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -108,7 +110,7 @@
 <span class="sd">    manhattan_dist : int</span>
 <span class="sd">        Manhattan distance between two points</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">diff_pos</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">pos1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">pos2</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="n">pos1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">pos2</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="iter_adjacencies"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.iter_adjacencies">[docs]</a><span class="k">def</span> <span class="nf">iter_adjacencies</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">adjacencies_for_pos</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Returns an adjacency list starting at the initial positions.</span>
@@ -276,72 +278,74 @@
 <span class="sd">        A* (A Star) [1] from one position to another. The search will return the</span>
 <span class="sd">        shortest path from the `initial` position to the `target` using the</span>
 <span class="sd">        Manhattan distance as a heuristic.</span>
+<span class="sd">        Algorithm here is partially taken from [2] and inlined for speed.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        initial : tuple of (int, int)</span>
-<span class="sd">            the first position</span>
-<span class="sd">        target : tuple of (int, int)</span>
+<span class="sd">        initial : (int, int)</span>
+<span class="sd">            the initial position</span>
+<span class="sd">        target : (int, int)</span>
 <span class="sd">            the target position</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        path : lits of tuple of (int, int)</span>
-<span class="sd">            the path from `initial` to the closest `target`</span>
+<span class="sd">        path : list of (int, int)</span>
+<span class="sd">            one of the the shortest paths from `initial` to the closest `target`</span>
+<span class="sd">            (excluding the `initial` position itself)</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        NoPathException</span>
 <span class="sd">            if no path from `initial` to one of `targets`</span>
-<span class="sd">        NoPositionException</span>
-<span class="sd">            if either `initial` or `targets` does not exist</span>
 
 <span class="sd">        [1] http://en.wikipedia.org/wiki/A*_search_algorithm</span>
+<span class="sd">        [2] http://www.redblobgames.com/pathfinding/a-star/implementation.html#python</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># First check that the arguments were valid.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_pos_exist</span><span class="p">([</span><span class="n">initial</span><span class="p">,</span> <span class="n">target</span><span class="p">])</span>
-        <span class="n">to_visit</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c1"># Seen needs to be list since we use it for backtracking.</span>
-        <span class="c1"># A set would make the lookup faster, but backtracking impossible.</span>
-        <span class="n">seen</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c1"># Since it&#39;s A* we use a heap queue to ensure that we always</span>
-        <span class="c1"># get the next node with to lowest manhattan distance to the</span>
-        <span class="c1"># current node.</span>
-        <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">to_visit</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">initial</span><span class="p">)))</span>
-        <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">while</span> <span class="n">to_visit</span><span class="p">:</span>
-            <span class="n">man_dist</span><span class="p">,</span> <span class="n">current</span> <span class="o">=</span> <span class="n">heapq</span><span class="o">.</span><span class="n">heappop</span><span class="p">(</span><span class="n">to_visit</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">current</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="k">elif</span> <span class="n">current</span> <span class="o">==</span> <span class="n">target</span><span class="p">:</span>
-                <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="k">break</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">seen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">current</span><span class="p">]:</span>
-                    <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">to_visit</span><span class="p">,</span> <span class="p">(</span><span class="n">man_dist</span> <span class="o">+</span> <span class="n">manhattan_dist</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">pos</span><span class="p">),</span> <span class="p">(</span><span class="n">pos</span><span class="p">)))</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">NoPathException</span><span class="p">(</span><span class="s2">&quot;BFS: No path from </span><span class="si">%r</span><span class="s2"> to </span><span class="si">%r</span><span class="s2">.&quot;</span>
-                    <span class="o">%</span> <span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
+        <span class="c1"># Initialize the dicts that help us keep track</span>
+        <span class="n">came_from</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">cost_so_far</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">came_from</span><span class="p">[</span><span class="n">initial</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cost_so_far</span><span class="p">[</span><span class="n">initial</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Since it’s A* we use a heap queue to ensure that we always get the next node</span>
+        <span class="c1"># with to lowest *guesstimated* distance to the current node.</span>
+        <span class="n">to_visit</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">to_visit</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">initial</span><span class="p">))</span>
+
+        <span class="k">while</span> <span class="n">to_visit</span><span class="p">:</span>
+            <span class="n">old_prio</span><span class="p">,</span> <span class="n">current</span> <span class="o">=</span> <span class="n">heapq</span><span class="o">.</span><span class="n">heappop</span><span class="p">(</span><span class="n">to_visit</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">current</span> <span class="o">==</span> <span class="n">target</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="k">for</span> <span class="nb">next</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">current</span><span class="p">]:</span>
+                <span class="n">new_cost</span> <span class="o">=</span> <span class="n">cost_so_far</span><span class="p">[</span><span class="n">current</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="c1"># 1 is the cost to the neighbor</span>
+                <span class="k">if</span> <span class="nb">next</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cost_so_far</span> <span class="ow">or</span> <span class="n">new_cost</span> <span class="o">&lt;</span> <span class="n">cost_so_far</span><span class="p">[</span><span class="nb">next</span><span class="p">]:</span>  <span class="c1"># only choose unvisited and ‘worthy’ nodes</span>
+                    <span class="n">cost_so_far</span><span class="p">[</span><span class="nb">next</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_cost</span>
+                    <span class="n">came_from</span><span class="p">[</span><span class="nb">next</span><span class="p">]</span> <span class="o">=</span> <span class="n">current</span>
+
+                    <span class="c1"># Add the node with an estimated distance to the heap</span>
+                    <span class="n">priority</span> <span class="o">=</span> <span class="n">new_cost</span> <span class="o">+</span> <span class="n">manhattan_dist</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="nb">next</span><span class="p">)</span>
+                    <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">to_visit</span><span class="p">,</span> <span class="p">(</span><span class="n">priority</span><span class="p">,</span> <span class="nb">next</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># no target found</span>
+            <span class="k">raise</span> <span class="n">NoPathException</span><span class="p">(</span><span class="s2">&quot;BFS: No path from </span><span class="si">%r</span><span class="s2"> to </span><span class="si">%r</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
 
         <span class="c1"># Now back-track using seen to determine how we got here.</span>
         <span class="c1"># Initialise the path with current node, i.e. position of food.</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="n">target</span>
         <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">current</span><span class="p">]</span>
-        <span class="k">while</span> <span class="n">seen</span><span class="p">:</span>
-            <span class="c1"># Pop the latest node in seen</span>
-            <span class="n">next_</span> <span class="o">=</span> <span class="n">seen</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-            <span class="c1"># If that&#39;s adjacent to the current node</span>
-            <span class="c1"># it&#39;s in the path</span>
-            <span class="k">if</span> <span class="n">next_</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">current</span><span class="p">]:</span>
-                <span class="c1"># So add it to the path</span>
-                <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">next_</span><span class="p">)</span>
-                <span class="c1"># And continue back-tracking from there</span>
-                <span class="n">current</span> <span class="o">=</span> <span class="n">next_</span>
-        <span class="c1"># The last element is the current position, we don&#39;t need that in our</span>
-        <span class="c1"># path, so don&#39;t include it.</span>
+        <span class="k">while</span> <span class="n">current</span> <span class="o">!=</span> <span class="n">initial</span><span class="p">:</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="n">came_from</span><span class="p">[</span><span class="n">current</span><span class="p">]</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+        <span class="c1"># The last element is the current position, we don’t need that in our</span>
+        <span class="c1"># path, so don’t include it.</span>
         <span class="k">return</span> <span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div></div>
+
 </pre></div>
 
           </div>
@@ -394,7 +398,7 @@
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
     </div>
