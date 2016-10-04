@@ -483,6 +483,23 @@ class TestSimpleTeam:
         with pytest.raises(ValueError):
             team1.set_initial(0, dummy_universe, {})
 
+    def test_init_order(self):
+        layout = (
+            """ ######
+                #0  1#
+                ###### """
+        )
+        dummy_universe = CTFUniverse.create(layout, 2)
+
+        team = SimpleTeam(TestPlayer(">"))
+        team.set_initial(0, universe=dummy_universe, game_state={"seed": 0})
+        assert team.get_move(0, universe=dummy_universe, game_state={})['move'] == (1, 0)
+
+        team = SimpleTeam(TestPlayer(">"))
+        with pytest.raises(RuntimeError):
+            assert team.get_move(0, universe=dummy_universe, game_state={})['move'] == (1, 0)
+
+
 class TestAbstracts:
     class BrokenPlayer(AbstractPlayer):
         pass
