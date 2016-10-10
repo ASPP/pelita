@@ -463,6 +463,31 @@ class AbstractPlayer(metaclass=abc.ABCMeta):
         except AttributeError:
             return None
 
+
+    def simulate_move(self, move):
+        """ Simulate a move of the bot in a certain direction
+        and return the new state and universe.
+
+        Parameters
+        ----------
+        move : tuple of (int, int)
+            direction to move in
+
+        Returns
+        -------
+        (game_state, universe) : (dict, universe)
+            the new game_state and the new universe
+
+        Raises
+        ------
+        IllegalMoveException
+            if the move is invalid or impossible
+
+        """
+        uni = self.current_uni.copy()
+        new_state = uni.move_bot(self._index, move)
+        return (new_state, uni)
+
     def say(self, text):
         """ Let the bot speak.
 
