@@ -8,6 +8,8 @@ matrix:
       env: PYZMQ="pyzmq"
     - python: "3.5"
       env: PYZMQ="pyzmq"
+    - python: "3.6"
+      env: PYZMQ="pyzmq"
 env:
   global:
     - secure: "fHTmXSkUyVFu7lJ4upcu4Xhv+5cTGq+SJ+GV9UUJ9guZYVWafxJw3CRmd/qqjucQzOTPg/2JA4/9XqDZDSWKKBwGTOgeiFjKaa4xPFO/bvpbECqR4y7TDh7k7zSjMCDD624b8k6LyWiaerh50ShU2CSi3cTjpyZWloolQWRotLM="
@@ -32,7 +34,7 @@ script:
           (echo $res | grep -q Exception) && exit 1
           echo "" # This resets the error code
       done
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.5 ]]; then PELITA_PATH=. PYTHONPATH=.:tournament py.test --cov=tournament --cov-append -sv tournament/test/ ; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then PELITA_PATH=. PYTHONPATH=.:tournament py.test --cov=tournament --cov-append -sv tournament/test/ ; fi
 
 after_success:
   - codecov
