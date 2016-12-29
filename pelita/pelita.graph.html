@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.graph &#8212; Pelita v0.2.0-418-g83e0b66 documentation</title>
+    <title>pelita.graph &#8212; Pelita v0.2.0-420-g589f83a documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,10 +14,11 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-418-g83e0b66',
+        VERSION:     'v0.2.0-420-g589f83a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
@@ -26,8 +27,6 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="Pelita v0.2.0-418-g83e0b66 documentation" href="../index.html" />
-    <link rel="up" title="API reference" href="../api.html" />
     <link rel="next" title="pelita.layout" href="pelita.layout.html" />
     <link rel="prev" title="pelita.game_master" href="pelita.game_master.html" />
    
@@ -117,8 +116,8 @@ Algorithm here is partially taken from [2] and inlined for speed.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>initial</strong> (<em>(int, int)</em>) &#8211; the initial position</li>
-<li><strong>target</strong> (<em>(int, int)</em>) &#8211; the target position</li>
+<li><strong>initial</strong> (<em></em><em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the initial position</li>
+<li><strong>target</strong> (<em></em><em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the target position</li>
 </ul>
 </td>
 </tr>
@@ -152,8 +151,8 @@ position in <cite>targets</cite>.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>initial</strong> (<em>tuple of (int, int)</em>) &#8211; the first position</li>
-<li><strong>targets</strong> (<em>list of tuple of (int, int)</em>) &#8211; the target positions</li>
+<li><strong>initial</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the first position</li>
+<li><strong>targets</strong> (<em>list of tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the target positions</li>
 </ul>
 </td>
 </tr>
@@ -186,7 +185,7 @@ case.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>position</strong> (<em>tuple of (int, int)</em>) &#8211; the first position</li>
+<li><strong>position</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the first position</li>
 <li><strong>distance</strong> (<em>int</em>) &#8211; the distance in maze space</li>
 </ul>
 </td>
@@ -217,8 +216,8 @@ case.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>initial</strong> (<em>tuple of (int, int)</em>) &#8211; the starting position</li>
-<li><strong>target</strong> (<em>tuple of (int, int)</em>) &#8211; the target position</li>
+<li><strong>initial</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the starting position</li>
+<li><strong>target</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the target position</li>
 </ul>
 </td>
 </tr>
@@ -244,7 +243,7 @@ neighbours.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>initial</strong> (<em>list(pos)</em>) &#8211; List of initial positions</li>
+<li><strong>initial</strong> (<em>list</em><em>(</em><em>pos</em><em>)</em><em></em>) &#8211; List of initial positions</li>
 <li><strong>adjacencies_from_pos</strong> (<em>callable</em>) &#8211; Given a position, this function should return all reachable positions.</li>
 </ul>
 </td>
@@ -268,8 +267,8 @@ neighbours.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>pos1</strong> (<em>tuple of (int, int)</em>) &#8211; the first position</li>
-<li><strong>pos2</strong> (<em>tuple of (int, int)</em>) &#8211; the second position</li>
+<li><strong>pos1</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the first position</li>
+<li><strong>pos2</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the second position</li>
 </ul>
 </td>
 </tr>
@@ -292,8 +291,8 @@ neighbours.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>position</strong> (<em>tuple of int (x, y)</em>) &#8211; current position</li>
-<li><strong>move</strong> (<em>tuple of int (x, y)</em>) &#8211; direction vector</li>
+<li><strong>position</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em>) &#8211; current position</li>
+<li><strong>move</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em>) &#8211; direction vector</li>
 </ul>
 </td>
 </tr>
@@ -374,11 +373,11 @@ neighbours.</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
-      <a href="../_sources/pelita/pelita.graph.txt"
+      <a href="../_sources/pelita/pelita.graph.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.datamodel &#8212; Pelita v0.2.0-418-g83e0b66 documentation</title>
+    <title>pelita.datamodel &#8212; Pelita v0.2.0-420-g589f83a documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,10 +14,11 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-418-g83e0b66',
+        VERSION:     'v0.2.0-420-g589f83a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
@@ -26,8 +27,6 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="Pelita v0.2.0-418-g83e0b66 documentation" href="../index.html" />
-    <link rel="up" title="API reference" href="../api.html" />
     <link rel="next" title="pelita.game_master" href="pelita.game_master.html" />
     <link rel="prev" title="pelita.containers" href="pelita.containers.html" />
    
@@ -122,18 +121,18 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>index</strong> (<em>int</em>) &#8211; the index of this bot within the Universe</li>
-<li><strong>initial_pos</strong> (<em>tuple of int (x, y)</em>) &#8211; the initial position for this bot</li>
+<li><strong>initial_pos</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em>) &#8211; the initial position for this bot</li>
 <li><strong>team_index</strong> (<em>int</em>) &#8211; the index of the team that this bot is on</li>
-<li><strong>homezone</strong> (<em>tuple of int (x_min, x_max)</em>) &#8211; the homezone of this team</li>
-<li><strong>current_pos</strong> (<em>tuple of int (x, y), optional</em>) &#8211; the current position of this bot
+<li><strong>homezone</strong> (<em>tuple of int</em><em> (</em><em>x_min</em><em>, </em><em>x_max</em><em>)</em><em></em>) &#8211; the homezone of this team</li>
+<li><strong>current_pos</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em><em>, </em><em>optional</em>) &#8211; the current position of this bot
 default = None (will be set to initial_pos)</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
-<li><strong>in_own_zone</strong> (<em>boolean, property</em>) &#8211; True if in its own homezone and False otherwise</li>
-<li><strong>is_destroyer</strong> (<em>boolean, property</em>) &#8211; True if a destroyer, False otherwise</li>
-<li><strong>is_harvester</strong> (<em>boolean, property</em>) &#8211; not is_destroyer</li>
+<li><strong>in_own_zone</strong> (<em>boolean</em><em>, </em><em>property</em>) &#8211; True if in its own homezone and False otherwise</li>
+<li><strong>is_destroyer</strong> (<em>boolean</em><em>, </em><em>property</em>) &#8211; True if a destroyer, False otherwise</li>
+<li><strong>is_harvester</strong> (<em>boolean</em><em>, </em><em>property</em>) &#8211; not is_destroyer</li>
 <li><strong>noisy</strong> (<em>boolean</em>) &#8211; True if the position is noisy, False if it is exact</li>
 </ul>
 </td>
@@ -159,8 +158,8 @@ default = None (will be set to initial_pos)</li>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
-<li><a class="reference internal" href="#pelita.datamodel.CTFUniverse.bot_positions" title="pelita.datamodel.CTFUniverse.bot_positions"><strong>bot_positions</strong></a> (<em>list of tuple of ints (x, y), property</em>) &#8211; the current position of all bots</li>
-<li><a class="reference internal" href="#pelita.datamodel.CTFUniverse.food_list" title="pelita.datamodel.CTFUniverse.food_list"><strong>food_list</strong></a> (<em>list of tuple of ints (x, y), property</em>) &#8211; the positions of all edible food</li>
+<li><a class="reference internal" href="#pelita.datamodel.CTFUniverse.bot_positions" title="pelita.datamodel.CTFUniverse.bot_positions"><strong>bot_positions</strong></a> (<em>list of tuple of ints</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em><em>, </em><em>property</em>) &#8211; the current position of all bots</li>
+<li><a class="reference internal" href="#pelita.datamodel.CTFUniverse.food_list" title="pelita.datamodel.CTFUniverse.food_list"><strong>food_list</strong></a> (<em>list of tuple of ints</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em><em>, </em><em>property</em>) &#8211; the positions of all edible food</li>
 </ul>
 </td>
 </tr>
@@ -306,7 +305,7 @@ default = None (will be set to initial_pos)</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int (x, y)</em>) &#8211; the position to start at</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em>) &#8211; the position to start at</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>legal_moves_dict</strong> &#8211; the legal moves and where they would lead.</td>
 </tr>
@@ -325,7 +324,7 @@ or just stop if impossible to move.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int (x, y)</em>) &#8211; the position to start at</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em>) &#8211; the position to start at</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>legal_moves</strong> &#8211; the legal moves and where they would lead.</td>
 </tr>
@@ -345,7 +344,7 @@ or just stop if impossible to move.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>bot_id</strong> (<em>int</em>) &#8211; index of the bot</li>
-<li><strong>move</strong> (<em>tuple of (int, int)</em>) &#8211; direction to move in</li>
+<li><strong>move</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; direction to move in</li>
 </ul>
 </td>
 </tr>
@@ -370,7 +369,7 @@ or just stop if impossible to move.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int (x, y)</em>) &#8211; current position</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em>) &#8211; current position</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>new_pos</strong> &#8211; mapping of moves to new positions (x, y)</td>
 </tr>
@@ -437,7 +436,7 @@ or just stop if impossible to move.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>initial_positions</strong> (<em>list(pos)</em>) &#8211; list of initial positions</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>initial_positions</strong> (<em>list</em><em>(</em><em>pos</em><em>)</em><em></em>) &#8211; list of initial positions</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>adjacency_list</strong> &#8211; Generator which contains all reachable positions and their adjacencies</td>
 </tr>
@@ -534,7 +533,7 @@ or just stop if impossible to move.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pelita.containers.html#pelita.containers.Mesh.shape" title="pelita.containers.Mesh.shape"><strong>shape</strong></a> (<em>(int, int)</em>) &#8211; tuple of width and height</p>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pelita.containers.html#pelita.containers.Mesh.shape" title="pelita.containers.Mesh.shape"><strong>shape</strong></a> (<em></em><em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; tuple of width and height</p>
 </td>
 </tr>
 </tbody>
@@ -568,8 +567,8 @@ or just stop if impossible to move.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>index</strong> (<em>int</em>) &#8211; the index of the team within the Universe</li>
-<li><strong>zone</strong> (<em>tuple of int (x_min, x_max)</em>) &#8211; the homezone of this team</li>
-<li><strong>score</strong> (<em>int, optional, default = 0</em>) &#8211; the score of this team</li>
+<li><strong>zone</strong> (<em>tuple of int</em><em> (</em><em>x_min</em><em>, </em><em>x_max</em><em>)</em><em></em>) &#8211; the homezone of this team</li>
+<li><strong>score</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default = 0</em>) &#8211; the score of this team</li>
 </ul>
 </td>
 </tr>
@@ -583,7 +582,7 @@ or just stop if impossible to move.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int (x, y)</em>) &#8211; the position to check</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em>) &#8211; the position to check</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>is_in_zone</strong> &#8211; True if the position is in the homezone and False otherwise</td>
 </tr>
@@ -712,11 +711,11 @@ or just stop if impossible to move.</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
-      <a href="../_sources/pelita/pelita.datamodel.txt"
+      <a href="../_sources/pelita/pelita.datamodel.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

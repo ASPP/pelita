@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.game_master &#8212; Pelita v0.2.0-418-g83e0b66 documentation</title>
+    <title>pelita.game_master &#8212; Pelita v0.2.0-420-g589f83a documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,10 +14,11 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-418-g83e0b66',
+        VERSION:     'v0.2.0-420-g589f83a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
@@ -26,8 +27,6 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="Pelita v0.2.0-418-g83e0b66 documentation" href="../index.html" />
-    <link rel="up" title="API reference" href="../api.html" />
     <link rel="next" title="pelita.graph" href="pelita.graph.html" />
     <link rel="prev" title="pelita.datamodel" href="pelita.datamodel.html" />
    
@@ -125,13 +124,13 @@ updating of the universe.</p>
 <li><strong>number_bots</strong> (<em>int</em>) &#8211; the total number of bots</li>
 <li><strong>game_time</strong> (<em>int</em>) &#8211; the total permitted number of rounds</li>
 <li><strong>noise</strong> (<em>boolean</em>) &#8211; should enemy positions be noisy</li>
-<li><strong>seed</strong> (<em>int, optional</em>) &#8211; seed which initialises the internal random number generator</li>
+<li><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; seed which initialises the internal random number generator</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
 <li><strong>universe</strong> (<a class="reference internal" href="pelita.datamodel.html#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><em>CTFUniverse</em></a>) &#8211; the game state</li>
-<li><strong>noiser</strong> (<em>UniverseNoiser or None</em>) &#8211; object to add noise to enemy positions</li>
+<li><strong>noiser</strong> (<a class="reference internal" href="#pelita.game_master.UniverseNoiser" title="pelita.game_master.UniverseNoiser"><em>UniverseNoiser</em></a><em> or </em><em>None</em>) &#8211; object to add noise to enemy positions</li>
 <li><strong>player_teams</strong> (<em>list</em>) &#8211; the participating player teams</li>
 <li><strong>viewers</strong> (<em>list of subclasses of AbstractViewer</em>) &#8211; the viewers that are observing this game</li>
 </ul>
@@ -233,9 +232,9 @@ in the subclass, e.g. maze distance, manhattan distance, euclidean distance...</
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>universe</strong> (<a class="reference internal" href="pelita.datamodel.html#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><em>CTFUniverse</em></a>) &#8211; the universe which will later be used</li>
-<li><strong>noise_radius</strong> (<em>int, optional, default: 5</em>) &#8211; the radius for the uniform noise</li>
-<li><strong>sight_distance</strong> (<em>int, optional, default: 5</em>) &#8211; the distance at which noise is no longer applied.</li>
-<li><strong>seed</strong> (<em>int, optional</em>) &#8211; seed which initialises the internal random number generator</li>
+<li><strong>noise_radius</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 5</em>) &#8211; the radius for the uniform noise</li>
+<li><strong>sight_distance</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 5</em>) &#8211; the distance at which noise is no longer applied.</li>
+<li><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; seed which initialises the internal random number generator</li>
 </ul>
 </td>
 </tr>
@@ -351,11 +350,11 @@ copy of the universe as an argument.</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
-      <a href="../_sources/pelita/pelita.game_master.txt"
+      <a href="../_sources/pelita/pelita.game_master.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
