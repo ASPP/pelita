@@ -475,8 +475,8 @@ class AbstractPlayer(metaclass=abc.ABCMeta):
 
         Returns
         -------
-        (game_state, universe) : (dict, universe)
-            the new game_state and the new universe
+        (universe, game_state) : (universe, dict)
+            the new universe and the new game_state
 
         Raises
         ------
@@ -486,7 +486,7 @@ class AbstractPlayer(metaclass=abc.ABCMeta):
         """
         uni = self.current_uni.copy()
         new_state = uni.move_bot(self._index, move)
-        return (new_state, uni)
+        return (uni, new_state)
 
     def say(self, text):
         """ Let the bot speak.
