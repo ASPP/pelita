@@ -268,7 +268,8 @@ def run_match(config, teams):
     else:
         dump = []
 
-    cmd = [libpelita.get_python_process()] + ["./pelitagame"] + [config.team_spec(team1), config.team_spec(team2),
+    pelitagame = os.path.join(os.environ.get("PELITA_PATH") or os.path.dirname(sys.argv[0]), './pelitagame')
+    cmd = [libpelita.get_python_process()] + [pelitagame] + [config.team_spec(team1), config.team_spec(team2),
                               '--reply-to', reply_addr,
                               '--seed', str(random.randint(0, sys.maxsize)),
                               *dump,
