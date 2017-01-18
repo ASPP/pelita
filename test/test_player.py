@@ -187,6 +187,90 @@ class TestAbstractPlayer:
         gm = GameMaster(test_layout, teams, 4, 1)
         gm.play()
 
+    def test_simulate_move(self):
+        test_layout = (
+            """ ############
+                #  #.1 .#  #
+                #  #.03.#  #
+                #2  .  .   #
+                ############ """)
+
+        p0 = StoppingPlayer()
+        p1 = StoppingPlayer()
+        p2 = StoppingPlayer()
+        p3 = StoppingPlayer()
+
+        team = [
+            SimpleTeam(p0, p2),
+            SimpleTeam(p1, p3)
+        ]
+        gm = GameMaster(test_layout, team, 4, 5)
+        gm.set_initial()
+
+        sim_uni, sim_state = p0.simulate_move(datamodel.stop)
+        assert sim_state == {
+            'bot_destroyed': [],
+            'bot_moved': [{'bot_id': 0, 'new_pos': (5, 2), 'old_pos': (5, 2)}],
+            'food_eaten': []
+        }
+        assert sim_uni.maze == p0.current_uni.maze
+        assert sim_uni == p0.current_uni
+        assert sim_uni is not p0.current_uni
+
+        sim_uni, sim_state = p0.simulate_move(datamodel.north)
+        assert sim_state == {
+            'bot_destroyed': [{'bot_id': 1, 'destroyed_by': 0}],
+            'bot_moved': [{'bot_id': 0, 'new_pos': (5, 1), 'old_pos': (5, 2)},
+                          {'bot_id': 0, 'new_pos': (5, 1), 'old_pos': (5, 1)}],
+            'food_eaten': []
+        }
+        assert sim_uni.maze == p0.current_uni.maze
+        assert sim_uni != p0.current_uni
+
+        sim_uni, sim_state = p0.simulate_move(datamodel.east)
+        assert sim_state == {
+            'bot_destroyed': [{'bot_id': 0, 'destroyed_by': 3}],
+            'bot_moved': [{'bot_id': 0, 'new_pos': (6, 2), 'old_pos': (5, 2)},
+                          {'bot_id': 0, 'new_pos': (5, 2), 'old_pos': (6, 2)}],
+            'food_eaten': []
+        }
+        sim_uni, sim_state = p0.simulate_move(datamodel.south)
+        assert sim_state == {
+            'bot_destroyed': [],
+            'bot_moved': [{'bot_id': 0, 'new_pos': (5, 3), 'old_pos': (5, 2)}],
+            'food_eaten': []
+        }
+        sim_uni, sim_state = p0.simulate_move(datamodel.west)
+        assert sim_state == {
+            'bot_destroyed': [],
+            'bot_moved': [{'bot_id': 0, 'new_pos': (4, 2), 'old_pos': (5, 2)}],
+            'food_eaten': []
+        }
+
+        with pytest.raises(datamodel.IllegalMoveException):
+            assert p1.simulate_move(datamodel.north)
+        sim_uni, sim_state = p1.simulate_move(datamodel.east)
+        assert sim_state == {
+            'bot_destroyed': [],
+            'bot_moved': [{'bot_id': 1, 'new_pos': (6, 1), 'old_pos': (5, 1)}],
+            'food_eaten': []
+        }
+        sim_uni, sim_state = p1.simulate_move(datamodel.south)
+        assert sim_state == {
+            'bot_destroyed': [{'bot_id': 1, 'destroyed_by': 0}],
+            'bot_moved': [{'bot_id': 1, 'new_pos': (5, 2), 'old_pos': (5, 1)},
+                          {'bot_id': 1, 'new_pos': (5, 1), 'old_pos': (5, 2)}],
+            'food_eaten': []
+        }
+        sim_uni, sim_state = p1.simulate_move(datamodel.west)
+        assert sim_state == {
+            'bot_destroyed': [],
+            'bot_moved': [{'bot_id': 1, 'new_pos': (4, 1), 'old_pos': (5, 1)}],
+            'food_eaten': [{'bot_id': 1, 'food_pos': (4, 1)}]
+        }
+        assert set(p1.current_uni.enemy_food(p1._index)) == {(4, 3), (4, 2), (4, 1)}
+        assert set(sim_uni.enemy_food(p1._index)) == {(4, 3), (4, 2)}
+
 
 class TestTestPlayer:
     def test_test_players(self):
