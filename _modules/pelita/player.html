@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.player &#8212; Pelita v0.2.0-420-g589f83a documentation</title>
+    <title>pelita.player &#8212; Pelita v0.2.0-425-gbc891f8 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-420-g589f83a',
+        VERSION:     'v0.2.0-425-gbc891f8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -507,6 +507,31 @@
             <span class="k">return</span> <span class="n">current_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">__time_in_get_move</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="AbstractPlayer.simulate_move"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.AbstractPlayer.simulate_move">[docs]</a>    <span class="k">def</span> <span class="nf">simulate_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">move</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Simulate a move of the bot in a certain direction</span>
+<span class="sd">        and return the new state and universe.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        move : tuple of (int, int)</span>
+<span class="sd">            direction to move in</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        (universe, game_state) : (universe, dict)</span>
+<span class="sd">            the new universe and the new game_state</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        IllegalMoveException</span>
+<span class="sd">            if the move is invalid or impossible</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">uni</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">new_state</span> <span class="o">=</span> <span class="n">uni</span><span class="o">.</span><span class="n">move_bot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">,</span> <span class="n">move</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">uni</span><span class="p">,</span> <span class="n">new_state</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AbstractPlayer.say"><a class="viewcode-back" href="../../pelita/pelita.player.html#pelita.player.AbstractPlayer.say">[docs]</a>    <span class="k">def</span> <span class="nf">say</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Let the bot speak.</span>
