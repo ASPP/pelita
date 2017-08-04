@@ -154,11 +154,11 @@ def check_team(team_spec):
     socket = ctx.socket(zmq.PAIR)
 
     if team_spec.module is None:
-        _logger.info("Binding to %s", team_spec.address)
+        _logger.info("Binding zmq.PAIR to %s", team_spec.address)
         socket.bind(team_spec.address)
 
     else:
-        _logger.info("Binding to %s", team_spec.address)
+        _logger.info("Binding zmq.PAIR to %s", team_spec.address)
         socket_port = socket.bind_to_random_port(team_spec.address)
         team_spec = team_spec._replace(address="%s:%d" % (team_spec.address, socket_port))
 
