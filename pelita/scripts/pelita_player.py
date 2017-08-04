@@ -3,24 +3,22 @@
 import argparse
 import inspect
 import keyword
+import logging
 import os
 import random
 import string
+import subprocess
 import sys
 
 import pelita
 
-parser = argparse.ArgumentParser(description="Runs a Python pelita module.")
-parser.add_argument('team')
-parser.add_argument('address')
+_logger = logging.getLogger("pelita.scripts.pelita_player")
 
-def make_client():
-    args = parser.parse_args()
+def make_client(team_spec, address):
+    team = load_team(team_spec)
+    print("Using factory '%s' -> '%s'" % (team_spec, team.team_name))
 
-    team = load_team(args.team)
-    print("Using factory '%s' -> '%s'" % (args.team, team.team_name))
-
-    addr = args.address
+    addr = address
     addr = addr.replace('*', 'localhost')
     client = pelita.simplesetup.SimpleClient(team, address=addr)
     return client
@@ -128,8 +126,42 @@ def import_builtin_player(name):
     else:
         raise ImportError("%r is not a valid player." % player)
 
+def with_zmq_router(address):
+    import zmq
+    ctx = zmq.Context()
+    sock = ctx.socket(zmq.ROUTER)
+    sock.bind(address)
+    while True:
+        _ = sock.recv()
+        msg = sock.recv_json()
+        if "REQUEST" in msg:
+            yield msg["REQUEST"]
+
 def main():
-    client = make_client()
+    parser = argparse.ArgumentParser(description="Runs a Python pelita module.")
+    parser.add_argument('--remote', help='bind to a zmq.ROUTER socket at the given address which forks subprocesses on demand',
+                        action='store_const', const=True)
+    parser.add_argument('team')
+    parser.add_argument('address')
+
+    args = parser.parse_args()
+
+    if args.remote:
+        for match_addr in with_zmq_router(args.address):
+            player_path = os.environ.get("PELITA_PATH") or os.path.dirname(sys.argv[0])
+            player = 'pelita.scripts.pelita_player'
+            external_call = [pelita.libpelita.get_python_process(),
+                            '-m',
+                            player,
+                            args.team,
+                            match_addr]
+            _logger.debug("Executing: %r", external_call)
+            subprocess.Popen(external_call)
+
+        client = make_client(args.team, args.address)
+        print("YEAH")
+
+    client = make_client(args.team, args.address)
     ret = client.run()
     sys.exit(ret)
 

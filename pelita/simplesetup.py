@@ -340,6 +340,13 @@ class SimpleServer:
         self.team_players = []
 
         for address in bind_addrs:
+            if address.startswith("remote:"):
+                _logger.info("Received remote address.")
+                send_addr = address[len("remote:"):]
+                address = "tcp://*"
+            else:
+                send_addr = None
+
             socket = self.context.socket(zmq.PAIR)
 
             bind_to_random = False
@@ -365,6 +372,12 @@ class SimpleServer:
 
             team_player = RemoteTeamPlayer(socket)
             self.team_players.append(team_player)
+
+            if send_addr:
+                send_sock = self.context.socket(zmq.DEALER)
+                send_sock.connect(send_addr)
+                _logger.info("Telling {} about {}.".format(send_addr, address))
+                send_sock.send_json({"REQUEST": address})
 
         self.game_master = GameMaster(layout_string, self.team_players,
                                       self.players, self.rounds,
