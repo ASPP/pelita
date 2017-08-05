@@ -344,40 +344,37 @@ class SimpleServer:
                 _logger.info("Received remote address.")
                 send_addr = address[len("remote:"):]
                 address = "tcp://*"
+
+                socket = self.context.socket(zmq.DEALER)
+                socket.connect(send_addr)
+                _logger.info("Connecting zmq.DEALER to {}.".format(send_addr))
+                socket.send_json({"REQUEST": address})
             else:
-                send_addr = None
+                socket = self.context.socket(zmq.PAIR)
 
-            socket = self.context.socket(zmq.PAIR)
+                bind_to_random = False
+                if address.startswith("tcp://"):
+                    split_address = address.split("tcp://")
+                    if not ":" in split_address[1]:
+                        # assume no port has been given:
+                        bind_to_random = True
 
-            bind_to_random = False
-            if address.startswith("tcp://"):
-                split_address = address.split("tcp://")
-                if not ":" in split_address[1]:
-                    # assume no port has been given:
-                    bind_to_random = True
-
-            try:
-                if bind_to_random:
-                    socket_port = socket.bind_to_random_port(address)
-                    address = address + (":%d" % socket_port)
-                else:
-                    socket.bind(address)
-                _logger.info("Bound zmq.PAIR to %s", address)
-            except zmq.ZMQError:
-                print("ZMQError while trying to bind {}".format(address))
-                raise
+                try:
+                    if bind_to_random:
+                        socket_port = socket.bind_to_random_port(address)
+                        address = address + (":%d" % socket_port)
+                    else:
+                        socket.bind(address)
+                    _logger.info("Bound zmq.PAIR to %s", address)
+                except zmq.ZMQError:
+                    print("ZMQError while trying to bind {}".format(address))
+                    raise
 
             self.sockets.append(socket)
             self.bind_addresses.append(address)
 
             team_player = RemoteTeamPlayer(socket)
             self.team_players.append(team_player)
-
-            if send_addr:
-                send_sock = self.context.socket(zmq.DEALER)
-                send_sock.connect(send_addr)
-                _logger.info("Telling {} about {}.".format(send_addr, address))
-                send_sock.send_json({"REQUEST": address})
 
         self.game_master = GameMaster(layout_string, self.team_players,
                                       self.players, self.rounds,
