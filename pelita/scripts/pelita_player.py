@@ -129,6 +129,7 @@ def import_builtin_player(name):
 def with_zmq_router(team, address):
     dealer_pair_mapping = {}
     pair_dealer_mapping = {}
+    proc_dealer_mapping = {}
 
     import zmq
     ctx = zmq.Context()
@@ -150,12 +151,14 @@ def with_zmq_router(team, address):
 
                 poll.register(pair_sock, zmq.POLLIN)
 
+                _logger.info("Starting match for team {}. ({} already running.)".format(team, len(proc_dealer_mapping)))
+                sub = play_remote(team, pair_addr)
+
                 dealer_pair_mapping[id_] = pair_sock
                 pair_dealer_mapping[pair_sock] = id_
+                proc_dealer_mapping[sub] = (id_, pair_sock)
 
                 assert len(dealer_pair_mapping) == len(pair_dealer_mapping)
-
-                sub = play_remote(team, pair_addr)
             elif id_ in dealer_pair_mapping:
                 dealer_pair_mapping[id_].send_json(msg)
             else:
@@ -166,6 +169,19 @@ def with_zmq_router(team, address):
                 if pair_sock in evts:
                     msg = pair_sock.recv()
                     sock.send_multipart([id_, msg])
+
+        old_procs = list(proc_dealer_mapping.keys())
+        count = 0
+        for proc in old_procs:
+            if proc.poll() is not None:
+                id_, pair_sock = proc_dealer_mapping[proc]
+                del dealer_pair_mapping[id_]
+                del pair_dealer_mapping[pair_sock]
+                del proc_dealer_mapping[proc] 
+                count += 1
+        if count:
+            _logger.debug("Cleaned up {} process(es). ({} still running.)".format(count, len(proc_dealer_mapping)))
+
 
 def play_remote(team, pair_addr):
     player_path = os.environ.get("PELITA_PATH") or os.path.dirname(sys.argv[0])
