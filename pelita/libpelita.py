@@ -86,29 +86,6 @@ class DefaultRunner(ModuleRunner):
         _logger.debug("Executing: %r", external_call)
         return subprocess.Popen(external_call)
 
-class Py2Runner(ModuleRunner):
-    def run(self, addr):
-        player_path = os.environ.get("PELITA_PATH") or os.path.dirname(sys.argv[0])
-        player = os.path.join(player_path, "module_player.py")
-        external_call = ["python2",
-                         player,
-                         self.team_spec,
-                         addr]
-        print(external_call)
-        _logger.debug("Executing: %r", external_call)
-        return subprocess.Popen(external_call)
-
-class Py3Runner(ModuleRunner):
-    def run(self, addr):
-        player_path = os.environ.get("PELITA_PATH") or os.path.dirname(sys.argv[0])
-        player = os.path.join(player_path, "module_player.py")
-        external_call = ["python3",
-                         player,
-                         self.team_spec,
-                         addr]
-        _logger.debug("Executing: %r", external_call)
-        return subprocess.Popen(external_call)
-
 class BinRunner(ModuleRunner):
     def run(self, addr):
         external_call = [self.team_spec,
@@ -136,8 +113,6 @@ def call_standalone_pelitagame(module_spec, address):
     """
     defined_runners = {
         "py": DefaultRunner,
-        "py2": Py2Runner,
-        "py3": Py3Runner,
         "bin": BinRunner,
     }
 
