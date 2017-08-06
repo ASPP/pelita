@@ -408,7 +408,7 @@ class SimpleController:
         # each one can take over the control.
         self.socket = self.context.socket(zmq.ROUTER)
         self.socket_addr = bind_socket(self.socket, self.address, '--controller')
-        _logger.debug(f"Bound zmq.ROUTER to {self.socket_addr}")
+        _logger.debug("Bound zmq.ROUTER to {}".format(self.socket_addr))
 
     def run(self):
         try:
@@ -568,7 +568,7 @@ class SimplePublisher(AbstractViewer):
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PUB)
         self.socket_addr = bind_socket(self.socket, self.address, '--publish')
-        _logger.debug(f"Bound zmq.PUB to {self.socket_addr}")
+        _logger.debug("Bound zmq.PUB to {}".format(self.socket_addr))
 
 
     def _send(self, message):
