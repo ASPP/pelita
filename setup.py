@@ -78,6 +78,7 @@ setup(
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
+        'tournament': ["PyYAML"]
     },
 
     # If there are data files included in your packages that need to be
@@ -98,7 +99,7 @@ setup(
     entry_points={
         'console_scripts': [
             'pelita=pelita.scripts.pelita_main:main',
-            'pelita-tournament=pelita.scripts.pelita_tournament:main',
+            'pelita-tournament=pelita.scripts.pelita_tournament:main [tournament]',
             'pelita-tkviewer=pelita.scripts.pelita_tkviewer:main',
             'pelita-player=pelita.scripts.pelita_player:main',
         ],
