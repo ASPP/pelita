@@ -38,12 +38,9 @@ introductory course [DeNeroKlein]_.
 This software was developed for the “Advanced Scientific Programming in Python”
 summer school, as a teaching aid for the group project.
 
-Future:
-
-* `Munich, Germany, 2015 <https://python.g-node.org/wiki/start>`_
-
-Past:
-
+* `Nikiti, Greece, 2017 <https://python.g-node.org/wiki/start>`_
+* `Reading, UK, 2016 <https://python.g-node.org/python-summerschool-2016/>`_
+* `Munich, Germany, 2015 <https://python.g-node.org/python-summerschool-2015/>`_
 * `Split, Croatia, 2014 <https://python.g-node.org/python-summerschool-2014/>`_
 * `Zürich, Switzerland, <https://python.g-node.org/python-summerschool-2013/>`_
 * `Kiel, Germany, <https://python.g-node.org/python-summerschool-2012/>`_
