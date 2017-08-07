@@ -250,8 +250,10 @@ def run_external_viewer(subscribe_sock, controller, geometry, delay):
     if delay:
         viewer_args += ["--delay", str(delay)]
 
-    tkviewer = os.path.join(os.path.dirname(sys.argv[0]), "pelita-tkviewer")
-    external_call = [get_python_process(), tkviewer] + viewer_args
+    tkviewer = "petlia.scripts.pelita_tkviewer"
+    external_call = [get_python_process(),
+                     '-m',
+                     tkviewer] + viewer_args
     _logger.debug("Executing: %r", external_call)
     return subprocess.Popen(external_call)
 
