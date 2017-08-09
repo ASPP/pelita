@@ -210,6 +210,8 @@ class GameMaster:
                 self.game_state["team_name"][team_id] = team_name
             except PlayerTimeout:
                 pass
+            except PlayerDisconnected:
+                self.game_state["teams_disqualified"][team_id] = "disconnected"
 
     # TODO the game winning detection should be refactored
     def play(self):

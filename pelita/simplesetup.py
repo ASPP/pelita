@@ -247,6 +247,7 @@ class RemoteTeamPlayer:
             raise PlayerTimeout()
         except DeadConnection:
             _logger.info("Detected a DeadConnection.")
+            raise PlayerDisconnected()
 
     def get_move(self, bot_id, universe, game_state):
         try:
