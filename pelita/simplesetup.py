@@ -341,7 +341,6 @@ class SimpleServer:
 
         for address in bind_addrs:
             socket = self.context.socket(zmq.PAIR)
-            _logger.info("Binding to %s", address)
 
             bind_to_random = False
             if address.startswith("tcp://"):
@@ -356,7 +355,7 @@ class SimpleServer:
                     address = address + (":%d" % socket_port)
                 else:
                     socket.bind(address)
-                _logger.info("Binding to %s", address)
+                _logger.info("Bound zmq.PAIR to %s", address)
             except zmq.ZMQError:
                 print("ZMQError while trying to bind {}".format(address))
                 raise
@@ -409,6 +408,7 @@ class SimpleController:
         # each one can take over the control.
         self.socket = self.context.socket(zmq.ROUTER)
         self.socket_addr = bind_socket(self.socket, self.address, '--controller')
+        _logger.debug("Bound zmq.ROUTER to {}".format(self.socket_addr))
 
     def run(self):
         try:
@@ -568,6 +568,8 @@ class SimplePublisher(AbstractViewer):
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PUB)
         self.socket_addr = bind_socket(self.socket, self.address, '--publish')
+        _logger.debug("Bound zmq.PUB to {}".format(self.socket_addr))
+
 
     def _send(self, message):
         as_json = json.dumps(message)
