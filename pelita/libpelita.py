@@ -238,7 +238,6 @@ def channel_setup(publish_to=None, reply_to=None):
     yield { "publisher": publisher, "controller": controller }
 
 
-
 def run_external_viewer(subscribe_sock, controller, geometry, delay):
     # Something on OS X prevents Tk from running in a forked process.
     # Therefore we cannot use multiprocessing here. subprocess works, though.
@@ -250,7 +249,7 @@ def run_external_viewer(subscribe_sock, controller, geometry, delay):
     if delay:
         viewer_args += ["--delay", str(delay)]
 
-    tkviewer = "petlia.scripts.pelita_tkviewer"
+    tkviewer = 'pelita.scripts.pelita_tkviewer'
     external_call = [get_python_process(),
                      '-m',
                      tkviewer] + viewer_args

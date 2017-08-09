@@ -92,22 +92,6 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
         # won't let us pipe it.
         sys.stdout.flush()
 
-def run_external_viewer(subscribe_sock, controller, geometry, delay):
-    # Something on OS X prevents Tk from running in a forked process.
-    # Therefore we cannot use multiprocessing here. subprocess works, though.
-    viewer_args = [ str(subscribe_sock) ]
-    if controller:
-        viewer_args += ["--controller-address", str(controller)]
-    if geometry:
-        viewer_args += ["--geometry", "{0}x{1}".format(*geometry)]
-    if delay:
-        viewer_args += ["--delay", str(delay)]
-
-    tkviewer = 'pelita.scripts.pelita_tkviewer'
-    external_call = [libpelita.get_python_process(), '-m', tkviewer] + viewer_args
-    _logger.debug("Executing: %r", external_call)
-    return subprocess.Popen(external_call)
-
 def start_logging(filename):
     if filename:
         hdlr = logging.FileHandler(filename, mode='w')
@@ -410,7 +394,7 @@ def main():
                 controller = channels["controller"]
                 publisher = channels["publisher"]
                 game_config["publisher"] = publisher
-                viewer = run_external_viewer(publisher.socket_addr, controller.socket_addr, geometry=geometry, delay=delay)
+                viewer = libpelita.run_external_viewer(publisher.socket_addr, controller.socket_addr, geometry=geometry, delay=delay)
                 libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers, controller=controller)
             else:
                 libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers)
