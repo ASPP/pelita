@@ -454,6 +454,7 @@ class SimpleController:
 
         for p in self.watch_procs:
             if p.poll() is not None:
+                _logger.debug("Monitored process {} has exited with code {}. Exiting too.".format(p, p.returncode))
                 raise ExitLoop()
 
     def set_initial(self, *args, **kwargs):
