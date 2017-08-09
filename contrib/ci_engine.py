@@ -51,9 +51,10 @@ import logging
 import os
 import random
 import sqlite3
-import subprocess
 import sys
 import unittest
+
+from pelita import libpelita
 
 
 parser = argparse.ArgumentParser()
@@ -130,24 +131,26 @@ class CI_Engine:
 
         """
         left, right = [self.players[i]['path'] for i in (p1, p2)]
-        proc_args = [self.pelita_exe, left, right]
-        proc_args.extend(self.default_args)
+        args = [left, right] + self.default_args
 
-        proc = subprocess.Popen(proc_args,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
-        std_out, std_err = proc.communicate()
-        last_line = std_out.strip().splitlines()[-1]
+        (final_game_state, stdout, stderr) = libpelita.call_pelitagame(args)
+
         try:
-            result = -1 if last_line == '-' else int(last_line)
+            if final_game_state.get('game_draw', None):
+                result = -1
+            else:
+                result = final_game_state.get('team_wins', None)
+            if result is None:
+                raise ValueError("Neither game_draw nor team_wins in game_state.")
         except ValueError:
             logger.error("Couldn't parse the outcome of the game:")
-            logger.error("STDERR: \n%s" % std_err)
-            logger.error("STDOUT: \n%s" % std_out)
+            logger.error("STDERR: \n%s" % stderr)
+            logger.error("STDOUT: \n%s" % stdout)
             logger.error("Ignoring the result.")
             return
         p1_name, p2_name = self.players[p1]['name'], self.players[p2]['name']
-        self.dbwrapper.add_gameresult(p1_name, p2_name, result, std_out, std_err)
+
+        self.dbwrapper.add_gameresult(p1_name, p2_name, result, stdout, stderr)
 
 
     def start(self, n):
