@@ -7,9 +7,13 @@ pytestmark = pytest.mark.skipif(sys.version_info < (3,5), reason="requires pytho
 import re
 from textwrap import dedent
 
-from pelita.tournament import komode, roundrobin, tournament
-from pelita.tournament.komode import Team, Match, Bye
-from pelita.tournament import tournament
+try:
+    from pelita.tournament import komode, roundrobin, tournament
+    from pelita.tournament.komode import Team, Match, Bye
+    from pelita.tournament import tournament
+except (ImportError, SyntaxError):
+    # We expect this to fail below Python 3.5
+    pass
 
 
 class TestKoMode:
