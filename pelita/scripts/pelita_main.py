@@ -284,7 +284,11 @@ def main():
         parser.print_help()
         sys.exit(0)
     if args.version:
-        print("Pelita %s" % pelita.version)
+        if pelita._git_version:
+            print("Pelita {} (git: {})".format(pelita.__version__, pelita._git_version))
+        else:
+            print("Pelita {}".format(pelita.__version__))
+            
         sys.exit(0)
     if args.layout == 'list':
         layouts = pelita.layout.get_available_layouts()

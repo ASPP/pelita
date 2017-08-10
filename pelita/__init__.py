@@ -9,4 +9,6 @@ from . import (containers,
                utils,
                __version_from_git)
 
-version = __version_from_git.version()
+_git_version = __version_from_git.version()
+
+__version__ = '0.9.0.dev'
