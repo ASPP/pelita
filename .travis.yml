@@ -35,7 +35,6 @@ script:
           (echo $res | grep -q Exception) && exit 1
           echo "" # This resets the error code
       done
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then py.test --cov=tournament --cov-append -sv tournament/test/ ; fi
 
 after_success:
   - codecov
