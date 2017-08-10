@@ -92,6 +92,10 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
         # won't let us pipe it.
         sys.stdout.flush()
 
+def default_players():
+    from ..players import SANE_PLAYERS
+    return sorted(SANE_PLAYERS, key=lambda m: m.__name__)
+
 def start_logging(filename):
     if filename:
         hdlr = logging.FileHandler(filename, mode='w')
@@ -295,6 +299,11 @@ def main():
         print('\n'.join(layouts))
         sys.exit(0)
 
+    if args.list_teams:
+        for player in default_players():
+            print(player.__name__)
+        sys.exit(0)
+
     if args.seed is None:
         seed = random.randint(0, sys.maxsize)
         args.seed = seed
@@ -310,11 +319,6 @@ def main():
         start_logging(args.log)
     except AttributeError:
         pass
-
-    if args.list_teams:
-        from players import SANE_PLAYERS
-        print('\n'.join(p.__name__ for p in SANE_PLAYERS))
-        sys.exit(0)
 
     if args.check_team:
         if not args.team_specs:

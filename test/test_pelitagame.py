@@ -25,3 +25,14 @@ class TestCheckModule:
                     check_module(path)
             else:
                 check_module(path)
+
+def test_default_players():
+    from pelita.scripts.pelita_main import default_players
+    assert [m.__name__ for m in default_players()] == [
+        'FoodEatingPlayer',
+        'NQRandomPlayer',
+        'RandomExplorerPlayer',
+        'RandomPlayer',
+        'SmartEatingPlayer',
+        'SmartRandomPlayer',
+    ]

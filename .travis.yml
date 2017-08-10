@@ -27,14 +27,15 @@ script:
       PYTHONPATH=. py.test --cov=pelita -v test/ &&
       python -m pelita.scripts.pelita_main --progress &&
       python setup.py install &&
-      for player in ./players/*Player.py ; do
-          PYTHONPATH=.
+      for player in $(pelita --list-teams) ; do
           pelita --check-team $player || exit 1
           res=$(pelita --null --rounds 100 --filter small $player 2>&1)
           echo $res
           (echo $res | grep -q Exception) && exit 1
           echo "" # This resets the error code
       done
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then pelita-tournament --non-interactive --viewer null ; fi
+
 
 after_success:
   - codecov
