@@ -8,9 +8,11 @@ https://github.com/pypa/sampleproject
 import io
 import os
 import re
+import sys
 
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
+from setuptools.command.test import test as _test
 # To use a consistent encoding
 from codecs import open
 from os import path
@@ -32,6 +34,26 @@ def find_version(*file_paths):
     if version_match:
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
+
+
+class PelitaPyTest(_test):
+    user_options = [('pytest-args=', 'a', "Arguments to pass to pytest")]
+
+    def initialize_options(self):
+        _test.initialize_options(self)
+        self.pytest_args = []
+
+    def run_tests(self):
+        import shlex
+        #import here, cause outside the eggs aren't loaded
+        import pytest
+        if self.pytest_args:
+            args = shlex.split(self.pytest_args)
+        else:
+            args = None
+        errno = pytest.main(args)
+        sys.exit(errno)
+
 
 # Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
@@ -93,6 +115,8 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=['pyzmq'],
 
+    tests_require = ['pytest'],
+
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
     # for example:
@@ -124,4 +148,8 @@ setup(
             'pelita-player=pelita.scripts.pelita_player:main',
         ],
     },
+
+    cmdclass={
+        'test': PelitaPyTest
+    }
 )
