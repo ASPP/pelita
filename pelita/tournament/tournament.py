@@ -32,10 +32,6 @@ LOGFILE = None
 if os.name != 'posix':
     raise RuntimeError("Tournament can only run on Posix systems.")
 
-# TODO: The PELITA_PATH environment variable tells pelita where to find the modules that
-# in turn are able to run the user’s code.
-os.environ["PELITA_PATH"] = os.environ.get("PELITA_PATH") or os.path.join(os.path.dirname(sys.argv[0]), "..")
-
 
 def create_team_id(team_id, idx):
     """ Checks that the team_id in the config is valid or else
@@ -268,8 +264,7 @@ def run_match(config, teams):
     else:
         dump = []
 
-    pelitagame = os.path.join(os.environ.get("PELITA_PATH") or os.path.dirname(sys.argv[0]), './pelitagame')
-    cmd = [libpelita.get_python_process()] + [pelitagame] + [config.team_spec(team1), config.team_spec(team2),
+    cmd = [libpelita.get_python_process(), '-m', 'pelita.scripts.pelita_main'] + [config.team_spec(team1), config.team_spec(team2),
                               '--reply-to', reply_addr,
                               '--seed', str(random.randint(0, sys.maxsize)),
                               *dump,

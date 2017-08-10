@@ -94,15 +94,19 @@ setup(
         # Pick your license as you wish (should match "license" above)
         'License :: OSI Approved :: BSD License',
 
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
 
     # What does your project relate to?
-    keywords='sample setuptools development',
+    keywords='education',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=['contrib', 'doc', 'tests']),
+    packages=['pelita', 'pelita.scripts', 'pelita.ui', 'pelita.utils', 'pelita.players', 'pelita.tournament'],
+
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:

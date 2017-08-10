@@ -14,13 +14,9 @@ import sys
 import shutil
 import yaml
 
-from pelita import libpelita
-from tournament import tournament
-from tournament.tournament import Config, State
-
-os.environ["PELITA_PATH"] = os.environ.get("PELITA_PATH") or os.path.join(os.path.dirname(sys.argv[0]), "..")
-
-DEFAULT_PELITAGAME = os.path.join(os.path.dirname(sys.argv[0]), '../pelitagame')
+from .. import libpelita
+from ..tournament import tournament
+from ..tournament.tournament import Config, State
 
 
 def start_logging(filename):
@@ -156,13 +152,11 @@ def setup():
         yaml.dump(config, f, default_flow_style=False)
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description='Run a tournament',
                                      add_help=False,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser._positionals = parser.add_argument_group('Arguments')
-    parser.add_argument('pelitagame', help='The pelitagame script',
-                        default=DEFAULT_PELITAGAME, nargs='?')
     parser._optionals = parser.add_argument_group('Options')
     parser.add_argument('--help', '-h',
                         help='show this help message and exit',
@@ -205,13 +199,6 @@ if __name__ == '__main__':
     elif ARGS.setup:
         setup()
         sys.exit(0)
-
-
-    # Check that pelitagame can be run
-    if not os.path.isfile(ARGS.pelitagame):
-        sys.stderr.write(ARGS.pelitagame+' not found!\n')
-        sys.exit(2)
-
 
     with open(ARGS.config) as f:
         config_data = yaml.load(f)
@@ -280,3 +267,6 @@ if __name__ == '__main__':
     config.print('The winner of the %s Pelita tournament is...' % config.location, wait=2, end=" ")
     config.print('{team_name}. Congratulations'.format(team_name=config.team_name(winner)), wait=2)
     config.print('Good evening master. It was a pleasure to serve you.')
+
+if __name__ == '__main__':
+    main()

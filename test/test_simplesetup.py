@@ -7,7 +7,7 @@ import zmq
 import pelita
 from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer
 from pelita.simplesetup import SimpleClient, SimpleServer, bind_socket, extract_port_range
-from players import RandomPlayer
+from pelita.players import RandomPlayer
 
 
 class TestSimpleSetup:

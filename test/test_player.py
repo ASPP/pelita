@@ -4,7 +4,7 @@ import unittest
 from pelita.datamodel import CTFUniverse, east, stop, west
 from pelita.game_master import GameMaster
 from pelita.player import *
-from players import NQRandomPlayer, RandomPlayer
+from pelita.players import NQRandomPlayer, RandomPlayer
 
 
 class TestAbstractPlayer:
