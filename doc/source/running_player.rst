@@ -3,7 +3,7 @@ Running Players
 ===============
 
 To run a game using your player, you should use the command-line interface:
-``pelitagame``. Run it with the ``--help`` option to get a detailed usage
+``pelita``. Run it with the ``--help`` option to get a detailed usage
 description.
 
 
@@ -11,7 +11,7 @@ Where to Place Your Files
 =========================
 
 To begin using your own player you need to put its definition in a place
-where ``pelitagame`` can find it.
+where ``pelita`` can find it.
 
 Put the definition of your player in a file outside the Pelita source
 code directory, for example in ``/home/student/my_player.py``. Besides
@@ -26,7 +26,7 @@ players into the game.
 To run a game using your players against some predefined players in
 Pelita you can run ::
 
-       $ ~/pelita/pelitagame /home/student/my_player.py FoodEatingPlayer,SmartRandomPlayer
+       $ pelita /home/student/my_player.py FoodEatingPlayer,SmartRandomPlayer
 
 This setup is fine for small tests, but if you plan to have a more
 complicated directory structure, for example to load additional
@@ -41,7 +41,7 @@ For testing purposes it may be useful to use small hand-crafted maze
 layouts instead of the default big ones. You can easily define your
 own layout in a file and load it into the game with::
 
-   $ ~/pelita/pelitagame --layoutfile my_test_layout.txt /home/student/my_player.py FoodEatingPlayer,SmartRandomPlayer
+   $ pelita --layoutfile my_test_layout.txt /home/student/my_player.py FoodEatingPlayer,SmartRandomPlayer
 
 A layout file looks like this:
 
@@ -117,17 +117,17 @@ as it was done in ``__init__.py`` above, which will return your actual team.
 Also, for a module, you would not reference the Python file but only the
 module itself::
 
-    $ ~/pelita/pelitagame /home/student/groupN/ FoodEatingPlayer,SmartRandomPlayer
+    $ pelita /home/student/groupN/ FoodEatingPlayer,SmartRandomPlayer
 
 or, if you would be using a differently named factory method::
 
-    $ ~/pelita/pelitagame /home/student/groupN/:second_factory FoodEatingPlayer,SmartRandomPlayer
+    $ pelita /home/student/groupN/:second_factory FoodEatingPlayer,SmartRandomPlayer
 
 
 Debugging
 =========
 
-The ``pelitagame`` script runs the client code in a subprocess. When started
+The ``pelita`` script runs the client code in a subprocess. When started
 from a terminal, the client code can be made to interact with user input.
 
 For a start, let us consider a Player which does nothing but call the Python
@@ -140,7 +140,7 @@ debugger for help:
 We want to use this player in our left team and let the server choose a random
 team for the right hand side. Additionally, we disable the timeouts::
 
-    $ ~/pelita/pelitagame --no-timeout DebuggablePlayer
+    $ pelita --no-timeout DebuggablePlayer
 
 We now can interact with the game by manually setting the direction at
 each step::
@@ -166,4 +166,3 @@ each step::
 
     Obviously, mixing two DebuggingPlayers, both waiting on input will lead to
     confusion.
-

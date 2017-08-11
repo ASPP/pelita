@@ -90,10 +90,10 @@ about that later.
 Doing More
 ==========
 
-A slightly more useful example is the `pelita.player.RandomPlayer` which always
+A minimally more useful example is the `pelita.players.RandomPlayer` which always
 selects a move at random from the possible moves:
 
-.. literalinclude:: ../../players/RandomPlayers.py
+.. literalinclude:: ../../pelita/players/RandomPlayers.py
    :pyobject: RandomPlayer
 
 .. warning::
@@ -125,7 +125,7 @@ The next example is the not-quite random player
 ``pelita.player.NQRandomPlayer``.  This one does not move back to the position
 where it was on its last turn and never stops in place:
 
-.. literalinclude:: ../../players/RandomPlayers.py
+.. literalinclude:: ../../pelita/players/RandomPlayers.py
    :pyobject: NQRandomPlayer
 
 Here we can see the use of another convenience method: ``previous_pos`` which
