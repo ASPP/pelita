@@ -69,7 +69,7 @@ The moves are provided by the `pelita.datamodel`, import them with::
 An example of such a player is the trivial `pelita.player.StoppingPlayer`
 which simply returns ``stop``:
 
-.. literalinclude:: ../../pelita/player.py
+.. literalinclude:: ../../pelita/player/base.py
    :pyobject: StoppingPlayer
 
 .. note::
@@ -93,7 +93,7 @@ Doing More
 A minimally more useful example is the `pelita.players.RandomPlayer` which always
 selects a move at random from the possible moves:
 
-.. literalinclude:: ../../pelita/players/RandomPlayers.py
+.. literalinclude:: ../../pelita/player/RandomPlayers.py
    :pyobject: RandomPlayer
 
 .. warning::
@@ -125,7 +125,7 @@ The next example is the not-quite random player
 ``pelita.player.NQRandomPlayer``.  This one does not move back to the position
 where it was on its last turn and never stops in place:
 
-.. literalinclude:: ../../pelita/players/RandomPlayers.py
+.. literalinclude:: ../../pelita/player/RandomPlayers.py
    :pyobject: NQRandomPlayer
 
 Here we can see the use of another convenience method: ``previous_pos`` which
@@ -364,7 +364,7 @@ be of interest to the curious reader.
 Let's take a quick look as the implementation
 of ``current_uni``:
 
-.. literalinclude:: ../../pelita/player.py
+.. literalinclude:: ../../pelita/player/base.py
    :pyobject: AbstractPlayer.current_uni
 
 Importantly we see that the ``AbstractPlayer`` automatically maintains a stack
@@ -373,7 +373,7 @@ As we can see ``current_uni`` is simply the top element of this stack. This
 allows us to access the properties and methods of the ``CTFUniverse``, for
 example look at the implementation of ``legal_moves``:
 
-.. literalinclude:: ../../pelita/player.py
+.. literalinclude:: ../../pelita/player/base.py
    :pyobject: AbstractPlayer.legal_moves
 
 Here we can see that this simply calls the method ``legal_moves(pos)``
@@ -381,12 +381,12 @@ which is provided by ``CTFUniverse``. We also see one of the convenience
 properties used in the ``bfs_food()`` method: ``current_pos`` which returns the
 current position of the bot.  Let's have a look at this:
 
-.. literalinclude:: ../../pelita/player.py
+.. literalinclude:: ../../pelita/player/base.py
    :pyobject: AbstractPlayer.current_pos
 
 We see that this makes use of the ``me`` property which is defined as follows:
 
-.. literalinclude:: ../../pelita/player.py
+.. literalinclude:: ../../pelita/player/base.py
    :pyobject: AbstractPlayer.me
 
 As you can see, ``me`` will simply obtain the ``Bot`` instance controlled by
@@ -398,7 +398,7 @@ wish to do something exotic.
 Lets now have a look at the convenience property ``enemy_food`` Again, this is
 simply forwarded to the ``CTFUniverse`` using ``current_uni``:
 
-.. literalinclude:: ../../pelita/player.py
+.. literalinclude:: ../../pelita/player/base.py
    :pyobject: AbstractPlayer.enemy_food
 
 As with ``legal_moves``, a method from ``CTFUniverse`` is called, namely
@@ -413,7 +413,7 @@ Now that you know about ``universe_states``, ``_index`` and ``current_pos``
 let's have a look at how the ``previous_pos`` property (used in the
 ``NQRandomPlayer``) is implemented:
 
-.. literalinclude:: ../../pelita/player.py
+.. literalinclude:: ../../pelita/player/base.py
    :pyobject: AbstractPlayer.previous_pos
 
 Again, we will make use of ``universe_states``, but this time we will look at
@@ -427,15 +427,15 @@ The ``team`` property uses the ``me`` property to access the bots
 ``team_index`` which it then uses in ``current_uni.teams`` to get the
 respective ``Team`` instance:
 
-.. literalinclude:: ../../pelita/player.py
+.. literalinclude:: ../../pelita/player/base.py
    :pyobject: AbstractPlayer.team
 
 Something similar is achieved for the ``team_border``:
 
-.. literalinclude:: ../../pelita/player.py
+.. literalinclude:: ../../pelita/player/base.py
    :pyobject: AbstractPlayer.team_border
 
 And again for ``enemy_bots``:
 
-.. literalinclude:: ../../pelita/player.py
+.. literalinclude:: ../../pelita/player/base.py
    :pyobject: AbstractPlayer.enemy_bots

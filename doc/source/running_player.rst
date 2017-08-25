@@ -133,7 +133,7 @@ from a terminal, the client code can be made to interact with user input.
 For a start, let us consider a Player which does nothing but call the Python
 debugger for help:
 
-.. literalinclude:: ../../pelita/player.py
+.. literalinclude:: ../../pelita/player/base.py
    :prepend: import pdb
    :pyobject: DebuggablePlayer
 

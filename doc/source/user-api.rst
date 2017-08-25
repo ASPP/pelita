@@ -56,7 +56,7 @@ Example Players
 
     StoppingPlayer
 
-.. currentmodule:: pelita.players
+.. currentmodule:: pelita.player
 
 .. autosummary::
 
