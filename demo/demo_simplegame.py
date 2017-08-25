@@ -21,7 +21,7 @@ when a new process is started.
 
 from pelita.simplesetup import SimpleClient, SimpleServer
 from pelita.player import SimpleTeam
-from players import RandomPlayer, BFSPlayer, BasicDefensePlayer, NQRandomPlayer
+from pelita.player import RandomPlayer, BFSPlayer, BasicDefensePlayer, NQRandomPlayer
 
 if __name__=="__main__":
     layout = """

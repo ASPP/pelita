@@ -6,7 +6,7 @@ This file demonstrates setting up a server and two clients using local connectio
 
 from pelita.simplesetup import SimpleClient, SimpleServer
 from pelita.player import SimpleTeam, StoppingPlayer
-from players import RandomPlayer, BFSPlayer, NQRandomPlayer, BasicDefensePlayer
+from pelita.player import RandomPlayer, BFSPlayer, NQRandomPlayer, BasicDefensePlayer
 
 client = SimpleClient(SimpleTeam("the good ones", NQRandomPlayer(), BFSPlayer()), address="ipc:///tmp/pelita-client1")
 client.autoplay_process()
