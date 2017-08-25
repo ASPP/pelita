@@ -103,7 +103,7 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=['pelita', 'pelita.scripts', 'pelita.ui', 'pelita.utils', 'pelita.players', 'pelita.tournament'],
+    packages=['pelita', 'pelita.scripts', 'pelita.ui', 'pelita.utils', 'pelita.player', 'pelita.tournament'],
 
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment

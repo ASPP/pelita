@@ -1,10 +1,13 @@
 import pytest
 import unittest
 
+import random
+import time
+
+from pelita import datamodel
 from pelita.datamodel import CTFUniverse, east, stop, west
 from pelita.game_master import GameMaster
 from pelita.player import *
-from pelita.players import RandomPlayer
 
 
 class TestAbstractPlayer:

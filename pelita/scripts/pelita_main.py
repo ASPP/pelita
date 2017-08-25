@@ -93,7 +93,7 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
         sys.stdout.flush()
 
 def default_players():
-    from ..players import SANE_PLAYERS
+    from ..player import SANE_PLAYERS
     return sorted(SANE_PLAYERS, key=lambda m: m.__name__)
 
 def start_logging(filename):

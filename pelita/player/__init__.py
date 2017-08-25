@@ -1,4 +1,10 @@
 
+from .base import AbstractTeam, SimpleTeam, AbstractPlayer
+
+from .base import (StoppingPlayer, TestPlayer, SpeakingPlayer,
+                   RoundBasedPlayer, MoveExceptionPlayer, InitialExceptionPlayer,
+                   DebuggablePlayer)
+
 from .RandomPlayers import RandomPlayer, NQRandomPlayer
 from .FoodEatingPlayer import FoodEatingPlayer
 from .SmartEatingPlayer import SmartEatingPlayer
@@ -12,6 +18,3 @@ SANE_PLAYERS = [
     SmartEatingPlayer,
     RandomExplorerPlayer,
     SmartRandomPlayer]
-
-__ALL__ = list(SANE_PLAYERS)
-
