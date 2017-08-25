@@ -143,7 +143,7 @@ setup(
     entry_points={
         'console_scripts': [
             'pelita=pelita.scripts.pelita_main:main',
-            'pelita-tournament=pelita.scripts.pelita_tournament:main [tournament]',
+            'pelita-tournament=pelita.scripts.pelita_tournament:main',
             'pelita-tkviewer=pelita.scripts.pelita_tkviewer:main',
             'pelita-player=pelita.scripts.pelita_player:main',
         ],
