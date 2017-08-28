@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>&lt;no title&gt; &#8212; Pelita 0.9.0.dev documentation</title>
+    <title>Getting started &#8212; Pelita 0.9.0.dev documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -42,24 +42,42 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <p>As of <code class="docutils literal"><span class="pre">v0.2.0-209-ga045248</span></code> the developers and contributors are:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Rike</span><span class="o">-</span><span class="n">Benjamin</span> <span class="n">Schuppner</span>
-<span class="n">Valentin</span> <span class="n">Haenel</span>
-<span class="n">Tiziano</span> <span class="n">Zito</span>
-<span class="n">Zbigniew</span> <span class="n">Jędrzejewski</span><span class="o">-</span><span class="n">Szmek</span>
-<span class="n">Bastian</span> <span class="n">Venthur</span>
-<span class="n">Pietro</span> <span class="n">Berkes</span>
-<span class="n">Nicola</span> <span class="n">Chiapolini</span>
-<span class="n">Pauli</span> <span class="n">Virtanen</span>
-<span class="n">abject</span>
-<span class="n">Christian</span> <span class="n">Steigies</span>
-<span class="n">Sasza</span> <span class="n">Kijek</span>
-<span class="n">Francesc</span> <span class="n">Alted</span>
-<span class="n">Ola</span> <span class="n">Pidde</span>
-<span class="n">Zbigniew</span> <span class="n">Jędrzejewski</span><span class="o">-</span><span class="n">Szmek</span>
-<span class="n">Bartosz</span> <span class="n">Telenczuk</span>
-<span class="n">Anna</span> <span class="n">Chabuda</span>
+  <div class="section" id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>When writing a team, it is useful to follow a standard module layout:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">team</span><span class="o">/</span>
+     <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+     <span class="n">my_player</span><span class="o">.</span><span class="n">py</span>
+     <span class="n">utils</span><span class="o">/</span>
+           <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+     <span class="n">test</span><span class="o">/</span>
+          <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
+</div>
+<p>A module layout can be generated automatically in the current folder with <cite>../… –gen-team</cite>.
+<cite>–gen-team</cite> takes a team name (in quotes) as well as a number of class names to generate templates for the <cite>AbstractPlayer</cite> subclasses.</p>
+<p>In this section, we assume the generator code has been run as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">pelitagame</span> <span class="o">--</span><span class="n">gen</span><span class="o">-</span><span class="n">team</span> <span class="s2">&quot;My team name&quot;</span> <span class="n">Player</span> <span class="n">Player</span>
+</pre></div>
+</div>
+<p>Inside <cite>team/__init__.py</cite> players are required to define a function <cite>factory</cite>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">factory</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">SimpleTeam</span><span class="p">(</span><span class="s2">&quot;My team name&quot;</span><span class="p">,</span> <span class="n">Player</span><span class="p">(),</span> <span class="n">Player</span><span class="p">())</span>
+
+
+
+<span class="k">def</span> <span class="nf">Player</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">():</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">get_move</span><span class="p">():</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Please have a look at the methods in <cite>AbstractPlayer</cite> as to be sure what better not to override in the subclass (or only with calls to <cite>super()</cite>).
+Note, however, that you are free to use <cite>__init__</cite> when instantiating your class.
+That means that you can easily add parameters to your classes.</p>
 </div>
 
 
@@ -117,7 +135,7 @@
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/_contributors.rst.txt"
+      <a href="_sources/getting_started.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

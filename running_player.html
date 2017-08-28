@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Running Players &#8212; Pelita v0.2.0-425-gbc891f8 documentation</title>
+    <title>Running Players &#8212; Pelita 0.9.0.dev documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'v0.2.0-425-gbc891f8',
+        VERSION:     '0.9.0.dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Development" href="development.html" />
@@ -36,7 +36,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -47,12 +47,12 @@
   <div class="section" id="running-players">
 <h1>Running Players<a class="headerlink" href="#running-players" title="Permalink to this headline">¶</a></h1>
 <p>To run a game using your player, you should use the command-line interface:
-<code class="docutils literal"><span class="pre">pelitagame</span></code>. Run it with the <code class="docutils literal"><span class="pre">--help</span></code> option to get a detailed usage
+<code class="docutils literal"><span class="pre">pelita</span></code>. Run it with the <code class="docutils literal"><span class="pre">--help</span></code> option to get a detailed usage
 description.</p>
 <div class="section" id="where-to-place-your-files">
 <h2>Where to Place Your Files<a class="headerlink" href="#where-to-place-your-files" title="Permalink to this headline">¶</a></h2>
 <p>To begin using your own player you need to put its definition in a place
-where <code class="docutils literal"><span class="pre">pelitagame</span></code> can find it.</p>
+where <code class="docutils literal"><span class="pre">pelita</span></code> can find it.</p>
 <p>Put the definition of your player in a file outside the Pelita source
 code directory, for example in <code class="docutils literal"><span class="pre">/home/student/my_player.py</span></code>. Besides
 the definition of your player, this file must contain a factory
@@ -79,7 +79,7 @@ fight between two teams of two bots each):</p>
 players into the game.
 To run a game using your players against some predefined players in
 Pelita you can run</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ ~/pelita/pelitagame /home/student/my_player.py FoodEatingPlayer,SmartRandomPlayer
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pelita /home/student/my_player.py FoodEatingPlayer,SmartRandomPlayer
 </pre></div>
 </div>
 <p>This setup is fine for small tests, but if you plan to have a more
@@ -92,7 +92,7 @@ utilities located in different files, read on to section
 <p>For testing purposes it may be useful to use small hand-crafted maze
 layouts instead of the default big ones. You can easily define your
 own layout in a file and load it into the game with:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ ~/pelita/pelitagame --layoutfile my_test_layout.txt /home/student/my_player.py FoodEatingPlayer,SmartRandomPlayer
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pelita --layoutfile my_test_layout.txt /home/student/my_player.py FoodEatingPlayer,SmartRandomPlayer
 </pre></div>
 </div>
 <p>A layout file looks like this:</p>
@@ -179,7 +179,7 @@ returns a <code class="docutils literal"><span class="pre">SimpleTeam</span></co
 <span class="c1">#</span>
 <span class="c1"># To be used as follows::</span>
 <span class="c1">#</span>
-<span class="c1">#     $ ./pelitagame path_to/groupN/:alternate_factory</span>
+<span class="c1">#     $ pelita path_to/groupN/:alternate_factory</span>
 
 </pre></div>
 </div>
@@ -220,18 +220,18 @@ function, since it will be called once for every game.</p>
 as it was done in <code class="docutils literal"><span class="pre">__init__.py</span></code> above, which will return your actual team.
 Also, for a module, you would not reference the Python file but only the
 module itself:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ ~/pelita/pelitagame /home/student/groupN/ FoodEatingPlayer,SmartRandomPlayer
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pelita /home/student/groupN/ FoodEatingPlayer,SmartRandomPlayer
 </pre></div>
 </div>
 <p>or, if you would be using a differently named factory method:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ ~/pelita/pelitagame /home/student/groupN/:second_factory FoodEatingPlayer,SmartRandomPlayer
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pelita /home/student/groupN/:second_factory FoodEatingPlayer,SmartRandomPlayer
 </pre></div>
 </div>
 </div>
 </div>
 <div class="section" id="debugging">
 <h2>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">pelitagame</span></code> script runs the client code in a subprocess. When started
+<p>The <code class="docutils literal"><span class="pre">pelita</span></code> script runs the client code in a subprocess. When started
 from a terminal, the client code can be made to interact with user input.</p>
 <p>For a start, let us consider a Player which does nothing but call the Python
 debugger for help:</p>
@@ -250,7 +250,7 @@ debugger for help:</p>
 </div>
 <p>We want to use this player in our left team and let the server choose a random
 team for the right hand side. Additionally, we disable the timeouts:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ ~/pelita/pelitagame --no-timeout DebuggablePlayer
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pelita --no-timeout DebuggablePlayer
 </pre></div>
 </div>
 <p>We now can interact with the game by manually setting the direction at
@@ -339,8 +339,8 @@ confusion.</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="_sources/running_player.rst.txt"

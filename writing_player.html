@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Writing a Player &#8212; Pelita v0.2.0-425-gbc891f8 documentation</title>
+    <title>Writing a Player &#8212; Pelita 0.9.0.dev documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'v0.2.0-425-gbc891f8',
+        VERSION:     '0.9.0.dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Running Players" href="running_player.html" />
@@ -36,7 +36,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -67,7 +67,7 @@ homezone of a team and its score.</dd>
 <dd>Data structure that stores the maze or layout, i.e. where walls are.</dd>
 <dt><cite>pelita.game_master.GameMaster</cite>:</dt>
 <dd>Controller object that asks players for moves and updates the <code class="docutils literal"><span class="pre">Universe</span></code>.
-You will never need to interact with this object but it&#8217;s good to know that
+You will never need to interact with this object but it’s good to know that
 this is the central object that coordinates the game.</dd>
 </dl>
 <p>In addition to these classes there are two additional relevant concepts:</p>
@@ -128,7 +128,7 @@ about that later.</p>
 </div>
 <div class="section" id="doing-more">
 <h2>Doing More<a class="headerlink" href="#doing-more" title="Permalink to this headline">¶</a></h2>
-<p>A slightly more useful example is the <cite>pelita.player.RandomPlayer</cite> which always
+<p>A minimally more useful example is the <cite>pelita.players.RandomPlayer</cite> which always
 selects a move at random from the possible moves:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">RandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A player that makes moves at random. &quot;&quot;&quot;</span>
@@ -213,25 +213,25 @@ following example illustrates this for a few positions:</p>
 <td>(1, 0)</td>
 <td>(2, 0)</td>
 <td>(3, 0)</td>
-<td>...</td>
+<td>…</td>
 </tr>
 <tr class="row-even"><td>(0, 1)</td>
 <td>(1, 1)</td>
 <td>(2, 1)</td>
 <td>(3, 1)</td>
-<td>...</td>
+<td>…</td>
 </tr>
 <tr class="row-odd"><td>(0, 2)</td>
 <td>(1, 2)</td>
 <td>(2, 2)</td>
 <td>(3, 2)</td>
-<td>...</td>
+<td>…</td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
 </tr>
 </tbody>
 </table>
@@ -296,14 +296,14 @@ and distances in <cite>pelita.graph</cite>:</p>
 <p>Lastly, we are going to see some error recovery code in the
 <code class="docutils literal"><span class="pre">get_move()</span></code> method.</p>
 <p>As it happens, an offensive player can get killed every now and then. In
-order to detect this, it&#8217;s best to compare the current position with its
+order to detect this, it’s best to compare the current position with its
 initial position using the <code class="docutils literal"><span class="pre">initial_pos</span></code> convenience property, since this is
 where it will respawn. Alternatively, it is also possible to keep track of the
 timeouts using <code class="docutils literal"><span class="pre">self.current_state[&quot;timeout_teams&quot;]</span></code>, which holds the
 number of timeouts each team has already used up.</p>
 <p>Your player only has a limited time to return from <code class="docutils literal"><span class="pre">get_move()</span></code>. The default
 is approximately three seconds. If your player does not respond in time, the
-<code class="docutils literal"><span class="pre">GameMaster</span></code> will move the bot at random for this turn. It&#8217;s important to
+<code class="docutils literal"><span class="pre">GameMaster</span></code> will move the bot at random for this turn. It’s important to
 recover from such an event.</p>
 <p>The main problem with detecting a timeout is that, as long as your
 computationally expensive process is running, there is no way to interrupt it.
@@ -381,7 +381,7 @@ our universe.:</p>
 <p class="last">This checks whether a coordinate is valid.</p>
 </div>
 <p>Players may use an adjacency list representation provided by
-<code class="docutils literal"><span class="pre">pelita.graph.AdjacencyList</span></code>. Let&#8217;s have a quick look at how this is
+<code class="docutils literal"><span class="pre">pelita.graph.AdjacencyList</span></code>. Let’s have a quick look at how this is
 generated, in case you would like to implement your own <a class="reference external" href="https://en.wikipedia.org/wiki/Graph_(data_structure)">graph storage</a> or leverage an
 alternative existing package such as <a class="reference external" href="https://networkx.github.io">NetworkX</a>.</p>
 <p>In order to obtain the positions of all free spaces, the
@@ -418,9 +418,10 @@ game situation in that a bot may show as sitting upon a food item without eating
 <p>This section contains some details about the implementation of the convenience
 properties of <code class="docutils literal"><span class="pre">AbstractPlayer</span></code>. Reading this section is not required, but may
 be of interest to the curious reader.</p>
-<p>Let&#8217;s take a quick look as the implementation
+<p>Let’s take a quick look as the implementation
 of <code class="docutils literal"><span class="pre">current_uni</span></code>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">current_uni</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">current_uni</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The current Universe.</span>
 
 <span class="sd">        Returns</span>
@@ -437,7 +438,8 @@ of previous states of the Universe called <code class="docutils literal"><span c
 As we can see <code class="docutils literal"><span class="pre">current_uni</span></code> is simply the top element of this stack. This
 allows us to access the properties and methods of the <code class="docutils literal"><span class="pre">CTFUniverse</span></code>, for
 example look at the implementation of <code class="docutils literal"><span class="pre">legal_moves</span></code>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">legal_moves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">legal_moves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The currently possible moves, and where they lead.</span>
 
 <span class="sd">        Returns</span>
@@ -451,8 +453,9 @@ example look at the implementation of <code class="docutils literal"><span class
 <p>Here we can see that this simply calls the method <code class="docutils literal"><span class="pre">legal_moves(pos)</span></code>
 which is provided by <code class="docutils literal"><span class="pre">CTFUniverse</span></code>. We also see one of the convenience
 properties used in the <code class="docutils literal"><span class="pre">bfs_food()</span></code> method: <code class="docutils literal"><span class="pre">current_pos</span></code> which returns the
-current position of the bot.  Let&#8217;s have a look at this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">current_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+current position of the bot.  Let’s have a look at this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">current_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The current position of this bot.</span>
 
 <span class="sd">        Returns</span>
@@ -464,7 +467,8 @@ current position of the bot.  Let&#8217;s have a look at this:</p>
 </pre></div>
 </div>
 <p>We see that this makes use of the <code class="docutils literal"><span class="pre">me</span></code> property which is defined as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">me</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">me</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The Bot object this Player controls.</span>
 
 <span class="sd">        Returns</span>
@@ -479,11 +483,12 @@ current position of the bot.  Let&#8217;s have a look at this:</p>
 <p>As you can see, <code class="docutils literal"><span class="pre">me</span></code> will simply obtain the <code class="docutils literal"><span class="pre">Bot</span></code> instance controlled by
 this player from the current universe using the hidden <code class="docutils literal"><span class="pre">_index</span></code> attribute of
 the player. In practice, you should be able to avoid having to use the
-<code class="docutils literal"><span class="pre">_index</span></code> directly but it&#8217;s good to know how this is implemented in case you
+<code class="docutils literal"><span class="pre">_index</span></code> directly but it’s good to know how this is implemented in case you
 wish to do something exotic.</p>
 <p>Lets now have a look at the convenience property <code class="docutils literal"><span class="pre">enemy_food</span></code> Again, this is
 simply forwarded to the <code class="docutils literal"><span class="pre">CTFUniverse</span></code> using <code class="docutils literal"><span class="pre">current_uni</span></code>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">enemy_food</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">enemy_food</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Food owned by the enemy which can be eaten by this Player&#39;s bot.</span>
 
 <span class="sd">        Please note that it is valid for this list to be empty during get_move.</span>
@@ -505,9 +510,10 @@ the <code class="docutils literal"><span class="pre">CTFUniverse</span></code> s
 the <code class="docutils literal"><span class="pre">AbstractPlayer</span></code>. However, if these do not suffice, please have a look
 at the source code.</p>
 <p>Now that you know about <code class="docutils literal"><span class="pre">universe_states</span></code>, <code class="docutils literal"><span class="pre">_index</span></code> and <code class="docutils literal"><span class="pre">current_pos</span></code>
-let&#8217;s have a look at how the <code class="docutils literal"><span class="pre">previous_pos</span></code> property (used in the
+let’s have a look at how the <code class="docutils literal"><span class="pre">previous_pos</span></code> property (used in the
 <code class="docutils literal"><span class="pre">NQRandomPlayer</span></code>) is implemented:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">previous_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">previous_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The previous position of the bot.</span>
 
 <span class="sd">        Returns</span>
@@ -527,7 +533,8 @@ obtain its previous position.</p>
 <p>The <code class="docutils literal"><span class="pre">team</span></code> property uses the <code class="docutils literal"><span class="pre">me</span></code> property to access the bots
 <code class="docutils literal"><span class="pre">team_index</span></code> which it then uses in <code class="docutils literal"><span class="pre">current_uni.teams</span></code> to get the
 respective <code class="docutils literal"><span class="pre">Team</span></code> instance:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">team</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">team</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The Team object this Player&#39;s Bot is on.</span>
 
 <span class="sd">        Returns</span>
@@ -540,7 +547,8 @@ respective <code class="docutils literal"><span class="pre">Team</span></code> i
 </pre></div>
 </div>
 <p>Something similar is achieved for the <code class="docutils literal"><span class="pre">team_border</span></code>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">team_border</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">team_border</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Positions of the border positions.</span>
 <span class="sd">        These are the last positions in the zone of the team.</span>
 
@@ -554,7 +562,8 @@ respective <code class="docutils literal"><span class="pre">Team</span></code> i
 </pre></div>
 </div>
 <p>And again for <code class="docutils literal"><span class="pre">enemy_bots</span></code>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">enemy_bots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">enemy_bots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; A list of enemy Bots.</span>
 
 <span class="sd">        Returns</span>
@@ -632,8 +641,8 @@ respective <code class="docutils literal"><span class="pre">Team</span></code> i
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="_sources/writing_player.rst.txt"

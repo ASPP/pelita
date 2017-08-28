@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.graph &#8212; Pelita v0.2.0-425-gbc891f8 documentation</title>
+    <title>pelita.graph &#8212; Pelita 0.9.0.dev documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-425-gbc891f8',
+        VERSION:     '0.9.0.dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="pelita.layout" href="pelita.layout.html" />
@@ -36,7 +36,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -78,9 +78,6 @@
 <tr class="row-odd"><td><a class="reference internal" href="#pelita.graph.AdjacencyList" title="pelita.graph.AdjacencyList"><code class="xref py py-obj docutils literal"><span class="pre">AdjacencyList</span></code></a>(adjacencies)</td>
 <td>Adjacency list [1] representation of a Maze.</td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">deque</span></code></td>
-<td>deque([iterable[, maxlen]]) &#8211;&gt; deque object</td>
-</tr>
 </tbody>
 </table>
 <p class="rubric">Exceptions</p>
@@ -116,12 +113,12 @@ Algorithm here is partially taken from [2] and inlined for speed.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>initial</strong> (<em></em><em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the initial position</li>
-<li><strong>target</strong> (<em></em><em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the target position</li>
+<li><strong>initial</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the initial position</li>
+<li><strong>target</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the target position</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>path</strong> &#8211; one of the the shortest paths from <cite>initial</cite> to the closest <cite>target</cite>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>path</strong> – one of the the shortest paths from <cite>initial</cite> to the closest <cite>target</cite>
 (excluding the <cite>initial</cite> position itself)</p>
 </td>
 </tr>
@@ -129,7 +126,7 @@ Algorithm here is partially taken from [2] and inlined for speed.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal"><span class="pre">NoPathException</span></code> &#8211; if no path from <cite>initial</cite> to one of <cite>targets</cite></li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">NoPathException</span></code> – if no path from <cite>initial</cite> to one of <cite>targets</cite></li>
 <li>[1] <a class="reference external" href="http://en.wikipedia.org/wiki/A*_search_algorithm">http://en.wikipedia.org/wiki/A*_search_algorithm</a></li>
 <li>[2] <a class="reference external" href="http://www.redblobgames.com/pathfinding/a-star/implementation.html#python">http://www.redblobgames.com/pathfinding/a-star/implementation.html#python</a></li>
 </ul>
@@ -151,20 +148,20 @@ position in <cite>targets</cite>.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>initial</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the first position</li>
-<li><strong>targets</strong> (<em>list of tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the target positions</li>
+<li><strong>initial</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the first position</li>
+<li><strong>targets</strong> (<em>list of tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the target positions</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>path</strong> &#8211; the path from <cite>initial</cite> to the closest <cite>target</cite></p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>path</strong> – the path from <cite>initial</cite> to the closest <cite>target</cite></p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">lits of tuple of (int, int)</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal"><span class="pre">NoPathException</span></code> &#8211; if no path from <cite>initial</cite> to one of <cite>targets</cite></li>
-<li><code class="xref py py-exc docutils literal"><span class="pre">NoPositionException</span></code> &#8211; if either <cite>initial</cite> or <cite>targets</cite> does not exist</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">NoPathException</span></code> – if no path from <cite>initial</cite> to one of <cite>targets</cite></li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">NoPositionException</span></code> – if either <cite>initial</cite> or <cite>targets</cite> does not exist</li>
 <li>[1] <a class="reference external" href="http://en.wikipedia.org/wiki/Breadth-first_search">http://en.wikipedia.org/wiki/Breadth-first_search</a></li>
 </ul>
 </td>
@@ -185,18 +182,18 @@ case.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>position</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the first position</li>
-<li><strong>distance</strong> (<em>int</em>) &#8211; the distance in maze space</li>
+<li><strong>position</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the first position</li>
+<li><strong>distance</strong> (<em>int</em>) – the distance in maze space</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>pos_within</strong> &#8211; the positions within the given distance</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>pos_within</strong> – the positions within the given distance</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">set of tuple of (int, int)</p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">NoPathException</span></code> &#8211; if <cite>position</cite> does not exist in the adjacency list</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">NoPathException</span></code> – if <cite>position</cite> does not exist in the adjacency list</p>
 </td>
 </tr>
 </tbody>
@@ -216,12 +213,12 @@ case.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>initial</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the starting position</li>
-<li><strong>target</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the target position</li>
+<li><strong>initial</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the starting position</li>
+<li><strong>target</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the target position</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>move</strong> &#8211; the resulting move</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>move</strong> – the resulting move</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple of (int, int)</p>
@@ -243,12 +240,12 @@ neighbours.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>initial</strong> (<em>list</em><em>(</em><em>pos</em><em>)</em><em></em>) &#8211; List of initial positions</li>
-<li><strong>adjacencies_from_pos</strong> (<em>callable</em>) &#8211; Given a position, this function should return all reachable positions.</li>
+<li><strong>initial</strong> (<em>list</em><em>(</em><em>pos</em><em>)</em>) – List of initial positions</li>
+<li><strong>adjacencies_from_pos</strong> (<em>callable</em>) – Given a position, this function should return all reachable positions.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>adjacency_list</strong> &#8211; Generator which contains all reachable positions and their adjacencies</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>adjacency_list</strong> – Generator which contains all reachable positions and their adjacencies</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">generator of (pos, list(pos))</p>
@@ -267,12 +264,12 @@ neighbours.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>pos1</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the first position</li>
-<li><strong>pos2</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; the second position</li>
+<li><strong>pos1</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the first position</li>
+<li><strong>pos2</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the second position</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>manhattan_dist</strong> &#8211; Manhattan distance between two points</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>manhattan_dist</strong> – Manhattan distance between two points</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
@@ -291,12 +288,12 @@ neighbours.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>position</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em>) &#8211; current position</li>
-<li><strong>move</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em>) &#8211; direction vector</li>
+<li><strong>position</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em>) – current position</li>
+<li><strong>move</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em>) – direction vector</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>move_pos</strong> &#8211; new position coordinates</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>move_pos</strong> – new position coordinates</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple of int (x, y)</p>
@@ -373,8 +370,8 @@ neighbours.</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="../_sources/pelita/pelita.graph.rst.txt"

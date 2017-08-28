@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.simplesetup &#8212; Pelita v0.2.0-425-gbc891f8 documentation</title>
+    <title>pelita.simplesetup &#8212; Pelita 0.9.0.dev documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-425-gbc891f8',
+        VERSION:     '0.9.0.dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="pelita.ui" href="pelita.ui.html" />
@@ -36,7 +36,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -85,34 +85,25 @@ re-investigate this decision.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">AbstractViewer</span></code></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">CTFUniverse</span></code>(maze,&nbsp;food,&nbsp;teams,&nbsp;bots)</td>
-<td>The Universe: representation of the game state.</td>
-</tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">GameMaster</span></code>(layout,&nbsp;teams,&nbsp;number_bots,&nbsp;game_time)</td>
-<td>Controller of player moves and universe updates.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.RemoteTeamPlayer" title="pelita.simplesetup.RemoteTeamPlayer"><code class="xref py py-obj docutils literal"><span class="pre">RemoteTeamPlayer</span></code></a>(socket)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.RemoteTeamPlayer" title="pelita.simplesetup.RemoteTeamPlayer"><code class="xref py py-obj docutils literal"><span class="pre">RemoteTeamPlayer</span></code></a>(socket)</td>
 <td>This class is registered server-side with the GameMaster</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.SimpleClient" title="pelita.simplesetup.SimpleClient"><code class="xref py py-obj docutils literal"><span class="pre">SimpleClient</span></code></a>(team[,&nbsp;team_name,&nbsp;address])</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.SimpleClient" title="pelita.simplesetup.SimpleClient"><code class="xref py py-obj docutils literal"><span class="pre">SimpleClient</span></code></a>(team[,&nbsp;team_name,&nbsp;address])</td>
 <td>Sets up a simple Client with most settings pre-configured.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.SimpleController" title="pelita.simplesetup.SimpleController"><code class="xref py py-obj docutils literal"><span class="pre">SimpleController</span></code></a>(game_master,&nbsp;address[,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.SimpleController" title="pelita.simplesetup.SimpleController"><code class="xref py py-obj docutils literal"><span class="pre">SimpleController</span></code></a>(game_master,&nbsp;address[,&nbsp;…])</td>
 <td>Sets up a simple Controller to interact with GameMaster.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.SimplePublisher" title="pelita.simplesetup.SimplePublisher"><code class="xref py py-obj docutils literal"><span class="pre">SimplePublisher</span></code></a>(address)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.SimplePublisher" title="pelita.simplesetup.SimplePublisher"><code class="xref py py-obj docutils literal"><span class="pre">SimplePublisher</span></code></a>(address)</td>
 <td>Sets up a simple Publisher which sends all viewed events over a zmq connection.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.SimpleServer" title="pelita.simplesetup.SimpleServer"><code class="xref py py-obj docutils literal"><span class="pre">SimpleServer</span></code></a>(layout_string[,&nbsp;teams,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.SimpleServer" title="pelita.simplesetup.SimpleServer"><code class="xref py py-obj docutils literal"><span class="pre">SimpleServer</span></code></a>(layout_string[,&nbsp;teams,&nbsp;…])</td>
 <td>Sets up a simple Server with most settings pre-configured.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.SimpleSubscriber" title="pelita.simplesetup.SimpleSubscriber"><code class="xref py py-obj docutils literal"><span class="pre">SimpleSubscriber</span></code></a>(viewer,&nbsp;address)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.SimpleSubscriber" title="pelita.simplesetup.SimpleSubscriber"><code class="xref py py-obj docutils literal"><span class="pre">SimpleSubscriber</span></code></a>(viewer,&nbsp;address)</td>
 <td>Subscribes to a given zmq socket and passes all incoming data to a viewer.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.ZMQConnection" title="pelita.simplesetup.ZMQConnection"><code class="xref py py-obj docutils literal"><span class="pre">ZMQConnection</span></code></a>(socket)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.ZMQConnection" title="pelita.simplesetup.ZMQConnection"><code class="xref py py-obj docutils literal"><span class="pre">ZMQConnection</span></code></a>(socket)</td>
 <td>This class is supposed to ease request–reply connections through a zmq socket.</td>
 </tr>
 </tbody>
@@ -129,12 +120,6 @@ re-investigate this decision.</p>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pelita.simplesetup.ExitLoop" title="pelita.simplesetup.ExitLoop"><code class="xref py py-obj docutils literal"><span class="pre">ExitLoop</span></code></a></td>
 <td>If this is raised, we’ll close the inner loop.</td>
-</tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">PlayerDisconnected</span></code></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">PlayerTimeout</span></code></td>
-<td></td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pelita.simplesetup.UnknownMessageId" title="pelita.simplesetup.UnknownMessageId"><code class="xref py py-obj docutils literal"><span class="pre">UnknownMessageId</span></code></a></td>
 <td>Is raised when a reply arrives with unexpected id.</td>
@@ -176,7 +161,7 @@ a client player has connected.)</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>socket</strong> (<em>zmq socket</em>) &#8211; The zmq socket of this connection</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>socket</strong> (<em>zmq socket</em>) – The zmq socket of this connection</td>
 </tr>
 </tbody>
 </table>
@@ -184,11 +169,11 @@ a client player has connected.)</p>
 
 <dl class="class">
 <dt id="pelita.simplesetup.SimpleClient">
-<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">SimpleClient</code><span class="sig-paren">(</span><em>team</em>, <em>team_name=''</em>, <em>address=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#SimpleClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.SimpleClient" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">SimpleClient</code><span class="sig-paren">(</span><em>team</em>, <em>team_name=’‘</em>, <em>address=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#SimpleClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.SimpleClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Sets up a simple Client with most settings pre-configured.</p>
 <p class="rubric">Example</p>
-<p>client = SimpleClient(SimpleTeam(&#8220;the good ones&#8221;, BFSPlayer(), NQRandomPlayer()))
+<p>client = SimpleClient(SimpleTeam(“the good ones”, BFSPlayer(), NQRandomPlayer()))
 client.run() # runs in the same thread / process</p>
 <p>client.autoplay_process() # runs in a background process</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -196,9 +181,9 @@ client.run() # runs in the same thread / process</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>team</strong> (<em>PlayerTeam</em>) &#8211; A Player which defines the algorithms for each Bot.</li>
-<li><strong>team_name</strong> (<em>string</em>) &#8211; The name of the team. (optional, if not defined in team)</li>
-<li><strong>address</strong> (<em>string</em>) &#8211; The address which the client has to connect to.</li>
+<li><strong>team</strong> (<em>PlayerTeam</em>) – A Player which defines the algorithms for each Bot.</li>
+<li><strong>team_name</strong> (<em>string</em>) – The name of the team. (optional, if not defined in team)</li>
+<li><strong>address</strong> (<em>string</em>) – The address which the client has to connect to.</li>
 </ul>
 </td>
 </tr>
@@ -223,7 +208,7 @@ over a zmq connection.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>address</strong> (<em>string</em>) &#8211; The address which the publisher binds.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>address</strong> (<em>string</em>) – The address which the publisher binds.</td>
 </tr>
 </tbody>
 </table>
@@ -245,21 +230,21 @@ over a zmq connection.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>layout_string</strong> (<em>string</em>) &#8211; initial layout as string</li>
-<li><strong>teams</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; The number of Teams used in the layout. Default: 2.</li>
-<li><strong>players</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; The number of Players/Bots used in the layout. Default: 4.</li>
-<li><strong>rounds</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; The number of rounds played. Default: 3000.</li>
-<li><strong>bind_addrs</strong> (<em>list of strings</em><em>, </em><em>optional</em>) &#8211; The address(es) which this server uses for its connections.
-Defaults to [&#8220;<a class="reference external" href="tcp://">tcp://</a><a href="#id1"><span class="problematic" id="id2">*</span></a>&#8220;] * teams, if not given.</li>
-<li><strong>initial_delay</strong> (<em>float</em>) &#8211; Delays the start of the game by <cite>initial_delay</cite> seconds.</li>
-<li><strong>layout_name</strong> (<em>string</em><em>, </em><em>optional</em>) &#8211; The name of the given layout string.</li>
-<li><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; The initial seed to be passed to GameMaster.</li>
+<li><strong>layout_string</strong> (<em>string</em>) – initial layout as string</li>
+<li><strong>teams</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of Teams used in the layout. Default: 2.</li>
+<li><strong>players</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of Players/Bots used in the layout. Default: 4.</li>
+<li><strong>rounds</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of rounds played. Default: 3000.</li>
+<li><strong>bind_addrs</strong> (<em>list of strings</em><em>, </em><em>optional</em>) – The address(es) which this server uses for its connections.
+Defaults to [“<a class="reference external" href="tcp://">tcp://</a><a href="#id1"><span class="problematic" id="id2">*</span></a>”] * teams, if not given.</li>
+<li><strong>initial_delay</strong> (<em>float</em>) – Delays the start of the game by <cite>initial_delay</cite> seconds.</li>
+<li><strong>layout_name</strong> (<em>string</em><em>, </em><em>optional</em>) – The name of the given layout string.</li>
+<li><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – The initial seed to be passed to GameMaster.</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li>ValueError: &#8211; if more than one layout keyword is specified</li>
-<li>IOError: &#8211; if layout_file was given, but file does not exist</li>
+<li>ValueError: – if more than one layout keyword is specified</li>
+<li>IOError: – if layout_file was given, but file does not exist</li>
 </ul>
 </td>
 </tr>
@@ -309,8 +294,8 @@ all incoming data to a viewer.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>viewer</strong> (<em>Viewer</em>) &#8211; Viewer with AbstractPlayer-like interface</li>
-<li><strong>address</strong> (<em>string</em>) &#8211; The address of the publisher we want to subscribe to.</li>
+<li><strong>viewer</strong> (<em>Viewer</em>) – Viewer with AbstractPlayer-like interface</li>
+<li><strong>address</strong> (<em>string</em>) – The address of the publisher we want to subscribe to.</li>
 </ul>
 </td>
 </tr>
@@ -348,14 +333,14 @@ uuids are discarded.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>socket</strong> (<em>zmq socket</em>) &#8211; The zmq socket of this connection</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>socket</strong> (<em>zmq socket</em>) – The zmq socket of this connection</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
-<li><strong>socket</strong> (<em>zmq socket</em>) &#8211; The zmq socket of this connection</li>
-<li><strong>pollin</strong> (<em>zmq poller</em>) &#8211; Poller for incoming connections</li>
-<li><strong>pollout</strong> (<em>zmq poller</em>) &#8211; Poller for outgoing connections</li>
-<li><strong>last_uuid</strong> (<em>uuid</em>) &#8211; Uuid which the next incoming message has to match</li>
+<li><strong>socket</strong> (<em>zmq socket</em>) – The zmq socket of this connection</li>
+<li><strong>pollin</strong> (<em>zmq poller</em>) – Poller for incoming connections</li>
+<li><strong>pollout</strong> (<em>zmq poller</em>) – Poller for outgoing connections</li>
+<li><strong>last_uuid</strong> (<em>uuid</em>) – Uuid which the next incoming message has to match</li>
 </ul>
 </td>
 </tr>
@@ -444,8 +429,8 @@ uuids are discarded.</li>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="../_sources/pelita/pelita.simplesetup.rst.txt"

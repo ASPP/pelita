@@ -1,5 +1,5 @@
-pelita.datamodel
-================
+pelita\.datamodel
+=================
 
 .. automodule:: pelita.datamodel
 
@@ -11,8 +11,6 @@ pelita.datamodel
    
       create_maze
       extract_initial_positions
-      iter_adjacencies
-      move_pos
    
    
 
@@ -24,9 +22,7 @@ pelita.datamodel
    
       Bot
       CTFUniverse
-      Layout
       Maze
-      Mesh
       Team
    
    

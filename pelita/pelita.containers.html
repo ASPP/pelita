@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.containers &#8212; Pelita v0.2.0-425-gbc891f8 documentation</title>
+    <title>pelita.containers &#8212; Pelita 0.9.0.dev documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-425-gbc891f8',
+        VERSION:     '0.9.0.dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="pelita.datamodel" href="pelita.datamodel.html" />
@@ -36,7 +36,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -54,10 +54,7 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">Mapping</span></code></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.containers.Mesh" title="pelita.containers.Mesh"><code class="xref py py-obj docutils literal"><span class="pre">Mesh</span></code></a>(width,&nbsp;height[,&nbsp;data])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.containers.Mesh" title="pelita.containers.Mesh"><code class="xref py py-obj docutils literal"><span class="pre">Mesh</span></code></a>(width,&nbsp;height[,&nbsp;data])</td>
 <td>A mapping from a two-dimensional coordinate system into object space.</td>
 </tr>
 </tbody>
@@ -77,15 +74,15 @@ matrixy style.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>width</strong> (<em>int</em>) &#8211; desired width for Mesh</li>
-<li><strong>height</strong> (<em>int</em>) &#8211; desired height for Mesh</li>
-<li><strong>data</strong> (<em>list</em><em>, </em><em>optional</em>) &#8211; If given, will try to set this as contents, using the width and height.
+<li><strong>width</strong> (<em>int</em>) – desired width for Mesh</li>
+<li><strong>height</strong> (<em>int</em>) – desired height for Mesh</li>
+<li><strong>data</strong> (<em>list</em><em>, </em><em>optional</em>) – If given, will try to set this as contents, using the width and height.
 May raise a <cite>ValueError</cite> or a <cite>TypeError</cite>, see <cite>_set_data()</cite> for
 details.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pelita.containers.Mesh.shape" title="pelita.containers.Mesh.shape"><strong>shape</strong></a> (<em></em><em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; tuple of width and height</p>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pelita.containers.Mesh.shape" title="pelita.containers.Mesh.shape"><strong>shape</strong></a> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – tuple of width and height</p>
 </td>
 </tr>
 </tbody>
@@ -162,7 +159,7 @@ for details.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>compact</strong> &#8211; compact string representation</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>compact</strong> – compact string representation</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
 </tr>
@@ -178,7 +175,7 @@ for details.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>shape</strong> &#8211; shape of the Mesh</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>shape</strong> – shape of the Mesh</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">tuple of (int, int)</td>
 </tr>
@@ -255,8 +252,8 @@ for details.</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="../_sources/pelita/pelita.containers.rst.txt"

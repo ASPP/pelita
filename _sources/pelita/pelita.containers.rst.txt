@@ -1,5 +1,5 @@
-pelita.containers
-=================
+pelita\.containers
+==================
 
 .. automodule:: pelita.containers
 
@@ -13,7 +13,6 @@ pelita.containers
 
    .. autosummary::
    
-      Mapping
       Mesh
    
    

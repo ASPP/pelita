@@ -1,15 +1,9 @@
-pelita.game_master
-==================
+pelita\.game\_master
+====================
 
 .. automodule:: pelita.game_master
 
    
-   
-   .. rubric:: Functions
-
-   .. autosummary::
-   
-      manhattan_dist
    
    
 
@@ -19,9 +13,6 @@ pelita.game_master
 
    .. autosummary::
    
-      AdjacencyList
-      Bot
-      CTFUniverse
       GameMaster
       ManhattanNoiser
       UniverseNoiser
@@ -35,7 +26,6 @@ pelita.game_master
    .. autosummary::
    
       GameFinished
-      NoPathException
       PlayerDisconnected
       PlayerTimeout
    

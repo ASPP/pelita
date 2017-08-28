@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.datamodel &#8212; Pelita v0.2.0-425-gbc891f8 documentation</title>
+    <title>pelita.datamodel &#8212; Pelita 0.9.0.dev documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-425-gbc891f8',
+        VERSION:     '0.9.0.dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="pelita.game_master" href="pelita.game_master.html" />
@@ -36,7 +36,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -60,12 +60,6 @@
 <tr class="row-even"><td><a class="reference internal" href="#pelita.datamodel.extract_initial_positions" title="pelita.datamodel.extract_initial_positions"><code class="xref py py-obj docutils literal"><span class="pre">extract_initial_positions</span></code></a>(mesh,&nbsp;number_bots)</td>
 <td>Extract initial positions from mesh.</td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">iter_adjacencies</span></code>(initial,&nbsp;adjacencies_for_pos)</td>
-<td>Returns an adjacency list starting at the initial positions.</td>
-</tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">move_pos</span></code>(position,&nbsp;move)</td>
-<td>Adds a position tuple and a move tuple.</td>
-</tr>
 </tbody>
 </table>
 <p class="rubric">Classes</p>
@@ -81,14 +75,8 @@
 <tr class="row-even"><td><a class="reference internal" href="#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><code class="xref py py-obj docutils literal"><span class="pre">CTFUniverse</span></code></a>(maze,&nbsp;food,&nbsp;teams,&nbsp;bots)</td>
 <td>The Universe: representation of the game state.</td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">Layout</span></code>(layout_str,&nbsp;layout_chars,&nbsp;number_bots)</td>
-<td>Auxiliary class to parse string encodings of mazes.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.datamodel.Maze" title="pelita.datamodel.Maze"><code class="xref py py-obj docutils literal"><span class="pre">Maze</span></code></a>(width,&nbsp;height[,&nbsp;data])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.datamodel.Maze" title="pelita.datamodel.Maze"><code class="xref py py-obj docutils literal"><span class="pre">Maze</span></code></a>(width,&nbsp;height[,&nbsp;data])</td>
 <td>The <cite>Maze</cite> object holds the walls of the universe.</td>
-</tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">Mesh</span></code>(width,&nbsp;height[,&nbsp;data])</td>
-<td>A mapping from a two-dimensional coordinate system into object space.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pelita.datamodel.Team" title="pelita.datamodel.Team"><code class="xref py py-obj docutils literal"><span class="pre">Team</span></code></a>(index,&nbsp;zone[,&nbsp;score])</td>
 <td>A team of bots.</td>
@@ -120,20 +108,20 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>index</strong> (<em>int</em>) &#8211; the index of this bot within the Universe</li>
-<li><strong>initial_pos</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em>) &#8211; the initial position for this bot</li>
-<li><strong>team_index</strong> (<em>int</em>) &#8211; the index of the team that this bot is on</li>
-<li><strong>homezone</strong> (<em>tuple of int</em><em> (</em><em>x_min</em><em>, </em><em>x_max</em><em>)</em><em></em>) &#8211; the homezone of this team</li>
-<li><strong>current_pos</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em><em>, </em><em>optional</em>) &#8211; the current position of this bot
+<li><strong>index</strong> (<em>int</em>) – the index of this bot within the Universe</li>
+<li><strong>initial_pos</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em>) – the initial position for this bot</li>
+<li><strong>team_index</strong> (<em>int</em>) – the index of the team that this bot is on</li>
+<li><strong>homezone</strong> (<em>tuple of int</em><em> (</em><em>x_min</em><em>, </em><em>x_max</em><em>)</em>) – the homezone of this team</li>
+<li><strong>current_pos</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em>, </em><em>optional</em>) – the current position of this bot
 default = None (will be set to initial_pos)</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
-<li><strong>in_own_zone</strong> (<em>boolean</em><em>, </em><em>property</em>) &#8211; True if in its own homezone and False otherwise</li>
-<li><strong>is_destroyer</strong> (<em>boolean</em><em>, </em><em>property</em>) &#8211; True if a destroyer, False otherwise</li>
-<li><strong>is_harvester</strong> (<em>boolean</em><em>, </em><em>property</em>) &#8211; not is_destroyer</li>
-<li><strong>noisy</strong> (<em>boolean</em>) &#8211; True if the position is noisy, False if it is exact</li>
+<li><strong>in_own_zone</strong> (<em>boolean</em><em>, </em><em>property</em>) – True if in its own homezone and False otherwise</li>
+<li><strong>is_destroyer</strong> (<em>boolean</em><em>, </em><em>property</em>) – True if a destroyer, False otherwise</li>
+<li><strong>is_harvester</strong> (<em>boolean</em><em>, </em><em>property</em>) – not is_destroyer</li>
+<li><strong>noisy</strong> (<em>boolean</em>) – True if the position is noisy, False if it is exact</li>
 </ul>
 </td>
 </tr>
@@ -151,15 +139,15 @@ default = None (will be set to initial_pos)</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>maze</strong> (<em>Maze object</em>) &#8211; the maze</li>
-<li><strong>teams</strong> (<em>list of Team objects</em>) &#8211; the teams</li>
-<li><strong>bots</strong> (<em>list of Bot objects</em>) &#8211; the bots</li>
+<li><strong>maze</strong> (<em>Maze object</em>) – the maze</li>
+<li><strong>teams</strong> (<em>list of Team objects</em>) – the teams</li>
+<li><strong>bots</strong> (<em>list of Bot objects</em>) – the bots</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
-<li><a class="reference internal" href="#pelita.datamodel.CTFUniverse.bot_positions" title="pelita.datamodel.CTFUniverse.bot_positions"><strong>bot_positions</strong></a> (<em>list of tuple of ints</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em><em>, </em><em>property</em>) &#8211; the current position of all bots</li>
-<li><a class="reference internal" href="#pelita.datamodel.CTFUniverse.food_list" title="pelita.datamodel.CTFUniverse.food_list"><strong>food_list</strong></a> (<em>list of tuple of ints</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em><em>, </em><em>property</em>) &#8211; the positions of all edible food</li>
+<li><a class="reference internal" href="#pelita.datamodel.CTFUniverse.bot_positions" title="pelita.datamodel.CTFUniverse.bot_positions"><strong>bot_positions</strong></a> (<em>list of tuple of ints</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em>, </em><em>property</em>) – the current position of all bots</li>
+<li><a class="reference internal" href="#pelita.datamodel.CTFUniverse.food_list" title="pelita.datamodel.CTFUniverse.food_list"><strong>food_list</strong></a> (<em>list of tuple of ints</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em>, </em><em>property</em>) – the positions of all edible food</li>
 </ul>
 </td>
 </tr>
@@ -179,7 +167,7 @@ default = None (will be set to initial_pos)</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>bot_positions</strong> &#8211; the positions of all bots</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>bot_positions</strong> – the positions of all bots</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of tuple of (int, int)</td>
 </tr>
@@ -196,14 +184,14 @@ default = None (will be set to initial_pos)</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>layout_str</strong> (<em>str</em>) &#8211; the string encoding the maze layout</li>
-<li><strong>number_bots</strong> (<em>int</em>) &#8211; the number of bots in the game</li>
+<li><strong>layout_str</strong> (<em>str</em>) – the string encoding the maze layout</li>
+<li><strong>number_bots</strong> (<em>int</em>) – the number of bots in the game</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><a class="reference internal" href="#pelita.datamodel.UniverseException" title="pelita.datamodel.UniverseException"><code class="xref py py-exc docutils literal"><span class="pre">UniverseException</span></code></a> &#8211; if the number of bots or layout width are odd</li>
-<li><code class="xref py py-exc docutils literal"><span class="pre">LayoutEncodingException</span></code> &#8211; if there is something wrong with the layout_str, see <cite>Layout()</cite></li>
+<li><a class="reference internal" href="#pelita.datamodel.UniverseException" title="pelita.datamodel.UniverseException"><code class="xref py py-exc docutils literal"><span class="pre">UniverseException</span></code></a> – if the number of bots or layout width are odd</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">LayoutEncodingException</span></code> – if there is something wrong with the layout_str, see <cite>Layout()</cite></li>
 </ul>
 </td>
 </tr>
@@ -219,7 +207,7 @@ default = None (will be set to initial_pos)</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>team_index</strong> (<em>int</em>) &#8211; the index of the &#8216;friendly&#8217; team</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>team_index</strong> (<em>int</em>) – the index of the ‘friendly’ team</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>enemy_bots</strong></td>
 </tr>
@@ -237,7 +225,7 @@ default = None (will be set to initial_pos)</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>team_food</strong> &#8211; food edible by team</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>team_food</strong> – food edible by team</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of tuple of (int, int)</td>
 </tr>
@@ -253,13 +241,13 @@ default = None (will be set to initial_pos)</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>team_index</strong> (<em>int</em>) &#8211; the index of the &#8216;friendly&#8217; team</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>team_index</strong> (<em>int</em>) – the index of the ‘friendly’ team</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>enemy_team</strong></td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Team object</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#pelita.datamodel.UniverseException" title="pelita.datamodel.UniverseException"><code class="xref py py-exc docutils literal"><span class="pre">UniverseException</span></code></a> &#8211; if there is more than one enemy team</td>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#pelita.datamodel.UniverseException" title="pelita.datamodel.UniverseException"><code class="xref py py-exc docutils literal"><span class="pre">UniverseException</span></code></a> – if there is more than one enemy team</td>
 </tr>
 </tbody>
 </table>
@@ -273,7 +261,7 @@ default = None (will be set to initial_pos)</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>food_positions</strong> &#8211; the positions of all food</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>food_positions</strong> – the positions of all food</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of tuple of (int, int)</td>
 </tr>
@@ -289,7 +277,7 @@ default = None (will be set to initial_pos)</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>adjacency_list</strong> &#8211; Generator which contains all reachable positions and their adjacencies</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>adjacency_list</strong> – Generator which contains all reachable positions and their adjacencies</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">generator of (pos, list(pos))</td>
 </tr>
@@ -305,9 +293,9 @@ default = None (will be set to initial_pos)</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em>) &#8211; the position to start at</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em>) – the position to start at</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>legal_moves_dict</strong> &#8211; the legal moves and where they would lead.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>legal_moves_dict</strong> – the legal moves and where they would lead.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict mapping strings (moves) to positions (x, y)</td>
 </tr>
@@ -324,9 +312,9 @@ or just stop if impossible to move.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em>) &#8211; the position to start at</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em>) – the position to start at</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>legal_moves</strong> &#8211; the legal moves and where they would lead.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>legal_moves</strong> – the legal moves and where they would lead.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict mapping strings (moves) to positions (x, y)</td>
 </tr>
@@ -343,18 +331,18 @@ or just stop if impossible to move.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>bot_id</strong> (<em>int</em>) &#8211; index of the bot</li>
-<li><strong>move</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; direction to move in</li>
+<li><strong>bot_id</strong> (<em>int</em>) – index of the bot</li>
+<li><strong>move</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – direction to move in</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>game_state</strong> &#8211; the current game_state</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>game_state</strong> – the current game_state</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">dict</p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pelita.datamodel.IllegalMoveException" title="pelita.datamodel.IllegalMoveException"><code class="xref py py-exc docutils literal"><span class="pre">IllegalMoveException</span></code></a> &#8211; if the move is invalid or impossible</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pelita.datamodel.IllegalMoveException" title="pelita.datamodel.IllegalMoveException"><code class="xref py py-exc docutils literal"><span class="pre">IllegalMoveException</span></code></a> – if the move is invalid or impossible</p>
 </td>
 </tr>
 </tbody>
@@ -369,9 +357,9 @@ or just stop if impossible to move.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em>) &#8211; current position</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em>) – current position</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>new_pos</strong> &#8211; mapping of moves to new positions (x, y)</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>new_pos</strong> – mapping of moves to new positions (x, y)</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
 </tr>
@@ -387,9 +375,9 @@ or just stop if impossible to move.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bot_index</strong> (<em>int</em>) &#8211; index of the bot in question</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bot_index</strong> (<em>int</em>) – index of the bot in question</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>other_team_bots</strong> &#8211; the other bots on the team, excluding the desired bot</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>other_team_bots</strong> – the other bots on the team, excluding the desired bot</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of Bot objects</td>
 </tr>
@@ -405,7 +393,7 @@ or just stop if impossible to move.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>pretty</strong> &#8211; detailed, readable string version of this universe</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>pretty</strong> – detailed, readable string version of this universe</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
 </tr>
@@ -436,9 +424,9 @@ or just stop if impossible to move.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>initial_positions</strong> (<em>list</em><em>(</em><em>pos</em><em>)</em><em></em>) &#8211; list of initial positions</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>initial_positions</strong> (<em>list</em><em>(</em><em>pos</em><em>)</em>) – list of initial positions</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>adjacency_list</strong> &#8211; Generator which contains all reachable positions and their adjacencies</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>adjacency_list</strong> – Generator which contains all reachable positions and their adjacencies</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">generator of (pos, list(pos))</td>
 </tr>
@@ -455,9 +443,9 @@ or just stop if impossible to move.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>team_index</strong> (<em>int</em>) &#8211; the index of the &#8216;friendly&#8217; team</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>team_index</strong> (<em>int</em>) – the index of the ‘friendly’ team</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>team_border</strong> &#8211; the border positions</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>team_border</strong> – the border positions</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of tuple of (int, int)</td>
 </tr>
@@ -473,7 +461,7 @@ or just stop if impossible to move.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>team_index</strong> (<em>int</em>) &#8211; the index of the desired team</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>team_index</strong> (<em>int</em>) – the index of the desired team</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>team_bots</strong></td>
 </tr>
@@ -491,7 +479,7 @@ or just stop if impossible to move.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>team_food</strong> &#8211; food owned by team</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>team_food</strong> – food owned by team</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of tuple of (int, int)</td>
 </tr>
@@ -527,13 +515,13 @@ or just stop if impossible to move.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>width</strong> (<em>int</em>) &#8211; the width of the maze</li>
-<li><strong>height</strong> (<em>int</em>) &#8211; the height of the maze</li>
-<li><strong>data</strong> (<em>iterable of bools</em>) &#8211; the walls of the maze (True) or free space (False) in row-based order</li>
+<li><strong>width</strong> (<em>int</em>) – the width of the maze</li>
+<li><strong>height</strong> (<em>int</em>) – the height of the maze</li>
+<li><strong>data</strong> (<em>iterable of bools</em>) – the walls of the maze (True) or free space (False) in row-based order</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pelita.containers.html#pelita.containers.Mesh.shape" title="pelita.containers.Mesh.shape"><strong>shape</strong></a> (<em></em><em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; tuple of width and height</p>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pelita.containers.html#pelita.containers.Mesh.shape" title="pelita.containers.Mesh.shape"><strong>shape</strong></a> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – tuple of width and height</p>
 </td>
 </tr>
 </tbody>
@@ -546,7 +534,7 @@ or just stop if impossible to move.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>positions</strong> &#8211; the positions (x, y) in the Maze</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>positions</strong> – the positions (x, y) in the Maze</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of tuple of (int, int)</td>
 </tr>
@@ -566,9 +554,9 @@ or just stop if impossible to move.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>index</strong> (<em>int</em>) &#8211; the index of the team within the Universe</li>
-<li><strong>zone</strong> (<em>tuple of int</em><em> (</em><em>x_min</em><em>, </em><em>x_max</em><em>)</em><em></em>) &#8211; the homezone of this team</li>
-<li><strong>score</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default = 0</em>) &#8211; the score of this team</li>
+<li><strong>index</strong> (<em>int</em>) – the index of the team within the Universe</li>
+<li><strong>zone</strong> (<em>tuple of int</em><em> (</em><em>x_min</em><em>, </em><em>x_max</em><em>)</em>) – the homezone of this team</li>
+<li><strong>score</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default = 0</em>) – the score of this team</li>
 </ul>
 </td>
 </tr>
@@ -582,9 +570,9 @@ or just stop if impossible to move.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em><em></em>) &#8211; the position to check</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>position</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em>) – the position to check</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>is_in_zone</strong> &#8211; True if the position is in the homezone and False otherwise</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>is_in_zone</strong> – True if the position is in the homezone and False otherwise</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">boolean</td>
 </tr>
@@ -609,9 +597,9 @@ or just stop if impossible to move.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>layout_mesh</strong> (<em>Mesh of single char strings</em>) &#8211; Mesh of single character strings describing the layout</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>layout_mesh</strong> (<em>Mesh of single char strings</em>) – Mesh of single character strings describing the layout</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>maze</strong> &#8211; the Maze</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>maze</strong> – the Maze</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pelita.datamodel.Maze" title="pelita.datamodel.Maze">Maze</a></td>
 </tr>
@@ -629,12 +617,12 @@ or just stop if impossible to move.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>mesh</strong> (<em>Mesh of characters</em>) &#8211; the layout in mesh format</li>
-<li><strong>number_bots</strong> (<em>int</em>) &#8211; the number of bots for which to find initial positions</li>
+<li><strong>mesh</strong> (<em>Mesh of characters</em>) – the layout in mesh format</li>
+<li><strong>number_bots</strong> (<em>int</em>) – the number of bots for which to find initial positions</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>initial pos</strong> &#8211; the initial positions for all the bots</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>initial pos</strong> – the initial positions for all the bots</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list of tuples</p>
@@ -711,8 +699,8 @@ or just stop if impossible to move.</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="../_sources/pelita/pelita.datamodel.rst.txt"

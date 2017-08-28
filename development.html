@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Development &#8212; Pelita v0.2.0-425-gbc891f8 documentation</title>
+    <title>Development &#8212; Pelita 0.9.0.dev documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'v0.2.0-425-gbc891f8',
+        VERSION:     '0.9.0.dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="User API Reference" href="user-api.html" />
@@ -36,7 +36,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -50,27 +50,29 @@
 <div class="section" id="coding-conventions">
 <h2>Coding conventions<a class="headerlink" href="#coding-conventions" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
+<li>Python 3</li>
 <li>Docstrings should follow the <a class="reference external" href="https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt">Numpy convention</a></li>
 <li>Write code compatible with 3.3+</li>
 <li>For internal messages, use the <code class="docutils literal"><span class="pre">logging</span></code> module with an appropriate logging
 level, which makes their appearance completely configurable.</li>
+<li>Follow your instinct, follow the style of the surrounding lines.</li>
 </ul>
 </div>
-<div class="section" id="changelog">
-<h2>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="changelog-milestones">
+<h2>Changelog milestones<a class="headerlink" href="#changelog-milestones" title="Permalink to this headline">¶</a></h2>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">v0.1.1 &#8211; 2012-05-23:</th></tr>
-<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first simple">
+<tr class="field-odd field"><th class="field-name" colspan="2">v0.1.1 – 2012-05-23:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
 <li>Bugfix/Maintenance Release</li>
 <li>tying together loose ends</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name" colspan="2">v0.1.0 &#8211; 2011-09-21:</th></tr>
-<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<tr class="field-even field"><th class="field-name" colspan="2">v0.1.0 – 2011-09-21:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
 <li>Initial Release</li>
 <li>for St. Andrews Summerschool</li>
 </ul>
@@ -100,9 +102,9 @@ fixes etc. can be committed directly to <code class="docutils literal"><span cla
 in a feature branch using, for example, the prefix <code class="docutils literal"><span class="pre">feature/</span></code>. If you have
 commit-access to the ASPP repository, you may still want some code-review. In
 this case, please push the branch to your fork and issue a pull-request. If you
-don&#8217;t have commit-access you will have to issue a pull-request anyway. Of
+don’t have commit-access you will have to issue a pull-request anyway. Of
 course, you are free to do whatever you like (<code class="docutils literal"><span class="pre">rebase</span></code>, <code class="docutils literal"><span class="pre">filter-branch</span></code>) in
-your own fork. We are, after all, consenting adults, but please don&#8217;t rewrite
+your own fork. We are, after all, consenting adults, but please don’t rewrite
 history in the ASPP repository.</p>
 <p>If you need to read up on pull-requests, please see:</p>
 <ul class="simple">
@@ -165,8 +167,8 @@ history in the ASPP repository.</p>
 </div>
 <div class="section" id="project-website">
 <h2>Project Website<a class="headerlink" href="#project-website" title="Permalink to this headline">¶</a></h2>
-<p>We use the <a class="reference external" href="http://sphinx.pocoo.org/">Sphinx Tool</a> to generate the project
-website and <a class="reference external" href="https://pages.github.com">GitHub pages</a> to host it.</p>
+<p>We use the <a class="reference external" href="http://www.sphinx-doc.org/">Sphinx Python Documentation Generator</a>
+to generate the project website and <a class="reference external" href="https://pages.github.com/">GitHub pages</a> to host it.</p>
 <p>This means that the content generated by Sphinx is kept in a separate branch in the
 source code repository called <code class="docutils literal"><span class="pre">gh-pages</span></code> (<a class="reference external" href="https://github.com/ASPP/pelita/commits/gh-pages">gh-pages branch for Pelita</a>). This branch has its
 own root commit and is hence disconnected from the commits that track the
@@ -271,19 +273,19 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
 </div>
 <div class="figure" id="id2">
 <a class="reference internal image-reference" href="_images/project_wall_todo.jpg"><img alt="The 'todo' section" src="_images/project_wall_todo.jpg" style="width: 640px;" /></a>
-<p class="caption"><span class="caption-text">The &#8216;todo&#8217; section</span></p>
+<p class="caption"><span class="caption-text">The ‘todo’ section</span></p>
 </div>
 <div class="figure" id="id3">
 <a class="reference internal image-reference" href="_images/project_wall_current.jpg"><img alt="the 'current' section" src="_images/project_wall_current.jpg" style="width: 640px;" /></a>
-<p class="caption"><span class="caption-text">The &#8216;current&#8217; section</span></p>
+<p class="caption"><span class="caption-text">The ‘current’ section</span></p>
 </div>
 <div class="figure" id="id4">
 <a class="reference internal image-reference" href="_images/project_wall_done.jpg"><img alt="the done section" src="_images/project_wall_done.jpg" style="width: 640px;" /></a>
-<p class="caption"><span class="caption-text">The &#8216;done&#8217; section</span></p>
+<p class="caption"><span class="caption-text">The ‘done’ section</span></p>
 </div>
 <div class="figure" id="id5">
 <a class="reference internal image-reference" href="_images/project_wall_nice.jpg"><img alt="the nice to have section" src="_images/project_wall_nice.jpg" style="width: 640px;" /></a>
-<p class="caption"><span class="caption-text">The &#8216;nice to have&#8217; section</span></p>
+<p class="caption"><span class="caption-text">The ‘nice to have’ section</span></p>
 </div>
 </div>
 </div>
@@ -317,7 +319,7 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
 <li class="toctree-l1"><a class="reference internal" href="running_player.html">Running Players</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Development</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#coding-conventions">Coding conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#changelog">Changelog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#changelog-milestones">Changelog milestones</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#git-repository">Git-Repository</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#layout-and-branch-model">Layout and Branch Model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#commit-markers">Commit Markers</a><ul>
@@ -360,8 +362,8 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="_sources/development.rst.txt"

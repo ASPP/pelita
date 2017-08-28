@@ -1,0 +1,44 @@
+===============
+Getting started
+===============
+
+When writing a team, it is useful to follow a standard module layout::
+
+    team/
+         __init__.py
+         my_player.py
+         utils/
+               __init__.py
+         test/
+              __init__.py
+
+
+A module layout can be generated automatically in the current folder with `../... --gen-team`.
+`--gen-team` takes a team name (in quotes) as well as a number of class names to generate templates for the `AbstractPlayer` subclasses.
+
+
+In this section, we assume the generator code has been run as follows::
+
+    ./pelitagame --gen-team "My team name" Player Player
+
+
+
+Inside `team/__init__.py` players are required to define a function `factory`::
+
+    def factory():
+        return SimpleTeam("My team name", Player(), Player())
+
+
+
+    def Player(AbstractPlayer):
+
+        def set_initial():
+            pass
+
+        def get_move():
+            pass
+
+Please have a look at the methods in `AbstractPlayer` as to be sure what better not to override in the subclass (or only with calls to `super()`).
+Note, however, that you are free to use `__init__` when instantiating your class.
+That means that you can easily add parameters to your classes.
+

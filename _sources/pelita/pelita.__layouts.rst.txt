@@ -1,5 +1,5 @@
-pelita.__layouts
-================
+pelita\.\_\_layouts
+===================
 
 .. automodule:: pelita.__layouts
 

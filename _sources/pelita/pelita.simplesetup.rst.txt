@@ -1,5 +1,5 @@
-pelita.simplesetup
-==================
+pelita\.simplesetup
+===================
 
 .. automodule:: pelita.simplesetup
 
@@ -20,9 +20,6 @@ pelita.simplesetup
 
    .. autosummary::
    
-      AbstractViewer
-      CTFUniverse
-      GameMaster
       RemoteTeamPlayer
       SimpleClient
       SimpleController
@@ -41,8 +38,6 @@ pelita.simplesetup
    
       DeadConnection
       ExitLoop
-      PlayerDisconnected
-      PlayerTimeout
       UnknownMessageId
       ZMQTimeout
    

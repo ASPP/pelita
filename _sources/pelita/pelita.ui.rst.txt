@@ -1,5 +1,5 @@
-pelita.ui
-=========
+pelita\.ui
+==========
 
 .. automodule:: pelita.ui
 

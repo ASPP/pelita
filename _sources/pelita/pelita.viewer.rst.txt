@@ -1,5 +1,5 @@
-pelita.viewer
-=============
+pelita\.viewer
+==============
 
 .. automodule:: pelita.viewer
 

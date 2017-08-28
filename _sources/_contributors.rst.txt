@@ -1,4 +1,4 @@
-As of ``v0.2.0-425-gbc891f8`` the developers and contributors are::
+As of ``v0.2.0-209-ga045248`` the developers and contributors are::
 
     Rike-Benjamin Schuppner
     Valentin Haenel
@@ -6,15 +6,13 @@ As of ``v0.2.0-425-gbc891f8`` the developers and contributors are::
     Zbigniew Jędrzejewski-Szmek
     Bastian Venthur
     Pietro Berkes
-    Jakob Jordan
     Nicola Chiapolini
     Pauli Virtanen
-    DoriekeG
     abject
-    Anna Chabuda
-    Bartosz Telenczuk
     Christian Steigies
+    Sasza Kijek
     Francesc Alted
     Ola Pidde
-    Sasza Kijek
     Zbigniew Jędrzejewski-Szmek
+    Bartosz Telenczuk
+    Anna Chabuda

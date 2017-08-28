@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pelita.game_master &#8212; Pelita v0.2.0-425-gbc891f8 documentation</title>
+    <title>pelita.game_master &#8212; Pelita 0.9.0.dev documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'v0.2.0-425-gbc891f8',
+        VERSION:     '0.9.0.dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="pelita.graph" href="pelita.graph.html" />
@@ -36,7 +36,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -47,18 +47,6 @@
   <div class="section" id="module-pelita.game_master">
 <span id="pelita-game-master"></span><h1>pelita.game_master<a class="headerlink" href="#module-pelita.game_master" title="Permalink to this headline">¶</a></h1>
 <p>The controller</p>
-<p class="rubric">Functions</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">manhattan_dist</span></code>(pos1,&nbsp;pos2)</td>
-<td>Manhattan distance between two points.</td>
-</tr>
-</tbody>
-</table>
 <p class="rubric">Classes</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -66,22 +54,13 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">AdjacencyList</span></code>(adjacencies)</td>
-<td>Adjacency list [1] representation of a Maze.</td>
-</tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">Bot</span></code>(index,&nbsp;initial_pos,&nbsp;team_index,&nbsp;homezone)</td>
-<td>A bot on a team.</td>
-</tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">CTFUniverse</span></code>(maze,&nbsp;food,&nbsp;teams,&nbsp;bots)</td>
-<td>The Universe: representation of the game state.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.game_master.GameMaster" title="pelita.game_master.GameMaster"><code class="xref py py-obj docutils literal"><span class="pre">GameMaster</span></code></a>(layout,&nbsp;teams,&nbsp;number_bots,&nbsp;game_time)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.game_master.GameMaster" title="pelita.game_master.GameMaster"><code class="xref py py-obj docutils literal"><span class="pre">GameMaster</span></code></a>(layout,&nbsp;teams,&nbsp;number_bots,&nbsp;game_time)</td>
 <td>Controller of player moves and universe updates.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pelita.game_master.ManhattanNoiser" title="pelita.game_master.ManhattanNoiser"><code class="xref py py-obj docutils literal"><span class="pre">ManhattanNoiser</span></code></a>(universe[,&nbsp;noise_radius,&nbsp;...])</td>
+<tr class="row-even"><td><a class="reference internal" href="#pelita.game_master.ManhattanNoiser" title="pelita.game_master.ManhattanNoiser"><code class="xref py py-obj docutils literal"><span class="pre">ManhattanNoiser</span></code></a>(universe[,&nbsp;noise_radius,&nbsp;…])</td>
 <td>Noiser in Manhattan space.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.game_master.UniverseNoiser" title="pelita.game_master.UniverseNoiser"><code class="xref py py-obj docutils literal"><span class="pre">UniverseNoiser</span></code></a>(universe[,&nbsp;noise_radius,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.game_master.UniverseNoiser" title="pelita.game_master.UniverseNoiser"><code class="xref py py-obj docutils literal"><span class="pre">UniverseNoiser</span></code></a>(universe[,&nbsp;noise_radius,&nbsp;…])</td>
 <td>Abstract BaseClass to make bot positions noisy.</td>
 </tr>
 </tbody>
@@ -96,13 +75,10 @@
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">GameFinished</span></code></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">NoPathException</span></code></td>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">PlayerDisconnected</span></code></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">PlayerDisconnected</span></code></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">PlayerTimeout</span></code></td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">PlayerTimeout</span></code></td>
 <td></td>
 </tr>
 </tbody>
@@ -119,20 +95,20 @@ updating of the universe.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>layout</strong> (<em>string</em>) &#8211; initial layout as string</li>
-<li><strong>teams</strong> (<em>list of teams</em>) &#8211; the teams to play the game</li>
-<li><strong>number_bots</strong> (<em>int</em>) &#8211; the total number of bots</li>
-<li><strong>game_time</strong> (<em>int</em>) &#8211; the total permitted number of rounds</li>
-<li><strong>noise</strong> (<em>boolean</em>) &#8211; should enemy positions be noisy</li>
-<li><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; seed which initialises the internal random number generator</li>
+<li><strong>layout</strong> (<em>string</em>) – initial layout as string</li>
+<li><strong>teams</strong> (<em>list of teams</em>) – the teams to play the game</li>
+<li><strong>number_bots</strong> (<em>int</em>) – the total number of bots</li>
+<li><strong>game_time</strong> (<em>int</em>) – the total permitted number of rounds</li>
+<li><strong>noise</strong> (<em>boolean</em>) – should enemy positions be noisy</li>
+<li><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – seed which initialises the internal random number generator</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
-<li><strong>universe</strong> (<a class="reference internal" href="pelita.datamodel.html#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><em>CTFUniverse</em></a>) &#8211; the game state</li>
-<li><strong>noiser</strong> (<a class="reference internal" href="#pelita.game_master.UniverseNoiser" title="pelita.game_master.UniverseNoiser"><em>UniverseNoiser</em></a><em> or </em><em>None</em>) &#8211; object to add noise to enemy positions</li>
-<li><strong>player_teams</strong> (<em>list</em>) &#8211; the participating player teams</li>
-<li><strong>viewers</strong> (<em>list of subclasses of AbstractViewer</em>) &#8211; the viewers that are observing this game</li>
+<li><strong>universe</strong> (<a class="reference internal" href="pelita.datamodel.html#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><em>CTFUniverse</em></a>) – the game state</li>
+<li><strong>noiser</strong> (<a class="reference internal" href="#pelita.game_master.UniverseNoiser" title="pelita.game_master.UniverseNoiser"><em>UniverseNoiser</em></a><em> or </em><em>None</em>) – object to add noise to enemy positions</li>
+<li><strong>player_teams</strong> (<em>list</em>) – the participating player teams</li>
+<li><strong>viewers</strong> (<em>list of subclasses of AbstractViewer</em>) – the viewers that are observing this game</li>
 </ul>
 </td>
 </tr>
@@ -160,8 +136,8 @@ updating of the universe.</p>
 <dl class="method">
 <dt id="pelita.game_master.GameMaster.prepare_next_round">
 <code class="descname">prepare_next_round</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/game_master.html#GameMaster.prepare_next_round"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.game_master.GameMaster.prepare_next_round" title="Permalink to this definition">¶</a></dt>
-<dd><p>Increases <cite>game_state[&#8220;round_index&#8221;]</cite>, if possible
-and resets <cite>game_state[&#8220;bot_id&#8221;]</cite>.</p>
+<dd><p>Increases <cite>game_state[“round_index”]</cite>, if possible
+and resets <cite>game_state[“bot_id”]</cite>.</p>
 </dd></dl>
 
 <dl class="method">
@@ -172,7 +148,7 @@ and resets <cite>game_state[&#8220;bot_id&#8221;]</cite>.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>viewer</strong> (<em>subclass of AbstractViewer</em>) &#8211; </td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>viewer</strong> (<em>subclass of AbstractViewer</em>) – </td>
 </tr>
 </tbody>
 </table>
@@ -189,7 +165,7 @@ universes and tells the PlayerTeams what team_id they have.</p>
 <dl class="method">
 <dt id="pelita.game_master.GameMaster.update_viewers">
 <code class="descname">update_viewers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/game_master.html#GameMaster.update_viewers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.game_master.GameMaster.update_viewers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Call the &#8216;observe&#8217; method on all registered viewers.</p>
+<dd><p>Call the ‘observe’ method on all registered viewers.</p>
 </dd></dl>
 
 </dd></dl>
@@ -217,7 +193,7 @@ threshold (<cite>sight_distance</cite>).</p>
 <code class="descname">distance(bot, other_bot):</code></dt>
 <dd><p>return distance between current bot and bot to be noised. Distance
 is measured in the space relevant to the particular algorithm implemented
-in the subclass, e.g. maze distance, manhattan distance, euclidean distance...</p>
+in the subclass, e.g. maze distance, manhattan distance, euclidean distance…</p>
 </dd></dl>
 
 <dl class="method">
@@ -231,10 +207,10 @@ in the subclass, e.g. maze distance, manhattan distance, euclidean distance...</
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>universe</strong> (<a class="reference internal" href="pelita.datamodel.html#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><em>CTFUniverse</em></a>) &#8211; the universe which will later be used</li>
-<li><strong>noise_radius</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 5</em>) &#8211; the radius for the uniform noise</li>
-<li><strong>sight_distance</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 5</em>) &#8211; the distance at which noise is no longer applied.</li>
-<li><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; seed which initialises the internal random number generator</li>
+<li><strong>universe</strong> (<a class="reference internal" href="pelita.datamodel.html#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><em>CTFUniverse</em></a>) – the universe which will later be used</li>
+<li><strong>noise_radius</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 5</em>) – the radius for the uniform noise</li>
+<li><strong>sight_distance</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 5</em>) – the distance at which noise is no longer applied.</li>
+<li><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – seed which initialises the internal random number generator</li>
 </ul>
 </td>
 </tr>
@@ -266,12 +242,12 @@ copy of the universe as an argument.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>universe</strong> (<a class="reference internal" href="pelita.datamodel.html#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><em>CTFUniverse</em></a>) &#8211; the universe to add noise to</li>
-<li><strong>bot_index</strong> (<em>int</em>) &#8211; the bot whose enemies should be noisy</li>
+<li><strong>universe</strong> (<a class="reference internal" href="pelita.datamodel.html#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><em>CTFUniverse</em></a>) – the universe to add noise to</li>
+<li><strong>bot_index</strong> (<em>int</em>) – the bot whose enemies should be noisy</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>noisy_universe</strong> &#8211; universe with noisy enemy positions</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>noisy_universe</strong> – universe with noisy enemy positions</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pelita.datamodel.html#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse">CTFUniverse</a></p>
@@ -350,8 +326,8 @@ copy of the universe as an argument.</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="../_sources/pelita/pelita.game_master.rst.txt"

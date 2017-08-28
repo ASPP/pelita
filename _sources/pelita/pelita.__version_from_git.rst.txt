@@ -1,5 +1,5 @@
-pelita.__version_from_git
-=========================
+pelita\.\_\_version\_from\_git
+==============================
 
 .. automodule:: pelita.__version_from_git
 

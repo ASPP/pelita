@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>User API Reference &#8212; Pelita v0.2.0-425-gbc891f8 documentation</title>
+    <title>User API Reference &#8212; Pelita 0.9.0.dev documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'v0.2.0-425-gbc891f8',
+        VERSION:     '0.9.0.dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="API reference" href="api.html" />
@@ -36,7 +36,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   
 
     <div class="document">
@@ -57,19 +57,19 @@ when writing a player.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.html#pelita.player.AbstractPlayer.current_uni" title="pelita.player.AbstractPlayer.current_uni"><code class="xref py py-obj docutils literal"><span class="pre">current_uni</span></code></a></td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">current_uni</span></code></td>
 <td>The current Universe.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.player.html#pelita.player.AbstractPlayer.current_state" title="pelita.player.AbstractPlayer.current_state"><code class="xref py py-obj docutils literal"><span class="pre">current_state</span></code></a></td>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">current_state</span></code></td>
 <td>The current game state.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.html#pelita.player.AbstractPlayer.me" title="pelita.player.AbstractPlayer.me"><code class="xref py py-obj docutils literal"><span class="pre">me</span></code></a></td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">me</span></code></td>
 <td>The Bot object this Player controls.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.player.html#pelita.player.AbstractPlayer.team" title="pelita.player.AbstractPlayer.team"><code class="xref py py-obj docutils literal"><span class="pre">team</span></code></a></td>
-<td>The Team object this Player&#8217;s Bot is on.</td>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">team</span></code></td>
+<td>The Team object this Player’s Bot is on.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.html#pelita.player.AbstractPlayer.legal_moves" title="pelita.player.AbstractPlayer.legal_moves"><code class="xref py py-obj docutils literal"><span class="pre">legal_moves</span></code></a></td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">legal_moves</span></code></td>
 <td>The currently possible moves, and where they lead.</td>
 </tr>
 </tbody>
@@ -81,13 +81,13 @@ when writing a player.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.html#pelita.player.AbstractPlayer.initial_pos" title="pelita.player.AbstractPlayer.initial_pos"><code class="xref py py-obj docutils literal"><span class="pre">initial_pos</span></code></a></td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">initial_pos</span></code></td>
 <td>The initial_pos of this bot.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.player.html#pelita.player.AbstractPlayer.current_pos" title="pelita.player.AbstractPlayer.current_pos"><code class="xref py py-obj docutils literal"><span class="pre">current_pos</span></code></a></td>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">current_pos</span></code></td>
 <td>The current position of this bot.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.html#pelita.player.AbstractPlayer.previous_pos" title="pelita.player.AbstractPlayer.previous_pos"><code class="xref py py-obj docutils literal"><span class="pre">previous_pos</span></code></a></td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">previous_pos</span></code></td>
 <td>The previous position of the bot.</td>
 </tr>
 </tbody>
@@ -99,17 +99,17 @@ when writing a player.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.html#pelita.player.AbstractPlayer.team_border" title="pelita.player.AbstractPlayer.team_border"><code class="xref py py-obj docutils literal"><span class="pre">team_border</span></code></a></td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">team_border</span></code></td>
 <td>Positions of the border positions.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.player.html#pelita.player.AbstractPlayer.team_bots" title="pelita.player.AbstractPlayer.team_bots"><code class="xref py py-obj docutils literal"><span class="pre">team_bots</span></code></a></td>
-<td>A list of all Bots that are on this Player&#8217;s Bot&#8217;s Team including the current bot.</td>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">team_bots</span></code></td>
+<td>A list of all Bots that are on this Player’s Bot’s Team including the current bot.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.html#pelita.player.AbstractPlayer.other_team_bots" title="pelita.player.AbstractPlayer.other_team_bots"><code class="xref py py-obj docutils literal"><span class="pre">other_team_bots</span></code></a></td>
-<td>A list of Bots that are on this Player&#8217;s team excluding the current bot.</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">other_team_bots</span></code></td>
+<td>A list of Bots that are on this Player’s team excluding the current bot.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.player.html#pelita.player.AbstractPlayer.team_food" title="pelita.player.AbstractPlayer.team_food"><code class="xref py py-obj docutils literal"><span class="pre">team_food</span></code></a></td>
-<td>Food owned by the team which can be eaten by the enemy Player&#8217;s bot.</td>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">team_food</span></code></td>
+<td>Food owned by the team which can be eaten by the enemy Player’s bot.</td>
 </tr>
 </tbody>
 </table>
@@ -120,14 +120,14 @@ when writing a player.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.html#pelita.player.AbstractPlayer.enemy_team" title="pelita.player.AbstractPlayer.enemy_team"><code class="xref py py-obj docutils literal"><span class="pre">enemy_team</span></code></a></td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">enemy_team</span></code></td>
 <td>The enemy Team.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.player.html#pelita.player.AbstractPlayer.enemy_bots" title="pelita.player.AbstractPlayer.enemy_bots"><code class="xref py py-obj docutils literal"><span class="pre">enemy_bots</span></code></a></td>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">enemy_bots</span></code></td>
 <td>A list of enemy Bots.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.html#pelita.player.AbstractPlayer.enemy_food" title="pelita.player.AbstractPlayer.enemy_food"><code class="xref py py-obj docutils literal"><span class="pre">enemy_food</span></code></a></td>
-<td>Food owned by the enemy which can be eaten by this Player&#8217;s bot.</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">enemy_food</span></code></td>
+<td>Food owned by the enemy which can be eaten by this Player’s bot.</td>
 </tr>
 </tbody>
 </table>
@@ -140,7 +140,7 @@ when writing a player.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.player.html#pelita.player.StoppingPlayer" title="pelita.player.StoppingPlayer"><code class="xref py py-obj docutils literal"><span class="pre">StoppingPlayer</span></code></a></td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">StoppingPlayer</span></code></td>
 <td>A Player that just stands still.</td>
 </tr>
 </tbody>
@@ -200,13 +200,13 @@ when writing a player.</p>
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">Wall</span></code></td>
-<td>str(object=&#8217;&#8216;) -&gt; str</td>
+<td>str(object=’‘) -&gt; str</td>
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">Free</span></code></td>
-<td>str(object=&#8217;&#8216;) -&gt; str</td>
+<td>str(object=’‘) -&gt; str</td>
 </tr>
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">Food</span></code></td>
-<td>str(object=&#8217;&#8216;) -&gt; str</td>
+<td>str(object=’‘) -&gt; str</td>
 </tr>
 </tbody>
 </table>
@@ -374,8 +374,8 @@ when writing a player.</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="_sources/user-api.rst.txt"

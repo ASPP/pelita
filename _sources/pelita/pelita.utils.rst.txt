@@ -1,5 +1,5 @@
-pelita.utils
-============
+pelita\.utils
+=============
 
 .. automodule:: pelita.utils
 

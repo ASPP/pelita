@@ -17,7 +17,7 @@ Pelita
 
       .. container:: col-md-6
 
-         .. literalinclude:: ../../players/SmartRandomPlayer.py
+         .. literalinclude:: ../../pelita/players/SmartRandomPlayer.py
             :pyobject: SmartRandomPlayer
 
 **Pelita** is Actor-based Toolkit for Interactive Language Education in Python.
@@ -47,13 +47,15 @@ through the maze, destroy the enemy's harvesters, and eat the enemy's food.
 Quick Start
 ===========
 
-First clone the source code repository::
+First install from the source code repository::
 
     $ git clone https://github.com/ASPP/pelita.git
+    $ cd pelita
+    $ pip install .
 
 And launch the command-line interface::
 
-    $ ~/pelita/pelitagame
+    $ pelita
 
 This will start a demo game using the `TkInter
 <https://wiki.python.org/moin/TkInter>`_ interface on a random maze
