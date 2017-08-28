@@ -76,32 +76,9 @@ class ModuleRunner:
 
 class DefaultRunner(ModuleRunner):
     def run(self, addr):
-        player_path = os.environ.get("PELITA_PATH") or os.path.dirname(sys.argv[0])
-        player = os.path.join(player_path, "module_player.py")
+        player = 'pelita.scripts.pelita_player'
         external_call = [get_python_process(),
-                         player,
-                         self.team_spec,
-                         addr]
-        _logger.debug("Executing: %r", external_call)
-        return subprocess.Popen(external_call)
-
-class Py2Runner(ModuleRunner):
-    def run(self, addr):
-        player_path = os.environ.get("PELITA_PATH") or os.path.dirname(sys.argv[0])
-        player = os.path.join(player_path, "module_player.py")
-        external_call = ["python2",
-                         player,
-                         self.team_spec,
-                         addr]
-        print(external_call)
-        _logger.debug("Executing: %r", external_call)
-        return subprocess.Popen(external_call)
-
-class Py3Runner(ModuleRunner):
-    def run(self, addr):
-        player_path = os.environ.get("PELITA_PATH") or os.path.dirname(sys.argv[0])
-        player = os.path.join(player_path, "module_player.py")
-        external_call = ["python3",
+                         '-m',
                          player,
                          self.team_spec,
                          addr]
@@ -135,8 +112,6 @@ def call_standalone_pelitagame(module_spec, address):
     """
     defined_runners = {
         "py": DefaultRunner,
-        "py2": Py2Runner,
-        "py3": Py3Runner,
         "bin": BinRunner,
     }
 
@@ -262,7 +237,6 @@ def channel_setup(publish_to=None, reply_to=None):
     yield { "publisher": publisher, "controller": controller }
 
 
-
 def run_external_viewer(subscribe_sock, controller, geometry, delay):
     # Something on OS X prevents Tk from running in a forked process.
     # Therefore we cannot use multiprocessing here. subprocess works, though.
@@ -274,8 +248,10 @@ def run_external_viewer(subscribe_sock, controller, geometry, delay):
     if delay:
         viewer_args += ["--delay", str(delay)]
 
-    tkviewer = os.path.join(os.path.dirname(sys.argv[0]), "tkviewer.py")
-    external_call = [get_python_process(), tkviewer] + viewer_args
+    tkviewer = 'pelita.scripts.pelita_tkviewer'
+    external_call = [get_python_process(),
+                     '-m',
+                     tkviewer] + viewer_args
     _logger.debug("Executing: %r", external_call)
     return subprocess.Popen(external_call)
 

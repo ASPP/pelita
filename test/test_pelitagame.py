@@ -4,7 +4,7 @@ import pelita
 
 print(dir(pelita))
 with pelita.utils.with_sys_path('test'):
-    import module_player
+    from pelita.scripts.pelita_player import check_module
 
 check_module_cases = [
     ('test/test_pelitagame.py', None),
@@ -22,6 +22,17 @@ class TestCheckModule:
             print(path, result)
             if result is not None:
                 with pytest.raises(result):
-                    module_player.check_module(path)
+                    check_module(path)
             else:
-                module_player.check_module(path)
+                check_module(path)
+
+def test_default_players():
+    from pelita.scripts.pelita_main import default_players
+    assert [m.__name__ for m in default_players()] == [
+        'FoodEatingPlayer',
+        'NQRandomPlayer',
+        'RandomExplorerPlayer',
+        'RandomPlayer',
+        'SmartEatingPlayer',
+        'SmartRandomPlayer',
+    ]

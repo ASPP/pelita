@@ -62,7 +62,7 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
     def print_possible_winner(self, universe, game_state):
         """ Checks the event list for a potential winner and prints this information.
 
-        This is needed for scripts parsing the output.
+        This is needed for pelita.scripts parsing the output.
         """
         winning_team = game_state.get("team_wins")
         if winning_team is not None:
@@ -92,21 +92,9 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
         # won't let us pipe it.
         sys.stdout.flush()
 
-def run_external_viewer(subscribe_sock, controller, geometry, delay):
-    # Something on OS X prevents Tk from running in a forked process.
-    # Therefore we cannot use multiprocessing here. subprocess works, though.
-    viewer_args = [ str(subscribe_sock) ]
-    if controller:
-        viewer_args += ["--controller-address", str(controller)]
-    if geometry:
-        viewer_args += ["--geometry", "{0}x{1}".format(*geometry)]
-    if delay:
-        viewer_args += ["--delay", str(delay)]
-
-    tkviewer = os.path.join(os.path.dirname(sys.argv[0]), "tkviewer.py")
-    external_call = [libpelita.get_python_process(), tkviewer] + viewer_args
-    _logger.debug("Executing: %r", external_call)
-    return subprocess.Popen(external_call)
+def default_players():
+    from ..player import SANE_PLAYERS
+    return sorted(SANE_PLAYERS, key=lambda m: m.__name__)
 
 def start_logging(filename):
     if filename:
@@ -286,8 +274,8 @@ Layout specification:
   You can restrict this pool by using --filter.
 """
 
-def run_game():
 
+def main():
     config = {
         "publish-addr": None,
         "controller-addr": None,
@@ -300,11 +288,20 @@ def run_game():
         parser.print_help()
         sys.exit(0)
     if args.version:
-        print("Pelita %s" % pelita.version)
+        if pelita._git_version:
+            print("Pelita {} (git: {})".format(pelita.__version__, pelita._git_version))
+        else:
+            print("Pelita {}".format(pelita.__version__))
+            
         sys.exit(0)
     if args.layout == 'list':
         layouts = pelita.layout.get_available_layouts()
         print('\n'.join(layouts))
+        sys.exit(0)
+
+    if args.list_teams:
+        for player in default_players():
+            print(player.__name__)
         sys.exit(0)
 
     if args.seed is None:
@@ -322,11 +319,6 @@ def run_game():
         start_logging(args.log)
     except AttributeError:
         pass
-
-    if args.list_teams:
-        from players import SANE_PLAYERS
-        print('\n'.join(p.__name__ for p in SANE_PLAYERS))
-        sys.exit(0)
 
     if args.check_team:
         if not args.team_specs:
@@ -410,12 +402,12 @@ def run_game():
                 controller = channels["controller"]
                 publisher = channels["publisher"]
                 game_config["publisher"] = publisher
-                viewer = run_external_viewer(publisher.socket_addr, controller.socket_addr, geometry=geometry, delay=delay)
+                viewer = libpelita.run_external_viewer(publisher.socket_addr, controller.socket_addr, geometry=geometry, delay=delay)
                 libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers, controller=controller)
             else:
                 libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers)
 
 
 if __name__ == '__main__':
-    run_game()
+    main()
 

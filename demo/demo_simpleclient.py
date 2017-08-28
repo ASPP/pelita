@@ -5,7 +5,7 @@ a couple of previously defined Players.
 
 from pelita.simplesetup import SimpleClient
 from pelita.player import SimpleTeam
-from players import BFSPlayer, BasicDefensePlayer
+from pelita.player import BFSPlayer, BasicDefensePlayer
 
 # Set up our team named ‘the good ones’ using a
 # BFSPlayer and a NQRandomPlayer.

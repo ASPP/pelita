@@ -5,7 +5,7 @@ BRANCH="master"
 if
   [ "$TRAVIS_REPO_SLUG" == "$REPO" ] &&
   [ "$TRAVIS_PULL_REQUEST" == "false" ] &&
-  [ "$TRAVIS_PYTHON_VERSION" == "3.4" ] &&
+  [ "$TRAVIS_PYTHON_VERSION" == "3.6" ] &&
   [ "$PYZMQ" == "pyzmq" ] &&
   [ "$TRAVIS_BRANCH" == "$BRANCH" ]; then
 

@@ -1,0 +1,6 @@
+include MANIFEST.in
+include COPYING
+include README.md
+include README.tournament.md
+include setup.py
+include tournament.yaml

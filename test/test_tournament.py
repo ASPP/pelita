@@ -1,12 +1,19 @@
 import pytest
 from unittest.mock import MagicMock
 
+import sys
+pytestmark = pytest.mark.skipif(sys.version_info < (3,5), reason="requires python3.5")
+
 import re
 from textwrap import dedent
 
-from tournament import komode, roundrobin, tournament
-from tournament.komode import Team, Match, Bye
-from tournament import tournament
+try:
+    from pelita.tournament import komode, roundrobin, tournament
+    from pelita.tournament.komode import Team, Match, Bye
+    from pelita.tournament import tournament
+except (ImportError, SyntaxError):
+    # We expect this to fail below Python 3.5
+    pass
 
 
 class TestKoMode:

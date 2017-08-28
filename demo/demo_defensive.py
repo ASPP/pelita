@@ -3,7 +3,7 @@ from pelita.game_master import GameMaster
 from pelita.player import SimpleTeam, StoppingPlayer
 from pelita.viewer import AsciiViewer
 from pelita.layout import get_random_layout
-from players import BFSPlayer, BasicDefensePlayer
+from pelita.player import BFSPlayer, BasicDefensePlayer
 
 if __name__ == '__main__':
     name, layout = get_random_layout()

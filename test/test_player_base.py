@@ -1,10 +1,15 @@
 import pytest
 import unittest
 
+import random
+import time
+
+from pelita import datamodel
 from pelita.datamodel import CTFUniverse, east, stop, west
 from pelita.game_master import GameMaster
-from pelita.player import *
-from players import NQRandomPlayer, RandomPlayer
+from pelita.player import (AbstractPlayer, SimpleTeam,
+                           RandomPlayer, StoppingPlayer, TestPlayer,
+                           RoundBasedPlayer, SpeakingPlayer)
 
 
 class TestAbstractPlayer:
@@ -457,38 +462,6 @@ class TestRandomPlayerSeeds:
         random_numbers_c = [player.rnd.randint(0, 10000) for player in players_c]
 
         assert random_numbers_a != random_numbers_c
-
-
-class TestNQRandom_Player:
-    def test_demo_players(self):
-        test_layout = (
-        """ ############
-            #0#.   .# 1#
-            ############ """)
-        team = [
-            SimpleTeam(NQRandomPlayer()),
-            SimpleTeam(NQRandomPlayer())
-        ]
-        gm = GameMaster(test_layout, team, 2, 1)
-        gm.play()
-        assert gm.universe.bots[0].current_pos == (1, 1)
-        assert gm.universe.bots[1].current_pos == (9, 1)
-
-    def test_path(self):
-        test_layout = (
-        """ ############
-            #  . # .# ##
-            # ## #  # ##
-            #0#.   .##1#
-            ############ """)
-        team = [
-            SimpleTeam(NQRandomPlayer()),
-            SimpleTeam(NQRandomPlayer())
-        ]
-        gm = GameMaster(test_layout, team, 2, 7)
-        gm.play()
-        assert gm.universe.bots[0].current_pos == (4, 3)
-        assert gm.universe.bots[1].current_pos == (10, 3)
 
 
 class TestSpeakingPlayer:

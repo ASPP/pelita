@@ -106,7 +106,7 @@ def load_factory(filespec):
 
 def import_builtin_player(name):
     with pelita.utils.with_sys_path("./"):
-        players_module = __import__("players")
+        players_module = __import__('pelita.player', fromlist='players')
         sane_players = {p.__name__: p for p in players_module.SANE_PLAYERS}
 
     if name == 'random':
@@ -128,8 +128,10 @@ def import_builtin_player(name):
     else:
         raise ImportError("%r is not a valid player." % player)
 
-if __name__ == '__main__':
+def main():
     client = make_client()
     ret = client.run()
     sys.exit(ret)
 
+if __name__ == '__main__':
+    main()

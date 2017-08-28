@@ -2,7 +2,7 @@
 from pelita.game_master import GameMaster
 from pelita.player import StoppingPlayer, SimpleTeam
 from pelita.viewer import AsciiViewer
-from players import RandomPlayer, NQRandomPlayer
+from pelita.player import RandomPlayer, NQRandomPlayer
 
 if __name__ == '__main__':
     layout = (

@@ -1,5 +1,5 @@
 from pelita.player import SimpleTeam
-from players import RandomPlayer, BFSPlayer
+from pelita.player import RandomPlayer, BFSPlayer
 
 from pelita.simplesetup import SimpleClient
 

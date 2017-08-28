@@ -14,13 +14,9 @@ import sys
 import shutil
 import yaml
 
-from pelita import libpelita
-from tournament import tournament
-from tournament.tournament import Config, State
-
-os.environ["PELITA_PATH"] = os.environ.get("PELITA_PATH") or os.path.join(os.path.dirname(sys.argv[0]), "..")
-
-DEFAULT_PELITAGAME = os.path.join(os.path.dirname(sys.argv[0]), '../pelitagame')
+from .. import libpelita
+from ..tournament import tournament
+from ..tournament.tournament import Config, State
 
 
 def start_logging(filename):
@@ -156,13 +152,11 @@ def setup():
         yaml.dump(config, f, default_flow_style=False)
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description='Run a tournament',
                                      add_help=False,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser._positionals = parser.add_argument_group('Arguments')
-    parser.add_argument('pelitagame', help='The pelitagame script',
-                        default=DEFAULT_PELITAGAME, nargs='?')
     parser._optionals = parser.add_argument_group('Options')
     parser.add_argument('--help', '-h',
                         help='show this help message and exit',
@@ -197,33 +191,29 @@ if __name__ == '__main__':
     parser.add_argument('--dry-run', help='do not actually play',
                         action='store_true')
 
-    global ARGS
-    ARGS = parser.parse_args()
-    if ARGS.help:
+    args = parser.parse_args()
+    if args.help:
         parser.print_help()
         sys.exit(0)
-    elif ARGS.setup:
+    elif args.setup:
         setup()
         sys.exit(0)
 
+    try:
+        with open(args.config) as f:
+            config_data = yaml.load(f)
+            config_data['viewer'] = args.viewer or config_data.get('viewer', 'tk')
+            config_data['interactive'] = libpelita.firstNN(args.interactive, config_data.get('interactive'), True)
+            config_data['statefile'] = args.state
+            config_data['speak'] = libpelita.firstNN(args.speak, config_data.get('speak'))
+            config_data['speaker'] = args.speaker or config_data.get('speaker')
 
-    # Check that pelitagame can be run
-    if not os.path.isfile(ARGS.pelitagame):
-        sys.stderr.write(ARGS.pelitagame+' not found!\n')
-        sys.exit(2)
+            config = Config(config_data)
+    except FileNotFoundError:
+        print("‘{}’ not found. Create a new tournament with ‘--setup’.".format(args.config))
+        sys.exit(1)
 
-
-    with open(ARGS.config) as f:
-        config_data = yaml.load(f)
-        config_data['viewer'] = ARGS.viewer or config_data.get('viewer', 'tk')
-        config_data['interactive'] = libpelita.firstNN(ARGS.interactive, config_data.get('interactive'), True)
-        config_data['statefile'] = ARGS.state
-        config_data['speak'] = libpelita.firstNN(ARGS.speak, config_data.get('speak'))
-        config_data['speaker'] = ARGS.speaker or config_data.get('speaker')
-
-        config = Config(config_data)
-
-    if not ARGS.no_log:
+    if not args.no_log:
         # create a directory for the dumps
         def escape(s):
             return "-" + re.sub(r'[\W]', '_', str(s)) if s else ""
@@ -243,15 +233,15 @@ if __name__ == '__main__':
         except AttributeError:
             pass
 
-    if ARGS.rounds:
-        config.rounds = ARGS.rounds
+    if args.rounds:
+        config.rounds = args.rounds
 
-    if os.path.isfile(ARGS.state):
-        if not ARGS.load_state:
-            config.print("Found state file in {state_file}. Restore with --load-state. Aborting.".format(state_file=ARGS.state))
+    if os.path.isfile(args.state):
+        if not args.load_state:
+            config.print("Found state file in {state_file}. Restore with --load-state. Aborting.".format(state_file=args.state))
             sys.exit(-1)
         else:
-            state = State.load(config, ARGS.state)
+            state = State.load(config, args.state)
     else:
         state = State(config)
 
@@ -268,7 +258,7 @@ if __name__ == '__main__':
 
     rr_ranking = tournament.round1(config, state)
     state.round2["round_robin_ranking"] = rr_ranking
-    state.save(ARGS.state)
+    state.save(args.state)
 
     if config.bonusmatch:
         sorted_ranking = tournament.komode.sort_ranks(rr_ranking[:-1]) + [rr_ranking[-1]]
@@ -280,3 +270,6 @@ if __name__ == '__main__':
     config.print('The winner of the %s Pelita tournament is...' % config.location, wait=2, end=" ")
     config.print('{team_name}. Congratulations'.format(team_name=config.team_name(winner)), wait=2)
     config.print('Good evening master. It was a pleasure to serve you.')
+
+if __name__ == '__main__':
+    main()

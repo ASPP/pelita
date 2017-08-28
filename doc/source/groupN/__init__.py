@@ -18,5 +18,5 @@ def factory():
 #
 # To be used as follows::
 #
-#     $ ./pelitagame path_to/groupN/:alternate_factory
+#     $ pelita path_to/groupN/:alternate_factory
 

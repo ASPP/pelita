@@ -33,16 +33,15 @@ The most important part, of course, is the definition of the different teams.
 Each entry in the `teams` list is enumerated and internally referenced to by either its index or its `id`. The id parameter can therefore be used to distinguish between a `student_group0` and `tutor_group2`, for example.
 This is mainly used when outputting the members list.
 
-The `spec` is the usual team specification that is also used on the `./pelitagame` command line.
+The `spec` is the usual team specification that is also used on the `pelita` command line.
 It is usually the path to the module (or factory) where the participants `Player` is defined.
 `StoppingPlayer` or `../group3/group_player:factory2` are therefore possible.
 
 ## Running
 
-From the root of the pelita repository, one could start a tournament as follows:
+Given a tournament.yaml file, a tournament can be started as
 
-    export PYTHONPATH=.
-    python3 tournament/tournament.py --config tournament/test.yaml --rounds 300
+    pelita-tournament --config tournament.yaml --rounds 300
 
 ## Speech synthesis
 
@@ -51,5 +50,4 @@ Alternative outputs can be specified with the `--speaker flag`, which can be any
 
 An example using OS X’s `say`:
 
-    python3 tournament/tournament.py --config tournament/test.yaml \
-        --speak --speaker "/usr/bin/say -v 'Good News' -f"
+    pelita-tournament --config tournament.yaml --speak --speaker "/usr/bin/say -v 'Good News' -f"
