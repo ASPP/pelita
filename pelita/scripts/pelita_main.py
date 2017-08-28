@@ -96,19 +96,6 @@ def default_players():
     from ..player import SANE_PLAYERS
     return sorted(SANE_PLAYERS, key=lambda m: m.__name__)
 
-def start_logging(filename):
-    if filename:
-        hdlr = logging.FileHandler(filename, mode='w')
-    else:
-        hdlr = logging.StreamHandler()
-    logger = logging.getLogger('pelita')
-    FORMAT = \
-    '[%(relativeCreated)06d %(name)s:%(levelname).1s][%(funcName)s] %(message)s'
-    formatter = logging.Formatter(FORMAT)
-    hdlr.setFormatter(formatter)
-    logger.addHandler(hdlr)
-    logger.setLevel(logging.DEBUG)
-
 def geometry_string(s):
     """Get a X-style geometry definition and return a tuple.
 
@@ -316,7 +303,7 @@ def main():
         raise ValueError("Options --tk (or --tk-no-sync) and --no-publish are mutually exclusive.")
 
     try:
-        start_logging(args.log)
+        pelita.utils.start_logging(args.log)
     except AttributeError:
         pass
 

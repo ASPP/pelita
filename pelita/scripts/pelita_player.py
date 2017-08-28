@@ -3,24 +3,22 @@
 import argparse
 import inspect
 import keyword
+import logging
 import os
 import random
 import string
+import subprocess
 import sys
 
 import pelita
 
-parser = argparse.ArgumentParser(description="Runs a Python pelita module.")
-parser.add_argument('team')
-parser.add_argument('address')
+_logger = logging.getLogger("pelita.scripts.pelita_player")
 
-def make_client():
-    args = parser.parse_args()
+def make_client(team_spec, address):
+    team = load_team(team_spec)
+    print("Using factory '%s' -> '%s'" % (team_spec, team.team_name))
 
-    team = load_team(args.team)
-    print("Using factory '%s' -> '%s'" % (args.team, team.team_name))
-
-    addr = args.address
+    addr = address
     addr = addr.replace('*', 'localhost')
     client = pelita.simplesetup.SimpleClient(team, address=addr)
     return client
@@ -128,9 +126,98 @@ def import_builtin_player(name):
     else:
         raise ImportError("%r is not a valid player." % player)
 
+def with_zmq_router(team, address):
+    dealer_pair_mapping = {}
+    pair_dealer_mapping = {}
+    proc_dealer_mapping = {}
+
+    import zmq
+    ctx = zmq.Context()
+    sock = ctx.socket(zmq.ROUTER)
+    sock.bind(address)
+
+    poll = zmq.Poller()
+    poll.register(sock, zmq.POLLIN)
+
+    while True:
+        evts = dict(poll.poll(1000))
+        if sock in evts:
+            id_ = sock.recv()
+            msg = sock.recv_json()
+            if "REQUEST" in msg:
+                pair_sock = ctx.socket(zmq.PAIR)
+                port = pair_sock.bind_to_random_port('tcp://127.0.0.1')
+                pair_addr = 'tcp://127.0.0.1:{}'.format(port)
+
+                poll.register(pair_sock, zmq.POLLIN)
+
+                _logger.info("Starting match for team {}. ({} already running.)".format(team, len(proc_dealer_mapping)))
+                sub = play_remote(team, pair_addr)
+
+                dealer_pair_mapping[id_] = pair_sock
+                pair_dealer_mapping[pair_sock] = id_
+                proc_dealer_mapping[sub] = (id_, pair_sock)
+
+                assert len(dealer_pair_mapping) == len(pair_dealer_mapping)
+            elif id_ in dealer_pair_mapping:
+                dealer_pair_mapping[id_].send_json(msg)
+            else:
+                _logger.info("Unknown incoming DEALER and not a request.")
+
+        elif len(evts):
+            for pair_sock, id_ in pair_dealer_mapping.items():
+                if pair_sock in evts:
+                    msg = pair_sock.recv()
+                    sock.send_multipart([id_, msg])
+
+        old_procs = list(proc_dealer_mapping.keys())
+        count = 0
+        for proc in old_procs:
+            if proc.poll() is not None:
+                id_, pair_sock = proc_dealer_mapping[proc]
+                del dealer_pair_mapping[id_]
+                del pair_dealer_mapping[pair_sock]
+                del proc_dealer_mapping[proc] 
+                count += 1
+        if count:
+            _logger.debug("Cleaned up {} process(es). ({} still running.)".format(count, len(proc_dealer_mapping)))
+
+
+def play_remote(team, pair_addr):
+    player_path = os.environ.get("PELITA_PATH") or os.path.dirname(sys.argv[0])
+    player = 'pelita.scripts.pelita_player'
+    external_call = [pelita.libpelita.get_python_process(),
+                    '-m',
+                    player,
+                    team,
+                    pair_addr]
+    _logger.debug("Executing: %r", external_call)
+    sub = subprocess.Popen(external_call)
+    return sub
+
+
 def main():
-    client = make_client()
-    ret = client.run()
+    parser = argparse.ArgumentParser(description="Runs a Python pelita module.")
+    parser.add_argument('--log', help='print debugging log information to LOGFILE (default \'stderr\')',
+                        metavar='LOGFILE', default=argparse.SUPPRESS, nargs='?')
+    parser.add_argument('--remote', help='bind to a zmq.ROUTER socket at the given address which forks subprocesses on demand',
+                        action='store_const', const=True)
+    parser.add_argument('team')
+    parser.add_argument('address')
+
+    args = parser.parse_args()
+
+    try:
+        pelita.utils.start_logging(args.log)
+    except AttributeError:
+        pass
+
+    if args.remote:
+        with_zmq_router(args.team, args.address)
+    else:
+        client = make_client(args.team, args.address)
+        ret = client.run()
+
     sys.exit(ret)
 
 if __name__ == '__main__':
