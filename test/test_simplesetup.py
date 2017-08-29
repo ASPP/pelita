@@ -5,7 +5,7 @@ import uuid
 import zmq
 
 import pelita
-from pelita.player import AbstractPlayer, SimpleTeam, TestPlayer
+from pelita.player import AbstractPlayer, SimpleTeam, SteppingPlayer
 from pelita.simplesetup import SimpleClient, SimpleServer, bind_socket, extract_port_range
 from pelita.player import RandomPlayer
 
@@ -61,8 +61,8 @@ class TestSimpleSetup:
         client1_address = server.bind_addresses[0].replace("*", "localhost")
         client2_address = server.bind_addresses[1].replace("*", "localhost")
 
-        client1 = SimpleClient(SimpleTeam("team1", TestPlayer("^>>v<")), address=client1_address)
-        client2 = SimpleClient(SimpleTeam("team2", TestPlayer("^<<v>")), address=client2_address)
+        client1 = SimpleClient(SimpleTeam("team1", SteppingPlayer("^>>v<")), address=client1_address)
+        client2 = SimpleClient(SimpleTeam("team2", SteppingPlayer("^<<v>")), address=client2_address)
 
         client1.autoplay_process()
         client2.autoplay_process()
@@ -92,7 +92,7 @@ class TestSimpleSetup:
             def _get_move(self, universe, game_state):
                 pass
 
-        client1 = SimpleClient(SimpleTeam("team1", TestPlayer("^>>v<")), address=client1_address)
+        client1 = SimpleClient(SimpleTeam("team1", SteppingPlayer("^>>v<")), address=client1_address)
         client2 = SimpleClient(SimpleTeam("team2", FailingPlayer()), address=client2_address)
 
         client1.autoplay_process()

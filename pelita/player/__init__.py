@@ -1,7 +1,7 @@
 
 from .base import AbstractTeam, SimpleTeam, AbstractPlayer
 
-from .base import (StoppingPlayer, TestPlayer, SpeakingPlayer,
+from .base import (StoppingPlayer, SteppingPlayer, SpeakingPlayer,
                    RoundBasedPlayer, MoveExceptionPlayer, InitialExceptionPlayer,
                    DebuggablePlayer)
 

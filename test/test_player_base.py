@@ -8,7 +8,7 @@ from pelita import datamodel
 from pelita.datamodel import CTFUniverse, east, stop, west
 from pelita.game_master import GameMaster
 from pelita.player import (AbstractPlayer, SimpleTeam,
-                           RandomPlayer, StoppingPlayer, TestPlayer,
+                           RandomPlayer, StoppingPlayer, SteppingPlayer,
                            RoundBasedPlayer, SpeakingPlayer)
 
 
@@ -29,7 +29,7 @@ class TestAbstractPlayer:
             ################## """)
 
         player_0 = StoppingPlayer()
-        player_1 = TestPlayer('^<')
+        player_1 = SteppingPlayer('^<')
         player_2 = StoppingPlayer()
         player_3 = StoppingPlayer()
         teams = [
@@ -277,8 +277,8 @@ class TestAbstractPlayer:
         assert set(sim_uni.enemy_food(p1._index)) == {(4, 3), (4, 2)}
 
 
-class TestTestPlayer:
-    def test_test_players(self):
+class TestSteppingPlayer:
+    def test_stepping_players(self):
         test_layout = (
         """ ############
             #0  .  .  1#
@@ -287,8 +287,8 @@ class TestTestPlayer:
         movements_0 = [east, east]
         movements_1 = [west, west]
         teams = [
-            SimpleTeam(TestPlayer(movements_0), TestPlayer(movements_0)),
-            SimpleTeam(TestPlayer(movements_1), TestPlayer(movements_1))
+            SimpleTeam(SteppingPlayer(movements_0), SteppingPlayer(movements_0)),
+            SimpleTeam(SteppingPlayer(movements_1), SteppingPlayer(movements_1))
         ]
         gm = GameMaster(test_layout, teams, 4, 2)
 
@@ -311,8 +311,8 @@ class TestTestPlayer:
             ############ """)
         num_rounds = 5
         teams = [
-            SimpleTeam(TestPlayer('>v<^-)')),
-            SimpleTeam(TestPlayer('<^>v-)'))
+            SimpleTeam(SteppingPlayer('>v<^-)')),
+            SimpleTeam(SteppingPlayer('<^>v-)'))
         ]
         gm = GameMaster(test_layout, teams, 2, num_rounds)
         player0_expected_positions = [(1,1), (2,1), (2,2), (1,2), (1,1)]
@@ -334,8 +334,8 @@ class TestTestPlayer:
         movements_0 = [east, east]
         movements_1 = [west, west]
         teams = [
-            SimpleTeam(TestPlayer(movements_0), TestPlayer(movements_0)),
-            SimpleTeam(TestPlayer(movements_1), TestPlayer(movements_1))
+            SimpleTeam(SteppingPlayer(movements_0), SteppingPlayer(movements_0)),
+            SimpleTeam(SteppingPlayer(movements_1), SteppingPlayer(movements_1))
         ]
         gm = GameMaster(test_layout, teams, 4, 3)
 
@@ -512,19 +512,19 @@ class TestSimpleTeam:
         assert team0.team_name == "my team"
         assert len(team0._players) == 0
 
-        team1 = SimpleTeam("my team", TestPlayer([]))
+        team1 = SimpleTeam("my team", SteppingPlayer([]))
         assert team1.team_name == "my team"
         assert len(team1._players) == 1
 
-        team2 = SimpleTeam("my other team", TestPlayer([]), TestPlayer([]))
+        team2 = SimpleTeam("my other team", SteppingPlayer([]), SteppingPlayer([]))
         assert team2.team_name == "my other team"
         assert len(team2._players) == 2
 
-        team3 = SimpleTeam(TestPlayer([]))
+        team3 = SimpleTeam(SteppingPlayer([]))
         assert team3.team_name == ""
         assert len(team3._players) == 1
 
-        team4 = SimpleTeam(TestPlayer([]), TestPlayer([]))
+        team4 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
         assert team4.team_name == ""
         assert len(team4._players) == 2
 
@@ -535,7 +535,7 @@ class TestSimpleTeam:
                 ###### """
         )
         dummy_universe = CTFUniverse.create(layout, 4)
-        team1 = SimpleTeam(TestPlayer('^'))
+        team1 = SimpleTeam(SteppingPlayer('^'))
 
         with pytest.raises(ValueError):
             team1.set_initial(0, dummy_universe, {})

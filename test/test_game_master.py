@@ -5,7 +5,7 @@ import collections
 
 from pelita.datamodel import CTFUniverse
 from pelita.game_master import GameMaster, ManhattanNoiser, PlayerTimeout
-from pelita.player import AbstractPlayer, SimpleTeam, StoppingPlayer, TestPlayer
+from pelita.player import AbstractPlayer, SimpleTeam, StoppingPlayer, SteppingPlayer
 from pelita.viewer import AbstractViewer
 
 
@@ -18,8 +18,8 @@ class TestGameMaster:
             #     . #  .  .#3#
             ################## """)
 
-        team_1 = SimpleTeam("team1", TestPlayer([]), TestPlayer([]))
-        team_2 = SimpleTeam("team2", TestPlayer([]), TestPlayer([]))
+        team_1 = SimpleTeam("team1", SteppingPlayer([]), SteppingPlayer([]))
+        team_2 = SimpleTeam("team2", SteppingPlayer([]), SteppingPlayer([]))
         game_master = GameMaster(test_layout, [team_1, team_2], 4, 200)
 
         assert game_master.game_state["team_name"][0] == ""
@@ -48,8 +48,8 @@ class TestGameMaster:
             #     . #  .  .#3#
             ################## """)
 
-        team_1 = SimpleTeam('team1', TestPlayer([]), TestPlayer([]))
-        team_2 = SimpleTeam('team2', TestPlayer([]), TestPlayer([]))
+        team_1 = SimpleTeam('team1', SteppingPlayer([]), SteppingPlayer([]))
+        team_2 = SimpleTeam('team2', SteppingPlayer([]), SteppingPlayer([]))
 
         game_master = GameMaster(test_layout, [team_1, team_2], 4, 200)
         game_master.set_initial()
@@ -64,7 +64,7 @@ class TestGameMaster:
             #2#####    #####1#
             #     . #  .  .#3#
             ################## """)
-        team_1 = SimpleTeam(TestPlayer([]), TestPlayer([]))
+        team_1 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
         with pytest.raises(ValueError):
             GameMaster(test_layout_4, [team_1], 4, 200)
 
@@ -76,9 +76,9 @@ class TestGameMaster:
             #     . #  .  .#3#
             ################## """)
 
-        team_1 = SimpleTeam(TestPlayer([]), TestPlayer([]))
-        team_2 = SimpleTeam(TestPlayer([]), TestPlayer([]))
-        team_3 = SimpleTeam(TestPlayer([]), TestPlayer([]))
+        team_1 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
+        team_2 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
+        team_3 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
 
         with pytest.raises(ValueError):
             GameMaster(test_layout_4, [team_1, team_2, team_3], 4, 200)
@@ -259,7 +259,7 @@ class TestGame:
             return universe
 
 
-        teams = [SimpleTeam(TestPlayer('>-v>>>')), SimpleTeam(TestPlayer('<<-<<<'))]
+        teams = [SimpleTeam(SteppingPlayer('>-v>>>')), SimpleTeam(SteppingPlayer('<<-<<<'))]
         gm = GameMaster(test_start, teams, number_bots, 200)
 
         gm.set_initial()
@@ -317,7 +317,7 @@ class TestGame:
         assert create_TestUniverse(test_sixth_round,
             black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS) == gm.universe
 
-        teams = [SimpleTeam(TestPlayer('>-v>>>')), SimpleTeam(TestPlayer('<<-<<<'))]
+        teams = [SimpleTeam(SteppingPlayer('>-v>>>')), SimpleTeam(SteppingPlayer('<<-<<<'))]
         # now play the full game
         gm = GameMaster(test_start, teams, number_bots, 200)
         gm.play()
@@ -380,7 +380,7 @@ class TestGame:
                 #0 . #
                 #.. 1#
                 ###### """)
-        teams = [SimpleTeam(FailingPlayer()), SimpleTeam(TestPlayer("^"))]
+        teams = [SimpleTeam(FailingPlayer()), SimpleTeam(SteppingPlayer("^"))]
 
         gm = GameMaster(test_layout, teams, 2, 1)
 
@@ -409,8 +409,8 @@ class TestGame:
         number_bots = 2
 
         teams = [
-            SimpleTeam(TestPlayer([(0,0)])),
-            SimpleTeam(TestPlayer([(0,0)]))
+            SimpleTeam(SteppingPlayer([(0,0)])),
+            SimpleTeam(SteppingPlayer([(0,0)]))
         ]
         gm = GameMaster(test_start, teams, number_bots, 200)
 
@@ -439,7 +439,7 @@ class TestGame:
         NUM_ROUNDS = 2
         # bot 1 moves east twice to eat the single food
         teams = [
-            SimpleTeam(TestPlayer('>>')),
+            SimpleTeam(SteppingPlayer('>>')),
             SimpleTeam(StoppingPlayer())
         ]
         gm = GameMaster(test_start, teams, 2, game_time=NUM_ROUNDS)
@@ -473,7 +473,7 @@ class TestGame:
 
         teams = [
             SimpleTeam(StoppingPlayer()),
-            SimpleTeam(TestPlayer('<<')) # bot 1 moves west twice to eat the single food
+            SimpleTeam(SteppingPlayer('<<')) # bot 1 moves west twice to eat the single food
         ]
         gm = GameMaster(test_start, teams, 2, game_time=NUM_ROUNDS)
 
@@ -533,7 +533,7 @@ class TestGame:
         )
         teams = [
             SimpleTeam(StoppingPlayer()),
-            SimpleTeam(TestPlayer('<<<'))
+            SimpleTeam(SteppingPlayer('<<<'))
         ]
         # bot 1 eats all the food and the game stops
         gm = GameMaster(test_start, teams, 2, 100)
@@ -566,7 +566,7 @@ class TestGame:
         )
         teams = [
             SimpleTeam(StoppingPlayer()),
-            SimpleTeam(TestPlayer('<<<'))
+            SimpleTeam(SteppingPlayer('<<<'))
         ]
         # bot 1 eats all the food and the game stops
         gm = GameMaster(test_start, teams, 2, 100)
@@ -710,8 +710,8 @@ class TestGame:
 
 
         teams = [
-            SimpleTeam(TestPlayer('>>>>')),
-            SimpleTeam(TestPlayer('<<<<'))
+            SimpleTeam(SteppingPlayer('>>>>')),
+            SimpleTeam(SteppingPlayer('<<<<'))
         ]
         gm = GameMaster(test_start, teams, number_bots, 4)
 
@@ -806,8 +806,8 @@ class TestGame:
         # the game lasts two rounds, enough time for bot 1 to eat food
         NUM_ROUNDS = 5
         teams = [
-            SimpleTeam(TestPlayer('>--->')),
-            SimpleTeam(TestPlayer('<<<<<')) # bot 1 moves west twice to eat the single food
+            SimpleTeam(SteppingPlayer('>--->')),
+            SimpleTeam(SteppingPlayer('<<<<<')) # bot 1 moves west twice to eat the single food
         ]
         gm = GameMaster(test_start, teams, 2, game_time=NUM_ROUNDS)
 

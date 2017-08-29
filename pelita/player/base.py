@@ -516,7 +516,7 @@ class SpeakingPlayer(AbstractPlayer):
         self.say("Going %r." % (move,))
         return move
 
-class TestPlayer(AbstractPlayer):
+class SteppingPlayer(AbstractPlayer):
     """ A Player with predetermined set of moves.
 
     Parameters
