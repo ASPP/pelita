@@ -285,7 +285,7 @@ class SimpleServer:
     -------
     Initialise as follows::
 
-        server = SimpleServer(layout_string=layout, rounds=3000)
+        server = SimpleServer(layout_string=layout, rounds=300)
         server.run()
 
     Parameters
@@ -297,7 +297,7 @@ class SimpleServer:
     players : int, optional
         The number of Players/Bots used in the layout. Default: 4.
     rounds : int, optional
-        The number of rounds played. Default: 3000.
+        The number of rounds played. Default: 300.
     bind_addrs : list of strings, optional
         The address(es) which this server uses for its connections.
         Defaults to ["tcp://*"] * teams, if not given.
@@ -316,7 +316,7 @@ class SimpleServer:
         if layout_file was given, but file does not exist
 
     """
-    def __init__(self, layout_string, teams=2, players=4, rounds=3000, bind_addrs=None,
+    def __init__(self, layout_string, teams=2, players=4, rounds=300, bind_addrs=None,
                  initial_delay=0.0, max_timeouts=5, timeout_length=3, layout_name=None,
                  seed=None):
 
