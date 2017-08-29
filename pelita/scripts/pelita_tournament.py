@@ -269,7 +269,9 @@ def main():
 
     config.print('The winner of the %s Pelita tournament is...' % config.location, wait=2, end=" ")
     config.print('{team_name}. Congratulations'.format(team_name=config.team_name(winner)), wait=2)
-    config.print('Good evening master. It was a pleasure to serve you.')
+    config.print('Good evening master. It was a pleasure to serve you.', wait=2)
+
+    config.print('*** Please remember copying the log files from {}. ***'.format(config.tournament_log_folder), speak=False)
 
 if __name__ == '__main__':
     main()
