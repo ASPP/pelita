@@ -5,15 +5,21 @@
 *.pyc
 *.pyo
 
+# ipython notebook
+.ipynb_checkpoints
+
 # coverage ignore
 .coverage
 
-# eclipse
+# editors
 .project
 .classpath
 .settings
 .metadata
 .pydevproject
+.cache
+.idea
+
 
 # other generic files to ignore
 *~
@@ -22,7 +28,10 @@
 *.swp
 *.out
 
+.cache
+
 # distutils
 build/
+dist/
 
 pelita.log
