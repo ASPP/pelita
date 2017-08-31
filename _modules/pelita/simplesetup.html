@@ -5,16 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pelita.simplesetup &#8212; Pelita 0.9.0.dev documentation</title>
-    
+    <title>pelita.simplesetup &#8212; Pelita 0.9.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.9.0.dev',
+        VERSION:     '0.9.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -330,7 +327,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    Initialise as follows::</span>
 
-<span class="sd">        server = SimpleServer(layout_string=layout, rounds=3000)</span>
+<span class="sd">        server = SimpleServer(layout_string=layout, rounds=300)</span>
 <span class="sd">        server.run()</span>
 
 <span class="sd">    Parameters</span>
@@ -342,7 +339,7 @@
 <span class="sd">    players : int, optional</span>
 <span class="sd">        The number of Players/Bots used in the layout. Default: 4.</span>
 <span class="sd">    rounds : int, optional</span>
-<span class="sd">        The number of rounds played. Default: 3000.</span>
+<span class="sd">        The number of rounds played. Default: 300.</span>
 <span class="sd">    bind_addrs : list of strings, optional</span>
 <span class="sd">        The address(es) which this server uses for its connections.</span>
 <span class="sd">        Defaults to [&quot;tcp://*&quot;] * teams, if not given.</span>
@@ -361,7 +358,7 @@
 <span class="sd">        if layout_file was given, but file does not exist</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout_string</span><span class="p">,</span> <span class="n">teams</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">players</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">3000</span><span class="p">,</span> <span class="n">bind_addrs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout_string</span><span class="p">,</span> <span class="n">teams</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">players</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">bind_addrs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">initial_delay</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_timeouts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">timeout_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layout_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
@@ -385,25 +382,35 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">team_players</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">address</span> <span class="ow">in</span> <span class="n">bind_addrs</span><span class="p">:</span>
-            <span class="n">socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">PAIR</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">address</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;remote:&quot;</span><span class="p">):</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Received remote address.&quot;</span><span class="p">)</span>
+                <span class="n">send_addr</span> <span class="o">=</span> <span class="n">address</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;remote:&quot;</span><span class="p">):]</span>
+                <span class="n">address</span> <span class="o">=</span> <span class="s2">&quot;tcp://*&quot;</span>
 
-            <span class="n">bind_to_random</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">if</span> <span class="n">address</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;tcp://&quot;</span><span class="p">):</span>
-                <span class="n">split_address</span> <span class="o">=</span> <span class="n">address</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;tcp://&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">split_address</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-                    <span class="c1"># assume no port has been given:</span>
-                    <span class="n">bind_to_random</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">DEALER</span><span class="p">)</span>
+                <span class="n">socket</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">send_addr</span><span class="p">)</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Connecting zmq.DEALER to </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">send_addr</span><span class="p">))</span>
+                <span class="n">socket</span><span class="o">.</span><span class="n">send_json</span><span class="p">({</span><span class="s2">&quot;REQUEST&quot;</span><span class="p">:</span> <span class="n">address</span><span class="p">})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">PAIR</span><span class="p">)</span>
 
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">bind_to_random</span><span class="p">:</span>
-                    <span class="n">socket_port</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">bind_to_random_port</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
-                    <span class="n">address</span> <span class="o">=</span> <span class="n">address</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;:</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">socket_port</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">socket</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Bound zmq.PAIR to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span>
-            <span class="k">except</span> <span class="n">zmq</span><span class="o">.</span><span class="n">ZMQError</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ZMQError while trying to bind </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">address</span><span class="p">))</span>
-                <span class="k">raise</span>
+                <span class="n">bind_to_random</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">address</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;tcp://&quot;</span><span class="p">):</span>
+                    <span class="n">split_address</span> <span class="o">=</span> <span class="n">address</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;tcp://&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">split_address</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="c1"># assume no port has been given:</span>
+                        <span class="n">bind_to_random</span> <span class="o">=</span> <span class="kc">True</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">bind_to_random</span><span class="p">:</span>
+                        <span class="n">socket_port</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">bind_to_random_port</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+                        <span class="n">address</span> <span class="o">=</span> <span class="n">address</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;:</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">socket_port</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">socket</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Bound zmq.PAIR to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">zmq</span><span class="o">.</span><span class="n">ZMQError</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ZMQError while trying to bind </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">address</span><span class="p">))</span>
+                    <span class="k">raise</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">sockets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">bind_addresses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
@@ -741,7 +748,7 @@
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

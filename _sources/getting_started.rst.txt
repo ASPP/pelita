@@ -2,6 +2,15 @@
 Getting started
 ===============
 
+Dependencies
+============
+
+Pelita requires pyzmq, PyYAML, and numpy.
+
+
+Standard team layout
+====================
+
 When writing a team, it is useful to follow a standard module layout::
 
     team/
@@ -13,21 +22,10 @@ When writing a team, it is useful to follow a standard module layout::
               __init__.py
 
 
-A module layout can be generated automatically in the current folder with `../... --gen-team`.
-`--gen-team` takes a team name (in quotes) as well as a number of class names to generate templates for the `AbstractPlayer` subclasses.
-
-
-In this section, we assume the generator code has been run as follows::
-
-    ./pelitagame --gen-team "My team name" Player Player
-
-
-
 Inside `team/__init__.py` players are required to define a function `factory`::
 
     def factory():
         return SimpleTeam("My team name", Player(), Player())
-
 
 
     def Player(AbstractPlayer):

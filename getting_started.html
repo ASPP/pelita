@@ -5,16 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Getting started &#8212; Pelita 0.9.0.dev documentation</title>
-    
+    <title>Getting started &#8212; Pelita 0.9.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.9.0.dev',
+        VERSION:     '0.9.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -44,6 +41,12 @@
             
   <div class="section" id="getting-started">
 <h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p>Pelita requires pyzmq, PyYAML, and numpy.</p>
+</div>
+<div class="section" id="standard-team-layout">
+<h2>Standard team layout<a class="headerlink" href="#standard-team-layout" title="Permalink to this headline">¶</a></h2>
 <p>When writing a team, it is useful to follow a standard module layout:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">team</span><span class="o">/</span>
      <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
@@ -54,16 +57,9 @@
           <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
-<p>A module layout can be generated automatically in the current folder with <cite>../… –gen-team</cite>.
-<cite>–gen-team</cite> takes a team name (in quotes) as well as a number of class names to generate templates for the <cite>AbstractPlayer</cite> subclasses.</p>
-<p>In this section, we assume the generator code has been run as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">pelitagame</span> <span class="o">--</span><span class="n">gen</span><span class="o">-</span><span class="n">team</span> <span class="s2">&quot;My team name&quot;</span> <span class="n">Player</span> <span class="n">Player</span>
-</pre></div>
-</div>
 <p>Inside <cite>team/__init__.py</cite> players are required to define a function <cite>factory</cite>:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">factory</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">SimpleTeam</span><span class="p">(</span><span class="s2">&quot;My team name&quot;</span><span class="p">,</span> <span class="n">Player</span><span class="p">(),</span> <span class="n">Player</span><span class="p">())</span>
-
 
 
 <span class="k">def</span> <span class="nf">Player</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
@@ -78,6 +74,7 @@
 <p>Please have a look at the methods in <cite>AbstractPlayer</cite> as to be sure what better not to override in the subclass (or only with calls to <cite>super()</cite>).
 Note, however, that you are free to use <cite>__init__</cite> when instantiating your class.
 That means that you can easily add parameters to your classes.</p>
+</div>
 </div>
 
 
@@ -131,7 +128,7 @@ That means that you can easily add parameters to your classes.</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

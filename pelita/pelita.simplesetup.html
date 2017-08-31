@@ -5,16 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pelita.simplesetup &#8212; Pelita 0.9.0.dev documentation</title>
-    
+    <title>pelita.simplesetup &#8212; Pelita 0.9.0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.9.0.dev',
+        VERSION:     '0.9.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +21,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="pelita.ui" href="pelita.ui.html" />
@@ -169,7 +166,7 @@ a client player has connected.)</p>
 
 <dl class="class">
 <dt id="pelita.simplesetup.SimpleClient">
-<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">SimpleClient</code><span class="sig-paren">(</span><em>team</em>, <em>team_name=’‘</em>, <em>address=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#SimpleClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.SimpleClient" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">SimpleClient</code><span class="sig-paren">(</span><em>team</em>, <em>team_name=''</em>, <em>address=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#SimpleClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.SimpleClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Sets up a simple Client with most settings pre-configured.</p>
 <p class="rubric">Example</p>
@@ -216,12 +213,12 @@ over a zmq connection.</p>
 
 <dl class="class">
 <dt id="pelita.simplesetup.SimpleServer">
-<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">SimpleServer</code><span class="sig-paren">(</span><em>layout_string</em>, <em>teams=2</em>, <em>players=4</em>, <em>rounds=3000</em>, <em>bind_addrs=None</em>, <em>initial_delay=0.0</em>, <em>max_timeouts=5</em>, <em>timeout_length=3</em>, <em>layout_name=None</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#SimpleServer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.SimpleServer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pelita.simplesetup.</code><code class="descname">SimpleServer</code><span class="sig-paren">(</span><em>layout_string</em>, <em>teams=2</em>, <em>players=4</em>, <em>rounds=300</em>, <em>bind_addrs=None</em>, <em>initial_delay=0.0</em>, <em>max_timeouts=5</em>, <em>timeout_length=3</em>, <em>layout_name=None</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/simplesetup.html#SimpleServer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.simplesetup.SimpleServer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Sets up a simple Server with most settings pre-configured.</p>
 <p class="rubric">Example</p>
 <p>Initialise as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">server</span> <span class="o">=</span> <span class="n">SimpleServer</span><span class="p">(</span><span class="n">layout_string</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">3000</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">server</span> <span class="o">=</span> <span class="n">SimpleServer</span><span class="p">(</span><span class="n">layout_string</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
 <span class="n">server</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -233,7 +230,7 @@ over a zmq connection.</p>
 <li><strong>layout_string</strong> (<em>string</em>) – initial layout as string</li>
 <li><strong>teams</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of Teams used in the layout. Default: 2.</li>
 <li><strong>players</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of Players/Bots used in the layout. Default: 4.</li>
-<li><strong>rounds</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of rounds played. Default: 3000.</li>
+<li><strong>rounds</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of rounds played. Default: 300.</li>
 <li><strong>bind_addrs</strong> (<em>list of strings</em><em>, </em><em>optional</em>) – The address(es) which this server uses for its connections.
 Defaults to [“<a class="reference external" href="tcp://">tcp://</a><a href="#id1"><span class="problematic" id="id2">*</span></a>”] * teams, if not given.</li>
 <li><strong>initial_delay</strong> (<em>float</em>) – Delays the start of the game by <cite>initial_delay</cite> seconds.</li>
@@ -429,7 +426,7 @@ uuids are discarded.</li>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

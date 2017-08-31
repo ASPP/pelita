@@ -1,4 +1,4 @@
-As of ``v0.2.0-209-ga045248`` the developers and contributors are::
+As of ``v0.9.0`` the developers and contributors are::
 
     Rike-Benjamin Schuppner
     Valentin Haenel
@@ -6,9 +6,11 @@ As of ``v0.2.0-209-ga045248`` the developers and contributors are::
     Zbigniew Jędrzejewski-Szmek
     Bastian Venthur
     Pietro Berkes
-    Nicola Chiapolini
+    Jakob Jordan
     Pauli Virtanen
+    Nicola Chiapolini
     abject
+    DoriekeG
     Christian Steigies
     Sasza Kijek
     Francesc Alted
