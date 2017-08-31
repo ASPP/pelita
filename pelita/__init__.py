@@ -11,4 +11,4 @@ from . import (containers,
 
 _git_version = __version_from_git.version()
 
-__version__ = '0.9.0.dev'
+__version__ = '0.9.0'
