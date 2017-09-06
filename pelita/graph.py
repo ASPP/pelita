@@ -287,7 +287,7 @@ class AdjacencyList(dict):
                     heapq.heappush(to_visit, (priority, next))
         else:
             # no target found
-            raise NoPathException("BFS: No path from %r to %r." % (initial, target))
+            raise NoPathException("a_star: No path from %r to %r." % (initial, target))
 
         # Now back-track using seen to determine how we got here.
         # Initialise the path with current node, i.e. position of food.
