@@ -9,3 +9,25 @@ class TestLibpelitaUtils:
         assert libpelita.firstNN(None, None, None) == None
         assert libpelita.firstNN() == None
 
+
+class TestCallPelita:
+    def test_call_pelita(self):
+        rounds = 200
+        viewer = 'ascii'
+        filter = 'small'
+
+        teams = ["StoppingPlayer", "StoppingPlayer"]
+        (state, stdout, stderr) = libpelita.call_pelita(teams, rounds=rounds, viewer=viewer, filter=filter, dump=None, seed=None)
+        assert state['team_wins'] is None
+        assert state['game_draw'] is True
+
+        teams = ["SmartEatingPlayer", "StoppingPlayer"]
+        (state, stdout, stderr) = libpelita.call_pelita(teams, rounds=rounds, viewer=viewer, filter=filter, dump=None, seed=None)
+        assert state['team_wins'] == 0
+        assert state['game_draw'] is None
+
+        teams = ["StoppingPlayer", "SmartEatingPlayer"]
+        (state, stdout, stderr) = libpelita.call_pelita(teams, rounds=rounds, viewer=viewer, filter=filter, dump=None, seed=None)
+        assert state['team_wins'] == 1
+        assert state['game_draw'] is None
+

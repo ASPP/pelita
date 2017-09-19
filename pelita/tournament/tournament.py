@@ -247,7 +247,7 @@ def set_name(team):
         raise
 
 
-def run_match(config, teams):
+def play_game_with_config(config, teams):
     team1, team2 = teams
 
     if config.tournament_log_folder:
@@ -284,7 +284,7 @@ def start_match(config, teams, shuffle=False):
     config.print()
     config.wait_for_keypress()
 
-    (final_state, stdout, stderr) = run_match(config, teams)
+    (final_state, stdout, stderr) = play_game_with_config(config, teams)
     try:
         game_draw = final_state['game_draw']
         team_wins = final_state['team_wins']

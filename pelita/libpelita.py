@@ -148,7 +148,7 @@ def call_pelita(team_specs, *, rounds, filter, viewer, dump, seed):
         reply_port = reply_sock.bind_to_random_port(addr)
         reply_addr = 'tcp://127.0.0.1' + ':' + str(reply_port)
 
-    rounds = ['--rounds', rounds] if rounds else []
+    rounds = ['--rounds', str(rounds)] if rounds else []
     filter = ['--filter', filter] if filter else []
     viewer = ['--' + viewer] if viewer else []
     dump = ['--dump', dump] if dump else []
