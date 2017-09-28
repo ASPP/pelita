@@ -44,10 +44,17 @@ def test_default_players():
 
 import atexit
 
+def terminate_and_wait(proc):
+    proc.terminate()
+    try:
+        proc.wait(3)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+
 def Popen_autokill(args):
     # we need to autokill in case of errors
     p = subprocess.Popen(args)
-    atexit.register(p.kill)
+    atexit.register((lambda p: lambda: terminate_and_wait(p))(p))
     return p
 
 def test_remote_game():

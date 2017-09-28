@@ -6,6 +6,7 @@ import keyword
 import logging
 import os
 import random
+import signal
 import string
 import subprocess
 import sys
@@ -130,6 +131,13 @@ def with_zmq_router(team, address):
     dealer_pair_mapping = {}
     pair_dealer_mapping = {}
     proc_dealer_mapping = {}
+
+    def cleanup(signum, frame):
+        for proc in proc_dealer_mapping:
+            proc.terminate()
+        sys.exit()
+
+    signal.signal(signal.SIGTERM, cleanup)
 
     import zmq
     ctx = zmq.Context()
