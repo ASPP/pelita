@@ -67,6 +67,12 @@ class TestBot:
         assert bot.is_harvester
         assert not bot.in_own_zone
 
+    def test_on_west_side(self):
+        bot_west = Bot(1, (1, 1), 0, (3, 6), current_pos = (1, 1))
+        bot_east = Bot(2, (4, 4), 1, (3, 6), current_pos = (4, 4))
+        assert bot_west.on_west_side
+        assert not bot_east.on_west_side
+
     def test_eq_repr_cmp(self):
         black = Bot(0, (1, 1), 0, (0, 3))
         black2 = Bot(0, (1, 1), 0, (0, 3))
@@ -808,4 +814,3 @@ class TestCTFUniverseRules:
         assert game_state == target
         assert universe.teams[0].score == universe.KILLPOINTS
         assert universe.teams[1].score == 0
-

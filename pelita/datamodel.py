@@ -111,6 +111,16 @@ class Bot:
         return self.homezone[0] <= self.current_pos[0] <= self.homezone[1]
 
     @property
+    def on_west_side(self):
+        # Find team_border of maze
+        if 0 in self.homezone:
+            border = max(self.homezone) + 1
+        else:
+            border = min(self.homezone)
+            # We are on_west_side, if current_pos is left of team_border
+            return self.current_pos[0] < border
+
+    @property
     def is_destroyer(self):
         return self.in_own_zone
 
