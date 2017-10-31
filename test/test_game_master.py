@@ -4,7 +4,7 @@ import unittest
 import collections
 
 from pelita.datamodel import CTFUniverse
-from pelita.game_master import GameMaster, ManhattanNoiser, PlayerTimeout
+from pelita.game_master import GameMaster, ManhattanNoiser, PlayerTimeout, NoFoodWarning
 from pelita.player import AbstractPlayer, SimpleTeam, StoppingPlayer, SteppingPlayer
 from pelita.viewer import AbstractViewer
 
@@ -83,6 +83,26 @@ class TestGameMaster:
         with pytest.raises(ValueError):
             GameMaster(test_layout_4, [team_1, team_2, team_3], 4, 200)
 
+    def test_no_food(self):
+        team_1 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
+        team_2 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
+
+        both_starving_layout = (
+            """ ######
+                #0   #
+                #   1#
+                ###### """)
+        with pytest.warns(NoFoodWarning):
+            GameMaster(both_starving_layout, [team_1, team_2], 2, 1)
+
+        one_side_starving_layout = (
+            """ ######
+                #0  .#
+                #   1#
+                ###### """)
+        with pytest.warns(NoFoodWarning):
+            GameMaster(one_side_starving_layout, [team_1, team_2], 2, 1)
+
 class TestUniverseNoiser:
     def test_uniform_noise_manhattan(self):
         test_layout = (
@@ -106,7 +126,7 @@ class TestUniverseNoiser:
                      (4, 3), (5, 3), (6, 3), (7, 3), (7, 2),
                      (6, 1), (5, 1), (4, 1), (3, 1) ]
         unittest.TestCase().assertCountEqual(position_bucket, expected, position_bucket)
-    
+
 
     def test_uniform_noise_4_bots_manhattan(self):
         test_layout = (
