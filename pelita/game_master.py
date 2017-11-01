@@ -4,6 +4,7 @@ import abc
 import random
 import sys
 import time
+from warnings import warn
 
 from . import datamodel
 from .datamodel import Bot, CTFUniverse
@@ -17,6 +18,10 @@ class PlayerTimeout(Exception):
     pass
 
 class PlayerDisconnected(Exception):
+    pass
+
+class NoFoodWarning(Warning):
+    """ Warning about a layout with no food. """
     pass
 
 class GameMaster:
@@ -157,6 +162,12 @@ class GameMaster:
             #: sight distance of the noise
             "noise_sight_distance": self.noiser and self.noiser.sight_distance
         }
+
+        # Check that both teams have food, and raise a warning otherwise
+        for (team_id, food_count) in enumerate(self.game_state["food_to_eat"]):
+            if food_count == 0:
+                warn("Layout contains no food for team {}.".format(team_id),
+                     NoFoodWarning)
 
     @property
     def game_time(self):
