@@ -86,6 +86,8 @@ class Bot:
     ----------
     in_own_zone : boolean, property
         True if in its own homezone and False otherwise
+    on_west_side: boolean, property
+        True if on west side of team border and False otherwise
     is_destroyer : boolean, property
         True if a destroyer, False otherwise
     is_harvester : boolean, property
@@ -109,6 +111,16 @@ class Bot:
     @property
     def in_own_zone(self):
         return self.homezone[0] <= self.current_pos[0] <= self.homezone[1]
+
+    @property
+    def on_west_side(self):
+        # Find team_border of maze
+        if 0 in self.homezone:
+            border = max(self.homezone) + 1
+        else:
+            border = min(self.homezone)
+        # We are on_west_side, if current_pos is smaller than team_border
+        return self.current_pos[0] < border
 
     @property
     def is_destroyer(self):
