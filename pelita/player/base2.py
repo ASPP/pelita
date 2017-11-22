@@ -576,13 +576,13 @@ class TurnBasedPlayer(Player2):
             return datamodel.stop
 
 class MoveExceptionPlayer(Player2):
-    """ Player that raises an Exception on get_move(). """
+    """Player that raises an Exception on get_move()."""
 
     def get_move(self):
         raise Exception("Exception from MoveExceptionPlayer.")
 
 class InitialExceptionPlayer(Player2):
-    """ Player that raises an Exception on set_initial(). """
+    """Player that raises an Exception on set_initial()."""
 
     def set_initial(self):
         raise Exception("Exception from InitialExceptionPlayer.")
@@ -591,7 +591,7 @@ class InitialExceptionPlayer(Player2):
         pass
 
 class DebuggablePlayer(Player2):
-    """ Player which invokes pdb on each move.
+    """Player which invokes pdb on each move.
 
     Setting ``direction`` inside the debugger will change
     its behaviour.
