@@ -249,7 +249,7 @@ class AbstractPlayer(metaclass=abc.ABCMeta):
         """ Subclasses _must_ override this. """
 
     @property
-    def _current_uni(self):
+    def current_uni(self):
         """ The current Universe.
 
         Returns
@@ -272,66 +272,56 @@ class AbstractPlayer(metaclass=abc.ABCMeta):
         return self._current_state
 
     @property
-    def walls(self):
-        """The current maze.
+    def me(self):
+        """ The Bot object this Player controls.
 
         Returns
         -------
-        maze : NumPy array of bool
-            The Maze object. True in walls, False in valid positions.
+        me : Bot
+            the bot controlled by this player
+
         """
-        shape = self._current_uni.maze.shape
-        arr = np.zeros(shape, dtype=bool)
-        for (i, j), v in self._current_uni.maze.items():
-            arr[i, j] = v
-        return arr
+        return self.current_uni.bots[self._index]
 
     @property
-    def my_score(self):
-        """Return your team's current score.
+    def team(self):
+        """ The Team object this Player's Bot is on.
 
         Returns
         -------
-        score : int
-            Your team's score.
+        team : Team
+            the team of the bot controlled by this player
+
         """
-        return self._current_uni.teams[self.team_index].score
+        return self.current_uni.teams[self.me.team_index]
 
     @property
-    def enemy_score(self):
-        """Return the other team's current score.
+    def team_bots(self):
+        """ A list of all Bots that are on this Player's Bot's Team including
+        the current bot.
 
         Returns
         -------
-        score : int
-            The enemy team's scores.
+        team_bots : list of Bot objects
+            the team mates, including this Player's Bot
         """
-        return self._current_uni.enemy_team(self.team_index).score
+        return self.current_uni.team_bots(self.me.team_index)
 
     @property
-    def teammate(self):
-        """Return the other bot in your team (in size-2 teams).
+    def other_team_bots(self):
+        """ A list of Bots that are on this Player's team excluding the current
+        bot.
+
+        Please parse this method mentally as ‘other (team bots)’. These bots
+        are not your enemies. See also: ``enemy_bots``.
 
         Returns
         -------
-        teammate : Bot object
-            Your teammate.
-        """
-        return self._current_uni.other_team_bots(self._index)[0]
+        other_team_bots : list of Bot objects
+            the team mates, excluding this Player's Bot
 
-    def in_home_zone(self, position=None):
-        """Check whether a position (default current position) is in the home
-        zone.
-
-        Returns
-        -------
-        in_home : bool
-            True if the given position (or the player) is in the home zone.
         """
-        xmin, xmax = self._current_uni.teams[self.team_index].homezone
-        home_zone = range(xmin, xmax + 1)
-        position = position or self.current_pos
-        return position[0] in home_zone
+        return self.current_uni.other_team_bots(self._index)
 
     @property
     def team_border(self):
@@ -344,7 +334,7 @@ class AbstractPlayer(metaclass=abc.ABCMeta):
             the border positions
 
         """
-        return self._current_uni.team_border(self.team_index)
+        return self.current_uni.team_border(self.me.team_index)
 
     @property
     def team_food(self):
@@ -358,7 +348,7 @@ class AbstractPlayer(metaclass=abc.ABCMeta):
             The positions (x, y) of food edible by the enemy
 
         """
-        return self._current_uni.team_food(self.team_index)
+        return self.current_uni.team_food(self.me.team_index)
 
     @property
     def enemy_food(self):
@@ -372,7 +362,7 @@ class AbstractPlayer(metaclass=abc.ABCMeta):
             The positions (x, y) of edible food
 
         """
-        return self._current_uni.enemy_food(self.team_index)
+        return self.current_uni.enemy_food(self.me.team_index)
 
     @property
     def enemy_bots(self):
@@ -383,7 +373,18 @@ class AbstractPlayer(metaclass=abc.ABCMeta):
         enemy_bots : list of Bot objects
             all Bots on all enemy teams
         """
-        return self._current_uni.enemy_bots(self.team_index)
+        return self.current_uni.enemy_bots(self.me.team_index)
+
+    @property
+    def enemy_team(self):
+        """ The enemy Team.
+
+        Returns
+        -------
+        enemy_team : Team object
+            the enemy teams
+        """
+        return self.current_uni.enemy_team(self.me.team_index)
 
     @property
     def enemy_name(self):
@@ -406,7 +407,7 @@ class AbstractPlayer(metaclass=abc.ABCMeta):
         current_pos : tuple of (int, int)
             the current position (x, y) of this bot
         """
-        return self.current_pos
+        return self.me.current_pos
 
     @property
     def previous_pos(self):
@@ -429,7 +430,7 @@ class AbstractPlayer(metaclass=abc.ABCMeta):
             the initial position (x, y) of this bot
 
         """
-        return self.initial_pos
+        return self.me.initial_pos
 
     @property
     def legal_moves(self):
@@ -440,7 +441,7 @@ class AbstractPlayer(metaclass=abc.ABCMeta):
         legal_moves : dict mapping moves to positions
             the currently legal moves
         """
-        return self._current_uni.legal_moves(self.current_pos)
+        return self.current_uni.legal_moves(self.current_pos)
 
     def time_spent(self):
         """ The approximate amount of time since `get_move` was
@@ -483,7 +484,7 @@ class AbstractPlayer(metaclass=abc.ABCMeta):
             if the move is invalid or impossible
 
         """
-        uni = self._current_uni.copy()
+        uni = self.current_uni.copy()
         new_state = uni.move_bot(self._index, move)
         return (uni, new_state)
 
