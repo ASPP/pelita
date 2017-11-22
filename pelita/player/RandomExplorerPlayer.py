@@ -1,8 +1,8 @@
-from pelita import datamodel
-from pelita.player import AbstractPlayer, SimpleTeam
+from .. import datamodel
+from . import Player2, SimpleTeam
 
 
-class RandomExplorerPlayer(AbstractPlayer):
+class RandomExplorerPlayer(Player2):
     """ Least visited random player. Will prefer moving to a position it’s never seen before. """
     def set_initial(self):
         self.visited = []

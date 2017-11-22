@@ -1,9 +1,9 @@
-from pelita import datamodel
-from pelita.graph import AdjacencyList, NoPathException, diff_pos
-from pelita.player import AbstractPlayer, SimpleTeam
+from .. import datamodel
+from ..graph import AdjacencyList, NoPathException, diff_pos
+from . import Player2, SimpleTeam
 
 
-class SmartEatingPlayer(AbstractPlayer):
+class SmartEatingPlayer(Player2):
     def set_initial(self):
         self.adjacency = AdjacencyList(self.current_uni.reachable([self.initial_pos]))
         self.next_food = None

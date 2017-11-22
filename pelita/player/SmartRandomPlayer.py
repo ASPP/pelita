@@ -1,8 +1,8 @@
-from pelita.datamodel import stop
-from pelita.player import AbstractPlayer, SimpleTeam
+from ..datamodel import stop
+from . import Player2, SimpleTeam
 
 
-class SmartRandomPlayer(AbstractPlayer):
+class SmartRandomPlayer(Player2):
     def get_move(self):
         dangerous_enemy_pos = [bot.current_pos
             for bot in self.enemy_bots if bot.is_destroyer]
