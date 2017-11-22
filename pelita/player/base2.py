@@ -1,5 +1,6 @@
 """ Base classes for player implementations. """
 
+from copy import deepcopy
 import abc
 import pdb
 import random
@@ -494,7 +495,7 @@ class Player2(metaclass=abc.ABCMeta):
 
         """
         future_uni = self._current_uni.copy()
-        future_self = self.copy()
+        future_self = deepcopy(self)
         new_state = future_uni.move_bot(self._index, move)
         future_self.universe_states.append(future_uni)
         future_self._current_state = new_state
