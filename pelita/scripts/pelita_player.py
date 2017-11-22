@@ -121,7 +121,7 @@ def import_builtin_player(name):
                 msg = 'Failed to find %s in players. (Available players are: %s).' % (name, others)
                 raise ImportError(msg)
 
-    if inspect.isclass(player) and issubclass(player, pelita.player.AbstractPlayer):
+    if inspect.isclass(player) and issubclass(player, pelita.player.Player2):
         return player
     else:
         raise ImportError("%r is not a valid player." % player)
@@ -177,7 +177,7 @@ def with_zmq_router(team, address):
                 id_, pair_sock = proc_dealer_mapping[proc]
                 del dealer_pair_mapping[id_]
                 del pair_dealer_mapping[pair_sock]
-                del proc_dealer_mapping[proc] 
+                del proc_dealer_mapping[proc]
                 count += 1
         if count:
             _logger.debug("Cleaned up {} process(es). ({} still running.)".format(count, len(proc_dealer_mapping)))
