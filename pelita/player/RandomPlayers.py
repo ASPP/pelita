@@ -9,7 +9,7 @@ class RandomPlayer(Player2):
         return self.rnd.choice(list(self.legal_moves.keys()))
 
 
-class NQRandomPlayer(AbstractPlayer):
+class NQRandomPlayer(Player2):
     """ Not-Quite-RandomPlayer that will move randomly but not stop or reverse. """
 
     def get_move(self):
