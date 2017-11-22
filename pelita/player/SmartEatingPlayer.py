@@ -5,7 +5,7 @@ from . import Player2, SimpleTeam
 
 class SmartEatingPlayer(Player2):
     def set_initial(self):
-        self.adjacency = AdjacencyList(self.current_uni.reachable([self.initial_pos]))
+        self.adjacency = AdjacencyList(self._current_uni.reachable([self.initial_pos]))
         self.next_food = None
 
     def goto_pos(self, pos):
