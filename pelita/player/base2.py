@@ -334,6 +334,17 @@ class Player2(metaclass=abc.ABCMeta):
         return position[0] in home_zone
 
     @property
+    def team_index(self):
+        """Return the index of the team of the current player.
+
+        Returns
+        -------
+        index : int
+            The team index.
+        """
+        return self._current_uni.bots[self._index].team_index
+
+    @property
     def team_border(self):
         """ Positions of the border positions.
         These are the last positions in the zone of the team.
