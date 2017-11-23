@@ -1,7 +1,7 @@
 """ Base classes for player implementations. """
 
-from copy import deepcopy
 import abc
+from copy import deepcopy
 import pdb
 import random
 import time
