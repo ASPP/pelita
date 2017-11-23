@@ -454,6 +454,18 @@ class Player2(metaclass=abc.ABCMeta):
         """
         return self._current_uni.legal_moves(self.current_pos)
 
+    @property
+    def reachable_positions(self):
+        """Return a list of all reachable positions from the given position.
+
+        Returns
+        -------
+        reachable : list of tuple of int
+            List of (x, y) coordinates of all positions reachable from
+            the current position.
+        """
+        return self._current_uni.reachable([self.current_pos])
+
     def time_spent(self):
         """ The approximate amount of time since `get_move` was
         called.
