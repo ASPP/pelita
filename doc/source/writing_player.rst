@@ -314,7 +314,7 @@ our universe.::
 
 
 Players may use an adjacency list representation provided by
-``pelita.graph.AdjacencyList``. Let's have a quick look at how this is
+``pelita.graph.Graph``. Let's have a quick look at how this is
 generated, in case you would like to implement your own `graph storage
 <https://en.wikipedia.org/wiki/Graph_(data_structure)>`_ or leverage an
 alternative existing package such as `NetworkX <https://networkx.github.io>`_.

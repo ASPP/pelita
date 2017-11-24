@@ -8,7 +8,7 @@ from warnings import warn
 
 from . import datamodel
 from .datamodel import Bot, CTFUniverse
-from .graph import AdjacencyList, NoPathException, manhattan_dist
+from .graph import Graph, NoPathException, manhattan_dist
 
 
 class GameFinished(Exception):
@@ -449,7 +449,7 @@ class UniverseNoiser(metaclass=abc.ABCMeta):
     """
 
     def __init__(self, universe, noise_radius=5, sight_distance=5, seed=None):
-        self.adjacency = AdjacencyList(universe.free_positions())
+        self.adjacency = Graph(universe.free_positions())
         self.noise_radius = noise_radius
         self.sight_distance = sight_distance
         self.rnd = random.Random(seed)
