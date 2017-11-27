@@ -1,15 +1,15 @@
-from pelita import datamodel
-from pelita.player import AbstractPlayer, SimpleTeam
+from .. import datamodel
+from . import Player2, SimpleTeam
 
 
-class RandomPlayer(AbstractPlayer):
+class RandomPlayer(Player2):
     """ A player that makes moves at random. """
 
     def get_move(self):
         return self.rnd.choice(list(self.legal_moves.keys()))
 
 
-class NQRandomPlayer(AbstractPlayer):
+class NQRandomPlayer(Player2):
     """ Not-Quite-RandomPlayer that will move randomly but not stop or reverse. """
 
     def get_move(self):

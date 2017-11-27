@@ -9,7 +9,7 @@ from pelita.datamodel import CTFUniverse, east, stop, west
 from pelita.game_master import GameMaster
 from pelita.player import (AbstractPlayer, SimpleTeam,
                            RandomPlayer, StoppingPlayer, SteppingPlayer,
-                           RoundBasedPlayer, SpeakingPlayer)
+                           TurnBasedPlayer, SpeakingPlayer)
 
 
 class TestAbstractPlayer:
@@ -212,40 +212,48 @@ class TestAbstractPlayer:
         gm = GameMaster(test_layout, team, 4, 5)
         gm.set_initial()
 
-        sim_uni, sim_state = p0.simulate_move(datamodel.stop)
+        sim_p0 = p0.simulate_move(datamodel.stop)
+        sim_state = sim_p0._current_state
+        sim_uni = sim_p0._current_uni
         assert sim_state == {
             'bot_destroyed': [],
             'bot_moved': [{'bot_id': 0, 'new_pos': (5, 2), 'old_pos': (5, 2)}],
             'food_eaten': []
         }
-        assert sim_uni.maze == p0.current_uni.maze
-        assert sim_uni == p0.current_uni
-        assert sim_uni is not p0.current_uni
+        assert sim_uni.maze == p0._current_uni.maze
+        assert sim_uni == p0._current_uni
+        assert sim_uni is not p0._current_uni
 
-        sim_uni, sim_state = p0.simulate_move(datamodel.north)
+        sim_p0 = p0.simulate_move(datamodel.north)
+        sim_state = sim_p0._current_state
+        sim_uni = sim_p0._current_uni
         assert sim_state == {
             'bot_destroyed': [{'bot_id': 1, 'destroyed_by': 0}],
             'bot_moved': [{'bot_id': 0, 'new_pos': (5, 1), 'old_pos': (5, 2)},
                           {'bot_id': 0, 'new_pos': (5, 1), 'old_pos': (5, 1)}],
             'food_eaten': []
         }
-        assert sim_uni.maze == p0.current_uni.maze
-        assert sim_uni != p0.current_uni
+        assert sim_uni.maze == p0._current_uni.maze
+        assert sim_uni != p0._current_uni
 
-        sim_uni, sim_state = p0.simulate_move(datamodel.east)
+        sim_p0 = p0.simulate_move(datamodel.east)
+        sim_state = sim_p0._current_state
+        sim_uni = sim_p0._current_uni
         assert sim_state == {
             'bot_destroyed': [{'bot_id': 0, 'destroyed_by': 3}],
             'bot_moved': [{'bot_id': 0, 'new_pos': (6, 2), 'old_pos': (5, 2)},
                           {'bot_id': 0, 'new_pos': (5, 2), 'old_pos': (6, 2)}],
             'food_eaten': []
         }
-        sim_uni, sim_state = p0.simulate_move(datamodel.south)
+        sim_p0 = p0.simulate_move(datamodel.south)
+        sim_state = sim_p0._current_state
         assert sim_state == {
             'bot_destroyed': [],
             'bot_moved': [{'bot_id': 0, 'new_pos': (5, 3), 'old_pos': (5, 2)}],
             'food_eaten': []
         }
-        sim_uni, sim_state = p0.simulate_move(datamodel.west)
+        sim_p0 = p0.simulate_move(datamodel.west)
+        sim_state = sim_p0._current_state
         assert sim_state == {
             'bot_destroyed': [],
             'bot_moved': [{'bot_id': 0, 'new_pos': (4, 2), 'old_pos': (5, 2)}],
@@ -254,26 +262,30 @@ class TestAbstractPlayer:
 
         with pytest.raises(datamodel.IllegalMoveException):
             assert p1.simulate_move(datamodel.north)
-        sim_uni, sim_state = p1.simulate_move(datamodel.east)
+        sim_p1 = p1.simulate_move(datamodel.east)
+        sim_state = sim_p1._current_state
         assert sim_state == {
             'bot_destroyed': [],
             'bot_moved': [{'bot_id': 1, 'new_pos': (6, 1), 'old_pos': (5, 1)}],
             'food_eaten': []
         }
-        sim_uni, sim_state = p1.simulate_move(datamodel.south)
+        sim_p1 = p1.simulate_move(datamodel.south)
+        sim_state = sim_p1._current_state
         assert sim_state == {
             'bot_destroyed': [{'bot_id': 1, 'destroyed_by': 0}],
             'bot_moved': [{'bot_id': 1, 'new_pos': (5, 2), 'old_pos': (5, 1)},
                           {'bot_id': 1, 'new_pos': (5, 1), 'old_pos': (5, 2)}],
             'food_eaten': []
         }
-        sim_uni, sim_state = p1.simulate_move(datamodel.west)
+        sim_p1 = p1.simulate_move(datamodel.west)
+        sim_state = sim_p1._current_state
+        sim_uni = sim_p1._current_uni
         assert sim_state == {
             'bot_destroyed': [],
             'bot_moved': [{'bot_id': 1, 'new_pos': (4, 1), 'old_pos': (5, 1)}],
             'food_eaten': [{'bot_id': 1, 'food_pos': (4, 1)}]
         }
-        assert set(p1.current_uni.enemy_food(p1._index)) == {(4, 3), (4, 2), (4, 1)}
+        assert set(p1._current_uni.enemy_food(p1._index)) == {(4, 3), (4, 2), (4, 1)}
         assert set(sim_uni.enemy_food(p1._index)) == {(4, 3), (4, 2)}
 
 
