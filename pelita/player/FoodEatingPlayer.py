@@ -1,15 +1,15 @@
 from pelita import datamodel
-from pelita.graph import AdjacencyList, NoPathException, diff_pos
+from pelita.graph import Graph, NoPathException, diff_pos
 from pelita.player import AbstractPlayer, SimpleTeam
 
 
 class FoodEatingPlayer(AbstractPlayer):
     def set_initial(self):
-        self.adjacency = AdjacencyList(self.current_uni.reachable([self.initial_pos]))
+        self.graph = Graph(self.current_uni.reachable([self.initial_pos]))
         self.next_food = None
 
     def goto_pos(self, pos):
-        return self.adjacency.a_star(self.current_pos, pos)[-1]
+        return self.graph.a_star(self.current_pos, pos)[-1]
 
     def get_move(self):
         # check, if food is still present

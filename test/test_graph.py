@@ -2,7 +2,7 @@ import pytest
 import unittest
 
 from pelita.datamodel import CTFUniverse, east, north, south, stop, west
-from pelita.graph import (AdjacencyList, NoPathException, diff_pos, iter_adjacencies,
+from pelita.graph import (Graph, NoPathException, diff_pos, iter_adjacencies,
                           manhattan_dist, move_pos)
 
 
@@ -75,8 +75,7 @@ class TestStaticmethods:
         assert 22 == len(adjs3)
         unittest.TestCase().assertCountEqual(adjs0 + adjs2, adjs3)
 
-class TestAdjacencyList:
-
+class TestGraph:
     def test_pos_within(self):
         test_layout = (
         """ ##################
@@ -85,7 +84,7 @@ class TestAdjacencyList:
             #     . #  .  .#3#
             ################## """)
         universe = CTFUniverse.create(test_layout, 4)
-        al = AdjacencyList(universe.free_positions())
+        al = Graph(universe.free_positions())
         free = {pos for pos, val in universe.maze.items() if not val}
 
         assert not ((0, 0) in al)
@@ -111,7 +110,7 @@ class TestAdjacencyList:
             #    #
             ###### """)
         universe = CTFUniverse.create(test_layout, 0)
-        al = AdjacencyList(universe.free_positions())
+        al = Graph(universe.free_positions())
         target = { (4, 1): [(4, 1), (3, 1)],
                    (1, 1): [(2, 1), (1, 1)],
                    (2, 1): [(3, 1), (2, 1), (1, 1)],
@@ -133,7 +132,7 @@ class TestAdjacencyList:
             #     . #  .  .#1#
             ################## """)
         universe = CTFUniverse.create(test_layout, 2)
-        al = AdjacencyList(universe.free_positions())
+        al = Graph(universe.free_positions())
 
         adjacency_target = {(7, 3): [(7, 2), (7, 3), (6, 3)],
          (1, 3): [(1, 2), (2, 3), (1, 3)],
@@ -184,7 +183,7 @@ class TestAdjacencyList:
             #0.     #.1#
             ############ """)
         universe = CTFUniverse.create(test_layout, 2)
-        al = AdjacencyList(universe.free_positions())
+        al = Graph(universe.free_positions())
         assert [] == al.bfs((1,1), [(1, 1), (2, 1)])
 
     def test_a_star(self):
@@ -197,7 +196,7 @@ class TestAdjacencyList:
             ################## """)
 
         universe = CTFUniverse.create(test_layout, 4)
-        al = AdjacencyList(universe.free_positions())
+        al = Graph(universe.free_positions())
 
         #Test distance to middle from both sides
         assert 11 == len(al.a_star((1, 1), (7, 2)))
@@ -224,7 +223,7 @@ class TestAdjacencyList:
                 #      #
                 ######## """ )
         universe = CTFUniverse.create(test_layout, 2)
-        al = AdjacencyList(universe.free_positions())
+        al = Graph(universe.free_positions())
         #Test distance to middle from both sides
         print(al.a_star(universe.bots[0].current_pos, universe.bots[1].current_pos))
         print(al.a_star(universe.bots[1].current_pos, universe.bots[0].current_pos))
@@ -246,7 +245,7 @@ class TestAdjacencyList:
             #    ######################### ##    ## ######### ##############"""
         )
         universe = CTFUniverse.create(test_layout, 2)
-        al = AdjacencyList(universe.free_positions())
+        al = Graph(universe.free_positions())
         #Test distance to middle from both sides
         assert 15 == len(al.a_star(universe.bots[0].current_pos, universe.bots[1].current_pos))
         assert 15 == len(al.a_star(universe.bots[1].current_pos, universe.bots[0].current_pos))
@@ -254,7 +253,7 @@ class TestAdjacencyList:
     def test_a_star_left_right(self):
         def len_of_shortest_path(layout):
             uni = CTFUniverse.create(layout, 2)
-            al = AdjacencyList(uni.free_positions())
+            al = Graph(uni.free_positions())
             path = al.a_star(uni.bots[0].current_pos, uni.bots[1].current_pos)
             return len(path)
 
@@ -285,7 +284,7 @@ class TestAdjacencyList:
             #     . #  .  .#3#
             ################## """)
         universe = CTFUniverse.create(test_layout, 4)
-        al = AdjacencyList(universe.free_positions())
+        al = Graph(universe.free_positions())
         assert [] == al.a_star((1, 1), (1, 1))
         assert [] == al.bfs((1, 1), [(1, 1)])
 
@@ -295,7 +294,7 @@ class TestAdjacencyList:
             #0.     #.1#
             ############ """)
         universe = CTFUniverse.create(test_layout, 2)
-        al = AdjacencyList(universe.free_positions())
+        al = Graph(universe.free_positions())
         with pytest.raises(NoPathException):
             al.bfs((1, 1), [(10, 1)])
         with pytest.raises(NoPathException):
@@ -311,7 +310,7 @@ class TestAdjacencyList:
             #0.     #.1#
             ############ """)
         universe = CTFUniverse.create(test_layout, 2)
-        al = AdjacencyList(universe.free_positions())
+        al = Graph(universe.free_positions())
         with pytest.raises(NoPathException):
             al.a_star((1, 1), (10, 1))
         with pytest.raises(NoPathException):

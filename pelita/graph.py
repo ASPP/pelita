@@ -96,10 +96,10 @@ def iter_adjacencies(initial, adjacencies_for_pos):
         reached.add(pos)
         yield (pos, legal_moves)
 
-class AdjacencyList(dict):
+class Graph(dict):
     """ Adjacency list [1] representation of a Maze.
 
-    The `AdjacencyList` is mostly a wrapper for a `dict`. Given a position,
+    The `Graph` is mostly a wrapper for a `dict`. Given a position,
     it returns the positions reachable from there.
 
     [1] http://en.wikipedia.org/wiki/Adjacency_list
