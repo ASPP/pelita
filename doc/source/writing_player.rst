@@ -323,6 +323,24 @@ In order to obtain the positions of all free spaces, the
 ``pelita.datamodel.CTFUniverse`` class provides the method
 ``pelita.datamodel.CTFUniverse.free_positions()``.
 
+.. note::
+
+    For example, importing the graph into networkx can be done by iterating over
+    all free positions and subsequently adding edges to every position’s neighbors::
+
+        import networkx as nx
+
+        graph = nx.Graph()
+
+        # this assumes we are inside `set_initial` or `get_move`
+        universe = self.current_uni()
+
+        # now iterate over all free positions
+        for pos, neighbors in universe.free_positions():
+            for n in neighbors:
+                graph.add_edge(pos, n)
+
+
 There are a few additional constructs that are
 useful when dealing with the maze. The property ``positions`` gives all the
 positions in the maze.
