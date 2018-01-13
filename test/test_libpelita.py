@@ -1,3 +1,7 @@
+import pytest
+
+import sys
+
 from pelita import libpelita
 
 class TestLibpelitaUtils:
@@ -9,7 +13,7 @@ class TestLibpelitaUtils:
         assert libpelita.firstNN(None, None, None) == None
         assert libpelita.firstNN() == None
 
-
+@pytest.mark.skipif(sys.platform == 'win32', reason="does not run on windows")
 class TestCallPelita:
     def test_call_pelita(self):
         rounds = 200

@@ -191,6 +191,9 @@ def call_pelita(team_specs, *, rounds, filter, viewer, dump, seed):
     =======
     tuple of (game_state, stdout, stderr)
     """
+    if _mswindows:
+        raise RuntimeError("call_pelita is currently unavailable on Windows")
+
     team1, team2 = team_specs
 
     ctx = zmq.Context()

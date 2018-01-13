@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import MagicMock
 
 import sys
-pytestmark = pytest.mark.skipif(sys.version_info < (3,5), reason="requires python3.5")
+pytestmark = pytest.mark.skipif(sys.platform == 'win32', reason="tournament does not run on windows")
 
 import re
 from textwrap import dedent
