@@ -2,17 +2,23 @@
 
 from collections import namedtuple
 import contextlib
+import io
+import json
 import logging
 import os
 import shlex
+import signal
 import subprocess
 import sys
+import tempfile
+import uuid
 
 import zmq
 
 from .simplesetup import RemoteTeamPlayer, SimpleController, SimplePublisher, SimpleServer
 
 _logger = logging.getLogger("pelita.libpelita")
+_mswindows = (sys.platform == "win32")
 
 TeamSpec = namedtuple("TeamSpec", ["module", "address"])
 ModuleSpec = namedtuple("ModuleSpec", ["prefix", "module"])
@@ -93,19 +99,19 @@ class BinRunner(ModuleRunner):
         return subprocess.Popen(external_call)
 
 @contextlib.contextmanager
-def _call_standalone_pelitagame(module_spec, address):
+def _call_pelita_player(module_spec, address):
     proc = None
     try:
-        proc = call_standalone_pelitagame(module_spec, address)
+        proc = call_pelita_player(module_spec, address)
         yield proc
     finally:
         if proc is None:
-            print("Problem running pelitagame")
+            print("Problem running pelita player.")
         else:
             _logger.debug("Terminating proc %r", proc)
             proc.terminate()
 
-def call_standalone_pelitagame(module_spec, address):
+def call_pelita_player(module_spec, address):
     """ Starts another process with the same Python executable,
     the same start script (pelitagame) and runs `team_spec`
     as a standalone client on URL `addr`.
@@ -124,6 +130,162 @@ def call_standalone_pelitagame(module_spec, address):
         runner = DefaultRunner
     return runner(module_spec.module).run(address)
 
+from contextlib import contextmanager
+
+@contextmanager
+def run_and_terminate_process(args, **kwargs):
+    """ This serves as a contextmanager around `subprocess.Popen`, ensuring that
+    after the body of the with-clause has finished, the process itself (and the
+    process’s children) terminates as well.
+
+    On Unix we try sending a SIGTERM before killing the process group but as
+    afterwards we only wait on the first child, this means that the grand children
+    do not get the chance to properly terminate.
+    In cases where the first child has children that should properly close, the
+    first child should catch SIGTERM with a signal handler and wait on its children.
+
+    On Windows we send a CTRL_BREAK_EVENT to the whole process group and
+    hope for the best. :)
+    """
+
+    _logger.debug("Executing: {}".format(shlex_unsplit(args)))
+
+    try:
+        if _mswindows:
+            p = subprocess.Popen(args, **kwargs, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+        else:
+            p = subprocess.Popen(args, **kwargs, preexec_fn=os.setsid)
+        yield p
+    finally:
+        if _mswindows:
+            _logger.debug("Sending CTRL_BREAK_EVENT to {proc} with pid {pid}.".format(proc=p, pid=p.pid))
+            os.kill(p.pid, signal.CTRL_BREAK_EVENT)
+        else:
+            try:
+                pgid = os.getpgid(p.pid)
+                _logger.debug("Sending SIGTERM to pgid {pgid}.".format(pgid=pgid))
+                os.killpg(pgid, signal.SIGTERM) # send sigterm, or ...
+                try:
+                    # It would be nicer to wait with os.waitid on the process group
+                    # but that does not seem to exist on macOS.
+                    p.wait(3)
+                except subprocess.TimeoutExpired:
+                    _logger.debug("Sending SIGKILL to pgid {pgid}.".format(pgid=pgid))
+                    os.killpg(pgid, signal.SIGKILL) # send sigkill, or ...
+            except ProcessLookupError:
+                # did our process group vanish?
+                # we try killing only the child process then
+                _logger.debug("Sending SIGTERM to pid {pid}.".format(pgid=p.pid))
+                p.terminate()
+                try:
+                    p.wait(3)
+                except subprocess.TimeoutExpired:
+                    _logger.debug("Sending SIGKILL to pid {pid}.".format(pgid=p.pid))
+                    p.kill()
+
+
+def call_pelita(team_specs, *, rounds, filter, viewer, dump, seed):
+    """ Starts a new process with the given command line arguments and waits until finished.
+
+    Returns
+    =======
+    tuple of (game_state, stdout, stderr)
+    """
+    if _mswindows:
+        raise RuntimeError("call_pelita is currently unavailable on Windows")
+
+    team1, team2 = team_specs
+
+    ctx = zmq.Context()
+    reply_sock = ctx.socket(zmq.PAIR)
+
+    if os.name.upper() == 'POSIX':
+        filename = 'pelita-reply.{uuid}'.format(pid=os.getpid(), uuid=uuid.uuid4())
+        path = os.path.join(tempfile.gettempdir(), filename)
+        reply_addr = 'ipc://' + path
+        reply_sock.bind(reply_addr)
+    else:
+        addr = 'tcp://127.0.0.1'
+        reply_port = reply_sock.bind_to_random_port(addr)
+        reply_addr = 'tcp://127.0.0.1' + ':' + str(reply_port)
+
+    rounds = ['--rounds', str(rounds)] if rounds else []
+    filter = ['--filter', filter] if filter else []
+    viewer = ['--' + viewer] if viewer else []
+    dump = ['--dump', dump] if dump else []
+    seed = ['--seed', seed] if seed else []
+
+    cmd = [get_python_process(), '-m', 'pelita.scripts.pelita_main',
+           team1, team2,
+           '--reply-to', reply_addr,
+           *seed,
+           *dump,
+           *filter,
+           *rounds,
+           *viewer]
+
+    # We use the environment variable PYTHONUNBUFFERED here to retrieve stdout without buffering
+    with run_and_terminate_process(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                        universal_newlines=True,
+                                        env=dict(os.environ, PYTHONUNBUFFERED='x')) as proc:
+
+        #if ARGS.dry_run:
+        #    print("Would run: {cmd}".format(cmd=cmd))
+        #    print("Choosing winner at random.")
+        #    return random.choice([0, 1, 2])
+
+
+        poll = zmq.Poller()
+        poll.register(reply_sock, zmq.POLLIN)
+        poll.register(proc.stdout.fileno(), zmq.POLLIN)
+        poll.register(proc.stderr.fileno(), zmq.POLLIN)
+
+        with io.StringIO() as stdout_buf, io.StringIO() as stderr_buf:
+            final_game_state = None
+
+            while True:
+                evts = dict(poll.poll(1000))
+
+                if not evts and proc.poll() is not None:
+                    # no more events and proc has finished.
+                    # we give up
+                    break
+
+                stdout_ready = (not proc.stdout.closed) and evts.get(proc.stdout.fileno(), False)
+                if stdout_ready:
+                    line = proc.stdout.readline()
+                    if line:
+                        print(line, end='', file=stdout_buf)
+                    else:
+                        poll.unregister(proc.stdout.fileno())
+                        proc.stdout.close()
+                stderr_ready = (not proc.stderr.closed) and evts.get(proc.stderr.fileno(), False)
+                if stderr_ready:
+                    line = proc.stderr.readline()
+                    if line:
+                        print(line, end='', file=stderr_buf)
+                    else:
+                        poll.unregister(proc.stderr.fileno())
+                        proc.stderr.close()
+                socket_ready = evts.get(reply_sock, False)
+                if socket_ready:
+                    try:
+                        pelita_status = json.loads(reply_sock.recv_string())
+                        game_state = pelita_status['__data__']['game_state']
+                        finished = game_state.get("finished", None)
+                        team_wins = game_state.get("team_wins", None)
+                        game_draw = game_state.get("game_draw", None)
+                        if finished:
+                            final_game_state = game_state
+                            break
+                    except ValueError:  # JSONDecodeError
+                        pass
+                    except KeyError:
+                        pass
+
+            return (final_game_state, stdout_buf.getvalue(), stderr_buf.getvalue())
+
+
 def check_team(team_spec):
     ctx = zmq.Context()
     socket = ctx.socket(zmq.PAIR)
@@ -140,7 +302,7 @@ def check_team(team_spec):
     team_player = RemoteTeamPlayer(socket)
 
     if team_spec.module:
-        with _call_standalone_pelitagame(team_spec.module, team_spec.address):
+        with _call_pelita_player(team_spec.module, team_spec.address):
             name = team_player.team_name()
     else:
         name = team_player.team_name()
@@ -194,7 +356,7 @@ def run_game(team_specs, game_config, viewers=None, controller=None):
             print("Waiting for external team %d to connect to %s." % (idx, team.address))
 
     external_players = [
-        call_standalone_pelitagame(team.module, team.address)
+        call_pelita_player(team.module, team.address)
         for team in teams
         if team.module
     ]

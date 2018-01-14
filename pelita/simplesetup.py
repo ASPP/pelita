@@ -513,6 +513,7 @@ class SimpleClient:
         """ Waits for incoming requests and tries to get a proper
         answer from the player.
         """
+
         json_message = self.socket.recv_unicode()
         py_obj = json.loads(json_message)
         uuid_ = py_obj["__uuid__"]

@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import MagicMock
 
 import sys
-pytestmark = pytest.mark.skipif(sys.version_info < (3,5), reason="requires python3.5")
+pytestmark = pytest.mark.skipif(sys.platform == 'win32', reason="tournament does not run on windows")
 
 import re
 from textwrap import dedent
@@ -133,7 +133,7 @@ class TestRoundRobin:
 # There must be exactly one game_state with finished=True
 
 class TestSingleMatch:
-    def test_run_match(self):
+    def test_play_game_with_config(self):
         config = MagicMock()
         config.rounds = 200
         config.team_spec = lambda x: x
@@ -142,7 +142,7 @@ class TestSingleMatch:
         config.tournament_log_folder = None
 
         teams = ["StoppingPlayer", "StoppingPlayer"]
-        (state, stdout, stderr) = tournament.run_match(config, teams)
+        (state, stdout, stderr) = tournament.play_game_with_config(config, teams)
         assert state['team_wins'] == None
         assert state['game_draw'] == True
 
@@ -150,7 +150,7 @@ class TestSingleMatch:
         config.team_spec = lambda x: x
         config.viewer = 'ascii'
         teams = ["SmartEatingPlayer", "StoppingPlayer"]
-        (state, stdout, stderr) = tournament.run_match(config, teams)
+        (state, stdout, stderr) = tournament.play_game_with_config(config, teams)
         print(state)
         assert state['team_wins'] == 0
         assert state['game_draw'] == None
@@ -159,7 +159,7 @@ class TestSingleMatch:
         config.team_spec = lambda x: x
         config.viewer = 'ascii'
         teams = ["StoppingPlayer", "SmartEatingPlayer"]
-        (state, stdout, stderr) = tournament.run_match(config, teams)
+        (state, stdout, stderr) = tournament.play_game_with_config(config, teams)
         assert state['team_wins'] == 1
         assert state['game_draw'] == None
 

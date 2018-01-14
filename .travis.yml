@@ -2,10 +2,6 @@ language: python
 sudo: false
 matrix:
   include:
-    - python: "3.3"
-      env: PYZMQ="pyzmq"
-    - python: "3.4"
-      env: PYZMQ="pyzmq"
     - python: "3.5"
       env: PYZMQ="pyzmq"
     - python: "3.6"

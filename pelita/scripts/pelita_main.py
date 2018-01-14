@@ -394,7 +394,6 @@ def main():
             else:
                 libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers)
 
-
 if __name__ == '__main__':
     main()
 
