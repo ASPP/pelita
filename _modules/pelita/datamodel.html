@@ -128,6 +128,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    in_own_zone : boolean, property</span>
 <span class="sd">        True if in its own homezone and False otherwise</span>
+<span class="sd">    on_west_side: boolean, property</span>
+<span class="sd">        True if on west side of team border and False otherwise</span>
 <span class="sd">    is_destroyer : boolean, property</span>
 <span class="sd">        True if a destroyer, False otherwise</span>
 <span class="sd">    is_harvester : boolean, property</span>
@@ -151,6 +153,16 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">in_own_zone</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">homezone</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">homezone</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">on_west_side</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Find team_border of maze</span>
+        <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">homezone</span><span class="p">:</span>
+            <span class="n">border</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">homezone</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">border</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">homezone</span><span class="p">)</span>
+        <span class="c1"># We are on_west_side, if current_pos is smaller than team_border</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">border</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_destroyer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -840,7 +852,7 @@
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

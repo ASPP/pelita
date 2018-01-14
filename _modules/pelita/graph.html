@@ -138,10 +138,10 @@
         <span class="n">reached</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
         <span class="k">yield</span> <span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">legal_moves</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AdjacencyList"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.AdjacencyList">[docs]</a><span class="k">class</span> <span class="nc">AdjacencyList</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="Graph"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.Graph">[docs]</a><span class="k">class</span> <span class="nc">Graph</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Adjacency list [1] representation of a Maze.</span>
 
-<span class="sd">    The `AdjacencyList` is mostly a wrapper for a `dict`. Given a position,</span>
+<span class="sd">    The `Graph` is mostly a wrapper for a `dict`. Given a position,</span>
 <span class="sd">    it returns the positions reachable from there.</span>
 
 <span class="sd">    [1] http://en.wikipedia.org/wiki/Adjacency_list</span>
@@ -150,7 +150,7 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adjacencies</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">adjacencies</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AdjacencyList.pos_within"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.AdjacencyList.pos_within">[docs]</a>    <span class="k">def</span> <span class="nf">pos_within</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
+<div class="viewcode-block" id="Graph.pos_within"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.Graph.pos_within">[docs]</a>    <span class="k">def</span> <span class="nf">pos_within</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Positions within a certain distance.</span>
 
 <span class="sd">        Calculates all positions within a certain distance of a target</span>
@@ -194,7 +194,7 @@
                 <span class="k">raise</span> <span class="n">NoPathException</span><span class="p">(</span><span class="s2">&quot;Position </span><span class="si">%s</span><span class="s2"> does not exist in adjacency list.&quot;</span> <span class="o">%</span>
                         <span class="nb">repr</span><span class="p">(</span><span class="n">pos</span><span class="p">))</span>
 
-<div class="viewcode-block" id="AdjacencyList.bfs"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.AdjacencyList.bfs">[docs]</a>    <span class="k">def</span> <span class="nf">bfs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
+<div class="viewcode-block" id="Graph.bfs"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.Graph.bfs">[docs]</a>    <span class="k">def</span> <span class="nf">bfs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Breadth first search (bfs).</span>
 
 <span class="sd">        Breadth first search [1] from one position to multiple targets. The</span>
@@ -268,7 +268,7 @@
         <span class="c1"># path, so don&#39;t include it.</span>
         <span class="k">return</span> <span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="AdjacencyList.a_star"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.AdjacencyList.a_star">[docs]</a>    <span class="k">def</span> <span class="nf">a_star</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+<div class="viewcode-block" id="Graph.a_star"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.Graph.a_star">[docs]</a>    <span class="k">def</span> <span class="nf">a_star</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; A* search.</span>
 
 <span class="sd">        A* (A Star) [1] from one position to another. The search will return the</span>
@@ -329,7 +329,7 @@
                     <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">to_visit</span><span class="p">,</span> <span class="p">(</span><span class="n">priority</span><span class="p">,</span> <span class="nb">next</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># no target found</span>
-            <span class="k">raise</span> <span class="n">NoPathException</span><span class="p">(</span><span class="s2">&quot;BFS: No path from </span><span class="si">%r</span><span class="s2"> to </span><span class="si">%r</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">NoPathException</span><span class="p">(</span><span class="s2">&quot;a_star: No path from </span><span class="si">%r</span><span class="s2"> to </span><span class="si">%r</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
 
         <span class="c1"># Now back-track using seen to determine how we got here.</span>
         <span class="c1"># Initialise the path with current node, i.e. position of food.</span>
@@ -394,7 +394,7 @@
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

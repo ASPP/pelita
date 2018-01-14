@@ -22,7 +22,7 @@ pelita\.graph
 
    .. autosummary::
    
-      AdjacencyList
+      Graph
    
    
 

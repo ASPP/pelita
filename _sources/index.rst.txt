@@ -17,7 +17,7 @@ Pelita
 
       .. container:: col-md-6
 
-         .. literalinclude:: ../../pelita/player/SmartRandomPlayer.py
+         .. literalinclude:: ../../pelita/players/SmartRandomPlayer.py
             :pyobject: SmartRandomPlayer
 
 **Pelita** is Actor-based Toolkit for Interactive Language Education in Python.

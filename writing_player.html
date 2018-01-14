@@ -378,12 +378,30 @@ our universe.:</p>
 <p class="last">This checks whether a coordinate is valid.</p>
 </div>
 <p>Players may use an adjacency list representation provided by
-<code class="docutils literal"><span class="pre">pelita.graph.AdjacencyList</span></code>. Let’s have a quick look at how this is
+<code class="docutils literal"><span class="pre">pelita.graph.Graph</span></code>. Let’s have a quick look at how this is
 generated, in case you would like to implement your own <a class="reference external" href="https://en.wikipedia.org/wiki/Graph_(data_structure)">graph storage</a> or leverage an
 alternative existing package such as <a class="reference external" href="https://networkx.github.io">NetworkX</a>.</p>
 <p>In order to obtain the positions of all free spaces, the
 <code class="docutils literal"><span class="pre">pelita.datamodel.CTFUniverse</span></code> class provides the method
 <code class="docutils literal"><span class="pre">pelita.datamodel.CTFUniverse.free_positions()</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>For example, importing the graph into networkx can be done by iterating over
+all free positions and subsequently adding edges to every position’s neighbors:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+
+<span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+
+<span class="c1"># this assumes we are inside `set_initial` or `get_move`</span>
+<span class="n">universe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="p">()</span>
+
+<span class="c1"># now iterate over all free positions</span>
+<span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">neighbors</span> <span class="ow">in</span> <span class="n">universe</span><span class="o">.</span><span class="n">free_positions</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 <p>There are a few additional constructs that are
 useful when dealing with the maze. The property <code class="docutils literal"><span class="pre">positions</span></code> gives all the
 positions in the maze.</p>
@@ -638,7 +656,7 @@ respective <code class="docutils literal"><span class="pre">Team</span></code> i
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

@@ -46,10 +46,11 @@
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">datamodel</span>
 <span class="kn">from</span> <span class="nn">.datamodel</span> <span class="k">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">CTFUniverse</span>
-<span class="kn">from</span> <span class="nn">.graph</span> <span class="k">import</span> <span class="n">AdjacencyList</span><span class="p">,</span> <span class="n">NoPathException</span><span class="p">,</span> <span class="n">manhattan_dist</span>
+<span class="kn">from</span> <span class="nn">.graph</span> <span class="k">import</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">NoPathException</span><span class="p">,</span> <span class="n">manhattan_dist</span>
 
 
 <span class="k">class</span> <span class="nc">GameFinished</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -60,6 +61,10 @@
 
 <span class="k">class</span> <span class="nc">PlayerDisconnected</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
+
+<div class="viewcode-block" id="NoFoodWarning"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.NoFoodWarning">[docs]</a><span class="k">class</span> <span class="nc">NoFoodWarning</span><span class="p">(</span><span class="ne">Warning</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Warning about a layout with no food. &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="GameMaster"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.GameMaster">[docs]</a><span class="k">class</span> <span class="nc">GameMaster</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot; Controller of player moves and universe updates.</span>
@@ -199,6 +204,12 @@
             <span class="c1">#: sight distance of the noise</span>
             <span class="s2">&quot;noise_sight_distance&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">noiser</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">noiser</span><span class="o">.</span><span class="n">sight_distance</span>
         <span class="p">}</span>
+
+        <span class="c1"># Check that both teams have food, and raise a warning otherwise</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">team_id</span><span class="p">,</span> <span class="n">food_count</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;food_to_eat&quot;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">food_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Layout contains no food for team </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">team_id</span><span class="p">),</span>
+                     <span class="n">NoFoodWarning</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">game_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -480,7 +491,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">noise_radius</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">sight_distance</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span> <span class="o">=</span> <span class="n">AdjacencyList</span><span class="p">(</span><span class="n">universe</span><span class="o">.</span><span class="n">free_positions</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">universe</span><span class="o">.</span><span class="n">free_positions</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">noise_radius</span> <span class="o">=</span> <span class="n">noise_radius</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sight_distance</span> <span class="o">=</span> <span class="n">sight_distance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rnd</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
@@ -620,7 +631,7 @@
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

@@ -72,7 +72,7 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pelita.graph.AdjacencyList" title="pelita.graph.AdjacencyList"><code class="xref py py-obj docutils literal"><span class="pre">AdjacencyList</span></code></a>(adjacencies)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pelita.graph.Graph" title="pelita.graph.Graph"><code class="xref py py-obj docutils literal"><span class="pre">Graph</span></code></a>(adjacencies)</td>
 <td>Adjacency list [1] representation of a Maze.</td>
 </tr>
 </tbody>
@@ -90,16 +90,16 @@
 </tbody>
 </table>
 <dl class="class">
-<dt id="pelita.graph.AdjacencyList">
-<em class="property">class </em><code class="descclassname">pelita.graph.</code><code class="descname">AdjacencyList</code><span class="sig-paren">(</span><em>adjacencies</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#AdjacencyList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.AdjacencyList" title="Permalink to this definition">¶</a></dt>
+<dt id="pelita.graph.Graph">
+<em class="property">class </em><code class="descclassname">pelita.graph.</code><code class="descname">Graph</code><span class="sig-paren">(</span><em>adjacencies</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#Graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.Graph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">dict</span></code></p>
 <p>Adjacency list [1] representation of a Maze.</p>
-<p>The <cite>AdjacencyList</cite> is mostly a wrapper for a <cite>dict</cite>. Given a position,
+<p>The <cite>Graph</cite> is mostly a wrapper for a <cite>dict</cite>. Given a position,
 it returns the positions reachable from there.</p>
 <p>[1] <a class="reference external" href="http://en.wikipedia.org/wiki/Adjacency_list">http://en.wikipedia.org/wiki/Adjacency_list</a></p>
 <dl class="method">
-<dt id="pelita.graph.AdjacencyList.a_star">
-<code class="descname">a_star</code><span class="sig-paren">(</span><em>initial</em>, <em>target</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#AdjacencyList.a_star"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.AdjacencyList.a_star" title="Permalink to this definition">¶</a></dt>
+<dt id="pelita.graph.Graph.a_star">
+<code class="descname">a_star</code><span class="sig-paren">(</span><em>initial</em>, <em>target</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#Graph.a_star"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.Graph.a_star" title="Permalink to this definition">¶</a></dt>
 <dd><p>A* search.</p>
 <p>A* (A Star) [1] from one position to another. The search will return the
 shortest path from the <cite>initial</cite> position to the <cite>target</cite> using the
@@ -134,8 +134,8 @@ Algorithm here is partially taken from [2] and inlined for speed.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pelita.graph.AdjacencyList.bfs">
-<code class="descname">bfs</code><span class="sig-paren">(</span><em>initial</em>, <em>targets</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#AdjacencyList.bfs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.AdjacencyList.bfs" title="Permalink to this definition">¶</a></dt>
+<dt id="pelita.graph.Graph.bfs">
+<code class="descname">bfs</code><span class="sig-paren">(</span><em>initial</em>, <em>targets</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#Graph.bfs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.Graph.bfs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Breadth first search (bfs).</p>
 <p>Breadth first search [1] from one position to multiple targets. The
 search will return a path from the <cite>initial</cite> position to the closest
@@ -168,8 +168,8 @@ position in <cite>targets</cite>.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pelita.graph.AdjacencyList.pos_within">
-<code class="descname">pos_within</code><span class="sig-paren">(</span><em>position</em>, <em>distance</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#AdjacencyList.pos_within"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.AdjacencyList.pos_within" title="Permalink to this definition">¶</a></dt>
+<dt id="pelita.graph.Graph.pos_within">
+<code class="descname">pos_within</code><span class="sig-paren">(</span><em>position</em>, <em>distance</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#Graph.pos_within"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.Graph.pos_within" title="Permalink to this definition">¶</a></dt>
 <dd><p>Positions within a certain distance.</p>
 <p>Calculates all positions within a certain distance of a target
 <cite>position</cite> in maze space. Within means strictly less than (<cite>&lt;</cite>) in this
@@ -367,7 +367,7 @@ neighbours.</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
