@@ -11,7 +11,7 @@ All configuration is done with a yaml file:
     speak: false
     seed: null
     bonusmatch: True
-    
+
     teams:
       - spec: RandomPlayer
         members:
@@ -34,8 +34,8 @@ Each entry in the `teams` list is enumerated and internally referenced to by eit
 This is mainly used when outputting the members list.
 
 The `spec` is the usual team specification that is also used on the `pelita` command line.
-It is usually the path to the module (or factory) where the participants `Player` is defined.
-`StoppingPlayer` or `../group3/group_player:factory2` are therefore possible.
+It is usually the path to the module (or team factory) where the participants `Player` is defined.
+`StoppingPlayer` or `../group3/group_player:team2` are therefore possible.
 
 ## Running
 

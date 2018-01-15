@@ -15,9 +15,11 @@ import pelita
 
 _logger = logging.getLogger("pelita.scripts.pelita_player")
 
+DEFAULT_FACTORY = 'team'
+
 def make_client(team_spec, address):
     team = load_team(team_spec)
-    print("Using factory '%s' -> '%s'" % (team_spec, team.team_name))
+    print("Using team '%s' -> '%s'" % (team_spec, team.team_name))
 
     addr = address
     addr = addr.replace('*', 'localhost')
@@ -98,7 +100,7 @@ def load_factory(filespec):
     dirname = os.path.dirname(filename)
     modname = os.path.splitext(os.path.basename(filename))[0]
 
-    factory_name = factory_name or 'factory'
+    factory_name = factory_name or DEFAULT_FACTORY
     with pelita.utils.with_sys_path(dirname):
         module = __import__(modname, fromlist=[factory_name])
     return getattr(module, factory_name)
@@ -185,7 +187,7 @@ def with_zmq_router(team, address):
                 id_, pair_sock = proc_dealer_mapping[proc]
                 del dealer_pair_mapping[id_]
                 del pair_dealer_mapping[pair_sock]
-                del proc_dealer_mapping[proc] 
+                del proc_dealer_mapping[proc]
                 count += 1
         if count:
             _logger.debug("Cleaned up {} process(es). ({} still running.)".format(count, len(proc_dealer_mapping)))

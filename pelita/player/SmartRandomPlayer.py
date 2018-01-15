@@ -26,5 +26,5 @@ class SmartRandomPlayer(AbstractPlayer):
             # we ran out of smart moves
             return stop
 
-def factory():
+def team():
     return SimpleTeam("The Smart Random Players", SmartRandomPlayer(), SmartRandomPlayer())

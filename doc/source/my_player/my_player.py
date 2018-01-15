@@ -10,6 +10,5 @@ class MyPlayer(AbstractPlayer):
     def get_move(self):
         return stop
 
-def factory():
+def team():
     return SimpleTeam("My Team", MyPlayer(), MyPlayer())
-

@@ -15,8 +15,8 @@ where ``pelita`` can find it.
 
 Put the definition of your player in a file outside the Pelita source
 code directory, for example in ``/home/student/my_player.py``. Besides
-the definition of your player, this file must contain a factory
-function that returns a team (remember that the default game is a
+the definition of your player, this file must contain a factory function
+called `team` that returns a team (remember that the default game is a
 fight between two teams of two bots each):
 
 .. literalinclude:: my_player/my_player.py
@@ -80,7 +80,7 @@ organize your files such that we can load your players during the
 tournament.  You will need to create a python package, i.e. a
 directory containing (at least) an ``__init__.py`` file. This package
 must be named ``groupN``, where ``N`` is your group number.
-This package needs to provide a top level function ``factory()`` which
+This package needs to provide a top level function ``team()`` which
 returns a ``SimpleTeam``.
 
 The file structure should look like::
@@ -112,7 +112,7 @@ To use this module in your ``my_player.py`` module, a relative import
 Also, please perform any additional initialisation inside this
 function, since it will be called once for every game.
 
-To run a game from a module, ensure that it exports the `factory()` function,
+To run a game from a module, ensure that it exports the `team()` function,
 as it was done in ``__init__.py`` above, which will return your actual team.
 Also, for a module, you would not reference the Python file but only the
 module itself::
@@ -121,7 +121,7 @@ module itself::
 
 or, if you would be using a differently named factory method::
 
-    $ pelita /home/student/groupN/:second_factory FoodEatingPlayer,SmartRandomPlayer
+    $ pelita /home/student/groupN/:second_team FoodEatingPlayer,SmartRandomPlayer
 
 
 Debugging
