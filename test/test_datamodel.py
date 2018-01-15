@@ -144,8 +144,8 @@ class TestTeam:
         assert team_black == team_black
         assert team_black == team_black2
         assert team_black != team_white
-        assert team_black.__str__() == "Team(0, (0, 2), score=0)"
-        assert team_white.__str__() == "Team(1, (3, 6), score=5)"
+        assert team_black.__str__() == "Team(index=0, zone=(0, 2), score=0)"
+        assert team_white.__str__() == "Team(index=1, zone=(3, 6), score=5)"
         team_black3 = eval(repr(team_black))
         assert team_black == team_black3
         team_white2 = eval(repr(team_white))
@@ -363,12 +363,12 @@ class TestCTFUniverse:
             "#1#####    #####2#\n"
             "#     . #  .  .#3#\n"
             "##################\n"
-            "Team(0, (0, 8), score=0)\n"
-            "\tBot(0, (1, 1), 0, (0, 8) , current_pos=(1, 1), noisy=False)\n"
-            "\tBot(2, (16, 2), 0, (0, 8) , current_pos=(16, 2), noisy=False)\n"
-            "Team(1, (9, 17), score=0)\n"
-            "\tBot(1, (1, 2), 1, (9, 17) , current_pos=(1, 2), noisy=False)\n"
-            "\tBot(3, (16, 3), 1, (9, 17) , current_pos=(16, 3), noisy=False)\n")
+            "Team(index=0, zone=(0, 8), score=0)\n"
+            "\tBot(index=0, initial_pos=(1, 1), team_index=0, homezone=(0, 8), current_pos=(1, 1), noisy=False)\n"
+            "\tBot(index=2, initial_pos=(16, 2), team_index=0, homezone=(0, 8), current_pos=(16, 2), noisy=False)\n"
+            "Team(index=1, zone=(9, 17), score=0)\n"
+            "\tBot(index=1, initial_pos=(1, 2), team_index=1, homezone=(9, 17), current_pos=(1, 2), noisy=False)\n"
+            "\tBot(index=3, initial_pos=(16, 3), team_index=1, homezone=(9, 17), current_pos=(16, 3), noisy=False)\n")
         assert pretty_target == universe.pretty
 
     def test_bot_teams(self):

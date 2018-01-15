@@ -45,7 +45,7 @@ class Team:
         return self.zone[0] <= position[0] <= self.zone[1]
 
     def __repr__(self):
-        return ('Team(%i, %s, score=%i)' %
+        return ('Team(index=%i, zone=%s, score=%i)' %
                 (self.index, self.zone, self.score))
 
     def __eq__(self, other):
@@ -141,7 +141,7 @@ class Bot:
         return not (self == other)
 
     def __repr__(self):
-        return ('Bot(%i, %s, %i, %s , current_pos=%s, noisy=%r)' %
+        return ('Bot(index=%i, initial_pos=%s, team_index=%i, homezone=%s, current_pos=%s, noisy=%r)' %
                 (self.index, self.initial_pos, self.team_index,
                     self.homezone, self.current_pos, self.noisy))
 
