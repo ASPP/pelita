@@ -333,7 +333,7 @@ In order to obtain the positions of all free spaces, the
         graph = nx.Graph()
 
         # this assumes we are inside `set_initial` or `get_move`
-        universe = self.current_uni()
+        universe = self.current_uni
 
         # now iterate over all free positions
         for pos, neighbors in universe.free_positions():
