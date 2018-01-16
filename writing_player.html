@@ -393,12 +393,30 @@ all free positions and subsequently adding edges to every position’s neighbors
 <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
 
 <span class="c1"># this assumes we are inside `set_initial` or `get_move`</span>
-<span class="n">universe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="p">()</span>
+<span class="n">universe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span>
 
 <span class="c1"># now iterate over all free positions</span>
 <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">neighbors</span> <span class="ow">in</span> <span class="n">universe</span><span class="o">.</span><span class="n">free_positions</span><span class="p">():</span>
     <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
         <span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Similarly, importing a maze to numpy can be done with the following method:</p>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># create an empty numpy matrix with the same size as the maze</span>
+<span class="n">walls_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">maze</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">maze</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+
+<span class="c1"># this assumes we are inside `set_initial` or `get_move`</span>
+<span class="n">maze</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">maze</span>
+
+<span class="c1"># maze items iterates over the position and the value at this position</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">maze</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="c1"># v == True means there is a wall, False means free space</span>
+    <span class="n">walls_np</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
 </pre></div>
 </div>
 </div>
@@ -656,7 +674,7 @@ respective <code class="docutils literal"><span class="pre">Team</span></code> i
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

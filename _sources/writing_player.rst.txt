@@ -333,12 +333,30 @@ In order to obtain the positions of all free spaces, the
         graph = nx.Graph()
 
         # this assumes we are inside `set_initial` or `get_move`
-        universe = self.current_uni()
+        universe = self.current_uni
 
         # now iterate over all free positions
         for pos, neighbors in universe.free_positions():
             for n in neighbors:
                 graph.add_edge(pos, n)
+
+
+.. note::
+
+    Similarly, importing a maze to numpy can be done with the following method::
+
+        import numpy as np
+
+        # create an empty numpy matrix with the same size as the maze
+        walls_np = np.zeros(shape=(maze.width, maze.height), dtype=bool)
+
+        # this assumes we are inside `set_initial` or `get_move`
+        maze = self.current_uni.maze
+
+        # maze items iterates over the position and the value at this position
+        for (i, j), v in maze.items():
+            # v == True means there is a wall, False means free space
+            walls_np[i, j] = v
 
 
 There are a few additional constructs that are

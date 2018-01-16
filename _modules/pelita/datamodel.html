@@ -87,7 +87,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zone</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zone</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;Team(</span><span class="si">%i</span><span class="s1">, </span><span class="si">%s</span><span class="s1">, score=</span><span class="si">%i</span><span class="s1">)&#39;</span> <span class="o">%</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;Team(index=</span><span class="si">%i</span><span class="s1">, zone=</span><span class="si">%s</span><span class="s1">, score=</span><span class="si">%i</span><span class="s1">)&#39;</span> <span class="o">%</span>
                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zone</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
@@ -183,7 +183,7 @@
         <span class="k">return</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;Bot(</span><span class="si">%i</span><span class="s1">, </span><span class="si">%s</span><span class="s1">, </span><span class="si">%i</span><span class="s1">, </span><span class="si">%s</span><span class="s1"> , current_pos=</span><span class="si">%s</span><span class="s1">, noisy=</span><span class="si">%r</span><span class="s1">)&#39;</span> <span class="o">%</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;Bot(index=</span><span class="si">%i</span><span class="s1">, initial_pos=</span><span class="si">%s</span><span class="s1">, team_index=</span><span class="si">%i</span><span class="s1">, homezone=</span><span class="si">%s</span><span class="s1">, current_pos=</span><span class="si">%s</span><span class="s1">, noisy=</span><span class="si">%r</span><span class="s1">)&#39;</span> <span class="o">%</span>
                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_index</span><span class="p">,</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">homezone</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">noisy</span><span class="p">))</span>
 
@@ -852,7 +852,7 @@
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>
