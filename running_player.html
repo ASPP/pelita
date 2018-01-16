@@ -52,8 +52,8 @@ description.</p>
 where <code class="docutils literal"><span class="pre">pelita</span></code> can find it.</p>
 <p>Put the definition of your player in a file outside the Pelita source
 code directory, for example in <code class="docutils literal"><span class="pre">/home/student/my_player.py</span></code>. Besides
-the definition of your player, this file must contain a factory
-function that returns a team (remember that the default game is a
+the definition of your player, this file must contain a factory function
+called <cite>team</cite> that returns a team (remember that the default game is a
 fight between two teams of two bots each):</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
 
@@ -67,9 +67,8 @@ fight between two teams of two bots each):</p>
     <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">stop</span>
 
-<span class="k">def</span> <span class="nf">factory</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">team</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">SimpleTeam</span><span class="p">(</span><span class="s2">&quot;My Team&quot;</span><span class="p">,</span> <span class="n">MyPlayer</span><span class="p">(),</span> <span class="n">MyPlayer</span><span class="p">())</span>
-
 </pre></div>
 </div>
 <p>The factory function is used by the command-line program to lead your
@@ -145,7 +144,7 @@ organize your files such that we can load your players during the
 tournament.  You will need to create a python package, i.e. a
 directory containing (at least) an <code class="docutils literal"><span class="pre">__init__.py</span></code> file. This package
 must be named <code class="docutils literal"><span class="pre">groupN</span></code>, where <code class="docutils literal"><span class="pre">N</span></code> is your group number.
-This package needs to provide a top level function <code class="docutils literal"><span class="pre">factory()</span></code> which
+This package needs to provide a top level function <code class="docutils literal"><span class="pre">team()</span></code> which
 returns a <code class="docutils literal"><span class="pre">SimpleTeam</span></code>.</p>
 <p>The file structure should look like:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>groupN
@@ -166,18 +165,17 @@ returns a <code class="docutils literal"><span class="pre">SimpleTeam</span></co
 <span class="c1"># the name of the team and the respective instances for</span>
 <span class="c1"># the first and second player.</span>
 
-<span class="k">def</span> <span class="nf">factory</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">team</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">SimpleTeam</span><span class="p">(</span><span class="s2">&quot;My Team&quot;</span><span class="p">,</span> <span class="n">MyPlayer</span><span class="p">(),</span> <span class="n">MyPlayer</span><span class="p">())</span>
 
-<span class="c1"># For testing purposes, one may use alternate factory methods::</span>
+<span class="c1"># For testing purposes, one may use alternate team factory methods::</span>
 <span class="c1">#</span>
-<span class="c1">#     def alternate_factory():</span>
+<span class="c1">#     def test_team():</span>
 <span class="c1">#          return SimpleTeam(&quot;Our alternate Team&quot;, AlternatePlayer(), AlternatePlayer())</span>
 <span class="c1">#</span>
 <span class="c1"># To be used as follows::</span>
 <span class="c1">#</span>
-<span class="c1">#     $ pelita path_to/groupN/:alternate_factory</span>
-
+<span class="c1">#     $ pelita path_to/groupN/:test_team</span>
 </pre></div>
 </div>
 <p>Your are encouraged to structure your code base into packages.
@@ -213,7 +211,7 @@ For example the function <code class="docutils literal"><span class="pre">utilit
 </div>
 <p>Also, please perform any additional initialisation inside this
 function, since it will be called once for every game.</p>
-<p>To run a game from a module, ensure that it exports the <cite>factory()</cite> function,
+<p>To run a game from a module, ensure that it exports the <cite>team()</cite> function,
 as it was done in <code class="docutils literal"><span class="pre">__init__.py</span></code> above, which will return your actual team.
 Also, for a module, you would not reference the Python file but only the
 module itself:</p>
@@ -221,7 +219,7 @@ module itself:</p>
 </pre></div>
 </div>
 <p>or, if you would be using a differently named factory method:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ pelita /home/student/groupN/:second_factory FoodEatingPlayer,SmartRandomPlayer
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pelita /home/student/groupN/:second_team FoodEatingPlayer,SmartRandomPlayer
 </pre></div>
 </div>
 </div>

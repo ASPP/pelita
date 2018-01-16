@@ -111,9 +111,9 @@ which simply returns <code class="docutils literal"><span class="pre">stop</span
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p>Besides the definition of your player, this file must contain a factory
-function that returns a team (remember that the default game is a
+function called <cite>team</cite> that returns a team (remember that the default game is a
 fight between two teams of two bots each):</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">factory</span><span class="p">():</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">team</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">SimpleTeam</span><span class="p">(</span><span class="s2">&quot;MyTeam&quot;</span><span class="p">,</span> <span class="n">StoppingPlayer</span><span class="p">(),</span> <span class="n">StoppingPlayer</span><span class="p">())</span>
 </pre></div>
 </div>
