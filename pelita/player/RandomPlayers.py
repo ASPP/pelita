@@ -32,5 +32,5 @@ class NQRandomPlayer(AbstractPlayer):
         # and select a move at random
         return self.rnd.choice(list(legal_moves.keys()))
 
-def factory():
+def team():
     return SimpleTeam("The Random Players", RandomPlayer(), NQRandomPlayer())

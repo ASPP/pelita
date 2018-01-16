@@ -22,5 +22,5 @@ class RandomExplorerPlayer(AbstractPlayer):
         # more than one move left
         return self.rnd.choice(list(moves.keys()))
 
-def factory():
+def team():
     return SimpleTeam("Random Explorer Players", RandomExplorerPlayer(), RandomExplorerPlayer())

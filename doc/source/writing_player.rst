@@ -75,10 +75,10 @@ which simply returns ``stop``:
 .. note::
 
     Besides the definition of your player, this file must contain a factory
-    function that returns a team (remember that the default game is a
+    function called `team` that returns a team (remember that the default game is a
     fight between two teams of two bots each)::
 
-        def factory():
+        def team():
             return SimpleTeam("MyTeam", StoppingPlayer(), StoppingPlayer())
 
     For more information about this, see also::doc:`running_player`

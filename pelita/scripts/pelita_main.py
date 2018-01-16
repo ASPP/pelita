@@ -207,13 +207,13 @@ Team Specification:
 
   - Using custom players (filename):
     The name of a python file (e.g. '~/my_player.py') which defines
-    a function named 'factory' (you can change the name of the factory
-    function by adding ':my_factory' to the filename). The factory
+    a function named 'team' (you can change the name of the factory
+    function by adding ':alternate_team' to the filename). The factory
     function must take no arguments and return an instance of
     pelita.player.SimpleTeam.
     Example implementation:
 
-    def factory():
+    def team():
         return pelita.player.SimpleTeam("My Team", MyPlayer1(), MyPlayer2())
 
     Example usage:
@@ -222,11 +222,11 @@ Team Specification:
 
     Example of custom factory function:
 
-        $ %(prog)s ~/my_player.py:my_factory NQRandomPlayer,BasicDefensePlayer
+        $ %(prog)s ~/my_player.py:my_other_team NQRandomPlayer,BasicDefensePlayer
 
   - Using custom players (package):
     The name of a python package (i.e. a directory with an __init__.py file),
-    which exposes a function named 'factory' (see above for more details).
+    which exposes a function named 'team' (see above for more details).
     Example usage:
 
         $ %(prog)s my_player NQRandomPlayer,BasicDefensePlayer
@@ -279,7 +279,7 @@ def main():
             print("Pelita {} (git: {})".format(pelita.__version__, pelita._git_version))
         else:
             print("Pelita {}".format(pelita.__version__))
-            
+
         sys.exit(0)
     if args.layout == 'list':
         layouts = pelita.layout.get_available_layouts()
@@ -396,4 +396,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

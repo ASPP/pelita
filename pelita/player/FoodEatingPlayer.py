@@ -27,5 +27,5 @@ class FoodEatingPlayer(AbstractPlayer):
         except NoPathException:
             return datamodel.stop
 
-def factory():
+def team():
     return SimpleTeam("The Food Eating Players", FoodEatingPlayer(), FoodEatingPlayer())
