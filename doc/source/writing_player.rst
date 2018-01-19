@@ -78,6 +78,8 @@ which simply returns ``stop``:
     function called `team` that returns a team (remember that the default game is a
     fight between two teams of two bots each)::
 
+    from pelita.player import SimpleTeam
+    
         def team():
             return SimpleTeam("MyTeam", StoppingPlayer(), StoppingPlayer())
 
@@ -113,7 +115,7 @@ selects a move at random from the possible moves:
     might be necessary to add appropriate imports to your python source file,
     for example::
 
-        from pelita.player import AbstractPlayer
+        from pelita.player import AbstractPlayer, SimpleTeam
         from pelita.datamodel import north, south, west, east, stop
 
 Here we can see the first convenience property ``legal_moves`` which returns a
