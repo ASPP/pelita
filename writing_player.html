@@ -113,10 +113,13 @@ which simply returns <code class="docutils literal"><span class="pre">stop</span
 <p>Besides the definition of your player, this file must contain a factory
 function called <cite>team</cite> that returns a team (remember that the default game is a
 fight between two teams of two bots each):</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">team</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">SimpleTeam</span><span class="p">(</span><span class="s2">&quot;MyTeam&quot;</span><span class="p">,</span> <span class="n">StoppingPlayer</span><span class="p">(),</span> <span class="n">StoppingPlayer</span><span class="p">())</span>
-</pre></div>
-</div>
+<p>from pelita.player import SimpleTeam</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>def team():</dt>
+<dd>return SimpleTeam(“MyTeam”, StoppingPlayer(), StoppingPlayer())</dd>
+</dl>
+</div></blockquote>
 <p class="last">For more information about this, see also:<a class="reference internal" href="running_player.html"><span class="doc">Running Players</span></a></p>
 </div>
 <p>Note: the current state or the <code class="docutils literal"><span class="pre">CTFUniverse</span></code> is always implicitly available
@@ -149,7 +152,7 @@ because we can replay previous test games with improved algorithms.</p>
 <p>To make the above example (and many of the following examples) work, it
 might be necessary to add appropriate imports to your python source file,
 for example:</p>
-<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pelita.player</span> <span class="k">import</span> <span class="n">AbstractPlayer</span>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pelita.player</span> <span class="k">import</span> <span class="n">AbstractPlayer</span><span class="p">,</span> <span class="n">SimpleTeam</span>
 <span class="kn">from</span> <span class="nn">pelita.datamodel</span> <span class="k">import</span> <span class="n">north</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">west</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">stop</span>
 </pre></div>
 </div>
