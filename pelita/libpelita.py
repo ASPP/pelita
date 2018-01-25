@@ -175,12 +175,12 @@ def run_and_terminate_process(args, **kwargs):
             except ProcessLookupError:
                 # did our process group vanish?
                 # we try killing only the child process then
-                _logger.debug("Sending SIGTERM to pid {pid}.".format(pgid=p.pid))
+                _logger.debug("Sending SIGTERM to pid {pid}.".format(pid=p.pid))
                 p.terminate()
                 try:
                     p.wait(3)
                 except subprocess.TimeoutExpired:
-                    _logger.debug("Sending SIGKILL to pid {pid}.".format(pgid=p.pid))
+                    _logger.debug("Sending SIGKILL to pid {pid}.".format(pid=p.pid))
                     p.kill()
 
 
