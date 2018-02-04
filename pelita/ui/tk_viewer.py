@@ -74,14 +74,11 @@ class TkViewer:
         self.address = address
         self.controller_address = controller_address
         self.delay = delay
-        self.geometry = geometry
+        self.geometry = geometry if geometry else (900, 510)
 
     def run(self):
         self.root = tkinter.Tk()
-        if self.geometry is None:
-            root_geometry = '900x510'
-        else:
-            root_geometry = str(self.geometry[0])+'x'+str(self.geometry[1])
+        root_geometry = str(self.geometry[0])+'x'+str(self.geometry[1])
         # put the root window in some sensible position
         self.root.geometry(root_geometry+'+40+40')
 
