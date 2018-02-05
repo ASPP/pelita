@@ -390,6 +390,7 @@ def main():
                 publisher = channels["publisher"]
                 game_config["publisher"] = publisher
                 viewer = libpelita.run_external_viewer(publisher.socket_addr, controller.socket_addr, geometry=geometry, delay=delay)
+                controller.watch_procs.append(viewer)
                 libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers, controller=controller)
             else:
                 libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers)

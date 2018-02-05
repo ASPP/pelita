@@ -408,7 +408,7 @@ class ExitLoop(Exception):
 class SimpleController:
     """ Sets up a simple Controller to interact with GameMaster. """
 
-    def __init__(self, game_master, address, reply_to=None):
+    def __init__(self, game_master, address, reply_to=None, watch_procs=None):
         self.game_master = game_master
         self.address = address
 
@@ -420,6 +420,14 @@ class SimpleController:
         self.socket_addr = bind_socket(self.socket, self.address, '--controller')
         _logger.debug("Bound zmq.ROUTER to {}".format(self.socket_addr))
 
+        self.poller = zmq.Poller()
+        self.poller.register(self.socket, zmq.POLLIN)
+
+        if watch_procs is not None:
+            self.watch_procs = watch_procs
+        else:
+            self.watch_procs = []
+
     def run(self):
         try:
             while True:
@@ -428,19 +436,26 @@ class SimpleController:
             pass
 
     def _loop(self):
-        addr, py_obj_raw = self.socket.recv_multipart()
-        py_obj = json.loads(py_obj_raw.decode('utf-8'))
-        uuid_ = py_obj.get("__uuid__")
-        action = py_obj["__action__"]
-        data = py_obj.get("__data__") or {}
+        evts = dict(self.poller.poll(1000))
+        if self.socket in evts:
+            addr, py_obj_raw = self.socket.recv_multipart()
+            py_obj = json.loads(py_obj_raw.decode('utf-8'))
+            uuid_ = py_obj.get("__uuid__")
+            action = py_obj["__action__"]
+            data = py_obj.get("__data__") or {}
 
-        # feed client actor here …
-        retval = getattr(self, action)(**data)
+            # feed client actor here …
+            retval = getattr(self, action)(**data)
 
-        if uuid_:
-            message_obj = {"__uuid__": uuid_, "__return__": retval}
-            json_message = json.dumps(message_obj)
-            self.socket.send_multipart([addr, json_message.encode()])
+            if uuid_:
+                message_obj = {"__uuid__": uuid_, "__return__": retval}
+                json_message = json.dumps(message_obj)
+                self.socket.send_multipart([addr, json_message.encode()])
+
+        for p in self.watch_procs:
+            if p.poll() is not None:
+                _logger.debug("Monitored process {} has exited with code {}. Exiting too.".format(p, p.returncode))
+                raise ExitLoop()
 
     def set_initial(self, *args, **kwargs):
         return self.game_master.set_initial(*args, **kwargs)
