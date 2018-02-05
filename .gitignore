@@ -2,8 +2,8 @@
 # A pragmatic approach to preventing erroneous adding.
 
 # python ignores
-*.pyc
-*.pyo
+__pycache__/
+*.py[cod]
 
 # ipython notebook
 .ipynb_checkpoints
@@ -19,6 +19,7 @@
 .pydevproject
 .cache
 .idea
+.vscode
 
 
 # other generic files to ignore
@@ -30,8 +31,23 @@
 
 .cache
 
-# distutils
+# Distribution / packaging
+.Python
 build/
+develop-eggs/
 dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
 
 pelita.log
