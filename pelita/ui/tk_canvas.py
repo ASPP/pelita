@@ -203,12 +203,12 @@ class UiCanvas:
         self.status.grid_columnconfigure(1, weight=1)
         self.status.grid_columnconfigure(2, weight=1)
 
-        self.canvas = tkinter.Canvas(self.master.frame,
-                                     width=self.mesh_graph.screen_width,
-                                     height=self.mesh_graph.screen_height)
+        self.canvas = tkinter.Canvas(self.master.frame)
         self.canvas.config(background="white")
         self.canvas.pack(fill=tkinter.BOTH, expand=tkinter.YES)
         self.canvas.bind('<Configure>', self.resize)
+
+        self.canvas.update()
 
     def update(self, universe, game_state):
         # This method is called every now and then. Either when new information
@@ -576,7 +576,8 @@ class TkApplication:
             message = json.loads(message)
             # we curretly don’t care about the action
             observed = message["__data__"]
-            self.observe(observed)
+            if observed:
+                self.observe(observed)
 
             if self.controller_socket:
                 self._after(0 + self._delay, self.request_next, observed)
@@ -614,7 +615,8 @@ class TkApplication:
         universe = CTFUniverse._from_json_dict(universe) if universe else None
         game_state = observed.get("game_state")
 
-        self.ui_canvas.update(universe, game_state)
+        if universe:
+            self.ui_canvas.update(universe, game_state)
 
     def on_quit(self):
         """ override for things which must be done when we exit.
