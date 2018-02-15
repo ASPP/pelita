@@ -6,20 +6,27 @@ import inspect
 import keyword
 import logging
 import os
+from pathlib import Path
 import random
 import signal
 import string
 import subprocess
 import sys
 
+import zmq
+
 import pelita
 
 _logger = logging.getLogger("pelita.scripts.pelita_player")
+
+class MalformedBuiltinTeam(ValueError):
+    pass
 
 DEFAULT_FACTORY = 'team'
 
 def make_client(team_spec, address):
     team = load_team(team_spec)
+
     print("Using team '%s' -> '%s'" % (team_spec, team.team_name))
 
     addr = address
@@ -27,35 +34,20 @@ def make_client(team_spec, address):
     client = pelita.simplesetup.SimpleClient(team, address=addr)
     return client
 
-def check_module(filepath):
-    "Throws an ValueError is the specified path is neither a module nor a package."
-    if not os.path.exists(filepath):
-        raise ValueError("'%s' doesn't exist" % filepath)
-    allowed = string.ascii_letters + string.digits + '_'
-    if filepath.endswith('.py'):
-        valid = os.path.isfile(filepath)
-        modname = os.path.basename(filepath[:-3])
-    else:
-        initpy = os.path.join(filepath, '__init__.py')
-        valid = os.path.isdir(filepath) and os.path.isfile(initpy)
-        modname = os.path.basename(filepath.rstrip(os.path.sep))
-    if (set(modname) - set(allowed) or
-        modname[0] in string.digits or
-        modname in keyword.kwlist or
-        modname.startswith('__')):
-        raise ValueError("invalid module name: '%s'" % modname)
-
-    if not valid:
-        raise ValueError("'%s': neither a module nor a package" % filepath )
-
 def create_builtin_team(spec):
+    """
+    Tries to build a builtin team from the given `spec`.
+    """
     names = spec.split(',')
     if len(names) == 1:
         names *= 2
     elif len(names) > 2:
-        raise ValueError('need two comma separated names')
+        raise MalformedBuiltinTeam('need two comma separated names')
 
-    players = [import_builtin_player(name)() for name in names]
+    try:
+        players = [import_builtin_player(name)() for name in names]
+    except ValueError:
+        raise
     teamname = 'The %ss' % players[0].__class__.__name__
     return pelita.player.SimpleTeam(teamname, *players)
 
@@ -82,51 +74,120 @@ def check_team_name(name):
 
 
 def load_team(spec):
-    try:
-        if '/' in spec or spec.endswith('.py') or os.path.exists(spec):
-            team = load_factory(spec)()
-        else:
+    """ Tries to load a team from a given spec.
+
+    At first it will check if it can build a team from the built-in players.
+    If this fails, it will try to load a factory.
+    """
+    # if there is no : or / in the spec, we assume a built-in was given
+    can_be_builtin = not os.sep in spec and not ':' in spec
+
+    if can_be_builtin:
+        try:
             team = create_builtin_team(spec)
-        check_team_name(team.team_name)
-        return team
-    except (ValueError, AttributeError, IOError, ImportError) as e:
+            check_team_name(team.team_name)
+            return team
+        except MalformedBuiltinTeam:
+            raise
+        except ValueError:
+            # We use some heuristic to find out if the user wanted to specify a
+            # built-in player
+            if ',' in spec:
+                raise
+
+    try:
+        factory = load_factory(spec)
+    except (FileNotFoundError, ImportError) as e:
+        if can_be_builtin:
+            pathname, _, factory_name = spec.partition(':')
+            sane_players = {p.__name__: p for p in pelita.player.SANE_PLAYERS}
+            others = ', '.join(list(sane_players.keys()))
+            msg = 'Failed to find %s in players. (Available built-in players are: %s).' % (spec, others)
+            raise ImportError(msg) from None
+        else:
+            print("failure while loading team '%s'" % spec, file=sys.stderr)
+            print('ERROR: %s' % e, file=sys.stderr)
+            raise
+    except (ValueError, AttributeError, IOError) as e:
         print("failure while loading team '%s'" % spec, file=sys.stderr)
         print('ERROR: %s' % e, file=sys.stderr)
         raise
 
-def load_factory(filespec):
-    filename, _, factory_name = filespec.partition(':')
-    check_module(filename)
-    filename = filename.rstrip(os.path.sep)
-    dirname = os.path.dirname(filename)
-    modname = os.path.splitext(os.path.basename(filename))[0]
+    try: 
+        team = factory()
+    except TypeError:
+        print("Factory for {} is not callable.".format(spec), file=sys.stderr)
+        raise
+    
+    check_team_name(team.team_name)
+    return team
 
+
+def load_factory(pathspec: str):
+    """ Tries to load and return a factory from a given pathspec.
+
+    The pathspec is a path to a module (which can be a folder with an
+    __init__.py file) or an importable .py file, followed by an optional ":"
+    and the name of a factory method (defaults to "team") that returns a
+    SimpleTeam.
+
+    Parameters
+    ----------
+    pathspec : str
+        the location of the importable module
+
+    Returns
+    -------
+    factory : function
+        the factory method that should produce a team
+
+    Raises
+    ------
+    ValueError
+        if a module is already present in sys.modules
+    AttributeError
+        if the module has no factory with the given name
+    ModuleNotFoundError
+        if the module cannot be found
+    FileNotFoundError
+        if the parent folder cannot be found
+    """
+    # strip off the factory_name after the first :
+    pathname, _, factory_name = pathspec.partition(':')
     factory_name = factory_name or DEFAULT_FACTORY
+
+    path = Path(pathname)
+
+    if not path.parent.exists():
+        raise FileNotFoundError("Folder {} does not exist.".format(path.parent))
+
+    dirname = str(path.parent)
+    modname = path.stem
+
+    if modname in sys.modules:
+        raise ValueError("Module {} has already been imported.".format(modname))
+
     with pelita.utils.with_sys_path(dirname):
         module = importlib.import_module(modname)
+
     return getattr(module, factory_name)
 
+
 def import_builtin_player(name):
-    sane_players = {p.__name__: p for p in pelita.player.SANE_PLAYERS}
-
+    """
+    Checks if `name` is in `pelita.player`. Raises ValueError, if it is not found.
+    """
     if name == 'random':
-        player = random.choice(list(sane_players.values()))
-        print('Choosing %s for random player' % player)
-    else:
-        player = sane_players.get(name)
-        if not player:
-            try:
-                # fallback to player in pelita.player
-                player = getattr(pelita.player, name)
-            except AttributeError:
-                others = ', '.join(list(sane_players.keys()))
-                msg = 'Failed to find %s in players. (Available players are: %s).' % (name, others)
-                raise ImportError(msg)
-
-    if inspect.isclass(player) and issubclass(player, pelita.player.AbstractPlayer):
+        sane_players = {p.__name__: p for p in pelita.player.SANE_PLAYERS}
+        name, player = random.choice(list(sane_players.items()))
+        print('Choosing %s for random player' % name)
         return player
     else:
-        raise ImportError("%r is not a valid player." % player)
+        try:
+            return getattr(pelita.player, name)
+        except AttributeError:
+            # It is not a builtin player
+            raise ValueError("{} is not a known built-in player.".format(name))
 
 def with_zmq_router(team, address):
     dealer_pair_mapping = {}
@@ -140,7 +201,6 @@ def with_zmq_router(team, address):
 
     signal.signal(signal.SIGTERM, cleanup)
 
-    import zmq
     ctx = zmq.Context()
     sock = ctx.socket(zmq.ROUTER)
     sock.bind(address)
