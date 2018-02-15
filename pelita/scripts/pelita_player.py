@@ -107,9 +107,7 @@ def load_factory(filespec):
     return getattr(module, factory_name)
 
 def import_builtin_player(name):
-    with pelita.utils.with_sys_path("./"):
-        players_module = __import__('pelita.player', fromlist='players')
-        sane_players = {p.__name__: p for p in players_module.SANE_PLAYERS}
+    sane_players = {p.__name__: p for p in pelita.player.SANE_PLAYERS}
 
     if name == 'random':
         player = random.choice(list(sane_players.values()))
