@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import importlib
 import inspect
 import keyword
 import logging
@@ -102,7 +103,7 @@ def load_factory(filespec):
 
     factory_name = factory_name or DEFAULT_FACTORY
     with pelita.utils.with_sys_path(dirname):
-        module = __import__(modname, fromlist=[factory_name])
+        module = importlib.import_module(modname)
     return getattr(module, factory_name)
 
 def import_builtin_player(name):
