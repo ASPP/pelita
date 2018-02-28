@@ -7,11 +7,12 @@ import tempfile
 
 import pelita
 from pelita import libpelita
-from pelita.scripts.pelita_player import load_factory
+from pelita.scripts.pelita_player import load_factory, load_team
 
 SIMPLE_MODULE = """
+from pelita.player import SimpleTeam, StoppingPlayer
 def team():
-    return None
+    return SimpleTeam("%s", StoppingPlayer, StoppingPlayer)
 """
 
 SIMPLE_FAILING_MODULE = """
@@ -19,63 +20,104 @@ def noteam():
     return None
 """
 
-def test_simple_module_import():
-    modules_before = list(sys.modules.keys())
-    with tempfile.TemporaryDirectory() as d:
-        module = Path(d) / "teamx"
-        module.mkdir()
-        initfile = module / "__init__.py"
-        with initfile.open(mode='w') as f:
-            f.write(SIMPLE_MODULE)
+# TODO: The modules should be unloaded after use
 
-        spec = str(module)
-        load_factory(spec)
-#        del sys.modules[module.stem]
-#    assert list(sys.modules.keys()) == modules_before
+class TestLoadFactory:
+    def test_simple_module_import(self):
+        modules_before = list(sys.modules.keys())
+        with tempfile.TemporaryDirectory() as d:
+            module = Path(d) / "teamx"
+            module.mkdir()
+            initfile = module / "__init__.py"
+            with initfile.open(mode='w') as f:
+                f.write(SIMPLE_MODULE)
 
-def test_simple_file_import():
-    modules_before = list(sys.modules.keys())
-    with tempfile.TemporaryDirectory() as d:
-        module = Path(d) / "teamy"
-        module.mkdir()
-        initfile = module / "teamyy.py"
-        with initfile.open(mode='w') as f:
-            f.write(SIMPLE_MODULE)
-
-        spec = str(initfile)
-        load_factory(spec)
-#        del sys.modules[module.stem]
-#    assert list(sys.modules.keys()) == modules_before
-
-def test_failing_import():
-    modules_before = list(sys.modules.keys())
-    with tempfile.TemporaryDirectory() as d:
-        module = Path(d) / "teamz"
-        module.mkdir()
-        initfile = module / "__init__.py"
-        with initfile.open(mode='w') as f:
-            f.write(SIMPLE_FAILING_MODULE)
-
-        spec = str(module)
-        with pytest.raises(AttributeError):
+            spec = str(module)
             load_factory(spec)
-#        del sys.modules[module.stem]
-#    assert list(sys.modules.keys()) == modules_before
 
+    def test_simple_file_import(self):
+        modules_before = list(sys.modules.keys())
+        with tempfile.TemporaryDirectory() as d:
+            module = Path(d) / "teamy"
+            module.mkdir()
+            initfile = module / "teamyy.py"
+            with initfile.open(mode='w') as f:
+                f.write(SIMPLE_MODULE)
 
-def test_import_of_pyc():
-    modules_before = list(sys.modules.keys())
-    with tempfile.TemporaryDirectory() as d:
-        module = Path(d) / "teampyc"
-        module.mkdir()
-        initfile = module / "teampycpyc.py"
-        with initfile.open(mode='w') as f:
-            f.write(SIMPLE_MODULE)
-        pycfile = initfile.parent / "teampycpyc.pyc"
-        py_compile.compile(str(initfile), cfile=str(pycfile))
-        initfile.unlink()
+            spec = str(initfile)
+            load_factory(spec)
 
-        spec = str(pycfile)
-        load_factory(spec)
-#        del sys.modules[module.stem]
-#    assert list(sys.modules.keys()) == modules_before
+    def test_failing_import(self):
+        modules_before = list(sys.modules.keys())
+        with tempfile.TemporaryDirectory() as d:
+            module = Path(d) / "teamz"
+            module.mkdir()
+            initfile = module / "__init__.py"
+            with initfile.open(mode='w') as f:
+                f.write(SIMPLE_FAILING_MODULE)
+
+            spec = str(module)
+            with pytest.raises(AttributeError):
+                load_factory(spec)
+
+    def test_import_of_pyc(self):
+        with tempfile.TemporaryDirectory() as d:
+            module = Path(d) / "teampyc"
+            module.mkdir()
+            initfile = module / "teampycpyc.py"
+            with initfile.open(mode='w') as f:
+                f.write(SIMPLE_MODULE)
+            pycfile = initfile.parent / "teampycpyc.pyc"
+            py_compile.compile(str(initfile), cfile=str(pycfile))
+            initfile.unlink()
+
+            spec = str(pycfile)
+            load_factory(spec)
+
+class TestLoadTeam:
+    def test_simple_module_import_forbidden_names(self):
+        names = ["", " ", "-", "∂", "0" * 26]
+        for idx, name in enumerate(names):
+            modules_before = list(sys.modules.keys())
+            with tempfile.TemporaryDirectory() as d:
+                module = Path(d) / ("teamx_%i" % idx)
+                module.mkdir()
+                initfile = module / "__init__.py"
+                with initfile.open(mode='w') as f:
+                    f.write(SIMPLE_MODULE % (name,))
+
+                spec = str(module)
+                with pytest.raises(ValueError):
+                    load_team(spec)
+
+    def test_simple_module_import_allowed_names(self):
+        names = ["a", "a a", "0" * 25]
+        for idx, name in enumerate(names):
+            modules_before = list(sys.modules.keys())
+            with tempfile.TemporaryDirectory() as d:
+                module = Path(d) / ("teamy_%i" % idx)
+                module.mkdir()
+                initfile = module / "__init__.py"
+                with initfile.open(mode='w') as f:
+                    f.write(SIMPLE_MODULE % (name,))
+
+                spec = str(module)
+                load_team(spec)
+
+    def test_builtin_import(self):
+        specs = [
+            "StoppingPlayer",
+            "StoppingPlayer,StoppingPlayer",
+        ]
+        for spec in specs:
+            load_team(spec)
+
+    def test_builtin_import_fails(self):
+        specs = [
+            ("NonExistingPlayer", ImportError),
+            ("StoppingPlayer,StoppingPlayer,FoodEatingPlayer", ValueError)
+        ]
+        for spec, exception in specs:
+            with pytest.raises(exception):
+                load_team(spec)
+
