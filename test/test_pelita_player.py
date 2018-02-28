@@ -72,7 +72,7 @@ def test_import_of_pyc():
         with initfile.open(mode='w') as f:
             f.write(SIMPLE_MODULE)
         pycfile = initfile.parent / "teampycpyc.pyc"
-        py_compile.compile(initfile, cfile=pycfile)
+        py_compile.compile(str(initfile), cfile=str(pycfile))
         initfile.unlink()
 
         spec = str(pycfile)
