@@ -1,6 +1,7 @@
 import pytest
 
 from pathlib import Path
+import py_compile
 import sys
 import tempfile
 
@@ -37,7 +38,7 @@ def test_simple_file_import():
     with tempfile.TemporaryDirectory() as d:
         module = Path(d) / "teamy"
         module.mkdir()
-        initfile = module / "team.py"
+        initfile = module / "teamyy.py"
         with initfile.open(mode='w') as f:
             f.write(SIMPLE_MODULE)
 
@@ -61,3 +62,20 @@ def test_failing_import():
 #        del sys.modules[module.stem]
 #    assert list(sys.modules.keys()) == modules_before
 
+
+def test_import_of_pyc():
+    modules_before = list(sys.modules.keys())
+    with tempfile.TemporaryDirectory() as d:
+        module = Path(d) / "teampyc"
+        module.mkdir()
+        initfile = module / "teampycpyc.py"
+        with initfile.open(mode='w') as f:
+            f.write(SIMPLE_MODULE)
+        pycfile = initfile.parent / "teampycpyc.pyc"
+        py_compile.compile(initfile, cfile=pycfile)
+        initfile.unlink()
+
+        spec = str(pycfile)
+        load_factory(spec)
+#        del sys.modules[module.stem]
+#    assert list(sys.modules.keys()) == modules_before
