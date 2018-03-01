@@ -104,19 +104,22 @@ class TestLoadTeam:
                 spec = str(module)
                 load_team(spec)
 
-    def test_builtin_import(self):
-        specs = [
-            "StoppingPlayer",
-            "StoppingPlayer,StoppingPlayer",
-        ]
-        for spec in specs:
-            load_team(spec)
+    load_team_cases = [
+        ("StoppingPlayer", None),
+        ("StoppingPlayer,StoppingPlayer", None),
+        ("NonExistingPlayer", ImportError),
+        ("StoppingPlayer,StoppingPlayer,FoodEatingPlayer", ValueError),
+        ('doc/source/groupN:team', None),
+        ('doc/source/groupN/__init__.py', ImportError),
+        ('doc/source/groupN', ValueError), # Has already been imported
+    ]
 
-    def test_builtin_import_fails(self):
-        specs = [
-            ("NonExistingPlayer", ImportError),
-            ("StoppingPlayer,StoppingPlayer,FoodEatingPlayer", ValueError)
-        ]
-        for spec, exception in specs:
-            with pytest.raises(exception):
-                load_team(spec)
+    def test_load_team(self):
+        for path, result in self.load_team_cases:
+            print(path, result)
+            if result is not None:
+                with pytest.raises(result):
+                    load_team(path)
+            else:
+                load_team(path)
+ 
