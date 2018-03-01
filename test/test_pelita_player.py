@@ -120,4 +120,3 @@ class TestLoadTeam:
         for spec, exception in specs:
             with pytest.raises(exception):
                 load_team(spec)
-
