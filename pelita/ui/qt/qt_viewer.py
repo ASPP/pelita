@@ -16,10 +16,11 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 class ZMQListener(QtCore.QThread):
     message = QtCore.pyqtSignal(str)
-   
-    def __init__(self, address):
+
+    def __init__(self, address, exit_address):
         super().__init__()
-        self.address = address        
+        self.address = address
+        self.exit_address = exit_address
         self.running = True
     
     def run(self):
@@ -27,18 +28,21 @@ class ZMQListener(QtCore.QThread):
         self.socket = self.context.socket(zmq.SUB)
         self.socket.setsockopt_unicode(zmq.SUBSCRIBE, "")
         self.socket.connect(self.address)
+
+        self.exit_socket = self.context.socket(zmq.PAIR)
+        self.exit_socket.connect(self.exit_address)
+
         self.poll = zmq.Poller()
         self.poll.register(self.socket, zmq.POLLIN)
+        self.poll.register(self.exit_socket, zmq.POLLIN)
 
         while self.running:
             evts = dict(self.poll.poll(1000))
             if self.socket in evts:
                 message = self.socket.recv_unicode()
                 self.message.emit(message)
-
-    @QtCore.pyqtSlot()
-    def exit_thread(self):
-        self.running = False
+            if self.exit_socket in evts:
+                self.running = False
  
 
 class Ui_MainWindow(object):
@@ -54,20 +58,20 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-class QtViewer(QMainWindow):
-    exit_thread = QtCore.pyqtSignal()
 
+class QtViewer(QMainWindow):
     def __init__(self, address, controller_address=None, geometry=None, delay=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.zmq_listener = ZMQListener(address)
-        self.exit_thread.connect(self.zmq_listener.exit_thread)
+        self.context = zmq.Context()
+        self.exit_socket = self.context.socket(zmq.PAIR)
+        exit_address = self.exit_socket.bind_to_random_port('tcp://127.0.0.1')
 
+        self.zmq_listener = ZMQListener(address, f'tcp://127.0.0.1:{exit_address}')
         self.zmq_listener.message.connect(self.signal_received)
         
         QtCore.QTimer.singleShot(0, self.zmq_listener.start)
 
-        self.context = zmq.Context()
         if controller_address:
             self.controller_socket = self.context.socket(zmq.DEALER)
             self.controller_socket.connect(controller_address)
@@ -165,7 +169,7 @@ class QtViewer(QMainWindow):
                 QtCore.QTimer.singleShot(0, self.request_next)
 
     def closeEvent(self, event):
-        self.exit_thread.emit()
+        self.exit_socket.send(b'')
         self.zmq_listener.wait(2000)
         if self.controller_socket:
             self.controller_socket.send_json({"__action__": "exit"})
