@@ -87,6 +87,7 @@ class QtViewer(QMainWindow):
         pause = QtWidgets.QShortcut(" ", self)
         pause.activated.connect(self.pause)
 
+        self.universe = None
         self.positions = []
         self.food = []
 
@@ -97,16 +98,28 @@ class QtViewer(QMainWindow):
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
+        width = self.width()
+        height = self.height()
+        pen_size = 0.1
+        if self.universe:
+            universe_width = self.universe.maze.width
+            universe_height = self.universe.maze.height
+            painter.scale(width / universe_width, height / universe_height)
+            painter.setPen(QtGui.QPen(QtCore.Qt.black, pen_size))
+            for position, wall in self.universe.maze.items():
+                if wall:
+                    painter.drawArc(QtCore.QRectF(position[0] + 0.1, position[1] + 0.1, 0.8, 0.8), 0, 5760)
+
         for food in self.food:
-            painter.setPen(QtGui.QPen(QtCore.Qt.black))
-            painter.drawEllipse(QtCore.QRectF(food[0] * 10, food[1] * 10, 3, 3))
+            painter.setPen(QtGui.QPen(QtCore.Qt.black, pen_size))
+            painter.drawEllipse(QtCore.QRectF(food[0] + 0.3, food[1] + 0.3, 0.4, 0.4))
         if self.positions:
             def paint(pos):
-                painter.drawArc(QtCore.QRectF(pos[0] * 10, pos[1] * 10, 10, 10), 0, 5760)
-            painter.setPen(QtGui.QPen(QtCore.Qt.blue))
+                painter.drawArc(QtCore.QRectF(pos[0] + 0.2, pos[1] + 0.2, 0.6, 0.6), 0, 5760)
+            painter.setPen(QtGui.QPen(QtCore.Qt.blue, pen_size))
             paint(self.positions[0])
             paint(self.positions[2])
-            painter.setPen(QtGui.QPen(QtCore.Qt.red))
+            painter.setPen(QtGui.QPen(QtCore.Qt.red, pen_size))
             paint(self.positions[1])
             paint(self.positions[3])
 
@@ -144,6 +157,7 @@ class QtViewer(QMainWindow):
         if universe:
             self.positions = [b.current_pos for b in universe.bots]
             self.food = universe.food
+            self.universe = universe
             self.statusBar().showMessage(str([b.current_pos for b in universe.bots]))
             self.repaint()
             if self.running:
