@@ -133,6 +133,7 @@ parser.add_argument('--replay', #help='Replay a dumped game'
                     #' DUMPFILE (default \'pelita.dump\').',
                     metavar='DUMPFILE', default=argparse.SUPPRESS, nargs='?',
                     help=argparse.SUPPRESS)
+parser.add_argument('--export', type=str, metavar="FOLDER", help=argparse.SUPPRESS)
 parser.add_argument('--dry-run', const=True, action='store_const', help=argparse.SUPPRESS)
                     #help='Load players but do not actually play the game.')
 parser.add_argument('--list-layouts', action='store_const', const=True,
@@ -362,7 +363,7 @@ def main():
                 game_config["publisher"] = publisher
                 viewer_type = 'pelita.scripts.pelita_qtviewer' if args.viewer.startswith('qt') else None
                 viewer = libpelita.run_external_viewer(publisher.socket_addr, controller.socket_addr,
-                                                       geometry=geometry, delay=delay, stop_after=args.stop_after, viewer=viewer_type)
+                                                       geometry=geometry, delay=delay, stop_after=args.stop_after, viewer=viewer_type, export=args.export)
                 libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers, controller=controller)
             else:
                 libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers)

@@ -32,6 +32,7 @@ parser.add_argument('--geometry', type=geometry_string,
                     help='geometry')
 parser.add_argument('--delay', type=int,
                     help='delay')
+parser.add_argument('--export', type=str, metavar="FOLDER", help='png export path')
 
 def main():
     args = parser.parse_args()
@@ -39,7 +40,8 @@ def main():
         'address': args.subscribe_sock,
         'controller_address': args.controller_address,
         'geometry': args.geometry,
-        'delay': args.delay
+        'delay': args.delay,
+        'export': args.export
     }
 
     app = QApplication(sys.argv)

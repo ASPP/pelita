@@ -3,6 +3,7 @@ import json
 import logging
 import math
 import os
+from pathlib import Path
 import shutil
 import signal
 import sys
@@ -67,8 +68,18 @@ class Ui_MainWindow(object):
 
 
 class QtViewer(QMainWindow):
-    def __init__(self, address, controller_address=None, geometry=None, delay=None, *args, **kwargs):
+    def __init__(self, address, controller_address=None,
+                       geometry=None, delay=None, export=None,
+                       *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        if export:
+            png_export_path = Path(export)
+            if not png_export_path.is_dir():
+                raise RuntimeError(f"Not a directory: {png_export_path}")
+            self.png_export_path = png_export_path
+        else:
+            self.png_export_path = None
 
         self.context = zmq.Context()
         self.exit_socket = self.context.socket(zmq.PAIR)
@@ -102,7 +113,6 @@ class QtViewer(QMainWindow):
         self.food = []
         self.previous_positions = {}
         self.directions = {}
-
 
     @QtCore.pyqtSlot()
     def pause(self):
@@ -250,6 +260,15 @@ class QtViewer(QMainWindow):
                 self.previous_positions[bot.index] = bot.current_pos
 
             self.repaint()
+            if self.png_export_path:
+                try:
+                    round_index = game_state['round_index']
+                    bot_id = game_state['bot_id']
+                    file_name = f'pelita-{round_index}-{bot_id}.png'
+
+                    self.grab().save(str(self.png_export_path / file_name))
+                except TypeError as e:
+                    print(e)
 
             if self.running:
                 QtCore.QTimer.singleShot(0, self.request_next)
