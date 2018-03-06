@@ -98,6 +98,7 @@ class QtViewer(QMainWindow):
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
         width = self.width()
         height = self.height()
         pen_size = 0.1
