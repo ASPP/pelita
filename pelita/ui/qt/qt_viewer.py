@@ -54,15 +54,15 @@ class ZMQListener(QtCore.QThread):
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
-        MainWindow.resize(500, 500)
+        MainWindow.resize(600, 300)
         self.centralwidget = QWidget(MainWindow)
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 500, 22))
         MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        MainWindow.setStatusBar(self.statusbar)
+#        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+#        MainWindow.setStatusBar(self.statusbar)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
 
@@ -116,6 +116,9 @@ class QtViewer(QMainWindow):
         height = self.height()
         pen_size = 0.05
 
+        blue_col = QtGui.QColor(94, 158, 217)
+        red_col = QtGui.QColor(235, 90, 90)
+
         if self.universe:
             universe_width = self.universe.maze.width
             universe_height = self.universe.maze.height
@@ -129,11 +132,18 @@ class QtViewer(QMainWindow):
 
             for position, wall in self.universe.maze.items():
                 if wall:
-                    painter.setBrush(QtGui.QBrush())
+                    if position[0] < self.universe.maze.width / 2:
+                        brush = QtGui.QBrush(blue_col, QtCore.Qt.Dense4Pattern)
+                        inverted = painter.worldTransform().inverted()
+                        brush.setTransform(inverted[0])
+                        painter.setBrush(brush)
+                    else:
+                        brush = QtGui.QBrush(red_col, QtCore.Qt.Dense4Pattern)
+                        inverted = painter.worldTransform().inverted()
+                        brush.setTransform(inverted[0])
+                        painter.setBrush(brush)
                     painter.drawEllipse(QRectF(position[0] + 0.1, position[1] + 0.1, 0.8, 0.8))
 
-            blue_col = QtGui.QColor(94, 158, 217)
-            red_col = QtGui.QColor(235, 90, 90)
         
             for bot in self.universe.bots:
                 def paint(pos):
@@ -197,11 +207,10 @@ class QtViewer(QMainWindow):
                     paint_harvester(bot.current_pos, bot_col)
 
     def setupUi(self):
-        self.setObjectName("MainWindow")
-        self.resize(277, 244)
-        self.statusbar = QtWidgets.QStatusBar()
-        self.statusbar.setObjectName("statusbar")
-        self.setStatusBar(self.statusbar)
+        self.setObjectName("Pelita")
+#        self.statusbar = QtWidgets.QStatusBar()
+#        self.statusbar.setObjectName("statusbar")
+#        self.setStatusBar(self.statusbar)
 
     def request_initial(self):
         if self.controller_socket:
@@ -229,7 +238,7 @@ class QtViewer(QMainWindow):
         if universe:
             self.food = universe.food
             self.universe = universe
-            self.statusBar().showMessage(str([b.current_pos for b in universe.bots]))
+#            self.statusBar().showMessage(str([b.current_pos for b in universe.bots]))
 
             for bot in universe.bots:
                 previous_pos = self.previous_positions.get(bot.index)
