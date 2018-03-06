@@ -82,10 +82,33 @@ class QtViewer(QMainWindow):
         self.ui = Ui_MainWindow()  # This is from a python export from QtDesigner
         self.ui.setupUi(self)
 
+        self.running = True
+        
+        pause = QtWidgets.QShortcut(" ", self)
+        pause.activated.connect(self.pause)
+
+        self.positions = []
+        self.food = []
+
+    @QtCore.pyqtSlot()
+    def pause(self):
+        self.running = not self.running
+        self.request_next()
+
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
-        painter.setPen(QtGui.QPen(QtCore.Qt.red))
-        painter.drawArc(QtCore.QRectF(250, 250, 10, 10), 0, 5760)
+        for food in self.food:
+            painter.setPen(QtGui.QPen(QtCore.Qt.black))
+            painter.drawEllipse(QtCore.QRectF(food[0] * 10, food[1] * 10, 3, 3))
+        if self.positions:
+            def paint(pos):
+                painter.drawArc(QtCore.QRectF(pos[0] * 10, pos[1] * 10, 10, 10), 0, 5760)
+            painter.setPen(QtGui.QPen(QtCore.Qt.blue))
+            paint(self.positions[0])
+            paint(self.positions[2])
+            painter.setPen(QtGui.QPen(QtCore.Qt.red))
+            paint(self.positions[1])
+            paint(self.positions[3])
 
     def setupUi(self):
         self.setObjectName("MainWindow")
@@ -98,6 +121,10 @@ class QtViewer(QMainWindow):
         if self.controller_socket:
             self.controller_socket.send_json({"__action__": "set_initial"})
 
+    def request_next(self):
+        if self.running:
+            self.request_step()
+
     def request_step(self):
         if self.controller_socket:
             self.controller_socket.send_json({"__action__": "play_step"})
@@ -107,7 +134,6 @@ class QtViewer(QMainWindow):
         observed = message["__data__"]
         if observed:
             self.observe(observed)
-        QtCore.QTimer.singleShot(0, self.request_step)
 
     def observe(self, observed):
         from pelita.datamodel import CTFUniverse
@@ -116,7 +142,12 @@ class QtViewer(QMainWindow):
         game_state = observed.get("game_state")
 
         if universe:
+            self.positions = [b.current_pos for b in universe.bots]
+            self.food = universe.food
             self.statusBar().showMessage(str([b.current_pos for b in universe.bots]))
+            self.repaint()
+            if self.running:
+                QtCore.QTimer.singleShot(0, self.request_next)
 
     def closeEvent(self, event):
         self.exit_thread.emit()
