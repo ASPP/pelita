@@ -1,13 +1,20 @@
+import cmath
 import json
 import logging
+import math
 import os
 import shutil
 import signal
 import sys
 
+import zmq
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow
-import zmq
+from PyQt5.QtCore import QPointF, QRectF
+
+from pelita.graph import diff_pos
+from pelita.datamodel import CTFUniverse
 
 _logger = logging.getLogger(__name__)
 _logger.setLevel(logging.DEBUG)
@@ -92,8 +99,10 @@ class QtViewer(QMainWindow):
         pause.activated.connect(self.pause)
 
         self.universe = None
-        self.positions = []
         self.food = []
+        self.previous_positions = {}
+        self.directions = {}
+
 
     @QtCore.pyqtSlot()
     def pause(self):
@@ -105,28 +114,87 @@ class QtViewer(QMainWindow):
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         width = self.width()
         height = self.height()
-        pen_size = 0.1
+        pen_size = 0.05
+
         if self.universe:
             universe_width = self.universe.maze.width
             universe_height = self.universe.maze.height
             painter.scale(width / universe_width, height / universe_height)
             painter.setPen(QtGui.QPen(QtCore.Qt.black, pen_size))
+
+            for food in self.food:
+                painter.setPen(QtGui.QPen(QtCore.Qt.black, pen_size))
+                painter.setBrush(QtGui.QColor(247, 150, 213))
+                painter.drawEllipse(QRectF(food[0] + 0.3, food[1] + 0.3, 0.4, 0.4))
+
             for position, wall in self.universe.maze.items():
                 if wall:
-                    painter.drawArc(QtCore.QRectF(position[0] + 0.1, position[1] + 0.1, 0.8, 0.8), 0, 5760)
+                    painter.setBrush(QtGui.QBrush())
+                    painter.drawEllipse(QRectF(position[0] + 0.1, position[1] + 0.1, 0.8, 0.8))
 
-        for food in self.food:
-            painter.setPen(QtGui.QPen(QtCore.Qt.black, pen_size))
-            painter.drawEllipse(QtCore.QRectF(food[0] + 0.3, food[1] + 0.3, 0.4, 0.4))
-        if self.positions:
-            def paint(pos):
-                painter.drawArc(QtCore.QRectF(pos[0] + 0.2, pos[1] + 0.2, 0.6, 0.6), 0, 5760)
-            painter.setPen(QtGui.QPen(QtCore.Qt.blue, pen_size))
-            paint(self.positions[0])
-            paint(self.positions[2])
-            painter.setPen(QtGui.QPen(QtCore.Qt.red, pen_size))
-            paint(self.positions[1])
-            paint(self.positions[3])
+            blue_col = QtGui.QColor(94, 158, 217)
+            red_col = QtGui.QColor(235, 90, 90)
+        
+            for bot in self.universe.bots:
+                def paint(pos):
+                    painter.drawArc(QRectF(pos[0] + 0.2, pos[1] + 0.2, 0.6, 0.6), 0, 5760)
+
+                def paint_harvester(pos, color):
+                    direction = self.directions.get(bot.index)
+                    if not direction:
+                        direction = (0, 1)
+
+                    rotation = math.degrees(cmath.phase(direction[0] - direction[1]*1j))
+
+                    x, y = pos
+                    bounding_rect = QRectF(x, y, 1, 1)
+                    # bot body
+                    path = QtGui.QPainterPath(QPointF(x + 0.5, y + 0.5))
+                    path.arcTo(bounding_rect, 20 + rotation, 320)
+                    path.closeSubpath()
+                    painter.setBrush(color)
+
+                    painter.drawPath(path)
+
+                    painter.setBrush(QtGui.QColor(235, 235, 30))
+                    eye_size = 0.1
+                    # left eye
+                    painter.drawEllipse(QRectF(x + 0.3 - eye_size, y + 0.3 - eye_size, eye_size * 2, eye_size * 2))
+
+                def paint_destroyer(pos, color):
+                    x, y = pos
+                    bounding_rect = QRectF(x, y, 1, 1)
+                    # ghost head
+                    path = QtGui.QPainterPath(QPointF(x, y + 0.5))
+                    path.lineTo(QPointF(x, y + 7/8))
+                    path.cubicTo(QPointF(x + 0.5/6, y + 7/8), QPointF(x + 1/6, y + 7/8), QPointF(x + 1/6, y + 1/2))
+                    path.cubicTo(QPointF(x + 1/6, y + 1), QPointF(x + 3/6, y + 1), QPointF(x + 3/6, y + 1/2))
+                    path.cubicTo(QPointF(x + 3/6, y + 1), QPointF(x + 5/6, y + 1), QPointF(x + 5/6, y + 1/2))
+                    path.cubicTo(QPointF(x + 5/6, y + 7/8), QPointF(x + 5.5/6, y + 7/8), QPointF(x + 6/6, y + 7/8))
+                    path.lineTo(QPointF(x + 1, y + 0.5))
+                    path.cubicTo(QPointF(x + 1, y), QPointF(x, y), QPointF(x, y+0.5))
+                    painter.setBrush(color)
+
+                    painter.drawPath(path)
+
+                    # ghost eyes
+                    eye_size = 0.15
+                    painter.setBrush(QtGui.QColor(235, 235, 30))
+                    # left eye
+                    painter.drawEllipse(QRectF(x + 0.3 - eye_size, y + 0.3 - eye_size, eye_size * 2, eye_size * 2))
+                    # right eye
+                    painter.drawEllipse(QRectF(x + 0.7 - eye_size, y + 0.3 - eye_size, eye_size * 2, eye_size * 2))
+
+                if bot.team_index == 0:
+                    bot_col = blue_col
+                else:
+                    bot_col = red_col
+
+                painter.setPen(QtGui.QPen(bot_col, pen_size))
+                if bot.is_destroyer:
+                    paint_destroyer(bot.current_pos, bot_col)
+                else:
+                    paint_harvester(bot.current_pos, bot_col)
 
     def setupUi(self):
         self.setObjectName("MainWindow")
@@ -154,24 +222,33 @@ class QtViewer(QMainWindow):
             self.observe(observed)
 
     def observe(self, observed):
-        from pelita.datamodel import CTFUniverse
         universe = observed.get("universe")
         universe = CTFUniverse._from_json_dict(universe) if universe else None
         game_state = observed.get("game_state")
 
         if universe:
-            self.positions = [b.current_pos for b in universe.bots]
             self.food = universe.food
             self.universe = universe
             self.statusBar().showMessage(str([b.current_pos for b in universe.bots]))
+
+            for bot in universe.bots:
+                previous_pos = self.previous_positions.get(bot.index)
+                if previous_pos:
+                    diff = diff_pos(previous_pos, bot.current_pos)
+                    if abs(diff[0]) + abs(diff[1]) == 1:
+                        self.directions[bot.index] = diff
+
+                self.previous_positions[bot.index] = bot.current_pos
+
             self.repaint()
+
             if self.running:
                 QtCore.QTimer.singleShot(0, self.request_next)
 
     def closeEvent(self, event):
         self.exit_socket.send(b'')
-        self.zmq_listener.wait(2000)
         if self.controller_socket:
             self.controller_socket.send_json({"__action__": "exit"})
+        #self.zmq_listener.wait(2000)
         event.accept()
 
