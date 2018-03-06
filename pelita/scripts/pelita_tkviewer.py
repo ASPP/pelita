@@ -59,7 +59,7 @@ def main():
         'delay': args.delay,
         'stop_after': args.stop_after
     }
-    v = TkViewer(**{k: v for k, v in list(tkargs.items()) if v is not None})
+    v = TkViewer(**{k: v for k, v in tkargs.items() if v is not None})
     v.run()
 
 if __name__ == '__main__':

@@ -146,6 +146,7 @@ setup(
             'pelita=pelita.scripts.pelita_main:main',
             'pelita-tournament=pelita.scripts.pelita_tournament:main',
             'pelita-tkviewer=pelita.scripts.pelita_tkviewer:main',
+            'pelita-qtviewer=pelita.scripts.pelita_qtviewer:main',
             'pelita-player=pelita.scripts.pelita_player:main',
         ],
     },

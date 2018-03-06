@@ -183,6 +183,8 @@ viewer_opt.add_argument('--tk', action='store_const', const='tk',
                         dest='viewer', help='Use the tk viewer (default).')
 viewer_opt.add_argument('--tk-no-sync', action='store_const', const='tk-no-sync',
                         dest='viewer', help=argparse.SUPPRESS)
+viewer_opt.add_argument('--qt', action='store_const', const='qt',
+                        dest='viewer', help='use the qt viewer (default)')
 parser.set_defaults(viewer='tk')
 
 advanced_settings = parser.add_argument_group('Advanced settings')
@@ -266,7 +268,7 @@ def main():
         pass
     random.seed(args.seed)
 
-    if args.viewer.startswith('tk') and not args.publish_to:
+    if (args.viewer.startswith('tk') or args.viewer.startswith('qt')) and not args.publish_to:
         raise ValueError("Options --tk (or --tk-no-sync) and --no-publish are mutually exclusive.")
 
     try:
@@ -352,14 +354,15 @@ def main():
         viewers.append(ResultPrinter())
 
         with libpelita.channel_setup(publish_to=args.publish_to) as channels:
-            if args.viewer.startswith('tk'):
+            if args.viewer.startswith('tk') or args.viewer.startswith('qt'):
                 geometry = args.geometry
                 delay = int(1000./args.fps)
                 controller = channels["controller"]
                 publisher = channels["publisher"]
                 game_config["publisher"] = publisher
+                viewer_type = 'pelita.scripts.pelita_qtviewer' if args.viewer.startswith('qt') else None
                 viewer = libpelita.run_external_viewer(publisher.socket_addr, controller.socket_addr,
-                                                       geometry=geometry, delay=delay, stop_after=args.stop_after)
+                                                       geometry=geometry, delay=delay, stop_after=args.stop_after, viewer=viewer_type)
                 libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers, controller=controller)
             else:
                 libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers)
