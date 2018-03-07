@@ -106,8 +106,10 @@ class QtViewer(QMainWindow):
 
         self.running = True
         
-        pause = QtWidgets.QShortcut(" ", self)
-        pause.activated.connect(self.pause)
+        QtWidgets.QShortcut(" ", self).activated.connect(self.pause)
+        QtWidgets.QShortcut("q", self).activated.connect(self.close)
+        QtWidgets.QShortcut(QtCore.Qt.Key_Return, self).activated.connect(self.request_step)
+        QtWidgets.QShortcut(QtCore.Qt.Key_Return + QtCore.Qt.SHIFT, self).activated.connect(self.request_round)
 
         self.universe = None
         self.food = []
@@ -233,6 +235,10 @@ class QtViewer(QMainWindow):
     def request_step(self):
         if self.controller_socket:
             self.controller_socket.send_json({"__action__": "play_step"})
+
+    def request_round(self):
+        if self.controller_socket:
+            self.controller_socket.send_json({"__action__": "play_round"})
 
     def signal_received(self, message):
         message = json.loads(message)
