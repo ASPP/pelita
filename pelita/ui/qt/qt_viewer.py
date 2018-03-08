@@ -180,8 +180,14 @@ class QtViewer(QMainWindow):
 
                     painter.setBrush(QtGui.QColor(235, 235, 30))
                     eye_size = 0.1
-                    # left eye
-                    painter.drawEllipse(QRectF(x + 0.3 - eye_size, y + 0.3 - eye_size, eye_size * 2, eye_size * 2))
+                    if direction == (0, 1): # down
+                        painter.drawEllipse(QRectF(x + 0.3 - eye_size, y + 0.4 - eye_size, eye_size * 2, eye_size * 2))
+                    elif direction == (1, 0): # right
+                        painter.drawEllipse(QRectF(x + 0.4 - eye_size, y + 0.3 - eye_size, eye_size * 2, eye_size * 2))
+                    elif direction == (0, -1): # up
+                        painter.drawEllipse(QRectF(x + 0.3 - eye_size, y + 0.6 - eye_size, eye_size * 2, eye_size * 2))
+                    elif direction == (-1, 0): # left
+                        painter.drawEllipse(QRectF(x + 0.6 - eye_size, y + 0.3 - eye_size, eye_size * 2, eye_size * 2))
 
                 def paint_destroyer(pos, color):
                     x, y = pos
