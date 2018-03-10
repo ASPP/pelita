@@ -121,6 +121,10 @@ class QtViewer(QMainWindow):
         self.running = not self.running
         self.request_next()
 
+    def resizeEvent(self, event):
+        if hasattr(self, 'wall_pm'):
+            del self.wall_pm
+
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
@@ -132,6 +136,14 @@ class QtViewer(QMainWindow):
         red_col = QtGui.QColor(235, 90, 90)
 
         if self.universe:
+
+            try:
+                painter.drawPixmap(0, 0, self.width(), self.height(), self.wall_pm)
+            except Exception:
+                from .qt_pixmaps import generate_wall
+                self.wall_pm = generate_wall(self.universe.maze, self)
+                painter.drawPixmap(0, 0, self.width(), self.height(), self.wall_pm)
+
             universe_width = self.universe.maze.width
             universe_height = self.universe.maze.height
             painter.scale(width / universe_width, height / universe_height)
@@ -142,21 +154,6 @@ class QtViewer(QMainWindow):
                 painter.setBrush(QtGui.QColor(247, 150, 213))
                 painter.drawEllipse(QRectF(food[0] + 0.3, food[1] + 0.3, 0.4, 0.4))
 
-            for position, wall in self.universe.maze.items():
-                if wall:
-                    if position[0] < self.universe.maze.width / 2:
-                        brush = QtGui.QBrush(blue_col, QtCore.Qt.Dense4Pattern)
-                        inverted = painter.worldTransform().inverted()
-                        brush.setTransform(inverted[0])
-                        painter.setBrush(brush)
-                    else:
-                        brush = QtGui.QBrush(red_col, QtCore.Qt.Dense4Pattern)
-                        inverted = painter.worldTransform().inverted()
-                        brush.setTransform(inverted[0])
-                        painter.setBrush(brush)
-                    painter.drawEllipse(QRectF(position[0] + 0.1, position[1] + 0.1, 0.8, 0.8))
-
-        
             for bot in self.universe.bots:
                 def paint(pos):
                     painter.drawArc(QRectF(pos[0] + 0.2, pos[1] + 0.2, 0.6, 0.6), 0, 5760)
