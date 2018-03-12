@@ -14,8 +14,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow
 from PyQt5.QtCore import QPointF, QRectF
 
-from pelita.graph import diff_pos
-from pelita.datamodel import CTFUniverse
+from ...graph import diff_pos
+from ...datamodel import CTFUniverse
 
 _logger = logging.getLogger(__name__)
 _logger.setLevel(logging.DEBUG)
@@ -59,9 +59,16 @@ class Ui_MainWindow(object):
         self.centralwidget = QWidget(MainWindow)
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
         MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 500, 22))
-        MainWindow.setMenuBar(self.menubar)
+        menubar = QtWidgets.QMenuBar(None)
+#        self.menubar.setGeometry(QtCore.QRect(0, 0, 500, 22))
+        fileMenu = menubar.addMenu('&File')
+        
+        impAct = QtWidgets.QAction('Import mail', MainWindow)
+        fileMenu.addAction(impAct)
+        
+        menubar.addMenu(fileMenu)
+
+        MainWindow.setMenuBar(menubar)
 #        self.statusbar = QtWidgets.QStatusBar(MainWindow)
 #        MainWindow.setStatusBar(self.statusbar)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -143,6 +150,7 @@ class QtViewer(QMainWindow):
                 from .qt_pixmaps import generate_wall
                 self.wall_pm = generate_wall(self.universe.maze, self)
                 painter.drawPixmap(0, 0, self.width(), self.height(), self.wall_pm)
+                del self.wall_pm
 
             universe_width = self.universe.maze.width
             universe_height = self.universe.maze.height
