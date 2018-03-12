@@ -83,7 +83,7 @@ class QtViewer(QMainWindow):
         if export:
             png_export_path = Path(export)
             if not png_export_path.is_dir():
-                raise RuntimeError(f"Not a directory: {png_export_path}")
+                raise RuntimeError("Not a directory: {png_export_path}")
             self.png_export_path = png_export_path
         else:
             self.png_export_path = None
@@ -92,7 +92,7 @@ class QtViewer(QMainWindow):
         self.exit_socket = self.context.socket(zmq.PAIR)
         exit_address = self.exit_socket.bind_to_random_port('tcp://127.0.0.1')
 
-        self.zmq_listener = ZMQListener(address, f'tcp://127.0.0.1:{exit_address}')
+        self.zmq_listener = ZMQListener(address, 'tcp://127.0.0.1:{}'.format(exit_address))
         self.zmq_listener.message.connect(self.signal_received)
         
         QtCore.QTimer.singleShot(0, self.zmq_listener.start)
@@ -167,6 +167,9 @@ class QtViewer(QMainWindow):
                     painter.drawArc(QRectF(pos[0] + 0.2, pos[1] + 0.2, 0.6, 0.6), 0, 5760)
 
                 def paint_harvester(pos, color):
+                    painter.save()
+
+
                     direction = self.directions.get(bot.index)
                     if not direction:
                         direction = (0, 1)
@@ -174,6 +177,18 @@ class QtViewer(QMainWindow):
                     rotation = math.degrees(cmath.phase(direction[0] - direction[1]*1j))
 
                     x, y = pos
+                    painter.translate(x, y)
+#                    painter.scale(0.5, 0.5)
+#                    if bot.index == 0:
+#                        painter.translate(0, 0)
+#                    elif bot.index == 1:
+#                        painter.translate(1, 0)
+#                    elif bot.index == 2:
+#                        painter.translate(0, 1)
+#                    elif bot.index == 3:
+#                        painter.translate(1, 1)
+
+                    x = y = 0
                     bounding_rect = QRectF(x, y, 1, 1)
                     # bot body
                     path = QtGui.QPainterPath(QPointF(x + 0.5, y + 0.5))
@@ -193,6 +208,8 @@ class QtViewer(QMainWindow):
                         painter.drawEllipse(QRectF(x + 0.3 - eye_size, y + 0.6 - eye_size, eye_size * 2, eye_size * 2))
                     elif direction == (-1, 0): # left
                         painter.drawEllipse(QRectF(x + 0.6 - eye_size, y + 0.3 - eye_size, eye_size * 2, eye_size * 2))
+
+                    painter.restore()
 
                 def paint_destroyer(pos, color):
                     x, y = pos
@@ -281,7 +298,7 @@ class QtViewer(QMainWindow):
                 try:
                     round_index = game_state['round_index']
                     bot_id = game_state['bot_id']
-                    file_name = f'pelita-{round_index}-{bot_id}.png'
+                    file_name = 'pelita-{}-{}.png'.format(round_index, bot_id)
 
                     self.grab().save(str(self.png_export_path / file_name))
                 except TypeError as e:
