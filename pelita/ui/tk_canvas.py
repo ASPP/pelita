@@ -119,6 +119,7 @@ class UiCanvas:
 
         self.timestamp = time.time()
         self.fps = 0
+        self.selected = None
 
     def init_canvas(self):
         self.score = tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=40)
@@ -198,7 +199,9 @@ class UiCanvas:
                        text="QUIT",
                        command=self.master.quit).grid(row=0, column=1, rowspan=2, sticky="WE")
 
-
+        self.status_selected = tkinter.Label(game_control_frame, text="", fg="#acacac", background="white", anchor="s")
+        self.status_selected.pack(side=tkinter.LEFT)
+    
         self.status.grid_columnconfigure(0, weight=1)
         self.status.grid_columnconfigure(1, weight=1)
         self.status.grid_columnconfigure(2, weight=1)
@@ -207,6 +210,7 @@ class UiCanvas:
         self.canvas.config(background="white")
         self.canvas.pack(fill=tkinter.BOTH, expand=tkinter.YES)
         self.canvas.bind('<Configure>', self.resize)
+        self.canvas.bind('<Button-1>', self.on_click)
 
         self.canvas.update()
 
@@ -336,6 +340,16 @@ class UiCanvas:
         else:
             self.button_game_toggle_grid.config(text="show grid")
 
+    def on_click(self, event):
+        raw_x, raw_y = event.x, event.y
+        x = int(raw_x / self.mesh_graph.screen_width * self.mesh_graph.mesh_width)
+        y = int(raw_y / self.mesh_graph.screen_height * self.mesh_graph.mesh_height)
+        if self.selected == (x, y):
+            self.selected = None
+        else:
+            self.selected = (x, y)
+        self.draw_selected()
+
     def draw_background(self, universe):
         """ Draws a line between blue and red team.
         """
@@ -413,6 +427,13 @@ class UiCanvas:
 
         self.status_round_info.config(text=roundturn)
         self.status_layout_info.config(text=layout_name)
+        self.draw_selected()
+
+    def draw_selected(self):
+        if self.selected:
+            self.status_selected.config(text="[%i, %i]" % self.selected)
+        else:
+            self.status_selected.config(text="")
 
     def draw_end_of_game(self, display_string):
         """ Draw an end of game string. """
