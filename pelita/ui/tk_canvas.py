@@ -430,10 +430,23 @@ class UiCanvas:
         self.draw_selected()
 
     def draw_selected(self):
+        self.canvas.delete("selected")
         if self.selected:
             self.status_selected.config(text="[%i, %i]" % self.selected)
+
+            ul = self.mesh_graph.mesh_to_screen(self.selected, (-1, -1))
+            ur = self.mesh_graph.mesh_to_screen(self.selected, (1, -1))
+            ll = self.mesh_graph.mesh_to_screen(self.selected, (-1, 1))
+            lr = self.mesh_graph.mesh_to_screen(self.selected, (1, 1))
+
+            self.canvas.create_line(*ul, *ur, fill=col(48, 26, 22), width=0.8, tag=("selected",), capstyle="round", dash=(3,5))
+            self.canvas.create_line(*ur, *lr, fill=col(48, 26, 22), width=0.8, tag=("selected",), capstyle="round", dash=(3,5))
+            self.canvas.create_line(*lr, *ll, fill=col(48, 26, 22), width=0.8, tag=("selected",), capstyle="round", dash=(3,5))
+            self.canvas.create_line(*ll, *ul, fill=col(48, 26, 22), width=0.8, tag=("selected",), capstyle="round", dash=(3,5))
         else:
             self.status_selected.config(text="")
+
+
 
     def draw_end_of_game(self, display_string):
         """ Draw an end of game string. """
