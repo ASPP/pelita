@@ -115,3 +115,53 @@ class DumpingViewer(AbstractViewer):
                                 "game_state": game_state}}
         self._send(message)
 
+
+import xlsxwriter
+
+class ExcelViewer(AbstractViewer):
+    """ A viewer which dumps to a given stream.
+    """
+    def __init__(self):
+
+        # Create a workbook and add a worksheet.
+        self.workbook = xlsxwriter.Workbook('Pelita.xlsx')
+        self.blue_col = '#5e9ed9'
+        self.red_col = '#eb5a5a'
+        self.blue_wall_format = self.workbook.add_format({'bg_color': self.blue_col, 'pattern': 14, 'fg_color': 'white'})
+        self.red_wall_format = self.workbook.add_format({'bg_color': self.red_col, 'pattern': 14, 'fg_color': 'white'})
+
+        self.food_col = '#f796d5'
+        self.food_format = self.workbook.add_format({'font_color': self.food_col, 'align': 'center', 'valign': 'vcenter'})
+
+
+        self.blue_format = self.workbook.add_format({'font_color': self.blue_col, 'align': 'center', 'valign': 'vcenter'})
+        self.red_format = self.workbook.add_format({'font_color': self.red_col, 'align': 'center', 'valign': 'vcenter'})
+
+    def _send(self, universe):
+        worksheet = self.workbook.add_worksheet()
+
+        worksheet.set_column('A:ZZ', 2)
+
+        for (c, r), wall in universe.maze.items():
+            if wall:
+                if c < universe.maze.width // 2:
+                    worksheet.write(r, c, ' ', self.blue_wall_format)
+                else:
+                    worksheet.write(r, c, ' ', self.red_wall_format)
+
+        for (c, r) in universe.food:
+            worksheet.write(r, c, '●', self.food_format)
+
+        for bot in universe.bots:
+            c, r = bot.current_pos
+            format = self.blue_format if bot.index % 2 == 0 else self.red_format
+            bot_icon = 'ᗣ' if bot.is_destroyer else 'ᗧ'
+            worksheet.write(r, c, bot_icon, format)
+
+
+    def set_initial(self, universe):
+        self._send(universe)
+
+    def observe(self, universe, game_state):
+        self._send(universe)
+

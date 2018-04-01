@@ -172,6 +172,8 @@ controller_opt.add_argument('--external-controller', const=True, action='store_c
 viewer_opt = parser.add_mutually_exclusive_group()
 viewer_opt.add_argument('--ascii', action='store_const', const='ascii',
                         dest='viewer', help='use the ASCII viewer')
+viewer_opt.add_argument('--excel', action='store_const', const='excel',
+                        dest='excel', help='use the Excel viewer')
 viewer_opt.add_argument('--null', action='store_const', const='null',
                         dest='viewer', help='use the /dev/null viewer')
 viewer_opt.add_argument('--progress', action='store_const', const='progress',
@@ -370,6 +372,8 @@ def main():
         viewers = []
         if dump:
             viewers.append(pelita.viewer.DumpingViewer(open(dump, "w")))
+        if args.viewer == 'excel':
+            viewers.append(pelita.viewer.ExcelViewer())
         if args.viewer == 'ascii':
             viewers.append(pelita.viewer.AsciiViewer())
         if args.viewer == 'progress':
