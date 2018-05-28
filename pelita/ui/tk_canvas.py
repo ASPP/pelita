@@ -432,7 +432,35 @@ class UiCanvas:
     def draw_selected(self):
         self.canvas.delete("selected")
         if self.selected:
-            self.status_selected.config(text="[%i, %i]" % self.selected)
+            def field_status(pos):
+                has_food = pos in self.current_universe.food
+                is_wall = self.current_universe.maze[pos]
+                bots = [str(bot.index) for bot in self.current_universe.bots if bot.current_pos == pos]
+                if pos[1] < self.current_universe.maze.width // 2:
+                    zone = 0
+                else:
+                    zone = 1
+
+                if is_wall:
+                    contents = ["wall"]
+                elif has_food:
+                    contents = ["food"]
+                else:
+                    contents = []
+
+                if bots:
+                    contents += ["bots(" + ",".join(bots) + ")"]
+
+                contents = " ".join(contents)
+                if not contents:
+                    contents = "empty"
+
+                return "[{x}, {y}] in {color} zone: {contents}".format(
+                    x=pos[0], y=pos[1],
+                    color = "blue" if zone == 0 else "red",
+                    contents=contents)
+
+            self.status_selected.config(text=field_status(self.selected))
 
             ul = self.mesh_graph.mesh_to_screen(self.selected, (-1, -1))
             ur = self.mesh_graph.mesh_to_screen(self.selected, (1, -1))
