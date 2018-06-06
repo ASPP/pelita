@@ -131,6 +131,8 @@ parser.add_argument('--replay', help='replay a dumped game'
                     metavar='DUMPFILE', default=argparse.SUPPRESS, nargs='?')
 parser.add_argument('--dry-run', const=True, action='store_const',
                     help='load players but do not actually play the game')
+parser.add_argument('--list-layouts', action='store_const', const=True,
+                    help='List all available layouts.')
 parser.add_argument('--list-teams', action="store_const", const=True,
                     help='Print the names of the included default teams.')
 parser.add_argument('--check-team', action="store_const", const=True,
@@ -146,12 +148,9 @@ layout_opt = game_settings.add_mutually_exclusive_group()
 layout_opt.add_argument('--layoutfile', metavar='FILE',
                         help='load a maze layout from FILE')
 layout_opt.add_argument('--layout', metavar='NAME',
-                        help="load a maze layout by name. If NAME is"
-                        " 'list' return a list of available names")
-layout_opt.add_argument('--filter', metavar='STRING',
-                        default='normal_without_dead_ends',
-                        help='restrict the pool of random layouts to those whose'
-                        ' name contains STRING.'
+                        help='load a maze layout by name')
+layout_opt.add_argument('--filter', metavar='STRING', default='normal_without_dead_ends',
+                        help='restrict the pool of random layouts to those whose name contains STRING.'
                         ' Default: \'normal_without_dead_ends\'')
 
 game_settings.add_argument('--max-timeouts', type=int, default=5,
@@ -278,14 +277,15 @@ def main():
     if args.help:
         parser.print_help()
         sys.exit(0)
+
     if args.version:
         if pelita._git_version:
             print("Pelita {} (git: {})".format(pelita.__version__, pelita._git_version))
         else:
             print("Pelita {}".format(pelita.__version__))
-
         sys.exit(0)
-    if args.layout == 'list':
+
+    if args.list_layouts:
         layouts = pelita.layout.get_available_layouts()
         print('\n'.join(layouts))
         sys.exit(0)
