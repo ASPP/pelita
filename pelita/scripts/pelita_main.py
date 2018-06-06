@@ -121,68 +121,28 @@ parser.add_argument('--help', '-h', help='show this help message and exit',
 parser.add_argument('--version', help='show the version number and exit',
                     action='store_const', const=True)
 parser.add_argument('--log', help='print debugging log information to'
-                                  ' LOGFILE (default \'stderr\')',
+                    ' LOGFILE (default \'stderr\')',
                     metavar='LOGFILE', default=argparse.SUPPRESS, nargs='?')
 parser.add_argument('--dump', help='print game dumps to file (will be overwritten)'
-                                  ' DUMPFILE (default \'pelita.dump\')',
+                    ' DUMPFILE (default \'pelita.dump\')',
                     metavar='DUMPFILE', default=argparse.SUPPRESS, nargs='?')
 parser.add_argument('--replay', help='replay a dumped game'
-                                  ' DUMPFILE (default \'pelita.dump\')',
+                    ' DUMPFILE (default \'pelita.dump\')',
                     metavar='DUMPFILE', default=argparse.SUPPRESS, nargs='?')
-parser.add_argument('--rounds', type=int, default=300,
-                    help='maximum number of rounds to play')
-parser.add_argument('--fps', type=float, default=40,
-                    help='(approximate) number of frames per second in a graphical viewer')
-parser.add_argument('--seed', type=int, metavar='SEED', default=None,
-                    help='fix random seed')
-parser.add_argument('--geometry', type=geometry_string, metavar='NxM',
-                    help='initial size of the game window')
 parser.add_argument('--dry-run', const=True, action='store_const',
                     help='load players but do not actually play the game')
-parser.add_argument('--max-timeouts', type=int, default=5,
-                    dest='max_timeouts', help='maximum number of timeouts allowed (default: 5)')
 parser.add_argument('--list-teams', action="store_const", const=True,
                     help='Print the names of the included default teams.')
 parser.add_argument('--check-team', action="store_const", const=True,
                     help='Check that the team is valid (on first sight) and print its name.')
 
-timeout_opt = parser.add_mutually_exclusive_group()
-timeout_opt.add_argument('--timeout', type=float, metavar="SEC",
-                         dest='timeout_length', help='time before timeout is triggered (default: 3 seconds)')
-timeout_opt.add_argument('--no-timeout', const=None, action='store_const',
-                         dest='timeout_length', help='run game with no timeouts')
-parser.set_defaults(timeout_length=3)
+game_settings = parser.add_argument_group('Game settings')
+game_settings.add_argument('--rounds', type=int, default=300,
+                           help='maximum number of rounds to play')
+game_settings.add_argument('--seed', type=int, metavar='SEED', default=None,
+                           help='fix random seed')
 
-parser.add_argument('--reply-to', type=str, metavar='URL',
-                    dest='reply_to', help='Reply channel')
-
-publisher_opt = parser.add_mutually_exclusive_group()
-publisher_opt.add_argument('--publish', type=str, metavar='URL',
-                           dest='publish_to', help='publish to this zmq socket')
-publisher_opt.add_argument('--no-publish', const=False, action='store_const',
-                           dest='publish_to', help='do not publish')
-parser.set_defaults(publish_to="tcp://127.0.0.1:*")
-
-controller_opt = parser.add_argument_group("Controller")
-controller_opt.add_argument('--controller', type=str, metavar='URL', default="tcp://127.0.0.1:*",
-                            help='open a controller on this zmq socket')
-controller_opt.add_argument('--external-controller', const=True, action='store_const',
-                            help='force control by an external controller')
-
-viewer_opt = parser.add_mutually_exclusive_group()
-viewer_opt.add_argument('--ascii', action='store_const', const='ascii',
-                        dest='viewer', help='use the ASCII viewer')
-viewer_opt.add_argument('--null', action='store_const', const='null',
-                        dest='viewer', help='use the /dev/null viewer')
-viewer_opt.add_argument('--progress', action='store_const', const='progress',
-                        dest='viewer', help='use the progress viewer')
-viewer_opt.add_argument('--tk', action='store_const', const='tk',
-                        dest='viewer', help='use the tk viewer (default)')
-viewer_opt.add_argument('--tk-no-sync', action='store_const', const='tk-no-sync',
-                        dest='viewer', help='use the unsynchronised tk viewer')
-parser.set_defaults(viewer='tk')
-
-layout_opt = parser.add_mutually_exclusive_group()
+layout_opt = game_settings.add_mutually_exclusive_group()
 layout_opt.add_argument('--layoutfile', metavar='FILE',
                         help='load a maze layout from FILE')
 layout_opt.add_argument('--layout', metavar='NAME',
@@ -193,6 +153,50 @@ layout_opt.add_argument('--filter', metavar='STRING',
                         help='retrict the pool of random layouts to those whose'
                         ' name contains STRING.'
                         ' Default: \'normal_without_dead_ends\'')
+
+game_settings.add_argument('--max-timeouts', type=int, default=5,
+                           dest='max_timeouts', help='maximum number of timeouts allowed (default: 5)')
+timeout_opt = game_settings.add_mutually_exclusive_group()
+timeout_opt.add_argument('--timeout', type=float, metavar="SEC",
+                         dest='timeout_length', help='time before timeout is triggered (default: 3 seconds)')
+timeout_opt.add_argument('--no-timeout', const=None, action='store_const',
+                         dest='timeout_length', help='run game with no timeouts')
+parser.set_defaults(timeout_length=3)
+
+viewer_settings = parser.add_argument_group('Viewer settings')
+viewer_settings.add_argument('--geometry', type=geometry_string, metavar='NxM',
+                    help='initial size of the game window')
+viewer_settings.add_argument('--fps', type=float, default=40,
+                    help='(approximate) number of frames per second in a graphical viewer')
+
+viewer_opt = viewer_settings.add_mutually_exclusive_group()
+viewer_opt.add_argument('--null', action='store_const', const='null',
+                        dest='viewer', help='use no viewer on stdout')
+viewer_opt.add_argument('--ascii', action='store_const', const='ascii',
+                        dest='viewer', help='use the ASCII viewer')
+viewer_opt.add_argument('--progress', action='store_const', const='progress',
+                        dest='viewer', help='use the progress viewer')
+viewer_opt.add_argument('--tk', action='store_const', const='tk',
+                        dest='viewer', help='use the tk viewer (default)')
+viewer_opt.add_argument('--tk-no-sync', action='store_const', const='tk-no-sync',
+                        dest='viewer', help='use the unsynchronised tk viewer')
+parser.set_defaults(viewer='tk')
+
+advanced_settings = parser.add_argument_group('Advanced settings')
+advanced_settings.add_argument('--reply-to', type=str, metavar='URL',
+                    dest='reply_to', help='Reply channel')
+
+publisher_opt = advanced_settings.add_mutually_exclusive_group()
+publisher_opt.add_argument('--publish', type=str, metavar='URL',
+                           dest='publish_to', help='publish to this zmq socket')
+publisher_opt.add_argument('--no-publish', const=False, action='store_const',
+                           dest='publish_to', help='do not publish')
+parser.set_defaults(publish_to="tcp://127.0.0.1:*")
+
+advanced_settings.add_argument('--controller', type=str, metavar='URL',
+                               default="tcp://127.0.0.1:*", help='open a controller on this zmq socket')
+advanced_settings.add_argument('--external-controller', const=True, action='store_const',
+                               help='force control by an external controller')
 
 parser.epilog = """\
 Team Specification:
