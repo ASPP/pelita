@@ -150,7 +150,7 @@ layout_opt.add_argument('--layout', metavar='NAME',
                         " 'list' return a list of available names")
 layout_opt.add_argument('--filter', metavar='STRING',
                         default='normal_without_dead_ends',
-                        help='retrict the pool of random layouts to those whose'
+                        help='restrict the pool of random layouts to those whose'
                         ' name contains STRING.'
                         ' Default: \'normal_without_dead_ends\'')
 
