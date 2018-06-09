@@ -55,6 +55,7 @@ import subprocess
 import sys
 import unittest
 
+from pelita import libpelita
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', '--test', help="run unittests", action="store_true")
@@ -84,6 +85,8 @@ class CI_Engine:
                 import glob
                 paths = glob.glob(path)
                 for p in paths:
+                    if os.path.basename(p).startswith('_') or os.path.basename(p).startswith('.'):
+                        continue
                     self.players.append({'name': os.path.basename(p),
                                          'path': p
                     })
@@ -93,8 +96,13 @@ class CI_Engine:
                                      })
             else:
                 logger.warning('%s seems not to be an existing directory, ignoring %s' % (path, name))
-        self.pelita_exe = config.get('general', 'pelita_exe')
-        self.default_args = config.get('general', 'default_args').split()
+
+        self.rounds = config['general'].getint('rounds', None)
+        self.filter = config['general'].get('filter', None)
+        self.viewer = config['general'].get('viewer', 'null')
+        self.dump = config['general'].get('dump', None)
+        self.seed = config['general'].get('seed', None)
+
         self.db_file = config.get('general', 'db_file')
         self.dbwrapper = DB_Wrapper(self.db_file)
         # remove players from db which are not in the config anymore
@@ -129,25 +137,26 @@ class CI_Engine:
             the indices of the players
 
         """
-        left, right = [self.players[i]['path'] for i in (p1, p2)]
-        proc_args = [self.pelita_exe, left, right]
-        proc_args.extend(self.default_args)
+        team_specs = [self.players[i]['path'] for i in (p1, p2)]
 
-        proc = subprocess.Popen(proc_args,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
-        std_out, std_err = proc.communicate()
-        last_line = std_out.strip().splitlines()[-1]
-        try:
-            result = -1 if last_line == '-' else int(last_line)
-        except ValueError:
-            logger.error("Couldn't parse the outcome of the game:")
-            logger.error("STDERR: \n%s" % std_err)
-            logger.error("STDOUT: \n%s" % std_out)
-            logger.error("Ignoring the result.")
-            return
+        final_state, stdout, stderr = libpelita.call_pelita(team_specs,
+                                                            rounds=self.rounds,
+                                                            filter=self.filter,
+                                                            viewer=self.viewer,
+                                                            dump=self.dump,
+                                                            seed=self.seed)
+
+        if final_state['game_draw']:
+            result = -1
+        else:
+            result = final_state['team_wins']
+
+        logger.info('Final state: %r', final_state)
+        logger.debug('Stdout: %r', stdout)
+        if stderr:
+            logger.warning('Stderr: %r', stderr)
         p1_name, p2_name = self.players[p1]['name'], self.players[p2]['name']
-        self.dbwrapper.add_gameresult(p1_name, p2_name, result, std_out, std_err)
+        self.dbwrapper.add_gameresult(p1_name, p2_name, result, stdout, stderr)
 
 
     def start(self, n):
