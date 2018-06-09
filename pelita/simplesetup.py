@@ -40,8 +40,17 @@ from .viewer import AbstractViewer
 
 _logger = logging.getLogger("pelita.simplesetup")
 
-class DeadConnection(Exception):
-    """ Raised when the connection has been lost. """
+class ZMQUnreachablePeer(Exception):
+    """ Raised when ZMQ cannot send a message (connection may have been lost). """
+
+class ZMQReplyTimeout(Exception):
+    """ Is raised when an ZMQ socket does not answer in time. """
+
+class ZMQConnectionError(Exception):
+    """ Raised when the connection has errored. """
+
+class UnknownMessageId(Exception):
+    """ Is raised when a reply arrives with unexpected id. """
 
 #: The timeout to use during sending
 DEAD_CONNECTION_TIMEOUT = 3.0
@@ -89,16 +98,6 @@ def bind_socket(socket, address, option_hint=None):
             print('use %s <address> to specify a different port' %\
                 (option_hint,), file=sys.stderr)
         raise
-
-class UnknownMessageId(Exception):
-    """ Is raised when a reply arrives with unexpected id.
-    """
-    pass
-
-class ZMQTimeout(Exception):
-    """ Is raised when an ZMQ socket does not answer in time.
-    """
-    pass
 
 class ZMQConnection:
     """ This class is supposed to ease request–reply connections
@@ -157,25 +156,42 @@ class ZMQConnection:
                 self.socket.send_unicode(json_message, flags=zmq.NOBLOCK)
             except zmq.ZMQError as e:
                 _logger.info("Could not send message. Assume socket is unavailable. %r", e)
-                raise DeadConnection()
+                raise ZMQUnreachablePeer()
         else:
-            raise DeadConnection()
+            raise ZMQUnreachablePeer()
         self.last_uuid = msg_uuid
 
     def recv(self):
         # return tuple
         # (action, data)
         json_message = self.socket.recv_unicode()
-        py_obj = json.loads(json_message)
+        try:
+            py_obj = json.loads(json_message)
+        except ValueError:
+            _logger.warn('Received non-json message from self. Triggering a timeout.')
+            raise ZMQReplyTimeout()
         #print repr(json_msg)
-        msg_uuid = py_obj["__uuid__"]
-        msg_action = py_obj.get("__action__") or py_obj.get("__return__")
 
-        _logger.debug("<--- %r [%s]", msg_action, msg_uuid)
+        try:
+            msg_error = py_obj['__error__']
+            self.socket.close()
+            raise ZMQConnectionError(msg_error)
+        except KeyError:
+            pass
+
+        try:
+            msg_uuid = py_obj["__uuid__"]
+        except KeyError:
+            _logger.warn('__uuid__ missing in message.')
+            msg_uuid = None
+        
+        msg_return = py_obj.get("__return__")
+
+        _logger.debug("<--- %r [%s]", msg_return, msg_uuid)
 
         if msg_uuid == self.last_uuid:
             self.last_uuid = None
-            return py_obj["__return__"]
+            return msg_return
         else:
             self.last_uuid = None
             raise UnknownMessageId()
@@ -203,8 +219,8 @@ class ZMQConnection:
                     continue
                 # answer did not arrive in time
             else:
-                raise ZMQTimeout()
-        raise ZMQTimeout()
+                raise ZMQReplyTimeout()
+        raise ZMQReplyTimeout()
 
     def __repr__(self):
         return "ZMQConnection(%r)" % self.socket
@@ -229,10 +245,10 @@ class RemoteTeamPlayer:
         try:
             self.zmqconnection.send("team_name", {})
             return self.zmqconnection.recv_timeout(DEAD_CONNECTION_TIMEOUT)
-        except ZMQTimeout:
+        except ZMQReplyTimeout:
             _logger.info("Detected a timeout, returning a string nonetheless.")
             return "%error%"
-        except DeadConnection:
+        except ZMQUnreachablePeer:
             _logger.info("Detected a DeadConnection, returning a string nonetheless.")
             return "%error%"
 
@@ -242,11 +258,14 @@ class RemoteTeamPlayer:
                                                     "universe": universe._to_json_dict(),
                                                     "game_state": game_state})
             return self.zmqconnection.recv_timeout(game_state["timeout_length"])
-        except ZMQTimeout:
+        except ZMQReplyTimeout:
             # answer did not arrive in time
             raise PlayerTimeout()
-        except DeadConnection:
-            _logger.info("Detected a DeadConnection.")
+        except ZMQUnreachablePeer:
+            _logger.info("Could not properly send the message. Maybe just a slow client. Ignoring in set_initial.")
+        except ZMQConnectionError as e:
+            _logger.info("Detected a ConnectionError: %s", e)
+            return '%%%s%%' % e
 
     def get_move(self, bot_id, universe, game_state):
         try:
@@ -259,20 +278,22 @@ class RemoteTeamPlayer:
             # make sure that the move is a tuple
             reply["move"] = tuple(reply.get("move"))
             return reply
-        except ZMQTimeout:
+        except ZMQReplyTimeout:
             # answer did not arrive in time
             raise PlayerTimeout()
         except TypeError:
             # if we could not convert into a tuple or dict (e.g. bad reply)
             return None
-        except DeadConnection:
+        except ZMQUnreachablePeer:
             # if the remote connection is closed
             raise PlayerDisconnected()
+        except ZMQConnectionError:
+            raise
 
     def _exit(self):
         try:
             self.zmqconnection.send("exit", {}, timeout=1)
-        except DeadConnection:
+        except ZMQUnreachablePeer:
             _logger.info("Remote Player %r is already dead during exit. Ignoring.", self)
 
     def __repr__(self):
