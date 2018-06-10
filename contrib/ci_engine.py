@@ -253,13 +253,13 @@ class CI_Engine:
         """Pretty print the current results.
 
         """
-        print('                                       ' + ''.join("%14s" % p['name'] for p in self.players))
+        print(' ' * 41 + ''.join("            % 2i" % idx for idx, p in enumerate(self.players)))
         result = []
         for idx, p in enumerate(self.players):
             win, loss, draw = self.get_results(idx)
             score = 0 if (win+loss+draw) == 0 else (win-loss) / (win+loss+draw)
             result.append([score, p['name']])
-            print('%13s (%6.2f): %3d,%3d,%3d\t' % (p['name'], score, win, loss, draw), end=' ')
+            print('% 2i: %17s (%6.2f): %3d,%3d,%3d  ' % (idx, p['name'][0:17], score, win, loss, draw), end=' ')
             for idx2, p2 in enumerate(self.players):
                 win, loss, draw = self.get_results(idx, idx2)
                 print('  %3d,%3d,%3d' % (win, loss, draw), end=' ')
@@ -267,7 +267,7 @@ class CI_Engine:
         print()
         result.sort(reverse=True)
         for [score, name] in result:
-            print("%15s %6.2f" % (name, score))
+            print("% 30s %6.2f" % (name, score))
 
 
 class DB_Wrapper:
