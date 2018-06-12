@@ -415,7 +415,9 @@ def run_external_viewer(subscribe_sock, controller, geometry, delay):
                      '-m',
                      tkviewer] + viewer_args
     _logger.debug("Executing: %r", external_call)
-    return subprocess.Popen(external_call)
+    # os.setsid will keep the viewer from closing when the main process exits
+    # a better solution might be to decouple the viewer from the main process
+    return subprocess.Popen(external_call, preexec_fn=os.setsid)
 
 @contextlib.contextmanager
 def autoclose_subprocesses(subprocesses):
