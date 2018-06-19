@@ -107,9 +107,16 @@ class Team(AbstractTeam):
         # Once we settle on a useable representation, we can then backport this to
         # the datamodel as well.
         datadict = {
-            'universe': universe._to_json_dict(),
-            'game_state': game_state
+            'food': universe.food,
+            'maze': universe.maze._to_json_dict(),
+            'teams': [team._to_json_dict() for team in universe.teams],
+            'bots': [bot._to_json_dict() for bot in universe.bots],
+            'game_state': game_state,
+            'bot_to_play': bot_id,
         }
+
+
+        print(datadict)
 
         # TODO: Transform the datadict in a way that makes it more practical to use,
         # reduces unnecessary redundancy but still avoids recalculations for simple things
