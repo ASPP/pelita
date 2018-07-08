@@ -5,6 +5,8 @@ import sys
 
 import tkinter
 
+import zmq
+
 from .tk_canvas import TkApplication
 
 _logger = logging.getLogger("pelita.tk_viewer")
@@ -77,7 +79,19 @@ class TkViewer:
         self.geometry = geometry if geometry else (900, 510)
 
     def run(self):
-        self.root = tkinter.Tk()
+        try:
+            self.root = tkinter.Tk()
+        except tkinter.TclError as e:
+            _logger.error('TclError: %s. Exiting.', e)
+            if self.controller_address:
+                # We should be controlling the server. But we can’t.
+                # Send exit.
+                # TODO: This should flag an error code back to the server.
+                context = zmq.Context()
+                controller_socket = context.socket(zmq.DEALER)
+                controller_socket.connect(self.controller_address)
+                controller_socket.send_json({"__action__": "exit"})
+            sys.exit(-1)
         root_geometry = str(self.geometry[0])+'x'+str(self.geometry[1])
         # put the root window in some sensible position
         self.root.geometry(root_geometry+'+40+40')
