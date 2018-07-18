@@ -3,26 +3,24 @@ sudo: false
 matrix:
   include:
     - python: "3.5"
-      env: PYZMQ="pyzmq"
     - python: "3.6"
-      env: PYZMQ="pyzmq"
+    - python: "3.7"
+      dist: xenial
+      sudo: true
 env:
   global:
     - secure: "fHTmXSkUyVFu7lJ4upcu4Xhv+5cTGq+SJ+GV9UUJ9guZYVWafxJw3CRmd/qqjucQzOTPg/2JA4/9XqDZDSWKKBwGTOgeiFjKaa4xPFO/bvpbECqR4y7TDh7k7zSjMCDD624b8k6LyWiaerh50ShU2CSi3cTjpyZWloolQWRotLM="
     - REPO: "ASPP/pelita"
 # command to install dependencies
 install:
-  - pip install $PYZMQ --install-option="--zmq=bundled"
-  - pip install pyyaml
   - pip install pytest-cov codecov coveralls
+  - pip install -e .
 # command to run tests
 script:
   - >
-      python -c "import zmq; print('Using zmq %s.' % zmq.zmq_version())" &&
-      python -c "import zmq; print('Using pyzmq %s.' % zmq.pyzmq_version())" &&
-      PYTHONPATH=. py.test --cov=pelita -v test/ &&
+      python -c "import zmq; print('Using pyzmq {} and zmq {}.'.format(zmq.pyzmq_version(), zmq.zmq_version()))" &&
+      pytest --cov=pelita -v test/ &&
       python -m pelita.scripts.pelita_main --progress &&
-      python setup.py install &&
       for player in $(pelita --list-teams) ; do
           pelita --check-team $player || exit 1
           res=$(pelita --null --rounds 100 --filter small $player 2>&1)
@@ -30,7 +28,7 @@ script:
           (echo $res | grep -q Exception) && exit 1
           echo "" # This resets the error code
       done
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then pelita-tournament --non-interactive --viewer null ; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 || $TRAVIS_PYTHON_VERSION == 3.7 ]]; then pelita-tournament --non-interactive --viewer null ; fi
 
 
 after_success:
