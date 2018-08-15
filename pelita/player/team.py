@@ -1,4 +1,7 @@
 
+import collections
+import random
+
 from . import AbstractTeam
 
 
@@ -62,8 +65,14 @@ class Team(AbstractTeam):
 
         #: The storage dicts that can be used to exchange data between the players
         # and between rounds.
-        self.bot_state = {}
-        self.team_state = {}
+        self._bot_state = {}
+        self._team_state = {}
+
+        #: Storage for the random generator
+        self._bot_random = {}
+
+        #: Storage list for the bot tracks
+        self._bot_tracks = {}
 
         for bot, player in zip(team_bots, self._players):
             # tell the player its index
@@ -80,7 +89,9 @@ class Team(AbstractTeam):
             #player._set_initial(universe, game_state)
 
             self._bot_players[bot.index] = player
-            self.bot_state[bot.index] = {}
+            self._bot_state[bot.index] = {}
+            # we take the bot’s index as a value for the seed_offset
+            self._bot_random[bot.index] = random.Random(game_state["seed"] + bot.index)
 
         return self.team_name
 
@@ -111,33 +122,113 @@ class Team(AbstractTeam):
         # the datamodel as well.
         datadict = {
             'food': universe.food,
-            'maze': universe.maze._to_json_dict(),
+            'maze': universe.maze,
             'teams': [team._to_json_dict() for team in universe.teams],
             'bots': [bot._to_json_dict() for bot in universe.bots],
             'game_state': game_state,
             'bot_to_play': bot_id,
         }
 
+        maze = universe.maze
 
-        print(datadict)
+        homezones = [
+            Homezone((0, 0), (maze.width // 2 - 1, maze.height - 1)),
+            Homezone((maze.width // 2, 0), (maze.width - 1, maze.height - 1))
+        ]
+
+        # Everybody only knows their own rng
+        rng = self._bot_random[bot_id]
+
+        bots = []
+        for uni_bot in universe.bots:
+            position = uni_bot.current_pos
+            is_noisy = uni_bot.noisy
+            homezone = homezones[uni_bot.team_index]
+            score = universe.teams[uni_bot.team_index].score
+
+            food = [f for f in universe.food if f in homezone]
+
+            bot = Bot(uni_bot.index, position, maze, homezone, food, is_noisy, score, rng, datadict)
+            bots.append(bot)
+
+        for bot in bots:
+            bot._bots = bots
+
+        me = bots[bot_id]
+        
+#        print(datadict)
 
         # TODO: Transform the datadict in a way that makes it more practical to use,
         # reduces unnecessary redundancy but still avoids recalculations for simple things
 
-        # TODO: What to do with the random seed?
-
-        # TODO: How are we saying things? Should we have a reserved index in the storage dict
-        # that can be used for that? storage['__say'] = "Blah"
-
-
-        move = self._bot_players[bot_id](datadict, self.bot_state[bot_id], self.team_name)
+        move = self._bot_players[bot_id](me, self._bot_state[bot_id], self.team_name)
         return {
             "move": move,
-        #    "say": ???
+            "say": me._say
         }
 
     def __repr__(self):
         return "Team(%r, %s)" % (self.team_name, ", ".join(repr(p) for p in self._players))
+
+class Homezone(collections.Container):
+    def __init__(self, pos1, pos2):
+        self.pos1 = pos1
+        self.pos2 = pos2
+
+    def __contains__(self, item):
+        return (self.pos1[0] <= item[0] <= self.pos2[0]) and (self.pos1[1] <= item[1] <= self.pos2[1])
+
+
+class Bot:
+    def __init__(self, index, position, maze, homezone, food, is_noisy, score, random, datadict):
+        self._bots = None
+        self._say = None
+
+        self.random = random
+        # TODO
+        self.position = position
+        self.walls = maze
+        self.legal_moves = []
+
+        for move in [(-1, 0), (1, 0), (0, 1), (0, -1)]:
+            new_pos = (self.position[0] + move[0], self.position[1] + move[1]) 
+            if not self.walls[new_pos]:
+                self.legal_moves.append(move)
+
+        self.is_noisy = is_noisy
+        # TODO: Homezone could be a mesh object …
+        self.homezone = homezone
+        self.food = food
+        self.score  = score
+        self.index  = index
+        self.track = ...
+
+    @property
+    def other(self):
+        other_index = (self.index + 2) % 4
+        return self._bots[other_index]
+
+    @property
+    def enemy1(self):
+        enemy1_index = (self.index + 1) % 2
+        return self._bots[enemy1_index]
+
+    @property
+    def enemy2(self):
+        enemy2_index = (self.index + 1) % 2 + 2
+        return self._bots[enemy2_index]
+
+    # Should be done as
+    # Graph(bot.position, bot.maze)
+    @property
+    def reachable_positions(self):
+        return ...
+
+    def try_move(self, move) -> 'Bot':
+        ...
+
+    def say(self, text):
+        self._say = text
 
 def new_style_team(module):
     """ Looks for a new-style team in `module`.
