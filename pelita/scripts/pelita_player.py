@@ -17,6 +17,7 @@ import sys
 import zmq
 
 import pelita
+from ..player.team import new_style_team
 
 _logger = logging.getLogger("pelita.scripts.pelita_player")
 
@@ -131,7 +132,7 @@ def load_team(spec):
             print("failure while loading team '%s'" % spec, file=sys.stderr)
             print('ERROR: %s' % e, file=sys.stderr)
             raise
-    except (ValueError, AttributeError, IOError) as e:
+    except (ValueError, AttributeError, TypeError, IOError) as e:
         print("failure while loading team '%s'" % spec, file=sys.stderr)
         print('ERROR: %s' % e, file=sys.stderr)
         raise
@@ -193,7 +194,10 @@ def load_factory(pathspec: str):
     with with_sys_path(dirname):
         module = importlib.import_module(modname)
 
-    return getattr(module, factory_name)
+    try:
+        return getattr(module, factory_name)
+    except AttributeError as e:
+        return new_style_team(module)
 
 
 def import_builtin_player(name):

@@ -135,3 +135,18 @@ class Team(AbstractTeam):
 
     def __repr__(self):
         return "Team(%r, %s)" % (self.team_name, ", ".join(repr(p) for p in self._players))
+
+def new_style_team(module):
+    """ Looks for a new-style team in `module`.
+    """
+    # look for a new-style team
+    move1 = getattr(module, "move1")
+    move2 = getattr(module, "move2")
+    name = getattr(module, "TEAM_NAME")
+    if not callable(move1):
+        raise TypeError("move1 is not a function")
+    if not callable(move2):
+        raise TypeError("move2 is not a function")
+    if type(name) is not str:
+        raise TypeError("TEAM_NAME is not a string")
+    return lambda: Team(name, move1, move2)
