@@ -24,7 +24,7 @@ def move1(bot, bot_state, team_state):
     next_pos = next_step(bot.position, bot_state['goal'], team_state['graph'])
     # now, let's check if we are getting too near to our enemies
     # where are the enemy destroyers?
-    for enemy_pos in bot.enemy_positions:
+    for enemy_pos in (bot.enemy1.position, bot.enemy2.position):
         if (next_pos == enemy_pos) and (next_pos not in bot.homezone):
             # we are in the enemy zone: they can eat us!
             # let us just step back

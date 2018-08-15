@@ -12,9 +12,11 @@ def move1(bot, bot_state, team_state):
     # remove from the list of moves the ones where we would land on an enemy
     # on its homezone
     sensible_moves = bot.legal_moves[:]
+    enemy_pos = (bot.enemy1.position, bot.enemy2.position)
+
     for next_move in bot.legal_moves:
         new_pos = position_after_move(bot.position, next_move)
-        if (new_pos in bot.enemy_positions) and (new_pos not in bot.homezone):
+        if (new_pos in enemy_pos) and (new_pos not in bot.homezone):
             sensible_moves.pop(next_move)
 
     if len(sensible_moves) == 0:
@@ -28,12 +30,12 @@ def move1(bot, bot_state, team_state):
             # if we are in our homezone, check if we can eat an enemy
             if new_pos in bot.homezone:
                 # we are in our homezone
-                if new_pos in bot.enemy_positions:
+                if new_pos in enemy_pos:
                     # we can eat the enemy, accept the move
                     break
             else:
                 # we are in the enemy zone
-                if new_pos in bot.enemy_food:
+                if new_pos in bot.enemy1.food:
                     # we can eat the food, accept the move
                     break
 
