@@ -4,7 +4,7 @@ from pelita.player import Team
 
 class TestStoppingTeam:
     @staticmethod
-    def stopping(datadict, storage):
+    def stopping(bot, bot_state, team_state):
         return (0, 0)
 
     @staticmethod
