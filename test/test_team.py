@@ -10,9 +10,9 @@ class TestStoppingTeam:
     @staticmethod
     def round_counting():
         storage_copy = {}
-        def inner(datadict, storage):
-            storage['rounds'] = storage.get('rounds', 0) + 1
-            storage_copy['rounds'] = storage['rounds']
+        def inner(bot, bot_state, team_state):
+            bot_state['rounds'] = bot_state.get('rounds', 0) + 1
+            storage_copy['rounds'] = bot_state['rounds']
             return (0, 0)
         inner._storage = storage_copy
         return inner
