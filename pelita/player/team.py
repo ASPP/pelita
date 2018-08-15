@@ -31,10 +31,6 @@ class Team(AbstractTeam):
         self._players = players
         self._bot_players = {}
 
-        #: The storage dict that can be used to exchange data between the players
-        # and between rounds.
-        self.storage = {}
-
     def set_initial(self, team_id, universe, game_state):
         """ Sets the bot indices for the team and returns the team name.
         Currently, we do not call _set_initial on the user side.
@@ -63,6 +59,12 @@ class Team(AbstractTeam):
         if len(team_bots) > len(self._players):
             raise ValueError("Tried to set %d bot_ids with only %d Players." % (len(team_bots), len(self._players)))
 
+
+        #: The storage dicts that can be used to exchange data between the players
+        # and between rounds.
+        self.bot_state = {}
+        self.team_state = {}
+
         for bot, player in zip(team_bots, self._players):
             # tell the player its index
             # TODO: This _index is obviously not visible from inside the functions,
@@ -78,6 +80,7 @@ class Team(AbstractTeam):
             #player._set_initial(universe, game_state)
 
             self._bot_players[bot.index] = player
+            self.bot_state[bot.index] = {}
 
         return self.team_name
 
@@ -127,7 +130,7 @@ class Team(AbstractTeam):
         # that can be used for that? storage['__say'] = "Blah"
 
 
-        move = self._bot_players[bot_id](datadict, self.storage)
+        move = self._bot_players[bot_id](datadict, self.bot_state[bot_id], self.team_name)
         return {
             "move": move,
         #    "say": ???
