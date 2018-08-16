@@ -7,7 +7,7 @@ import sys
 import zmq
 
 class AbstractViewer(metaclass=abc.ABCMeta):
-    def set_initial(self, universe):
+    def set_initial(self, universe, game_state):
         """ This method is called when the first universe is ready.
         """
         pass
@@ -81,9 +81,10 @@ class ReplyToViewer(AbstractViewer):
             as_json = json.dumps(message)
             self.sock.send_unicode(as_json, flags=zmq.NOBLOCK)
 
-    def set_initial(self, universe):
+    def set_initial(self, universe, game_state):
         message = {"__action__": "set_initial",
-                   "__data__": {"universe": universe._to_json_dict()}}
+                   "__data__": {"universe": universe._to_json_dict(),
+                                "game_state": game_state}}
         self._send(message)
 
     def observe(self, universe, game_state):
@@ -104,9 +105,10 @@ class DumpingViewer(AbstractViewer):
         self.stream.write(as_json)
         self.stream.write("\x04")
 
-    def set_initial(self, universe):
+    def set_initial(self, universe, game_state):
         message = {"__action__": "set_initial",
-                   "__data__": {"universe": universe._to_json_dict()}}
+                   "__data__": {"universe": universe._to_json_dict(),
+                                "game_state": game_state}}
         self._send(message)
 
     def observe(self, universe, game_state):

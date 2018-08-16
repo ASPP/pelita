@@ -586,9 +586,10 @@ class SimplePublisher(AbstractViewer):
         as_json = json.dumps(message)
         self.socket.send_unicode(as_json)
 
-    def set_initial(self, universe):
+    def set_initial(self, universe, game_state):
         message = {"__action__": "set_initial",
-                   "__data__": {"universe": universe._to_json_dict()}}
+                   "__data__": {"universe": universe._to_json_dict(),
+                                "game_state": game_state}}
         self._send(message)
 
     def observe(self, universe, game_state):
@@ -638,8 +639,8 @@ class SimpleSubscriber(AbstractViewer):
 
         getattr(self, action)(**data)
 
-    def set_initial(self, universe):
-        return self.viewer.set_initial(CTFUniverse._from_json_dict(universe))
+    def set_initial(self, universe, game_state):
+        return self.viewer.set_initial(CTFUniverse._from_json_dict(universe), game_state)
 
     def observe(self, universe, game_state):
         return self.viewer.observe(CTFUniverse._from_json_dict(universe), game_state)

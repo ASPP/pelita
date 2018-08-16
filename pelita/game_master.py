@@ -205,7 +205,7 @@ class GameMaster:
                 % (len(self.player_teams), len(self.universe.teams)))
 
         for viewer in self.viewers:
-            viewer.set_initial(self.universe)
+            viewer.set_initial(self.universe, self.game_state)
 
         for team_id, team in enumerate(self.player_teams):
             # What follows is a small hack:
