@@ -14,7 +14,7 @@ def move(turn, game):
     # remove from the list of moves the ones where we would land on an enemy
     # on its homezone
     sensible_moves = bot.legal_moves[:]
-    enemy_pos = (bot.enemy1.position, bot.enemy2.position)
+    enemy_pos = (bot.enemies[0].position, bot.enemies[1].position)
 
     for next_move in bot.legal_moves:
         new_pos = position_after_move(bot.position, next_move)
@@ -37,7 +37,7 @@ def move(turn, game):
                     break
             else:
                 # we are in the enemy zone
-                if new_pos in bot.enemy1.food:
+                if new_pos in bot.enemies[0].food:
                     # we can eat the food, accept the move
                     break
 

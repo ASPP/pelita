@@ -218,23 +218,10 @@ class Bot:
         return self._bots[other_index]
 
     @property
-    def enemy1(self):
+    def enemies(self):
         enemy1_index = (self.index + 1) % 2
-        return self._bots[enemy1_index]
-
-    @property
-    def enemy2(self):
         enemy2_index = (self.index + 1) % 2 + 2
-        return self._bots[enemy2_index]
-
-    # Should be done as
-    # Graph(bot.position, bot.maze)
-    @property
-    def reachable_positions(self):
-        return ...
-
-    def try_move(self, move) -> 'Bot':
-        ...
+        return [self._bots[enemy1_index], self._bots[enemy2_index]]
 
     def say(self, text):
         self._say = text
