@@ -3,6 +3,7 @@ import collections
 import random
 
 from . import AbstractTeam
+from .. import datamodel
 
 
 class Team(AbstractTeam):
@@ -231,6 +232,26 @@ class Bot:
     def get_direction(self, position):
         direction = (position[0] - self.position[0], position[1] - self.position[1])
         return direction
+
+def _rebuild_universe(bots):
+    # TODO
+    for idx, b in enumerate(bots):
+        homezone = b.homezone.pos1[0], b.homezone.pos2[0]
+
+        bot = datamodel.Bot(idx,
+                            initial_pos=b._initial_position,
+                            team_index=idx%2,
+                            homezone=homezone,
+                            current_pos=b.position,
+                            noisy=b.is_noisy)
+        bots.append(bot)
+    teams = []
+
+    maze = bots[0].walls
+    food = bots[0].food + bots[0].enemy1.food
+
+    return datamodel.CTFUniverse(maze, food, teams, bots)
+
 
 def new_style_team(module):
     """ Looks for a new-style team in `module`.
