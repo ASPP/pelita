@@ -395,14 +395,15 @@ class GameMaster:
             self.game_state["finished"] = True
             return True
 
-        # If the round has finished, we may check, if we can end the game
+        # If the round has finished, we can check, if we can end the game
         if self.game_state["bot_id"] is None:
             if self.game_state["round_index"] >= self.game_time:
                 self.game_state["finished"] = True
-            else:
-                for to_eat, eaten in zip(self.game_state["food_to_eat"], self.game_state["food_count"]):
-                    if to_eat == eaten:
-                        self.game_state["finished"] = True
+
+        # If one of the teams has eaten all the food, we finish immediately
+        for to_eat, eaten in zip(self.game_state["food_to_eat"], self.game_state["food_count"]):
+            if to_eat == eaten:
+                self.game_state["finished"] = True
 
         if self.game_state["finished"]:
             if self.universe.teams[0].score > self.universe.teams[1].score:
