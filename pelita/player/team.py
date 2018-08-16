@@ -217,9 +217,32 @@ class Bot:
     def say(self, text):
         self._say = text
 
-    def get_direction(self, position):
+    def get_move(self, position):
+        """ Return the move needed to get to the given position.
+
+        Raises
+        ======
+        ValueError
+            If the position cannot be reached by a legal move
+        """
         direction = (position[0] - self.position[0], position[1] - self.position[1])
+        if direction not in self.legal_moves:
+            raise ValueError("Cannot reach position %s (would have been: %s)." % (position, direction))
         return direction
+
+    def get_position(self, move):
+        """ Return the position reached with the given move
+
+        Raises
+        ======
+        ValueError
+            If the move is not legal.
+        """
+        if move not in self.legal_moves:
+            raise ValueError("Move %s is not legal." % move)
+        position = (move[0] - self.position[0], move[1] - self.position[1])
+        return position
+
 
 def _rebuild_universe(bots):
     # TODO
