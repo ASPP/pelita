@@ -127,6 +127,7 @@ class Team(AbstractTeam):
         bots = []
         for uni_bot in universe.bots:
             position = uni_bot.current_pos
+            initial_position = uni_bot.initial_pos
             is_noisy = uni_bot.noisy
             homezone = homezones[uni_bot.team_index]
             score = universe.teams[uni_bot.team_index].score
@@ -142,7 +143,7 @@ class Team(AbstractTeam):
 
             round = game_state['round_index']
             is_left = uni_bot.team_index == 0
-            bot = Bot(uni_bot.index, position, maze, homezone, food, is_noisy, score, rng, track, round, is_left, datadict)
+            bot = Bot(uni_bot.index, position, initial_position, maze, homezone, food, is_noisy, score, rng, track, round, is_left, datadict)
             bots.append(bot)
 
         for bot in bots:
@@ -187,9 +188,10 @@ class Homezone(collections.Container):
 
 
 class Bot:
-    def __init__(self, index, position, maze, homezone, food, is_noisy, score, random, track, round, is_left, datadict):
+    def __init__(self, index, position, initial_position, maze, homezone, food, is_noisy, score, random, track, round, is_left, datadict):
         self._bots = None
         self._say = None
+        self._initial_position = initial_position
 
         self.random = random
         # TODO
