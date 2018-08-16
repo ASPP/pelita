@@ -2,6 +2,7 @@
 
 import argparse
 
+import pelita
 from pelita.ui.tk_viewer import TkViewer
 
 
@@ -27,9 +28,28 @@ parser.add_argument('--geometry', type=geometry_string,
                     help='geometry')
 parser.add_argument('--delay', type=int,
                     help='delay')
+parser._optionals = parser.add_argument_group('Options')
+parser.add_argument('--version', help='show the version number and exit',
+                    action='store_const', const=True)
+parser.add_argument('--log', help='print debugging log information to'
+                                  ' LOGFILE (default \'stderr\')',
+                    metavar='LOGFILE', default=argparse.SUPPRESS, nargs='?')
 
 def main():
     args = parser.parse_args()
+    if args.version:
+        if pelita._git_version:
+            print("Pelita {} (git: {})".format(pelita.__version__, pelita._git_version))
+        else:
+            print("Pelita {}".format(pelita.__version__))
+
+        sys.exit(0)
+
+    try:
+        pelita.utils.start_logging(args.log)
+    except AttributeError:
+        pass
+
     tkargs = {
         'address': args.subscribe_sock,
         'controller_address': args.controller_address,
