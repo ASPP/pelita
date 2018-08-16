@@ -75,6 +75,18 @@ def firstNN(*args):
     return next(filter(lambda x: x is not None, args), None)
 
 
+def start_logging(filename):
+    if filename:
+        hdlr = logging.FileHandler(filename, mode='w')
+    else:
+        hdlr = logging.StreamHandler()
+    logger = logging.getLogger('pelita')
+    FORMAT = '[%(relativeCreated)06d %(name)s:%(levelname).1s][%(funcName)s] %(message)s'
+    formatter = logging.Formatter(FORMAT)
+    hdlr.setFormatter(formatter)
+    logger.addHandler(hdlr)
+    logger.setLevel(logging.DEBUG)
+
 
 class ModuleRunner:
     def __init__(self, team_spec):

@@ -307,7 +307,7 @@ def main():
         raise ValueError("Options --tk (or --tk-no-sync) and --no-publish are mutually exclusive.")
 
     try:
-        pelita.utils.start_logging(args.log)
+        libpelita.start_logging(args.log)
     except AttributeError:
         pass
 

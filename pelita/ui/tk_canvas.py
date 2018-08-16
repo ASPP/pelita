@@ -8,8 +8,8 @@ import tkinter
 import tkinter.font
 
 from ..datamodel import CTFUniverse
-from ..utils.signal_handlers import wm_delete_window_handler
 from .tk_sprites import BotSprite, Food, Wall, col
+from .tk_utils import wm_delete_window_handler
 
 _logger = logging.getLogger("pelita.tk")
 
