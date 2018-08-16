@@ -33,6 +33,9 @@ def move(turn, game):
     if 'track' not in game.state[turn]:
         game.state[turn]['track'] = []
 
+    # let's kepp track of our position
+    game.state[turn]['track'].append(bot.position)
+
     # did we (or the other bot) eat our target already?
     if game.state[turn]['target'] not in bot.enemies[0].food:
         # let's choose one random food pellet as our new goal
@@ -54,8 +57,6 @@ def move(turn, game):
             # choose another one
             game.state[turn].pop('target')
 
-    # let's track our position
-    game.state[turn]['track'].append(next_pos)
 
     return bot.get_direction(next_pos)
 
