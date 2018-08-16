@@ -34,6 +34,7 @@ def move(turn, game):
     next_pos = next_step(bot.position, game.state[turn], game.state['graph'])
     # now, let's check if we are getting too near to our enemies
     # where are the enemy destroyers?
+
     for enemy_pos in (bot.enemies[0].position, bot.enemies[1].position):
         if (next_pos == enemy_pos) and (next_pos not in bot.homezone):
             # we are in the enemy zone: they can eat us!

@@ -66,9 +66,6 @@ class Team(AbstractTeam):
         #: Storage for the random generator
         self._bot_random = {}
 
-        #: Storage list for the bot tracks
-        self._bot_tracks = {}
-
         for bot in team_bots:
             # We could call the function with a flag that tells the player
             # that it is the initial call. But then the player will have to check
@@ -77,7 +74,6 @@ class Team(AbstractTeam):
 
             # we take the bot’s index as a value for the seed_offset
             self._bot_random[bot.index] = random.Random(game_state["seed"] + bot.index)
-            self._bot_tracks[bot.index] = []
 
         return self.team_name
 
@@ -135,16 +131,9 @@ class Team(AbstractTeam):
 
             food = [f for f in universe.food if f in homezone]
 
-            # only append for our own:
-            if uni_bot.index in self._bot_tracks:
-                self._bot_tracks[uni_bot.index].append(position)
-                track = self._bot_tracks[uni_bot.index]
-            else:
-                track = None
-
             round = game_state['round_index']
             is_left = uni_bot.team_index == 0
-            bot = Bot(uni_bot.index, position, initial_position, maze, homezone, food, is_noisy, score, rng, track, round, is_left, datadict)
+            bot = Bot(uni_bot.index, position, initial_position, maze, homezone, food, is_noisy, score, rng, round, is_left, datadict)
             bots.append(bot)
 
         for bot in bots:
@@ -189,7 +178,7 @@ class Homezone(collections.Container):
 
 
 class Bot:
-    def __init__(self, index, position, initial_position, maze, homezone, food, is_noisy, score, random, track, round, is_left, datadict):
+    def __init__(self, index, position, initial_position, maze, homezone, food, is_noisy, score, random, round, is_left, datadict):
         self._bots = None
         self._say = None
         self._initial_position = initial_position
@@ -211,7 +200,6 @@ class Bot:
         self.food = food
         self.score  = score
         self.index  = index
-        self.track = track
         self.round = round
         self.is_left = is_left
 
