@@ -105,8 +105,25 @@ class Graph(dict):
     [1] http://en.wikipedia.org/wiki/Adjacency_list
 
     """
-    def __init__(self, adjacencies):
-        self.update(adjacencies)
+    def __init__(self, *args):
+        if len(args) == 1:
+            adjacencies = args[0]
+            self.update(adjacencies)
+            return
+
+        initial, maze = args
+        def legal_neighbors(maze, pos):
+            neighbor_moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+            legal = []
+            for move in neighbor_moves:
+                neighbor = move_pos(pos, move)
+                if not maze[neighbor]:
+                    # this is not a wall
+                    legal.append(neighbor)
+            return legal
+
+        self.update(it for it in iter_adjacencies([initial], lambda pos: legal_neighbors(maze, pos)))
+        
 
     def pos_within(self, position, distance):
         """ Positions within a certain distance.

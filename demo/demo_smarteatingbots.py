@@ -1,11 +1,11 @@
 TEAM_NAME = 'SmartEatingBots'
 
-from pelita.utils import Graph
+from pelita.graph import Graph
 
 def next_step(bot_position, target_position, graph):
     # return next step in the path to target_pos
     # where the path is generated with the a-star algorithm
-    return graph.a_star(bot.position, target_position)[-1]
+    return graph.a_star(bot_position, target_position)[-1]
 
 def move1(bot, bot_state, team_state):
     # check if we already initialized a graph representation of the maze
@@ -13,12 +13,12 @@ def move1(bot, bot_state, team_state):
     # for both bots
     if 'graph' not in team_state:
         # ok, initialize the graph
-        team_state['graph'] = Graph(bot.reachable_positions)
+        team_state['graph'] = Graph(bot.position, bot.walls)
 
     # do I already have a goal?
-    if 'goal' not in bot_state:
+    if 'goal' not in bot_state or bot_state['goal'] not in bot.enemy1.food:
         # let's choose one random food pellet as our goal
-        bot_state['goal'] = bot.random.choice(bot.enemy_food)
+        bot_state['goal'] = bot.random.choice(bot.enemy1.food)
 
     # get the next step to be done to reach our goal food pellet
     next_pos = next_step(bot.position, bot_state['goal'], team_state['graph'])

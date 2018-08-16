@@ -92,6 +92,7 @@ class Team(AbstractTeam):
             self._bot_state[bot.index] = {}
             # we take the bot’s index as a value for the seed_offset
             self._bot_random[bot.index] = random.Random(game_state["seed"] + bot.index)
+            self._bot_tracks[bot.index] = []
 
         return self.team_name
 
@@ -148,7 +149,14 @@ class Team(AbstractTeam):
 
             food = [f for f in universe.food if f in homezone]
 
-            bot = Bot(uni_bot.index, position, maze, homezone, food, is_noisy, score, rng, datadict)
+            # only append for our own:
+            if uni_bot.index in self._bot_tracks:
+                self._bot_tracks[uni_bot.index].append(position)
+                track = self._bot_tracks[uni_bot.index]
+            else:
+                track = None
+
+            bot = Bot(uni_bot.index, position, maze, homezone, food, is_noisy, score, rng, track, datadict)
             bots.append(bot)
 
         for bot in bots:
@@ -161,7 +169,7 @@ class Team(AbstractTeam):
         # TODO: Transform the datadict in a way that makes it more practical to use,
         # reduces unnecessary redundancy but still avoids recalculations for simple things
 
-        move = self._bot_players[bot_id](me, self._bot_state[bot_id], self.team_name)
+        move = self._bot_players[bot_id](me, self._bot_state[bot_id], self._team_state)
         return {
             "move": move,
             "say": me._say
@@ -180,7 +188,7 @@ class Homezone(collections.Container):
 
 
 class Bot:
-    def __init__(self, index, position, maze, homezone, food, is_noisy, score, random, datadict):
+    def __init__(self, index, position, maze, homezone, food, is_noisy, score, random, track, datadict):
         self._bots = None
         self._say = None
 
@@ -201,7 +209,7 @@ class Bot:
         self.food = food
         self.score  = score
         self.index  = index
-        self.track = ...
+        self.track = track
 
     @property
     def other(self):
@@ -229,6 +237,10 @@ class Bot:
 
     def say(self, text):
         self._say = text
+
+    def get_direction(self, position):
+        direction = (position[0] - self.position[0], position[1] - self.position[1])
+        return direction
 
 def new_style_team(module):
     """ Looks for a new-style team in `module`.

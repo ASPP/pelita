@@ -726,7 +726,7 @@ class CTFUniverse:
         Returns
         -------
         adjacency_list : generator of (pos, list(pos))
-            Generator which contains all reachable positions and their adjacencies
+            Generator which contains all reachable positions and their neighbours
         """
         return (it for it in iter_adjacencies(initial_positions, lambda pos: self.legal_moves(pos).values()))
 
