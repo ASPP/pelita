@@ -331,11 +331,13 @@ class TestGame:
         test_sixth_round = (
             """ ######
                 #  0 #
-                #1   #
+                #.1  #
                 ###### """)
         print(gm.universe.pretty)
+        # The game will have finished after bot 0 has eaten the pellet
         assert create_TestUniverse(test_sixth_round,
             black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS) == gm.universe
+        assert gm.game_state['finished'] is True
 
         teams = [SimpleTeam(SteppingPlayer('>-v>>>')), SimpleTeam(SteppingPlayer('<<-<<<'))]
         # now play the full game
@@ -344,7 +346,7 @@ class TestGame:
         test_sixth_round = (
             """ ######
                 #  0 #
-                #1   #
+                #.1  #
                 ###### """)
         assert create_TestUniverse(test_sixth_round,
             black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS) == gm.universe
@@ -786,36 +788,36 @@ class TestGame:
         gm.play_round()
         # second call works
         assert gm.universe.bots[0].current_pos == (6,1)
-        assert gm.universe.bots[1].current_pos == (1,2)
+        assert gm.universe.bots[1].current_pos == (2,2)
         assert gm.game_state["round_index"] == 3
-        assert gm.game_state["bot_id"] is None
+        assert gm.game_state["bot_id"] == 0
         assert gm.game_state["finished"] == True
-        assert gm.game_state["team_wins"] == None
-        assert gm.game_state["game_draw"] == True
+        assert gm.game_state["team_wins"] == 0
+        assert gm.game_state["game_draw"] == None
 
-        # Game finished because all food was eaten
-        # team 0 finished first but the round was played regularly to the end
-        # (hence round_index == 3 and bot_id is None)
-
-        # nothing happens anymore
-        gm.play_round()
-        assert gm.universe.bots[0].current_pos == (6,1)
-        assert gm.universe.bots[1].current_pos == (1,2)
-        assert gm.game_state["round_index"] == 3
-        assert gm.game_state["bot_id"] is None
-        assert gm.game_state["finished"] == True
-        assert gm.game_state["team_wins"] == None
-        assert gm.game_state["game_draw"] == True
+        # Game finished immediately once all food for one group was eaten
+        # team 0 finished first and the round was NOT played regularly to the end
+        # (hence round_index == 3 and bot_id == 0)
 
         # nothing happens anymore
         gm.play_round()
         assert gm.universe.bots[0].current_pos == (6,1)
-        assert gm.universe.bots[1].current_pos == (1,2)
+        assert gm.universe.bots[1].current_pos == (2,2)
         assert gm.game_state["round_index"] == 3
-        assert gm.game_state["bot_id"] is None
+        assert gm.game_state["bot_id"] == 0
         assert gm.game_state["finished"] == True
-        assert gm.game_state["team_wins"] == None
-        assert gm.game_state["game_draw"] == True
+        assert gm.game_state["team_wins"] == 0
+        assert gm.game_state["game_draw"] == None
+
+        # nothing happens anymore
+        gm.play_round()
+        assert gm.universe.bots[0].current_pos == (6,1)
+        assert gm.universe.bots[1].current_pos == (2,2)
+        assert gm.game_state["round_index"] == 3
+        assert gm.game_state["bot_id"] == 0
+        assert gm.game_state["finished"] == True
+        assert gm.game_state["team_wins"] == 0
+        assert gm.game_state["game_draw"] == None
 
     def test_kill_count(self):
         test_start = (
