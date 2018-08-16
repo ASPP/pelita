@@ -34,9 +34,6 @@ def exit_handler(*args):
     else:
         os.kill(os.getpid(), signal.SIGTERM)
 
-def keyboard_interrupt_handler(signo, frame):
-    _logger.info("Got SIGINT. Exit!")
-    exit_handler()
 
 # is added  pelita/ui/tk_canvas:TkApplication
 def wm_delete_window_handler():

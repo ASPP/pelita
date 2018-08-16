@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import contextlib
 import importlib
 import inspect
 import keyword
@@ -23,6 +24,15 @@ class MalformedBuiltinTeam(ValueError):
     pass
 
 DEFAULT_FACTORY = 'team'
+
+@contextlib.contextmanager
+def with_sys_path(dirname):
+    sys.path.insert(0, dirname)
+    try:
+        yield
+    finally:
+        sys.path.remove(dirname)
+
 
 def make_client(team_spec, address):
     team = load_team(team_spec)
@@ -167,7 +177,7 @@ def load_factory(pathspec: str):
     if modname in sys.modules:
         raise ValueError("Module {} has already been imported.".format(modname))
 
-    with pelita.utils.with_sys_path(dirname):
+    with with_sys_path(dirname):
         module = importlib.import_module(modname)
 
     return getattr(module, factory_name)
@@ -277,7 +287,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        pelita.utils.start_logging(args.log)
+        pelita.libpelita.start_logging(args.log)
     except AttributeError:
         pass
 
