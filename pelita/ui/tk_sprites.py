@@ -6,6 +6,12 @@ def col(red, green, blue):
     """Convert the given colours [0, 255] to HTML hex colours."""
     return "#%02x%02x%02x" % (red, green, blue)
 
+RED = col(235, 90, 90)
+BLUE = col(94, 158, 217)
+YELLOW = col(242, 255, 83)
+GREY = col(80, 80, 80)
+BROWN = col(48, 26, 22)
+
 def rotate(arc, rotation):
     """Helper for rotation normalisation."""
     return (arc + rotation) % 360
@@ -124,16 +130,17 @@ class BotSprite(TkSprite):
 
     def draw(self, canvas, universe):
         self.is_harvester = universe.bots[self.bot_id].is_harvester
+
         if self.is_harvester:
             if self.team == 0:
-                self.draw_bot(canvas, outer_col=col(94, 158, 217), eye_col="yellow", mirror=True)
+                self.draw_bot(canvas, outer_col=BLUE, eye_col=YELLOW, mirror=True)
             else:
-                self.draw_bot(canvas, outer_col=col(235, 90, 90), eye_col="yellow")
+                self.draw_bot(canvas, outer_col=RED, eye_col=YELLOW)
         else:
             if self.team == 0:
-                self.draw_destroyer(canvas, outer_col=col(94, 158, 217), eye_col="yellow", mirror=True)
+                self.draw_destroyer(canvas, outer_col=BLUE, eye_col=YELLOW, mirror=True)
             else:
-                self.draw_destroyer(canvas, outer_col=col(235, 90, 90), eye_col="yellow")
+                self.draw_destroyer(canvas, outer_col=RED, eye_col=YELLOW)
 
     def draw_destroyer(self, canvas, outer_col, eye_col, mirror=False):
         direction = self.direction
@@ -193,7 +200,7 @@ class Wall(TkSprite):
             # if there is no direct neighbour, we can’t connect.
             # draw only a small dot.
             # TODO add diagonal lines
-            canvas.create_line(self.screen((-0.3, 0)), self.screen((+0.3, 0)), fill=col(48, 26, 22),
+            canvas.create_line(self.screen((-0.3, 0)), self.screen((+0.3, 0)), fill=BROWN,
                                width=0.8 * scale, tag=(self.tag, "wall"), capstyle="round")
         else:
             neighbours = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
@@ -209,7 +216,7 @@ class Wall(TkSprite):
                             neighbours[(index - 1) % len(neighbours)] in self.wall_neighbors):
                             pass
                         else:
-                            canvas.create_line(self.screen((0, 0)), self.screen((2*dx, 2*dy)), fill=col(48, 26, 22),
+                            canvas.create_line(self.screen((0, 0)), self.screen((2*dx, 2*dy)), fill=BROWN,
                                                width=0.8 * scale, tag=(self.tag, "wall"), capstyle="round")
 
 class Food(TkSprite):
@@ -219,7 +226,7 @@ class Food(TkSprite):
 
     def draw(self, canvas, universe=None):
         if self.position[0] < self.mesh.num_x/2:
-            fill = col(94, 158, 217)
+            fill = BLUE
         else:
-            fill = col(235, 90, 90)
+            fill = RED
         canvas.create_oval(self.bounding_box(0.4), fill=fill, width=0, tag=(self.tag, self.food_pos_tag(self.position), "food"))

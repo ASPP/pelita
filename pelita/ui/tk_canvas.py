@@ -8,10 +8,14 @@ import tkinter
 import tkinter.font
 
 from ..datamodel import CTFUniverse
+from ..libpelita import firstNN
 from .tk_sprites import BotSprite, Food, Wall, col
 from .tk_utils import wm_delete_window_handler
+from .tk_sprites import BotSprite, Food, Wall, RED, BLUE, YELLOW, GREY, BROWN 
 
 _logger = logging.getLogger("pelita.tk")
+
+
 
 def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
     no_lines = display_string.count("\n") + 1
@@ -98,22 +102,31 @@ class Trafo:
     def screen(self, model_x, model_y):
         return self.mesh_graph.mesh_to_screen((self.mesh_x, self.mesh_y), (model_x, model_y))
 
+class UI:
+    pass
 
+class TkApplication:
+    def __init__(self, master, controller_address=None,
+                 geometry=None, delay=1):
+        self.master = master
+        self.master.configure(background="white")
 
-class UiCanvas:
-    def __init__(self, master, geometry=None):
+        self.context = zmq.Context()
+
+        if controller_address:
+            self.controller_socket = self.context.socket(zmq.DEALER)
+            self.controller_socket.connect(controller_address)
+        else:
+            self.controller_socket = None
+
+        self.master.title("Pelita")
+
         self.game_finish_overlay = lambda: None
-        self.game_status_info = lambda: None
 
         self.mesh_graph = None
         self.geometry = geometry
 
         self.size_changed = True
-
-        self.master = master
-        self.canvas = None
-
-        self.current_universe = None
 
         self._grid_enabled = False
 
@@ -121,180 +134,226 @@ class UiCanvas:
         self.fps = 0
         self.selected = None
 
-    def init_canvas(self):
-        self.score = tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=40)
-        self.score.config(background="white")
-        self.score.pack(side=tkinter.TOP, fill=tkinter.X)
+        self.game_uuid = None
+        self.bot_sprites = {}
 
-        self.status = tkinter.Canvas(self.master.frame, width=self.mesh_graph.screen_width, height=25)
-        self.status.config(background="white")
-        self.status.pack(side=tkinter.BOTTOM, fill=tkinter.X)
+        self._universe = None
+        self._game_state = None
 
-        game_control_frame = tkinter.Frame(self.status, background="white")
-        game_control_frame.grid(row=0, sticky="W")
-        game_speed_frame = tkinter.Frame(self.status, background="white")
-        game_speed_frame.grid(row=1, sticky="W")
+        self.ui = UI()
 
-        self.status_round_info = tkinter.Label(self.status, text="", background="white")
-        self.status_round_info.grid(row=0, column=2, sticky="E")
+        self.ui.header_canvas = tkinter.Canvas(master, height=50)
+        self.ui.header_canvas.config(background="white")
+        
+        self.ui.sub_header = tkinter.Frame(master, height=25)
+        self.ui.sub_header.config(background="white")
 
-        self.status_layout_info = tkinter.Label(self.status, text="", background="white")
-        self.status_layout_info.grid(row=1, column=2, sticky="E")
+        self.ui.status_canvas = tkinter.Frame(master, height=25)
+        self.ui.status_canvas.config(background="white")
 
-        self.button_game_speed_slower = tkinter.Button(game_speed_frame,
+        self.ui.game_canvas = tkinter.Canvas(master)
+        self.ui.game_canvas.config(background="white")
+        self.ui.game_canvas.bind('<Configure>', lambda e: master.after_idle(self.update))
+        self.ui.game_canvas.bind('<Button-1>', self.on_click)
+
+        self.ui.status_00 = tkinter.Frame(self.ui.status_canvas, background="white", padx=5, pady=0)
+        self.ui.status_01 = tkinter.Frame(self.ui.status_canvas, background="white", padx=5, pady=0)
+        self.ui.status_02 = tkinter.Frame(self.ui.status_canvas, background="white", padx=5, pady=0)
+        self.ui.status_10 = tkinter.Frame(self.ui.status_canvas, background="white", padx=5, pady=0)
+        self.ui.status_11 = tkinter.Frame(self.ui.status_canvas, background="white", padx=5, pady=0)
+        self.ui.status_12 = tkinter.Frame(self.ui.status_canvas, background="white", padx=5, pady=0)
+        self.ui.status_20 = tkinter.Frame(self.ui.status_canvas, background="white", padx=5, pady=0)
+        self.ui.status_21 = tkinter.Frame(self.ui.status_canvas, background="white", padx=5, pady=0)
+        self.ui.status_22 = tkinter.Frame(self.ui.status_canvas, background="white", padx=5, pady=0)
+
+        self.ui.status_00.grid(row=0, column=0, sticky="W")
+        self.ui.status_01.grid(row=0, column=1, sticky="W")
+        self.ui.status_02.grid(row=0, column=2, sticky="E")
+        self.ui.status_10.grid(row=1, column=0, sticky="W")
+        self.ui.status_11.grid(row=1, column=1, sticky="W")
+        self.ui.status_12.grid(row=1, column=2, sticky="E")
+        self.ui.status_20.grid(row=2, column=0, sticky="W")
+        self.ui.status_21.grid(row=2, column=1, sticky="W")
+        self.ui.status_22.grid(row=2, column=2, sticky="E")
+
+        self.ui.status_canvas.grid_columnconfigure(0, weight=1, uniform='status')
+        self.ui.status_canvas.grid_columnconfigure(1, weight=1, uniform='status') 
+        self.ui.status_canvas.grid_columnconfigure(2, weight=1, uniform='status')
+ 
+        self.ui.button_game_speed_slower = tkinter.Button(self.ui.status_10,
             foreground="black",
             background="white",
             justify=tkinter.CENTER,
             text="slower",
-            command=self.master.delay_inc)
-        self.button_game_speed_slower.pack(side=tkinter.LEFT)
+            padx=12,
+            command=self.delay_inc)
+        self.ui.button_game_speed_slower.pack(side=tkinter.LEFT)
 
-        self.button_game_speed_faster = tkinter.Button(game_speed_frame,
+        self.ui.button_game_speed_faster = tkinter.Button(self.ui.status_10,
             foreground="black",
             background="white",
             justify=tkinter.CENTER,
             text="faster",
-            command=self.master.delay_dec)
-        self.button_game_speed_faster.pack(side=tkinter.LEFT)
+            padx=12,
+            command=self.delay_dec)
+        self.ui.button_game_speed_faster.pack(side=tkinter.LEFT)
 
-        self.master._check_speed_button_state()
+        self._check_speed_button_state()
 
-        self.button_game_toggle_grid = tkinter.Button(game_speed_frame,
+        self.ui.button_game_toggle_grid = tkinter.Button(self.ui.status_10,
             foreground="black",
             background="white",
             justify=tkinter.CENTER,
+            padx=12,
             command=self.toggle_grid)
-        self.button_game_toggle_grid.pack(side=tkinter.LEFT)
+        self.ui.button_game_toggle_grid.pack(side=tkinter.LEFT)
 
         self._check_grid_toggle_state()
 
-        self.status_fps_info = tkinter.Label(game_speed_frame, text="", fg="#acacac", background="white", anchor="s")
-        self.status_fps_info.pack(side=tkinter.LEFT)
+        self.ui.status_fps_info = tkinter.Label(self.ui.status_20,
+            text="",
+            font=(None, 8),
+            foreground="black",
+            background="white",
+            justify=tkinter.CENTER)
+        self.ui.status_fps_info.pack(side=tkinter.LEFT)
 
-        tkinter.Button(game_control_frame,
+        self.ui.status_selected = tkinter.Label(self.ui.status_22,
+            text="",
+            font=(None, 8),
+            foreground="black",
+            background="white",
+            justify=tkinter.CENTER)
+        self.ui.status_selected.pack(side=tkinter.RIGHT)
+
+        tkinter.Button(self.ui.status_00,
                        foreground="black",
                        background="white",
                        justify=tkinter.CENTER,
                        text="PLAY/PAUSE",
-                       command=self.master.toggle_running).pack(side=tkinter.LEFT)
+                       padx=12,
+                       command=self.toggle_running).pack(side=tkinter.LEFT, expand=tkinter.YES)
 
-        tkinter.Button(game_control_frame,
+        tkinter.Button(self.ui.status_00,
                        foreground="black",
                        background="white",
                        justify=tkinter.CENTER,
                        text="STEP",
-                       command=self.master.request_step).pack(side=tkinter.LEFT)
+                       padx=12,
+                       command=self.request_step).pack(side=tkinter.LEFT, expand=tkinter.YES)
 
-        tkinter.Button(game_control_frame,
+        tkinter.Button(self.ui.status_00,
                        foreground="black",
                        background="white",
                        justify=tkinter.CENTER,
                        text="ROUND",
-                       command=self.master.request_round).pack(side=tkinter.LEFT)
+                       padx=12,
+                       command=self.request_round).pack(side=tkinter.LEFT, expand=tkinter.YES)
 
-        tkinter.Button(self.status,
+        tkinter.Button(self.ui.status_01,
                        foreground="black",
                        background="white",
                        justify=tkinter.CENTER,
                        text="QUIT",
-                       command=self.master.quit).grid(row=0, column=1, rowspan=2, sticky="WE")
+                       width=30,
+                       padx=12,
+                       command=self.quit).pack(side=tkinter.TOP, fill=tkinter.BOTH, anchor=tkinter.CENTER)
 
-        self.status_selected = tkinter.Label(game_control_frame, text="", fg="#acacac", background="white", anchor="s")
-        self.status_selected.pack(side=tkinter.LEFT)
+
+        self.ui.status_round_info = tkinter.Label(self.ui.status_02, text="", background="white")
+        self.ui.status_round_info.pack(side=tkinter.LEFT)
     
-        self.status.grid_columnconfigure(0, weight=1)
-        self.status.grid_columnconfigure(1, weight=1)
-        self.status.grid_columnconfigure(2, weight=1)
+        self.ui.status_layout_info = tkinter.Label(self.ui.status_12, text="", background="white")
+        self.ui.status_layout_info.pack(side=tkinter.LEFT)
 
-        self.canvas = tkinter.Canvas(self.master.frame)
-        self.canvas.config(background="white")
-        self.canvas.pack(fill=tkinter.BOTH, expand=tkinter.YES)
-        self.canvas.bind('<Configure>', self.resize)
-        self.canvas.bind('<Button-1>', self.on_click)
+        self.ui.header_canvas.pack(side=tkinter.TOP, fill=tkinter.BOTH)
+#        self.ui.sub_header.pack(side=tkinter.TOP, fill=tkinter.BOTH)
+        self.ui.status_canvas.pack(side=tkinter.BOTTOM, fill=tkinter.BOTH)
+        self.ui.game_canvas.pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=tkinter.YES)#fill=tkinter.BOTH, expand=tkinter.YES)
 
-        self.canvas.update()
+        self._min_delay = 1
+        self._delay = delay
+        self._check_speed_button_state()
 
-    def update(self, universe, game_state):
-        # This method is called every now and then. Either when new information
-        # about universe or game_state have arrived or when a resize has occurred.
-        # Whenever new universe or event data is sent, this is fine, as every
-        # drawing method will know how to deal with this information.
-        # However, a call due to a simple resize will not include this information.
-        # Therefore, we’d have to save this information in our class manually,
-        # keeping track of updating the variables and hoping that no other
-        # process starts relying on these attributes which are really meant to
-        # be method-private. The alternative way we’re using here is following
-        # the principle of least information:
-        # Calls to the drawing methods are wrapped by a simple lambda, which
-        # includes the last set of parameters given. This closure approach
-        # allows us to hide the parameters from our interface and still be able
-        # to use the most recent set of parameters when there is a mere resize.
+        self.running = True
 
-        if game_state:
-            round = game_state.get("round_index")
-            turn = game_state.get("bot_id")
+        self.master.bind('q', lambda event: self.quit())
+        self.master.bind('<numbersign>', lambda event: self.toggle_grid())
+        self.master.bind('<greater>', lambda event: self.delay_dec())
+        self.master.bind('<less>', lambda event: self.delay_inc())
+        self.master.bind('<space>', lambda event: self.toggle_running())
+        self.master.bind('<Return>', lambda event: self.request_step())
+        self.master.bind('<Shift-Return>', lambda event: self.request_round())
+        self.master.createcommand('exit', self.quit)
+        self.master.protocol("WM_DELETE_WINDOW", self.quit)
+
+        if self.controller_socket:
+            self.master.after_idle(self.request_initial)
+
+
+    def init_mesh(self, universe):
+        width = universe.maze.width
+        height = universe.maze.height
+
+        if self.geometry is None:
+            screensize = (
+                max(250, app.winfo_screenwidth() - 100),
+                max(250, app.winfo_screenheight() - 100)
+                )
         else:
-            round = None
-            turn = None
+            screensize = self.geometry
+        scale_x = screensize[0] / width
+        scale_y = screensize[1] / height
+        scale = int(min(scale_x, scale_y, 50))
 
-        if universe and not self.canvas:
-            if not self.mesh_graph:
-                width = universe.maze.width
-                height = universe.maze.height
+        self.mesh_graph = MeshGraph(width, height, scale * width, scale * height)
+        self.init_bot_sprites(universe)
 
-                if self.geometry is None:
-                    screensize = (
-                        max(250, self.master.master.winfo_screenwidth() - 100),
-                        max(250, self.master.master.winfo_screenheight() - 100)
-                        )
-                else:
-                    screensize = self.geometry
-                scale_x = screensize[0] / width
-                scale_y = screensize[1] / height
-                scale = int(min(scale_x, scale_y, 50))
-                self.mesh_graph = MeshGraph(width, height, scale * width, scale * height)
+    def update(self, universe=None, game_state=None):
+        if universe is not None:
+            self._universe = universe
+        if game_state is not None:
+            self._game_state = game_state
+        universe = self._universe
+        game_state = self._game_state
 
-                self.bot_sprites = {}
-
-            self.init_canvas()
-            self.init_bots(universe)
-
-        if not universe and not self.current_universe:
+        if not universe:
             return
 
-        if not universe and not self.size_changed:
-            return
+        if game_state['game_uuid'] != self.game_uuid:
+            self.game_uuid = game_state['game_uuid']
+            self.init_mesh(universe)
 
-        if universe:
-            self.current_universe = universe
+        if ((self.mesh_graph.screen_width, self.mesh_graph.screen_height)
+            != (self.ui.game_canvas.winfo_width(), self.ui.game_canvas.winfo_height())):
+            self.size_changed = True
 
-        if round is not None and turn is not None:
-            self.game_status_info = lambda: self.draw_status_info(turn, round, game_state.get("layout_name", ""))
-        self.game_status_info()
+        self.mesh_graph.screen_width = self.ui.game_canvas.winfo_width()
+        self.mesh_graph.screen_height = self.ui.game_canvas.winfo_height()
 
-        self.draw_universe(self.current_universe, game_state)
+        self.draw_universe(universe, game_state)
 
-        if game_state:
-            for food_eaten in game_state["food_eaten"]:
-                food_tag = Food.food_pos_tag(tuple(food_eaten["food_pos"]))
-                self.canvas.delete(food_tag)
+        for food_eaten in game_state["food_eaten"]:
+            food_tag = Food.food_pos_tag(tuple(food_eaten["food_pos"]))
+            self.ui.game_canvas.delete(food_tag)
 
-            winning_team_idx = game_state.get("team_wins")
-            if winning_team_idx is not None:
-                team_name = game_state["team_name"][winning_team_idx]
-                self.game_finish_overlay = lambda: self.draw_game_over(team_name)
+        winning_team_idx = game_state.get("team_wins")
+        if winning_team_idx is not None:
+            team_name = game_state["team_name"][winning_team_idx]
+            self.draw_game_over(team_name)
+        elif game_state.get("game_draw"):
+            self.draw_game_draw()
+        else:
+            self.draw_end_of_game(None)
 
-            if game_state.get("game_draw"):
-                self.game_finish_overlay = lambda: self.draw_game_draw()
-
-        self.game_finish_overlay()
-
+        self.size_changed = False
 
     def draw_universe(self, universe, game_state):
         self.mesh_graph.num_x = universe.maze.width
         self.mesh_graph.num_y = universe.maze.height
 
         self.draw_grid(universe)
+        self.draw_selected(universe, game_state)
         self.draw_background(universe)
         self.draw_maze(universe)
         self.draw_food(universe)
@@ -302,14 +361,14 @@ class UiCanvas:
         self.draw_title(universe, game_state)
         self.draw_bots(universe, game_state)
 
-        self.size_changed = False
+        self.draw_status_info(universe, game_state)
 
     def draw_grid(self, universe):
         """ Draws a light grid on the background.
         """
         if not self.size_changed:
             return
-        self.canvas.delete("grid")
+        self.ui.game_canvas.delete("grid")
 
         if not self._grid_enabled:
             return
@@ -321,7 +380,7 @@ class UiCanvas:
             y0_ = self.mesh_graph.mesh_to_screen_y(y0, 0)
             x1_ = self.mesh_graph.mesh_to_screen_x(x1, 0)
             y1_ = self.mesh_graph.mesh_to_screen_y(y1, 0)
-            self.canvas.create_line(x0_, y0_, x1_, y1_, width=0.01, fill="#884488", tag="grid")
+            self.ui.game_canvas.create_line(x0_, y0_, x1_, y1_, width=0.01, fill="#884488", tag="grid")
 
         for x in range(self.mesh_graph.mesh_width):
             draw_line(x - 0.5, 0, x - 0.5, self.mesh_graph.mesh_height - 1)
@@ -333,12 +392,13 @@ class UiCanvas:
         self._grid_enabled = not self._grid_enabled
         self.size_changed = True
         self._check_grid_toggle_state()
+        self.update()
 
     def _check_grid_toggle_state(self):
         if self._grid_enabled:
-            self.button_game_toggle_grid.config(text="hide grid")
+            self.ui.button_game_toggle_grid.config(text="hide grid")
         else:
-            self.button_game_toggle_grid.config(text="show grid")
+            self.ui.button_game_toggle_grid.config(text="show grid")
 
     def on_click(self, event):
         raw_x, raw_y = event.x, event.y
@@ -348,47 +408,45 @@ class UiCanvas:
             self.selected = None
         else:
             self.selected = (x, y)
-        self.draw_selected()
+        self.update()
 
     def draw_background(self, universe):
         """ Draws a line between blue and red team.
         """
         if not self.size_changed:
             return
-        self.canvas.delete("background")
+        self.ui.game_canvas.delete("background")
 
         center = self.mesh_graph.screen_width // 2
-        cols = (col(94, 158, 217), col(235, 90, 90), col(80, 80, 80))
+        cols = (BLUE, RED, GREY)
 
         scale = self.mesh_graph.half_scale_x * 0.2
 
         for color, x_orig in zip(cols, (center - 3, center + 3, center)):
             y_top = self.mesh_graph.mesh_to_screen_y(0, 0)
             y_bottom = self.mesh_graph.mesh_to_screen_y(self.mesh_graph.mesh_height - 1, 0)
-            self.canvas.create_line(x_orig, y_top, x_orig, y_bottom, width=scale, fill=color, tag="background")
+            self.ui.game_canvas.create_line(x_orig, y_top, x_orig, y_bottom, width=scale, fill=color, tag="background")
 
     def draw_title(self, universe, game_state):
-        self.score.delete("title")
-        if not game_state:
-            return
+        self.ui.header_canvas.delete("title")
 
-        center = self.mesh_graph.screen_width // 2
+        center = self.ui.header_canvas.winfo_width() // 2
 
         try:
             team_time = game_state["team_time"]
         except (KeyError, TypeError):
             team_time = [0, 0]
 
-        left_team = "(%.2f) %s %d " % (team_time[0], game_state["team_name"][0], universe.teams[0].score)
-        right_team = " %d %s (%.2f)" % (universe.teams[1].score, game_state["team_name"][1], team_time[1])
-        font_size = guess_size(left_team+':'+right_team,
-                               self.mesh_graph.screen_width,
+        left_team = "%s %d " % (game_state["team_name"][0], universe.teams[0].score)
+        right_team = " %d %s" % (universe.teams[1].score, game_state["team_name"][1])
+        font_size = guess_size(left_team + ' : ' + right_team,
+                               self.ui.header_canvas.winfo_width(),
                                30,
-                               rel_size = +1)
+                               rel_size = 1)
 
         def status(team_idx):
             try:
-                ret = "Timeouts: %i, Killed: %i" % (game_state["timeout_teams"][team_idx], game_state["times_killed"][team_idx])
+                ret = "Timeouts: %d, Killed: %d, Time: %.2f" % (game_state["timeout_teams"][team_idx], game_state["times_killed"][team_idx], game_state["team_time"][team_idx])
                 disqualified = game_state["teams_disqualified"][team_idx]
                 if disqualified is not None:
                     ret += ", Disqualified: %s" % disqualified
@@ -400,46 +458,56 @@ class UiCanvas:
         right_status = status(1)
         status_font_size = max(font_size - 3, 3)
 
-        self.score.create_text(center, 15, text=left_team, font=(None, font_size), fill=col(94, 158, 217), tag="title", anchor=tkinter.E)
+        top = 15
+        spacer = 3
 
-        self.score.create_text(center, 15, text=":", font=(None, font_size), tag="title", anchor=tkinter.CENTER)
+        middle_colon = self.ui.header_canvas.create_text(center, top, text=":", font=(None, font_size), tag="title", anchor=tkinter.CENTER)
+        middle_colon_bottom = self.ui.header_canvas.bbox(middle_colon)[3]
+        spacer = (self.ui.header_canvas.bbox(middle_colon)[3] - self.ui.header_canvas.bbox(middle_colon)[1]) / 2
 
-        self.score.create_text(center+2, 15, text=right_team, font=(None, font_size), fill=col(235, 90, 90), tag="title", anchor=tkinter.W)
+        self.ui.header_canvas.create_text(center, top, text=left_team, font=(None, font_size), fill=BLUE, tag="title", anchor=tkinter.E)
+        self.ui.header_canvas.create_text(center+2, top, text=right_team, font=(None, font_size), fill=RED, tag="title", anchor=tkinter.W)
 
-        self.score.create_text(center, 35, text="|", font=(None, font_size), tag="title", anchor=tkinter.CENTER)
-        self.score.create_text(center, 35, text=left_status + " ", font=(None, status_font_size), tag="title", anchor=tkinter.E)
-        self.score.create_text(center+1, 35, text=" " + right_status, font=(None, status_font_size), tag="title", anchor=tkinter.W)
+        self.ui.header_canvas.create_text(self.ui.header_canvas.winfo_width() - 5, 15 + font_size, text=" " + right_status, font=(None, status_font_size), tag="title", anchor=tkinter.E)
+        bottom_text = self.ui.header_canvas.create_text(0 + 5, 15 + font_size, text=" " + right_status, font=(None, status_font_size), tag="title", anchor=tkinter.W)
+
+        height = self.ui.header_canvas.bbox(bottom_text)[3]
+        self.ui.header_canvas.configure(height=height)
 
     FPS_MULT = 10
 
-    def draw_status_info(self, turn, round, layout_name):
-        newtime = time.time()
+    def draw_status_info(self, universe, game_state):
+        round = firstNN(game_state.get("round_index"), "–")
+        max_rounds = firstNN(game_state.get("game_time"), "–")
+        turn = firstNN(game_state.get("bot_id"), "–")
+        layout_name = firstNN(game_state.get("layout_name"), "–")
+
+        newtime = time.monotonic()
         diff = newtime - self.timestamp
         if diff == 0:
             diff = 0.0000001
         self.fps = (1/diff + (self.FPS_MULT-1) * self.fps)/self.FPS_MULT
         self.timestamp = newtime
 
-        roundturn = "Bot %d / Round % 3d" % (turn, round)
+        roundturn = "Bot %s, Round % 3s/%s" % (turn, round, max_rounds)
 
         fps_info = "%.f fps" % self.fps
-        self.status_fps_info.config(text=fps_info, )
+        self.ui.status_fps_info.config(text=fps_info, )
 
-        self.status_round_info.config(text=roundturn)
-        self.status_layout_info.config(text=layout_name)
-        self.draw_selected()
+        self.ui.status_round_info.config(text=roundturn)
+        self.ui.status_layout_info.config(text=layout_name)
 
-    def draw_selected(self):
-        self.canvas.delete("selected")
+    def draw_selected(self, universe, game_state):
+        self.ui.game_canvas.delete("selected")
         if self.selected:
             def field_status(pos):
-                has_food = pos in self.current_universe.food
-                is_wall = self.current_universe.maze[pos]
-                bots = [str(bot.index) for bot in self.current_universe.bots if bot.current_pos == pos]
-                if pos[1] < self.current_universe.maze.width // 2:
-                    zone = 0
+                has_food = pos in universe.food
+                is_wall = universe.maze[pos]
+                bots = [str(bot.index) for bot in universe.bots if bot.current_pos == pos]
+                if pos[0] < universe.maze.width // 2:
+                    zone = "blue"
                 else:
-                    zone = 1
+                    zone = "red"
 
                 if is_wall:
                     contents = ["wall"]
@@ -456,29 +524,27 @@ class UiCanvas:
                     contents = "empty"
 
                 return "[{x}, {y}] in {color} zone: {contents}".format(
-                    x=pos[0], y=pos[1],
-                    color = "blue" if zone == 0 else "red",
-                    contents=contents)
+                    x=pos[0], y=pos[1], color=zone, contents=contents)
 
-            self.status_selected.config(text=field_status(self.selected))
+            self.ui.status_selected.config(text=field_status(self.selected))
 
             ul = self.mesh_graph.mesh_to_screen(self.selected, (-1, -1))
             ur = self.mesh_graph.mesh_to_screen(self.selected, (1, -1))
             ll = self.mesh_graph.mesh_to_screen(self.selected, (-1, 1))
             lr = self.mesh_graph.mesh_to_screen(self.selected, (1, 1))
 
-            self.canvas.create_line(*ul, *ur, fill=col(48, 26, 22), width=0.8, tag=("selected",), capstyle="round", dash=(3,5))
-            self.canvas.create_line(*ur, *lr, fill=col(48, 26, 22), width=0.8, tag=("selected",), capstyle="round", dash=(3,5))
-            self.canvas.create_line(*lr, *ll, fill=col(48, 26, 22), width=0.8, tag=("selected",), capstyle="round", dash=(3,5))
-            self.canvas.create_line(*ll, *ul, fill=col(48, 26, 22), width=0.8, tag=("selected",), capstyle="round", dash=(3,5))
+            self.ui.game_canvas.create_rectangle(*ul, *lr, fill='#dddddd', tag=("selected",))
+            self.ui.game_canvas.tag_lower("selected")
         else:
-            self.status_selected.config(text="")
-
+            self.ui.status_selected.config(text="nothing selected")
 
 
     def draw_end_of_game(self, display_string):
         """ Draw an end of game string. """
-        self.canvas.delete("gameover")
+        self.ui.game_canvas.delete("gameover")
+
+        if display_string is None:
+            return
 
         center = (self.mesh_graph.screen_width // 2,
                   self.mesh_graph.screen_height //2)
@@ -490,13 +556,13 @@ class UiCanvas:
 
         for i in [-2, -1, 0, 1, 2]:
             for j in [-2, -1, 0, 1, 2]:
-                self.canvas.create_text(center[0] - i, center[1] - j,
+                self.ui.game_canvas.create_text(center[0] - i, center[1] - j,
                         text=display_string,
                         font=(None, font_size, "bold"),
                         fill="#ED1B22", tag="gameover",
                         justify=tkinter.CENTER, anchor=tkinter.CENTER)
 
-        self.canvas.create_text(center[0] , center[1] ,
+        self.ui.game_canvas.create_text(center[0] , center[1] ,
                 text=display_string,
                 font=(None, font_size, "bold"),
                 fill="#FFC903", tag="gameover",
@@ -516,29 +582,22 @@ class UiCanvas:
         self.draw_end_of_game("GAME OVER\nDRAW!")
 
     def clear(self):
-        self.canvas.delete(tkinter.ALL)
-
-    def resize(self, event):
-        # need to be careful not to get negative numbers
-        # Tk will crash, if it receives negative numbers
-        if event.height > 0:
-            self.mesh_graph.screen_width = event.width
-            self.mesh_graph.screen_height = event.height
-        self.size_changed = True
+        self.ui.game_canvas.delete(tkinter.ALL)
 
     def draw_food(self, universe):
         if not self.size_changed:
             return
-        self.canvas.delete("food")
+        self.ui.game_canvas.delete("food")
         for position in universe.food_list:
             model_x, model_y = position
             food_item = Food(self.mesh_graph, position=(model_x, model_y))
-            food_item.draw(self.canvas)
+            food_item.draw(self.ui.game_canvas)
 
     def draw_maze(self, universe):
         if not self.size_changed:
             return
-        self.canvas.delete("wall")
+        self.ui.game_canvas.delete("wall")
+        num = 0
         for position, wall in universe.maze.items():
             model_x, model_y = position
             if wall:
@@ -547,14 +606,16 @@ class UiCanvas:
                                   for dy in [-1, 0, 1]
                                   if universe.maze.get((model_x + dx, model_y + dy), None)]
                 wall_item = Wall(self.mesh_graph, wall_neighbors=wall_neighbors, position=(model_x, model_y))
-                wall_item.draw(self.canvas)
+                wall_item.draw(self.ui.game_canvas)
+                num += 1
 
-    def init_bots(self, universe):
-        for bot in universe.bots:
-            bot_sprite = BotSprite(self.mesh_graph, team=bot.team_index, bot_id=bot.index)
-
-            self.bot_sprites[bot.index] = bot_sprite
-            bot_sprite.position = bot.current_pos
+    def init_bot_sprites(self, universe):
+        for sprite in self.bot_sprites.values():
+            sprite.delete(self.ui.game_canvas)
+        self.bot_sprites = {
+            bot.index: BotSprite(self.mesh_graph, team=bot.team_index, bot_id=bot.index, position=bot.current_pos)
+            for bot in universe.bots
+        }
 
     def draw_bots(self, universe, game_state):
         if game_state:
@@ -562,107 +623,16 @@ class UiCanvas:
                 self.bot_sprites[bot["bot_id"]].position = None
         for bot_id, bot_sprite in self.bot_sprites.items():
             say = game_state and game_state["bot_talk"][bot_id]
-            bot_sprite.move_to(universe.bots[bot_sprite.bot_id].current_pos, self.canvas, universe, force=self.size_changed, say=say)
-
-
-class TkApplication:
-    def __init__(self, master, address, controller_address=None,
-                 geometry=None, delay=1):
-        self.master = master
-        self.master.configure(background="white")
-
-        self.context = zmq.Context()
-        self.socket = self.context.socket(zmq.SUB)
-        self.socket.setsockopt_unicode(zmq.SUBSCRIBE, "")
-        self.socket.connect(address)
-        self.poll = zmq.Poller()
-        self.poll.register(self.socket, zmq.POLLIN)
-
-        if controller_address:
-            self.controller_socket = self.context.socket(zmq.DEALER)
-            self.controller_socket.connect(controller_address)
-        else:
-            self.controller_socket = None
-
-        self.frame = tkinter.Frame(self.master, background="white")
-        self.master.title("Pelita")
-
-        self.frame.pack(fill=tkinter.BOTH, expand=tkinter.YES)
-
-        self.ui_canvas = UiCanvas(self, geometry=geometry)
-
-        self._min_delay = 1
-        self._delay = delay
-        self._check_speed_button_state()
-
-        self.running = True
-
-        self.master.bind('q', lambda event: self.quit())
-        self.master.bind('<numbersign>', lambda event: self.ui_canvas.toggle_grid())
-        self.master.bind('<greater>', lambda event: self.delay_dec())
-        self.master.bind('<less>', lambda event: self.delay_inc())
-        self.master.bind('<space>', lambda event: self.toggle_running())
-        self.master.bind('<Return>', lambda event: self.request_step())
-        self.master.bind('<Shift-Return>', lambda event: self.request_round())
-        self.master.createcommand('exit', self.quit)
-        self.master.protocol("WM_DELETE_WINDOW", self.quit)
-
-        if self.controller_socket:
-            self.master.after_idle(self.request_initial)
-
-    def _after(self, delay, fun, *args):
-        """ Execute fun(*args) after delay milliseconds.
-
-        # Patched to quit after `KeyboardInterrupt`s.
-        """
-        def wrapped_fun():
-            try:
-                fun(*args)
-            except KeyboardInterrupt:
-                _logger.info("Detected KeyboardInterrupt. Exiting.")
-                self.quit()
-        self.master.after(delay, wrapped_fun)
+            bot_sprite.move_to(universe.bots[bot_sprite.bot_id].current_pos, self.ui.game_canvas, universe, force=self.size_changed, say=say)
 
     def toggle_running(self):
         self.running = not self.running
         if self.running:
             self.request_step()
 
-    def read_queue(self):
-        try:
-            # read all events.
-            # if queue is empty, try again in a few ms
-            # we don’t want to block here and lock
-            # Tk animations
-            message = self.socket.recv_unicode(flags=zmq.NOBLOCK)
-            message = json.loads(message)
-            # we curretly don’t care about the action
-            observed = message["__data__"]
-            if observed:
-                self.observe(observed)
-
-            if self.controller_socket:
-                self._after(0 + self._delay, self.request_next, observed)
-            else:
-                self._after(2 + self._delay, self.read_queue)
-            return
-        except zmq.ZMQError:
-            self.observe({})
-            if self.controller_socket:
-                self._after(2, self.request_next, {})
-            else:
-                self._after(2, self.read_queue)
-
     def request_initial(self):
         if self.controller_socket:
             self.controller_socket.send_json({"__action__": "set_initial"})
-
-        self._after(500, self.request_step)
-
-    def request_next(self, observed):
-        if self.running and observed and observed.get("game_state"):
-            self.request_step()
-        self._after(0, self.read_queue)
 
     def request_step(self):
         if self.controller_socket:
@@ -672,13 +642,14 @@ class TkApplication:
         if self.controller_socket:
             self.controller_socket.send_json({"__action__": "play_round"})
 
-    def observe(self, observed):
-        universe = observed.get("universe")
-        universe = CTFUniverse._from_json_dict(universe) if universe else None
-        game_state = observed.get("game_state")
+    def observe(self, data):
+        universe = data["universe"]
+        universe = CTFUniverse._from_json_dict(universe)
+        game_state = data["game_state"]
 
-        if universe:
-            self.ui_canvas.update(universe, game_state)
+        self.update(universe, game_state)
+        if self.running:
+            self.master.after(self._delay, self.request_step)
 
     def on_quit(self):
         """ override for things which must be done when we exit.
@@ -692,7 +663,7 @@ class TkApplication:
 
     def quit(self):
         self.on_quit()
-        self.frame.quit()
+        self.master.quit()
 
     def delay_inc(self):
         self._delay += 5
@@ -706,12 +677,12 @@ class TkApplication:
 
     def _check_speed_button_state(self):
         try:
-            # self.ui_canvas.button_game_speed_faster
+            # self.ui.button_game_speed_faster
             # may not be available yet (or may be None).
             # If this is the case, we’ll do nothing at all.
             if self._delay <= self._min_delay:
-                self.ui_canvas.button_game_speed_faster.config(state=tkinter.DISABLED)
+                self.ui.button_game_speed_faster.config(state=tkinter.DISABLED)
             else:
-                self.ui_canvas.button_game_speed_faster.config(state=tkinter.NORMAL)
+                self.ui.button_game_speed_faster.config(state=tkinter.NORMAL)
         except AttributeError:
             pass
