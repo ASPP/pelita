@@ -26,13 +26,12 @@ class Team(AbstractTeam):
 
         if isinstance(args[0], str):
             self.team_name = args[0]
-            players = args[1:]
+            team_move = args[1]
         else:
             self.team_name = ""
-            players = args[:]
+            team_move = args[0]
 
-        self._players = players
-        self._bot_players = {}
+        self._team_move = team_move
 
     def set_initial(self, team_id, universe, game_state):
         """ Sets the bot indices for the team and returns the team name.
@@ -59,14 +58,9 @@ class Team(AbstractTeam):
         # indexes for.
         team_bots = universe.team_bots(team_id)
 
-        if len(team_bots) > len(self._players):
-            raise ValueError("Tried to set %d bot_ids with only %d Players." % (len(team_bots), len(self._players)))
-
-
-        #: The storage dicts that can be used to exchange data between the players
-        # and between rounds.
-        self._bot_state = {}
+        #: Storage for the team state
         self._team_state = {}
+        self._team_game = Game([None, None], self._team_state)
 
         #: Storage for the random generator
         self._bot_random = {}
@@ -74,22 +68,12 @@ class Team(AbstractTeam):
         #: Storage list for the bot tracks
         self._bot_tracks = {}
 
-        for bot, player in zip(team_bots, self._players):
-            # tell the player its index
-            # TODO: This _index is obviously not visible from inside the functions,
-            # therefore this information will have to be added to the datadict in each
-            # call inside get_move.
-            # TODO: This will fail for bound methods.
-            player._index = bot.index
-
-            # TODO: Should we tell the player about the initial universe?
+        for bot in team_bots:
             # We could call the function with a flag that tells the player
             # that it is the initial call. But then the player will have to check
             # for themselves in each round.
             #player._set_initial(universe, game_state)
 
-            self._bot_players[bot.index] = player
-            self._bot_state[bot.index] = {}
             # we take the bot’s index as a value for the seed_offset
             self._bot_random[bot.index] = random.Random(game_state["seed"] + bot.index)
             self._bot_tracks[bot.index] = []
@@ -156,27 +140,42 @@ class Team(AbstractTeam):
             else:
                 track = None
 
-            bot = Bot(uni_bot.index, position, maze, homezone, food, is_noisy, score, rng, track, datadict)
+            round = game_state['round_index']
+            is_left = uni_bot.team_index == 0
+            bot = Bot(uni_bot.index, position, maze, homezone, food, is_noisy, score, rng, track, round, is_left, datadict)
             bots.append(bot)
 
         for bot in bots:
             bot._bots = bots
 
         me = bots[bot_id]
+        turn = bot_id // 2
+        if bot_id % 2 == 0:
+            team = bots[0::2]
+        else:
+            team = bots[1::2]
         
-#        print(datadict)
+        self._team_game.team[:] = team
+        move = self._team_move(turn, self._team_game)
+        print(move)
 
-        # TODO: Transform the datadict in a way that makes it more practical to use,
-        # reduces unnecessary redundancy but still avoids recalculations for simple things
+        # restore the team state
+        self._team_state = self._team_game.state
 
-        move = self._bot_players[bot_id](me, self._bot_state[bot_id], self._team_state)
         return {
             "move": move,
             "say": me._say
         }
 
     def __repr__(self):
-        return "Team(%r, %s)" % (self.team_name, ", ".join(repr(p) for p in self._players))
+        return "Team(%r, %s)" % (self.team_name, repr(self._team_move))
+
+# @dataclass
+class Game:
+    def __init__(self, team, state):
+        self.team = team
+        self.state = state
+
 
 class Homezone(collections.Container):
     def __init__(self, pos1, pos2):
@@ -188,7 +187,7 @@ class Homezone(collections.Container):
 
 
 class Bot:
-    def __init__(self, index, position, maze, homezone, food, is_noisy, score, random, track, datadict):
+    def __init__(self, index, position, maze, homezone, food, is_noisy, score, random, track, round, is_left, datadict):
         self._bots = None
         self._say = None
 
@@ -210,6 +209,8 @@ class Bot:
         self.score  = score
         self.index  = index
         self.track = track
+        self.round = round
+        self.is_left = is_left
 
     @property
     def other(self):
@@ -246,13 +247,10 @@ def new_style_team(module):
     """ Looks for a new-style team in `module`.
     """
     # look for a new-style team
-    move1 = getattr(module, "move1")
-    move2 = getattr(module, "move2")
+    move = getattr(module, "move")
     name = getattr(module, "TEAM_NAME")
-    if not callable(move1):
-        raise TypeError("move1 is not a function")
-    if not callable(move2):
-        raise TypeError("move2 is not a function")
+    if not callable(move):
+        raise TypeError("move is not a function")
     if type(name) is not str:
         raise TypeError("TEAM_NAME is not a string")
-    return lambda: Team(name, move1, move2)
+    return lambda: Team(name, move)

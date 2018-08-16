@@ -1,6 +1,6 @@
 TEAM_NAME = 'StoppingBots'
 
-def move1(bot, bot_state, team_state):
+def move1(turn, game):
     # do not move at all
     return (0,0)
 

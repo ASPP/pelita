@@ -5,7 +5,9 @@ def position_after_move(current_position, move):
     pos_y = current_position[1]+move[1]
     return (pos_x, pos_y)
 
-def move1(bot, bot_state, team_state):
+def move(turn, game):
+    bot = game.team[turn]
+
     # go through all legal moves and check if there is one where we either:
     # - eat an enemy, or
     # - eat food
@@ -41,6 +43,3 @@ def move1(bot, bot_state, team_state):
 
     # if we don't break out of the loop, we will do the last of the legal_moves
     return next_move
-
-# both our bots use the same strategy, just different random goals
-move2 = move1

@@ -4,15 +4,15 @@ from pelita.player import Team
 
 class TestStoppingTeam:
     @staticmethod
-    def stopping(bot, bot_state, team_state):
+    def stopping(turn, game):
         return (0, 0)
 
     @staticmethod
     def round_counting():
         storage_copy = {}
-        def inner(bot, bot_state, team_state):
-            bot_state['rounds'] = bot_state.get('rounds', 0) + 1
-            storage_copy['rounds'] = bot_state['rounds']
+        def inner(turn, game):
+            game.state[turn] = game.state.get('turn', 0) + 1
+            storage_copy['rounds'] = game.state[turn]
             return (0, 0)
         inner._storage = storage_copy
         return inner

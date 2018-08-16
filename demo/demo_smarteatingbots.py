@@ -7,21 +7,31 @@ def next_step(bot_position, target_position, graph):
     # where the path is generated with the a-star algorithm
     return graph.a_star(bot_position, target_position)[-1]
 
-def move1(bot, bot_state, team_state):
+def move(turn, game):
+    bot = game.team[turn]
+
+    # check if we have eaten all the food?
+    if len(bot.enemy1.food) == 0:
+        return (0, 0)
+
+    if turn not in game.state:
+        # let’s track the goal for _this_ bot in our game.state
+        game.state[turn] = bot.random.choice(bot.enemy1.food)
+
     # check if we already initialized a graph representation of the maze
     # we put this in the team_state dictionary because it is the same
     # for both bots
-    if 'graph' not in team_state:
+    if 'graph' not in game.state:
         # ok, initialize the graph
-        team_state['graph'] = Graph(bot.position, bot.walls)
+        game.state['graph'] = Graph(bot.position, bot.walls)
 
-    # do I already have a goal?
-    if 'goal' not in bot_state or bot_state['goal'] not in bot.enemy1.food:
-        # let's choose one random food pellet as our goal
-        bot_state['goal'] = bot.random.choice(bot.enemy1.food)
+    # did we (or the other bot) eat it already?
+    if game.state[turn] not in bot.enemy1.food:
+        # let's choose one random food pellet as our new goal
+        game.state[turn] = bot.random.choice(bot.enemy1.food)
 
     # get the next step to be done to reach our goal food pellet
-    next_pos = next_step(bot.position, bot_state['goal'], team_state['graph'])
+    next_pos = next_step(bot.position, game.state[turn], game.state['graph'])
     # now, let's check if we are getting too near to our enemies
     # where are the enemy destroyers?
     for enemy_pos in (bot.enemy1.position, bot.enemy2.position):
@@ -33,9 +43,7 @@ def move1(bot, bot_state, team_state):
             next_pos = bot.track[-2]
             # let's forget about this food pellet and wait for next move to
             # choose another one
-            bot_state.pop('goal')
+            game.state.pop(turn)
 
     return bot.get_direction(next_pos)
 
-# both our bots use the same strategy, just different random goals
-move2 = move1
