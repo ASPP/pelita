@@ -169,6 +169,33 @@ class Game:
         self.team = team
         self.state = state
 
+    def _repr_html_(self):
+        bot = self.team[0]
+        walls = bot.walls
+
+        from io import StringIO
+        with StringIO() as out:
+            out.write("<table>")
+            for y in range(walls.height):
+                out.write("<tr>")
+                for x in range(walls.width):
+                    if walls[x, y]:
+                        bg = 'style="background-color: {}"'.format(
+                            "rgb(94, 158, 217)" if x < walls.width // 2 else
+                            "rgb(235, 90, 90)")
+                    else:
+                        bg = ""
+                    out.write("<td %s>" % bg)
+                    if walls[x, y]: out.write("#")
+                    if (x, y) in bot.food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
+                    if (x, y) in bot.enemies[0].food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
+                    for idx in range(4):
+                        if bot._bots[idx].position == (x, y): out.write(str(idx))
+                    out.write("</td>")
+                out.write("</tr>")
+            out.write("</table>")
+            return out.getvalue()
+
 
 class Homezone(collections.Container):
     def __init__(self, pos1, pos2):
