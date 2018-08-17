@@ -468,8 +468,8 @@ class TkApplication:
         self.ui.header_canvas.create_text(center, top, text=left_team, font=(None, font_size), fill=BLUE, tag="title", anchor=tkinter.E)
         self.ui.header_canvas.create_text(center+2, top, text=right_team, font=(None, font_size), fill=RED, tag="title", anchor=tkinter.W)
 
-        self.ui.header_canvas.create_text(self.ui.header_canvas.winfo_width() - 5, 15 + font_size, text=" " + right_status, font=(None, status_font_size), tag="title", anchor=tkinter.E)
-        bottom_text = self.ui.header_canvas.create_text(0 + 5, 15 + font_size, text=" " + right_status, font=(None, status_font_size), tag="title", anchor=tkinter.W)
+        bottom_text = self.ui.header_canvas.create_text(0 + 5, 15 + font_size, text=" " + left_status, font=(None, status_font_size), tag="title", anchor=tkinter.W)
+        self.ui.header_canvas.create_text(self.ui.header_canvas.winfo_width() - 5, 15 + font_size, text=right_status + " ", font=(None, status_font_size), tag="title", anchor=tkinter.E)
 
         height = self.ui.header_canvas.bbox(bottom_text)[3]
         self.ui.header_canvas.configure(height=height)
