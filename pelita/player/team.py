@@ -240,7 +240,7 @@ class Bot:
         """
         if move not in self.legal_moves:
             raise ValueError("Move %s is not legal." % move)
-        position = (move[0] - self.position[0], move[1] - self.position[1])
+        position = (move[0] + self.position[0], move[1] + self.position[1])
         return position
 
 
