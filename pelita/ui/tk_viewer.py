@@ -1,9 +1,11 @@
+import json
 import logging
 import os
 import shutil
 import sys
 
 import tkinter
+import zmq
 
 import zmq
 
@@ -78,6 +80,15 @@ class TkViewer:
         self.delay = delay
         self.geometry = geometry if geometry else (900, 510)
 
+        self.context = zmq.Context()
+        self.socket = self.context.socket(zmq.SUB)
+        self.socket.setsockopt_unicode(zmq.SUBSCRIBE, "")
+        self.socket.connect(self.address)
+        self.poll = zmq.Poller()
+        self.poll.register(self.socket, zmq.POLLIN)
+
+        self._delay = 2
+
     def run(self):
         try:
             self.root = tkinter.Tk()
@@ -97,12 +108,11 @@ class TkViewer:
         self.root.geometry(root_geometry+'+40+40')
 
         self.app = TkApplication(master=self.root,
-                                 address=self.address,
                                  controller_address=self.controller_address,
                                  geometry=self.geometry,
                                  delay=self.delay)
         # schedule next read
-        self.root.after_idle(self.app.read_queue)
+        self.root.after_idle(self.read_queue)
         try:
             # Try our best to get the application to the front.
             self.root.lift()
@@ -111,3 +121,44 @@ class TkViewer:
             self.root.mainloop()
         except KeyboardInterrupt:
             pass
+
+    def read_queue(self):
+        # We increase the polling delay up to 100ms each try to avoid
+        # using too much cpu when there are no messages anyway.
+        if self._delay > 100:
+            self._delay = 100
+        try:
+            # read all events.
+            # if queue is empty, try again in a few ms
+            # we don’t want to block here and lock
+            # Tk animations
+            message = self.socket.recv_unicode(flags=zmq.NOBLOCK)
+            message = json.loads(message)
+
+            _logger.info(message)
+            # we curretly don’t care about the action
+            data = message["__data__"]
+            if data:
+                self.app.observe(data)
+
+            self._delay = 2
+            self._after(2, self.read_queue)
+        except zmq.ZMQError as e:
+            _logger.info(e)
+
+            self._after(self._delay, self.read_queue)
+            self._delay = self._delay * 2
+
+    def _after(self, delay, fun, *args):
+        """ Execute fun(*args) after delay milliseconds.
+
+        # Patched to quit after `KeyboardInterrupt`s.
+        """
+        def wrapped_fun():
+            try:
+                fun(*args)
+            except KeyboardInterrupt:
+                print("KBI")
+                _logger.info("Detected KeyboardInterrupt. Exiting.")
+                self.quit()
+        self.root.after(delay, wrapped_fun)

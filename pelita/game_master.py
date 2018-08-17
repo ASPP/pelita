@@ -4,6 +4,7 @@ import abc
 import random
 import sys
 import time
+import uuid
 from warnings import warn
 
 from . import datamodel
@@ -87,6 +88,9 @@ class GameMaster:
         self._step_iter = None
 
         self.game_state = {
+            #: game uuid
+            "game_uuid": str(uuid.uuid4()),
+
             #: holds a list of bot movements for this step
             #: [{"bot_id": bot_id, "old_pos": old_pos, "new_pos": new_pos}]
             "bot_moved": [],
@@ -205,7 +209,7 @@ class GameMaster:
                 % (len(self.player_teams), len(self.universe.teams)))
 
         for viewer in self.viewers:
-            viewer.set_initial(self.universe)
+            viewer.set_initial(self.universe, self.game_state)
 
         for team_id, team in enumerate(self.player_teams):
             # What follows is a small hack:

@@ -412,7 +412,7 @@ class TestGame:
     def test_viewer_may_change_gm(self):
 
         class MeanViewer(AbstractViewer):
-            def set_initial(self, universe):
+            def set_initial(self, universe, game_state):
                 universe.teams[1].score = 50
 
             def observe(self, universe, game_state):
