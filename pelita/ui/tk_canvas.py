@@ -130,8 +130,8 @@ class TkApplication:
 
         self._grid_enabled = False
 
-        self.timestamp = time.time()
-        self.fps = 0
+        self._times = []
+        self._fps = None
         self.selected = None
 
         self.game_uuid = None
@@ -310,6 +310,21 @@ class TkApplication:
         self.init_bot_sprites(universe)
 
     def update(self, universe=None, game_state=None):
+        # Update the times for the fps calculation (if we are running)
+        # Our fps is only relevant for how often the bots update our viewer.
+        # When the viewer updates itself, we do not count it.
+        if self.running and universe and game_state:
+            self._times.append(time.monotonic())
+            if len(self._times) > 3:
+                # take the mean of the last two time differences
+                # this could also be improved by taking up to four if available
+                self._fps = (((self._times[-1] - self._times[-2]) + (self._times[-2] - self._times[-3]))/2)
+            else:
+                self._fps = None
+            if len(self._times) > 100:
+                # Garbage collect old times
+                self._times = self._times[-3:]
+
         if universe is not None:
             self._universe = universe
         if game_state is not None:
@@ -474,24 +489,18 @@ class TkApplication:
         height = self.ui.header_canvas.bbox(bottom_text)[3]
         self.ui.header_canvas.configure(height=height)
 
-    FPS_MULT = 10
-
     def draw_status_info(self, universe, game_state):
         round = firstNN(game_state.get("round_index"), "–")
         max_rounds = firstNN(game_state.get("game_time"), "–")
         turn = firstNN(game_state.get("bot_id"), "–")
         layout_name = firstNN(game_state.get("layout_name"), "–")
 
-        newtime = time.monotonic()
-        diff = newtime - self.timestamp
-        if diff == 0:
-            diff = 0.0000001
-        self.fps = (1/diff + (self.FPS_MULT-1) * self.fps)/self.FPS_MULT
-        self.timestamp = newtime
-
         roundturn = "Bot %s, Round % 3s/%s" % (turn, round, max_rounds)
 
-        fps_info = "%.f fps" % self.fps
+        if self._fps is not None:
+            fps_info = "%.2f fps" % self._fps
+        else:
+            fps_info = "– fps"
         self.ui.status_fps_info.config(text=fps_info, )
 
         self.ui.status_round_info.config(text=roundturn)
@@ -626,6 +635,11 @@ class TkApplication:
             bot_sprite.move_to(universe.bots[bot_sprite.bot_id].current_pos, self.ui.game_canvas, universe, force=self.size_changed, say=say)
 
     def toggle_running(self):
+        # We change from running to stopping or the other way round
+        # Clean up the times for fps calculation as they will be wrong
+        self._fps = None
+        self._times = []
+
         self.running = not self.running
         if self.running:
             self.request_step()
