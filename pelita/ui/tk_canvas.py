@@ -321,7 +321,7 @@ class TkApplication:
             if len(self._times) > 3:
                 # take the mean of the last two time differences
                 # this could also be improved by taking up to four if available
-                self._fps = (((self._times[-1] - self._times[-2]) + (self._times[-2] - self._times[-3]))/2)
+                self._fps = 2 / ((self._times[-1] - self._times[-2]) + (self._times[-2] - self._times[-3]))
             else:
                 self._fps = None
             if len(self._times) > 100:
@@ -507,7 +507,7 @@ class TkApplication:
         roundturn = "Bot %s, Round % 3s/%s" % (turn, round, max_rounds)
 
         if self._fps is not None:
-            fps_info = "%.2f fps" % self._fps
+            fps_info = "%.f fps" % self._fps
         else:
             fps_info = "– fps"
         self.ui.status_fps_info.config(text=fps_info, )
