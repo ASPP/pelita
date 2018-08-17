@@ -35,13 +35,26 @@ def with_sys_path(dirname):
 
 
 def make_client(team_spec, address):
-    team = load_team(team_spec)
+    address = address.replace('*', 'localhost')
+
+    try:
+        team = load_team(team_spec)
+    except Exception as e:
+        context = zmq.Context()
+        socket = context.socket(zmq.PAIR)
+        try:
+            socket.connect(address)
+            query = socket.recv_json() # throw away the get_initial message
+            socket.send_json({'__error__': 'Could not load %s' % team_spec})
+        except zmq.ZMQError as e:
+            raise IOError('failed to connect the client to address %s: %s'
+                          % (address, e))
+
+        raise
 
     print("Using team '%s' -> '%s'" % (team_spec, team.team_name))
 
-    addr = address
-    addr = addr.replace('*', 'localhost')
-    client = pelita.simplesetup.SimpleClient(team, address=addr)
+    client = pelita.simplesetup.SimpleClient(team, address=address)
     return client
 
 def create_builtin_team(spec):
