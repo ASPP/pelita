@@ -21,6 +21,8 @@ further away, the opponent’s positions are noised.
 doesn’t, a random move is executed and all later return values are
 discarded. 5 timeouts and you’re out!
 
-**Winning**: the game ends when *either* one team eats all of the opponents’
-food pellets, *or* after 300 rounds. The team with more points at the end of
-the game wins.
+**End of game**: the game ends when either one team eats all of the opponents’
+food pellets, or after 300 rounds.
+
+**Winning**: the team with more points at the end of the game wins, regardless
+of which team ate all the food pellets.
