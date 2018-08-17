@@ -26,4 +26,4 @@ discarded. 5 timeouts and you’re out!
 food pellets, or after 300 rounds.
 
 **Winning**: the team with more points at the end of the game wins, regardless
-of which team ate all the food pellets.
+of which team ate all the food pellets!
