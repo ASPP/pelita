@@ -14,8 +14,9 @@ returns to its starting position (as a harvester). *5 points*
 are awarded for eating an opponent.
 
 **Observations**: Bots can only observe an opponent’s exact position, if they
-or their teammate are within 5 squares of the opponent bot. If they are
-further away, the opponent’s positions are noised.
+or their teammate are within 5 squares of the opponent bot (in Manhattan
+distance, see :ref:`maze_distances`). If they are further away, the opponent’s
+positions are noised (see :ref:`noisy_positions`).
 
 **Timeout**: each Player only has 3 seconds to return a valid move. If it
 doesn’t, a random move is executed and all later return values are
