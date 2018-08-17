@@ -170,7 +170,7 @@ class TkApplication:
         self.ui.status_22 = tkinter.Frame(self.ui.status_canvas, background="white", padx=5, pady=0)
 
         self.ui.status_00.grid(row=0, column=0, sticky="W")
-        self.ui.status_01.grid(row=0, column=1, sticky="W")
+        self.ui.status_01.grid(row=0, column=1, sticky="WE")
         self.ui.status_02.grid(row=0, column=2, sticky="E")
         self.ui.status_10.grid(row=1, column=0, sticky="W")
         self.ui.status_11.grid(row=1, column=1, columnspan=2, sticky="E")
