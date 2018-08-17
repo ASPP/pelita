@@ -126,6 +126,9 @@ class TkApplication:
         self.mesh_graph = None
         self.geometry = geometry
 
+        self._default_font = tkinter.font.nametofont("TkDefaultFont")
+        self._default_font_size = self._default_font.cget('size')
+
         self.size_changed = True
 
         self._grid_enabled = False
@@ -170,8 +173,8 @@ class TkApplication:
         self.ui.status_01.grid(row=0, column=1, sticky="W")
         self.ui.status_02.grid(row=0, column=2, sticky="E")
         self.ui.status_10.grid(row=1, column=0, sticky="W")
-        self.ui.status_11.grid(row=1, column=1, sticky="W")
-        self.ui.status_12.grid(row=1, column=2, sticky="E")
+        self.ui.status_11.grid(row=1, column=1, columnspan=2, sticky="E")
+#        self.ui.status_12.grid(row=1, column=2, sticky="E")
         self.ui.status_20.grid(row=2, column=0, sticky="W")
         self.ui.status_21.grid(row=2, column=1, sticky="W")
         self.ui.status_22.grid(row=2, column=2, sticky="E")
@@ -263,7 +266,7 @@ class TkApplication:
         self.ui.status_round_info = tkinter.Label(self.ui.status_02, text="", background="white")
         self.ui.status_round_info.pack(side=tkinter.LEFT)
     
-        self.ui.status_layout_info = tkinter.Label(self.ui.status_12, text="", background="white")
+        self.ui.status_layout_info = tkinter.Label(self.ui.status_11, text="", background="white")
         self.ui.status_layout_info.pack(side=tkinter.LEFT)
 
         self.ui.header_canvas.pack(side=tkinter.TOP, fill=tkinter.BOTH)
@@ -345,6 +348,12 @@ class TkApplication:
 
         self.mesh_graph.screen_width = self.ui.game_canvas.winfo_width()
         self.mesh_graph.screen_height = self.ui.game_canvas.winfo_height()
+
+        if self.mesh_graph.screen_width < 600:
+            self._default_font.configure(size=8)
+        else:
+            if self._default_font.cget('size') != self._default_font_size:
+                self._default_font.configure(size=self._default_font_size)
 
         self.draw_universe(universe, game_state)
 
