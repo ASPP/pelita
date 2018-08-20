@@ -88,6 +88,7 @@ def setup_test_game(*, layout, game=None, is_blue=True, rounds=None, score=None,
     game = Game(team, storage)
     return game
 
+# TODO: Print maze from bot
 
 # @dataclass
 class Layout:

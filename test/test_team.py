@@ -11,7 +11,7 @@ class TestStoppingTeam:
     def round_counting():
         storage_copy = {}
         def inner(turn, game):
-            game.state[turn] = game.state.get('turn', 0) + 1
+            game.state[turn] = game.state.get(turn, 0) + 1
             storage_copy['rounds'] = game.state[turn]
             return (0, 0)
         inner._storage = storage_copy
