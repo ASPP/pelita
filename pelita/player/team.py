@@ -195,7 +195,7 @@ class Game:
                     out.write("<td %s>" % bg)
                     if (x, y) in bot.walls: out.write("#")
                     if (x, y) in bot.food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
-                    if (x, y) in bot.enemies[0].food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
+                    if (x, y) in bot.enemy[0].food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
                     for idx in range(4):
                         if bot._bots[idx].position == (x, y): out.write(str(idx))
                     out.write("</td>")
@@ -249,7 +249,7 @@ class Bot:
         return self._bots[other_index]
 
     @property
-    def enemies(self):
+    def enemy(self):
         enemy1_index = (self.bot_index + 1) % 2
         enemy2_index = (self.bot_index + 1) % 2 + 2
         return [self._bots[enemy1_index], self._bots[enemy2_index]]
@@ -308,7 +308,7 @@ def _rebuild_universe(bots):
     for pos in maze:
         if pos in bots[0].walls:
             maze[pos] = True
-    food = bots[0].food + bots[0].enemies[1].food
+    food = bots[0].food + bots[0].enemy[1].food
 
     return datamodel.CTFUniverse(maze, food, uni_teams, uni_bots)
 

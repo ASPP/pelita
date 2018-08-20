@@ -251,7 +251,7 @@ class Layout:
                 (other.walls, other.food, other.bot_positions, other.initial_positions))
 
 
-def create_layout(*layout_strings, food=None, teams=None, enemies=None):
+def create_layout(*layout_strings, food=None, teams=None, enemy=None):
     # layout_strings can be a list of strings or one huge string
     # with many layouts after another
     layouts = [
