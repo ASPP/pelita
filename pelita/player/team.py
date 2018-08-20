@@ -309,7 +309,12 @@ def _rebuild_universe(bots):
         datamodel.Team(1, homezone[1], bots[1].score)
     ]
 
-    maze = bots[0].walls
+    width = max(bots[0].walls)[0] + 1
+    height = max(bots[0].walls)[1] + 1
+    maze = datamodel.Maze(width, height)
+    for pos in maze:
+        if pos in bots[0].walls:
+            maze[pos] = True
     food = bots[0].food + bots[0].enemies[1].food
 
     return datamodel.CTFUniverse(maze, food, uni_teams, uni_bots)
