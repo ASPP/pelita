@@ -155,9 +155,7 @@ class Team(AbstractTeam):
             team = bots[1::2]
 
         self._team_game.team[:] = team
-        print("Setting up game", self._team_game)
         move = self._team_move(turn, self._team_game)
-        print(move)
 
         # restore the team state
         self._team_state = self._team_game.state
