@@ -1,3 +1,6 @@
+# This bot takes random moves, chosen among the legal ones for its current
+# position
+
 TEAM_NAME = 'RandomBots'
 
 def move(turn, game):
