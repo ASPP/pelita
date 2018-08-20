@@ -287,7 +287,7 @@ class Bot:
 def _rebuild_universe(bots):
     uni_bots = []
     for idx, b in enumerate(bots):
-        homezone = b.homezone.pos1[0], b.homezone.pos2[0]
+        homezone = (min(b.homezone)[0], max(b.homezone)[0] + 1)
 
         bot = datamodel.Bot(idx,
                             initial_pos=b._initial_position,
