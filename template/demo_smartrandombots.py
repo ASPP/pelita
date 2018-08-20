@@ -1,3 +1,6 @@
+# This bot moves randomly, but if there is a legal move that would allow it to
+# eat food or eat an enemy, then this move is executed
+
 TEAM_NAME = 'SmartRandomBots'
 
 def move(turn, game):
@@ -9,7 +12,7 @@ def move(turn, game):
     # remove from the list of moves the ones where we would land on an enemy
     # on its homezone (kamikaze move)
     sensible_moves = bot.legal_moves[:]
-    enemy_pos = (bot.enemies[0].position, bot.enemies[1].position)
+    enemy_pos = (bot.enemy[0].position, bot.enemy[1].position)
 
     for next_move in bot.legal_moves:
         new_pos = bot.get_position(next_move)
@@ -32,7 +35,7 @@ def move(turn, game):
                     break
             else:
                 # we are in the enemy zone
-                if new_pos in bot.enemies[0].food:
+                if new_pos in bot.enemy[0].food:
                     # we can eat the food, accept the move
                     break
 

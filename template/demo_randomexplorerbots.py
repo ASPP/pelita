@@ -26,7 +26,7 @@ def move(turn, game):
 
     # if we don't have a target food pellet, choose one at random now
     if 'target' not in game.state[turn]:
-        game.state[turn]['target'] = bot.random.choice(bot.enemies[0].food)
+        game.state[turn]['target'] = bot.random.choice(bot.enemy[0].food)
 
     # if we are doing the first move, let's initialize a empty list to keep
     # track of our moves
@@ -37,18 +37,18 @@ def move(turn, game):
     game.state[turn]['track'].append(bot.position)
 
     # did we (or the other bot) eat our target already?
-    if game.state[turn]['target'] not in bot.enemies[0].food:
+    if game.state[turn]['target'] not in bot.enemy[0].food:
         # let's choose one random food pellet as our new goal
-        game.state[turn]['target'] = bot.random.choice(bot.enemies[0].food)
+        game.state[turn]['target'] = bot.random.choice(bot.enemy[0].food)
 
     # get the next step to be done to reach our target food pellet
     next_pos = next_step(bot.position,
                          game.state[turn]['target'],
                          game.state['graph'])
 
-    # now, let's check if we are getting too near to our enemies
+    # now, let's check if we are getting too near to our enemy
     # where are the enemy ghosts?
-    for enemy_pos in (bot.enemies[0].position, bot.enemies[1].position):
+    for enemy_pos in (bot.enemy[0].position, bot.enemy[1].position):
         if (next_pos == enemy_pos) and (next_pos not in bot.homezone):
             # we are in the enemy zone: they can eat us!
             # let us just step back
