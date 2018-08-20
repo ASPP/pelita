@@ -19,8 +19,9 @@ distance, see :ref:`maze_distances`). If they are further away, the opponent’s
 positions are noised (see :ref:`noisy_positions`).
 
 **Timeout**: each Player only has 3 seconds to return a valid move. If it
-doesn’t, a random move is executed and all later return values are
-discarded. 5 timeouts and you’re out!
+doesn’t return in time or if it doesn’t return a move that is legal, then a
+random move is executed and all later return values are discarded. 5 timeouts
+and you’re out!
 
 **End of game**: the game ends when either one team eats all of the opponents’
 food pellets, or after 300 rounds.
