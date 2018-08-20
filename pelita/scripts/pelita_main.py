@@ -43,6 +43,11 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
                                   game_state["timeout_teams"][universe.bots[bot_id].team_index],
                                   universe.bots[bot_id].team_index,
                                   bot_id))
+            elif reason == "illegal_move":
+                sys.stderr.write("Illegal move -> Timeout #%r for team %r (bot index %r).\n" % (
+                                  game_state["timeout_teams"][universe.bots[bot_id].team_index],
+                                  universe.bots[bot_id].team_index,
+                                  bot_id))
 
             else:
                 sys.stderr.write("Problem for team %r (bot index %r) (%s).\n" % (

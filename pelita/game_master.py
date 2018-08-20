@@ -343,10 +343,13 @@ class GameMaster:
             for k, v in move_state.items():
                 self.game_state[k] += v
 
-        except (datamodel.IllegalMoveException, PlayerTimeout):
+        except (datamodel.IllegalMoveException, PlayerTimeout) as e:
             # after max_timeouts timeouts, you lose
             self.game_state["timeout_teams"][bot.team_index] += 1
-            self.game_state["bot_error"] = {bot.index: "timeout"}
+            if isinstance(e, datamodel.IllegalMoveException):
+                self.game_state["bot_error"] = {bot.index: "illegal_move"}
+            else:
+                self.game_state["bot_error"] = {bot.index: "timeout"}
 
             if self.game_state["timeout_teams"][bot.team_index] == self.game_state["max_timeouts"]:
                 self.game_state["teams_disqualified"][bot.team_index] = "timeout"
