@@ -179,8 +179,8 @@ class Game:
 
     def _repr_html_(self):
         bot = self.team[0]
-        width = max(bot.walls)[0]
-        height = max(bot.walls)[1]
+        width = max(bot.walls)[0] + 1
+        height = max(bot.walls)[1] + 1
 
         from io import StringIO
         with StringIO() as out:
@@ -188,7 +188,7 @@ class Game:
             for y in range(height):
                 out.write("<tr>")
                 for x in range(width):
-                    if walls[x, y]:
+                    if (x, y) in bot.walls:
                         bg = 'style="background-color: {}"'.format(
                             "rgb(94, 158, 217)" if x < width // 2 else
                             "rgb(235, 90, 90)")
@@ -209,7 +209,7 @@ def create_homezones(width, height):
     return [
         [(x, y) for x in range(0, width // 2)
                 for y in range(0, height)],
-        [(x, y) for x in range(width, width)
+        [(x, y) for x in range(width // 2, width)
                 for y in range(0, height)]
     ]
 

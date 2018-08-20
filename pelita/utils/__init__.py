@@ -21,8 +21,8 @@ def setup_test_game(*, layout, game=None, is_blue=True, rounds=None, score=None,
 #        raise TypeError("layout needs to be of type Layout or str.")
 
     walls = [pos for pos, is_wall in layout.walls.items() if is_wall]
-    width = max(walls)[0]
-    height = max(walls)[1]
+    width = max(walls)[0] + 1
+    height = max(walls)[1] + 1
 
     total_food = layout.food
     num_bots = 4
