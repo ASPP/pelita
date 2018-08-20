@@ -14,7 +14,7 @@ def move(turn, game):
     for next_move in bot.legal_moves:
         new_pos = bot.get_position(next_move)
         if (new_pos in enemy_pos) and (new_pos not in bot.homezone):
-            sensible_moves.pop(next_move)
+            sensible_moves.remove(next_move)
 
     if len(sensible_moves) == 0:
         # we can't go anywhere safe
