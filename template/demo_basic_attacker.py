@@ -1,11 +1,12 @@
-TEAM_NAME = 'SmartEatingBots'
+# This bot picks a food pellet at random, then goes and tried to get it.
+# It tries on the way to avoid being eaten by the enemy: if the next move
+# to get to the food would put it on a enemy bot in its own homezone, then
+# it steps back to its previous position
+TEAM_NAME = 'Basic Attacker Bots'
 
 from pelita.graph import Graph
 
-def next_step(bot_position, target_position, graph):
-    # return next step in the path to target_pos
-    # where the path is generated with the a-star algorithm
-    return graph.a_star(bot_position, target_position)[-1]
+from utils import next_step
 
 def move(turn, game):
     bot = game.team[turn]
@@ -33,7 +34,7 @@ def move(turn, game):
     if 'track' not in game.state[turn]:
         game.state[turn]['track'] = []
 
-    # let's kepp track of our position
+    # let's record our current position
     game.state[turn]['track'].append(bot.position)
 
     # did we (or the other bot) eat our target already?
@@ -41,7 +42,7 @@ def move(turn, game):
         # let's choose one random food pellet as our new goal
         game.state[turn]['target'] = bot.random.choice(bot.enemy[0].food)
 
-    # get the next step to be done to reach our target food pellet
+    # get the next position along the path to reach our target food pellet
     next_pos = next_step(bot.position,
                          game.state[turn]['target'],
                          game.state['graph'])
@@ -53,10 +54,9 @@ def move(turn, game):
             # we are in the enemy zone: they can eat us!
             # let us just step back
             next_pos = game.state[turn]['track'][-2]
-            # let's forget about this food pellet and wait for next move to
-            # choose another one
+            # let's forget about this food pellet for now and wait for next
+            # move to choose another one
             game.state[turn].pop('target')
-
 
     return bot.get_move(next_pos)
 
