@@ -145,7 +145,7 @@ class TkApplication:
 
         self.ui = UI()
 
-        self.ui.header_canvas = tkinter.Canvas(master, height=50)
+        self.ui.header_canvas = tkinter.Canvas(master, height=38)
         self.ui.header_canvas.config(background="white")
         
         self.ui.sub_header = tkinter.Frame(master, height=25)
@@ -350,7 +350,8 @@ class TkApplication:
         self.mesh_graph.screen_height = self.ui.game_canvas.winfo_height()
 
         if self.mesh_graph.screen_width < 600:
-            self._default_font.configure(size=8)
+            if self._default_font.cget('size') != 8:
+                self._default_font.configure(size=8)
         else:
             if self._default_font.cget('size') != self._default_font_size:
                 self._default_font.configure(size=self._default_font_size)
@@ -494,9 +495,6 @@ class TkApplication:
 
         bottom_text = self.ui.header_canvas.create_text(0 + 5, 15 + font_size, text=" " + left_status, font=(None, status_font_size), tag="title", anchor=tkinter.W)
         self.ui.header_canvas.create_text(self.ui.header_canvas.winfo_width() - 5, 15 + font_size, text=right_status + " ", font=(None, status_font_size), tag="title", anchor=tkinter.E)
-
-        height = self.ui.header_canvas.bbox(bottom_text)[3]
-        self.ui.header_canvas.configure(height=height)
 
     def draw_status_info(self, universe, game_state):
         round = firstNN(game_state.get("round_index"), "–")
