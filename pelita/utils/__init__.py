@@ -71,11 +71,11 @@ def setup_test_game(*, layout, game=None, is_blue=True, rounds=None, score=None,
         team = [bots[1], bots[3]]
         enemy = [bots[0], bots[2]]
 
-    team[0].position = layout.bot_positions["0"]
-    team[1].position = layout.bot_positions["1"]
+    team[0].position = layout.bots[0]
+    team[1].position = layout.bots[1]
 
-    enemy[0].position = layout.bot_positions["E"][0]
-    enemy[1].position = layout.bot_positions["E"][1]
+    enemy[0].position = layout.enemy[0]
+    enemy[1].position = layout.enemy[1]
 
     team[0]._initial_position = layout.initial_positions[0 if is_blue else 1][0]
     team[1]._initial_position = layout.initial_positions[0 if is_blue else 1][1]
@@ -92,10 +92,29 @@ def setup_test_game(*, layout, game=None, is_blue=True, rounds=None, score=None,
 
 # @dataclass
 class Layout:
-    def __init__(self, walls, food, bot_positions):
+    def __init__(self, walls, food, bots, enemy):
+        if not food:
+            food = []
+
+        if not bots:
+            bots = [None, None]
+
+        if not enemy:
+            enemy = [None, None]
+
+        # input validation
+        for pos in [*food, *bots, *enemy]:
+            if pos:
+                if walls[pos]:
+                    raise ValueError("Item at %r placed on walls." % (pos,))
+        
+        if len(bots) > 2:
+            raise ValueError("Too many bots.")
+
         self.walls = walls
         self.food = food
-        self.bot_positions = bot_positions
+        self.bots = bots
+        self.enemy = enemy
         self.initial_positions = self.guess_initial_positions(self.walls)
 
     def guess_initial_positions(self, walls):
@@ -167,17 +186,18 @@ class Layout:
         # remove duplicates
         self.food = list(set(self.food))
 
-        if not self.bot_positions:
-            self.bot_positions = other.bot_positions
+        # update all newer bot positions
+        for idx, b in enumerate(other.bots):
+            if b:
+                self.bots[idx] = b
+        
+        # merge all enemies and then take the last 2
+        enemies = [e for e in [*self.enemy, *other.enemy] if e is not None]
+        self.enemy = enemies[-2:]
+        # if self.enemy smaller than 2, we pad with None again
+        for _ in range(2 - len(self.enemy)):
+            self.enemy.append(None)
 
-        for bot, pos in other.bot_positions.items():
-            if bot not in self.bot_positions:
-                self.bot_positions[bot] = pos
-            elif self.bot_positions[bot] != pos:
-                raise ValueError("Bot %s has already been defined" % bot)
-            else:
-                pass
-                # nothing to do, we have it already
         # return our merged self
         return self
 
@@ -201,14 +221,12 @@ class Layout:
                     out.write("<td %s>" % bg)
                     if walls[x, y]: out.write("#")
                     if (x, y) in self.food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
-                    for bot, pos in self.bot_positions.items():
-                        if bot == "E":
-                            for p in pos:
-                                if p == (x, y):
-                                    out.write(str(bot))
-                        else:
-                            if pos == (x, y):
-                                out.write(str(bot))
+                    for idx, pos in enumerate(self.bots):
+                        if pos == (x, y):
+                            out.write(str(idx))
+                    for pos in self.enemy:
+                        if pos == (x, y):
+                            out.write('E')
                     out.write("</td>")
                 out.write("</tr>")
             out.write("</table>")
@@ -228,31 +246,38 @@ class Layout:
             out.write('\n')
             # print walls and bots
 
-            # reverse the mapping in bot_positions
-            bots = {}
-            for bot, pos in self.bot_positions.items():
-                if bot == "E":
-                    for p in pos:
-                        bots[p] = 'E'
-                else:
-                    bots[pos] = bot
+            # Do we have bots/enemies sitting on each other?
 
-            for y in range(walls.height):
-                for x in range(walls.width):
-                    if walls[x, y]: out.write('#')
-                    elif (x, y) in bots: out.write(bots[(x, y)])
-                    else: out.write(' ')
+            # assign bots to their positions
+            bots = {}
+            for pos in self.enemy:
+                bots[pos] = bots.get(pos, []) + ['E']
+            for idx, pos in enumerate(self.bots):
+                bots[pos] = bots.get(pos, []) + [str(idx)]
+
+            while bots:
+                for y in range(walls.height):
+                    for x in range(walls.width):
+                        if walls[x, y]: out.write('#')
+                        elif (x, y) in bots:
+                            elem = bots[(x, y)].pop(0)
+                            out.write(elem)
+                            # cleanup
+                            if len(bots[(x, y)]) == 0:
+                                bots.pop((x, y))
+
+                        else: out.write(' ')
+                    out.write('\n')
                 out.write('\n')
-            out.write('\n')
             return out.getvalue()
 
 
     def __eq__(self, other):
-        return ((self.walls, self.food, self.bot_positions, self.initial_positions) ==
-                (other.walls, other.food, other.bot_positions, other.initial_positions))
+        return ((self.walls, self.food, self.bots, self.enemy, self.initial_positions) ==
+                (other.walls, other.food, other.bots, self.enemy, other.initial_positions))
 
 
-def create_layout(*layout_strings, food=None, teams=None, enemy=None):
+def create_layout(*layout_strings, food=None, bots=None, enemy=None):
     # layout_strings can be a list of strings or one huge string
     # with many layouts after another
     layouts = [
@@ -260,7 +285,10 @@ def create_layout(*layout_strings, food=None, teams=None, enemy=None):
         for layout_str in layout_strings
         for layout in split_layout_str(layout_str)
     ]
-    return reduce(lambda x, y: x.merge(y), layouts)
+    merged = reduce(lambda x, y: x.merge(y), layouts)
+    additional_layout = Layout(walls=merged.walls, food=food, bots=bots, enemy=enemy)
+    merged.merge(additional_layout)
+    return merged
 
 def split_layout_str(layout_str):
     """ Turns a layout string containing many layouts into a list
@@ -289,7 +317,8 @@ def load_layout(layout_str):
     height = None
 
     food = []
-    bots = {}
+    bots = [None, None]
+    enemy = []
 
     for row in layout_str.splitlines():
         stripped = row.strip()
@@ -328,12 +357,12 @@ def load_layout(layout_str):
         else:
             if 'E' in val:
                 # We can have several undefined enemies
-                bots[val] = [*bots.get(val, []), idx]
+                enemy.append(idx)
+            elif '0' in val:
+                bots[0] = idx
+            elif '1' in val:
+                bots[1] = idx
             else:
-                bots[val] = idx
+                raise ValueError("Unknown character %s in maze." % val)
 
-    # If we have only one enemy defined, we duplicate it.
-    if 'E' in bots and len(bots['E']) == 1:
-        bots['E'].append(bots['E'][0])
-
-    return Layout(walls, food, bots)
+    return Layout(walls, food, bots, enemy)
