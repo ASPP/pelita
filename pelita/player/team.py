@@ -112,6 +112,7 @@ class Team(AbstractTeam):
         }
 
         maze = universe.maze
+        walls = [pos for pos, is_wall in universe.maze.items() if is_wall]
 
         homezones = [
             Homezone((0, 0), (maze.width // 2 - 1, maze.height - 1)),
@@ -133,7 +134,18 @@ class Team(AbstractTeam):
 
             round = game_state['round_index']
             is_left = uni_bot.team_index == 0
-            bot = Bot(uni_bot.index, position, initial_position, maze, homezone, food, is_noisy, score, rng, round, is_left, datadict)
+            bot = Bot(
+                bot_index=uni_bot.index,
+                position=position,
+                initial_position=initial_position,
+                walls=walls,
+                homezone=homezone,
+                food=food,
+                is_noisy=is_noisy,
+                score=score,
+                random=rng,
+                round=round,
+                is_left=is_left)
             bots.append(bot)
 
         for bot in bots:
@@ -171,22 +183,23 @@ class Game:
 
     def _repr_html_(self):
         bot = self.team[0]
-        walls = bot.walls
+        width = max(bot.walls)[0]
+        height = max(bot.walls)[1]
 
         from io import StringIO
         with StringIO() as out:
             out.write("<table>")
-            for y in range(walls.height):
+            for y in range(height):
                 out.write("<tr>")
-                for x in range(walls.width):
+                for x in range(width):
                     if walls[x, y]:
                         bg = 'style="background-color: {}"'.format(
-                            "rgb(94, 158, 217)" if x < walls.width // 2 else
+                            "rgb(94, 158, 217)" if x < width // 2 else
                             "rgb(235, 90, 90)")
                     else:
                         bg = ""
                     out.write("<td %s>" % bg)
-                    if walls[x, y]: out.write("#")
+                    if (x, y) in bot.walls: out.write("#")
                     if (x, y) in bot.food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
                     if (x, y) in bot.enemies[0].food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
                     for idx in range(4):
@@ -207,7 +220,7 @@ class Homezone(collections.Container):
 
 
 class Bot:
-    def __init__(self, index, position, initial_position, maze, homezone, food, is_noisy, score, random, round, is_left, datadict):
+    def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_left):
         self._bots = None
         self._say = None
         self._initial_position = initial_position
@@ -215,32 +228,37 @@ class Bot:
         self.random = random
         # TODO
         self.position = position
-        self.walls = maze
-        self.legal_moves = []
-
-        for move in [(-1, 0), (1, 0), (0, 1), (0, -1)]:
-            new_pos = (self.position[0] + move[0], self.position[1] + move[1]) 
-            if not self.walls[new_pos]:
-                self.legal_moves.append(move)
+        self.walls = walls
 
         self.is_noisy = is_noisy
         # TODO: Homezone could be a mesh object …
         self.homezone = homezone
         self.food = food
         self.score  = score
-        self.index  = index
+        self.bot_index  = bot_index
         self.round = round
         self.is_left = is_left
 
     @property
+    def legal_moves(self):
+        legal_moves = []
+
+        for move in [(-1, 0), (1, 0), (0, 1), (0, -1)]:
+            new_pos = (self.position[0] + move[0], self.position[1] + move[1]) 
+            if not new_pos in self.walls:
+                legal_moves.append(move)
+
+        return legal_moves
+
+    @property
     def other(self):
-        other_index = (self.index + 2) % 4
+        other_index = (self.bot_index + 2) % 4
         return self._bots[other_index]
 
     @property
     def enemies(self):
-        enemy1_index = (self.index + 1) % 2
-        enemy2_index = (self.index + 1) % 2 + 2
+        enemy1_index = (self.bot_index + 1) % 2
+        enemy2_index = (self.bot_index + 1) % 2 + 2
         return [self._bots[enemy1_index], self._bots[enemy2_index]]
 
     def say(self, text):
@@ -274,7 +292,7 @@ class Bot:
 
 
 def _rebuild_universe(bots):
-    # TODO
+    uni_bots = []
     for idx, b in enumerate(bots):
         homezone = b.homezone.pos1[0], b.homezone.pos2[0]
 
@@ -284,13 +302,17 @@ def _rebuild_universe(bots):
                             homezone=homezone,
                             current_pos=b.position,
                             noisy=b.is_noisy)
-        bots.append(bot)
-    teams = []
+        uni_bots.append(bot)
+
+    uni_teams = [
+        datamodel.Team(0, homezone[0], bots[0].score),
+        datamodel.Team(1, homezone[1], bots[1].score)
+    ]
 
     maze = bots[0].walls
-    food = bots[0].food + bots[0].enemy1.food
+    food = bots[0].food + bots[0].enemies[1].food
 
-    return datamodel.CTFUniverse(maze, food, teams, bots)
+    return datamodel.CTFUniverse(maze, food, uni_teams, uni_bots)
 
 
 def new_style_team(module):
