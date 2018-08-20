@@ -332,4 +332,8 @@ def load_layout(layout_str):
             else:
                 bots[val] = idx
 
+    # If we have only one enemy defined, we duplicate it.
+    if 'E' in bots and len(bots['E']) == 1:
+        bots['E'].append(bots['E'][0])
+
     return Layout(walls, food, bots)

@@ -1,5 +1,54 @@
 from pelita.game_master import GameMaster
 from pelita.player import Team
+from pelita.utils import create_layout, setup_test_game
+
+class TestLayout:
+    layout="""
+    ########
+    # ###E0#
+    #1E    #
+    ########
+    """
+    layout2="""
+    ########
+    # ###  #
+    # . ...#
+    ########
+    """
+
+    def test_load(self):
+        layout = create_layout(self.layout, self.layout2)
+        assert layout.bot_positions == {'0': (6, 1), '1': (1, 2), 'E': [(5, 1), (2, 2)]}
+    
+    def test_concat(self):
+        layout = create_layout(self.layout + self.layout2)
+        assert layout.bot_positions == {'0': (6, 1), '1': (1, 2), 'E': [(5, 1), (2, 2)]}
+    
+    def test_equal_positions(self):
+        layout_str = """
+            ########
+            #0###  #
+            # . ...#
+            ########
+
+            ########
+            #1###  #
+            # . ...#
+            ########
+
+            ########
+            #E###  #
+            # . ...#
+            ########
+
+            ########
+            #E###  #
+            # . ...#
+            ########
+        """
+        layout = create_layout(layout_str)
+        assert layout.bot_positions == {'0': (1, 1), '1': (1, 1), 'E': [(1, 1), (1, 1)]}
+        setup_test_game(layout=layout) 
 
 
 class TestStoppingTeam:
