@@ -5,7 +5,7 @@ import random
 from ..game_master import GameMaster
 from ..containers import Mesh
 from ..datamodel import Maze
-from ..player.team import Team, Homezone, Game, Bot
+from ..player.team import Team, create_homezones, Game, Bot
 
 
 def stopping(turn, game):
@@ -35,9 +35,9 @@ def setup_test_game(*, layout, game=None, is_left=True, rounds=None, score=None,
         is_noisy = False
 
         if team_index == 0:
-            homezone = Homezone((0, 0), (width // 2 - 1, height - 1))
+            homezone = create_homezones(width, height)[0]
         else:
-            homezone = Homezone((width // 2, 0), (width - 1, height - 1))
+            homezone = create_homezones(width, height)[1]
 
         if score is None:
             score = [0, 0]

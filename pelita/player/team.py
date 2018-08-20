@@ -114,11 +114,7 @@ class Team(AbstractTeam):
         maze = universe.maze
         walls = [pos for pos, is_wall in universe.maze.items() if is_wall]
 
-        homezones = [
-            Homezone((0, 0), (maze.width // 2 - 1, maze.height - 1)),
-            Homezone((maze.width // 2, 0), (maze.width - 1, maze.height - 1))
-        ]
-
+        homezones = create_homezones(maze.width, maze.height)
         # Everybody only knows their own rng
         rng = self._bot_random[bot_id]
 
@@ -209,14 +205,13 @@ class Game:
             out.write("</table>")
             return out.getvalue()
 
-
-class Homezone(collections.Container):
-    def __init__(self, pos1, pos2):
-        self.pos1 = pos1
-        self.pos2 = pos2
-
-    def __contains__(self, item):
-        return (self.pos1[0] <= item[0] <= self.pos2[0]) and (self.pos1[1] <= item[1] <= self.pos2[1])
+def create_homezones(width, height):
+    return [
+        [(x, y) for x in range(0, width // 2)
+                for y in range(0, height)],
+        [(x, y) for x in range(width, width)
+                for y in range(0, height)]
+    ]
 
 
 class Bot:
