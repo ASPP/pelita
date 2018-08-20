@@ -78,10 +78,10 @@ which simply returns ``stop``:
     function called `team` that returns a team (remember that the default game is a
     fight between two teams of two bots each)::
 
-    from pelita.player import SimpleTeam
-    
-        def team():
-            return SimpleTeam("MyTeam", StoppingPlayer(), StoppingPlayer())
+        from pelita.player import SimpleTeam
+
+            def team():
+                return SimpleTeam("MyTeam", StoppingPlayer(), StoppingPlayer())
 
     For more information about this, see also::doc:`running_player`
 
@@ -161,6 +161,8 @@ As a result we obtain the following direction vectors::
     west  = (-1, 0)
     east  = (1, 0)
     stop  = (0, 0)
+
+.. _maze_distances:
 
 Distances in the Maze
 ---------------------
@@ -365,6 +367,7 @@ There are a few additional constructs that are
 useful when dealing with the maze. The property ``positions`` gives all the
 positions in the maze.
 
+.. _noisy_positions:
 
 Noisy Enemy Positions
 =====================
