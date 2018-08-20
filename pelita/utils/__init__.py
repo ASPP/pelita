@@ -11,7 +11,7 @@ from ..player.team import Team, create_homezones, Game, Bot
 def stopping(turn, game):
     return (0, 0)
 
-def setup_test_game(*, layout, game=None, is_left=True, rounds=None, score=None, seed=None):
+def setup_test_game(*, layout, game=None, is_blue=True, rounds=None, score=None, seed=None):
     if game is not None:
         raise RuntimeError("Re-using an old game is not implemented yet.")
 
@@ -19,7 +19,7 @@ def setup_test_game(*, layout, game=None, is_left=True, rounds=None, score=None,
         layout = create_layout(layout)
 #    elif not isinstance(layout, Layout):
 #        raise TypeError("layout needs to be of type Layout or str.")
-    
+
     walls = [pos for pos, is_wall in layout.walls.items() if is_wall]
     width = max(walls)[0]
     height = max(walls)[1]
@@ -57,14 +57,14 @@ def setup_test_game(*, layout, game=None, is_left=True, rounds=None, score=None,
             score=score[team_index],
             random=rng,
             round=None,
-            is_left=is_left)
+            is_blue=is_blue)
 
         bots.append(bot)
 
     for bot in bots:
         bot._bots = bots
 
-    if is_left:
+    if is_blue:
         team = [bots[0], bots[2]]
         enemy = [bots[1], bots[3]]
     else:
@@ -77,14 +77,14 @@ def setup_test_game(*, layout, game=None, is_left=True, rounds=None, score=None,
     enemy[0].position = layout.bot_positions["E"][0]
     enemy[1].position = layout.bot_positions["E"][1]
 
-    team[0]._initial_position = layout.initial_positions[0 if is_left else 1][0]
-    team[1]._initial_position = layout.initial_positions[0 if is_left else 1][1]
-    
-    enemy[0]._initial_position = layout.initial_positions[1 if is_left else 0][0]
-    enemy[1]._initial_position = layout.initial_positions[1 if is_left else 0][1]
+    team[0]._initial_position = layout.initial_positions[0 if is_blue else 1][0]
+    team[1]._initial_position = layout.initial_positions[0 if is_blue else 1][1]
+
+    enemy[0]._initial_position = layout.initial_positions[1 if is_blue else 0][0]
+    enemy[1]._initial_position = layout.initial_positions[1 if is_blue else 0][1]
 
     storage = {}
-    
+
     game = Game(team, storage)
     return game
 
@@ -165,10 +165,10 @@ class Layout:
         self.food += other.food
         # remove duplicates
         self.food = list(set(self.food))
-        
+
         if not self.bot_positions:
             self.bot_positions = other.bot_positions
-        
+
         for bot, pos in other.bot_positions.items():
             if bot not in self.bot_positions:
                 self.bot_positions[bot] = pos
@@ -247,7 +247,7 @@ class Layout:
 
 
     def __eq__(self, other):
-        return ((self.walls, self.food, self.bot_positions, self.initial_positions) == 
+        return ((self.walls, self.food, self.bot_positions, self.initial_positions) ==
                 (other.walls, other.food, other.bot_positions, other.initial_positions))
 
 
@@ -281,7 +281,7 @@ def split_layout_str(layout_str):
         current_layout.append(row)
 
     return ['\n'.join(l) for l in out]
- 
+
 def load_layout(layout_str):
     build = []
     width = None

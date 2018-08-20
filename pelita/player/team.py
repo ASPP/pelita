@@ -129,7 +129,7 @@ class Team(AbstractTeam):
             food = [f for f in universe.food if f in homezone]
 
             round = game_state['round_index']
-            is_left = uni_bot.team_index == 0
+            is_blue = uni_bot.team_index == 0
             bot = Bot(
                 bot_index=uni_bot.index,
                 position=position,
@@ -141,7 +141,7 @@ class Team(AbstractTeam):
                 score=score,
                 random=rng,
                 round=round,
-                is_left=is_left)
+                is_blue=is_blue)
             bots.append(bot)
 
         for bot in bots:
@@ -153,7 +153,7 @@ class Team(AbstractTeam):
             team = bots[0::2]
         else:
             team = bots[1::2]
-        
+
         self._team_game.team[:] = team
         print("Setting up game", self._team_game)
         move = self._team_move(turn, self._team_game)
@@ -215,7 +215,7 @@ def create_homezones(width, height):
 
 
 class Bot:
-    def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_left):
+    def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_blue):
         self._bots = None
         self._say = None
         self._initial_position = initial_position
@@ -232,14 +232,14 @@ class Bot:
         self.score  = score
         self.bot_index  = bot_index
         self.round = round
-        self.is_left = is_left
+        self.is_blue = is_blue
 
     @property
     def legal_moves(self):
         legal_moves = []
 
         for move in [(-1, 0), (1, 0), (0, 1), (0, -1)]:
-            new_pos = (self.position[0] + move[0], self.position[1] + move[1]) 
+            new_pos = (self.position[0] + move[0], self.position[1] + move[1])
             if not new_pos in self.walls:
                 legal_moves.append(move)
 
