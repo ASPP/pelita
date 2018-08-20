@@ -83,7 +83,7 @@ class BotSprite(TkSprite):
 
         super(BotSprite, self).__init__(mesh, **kwargs)
 
-    def move_to(self, new_pos, canvas, universe=None, force=None, say=""):
+    def move_to(self, new_pos, canvas, universe=None, force=None, say="", show_id=False):
         old_direction = self.direction
         old_position = self.position
 
@@ -100,11 +100,22 @@ class BotSprite(TkSprite):
             canvas.move(self.tag, self.mesh.rect_width * dx, self.mesh.rect_height * dy)
 
         canvas.delete("speak"+self.tag)
+        # We increase readability with a white border around the text.
         canvas.create_text(self.bounding_box()[0][0]-1, self.bounding_box()[0][1], text=say, font=(None, 12), fill="white", tag="speak"+self.tag)
         canvas.create_text(self.bounding_box()[0][0]+1, self.bounding_box()[0][1], text=say, font=(None, 12), fill="white", tag="speak"+self.tag)
         canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1]-1, text=say, font=(None, 12), fill="white", tag="speak"+self.tag)
         canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1]+1, text=say, font=(None, 12), fill="white", tag="speak"+self.tag)
         canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1], text=say, font=(None, 12), fill="black", tag="speak"+self.tag)
+
+        canvas.delete("show_id" + self.tag)
+        # we print the bot_id in the lower left corner
+        if show_id:
+            shift = 4
+            canvas.create_text(self.bounding_box()[0][0]-1 + shift, self.bounding_box()[1][1] - shift, text=self.bot_id, font=(None, 12), fill="white", tag="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0]+1 + shift, self.bounding_box()[1][1] - shift, text=self.bot_id, font=(None, 12), fill="white", tag="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0] + shift, self.bounding_box()[1][1]-1 - shift, text=self.bot_id, font=(None, 12), fill="white", tag="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0] + shift, self.bounding_box()[1][1]+1 - shift, text=self.bot_id, font=(None, 12), fill="white", tag="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0] + shift, self.bounding_box()[1][1] - shift, text=self.bot_id, font=(None, 12), fill="black", tag="show_id"+self.tag)
 
 
     def draw_bot(self, canvas, outer_col, eye_col, mirror=False):

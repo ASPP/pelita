@@ -641,7 +641,12 @@ class TkApplication:
                 self.bot_sprites[bot["bot_id"]].position = None
         for bot_id, bot_sprite in self.bot_sprites.items():
             say = game_state and game_state["bot_talk"][bot_id]
-            bot_sprite.move_to(universe.bots[bot_sprite.bot_id].current_pos, self.ui.game_canvas, universe, force=self.size_changed, say=say)
+            bot_sprite.move_to(universe.bots[bot_sprite.bot_id].current_pos,
+                               self.ui.game_canvas,
+                               universe,
+                               force=self.size_changed,
+                               say=say,
+                               show_id=self._grid_enabled)
 
     def toggle_running(self):
         # We change from running to stopping or the other way round
