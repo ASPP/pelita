@@ -117,13 +117,13 @@ class Graph(dict):
             legal = []
             for move in neighbor_moves:
                 neighbor = move_pos(pos, move)
-                if not maze[neighbor]:
+                if neighbor not in maze:
                     # this is not a wall
                     legal.append(neighbor)
             return legal
 
         self.update(it for it in iter_adjacencies([initial], lambda pos: legal_neighbors(maze, pos)))
-        
+
 
     def pos_within(self, position, distance):
         """ Positions within a certain distance.
