@@ -1,5 +1,7 @@
 
 import collections
+from functools import reduce
+from io import StringIO
 import random
 
 from . import AbstractTeam
@@ -54,24 +56,17 @@ class Team(AbstractTeam):
 
         """
 
-        # only iterate about those player which are in bot_players
-        # we might have defined more players than we have received
-        # indexes for.
-        team_bots = universe.team_bots(team_id)
-
         #: Storage for the team state
         self._team_state = {}
         self._team_game = Game([None, None], self._team_state)
 
         #: Storage for the random generator
-        self._bot_random = {}
+        self._bot_random = [None] * len(universe.bots)
 
-        for bot in team_bots:
-            # We could call the function with a flag that tells the player
-            # that it is the initial call. But then the player will have to check
-            # for themselves in each round.
-            #player._set_initial(universe, game_state)
+        # To make things a little simpler, we also initialise a random generator
+        # for all enemy bots
 
+        for bot in universe.bots:
             # we take the bot’s index as a value for the seed_offset
             self._bot_random[bot.index] = random.Random(game_state["seed"] + bot.index)
 
@@ -97,69 +92,21 @@ class Team(AbstractTeam):
         move : dict
         """
 
-        # We prepare a dict-only representation of our universe and game state.
-        # This forces us to rewrite all functions for the user API and avoids having to
-        # look into the documentation for our nested datamodel APIself.
-        # Once we settle on a useable representation, we can then backport this to
-        # the datamodel as well.
-        datadict = {
-            'food': universe.food,
-            'maze': universe.maze,
-            'teams': [team._to_json_dict() for team in universe.teams],
-            'bots': [bot._to_json_dict() for bot in universe.bots],
-            'game_state': game_state,
-            'bot_to_play': bot_id,
-        }
-
-        maze = universe.maze
-        walls = [pos for pos, is_wall in universe.maze.items() if is_wall]
-
-        homezones = create_homezones(maze.width, maze.height)
-        # Everybody only knows their own rng
-        rng = self._bot_random[bot_id]
-
-        bots = []
-        for uni_bot in universe.bots:
-            position = uni_bot.current_pos
-            initial_position = uni_bot.initial_pos
-            is_noisy = uni_bot.noisy
-            homezone = homezones[uni_bot.team_index]
-            score = universe.teams[uni_bot.team_index].score
-
-            food = [f for f in universe.food if f in homezone]
-
-            round = game_state['round_index']
-            is_blue = uni_bot.team_index == 0
-            bot = Bot(
-                bot_index=uni_bot.index,
-                position=position,
-                initial_position=initial_position,
-                walls=walls,
-                homezone=homezone,
-                food=food,
-                is_noisy=is_noisy,
-                score=score,
-                random=rng,
-                round=round,
-                is_blue=is_blue)
-            bots.append(bot)
-
-        for bot in bots:
-            bot._bots = bots
+        bots = bots_from_universe(universe,
+                                  rng=self._bot_random,
+                                  round=game_state['round_index'],
+                                  team_name=game_state['team_name'],
+                                  timeout_count=game_state['timeout_teams'])
 
         me = bots[bot_id]
+        team = bots[bot_id].team
         turn = bot_id // 2
-        if bot_id % 2 == 0:
-            team = bots[0::2]
-        else:
-            team = bots[1::2]
 
         self._team_game.team[:] = team
         move = self._team_move(turn, self._team_game)
 
         # restore the team state
         self._team_state = self._team_game.state
-
 
         return {
             "move": move,
@@ -168,6 +115,7 @@ class Team(AbstractTeam):
 
     def __repr__(self):
         return "Team(%r, %s)" % (self.team_name, repr(self._team_move))
+
 
 # @dataclass
 class Game:
@@ -180,7 +128,6 @@ class Game:
         width = max(bot.walls)[0] + 1
         height = max(bot.walls)[1] + 1
 
-        from io import StringIO
         with StringIO() as out:
             out.write("<table>")
             for y in range(height):
@@ -203,6 +150,40 @@ class Game:
             out.write("</table>")
             return out.getvalue()
 
+    def __str__(self):
+        bot = self.team[0]
+        width = max(bot.walls)[0] + 1
+        height = max(bot.walls)[1] + 1
+
+        header = ("{blue}{you_blue} vs {red}{you_red}.\n" +
+            "Playing on {col} side. Round: {round}, score: {blue_score}:{red_score}. " +
+            "timeouts: {blue_timeouts}:{red_timeouts}").format(
+            blue=bot._bots[0].team_name,
+            red=bot._bots[1].team_name,
+            round=bot.round,
+            blue_score=bot._bots[0].score,
+            red_score=bot._bots[1].score,
+            col="blue" if bot.is_blue else "red",
+            you_blue=" (you)" if bot.is_blue else "",
+            you_red=" (you)" if not bot.is_blue else "",
+            blue_timeouts=bot._bots[0].timeout_count,
+            red_timeouts=bot._bots[1].timeout_count,
+        )
+
+        with StringIO() as out:
+            out.write(header)
+
+            maze = datamodel.Maze(width, height)
+            for wall in bot.walls:
+                maze[wall] = True
+            layout = Layout(walls=maze,
+                            food=bot.food + bot.enemy[0].food,
+                            bots=[b.position for b in self.team],
+                            enemy=[e.position for e in bot.enemy])
+
+            out.write(str(layout))
+            return out.getvalue()
+
 def create_homezones(width, height):
     return [
         [(x, y) for x in range(0, width // 2)
@@ -213,27 +194,43 @@ def create_homezones(width, height):
 
 
 class Bot:
-    def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_blue):
+    def __init__(self, *, bot_index,
+                          position,
+                          initial_position,
+                          walls,
+                          homezone,
+                          food,
+                          is_noisy,
+                          score,
+                          random,
+                          round,
+                          is_blue,
+                          team_name,
+                          timeout_count):
         self._bots = None
         self._say = None
         self._initial_position = initial_position
 
         self.random = random
-        # TODO
         self.position = position
         self.walls = walls
 
         self.is_noisy = is_noisy
-        # TODO: Homezone could be a mesh object …
         self.homezone = homezone
         self.food = food
         self.score  = score
         self.bot_index  = bot_index
         self.round = round
         self.is_blue = is_blue
+        self.team_name = team_name
+        self.timeout_count = timeout_count
 
     @property
     def legal_moves(self):
+        """ The legal moves that the bot can make from its current position.
+
+        This list does not contain `stop`, `(0, 0)`, which is always legal.
+        """
         legal_moves = []
 
         for move in [(-1, 0), (1, 0), (0, 1), (0, -1)]:
@@ -245,16 +242,31 @@ class Bot:
 
     @property
     def other(self):
+        """ The other bot in the team.
+        """
         other_index = (self.bot_index + 2) % 4
         return self._bots[other_index]
 
     @property
+    def team(self):
+        """ Both of our bots.
+        """
+        if self.is_blue:
+            return [self._bots[0], self._bots[2]]
+        else:
+            return [self._bots[1], self._bots[3]]
+
+    @property
     def enemy(self):
-        enemy1_index = (self.bot_index + 1) % 2
-        enemy2_index = (self.bot_index + 1) % 2 + 2
-        return [self._bots[enemy1_index], self._bots[enemy2_index]]
+        """ The list of enemy bots
+        """
+        if self.is_blue:
+            return [self._bots[1], self._bots[3]]
+        else:
+            return [self._bots[0], self._bots[2]]
 
     def say(self, text):
+        """ Print some text in the graphical interface. """
         self._say = text
 
     def get_move(self, position):
@@ -285,9 +297,18 @@ class Bot:
 
 
 def _rebuild_universe(bots):
+    """ Rebuilds a universe from the list of bots.
+
+    """
+    if not len(bots) == 4:
+        raise ValueError("Can only build a universe with 4 bots.")
+
     uni_bots = []
+    zones = []
     for idx, b in enumerate(bots):
-        homezone = b.homezone.pos1[0], b.homezone.pos2[0]
+        homezone = (min(b.homezone)[0], max(b.homezone)[0] + 1)
+        if idx < 2:
+            zones.append(homezone)
 
         bot = datamodel.Bot(idx,
                             initial_pos=b._initial_position,
@@ -298,8 +319,8 @@ def _rebuild_universe(bots):
         uni_bots.append(bot)
 
     uni_teams = [
-        datamodel.Team(0, homezone[0], bots[0].score),
-        datamodel.Team(1, homezone[1], bots[1].score)
+        datamodel.Team(0, zones[0], bots[0].score),
+        datamodel.Team(1, zones[1], bots[1].score)
     ]
 
     width = max(bots[0].walls)[0] + 1
@@ -310,7 +331,77 @@ def _rebuild_universe(bots):
             maze[pos] = True
     food = bots[0].food + bots[0].enemy[1].food
 
-    return datamodel.CTFUniverse(maze, food, uni_teams, uni_bots)
+    game_state = {
+        'round_index': bots[0].round,
+        'team_name': [bots[0].team_name, bots[1].team_name],
+        'timeout_teams': [bots[0].timeout_count, bots[1].timeout_count]
+    }
+
+    return datamodel.CTFUniverse(maze, food, uni_teams, uni_bots), game_state
+
+
+# def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_blue):
+def make_bots(*, walls, food, positions, initial_positions, score, is_noisy, rng, round, team_name, timeout_count):
+    """ Creates a set of 4 bots with the given specification. """
+    width = max(walls)[0] + 1
+    height = max(walls)[1] + 1
+    homezones = create_homezones(width, height)
+    bots = []
+    for i, position in enumerate(positions):
+        homezone = homezones[i % 2]
+        bot = Bot(bot_index=i,
+                  position=positions[i],
+                  initial_position=initial_positions[i],
+                  walls=walls,
+                  homezone=homezone,
+                  food=[f for f in food if f in homezone],
+                  is_noisy=is_noisy[i],
+                  score=score[i % 2],
+                  random=rng[i],
+                  round=round,
+                  is_blue=(i % 2 == 0),
+                  team_name=team_name[i % 2],
+                  timeout_count=timeout_count[i % 2])
+        bots.append(bot)
+    for bot in bots:
+        bot._bots = bots
+    return bots
+
+def bots_from_universe(universe, rng, round, team_name, timeout_count):
+    """ Creates 4 bots given a universe. """
+    return make_bots(walls=[pos for pos, is_wall in universe.maze.items() if is_wall],
+                     food=universe.food,
+                     positions=[b.current_pos for b in universe.bots],
+                     initial_positions=[b.initial_pos for b in universe.bots],
+                     score=[t.score for t in universe.teams],
+                     is_noisy=[b.noisy for b in universe.bots],
+                     rng=rng,
+                     round=round,
+                     team_name=team_name,
+                     timeout_count=timeout_count)
+
+def bots_from_layout(layout, is_blue, score, rng, round, team_name, timeout_count):
+    """ Creates 4 bots given a layout. """
+    if is_blue:
+        positions = [layout.bots[0], layout.enemy[0], layout.bots[1], layout.enemy[1]]
+    else:
+        positions = [layout.enemy[0], layout.bots[0], layout.enemy[1], layout.bots[1]]
+
+    # initial positions are grouped by [blue_initials, red_initials] in the layout
+    # we have to reorder them.
+    initial_positions=[layout.initial_positions[0][0], layout.initial_positions[1][0],
+                       layout.initial_positions[0][1], layout.initial_positions[1][1]]
+
+    return make_bots(walls=[pos for pos, is_wall in layout.walls.items() if is_wall],
+                     food=layout.food,
+                     positions=positions,
+                     initial_positions=initial_positions,
+                     score=score,
+                     is_noisy=[False] * 4,
+                     rng=rng,
+                     round=round,
+                     team_name=team_name,
+                     timeout_count=timeout_count)
 
 
 def new_style_team(module):
@@ -324,3 +415,295 @@ def new_style_team(module):
     if type(name) is not str:
         raise TypeError("TEAM_NAME is not a string")
     return lambda: Team(name, move)
+
+
+# @dataclass
+class Layout:
+    def __init__(self, walls, food, bots, enemy):
+        if not food:
+            food = []
+
+        if not bots:
+            bots = [None, None]
+
+        if not enemy:
+            enemy = [None, None]
+
+        # input validation
+        for pos in [*food, *bots, *enemy]:
+            if pos:
+                if walls[pos]:
+                    raise ValueError("Item at %r placed on walls." % (pos,))
+        
+        if len(bots) > 2:
+            raise ValueError("Too many bots.")
+
+        self.walls = walls
+        self.food = food
+        self.bots = bots
+        self.enemy = enemy
+        self.initial_positions = self.guess_initial_positions(self.walls)
+
+    def guess_initial_positions(self, walls):
+        """ Returns the free positions that are closest to the bottom left and
+        top right corner. The algorithm starts searching from (1, -2) and (-2, 1)
+        respectively and uses the manhattan distance for judging what is closest.
+        On equal distances, a smaller distance in the x value is preferred.
+        """
+        left_start = (1, walls.height - 2)
+        left_initials = []
+        right_start = (walls.width - 2, 1)
+        right_initials = []
+
+        dist = 0
+        while len(left_initials) < 2:
+            # iterate through all possible x distances (inclusive)
+            for x_dist in range(dist + 1):
+                y_dist = dist - x_dist
+                pos = (left_start[0] + x_dist, left_start[1] - y_dist)
+                # if both coordinates are out of bounds, we stop
+                if not (0 <= pos[0] < walls.width) and not (0 <= pos[1] < walls.height):
+                    raise ValueError("Not enough free initial positions.")
+                # if one coordinate is out of bounds, we just continue
+                if not (0 <= pos[0] < walls.width) or not (0 <= pos[1] < walls.height):
+                    continue
+                # check if the new value is free
+                if not walls[pos]:
+                    left_initials.append(pos)
+
+                if len(left_initials) == 2:
+                    break
+
+            dist += 1
+
+        dist = 0
+        while len(right_initials) < 2:
+            # iterate through all possible x distances (inclusive)
+            for x_dist in range(dist + 1):
+                y_dist = dist - x_dist
+                pos = (right_start[0] - x_dist, right_start[1] + y_dist)
+                # if both coordinates are out of bounds, we stop
+                if not (0 <= pos[0] < walls.width) and not (0 <= pos[1] < walls.height):
+                    raise ValueError("Not enough free initial positions.")
+                # if one coordinate is out of bounds, we just continue
+                if not (0 <= pos[0] < walls.width) or not (0 <= pos[1] < walls.height):
+                    continue
+                # check if the new value is free
+                if not walls[pos]:
+                    right_initials.append(pos)
+
+                if len(right_initials) == 2:
+                    break
+
+            dist += 1
+
+        # lower indices start further away
+        left_initials.reverse()
+        right_initials.reverse()
+        return left_initials, right_initials
+
+
+    def merge(self, other):
+        """ Merges `self` with the `other` layout.
+        """
+
+        if not self.walls:
+            self.walls = other.walls
+        if self.walls != other.walls:
+            raise ValueError("Walls are not equal.")
+
+        self.food += other.food
+        # remove duplicates
+        self.food = list(set(self.food))
+
+        # update all newer bot positions
+        for idx, b in enumerate(other.bots):
+            if b:
+                self.bots[idx] = b
+        
+        # merge all enemies and then take the last 2
+        enemies = [e for e in [*self.enemy, *other.enemy] if e is not None]
+        self.enemy = enemies[-2:]
+        # if self.enemy smaller than 2, we pad with None again
+        for _ in range(2 - len(self.enemy)):
+            self.enemy.append(None)
+
+        # return our merged self
+        return self
+
+    def _repr_html_(self):
+        walls = self.walls
+        with StringIO() as out:
+            out.write("<table>")
+            for y in range(walls.height):
+                out.write("<tr>")
+                for x in range(walls.width):
+                    if walls[x, y]:
+                        bg = 'style="background-color: {}"'.format(
+                            "rgb(94, 158, 217)" if x < walls.width // 2 else
+                            "rgb(235, 90, 90)")
+                    elif (x, y) in self.initial_positions[0]:
+                        bg = 'style="background-color: #ffffcc"'
+                    elif (x, y) in self.initial_positions[1]:
+                        bg = 'style="background-color: #ffffcc"'
+                    else:
+                        bg = ""
+                    out.write("<td %s>" % bg)
+                    if walls[x, y]: out.write("#")
+                    if (x, y) in self.food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
+                    for idx, pos in enumerate(self.bots):
+                        if pos == (x, y):
+                            out.write(str(idx))
+                    for pos in self.enemy:
+                        if pos == (x, y):
+                            out.write('E')
+                    out.write("</td>")
+                out.write("</tr>")
+            out.write("</table>")
+            return out.getvalue()
+
+    def __str__(self):
+        walls = self.walls
+        with StringIO() as out:
+            out.write('\n')
+            # first, print walls and food
+            for y in range(walls.height):
+                for x in range(walls.width):
+                    if walls[x, y]: out.write('#')
+                    elif (x, y ) in self.food: out.write('.')
+                    else: out.write(' ')
+                out.write('\n')
+            out.write('\n')
+            # print walls and bots
+
+            # Do we have bots/enemies sitting on each other?
+
+            # assign bots to their positions
+            bots = {}
+            for pos in self.enemy:
+                bots[pos] = bots.get(pos, []) + ['E']
+            for idx, pos in enumerate(self.bots):
+                bots[pos] = bots.get(pos, []) + [str(idx)]
+
+            while bots:
+                for y in range(walls.height):
+                    for x in range(walls.width):
+                        if walls[x, y]: out.write('#')
+                        elif (x, y) in bots:
+                            elem = bots[(x, y)].pop(0)
+                            out.write(elem)
+                            # cleanup
+                            if len(bots[(x, y)]) == 0:
+                                bots.pop((x, y))
+
+                        else: out.write(' ')
+                    out.write('\n')
+                out.write('\n')
+            return out.getvalue()
+
+    def __eq__(self, other):
+        return ((self.walls, self.food, self.bots, self.enemy, self.initial_positions) ==
+                (other.walls, other.food, other.bots, self.enemy, other.initial_positions))
+
+
+def create_layout(*layout_strings, food=None, bots=None, enemy=None):
+    """ Create a layout from layout strings with additional food, bots and enemy positions.
+
+    Walls must be equal in all layout strings. Food positions will be collected.
+    For bots and enemy positions later specifications will overwrite earlier ones.
+
+    Raises
+    ======
+    ValueError
+        If walls are not equal in all layouts
+    """
+
+    # layout_strings can be a list of strings or one huge string
+    # with many layouts after another
+    layouts = [
+        load_layout(layout)
+        for layout_str in layout_strings
+        for layout in split_layout_str(layout_str)
+    ]
+    merged = reduce(lambda x, y: x.merge(y), layouts)
+    additional_layout = Layout(walls=merged.walls, food=food, bots=bots, enemy=enemy)
+    merged.merge(additional_layout)
+    return merged
+
+def split_layout_str(layout_str):
+    """ Turns a layout string containing many layouts into a list
+    of simple layouts.
+    """
+    out = []
+    current_layout = []
+    for row in layout_str.splitlines():
+        stripped = row.strip()
+        if not stripped:
+            # found an empty line
+            # if we have a current_layout, append it to out
+            # and reset it
+            if current_layout:
+                out.append(current_layout)
+                current_layout = []
+            continue
+        # non-empty line: append to current_layout
+        current_layout.append(row)
+
+    return ['\n'.join(l) for l in out]
+
+def load_layout(layout_str):
+    """ Loads a *single* (partial) layout from a string. """
+    build = []
+    width = None
+    height = None
+
+    food = []
+    bots = [None, None]
+    enemy = []
+
+    for row in layout_str.splitlines():
+        stripped = row.strip()
+        if not stripped:
+            continue
+        if width is not None:
+            if len(stripped) != width:
+                raise ValueError("Layout has differing widths.")
+        width = len(stripped)
+        build.append(stripped)
+
+    height = len(build)
+    mesh = datamodel.Mesh(width, height, data=list("".join(build)))
+    # Check that the layout is surrounded with walls
+    for i in range(width):
+        if not (mesh[i, 0] == mesh[i, height - 1] == '#'):
+            raise ValueError("Layout not surrounded with #.")
+    for j in range(height):
+        if not (mesh[0, j] == mesh[width - 1, j] == '#'):
+            raise ValueError("Layout not surrounded with #.")
+
+    walls = datamodel.Maze(mesh.width, mesh.height)
+    # extract the non-wall values from mesh
+    for idx, val in mesh.items():
+        # We know that each val is only one character, so it is
+        # either wall or something else
+        if '#' in val:
+            walls[idx] = True
+        # free: skip
+        elif ' ' in val:
+            continue
+        # food
+        elif '.' in val:
+            food.append(idx)
+        # other
+        else:
+            if 'E' in val:
+                # We can have several undefined enemies
+                enemy.append(idx)
+            elif '0' in val:
+                bots[0] = idx
+            elif '1' in val:
+                bots[1] = idx
+            else:
+                raise ValueError("Unknown character %s in maze." % val)
+
+    return Layout(walls, food, bots, enemy)
