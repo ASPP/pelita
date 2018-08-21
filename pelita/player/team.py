@@ -55,6 +55,7 @@ class Team(AbstractTeam):
             The name of the team
 
         """
+
         #: Storage for the team state
         self._team_state = {}
         self._team_game = Game([None, None], self._team_state)
@@ -211,12 +212,10 @@ class Bot:
         self._initial_position = initial_position
 
         self.random = random
-        # TODO
         self.position = position
         self.walls = walls
 
         self.is_noisy = is_noisy
-        # TODO: Homezone could be a mesh object …
         self.homezone = homezone
         self.food = food
         self.score  = score
@@ -267,6 +266,7 @@ class Bot:
             return [self._bots[0], self._bots[2]]
 
     def say(self, text):
+        """ Print some text in the graphical interface. """
         self._say = text
 
     def get_move(self, position):
@@ -368,6 +368,7 @@ def make_bots(*, walls, food, positions, initial_positions, score, is_noisy, rng
     return bots
 
 def bots_from_universe(universe, rng, round, team_name, timeout_count):
+    """ Creates 4 bots given a universe. """
     return make_bots(walls=[pos for pos, is_wall in universe.maze.items() if is_wall],
                      food=universe.food,
                      positions=[b.current_pos for b in universe.bots],
@@ -380,6 +381,7 @@ def bots_from_universe(universe, rng, round, team_name, timeout_count):
                      timeout_count=timeout_count)
 
 def bots_from_layout(layout, is_blue, score, rng, round, team_name, timeout_count):
+    """ Creates 4 bots given a layout. """
     if is_blue:
         positions = [layout.bots[0], layout.enemy[0], layout.bots[1], layout.enemy[1]]
     else:
@@ -605,6 +607,17 @@ class Layout:
 
 
 def create_layout(*layout_strings, food=None, bots=None, enemy=None):
+    """ Create a layout from layout strings with additional food, bots and enemy positions.
+
+    Walls must be equal in all layout strings. Food positions will be collected.
+    For bots and enemy positions later specifications will overwrite earlier ones.
+
+    Raises
+    ======
+    ValueError
+        If walls are not equal in all layouts
+    """
+
     # layout_strings can be a list of strings or one huge string
     # with many layouts after another
     layouts = [
@@ -639,6 +652,7 @@ def split_layout_str(layout_str):
     return ['\n'.join(l) for l in out]
 
 def load_layout(layout_str):
+    """ Loads a *single* (partial) layout from a string. """
     build = []
     width = None
     height = None
