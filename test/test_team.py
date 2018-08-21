@@ -1,8 +1,8 @@
 import pytest
 
 from pelita.game_master import GameMaster
-from pelita.player import Team
-from pelita.utils import create_layout, setup_test_game
+from pelita.player.team import Team, create_layout, _rebuild_universe, bots_from_universe
+from pelita.utils import setup_test_game
 
 class TestLayout:
     layout="""
@@ -141,7 +141,7 @@ class TestStoppingTeam:
     def test_stopping(self):
         test_layout = (
         """ ############
-            #0#.   .# 1#
+            #0#.23 .# 1#
             ############ """)
 
         round_counting = self.round_counting()
@@ -149,7 +149,7 @@ class TestStoppingTeam:
             Team(self.stopping),
             Team(round_counting)
         ]
-        gm = GameMaster(test_layout, team, 2, 1)
+        gm = GameMaster(test_layout, team, 4, 1)
         gm.play()
         assert gm.universe.bots[0].current_pos == (1, 1)
         assert gm.universe.bots[1].current_pos == (10, 1)
@@ -161,8 +161,51 @@ class TestStoppingTeam:
             Team(self.stopping),
             Team(round_counting)
         ]
-        gm = GameMaster(test_layout, team, 2, 3)
+        gm = GameMaster(test_layout, team, 4, 3)
         gm.play()
         assert gm.universe.bots[0].current_pos == (1, 1)
         assert gm.universe.bots[1].current_pos == (10, 1)
         assert round_counting._storage['rounds'] == 3
+
+
+class TestRebuild:
+    def test_too_few_bots(self):
+        test_layout = (
+        """ ############
+            #0#.   .# 1#
+            ############ """)
+
+#        round_counting = self.round_counting()
+#        team = [
+#            Team(self.stopping),
+#            Team(round_counting)
+#        ]
+#        gm = GameMaster(test_layout, team, 2, 1)
+#        gm.universe 
+
+
+    def test_rebuild_uni(self):
+        layout = """
+        ############
+        #0#.   .# 1#
+        ############
+        """
+        game = setup_test_game(layout=layout, is_blue=True)
+        assert game.team[0].position == (1, 1)
+        assert game.team[1].position == (10, 1)
+        assert game.team[0].enemy[0].position is None
+        assert game.team[0].enemy[1].position is None
+
+        uni = _rebuild_universe(game.team[0]._bots)
+        assert uni.bots[0].current_pos == (1, 1)
+        assert uni.bots[2].current_pos == (10, 1)
+        assert uni.bots[1].current_pos == (9, 1)
+        assert uni.bots[3].current_pos == (10, 1)
+
+        with pytest.raises(ValueError):
+            uni = _rebuild_universe(game.team[0]._bots[0:2])
+
+        bots = bots_from_universe(uni, [None] * 4, 0)
+        uni2 = _rebuild_universe(bots)
+        assert uni2 == uni
+
