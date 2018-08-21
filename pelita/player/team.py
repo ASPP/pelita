@@ -154,19 +154,34 @@ class Game:
         width = max(bot.walls)[0] + 1
         height = max(bot.walls)[1] + 1
 
-        if bot.is_blue:
-            print("On blue side.")
-        else:
-            print("On red side.")
+        header = ("{blue}{you_blue} vs {red}{you_red}.\n" +
+            "Playing on {col} side. Round: {round}, score: {blue_score}:{red_score}. " +
+            "timeouts: {blue_timeouts}:{red_timeouts}").format(
+            blue=bot._bots[0].team_name,
+            red=bot._bots[1].team_name,
+            round=bot.round,
+            blue_score=bot._bots[0].score,
+            red_score=bot._bots[1].score,
+            col="blue" if bot.is_blue else "red",
+            you_blue=" (you)" if bot.is_blue else "",
+            you_red=" (you)" if not bot.is_blue else "",
+            blue_timeouts=bot._bots[0].timeout_count,
+            red_timeouts=bot._bots[1].timeout_count,
+        )
 
-        maze = datamodel.Maze(width, height)
-        for wall in bot.walls:
-            maze[wall] = True
-        layout = Layout(walls=maze,
-                        food=bot.food + bot.enemy[0].food,
-                        bots=[b.position for b in self.team],
-                        enemy=[e.position for e in bot.enemy])
-        return str(layout)
+        with StringIO() as out:
+            out.write(header)
+
+            maze = datamodel.Maze(width, height)
+            for wall in bot.walls:
+                maze[wall] = True
+            layout = Layout(walls=maze,
+                            food=bot.food + bot.enemy[0].food,
+                            bots=[b.position for b in self.team],
+                            enemy=[e.position for e in bot.enemy])
+
+            out.write(str(layout))
+            return out.getvalue()
 
 def create_homezones(width, height):
     return [
