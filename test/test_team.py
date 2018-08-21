@@ -122,7 +122,6 @@ class TestLayout:
         assert create_layout(str2) == layout_merge
 
 
-
 class TestStoppingTeam:
     @staticmethod
     def stopping(turn, game):
@@ -175,14 +174,16 @@ class TestRebuild:
             #0#.   .# 1#
             ############ """)
 
-#        round_counting = self.round_counting()
-#        team = [
-#            Team(self.stopping),
-#            Team(round_counting)
-#        ]
-#        gm = GameMaster(test_layout, team, 2, 1)
-#        gm.universe 
+        def stopping(turn, game):
+            return (0, 0)
 
+        team = [
+            Team(stopping),
+            Team(stopping)
+        ]
+        gm = GameMaster(test_layout, team, 2, 1)
+        with pytest.raises(IndexError):
+            gm.play()
 
     def test_rebuild_uni(self):
         layout = """
