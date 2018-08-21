@@ -196,16 +196,18 @@ class TestRebuild:
         assert game.team[0].enemy[0].position is None
         assert game.team[0].enemy[1].position is None
 
-        uni = _rebuild_universe(game.team[0]._bots)
+        uni, state = _rebuild_universe(game.team[0]._bots)
         assert uni.bots[0].current_pos == (1, 1)
         assert uni.bots[2].current_pos == (10, 1)
         assert uni.bots[1].current_pos == (9, 1)
         assert uni.bots[3].current_pos == (10, 1)
 
         with pytest.raises(ValueError):
-            uni = _rebuild_universe(game.team[0]._bots[0:2])
+            uni, state = _rebuild_universe(game.team[0]._bots[0:2])
 
-        bots = bots_from_universe(uni, [None] * 4, 0)
-        uni2 = _rebuild_universe(bots)
+        bots = bots_from_universe(uni, [None] * 4, round=0,
+                                                   team_name=state['team_name'],
+                                                   timeout_count=state['timeout_teams'])
+        uni2, state = _rebuild_universe(bots)
         assert uni2 == uni
 

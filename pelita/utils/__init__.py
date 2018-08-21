@@ -15,7 +15,7 @@ def setup_test_game(*, layout, game=None, is_blue=True, rounds=None, score=None,
     rng = [random.Random(seed) for _ in range(4)]
     if score is None:
         score = [0, 0]
-    bots = bots_from_layout(layout, is_blue, score, rng, round)
+    bots = bots_from_layout(layout, is_blue, score, rng, round, team_name=['blue', 'red'], timeout_count=[0, 0])
   
     if is_blue:
         team = [bots[0], bots[2]]

@@ -91,7 +91,11 @@ class Team(AbstractTeam):
         move : dict
         """
 
-        bots = bots_from_universe(universe, rng=self._bot_random, round=game_state['round_index'])
+        bots = bots_from_universe(universe,
+                                  rng=self._bot_random,
+                                  round=game_state['round_index'],
+                                  team_name=game_state['team_name'],
+                                  timeout_count=game_state['timeout_teams'])
 
         me = bots[bot_id]
         team = bots[bot_id].team
@@ -174,7 +178,19 @@ def create_homezones(width, height):
 
 
 class Bot:
-    def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_blue):
+    def __init__(self, *, bot_index,
+                          position,
+                          initial_position,
+                          walls,
+                          homezone,
+                          food,
+                          is_noisy,
+                          score,
+                          random,
+                          round,
+                          is_blue,
+                          team_name,
+                          timeout_count):
         self._bots = None
         self._say = None
         self._initial_position = initial_position
@@ -192,6 +208,8 @@ class Bot:
         self.bot_index  = bot_index
         self.round = round
         self.is_blue = is_blue
+        self.team_name = team_name
+        self.timeout_count = timeout_count
 
     @property
     def legal_moves(self):
@@ -298,11 +316,17 @@ def _rebuild_universe(bots):
             maze[pos] = True
     food = bots[0].food + bots[0].enemy[1].food
 
-    return datamodel.CTFUniverse(maze, food, uni_teams, uni_bots)
+    game_state = {
+        'round_index': bots[0].round,
+        'team_name': [bots[0].team_name, bots[1].team_name],
+        'timeout_teams': [bots[0].timeout_count, bots[1].timeout_count]
+    }
+
+    return datamodel.CTFUniverse(maze, food, uni_teams, uni_bots), game_state
 
 
 # def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_blue):
-def make_bots(*, walls, food, positions, initial_positions, score, is_noisy, rng, round):
+def make_bots(*, walls, food, positions, initial_positions, score, is_noisy, rng, round, team_name, timeout_count):
     """ Creates a set of 4 bots with the given specification. """
     width = max(walls)[0] + 1
     height = max(walls)[1] + 1
@@ -320,13 +344,15 @@ def make_bots(*, walls, food, positions, initial_positions, score, is_noisy, rng
                   score=score[i % 2],
                   random=rng[i],
                   round=round,
-                  is_blue=(i % 2 == 0))
+                  is_blue=(i % 2 == 0),
+                  team_name=team_name[i % 2],
+                  timeout_count=timeout_count[i % 2])
         bots.append(bot)
     for bot in bots:
         bot._bots = bots
     return bots
 
-def bots_from_universe(universe, rng, round):
+def bots_from_universe(universe, rng, round, team_name, timeout_count):
     return make_bots(walls=[pos for pos, is_wall in universe.maze.items() if is_wall],
                      food=universe.food,
                      positions=[b.current_pos for b in universe.bots],
@@ -334,9 +360,11 @@ def bots_from_universe(universe, rng, round):
                      score=[t.score for t in universe.teams],
                      is_noisy=[b.noisy for b in universe.bots],
                      rng=rng,
-                     round=round)
+                     round=round,
+                     team_name=team_name,
+                     timeout_count=timeout_count)
 
-def bots_from_layout(layout, is_blue, score, rng, round):
+def bots_from_layout(layout, is_blue, score, rng, round, team_name, timeout_count):
     if is_blue:
         positions = [layout.bots[0], layout.enemy[0], layout.bots[1], layout.enemy[1]]
     else:
@@ -354,7 +382,9 @@ def bots_from_layout(layout, is_blue, score, rng, round):
                      score=score,
                      is_noisy=[False] * 4,
                      rng=rng,
-                     round=round)
+                     round=round,
+                     team_name=team_name,
+                     timeout_count=timeout_count)
 
 
 def new_style_team(module):
