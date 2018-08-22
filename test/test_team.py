@@ -40,6 +40,11 @@ class TestLayout:
         assert layout.bots == [(6, 1), (1, 2)]
         assert layout.enemy == [(5, 1), (2, 2)]
     
+    def test_load1(self):
+        layout = create_layout(self.layout)
+        assert layout.bots == [(6, 1), (1, 2)]
+        assert layout.enemy == [(5, 1), (2, 2)]
+
     def test_equal_positions(self):
         layout_str = """
             ########
@@ -86,7 +91,7 @@ class TestLayout:
             # placed bot on walls
             layout = create_layout(self.layout2, food=[(1, 1)], bots=[(0, 1), (1, 2)], enemy=[(5, 1), (2, 2)])
 
-        with pytest.raises(KeyError):
+        with pytest.raises(ValueError):
             # placed bot outside maze
             layout = create_layout(self.layout2, food=[(1, 1)], bots=[(1, 40), (1, 2)], enemy=[(5, 1), (2, 2)])
 
