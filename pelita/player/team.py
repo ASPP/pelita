@@ -649,6 +649,10 @@ def split_layout_str(layout_str):
         # non-empty line: append to current_layout
         current_layout.append(row)
 
+    # We still have a current layout at the end: append
+    if current_layout:
+        out.append(current_layout)
+
     return ['\n'.join(l) for l in out]
 
 def load_layout(layout_str):

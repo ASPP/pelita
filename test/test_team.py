@@ -1,7 +1,7 @@
 import pytest
 
 from pelita.game_master import GameMaster
-from pelita.player.team import Team, create_layout, _rebuild_universe, bots_from_universe
+from pelita.player.team import Team, split_layout_str, create_layout, _rebuild_universe, bots_from_universe
 from pelita.utils import setup_test_game
 
 class TestLayout:
@@ -17,6 +17,18 @@ class TestLayout:
     # . ...#
     ########
     """
+
+    def test_split_layout(self):
+        layout = split_layout_str(self.layout)
+        assert len(layout) == 1
+        assert layout[0].strip() != ""
+
+        mini = """####
+                  #  #
+                  ####"""
+        layout = split_layout_str(mini)
+        assert len(layout) == 1
+        assert layout[0].strip() != ""
 
     def test_load(self):
         layout = create_layout(self.layout, self.layout2)
