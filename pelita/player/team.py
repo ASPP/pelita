@@ -392,7 +392,7 @@ def bots_from_layout(layout, is_blue, score, rng, round, team_name, timeout_coun
     initial_positions=[layout.initial_positions[0][0], layout.initial_positions[1][0],
                        layout.initial_positions[0][1], layout.initial_positions[1][1]]
 
-    return make_bots(walls=[pos for pos, is_wall in layout.walls.items() if is_wall],
+    return make_bots(walls=layout.walls[:],
                      food=layout.food,
                      positions=positions,
                      initial_positions=initial_positions,
@@ -432,14 +432,20 @@ class Layout:
         # input validation
         for pos in [*food, *bots, *enemy]:
             if pos:
-                if walls[pos]:
+                if pos in walls:
                     raise ValueError("Item at %r placed on walls." % (pos,))
+                else:
+                    walls_width = max(walls)[0] + 1
+                    walls_height = max(walls)[1] + 1
+                    if not (0 <= pos[0] < walls_width) or not (0 <= pos[1] < walls_height):
+                        raise ValueError("Item at %r not in bounds." % (pos,))
+
         
         if len(bots) > 2:
             raise ValueError("Too many bots.")
 
-        self.walls = walls
-        self.food = food
+        self.walls = sorted(walls)
+        self.food = sorted(food)
         self.bots = bots
         self.enemy = enemy
         self.initial_positions = self.guess_initial_positions(self.walls)
@@ -450,9 +456,12 @@ class Layout:
         respectively and uses the manhattan distance for judging what is closest.
         On equal distances, a smaller distance in the x value is preferred.
         """
-        left_start = (1, walls.height - 2)
+        walls_width = max(walls)[0] + 1
+        walls_height = max(walls)[1] + 1
+
+        left_start = (1, walls_height - 2)
         left_initials = []
-        right_start = (walls.width - 2, 1)
+        right_start = (walls_width - 2, 1)
         right_initials = []
 
         dist = 0
@@ -462,13 +471,13 @@ class Layout:
                 y_dist = dist - x_dist
                 pos = (left_start[0] + x_dist, left_start[1] - y_dist)
                 # if both coordinates are out of bounds, we stop
-                if not (0 <= pos[0] < walls.width) and not (0 <= pos[1] < walls.height):
+                if not (0 <= pos[0] < walls_width) and not (0 <= pos[1] < walls_height):
                     raise ValueError("Not enough free initial positions.")
                 # if one coordinate is out of bounds, we just continue
-                if not (0 <= pos[0] < walls.width) or not (0 <= pos[1] < walls.height):
+                if not (0 <= pos[0] < walls_width) or not (0 <= pos[1] < walls_height):
                     continue
                 # check if the new value is free
-                if not walls[pos]:
+                if not pos in walls:
                     left_initials.append(pos)
 
                 if len(left_initials) == 2:
@@ -483,13 +492,13 @@ class Layout:
                 y_dist = dist - x_dist
                 pos = (right_start[0] - x_dist, right_start[1] + y_dist)
                 # if both coordinates are out of bounds, we stop
-                if not (0 <= pos[0] < walls.width) and not (0 <= pos[1] < walls.height):
+                if not (0 <= pos[0] < walls_width) and not (0 <= pos[1] < walls_height):
                     raise ValueError("Not enough free initial positions.")
                 # if one coordinate is out of bounds, we just continue
-                if not (0 <= pos[0] < walls.width) or not (0 <= pos[1] < walls.height):
+                if not (0 <= pos[0] < walls_width) or not (0 <= pos[1] < walls_height):
                     continue
                 # check if the new value is free
-                if not walls[pos]:
+                if not pos in walls:
                     right_initials.append(pos)
 
                 if len(right_initials) == 2:
@@ -501,7 +510,6 @@ class Layout:
         left_initials.reverse()
         right_initials.reverse()
         return left_initials, right_initials
-
 
     def merge(self, other):
         """ Merges `self` with the `other` layout.
@@ -533,14 +541,16 @@ class Layout:
 
     def _repr_html_(self):
         walls = self.walls
+        walls_width = max(walls)[0] + 1
+        walls_height = max(walls)[1] + 1
         with StringIO() as out:
             out.write("<table>")
-            for y in range(walls.height):
+            for y in range(walls_height):
                 out.write("<tr>")
-                for x in range(walls.width):
-                    if walls[x, y]:
+                for x in range(walls_width):
+                    if (x, y) in walls:
                         bg = 'style="background-color: {}"'.format(
-                            "rgb(94, 158, 217)" if x < walls.width // 2 else
+                            "rgb(94, 158, 217)" if x < walls_width // 2 else
                             "rgb(235, 90, 90)")
                     elif (x, y) in self.initial_positions[0]:
                         bg = 'style="background-color: #ffffcc"'
@@ -549,7 +559,7 @@ class Layout:
                     else:
                         bg = ""
                     out.write("<td %s>" % bg)
-                    if walls[x, y]: out.write("#")
+                    if (x, y) in walls: out.write("#")
                     if (x, y) in self.food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
                     for idx, pos in enumerate(self.bots):
                         if pos == (x, y):
@@ -564,13 +574,15 @@ class Layout:
 
     def __str__(self):
         walls = self.walls
+        walls_width = max(walls)[0] + 1
+        walls_height = max(walls)[1] + 1
         with StringIO() as out:
             out.write('\n')
             # first, print walls and food
-            for y in range(walls.height):
-                for x in range(walls.width):
-                    if walls[x, y]: out.write('#')
-                    elif (x, y ) in self.food: out.write('.')
+            for y in range(walls_height):
+                for x in range(walls_width):
+                    if (x, y) in walls: out.write('#')
+                    elif (x, y) in self.food: out.write('.')
                     else: out.write(' ')
                 out.write('\n')
             out.write('\n')
@@ -586,9 +598,9 @@ class Layout:
                 bots[pos] = bots.get(pos, []) + [str(idx)]
 
             while bots:
-                for y in range(walls.height):
-                    for x in range(walls.width):
-                        if walls[x, y]: out.write('#')
+                for y in range(walls_height):
+                    for x in range(walls_width):
+                        if (x, y) in walls: out.write('#')
                         elif (x, y) in bots:
                             elem = bots[(x, y)].pop(0)
                             out.write(elem)
@@ -649,6 +661,10 @@ def split_layout_str(layout_str):
         # non-empty line: append to current_layout
         current_layout.append(row)
 
+    # We still have a current layout at the end: append
+    if current_layout:
+        out.append(current_layout)
+
     return ['\n'.join(l) for l in out]
 
 def load_layout(layout_str):
@@ -681,13 +697,13 @@ def load_layout(layout_str):
         if not (mesh[0, j] == mesh[width - 1, j] == '#'):
             raise ValueError("Layout not surrounded with #.")
 
-    walls = datamodel.Maze(mesh.width, mesh.height)
+    walls = []
     # extract the non-wall values from mesh
     for idx, val in mesh.items():
         # We know that each val is only one character, so it is
         # either wall or something else
         if '#' in val:
-            walls[idx] = True
+            walls.append(idx)
         # free: skip
         elif ' ' in val:
             continue
@@ -706,4 +722,5 @@ def load_layout(layout_str):
             else:
                 raise ValueError("Unknown character %s in maze." % val)
 
+    walls = sorted(walls)
     return Layout(walls, food, bots, enemy)
