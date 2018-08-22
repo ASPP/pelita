@@ -1,4 +1,4 @@
-from .demo_smartrandom import move
+from demo_smartrandom import move
 from pelita.utils import setup_test_game
 
 def test_legalmoves():
