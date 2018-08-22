@@ -275,7 +275,7 @@ class Bot:
             If the position cannot be reached by a legal move
         """
         direction = (position[0] - self.position[0], position[1] - self.position[1])
-        if direction not in self.legal_moves:
+        if direction not in self.legal_moves + [(0, 0)]:
             raise ValueError("Cannot reach position %s (would have been: %s)." % (position, direction))
         return direction
 
@@ -287,7 +287,7 @@ class Bot:
         ValueError
             If the move is not legal.
         """
-        if move not in self.legal_moves:
+        if move not in self.legal_moves + [(0, 0)]:
             raise ValueError("Move %s is not legal." % move)
         position = (move[0] + self.position[0], move[1] + self.position[1])
         return position
