@@ -63,6 +63,12 @@ class Team(AbstractTeam):
         #: Storage for the random generator
         self._bot_random = [None] * len(universe.bots)
 
+        #: Store the last known bot positions
+        self._last_know_position = [b.current_pos for b in universe.bots if b.team_index == team_id]
+
+        #: Store a history of bot positions
+        self._bot_track = [[], []]
+
         # To make things a little simpler, we also initialise a random generator
         # for all enemy bots
 
@@ -101,6 +107,25 @@ class Team(AbstractTeam):
         me = bots[bot_id]
         team = bots[bot_id].team
         turn = bot_id // 2
+
+        for idx, mybot in enumerate(team):
+            # we assume we have been eaten, when we’re on our initial_position
+            # and we could not move back to our previous position
+            mybot.eaten = False
+            if mybot.position == mybot._initial_position:
+                last_pos = self._last_know_position[idx]
+                try:
+                    mybot.get_move(last_pos)
+                except ValueError:
+                    mybot.eaten = True
+
+            self._last_know_position[idx] = mybot.position
+
+            if mybot.eaten:
+                self._bot_track[idx] = []
+            self._bot_track[idx].append(mybot.position)
+
+            mybot.track = self._bot_track[idx]
 
         self._team_game.team[:] = team
         move = self._team_move(turn, self._team_game)
