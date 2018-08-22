@@ -2,7 +2,7 @@ import random
 
 from ..player.team import create_layout, Game, bots_from_layout
 
-def setup_test_game(*, layout, game=None, is_blue=True, rounds=None, score=None, seed=None):
+def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, seed=None):
     if game is not None:
         raise RuntimeError("Re-using an old game is not implemented yet.")
 
