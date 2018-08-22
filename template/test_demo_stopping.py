@@ -14,7 +14,7 @@ def test_stays_there():
     all_locations = ((x, y) for x in range(8) for y in range(4))
     for loc in all_locations:
         try:
-            loc_layout = create_layout(layout, bots=[loc, None])
+            loc_layout = create_layout(layout, bots=[loc])
         except ValueError:
             # loc is a wall, skip this position
             continue
