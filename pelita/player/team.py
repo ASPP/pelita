@@ -111,13 +111,13 @@ class Team(AbstractTeam):
         for idx, mybot in enumerate(team):
             # we assume we have been eaten, when we’re on our initial_position
             # and we could not move back to our previous position
-            mybot.eaten = False
+            mybot._eaten = False
             if mybot.position == mybot._initial_position:
                 last_pos = self._last_know_position[idx]
                 try:
                     mybot.get_move(last_pos)
                 except ValueError:
-                    mybot.eaten = True
+                    mybot._eaten = True
 
             self._last_know_position[idx] = mybot.position
 
@@ -125,7 +125,7 @@ class Team(AbstractTeam):
                 self._bot_track[idx] = []
             self._bot_track[idx].append(mybot.position)
 
-            mybot.track = self._bot_track[idx]
+            mybot._track = self._bot_track[idx]
 
         self._team_game.team[:] = team
         move = self._team_move(turn, self._team_game)
@@ -317,6 +317,15 @@ class Bot:
         position = (move[0] + self.position[0], move[1] + self.position[1])
         return position
 
+    @property
+    def eaten(self):
+        """ True if this bot has been eaten in the last turn. """
+        return self._eaten
+
+    @property
+    def track(self):
+        """ The previous positions of this bot including the current one. """
+        return self._track
 
 def _rebuild_universe(bots):
     """ Rebuilds a universe from the list of bots.
