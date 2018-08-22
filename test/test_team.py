@@ -4,6 +4,14 @@ from pelita.game_master import GameMaster
 from pelita.player.team import Team, split_layout_str, create_layout, _rebuild_universe, bots_from_universe
 from pelita.utils import setup_test_game
 
+def stopping(turn, game):
+    return (0, 0)
+
+def randomBot(turn, game):
+    bot = game.team[turn]
+    legal = bot.legal_moves[:]
+    return bot.random.choice(legal)
+
 class TestLayout:
     layout="""
     ########
@@ -141,10 +149,6 @@ class TestLayout:
 
 class TestStoppingTeam:
     @staticmethod
-    def stopping(turn, game):
-        return (0, 0)
-
-    @staticmethod
     def round_counting():
         storage_copy = {}
         def inner(turn, game):
@@ -162,7 +166,7 @@ class TestStoppingTeam:
 
         round_counting = self.round_counting()
         team = [
-            Team(self.stopping),
+            Team(stopping),
             Team(round_counting)
         ]
         gm = GameMaster(test_layout, team, 4, 1)
@@ -174,7 +178,7 @@ class TestStoppingTeam:
 
         round_counting = self.round_counting()
         team = [
-            Team(self.stopping),
+            Team(stopping),
             Team(round_counting)
         ]
         gm = GameMaster(test_layout, team, 4, 3)
@@ -191,8 +195,6 @@ class TestRebuild:
             #0#.   .# 1#
             ############ """)
 
-        def stopping(turn, game):
-            return (0, 0)
 
         team = [
             Team(stopping),
@@ -229,3 +231,41 @@ class TestRebuild:
         uni2, state = _rebuild_universe(bots)
         assert uni2 == uni
 
+
+class TestTrack:
+    def test_track(self):
+        def trackingBot(turn, game):
+            bot = game.team[turn]
+            if bot.round == 0 and turn == 0:
+                assert bot.track[0] == bot.position
+                game.state[turn] = {}
+                game.state[1 - turn] = {}
+                game.state[turn]['track'] = []
+                game.state[1 - turn]['track'] = []
+
+            if bot.eaten:
+                game.state[turn]['track'] = []
+            if bot.other.eaten:
+                game.state[1 - turn]['track'] = []
+
+            game.state[turn]['track'].append(bot.position)
+            game.state[1 - turn]['track'].append(bot.other.position)
+
+            assert bot.track[0] == bot._initial_position
+            assert bot.track == game.state[turn]['track'] # bot.round * 2 + 1 + turn
+            assert bot.track[-1] == bot.position
+            return randomBot(turn, game)
+
+        layout = """
+        ############
+        #  #02 .3 1#
+        ############
+        #.#      #.#
+        ############
+        """
+        team = [
+            Team(trackingBot),
+            Team(trackingBot)
+        ]
+        gm = GameMaster(layout, team, 4, 30)
+        gm.play()
