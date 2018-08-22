@@ -1,3 +1,6 @@
+# This bot tries to catch an enemy bot. It will stop at the border of its
+# homezone if the enemy is still in its own.
+
 TEAM_NAME = 'Basic Defender Bots'
 
 from pelita.graph import Graph
