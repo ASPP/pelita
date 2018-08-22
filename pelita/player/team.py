@@ -173,10 +173,7 @@ class Game:
         with StringIO() as out:
             out.write(header)
 
-            maze = datamodel.Maze(width, height)
-            for wall in bot.walls:
-                maze[wall] = True
-            layout = Layout(walls=maze,
+            layout = Layout(walls=bot.walls[:],
                             food=bot.food + bot.enemy[0].food,
                             bots=[b.position for b in self.team],
                             enemy=[e.position for e in bot.enemy])
