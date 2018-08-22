@@ -107,7 +107,7 @@ class UI:
 
 class TkApplication:
     def __init__(self, master, controller_address=None,
-                 geometry=None, delay=1):
+                 geometry=None, delay=1, stop_after=None):
         self.master = master
         self.master.configure(background="white")
 
@@ -276,6 +276,11 @@ class TkApplication:
 
         self._min_delay = 1
         self._delay = delay
+        self._stop_after = stop_after
+        self._stop_after_delay = delay
+        if self._stop_after is not None:
+            self._delay = self._min_delay
+
         self._check_speed_button_state()
 
         self.running = True
@@ -674,6 +679,11 @@ class TkApplication:
         game_state = data["game_state"]
 
         self.update(universe, game_state)
+        if self._stop_after is not None:
+            if game_state['round_index'] == self._stop_after:
+                self._stop_after = None
+                self._delay = self._stop_after_delay
+                self.running = False
         if self.running:
             self.master.after(self._delay, self.request_step)
 
