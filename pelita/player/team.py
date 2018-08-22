@@ -63,6 +63,12 @@ class Team(AbstractTeam):
         #: Storage for the random generator
         self._bot_random = [None] * len(universe.bots)
 
+        #: Store the last known bot positions
+        self._last_know_position = [b.current_pos for b in universe.bots if b.team_index == team_id]
+
+        #: Store a history of bot positions
+        self._bot_track = [[], []]
+
         # To make things a little simpler, we also initialise a random generator
         # for all enemy bots
 
@@ -101,6 +107,25 @@ class Team(AbstractTeam):
         me = bots[bot_id]
         team = bots[bot_id].team
         turn = bot_id // 2
+
+        for idx, mybot in enumerate(team):
+            # we assume we have been eaten, when we’re on our initial_position
+            # and we could not move back to our previous position
+            mybot._eaten = False
+            if mybot.position == mybot._initial_position:
+                last_pos = self._last_know_position[idx]
+                try:
+                    mybot.get_move(last_pos)
+                except ValueError:
+                    mybot._eaten = True
+
+            self._last_know_position[idx] = mybot.position
+
+            if mybot.eaten:
+                self._bot_track[idx] = []
+            self._bot_track[idx].append(mybot.position)
+
+            mybot._track = self._bot_track[idx]
 
         self._team_game.team[:] = team
         move = self._team_move(turn, self._team_game)
@@ -275,7 +300,7 @@ class Bot:
             If the position cannot be reached by a legal move
         """
         direction = (position[0] - self.position[0], position[1] - self.position[1])
-        if direction not in self.legal_moves:
+        if direction not in self.legal_moves + [(0, 0)]:
             raise ValueError("Cannot reach position %s (would have been: %s)." % (position, direction))
         return direction
 
@@ -287,11 +312,20 @@ class Bot:
         ValueError
             If the move is not legal.
         """
-        if move not in self.legal_moves:
+        if move not in self.legal_moves + [(0, 0)]:
             raise ValueError("Move %s is not legal." % move)
         position = (move[0] + self.position[0], move[1] + self.position[1])
         return position
 
+    @property
+    def eaten(self):
+        """ True if this bot has been eaten in the last turn. """
+        return self._eaten
+
+    @property
+    def track(self):
+        """ The previous positions of this bot including the current one. """
+        return self._track
 
 def _rebuild_universe(bots):
     """ Rebuilds a universe from the list of bots.
