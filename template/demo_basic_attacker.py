@@ -1,4 +1,4 @@
-# This bot picks a food pellet at random, then goes and tried to get it.
+# This bot picks a food pellet at random, then goes and tries to get it.
 # It tries on the way to avoid being eaten by the enemy: if the next move
 # to get to the food would put it on a enemy bot in its own homezone, then
 # it steps back to its previous position
