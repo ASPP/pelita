@@ -137,8 +137,6 @@ parser.add_argument('--dry-run', const=True, action='store_const', help=argparse
                     #help='Load players but do not actually play the game.')
 parser.add_argument('--list-layouts', action='store_const', const=True,
                     help='List all available layouts.')
-parser.add_argument('--list-teams', action="store_const", const=True, help=argparse.SUPPRESS)
-                    #help='Print the names of the included default teams.')
 parser.add_argument('--check-team', action="store_const", const=True, help=argparse.SUPPRESS)
                     #help='Check that the team is valid (on first sight) and print its name.')
 

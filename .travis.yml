@@ -21,13 +21,7 @@ script:
       python -c "import zmq; print('Using pyzmq {} and zmq {}.'.format(zmq.pyzmq_version(), zmq.zmq_version()))" &&
       pytest --cov=pelita -v test/ &&
       python -m pelita.scripts.pelita_main --progress &&
-      for player in $(pelita --list-teams) ; do
-          pelita --check-team $player || exit 1
-          res=$(pelita --null --rounds 100 --filter small $player 2>&1)
-          echo $res
-          (echo $res | grep -q Exception) && exit 1
-          echo "" # This resets the error code
-      done
+      pelita --null --rounds 100 --filter small $player 2>&1
   - if [[ $TRAVIS_PYTHON_VERSION == 3.6 || $TRAVIS_PYTHON_VERSION == 3.7 ]]; then pelita-tournament --non-interactive --viewer null ; fi
   - if [[ $TRAVIS_PYTHON_VERSION == 3.6 || $TRAVIS_PYTHON_VERSION == 3.7 ]]; then git clone https://github.com/ASPP/pelita_template && cd pelita_template/ && python -m pytest . ; fi
 
