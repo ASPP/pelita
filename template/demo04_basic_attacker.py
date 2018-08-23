@@ -15,10 +15,6 @@ def move(turn, game):
     # over turns for each individual bot
     # - we want to track previous positions, so that we can backtrack if needed
     # - we want to keep track of the food pellet we are aiming at the moment
-    if turn not in game.state:
-        # initialize the dictionary for this bot
-        game.state[turn] = {}
-
     # check if we already initialized a graph representation of the maze
     # this is shared between both our bots!
     if 'graph' not in game.state:
