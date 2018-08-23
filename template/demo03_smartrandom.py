@@ -1,6 +1,5 @@
-# This bot moves randomly, but if there is a legal move that would allow it to
-# eat food or eat an enemy, then this move is executed. Also, does not step
-# on a ghost (no kamikaze).
+# This bot moves randomly, but it avoids going back, it avoids enemy ghosts and
+# prefers moves the lead to eat food or enemies.
 
 TEAM_NAME = 'SmartRandomBots'
 
@@ -34,6 +33,8 @@ def move(turn, game):
         # so just stop
         next_move = (0,0)
     else:
+        # let's cumulate positions that give us something
+        interesting_positions = []
         # reshuffle the list of sensible moves
         bot.random.shuffle(sensible_moves)
         for next_move in sensible_moves:
@@ -43,12 +44,24 @@ def move(turn, game):
                 # we are in our homezone
                 if new_pos in enemy_pos:
                     # we can eat the enemy, accept the move
-                    break
+                    interesting_positions.append(new_pos)
             else:
                 # we are in the enemy zone
                 if new_pos in bot.enemy[0].food:
                     # we can eat the food, accept the move
-                    break
+                    interesting_positions.append(new_pos)
+    if len(interesting_positions) > 0:
+        # if we have some positions that give us something, choose one at random
+        # and move there
+        next_move = bot.get_move(bot.random.choice(interesting_positions))
+    elif len(sensible_moves) > 0:
+        # if there's nothing interesting, let's see if we can explore unknown
+        # territories
+        for next_move in sensible_moves:
+            new_pos = bot.get_position(next_move)
+            if new_pos not in bot.track:
+                break
 
-    # if we don't break out of the loop, we will do the last of the legal_moves
+        # if we don't break out of the loop, we'll just perform the last of the
+        # sensible moves, even if we have seen this place already
     return next_move
