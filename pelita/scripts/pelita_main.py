@@ -118,7 +118,7 @@ parser = argparse.ArgumentParser(description='Run a single pelita game',
                                  add_help=False,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
 parser._positionals = parser.add_argument_group('Arguments')
-parser.add_argument('team_specs', help='teams (default: random)', nargs='*', default=None)
+parser.add_argument('team_specs', help='teams', nargs='*', default=None)
 
 parser._optionals = parser.add_argument_group('Options')
 parser.add_argument('--help', '-h', help='Show this help message and exit.',
@@ -353,8 +353,10 @@ def main():
 
         num_teams = 2
         team_specs = args.team_specs
-        while len(team_specs) < num_teams:
-            team_specs.append("random")
+        if len(team_specs) == 0:
+            team_specs = ('0', '1')
+        if len(team_specs) == 1:
+            raise RuntimeError("Not enough teams given. Must be {}".format(num_teams))
         if len(team_specs) > num_teams:
             raise RuntimeError("Too many teams given. Must be < {}.".format(num_teams))
 
