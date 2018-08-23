@@ -10,23 +10,25 @@ from utils import next_step
 def move(turn, game):
     bot = game.team[turn]
 
-    # we need to create a dictionary to keep information
-    # over turns for each individual bot
-    # - we want to keep track of the enemy we are aiming at the moment
-    if turn not in game.state:
-        # initialize the dictionary for this bot
-        game.state[turn] = {}
+    if game.state is None:
+        # initialize the state for the team to be a graph representation of the
+        # maze
+        game.state = Graph(bot.position, bot.walls)
 
-    # check if we already initialized a graph representation of the maze
-    # this is shared between both our bots!
-    if 'graph' not in game.state:
-        # ok, initialize the graph
-        game.state['graph'] = Graph(bot.position, bot.walls)
-
-    target = bot.enemy[turn].position
+    if bot.enemy[0].is_noisy and bot.enemy[1].is_noisy:
+        # if both enemies are noisy, just aim for our turn companion
+        target = bot.enemy[turn].position
+    elif not bot.enemy[turn].is_noisy:
+        # if our turn companion is not noisy, go for it
+        target = bot.enemy[turn].position
+    elif not bot.enemy[1-turn].is_noisy:
+        # if the other enemy is not noisy, go for it
+        target = bot.enemy[1-turn].position
+    else:
+        raise Exception('We should never be here!')
 
     # get the next step to be done to reach our target enemy bot
-    next_pos = next_step(bot.position, target, game.state['graph'])
+    next_pos = next_step(bot.position, target, game.state)
 
     # let's check that we don't go into the enemy homezone
     if next_pos in bot.enemy[turn].homezone:
