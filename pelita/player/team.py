@@ -69,6 +69,9 @@ class Team(AbstractTeam):
         #: Store a history of bot positions
         self._bot_track = [[], []]
 
+        #: Store if we have been eaten before our move
+        self._bot_eaten = [False, False]
+
         # To make things a little simpler, we also initialise a random generator
         # for all enemy bots
 
@@ -111,25 +114,27 @@ class Team(AbstractTeam):
         for idx, mybot in enumerate(team):
             # we assume we have been eaten, when we’re on our initial_position
             # and we could not move back to our previous position
-            mybot._eaten = False
+#            mybot._eaten = False
             if mybot.position == mybot._initial_position:
                 last_pos = self._last_know_position[idx]
                 try:
                     mybot.get_move(last_pos)
                 except ValueError:
-                    mybot._eaten = True
+                    self._bot_eaten[idx] = True
 
             self._last_know_position[idx] = mybot.position
 
-            if mybot.eaten:
+            if self._bot_eaten[idx]:
                 self._bot_track[idx] = []
             self._bot_track[idx].append(mybot.position)
 
             mybot._track = self._bot_track[idx]
+            mybot._eaten = self._bot_eaten[idx]
 
         self._team_game.team[:] = team
         move = self._team_move(turn, self._team_game)
-
+ 
+        self._bot_eaten[turn] = False
         # restore the team state
         self._team_state = self._team_game.state
 
