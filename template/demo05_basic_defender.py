@@ -1,9 +1,13 @@
 # This bot tries to catch an enemy bot. It will stop at the border of its
-# homezone if the enemy is still in its own.
+# homezone if the enemy still did not cross the border.
+# As long as the enemies are far away (their position is noisy), the bot
+# tries to get near to the bot in the enemy team which has the same turn.
+# As soon as an enemy bot is not noisy anymore, i.e. it has come near, the
+# bot goes after it and leaves the other enemy alone
 
 TEAM_NAME = 'Basic Defender Bots'
 
-from pelita.graph import Graph
+from pelita.utils import Graph
 
 from utils import next_step
 
@@ -11,8 +15,7 @@ def move(turn, game):
     bot = game.team[turn]
 
     if game.state is None:
-        # initialize the state for the team to be a graph representation of the
-        # maze
+        # initialize the state object to be a graph representation of the maze
         game.state = Graph(bot.position, bot.walls)
 
     if bot.enemy[0].is_noisy and bot.enemy[1].is_noisy:
@@ -30,7 +33,8 @@ def move(turn, game):
     # get the next step to be done to reach our target enemy bot
     next_pos = next_step(bot.position, target, game.state)
 
-    # let's check that we don't go into the enemy homezone
+    # let's check that we don't go into the enemy homezone, i.e. stop at the
+    # border
     if next_pos in bot.enemy[turn].homezone:
         next_move = (0, 0)
     else:
