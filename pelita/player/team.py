@@ -114,19 +114,25 @@ class Team(AbstractTeam):
         for idx, mybot in enumerate(team):
             # we assume we have been eaten, when we’re on our initial_position
             # and we could not move back to our previous position
-#            mybot._eaten = False
             if mybot.position == mybot._initial_position:
                 last_pos = self._last_know_position[idx]
                 try:
                     mybot.get_move(last_pos)
                 except ValueError:
                     self._bot_eaten[idx] = True
+                    self._bot_track[idx] = []
 
             self._last_know_position[idx] = mybot.position
 
-            if self._bot_eaten[idx]:
-                self._bot_track[idx] = []
-            self._bot_track[idx].append(mybot.position)
+        # Add our track
+        if len(self._bot_track[turn]) == 0:
+            self._bot_track[turn] = [me.position]
+
+        for idx, mybot in enumerate(team):
+            # If the track of any bot is empty,
+            # Add its current position
+            if turn != idx:
+                self._bot_track[idx].append(mybot.position)
 
             mybot._track = self._bot_track[idx]
             mybot._eaten = self._bot_eaten[idx]
