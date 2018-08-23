@@ -411,7 +411,7 @@ def channel_setup(publish_to=None, reply_to=None):
     yield { "publisher": publisher, "controller": controller }
 
 
-def run_external_viewer(subscribe_sock, controller, geometry, delay):
+def run_external_viewer(subscribe_sock, controller, geometry, delay, stop_after):
     # Something on OS X prevents Tk from running in a forked process.
     # Therefore we cannot use multiprocessing here. subprocess works, though.
     viewer_args = [ str(subscribe_sock) ]
@@ -421,6 +421,8 @@ def run_external_viewer(subscribe_sock, controller, geometry, delay):
         viewer_args += ["--geometry", "{0}x{1}".format(*geometry)]
     if delay:
         viewer_args += ["--delay", str(delay)]
+    if stop_after is not None:
+        viewer_args += ["--stop-after", str(stop_after)]
 
     tkviewer = 'pelita.scripts.pelita_tkviewer'
     external_call = [get_python_process(),

@@ -28,6 +28,8 @@ parser.add_argument('--geometry', type=geometry_string,
                     help='geometry')
 parser.add_argument('--delay', type=int,
                     help='delay')
+parser.add_argument('--stop-after', type=int, metavar="N",
+                    help='Stop after N rounds.')
 parser._optionals = parser.add_argument_group('Options')
 parser.add_argument('--version', help='show the version number and exit',
                     action='store_const', const=True)
@@ -54,7 +56,8 @@ def main():
         'address': args.subscribe_sock,
         'controller_address': args.controller_address,
         'geometry': args.geometry,
-        'delay': args.delay
+        'delay': args.delay,
+        'stop_after': args.stop_after
     }
     v = TkViewer(**{k: v for k, v in list(tkargs.items()) if v is not None})
     v.run()

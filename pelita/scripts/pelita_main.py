@@ -201,6 +201,7 @@ advanced_settings.add_argument('--controller', type=str, metavar='URL',
                                default="tcp://127.0.0.1:*", help='Channel for controlling the game.')
 advanced_settings.add_argument('--external-controller', const=True, action='store_const',
                                help='Force control by an external controller.')
+advanced_settings.add_argument('--stop-after', type=int, metavar="N", help='Stop after N rounds.')
 
 parser.epilog = """\
 Team Specification:
@@ -398,7 +399,8 @@ def main():
                 controller = channels["controller"]
                 publisher = channels["publisher"]
                 game_config["publisher"] = publisher
-                viewer = libpelita.run_external_viewer(publisher.socket_addr, controller.socket_addr, geometry=geometry, delay=delay)
+                viewer = libpelita.run_external_viewer(publisher.socket_addr, controller.socket_addr,
+                                                       geometry=geometry, delay=delay, stop_after=args.stop_after)
                 libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers, controller=controller)
             else:
                 libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers)

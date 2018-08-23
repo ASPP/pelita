@@ -107,7 +107,7 @@ class UI:
 
 class TkApplication:
     def __init__(self, master, controller_address=None,
-                 geometry=None, delay=1):
+                 geometry=None, delay=1, stop_after=None):
         self.master = master
         self.master.configure(background="white")
 
@@ -276,6 +276,11 @@ class TkApplication:
 
         self._min_delay = 1
         self._delay = delay
+        self._stop_after = stop_after
+        self._stop_after_delay = delay
+        if self._stop_after is not None:
+            self._delay = self._min_delay
+
         self._check_speed_button_state()
 
         self.running = True
@@ -665,8 +670,21 @@ class TkApplication:
             self.controller_socket.send_json({"__action__": "play_step"})
 
     def request_round(self):
-        if self.controller_socket:
-            self.controller_socket.send_json({"__action__": "play_round"})
+        if self._stop_after is not None:
+            if self._game_state['round_index'] is None:
+                if self.controller_socket:
+                    self.controller_socket.send_json({"__action__": "play_round"})
+            elif (self._game_state['round_index'] < self._stop_after - 1):
+                if self._game_state['bot_id'] == 3:
+                    if self.controller_socket:
+                        self.controller_socket.send_json({"__action__": "play_round"})
+            else:
+                self._stop_after = None
+                self.running = False
+                self._delay = self._stop_after_delay
+        else:
+            if self.controller_socket:
+                self.controller_socket.send_json({"__action__": "play_round"})
 
     def observe(self, data):
         universe = data["universe"]
@@ -674,7 +692,14 @@ class TkApplication:
         game_state = data["game_state"]
 
         self.update(universe, game_state)
-        if self.running:
+        if self._stop_after is not None:
+            if self._stop_after == 0:
+                self._stop_after = None
+                self.running = False
+                self._delay = self._stop_after_delay
+            else:
+                self.master.after(self._delay, self.request_round)
+        elif self.running:
             self.master.after(self._delay, self.request_step)
 
     def on_quit(self):
