@@ -118,7 +118,7 @@ parser = argparse.ArgumentParser(description='Run a single pelita game',
                                  add_help=False,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
 parser._positionals = parser.add_argument_group('Arguments')
-parser.add_argument('team_specs', help='teams', nargs='*', default=None)
+parser.add_argument('team_specs', help='FILENAME1.py FILENAME2.py (see below)', nargs='*', default=None)
 
 parser._optionals = parser.add_argument_group('Options')
 parser.add_argument('--help', '-h', help='Show this help message and exit.',
@@ -128,20 +128,22 @@ parser.add_argument('--version', help='Show the version number and exit.',
 parser.add_argument('--log', help='Print debugging log information to'
                     ' LOGFILE (default \'stderr\').',
                     metavar='LOGFILE', default=argparse.SUPPRESS, nargs='?')
-parser.add_argument('--dump', help='Print game dumps to file (will be overwritten)'
-                    ' DUMPFILE (default \'pelita.dump\').',
-                    metavar='DUMPFILE', default=argparse.SUPPRESS, nargs='?')
-parser.add_argument('--replay', help='Replay a dumped game'
-                    ' DUMPFILE (default \'pelita.dump\').',
-                    metavar='DUMPFILE', default=argparse.SUPPRESS, nargs='?')
-parser.add_argument('--dry-run', const=True, action='store_const',
-                    help='Load players but do not actually play the game.')
+parser.add_argument('--dump', #help='Print game dumps to file (will be overwritten)'
+                    #' DUMPFILE (default \'pelita.dump\').',
+                    metavar='DUMPFILE', default=argparse.SUPPRESS, nargs='?',
+                    help=argparse.SUPPRESS)
+parser.add_argument('--replay', #help='Replay a dumped game'
+                    #' DUMPFILE (default \'pelita.dump\').',
+                    metavar='DUMPFILE', default=argparse.SUPPRESS, nargs='?',
+                    help=argparse.SUPPRESS)
+parser.add_argument('--dry-run', const=True, action='store_const', help=argparse.SUPPRESS)
+                    #help='Load players but do not actually play the game.')
 parser.add_argument('--list-layouts', action='store_const', const=True,
                     help='List all available layouts.')
-parser.add_argument('--list-teams', action="store_const", const=True,
-                    help='Print the names of the included default teams.')
-parser.add_argument('--check-team', action="store_const", const=True,
-                    help='Check that the team is valid (on first sight) and print its name.')
+parser.add_argument('--list-teams', action="store_const", const=True, help=argparse.SUPPRESS)
+                    #help='Print the names of the included default teams.')
+parser.add_argument('--check-team', action="store_const", const=True, help=argparse.SUPPRESS)
+                    #help='Check that the team is valid (on first sight) and print its name.')
 
 game_settings = parser.add_argument_group('Game settings')
 game_settings.add_argument('--rounds', type=int, default=300,
@@ -158,14 +160,16 @@ layout_opt.add_argument('--filter', metavar='STRING', default='normal_without_de
                         help='Restrict the pool of random layouts to those whose name contains STRING.'
                         ' Default: \'normal_without_dead_ends\'')
 
-game_settings.add_argument('--max-timeouts', type=int, default=5,
-                           dest='max_timeouts', help='Maximum number of timeouts allowed (default: 5).')
 timeout_opt = game_settings.add_mutually_exclusive_group()
 timeout_opt.add_argument('--timeout', type=float, metavar="SEC",
                          dest='timeout_length', help='Time before timeout is triggered (default: 3 seconds).')
 timeout_opt.add_argument('--no-timeout', const=None, action='store_const',
                          dest='timeout_length', help='Run game without timeouts.')
+game_settings.add_argument('--max-timeouts', type=int, default=5,
+                           dest='max_timeouts', help='Maximum number of timeouts allowed (default: 5).')
 parser.set_defaults(timeout_length=3)
+game_settings.add_argument('--stop-at', dest='stop_after', type=int, metavar="N",
+                           help='Stop at round N.')
 
 viewer_settings = parser.add_argument_group('Viewer settings')
 viewer_settings.add_argument('--geometry', type=geometry_string, metavar='NxM',
@@ -177,31 +181,30 @@ viewer_opt = viewer_settings.add_mutually_exclusive_group()
 viewer_opt.add_argument('--null', action='store_const', const='null',
                         dest='viewer', help='Use no viewer on stdout.')
 viewer_opt.add_argument('--ascii', action='store_const', const='ascii',
-                        dest='viewer', help='Use the ASCII viewer.')
+                        dest='viewer', help=argparse.SUPPRESS) #, help='Use the ASCII viewer.')
 viewer_opt.add_argument('--progress', action='store_const', const='progress',
-                        dest='viewer', help='Use the progress viewer.')
+                        dest='viewer', help=argparse.SUPPRESS) # help='Use the progress viewer.')
 viewer_opt.add_argument('--tk', action='store_const', const='tk',
                         dest='viewer', help='Use the tk viewer (default).')
 viewer_opt.add_argument('--tk-no-sync', action='store_const', const='tk-no-sync',
-                        dest='viewer', help='Use the unsynchronised tk viewer.')
+                        dest='viewer', help=argparse.SUPPRESS)
 parser.set_defaults(viewer='tk')
 
 advanced_settings = parser.add_argument_group('Advanced settings')
-advanced_settings.add_argument('--reply-to', type=str, metavar='URL',
-                    dest='reply_to', help='Communicate the result of the game on this channel.')
+advanced_settings.add_argument('--reply-to', type=str, metavar='URL', help=argparse.SUPPRESS,
+                    dest='reply_to')# , help='Communicate the result of the game on this channel.')
 
 publisher_opt = advanced_settings.add_mutually_exclusive_group()
-publisher_opt.add_argument('--publish', type=str, metavar='URL',
-                           dest='publish_to', help='Publish the game to this zmq socket.')
-publisher_opt.add_argument('--no-publish', const=False, action='store_const',
-                           dest='publish_to', help='Do not publish.')
+publisher_opt.add_argument('--publish', type=str, metavar='URL', help=argparse.SUPPRESS,
+                           dest='publish_to') #, help='Publish the game to this zmq socket.')
+publisher_opt.add_argument('--no-publish', const=False, action='store_const', help=argparse.SUPPRESS,
+                           dest='publish_to') #, help='Do not publish.')
 parser.set_defaults(publish_to="tcp://127.0.0.1:*")
 
-advanced_settings.add_argument('--controller', type=str, metavar='URL',
-                               default="tcp://127.0.0.1:*", help='Channel for controlling the game.')
-advanced_settings.add_argument('--external-controller', const=True, action='store_const',
-                               help='Force control by an external controller.')
-advanced_settings.add_argument('--stop-after', type=int, metavar="N", help='Stop after N rounds.')
+advanced_settings.add_argument('--controller', type=str, metavar='URL', help=argparse.SUPPRESS,
+                               default="tcp://127.0.0.1:*") #, help='Channel for controlling the game.')
+advanced_settings.add_argument('--external-controller', const=True, action='store_const', help=argparse.SUPPRESS)
+                               #help='Force control by an external controller.')
 
 parser.epilog = """\
 Team Specification:
@@ -211,7 +214,7 @@ Team Specification:
     * TEAM_NAME
         a string with the name of the team.
 
-    * move
+    * move(turn, game) -> next_move
         a function that takes the current game and returns the move for the bot
         with index `turn`, where `turn` is 0 or 1.
 
