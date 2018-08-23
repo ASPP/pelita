@@ -4,7 +4,7 @@
 # it steps back to its previous position
 TEAM_NAME = 'Basic Attacker Bots'
 
-from pelita.graph import Graph
+from pelita.utils import Graph
 
 from utils import next_step
 
