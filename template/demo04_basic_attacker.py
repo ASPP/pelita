@@ -29,14 +29,6 @@ def move(turn, game):
     if 'target' not in game.state[turn]:
         game.state[turn]['target'] = bot.random.choice(bot.enemy[0].food)
 
-    # if we are doing the first move, let's initialize a empty list to keep
-    # track of our moves
-    if 'track' not in game.state[turn]:
-        game.state[turn]['track'] = []
-
-    # let's record our current position
-    game.state[turn]['track'].append(bot.position)
-
     # did we (or the other bot) eat our target already?
     if game.state[turn]['target'] not in bot.enemy[0].food:
         # let's choose one random food pellet as our new goal
@@ -53,7 +45,12 @@ def move(turn, game):
         if (next_pos == enemy_pos) and (next_pos not in bot.homezone):
             # we are in the enemy zone: they can eat us!
             # let us just step back
-            next_pos = game.state[turn]['track'][-2]
+            try:
+                next_pos = bot.track[-2]
+            except IndexError:
+                # we can't go 2 steps back (we have been eaten or who knows why)
+                # let's just stop
+                next_pos = bot.position
             # let's forget about this food pellet for now and wait for next
             # move to choose another one
             game.state[turn].pop('target')
