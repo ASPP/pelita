@@ -24,7 +24,6 @@ def test_no_kamikaze():
     game = setup_test_game(layout=layout, is_blue=True)
     # create a "fake" track of previous moves, as our bot needs it to decide
     # where to go to avoid a bot
-    game.state = {0: {}}
     game.team[0]._track = [(4,2), (5,2)] # we use the internal attribute '_track'
                                      # because the property 'track' is read-only
     print(game.team[0].legal_moves)
