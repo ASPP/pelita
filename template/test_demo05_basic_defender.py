@@ -1,4 +1,4 @@
-from demo_basic_defender import move
+from demo05_basic_defender import move
 from pelita.utils import setup_test_game, create_layout
 
 def test_kill_enemy():
