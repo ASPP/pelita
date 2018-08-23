@@ -15,24 +15,28 @@ def move(turn, game):
     # over turns for each individual bot
     # - we want to track previous positions, so that we can backtrack if needed
     # - we want to keep track of the food pellet we are aiming at the moment
-    # check if we already initialized a graph representation of the maze
-    # this is shared between both our bots!
-    if 'graph' not in game.state:
-        # ok, initialize the graph
+    if game.state is None:
+        # initialize a state dictionary
+        game.state = {}
+        # each bot needs its own state dictionary to keep track of the
+        # food targets
+        game.state[0] = None
+        game.state[1] = None
+        # initialize a graph representation of the maze
         game.state['graph'] = Graph(bot.position, bot.walls)
 
     # if we don't have a target food pellet, choose one at random now
-    if 'target' not in game.state[turn]:
-        game.state[turn]['target'] = bot.random.choice(bot.enemy[0].food)
+    if game.state[turn] is None:
+        game.state[turn] = bot.random.choice(bot.enemy[0].food)
 
     # did we (or the other bot) eat our target already?
-    if game.state[turn]['target'] not in bot.enemy[0].food:
+    if game.state[turn] not in bot.enemy[0].food:
         # let's choose one random food pellet as our new goal
-        game.state[turn]['target'] = bot.random.choice(bot.enemy[0].food)
+        game.state[turn] = bot.random.choice(bot.enemy[0].food)
 
     # get the next position along the path to reach our target food pellet
     next_pos = next_step(bot.position,
-                         game.state[turn]['target'],
+                         game.state[turn],
                          game.state['graph'])
 
     # now, let's check if we are getting too near to our enemy
@@ -49,7 +53,7 @@ def move(turn, game):
                 next_pos = bot.position
             # let's forget about this food pellet for now and wait for next
             # move to choose another one
-            game.state[turn].pop('target')
+            game.state[turn] = None
 
     return bot.get_move(next_pos)
 
