@@ -1,4 +1,4 @@
-from demo_basic_attacker import move
+from demo04_basic_attacker import move
 from pelita.utils import setup_test_game, create_layout
 
 def test_eat_food():
