@@ -141,7 +141,7 @@ class TestSingleMatch:
         config.filter = 'small'
         config.tournament_log_folder = None
 
-        teams = ["StoppingPlayer", "StoppingPlayer"]
+        teams = ["pelita/player/StoppingPlayer", "pelita/player/StoppingPlayer"]
         (state, stdout, stderr) = tournament.play_game_with_config(config, teams)
         assert state['team_wins'] == None
         assert state['game_draw'] == True
@@ -149,7 +149,7 @@ class TestSingleMatch:
         config.rounds = 200
         config.team_spec = lambda x: x
         config.viewer = 'ascii'
-        teams = ["SmartEatingPlayer", "StoppingPlayer"]
+        teams = ["pelita/player/SmartEatingPlayer", "pelita/player/StoppingPlayer"]
         (state, stdout, stderr) = tournament.play_game_with_config(config, teams)
         print(state)
         assert state['team_wins'] == 0
@@ -158,7 +158,7 @@ class TestSingleMatch:
         config.rounds = 200
         config.team_spec = lambda x: x
         config.viewer = 'ascii'
-        teams = ["StoppingPlayer", "SmartEatingPlayer"]
+        teams = ["pelita/player/StoppingPlayer", "pelita/player/SmartEatingPlayer"]
         (state, stdout, stderr) = tournament.play_game_with_config(config, teams)
         assert state['team_wins'] == 1
         assert state['game_draw'] == None
@@ -171,8 +171,8 @@ class TestSingleMatch:
             stdout.append(str)
 
         teams = {
-            "first_id": "StoppingPlayer",
-            "second_id": "SmartEatingPlayer",
+            "first_id": "pelita/player/StoppingPlayer",
+            "second_id": "pelita/player/SmartEatingPlayer",
         }
 
         config = MagicMock()
@@ -187,17 +187,17 @@ class TestSingleMatch:
         team_ids = ["first_id", "first_id"]
         result = tournament.start_match(config, team_ids)
         assert result == False
-        assert stdout[-1] == '‘StoppingPlayer’ and ‘StoppingPlayer’ had a draw.'
+        assert stdout[-1] == '‘pelita/player/StoppingPlayer’ and ‘pelita/player/StoppingPlayer’ had a draw.'
 
         team_ids = ["second_id", "first_id"]
         result = tournament.start_match(config, team_ids)
         assert result == "second_id"
-        assert stdout[-1] == '‘SmartEatingPlayer’ wins'
+        assert stdout[-1] == '‘pelita/player/SmartEatingPlayer’ wins'
 
         team_ids = ["first_id", "second_id"]
         result = tournament.start_match(config, team_ids)
         assert result == "second_id"
-        assert stdout[-1] == '‘SmartEatingPlayer’ wins'
+        assert stdout[-1] == '‘pelita/player/SmartEatingPlayer’ wins'
 
 
     def test_deathmatch(self):
@@ -207,8 +207,8 @@ class TestSingleMatch:
             stdout.append(str)
 
         teams = {
-            "first_id": "StoppingPlayer",
-            "second_id": "StoppingPlayer",
+            "first_id": "pelita/player/StoppingPlayer",
+            "second_id": "pelita/player/StoppingPlayer",
         }
 
         config = MagicMock()
@@ -248,11 +248,11 @@ class TestTournament:
             "date": None,
             "bonusmatch": None,
             "teams": [
-                {"id": "group0", "spec": "StoppingPlayer", "members": []},
-                {"id": "group1", "spec": "SmartEatingPlayer", "members": []},
-                {"id": "group2", "spec": "StoppingPlayer", "members": []},
-                {"id": "group3", "spec": "StoppingPlayer", "members": []},
-                {"id": "group4", "spec": "StoppingPlayer", "members": []},
+                {"id": "group0", "spec": "pelita/player/StoppingPlayer", "members": []},
+                {"id": "group1", "spec": "pelita/player/SmartEatingPlayer", "members": []},
+                {"id": "group2", "spec": "pelita/player/StoppingPlayer", "members": []},
+                {"id": "group3", "spec": "pelita/player/StoppingPlayer", "members": []},
+                {"id": "group4", "spec": "pelita/player/StoppingPlayer", "members": []},
             ],
             "filter": "small",
         }

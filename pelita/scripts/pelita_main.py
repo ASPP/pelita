@@ -97,9 +97,6 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
         # won't let us pipe it.
         sys.stdout.flush()
 
-def default_players():
-    from ..player import SANE_PLAYERS
-    return sorted(SANE_PLAYERS, key=lambda m: m.__name__)
 
 def geometry_string(s):
     """Get a X-style geometry definition and return a tuple.
@@ -261,11 +258,6 @@ def main():
     if args.list_layouts:
         layouts = pelita.layout.get_available_layouts()
         print('\n'.join(layouts))
-        sys.exit(0)
-
-    if args.list_teams:
-        for player in default_players():
-            print(player.__name__)
         sys.exit(0)
 
     if args.seed is None:

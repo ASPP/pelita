@@ -6,19 +6,6 @@ import pelita
 from pelita import libpelita
 from pelita.simplesetup import SimpleServer
 
-
-def test_default_players():
-    from pelita.scripts.pelita_main import default_players
-    assert [m.__name__ for m in default_players()] == [
-        'FoodEatingPlayer',
-        'NQRandomPlayer',
-        'RandomExplorerPlayer',
-        'RandomPlayer',
-        'SmartEatingPlayer',
-        'SmartRandomPlayer',
-    ]
-
-
 import atexit
 
 def terminate_and_wait(proc):
@@ -36,8 +23,8 @@ def Popen_autokill(args):
 
 def test_remote_game():
     remote = [libpelita.get_python_process(), '-m', 'pelita.scripts.pelita_player', '--remote']
-    remote_stopping = remote + ['StoppingPlayer', 'tcp://127.0.0.1:52301']
-    remote_food_eater = remote + ['FoodEatingPlayer', 'tcp://127.0.0.1:52302']
+    remote_stopping = remote + ['pelita/player/StoppingPlayer', 'tcp://127.0.0.1:52301']
+    remote_food_eater = remote + ['pelita/player/FoodEatingPlayer', 'tcp://127.0.0.1:52302']
 
     remote_procs = [Popen_autokill(args) for args in [remote_stopping, remote_food_eater]]
 

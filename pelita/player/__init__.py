@@ -1,7 +1,7 @@
 
 from .base import AbstractTeam, SimpleTeam, AbstractPlayer
 
-from .base import (StoppingPlayer, SteppingPlayer, SpeakingPlayer,
+from .base import (SteppingPlayer, SpeakingPlayer,
                    RoundBasedPlayer, MoveExceptionPlayer, InitialExceptionPlayer,
                    DebuggablePlayer)
 
@@ -12,6 +12,7 @@ from .FoodEatingPlayer import FoodEatingPlayer
 from .SmartEatingPlayer import SmartEatingPlayer
 from .RandomExplorerPlayer import RandomExplorerPlayer
 from .SmartRandomPlayer import SmartRandomPlayer
+from .StoppingPlayer import StoppingPlayer
 
 SANE_PLAYERS = [
     RandomPlayer,
