@@ -1,4 +1,4 @@
-from demo_stopping import move
+from demo01_stopping import move
 from pelita.utils import setup_test_game, create_layout
 
 def test_stays_there():
