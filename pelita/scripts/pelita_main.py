@@ -205,69 +205,33 @@ advanced_settings.add_argument('--stop-after', type=int, metavar="N", help='Stop
 
 parser.epilog = """\
 Team Specification:
-  - Using predefined players:
-    A single name (e.g. 'NQRandomPlayer') in which case the team is
-    composed of players of this type, or a comma separated list of
-    player types (e.g. 'BFSPlayer,BasicDefensePlayer'). Example usage:
+    A team consists of a path to a .py file or to a Python module
+    that defines at least:
 
-        $ %(prog)s BFSPlayer,RandomPlayer NQRandomPlayer,BasicDefensePlayer
+    * TEAM_NAME
+        a string with the name of the team.
 
-    Use --list-teams to get a list of predefined players.
+    * move
+        a function that takes the current game and returns the move for the bot
+        with index `turn`, where `turn` is 0 or 1.
 
-  - Using custom players (filename):
-    The name of a python file (e.g. '~/my_player.py') which defines
-    a function named 'team' (you can change the name of the factory
-    function by adding ':alternate_team' to the filename). The factory
-    function must take no arguments and return an instance of
-    pelita.player.SimpleTeam.
-    Example implementation:
+    Example file: my_stopping_bots.py
 
-    def team():
-        return pelita.player.SimpleTeam("My Team", MyPlayer1(), MyPlayer2())
+        TEAM_NAME = 'My stopping bots'
 
-    Example usage:
+        def move(turn, game):
+            return (0, 0)
 
-        $ %(prog)s ~/my_player.py NQRandomPlayer,BasicDefensePlayer
+    A game between two teams of stopping bots can then be played as
 
-    Example of custom factory function:
+        pelita my_stopping_bots.py my_stopping_bots.py
 
-        $ %(prog)s ~/my_player.py:my_other_team NQRandomPlayer,BasicDefensePlayer
-
-  - Using custom players (package):
-    The name of a python package (i.e. a directory with an __init__.py file),
-    which exposes a function named 'team' (see above for more details).
-    Example usage:
-
-        $ %(prog)s my_player NQRandomPlayer,BasicDefensePlayer
-
-  - Using a different Python version:
-    Additionally, player specifications may use a prefix (ending with @)
-    to use a different executable for the subprocess.
-
-        $ %(prog)s py3@my_new_player py2@my_old_player
-
-    runs the first player with Python 3 and the second player with Python 2.
-    A non-existing prefix is taken as ‘py@’ that is the very same Python version
-    the pelitagame script is run with.
-
-  - Using custom players (simpleclient):
-    The address the server should bind on and wait for a client
-    to connect to.
-
-    Example of a server binding the left team to 'tcp://*:9005' and
-    the right team to 'ipc:///tmp/mysocket':
-
-        $ %(prog)s tcp://*:9005 ipc:///tmp/mysocket
-
-    Example of a server binding the left team to 'tcp://*:9005' and
-    using a built-in Player as the right team:
-
-        $ %(prog)s tcp://*:9005 NQRandomPlayer,BasicDefensePlayer
+    Demo players can be found at https://github.com/ASPP/pelita_template
 
 Layout specification:
-  If neither --layoutfile nor --layout are specified, the maze is
-  chosen at random from the pool of available layouts.
-  You can restrict this pool by using --filter.
+    If neither --layoutfile nor --layout are specified, the maze is
+    chosen at random from the pool of available layouts.
+    You can restrict this pool by using --filter.
 """
 
 
