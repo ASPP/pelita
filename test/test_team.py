@@ -152,6 +152,8 @@ class TestStoppingTeam:
     def round_counting():
         storage_copy = {}
         def inner(turn, game):
+            if game.state is None:
+                game.state = {}
             game.state[turn] = game.state.get(turn, 0) + 1
             storage_copy['rounds'] = game.state[turn]
             return (0, 0)
@@ -238,6 +240,7 @@ class TestTrack:
             bot = game.team[turn]
             if bot.round == 0 and turn == 0:
                 assert bot.track[0] == bot.position
+                game.state = {}
                 game.state[turn] = {}
                 game.state[1 - turn] = {}
                 game.state[turn]['track'] = []
