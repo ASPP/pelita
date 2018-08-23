@@ -57,7 +57,7 @@ class Team(AbstractTeam):
         """
 
         #: Storage for the team state
-        self._team_state = {}
+        self._team_state = None
         self._team_game = Game([None, None], self._team_state)
 
         #: Storage for the random generator
