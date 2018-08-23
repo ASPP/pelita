@@ -246,13 +246,12 @@ class TestTrack:
                 game.state[turn]['track'] = []
                 game.state[1 - turn]['track'] = []
 
-            if bot.eaten:
-                game.state[turn]['track'] = []
-            if bot.other.eaten:
-                game.state[1 - turn]['track'] = []
-
-            game.state[turn]['track'].append(bot.position)
-            game.state[1 - turn]['track'].append(bot.other.position)
+            if bot.eaten or not game.state[turn]['track']:
+                game.state[turn]['track'] = [bot.position]
+            if bot.other.eaten or not game.state[1 - turn]['track']:
+                game.state[1 - turn]['track'] = [bot.other.position]
+            else:
+                game.state[1 - turn]['track'].append(bot.other.position)
 
             assert bot.track[0] == bot._initial_position
             assert bot.track == game.state[turn]['track'] # bot.round * 2 + 1 + turn
@@ -261,7 +260,7 @@ class TestTrack:
 
         layout = """
         ############
-        #  #02 .3 1#
+        ##02   .3 1#
         ############
         #.#      #.#
         ############
@@ -270,5 +269,5 @@ class TestTrack:
             Team(trackingBot),
             Team(trackingBot)
         ]
-        gm = GameMaster(layout, team, 4, 30)
+        gm = GameMaster(layout, team, 4, 300)
         gm.play()
