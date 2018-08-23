@@ -99,7 +99,9 @@ class DefaultRunner(ModuleRunner):
                          '-m',
                          player,
                          self.team_spec,
-                         addr]
+                         addr,
+                         '--color',
+                         self.color]
         _logger.debug("Executing: %r", external_call)
         return subprocess.Popen(external_call)
 
@@ -123,7 +125,7 @@ def _call_pelita_player(module_spec, address):
             _logger.debug("Terminating proc %r", proc)
             proc.terminate()
 
-def call_pelita_player(module_spec, address):
+def call_pelita_player(module_spec, address, color=''):
     """ Starts another process with the same Python executable,
     the same start script (pelitagame) and runs `team_spec`
     as a standalone client on URL `addr`.
@@ -140,7 +142,9 @@ def call_pelita_player(module_spec, address):
             raise ValueError("Unknown runner: {}:".format(module_spec.prefix))
     else:
         runner = DefaultRunner
-    return runner(module_spec.module).run(address)
+    runner_inst = runner(module_spec.module)
+    runner_inst.color = color
+    return runner_inst.run(address)
 
 from contextlib import contextmanager
 
@@ -363,12 +367,19 @@ def run_game(team_specs, game_config, viewers=None, controller=None):
         for team, address in zip(teams, server.bind_addresses)
     ]
 
+    color = {}
     for idx, team in enumerate(teams):
+        if idx == 0:
+            color[team] = 'Blue'
+        elif idx == 1:
+            color[team] = 'Red'
+        else:
+            color[team] = ''
         if team.module is None:
             print("Waiting for external team %d to connect to %s." % (idx, team.address))
 
     external_players = [
-        call_pelita_player(team.module, team.address)
+        call_pelita_player(team.module, team.address, color[team])
         for team in teams
         if team.module
     ]

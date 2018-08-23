@@ -35,7 +35,7 @@ def with_sys_path(dirname):
         sys.path.remove(dirname)
 
 
-def make_client(team_spec, address):
+def make_client(team_spec, address, color=None):
     address = address.replace('*', 'localhost')
 
     try:
@@ -53,7 +53,7 @@ def make_client(team_spec, address):
 
         raise
 
-    print("Using team '%s' -> '%s'" % (team_spec, team.team_name))
+    print("%s team '%s' -> '%s'" % (color, team_spec, team.team_name))
 
     client = pelita.simplesetup.SimpleClient(team, address=address)
     return client
@@ -243,6 +243,7 @@ def main():
                         metavar='LOGFILE', default=argparse.SUPPRESS, nargs='?')
     parser.add_argument('--remote', help='bind to a zmq.ROUTER socket at the given address which forks subprocesses on demand',
                         action='store_const', const=True)
+    parser.add_argument('--color', help='which color your team will have in the game', default=None)
     parser.add_argument('team')
     parser.add_argument('address')
 
@@ -256,7 +257,7 @@ def main():
     if args.remote:
         with_zmq_router(args.team, args.address)
     else:
-        client = make_client(args.team, args.address)
+        client = make_client(args.team, args.address, args.color)
         ret = client.run()
 
     sys.exit(ret)
