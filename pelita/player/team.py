@@ -275,14 +275,6 @@ class Bot:
         return legal_moves
 
     @property
-    def other(self):
-        """ The other bot in the team.
-        """
-        other_index = (self.bot_index + 2) % 4
-        return self._bots[other_index]
-
-    @property
-    def team(self):
         """ Both of our bots.
         """
         if self.is_blue:
