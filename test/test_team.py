@@ -42,12 +42,12 @@ class TestLayout:
         layout = create_layout(self.layout, self.layout2)
         assert layout.bots == [(6, 1), (1, 2)]
         assert layout.enemy == [(5, 1), (2, 2)]
-    
+
     def test_concat(self):
         layout = create_layout(self.layout + self.layout2)
         assert layout.bots == [(6, 1), (1, 2)]
         assert layout.enemy == [(5, 1), (2, 2)]
-    
+
     def test_load1(self):
         layout = create_layout(self.layout)
         assert layout.bots == [(6, 1), (1, 2)]
@@ -78,7 +78,7 @@ class TestLayout:
         layout = create_layout(layout_str)
         assert layout.bots == [(1, 1), (1, 1)]
         assert layout.enemy ==  [(1, 1), (1, 1)]
-        setup_test_game(layout=layout) 
+        setup_test_game(layout=layout)
 
     def test_define_after(self):
         layout = create_layout(self.layout, food=[(1, 1)], bots=[None, None], enemy=None)
@@ -238,6 +238,7 @@ class TestTrack:
     def test_track(self):
         def trackingBot(turn, game):
             bot = game.team[turn]
+            other = game.team[1-turn]
             if bot.round == 0 and turn == 0:
                 assert bot.track[0] == bot.position
                 game.state = {}
@@ -248,10 +249,10 @@ class TestTrack:
 
             if bot.eaten or not game.state[turn]['track']:
                 game.state[turn]['track'] = [bot.position]
-            if bot.other.eaten or not game.state[1 - turn]['track']:
-                game.state[1 - turn]['track'] = [bot.other.position]
+            if other.eaten or not game.state[1 - turn]['track']:
+                game.state[1 - turn]['track'] = [other.position]
             else:
-                game.state[1 - turn]['track'].append(bot.other.position)
+                game.state[1 - turn]['track'].append(other.position)
 
             assert bot.track[0] == bot._initial_position
             assert bot.track == game.state[turn]['track'] # bot.round * 2 + 1 + turn
