@@ -5,19 +5,29 @@ from demo05_basic_defender import move as move_defender
 from demo04_basic_attacker import move as move_attacker
 
 def move(turn, game):
+    # create a combined game state to collect the states for both bots
     if game.state is None:
-        one_by_one_state = {'attacker' : None, 'defender' : None}
+        # initialization
+        combined_state = {'attacker' : None, 'defender' : None}
     else:
-        one_by_one_state = game.state
+        # keep a copy of the game state (the move_defender and move_attacker
+        # functions are going to overwrite game.state, so we need a copy
+        # here so that we can reset game.state before returning)
+        combined_state = game.state.copy()
 
     if turn == 0:
-        game.state = one_by_one_state['defender']
+        # fake the game.state
+        game.state = combined_state['defender']
         next_move = move_defender(turn, game)
+        # collect the defender state in our own dictionary
+        combined_state['defender'] = game.state
     else:
-        game.state = one_by_one_state['attacker']
+        # same as above
+        game.state = combined_state['attacker']
         next_move = move_attacker(turn, game)
+        # collect the attacker state in our own dictionary
+        combined_state['attacker'] = game.state
 
-    # reset the game state
-    game.state = one_by_one_state
+    game.state = combined_state
 
     return next_move
