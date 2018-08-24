@@ -139,7 +139,7 @@ class Team(AbstractTeam):
 
         self._team_game.team[:] = team
         move = self._team_move(turn, self._team_game)
- 
+
         self._bot_eaten[turn] = False
         # restore the team state
         self._team_state = self._team_game.state
@@ -242,6 +242,8 @@ class Bot:
                           timeout_count):
         self._bots = None
         self._say = None
+        self._track = []
+        self._eaten = False
         self._initial_position = initial_position
 
         self.random = random
@@ -482,7 +484,7 @@ class Layout:
                     if not (0 <= pos[0] < walls_width) or not (0 <= pos[1] < walls_height):
                         raise ValueError("Item at %r not in bounds." % (pos,))
 
-        
+
         if len(bots) > 2:
             raise ValueError("Too many bots.")
 
@@ -570,7 +572,7 @@ class Layout:
         for idx, b in enumerate(other.bots):
             if b:
                 self.bots[idx] = b
-        
+
         # merge all enemies and then take the last 2
         enemies = [e for e in [*self.enemy, *other.enemy] if e is not None]
         self.enemy = enemies[-2:]
