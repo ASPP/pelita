@@ -47,6 +47,8 @@ def move(turn, game):
             try:
                 # bot.track[-1] is always the current position, so to backtrack
                 # we select bot.track[-2]
+                # this is not always safe, because we don't check if by any chance
+                # the bot.track[-2] == enemy_pos ;)
                 next_pos = bot.track[-2]
             except IndexError:
                 # this happens when len(bot.track) < 2, i.e. we have been eaten
