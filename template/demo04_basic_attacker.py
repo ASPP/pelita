@@ -25,15 +25,14 @@ def move(turn, game):
         game.state['graph'] = Graph(bot.position, bot.walls)
 
     target = game.state[turn]
+
     # choose a target food pellet if we still don't have one or
     # if the old target has been already eaten
     if (target is None) or (target not in bot.enemy[0].food):
-        game.state[turn] = bot.random.choice(bot.enemy[0].food)
+        target = game.state[turn] = bot.random.choice(bot.enemy[0].food)
 
     # get the next position along the shortest path to reach our target
-    next_pos = next_step(bot.position,
-                         game.state[turn],
-                         game.state['graph'])
+    next_pos = next_step(bot.position, target, game.state['graph'])
 
     # now, let's check if we are getting too near to our enemy
     # where are the enemy ghosts?
@@ -44,16 +43,13 @@ def move(turn, game):
             #    now). We will choose a new target in the next round
             game.state[turn] = None
             # 2. let us step back
-            try:
-                # bot.track[-1] is always the current position, so to backtrack
-                # we select bot.track[-2]
-                # this is not always safe, because we don't check if by any chance
-                # the bot.track[-2] == enemy_pos ;)
-                next_pos = bot.track[-2]
-            except IndexError:
-                # this happens when len(bot.track) < 2, i.e. we have been eaten
-                # or we are at the beginning of the game
-                next_pos = bot.position
+            # bot.track[-1] is always the current position, so to backtrack
+            # we select bot.track[-2]
+            next_pos = bot.track[-2]
+            if next_pos == enemy_pos:
+                # we would step back on a ghost who is chasing us, let us just
+                # take a random move
+                next_pos = bot.get_position(bot.random.choice(bot.legal_moves))
 
     # return the move needed to get from our position to the next position
     return bot.get_move(next_pos)
