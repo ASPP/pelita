@@ -26,8 +26,6 @@ def test_no_kamikaze():
     # where to go to avoid a bot
     game.team[0]._track = [(4,2), (5,2)] # we use the internal attribute '_track'
                                      # because the property 'track' is read-only
-    print(game.team[0].legal_moves)
-    print(game.team[0].position)
     next_move = move(0, game)
     assert next_move == (-1, 0)
 
