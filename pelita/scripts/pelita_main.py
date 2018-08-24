@@ -97,9 +97,6 @@ class ResultPrinter(pelita.viewer.AbstractViewer):
         # won't let us pipe it.
         sys.stdout.flush()
 
-def default_players():
-    from ..player import SANE_PLAYERS
-    return sorted(SANE_PLAYERS, key=lambda m: m.__name__)
 
 def geometry_string(s):
     """Get a X-style geometry definition and return a tuple.
@@ -140,8 +137,6 @@ parser.add_argument('--dry-run', const=True, action='store_const', help=argparse
                     #help='Load players but do not actually play the game.')
 parser.add_argument('--list-layouts', action='store_const', const=True,
                     help='List all available layouts.')
-parser.add_argument('--list-teams', action="store_const", const=True, help=argparse.SUPPRESS)
-                    #help='Print the names of the included default teams.')
 parser.add_argument('--check-team', action="store_const", const=True, help=argparse.SUPPRESS)
                     #help='Check that the team is valid (on first sight) and print its name.')
 
@@ -261,11 +256,6 @@ def main():
     if args.list_layouts:
         layouts = pelita.layout.get_available_layouts()
         print('\n'.join(layouts))
-        sys.exit(0)
-
-    if args.list_teams:
-        for player in default_players():
-            print(player.__name__)
         sys.exit(0)
 
     if args.seed is None:

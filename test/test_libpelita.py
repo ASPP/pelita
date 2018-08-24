@@ -20,17 +20,17 @@ class TestCallPelita:
         viewer = 'ascii'
         filter = 'small'
 
-        teams = ["StoppingPlayer", "StoppingPlayer"]
+        teams = ["pelita/player/StoppingPlayer", "pelita/player/StoppingPlayer"]
         (state, stdout, stderr) = libpelita.call_pelita(teams, rounds=rounds, viewer=viewer, filter=filter, dump=None, seed=None)
         assert state['team_wins'] is None
         assert state['game_draw'] is True
 
-        teams = ["SmartEatingPlayer", "StoppingPlayer"]
+        teams = ["pelita/player/SmartEatingPlayer", "pelita/player/StoppingPlayer"]
         (state, stdout, stderr) = libpelita.call_pelita(teams, rounds=rounds, viewer=viewer, filter=filter, dump=None, seed=None)
         assert state['team_wins'] == 0
         assert state['game_draw'] is None
 
-        teams = ["StoppingPlayer", "SmartEatingPlayer"]
+        teams = ["pelita/player/StoppingPlayer", "pelita/player/SmartEatingPlayer"]
         (state, stdout, stderr) = libpelita.call_pelita(teams, rounds=rounds, viewer=viewer, filter=filter, dump=None, seed=None)
         assert state['team_wins'] == 1
         assert state['game_draw'] is None

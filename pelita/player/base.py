@@ -503,11 +503,6 @@ class AbstractPlayer(metaclass=abc.ABCMeta):
                 getattr(self, "_index", None),
                 getattr(self, "current_pos", None))
 
-class StoppingPlayer(AbstractPlayer):
-    """ A Player that just stands still. """
-    def get_move(self):
-        return datamodel.stop
-
 class SpeakingPlayer(AbstractPlayer):
     """ A player that makes moves at random and tells us about it. """
 

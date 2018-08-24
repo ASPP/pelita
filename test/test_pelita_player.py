@@ -105,10 +105,10 @@ class TestLoadTeam:
                 load_team(spec)
 
     load_team_cases = [
-        ("StoppingPlayer", None),
-        ("StoppingPlayer,StoppingPlayer", None),
+        ("pelita/player/StoppingPlayer", None),
+#        ("StoppingPlayer,StoppingPlayer", None),
         ("NonExistingPlayer", ImportError),
-        ("StoppingPlayer,StoppingPlayer,FoodEatingPlayer", ValueError),
+#        ("StoppingPlayer,StoppingPlayer,FoodEatingPlayer", ValueError),
         ('doc/source/groupN:team', None),
         ('doc/source/groupN/__init__.py', ImportError),
         ('doc/source/groupN', ValueError), # Has already been imported
