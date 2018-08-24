@@ -262,11 +262,10 @@ class Bot:
 
     @property
     def legal_moves(self):
-        """ The legal moves that the bot can make from its current position.
-
-        This list does not contain `stop`, `(0, 0)`, which is always legal.
+        """ The legal moves that the bot can make from its current position,
+        including no move at all.
         """
-        legal_moves = []
+        legal_moves = [(0, 0)]
 
         for move in [(-1, 0), (1, 0), (0, 1), (0, -1)]:
             new_pos = (self.position[0] + move[0], self.position[1] + move[1])
