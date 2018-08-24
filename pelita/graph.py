@@ -1,7 +1,7 @@
 """ Basic graph module """
 
 import heapq
-from collections import deque
+from collections import deque, UserDict
 
 
 class NoPathException(Exception):
@@ -96,7 +96,7 @@ def iter_adjacencies(initial, adjacencies_for_pos):
         reached.add(pos)
         yield (pos, legal_moves)
 
-class Graph(dict):
+class Graph(UserDict):
     """ Adjacency list [1] representation of a Maze.
 
     The `Graph` is mostly a wrapper for a `dict`. Given a position,
@@ -106,6 +106,7 @@ class Graph(dict):
 
     """
     def __init__(self, *args):
+        super().__init__()
         if len(args) == 1:
             adjacencies = args[0]
             self.update(adjacencies)
@@ -124,6 +125,10 @@ class Graph(dict):
 
         self.update(it for it in iter_adjacencies([initial], lambda pos: legal_neighbors(maze, pos)))
 
+    def __copy__(self):
+        # needed to override the default __copy__ dict implementation and to
+        # return a Graph instance
+        return self.__class__(self.data)
 
     def pos_within(self, position, distance):
         """ Positions within a certain distance.
