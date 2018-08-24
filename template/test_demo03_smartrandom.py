@@ -16,7 +16,7 @@ def test_legalmoves():
         assert next_move in ((0,1), (0,0))
 
 def test_eat_enemy():
-    # check that we indeed it a enemy when possible
+    # check that we indeed eat an enemy when possible
     layout="""
     ########
     #E###.##
