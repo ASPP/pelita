@@ -39,18 +39,6 @@ def test_eat_food():
     next_move = move(0, game)
     assert next_move == (0,-1)
 
-def test_no_kamikaze_back():
-    # check that we escape if faced with an enemy
-    layout="""
-    ########
-    #E ###.#
-    #1.  0E#
-    ########
-    """
-    game = setup_test_game(layout=layout, is_blue=True)
-    next_move = move(0, game)
-    assert next_move == (-1, 0)
-
 def test_no_kamikaze_stop():
     # Check that we stop if escaping would kill us
     layout="""
