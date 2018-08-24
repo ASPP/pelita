@@ -326,7 +326,10 @@ class TkApplication:
             if len(self._times) > 3:
                 # take the mean of the last two time differences
                 # this could also be improved by taking up to four if available
-                self._fps = 2 / ((self._times[-1] - self._times[-2]) + (self._times[-2] - self._times[-3]))
+                try:
+                    self._fps = 2 / ((self._times[-1] - self._times[-2]) + (self._times[-2] - self._times[-3]))
+                except ZeroDivisionError:
+                    self._fps = 1 / 0.001
             else:
                 self._fps = None
             if len(self._times) > 100:
