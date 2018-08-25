@@ -99,6 +99,20 @@ def bind_socket(socket, address, option_hint=None):
                 (option_hint,), file=sys.stderr)
         raise
 
+def json_default_handler(o):
+    """ Pythons built-in json handler has problems converting numpy.in64
+    to json. By adding this method as a default= to json.dumps, we can
+    tell Python what to do.
+    """
+    try:
+        import numpy as np
+        if isinstance(o, np.integer):
+            return int(o)
+    except ImportError:
+        pass
+    # we don’t know the type: raise a Type error
+    raise TypeError("Cannot convert %r of type %s to json" % (o, type(o)))
+
 class ZMQConnection:
     """ This class is supposed to ease request–reply connections
     through a zmq socket. It does so by attaching a uuid to each
@@ -560,7 +574,7 @@ class SimpleClient:
         finally:
             try:
                 message_obj = {"__uuid__": uuid_, "__return__": retval}
-                json_message = json.dumps(message_obj)
+                json_message = json.dumps(message_obj, default=json_default_handler)
                 self.socket.send_unicode(json_message)
             except NameError:
                 pass
