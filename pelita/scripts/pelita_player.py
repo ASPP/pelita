@@ -13,6 +13,7 @@ import signal
 import string
 import subprocess
 import sys
+import unicodedata
 
 import zmq
 
@@ -60,24 +61,23 @@ def make_client(team_spec, address, color=None):
 
 
 def check_team_name(name):
-    # Team name must be ascii
-    try:
-        name.encode('ascii')
-    except UnicodeDecodeError:
-        raise ValueError('Invalid team name (non ascii): "%s".'%name)
     # Team name must be shorter than 25 characters
-    if len(name) > 25:
+    name = name.strip()
+    for n in name:
+        print(unicodedata.category(n))
+    # for the length check, we’ll remove a few characters
+    # otherwise we’ll penalise teams with accents
+    unicode_len = len(u''.join(ch for ch in name
+                                    # don’t count combining characters
+                                  if unicodedata.combining(ch) == 0
+                                    # or control characters
+                                  and not unicodedata.category(ch).startswith('C')
+                                    # or separatos
+                                  and not unicodedata.category(ch).startswith('Z')))
+    if unicode_len > 25:
         raise ValueError('Invalid team name (longer than 25): "%s".'%name)
-    if len(name) == 0:
+    if unicode_len == 0:
         raise ValueError('Invalid team name (too short).')
-    # Check every character and make sure it is either
-    # a letter or a number. Nothing else is allowed.
-    for char in name:
-        if (not char.isalnum()) and (char != ' '):
-            raise ValueError('Invalid team name (only alphanumeric '
-                             'chars or blanks): "%s"'%name)
-    if name.isspace():
-        raise ValueError('Invalid team name (no letters): "%s"'%name)
 
 
 def load_team(spec):
