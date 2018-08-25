@@ -108,7 +108,7 @@ class Team(AbstractTeam):
                                   timeout_count=game_state['timeout_teams'])
 
         me = bots[bot_id]
-        team = bots[bot_id].team
+        team = bots[bot_id]._team
         turn = bot_id // 2
 
         for idx, mybot in enumerate(team):
@@ -275,20 +275,13 @@ class Bot:
         return legal_moves
 
     @property
-    def other(self):
-        """ The other bot in the team.
-        """
-        other_index = (self.bot_index + 2) % 4
-        return self._bots[other_index]
-
-    @property
-    def team(self):
-        """ Both of our bots.
-        """
-        if self.is_blue:
-            return [self._bots[0], self._bots[2]]
-        else:
-            return [self._bots[1], self._bots[3]]
+    def _team(self):
+       """ Both of our bots.
+       """
+       if self.is_blue:
+           return [self._bots[0], self._bots[2]]
+       else:
+           return [self._bots[1], self._bots[3]]
 
     @property
     def enemy(self):
