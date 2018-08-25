@@ -76,7 +76,7 @@ class TestLoadFactory:
 
 class TestLoadTeam:
     def test_simple_module_import_forbidden_names(self):
-        names = ["", " ", "-", "∂", "0" * 26]
+        names = ["", " ", "0" * 26]
         for idx, name in enumerate(names):
             modules_before = list(sys.modules.keys())
             with tempfile.TemporaryDirectory() as d:
@@ -91,7 +91,7 @@ class TestLoadTeam:
                     load_team(spec)
 
     def test_simple_module_import_allowed_names(self):
-        names = ["a", "a a", "0" * 25]
+        names = ["a", "a a", "0" * 25, "-", "∂"]
         for idx, name in enumerate(names):
             modules_before = list(sys.modules.keys())
             with tempfile.TemporaryDirectory() as d:
