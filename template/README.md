@@ -13,10 +13,22 @@ coordinates -> tuple (x, y)
 ```python
 bot = game.team[0]
 ```
+-> utils
+
+pelita.utils (write doc strings):
+ - setup_test_game
+ - create_layout
+ - Graph
+
+print(game) and use the output for setup_test_game
+python -m pytest
 
 move function interface API
+## The Game object
 
-The Bot object:
+- **`game.team`** is a list of the two `Bot` objects
+
+## The Bot object
 
 - **`bot.position`** is a tuple of the coordinates your bot is on at the moment. For example `(3, 9)`.
 
@@ -83,14 +95,5 @@ The Bot object:
 
 
 
--> utils
-
-pelita.utils (write doc strings):
- - setup_test_game
- - create_layout
- - Graph
-
-print(game) and use the output for setup_test_game
-python -m pytest
 
 
