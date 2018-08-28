@@ -416,10 +416,10 @@ class TkApplication:
             self.ui.game_canvas.create_line(x0_, y0_, x1_, y1_, width=0.01, fill="#884488", tag="grid")
 
         for x in range(self.mesh_graph.mesh_width):
-            draw_line(x - 0.5, 0, x - 0.5, self.mesh_graph.mesh_height - 1)
+            draw_line(x - 0.5, -0.5, x - 0.5, self.mesh_graph.mesh_height)
 
         for y in range(self.mesh_graph.mesh_height):
-            draw_line(0, y - 0.5, self.mesh_graph.mesh_width - 1, y - 0.5)
+            draw_line(-0.5, y - 0.5, self.mesh_graph.mesh_width, y - 0.5)
 
     def toggle_grid(self):
         self._grid_enabled = not self._grid_enabled
