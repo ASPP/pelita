@@ -11,7 +11,7 @@ from ..datamodel import CTFUniverse
 from ..libpelita import firstNN
 from .tk_sprites import BotSprite, Food, Wall, col
 from .tk_utils import wm_delete_window_handler
-from .tk_sprites import BotSprite, Food, Wall, RED, BLUE, YELLOW, GREY, BROWN 
+from .tk_sprites import BotSprite, Food, Wall, RED, BLUE, YELLOW, GREY, BROWN
 
 _logger = logging.getLogger("pelita.tk")
 
@@ -147,7 +147,7 @@ class TkApplication:
 
         self.ui.header_canvas = tkinter.Canvas(master, height=38)
         self.ui.header_canvas.config(background="white")
-        
+
         self.ui.sub_header = tkinter.Frame(master, height=25)
         self.ui.sub_header.config(background="white")
 
@@ -180,9 +180,9 @@ class TkApplication:
         self.ui.status_22.grid(row=2, column=2, sticky="E")
 
         self.ui.status_canvas.grid_columnconfigure(0, weight=1, uniform='status')
-        self.ui.status_canvas.grid_columnconfigure(1, weight=1, uniform='status') 
+        self.ui.status_canvas.grid_columnconfigure(1, weight=1, uniform='status')
         self.ui.status_canvas.grid_columnconfigure(2, weight=1, uniform='status')
- 
+
         self.ui.button_game_speed_slower = tkinter.Button(self.ui.status_10,
             foreground="black",
             background="white",
@@ -265,7 +265,7 @@ class TkApplication:
 
         self.ui.status_round_info = tkinter.Label(self.ui.status_02, text="", background="white")
         self.ui.status_round_info.pack(side=tkinter.LEFT)
-    
+
         self.ui.status_layout_info = tkinter.Label(self.ui.status_11, text="", background="white")
         self.ui.status_layout_info.pack(side=tkinter.LEFT)
 
