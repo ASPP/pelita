@@ -1,34 +1,127 @@
-pelita script:
-  --stop-at
-  --no-timeout
-  --null
-  --seed
+Pelita
+======
+![](pelita_GUI.png)
 
-in pelita TK interface
-show-grid, play/pause, selecting square when grid is active, bot numbers
+Pelita is a PacMan™ like game. Two teams each of two bots are placed in a maze with food pellets. The maze is split into two parts, the left one belongs to the team on the left (the blue team), the right one belongs to the team on the right (the red team). When a bot is in its own homezone it is a ghost. A ghost can defend its own food pellets by killing the enemies. When a bot is in its enemy's homezone it is a pacman and can eat the enemy's food. The rules:
 
-origin is top left
-coordinates -> tuple (x, y)
+- **eating food**: when a bot eats a food pellet, the food pellet is permanently removed from the maze and **one point** is scored for the bot's team
 
+- **eating enemies**: when a ghost eats an enemy pacman, the eaten pacman is immediately reset to its starting position and **5 points** are scored for the ghost's team
+
+- **observation**: bots can see their enemies' positions only when the enemies are within a distance of **5** squares. If the enemies are further away than that, their position is noisy (more details below).
+
+- **timeout**: each bot has **3** seconds to return a valid move. If it doesn't return in time or if the move returned is illegal, a random move is executed instead and a timeout is recorded. After 5 timeouts the team is disqualified and loses the game.
+
+- **game over**: the game finished when one team eats all of its enemy's food pellets or after **300** rounds.
+
+- **winning**: the team with the highest score after game over wins the fame, regardless of which team finished the food.
+
+## Your task
+
+Your task as a group is to write a bot implementation. You have to implement the *intelligence* to navigate your bots successfully
+through the maze, kill the enemy's pacmen, and eat the enemy's food. You can find a minimal implementation in the [demo01_stopping.py](demo01_stopping.py) file:
 ```python
-bot = game.team[0]
+TEAM_NAME = 'StoppingBots'
+
+def move(turn, game):
+    return (0,0)
 ```
--> utils
+As seen above, your implementation consists of a team name (the `TEAM_NAME` string) and a function `move`, which given a turn and a game state returns a move for the bot. In the [Full API Description](#full-api-description) section you'll find all the details.
 
-pelita.utils (write doc strings):
- - setup_test_game
- - create_layout
- - Graph
 
-print(game) and use the output for setup_test_game
-python -m pytest
+# Testing
+There are several strategies to test your bot implementations.
 
-move function interface API
-## The Game object
+## Manual testing
+The graphical user interface has several features to help you with testing.
+- **`--seed SEED`** you can pass the `--seed` option to the `pelita` command to repeat a game using the same random seed. The random seed for a game is printed on standard output:
+    ```bash
+    $ pelita demo03_smartrandom.py demo02_random.py
+    Replay this game with --seed 7487886765553999309
+    Using layout 'layout_normal_without_dead_ends_033'
+    Blue team 'demo03_smartrandom.py' -> 'SmartRandomBots'
+    Red team 'demo02_random.py' -> 'RandomBots'
+    ...
+    ```
+    You can replay this exact game:
+    ```bash
+    $ pelita --seed 7487886765553999309 demo03_smartrandom.py demo02_random.py
+    ...
+    ```
 
-- **`game.team`** is a list of the two `Bot` objects
+- **`--stop-at ROUND`** you can pass the `--stop-at` option to the `pelita` command to stop a game at a specific round. You can then, for example, show the grid, play the next turns step by step, etc.
 
-## The Bot object
+- selecting a specific square in the grid will show its coordinates and if the square is a wall or contains food or bots:
+    ![](pelita_GUI_grid_selection.png)
+
+- **`--null`** you can pass the option `--null` to suppress the graphical interface and just let the game play in the background. This is useful if you want to play many games and just look at their outcome, for example to gather statistics.
+
+- **`--no-timeout`** you can pass the option `--no-timeout` to disable the timeout detection.
+
+## Write unit tests
+- you can write unit tests for 
+- unit tests: setup_test-game, create_layout (print(game) and use the output for setup_test_game)
+    use python -m pytest
+
+# Full API Description
+
+## The maze
+The maze is a grid. Each square in the grid is defined by its coordinates. The default width of the maze is `32` squares, the default `height` is `16` squares. The coordinate system has the origin `(0, 0)` in the top left and its maximum value `(31, 15)` in the bottom right. Each square which is not a wall can be empty or contain a food pellet or one or more bots. The different mazes are called `layouts`. You can get a list of all available layouts with 
+```bash
+$ pelita --list-layouts
+```
+ For the tournament only layouts without dead ends will be used. 
+
+## The `move` function
+**`move(turn, game) ⟶ (dx, dy)`**
+
+The `move` function gets two input arguments:
+
+- **`turn`** is the turn in the current round, i.e. `turn` is either `0` for the first bot in your team or `1` for the second one.
+
+- **`game`** is a reference to the current game state. It is an instance of the [`Game` object](#the-game-object), which contains all information about the current state of the game
+
+The `move` function returns a move for the bot in your team corresponding to the current turn. The move is a tuple of two integers `(dx, dy)`, which can be:
+
+- **`(1, 0)`** for moving to the right (East)
+- **`(-1, 0)`** for moving to the left (West)
+- **`(0, 1)`** for moving down (South)
+- **`(0, -1)`** for moving up (North)
+- **`(0, 0)`** for stopping (no move)
+
+Note that the returned move must be a legal move, i.e. you can not move your bot on a wall, or you will get a `ValueError` and your team will lose the game. 
+
+## The `Game` object
+
+- **`game.team`** is a list of the two [`Bot` objects](#the-bot-object) in your team:
+    ```python
+    bot0 = game.team[0]
+    bot1 = game.team[1]
+    ```
+    Within the `move` function you can identify the bot whose move you have to return in the current turn by using the index `turn`:
+    ```python
+    def move(turn, game):
+        current_bot = game.team[turn]
+        ...
+        return next_move
+    ```
+
+- **`game.state`** is a reference to an arbitrary object, `None` by default, which can be used to hold state between rounds. Example of usage for `game.state` can be found in [demo04_basic_attacker.py](demo04_basic_attacker.py), [demo05_basic_defender.py](demo05_basic_defender.py), [demo06_one_and_one.py](demo06_one_and_one.py):
+    ```python
+    def move(turn, game):
+        bot = game.team[turn]
+        if game.state is None:
+            # initialize an empty dictionary to keep information we
+            # want to share within our team during the game
+            # -> both bots will have access to this dictionary
+            game.state = {}
+        ...
+        return next_move
+    ```
+
+Note that, except for `game.state`, the `Game` object is read-only, i.e. you can not modify it within the `move` function.
+
+## The `Bot` object
 
 - **`bot.position`** is a tuple of the coordinates your bot is on at the moment. For example `(3, 9)`.
 
@@ -74,7 +167,7 @@ move function interface API
 
 - **`bot.get_move(next_position)`** is a method of the `Bot` object which gives you the move you have to make to get to the position `next_position`. If `next_position` can not be reached with a legal move you'll get a `ValueError`.
 
-- **`bot.get_position(next_move)`** is a methof of the `Bot` object which gives you the position you will have if you execute the move `next_move`. If `next_move` is not a legal move you'll get a `ValueError`
+- **`bot.get_position(next_move)`** is a method of the `Bot` object which gives you the position you will have if you execute the move `next_move`. If `next_move` is not a legal move you'll get a `ValueError`
 
 - **`bot.random`** is an instance of the Python internal pseudo-random number generator. Do not import the Python `random` module in your code, just use this for all your random operations. Example of using it are found in [demo02_random.py](demo02_random.py), [demo03_smartrandom.py](demo03_smartrandom.py), and several others. If you need to use the `numpy` random module, initialize it with a seed taken from this instance like this:
     ```python
@@ -90,10 +183,7 @@ move function interface API
     ```python
     bot.enemy[0].position
     ```
-    Note that enemy position is noisy if the enemy is more than 5 squares away (independent of walls positions!). This is indicated by the **`is_noisy`** property: `bot.enemy[0].is_noisy`. The noise is uniformely distributed in the interval `+/- 5` squares.
+    Note that enemy position is noisy if the enemy is more than 5 squares away (independent of walls positions!). This is indicated by the **`is_noisy`** property: `bot.enemy[0].is_noisy`. The noise is uniformly distributed in the interval `+/- 5` squares.
     You can also inspect the enemy team name with `bot.enemy[0].team_name`.
 
-
-
-
-
+Note that the `Bot` object is read-only, i.e. you can not modify it within the `move` function.
