@@ -29,7 +29,7 @@ def move(turn, game):
 As seen above, your implementation consists of a team name (the `TEAM_NAME` string) and a function `move`, which given a turn and a game state returns a move for the bot. In the [Full API Description](#full-api-description) section you'll find all the details.
 
 ## This repository
-In this repository you will find several demo implementations (all files named `demoXX_XXX.py`), that you can use as a starting point for your own implementations. There is also an example `utils.py` module and a series of unit tests for the demo implementations (all files named `test_demoXX_XXX.py`). You can run the tests with pytest by typing:
+In this repository you will find several demo implementations (all files named `demoXX_XXX.py`), that you can use as a starting point for your own implementations. There is also an example `utils.py` module and a series of unit tests for the demo implementations (all files named `test_demoXX_XXX.py`). You can run the tests with `pytest` by typing:
 ```bash
 $ python3 -m pytest
 ```
@@ -83,7 +83,8 @@ The `pelita` command has several features to help you with testing.
 ## Full API Description
 
 ### The maze
-The maze is a grid. Each square in the grid is defined by its coordinates. The default width of the maze is `32` squares, the default `height` is `16` squares. The coordinate system has the origin `(0, 0)` in the top left and its maximum value `(31, 15)` in the bottom right. Each square which is not a wall can be empty or contain a food pellet or one or more bots. The different mazes are called `layouts`. You can get a list of all available layouts with 
+The maze is a grid. Each square in the grid is defined by its coordinates. The default width of the maze is `32` squares, the default height is `16` squares. The coordinate system has the origin `(0, 0)` in the top left (North-West) of the maze and its maximum value `(31, 15)` in the bottom right (South-East). Each square which is not a wall can be empty or contain a food pellet or one or more bots. The different mazes are called `layouts`. You can get a list of all available layouts with 
+
 ```bash
 $ pelita --list-layouts
 ```
@@ -182,9 +183,9 @@ Note that, except for `game.state`, the `Game` object is read-only, i.e. you can
 
 - **`bot.score`** and **`bot.round`** tell you the score of your team and the round you are playing.
 
-- **`bot.get_move(next_position)`** is a method of the `Bot` object which gives you the move you have to make to get to the position `next_position`. If `next_position` can not be reached with a legal move you'll get a `ValueError`.
+- **`bot.get_move(next_position) ⟶ (dx, dy)`** is a method of the `Bot` object which gives you the move `(dx, dy)` you have to make to get to the position `next_position`. If `next_position` can not be reached with a legal move you'll get a `ValueError`.
 
-- **`bot.get_position(next_move)`** is a method of the `Bot` object which gives you the position you will have if you execute the move `next_move`. If `next_move` is not a legal move you'll get a `ValueError`
+- **`bot.get_position(next_move) ⟶ (x, y)`** is a method of the `Bot` object which gives you the position `(x, y)` you will have if you execute the move `next_move`. If `next_move` is not a legal move you'll get a `ValueError`
 
 - **`bot.random`** is an instance of the Python internal pseudo-random number generator. Do not import the Python `random` module in your code, just use this for all your random operations. Example of using it are found in [demo02_random.py](demo02_random.py), [demo03_smartrandom.py](demo03_smartrandom.py), and several others. If you need to use the `numpy` random module, initialize it with a seed taken from this instance like this:
     ```python
@@ -200,7 +201,7 @@ Note that, except for `game.state`, the `Game` object is read-only, i.e. you can
     ```python
     bot.enemy[0].position
     ```
-- **`bot.enemy[0].is_noisy`** <a id="is-noisy"></a>the enemy position is noisy if the enemy is more than 5 squares away (independent of walls positions!). This is indicated by the **`is_noisy`** property: `is_noisy`. The noise is uniformly distributed in the interval `+/- 5` squares.
+- **`bot.enemy[0].is_noisy`** <a id="is-noisy"></a>the enemy position is noisy if the enemy is more than 5 squares away (independent of walls positions!). This is indicated by the `is_noisy` property. The noise is uniformly distributed in the interval `+/- 5` squares.
 - **`bot.enemy[0].team_name`** you can also inspect the enemy team name with `bot.enemy[0].team_name`.
 
 Note that the `Bot` object is read-only, i.e. you can not modify it within the `move` function.
