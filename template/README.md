@@ -8,7 +8,7 @@ Pelita is a PacMan™ like game. Two teams each of two bots are placed in a maze
 
 - **eating enemies**: when a ghost eats an enemy pacman, the eaten pacman is immediately reset to its starting position and **5 points** are scored for the ghost's team
 
-- **observation**: bots can see their enemies' positions only when the enemies are within a distance of **5** squares. If the enemies are further away than that, their position is noisy (more details below).
+- **observation**: bots can see their enemies' positions only when the enemies are within a distance of **5** squares. If the enemies are further away than that, their position is noisy (more details [below](#is-noisy)).
 
 - **timeout**: each bot has **3** seconds to return a valid move. If it doesn't return in time or if the move returned is illegal, a random move is executed instead and a timeout is recorded. After 5 timeouts the team is disqualified and loses the game.
 
@@ -28,12 +28,27 @@ def move(turn, game):
 ```
 As seen above, your implementation consists of a team name (the `TEAM_NAME` string) and a function `move`, which given a turn and a game state returns a move for the bot. In the [Full API Description](#full-api-description) section you'll find all the details.
 
+## This repository
+In this repository you will find several demo implementations (all files named `demoXX_XXX.py`), that you can use as a starting point for your own implementations. There is also an example `utils.py` module and a series of unit tests for the demo implementations (all files named `test_demoXX_XXX.py`). You can run the tests with pytest by typing:
+```bash
+$ python3 -m pytest
+```
+## Running a game
+- To run a demo game, just type at the command line:
+    ```bash
+    $ pelita
+    ```
+- To test a demo implementation against another one:
+    ```bash
+    $ pelita demo03_smartrandom.py demo05_basic_defender.py
+    ```
+More info about the command `pelita` [below](#manual-testing)
 
-# Testing
+## Testing
 There are several strategies to test your bot implementations.
 
-## Manual testing
-The graphical user interface has several features to help you with testing.
+### Manual testing
+The `pelita` command has several features to help you with testing.
 - **`--seed SEED`** you can pass the `--seed` option to the `pelita` command to repeat a game using the same random seed. The random seed for a game is printed on standard output:
     ```bash
     $ pelita demo03_smartrandom.py demo02_random.py
@@ -58,21 +73,23 @@ The graphical user interface has several features to help you with testing.
 
 - **`--no-timeout`** you can pass the option `--no-timeout` to disable the timeout detection.
 
-## Write unit tests
-- you can write unit tests for 
+- **`--help`** the full list of supported options can be obtained by passing `--help`.
+    
+### Write unit tests
+- you can write unit tests  
 - unit tests: setup_test-game, create_layout (print(game) and use the output for setup_test_game)
     use python -m pytest
 
-# Full API Description
+## Full API Description
 
-## The maze
+### The maze
 The maze is a grid. Each square in the grid is defined by its coordinates. The default width of the maze is `32` squares, the default `height` is `16` squares. The coordinate system has the origin `(0, 0)` in the top left and its maximum value `(31, 15)` in the bottom right. Each square which is not a wall can be empty or contain a food pellet or one or more bots. The different mazes are called `layouts`. You can get a list of all available layouts with 
 ```bash
 $ pelita --list-layouts
 ```
  For the tournament only layouts without dead ends will be used. 
 
-## The `move` function
+### The `move` function
 **`move(turn, game) ⟶ (dx, dy)`**
 
 The `move` function gets two input arguments:
@@ -91,7 +108,7 @@ The `move` function returns a move for the bot in your team corresponding to the
 
 Note that the returned move must be a legal move, i.e. you can not move your bot on a wall, or you will get a `ValueError` and your team will lose the game. 
 
-## The `Game` object
+### The `Game` object
 
 - **`game.team`** is a list of the two [`Bot` objects](#the-bot-object) in your team:
     ```python
@@ -121,7 +138,7 @@ Note that the returned move must be a legal move, i.e. you can not move your bot
 
 Note that, except for `game.state`, the `Game` object is read-only, i.e. you can not modify it within the `move` function.
 
-## The `Bot` object
+### The `Bot` object
 
 - **`bot.position`** is a tuple of the coordinates your bot is on at the moment. For example `(3, 9)`.
 
@@ -183,7 +200,7 @@ Note that, except for `game.state`, the `Game` object is read-only, i.e. you can
     ```python
     bot.enemy[0].position
     ```
-    Note that enemy position is noisy if the enemy is more than 5 squares away (independent of walls positions!). This is indicated by the **`is_noisy`** property: `bot.enemy[0].is_noisy`. The noise is uniformly distributed in the interval `+/- 5` squares.
-    You can also inspect the enemy team name with `bot.enemy[0].team_name`.
+- **`bot.enemy[0].is_noisy`** <a id="is-noisy"></a>the enemy position is noisy if the enemy is more than 5 squares away (independent of walls positions!). This is indicated by the **`is_noisy`** property: `is_noisy`. The noise is uniformly distributed in the interval `+/- 5` squares.
+- **`bot.enemy[0].team_name`** you can also inspect the enemy team name with `bot.enemy[0].team_name`.
 
 Note that the `Bot` object is read-only, i.e. you can not modify it within the `move` function.
