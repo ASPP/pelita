@@ -12,7 +12,7 @@ Pelita is a PacMan™ like game. Two teams each of two bots are placed in a maze
 
 - **timeout**: each bot has **3** seconds to return a valid move. If it doesn't return in time or if the move returned is illegal, a random move is executed instead and a timeout is recorded. After 5 timeouts the team is disqualified and loses the game.
 
-- **game over**: the game finished when one team eats all of its enemy's food pellets or after **300** rounds.
+- **game over**: the game ends when one team eats all of its enemy's food pellets or after **300** rounds.
 
 - **winning**: the team with the highest score after game over wins the game, regardless of which team finished the food.
 
