@@ -76,9 +76,128 @@ The `pelita` command has several features to help you with testing.
 - **`--help`** the full list of supported options can be obtained by passing `--help`.
     
 ### Write unit tests
-- you can write unit tests  
-- unit tests: setup_test-game, create_layout (print(game) and use the output for setup_test_game)
-    use python -m pytest
+You should write unit tests to test your utility functions and to test your bot implementations. It is quite hard to test a full strategy, especially because you can not have a real opponent in a test game. It is useful to focus on specific situations (called `layouts`) and verify that your bot is doing the right thing. Several examples are available in this repo in the files named `test_XXX.py`. If you name your test files starting with `test_` your tests will be automatically picked up by `pytest` when you run on the console:
+```bash
+$ python3 -m pytest
+```
+An example unit test could look like this:
+```python
+from demo01_stopping import move
+from pelita.utils import setup_test_game, create_layout
+
+def test_stays_there():
+    layout="""
+    ########
+    #0    .#
+    #.1  EE#
+    ########
+    """
+    game = setup_test_game(layout=layout, is_blue=True)
+    next_move = move(0, game)
+    assert next_move == (0,0)
+```
+
+For setting up test games there are two utility functions you can import from `pelita.utils`:
+
+- **`setup_test_game(layout=layout, is_blue=True, round=None, score=None, seed=None) ⟶ game`**<br>
+    Given a layout string (described in full detail [below](#the-layout-string), setups a [Game](#the-game-object) instance suitable to be passed to a [move](#the-move-function) function.
+
+- **`create_layout(layout_strings, food=None, bots=None, enemy=None) ⟶ layout`** <a id="the-layout-string"></a><br> 
+    Creates a layout that can be passed to `setup_test_game` to setup a test game. In the simplest form a layout string is a multiline string where the character `#` identifies walls, `.` the food pellets, `E` the enemy bots (you must have two of them for a layout to be legal), and `0` and `1` representing the bots in your team corresponding to turn `0` and `1`.<br>
+    For example a maze `8x4` with our bots in `(1, 1)` and `(1, 2)`, where the enemies are on `(5,2)` and `(6,2)` and food pellets in `(2, 2)` and `(6,1)`, and an additional wall in `(4,1)` will look like this:
+    ```python
+    layout="""
+    ########
+    #0  # .#
+    #1.  EE#
+    ########
+    """
+    l = create_layout(layout)
+    ```
+    In case some objects are overlapping (for example you want to locate an enemy bot over a food pellet), you can either specify several layouts in the same multiline strings, each containing a partial layout, like for example this:
+    ```python
+    layout="""
+    ########
+    #0. # .#
+    #1.  EE#
+    ########
+     
+    ########
+    #   #  #
+    #     .#
+    ########
+    """
+    l = create_layout(layout)
+    ```
+    You can also pass a partial layout and specify the positions of the objects in a list of coordinates. For example:
+    ```python
+    layout="""
+    ########
+    #   #  #
+    #   .  #
+    ########
+    """
+    l = create_layout(layout, bots=[(1,1), (1,2)], enemy=[(5,2), (6,2)])
+    print(l)
+    ########
+    #   #  #
+    #   .  #
+    ########
+     
+    ########
+    #0  #  #
+    #1   EE#
+    ########
+    ```
+- **`print(game)`**<br>
+    If you notice a certain configuration in a game that you want to replicate in a test, you can print the game in your move function and then use the output string as a layout in a test. For example, you could have the following move function:
+    ```python
+    def move(turn, game):
+        bot = game.team[turn]
+        # print initial state
+        if turn == 0 and bot.round == 0:
+            print(game)
+        ...
+        return (0, 0)
+    ```
+    Running this bot will print the following string on standard output:
+    ```
+    ################################
+    # .  #  . .. ..         .      #
+    #.   . .###### ##.. ##### ## # #
+    #      .    .# ## . #  #   #   #
+    # # ##..   . #.      .   . # # #
+    #.#  #### ##     .########   # #
+    #      .  .       .    # ..  # #
+    ## ######. ## ###         .#   #
+    #   #.         ### ## .###### ##
+    # #  .. #    .       .  .      #
+    # #   ########.     ## ####  #.#
+    # # # .   .      .# .   ..## # #
+    #   #   #  # . ## #.    .      #
+    # # ## ##### ..## ######. .   .#
+    #      .         .. .. .  #  . #
+    ################################
+    
+    ################################
+    #    #                        1#
+    #       ###### ##   ##### ## #0#
+    #            # ##   #  #   #   #
+    # # ##       #             # # #
+    # #  #### ##      ########   # #
+    #                      #     # #
+    ## ######  ## ###          #   #
+    #   #          ### ##  ###### ##
+    #E#     #                      #
+    # #E  ########      ## ####  # #
+    # # #             #       ## # #
+    #   #   #  #   ## #            #
+    # # ## #####   ## ######       #
+    #                         #    #
+    ################################
+    ```
+    Now you can copy and paste this string in a test, pass it to `setup_test_game` and verify that your bot returns the move you were expecting.
+
 
 ## Full API Description
 
