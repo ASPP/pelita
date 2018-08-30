@@ -281,7 +281,7 @@ Note that, except for `game.state`, the `Game` object is read-only, i.e. you can
     ```
     Example usage of `Graph` can be found in [demo05_basic_defender.py](demo05_basic_defender.py). More advanced graph features can be obtained by converting the maze to a [networkx](https://networkx.github.io/) graph. For this you can use the `walls_to_nxgraph` function in [utils.py](utils.py)
 
-- **`bot.homezone`** is a list of all the coordinates of your side of the maze, so if for example you are the red team in a maze of size `16x32` your homezone will be:
+- **`bot.homezone`** is a list of all the coordinates of your side of the maze, so if for example you are the red team in a `32×16` maze, your homezone will be:
     ```python
     [(16, 0), (16, 1), (16, 2), (16, 3), ..., (31, 13), (31, 14), (31, 15)]
     ```
