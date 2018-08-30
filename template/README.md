@@ -226,7 +226,7 @@ The `move` function returns a move for the bot in your team corresponding to the
 - **`(0, -1)`** for moving up (North)
 - **`(0, 0)`** for stopping (no move)
 
-Note that the returned move must be a legal move, i.e. you can not move your bot on a wall, or you will get a `ValueError` and your team will lose the game. 
+Note that the returned move must be a legal move, i.e. you can not move your bot on a wall. If you return an illegal move, a random move will be executed instead and a timeout will be recorded for your team. After 5 timeouts the game is over and you lose the game. 
 
 ### The `Game` object
 
@@ -320,7 +320,10 @@ Note that, except for `game.state`, the `Game` object is read-only, i.e. you can
     ```python
     bot.enemy[0].position
     ```
-- **`bot.enemy[0].is_noisy`** <a id="is-noisy"></a>the enemy position is noisy if the enemy is more than 5 squares away (independent of walls positions!). This is indicated by the `is_noisy` property. The noise is uniformly distributed in the interval `+/- 5` squares.
+    This position may be not exact (see below the `is_noisy` property).
+
+- **`bot.enemy[0].is_noisy`** <a id="is-noisy"></a> if the enemy bot is located more than 5 squares away from your bot, then its position `bot.enemy[0].position` will not be exact. A uniformly distributed noise between `-5` and `+5` squares will be added to it instead. The distance of your bot from the enemy bot is measured in grid space, i.e. if your bot is in `(Bx, By)` and the enemy bot is in `(Ex, Ey)`, the distance will be `abs(Bx-Ex) + abs(By-Ey)`.
+
 - **`bot.enemy[0].team_name`** you can also inspect the enemy team name with `bot.enemy[0].team_name`.
 
 Note that the `Bot` object is read-only, i.e. you can not modify it within the `move` function.
