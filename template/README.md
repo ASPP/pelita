@@ -232,13 +232,14 @@ Note that the returned move must be a legal move, i.e. you can not move your bot
 
 - **`game.team`** is a list of the two [`Bot` objects](#the-bot-object) in your team:
     ```python
-    bot0 = game.team[0]
-    bot1 = game.team[1]
+    bot0 = game.team[0]  # the first bot in your team
+    bot1 = game.team[1]  # the second bot in your team
     ```
     Within the `move` function you can identify the bot whose move you have to return in the current turn by using the index `turn`:
     ```python
     def move(turn, game):
-        current_bot = game.team[turn]
+        current_bot = game.team[turn]  # the bot that performs the next move
+        other_bot = game.team[1 - turn]  # the other bot in our team
         ...
         return next_move
     ```
