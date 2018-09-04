@@ -9,7 +9,7 @@ def move(turn, game):
     teammate = game.team[1 - turn]
     x0, y0 = bot.position
     x1, y1 = teammate.position
-    move_to_teammate = (x0 - x1, y0 - y1)
+    move_to_teammate = (x1 - x0, y1 - y0)
     possible_moves = bot.legal_moves[:]
     if move_to_teammate in possible_moves:
         bot.say('Oh. You go first.')
@@ -18,4 +18,4 @@ def move(turn, game):
         bot.say('Please.')
         teammate.say('I insist.')
         possible_moves.remove(move_to_teammate)
-    return bot.random.choice(bot.possible_moves)
+    return bot.random.choice(possible_moves)
