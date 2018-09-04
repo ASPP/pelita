@@ -1,4 +1,3 @@
-import time
 # This bot takes random moves, chosen among the legal ones for its current
 # position, but will not step on its teammate's toes.
 
