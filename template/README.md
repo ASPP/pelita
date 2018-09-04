@@ -235,14 +235,15 @@ Note that the returned move must be a legal move, i.e. you can not move your bot
     bot0 = game.team[0]  # the first bot in your team
     bot1 = game.team[1]  # the second bot in your team
     ```
-    Within the `move` function you can identify the bot whose move you have to return in the current turn by using the index `turn`:
+    Within the `move` function, you can identify the bot whose move you have to return in the current turn by using the index `turn`. Since there are only two bots in your team, you can access your teammate with `1 - turn`:
     ```python
     def move(turn, game):
-        current_bot = game.team[turn]  # the bot that performs the next move
-        other_bot = game.team[1 - turn]  # the other bot in our team
+        bot = game.team[turn]  # the bot that performs the next move
+        teammate = game.team[1 - turn]  # the other bot in our team
         ...
         return next_move
     ```
+
 
 - **`game.state`** is a reference to an arbitrary object, `None` by default, which can be used to hold state between rounds. Example of usage for `game.state` can be found in [demo04_basic_attacker.py](demo04_basic_attacker.py), [demo05_basic_defender.py](demo05_basic_defender.py), [demo06_one_and_one.py](demo06_one_and_one.py):
     ```python
