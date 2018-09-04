@@ -71,7 +71,7 @@ The `pelita` command has several features to help you with testing.
 
 - **`--null`** you can pass the option `--null` to suppress the graphical interface and just let the game play in the background. This is useful if you want to play many games and just look at their outcome, for example to gather statistics.
 
-- **`--no-timeout`** you can pass the option `--no-timeout` to disable the timeout detection. This is useful for example if you want to run a debugger on your bot, like in [demo08_debugger.py](demo08_debugger.py]
+- **`--no-timeout`** you can pass the option `--no-timeout` to disable the timeout detection. This is useful for example if you want to run a debugger on your bot, like in [demo08_debugger.py](demo08_debugger.py)
 
 - **`--help`** the full list of supported options can be obtained by passing `--help`.
     
