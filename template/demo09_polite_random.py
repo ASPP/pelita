@@ -7,11 +7,14 @@ TEAM_NAME = 'PoliteRandomBots'
 def move(turn, game):
     bot = game.team[turn]
     teammate = game.team[1 - turn]
-    x0, y0 = bot.position
-    x1, y1 = teammate.position
-    move_to_teammate = (x1 - x0, y1 - y0)
-    possible_moves = bot.legal_moves[:]
-    if move_to_teammate in possible_moves:
-        bot.say('Excuse me. Sorry. Excuse me.')
-        possible_moves.remove(move_to_teammate)
+
+    possible_moves = []
+    for m in bot.legal_moves:
+        if bot.get_position(m) == teammate.position:
+            bot.say('Excuse me. Sorry. Excuse me.')
+        else:
+            possible_moves.append(m)
+    # bot.legal_moves should always contain at least two moves
+    # so possible_moves will contain at least one move
+    # (therefore random.choice will not break)
     return bot.random.choice(possible_moves)
