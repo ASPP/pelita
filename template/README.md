@@ -1,5 +1,24 @@
 Pelita
 ======
+
+## Table of contents
+- [Introduction](#introduction)
+- [Your task](#your-task)
+- [Content of this repository](#content-of-this-repository)
+- [Running a game](#running-a-game)
+- [Testing](#testing)
+  - [Manual testing](#manual-testing)
+  - [Unit testing](#unit-testing)
+- [Full API description](#full-api-description)
+  - [The maze](#the-maze)
+  - [The `move` function](#the-move-function)
+  - [The `Game` object](#the-game-object)
+  - [The `Bot` object](#the-bot-object)
+
+------------------------------------------------
+
+Introduction
+============
 ![](pelita_GUI.png)
 
 Pelita is a PacMan™ like game. Two teams each of two bots are placed in a maze with food pellets. The maze is split into two parts, the left one belongs to the team on the left (the blue team), the right one belongs to the team on the right (the red team). When a bot is in its own homezone it is a ghost. A ghost can defend its own food pellets by killing the enemies. When a bot is in its enemy's homezone it is a pacman and can eat the enemy's food. The rules:
@@ -28,7 +47,7 @@ def move(turn, game):
 ```
 As seen above, your implementation consists of a team name (the `TEAM_NAME` string) and a function `move`, which given a turn and a game state returns a move for the bot. In the [Full API Description](#full-api-description) section you'll find all the details.
 
-## This repository
+## Content of this repository
 In this repository you will find several demo implementations (all files named `demoXX_XXX.py`), that you can use as a starting point for your own implementations. There is also an example `utils.py` module and a series of unit tests for the demo implementations (all files named `test_demoXX_XXX.py`). You can run the tests with `pytest` by typing:
 ```bash
 $ python3 -m pytest
@@ -75,7 +94,7 @@ The `pelita` command has several features to help you with testing.
 
 - **`--help`** the full list of supported options can be obtained by passing `--help`.
     
-### Write unit tests
+### Unit testing
 You should write unit tests to test your utility functions and to test your bot implementations. It is quite hard to test a full strategy, especially because you can not have a real opponent in a test game. It is useful to focus on specific situations (called `layouts`) and verify that your bot is doing the right thing. Several examples are available in this repo in the files named `test_XXX.py`. If you name your test files starting with `test_` your tests will be automatically picked up by `pytest` when you run on the console:
 ```bash
 $ python3 -m pytest
