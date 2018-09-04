@@ -12,10 +12,6 @@ def move(turn, game):
     move_to_teammate = (x1 - x0, y1 - y0)
     possible_moves = bot.legal_moves[:]
     if move_to_teammate in possible_moves:
-        bot.say('Oh. You go first.')
-        teammate.say('No, you.')
-        time.sleep(0.5)
-        bot.say('Please.')
-        teammate.say('I insist.')
+        bot.say('Excuse me. Sorry. Excuse me.')
         possible_moves.remove(move_to_teammate)
     return bot.random.choice(possible_moves)
