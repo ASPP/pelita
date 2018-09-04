@@ -207,7 +207,7 @@ The maze is a grid. Each square in the grid is defined by its coordinates. The d
 ```bash
 $ pelita --list-layouts
 ```
- For the tournament only layouts without dead ends will be used. 
+ For the tournament only layouts without dead ends will be used and all layouts will have the default values for width and height. Additionally, all layouts will have a wall on all squares around the border.
 
 ### The `move` function
 **`move(turn, game) ⟶ (dx, dy)`**
