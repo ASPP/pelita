@@ -13,7 +13,8 @@ def move(turn, game):
             bot.say('Excuse me. Sorry. Excuse me.')
         else:
             possible_moves.append(m)
-    # bot.legal_moves should always contain at least two moves
-    # so possible_moves will contain at least one move
-    # (therefore random.choice will not break)
+    # possible_moves is never empty, because we can either:
+    # - move away from our team mate if we already are in the same position, or
+    # - we can stop if our only other legal move would put us in the same
+    #   position as our team mate
     return bot.random.choice(possible_moves)
