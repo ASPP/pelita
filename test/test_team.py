@@ -78,7 +78,7 @@ class TestLayout:
         layout = create_layout(layout_str)
         assert layout.bots == [(1, 1), (1, 1)]
         assert layout.enemy ==  [(1, 1), (1, 1)]
-        setup_test_game(layout=layout)
+        setup_test_game(layout=layout_str)
 
     def test_define_after(self):
         layout = create_layout(self.layout, food=[(1, 1)], bots=[None, None], enemy=None)
