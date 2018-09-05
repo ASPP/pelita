@@ -468,6 +468,8 @@ class Layout:
         # input validation
         for pos in [*food, *bots, *enemy]:
             if pos:
+                if len(pos) != 2:
+                    raise ValueError("Items must be tuples of length 2.")
                 if pos in walls:
                     raise ValueError("Item at %r placed on walls." % (pos,))
                 else:
@@ -478,7 +480,7 @@ class Layout:
 
 
         if len(bots) > 2:
-            raise ValueError("Too many bots.")
+            raise ValueError("Too many bots given.")
 
         self.walls = sorted(walls)
         self.food = sorted(food)
