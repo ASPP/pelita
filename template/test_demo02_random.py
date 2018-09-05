@@ -1,5 +1,5 @@
 from demo02_random import move
-from pelita.utils import setup_test_game, create_layout
+from pelita.utils import setup_test_game
 
 def test_always_legal():
     # Given a simple layout, verify that the bot always returns a valid move,
