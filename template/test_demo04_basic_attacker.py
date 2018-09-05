@@ -1,5 +1,5 @@
 from demo04_basic_attacker import move
-from pelita.utils import setup_test_game, create_layout
+from pelita.utils import setup_test_game
 
 def test_eat_food():
     # do we eat food when it's available?
@@ -67,8 +67,7 @@ def test_shortest_path():
         for idx, step in enumerate(path[:-1]):
             # create a layout where we are starting from the current step in
             # the path
-            new_layout = create_layout(l, bots=[step])
-            game = setup_test_game(layout=new_layout, is_blue=True)
+            game = setup_test_game(layout=l, is_blue=True, bots=[step])
             next_move = move(0, game)
             next_pos = (step[0]+next_move[0], step[1]+next_move[1])
             assert next_pos == path[idx+1]
