@@ -146,6 +146,34 @@ class TestLayout:
         # load again
         assert create_layout(str2) == layout_merge
 
+    def test_solo_bot(self):
+        l = """
+        ########
+        #.###  #
+        #      #
+        ########
+
+        ########
+        # ###  #
+        #0E    #
+        ########
+        """
+        layout = create_layout(l, food=[(1, 1)], bots=[None, None], enemy=None)
+        assert layout._repr_html_()
+        str1 = str(create_layout(l, food=[(1, 1)], bots=[None, None], enemy=None))
+        assert str1 == """
+########
+#.###  #
+#      #
+########
+
+########
+# ###  #
+#0E    #
+########
+
+"""
+
 
 class TestStoppingTeam:
     @staticmethod
