@@ -632,6 +632,11 @@ class Layout:
                 bots[pos] = bots.get(pos, []) + ['E']
             for idx, pos in enumerate(self.bots):
                 bots[pos] = bots.get(pos, []) + [str(idx)]
+            # strip all None positions from bots
+            try:
+                bots.pop(None)
+            except KeyError:
+                pass
 
             while bots:
                 for y in range(walls_height):
