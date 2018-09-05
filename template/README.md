@@ -127,9 +127,9 @@ Given a layout string, returns a [Game](#the-game-object) instance suitable to b
 - `round`: the current round of the game
 - `score`: the current score of the game
 - `seed`: the random seed for the game
-- `food`: list of positions of food pellets
-- `bots`: list of positions of your bots
-- `enemy`: list of positions of enemy bots
+- `food`: list of positions of additional food pellets; these will be added to those already specified in the layout string
+- `bots`: list of positions of your bots; if the list contains only one element, this specifies the position of your first bot; if it contains two positions, this specifies the position of both bots; will override the positions specified in the layout string; if you only want to change the position of your second bot, you can do this as `bots=[None, (2, 1)]`
+- `enemy`: list of positions of enemy bots; will override the positions specified in the layout string
 
 For example a maze `8x4` with our bots in `(1, 1)` and `(1, 2)`, where the enemies are on `(5,2)` and `(6,2)` and food pellets in `(2, 2)` and `(6,1)`, and an additional wall in `(4,1)` will look like this:
 ```python
