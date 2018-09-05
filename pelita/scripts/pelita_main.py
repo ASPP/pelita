@@ -298,9 +298,10 @@ def main():
         config["publish-addr"] = replay_publisher.publisher.socket_addr
         subscribe_sock = replay_publisher.publisher.socket_addr.replace('*', 'localhost')
 
-        if args.viewer.startswith("tk"):
-            args.viewer = "tk-no-sync"
-        runner = replay_publisher.run
+        viewer = libpelita.run_external_viewer(replay_publisher.publisher.socket_addr,
+                                               controller=None, geometry=None, delay=None, stop_after=None)
+        time.sleep(3)
+        replay_publisher.run()
     else:
         if args.layout or args.layoutfile:
             layout_name, layout_string = pelita.layout.load_layout(layout_name=args.layout, layout_file=args.layoutfile)
