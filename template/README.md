@@ -118,11 +118,16 @@ def test_stays_there():
 
 For setting up test games there is a utility function you can import from `pelita.utils`:
 
-```python
-setup_test_game(layout=layout, is_blue=True, round=None, score=None, seed=None, food=None, bots=None, enemy=None) ⟶ game
-```
+**`setup_test_game(layout, is_blue=True, round=None, score=None, seed=None, food=None, bots=None, enemy=None) ⟶ game`**
 
-Given a layout string, returns a [Game](#the-game-object) instance suitable to be passed to a [move](#the-move-function) function. Printing a `Game` object will print its layout string. In the simplest form a layout string is a multiline string where the character `#` identifies walls, `.` the food pellets, `E` the enemy bots (you must have two of them for a layout to be legal), and `0` and `1` representing the bots in your team corresponding to turn `0` and `1`.
+Given a layout string, returns a [Game](#the-game-object) that you can pass to the [move](#the-move-function) function. Printing a `Game` will print its layout string. In the simplest form a layout string is a multiline string where the character `#` identifies walls, `.` the food pellets, `E` the enemy bots (you must have two of them for a layout to be legal), and `0` and `1` representing the bots in your team corresponding to turn `0` and `1`. In addition to the layout, `setup_test_game` has a number of optional keyword arguments:
+- `is_blue`: whether your bots are on the blue team, and enemy bots on the red team
+- `round`: the current round
+- `score`: the current score
+- `seed`: the random seed for the game
+- `food`: list of positions of additional food pellets; these will be added to those already specified in the layout string
+- `bots`: list of positions of your bots; if the list contains only one element, this specifies the position of your first bot; if it contains two positions, this specifies the position of both bots; will override the positions specified in the layout string; if you only want to change the position of your second bot, you can do this as `bots=[None, (2, 1)]`
+- `enemy`: list of positions of enemy bots; will override the positions specified in the layout string
 
 For example a maze `8x4` with our bots in `(1, 1)` and `(1, 2)`, where the enemies are on `(5,2)` and `(6,2)` and food pellets in `(2, 2)` and `(6,1)`, and an additional wall in `(4,1)` will look like this:
 ```python
