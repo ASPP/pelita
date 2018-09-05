@@ -122,7 +122,14 @@ For setting up test games there is a utility function you can import from `pelit
 setup_test_game(layout=layout, is_blue=True, round=None, score=None, seed=None, food=None, bots=None, enemy=None) ⟶ game
 ```
 
-Given a layout string, returns a [Game](#the-game-object) instance suitable to be passed to a [move](#the-move-function) function. Printing a `Game` object will print its layout string. In the simplest form a layout string is a multiline string where the character `#` identifies walls, `.` the food pellets, `E` the enemy bots (you must have two of them for a layout to be legal), and `0` and `1` representing the bots in your team corresponding to turn `0` and `1`.
+Given a layout string, returns a [Game](#the-game-object) instance suitable to be passed to a [move](#the-move-function) function. Printing a `Game` object will print its layout string. In the simplest form a layout string is a multiline string where the character `#` identifies walls, `.` the food pellets, `E` the enemy bots (you must have two of them for a layout to be legal), and `0` and `1` representing the bots in your team corresponding to turn `0` and `1`. In addition to the layout, `setup_test_game` has a number of optional keyword arguments:
+- `is_blue`: whether your bots are on team blue, and enemy bots on team red
+- `round`: the current round of the game
+- `score`: the current score of the game
+- `seed`: the random seed for the game
+- `food`: list of positions of food pellets
+- `bots`: list of positions of your bots
+- `enemy`: list of positions of enemy bots
 
 For example a maze `8x4` with our bots in `(1, 1)` and `(1, 2)`, where the enemies are on `(5,2)` and `(6,2)` and food pellets in `(2, 2)` and `(6,1)`, and an additional wall in `(4,1)` will look like this:
 ```python
