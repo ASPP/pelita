@@ -63,7 +63,7 @@ def check_team_name(name):
     # Team name must be ascii
     try:
         name.encode('ascii')
-    except UnicodeDecodeError:
+    except UnicodeEncodeError:
         raise ValueError('Invalid team name (non ascii): "%s".'%name)
     # Team name must be shorter than 25 characters
     if len(name) > 25:
