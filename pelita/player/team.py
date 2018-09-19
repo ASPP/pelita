@@ -58,7 +58,7 @@ class Team(AbstractTeam):
 
         #: Storage for the team state
         self._team_state = None
-        self._team_game = Game([None, None], self._team_state)
+        self._team_game = Game([None, None])
 
         #: Storage for the random generator
         self._bot_random = [None] * len(universe.bots)
@@ -138,11 +138,11 @@ class Team(AbstractTeam):
             mybot._eaten = self._bot_eaten[idx]
 
         self._team_game.team[:] = team
-        move = self._team_move(turn, self._team_game)
+        move, state = self._team_move(turn, self._team_game, self._team_state)
 
         self._bot_eaten[turn] = False
         # restore the team state
-        self._team_state = self._team_game.state
+        self._team_state = state
 
         return {
             "move": move,
@@ -155,9 +155,8 @@ class Team(AbstractTeam):
 
 # @dataclass
 class Game:
-    def __init__(self, team, state):
+    def __init__(self, team):
         self.team = team
-        self.state = state
 
     def _repr_html_(self):
         bot = self.team[0]

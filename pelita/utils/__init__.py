@@ -24,6 +24,5 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
     else:
         team = [bots[1], bots[3]]
 
-    state = None
-    game = Game(team, state)
+    game = Game(team)
     return game
