@@ -51,6 +51,6 @@ def move(bot, state):
                 next_pos = bot.get_position(bot.random.choice(bot.legal_moves))
 
     # return the move needed to get from our position to the next position
-    next_move = bot.get_move(next_pos
+    next_move = bot.get_move(next_pos)
     return next_move, state
 
