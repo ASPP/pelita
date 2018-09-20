@@ -11,13 +11,13 @@ from pelita.utils import Graph
 
 from utils import next_step
 
-def move(turn, game):
-    bot = game.team[turn]
+def move(bot, state):
 
-    if game.state is None:
+    if state is None:
         # initialize the state object to be a graph representation of the maze
-        game.state = Graph(bot.position, bot.walls)
+        state = Graph(bot.position, bot.walls)
 
+    turn = bot.turn
     if bot.enemy[0].is_noisy and bot.enemy[1].is_noisy:
         # if both enemies are noisy, just aim for our turn companion
         target = bot.enemy[turn].position
@@ -31,7 +31,7 @@ def move(turn, game):
         raise Exception('We should never be here!')
 
     # get the next step to be done to reach our target enemy bot
-    next_pos = next_step(bot.position, target, game.state)
+    next_pos = next_step(bot.position, target, state)
 
     # let's check that we don't go into the enemy homezone, i.e. stop at the
     # border
@@ -40,5 +40,5 @@ def move(turn, game):
     else:
         next_move = bot.get_move(next_pos)
 
-    return next_move
+    return next_move, state
 

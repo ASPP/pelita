@@ -3,13 +3,11 @@
 
 TEAM_NAME = 'PoliteRandomBots'
 
-def move(turn, game):
-    bot = game.team[turn]
-    teammate = game.team[1 - turn]
+def move(bot, state):
 
     possible_moves = []
     for m in bot.legal_moves:
-        if bot.get_position(m) == teammate.position:
+        if bot.get_position(m) == bot.other.position:
             bot.say('Excuse me. Sorry. Excuse me.')
         else:
             possible_moves.append(m)
@@ -17,4 +15,5 @@ def move(turn, game):
     # - move away from our team mate if we already are in the same position, or
     # - we can stop if our only other legal move would put us in the same
     #   position as our team mate
-    return bot.random.choice(possible_moves)
+    next_move = bot.random.choice(possible_moves)
+    return next_move, state

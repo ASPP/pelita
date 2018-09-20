@@ -2,6 +2,7 @@
 
 TEAM_NAME = 'StoppingBots'
 
-def move(turn, game):
+def move(bot, state):
     # do not move at all
-    return (0,0)
+    next_move = (0,0)
+    return next_move, state

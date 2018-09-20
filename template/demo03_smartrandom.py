@@ -5,9 +5,7 @@
 # - avoids going back to positions it has seen already
 TEAM_NAME = 'SmartRandomBots'
 
-def move(turn, game):
-    bot = game.team[turn]
-
+def move(bot, state):
     # get a tuple with our enemy positions
     enemy_pos = (bot.enemy[0].position, bot.enemy[1].position)
 
@@ -62,4 +60,4 @@ def move(turn, game):
         # so just stop here and hope for the best
         next_move = (0,0)
 
-    return next_move
+    return next_move, state
