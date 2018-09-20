@@ -9,8 +9,8 @@ def test_kill_enemy():
     #.0E  E#
     ########
     """
-    game = setup_test_game(layout=layout, is_blue=True)
-    next_move = move(0, game)
+    bot = setup_test_game(layout=layout, is_blue=True)
+    next_move, _ = move(bot, None)
     assert next_move == (1, 0)
 
 def test_stop_at_the_border():
@@ -20,8 +20,8 @@ def test_stop_at_the_border():
     #    1.#
     #. 0E E#
     ########"""
-    game = setup_test_game(layout=layout, is_blue=True)
-    next_move = move(0, game)
+    bot = setup_test_game(layout=layout, is_blue=True)
+    next_move, _ = move(bot, None)
     assert next_move == (0, 0)
 
 def test_face_the_enemy():
@@ -32,7 +32,7 @@ def test_face_the_enemy():
     #  0 1.#
     #.  E E#
     ########"""
-    game = setup_test_game(layout=layout, is_blue=True)
-    next_move = move(0, game)
+    bot = setup_test_game(layout=layout, is_blue=True)
+    next_move, _ = move(bot, None)
     assert next_move == (0, 1)
 

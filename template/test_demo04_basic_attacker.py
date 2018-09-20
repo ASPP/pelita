@@ -9,8 +9,8 @@ def test_eat_food():
     #.1  EE#
     ########
     """
-    game = setup_test_game(layout=layout, is_blue=True)
-    next_move = move(0, game)
+    bot = setup_test_game(layout=layout, is_blue=True)
+    next_move, _ = move(bot, None)
     assert next_move == (1, 0)
 
 def test_no_kamikaze():
@@ -21,12 +21,11 @@ def test_no_kamikaze():
     #.1  0E#
     ########
     """
-    game = setup_test_game(layout=layout, is_blue=True)
+    bot = setup_test_game(layout=layout, is_blue=True)
     # create a "fake" track of previous moves, as our bot needs it to decide
     # where to go to avoid a bot
-    game.team[0]._track = [(4,2), (5,2)] # we use the internal attribute '_track'
-                                     # because the property 'track' is read-only
-    next_move = move(0, game)
+    bot.track = [(4,2), (5,2)]
+    next_move, _ = move(bot, None)
     assert next_move == (-1, 0)
 
 def test_shortest_path():
@@ -53,11 +52,11 @@ def test_shortest_path():
     """
     path2 = [(6, 1), (6,2), (5,2), (4,2), (3,2), (2,2), (1,2)]
     for l, p in ((layout1, path1), (layout2, path2)):
-        game = setup_test_game(layout=l, is_blue=True)
+        bot = setup_test_game(layout=l, is_blue=True)
         # we can ignore this, we just call move to have the bot generate the graph
         # representation of the maze
-        next_move = move(0, game)
-        graph = game.state['graph']
+        next_move, state = move(bot, None)
+        graph = state['graph']
         path = graph.a_star((1,1), (6,1))
         # test that the generated path is the shortest one
         assert path == p
@@ -67,7 +66,7 @@ def test_shortest_path():
         for idx, step in enumerate(path[:-1]):
             # create a layout where we are starting from the current step in
             # the path
-            game = setup_test_game(layout=l, is_blue=True, bots=[step])
-            next_move = move(0, game)
+            bot = setup_test_game(layout=l, is_blue=True, bots=[step])
+            next_move, state = move(bot, state)
             next_pos = (step[0]+next_move[0], step[1]+next_move[1])
             assert next_pos == path[idx+1]

@@ -12,6 +12,6 @@ def test_nostep():
     """
     # run the test for ten random games
     for i in range(10):
-        game = setup_test_game(layout=layout, is_blue=True)
-        next_move = move(0, game)
+        bot = setup_test_game(layout=layout, is_blue=True)
+        next_move, _ = move(bot, None)
         assert next_move in ((1, 0), (0, 0))

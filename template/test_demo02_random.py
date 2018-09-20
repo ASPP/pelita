@@ -14,11 +14,11 @@ def test_always_legal():
     all_locations = ((x, y) for x in range(8) for y in range(4))
     for loc in all_locations:
         try:
-            game = setup_test_game(layout=layout, is_blue=True, bots=[loc])
+            bot = setup_test_game(layout=layout, is_blue=True, bots=[loc])
         except ValueError:
             # loc is a wall, skip this position
             continue
-        next_move = move(0, game)
-        legal_moves = game.team[0].legal_moves
+        next_move, _ = move(bot, None)
+        legal_moves = bot.legal_moves
         assert next_move in legal_moves
 
