@@ -5,6 +5,7 @@ import builtins
 import io
 import json
 import os
+from pathlib import Path
 import random
 import re
 import shlex
@@ -258,12 +259,19 @@ def play_game_with_config(config, teams):
 
     seed = str(random.randint(0, sys.maxsize))
 
-    return libpelita.call_pelita([config.team_spec(team1), config.team_spec(team2)],
-                                  rounds=config.rounds,
-                                  filter=config.filter,
-                                  viewer=config.viewer,
-                                  dump=dump,
-                                  seed=seed)
+    res = libpelita.call_pelita([config.team_spec(team1), config.team_spec(team2)],
+                                rounds=config.rounds,
+                                filter=config.filter,
+                                viewer=config.viewer,
+                                dump=dump,
+                                seed=seed)
+
+    if dump:
+        (_final_state, stdout, stderr) = res
+        Path(dump + '.out').write_text(stdout)
+        Path(dump + '.err').write_text(stderr)
+
+    return res
 
 
 def start_match(config, teams, shuffle=False):
