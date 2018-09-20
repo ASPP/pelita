@@ -11,12 +11,11 @@ def move(bot, state):
         state = {'attacker' : None, 'defender' : None}
 
     if bot.turn == 0:
-        # ignore returned state from defender, we store it in our
-        # state dictionary anyway
+        # keep the modified state from defender
         next_move, state_defender = move_defender(bot, state['defender'])
         state['defender'] = state_defender
     else:
-        # same as above
+        # keep the modified state from attacker
         next_move, state_attacker = move_attacker(bot, state['attacker'])
         state['attacker'] = state_attacker
 
