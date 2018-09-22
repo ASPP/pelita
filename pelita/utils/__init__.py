@@ -1,13 +1,13 @@
 import random
 
-from ..player.team import create_layout, Game, bots_from_layout
+from ..player.team import create_layout, bots_from_layout
 from ..graph import Graph
 
 def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, seed=None,
                     food=None, bots=None, enemy=None):
-    """Return a game object given a layout.
+    """Returns the first bot object given a layout.
 
-    The returned Game instance can be passed to a move function to test its return value.
+    The returned Bot instance can be passed to a move function to test its return value.
     The layout is a string that can be passed to create_layout."""
     if game is not None:
         raise RuntimeError("Re-using an old game is not implemented yet.")
@@ -24,5 +24,4 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
     else:
         team = [bots[1], bots[3]]
 
-    game = Game(team)
-    return game
+    return team[0]
