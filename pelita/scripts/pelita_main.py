@@ -335,6 +335,7 @@ def main():
             "layout_name": layout_name,
             "layout_string": layout_string,
             "seed": args.seed,
+            "dump": dump,
         }
 
         viewers = []
