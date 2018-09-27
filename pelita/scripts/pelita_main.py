@@ -111,6 +111,10 @@ def geometry_string(s):
         raise argparse.ArgumentTypeError(msg)
     return geometry
 
+
+def long_help(s):
+    return s if '--long-help' in sys.argv else argparse.SUPPRESS
+
 parser = argparse.ArgumentParser(description='Run a single pelita game',
                                  add_help=False,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -118,27 +122,27 @@ parser._positionals = parser.add_argument_group('Arguments')
 parser.add_argument('team_specs', help='FILENAME1.py FILENAME2.py (see below)', nargs='*', default=None)
 
 parser._optionals = parser.add_argument_group('Options')
-parser.add_argument('--help', '-h', help='Show this help message and exit.',
+help_opt = parser._optionals.add_mutually_exclusive_group()
+help_opt.add_argument('--help', '-h', help='Show this help message and exit.',
                     action='store_const', const=True)
+help_opt.add_argument('--long-help', help='Show all possible options and exit.',
+                    action='store_const', const=True)
+
 parser.add_argument('--version', help='Show the version number and exit.',
                     action='store_const', const=True)
 parser.add_argument('--log', help='Print debugging log information to'
                     ' LOGFILE (default \'stderr\').',
-                    metavar='LOGFILE', default=argparse.SUPPRESS, nargs='?')
-parser.add_argument('--dump', #help='Print game dumps to file (will be overwritten)'
-                    #' DUMPFILE (default \'pelita.dump\').',
-                    metavar='DUMPFILE', default=argparse.SUPPRESS, nargs='?',
-                    help=argparse.SUPPRESS)
-parser.add_argument('--replay', #help='Replay a dumped game'
-                    #' DUMPFILE (default \'pelita.dump\').',
-                    metavar='DUMPFILE', default=argparse.SUPPRESS, nargs='?',
-                    help=argparse.SUPPRESS)
-parser.add_argument('--dry-run', const=True, action='store_const', help=argparse.SUPPRESS)
-                    #help='Load players but do not actually play the game.')
-parser.add_argument('--list-layouts', action='store_const', const=True,
+                    metavar='LOGFILE', const='-', nargs='?')
+parser.add_argument('--dump', help=long_help('Print game dumps to file (will be overwritten)'),
+                    metavar='DUMPFILE', const='pelita.dump', nargs='?')
+parser.add_argument('--replay', help=long_help('Replay a dumped game'),
+                    metavar='DUMPFILE', dest='replayfile', const='pelita.dump', nargs='?')
+parser.add_argument('--dry-run', action='store_true',
+                    help=long_help('Load players but do not actually play the game.'))
+parser.add_argument('--list-layouts', action='store_true',
                     help='List all available layouts.')
-parser.add_argument('--check-team', action="store_const", const=True, help=argparse.SUPPRESS)
-                    #help='Check that the team is valid (on first sight) and print its name.')
+parser.add_argument('--check-team', action="store_true",
+                    help=long_help('Check that the team is valid (on first sight) and print its name.'))
 
 game_settings = parser.add_argument_group('Game settings')
 game_settings.add_argument('--rounds', type=int, default=300,
@@ -176,9 +180,9 @@ viewer_opt = viewer_settings.add_mutually_exclusive_group()
 viewer_opt.add_argument('--null', action='store_const', const='null',
                         dest='viewer', help='Use no viewer on stdout.')
 viewer_opt.add_argument('--ascii', action='store_const', const='ascii',
-                        dest='viewer', help=argparse.SUPPRESS) #, help='Use the ASCII viewer.')
+                        dest='viewer', help=long_help('Use the ASCII viewer.'))
 viewer_opt.add_argument('--progress', action='store_const', const='progress',
-                        dest='viewer', help=argparse.SUPPRESS) # help='Use the progress viewer.')
+                        dest='viewer', help=long_help('Use the progress viewer.'))
 viewer_opt.add_argument('--tk', action='store_const', const='tk',
                         dest='viewer', help='Use the tk viewer (default).')
 viewer_opt.add_argument('--tk-no-sync', action='store_const', const='tk-no-sync',
@@ -186,20 +190,20 @@ viewer_opt.add_argument('--tk-no-sync', action='store_const', const='tk-no-sync'
 parser.set_defaults(viewer='tk')
 
 advanced_settings = parser.add_argument_group('Advanced settings')
-advanced_settings.add_argument('--reply-to', type=str, metavar='URL', help=argparse.SUPPRESS,
-                    dest='reply_to')# , help='Communicate the result of the game on this channel.')
+advanced_settings.add_argument('--reply-to', type=str, metavar='URL', dest='reply_to',
+                               help=long_help('Communicate the result of the game on this channel.'))
 
 publisher_opt = advanced_settings.add_mutually_exclusive_group()
-publisher_opt.add_argument('--publish', type=str, metavar='URL', help=argparse.SUPPRESS,
-                           dest='publish_to') #, help='Publish the game to this zmq socket.')
-publisher_opt.add_argument('--no-publish', const=False, action='store_const', help=argparse.SUPPRESS,
-                           dest='publish_to') #, help='Do not publish.')
+publisher_opt.add_argument('--publish', type=str, metavar='URL', dest='publish_to',
+                           help=long_help('Publish the game to this zmq socket.'))
+publisher_opt.add_argument('--no-publish', const=False, action='store_const', dest='publish_to',
+                           help=long_help('Do not publish.'))
 parser.set_defaults(publish_to="tcp://127.0.0.1:*")
 
-advanced_settings.add_argument('--controller', type=str, metavar='URL', help=argparse.SUPPRESS,
-                               default="tcp://127.0.0.1:*") #, help='Channel for controlling the game.')
-advanced_settings.add_argument('--external-controller', const=True, action='store_const', help=argparse.SUPPRESS)
-                               #help='Force control by an external controller.')
+advanced_settings.add_argument('--controller', type=str, metavar='URL', default="tcp://127.0.0.1:*",
+                               help=long_help('Channel for controlling the game.'))
+advanced_settings.add_argument('--external-controller', const=True, action='store_const',
+                               help=long_help('Force control by an external controller.'))
 
 parser.epilog = """\
 Team Specification:
@@ -242,7 +246,7 @@ def main():
     }
 
     args = parser.parse_args()
-    if args.help:
+    if args.help or args.long_help:
         parser.print_help()
         sys.exit(0)
 
@@ -269,10 +273,8 @@ def main():
     if args.viewer.startswith('tk') and not args.publish_to:
         raise ValueError("Options --tk (or --tk-no-sync) and --no-publish are mutually exclusive.")
 
-    try:
+    if args.log:
         libpelita.start_logging(args.log)
-    except AttributeError:
-        pass
 
     if args.check_team:
         if not args.team_specs:
@@ -282,19 +284,8 @@ def main():
             print("NAME:", team_name)
         sys.exit(0)
 
-    try:
-        # TODO: Re-include the dump.
-        dump = args.dump or 'pelita.dump'
-    except AttributeError:
-        dump = None
-
-    try:
-        replayfile = args.replay or 'pelita.dump'
-    except AttributeError:
-        replayfile = None
-
-    if replayfile:
-        replay_publisher = ReplayPublisher(args.publish_to, replayfile)
+    if args.replayfile:
+        replay_publisher = ReplayPublisher(args.publish_to, args.replayfile)
         config["publish-addr"] = replay_publisher.publisher.socket_addr
         subscribe_sock = replay_publisher.publisher.socket_addr.replace('*', 'localhost')
 
@@ -338,8 +329,8 @@ def main():
         }
 
         viewers = []
-        if dump:
-            viewers.append(pelita.viewer.DumpingViewer(open(dump, "w")))
+        if args.dump:
+            viewers.append(pelita.viewer.DumpingViewer(open(args.dump, "w")))
         if args.viewer == 'ascii':
             viewers.append(pelita.viewer.AsciiViewer())
         if args.viewer == 'progress':

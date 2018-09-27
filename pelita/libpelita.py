@@ -76,10 +76,10 @@ def firstNN(*args):
 
 
 def start_logging(filename):
-    if filename:
-        hdlr = logging.FileHandler(filename, mode='w')
-    else:
+    if not filename or filename == '-':
         hdlr = logging.StreamHandler()
+    else:
+        hdlr = logging.FileHandler(filename, mode='w')
     logger = logging.getLogger('pelita')
     FORMAT = '[%(relativeCreated)06d %(name)s:%(levelname).1s][%(funcName)s] %(message)s'
     formatter = logging.Formatter(FORMAT)
