@@ -112,7 +112,7 @@ class BinRunner(ModuleRunner):
         return external_call
 
 @contextlib.contextmanager
-def _call_pelita_player(module_spec, address):
+def _call_pelita_player(module_spec, address, color='', dump=None):
     """ Context manager version of `call_pelita_player`.
 
     Runs `call_pelita_player` as long as the `with` statement is executed
@@ -122,18 +122,24 @@ def _call_pelita_player(module_spec, address):
 
     proc = None
     try:
-        proc, stdout, stderr = call_pelita_player(module_spec, address)
+        proc, stdout, stderr = call_pelita_player(module_spec, address, color, dump)
         yield proc
+    except KeyboardInterrupt:
+        pass
     finally:
+        # we close stdout, stderr before terminating
+        # this hopefully means that it will do some flushing
+        if stdout:
+            stdout.close()
+        if stderr:
+            stderr.close()
         if proc is None:
             print("Problem running pelita player.")
         else:
             _logger.debug("Terminating proc %r", proc)
             proc.terminate()
-        if stdout:
-            stdout.close()
-        if stderr:
-            stderr.close()
+            proc.wait()
+            _logger.debug("%r terminated.", proc)
 
 
 def call_pelita_player(module_spec, address, color='', dump=None):
@@ -165,9 +171,7 @@ def call_pelita_player(module_spec, address, color='', dump=None):
         return (subprocess.Popen(call_args), None, None)
 
 
-from contextlib import contextmanager
-
-@contextmanager
+@contextlib.contextmanager
 def run_and_terminate_process(args, **kwargs):
     """ This serves as a contextmanager around `subprocess.Popen`, ensuring that
     after the body of the with-clause has finished, the process itself (and the
