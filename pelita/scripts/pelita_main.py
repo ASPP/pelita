@@ -137,8 +137,6 @@ parser.add_argument('--dump', help=long_help('Print game dumps to file (will be 
                     metavar='DUMPFILE', const='pelita.dump', nargs='?')
 parser.add_argument('--replay', help=long_help('Replay a dumped game'),
                     metavar='DUMPFILE', dest='replayfile', const='pelita.dump', nargs='?')
-parser.add_argument('--dry-run', action='store_true',
-                    help=long_help('Load players but do not actually play the game.'))
 parser.add_argument('--list-layouts', action='store_true',
                     help='List all available layouts.')
 parser.add_argument('--check-team', action="store_true",
@@ -308,9 +306,6 @@ def main():
             raise RuntimeError("Not enough teams given. Must be {}".format(num_teams))
         if len(team_specs) > num_teams:
             raise RuntimeError("Too many teams given. Must be < {}.".format(num_teams))
-
-        if args.dry_run:
-            sys.exit(0)
 
         if args.viewer == 'tk-no-sync':
             # only use delay when not synced.
