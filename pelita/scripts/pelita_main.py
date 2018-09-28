@@ -184,7 +184,7 @@ viewer_opt.add_argument('--progress', action='store_const', const='progress',
 viewer_opt.add_argument('--tk', action='store_const', const='tk',
                         dest='viewer', help='Use the tk viewer (default).')
 viewer_opt.add_argument('--tk-no-sync', action='store_const', const='tk-no-sync',
-                        dest='viewer', help=argparse.SUPPRESS)
+                        dest='viewer', help=long_help('Uses the tk viewer in an unsynchronized mode.'))
 parser.set_defaults(viewer='tk')
 
 advanced_settings = parser.add_argument_group('Advanced settings')
@@ -307,15 +307,8 @@ def main():
         if len(team_specs) > num_teams:
             raise RuntimeError("Too many teams given. Must be < {}.".format(num_teams))
 
-        if args.viewer == 'tk-no-sync':
-            # only use delay when not synced.
-            initial_delay = 0.5
-        else:
-            initial_delay = 0.0
-
         game_config = {
             "rounds": args.rounds,
-            "initial_delay": initial_delay,
             "max_timeouts": args.max_timeouts,
             "timeout_length": args.timeout_length,
             "layout_name": layout_name,

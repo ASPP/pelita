@@ -60,7 +60,7 @@ class GameMaster:
 
     """
     def __init__(self, layout, teams, number_bots, game_time, noise=True, noiser=None,
-                 initial_delay=0.0, max_timeouts=5, timeout_length=3, layout_name=None,
+                 max_timeouts=5, timeout_length=3, layout_name=None,
                  seed=None):
         self.universe = datamodel.CTFUniverse.create(layout, number_bots)
         self.number_bots = number_bots
@@ -74,7 +74,6 @@ class GameMaster:
         self.noiser = noiser(self.universe, seed=seed) if noise else None
 
         self.viewers = []
-        self.initial_delay = initial_delay
 
         # We seed the internal random number generator.
         # This instance should be used for all important random decisions
@@ -231,8 +230,6 @@ class GameMaster:
         """ Play game until finished. """
         # notify all PlayerTeams
         self.set_initial()
-
-        time.sleep(self.initial_delay)
 
         while not self.game_state.get("finished"):
             self.play_round()

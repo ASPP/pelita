@@ -355,7 +355,6 @@ def run_game(team_specs, game_config, viewers=None, controller=None):
     server = SimpleServer(layout_string=game_config["layout_string"],
                           rounds=game_config["rounds"],
                           bind_addrs=[team.address for team in teams],
-                          initial_delay=game_config["initial_delay"],
                           max_timeouts=game_config["max_timeouts"],
                           timeout_length=game_config["timeout_length"],
                           layout_name=game_config["layout_name"],
