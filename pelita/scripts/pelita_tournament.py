@@ -19,19 +19,6 @@ from ..tournament import tournament
 from ..tournament.tournament import Config, State
 
 
-def start_logging(filename):
-    if filename:
-        hdlr = logging.FileHandler(filename, mode='w')
-    else:
-        hdlr = logging.StreamHandler()
-    logger = logging.getLogger('pelita-tournament')
-    FORMAT = '[%(relativeCreated)06d %(name)s:%(levelname).1s][%(funcName)s] %(message)s'
-    formatter = logging.Formatter(FORMAT)
-    hdlr.setFormatter(formatter)
-    logger.addHandler(hdlr)
-    logger.setLevel(logging.DEBUG)
-
-
 def create_directory(prefix):
     for suffix in itertools.count(0):
         name = '{}-{:02d}'.format(prefix, suffix)
@@ -229,7 +216,7 @@ def main():
         config.tournament_log_file = logfile #os.fdopen(fd, 'w')
 
         try:
-            start_logging(os.path.join(storage_folder, 'tournament.log'))
+            libpelita.start_logging(os.path.join(storage_folder, 'tournament.log'))
         except AttributeError:
             pass
 

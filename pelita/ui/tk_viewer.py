@@ -11,8 +11,7 @@ import zmq
 
 from .tk_canvas import TkApplication
 
-_logger = logging.getLogger("pelita.tk_viewer")
-_logger.setLevel(logging.DEBUG)
+_logger = logging.getLogger(__name__)
 
 def force_frontmost():
     """ This hack was discussed in https://github.com/ASPP/pelita/issues/345
@@ -137,7 +136,7 @@ class TkViewer:
             message = self.socket.recv_unicode(flags=zmq.NOBLOCK)
             message = json.loads(message)
 
-            _logger.info(message)
+            _logger.debug(message["__action__"])
             # we curretly don’t care about the action
             data = message["__data__"]
             if data:
@@ -145,9 +144,12 @@ class TkViewer:
 
             self._delay = 2
             self._after(2, self.read_queue)
+        except zmq.Again as e:
+            _logger.debug('Nothing received. Waiting %.3d seconds.', self._delay)
+            self._after(self._delay, self.read_queue)
+            self._delay = self._delay * 2
         except zmq.ZMQError as e:
-            _logger.info(e)
-
+            _logger.info('ZMQ Error: %r. Ignoring.', e)
             self._after(self._delay, self.read_queue)
             self._delay = self._delay * 2
 
