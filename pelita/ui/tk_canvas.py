@@ -13,7 +13,7 @@ from .tk_sprites import BotSprite, Food, Wall, col
 from .tk_utils import wm_delete_window_handler
 from .tk_sprites import BotSprite, Food, Wall, RED, BLUE, YELLOW, GREY, BROWN
 
-_logger = logging.getLogger("pelita.tk")
+_logger = logging.getLogger(__name__)
 
 
 

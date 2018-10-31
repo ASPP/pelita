@@ -38,7 +38,7 @@ from .datamodel import CTFUniverse
 from .game_master import GameMaster, PlayerDisconnected, PlayerTimeout
 from .viewer import AbstractViewer
 
-_logger = logging.getLogger("pelita.simplesetup")
+_logger = logging.getLogger(__name__)
 
 class ZMQUnreachablePeer(Exception):
     """ Raised when ZMQ cannot send a message (connection may have been lost). """

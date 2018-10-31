@@ -19,7 +19,7 @@ import zmq
 import pelita
 from ..player.team import new_style_team
 
-_logger = logging.getLogger("pelita.scripts.pelita_player")
+_logger = logging.getLogger(__name__)
 
 class MalformedBuiltinTeam(ValueError):
     pass

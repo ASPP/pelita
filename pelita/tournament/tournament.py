@@ -20,7 +20,7 @@ from pelita import libpelita
 from . import roundrobin
 from . import komode
 
-_logger = libpelita.logging.getLogger("pelita-tournament")
+_logger = libpelita.logging.getLogger(__name__)
 
 # Number of points a teams gets for matches in the first round
 # Probably not worth it to make it options.

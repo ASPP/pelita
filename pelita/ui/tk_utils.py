@@ -7,10 +7,7 @@ import platform
 import signal
 import sys
 
-# make a logger for these handlers that prints info messages to stderr
-_logger = logging.getLogger("signal_handlers")
-_logger.setLevel(logging.INFO)
-_logger.addHandler(logging.StreamHandler(sys.stderr))
+_logger = logging.getLogger(__name__)
 
 def exit_handler(*args):
     """ Simple handler to just quit using os._exit(-1).

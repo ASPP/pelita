@@ -103,7 +103,11 @@ class DumpingViewer(AbstractViewer):
     def _send(self, message):
         as_json = json.dumps(message)
         self.stream.write(as_json)
-        self.stream.write("\x04")
+        # We use 0x04 (EOT) as a separator between the events.
+        # The additional newline is for improved readability
+        # and should be ignored by the Python json reader.
+        self.stream.write("\x04\n")
+        self.stream.flush()
 
     def set_initial(self, universe, game_state):
         message = {"__action__": "set_initial",
