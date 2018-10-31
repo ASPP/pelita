@@ -18,17 +18,40 @@ logging.root.manager.emittedNoHandlerWarning = 1
 _logger = logging.getLogger(__name__)
 
 class ReplayPublisher:
-    def __init__(self, publish_sock, replayfile):
+    def __init__(self, replayfile, publisher, controller):
         with open(replayfile) as f:
             self.old_game = f.read().split("\x04")
 
-        self.publisher = pelita.simplesetup.SimplePublisher(publish_sock)
+        self.publisher = publisher
+        self.controller = controller
+        self.controller.game_master = self
+
+        # Holds the current iterator
+        self._iter = None
+
+        # This is technically not correct,
+        # but for now we don’t care what the request was
+        # and return a single step either way
+        self.set_initial = self.iter_step
+        self.play_round = self.iter_step
+        self.play_step = self.iter_step
 
     def run(self):
+        self.controller.run()
+
+    def iter_step(self):
+        if not self._iter:
+            self._iter = self.iter()
+        try:
+            next(self._iter)
+        except StopIteration:
+            pass
+
+    def iter(self):
         for state in self.old_game:
-            if state:
+            if state.strip():
                 message = json.loads(state)
-                self.publisher._send(message)
+                yield self.publisher._send(message)
 
 class ResultPrinter(pelita.viewer.AbstractViewer):
     def observe(self, universe, game_state):
@@ -260,14 +283,6 @@ def main():
         print('\n'.join(layouts))
         sys.exit(0)
 
-    if args.seed is None:
-        seed = random.randint(0, sys.maxsize)
-        args.seed = seed
-        print("Replay this game with --seed {seed}".format(seed=seed))
-    else:
-        pass
-    random.seed(args.seed)
-
     if args.viewer.startswith('tk') and not args.publish_to:
         raise ValueError("Options --tk (or --tk-no-sync) and --no-publish are mutually exclusive.")
 
@@ -282,68 +297,89 @@ def main():
             print("NAME:", team_name)
         sys.exit(0)
 
+
+    viewers = []
+    if args.dump:
+        viewers.append(pelita.viewer.DumpingViewer(open(args.dump, "w")))
+    if args.viewer == 'ascii':
+        viewers.append(pelita.viewer.AsciiViewer())
+    if args.viewer == 'progress':
+        viewers.append(pelita.viewer.ProgressViewer())
+    if args.reply_to:
+        viewers.append(pelita.viewer.ReplyToViewer(args.reply_to))
+    if args.viewer == 'null':
+        pass
+
+    # Adding the result printer to the viewers.
+    viewers.append(ResultPrinter())
+
     if args.replayfile:
-        replay_publisher = ReplayPublisher(args.publish_to, args.replayfile)
-        config["publish-addr"] = replay_publisher.publisher.socket_addr
-        subscribe_sock = replay_publisher.publisher.socket_addr.replace('*', 'localhost')
-
-        viewer = libpelita.run_external_viewer(replay_publisher.publisher.socket_addr,
-                                               controller=None, geometry=None, delay=None, stop_after=None)
-        time.sleep(3)
-        replay_publisher.run()
-    else:
-        if args.layout or args.layoutfile:
-            layout_name, layout_string = pelita.layout.load_layout(layout_name=args.layout, layout_file=args.layoutfile)
-        else:
-            layout_name, layout_string = pelita.layout.get_random_layout(args.filter)
-        print("Using layout '%s'" % layout_name)
-
-        num_teams = 2
-        team_specs = args.team_specs
-        if len(team_specs) == 0:
-            team_specs = ('0', '1')
-        if len(team_specs) == 1:
-            raise RuntimeError("Not enough teams given. Must be {}".format(num_teams))
-        if len(team_specs) > num_teams:
-            raise RuntimeError("Too many teams given. Must be < {}.".format(num_teams))
-
-        game_config = {
-            "rounds": args.rounds,
-            "max_timeouts": args.max_timeouts,
-            "timeout_length": args.timeout_length,
-            "layout_name": layout_name,
-            "layout_string": layout_string,
-            "seed": args.seed,
-            "dump": dump,
-        }
-
-        viewers = []
-        if args.dump:
-            viewers.append(pelita.viewer.DumpingViewer(open(args.dump, "w")))
-        if args.viewer == 'ascii':
-            viewers.append(pelita.viewer.AsciiViewer())
-        if args.viewer == 'progress':
-            viewers.append(pelita.viewer.ProgressViewer())
-        if args.reply_to:
-            viewers.append(pelita.viewer.ReplyToViewer(args.reply_to))
-        if args.viewer == 'null':
-            pass
-
-        # Adding the result printer to the viewers.
-        viewers.append(ResultPrinter())
+        if not args.viewer == 'tk':
+            raise RuntimeError("Can only replay with the tk viewer.")
 
         with libpelita.channel_setup(publish_to=args.publish_to) as channels:
-            if args.viewer.startswith('tk'):
-                geometry = args.geometry
-                delay = int(1000./args.fps)
-                controller = channels["controller"]
-                publisher = channels["publisher"]
-                game_config["publisher"] = publisher
-                viewer = libpelita.run_external_viewer(publisher.socket_addr, controller.socket_addr,
-                                                       geometry=geometry, delay=delay, stop_after=args.stop_after)
-                libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers, controller=controller)
-            else:
-                libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers)
+            geometry = args.geometry
+            delay = int(1000./args.fps)
+            controller = channels["controller"]
+            controller_addr = controller.socket_addr
+            publisher = channels["publisher"]
+            viewer = libpelita.run_external_viewer(publisher.socket_addr, controller_addr,
+                                                    geometry=geometry, delay=delay, stop_after=args.stop_after)
+            replay_publisher = ReplayPublisher(args.replayfile, publisher, controller)
+            replay_publisher.run()
+        sys.exit(0)
+
+    # Run a normal game
+    num_teams = 2
+    team_specs = args.team_specs
+    if len(team_specs) == 0:
+        team_specs = ('0', '1')
+    if len(team_specs) == 1:
+        raise RuntimeError("Not enough teams given. Must be {}".format(num_teams))
+    if len(team_specs) > num_teams:
+        raise RuntimeError("Too many teams given. Must be < {}.".format(num_teams))
+
+    if args.seed is None:
+        seed = random.randint(0, sys.maxsize)
+        args.seed = seed
+        print("Replay this game with --seed {seed}".format(seed=seed))
+    else:
+        pass
+    random.seed(args.seed)
+
+    if args.layout or args.layoutfile:
+        layout_name, layout_string = pelita.layout.load_layout(layout_name=args.layout, layout_file=args.layoutfile)
+    else:
+        layout_name, layout_string = pelita.layout.get_random_layout(args.filter)
+    print("Using layout '%s'" % layout_name)
+
+    game_config = {
+        "rounds": args.rounds,
+        "max_timeouts": args.max_timeouts,
+        "timeout_length": args.timeout_length,
+        "layout_name": layout_name,
+        "layout_string": layout_string,
+        "seed": args.seed,
+        "dump": args.dump,
+    }
+
+    with libpelita.channel_setup(publish_to=args.publish_to) as channels:
+        if args.viewer.startswith('tk'):
+            geometry = args.geometry
+            delay = int(1000./args.fps)
+            controller = channels["controller"]
+            controller_addr = controller.socket_addr
+            publisher = channels["publisher"]
+            game_config["publisher"] = publisher
+            if args.viewer == 'tk-no-sync':
+                controller = None
+                controller_addr = None
+            viewer = libpelita.run_external_viewer(publisher.socket_addr, controller_addr,
+                                                   geometry=geometry, delay=delay, stop_after=args.stop_after)
+        else:
+            controller = None
+
+        libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers, controller=controller)
 
 if __name__ == '__main__':
     main()
