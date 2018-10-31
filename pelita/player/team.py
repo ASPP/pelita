@@ -134,7 +134,7 @@ class Team(AbstractTeam):
             if turn != idx:
                 self._bot_track[idx].append(mybot.position)
 
-            mybot._track = self._bot_track[idx]
+            mybot.track = self._bot_track[idx][:]
             mybot._eaten = self._bot_eaten[idx]
 
         self._team_game = team
@@ -177,7 +177,9 @@ class Bot:
                           timeout_count):
         self._bots = None
         self._say = None
-        self._track = []
+
+        #: The previous positions of this bot including the current one.
+        self.track = []
         self._eaten = False
         self._initial_position = initial_position
 
@@ -271,11 +273,6 @@ class Bot:
     def eaten(self):
         """ True if this bot has been eaten in the last turn. """
         return self._eaten
-
-    @property
-    def track(self):
-        """ The previous positions of this bot including the current one. """
-        return self._track
 
     def _repr_html_(self):
         """ Jupyter-friendly representation. """
