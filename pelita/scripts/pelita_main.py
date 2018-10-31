@@ -15,7 +15,7 @@ from pelita import libpelita
 
 # silence stupid warnings from logging module
 logging.root.manager.emittedNoHandlerWarning = 1
-_logger = logging.getLogger("pelitagame")
+_logger = logging.getLogger(__name__)
 
 class ReplayPublisher:
     def __init__(self, publish_sock, replayfile):

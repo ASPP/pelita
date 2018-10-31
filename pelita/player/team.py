@@ -58,7 +58,7 @@ class Team(AbstractTeam):
 
         #: Storage for the team state
         self._team_state = None
-        self._team_game = Game([None, None], self._team_state)
+        self._team_game = [None, None]
 
         #: Storage for the random generator
         self._bot_random = [None] * len(universe.bots)
@@ -137,12 +137,12 @@ class Team(AbstractTeam):
             mybot._track = self._bot_track[idx]
             mybot._eaten = self._bot_eaten[idx]
 
-        self._team_game.team[:] = team
-        move = self._team_move(turn, self._team_game)
+        self._team_game = team
+        move, state = self._team_move(self._team_game[turn], self._team_state)
 
         self._bot_eaten[turn] = False
         # restore the team state
-        self._team_state = self._team_game.state
+        self._team_state = state
 
         return {
             "move": move,
@@ -153,70 +153,6 @@ class Team(AbstractTeam):
         return "Team(%r, %s)" % (self.team_name, repr(self._team_move))
 
 
-# @dataclass
-class Game:
-    def __init__(self, team, state):
-        self.team = team
-        self.state = state
-
-    def _repr_html_(self):
-        bot = self.team[0]
-        width = max(bot.walls)[0] + 1
-        height = max(bot.walls)[1] + 1
-
-        with StringIO() as out:
-            out.write("<table>")
-            for y in range(height):
-                out.write("<tr>")
-                for x in range(width):
-                    if (x, y) in bot.walls:
-                        bg = 'style="background-color: {}"'.format(
-                            "rgb(94, 158, 217)" if x < width // 2 else
-                            "rgb(235, 90, 90)")
-                    else:
-                        bg = ""
-                    out.write("<td %s>" % bg)
-                    if (x, y) in bot.walls: out.write("#")
-                    if (x, y) in bot.food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
-                    if (x, y) in bot.enemy[0].food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
-                    for idx in range(4):
-                        if bot._bots[idx].position == (x, y): out.write(str(idx))
-                    out.write("</td>")
-                out.write("</tr>")
-            out.write("</table>")
-            return out.getvalue()
-
-    def __str__(self):
-        bot = self.team[0]
-        width = max(bot.walls)[0] + 1
-        height = max(bot.walls)[1] + 1
-
-        header = ("{blue}{you_blue} vs {red}{you_red}.\n" +
-            "Playing on {col} side. Round: {round}, score: {blue_score}:{red_score}. " +
-            "timeouts: {blue_timeouts}:{red_timeouts}").format(
-            blue=bot._bots[0].team_name,
-            red=bot._bots[1].team_name,
-            round=bot.round,
-            blue_score=bot._bots[0].score,
-            red_score=bot._bots[1].score,
-            col="blue" if bot.is_blue else "red",
-            you_blue=" (you)" if bot.is_blue else "",
-            you_red=" (you)" if not bot.is_blue else "",
-            blue_timeouts=bot._bots[0].timeout_count,
-            red_timeouts=bot._bots[1].timeout_count,
-        )
-
-        with StringIO() as out:
-            out.write(header)
-
-            layout = Layout(walls=bot.walls[:],
-                            food=bot.food + bot.enemy[0].food,
-                            bots=[b.position for b in self.team],
-                            enemy=[e.position for e in bot.enemy])
-
-            out.write(str(layout))
-            return out.getvalue()
-
 def create_homezones(width, height):
     return [
         [(x, y) for x in range(0, width // 2)
@@ -224,7 +160,6 @@ def create_homezones(width, height):
         [(x, y) for x in range(width // 2, width)
                 for y in range(0, height)]
     ]
-
 
 class Bot:
     def __init__(self, *, bot_index,
@@ -284,6 +219,16 @@ class Bot:
            return [self._bots[1], self._bots[3]]
 
     @property
+    def turn(self):
+        """ The turn of our bot. """
+        return self.bot_index // 2
+
+    @property
+    def other(self):
+        """ The other bot in our team. """
+        return self._team[1 - self.turn]
+
+    @property
     def enemy(self):
         """ The list of enemy bots
         """
@@ -331,6 +276,71 @@ class Bot:
     def track(self):
         """ The previous positions of this bot including the current one. """
         return self._track
+
+    def _repr_html_(self):
+        """ Jupyter-friendly representation. """
+        bot = self
+        width = max(bot.walls)[0] + 1
+        height = max(bot.walls)[1] + 1
+
+        with StringIO() as out:
+            out.write("<table>")
+            for y in range(height):
+                out.write("<tr>")
+                for x in range(width):
+                    if (x, y) in bot.walls:
+                        bg = 'style="background-color: {}"'.format(
+                            "rgb(94, 158, 217)" if x < width // 2 else
+                            "rgb(235, 90, 90)")
+                    else:
+                        bg = ""
+                    out.write("<td %s>" % bg)
+                    if (x, y) in bot.walls: out.write("#")
+                    if (x, y) in bot.food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
+                    if (x, y) in bot.enemy[0].food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
+                    for idx in range(4):
+                        if bot._bots[idx].position == (x, y):
+                            if idx == self.bot_index:
+                                out.write('<b>' + str(idx) + '</b>')
+                            else:
+                                out.write(str(idx))
+                    out.write("</td>")
+                out.write("</tr>")
+            out.write("</table>")
+            return out.getvalue()
+
+    def __str__(self):
+        bot = self
+        width = max(bot.walls)[0] + 1
+        height = max(bot.walls)[1] + 1
+
+        header = ("{blue}{you_blue} vs {red}{you_red}.\n" +
+            "Playing on {col} side. Current turn: {turn}. Round: {round}, score: {blue_score}:{red_score}. " +
+            "timeouts: {blue_timeouts}:{red_timeouts}").format(
+            blue=bot._bots[0].team_name,
+            red=bot._bots[1].team_name,
+            turn=bot.turn,
+            round=bot.round,
+            blue_score=bot._bots[0].score,
+            red_score=bot._bots[1].score,
+            col="blue" if bot.is_blue else "red",
+            you_blue=" (you)" if bot.is_blue else "",
+            you_red=" (you)" if not bot.is_blue else "",
+            blue_timeouts=bot._bots[0].timeout_count,
+            red_timeouts=bot._bots[1].timeout_count,
+        )
+
+        with StringIO() as out:
+            out.write(header)
+
+            layout = Layout(walls=bot.walls[:],
+                            food=bot.food + bot.enemy[0].food,
+                            bots=[b.position for b in bot._team],
+                            enemy=[e.position for e in bot.enemy])
+
+            out.write(str(layout))
+            return out.getvalue()
+
 
 def _rebuild_universe(bots):
     """ Rebuilds a universe from the list of bots.
