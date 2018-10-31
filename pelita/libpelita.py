@@ -17,7 +17,7 @@ import zmq
 
 from .simplesetup import RemoteTeamPlayer, SimpleController, SimplePublisher, SimpleServer
 
-_logger = logging.getLogger("pelita.libpelita")
+_logger = logging.getLogger(__name__)
 _mswindows = (sys.platform == "win32")
 
 TeamSpec = namedtuple("TeamSpec", ["module", "address"])

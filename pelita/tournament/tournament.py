@@ -20,7 +20,7 @@ from pelita import libpelita
 from . import roundrobin
 from . import komode
 
-_logger = libpelita.logging.getLogger("pelita-tournament")
+_logger = libpelita.logging.getLogger(__name__)
 
 # Number of points a teams gets for matches in the first round
 # Probably not worth it to make it options.
@@ -139,7 +139,7 @@ class Config:
             cmd = shlex.split(self.speaker)
             full_cmd = [*cmd, tmp.name]
             try:
-                festival = subprocess.check_call(full_cmd)
+                festival = subprocess.check_call(full_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             except FileNotFoundError:
                 # If we could not find the executable then there is not need to keep on trying.
                 # Disabling speak. (Although self.say() will still attempt to speak.)

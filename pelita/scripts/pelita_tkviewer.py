@@ -35,7 +35,7 @@ parser.add_argument('--version', help='show the version number and exit',
                     action='store_const', const=True)
 parser.add_argument('--log', help='print debugging log information to'
                                   ' LOGFILE (default \'stderr\')',
-                    metavar='LOGFILE', default=argparse.SUPPRESS, nargs='?')
+                    metavar='LOGFILE', const='-', nargs='?')
 
 def main():
     args = parser.parse_args()
@@ -47,10 +47,9 @@ def main():
 
         sys.exit(0)
 
-    try:
-        pelita.utils.start_logging(args.log)
-    except AttributeError:
-        pass
+
+    if args.log:
+        pelita.libpelita.start_logging(args.log)
 
     tkargs = {
         'address': args.subscribe_sock,
