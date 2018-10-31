@@ -40,7 +40,7 @@ def move(bot, state):
             # we are in the enemy zone: they can eat us!
             # 1. let's forget about this target (the enemy is sitting on it for
             #    now). We will choose a new target in the next round
-            state[turn] = None
+            state[bot.turn] = None
             # 2. let us step back
             # bot.track[-1] is always the current position, so to backtrack
             # we select bot.track[-2]
