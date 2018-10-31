@@ -76,10 +76,10 @@ def firstNN(*args):
 
 
 def start_logging(filename):
-    if filename:
-        hdlr = logging.FileHandler(filename, mode='w')
-    else:
+    if not filename or filename == '-':
         hdlr = logging.StreamHandler()
+    else:
+        hdlr = logging.FileHandler(filename, mode='w')
     logger = logging.getLogger('pelita')
     FORMAT = '[%(relativeCreated)06d %(name)s:%(levelname).1s][%(funcName)s] %(message)s'
     formatter = logging.Formatter(FORMAT)
@@ -355,7 +355,6 @@ def run_game(team_specs, game_config, viewers=None, controller=None):
     server = SimpleServer(layout_string=game_config["layout_string"],
                           rounds=game_config["rounds"],
                           bind_addrs=[team.address for team in teams],
-                          initial_delay=game_config["initial_delay"],
                           max_timeouts=game_config["max_timeouts"],
                           timeout_length=game_config["timeout_length"],
                           layout_name=game_config["layout_name"],

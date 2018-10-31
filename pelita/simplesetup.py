@@ -336,8 +336,6 @@ class SimpleServer:
     bind_addrs : list of strings, optional
         The address(es) which this server uses for its connections.
         Defaults to ["tcp://*"] * teams, if not given.
-    initial_delay : float
-        Delays the start of the game by `initial_delay` seconds.
     layout_name : string, optional
         The name of the given layout string.
     seed : int, optional
@@ -352,7 +350,7 @@ class SimpleServer:
 
     """
     def __init__(self, layout_string, teams=2, players=4, rounds=300, bind_addrs=None,
-                 initial_delay=0.0, max_timeouts=5, timeout_length=3, layout_name=None,
+                 max_timeouts=5, timeout_length=3, layout_name=None,
                  seed=None):
 
         self.players = players
@@ -413,7 +411,6 @@ class SimpleServer:
 
         self.game_master = GameMaster(layout_string, self.team_players,
                                       self.players, self.rounds,
-                                      initial_delay=initial_delay,
                                       max_timeouts=max_timeouts,
                                       timeout_length=timeout_length,
                                       layout_name=layout_name,
