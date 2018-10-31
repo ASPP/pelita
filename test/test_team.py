@@ -4,13 +4,12 @@ from pelita.game_master import GameMaster
 from pelita.player.team import Team, split_layout_str, create_layout, _rebuild_universe, bots_from_universe
 from pelita.utils import setup_test_game
 
-def stopping(turn, game):
-    return (0, 0)
+def stopping(bot, state):
+    return (0, 0), state
 
-def randomBot(turn, game):
-    bot = game.team[turn]
+def randomBot(bot, state):
     legal = bot.legal_moves[:]
-    return bot.random.choice(legal)
+    return bot.random.choice(legal), state
 
 class TestLayout:
     layout="""
@@ -179,12 +178,14 @@ class TestStoppingTeam:
     @staticmethod
     def round_counting():
         storage_copy = {}
-        def inner(turn, game):
-            if game.state is None:
-                game.state = {}
-            game.state[turn] = game.state.get(turn, 0) + 1
-            storage_copy['rounds'] = game.state[turn]
-            return (0, 0)
+        def inner(bot, state):
+            print(state)
+            if state is None:
+                state = {}
+            state[bot.turn] = state.get(bot.turn, 0) + 1
+            storage_copy['rounds'] = state[bot.turn]
+            print(state)
+            return (0, 0), state
         inner._storage = storage_copy
         return inner
 
@@ -213,6 +214,7 @@ class TestStoppingTeam:
         ]
         gm = GameMaster(test_layout, team, 4, 3)
         gm.play()
+        print(gm.universe.pretty)
         assert gm.universe.bots[0].current_pos == (1, 1)
         assert gm.universe.bots[1].current_pos == (10, 1)
         assert round_counting._storage['rounds'] == 3
@@ -240,20 +242,20 @@ class TestRebuild:
         #0#.   .# 1#
         ############
         """
-        game = setup_test_game(layout=layout, is_blue=True)
-        assert game.team[0].position == (1, 1)
-        assert game.team[1].position == (10, 1)
-        assert game.team[0].enemy[0].position is None
-        assert game.team[0].enemy[1].position is None
+        bot = setup_test_game(layout=layout, is_blue=True)
+        assert bot._team[0].position == (1, 1)
+        assert bot._team[1].position == (10, 1)
+        assert bot._team[0].enemy[0].position is None
+        assert bot._team[0].enemy[1].position is None
 
-        uni, state = _rebuild_universe(game.team[0]._bots)
+        uni, state = _rebuild_universe(bot._bots)
         assert uni.bots[0].current_pos == (1, 1)
         assert uni.bots[2].current_pos == (10, 1)
         assert uni.bots[1].current_pos == (9, 1)
         assert uni.bots[3].current_pos == (10, 1)
 
         with pytest.raises(ValueError):
-            uni, state = _rebuild_universe(game.team[0]._bots[0:2])
+            uni, state = _rebuild_universe(bot._bots[0:2])
 
         bots = bots_from_universe(uni, [None] * 4, round=0,
                                                    team_name=state['team_name'],
@@ -264,28 +266,28 @@ class TestRebuild:
 
 class TestTrack:
     def test_track(self):
-        def trackingBot(turn, game):
-            bot = game.team[turn]
-            other = game.team[1-turn]
+        def trackingBot(bot, state):
+            turn = bot.turn
+            other = bot.other
             if bot.round == 0 and turn == 0:
                 assert bot.track[0] == bot.position
-                game.state = {}
-                game.state[turn] = {}
-                game.state[1 - turn] = {}
-                game.state[turn]['track'] = []
-                game.state[1 - turn]['track'] = []
+                state = {}
+                state[turn] = {}
+                state[1 - turn] = {}
+                state[turn]['track'] = []
+                state[1 - turn]['track'] = []
 
-            if bot.eaten or not game.state[turn]['track']:
-                game.state[turn]['track'] = [bot.position]
-            if other.eaten or not game.state[1 - turn]['track']:
-                game.state[1 - turn]['track'] = [other.position]
+            if bot.eaten or not state[turn]['track']:
+                state[turn]['track'] = [bot.position]
+            if other.eaten or not state[1 - turn]['track']:
+                state[1 - turn]['track'] = [other.position]
             else:
-                game.state[1 - turn]['track'].append(other.position)
+                state[1 - turn]['track'].append(other.position)
 
             assert bot.track[0] == bot._initial_position
-            assert bot.track == game.state[turn]['track'] # bot.round * 2 + 1 + turn
+            assert bot.track == state[turn]['track'] # bot.round * 2 + 1 + turn
             assert bot.track[-1] == bot.position
-            return randomBot(turn, game)
+            return randomBot(bot, state)
 
         layout = """
         ############
