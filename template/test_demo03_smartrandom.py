@@ -48,5 +48,5 @@ def test_no_kamikaze_stop():
     ########
     """
     bot = setup_test_game(layout=layout, is_blue=True)
-    next_move, _ = move(bot, state)
+    next_move, _ = move(bot, None)
     assert next_move == (0, 0)
