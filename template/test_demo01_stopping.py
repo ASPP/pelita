@@ -14,10 +14,10 @@ def test_stays_there():
     all_locations = ((x, y) for x in range(8) for y in range(4))
     for loc in all_locations:
         try:
-            game = setup_test_game(layout=layout, is_blue=True, bots=[loc])
+            bot = setup_test_game(layout=layout, is_blue=True, bots=[loc])
         except ValueError:
             # loc is a wall, skip this position
             continue
-        next_move = move(0, game)
+        next_move, _ = move(bot, None)
         assert next_move == (0,0)
 

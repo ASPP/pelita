@@ -6,8 +6,9 @@
 
 TEAM_NAME = 'Debuggable Bot'
 
-def move(turn, game):
+def move(bot, state):
     # in Python >= 3.7 this can be changed to simply
     # breakpoint()
     import pdb; pdb.set_trace()
-    return (0,0)
+    next_move = (0,0)
+    return next_move, state

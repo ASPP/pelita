@@ -12,7 +12,6 @@ Pelita
 - [Full API description](#full-api-description)
   - [The maze](#the-maze)
   - [The `move` function](#the-move-function)
-  - [The `Game` object](#the-game-object)
   - [The `Bot` object](#the-bot-object)
 
 ------------------------------------------------
@@ -42,10 +41,11 @@ through the maze, kill the enemy's pacmen, and eat the enemy's food. You can fin
 ```python
 TEAM_NAME = 'StoppingBots'
 
-def move(turn, game):
-    return (0,0)
+def move(bot, state):
+    next_move = (0,0)
+    return next_move, state
 ```
-As seen above, your implementation consists of a team name (the `TEAM_NAME` string) and a function `move`, which given a turn and a game state returns a move for the bot. In the [Full API Description](#full-api-description) section you'll find all the details.
+As seen above, your implementation consists of a team name (the `TEAM_NAME` string) and a function `move`, which given a bot and a state returns the next move for current bot and a state. In the [Full API Description](#full-api-description) section you'll find all the details.
 
 ## Content of this repository
 In this repository you will find several demo implementations (all files named `demoXX_XXX.py`), that you can use as a starting point for your own implementations. There is also an example `utils.py` module and a series of unit tests for the demo implementations (all files named `test_demoXX_XXX.py`). You can run the tests with `pytest` by typing:
@@ -111,8 +111,8 @@ def test_stays_there():
     #.1  EE#
     ########
     """
-    game = setup_test_game(layout=layout, is_blue=True)
-    next_move = move(0, game)
+    bot = setup_test_game(layout=layout, is_blue=True)
+    next_move, _ = move(bot, None)
     assert next_move == (0,0)
 ```
 
@@ -120,7 +120,7 @@ For setting up test games there is a utility function you can import from `pelit
 
 **`setup_test_game(layout, is_blue=True, round=None, score=None, seed=None, food=None, bots=None, enemy=None) ⟶ game`**
 
-Given a layout string, returns a [Game](#the-game-object) that you can pass to the [move](#the-move-function) function. Printing a `Game` will print its layout string. In the simplest form a layout string is a multiline string where the character `#` identifies walls, `.` the food pellets, `E` the enemy bots (you must have two of them for a layout to be legal), and `0` and `1` representing the bots in your team corresponding to turn `0` and `1`. In addition to the layout, `setup_test_game` has a number of optional keyword arguments:
+Given a layout string, returns a [Bot](#the-bot-object) that you can pass to the [move](#the-move-function) function. Printing a `Bot` will print the layout string corresponding to the current game state. In the simplest form a layout string is a multiline string where the character `#` identifies walls, `.` the food pellets, `E` the enemy bots (you must have two of them for a layout to be legal), and `0` and `1` representing the bots in your team corresponding to turn `0` and `1`. In addition to the layout, `setup_test_game` has a number of optional keyword arguments:
 - `is_blue`: whether your bots are on the blue team, and enemy bots on the red team
 - `round`: the current round
 - `score`: the current score
@@ -174,15 +174,15 @@ print(game)
 ```
 If you notice a certain configuration in a game that you want to replicate in a test, you can print the game in your move function and then use the output string as a layout in a test. For example, you could have the following move function:
 ```python
-def move(turn, game):
-    bot = game.team[turn]
+def move(bot, state):
     # print initial state
-    if turn == 0 and bot.round == 0:
-        print(game)
+    if bot.turn == 0 and bot.round == 0:
+        print(bot)
     ...
-    return (0, 0)
+    next_move = (0, 0)
+    return next_move, state
 ```
-Running this bot will print the following string on standard output:
+Running a game with this bot implementation will print the following string on standard output:
 ```
 ################################
 # .  #  . .. ..         .      #
@@ -232,57 +232,44 @@ $ pelita --list-layouts
  For the tournament only layouts without dead ends will be used and all layouts will have the default values for width and height. Additionally, all layouts will have a wall on all squares around the border.
 
 ### The `move` function
-**`move(turn, game) ⟶ (dx, dy)`**
+**`move(bot, state) ⟶ (dx, dy), state`**
 
 The `move` function gets two input arguments:
 
-- **`turn`** is the turn in the current round, i.e. `turn` is either `0` for the first bot in your team or `1` for the second one.
+- **`bot`** is a reference to the bot in your team corresponding to the current turn. It is an instance of the [`Bot` object](#the-bot-object), which contains all information about the current state of the game
 
-- **`game`** is a reference to the current game state. It is an instance of the [`Game` object](#the-game-object), which contains all information about the current state of the game
-
-The `move` function returns a move for the bot in your team corresponding to the current turn. The move is a tuple of two integers `(dx, dy)`, which can be:
-
-- **`(1, 0)`** for moving to the right (East)
-- **`(-1, 0)`** for moving to the left (West)
-- **`(0, 1)`** for moving down (South)
-- **`(0, -1)`** for moving up (North)
-- **`(0, 0)`** for stopping (no move)
-
-Note that the returned move must be a legal move, i.e. you can not move your bot on a wall. If you return an illegal move, a random move will be executed instead and a timeout will be recorded for your team. After 5 timeouts the game is over and you lose the game. 
-
-### The `Game` object
-
-- **`game.team`** is a list of the two [`Bot` objects](#the-bot-object) in your team:
+- **`state`** is an arbitrary object, `None` by default, which can be used to hold state between rounds. Example of usage for `state` can be found in [demo04_basic_attacker.py](demo04_basic_attacker.py), [demo05_basic_defender.py](demo05_basic_defender.py), [demo06_one_and_one.py](demo06_one_and_one.py):
     ```python
-    bot0 = game.team[0]  # the first bot in your team
-    bot1 = game.team[1]  # the second bot in your team
-    ```
-    Within the `move` function, you can identify the bot whose move you have to return in the current turn by using the index `turn`. Since there are only two bots in your team, you can access your teammate with `1 - turn`:
-    ```python
-    def move(turn, game):
-        bot = game.team[turn]  # the bot that performs the next move
-        teammate = game.team[1 - turn]  # the other bot in our team
-        ...
-        return next_move
-    ```
-
-
-- **`game.state`** is a reference to an arbitrary object, `None` by default, which can be used to hold state between rounds. Example of usage for `game.state` can be found in [demo04_basic_attacker.py](demo04_basic_attacker.py), [demo05_basic_defender.py](demo05_basic_defender.py), [demo06_one_and_one.py](demo06_one_and_one.py):
-    ```python
-    def move(turn, game):
-        bot = game.team[turn]
-        if game.state is None:
+    def move(bot, state):
+        if state is None:
             # initialize an empty dictionary to keep information we
             # want to share within our team during the game
             # -> both bots will have access to this dictionary
-            game.state = {}
+            state = {}
         ...
-        return next_move
+        return next_move, state
     ```
 
-Note that, except for `game.state`, the `Game` object is read-only, i.e. you can not modify it within the `move` function.
+The `move` function returns two values:
+
+1. **`(dx, dy)`** a move for the bot in your team corresponding to the current turn. The move is a tuple of two integers `(dx, dy)`, which can be:
+
+  - **`(1, 0)`** for moving to the right (East)
+  - **`(-1, 0)`** for moving to the left (West)
+  - **`(0, 1)`** for moving down (South)
+  - **`(0, -1)`** for moving up (North)
+  - **`(0, 0)`** for stopping (no move)
+
+  Note that the returned move must be a legal move, i.e. you can not move your bot on a wall. If you return an illegal move, a random move will be executed instead and a timeout will be recorded for your team. After 5 timeouts the game is over and you lose the game. 
+
+2. **`state`** the `state` object described above
 
 ### The `Bot` object
+Note that the `Bot` object is read-only, i.e. any modifications you make to that object within the `move` function will be discarded at the next round. Use the `state` object for keeping state between rounds.
+
+- **`bot.turn`** is the turn this bot is playing, either `0` or `1`.
+
+- **`bot.other`** is the other bot in your team. It is a reference to a `Bot` object.
 
 - **`bot.position`** is a tuple of the coordinates your bot is on at the moment. For example `(3, 9)`.
 
@@ -350,4 +337,3 @@ Note that, except for `game.state`, the `Game` object is read-only, i.e. you can
 
 - **`bot.enemy[0].team_name`** you can also inspect the enemy team name with `bot.enemy[0].team_name`.
 
-Note that the `Bot` object is read-only, i.e. you can not modify it within the `move` function.

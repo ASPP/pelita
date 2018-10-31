@@ -4,21 +4,21 @@ TEAM_NAME = "Death Detectors Bots"
 MESSAGE = 'I am a zombie now!'
 EATEN_INERTIA = 10
 
-def move(turn, game):
-    bot = game.team[turn]
+def move(bot, state):
 
-    if game.state is None:
+    if state is None:
         # initialize a state dictionary for both bots
-        game.state = { 0:0, 1:0}
+        state = {0:0, 1:0}
 
     # check if we have benn eaten in the previous round
     if bot.eaten:
         # set the speak inertia
-        game.state[turn] = EATEN_INERTIA
-    if game.state[turn]:
+        state[bot.turn] = EATEN_INERTIA
+
+    if state[bot.turn]:
         # speak for as many rounds as EATEN_INTERTIA
         bot.say(MESSAGE)
-        game.state[turn] -= 1
+        state[turn] -= 1
 
     # copy the available moves, so that we can use random.shuffle,
     # which unfortunately shuffles lists in-place.
@@ -29,4 +29,4 @@ def move(turn, game):
         if new_pos not in bot.track:
            break
 
-    return next_move
+    return next_move, state
