@@ -6,6 +6,7 @@ import io
 import json
 import logging
 import os
+from pathlib import Path
 import shlex
 import signal
 import subprocess
@@ -93,7 +94,7 @@ class ModuleRunner:
         self.team_spec = team_spec
 
 class DefaultRunner(ModuleRunner):
-    def run(self, addr):
+    def call_args(self, addr):
         player = 'pelita.scripts.pelita_player'
         external_call = [get_python_process(),
                          '-m',
@@ -102,30 +103,46 @@ class DefaultRunner(ModuleRunner):
                          addr,
                          '--color',
                          self.color]
-        _logger.debug("Executing: %r", external_call)
-        return subprocess.Popen(external_call)
+        return external_call
 
 class BinRunner(ModuleRunner):
-    def run(self, addr):
+    def call_args(self, addr):
         external_call = [self.team_spec,
                          addr]
-        _logger.debug("Executing: %r", external_call)
-        return subprocess.Popen(external_call)
+        return external_call
 
 @contextlib.contextmanager
-def _call_pelita_player(module_spec, address):
+def _call_pelita_player(module_spec, address, color='', dump=None):
+    """ Context manager version of `call_pelita_player`.
+
+    Runs `call_pelita_player` as long as the `with` statement is executed
+    and automatically terminates it afterwards. This is useful, if one
+    just needs to send a few commands to a player.
+    """
+
     proc = None
     try:
-        proc = call_pelita_player(module_spec, address)
+        proc, stdout, stderr = call_pelita_player(module_spec, address, color, dump)
         yield proc
+    except KeyboardInterrupt:
+        pass
     finally:
+        # we close stdout, stderr before terminating
+        # this hopefully means that it will do some flushing
+        if stdout:
+            stdout.close()
+        if stderr:
+            stderr.close()
         if proc is None:
             print("Problem running pelita player.")
         else:
             _logger.debug("Terminating proc %r", proc)
             proc.terminate()
+            proc.wait()
+            _logger.debug("%r terminated.", proc)
 
-def call_pelita_player(module_spec, address, color=''):
+
+def call_pelita_player(module_spec, address, color='', dump=None):
     """ Starts another process with the same Python executable,
     the same start script (pelitagame) and runs `team_spec`
     as a standalone client on URL `addr`.
@@ -144,11 +161,17 @@ def call_pelita_player(module_spec, address, color=''):
         runner = DefaultRunner
     runner_inst = runner(module_spec.module)
     runner_inst.color = color
-    return runner_inst.run(address)
+    call_args = runner_inst.call_args(address)
+    _logger.debug("Executing: %r", call_args)
+    if dump:
+        stdout = Path(dump + '.' + (color or module_spec) + '.out').open('w')
+        stderr = Path(dump + '.' + (color or module_spec) + '.err').open('w')
+        return (subprocess.Popen(call_args, stdout=stdout, stderr=stderr), stdout, stderr)
+    else:
+        return (subprocess.Popen(call_args), None, None)
 
-from contextlib import contextmanager
 
-@contextmanager
+@contextlib.contextmanager
 def run_and_terminate_process(args, **kwargs):
     """ This serves as a contextmanager around `subprocess.Popen`, ensuring that
     after the body of the with-clause has finished, the process itself (and the
@@ -378,7 +401,7 @@ def run_game(team_specs, game_config, viewers=None, controller=None):
             print("Waiting for external team %d to connect to %s." % (idx, team.address))
 
     external_players = [
-        call_pelita_player(team.module, team.address, color[team])
+        call_pelita_player(team.module, team.address, color[team], dump=game_config['dump'])
         for team in teams
         if team.module
     ]
@@ -459,11 +482,18 @@ def autoclose_subprocesses(subprocesses):
     except KeyboardInterrupt:
         pass
     finally:
+        # we close stdout, stderr before terminating
+        # this hopefully means that it will do some flushing
+        for (sp, stdout, stderr) in subprocesses:
+            if stdout:
+                stdout.close()
+            if stderr:
+                stderr.close()
         # kill all client processes. NOW!
         # (is ths too early?)
-        for sp in subprocesses:
+        for (sp, stdout, stderr) in subprocesses:
             _logger.debug("Attempting to terminate %r.", sp)
             sp.terminate()
-        for sp in subprocesses:
+        for (sp, stdout, stderr) in subprocesses:
             sp.wait()
             _logger.debug("%r terminated.", sp)
