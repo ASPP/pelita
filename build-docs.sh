@@ -5,7 +5,6 @@ git_describe=$(git describe)
 
 # make the documentation, hope it doesn't fail
 echo "Generating doc from $git_describe"
-(cd doc; git clean -n -x -d)
 
 # Generate _contributors.rst
 CONTRIBUTORS=doc/source/_contributors.rst
