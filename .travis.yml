@@ -55,3 +55,4 @@ deploy:
   on:
     branch: master
     python: 3.7
+    repo: ASPP/pelita
