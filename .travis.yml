@@ -23,7 +23,7 @@ script:
       python -m pelita.scripts.pelita_main --progress &&
       pelita --null --rounds 100 --filter small $player 2>&1
   - if [[ $TRAVIS_PYTHON_VERSION == 3.6 || $TRAVIS_PYTHON_VERSION == 3.7 ]]; then pelita-tournament --non-interactive --viewer null ; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 || $TRAVIS_PYTHON_VERSION == 3.7 ]]; then git clone https://github.com/ASPP/pelita_template && cd pelita_template/ && python -m pytest . ; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 || $TRAVIS_PYTHON_VERSION == 3.7 ]]; then git clone https://github.com/ASPP/pelita_template && ( cd pelita_template/ && python -m pytest . ) ; fi
 
 
 after_success:
