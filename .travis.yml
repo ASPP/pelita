@@ -41,6 +41,8 @@ after_success:
 # generate sphinx documentation in doc/build/html/
 before_deploy:
 - python -m pip install sphinx
+- git fetch --unshallow
+- git fetch --tags
 - . ./build-docs.sh
 
 # deploy docs
