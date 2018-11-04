@@ -29,4 +29,18 @@ script:
 after_success:
   - codecov
   - coveralls
-  - ./deploy-gh-pages.sh
+
+before_deploy:
+  - python -m pip install sphinx
+  - . ./build-docs.sh
+
+deploy:
+  provider: pages
+  local-dir: doc/build/html/
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: true
+  on:
+    branch: master
+    python: "3.7"
+
