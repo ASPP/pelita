@@ -1,5 +1,5 @@
-pelita\.containers
-==================
+pelita.containers
+=================
 
 .. automodule:: pelita.containers
 

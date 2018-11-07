@@ -1,5 +1,5 @@
-pelita\.game\_master
-====================
+pelita.game\_master
+===================
 
 .. automodule:: pelita.game_master
 
@@ -26,6 +26,7 @@ pelita\.game\_master
    .. autosummary::
    
       GameFinished
+      NoFoodWarning
       PlayerDisconnected
       PlayerTimeout
    

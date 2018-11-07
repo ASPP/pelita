@@ -1,5 +1,5 @@
-pelita\.datamodel
-=================
+pelita.datamodel
+================
 
 .. automodule:: pelita.datamodel
 

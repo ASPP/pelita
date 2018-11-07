@@ -1,5 +1,5 @@
-pelita\.layout
-==============
+pelita.layout
+=============
 
 .. automodule:: pelita.layout
 

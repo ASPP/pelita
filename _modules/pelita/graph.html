@@ -4,24 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>pelita.graph &#8212; Pelita 0.9.1 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '0.9.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -30,24 +22,25 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for pelita.graph</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot; Basic graph module &quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">heapq</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">deque</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">deque</span><span class="p">,</span> <span class="n">UserDict</span>
 
 
-<span class="k">class</span> <span class="nc">NoPathException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">pass</span>
+<div class="viewcode-block" id="NoPathException"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.NoPathException">[docs]</a><span class="k">class</span> <span class="nc">NoPathException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="move_pos"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.move_pos">[docs]</a><span class="k">def</span> <span class="nf">move_pos</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">move</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Adds a position tuple and a move tuple.</span>
@@ -138,7 +131,7 @@
         <span class="n">reached</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
         <span class="k">yield</span> <span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">legal_moves</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Graph"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.Graph">[docs]</a><span class="k">class</span> <span class="nc">Graph</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="Graph"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.Graph">[docs]</a><span class="k">class</span> <span class="nc">Graph</span><span class="p">(</span><span class="n">UserDict</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Adjacency list [1] representation of a Maze.</span>
 
 <span class="sd">    The `Graph` is mostly a wrapper for a `dict`. Given a position,</span>
@@ -147,8 +140,30 @@
 <span class="sd">    [1] http://en.wikipedia.org/wiki/Adjacency_list</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adjacencies</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">adjacencies</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">adjacencies</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">adjacencies</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">initial</span><span class="p">,</span> <span class="n">maze</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="k">def</span> <span class="nf">legal_neighbors</span><span class="p">(</span><span class="n">maze</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+            <span class="n">neighbor_moves</span> <span class="o">=</span> <span class="p">[(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
+            <span class="n">legal</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">move</span> <span class="ow">in</span> <span class="n">neighbor_moves</span><span class="p">:</span>
+                <span class="n">neighbor</span> <span class="o">=</span> <span class="n">move_pos</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">move</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">neighbor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">maze</span><span class="p">:</span>
+                    <span class="c1"># this is not a wall</span>
+                    <span class="n">legal</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">neighbor</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">legal</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">it</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">iter_adjacencies</span><span class="p">([</span><span class="n">initial</span><span class="p">],</span> <span class="k">lambda</span> <span class="n">pos</span><span class="p">:</span> <span class="n">legal_neighbors</span><span class="p">(</span><span class="n">maze</span><span class="p">,</span> <span class="n">pos</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># needed to override the default __copy__ dict implementation and to</span>
+        <span class="c1"># return a Graph instance</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Graph.pos_within"><a class="viewcode-back" href="../../pelita/pelita.graph.html#pelita.graph.Graph.pos_within">[docs]</a>    <span class="k">def</span> <span class="nf">pos_within</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Positions within a certain distance.</span>
@@ -345,6 +360,7 @@
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -368,6 +384,7 @@
 <h3>Navigation</h3>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rules.html">Game rules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../writing_player.html">Writing a Player</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../running_player.html">Running Players</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../development.html">Development</a></li>
@@ -378,14 +395,24 @@
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -394,8 +421,8 @@
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
 

@@ -4,24 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>pelita.simplesetup &#8212; Pelita 0.9.1 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '0.9.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -30,13 +22,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for pelita.simplesetup</h1><div class="highlight"><pre>
@@ -80,10 +73,19 @@
 <span class="kn">from</span> <span class="nn">.game_master</span> <span class="k">import</span> <span class="n">GameMaster</span><span class="p">,</span> <span class="n">PlayerDisconnected</span><span class="p">,</span> <span class="n">PlayerTimeout</span>
 <span class="kn">from</span> <span class="nn">.viewer</span> <span class="k">import</span> <span class="n">AbstractViewer</span>
 
-<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;pelita.simplesetup&quot;</span><span class="p">)</span>
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<div class="viewcode-block" id="DeadConnection"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.DeadConnection">[docs]</a><span class="k">class</span> <span class="nc">DeadConnection</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Raised when the connection has been lost. &quot;&quot;&quot;</span></div>
+<div class="viewcode-block" id="ZMQUnreachablePeer"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.ZMQUnreachablePeer">[docs]</a><span class="k">class</span> <span class="nc">ZMQUnreachablePeer</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Raised when ZMQ cannot send a message (connection may have been lost). &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="ZMQReplyTimeout"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.ZMQReplyTimeout">[docs]</a><span class="k">class</span> <span class="nc">ZMQReplyTimeout</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Is raised when an ZMQ socket does not answer in time. &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="ZMQConnectionError"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.ZMQConnectionError">[docs]</a><span class="k">class</span> <span class="nc">ZMQConnectionError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Raised when the connection has errored. &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="UnknownMessageId"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.UnknownMessageId">[docs]</a><span class="k">class</span> <span class="nc">UnknownMessageId</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Is raised when a reply arrives with unexpected id. &quot;&quot;&quot;</span></div>
 
 <span class="c1">#: The timeout to use during sending</span>
 <span class="n">DEAD_CONNECTION_TIMEOUT</span> <span class="o">=</span> <span class="mf">3.0</span>
@@ -132,15 +134,19 @@
                 <span class="p">(</span><span class="n">option_hint</span><span class="p">,),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">raise</span>
 
-<div class="viewcode-block" id="UnknownMessageId"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.UnknownMessageId">[docs]</a><span class="k">class</span> <span class="nc">UnknownMessageId</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Is raised when a reply arrives with unexpected id.</span>
+<div class="viewcode-block" id="json_default_handler"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.json_default_handler">[docs]</a><span class="k">def</span> <span class="nf">json_default_handler</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Pythons built-in json handler has problems converting numpy.in64</span>
+<span class="sd">    to json. By adding this method as a default= to json.dumps, we can</span>
+<span class="sd">    tell Python what to do.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="ZMQTimeout"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.ZMQTimeout">[docs]</a><span class="k">class</span> <span class="nc">ZMQTimeout</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Is raised when an ZMQ socket does not answer in time.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span></div>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="c1"># we don’t know the type: raise a Type error</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot convert </span><span class="si">%r</span><span class="s2"> of type </span><span class="si">%s</span><span class="s2"> to json&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">o</span><span class="p">)))</span></div>
 
 <div class="viewcode-block" id="ZMQConnection"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.ZMQConnection">[docs]</a><span class="k">class</span> <span class="nc">ZMQConnection</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot; This class is supposed to ease request–reply connections</span>
@@ -199,25 +205,42 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send_unicode</span><span class="p">(</span><span class="n">json_message</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">zmq</span><span class="o">.</span><span class="n">NOBLOCK</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">zmq</span><span class="o">.</span><span class="n">ZMQError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Could not send message. Assume socket is unavailable. </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="n">DeadConnection</span><span class="p">()</span>
+                <span class="k">raise</span> <span class="n">ZMQUnreachablePeer</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">DeadConnection</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">ZMQUnreachablePeer</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_uuid</span> <span class="o">=</span> <span class="n">msg_uuid</span>
 
     <span class="k">def</span> <span class="nf">recv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># return tuple</span>
         <span class="c1"># (action, data)</span>
         <span class="n">json_message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">recv_unicode</span><span class="p">()</span>
-        <span class="n">py_obj</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_message</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">py_obj</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_message</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Received non-json message from self. Triggering a timeout.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ZMQReplyTimeout</span><span class="p">()</span>
         <span class="c1">#print repr(json_msg)</span>
-        <span class="n">msg_uuid</span> <span class="o">=</span> <span class="n">py_obj</span><span class="p">[</span><span class="s2">&quot;__uuid__&quot;</span><span class="p">]</span>
-        <span class="n">msg_action</span> <span class="o">=</span> <span class="n">py_obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;__action__&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">py_obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;__return__&quot;</span><span class="p">)</span>
 
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;&lt;--- </span><span class="si">%r</span><span class="s2"> [</span><span class="si">%s</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">msg_action</span><span class="p">,</span> <span class="n">msg_uuid</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">msg_error</span> <span class="o">=</span> <span class="n">py_obj</span><span class="p">[</span><span class="s1">&#39;__error__&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">ZMQConnectionError</span><span class="p">(</span><span class="n">msg_error</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">msg_uuid</span> <span class="o">=</span> <span class="n">py_obj</span><span class="p">[</span><span class="s2">&quot;__uuid__&quot;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;__uuid__ missing in message.&#39;</span><span class="p">)</span>
+            <span class="n">msg_uuid</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="n">msg_return</span> <span class="o">=</span> <span class="n">py_obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;__return__&quot;</span><span class="p">)</span>
+
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;&lt;--- </span><span class="si">%r</span><span class="s2"> [</span><span class="si">%s</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">msg_return</span><span class="p">,</span> <span class="n">msg_uuid</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">msg_uuid</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_uuid</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">last_uuid</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">return</span> <span class="n">py_obj</span><span class="p">[</span><span class="s2">&quot;__return__&quot;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">msg_return</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">last_uuid</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">raise</span> <span class="n">UnknownMessageId</span><span class="p">()</span>
@@ -245,8 +268,8 @@
                     <span class="k">continue</span>
                 <span class="c1"># answer did not arrive in time</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">ZMQTimeout</span><span class="p">()</span>
-        <span class="k">raise</span> <span class="n">ZMQTimeout</span><span class="p">()</span>
+                <span class="k">raise</span> <span class="n">ZMQReplyTimeout</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="n">ZMQReplyTimeout</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;ZMQConnection(</span><span class="si">%r</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span></div>
@@ -271,10 +294,10 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;team_name&quot;</span><span class="p">,</span> <span class="p">{})</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">recv_timeout</span><span class="p">(</span><span class="n">DEAD_CONNECTION_TIMEOUT</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">ZMQTimeout</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">ZMQReplyTimeout</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Detected a timeout, returning a string nonetheless.&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%e</span><span class="s2">rror%&quot;</span>
-        <span class="k">except</span> <span class="n">DeadConnection</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">ZMQUnreachablePeer</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Detected a DeadConnection, returning a string nonetheless.&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%e</span><span class="s2">rror%&quot;</span>
 
@@ -284,11 +307,14 @@
                                                     <span class="s2">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="o">.</span><span class="n">_to_json_dict</span><span class="p">(),</span>
                                                     <span class="s2">&quot;game_state&quot;</span><span class="p">:</span> <span class="n">game_state</span><span class="p">})</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">recv_timeout</span><span class="p">(</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;timeout_length&quot;</span><span class="p">])</span>
-        <span class="k">except</span> <span class="n">ZMQTimeout</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">ZMQReplyTimeout</span><span class="p">:</span>
             <span class="c1"># answer did not arrive in time</span>
             <span class="k">raise</span> <span class="n">PlayerTimeout</span><span class="p">()</span>
-        <span class="k">except</span> <span class="n">DeadConnection</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Detected a DeadConnection.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ZMQUnreachablePeer</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Could not properly send the message. Maybe just a slow client. Ignoring in set_initial.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ZMQConnectionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Detected a ConnectionError: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%%%s%%</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">e</span>
 
     <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_id</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
@@ -301,20 +327,22 @@
             <span class="c1"># make sure that the move is a tuple</span>
             <span class="n">reply</span><span class="p">[</span><span class="s2">&quot;move&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">reply</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;move&quot;</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">reply</span>
-        <span class="k">except</span> <span class="n">ZMQTimeout</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">ZMQReplyTimeout</span><span class="p">:</span>
             <span class="c1"># answer did not arrive in time</span>
             <span class="k">raise</span> <span class="n">PlayerTimeout</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
             <span class="c1"># if we could not convert into a tuple or dict (e.g. bad reply)</span>
             <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">except</span> <span class="n">DeadConnection</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">ZMQUnreachablePeer</span><span class="p">:</span>
             <span class="c1"># if the remote connection is closed</span>
             <span class="k">raise</span> <span class="n">PlayerDisconnected</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">ZMQConnectionError</span><span class="p">:</span>
+            <span class="k">raise</span>
 
     <span class="k">def</span> <span class="nf">_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">zmqconnection</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;exit&quot;</span><span class="p">,</span> <span class="p">{},</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">DeadConnection</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">ZMQUnreachablePeer</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Remote Player </span><span class="si">%r</span><span class="s2"> is already dead during exit. Ignoring.&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -343,8 +371,6 @@
 <span class="sd">    bind_addrs : list of strings, optional</span>
 <span class="sd">        The address(es) which this server uses for its connections.</span>
 <span class="sd">        Defaults to [&quot;tcp://*&quot;] * teams, if not given.</span>
-<span class="sd">    initial_delay : float</span>
-<span class="sd">        Delays the start of the game by `initial_delay` seconds.</span>
 <span class="sd">    layout_name : string, optional</span>
 <span class="sd">        The name of the given layout string.</span>
 <span class="sd">    seed : int, optional</span>
@@ -359,7 +385,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout_string</span><span class="p">,</span> <span class="n">teams</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">players</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">rounds</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">bind_addrs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">initial_delay</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_timeouts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">timeout_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layout_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">max_timeouts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">timeout_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layout_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">players</span> <span class="o">=</span> <span class="n">players</span>
@@ -420,7 +446,6 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">game_master</span> <span class="o">=</span> <span class="n">GameMaster</span><span class="p">(</span><span class="n">layout_string</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_players</span><span class="p">,</span>
                                       <span class="bp">self</span><span class="o">.</span><span class="n">players</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rounds</span><span class="p">,</span>
-                                      <span class="n">initial_delay</span><span class="o">=</span><span class="n">initial_delay</span><span class="p">,</span>
                                       <span class="n">max_timeouts</span><span class="o">=</span><span class="n">max_timeouts</span><span class="p">,</span>
                                       <span class="n">timeout_length</span><span class="o">=</span><span class="n">timeout_length</span><span class="p">,</span>
                                       <span class="n">layout_name</span><span class="o">=</span><span class="n">layout_name</span><span class="p">,</span>
@@ -581,7 +606,7 @@
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">message_obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;__uuid__&quot;</span><span class="p">:</span> <span class="n">uuid_</span><span class="p">,</span> <span class="s2">&quot;__return__&quot;</span><span class="p">:</span> <span class="n">retval</span><span class="p">}</span>
-                <span class="n">json_message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">message_obj</span><span class="p">)</span>
+                <span class="n">json_message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">message_obj</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">json_default_handler</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send_unicode</span><span class="p">(</span><span class="n">json_message</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
                 <span class="k">pass</span>
@@ -628,10 +653,11 @@
         <span class="n">as_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send_unicode</span><span class="p">(</span><span class="n">as_json</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
+<div class="viewcode-block" id="SimplePublisher.set_initial"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.SimplePublisher.set_initial">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;__action__&quot;</span><span class="p">:</span> <span class="s2">&quot;set_initial&quot;</span><span class="p">,</span>
-                   <span class="s2">&quot;__data__&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="o">.</span><span class="n">_to_json_dict</span><span class="p">()}}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+                   <span class="s2">&quot;__data__&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;universe&quot;</span><span class="p">:</span> <span class="n">universe</span><span class="o">.</span><span class="n">_to_json_dict</span><span class="p">(),</span>
+                                <span class="s2">&quot;game_state&quot;</span><span class="p">:</span> <span class="n">game_state</span><span class="p">}}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;__action__&quot;</span><span class="p">:</span> <span class="s2">&quot;observe&quot;</span><span class="p">,</span>
@@ -680,8 +706,8 @@
 
         <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">)(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">set_initial</span><span class="p">(</span><span class="n">CTFUniverse</span><span class="o">.</span><span class="n">_from_json_dict</span><span class="p">(</span><span class="n">universe</span><span class="p">))</span>
+<div class="viewcode-block" id="SimpleSubscriber.set_initial"><a class="viewcode-back" href="../../pelita/pelita.simplesetup.html#pelita.simplesetup.SimpleSubscriber.set_initial">[docs]</a>    <span class="k">def</span> <span class="nf">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">set_initial</span><span class="p">(</span><span class="n">CTFUniverse</span><span class="o">.</span><span class="n">_from_json_dict</span><span class="p">(</span><span class="n">universe</span><span class="p">),</span> <span class="n">game_state</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">universe</span><span class="p">,</span> <span class="n">game_state</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">CTFUniverse</span><span class="o">.</span><span class="n">_from_json_dict</span><span class="p">(</span><span class="n">universe</span><span class="p">),</span> <span class="n">game_state</span><span class="p">)</span>
@@ -700,6 +726,7 @@
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -723,6 +750,7 @@
 <h3>Navigation</h3>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rules.html">Game rules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../writing_player.html">Writing a Player</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../running_player.html">Running Players</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../development.html">Development</a></li>
@@ -733,14 +761,24 @@
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -749,8 +787,8 @@
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
 

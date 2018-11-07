@@ -37,7 +37,8 @@ The maze is split into two parts, the left and the right half, where each team
 its position in the maze. In its own half, the bot is a *destroyer*. In the
 enemy half, the bot is a *harvester*. As a destroyer, a bot can *destroy* enemy
 harvesters in its own half. As a harvester, a bot can *eat* food that belongs to
-the enemy. The ultimate goal is to eat all the enemy's food.
+the enemy. The ultimate goal is to eat all the enemy's food without being
+destroyed by the enemy's bots.
 
 Your task as *user* is to implement one or more *players* to control bots. Your
 players must implement the *intelligence* to navigate your bots successfully
@@ -70,6 +71,7 @@ Contents
    :hidden:
 
    info
+   rules
    writing_player
    running_player
    development

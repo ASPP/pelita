@@ -1,5 +1,5 @@
-pelita\.player
-==============
+pelita.player
+=============
 
 .. automodule:: pelita.player
 

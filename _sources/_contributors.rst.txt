@@ -1,4 +1,4 @@
-As of ``v0.9.0`` the developers and contributors are::
+As of ``v0.9.1-206-g57f2cb0`` the developers and contributors are::
 
     Rike-Benjamin Schuppner
     Valentin Haenel
@@ -7,14 +7,17 @@ As of ``v0.9.0`` the developers and contributors are::
     Bastian Venthur
     Pietro Berkes
     Jakob Jordan
-    Pauli Virtanen
     Nicola Chiapolini
-    abject
+    Pauli Virtanen
+    Anastasis Georgoulas
     DoriekeG
+    Stefan Appelhoff
+    abject
+    Anna Chabuda
+    Bartosz Telenczuk
     Christian Steigies
-    Sasza Kijek
+    Fabien Maussion
     Francesc Alted
     Ola Pidde
+    Sasza Kijek
     Zbigniew Jędrzejewski-Szmek
-    Bartosz Telenczuk
-    Anna Chabuda

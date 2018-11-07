@@ -6,30 +6,23 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Search &#8212; Pelita 0.9.1 documentation</title>
+    <title>Game rules &#8212; Pelita 0.9.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="_static/searchtools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="#" />
-  <script type="text/javascript">
-    jQuery(function() { Search.loadIndex("searchindex.js"); });
-  </script>
-  
-  <script type="text/javascript" id="searchindexloader"></script>
-  
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Writing a Player" href="writing_player.html" />
+    <link rel="prev" title="Project Information" href="info.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
 
   </head><body>
   
@@ -41,29 +34,30 @@
 
           <div class="body" role="main">
             
-  <h1 id="search-documentation">Search</h1>
-  <div id="fallback" class="admonition warning">
-  <script type="text/javascript">$('#fallback').hide();</script>
-  <p>
-    Please activate JavaScript to enable the search
-    functionality.
-  </p>
-  </div>
-  <p>
-    From here you can search these documents. Enter your search
-    words into the box below and click "search". Note that the search
-    function will automatically search for all of the words. Pages
-    containing fewer words won't appear in the result list.
-  </p>
-  <form action="" method="get">
-    <input type="text" name="q" value="" />
-    <input type="submit" value="search" />
-    <span id="search-progress" style="padding-left: 10px"></span>
-  </form>
-  
-  <div id="search-results">
-  
-  </div>
+  <div class="section" id="game-rules">
+<h1>Game rules<a class="headerlink" href="#game-rules" title="Permalink to this headline">¶</a></h1>
+<p>Each team owns two Bots, and each Bot is controlled by a Player. Bots in
+their homezone are called “Destroyers”, and “Harvesters” when in the
+enemy’s homezone.</p>
+<p><strong>Eating</strong>: when a Bot eats a food pellet, the food is permanently removed and
+<em>one point</em> is scored for that Bot’s team.</p>
+<p><strong>Eating another Bot</strong>: when a Bot is eaten by an opposing destroyer, it
+returns to its starting position (as a harvester). <em>5 points</em>
+are awarded for eating an opponent.</p>
+<p><strong>Observations</strong>: Bots can only observe an opponent’s exact position, if they
+or their teammate are within 5 squares of the opponent bot (in Manhattan
+distance, see <a class="reference internal" href="writing_player.html#maze-distances"><span class="std std-ref">Distances in the Maze</span></a>). If they are further away, the opponent’s
+positions are noised (see <a class="reference internal" href="writing_player.html#noisy-positions"><span class="std std-ref">Noisy Enemy Positions</span></a>).</p>
+<p><strong>Timeout</strong>: each Player only has 3 seconds to return a valid move. If it
+doesn’t return in time or if it doesn’t return a move that is legal, then a
+random move is executed and all later return values are discarded. 5 timeouts
+and you’re out!</p>
+<p><strong>End of game</strong>: the game ends when either one team eats all of the opponents’
+food pellets, or after 300 rounds.</p>
+<p><strong>Winning</strong>: the team with more points at the end of the game wins, regardless
+of which team ate all the food pellets!</p>
+</div>
+
 
           </div>
           
@@ -88,9 +82,9 @@
 
 
 <h3>Navigation</h3>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="info.html">Project Information</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rules.html">Game rules</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Game rules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="writing_player.html">Writing a Player</a></li>
 <li class="toctree-l1"><a class="reference internal" href="running_player.html">Running Players</a></li>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
@@ -99,6 +93,18 @@
 </ul>
 
 
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
 
 
 
@@ -118,6 +124,9 @@
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
+      |
+      <a href="_sources/rules.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

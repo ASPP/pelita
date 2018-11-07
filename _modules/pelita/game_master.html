@@ -4,24 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>pelita.game_master &#8212; Pelita 0.9.1 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '0.9.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -30,13 +22,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for pelita.game_master</h1><div class="highlight"><pre>
@@ -46,6 +39,7 @@
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">datamodel</span>
@@ -53,14 +47,14 @@
 <span class="kn">from</span> <span class="nn">.graph</span> <span class="k">import</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">NoPathException</span><span class="p">,</span> <span class="n">manhattan_dist</span>
 
 
-<span class="k">class</span> <span class="nc">GameFinished</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">pass</span>
+<div class="viewcode-block" id="GameFinished"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.GameFinished">[docs]</a><span class="k">class</span> <span class="nc">GameFinished</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
 
-<span class="k">class</span> <span class="nc">PlayerTimeout</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">pass</span>
+<div class="viewcode-block" id="PlayerTimeout"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.PlayerTimeout">[docs]</a><span class="k">class</span> <span class="nc">PlayerTimeout</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
 
-<span class="k">class</span> <span class="nc">PlayerDisconnected</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">pass</span>
+<div class="viewcode-block" id="PlayerDisconnected"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.PlayerDisconnected">[docs]</a><span class="k">class</span> <span class="nc">PlayerDisconnected</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="NoFoodWarning"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.NoFoodWarning">[docs]</a><span class="k">class</span> <span class="nc">NoFoodWarning</span><span class="p">(</span><span class="ne">Warning</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Warning about a layout with no food. &quot;&quot;&quot;</span>
@@ -101,7 +95,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">teams</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">,</span> <span class="n">game_time</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">noiser</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">initial_delay</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">max_timeouts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">timeout_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layout_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">max_timeouts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">timeout_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layout_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">universe</span> <span class="o">=</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">CTFUniverse</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span> <span class="n">number_bots</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">number_bots</span> <span class="o">=</span> <span class="n">number_bots</span>
@@ -115,7 +109,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">noiser</span> <span class="o">=</span> <span class="n">noiser</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span> <span class="k">if</span> <span class="n">noise</span> <span class="k">else</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">viewers</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">initial_delay</span> <span class="o">=</span> <span class="n">initial_delay</span>
 
         <span class="c1"># We seed the internal random number generator.</span>
         <span class="c1"># This instance should be used for all important random decisions</span>
@@ -129,6 +122,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_step_iter</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="c1">#: game uuid</span>
+            <span class="s2">&quot;game_uuid&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()),</span>
+
             <span class="c1">#: holds a list of bot movements for this step</span>
             <span class="c1">#: [{&quot;bot_id&quot;: bot_id, &quot;old_pos&quot;: old_pos, &quot;new_pos&quot;: new_pos}]</span>
             <span class="s2">&quot;bot_moved&quot;</span><span class="p">:</span> <span class="p">[],</span>
@@ -247,7 +243,7 @@
                 <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">player_teams</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">)))</span>
 
         <span class="k">for</span> <span class="n">viewer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">viewers</span><span class="p">:</span>
-            <span class="n">viewer</span><span class="o">.</span><span class="n">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="p">)</span>
+            <span class="n">viewer</span><span class="o">.</span><span class="n">set_initial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">team_id</span><span class="p">,</span> <span class="n">team</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">player_teams</span><span class="p">):</span>
             <span class="c1"># What follows is a small hack:</span>
@@ -269,8 +265,6 @@
         <span class="sd">&quot;&quot;&quot; Play game until finished. &quot;&quot;&quot;</span>
         <span class="c1"># notify all PlayerTeams</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_initial</span><span class="p">()</span>
-
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_delay</span><span class="p">)</span>
 
         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;finished&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">play_round</span><span class="p">()</span></div>
@@ -381,10 +375,13 @@
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">move_state</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+=</span> <span class="n">v</span>
 
-        <span class="k">except</span> <span class="p">(</span><span class="n">datamodel</span><span class="o">.</span><span class="n">IllegalMoveException</span><span class="p">,</span> <span class="n">PlayerTimeout</span><span class="p">):</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">datamodel</span><span class="o">.</span><span class="n">IllegalMoveException</span><span class="p">,</span> <span class="n">PlayerTimeout</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="c1"># after max_timeouts timeouts, you lose</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;timeout_teams&quot;</span><span class="p">][</span><span class="n">bot</span><span class="o">.</span><span class="n">team_index</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">bot</span><span class="o">.</span><span class="n">index</span><span class="p">:</span> <span class="s2">&quot;timeout&quot;</span><span class="p">}</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">IllegalMoveException</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">bot</span><span class="o">.</span><span class="n">index</span><span class="p">:</span> <span class="s2">&quot;illegal_move&quot;</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">bot</span><span class="o">.</span><span class="n">index</span><span class="p">:</span> <span class="s2">&quot;timeout&quot;</span><span class="p">}</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;timeout_teams&quot;</span><span class="p">][</span><span class="n">bot</span><span class="o">.</span><span class="n">team_index</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;max_timeouts&quot;</span><span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;teams_disqualified&quot;</span><span class="p">][</span><span class="n">bot</span><span class="o">.</span><span class="n">team_index</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;timeout&quot;</span>
@@ -437,14 +434,15 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="c1"># If the round has finished, we may check, if we can end the game</span>
+        <span class="c1"># If the round has finished, we can check, if we can end the game</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;bot_id&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;round_index&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_time</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">to_eat</span><span class="p">,</span> <span class="n">eaten</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;food_to_eat&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;food_count&quot;</span><span class="p">]):</span>
-                    <span class="k">if</span> <span class="n">to_eat</span> <span class="o">==</span> <span class="n">eaten</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># If one of the teams has eaten all the food, we finish immediately</span>
+        <span class="k">for</span> <span class="n">to_eat</span><span class="p">,</span> <span class="n">eaten</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;food_to_eat&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;food_count&quot;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">to_eat</span> <span class="o">==</span> <span class="n">eaten</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_state</span><span class="p">[</span><span class="s2">&quot;finished&quot;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">score</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">score</span><span class="p">:</span>
@@ -556,10 +554,10 @@
 <span class="sd">    It uses Manhattan distance. A bot distance of 1 in Manhattan space</span>
 <span class="sd">    could still be much further away in maze distance.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot</span><span class="p">,</span> <span class="n">other_bot</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">manhattan_dist</span><span class="p">(</span><span class="n">bot</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="n">other_bot</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)</span>
+<div class="viewcode-block" id="ManhattanNoiser.distance"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.ManhattanNoiser.distance">[docs]</a>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot</span><span class="p">,</span> <span class="n">other_bot</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">manhattan_dist</span><span class="p">(</span><span class="n">bot</span><span class="o">.</span><span class="n">current_pos</span><span class="p">,</span> <span class="n">other_bot</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">altered_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_pos</span><span class="p">):</span>
+<div class="viewcode-block" id="ManhattanNoiser.altered_pos"><a class="viewcode-back" href="../../pelita/pelita.game_master.html#pelita.game_master.ManhattanNoiser.altered_pos">[docs]</a>    <span class="k">def</span> <span class="nf">altered_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_pos</span><span class="p">):</span>
         <span class="c1"># get a list of possible positions</span>
         <span class="n">noise_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_radius</span>
         <span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">=</span> <span class="n">bot_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">noise_radius</span><span class="p">,</span> <span class="n">bot_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">noise_radius</span>
@@ -578,10 +576,11 @@
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">pass</span>
         <span class="c1"># if we land here, no valid position has been found</span>
-        <span class="k">return</span> <span class="n">bot_pos</span></div>
+        <span class="k">return</span> <span class="n">bot_pos</span></div></div>
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -605,6 +604,7 @@
 <h3>Navigation</h3>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../info.html">Project Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rules.html">Game rules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../writing_player.html">Writing a Player</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../running_player.html">Running Players</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../development.html">Development</a></li>
@@ -615,14 +615,24 @@
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -631,8 +641,8 @@
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
 

@@ -1,5 +1,5 @@
-pelita\.graph
-=============
+pelita.graph
+============
 
 .. automodule:: pelita.graph
 

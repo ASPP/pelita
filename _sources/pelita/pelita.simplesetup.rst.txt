@@ -1,5 +1,5 @@
-pelita\.simplesetup
-===================
+pelita.simplesetup
+==================
 
 .. automodule:: pelita.simplesetup
 
@@ -11,6 +11,7 @@ pelita\.simplesetup
    
       bind_socket
       extract_port_range
+      json_default_handler
    
    
 
@@ -36,9 +37,10 @@ pelita\.simplesetup
 
    .. autosummary::
    
-      DeadConnection
       ExitLoop
       UnknownMessageId
-      ZMQTimeout
+      ZMQConnectionError
+      ZMQReplyTimeout
+      ZMQUnreachablePeer
    
    
