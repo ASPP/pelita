@@ -1,12 +1,5 @@
 language: python
 sudo: false
-matrix:
-  include:
-  - python: 3.5
-  - python: 3.6
-  - python: 3.7
-    dist: xenial
-    sudo: true
 env:
   global:
     # our GITHUB_TOKEN
@@ -16,43 +9,71 @@ env:
 install:
 - pip install pytest-cov codecov coveralls
 - pip install -e .
+- python -c "import zmq; print('Using pyzmq {} and zmq {}.'.format(zmq.pyzmq_version(), zmq.zmq_version()))"
 
-# test scripts
-script:
-- >
-    python -c "import zmq; print('Using pyzmq {} and zmq {}.'.format(zmq.pyzmq_version(), zmq.zmq_version()))" &&
-    python -m pytest --cov=pelita -v test/ &&
-    python -m pelita.scripts.pelita_main --progress &&
-    pelita --null --rounds 100 --filter small $player 2>&1
-- >
-    if [[ $TRAVIS_PYTHON_VERSION == 3.6 || $TRAVIS_PYTHON_VERSION == 3.7 ]] ; then
-      pelita-tournament --non-interactive --viewer null
-    fi
-- >
-    if [[ $TRAVIS_PYTHON_VERSION == 3.6 || $TRAVIS_PYTHON_VERSION == 3.7 ]] ; then
-      git clone https://github.com/ASPP/pelita_template && ( cd pelita_template/ && python -m pytest . )
-    fi
+stages:
+- test
+- test tournament
+- test pelita template
+- name: deploy
+  if: branch = master
 
-# push coverage
-after_success:
-- codecov
-- coveralls
-
-# generate sphinx documentation in doc/build/html/
-before_deploy:
-- python -m pip install sphinx
-- git fetch --unshallow
-- git fetch --tags
-- . ./build-docs.sh
-
-# deploy docs
-deploy:
-  provider: pages
-  local-dir: doc/build/html/
-  skip-cleanup: true
-  github-token: $GITHUB_TOKEN
-  keep-history: true
-  on:
-    branch: master
+jobs:
+  include:
+  - &test
+    stage: test
+    script:
+    - python -m pytest --cov=pelita -v test/
+    - python -m pelita.scripts.pelita_main --progress
+    - pelita --null --rounds 100 --filter small
+    python: 3.5
+  - <<: *test
+    python: 3.6
+  - <<: *test
     python: 3.7
-    repo: ASPP/pelita
+    dist: xenial
+    sudo: true
+    # push coverage
+    after_success:
+    - codecov
+    - coveralls
+
+  - stage: test tournament
+    script: pelita-tournament --non-interactive --viewer null
+    python: 3.6
+  - script: pelita-tournament --non-interactive --viewer null
+    python: 3.7
+    dist: xenial
+    sudo: true
+
+  - stage: test pelita template
+    script: git clone https://github.com/ASPP/pelita_template && ( cd pelita_template/ && python -m pytest . )
+    python: 3.6
+  - script: git clone https://github.com/ASPP/pelita_template && ( cd pelita_template/ && python -m pytest . )
+    python: 3.7
+    dist: xenial
+    sudo: true
+
+  - stage: deploy
+    python: 3.7
+    dist: xenial
+    sudo: true
+
+    script: skip
+    # generate sphinx documentation in doc/build/html/
+    before_deploy:
+    - python -m pip install sphinx
+    - git fetch --unshallow
+    - git fetch --tags
+    - . ./build-docs.sh
+    # deploy docs
+    deploy:
+      provider: pages
+      local-dir: doc/build/html/
+      skip-cleanup: true
+      github-token: $GITHUB_TOKEN
+      keep-history: true
+      on:
+        branch: master
+        python: 3.7
+        repo: ASPP/pelita
