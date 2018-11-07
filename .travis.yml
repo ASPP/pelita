@@ -2,31 +2,57 @@ language: python
 sudo: false
 matrix:
   include:
-    - python: "3.5"
-    - python: "3.6"
-    - python: "3.7"
-      dist: xenial
-      sudo: true
+  - python: 3.5
+  - python: 3.6
+  - python: 3.7
+    dist: xenial
+    sudo: true
 env:
   global:
-    - secure: "fHTmXSkUyVFu7lJ4upcu4Xhv+5cTGq+SJ+GV9UUJ9guZYVWafxJw3CRmd/qqjucQzOTPg/2JA4/9XqDZDSWKKBwGTOgeiFjKaa4xPFO/bvpbECqR4y7TDh7k7zSjMCDD624b8k6LyWiaerh50ShU2CSi3cTjpyZWloolQWRotLM="
-    - REPO: "ASPP/pelita"
-# command to install dependencies
+    # our GITHUB_TOKEN
+    secure: acCojrLAQFpC5thBOVfOV77mxFATlWGVtuKB1e27jp/0kQx6RILu29OO9A0SzTMOxjGbI8G4pQy6tLDuNukoG5Rl6vBvHSEGS+naInBSgF7zc0zC9+YJK7gaJc5qZ6jnURsi84+bIEz//RP5WN5Yz3QsJ4t9QZ3zwbBESTdhA9M=
+
+# install dependencies and pelita
 install:
-  - pip install pytest-cov codecov coveralls
-  - pip install -e .
-# command to run tests
+- pip install pytest-cov codecov coveralls
+- pip install -e .
+
+# test scripts
 script:
-  - >
-      python -c "import zmq; print('Using pyzmq {} and zmq {}.'.format(zmq.pyzmq_version(), zmq.zmq_version()))" &&
-      python -m pytest --cov=pelita -v test/ &&
-      python -m pelita.scripts.pelita_main --progress &&
-      pelita --null --rounds 100 --filter small $player 2>&1
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 || $TRAVIS_PYTHON_VERSION == 3.7 ]]; then pelita-tournament --non-interactive --viewer null ; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 || $TRAVIS_PYTHON_VERSION == 3.7 ]]; then git clone https://github.com/ASPP/pelita_template && cd pelita_template/ && python -m pytest . ; fi
+- >
+    python -c "import zmq; print('Using pyzmq {} and zmq {}.'.format(zmq.pyzmq_version(), zmq.zmq_version()))" &&
+    python -m pytest --cov=pelita -v test/ &&
+    python -m pelita.scripts.pelita_main --progress &&
+    pelita --null --rounds 100 --filter small $player 2>&1
+- >
+    if [[ $TRAVIS_PYTHON_VERSION == 3.6 || $TRAVIS_PYTHON_VERSION == 3.7 ]] ; then
+      pelita-tournament --non-interactive --viewer null
+    fi
+- >
+    if [[ $TRAVIS_PYTHON_VERSION == 3.6 || $TRAVIS_PYTHON_VERSION == 3.7 ]] ; then
+      git clone https://github.com/ASPP/pelita_template && ( cd pelita_template/ && python -m pytest . )
+    fi
 
-
+# push coverage
 after_success:
-  - codecov
-  - coveralls
-  - ./deploy-gh-pages.sh
+- codecov
+- coveralls
+
+# generate sphinx documentation in doc/build/html/
+before_deploy:
+- python -m pip install sphinx
+- git fetch --unshallow
+- git fetch --tags
+- . ./build-docs.sh
+
+# deploy docs
+deploy:
+  provider: pages
+  local-dir: doc/build/html/
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: true
+  on:
+    branch: master
+    python: 3.7
+    repo: ASPP/pelita
