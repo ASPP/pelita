@@ -36,10 +36,10 @@ NOISE_RADIUS = 5
 
 
 class TkViewer:
-    def __init__(self, *, address, controller, geometry=None, delay=None, stop_after=None):
-        self.proc = self._run_external_viewer(address, controller, geometry=geometry, delay=delay, stop_after=stop_after)
+    def __init__(self, *, address, controller, geometry=None, delay=None, stop_after=None, snapshot_folder=None):
+        self.proc = self._run_external_viewer(address, controller, geometry=geometry, delay=delay, stop_after=stop_after, snapshot_folder=snapshot_folder)
 
-    def _run_external_viewer(self, subscribe_sock, controller, geometry, delay, stop_after):
+    def _run_external_viewer(self, subscribe_sock, controller, geometry, delay, stop_after, snapshot_folder):
         # Something on OS X prevents Tk from running in a forked process.
         # Therefore we cannot use multiprocessing here. subprocess works, though.
         viewer_args = [ str(subscribe_sock) ]
@@ -51,6 +51,8 @@ class TkViewer:
             viewer_args += ["--delay", str(delay)]
         if stop_after is not None:
             viewer_args += ["--stop-after", str(stop_after)]
+        if snapshot_folder is not None:
+            viewer_args += ["--snapshot-folder", str(snapshot_folder)]
 
         tkviewer = 'pelita.scripts.pelita_tkviewer'
         external_call = [sys.executable,
@@ -234,12 +236,14 @@ def setup_viewers(viewers=None, options=None, print_result=True):
                 proc = TkViewer(address=zmq_publisher.socket_addr, controller=viewer_state['controller'].socket_addr,
                                 stop_after=options.get('stop_at'),
                                 geometry=options.get('geometry'),
-                                delay=options.get('delay'))
+                                delay=options.get('delay'),
+                                snapshot_folder=options.get('snapshot_folder'))
             else:
                 proc = TkViewer(address=zmq_publisher.socket_addr, controller=None,
                                 stop_after=options.get('stop_at'),
                                 geometry=options.get('geometry'),
-                                delay=options.get('delay'))
+                                delay=options.get('delay'),
+                                snapshot_folder=options.get('snapshot_folder'))
 
         else:
             raise ValueError(f"Unknown viewer {viewer}.")

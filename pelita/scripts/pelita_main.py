@@ -64,6 +64,8 @@ parser.add_argument('--replay', help=long_help('Replay a dumped game'),
                     metavar='REPLAYFILE', dest='replayfile', const='pelita.dump', nargs='?')
 parser.add_argument('--store-output', help=long_help('Write all player’s stdout/stderr to the given folder (must exist)'),
                     metavar='FOLDER')
+parser.add_argument('--snapshot-folder', help=long_help('Store the replay in this folder'),
+                    metavar='FOLDER', dest='snapshot_folder')
 parser.add_argument('--list-layouts', action='store_true',
                     help='List all available built-in layouts.')
 parser.add_argument('--check-team', action="store_true",
@@ -216,6 +218,8 @@ def main():
         viewers.append(('write-replay-to', args.write_replay))
 
     if args.replayfile:
+        if args.snapshot_folder:
+            viewer_options['snapshot_folder'] = args.snapshot_folder
         viewer_state = game.setup_viewers(viewers, options=viewer_options)
         if game.controller_exit(viewer_state, await_action='set_initial'):
             sys.exit(0)

@@ -73,12 +73,13 @@ class TkViewer:
     app : The TkApplication class
 
     """
-    def __init__(self, address, controller_address=None, geometry=None, delay=1, stop_after=None):
+    def __init__(self, address, controller_address=None, geometry=None, delay=1, stop_after=None, snapshot_folder=None):
         self.address = address
         self.controller_address = controller_address
         self.delay = delay
         self.geometry = geometry if geometry else (900, 580)
         self.stop_after = stop_after
+        self.snapshot_folder = snapshot_folder
 
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
@@ -111,7 +112,8 @@ class TkViewer:
                                  controller_address=self.controller_address,
                                  geometry=self.geometry,
                                  delay=self.delay,
-                                 stop_after=self.stop_after)
+                                 stop_after=self.stop_after,
+                                 snapshot_folder=self.snapshot_folder)
         # schedule next read
         self.root.after_idle(self.read_queue)
         try:
