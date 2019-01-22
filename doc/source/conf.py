@@ -62,8 +62,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Pelita'
-copyright = '2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al.'
-author = 'Valentin Haenel, Rike-Benjamin Schuppner et. al.'
+copyright = '2011–2019, The Pelita developers'
+author = 'The Pelita developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -247,7 +247,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   (master_doc, 'Pelita.tex', 'Pelita Documentation',
-   'Valentin Haenel, Rike-Benjamin Schuppner et. al.', 'manual'),
+   'The Pelita developers', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
