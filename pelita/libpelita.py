@@ -12,6 +12,7 @@ import signal
 import subprocess
 import sys
 import tempfile
+from tempfile import TemporaryFile
 import uuid
 
 import zmq
@@ -230,9 +231,6 @@ def call_pelita(team_specs, *, rounds, filter, viewer, dump, seed):
     =======
     tuple of (game_state, stdout, stderr)
     """
-    if _mswindows:
-        raise RuntimeError("call_pelita is currently unavailable on Windows")
-
     team1, team2 = team_specs
 
     ctx = zmq.Context()
@@ -263,23 +261,17 @@ def call_pelita(team_specs, *, rounds, filter, viewer, dump, seed):
            *rounds,
            *viewer]
 
-    # We use the environment variable PYTHONUNBUFFERED here to retrieve stdout without buffering
-    with run_and_terminate_process(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                        universal_newlines=True,
-                                        env=dict(os.environ, PYTHONUNBUFFERED='x')) as proc:
+    # We need to run a process in the background in order to await the zmq events
+    # stdout and stderr are written to temporary files in order to be more portable
+    with TemporaryFile(mode='w+t') as stdout_buf, TemporaryFile(mode='w+t') as stderr_buf:
+        # We use the environment variable PYTHONUNBUFFERED here to retrieve stdout without buffering
+        with run_and_terminate_process(cmd, stdout=stdout_buf, stderr=stderr_buf,
+                                            universal_newlines=True,
+                                            env=dict(os.environ, PYTHONUNBUFFERED='x')) as proc:
 
-        #if ARGS.dry_run:
-        #    print("Would run: {cmd}".format(cmd=cmd))
-        #    print("Choosing winner at random.")
-        #    return random.choice([0, 1, 2])
+            poll = zmq.Poller()
+            poll.register(reply_sock, zmq.POLLIN)
 
-
-        poll = zmq.Poller()
-        poll.register(reply_sock, zmq.POLLIN)
-        poll.register(proc.stdout.fileno(), zmq.POLLIN)
-        poll.register(proc.stderr.fileno(), zmq.POLLIN)
-
-        with io.StringIO() as stdout_buf, io.StringIO() as stderr_buf:
             final_game_state = None
 
             while True:
@@ -287,25 +279,9 @@ def call_pelita(team_specs, *, rounds, filter, viewer, dump, seed):
 
                 if not evts and proc.poll() is not None:
                     # no more events and proc has finished.
-                    # we give up
+                    # we break the loop
                     break
 
-                stdout_ready = (not proc.stdout.closed) and evts.get(proc.stdout.fileno(), False)
-                if stdout_ready:
-                    line = proc.stdout.readline()
-                    if line:
-                        print(line, end='', file=stdout_buf)
-                    else:
-                        poll.unregister(proc.stdout.fileno())
-                        proc.stdout.close()
-                stderr_ready = (not proc.stderr.closed) and evts.get(proc.stderr.fileno(), False)
-                if stderr_ready:
-                    line = proc.stderr.readline()
-                    if line:
-                        print(line, end='', file=stderr_buf)
-                    else:
-                        poll.unregister(proc.stderr.fileno())
-                        proc.stderr.close()
                 socket_ready = evts.get(reply_sock, False)
                 if socket_ready:
                     try:
@@ -322,7 +298,9 @@ def call_pelita(team_specs, *, rounds, filter, viewer, dump, seed):
                     except KeyError:
                         pass
 
-            return (final_game_state, stdout_buf.getvalue(), stderr_buf.getvalue())
+        stdout_buf.seek(0)
+        stderr_buf.seek(0)
+        return (final_game_state, stdout_buf.read(), stderr_buf.read())
 
 
 def check_team(team_spec):

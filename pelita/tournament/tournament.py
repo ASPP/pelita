@@ -30,9 +30,6 @@ POINTS_WIN = 2
 
 LOGFILE = None
 
-if os.name != 'posix':
-    raise RuntimeError("Tournament can only run on Posix systems.")
-
 
 def create_team_id(team_id, idx):
     """ Checks that the team_id in the config is valid or else
