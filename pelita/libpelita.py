@@ -337,6 +337,9 @@ def strip_module_prefix(module):
         return ModuleSpec(prefix=None, module=module)
 
 def prepare_team(team_spec):
+    # check, if team_spec is a move function
+    if callable(team_spec):
+        return TeamSpec(module=None, address=team_spec)
     # check if we've been given an address which a remote
     # player wants to connect to
     if "://" in team_spec:
