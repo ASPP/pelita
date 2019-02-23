@@ -1,8 +1,10 @@
 """ collecting the game state filter functions """
+import random
+import copy
 
 ### The main function
 
-def noiser(game_state, noise_radius=5, sight_distance=5, seed=None):
+def noiser(gamestate, noise_radius=5, sight_distance=-1, seed=None):
 	"""Function to make bot positions noisy in a game state.
 
     Applies uniform noise in maze space. Noise will only be applied if the enemy bot
@@ -14,12 +16,12 @@ def noiser(game_state, noise_radius=5, sight_distance=5, seed=None):
 	distance of 1 in Manhattan space could still be much further away in maze
 	distance.
 	
-	Given a `bot_index` (now 'turn' in game_state) the method looks up the enemies
+	Given a `bot_index` (now 'turn' in gamestate) the method looks up the enemies
 	of this bot. It then adds uniform noise in maze space to the enemy positions, but
 	only if bot is farther away than sight_distance
 	
 	If a position is noisy or not is indicated by the `noisy` attribute in the 
-	game_state dictionary, and then also in the returned noisy game state
+	gamestate dictionary, and then also in the returned noisy game state
 
     Functions needed
     ----------------
@@ -32,7 +34,7 @@ def noiser(game_state, noise_radius=5, sight_distance=5, seed=None):
 
     Parameters
     ----------
-    game_state : holding all relevant information
+    gamestate : holding all relevant information
     noise_radius : int, optional, default: 5
         the radius for the uniform noise
     sight_distance : int, optional, default: 5
@@ -43,41 +45,66 @@ def noiser(game_state, noise_radius=5, sight_distance=5, seed=None):
 		
 	Returns
 	-------
-	noisy_game_state : game_state with noisy enemy positions
+	noisy_gamestate : gamestate with noisy enemy positions
 		
     """
 
 	# set the random state
 	rnd = random.Random(seed)
 	
+	# maka a new game state
+	cp_gs = copy.deepcopy(gamestate)
+	#cp_gs = gamestate
+	
+	# get the current turn (ie the bot_index)
+	turn = cp_gs["turn"]
+	
+	# get the walls
+	walls = cp_gs["walls"]
+	
 	# get the current bot
-	bots        = game_state["bots"]
+	bots        = cp_gs["bots"]
 	current_bot = bots[turn]
 	
 	# get the enemy bots
 	enemy_bots  = list(range(0,4))
-	if current_bot % 2:
+	if turn % 2:
 		# current bot is in the uneven team
-		enemy_bots = bots[1::2]
+		enemy_slice = slice(1,4,2)
 	else:
 		# current bot is in the even team
-		enemy_bots = bots[0::2]
-		
+		enemy_slice = slice(0,4,2)
+	enemy_bots = bots[enemy_slice]
+	
 	# get the noisy information
-	noisy = enemy_bots["noisy"]
+	noisy = cp_gs["noisy"]
+	
+	print(len(enemy_bots))
 
-	for count, b in enemy_bots:
+	for count, b in enumerate(enemy_bots):
 		# Check that the distance between this bot and the enemy is larger
 		# than `sight_distance`.
 		cur_distance = manhattan_dist(current_bot, b)
+		print('cur_distance')
+		print(cur_distance)
+		print('sight_distance')
+		print(sight_distance)
 
 		if cur_distance is None or cur_distance > sight_distance:
 			# If so then alter the position of the enemy
+			print('now changing position')
 			cur_altered_pos = alter_pos(b,noise_radius,rnd,walls)
-			b               = cur_altered_pos[0]
-			noisy[count]    = cur_altered_pos[1]
-
-	return noisy_game_state
+			print(cur_altered_pos)
+			enemy_bots[count] = cur_altered_pos[0]
+			noisy[count]      = cur_altered_pos[1]
+	
+	# packing before return
+	print(enemy_bots)
+	bots[enemy_slice] = enemy_bots
+	cp_gs	["noisy"] = noisy
+	
+	# return
+	return cp_gs
 	
 	
 ### The subfunctions
@@ -106,7 +133,8 @@ def alter_pos(bot_pos,noise_radius,rnd,walls):
 			noisy     = True
 			break
 	# return the final_pos and a flag if it is noisy or not
-	return [final_pos, noisy] 
+	return [final_pos, noisy]
+	#return [(0,0), True]
 	
 def manhattan_dist(pos1, pos2):
     """ Manhattan distance between two points.
