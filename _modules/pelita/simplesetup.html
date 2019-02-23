@@ -409,41 +409,51 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">team_players</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">address</span> <span class="ow">in</span> <span class="n">bind_addrs</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">address</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;remote:&quot;</span><span class="p">):</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Received remote address.&quot;</span><span class="p">)</span>
-                <span class="n">send_addr</span> <span class="o">=</span> <span class="n">address</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;remote:&quot;</span><span class="p">):]</span>
-                <span class="n">address</span> <span class="o">=</span> <span class="s2">&quot;tcp://*&quot;</span>
+            <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">address</span><span class="p">):</span>
+                <span class="c1"># address is a move function</span>
+<span class="c1">#                self.sockets.append(socket)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bind_addresses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
 
-                <span class="n">socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">DEALER</span><span class="p">)</span>
-                <span class="n">socket</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">send_addr</span><span class="p">)</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Connecting zmq.DEALER to </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">send_addr</span><span class="p">))</span>
-                <span class="n">socket</span><span class="o">.</span><span class="n">send_json</span><span class="p">({</span><span class="s2">&quot;REQUEST&quot;</span><span class="p">:</span> <span class="n">address</span><span class="p">})</span>
+                <span class="kn">from</span> <span class="nn">.player.team</span> <span class="k">import</span> <span class="n">Team</span> <span class="k">as</span> <span class="n">_Team</span>
+                <span class="n">team_player</span> <span class="o">=</span> <span class="n">_Team</span><span class="p">(</span><span class="s1">&#39;local-team&#39;</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span>
+                <span class="n">team_player</span><span class="o">.</span><span class="n">_exit</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">team_players</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">team_player</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">PAIR</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">address</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;remote:&quot;</span><span class="p">):</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Received remote address.&quot;</span><span class="p">)</span>
+                    <span class="n">send_addr</span> <span class="o">=</span> <span class="n">address</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;remote:&quot;</span><span class="p">):]</span>
+                    <span class="n">address</span> <span class="o">=</span> <span class="s2">&quot;tcp://*&quot;</span>
 
-                <span class="n">bind_to_random</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="k">if</span> <span class="n">address</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;tcp://&quot;</span><span class="p">):</span>
-                    <span class="n">split_address</span> <span class="o">=</span> <span class="n">address</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;tcp://&quot;</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">split_address</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-                        <span class="c1"># assume no port has been given:</span>
-                        <span class="n">bind_to_random</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">DEALER</span><span class="p">)</span>
+                    <span class="n">socket</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">send_addr</span><span class="p">)</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Connecting zmq.DEALER to </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">send_addr</span><span class="p">))</span>
+                    <span class="n">socket</span><span class="o">.</span><span class="n">send_json</span><span class="p">({</span><span class="s2">&quot;REQUEST&quot;</span><span class="p">:</span> <span class="n">address</span><span class="p">})</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">PAIR</span><span class="p">)</span>
 
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">bind_to_random</span><span class="p">:</span>
-                        <span class="n">socket_port</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">bind_to_random_port</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
-                        <span class="n">address</span> <span class="o">=</span> <span class="n">address</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;:</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">socket_port</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">socket</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
-                    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Bound zmq.PAIR to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span>
-                <span class="k">except</span> <span class="n">zmq</span><span class="o">.</span><span class="n">ZMQError</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ZMQError while trying to bind </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">address</span><span class="p">))</span>
-                    <span class="k">raise</span>
+                    <span class="n">bind_to_random</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">if</span> <span class="n">address</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;tcp://&quot;</span><span class="p">):</span>
+                        <span class="n">split_address</span> <span class="o">=</span> <span class="n">address</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;tcp://&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">split_address</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                            <span class="c1"># assume no port has been given:</span>
+                            <span class="n">bind_to_random</span> <span class="o">=</span> <span class="kc">True</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">sockets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bind_addresses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">bind_to_random</span><span class="p">:</span>
+                            <span class="n">socket_port</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">bind_to_random_port</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+                            <span class="n">address</span> <span class="o">=</span> <span class="n">address</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;:</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">socket_port</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">socket</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+                        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Bound zmq.PAIR to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="n">zmq</span><span class="o">.</span><span class="n">ZMQError</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ZMQError while trying to bind </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">address</span><span class="p">))</span>
+                        <span class="k">raise</span>
 
-            <span class="n">team_player</span> <span class="o">=</span> <span class="n">RemoteTeamPlayer</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">team_players</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">team_player</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sockets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bind_addresses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+
+                <span class="n">team_player</span> <span class="o">=</span> <span class="n">RemoteTeamPlayer</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">team_players</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">team_player</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">game_master</span> <span class="o">=</span> <span class="n">GameMaster</span><span class="p">(</span><span class="n">layout_string</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">team_players</span><span class="p">,</span>
                                       <span class="bp">self</span><span class="o">.</span><span class="n">players</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rounds</span><span class="p">,</span>
