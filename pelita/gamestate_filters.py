@@ -53,8 +53,10 @@ def noiser(gamestate, noise_radius=5, sight_distance=-1, seed=None):
 	rnd = random.Random(seed)
 	
 	# maka a new game state
-	cp_gs = copy.deepcopy(gamestate)
-	#cp_gs = gamestate
+	#cp_gs = copy.deepcopy(gamestate)
+	# using a shallow copy
+	cp_gs = {}
+	cp_gs.update(gamestate)
 	
 	# get the current turn (ie the bot_index)
 	turn = cp_gs["turn"]
@@ -63,7 +65,8 @@ def noiser(gamestate, noise_radius=5, sight_distance=-1, seed=None):
 	walls = cp_gs["walls"]
 	
 	# get the current bot
-	bots        = cp_gs["bots"]
+	# [:] makes a copy
+	bots        = cp_gs["bots"][:]
 	current_bot = bots[turn]
 	
 	# get the enemy bots
@@ -101,7 +104,8 @@ def noiser(gamestate, noise_radius=5, sight_distance=-1, seed=None):
 	# packing before return
 	print(enemy_bots)
 	bots[enemy_slice] = enemy_bots
-	cp_gs	["noisy"] = noisy
+	cp_gs["noisy"] = noisy
+	cp_gs["bots"] = bots
 	
 	# return
 	return cp_gs
