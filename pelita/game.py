@@ -1,12 +1,12 @@
 """This is the game module. Written in 2019 in Born by Carlos and Lisa."""
 
 
-def play_turn(gamestate_old, turn, bot_position):
+def play_turn(gamestate, turn, bot_position):
     """Plays a single step of a bot.
 
     Parameters
     ----------
-    gamestate_old : dict
+    gamestate : dict
         state of the game before current turn
     turn : int
         index of the current bot. 0, 1, 2, or 3.
@@ -21,9 +21,8 @@ def play_turn(gamestate_old, turn, bot_position):
     """
     # bots 0 and 2 are team 0
     # bots 1 and 3 are team 1
-    score = gamestate_old["score"]
     # update bot positions
-    bots = gamestate_old["bots"]
+    bots = gamestate["bots"]
     bots[turn] = bot_position
 
     if (turn == 0 or turn == 2):
@@ -32,7 +31,7 @@ def play_turn(gamestate_old, turn, bot_position):
     else:
         team = 1
         enemy_idx = (0, 2)
-    x_walls = [i[0] for i in gamestate_old["walls"]]
+    x_walls = [i[0] for i in gamestate["walls"]]
     boundary = max(x_walls)/2  # float
     if team == 0:
         bot_in_homezone = bot_position[0] < boundary
@@ -47,20 +46,20 @@ def play_turn(gamestate_old, turn, bot_position):
             score[team] = score[team] + 1
 
     # check if anyone was eaten
-    deaths = gamestate_old["deaths"]
+    deaths = gamestate["deaths"]
     if bot_in_homezone:
         enemy_bots = [bots[i] for i in enemy_idx]
         if bot_position in enemy_bots:
             score[team] = score[team] + 5
             eaten_idx = enemy_idx[enemy_bots.index(bot_position)]
-            init_positions = get_initial_positions(gamestate_old["walls"])
+            init_positions = initial_positions(gamestate["walls"])
             bots[eaten_idx] = init_positions[eaten_idx]
             deaths[team] = deaths[team] + 1
 
     # check for game over
-    gameover = gamestate_old["gameover"]
+    gameover = gamestate["gameover"]
     whowins = None
-    if gamestate_old["round"]+1 >= gamestate_old["max_round"]:
+    if gamestate["round"]+1 >= gamestate["max_round"]:
         gameover = True
         whowins = 0 if score[0] > score[1] else 1
     new_turn = (turn + 1) % 4
