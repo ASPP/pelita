@@ -373,41 +373,51 @@ class SimpleServer:
         self.team_players = []
 
         for address in bind_addrs:
-            if address.startswith("remote:"):
-                _logger.info("Received remote address.")
-                send_addr = address[len("remote:"):]
-                address = "tcp://*"
+            if callable(address):
+                # address is a move function
+#                self.sockets.append(socket)
+                self.bind_addresses.append(None)
 
-                socket = self.context.socket(zmq.DEALER)
-                socket.connect(send_addr)
-                _logger.info("Connecting zmq.DEALER to {}.".format(send_addr))
-                socket.send_json({"REQUEST": address})
+                from .player.team import Team as _Team
+                team_player = _Team('local-team', address)
+                team_player._exit = lambda: None
+                self.team_players.append(team_player)
             else:
-                socket = self.context.socket(zmq.PAIR)
+                if address.startswith("remote:"):
+                    _logger.info("Received remote address.")
+                    send_addr = address[len("remote:"):]
+                    address = "tcp://*"
 
-                bind_to_random = False
-                if address.startswith("tcp://"):
-                    split_address = address.split("tcp://")
-                    if not ":" in split_address[1]:
-                        # assume no port has been given:
-                        bind_to_random = True
+                    socket = self.context.socket(zmq.DEALER)
+                    socket.connect(send_addr)
+                    _logger.info("Connecting zmq.DEALER to {}.".format(send_addr))
+                    socket.send_json({"REQUEST": address})
+                else:
+                    socket = self.context.socket(zmq.PAIR)
 
-                try:
-                    if bind_to_random:
-                        socket_port = socket.bind_to_random_port(address)
-                        address = address + (":%d" % socket_port)
-                    else:
-                        socket.bind(address)
-                    _logger.info("Bound zmq.PAIR to %s", address)
-                except zmq.ZMQError:
-                    print("ZMQError while trying to bind {}".format(address))
-                    raise
+                    bind_to_random = False
+                    if address.startswith("tcp://"):
+                        split_address = address.split("tcp://")
+                        if not ":" in split_address[1]:
+                            # assume no port has been given:
+                            bind_to_random = True
 
-            self.sockets.append(socket)
-            self.bind_addresses.append(address)
+                    try:
+                        if bind_to_random:
+                            socket_port = socket.bind_to_random_port(address)
+                            address = address + (":%d" % socket_port)
+                        else:
+                            socket.bind(address)
+                        _logger.info("Bound zmq.PAIR to %s", address)
+                    except zmq.ZMQError:
+                        print("ZMQError while trying to bind {}".format(address))
+                        raise
 
-            team_player = RemoteTeamPlayer(socket)
-            self.team_players.append(team_player)
+                self.sockets.append(socket)
+                self.bind_addresses.append(address)
+
+                team_player = RemoteTeamPlayer(socket)
+                self.team_players.append(team_player)
 
         self.game_master = GameMaster(layout_string, self.team_players,
                                       self.players, self.rounds,

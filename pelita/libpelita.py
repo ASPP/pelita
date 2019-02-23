@@ -337,6 +337,9 @@ def strip_module_prefix(module):
         return ModuleSpec(prefix=None, module=module)
 
 def prepare_team(team_spec):
+    # check, if team_spec is a move function
+    if callable(team_spec):
+        return TeamSpec(module=None, address=team_spec)
     # check if we've been given an address which a remote
     # player wants to connect to
     if "://" in team_spec:
@@ -347,19 +350,22 @@ def prepare_team(team_spec):
         address = "tcp://127.0.0.1"
     return TeamSpec(module, address)
 
-def run_game(team_specs, game_config, viewers=None, controller=None):
+def run_game(team_specs, *, rounds, layout, layout_name="", seed=None, dump=False,
+                            max_timeouts=5, timeout_length=3,
+                            viewers=None, controller=None, publisher=None):
+
     if viewers is None:
         viewers = []
 
     teams = [prepare_team(team_spec) for team_spec in team_specs]
 
-    server = SimpleServer(layout_string=game_config["layout_string"],
-                          rounds=game_config["rounds"],
+    server = SimpleServer(layout_string=layout,
+                          rounds=rounds,
                           bind_addrs=[team.address for team in teams],
-                          max_timeouts=game_config["max_timeouts"],
-                          timeout_length=game_config["timeout_length"],
-                          layout_name=game_config["layout_name"],
-                          seed=game_config["seed"])
+                          max_timeouts=max_timeouts,
+                          timeout_length=timeout_length,
+                          layout_name=layout_name,
+                          seed=seed)
 
     # Update our teams with the bound addresses
     teams = [
@@ -379,7 +385,7 @@ def run_game(team_specs, game_config, viewers=None, controller=None):
             print("Waiting for external team %d to connect to %s." % (idx, team.address))
 
     external_players = [
-        call_pelita_player(team.module, team.address, color[team], dump=game_config['dump'])
+        call_pelita_player(team.module, team.address, color[team], dump=dump)
         for team in teams
         if team.module
     ]
@@ -387,8 +393,8 @@ def run_game(team_specs, game_config, viewers=None, controller=None):
     for viewer in viewers:
         server.game_master.register_viewer(viewer)
 
-    if game_config.get("publisher"):
-        server.game_master.register_viewer(game_config["publisher"])
+    if publisher:
+        server.game_master.register_viewer(publisher)
 
     with autoclose_subprocesses(external_players):
         if controller is not None:

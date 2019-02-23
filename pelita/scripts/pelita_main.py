@@ -351,17 +351,8 @@ def main():
         layout_name, layout_string = pelita.layout.load_layout(layout_name=args.layout, layout_file=args.layoutfile)
     else:
         layout_name, layout_string = pelita.layout.get_random_layout(args.filter)
+    
     print("Using layout '%s'" % layout_name)
-
-    game_config = {
-        "rounds": args.rounds,
-        "max_timeouts": args.max_timeouts,
-        "timeout_length": args.timeout_length,
-        "layout_name": layout_name,
-        "layout_string": layout_string,
-        "seed": args.seed,
-        "dump": args.dump,
-    }
 
     with libpelita.channel_setup(publish_to=args.publish_to) as channels:
         if args.viewer.startswith('tk'):
@@ -370,7 +361,6 @@ def main():
             controller = channels["controller"]
             controller_addr = controller.socket_addr
             publisher = channels["publisher"]
-            game_config["publisher"] = publisher
             if args.viewer == 'tk-no-sync':
                 controller = None
                 controller_addr = None
@@ -379,7 +369,9 @@ def main():
         else:
             controller = None
 
-        libpelita.run_game(team_specs=team_specs, game_config=game_config, viewers=viewers, controller=controller)
+        libpelita.run_game(team_specs=team_specs, rounds=args.rounds, layout=layout_string, layout_name=layout_name,
+                           seed=args.seed, dump=args.dump, max_timeouts=args.max_timeouts, timeout_length=args.timeout_length,
+                           viewers=viewers, controller=controller)
 
 if __name__ == '__main__':
     main()
