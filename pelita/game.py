@@ -40,9 +40,9 @@ def play_turn(gamestate, turn, bot_position):
 
     # update food list
     if not bot_in_homezone:
-        food_list = gamestate_old["food"]
-        if bot_position in food_list:
-            food_list.pop(food_list.index(bot_position))
+        food = gamestate["food"]
+        if bot_position in food:
+            food.pop(food.index(bot_position))
             score[team] = score[team] + 1
 
     # check if anyone was eaten
