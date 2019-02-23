@@ -39,6 +39,7 @@ def play_turn(gamestate, turn, bot_position):
         bot_in_homezone = bot_position[0] > boundary
 
     # update food list
+    score = gamestate["score"]
     if not bot_in_homezone:
         food = gamestate["food"]
         if bot_position in food:
@@ -62,82 +63,105 @@ def play_turn(gamestate, turn, bot_position):
     if gamestate["round"]+1 >= gamestate["max_round"]:
         gameover = True
         whowins = 0 if score[0] > score[1] else 1
+    if gamestate["timeout"]:
+        gameover = True
     new_turn = (turn + 1) % 4
-    gamestate = {
-                 "turn": new_turn,
-                 "round": gamestate_old["round"] + 1,
-                 "max_round": gamestate_old["max_round"],
-                 "walls": gamestate_old["walls"],
-                 "food": gamestate_old["food"],
+    if new_turn == 0:
+        new_round = gamestate["round"] + 1
+    else:
+        new_round = gamestate["round"]
+
+    gamestate_new = {
+                 "food": food,
                  "bots": bots,
-                 "timeouts": gamestate_old["timeouts"],
+                 "turn": new_turn,
+                 "round": new_round,
                  "gameover": gameover,
                  "whowins": whowins,
-                 "team_names": gamestate_old["team_names"],
-                 "team_say": 'pos!!',
                  "score": score,
-                 "deaths": deaths
-    }
+                 "deaths": deaths,
+                }
 
+    gamestate.update(gamestate_new)
     return gamestate
 
-def get_initial_positions(walls):
-    """ Returns the free positions that are closest to the bottom left and
-    top right corner. The algorithm starts searching from (1, height-2) and
-    (width-2, 1) respectively and uses the manhattan distance for judging what
-    is closest. On equal distances, a smaller distance in the x value is preferred.
-    """
-    walls_width = max(walls)[0] + 1
-    walls_height = max(walls)[1] + 1
 
-    left_start = (1, walls_height - 2)
-    left_initials = []
-    right_start = (walls_width - 2, 1)
-    right_initials = []
+#  canonical_keys = {
+#                  "food" food,
+#                  "walls": walls,
+#                  "bots": bots,
+#                  "maxrounds": maxrounds,
+#                  "team_names": team_names,
+#                  "turn": turn,
+#                  "round": round,
+#                  "timeouts": timeouts,
+#                  "gameover": gameover,
+#                  "whowins": whowins,
+#                  "team_say": team_say,
+#                  "score": score,
+#                  "deaths": deaths,
+#                  }
+
+def initial_positions(walls):
+    """Calculate initial positions.
+
+    Given the list of walls, returns the free positions that are closest to the
+    bottom left and top right corner. The algorithm starts searching from
+    (1, height-2) and (width-2, 1) respectively and uses the Manhattan distance
+    for judging what is closest. On equal distances, a smaller distance in the
+    x value is preferred.
+    """
+    width = max(walls)[0] + 1
+    height = max(walls)[1] + 1
+
+    left_start = (1, height - 2)
+    left = []
+    right_start = (width - 2, 1)
+    right = []
 
     dist = 0
-    while len(left_initials) < 2:
+    while len(left) < 2:
         # iterate through all possible x distances (inclusive)
         for x_dist in range(dist + 1):
             y_dist = dist - x_dist
             pos = (left_start[0] + x_dist, left_start[1] - y_dist)
             # if both coordinates are out of bounds, we stop
-            if not (0 <= pos[0] < walls_width) and not (0 <= pos[1] < walls_height):
+            if not (0 <= pos[0] < width) and not (0 <= pos[1] < height):
                 raise ValueError("Not enough free initial positions.")
             # if one coordinate is out of bounds, we just continue
-            if not (0 <= pos[0] < walls_width) or not (0 <= pos[1] < walls_height):
+            if not (0 <= pos[0] < width) or not (0 <= pos[1] < height):
                 continue
             # check if the new value is free
-            if not pos in walls:
-                left_initials.append(pos)
+            if pos not in walls:
+                left.append(pos)
 
-            if len(left_initials) == 2:
+            if len(left) == 2:
                 break
 
         dist += 1
 
     dist = 0
-    while len(right_initials) < 2:
+    while len(right) < 2:
         # iterate through all possible x distances (inclusive)
         for x_dist in range(dist + 1):
             y_dist = dist - x_dist
             pos = (right_start[0] - x_dist, right_start[1] + y_dist)
             # if both coordinates are out of bounds, we stop
-            if not (0 <= pos[0] < walls_width) and not (0 <= pos[1] < walls_height):
+            if not (0 <= pos[0] < width) and not (0 <= pos[1] < height):
                 raise ValueError("Not enough free initial positions.")
             # if one coordinate is out of bounds, we just continue
-            if not (0 <= pos[0] < walls_width) or not (0 <= pos[1] < walls_height):
+            if not (0 <= pos[0] < width) or not (0 <= pos[1] < height):
                 continue
             # check if the new value is free
-            if not pos in walls:
-                right_initials.append(pos)
+            if pos not in walls:
+                right.append(pos)
 
-            if len(right_initials) == 2:
+            if len(right) == 2:
                 break
 
         dist += 1
 
     # lower indices start further away
-    left_initials.reverse()
-    right_initials.reverse()
-    return [*left_initials, *right_initials]
+    # left.reverse()
+    # right.reverse()
+    return [left[0], right[0], left[1], right[1]]
