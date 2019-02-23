@@ -368,10 +368,11 @@ def main():
                                                    geometry=geometry, delay=delay, stop_after=args.stop_after)
         else:
             controller = None
+            publisher = None
 
         libpelita.run_game(team_specs=team_specs, rounds=args.rounds, layout=layout_string, layout_name=layout_name,
                            seed=args.seed, dump=args.dump, max_timeouts=args.max_timeouts, timeout_length=args.timeout_length,
-                           viewers=viewers, controller=controller)
+                           viewers=viewers, controller=controller, publisher=publisher)
 
 if __name__ == '__main__':
     main()
