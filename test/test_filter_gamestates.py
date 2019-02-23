@@ -22,7 +22,10 @@ def test_noiser():
 
 	
 	old_bots = gamestate["bots"]
+	gamestate["xy"] = 999
 	new_gamestate = gf.noiser(gamestate, noise_radius=5, sight_distance=-1, seed=None)
+	new_gamestate["xy"] = 1000
+	print(gamestate["xy"])
 	new_bots = new_gamestate["bots"]
 	print(new_bots)
 	assert(not old_bots[1] == new_bots[1])
