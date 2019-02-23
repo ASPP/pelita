@@ -107,3 +107,20 @@ def alter_pos(bot_pos,noise_radius,rnd,walls):
 			break
 	# return the final_pos and a flag if it is noisy or not
 	return [final_pos, noisy] 
+	
+def manhattan_dist(pos1, pos2):
+    """ Manhattan distance between two points.
+
+    Parameters
+    ----------
+    pos1 : tuple of (int, int)
+        the first position
+    pos2 : tuple of (int, int)
+        the second position
+
+    Returns
+    -------
+    manhattan_dist : int
+        Manhattan distance between two points
+    """
+    return abs(pos1[0]-pos2[0]) + abs(pos1[1]-pos2[1])
