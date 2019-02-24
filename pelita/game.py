@@ -167,3 +167,29 @@ def initial_positions(walls):
     left.reverse()
     right.reverse()
     return [left[0], right[0], left[1], right[1]]
+
+
+def get_legal_moves(walls, bot_position):
+    """ Returns legal moves given a position.
+
+     Parameters
+    ----------
+    walls : list
+        position of the walls of current layout.
+    bot_position: tuple
+        position of current bot.
+
+    Returns
+    -------
+    list
+        legal moves.
+    """
+    north = (0, -1)
+    south = (0, 1)
+    east = (1, 0)
+    west = (-1, 0)
+    stop = (0, 0)
+    directions = [north, east, west, south, stop]
+    potential_moves = [(i[0] + bot_position[0], i[1] + bot_position[1]) for i in directions]
+    possible_moves = [i for i in potential_moves if i not in walls]
+    return possible_moves
