@@ -68,7 +68,7 @@ def test_illegal_character():
             #     #
             ####### """)
     with pytest.raises(ValueError):
-        out = parse_layout(illegal_layout)
+        out = parse_single_layout(illegal_layout)
 
 def test_illegal_index():
     illegal_layout = (
@@ -78,7 +78,7 @@ def test_illegal_index():
             #     #
             ####### """)
     with pytest.raises(ValueError):
-        out = parse_layout(illegal_layout)
+        out = parse_single_layout(illegal_layout)
 
 def test_illegal_walls():
     illegal_layout = (
@@ -88,7 +88,7 @@ def test_illegal_walls():
             #     #
             ####### """)
     with pytest.raises(ValueError):
-        out = parse_layout(illegal_layout)
+        out = parse_single_layout(illegal_layout)
 
 def test_illegal_width():
     illegal_layout = (
@@ -98,7 +98,7 @@ def test_illegal_width():
             #   #
             ##### """)
     with pytest.raises(ValueError):
-        out = parse_layout(illegal_layout)
+        out = parse_single_layout(illegal_layout)
 
 def test_different_width():
     illegal_layout = (
@@ -108,7 +108,7 @@ def test_different_width():
             #     #
             ####### """)
     with pytest.raises(ValueError):
-        out = parse_layout(illegal_layout)
+        out = parse_single_layout(illegal_layout)
 
 def test_roundtrip():
     input_layout =  """ ########
@@ -132,10 +132,10 @@ def test_roundtrip():
 ########
 """
 
-    layout = parse_combined_layout(input_layout)
+    layout = parse_layout(input_layout)
     out = layout_as_str(**layout)
     assert out == dedent(expected_layout)
-    layout = parse_combined_layout(out)
+    layout = parse_layout(out)
     out = layout_as_str(**layout)
     assert out == dedent(expected_layout)
 
@@ -153,8 +153,8 @@ def test_empty_lines():
             ####
 
             """)
-    layout1 = parse_combined_layout(simple_layout_1)
-    layout2 = parse_combined_layout(simple_layout_2)
+    layout1 = parse_layout(simple_layout_1)
+    layout2 = parse_layout(simple_layout_2)
     assert layout1 == layout2
 
 def test_equal_positions():
@@ -179,6 +179,6 @@ def test_equal_positions():
         # . ...#
         ########
     """
-    layout = parse_combined_layout(layout_str)
+    layout = parse_layout(layout_str)
     assert layout['bots'] == [(1, 1)]*4
 
