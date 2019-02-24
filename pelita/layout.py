@@ -129,20 +129,27 @@ def get_layout_by_name(layout_name):
 
 def parse_layout(layout_str):
     layout_list = []
-    current_layout = []
-    for row in layout_str.splitlines():
-        stripped = row.strip()
-        if stripped:
-            # this line is not empty, append it to the current layout
-            current_layout.append(row)
-        else:
-            # this line is empty
-            # if we have a current_layout close it and start a new one
-            if current_layout:
-                layout_list.append('\n'.join(current_layout))
-                current_layout = []
+    start = False
+    for i, line in enumerate(layout_str.splitlines()):
+        row = line.strip()
+        if not row:
+            # ignore emptylines
+            continue
+        if not start:
+            # start a new layout
+            current_layout = [row]
+            start = True
+            continue
+        # we are in the middle of a layout, just append to the current
+        # layout unless we detect the closing string
+        current_layout.append(row)
+        if row.count('#') == len(row):
+            # this is a closing string
+            # append the layout to tha layout list
+            layout_list.append('\n'.join(current_layout))
+            start = False
 
-    if current_layout:
+    if start:
         # the last layout has not been closed, close it here
         layout_list.append('\n'.join(current_layout))
 
@@ -277,8 +284,6 @@ def layout_as_str(*, walls, food=None, bots=None):
                     out.write(' ')
             # close the row
             out.write('\n')
-        # start a new layout string for the bots
-        out.write('\n')
 
         # create a mapping coordinate : list of bots at this coordinate
         coord_bots = {}
@@ -312,10 +317,8 @@ def layout_as_str(*, walls, food=None, bots=None):
                         out.write(' ')
                 # close the row
                 out.write('\n')
-            # close this layout string
-            out.write('\n')
 
         # drop the last empty line: we always have two at the end
-        return out.getvalue()[:-1]
+        return out.getvalue()
 
 
