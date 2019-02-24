@@ -305,18 +305,48 @@ def layout_as_str(*, walls, food=None, bots=None):
     width = max(walls)[0] + 1
     height = max(walls)[1] + 1
 
+
+    # flag to check if we have overlapping objects
+
+    # when need_combined is True, we force the printing of a combined layout
+    # string:
+    # - the first layout will have walls and food
+    # - subsequent layouts will have walls and bots
+    # You'll get as many layouts as you have overlapping bots
+    need_combined = False
+
+    # first, check if we have overlapping bots
+    if len(set(bots)) != len(bots):
+        need_combined = True
+    else:
+        need_combined = any(coord in food for coord in bots)
+    # then, check that bots are not overlapping with food
+
     with io.StringIO() as out:
-        # first, print walls and food
         for y in range(height):
             for x in range(width):
                 if (x, y) in walls:
+                    # always print walls
                     out.write('#')
                 elif (x, y) in food:
+                    # always print food
                     out.write('.')
                 else:
-                    out.write(' ')
+                    if not need_combined:
+                        # check if we have a bot here only when we know that
+                        # we won't need a combined layout later
+                        if (x, y) in bots:
+                            out.write(str(bots.index((x, y))))
+                        else:
+                            out.write(' ')
+                    else:
+                        out.write(' ')
             # close the row
             out.write('\n')
+
+        # return here if we don't need a combined layout string
+        if not need_combined:
+            return out.getvalue()
 
         # create a mapping coordinate : list of bots at this coordinate
         coord_bots = {}
