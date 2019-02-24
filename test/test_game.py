@@ -69,7 +69,8 @@ def test_get_legal_moves():
 def test_play_turn():
     seedval = np.random.randint(2**32)
     print(f'seedval: {seedval}')
-    l = layout.get_random_layout()
+    turn = 0
+    l = layout.load_layout(layout_file="layouts/small_without_dead_ends_100.layout")
     parsed_l = layout.parse_layout(l[1])
     game_state = {
                   "food": parsed_l["food"],
@@ -77,14 +78,18 @@ def test_play_turn():
                   "bots": parsed_l["bots"],
                   "max_round": 300,
                   "team_names": ("a", "b"),
-                  "turn": 1,
-                  "round": 1,
+                  "turn": turn,
+                  "round": 0,
                   "timeout": [],
                   "gameover": False,
                   "whowins": None,
                   "team_say": "bla",
                   "score": 0,
                   "deaths": 0,
+                  "errors": [[], []],
+                  "fatal_errors": [{},{}],
                   }
-    game_state = play_turn(game_state, 0, (1, 2))
-    # TODO is move legal?
+    legal_moves = get_legal_moves(game_state["walls"], game_state["bots"][turn])
+    print(legal_moves)
+    game_state_new = play_turn(game_state, legal_moves[0])
+    assert game_state_new["bots"][turn] == legal_moves[0]
