@@ -1,17 +1,16 @@
 import base64
+import io
 import random
 import zlib
-
-from .containers import Mesh
-
-""" Maze layout parsing. """
-
 
 try:
     from . import __layouts
 except SyntaxError as err:
     print("Invalid syntax in __layouts module. Pelita will not be able to use built-in layouts.")
     print(err)
+
+class Layout:
+    pass
 
 class LayoutEncodingException(Exception):
     """ Signifies a problem with the encoding of a layout. """
@@ -128,173 +127,171 @@ def get_layout_by_name(layout_name):
         # thus reraise as ValueError with appropriate error message.
         raise ValueError("Layout: '%s' is not known." % ke.args)
 
+def parse_combined_layout(layout_str):
+    layout_list = []
+    current_layout = []
+    for row in layout_str.splitlines():
+        stripped = row.strip()
+        if stripped:
+            # this line is not empty, append it to the current layout
+            current_layout.append(row)
+        else:
+            # this line is empty
+            # if we have a current_layout close it and start a new one
+            if current_layout:
+                layout_list.append('\n'.join(current_layout))
+                current_layout = []
 
-class Layout:
-    """ Auxiliary class to parse string encodings of mazes.
+    if current_layout:
+        # the last layout has not been closed, close it here
+        layout_list.append('\n'.join(current_layout))
 
-    Basically a parser for string encoded maze representations. This class can
-    strip such strings, determine the maze shape, check their validity based on
-    set of legal encoding characters and covert to a `Mesh`.
+    # initialize walls, food and bots from the first layout
+    out = parse_layout(layout_list.pop(0))
+    for layout in layout_list:
+        items = parse_layout(layout)
+        # walls should always be the same
+        if items['walls'] != out['walls']:
+            raise ValueError('Walls are not equal in all layouts!')
+        # add the food, removing duplicates
+        out['food'] = list(set(out['food'] + items['food']))
+        # add the bots
+        for bot_idx, bot_pos in enumerate(items['bots']):
+            if bot_pos:
+                # this bot position is not None, overwrite whatever we had before
+                out['bots'][bot_idx] = bot_pos
 
-    When initialised through the constructor we first strip leading and trailing
-    whitespace (mainly space and newline chars). Then we perform several check
-    on the data to see if it is rectangular, if it contains the correct number of
-    bot_positions and if it is composed of legal characters only. Lastly you can
-    use `as_mesh()` to convert the layout into a Mesh of characters.
+    return out
 
-    The class provides much of its functionality via staticmethods so that reuse
-    of these code-parts is easy if needed. Also you can subclass it in case you
-    need additional checks for example for mazes that need to be not only
-    rectangular, but also square.
+def parse_layout(layout_str):
+    """Parse a single layout from a string"""
+    # width of the layout (x-axis)
+    width = None
+    # list of layout rows
+    rows = []
+    for line, row in enumerate(layout_str.splitlines()):
+        stripped = row.strip()
+        if not stripped:
+            # ignore empty lines
+            continue
+        if width is not None and len(stripped) != width:
+            raise ValueError(f"Layout rows have differing widths at line {line}!")
+        width = len(stripped)
+        rows.append(stripped)
+    # sanity check, width must be even
+    if width % 2:
+        raise ValueError(f"Layout must have even number of columns (found {width})!")
 
-    Parameters
-    ----------
-    layout_str : str
-        the layout to work on
-    layout_chars : list of str
-        the list of legal characters
-    number_bots : int
-        the number of bots to look for
+    # height of the layout (y-axis)
+    height = len(rows)
+    walls = []
+    food = []
+    # bot positions (we assume 4 bots)
+    bots = [None]*4
 
-    Attributes
-    ----------
-    layout_chars : list of str
-        the list of legal characters to use
-    stripped : str
-        the whitespace stripped version
-    shape : tuple of two ints
-        height and width of the layout
+    # iterate through the grid of characters
+    for y, row in enumerate(rows):
+        for x, char in enumerate(row):
+            # check that we have walls on the borders
+            if x == 0 or y == 0 or x == (width-1) or y == (height-1):
+                if char != '#':
+                    raise ValueError("Layout not surrounded with #!")
+            coord = (x, y)
+            # assign the char to the corresponding list
+            if char == '#':
+                # wall
+                walls.append(coord)
+            elif char == '.':
+                # food
+                food.append(coord)
+            elif char == ' ':
+                # empty
+                continue
+            else:
+                # bot
+                try:
+                    # we expect an 0<=index<=3
+                    bot_idx = int(char)
+                    if bot_idx >= len(bots):
+                        # reuse the except below
+                        raise ValueError
+                except ValueError:
+                    raise ValueError(f"Unknown character {char} in maze!")
+                bots[bot_idx] = coord
+    walls.sort()
+    food.sort()
+    return {'walls':walls, 'food':food, 'bots':bots}
 
+def layout_as_str(*, walls, food=None, bots=None):
+    """Given walls, food and bots return a combined string layout representation
+
+    Returns a combined layout string.
+
+    The first layout string contains walls and food, the subsequent layout
+    strings contain walls and bots. If bots are overlapping, as many layout
+    strings are appended as there are overlapping bots.
+
+    Example:
+
+    ####
+    #  #
+    ####
     """
-    def __init__(self, layout_str, layout_chars, number_bots):
-        self.number_bots = number_bots
-        self.layout_chars = layout_chars
-        self.stripped = self.strip_layout(layout_str)
-        self.check_layout(self.stripped, self.layout_chars, self.number_bots)
-        self.shape = self.layout_shape(self.stripped)
+    walls = sorted(walls)
+    width = max(walls)[0] + 1
+    height = max(walls)[1] + 1
 
-    @staticmethod
-    def strip_layout(layout_str):
-        """ Remove leading and trailing whitespace from a string encoded layout.
-
-        Parameters
-        ----------
-        layout_str : str
-            the layout, possibly with whitespace
-
-        Returns
-        -------
-        layout_str : str
-            the layout with whitespace removed
-
-        """
-        return '\n'.join([line.strip() for line in layout_str.split('\n')]).strip()
-
-    @staticmethod
-    def check_layout(layout_str, layout_chars, number_bots):
-        """ Check the legality of the layout string.
-
-        Parameters
-        ----------
-        layout_str : str
-            the layout string
-        number_bots : int
-            the total number of bots that should be present
-
-        Raises
-        ------
-        LayoutEncodingException
-            if an illegal character is encountered
-        LayoutEncodingException
-            if a bot-id is missing
-        LayoutEncodingException
-            if a bot-id is specified twice
-
-        """
-        bot_ids = [str(i) for i in range(number_bots)]
-        existing_bots = []
-        legal = layout_chars + bot_ids + ['\n']
-        for c in layout_str:
-            if c not in legal:
-                raise LayoutEncodingException(
-                    "Char: '%c' is not a legal layout character" % c)
-            if c in bot_ids:
-                if c in existing_bots:
-                    raise LayoutEncodingException(
-                        "Bot-ID: '%c' was specified twice" % c)
+    with io.StringIO() as out:
+        # first, print walls and food
+        for y in range(height):
+            for x in range(width):
+                if (x, y) in walls:
+                    out.write('#')
+                elif (x, y) in food:
+                    out.write('.')
                 else:
-                    existing_bots.append(c)
-        existing_bots.sort()
-        if bot_ids != existing_bots:
-            missing = [str(i) for i in set(bot_ids).difference(set(existing_bots))]
-            missing.sort()
-            raise LayoutEncodingException(
-                'Layout is invalid for %i bots, The following IDs were missing: %s '
-                % (number_bots, missing))
-        lines = layout_str.split('\n')
-        for i in range(len(lines)):
-            if len(lines[i]) != len(lines[0]):
-                raise LayoutEncodingException(
-                    'The layout must be rectangular, ' +\
-                    'line %i has length %i instead of %i'
-                    % (i, len(lines[i]), len(lines[0])))
+                    out.write(' ')
+            # close the row
+            out.write('\n')
+        # start a new layout string for the bots
+        out.write('\n')
 
-    @staticmethod
-    def layout_shape(layout_str):
-        """ Determine shape of layout.
+        # create a mapping coordinate : list of bots at this coordinate
+        coord_bots = {}
+        for idx, pos in enumerate(bots):
+            if pos is None:
+                # if a bot coordinate is None
+                # don't put the bot in the layout
+                continue
+            # append bot_index to the list of bots at this coordinate
+            # if still no bot was seen here we have to start with an empty list
+            coord_bots[pos] = coord_bots.get(pos, []) + [str(idx)]
 
-        Parameters
-        ----------
-        layout_str : str
-            a checked and stripped layout string
+        # loop through the bot coordinates
+        while coord_bots:
+            for y in range(height):
+                for x in range(width):
+                    # let's repeat the walls
+                    if (x, y) in walls:
+                        out.write('#')
+                    elif (x, y) in coord_bots:
+                        # get the first bot at this position and remove it
+                        # from the list
+                        bot_idx = coord_bots[(x, y)].pop(0)
+                        out.write(bot_idx)
+                        # if we are left without bots at this position
+                        # remove the coordinate from the dict
+                        if not coord_bots[(x, y)]:
+                            del coord_bots[(x, y)]
+                    else:
+                        # empty space
+                        out.write(' ')
+                # close the row
+                out.write('\n')
+            # close this layout string
+            out.write('\n')
 
-        Returns
-        -------
-        width : int
-        height : int
+        # drop the last empty line: we always have two at the end
+        return out.getvalue()[:-1]
 
-        """
-        return (layout_str.find('\n'), len(layout_str.split('\n')))
 
-    def __eq__(self, other):
-        return type(self) == type(other) and self.__dict__ == other.__dict__
-
-    def __ne__(self, other):
-        return not (self == other)
-
-    def __str__(self):
-        return self.stripped
-
-    def __repr__(self):
-        return ("Layout(%r, %s, %i)"
-            % (self.stripped, self.layout_chars, self.number_bots))
-
-    def as_mesh(self):
-        """ Convert to a Mesh.
-
-        Returns
-        -------
-        mesh : Mesh
-            this layout as a Mesh
-
-        """
-        mesh = Mesh(*self.shape)
-        mesh._set_data(list(''.join(self.stripped.split('\n'))))
-        return mesh
-
-    @classmethod
-    def from_file(cls, filename, layout_chars, number_bots):
-        """ Loads a layout from file `filename`.
-
-        Parameters
-        ----------
-        filename : str
-            the file with the saved layout
-        layout_chars : list of str
-            the list of legal characters
-        number_bots : int
-            the number of bots to look for
-        """
-        with open(filename) as file:
-            lines = file.read()
-        return cls(lines, layout_chars=layout_chars, number_bots=number_bots)
