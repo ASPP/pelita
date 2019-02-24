@@ -1,7 +1,7 @@
 """This is the game module. Written in 2019 in Born by Carlos and Lisa."""
+from random import randint
 
-
-def play_turn(gamestate, turn, bot_position):
+def play_turn(gamestate, bot_position):
     """Plays a single step of a bot.
 
     Parameters
@@ -19,70 +19,94 @@ def play_turn(gamestate, turn, bot_position):
         state of the game after applying current turn
 
     """
-    # bots 0 and 2 are team 0
-    # bots 1 and 3 are team 1
-    # update bot positions
+
+    # define local variables
     bots = gamestate["bots"]
-    bots[turn] = bot_position
+    turn = gamestate["turn"]
+    # decide which team
+    team = turn % 2
+    enemy_idx = (1, 3) if team == 0 else(0, 2)
 
-    if (turn == 0 or turn == 2):
-        team = 0
-        enemy_idx = (1, 3)
-    else:
-        team = 1
-        enemy_idx = (0, 2)
-    x_walls = [i[0] for i in gamestate["walls"]]
-    boundary = max(x_walls)/2  # float
-    if team == 0:
-        bot_in_homezone = bot_position[0] < boundary
-    elif team == 1:
-        bot_in_homezone = bot_position[0] > boundary
-
-    # update food list
+    gameover = gamestate["gameover"]
     score = gamestate["score"]
     food = gamestate["food"]
-    if not bot_in_homezone:
-        food = gamestate["food"]
-        if bot_position in food:
-            food.pop(food.index(bot_position))
-            score[team] = score[team] + 1
-
-
-    # check if anyone was eaten
+    walls = gamestate["walls"]
+    food = gamestate["food"]
+    round = gamestate["round"]
     deaths = gamestate["deaths"]
-    if bot_in_homezone:
-        enemy_bots = [bots[i] for i in enemy_idx]
-        if bot_position in enemy_bots:
-            score[team] = score[team] + 5
-            eaten_idx = enemy_idx[enemy_bots.index(bot_position)]
-            init_positions = initial_positions(gamestate["walls"])
-            bots[eaten_idx] = init_positions[eaten_idx]
-            deaths[team] = deaths[team] + 1
+    fatal_error = True if gamestate["fatal_errors"][team] else False
 
-    # check for game over
-    gameover = gamestate["gameover"]
-    whowins = None
-    if gamestate["round"]+1 >= gamestate["max_round"]:
+    # previous errors
+    team_errors = gamestate["errors"][team]
+    # check is step is legal
+    legal_moves = get_legal_moves(walls, bot_position)
+    if bot_position not in legal_moves:
+        bot_position = legal_moves[randint(0, 4)]
+        error_dict = {
+            "turn": turn,
+            "round": round,
+            "reason": 'illegal move',
+            "bot_position": bot_position
+            }
+        team_errors.append(error_dict)
+    # only execute move if errors not exceeded
+    if len(team_errors) > 4 or fatal_error:
         gameover = True
-        whowins = 0 if score[0] > score[1] else 1
-    if gamestate["timeout"]:
-        gameover = True
-    new_turn = (turn + 1) % 4
-    if new_turn == 0:
-        new_round = gamestate["round"] + 1
+        whowins = 1-team # the other team
     else:
-        new_round = gamestate["round"]
+        # take step
+        bots[turn] = bot_position
+        # then apply rules
+        x_walls = [i[0] for i in walls]
+        boundary = max(x_walls) / 2  # float
+        if team == 0:
+            bot_in_homezone = bot_position[0] < boundary
+        elif team == 1:
+            bot_in_homezone = bot_position[0] > boundary
 
+        # update food list
+        if not bot_in_homezone:
+            if bot_position in food:
+                food.pop(food.index(bot_position))
+                score[team] = score[team] + 1
+
+
+        # check if anyone was eaten
+        if bot_in_homezone:
+            enemy_bots = [bots[i] for i in enemy_idx]
+            if bot_position in enemy_bots:
+                score[team] = score[team] + 5
+                eaten_idx = enemy_idx[enemy_bots.index(bot_position)]
+                init_positions = initial_positions(walls)
+                bots[eaten_idx] = init_positions[eaten_idx]
+                deaths[team] = deaths[team] + 1
+
+        # check for game over
+        whowins = None
+        if round+1 >= gamestate["max_round"]:
+            gameover = True
+            whowins = 0 if score[0] > score[1] else 1
+        if gamestate["timeout"]:
+            gameover = True
+        new_turn = (turn + 1) % 4
+        if new_turn == 0:
+            new_round = round + 1
+        else:
+            new_round = round
+
+    errors = gamestate["errors"]
+    errors[team] = team_errors
     gamestate_new = {
-                 "food": food,
-                 "bots": bots,
-                 "turn": new_turn,
-                 "round": new_round,
-                 "gameover": gameover,
-                 "whowins": whowins,
-                 "score": score,
-                 "deaths": deaths,
-                }
+        "food": food,
+        "bots": bots,
+        "turn": new_turn,
+        "round": new_round,
+        "gameover": gameover,
+        "whowins": whowins,
+        "score": score,
+        "deaths": deaths,
+        "errors": errors
+        }
 
     gamestate.update(gamestate_new)
     return gamestate
@@ -167,3 +191,34 @@ def initial_positions(walls):
     left.reverse()
     right.reverse()
     return [left[0], right[0], left[1], right[1]]
+
+
+def get_legal_moves(walls, bot_position):
+    """ Returns legal moves given a position.
+
+     Parameters
+    ----------
+    walls : list
+        position of the walls of current layout.
+    bot_position: tuple
+        position of current bot.
+
+    Returns
+    -------
+    list
+        legal moves.
+    """
+    north = (0, -1)
+    south = (0, 1)
+    east = (1, 0)
+    west = (-1, 0)
+    stop = (0, 0)
+    directions = [north, east, west, south, stop]
+    potential_moves = [(i[0] + bot_position[0], i[1] + bot_position[1]) for i in directions]
+    possible_moves = [i for i in potential_moves if i not in walls]
+    return possible_moves
+
+# TODO ???
+# - write tests for play turn (check that all rules are correctly applied)
+# - refactor Rike's initial positions code
+# - keep track of error dict for future additions
