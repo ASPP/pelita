@@ -1,229 +1,184 @@
+from pathlib import Path
+from textwrap import dedent
 import pytest
-
-from pelita.datamodel import maze_components
 from pelita.layout import *
 
+LAYOUT="""
+########
+# ###E0#
+#1E    #
+########
+"""
+LAYOUT2="""
+########
+# ###  #
+# . ...#
+########
+"""
 
-class TestLayoutModule:
-
-    def test_load_layout(self):
-        # check that too many layout args raise an error
-        layout_name = "layout_normal_with_dead_ends_001"
-        layout_file = "test/test_layout.layout"
-        with pytest.raises(ValueError):
-            load_layout(layout_name=layout_name,
-                layout_file=layout_file)
-        # check that unknown layout_name raises an appropriate error
-        with pytest.raises(ValueError):
-            load_layout(layout_name="foobar")
-        # check that a non existent file raises an error
-        with pytest.raises(IOError):
-            load_layout(layout_file="foobar")
-        # check that stuff behaves as it should
-        assert "layout_normal_with_dead_ends_001" == load_layout(layout_name=layout_name)[0]
-        assert "test/test_layout.layout" == load_layout(layout_file=layout_file)[0]
-
-
-    def test_get_available_layouts(self):
-        available = get_available_layouts()
-        assert 600 == len(available)
-        # now also test the filter
-        available = get_available_layouts(filter='normal_without_dead_ends')
-        assert 100 == len(available)
-
-    def test_get_layout_by_name(self):
-        # sorry about the indentation, but this is exactly how the string is
-        with open('layouts/normal_with_dead_ends_001.layout', 'rU') as file:
-            target_layout = file.read()
-        loaded = get_layout_by_name('layout_normal_with_dead_ends_001')
-        assert target_layout == loaded
-
-    def test_get_random_layout(self):
-        available = get_available_layouts()
-        random1 = get_random_layout()
-        random2 = get_random_layout()
-        assert random1 != random2, \
-                'Testing randomized function, may fail sometimes.'
-
-    def test_get_random_layout_returns_correct_layout(self):
-        name, layout = get_random_layout()
-        layout2 = get_layout_by_name(name)
-        assert layout == layout2
+def test_load_layout():
+    # check that too many layout args raise an error
+    layout_name = "layout_normal_with_dead_ends_001"
+    layout_file = "test/test_layout.layout"
+    with pytest.raises(ValueError):
+        load_layout(layout_name=layout_name,
+            layout_file=layout_file)
+    # check that unknown layout_name raises an appropriate error
+    with pytest.raises(ValueError):
+        load_layout(layout_name="foobar")
+    # check that a non existent file raises an error
+    with pytest.raises(IOError):
+        load_layout(layout_file="foobar")
+    # check that stuff behaves as it should
+    assert "layout_normal_with_dead_ends_001" == load_layout(layout_name=layout_name)[0]
+    assert "test/test_layout.layout" == load_layout(layout_file=layout_file)[0]
 
 
-class TestLayoutChecks:
-    layout_chars = maze_components
+def test_get_available_layouts():
+    available = get_available_layouts()
+    assert 600 == len(available)
+    # now also test the filter
+    available = get_available_layouts(filter='normal_without_dead_ends')
+    assert 100 == len(available)
 
-    def test_strip_layout(self):
-        test_layout = (
-            """ #######
-                #c    #
-                #  .  #
-                #    o#
-                ####### """)
-        stripped = [c for c in Layout.strip_layout(test_layout)]
-        target = ['#', '#', '#', '#', '#', '#', '#', '\n',
-                  '#', 'c', ' ', ' ', ' ', ' ', '#', '\n',
-                  '#', ' ', ' ', '.', ' ', ' ', '#', '\n',
-                  '#', ' ', ' ', ' ', ' ', 'o', '#', '\n',
-                  '#', '#', '#', '#', '#', '#', '#']
-        assert stripped == target
+def test_get_layout_by_name():
+    target_layout = Path('layouts/normal_with_dead_ends_001.layout').read_text()
+    loaded = get_layout_by_name('layout_normal_with_dead_ends_001')
+    assert target_layout == loaded
 
-    def test_illegal_character(self):
-        illegal_layout = (
-            """ #######
-                #c    #
-                #  f  #
-                #    o#
-                ####### """)
-        with pytest.raises(LayoutEncodingException):
-            Layout.check_layout(Layout.strip_layout(illegal_layout),
-                TestLayoutChecks.layout_chars, 0)
+def test_get_random_layout():
+    fails = 0
+    for i in range(10):
+        l1 = get_random_layout()
+        l2 = get_random_layout()
+        if l1 == l2:
+            fails += 1
+    assert fails < 10, "Can't get random layouts!"
 
-    def test_not_enough_bots(self):
-        not_enough_bots = (
-            """ #######
-                #0    #
-                #  1  #
-                #    2#
-                ####### """)
-        with pytest.raises(LayoutEncodingException):
-            Layout.check_layout(Layout.strip_layout(not_enough_bots),
-                TestLayoutChecks.layout_chars, 5)
+def test_get_random_layout_returns_correct_layout():
+    name, layout = get_random_layout()
+    layout2 = get_layout_by_name(name)
+    assert layout == layout2
 
-    def test_too_many_bots(self):
-        too_many_bots = (
-            """ #######
-                #0    #
-                #  0  #
-                #    2#
-                ####### """)
-        with pytest.raises(LayoutEncodingException):
-            Layout.check_layout(Layout.strip_layout(too_many_bots),
-                TestLayoutChecks.layout_chars, 3)
+def test_illegal_character():
+    illegal_layout = (
+        """ #######
+            #c    #
+            #     #
+            #     #
+            ####### """)
+    with pytest.raises(ValueError):
+        out = parse_layout(illegal_layout)
 
-    def test_wrong_shape(self):
-        wrong_shape = (
-            """ #######
-                #  #
-                #   #
-                #    #
-                ######  """)
-        with pytest.raises(LayoutEncodingException):
-            Layout.check_layout(Layout.strip_layout(wrong_shape),
-                TestLayoutChecks.layout_chars, 0)
+def test_illegal_index():
+    illegal_layout = (
+        """ #######
+            #4    #
+            #     #
+            #     #
+            ####### """)
+    with pytest.raises(ValueError):
+        out = parse_layout(illegal_layout)
 
-    def test_layout_shape(self):
-        small_shape = (
-            """ ###
-                # #
-                ### """)
-        assert Layout.layout_shape(Layout.strip_layout(small_shape)) == (3, 3)
+def test_illegal_walls():
+    illegal_layout = (
+        """ ###  ##
+            #     #
+            #     #
+            #     #
+            ####### """)
+    with pytest.raises(ValueError):
+        out = parse_layout(illegal_layout)
 
-        large_shape = (
-            """ #######
-                #     #
-                #     #
-                #     #
-                ####### """)
-        assert Layout.layout_shape(Layout.strip_layout(large_shape)) == (7, 5)
+def test_illegal_width():
+    illegal_layout = (
+        """ #####
+            #   #
+            #   #
+            #   #
+            ##### """)
+    with pytest.raises(ValueError):
+        out = parse_layout(illegal_layout)
 
-    def test_wrong_bot_order(self):
-        unordered = (
-            """ #######
-                #3    #
-                #2 0  #
-                #    1#
-                ####### """)
-        # this should not raise an exception, unfortunately there isn't such a
-        # thing in unittest
-        l = Layout(unordered,
-                TestLayoutChecks.layout_chars, 4)
+def test_different_width():
+    illegal_layout = (
+        """ #######
+            #      #
+            #     #
+            #     #
+            ####### """)
+    with pytest.raises(ValueError):
+        out = parse_layout(illegal_layout)
 
-    def test_str(self):
-        simple_layout = (
-            """ ####
-                #. #
-                #### """)
-        layout = Layout(simple_layout, TestLayoutChecks.layout_chars, 0)
-        target = '####\n'+\
-                 '#. #\n'+\
-                 '####'
-        assert target == str(layout)
+def test_roundtrip():
+    input_layout =  """ ########
+                        #0  .  #
+                        #2    1#
+                        #  .  3#
+                        ########
+                        """
 
-    def test_eq(self):
-        eq_test = (
-            """ ########
-                #0  .  #
-                #2    1#
-                #  .  3#
-                ######## """)
-        layout = Layout(eq_test, TestLayoutChecks.layout_chars, 4)
-        layout2 = Layout(eq_test, TestLayoutChecks.layout_chars, 4)
-        assert layout == layout2
-        neq_test = (
-            """ ######
-                #0   #
-                #    #
-                #   1#
-                ###### """)
-        layout3 = Layout(neq_test, TestLayoutChecks.layout_chars, 2)
-        assert layout != layout3
+    expected_layout =  \
+"""########
+#   .  #
+#      #
+#  .   #
+########
 
-    def test_repr(self):
-        repr_test = (
-            """ ########
-                #0  .  #
-                #2    1#
-                #  .  3#
-                ######## """)
-        layout = Layout(repr_test, TestLayoutChecks.layout_chars, 4)
-        layout2 = eval(repr(layout))
-        assert layout == layout2
+########
+#0     #
+#2    1#
+#     3#
+########
+"""
 
-    def test_as_mesh(self):
-        simple_layout = (
-            """ ####
-                #. #
-                #### """)
-        layout = Layout(simple_layout, TestLayoutChecks.layout_chars, 0)
-        mesh = layout.as_mesh()
-        target = Mesh(4, 3, data = list('#####. #####'))
-        assert target == mesh
+    layout = parse_combined_layout(input_layout)
+    out = layout_as_str(**layout)
+    assert out == dedent(expected_layout)
+    layout = parse_combined_layout(out)
+    out = layout_as_str(**layout)
+    assert out == dedent(expected_layout)
 
-    def test_mesh_shape(self):
-        simple_layout = (
-            """ ####
-                #. #
-                #### """)
-        layout = Layout(simple_layout, TestLayoutChecks.layout_chars, 0)
-        mesh = layout.as_mesh()
-        assert mesh.shape == (4, 3)
+def test_empty_lines():
+    simple_layout_1 = (
+        """ ####
+            #. #
+            #### """)
 
-    def test_empty_lines(self):
-        simple_layout_1 = (
-            """ ####
-                #. #
-                #### """)
+    simple_layout_2 = (
+        """
 
-        simple_layout_2 = (
-            """
+            ####
+            #. #
+            ####
 
-                ####
-                #. #
-                ####
+            """)
+    layout1 = parse_combined_layout(simple_layout_1)
+    layout2 = parse_combined_layout(simple_layout_2)
+    assert layout1 == layout2
 
-                """)
+def test_equal_positions():
+    layout_str = """
+        ########
+        #0###  #
+        # . ...#
+        ########
 
-        assert Layout(simple_layout_1, TestLayoutChecks.layout_chars, 0) == \
-                         Layout(simple_layout_2, TestLayoutChecks.layout_chars, 0)
+        ########
+        #1###  #
+        # . ...#
+        ########
 
-    def test_from_file(self):
-        test_l = (
-            """ ######
-                #0   #
-                #    #
-                #   1#
-                ###### """)
-        layout = Layout.from_file("test/test_layout.layout", TestLayoutChecks.layout_chars, 2)
-        assert layout == Layout(test_l, TestLayoutChecks.layout_chars, 2)
+        ########
+        #2###  #
+        # . ...#
+        ########
+
+        ########
+        #3###  #
+        # . ...#
+        ########
+    """
+    layout = parse_combined_layout(layout_str)
+    assert layout['bots'] == [(1, 1)]*4
+
