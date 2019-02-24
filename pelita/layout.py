@@ -170,6 +170,9 @@ def parse_layout(layout_str):
             continue
         if not start:
             # start a new layout
+            # check that row is a valid opening string
+            if row.count('#') != len(row):
+                raise ValueError(f"Layout does not start with a row of walls (line: {i})!")
             current_layout = [row]
             start = True
             continue
@@ -183,8 +186,8 @@ def parse_layout(layout_str):
             start = False
 
     if start:
-        # the last layout has not been closed, close it here
-        layout_list.append('\n'.join(current_layout))
+        # the last layout has not been closed, complain here!
+        raise ValueError(f"Layout does not end with a row of walls (line: {i})!")
 
     # initialize walls, food and bots from the first layout
     out = parse_single_layout(layout_list.pop(0))
