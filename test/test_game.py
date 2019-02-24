@@ -88,8 +88,16 @@ def test_play_turn():
                   "errors": [[], []],
                   "fatal_errors": [{},{}],
                   }
-
-    legal_moves = get_legal_moves(game_state["walls"], game_state["bots"][turn])
+   legal_moves = get_legal_moves(game_state["walls"], game_state["bots"][turn])
     print(legal_moves)
     game_state_new = play_turn(game_state, legal_moves[0])
     assert game_state_new["bots"][turn] == legal_moves[0]
+
+def test_minimal_game():
+    def move(b, s):
+        return b.position, s
+
+    layout_name, layout_string = layout.get_random_layout()
+    l = layout.parse_layout(layout_string)
+    run_game([move, move], rounds=20, layout_dict=l)
+

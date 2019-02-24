@@ -1,6 +1,81 @@
 """This is the game module. Written in 2019 in Born by Carlos and Lisa."""
 from random import randint
 
+def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump=False,
+                            max_team_errors=5, timeout_length=3, viewers=None):
+
+    if viewers is None:
+        viewers = []
+
+    # we create the initial game state
+    # initialize the exceptions lists
+    state = setup_game(team_specs, layout_dict)
+
+    while not state.get('gameover'):
+        state = play_turn_(state)
+
+        for viewer in viewers:
+            # show a state to the viewer
+            viewer.show_state(state)
+
+    return state
+
+def setup_game(team_specs, layout_dict):
+    game_state = {}
+    game_state.update(layout_dict)
+
+    # for now team_specs will be two move functions
+    game_state['team_specs'] = []
+    for team in team_specs:
+        # wrap the move function in a Team
+        from .player.team import Team as _Team
+        team_player = _Team('local-team', team)
+        game_state['team_specs'].append(team_player)
+
+    return game_state
+
+def request_new_position(game_state):
+    team = game_state['turn'] % 2
+    move_fun = game_state['team_specs'][team]
+
+    bot_state = prepare_bot_state(game_state)
+    return move_fun(bot_state)
+
+def play_turn_(game_state):
+    # if the game is already over, we return a value error
+    if game_state['gameover']:
+        raise ValueError("Game is already over!")
+
+    team = game_state['turn'] % 2
+    # request a new move from the current team
+    try:
+        position = request_new_position(game_state)
+    except FatalException as e:
+        # FatalExceptions (such as PlayerDisconnect) should immediately
+        # finish the game
+        exception_event = {
+            'type': str(e),
+            'turn': game_state['turn'],
+            'round': game_state['round'],
+        }
+        game_state['fatal_errors'][team].append(exception_event)
+        position = None
+    except NonFatalException as e:
+        # NoneFatalExceptions (such as Timeouts and ValueErrors in the JSON handling)
+        # are collected and added to team_errors
+        exception_event = {
+            'type': str(e),
+            'turn': game_state['turn'],
+            'round': game_state['round'],
+        }
+        game_state['errors'][team].append(exception_event)
+        position = None
+
+    # try to execute the move and return the new state
+    game_state = play_turn(game_state, position)
+    return game_state
+
+
 def play_turn(gamestate, bot_position):
     """Plays a single step of a bot.
 
