@@ -3,6 +3,7 @@ import pytest
 import numpy as np
 from pelita.game import initial_positions
 from pelita.game import play_turn
+from pelita.game import get_legal_moves
 
 from pelita import layout
 
@@ -56,11 +57,19 @@ def test_initial_positions_same_in_layout(layout_name):
     out = initial_positions(walls)
     assert out == exp
 
+def test_get_legal_moves():
+    l = layout.load_layout(layout_name="layout_small_without_dead_ends_100")
+    # l = layout.load_layout(layout_name="layout_normal_with_dead_ends_100")
+    parsed_l = layout.parse_layout(l[1])
+    legal_moves = get_legal_moves(parsed_l["walls"], parsed_l["bots"][0])
+    exp = [(2, 5), (1, 6), (1, 5)]
+    assert legal_moves == exp
 
 def test_play_turn():
     seedval = np.random.randint(2**32)
     print(f'seedval: {seedval}')
-    l = layout.get_random_layout()
+    turn = 0
+    l = layout.load_layout(layout_file="layouts/small_without_dead_ends_100.layout")
     parsed_l = layout.parse_layout(l[1])
     game_state = {
                   "food": parsed_l["food"],
@@ -68,19 +77,21 @@ def test_play_turn():
                   "bots": parsed_l["bots"],
                   "max_round": 300,
                   "team_names": ("a", "b"),
-                  "turn": 1,
-                  "round": 1,
+                  "turn": turn,
+                  "round": 0,
                   "timeout": [],
                   "gameover": False,
                   "whowins": None,
                   "team_say": "bla",
                   "score": 0,
                   "deaths": 0,
+                  "errors": [[], []],
+                  "fatal_errors": [{},{}],
                   }
-    game_state = play_turn(game_state, 0, (1, 2))
-    # TODO is move legal?
-
-
+   legal_moves = get_legal_moves(game_state["walls"], game_state["bots"][turn])
+    print(legal_moves)
+    game_state_new = play_turn(game_state, legal_moves[0])
+    assert game_state_new["bots"][turn] == legal_moves[0]
 
 def test_minimal_game():
     def move(b, s):
@@ -89,3 +100,4 @@ def test_minimal_game():
     layout_name, layout_string = layout.get_random_layout()
     l = layout.parse_layout(layout_string)
     run_game([move, move], rounds=20, layout_dict=l)
+
