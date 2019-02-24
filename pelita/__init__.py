@@ -1,5 +1,4 @@
-from . import (containers,
-               datamodel,
+from . import (datamodel,
                game_master,
                layout,
                libpelita,
