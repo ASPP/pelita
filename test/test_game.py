@@ -3,6 +3,7 @@ import pytest
 import numpy as np
 from pelita.game import initial_positions
 from pelita.game import play_turn
+from pelita.game import get_legal_moves
 
 from pelita import layout
 
@@ -57,6 +58,13 @@ def test_initial_positions_same_in_layout():
         out = initial_positions(walls)
         assert out == exp
 
+def test_get_legal_moves():
+    l = layout.load_layout(layout_name="layout_small_without_dead_ends_100")
+    # l = layout.load_layout(layout_name="layout_normal_with_dead_ends_100")
+    parsed_l = layout.parse_layout(l[1])
+    legal_moves = get_legal_moves(parsed_l["walls"], parsed_l["bots"][0])
+    exp = [(2, 5), (1, 6), (1, 5)]
+    assert legal_moves == exp
 
 def test_play_turn():
     seedval = np.random.randint(2**32)
