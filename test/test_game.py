@@ -47,15 +47,14 @@ def test_initial_positions_same_in_layout_random(n_times):
     out = initial_positions(walls)
     assert out == exp
 
-def test_initial_positions_same_in_layout():
-    layouts = glob.glob("../layouts/*")
-    for path in layouts:
-        l = layout.load_layout(layout_file=path)
-        parsed_l = layout.parse_layout(l[1])
-        exp = parsed_l["bots"]
-        walls = parsed_l["walls"]
-        out = initial_positions(walls)
-        assert out == exp
+@pytest.mark.parametrize('layout_name', layout.get_available_layouts())
+def test_initial_positions_same_in_layout(layout_name):
+    l = layout.load_layout(layout_name=layout_name)
+    parsed_l = layout.parse_layout(l[1])
+    exp = parsed_l["bots"]
+    walls = parsed_l["walls"]
+    out = initial_positions(walls)
+    assert out == exp
 
 
 def test_play_turn():
