@@ -79,3 +79,13 @@ def test_play_turn():
                   }
     game_state = play_turn(game_state, 0, (1, 2))
     # TODO is move legal?
+
+
+
+def test_minimal_game():
+    def move(b, s):
+        return b.position, s
+
+    layout_name, layout_string = layout.get_random_layout()
+    l = layout.parse_layout(layout_string)
+    run_game([move, move], rounds=20, layout_dict=l)
