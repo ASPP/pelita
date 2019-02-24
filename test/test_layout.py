@@ -60,6 +60,20 @@ def test_get_random_layout_returns_correct_layout():
     layout2 = get_layout_by_name(name)
     assert layout == layout2
 
+def test_not_enclosed_by_walls():
+    illegals = ("""# ###
+                   #   #
+                   #####""",
+               """####
+                     #
+                  ####""",
+              """####
+                 #  #
+                 ## #""")
+    for illegal in illegals:
+        with pytest.raises(ValueError):
+            parse_single_layout(illegal)
+
 def test_illegal_character():
     illegal_layout = (
         """ #######
