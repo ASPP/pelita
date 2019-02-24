@@ -169,18 +169,43 @@ def parse_single_layout(layout_str):
     width = None
     # list of layout rows
     rows = []
-    for line, row in enumerate(layout_str.splitlines()):
-        stripped = row.strip()
-        if not stripped:
-            # ignore empty lines
+    start = False
+    for i, line in enumerate(layout_str.splitlines()):
+        row = line.strip()
+        if not row:
+            # always ignore empty lines
             continue
-        if width is not None and len(stripped) != width:
-            raise ValueError(f"Layout rows have differing widths at line {line}!")
-        width = len(stripped)
-        rows.append(stripped)
-    # sanity check, width must be even
-    if width % 2:
-        raise ValueError(f"Layout must have even number of columns (found {width})!")
+        # a layout is always started by a full row of walls
+        if not start:
+            if row.count('#') != len(row):
+                raise ValueError(f"Layout must be enclosed by walls (line: {i})!")
+            else:
+                # start the layout parsing
+                start = True
+                # set width of layout
+                width = len(row)
+                # check that width is even
+                if width % 2:
+                    raise ValueError(f"Layout width must be even (found {width})!")
+                rows.append(row)
+                continue
+        # Here we are within the layout
+        # every row must have the same length
+        if len(row) != width:
+            raise ValueError(f"Layout rows have differing widths (line: {i})!")
+        # rows are always enclosed by walls
+        if row[0] != '#' or row[-1] != '#':
+            raise ValueError(f"Layout must be enclosed by walls (line:{i})!")
+        # append current row to the list of rows
+        rows.append(row)
+        # detect closing row and ignore whatever follows
+        if row.count('#') == len(row):
+            start = False
+            break
+
+    if start:
+        # layout has not been closed!
+        raise ValueError(f"Layout must be enclosed by walls (line:{i})!")
 
     # height of the layout (y-axis)
     height = len(rows)
@@ -192,10 +217,6 @@ def parse_single_layout(layout_str):
     # iterate through the grid of characters
     for y, row in enumerate(rows):
         for x, char in enumerate(row):
-            # check that we have walls on the borders
-            if x == 0 or y == 0 or x == (width-1) or y == (height-1):
-                if char != '#':
-                    raise ValueError("Layout not surrounded with #!")
             coord = (x, y)
             # assign the char to the corresponding list
             if char == '#':
