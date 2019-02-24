@@ -124,6 +124,52 @@ def test_different_width():
     with pytest.raises(ValueError):
         out = parse_single_layout(illegal_layout)
 
+def test_combined_layouts():
+    layouts = """####
+                 #  #
+                 ####
+                 ####
+                 #  #
+                 ####
+                 ####
+                 #  #
+                 ####"""
+    from_combined = parse_layout(layouts)
+    from_single = parse_single_layout(layouts)
+    assert from_combined == from_single
+
+def test_combined_layouts_empty_lines():
+    layouts = """
+                 ####
+                 #  #
+                 ####
+
+                 ####
+                 #  #
+                 ####
+
+                 ####
+                 #  #
+                 ####"""
+    from_combined = parse_layout(layouts)
+    from_single = parse_single_layout(layouts)
+    assert from_combined == from_single
+
+def test_combined_layouts_broken_lines():
+    layouts = """
+                 ####
+                 #  #
+
+                 ####
+                 #  #
+                 ####
+
+                 ####
+                 #  #
+                 ####"""
+    with pytest.raises(ValueError):
+        from_combined = parse_layout(layouts)
+
 def test_roundtrip():
     input_layout =  """ ########
                         #0  .  #
@@ -138,7 +184,6 @@ def test_roundtrip():
 #      #
 #  .   #
 ########
-
 ########
 #0     #
 #2    1#
@@ -177,17 +222,14 @@ def test_equal_positions():
         #0###  #
         # . ...#
         ########
-
         ########
         #1###  #
         # . ...#
         ########
-
         ########
         #2###  #
         # . ...#
         ########
-
         ########
         #3###  #
         # . ...#
