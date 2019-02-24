@@ -128,6 +128,39 @@ def get_layout_by_name(layout_name):
         raise ValueError("Layout: '%s' is not known." % ke.args)
 
 def parse_layout(layout_str):
+    """Parse a layout string
+
+    Return a dict
+        {'walls': list_of_wall_coordinates,
+         'food' : list_of_food_coordinates,
+         'bot'  : list_of_4_bot_coordinate}
+
+    A layout string is composed of wall characters '#', food characters '.', and
+    bot characters '0', '1', '2', and '3'.
+
+    Valid layouts must be enclosed by walls and be of rectangular shape. Example:
+
+     ########
+     #0  .  #
+     #2    1#
+     #  .  3#
+     ########
+
+
+    If items are overlapping, several layout strings can be concateneted:
+     ########
+     #0  .  #
+     #     1#
+     #  .  3#
+     ########
+     ########
+     #2  .  #
+     #     1#
+     #  .  3#
+     ########
+
+     In this case, bot '0' and bot '2' are on top of each other at position (1,1)
+    """
     layout_list = []
     start = False
     for i, line in enumerate(layout_str.splitlines()):
@@ -254,7 +287,7 @@ def parse_single_layout(layout_str):
     return {'walls':walls, 'food':food, 'bots':bots}
 
 def layout_as_str(*, walls, food=None, bots=None):
-    """Given walls, food and bots return a combined string layout representation
+    """Given walls, food and bots return a string layout representation
 
     Returns a combined layout string.
 
