@@ -40,11 +40,13 @@ def play_turn(gamestate, turn, bot_position):
 
     # update food list
     score = gamestate["score"]
+    food = gamestate["food"]
     if not bot_in_homezone:
         food = gamestate["food"]
         if bot_position in food:
             food.pop(food.index(bot_position))
             score[team] = score[team] + 1
+
 
     # check if anyone was eaten
     deaths = gamestate["deaths"]
@@ -162,6 +164,6 @@ def initial_positions(walls):
         dist += 1
 
     # lower indices start further away
-    # left.reverse()
-    # right.reverse()
+    left.reverse()
+    right.reverse()
     return [left[0], right[0], left[1], right[1]]
