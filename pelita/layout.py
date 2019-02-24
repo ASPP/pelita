@@ -127,7 +127,7 @@ def get_layout_by_name(layout_name):
         # thus reraise as ValueError with appropriate error message.
         raise ValueError("Layout: '%s' is not known." % ke.args)
 
-def parse_combined_layout(layout_str):
+def parse_layout(layout_str):
     layout_list = []
     current_layout = []
     for row in layout_str.splitlines():
@@ -147,7 +147,7 @@ def parse_combined_layout(layout_str):
         layout_list.append('\n'.join(current_layout))
 
     # initialize walls, food and bots from the first layout
-    out = parse_layout(layout_list.pop(0))
+    out = parse_single_layout(layout_list.pop(0))
     for layout in layout_list:
         items = parse_layout(layout)
         # walls should always be the same
@@ -163,7 +163,7 @@ def parse_combined_layout(layout_str):
 
     return out
 
-def parse_layout(layout_str):
+def parse_single_layout(layout_str):
     """Parse a single layout from a string"""
     # width of the layout (x-axis)
     width = None
