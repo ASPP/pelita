@@ -164,7 +164,10 @@ def parse_layout(layout_str):
     return out
 
 def parse_single_layout(layout_str):
-    """Parse a single layout from a string"""
+    """Parse a single layout from a string
+
+    See parse_layout for details about valid layout strings.
+    """
     # width of the layout (x-axis)
     width = None
     # list of layout rows
