@@ -178,19 +178,54 @@ def test_roundtrip():
                         ########
                         """
 
-    expected_layout =  \
+    expected_layout = \
 """########
-#   .  #
+#0  .  #
+#2    1#
+#  .  3#
+########
+"""
+    layout = parse_layout(input_layout)
+    out = layout_as_str(**layout)
+    assert out == dedent(expected_layout)
+    layout = parse_layout(out)
+    out = layout_as_str(**layout)
+    assert out == dedent(expected_layout)
+
+def test_roundtrip_overlapping():
+    input_layout =  """ ########
+                        #0  .  #
+                        #      #
+                        #  .  3#
+                        ########
+                        ########
+                        #2  .  #
+                        #      #
+                        #  .  1#
+                        ########
+                        ########
+                        #.  .  #
+                        #      #
+                        #  .   #
+                        ########"""
+
+    expected_layout = \
+"""########
+#.  .  #
 #      #
 #  .   #
 ########
 ########
 #0     #
-#2    1#
+#      #
+#     1#
+########
+########
+#2     #
+#      #
 #     3#
 ########
 """
-
     layout = parse_layout(input_layout)
     out = layout_as_str(**layout)
     assert out == dedent(expected_layout)

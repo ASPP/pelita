@@ -1,6 +1,5 @@
 """ The datamodel. """
 
-from .containers import Mesh
 from .graph import iter_adjacencies, move_pos
 from .layout import Layout
 
@@ -160,107 +159,6 @@ class Bot:
             item[tupled_attr] = tuple(item[tupled_attr])
         return cls(**item)
 
-Free = ' '
-Wall = '#'
-Food = '.'
-
-maze_components = [Food, Free, Wall]
-
-class Maze(Mesh):
-    """ The `Maze` object holds the walls of the universe.
-
-    Data is stored and given in row-based order, eg.
-
-    >>> m = Maze(4, 3, data=[True, False, True, True] + [True, False, False, True] + 4*[True])
-
-    specifies the maze
-
-        # ##
-        #  #
-        ####
-
-    Parameters
-    ----------
-    width : int
-        the width of the maze
-    height : int
-        the height of the maze
-    data : iterable of bools
-        the walls of the maze (True) or free space (False) in row-based order
-
-    Attributes
-    ----------
-    shape : (int, int)
-        tuple of width and height
-
-    """
-    def __init__(self, width, height, data=None):
-        if not data:
-            data = [False] * (width * height)
-        elif not all(isinstance(s, bool) for s in data):
-            raise TypeError("Maze keyword argument 'data' should be a list of of " +\
-                            "bools, not: %r" % data)
-        super(Maze, self).__init__(width, height, data)
-
-    @property
-    def positions(self):
-        """ The indices of positions in the Maze.
-
-        Returns
-        -------
-        positions : list of tuple of (int, int)
-            the positions (x, y) in the Maze
-
-        """
-        return list(self.keys())
-
-def create_maze(layout_mesh):
-    """ Transforms a layout_mesh into a Maze.
-
-    Parameters
-    ----------
-    layout_mesh : Mesh of single char strings
-        Mesh of single character strings describing the layout
-
-    Returns
-    -------
-    maze : Maze
-        the Maze
-
-    """
-    maze = Maze(layout_mesh.width, layout_mesh.height)
-    food = []
-    for pos, items in layout_mesh.items():
-        if Wall in items:
-            maze[pos] = True
-        if Food in items:
-            food.append(pos)
-    return maze, food
-
-def extract_initial_positions(mesh, number_bots):
-    """ Extract initial positions from mesh.
-
-    Also replaces the initial positions in the mesh with free spaces.
-
-    Parameters
-    ----------
-    mesh : Mesh of characters
-        the layout in mesh format
-    number_bots : int
-        the number of bots for which to find initial positions
-
-    Returns
-    -------
-    initial pos : list of tuples
-        the initial positions for all the bots
-    """
-    bot_ids = [str(i) for i in range(number_bots)]
-    start = [(0, 0)] * number_bots
-    for k, v in mesh.items():
-        if v in bot_ids:
-            start[int(v)] = k
-            mesh[k] = Free
-    return start
 
 
 class UniverseException(Exception):
