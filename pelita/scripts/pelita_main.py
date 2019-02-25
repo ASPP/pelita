@@ -5,6 +5,7 @@ import contextlib
 import json
 import logging
 import os
+from pathlib import Path
 import random
 import subprocess
 import sys
@@ -347,8 +348,13 @@ def main():
         pass
     random.seed(args.seed)
 
-    if args.layout or args.layoutfile:
-        layout_name, layout_string = pelita.layout.load_layout(layout_name=args.layout, layout_file=args.layoutfile)
+    if args.layout:
+        layout_name = args.layout
+        layout_string = pelita.layout.get_layout_by_name(args.layout)
+    elif args.layoutfile:
+        layout_path = Path(args.layoutfile)
+        layout_name = str(layout_path)
+        layout_string = layout_path.read_text()
     else:
         layout_name, layout_string = pelita.layout.get_random_layout(args.filter)
     

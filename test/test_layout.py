@@ -16,23 +16,6 @@ LAYOUT2="""
 ########
 """
 
-def test_load_layout():
-    # check that too many layout args raise an error
-    layout_name = "layout_normal_with_dead_ends_001"
-    layout_file = "test/test_layout.layout"
-    with pytest.raises(ValueError):
-        load_layout(layout_name=layout_name,
-            layout_file=layout_file)
-    # check that unknown layout_name raises an appropriate error
-    with pytest.raises(ValueError):
-        load_layout(layout_name="foobar")
-    # check that a non existent file raises an error
-    with pytest.raises(IOError):
-        load_layout(layout_file="foobar")
-    # check that stuff behaves as it should
-    assert "layout_normal_with_dead_ends_001" == load_layout(layout_name=layout_name)[0]
-    assert "test/test_layout.layout" == load_layout(layout_file=layout_file)[0]
-
 
 def test_get_available_layouts():
     available = get_available_layouts()
