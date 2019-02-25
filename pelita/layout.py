@@ -369,7 +369,6 @@ def initial_positions(walls):
     right.reverse()
     return [left[0], right[0], left[1], right[1]]
 
-
 def get_legal_positions(walls, bot_position):
     """ Returns all legal positions that a bot at `bot_position`
     can go to.
@@ -405,3 +404,102 @@ def get_legal_positions(walls, bot_position):
     potential_moves = [(i[0] + bot_position[0], i[1] + bot_position[1]) for i in directions]
     possible_moves = [i for i in potential_moves if i not in walls]
     return possible_moves
+
+def decore(text, color=None, attr=None):
+    # control strings
+    OPEN = '\033['
+    CLOSE = 'm'
+    # reset all attributes
+    RESET = '0'
+
+    # text attributes
+    attrs = {
+            "bold" : '1',
+            "dim" : '2',
+            "underline" : '4',
+            "blink" : '5',
+            "reverse" : '7',
+            }
+    # text colors
+    colors = {
+            "default" : '39',
+            "black" : '30',
+            "red" : '31',
+            "green" : '32',
+            "yellow" : '33',
+            "blue" : '34',
+            "magenta" : '35',
+            "cyan" : '36',
+            }
+
+    # global prefix
+    pre = ''
+    if color or attr:
+        # the str must be closed by resetting all colors and atttributes
+        post = OPEN + RESET + CLOSE
+    else:
+        # if nothing special is required, no need for a reset
+        post = ''
+    # set the colors and attributes. Warning: the order is important!
+    if attr is not None:
+        pre = OPEN + attrs[attr] + CLOSE
+    if color is not None:
+        pre = OPEN + colors[color] + CLOSE + pre
+    return pre + text + post
+
+def layout_str_as_unicode(layout_str):
+    width = None
+    out = io.StringIO()
+
+    # loop through the lines of layout
+    for row in layout_str.splitlines():
+        # get layout properties from first line
+        if width is None:
+            width = len(row)
+            half = width // 2
+
+        item = ''
+        for idx, char in enumerate(row):
+            if char == '#':
+                # walls
+                if idx == half-1:
+                    # blue border
+                    item = decore('░', color="blue")
+                elif idx == half:
+                    # red border
+                    item = decore('░', color="red")
+                else:
+                    # normal wall
+                    item = decore('░', color="default")
+            elif char == ' ':
+                # empty
+                item = ' '
+            elif char == '.':
+                # food
+                if idx < half:
+                    item = decore('•', color='blue')
+                else:
+                    item = decore('•', color='red')
+            else:
+                # this is a bot
+                if char in set("abxy"):
+                    # blue
+                    if idx < half:
+                        # ghost
+                        item = decore('ᗣ', color='blue', attr='bold')
+                    else:
+                        # pacman
+                        item = decore('ᗧ', color='blue', attr='bold')
+                else:
+                    # red
+                    if idx < half:
+                        # pacman
+                        item = decore('ᗧ', color='red', attr='bold')
+                    else:
+                        # ghost
+                        item = decore('ᗣ', color='red', attr='bold')
+            out.write(item)
+        # new row
+        out.write('\n')
+
+    return out.getvalue()
