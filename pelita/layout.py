@@ -325,66 +325,66 @@ def layout_as_str(*, walls, food=None, bots=None):
         need_combined = any(coord in food for coord in bots)
     # then, check that bots are not overlapping with food
 
-    with io.StringIO() as out:
-        for y in range(height):
-            for x in range(width):
-                if (x, y) in walls:
-                    # always print walls
-                    out.write('#')
-                elif (x, y) in food:
-                    # always print food
-                    out.write('.')
-                else:
-                    if not need_combined:
-                        # check if we have a bot here only when we know that
-                        # we won't need a combined layout later
-                        if (x, y) in bots:
-                            out.write(str(bots.index((x, y))))
-                        else:
-                            out.write(' ')
+    out = io.StringIO()
+    for y in range(height):
+        for x in range(width):
+            if (x, y) in walls:
+                # always print walls
+                out.write('#')
+            elif (x, y) in food:
+                # always print food
+                out.write('.')
+            else:
+                if not need_combined:
+                    # check if we have a bot here only when we know that
+                    # we won't need a combined layout later
+                    if (x, y) in bots:
+                        out.write(str(bots.index((x, y))))
                     else:
                         out.write(' ')
+                else:
+                    out.write(' ')
+        # close the row
+        out.write('\n')
+
+    # return here if we don't need a combined layout string
+    if not need_combined:
+        return out.getvalue()
+
+    # create a mapping coordinate : list of bots at this coordinate
+    coord_bots = {}
+    for idx, pos in enumerate(bots):
+        if pos is None:
+            # if a bot coordinate is None
+            # don't put the bot in the layout
+            continue
+        # append bot_index to the list of bots at this coordinate
+        # if still no bot was seen here we have to start with an empty list
+        coord_bots[pos] = coord_bots.get(pos, []) + [str(idx)]
+
+    # loop through the bot coordinates
+    while coord_bots:
+        for y in range(height):
+            for x in range(width):
+                # let's repeat the walls
+                if (x, y) in walls:
+                    out.write('#')
+                elif (x, y) in coord_bots:
+                    # get the first bot at this position and remove it
+                    # from the list
+                    bot_idx = coord_bots[(x, y)].pop(0)
+                    out.write(bot_idx)
+                    # if we are left without bots at this position
+                    # remove the coordinate from the dict
+                    if not coord_bots[(x, y)]:
+                        del coord_bots[(x, y)]
+                else:
+                    # empty space
+                    out.write(' ')
             # close the row
             out.write('\n')
 
-        # return here if we don't need a combined layout string
-        if not need_combined:
-            return out.getvalue()
+    return out.getvalue()
 
-        # create a mapping coordinate : list of bots at this coordinate
-        coord_bots = {}
-        for idx, pos in enumerate(bots):
-            if pos is None:
-                # if a bot coordinate is None
-                # don't put the bot in the layout
-                continue
-            # append bot_index to the list of bots at this coordinate
-            # if still no bot was seen here we have to start with an empty list
-            coord_bots[pos] = coord_bots.get(pos, []) + [str(idx)]
-
-        # loop through the bot coordinates
-        while coord_bots:
-            for y in range(height):
-                for x in range(width):
-                    # let's repeat the walls
-                    if (x, y) in walls:
-                        out.write('#')
-                    elif (x, y) in coord_bots:
-                        # get the first bot at this position and remove it
-                        # from the list
-                        bot_idx = coord_bots[(x, y)].pop(0)
-                        out.write(bot_idx)
-                        # if we are left without bots at this position
-                        # remove the coordinate from the dict
-                        if not coord_bots[(x, y)]:
-                            del coord_bots[(x, y)]
-                    else:
-                        # empty space
-                        out.write(' ')
-                # close the row
-                out.write('\n')
-
-        # drop the last empty line: we always have two at the end
-        return out.getvalue()
 
 
