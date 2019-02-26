@@ -16,9 +16,9 @@ class AbstractTeam(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def set_initial(self, team_id, universe, game_state):
+    def set_initial(self, team_id, game_state):
         """ Tells the team about its id and gives initial information
-         about the universe and game state.
+         about the game state.
 
         Players who want write their own team class need to supply
         a method with the same signature.
@@ -27,8 +27,6 @@ class AbstractTeam(metaclass=abc.ABCMeta):
         ----------
         team_id : int
             The id of the team
-        universe : Universe
-            The initial universe
         game_state : dict
             The initial game state
 
@@ -39,7 +37,7 @@ class AbstractTeam(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def get_move(self, bot_id, universe, game_state):
+    def get_move(self, bot_id, game_state):
         """ Requests a move from the bot with id `bot_id`.
 
         This method returns a dict with a key `move` and a value specifying the direction
@@ -49,10 +47,8 @@ class AbstractTeam(metaclass=abc.ABCMeta):
         ----------
         bot_id : int
             The id of the bot who needs to play
-        universe : Universe
-            The initial universe
         game_state : dict
-            The initial game state
+            The game state
 
         Returns
         -------
@@ -98,7 +94,7 @@ class SimpleTeam(AbstractTeam):
         self._remote_game = False
         self.remote_game = False
 
-    def set_initial(self, team_id, universe, game_state):
+    def set_initial(self, team_id, game_state):
         """ Sets the bot indices for the team and tells each player
         about the universe and game state by calling `_set_index` and `_set_initial`.
 
@@ -106,8 +102,6 @@ class SimpleTeam(AbstractTeam):
         ----------
         team_id : int
             The id of the team
-        universe : Universe
-            The initial universe
         game_state : dict
             The initial game state
 
@@ -121,6 +115,7 @@ class SimpleTeam(AbstractTeam):
         # only iterate about those player which are in bot_players
         # we might have defined more players than we have received
         # indexes for.
+        universe = datamodel.CTFUniverse._from_json_dict(game_state)
         team_bots = universe.team_bots(team_id)
 
         if len(team_bots) > len(self._players):
@@ -135,7 +130,7 @@ class SimpleTeam(AbstractTeam):
 
         return self.team_name
 
-    def get_move(self, bot_id, universe, game_state):
+    def get_move(self, bot_id, game_state):
         """ Requests a move from the Player who controls the Bot with id `bot_id`.
 
         This method returns a dict with a key `move` and a value specifying the direction
@@ -154,6 +149,7 @@ class SimpleTeam(AbstractTeam):
         -------
         move : dict
         """
+        universe = datamodel.CTFUniverse._from_json_dict(game_state)
         return self._bot_players[bot_id]._get_move(universe, game_state)
 
     @property

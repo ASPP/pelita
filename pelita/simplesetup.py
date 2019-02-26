@@ -266,10 +266,9 @@ class RemoteTeamPlayer:
             _logger.info("Detected a DeadConnection, returning a string nonetheless.")
             return "%error%"
 
-    def set_initial(self, team_id, universe, game_state):
+    def set_initial(self, team_id, game_state):
         try:
             self.zmqconnection.send("set_initial", {"team_id": team_id,
-                                                    "universe": universe._to_json_dict(),
                                                     "game_state": game_state})
             return self.zmqconnection.recv_timeout(game_state["timeout_length"])
         except ZMQReplyTimeout:
@@ -281,10 +280,9 @@ class RemoteTeamPlayer:
             _logger.info("Detected a ConnectionError: %s", e)
             return '%%%s%%' % e
 
-    def get_move(self, bot_id, universe, game_state):
+    def get_move(self, bot_id, game_state):
         try:
             self.zmqconnection.send("get_move", {"bot_id": bot_id,
-                                                 "universe": universe._to_json_dict(),
                                                  "game_state": game_state})
             reply = self.zmqconnection.recv_timeout(game_state["timeout_length"])
             # make sure it is a dict
@@ -586,11 +584,11 @@ class SimpleClient:
             except NameError:
                 pass
 
-    def set_initial(self, team_id, universe, game_state):
-        return self.team.set_initial(team_id, CTFUniverse._from_json_dict(universe), game_state)
+    def set_initial(self, team_id, game_state):
+        return self.team.set_initial(team_id, game_state)
 
-    def get_move(self, bot_id, universe, game_state):
-        return self.team.get_move(bot_id, CTFUniverse._from_json_dict(universe), game_state)
+    def get_move(self, bot_id, game_state):
+        return self.team.get_move(bot_id, game_state)
 
     def exit(self):
         raise ExitLoop()
@@ -628,16 +626,14 @@ class SimplePublisher(AbstractViewer):
         as_json = json.dumps(message)
         self.socket.send_unicode(as_json)
 
-    def set_initial(self, universe, game_state):
+    def set_initial(self, game_state):
         message = {"__action__": "set_initial",
-                   "__data__": {"universe": universe._to_json_dict(),
-                                "game_state": game_state}}
+                   "__data__": {"game_state": game_state}}
         self._send(message)
 
-    def observe(self, universe, game_state):
+    def observe(self, game_state):
         message = {"__action__": "observe",
-                   "__data__": {"universe": universe._to_json_dict(),
-                                "game_state": game_state}}
+                   "__data__": {"game_state": game_state}}
         self._send(message)
 
 class SimpleSubscriber(AbstractViewer):
@@ -681,10 +677,12 @@ class SimpleSubscriber(AbstractViewer):
 
         getattr(self, action)(**data)
 
-    def set_initial(self, universe, game_state):
+    def set_initial(self, game_state):
+        universe = CTFUniverse._from_json_dict(game_state)
         return self.viewer.set_initial(CTFUniverse._from_json_dict(universe), game_state)
 
-    def observe(self, universe, game_state):
+    def observe(self, game_state):
+        universe = CTFUniverse._from_json_dict(game_state)
         return self.viewer.observe(CTFUniverse._from_json_dict(universe), game_state)
 
     def exit(self):

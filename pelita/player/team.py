@@ -36,7 +36,7 @@ class Team(AbstractTeam):
 
         self._team_move = team_move
 
-    def set_initial(self, team_id, universe, game_state):
+    def set_initial(self, team_id, game_state):
         """ Sets the bot indices for the team and returns the team name.
         Currently, we do not call _set_initial on the user side.
 
@@ -44,8 +44,6 @@ class Team(AbstractTeam):
         ----------
         team_id : int
             The id of the team
-        universe : Universe
-            The initial universe
         game_state : dict
             The initial game state
 
@@ -55,6 +53,7 @@ class Team(AbstractTeam):
             The name of the team
 
         """
+        universe = datamodel.CTFUniverse._from_json_dict(game_state)
 
         #: Storage for the team state
         self._team_state = None
@@ -81,7 +80,7 @@ class Team(AbstractTeam):
 
         return self.team_name
 
-    def get_move(self, bot_id, universe, game_state):
+    def get_move(self, bot_id, game_state):
         """ Requests a move from the Player who controls the Bot with id `bot_id`.
 
         This method returns a dict with a key `move` and a value specifying the direction
@@ -91,8 +90,6 @@ class Team(AbstractTeam):
         ----------
         bot_id : int
             The id of the bot who needs to play
-        universe : Universe
-            The initial universe
         game_state : dict
             The initial game state
 
@@ -101,6 +98,7 @@ class Team(AbstractTeam):
         move : dict
         """
 
+        universe = datamodel.CTFUniverse._from_json_dict(game_state)
         bots = bots_from_universe(universe,
                                   rng=self._bot_random,
                                   round=game_state['round_index'],
