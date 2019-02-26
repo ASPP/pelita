@@ -289,7 +289,8 @@ class TestGame:
                 # 0. #
                 #..1 #
                 ###### """)
-        assert create_TestUniverse(test_first_round) == gm.universe
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        assert create_TestUniverse(test_first_round) == universe
 
         gm.play_round()
         test_second_round = (
@@ -297,7 +298,8 @@ class TestGame:
                 # 0. #
                 #.1  #
                 ###### """)
-        assert create_TestUniverse(test_second_round) == gm.universe
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        assert create_TestUniverse(test_second_round) == universe
 
         gm.play_round()
         test_third_round = (
@@ -305,8 +307,9 @@ class TestGame:
                 #  . #
                 #.0 1#
                 ###### """)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
         assert create_TestUniverse(test_third_round,
-            black_score=gm.universe.KILLPOINTS) == gm.universe
+            black_score=universe.KILLPOINTS) == universe
 
         gm.play_round()
         test_fourth_round = (
@@ -314,8 +317,9 @@ class TestGame:
                 #0 . #
                 #. 1 #
                 ###### """)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
         assert create_TestUniverse(test_fourth_round,
-            black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS) == gm.universe
+            black_score=universe.KILLPOINTS, white_score=universe.KILLPOINTS) == universe
 
         gm.play_round()
         test_fifth_round = (
@@ -323,20 +327,22 @@ class TestGame:
                 # 0. #
                 #.1  #
                 ###### """)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
         assert create_TestUniverse(test_fifth_round,
-            black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS) == gm.universe
+            black_score=universe.KILLPOINTS, white_score=universe.KILLPOINTS) == universe
 
-        print(gm.universe.pretty)
+        print(universe.pretty)
         gm.play_round()
         test_sixth_round = (
             """ ######
                 #  0 #
                 #.1  #
                 ###### """)
-        print(gm.universe.pretty)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        print(universe.pretty)
         # The game will have finished after bot 0 has eaten the pellet
         assert create_TestUniverse(test_sixth_round,
-            black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS) == gm.universe
+            black_score=universe.KILLPOINTS, white_score=universe.KILLPOINTS) == universe
         assert gm.game_state['finished'] is True
 
         teams = [SimpleTeam(SteppingPlayer('>-v>>>')), SimpleTeam(SteppingPlayer('<<-<<<'))]
@@ -348,16 +354,19 @@ class TestGame:
                 #  0 #
                 #.1  #
                 ###### """)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
         assert create_TestUniverse(test_sixth_round,
-            black_score=gm.universe.KILLPOINTS, white_score=gm.universe.KILLPOINTS) == gm.universe
+            black_score=universe.KILLPOINTS, white_score=universe.KILLPOINTS) == universe
 
     def test_malicous_player(self):
 
         class MaliciousPlayer(AbstractPlayer):
             def _get_move(self, universe, game_state):
+                universe = CTFUniverse._from_json_dict(gm.game_state)
                 universe.teams[0].score = 100
                 universe.bots[0].current_pos = (2,2)
                 universe.maze[0,0] = False
+                game_state.update(universe._to_json_dict())
                 return {"move": (0,0)}
 
             def get_move(self):
@@ -374,10 +383,10 @@ class TestGame:
             def get_move(self):
                 assert original_universe is not None
                 print(id(original_universe.maze))
-                print(id(gm.universe.maze))
+                print(id(universe.maze))
                 # universe should have been altered because the
                 # Player is really malicious
-                assert original_universe != gm.universe
+                assert original_universe != universe
                 return (0,0)
 
         teams = [
@@ -385,12 +394,14 @@ class TestGame:
             SimpleTeam(TestMaliciousPlayer())
         ]
         gm = GameMaster(test_layout, teams, 2, 200)
-        original_universe = gm.universe.copy()
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        original_universe = universe.copy()
 
         gm.set_initial()
         gm.play_round()
 
-        assert original_universe != gm.universe
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        assert original_universe != universe
 
     def test_failing_player(self):
         class FailingPlayer(AbstractPlayer):
@@ -412,15 +423,20 @@ class TestGame:
     def test_viewer_may_change_gm(self):
 
         class MeanViewer(AbstractViewer):
-            def set_initial(self, universe, game_state):
+            def set_initial(self, game_state):
+                universe = CTFUniverse._from_json_dict(gm.game_state)
                 universe.teams[1].score = 50
+                game_state.update(universe._to_json_dict())
 
-            def observe(self, universe, game_state):
+            def observe(self, game_state):
+                universe = CTFUniverse._from_json_dict(gm.game_state)
                 universe.teams[0].score = 100
                 universe.bots[0].current_pos = (4,2)
                 universe.maze[0,0] = False
 
                 game_state["team_wins"] = 0
+                game_state.update(universe._to_json_dict())
+                print(game_state)
 
         test_start = (
             """ ######
@@ -435,13 +451,15 @@ class TestGame:
             SimpleTeam(SteppingPlayer([(0,0)]))
         ]
         gm = GameMaster(test_start, teams, number_bots, 200)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
 
-        original_universe = gm.universe.copy()
+        original_universe = universe.copy()
 
         class TestViewer(AbstractViewer):
-            def observe(self, universe, game_state):
+            def observe(self, game_state):
                 # universe has been altered
-                assert original_universe != gm.universe
+                universe = CTFUniverse._from_json_dict(gm.game_state)
+                assert original_universe != universe
 
         gm.register_viewer(MeanViewer())
         gm.register_viewer(TestViewer())
@@ -449,7 +467,8 @@ class TestGame:
         gm.set_initial()
         gm.play_round()
 
-        assert original_universe != gm.universe
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        assert original_universe != universe
 
     def test_win_on_timeout_team_0(self):
         test_start = (
@@ -470,7 +489,7 @@ class TestGame:
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, universe, game_state):
+            def observe(self, game_state):
                 self.cache.append(game_state)
 
         # run the game
@@ -503,7 +522,7 @@ class TestGame:
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, universe, game_state):
+            def observe(self, game_state):
                 self.cache.append(game_state)
 
         # run the game
@@ -533,7 +552,7 @@ class TestGame:
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, universe, game_state):
+            def observe(self, game_state):
                 self.cache.append(game_state)
 
         # run the game
@@ -564,7 +583,7 @@ class TestGame:
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, universe, game_state):
+            def observe(self, game_state):
                 self.cache.append(game_state)
 
         # run the game
@@ -592,13 +611,15 @@ class TestGame:
         ]
         # bot 1 eats all the food and the game stops
         gm = GameMaster(test_start, teams, 2, 100)
-        gm.universe.teams[0].score = 2
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        universe.teams[0].score = 2
+        gm.game_state.update(universe._to_json_dict())
 
         # this test viewer caches all events lists seen through observe
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, universe, game_state):
+            def observe(self, game_state):
                 self.cache.append(game_state)
 
         # run the game
@@ -608,9 +629,10 @@ class TestGame:
         gm.play()
 
         # check
+        universe = CTFUniverse._from_json_dict(gm.game_state)
         assert tv.cache[-1]["round_index"] == 1
-        assert gm.universe.teams[0].score == 2
-        assert gm.universe.teams[1].score == 1
+        assert universe.teams[0].score == 2
+        assert universe.teams[1].score == 1
         assert tv.cache[-1]["team_wins"] is not None
         assert tv.cache[-1]["team_wins"] == 0
         assert gm.game_state["round_index"] == 1
@@ -640,7 +662,7 @@ class TestGame:
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, universe, game_state):
+            def observe(self, game_state):
                 self.cache.append(game_state)
 
         # run the game
@@ -648,18 +670,20 @@ class TestGame:
         gm.register_viewer(tv)
         gm.set_initial()
 
-        assert gm.universe.bots[0].current_pos == (1,1)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        assert universe.bots[0].current_pos == (1,1)
 
         gm.play()
 
         # check
+        universe = CTFUniverse._from_json_dict(gm.game_state)
         assert gm.game_state["max_timeouts"] == 5
         assert tv.cache[-1]["round_index"] == gm.game_state["max_timeouts"] - 1
-        assert gm.universe.teams[0].score == 0
-        assert gm.universe.teams[1].score == 0
+        assert universe.teams[0].score == 0
+        assert universe.teams[1].score == 0
         # the bot moves four times, so after the fourth time,
         # it is back on its original position
-        assert gm.universe.bots[0].current_pos == (1,1)
+        assert universe.bots[0].current_pos == (1,1)
         assert tv.cache[-1]["team_wins"] is not None
         assert tv.cache[-1]["team_wins"] == 1
 
@@ -694,7 +718,7 @@ class TestGame:
         class TestViewer(AbstractViewer):
             def __init__(self):
                 self.cache = list()
-            def observe(self, universe, game_state):
+            def observe(self, game_state):
                 self.cache.append(game_state)
 
         # run the game
@@ -703,15 +727,16 @@ class TestGame:
         gm.set_initial()
 
         gm.play()
-        print(gm.universe.pretty)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        print(universe.pretty)
         print(gm.game_state)
 
         # check
         assert gm.game_state["max_timeouts"] == 1
         assert tv.cache[-1]["round_index"] == gm.game_state["max_timeouts"] - 1
-        assert gm.universe.teams[0].score == 0
-        assert gm.universe.teams[1].score == 0
-        assert gm.universe.bots[0].current_pos == (2,1)
+        assert universe.teams[0].score == 0
+        assert universe.teams[1].score == 0
+        assert universe.bots[0].current_pos == (2,1)
         assert tv.cache[-1]["team_wins"] is not None
         assert tv.cache[-1]["team_wins"] == 1
 
@@ -740,45 +765,51 @@ class TestGame:
         gm.set_initial()
 
         gm.play_round()
-        assert gm.universe.bots[0].current_pos == (3,1)
-        assert gm.universe.bots[1].current_pos == (4,2)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        assert universe.bots[0].current_pos == (3,1)
+        assert universe.bots[1].current_pos == (4,2)
         assert gm.game_state["round_index"] == 0
         assert gm.game_state["bot_id"] is None
         assert not gm.game_state["finished"]
 
         gm.play_step()
-        assert gm.universe.bots[0].current_pos == (4,1)
-        assert gm.universe.bots[1].current_pos == (4,2)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        assert universe.bots[0].current_pos == (4,1)
+        assert universe.bots[1].current_pos == (4,2)
         assert gm.game_state["round_index"] == 1
         assert gm.game_state["bot_id"] == 0
         assert gm.game_state["finished"] == False
 
         gm.play_step()
-        assert gm.universe.bots[0].current_pos == (4,1)
-        assert gm.universe.bots[1].current_pos == (3,2)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        assert universe.bots[0].current_pos == (4,1)
+        assert universe.bots[1].current_pos == (3,2)
         assert gm.game_state["round_index"] == 1
         assert gm.game_state["bot_id"] == 1
         assert gm.game_state["finished"] == False
 
         gm.play_step()
-        assert gm.universe.bots[0].current_pos == (5,1)
-        assert gm.universe.bots[1].current_pos == (3,2)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        assert universe.bots[0].current_pos == (5,1)
+        assert universe.bots[1].current_pos == (3,2)
         assert gm.game_state["round_index"] == 2
         assert gm.game_state["bot_id"] == 0
         assert gm.game_state["finished"] == False
 
         gm.play_step()
-        assert gm.universe.bots[0].current_pos == (5,1)
-        assert gm.universe.bots[1].current_pos == (2,2)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        assert universe.bots[0].current_pos == (5,1)
+        assert universe.bots[1].current_pos == (2,2)
         assert gm.game_state["round_index"] == 2
         assert gm.game_state["bot_id"] == 1
         assert gm.game_state["finished"] == False
 
         gm.play_round()
+        universe = CTFUniverse._from_json_dict(gm.game_state)
         # first call tries to finish current round (which already is finished)
         # so nothing happens
-        assert gm.universe.bots[0].current_pos == (5,1)
-        assert gm.universe.bots[1].current_pos == (2,2)
+        assert universe.bots[0].current_pos == (5,1)
+        assert universe.bots[1].current_pos == (2,2)
         assert gm.game_state["round_index"] == 2
         assert gm.game_state["bot_id"] is None
         assert gm.game_state["finished"] == False
@@ -786,9 +817,10 @@ class TestGame:
         assert gm.game_state["game_draw"] == None
 
         gm.play_round()
+        universe = CTFUniverse._from_json_dict(gm.game_state)
         # second call works
-        assert gm.universe.bots[0].current_pos == (6,1)
-        assert gm.universe.bots[1].current_pos == (2,2)
+        assert universe.bots[0].current_pos == (6,1)
+        assert universe.bots[1].current_pos == (2,2)
         assert gm.game_state["round_index"] == 3
         assert gm.game_state["bot_id"] == 0
         assert gm.game_state["finished"] == True
@@ -801,8 +833,9 @@ class TestGame:
 
         # nothing happens anymore
         gm.play_round()
-        assert gm.universe.bots[0].current_pos == (6,1)
-        assert gm.universe.bots[1].current_pos == (2,2)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        assert universe.bots[0].current_pos == (6,1)
+        assert universe.bots[1].current_pos == (2,2)
         assert gm.game_state["round_index"] == 3
         assert gm.game_state["bot_id"] == 0
         assert gm.game_state["finished"] == True
@@ -811,8 +844,9 @@ class TestGame:
 
         # nothing happens anymore
         gm.play_round()
-        assert gm.universe.bots[0].current_pos == (6,1)
-        assert gm.universe.bots[1].current_pos == (2,2)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        assert universe.bots[0].current_pos == (6,1)
+        assert universe.bots[1].current_pos == (2,2)
         assert gm.game_state["round_index"] == 3
         assert gm.game_state["bot_id"] == 0
         assert gm.game_state["finished"] == True

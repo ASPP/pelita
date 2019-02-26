@@ -690,9 +690,8 @@ class TkApplication:
                 self.controller_socket.send_json({"__action__": "play_round"})
 
     def observe(self, data):
-        universe = data["universe"]
-        universe = CTFUniverse._from_json_dict(universe)
         game_state = data["game_state"]
+        universe = CTFUniverse._from_json_dict(game_state)
 
         self.update(universe, game_state)
         if self._stop_after is not None:

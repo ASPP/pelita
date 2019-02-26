@@ -1,5 +1,6 @@
 import pytest
 
+from pelita.datamodel import CTFUniverse
 from pelita.game_master import GameMaster
 from pelita.player.team import Team, split_layout_str, create_layout, _rebuild_universe, bots_from_universe
 from pelita.utils import setup_test_game
@@ -202,8 +203,9 @@ class TestStoppingTeam:
         ]
         gm = GameMaster(test_layout, team, 4, 1)
         gm.play()
-        assert gm.universe.bots[0].current_pos == (1, 1)
-        assert gm.universe.bots[1].current_pos == (10, 1)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        assert universe.bots[0].current_pos == (1, 1)
+        assert universe.bots[1].current_pos == (10, 1)
         assert round_counting._storage['rounds'] == 1
 
 
@@ -214,9 +216,10 @@ class TestStoppingTeam:
         ]
         gm = GameMaster(test_layout, team, 4, 3)
         gm.play()
-        print(gm.universe.pretty)
-        assert gm.universe.bots[0].current_pos == (1, 1)
-        assert gm.universe.bots[1].current_pos == (10, 1)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        print(universe.pretty)
+        assert universe.bots[0].current_pos == (1, 1)
+        assert universe.bots[1].current_pos == (10, 1)
         assert round_counting._storage['rounds'] == 3
 
 

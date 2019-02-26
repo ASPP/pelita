@@ -12,7 +12,7 @@ import sys
 import time
 
 import pelita
-from pelita import libpelita
+from pelita import libpelita, datamodel
 
 # silence stupid warnings from logging module
 logging.root.manager.emittedNoHandlerWarning = 1
@@ -55,7 +55,8 @@ class ReplayPublisher:
                 yield self.publisher._send(message)
 
 class ResultPrinter(pelita.viewer.AbstractViewer):
-    def observe(self, universe, game_state):
+    def observe(self, game_state):
+        universe = datamodel.CTFUniverse._from_json_dict(game_state)
         self.print_bad_bot_status(universe, game_state)
         if game_state["finished"]:
             self.print_possible_winner(universe, game_state)
