@@ -35,29 +35,44 @@ class ProgressViewer(AbstractViewer):
         sys.stdout.write(string + ("\b" * len(string)))
         sys.stdout.flush()
 
+        state = {}
+        state.update(game_state)
+        del state['maze']
+        del state['food']
+        del state['teams']
+        del state['bots']
+
         if game_state["finished"]:
             sys.stdout.write("\n")
-            print("Final state:", game_state)
+            print("Final state:", state)
 
 class AsciiViewer(AbstractViewer):
     """ A viewer that dumps ASCII charts on stdout. """
 
     def observe(self, game_state):
         universe = datamodel.CTFUniverse._from_json_dict(game_state)
+
+        state = {}
+        state.update(game_state)
+        del state['maze']
+        del state['food']
+        del state['teams']
+        del state['bots']
+
         info = (
             "Round: {round!r} Turn: {turn!r} Score {s0}:{s1}\n"
-            "Game State: {game_state!r}\n"
+            "Game State: {state!r}\n"
             "\n"
             "{universe}"
         ).format(round=game_state["round_index"],
                  turn=game_state["bot_id"],
                  s0=universe.teams[0].score,
                  s1=universe.teams[1].score,
-                 game_state=game_state,
+                 state=state,
                  universe=universe.compact_str)
 
         print(info)
-        winning_team_idx = game_state.get("team_wins")
+        winning_team_idx = state.get("team_wins")
         if winning_team_idx is not None:
             print(("Game Over: Team: '%s' wins!" %
                 game_state["team_name"][winning_team_idx]))
