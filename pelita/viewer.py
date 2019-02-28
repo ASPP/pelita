@@ -101,17 +101,13 @@ class ReplyToViewer(AbstractViewer):
             self.sock.send_unicode(as_json, flags=zmq.NOBLOCK)
 
     def set_initial(self, game_state):
-        universe = datamodel.CTFUniverse._from_json_dict(game_state)
         message = {"__action__": "set_initial",
-                   "__data__": {"universe": universe._to_json_dict(),
-                                "game_state": game_state}}
+                   "__data__": {"game_state": game_state}}
         self._send(message)
 
     def observe(self, game_state):
-        universe = datamodel.CTFUniverse._from_json_dict(game_state)
         message = {"__action__": "observe",
-                   "__data__": {"universe": universe._to_json_dict(),
-                                "game_state": game_state}}
+                   "__data__": {"game_state": game_state}}
         self._send(message)
 
 
@@ -131,16 +127,12 @@ class DumpingViewer(AbstractViewer):
         self.stream.flush()
 
     def set_initial(self, game_state):
-        universe = datamodel.CTFUniverse._from_json_dict(game_state)
         message = {"__action__": "set_initial",
-                   "__data__": {"universe": universe._to_json_dict(),
-                                "game_state": game_state}}
+                   "__data__": {"game_state": game_state}}
         self._send(message)
 
     def observe(self, game_state):
-        universe = datamodel.CTFUniverse._from_json_dict(game_state)
         message = {"__action__": "observe",
-                   "__data__": {"universe": universe._to_json_dict(),
-                                "game_state": game_state}}
+                   "__data__": {"game_state": game_state}}
         self._send(message)
 
