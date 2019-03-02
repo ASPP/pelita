@@ -2,7 +2,7 @@
 from random import randint
 
 def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump=False,
-                            max_team_errors=5, timeout_length=3, viewers=None):
+             max_team_errors=5, timeout_length=3, viewers=None):
 
     if viewers is None:
         viewers = []
@@ -101,7 +101,7 @@ def play_turn(gamestate, bot_position):
         state of the game after applying current turn
 
     """
-
+    # TODO is a timeout counted as an error?
     # define local variables
     bots = gamestate["bots"]
     turn = gamestate["turn"]
@@ -115,6 +115,8 @@ def play_turn(gamestate, bot_position):
     n_round = gamestate["round"]
     deaths = gamestate["deaths"]
     fatal_error = True if gamestate["fatal_errors"][team] else False
+    #TODO how are fatal errors passed to us? dict with same structure as regular errors?
+    #TODO do we need to communicate that fatal error was the reason for game over in any other way?
 
     # previous errors
     team_errors = gamestate["errors"][team]
@@ -130,8 +132,6 @@ def play_turn(gamestate, bot_position):
             "bot_position": bot_position
             }
         team_errors.append(error_dict)
-        new_turn = None
-        new_round = None
     # only execute move if errors not exceeded
     if len(team_errors) > 4 or fatal_error:
         gameover = True
@@ -149,15 +149,12 @@ def play_turn(gamestate, bot_position):
             bot_in_homezone = bot_position[0] < boundary
         elif team == 1:
             bot_in_homezone = bot_position[0] > boundary
-
         # update food list
         if not bot_in_homezone:
             if bot_position in food:
                 food.pop(food.index(bot_position))
                 # This is modifying the old game state
                 score[team] = score[team] + 1
-
-
         # check if anyone was eaten
         if bot_in_homezone:
             enemy_bots = [bots[i] for i in enemy_idx]
@@ -312,6 +309,5 @@ def get_legal_moves(walls, bot_position):
     return possible_moves
 
 # TODO ???
-# - write tests for play turn (check that all rules are correctly applied)
 # - refactor Rike's initial positions code
 # - keep track of error dict for future additions
