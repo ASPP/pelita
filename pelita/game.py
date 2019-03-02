@@ -79,7 +79,14 @@ def play_turn_(game_state):
 
 
 def play_turn(gamestate, bot_position):
-    """Plays a single step of a bot.
+    """Plays a single step of a bot by applying the game rules to the game state. The rules are:
+    - if the playing team has an error count of >5 or a fatal error they lose
+    - a legal step must not be on a wall, else the error count is increased by 1 and a random move is chosen for the bot
+    - if a bot lands on an enemy food pellet, it eats it. It cannot eat it's own teams food
+    - if a bot lands on an enemy bot in it's own homezone, it kills the enemy
+    - if a bot lands on an enemy bot in it's the enemy's homezone, it dies
+    - when a bot dies, it respawns in it's own homezone
+    - a game ends when max_rounds is exceeded
 
     Parameters
     ----------
@@ -116,7 +123,7 @@ def play_turn(gamestate, bot_position):
     # check is step is legal
     legal_moves = get_legal_moves(walls, bot_position)
     if bot_position not in legal_moves:
-        bot_position = legal_moves[randint(0, 4)]
+        bot_position = legal_moves[randint(0, len(legal_moves)-1)]
         error_dict = {
             "turn": turn,
             "round": n_round,
@@ -124,6 +131,8 @@ def play_turn(gamestate, bot_position):
             "bot_position": bot_position
             }
         team_errors.append(error_dict)
+        new_turn = None
+        new_round = None
     # only execute move if errors not exceeded
     if len(team_errors) > 4 or fatal_error:
         gameover = True
@@ -132,6 +141,7 @@ def play_turn(gamestate, bot_position):
         # take step
         bots[turn] = bot_position
         # then apply rules
+        # is bot in home or enemy territory
         x_walls = [i[0] for i in walls]
         boundary = max(x_walls) / 2  # float
         if team == 0:
