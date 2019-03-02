@@ -21,6 +21,54 @@ def test_initial_positions_basic():
     assert len(out) == 4
     assert out == exp
 
+small_test_layouts = [
+    """
+    ########
+    #0### 3#
+    #2    1#
+    ########
+    """,
+    """
+    ########
+    ##### 3#
+    #20   1#
+    ########
+    """,
+    """
+    ########
+    #0###13#
+    #2    ##
+    ########
+    """,
+    """
+    ########
+    #####1##
+    ##20  3#
+    ########
+    """,
+    # very degenerate case: 0 and 1 would start on the same field
+    # we don’t expect any sensible layout to be this way
+    """
+    ########
+    #####1##
+    #####23#
+    ########
+
+    ########
+    #####0##
+    #####  #
+    ########
+    """]
+
+@pytest.mark.parametrize('simple_layout', small_test_layouts)
+def test_initial_positions(simple_layout):
+    parsed = layout.parse_layout(simple_layout)
+    i_pos = initial_positions(parsed['walls'])
+    expected = parsed['bots']
+    assert len(i_pos) == 4
+    assert i_pos == expected
+
+
 @pytest.mark.parametrize('n_times', range(30))
 def test_initial_positions_same_in_layout_random(n_times):
     """Check initial positions are the same as what the layout says for 30 random layouts"""
