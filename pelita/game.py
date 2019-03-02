@@ -171,7 +171,13 @@ def play_turn(gamestate, bot_position):
         whowins = None
         if n_round+1 >= gamestate["max_round"]:
             gameover = True
-            whowins = 0 if score[0] > score[1] else 1
+            if score[0] > score[1]:
+                whowins = 0
+            elif score[0] < score[1]:
+                whowins = 1
+            else:
+                # tie
+                whowins = 2
         if gamestate["timeout"]:
             gameover = True
         new_turn = (turn + 1) % 4
