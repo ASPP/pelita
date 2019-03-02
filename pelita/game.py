@@ -100,16 +100,14 @@ def play_turn(gamestate, bot_position):
     # define local variables
     bots = gamestate["bots"]
     turn = gamestate["turn"]
-    # decide which team
     team = turn % 2
     enemy_idx = (1, 3) if team == 0 else(0, 2)
-
     gameover = gamestate["gameover"]
     score = gamestate["score"]
     food = gamestate["food"]
     walls = gamestate["walls"]
     food = gamestate["food"]
-    round = gamestate["round"]
+    n_round = gamestate["round"]
     deaths = gamestate["deaths"]
     fatal_error = True if gamestate["fatal_errors"][team] else False
 
@@ -121,7 +119,7 @@ def play_turn(gamestate, bot_position):
         bot_position = legal_moves[randint(0, 4)]
         error_dict = {
             "turn": turn,
-            "round": round,
+            "round": n_round,
             "reason": 'illegal move',
             "bot_position": bot_position
             }
@@ -160,16 +158,16 @@ def play_turn(gamestate, bot_position):
 
         # check for game over
         whowins = None
-        if round+1 >= gamestate["max_round"]:
+        if n_round+1 >= gamestate["max_round"]:
             gameover = True
             whowins = 0 if score[0] > score[1] else 1
         if gamestate["timeout"]:
             gameover = True
         new_turn = (turn + 1) % 4
         if new_turn == 0:
-            new_round = round + 1
+            new_round = n_round + 1
         else:
-            new_round = round
+            new_round = n_round
 
     errors = gamestate["errors"]
     errors[team] = team_errors
