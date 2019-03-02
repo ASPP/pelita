@@ -12,7 +12,6 @@ pelita.layout
       get_available_layouts
       get_layout_by_name
       get_random_layout
-      load_layout
    
    
 

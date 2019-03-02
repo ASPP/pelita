@@ -53,9 +53,6 @@
 <tr class="row-odd"><td><a class="reference internal" href="#pelita.layout.get_random_layout" title="pelita.layout.get_random_layout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_random_layout</span></code></a>([filter])</td>
 <td>Return a random layout string from the available ones.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.layout.load_layout" title="pelita.layout.load_layout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_layout</span></code></a>([layout_name,&nbsp;layout_file])</td>
-<td>Returns the layout_name and layout_string for a given parameter.</td>
-</tr>
 </tbody>
 </table>
 <p class="rubric">Classes</p>
@@ -296,31 +293,6 @@ Default is no filter.</td>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_random_layout</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;without_dead_ends&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-</dd></dl>
-
-<dl class="function">
-<dt id="pelita.layout.load_layout">
-<code class="descclassname">pelita.layout.</code><code class="descname">load_layout</code><span class="sig-paren">(</span><em>layout_name=None</em>, <em>layout_file=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#load_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.load_layout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the layout_name and layout_string for a given parameter.</p>
-<p>The Parameters ‘layout_name’ and ‘layout_file’ are mutually exclusive.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>layout_name</strong> (<em>string</em><em>, </em><em>optional</em>) – The name of an available layout</li>
-<li><strong>layout_file</strong> (<em>filename</em><em>, </em><em>optional</em>) – A file which holds a layout</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>layout</strong> – the name of the layout, a random layout string</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple(str, str)</p>
-</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 </div>
