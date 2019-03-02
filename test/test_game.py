@@ -22,6 +22,9 @@ def test_initial_positions_basic():
     assert out == exp
 
 small_test_layouts = [
+    # We use these test layouts to check that our algorithm finds
+    # the expected initial position. This is noted by the location
+    # of the respective bots in the layout.
     """
     ########
     #0### 3#
