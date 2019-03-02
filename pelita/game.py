@@ -3,7 +3,7 @@ from random import randint
 
 
 def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump=False,
-                            max_team_errors=5, timeout_length=3, viewers=None):
+             max_team_errors=5, timeout_length=3, viewers=None):
 
     if viewers is None:
         viewers = []
@@ -79,7 +79,14 @@ def play_turn_(game_state):
 
 
 def play_turn(gamestate, bot_position):
-    """Plays a single step of a bot.
+    """Plays a single step of a bot by applying the game rules to the game state. The rules are:
+    - if the playing team has an error count of >5 or a fatal error they lose
+    - a legal step must not be on a wall, else the error count is increased by 1 and a random move is chosen for the bot
+    - if a bot lands on an enemy food pellet, it eats it. It cannot eat it's own teams food
+    - if a bot lands on an enemy bot in it's own homezone, it kills the enemy
+    - if a bot lands on an enemy bot in it's the enemy's homezone, it dies
+    - when a bot dies, it respawns in it's own homezone
+    - a game ends when max_rounds is exceeded
 
     Parameters
     ----------
@@ -96,32 +103,33 @@ def play_turn(gamestate, bot_position):
         state of the game after applying current turn
 
     """
-
+    # TODO is a timeout counted as an error?
     # define local variables
     bots = gamestate["bots"]
     turn = gamestate["turn"]
-    # decide which team
     team = turn % 2
-    enemy_idx = (1, 3) if team == 0 else(0, 2)
-
+    enemy_idx = (1, 3) if team == 0 else (0, 2)
     gameover = gamestate["gameover"]
     score = gamestate["score"]
     food = gamestate["food"]
     walls = gamestate["walls"]
     food = gamestate["food"]
-    round = gamestate["round"]
+    n_round = gamestate["round"]
     deaths = gamestate["deaths"]
     fatal_error = True if gamestate["fatal_errors"][team] else False
+    #TODO how are fatal errors passed to us? dict with same structure as regular errors?
+    #TODO do we need to communicate that fatal error was the reason for game over in any other way?
 
     # previous errors
     team_errors = gamestate["errors"][team]
     # check is step is legal
-    legal_moves = get_legal_moves(walls, bot_position)
+
+    legal_moves = get_legal_moves(walls, gamestate["bots"][gamestate["turn"]])
     if bot_position not in legal_moves:
-        bot_position = legal_moves[randint(0, 4)]
+        bot_position = legal_moves[randint(0, len(legal_moves)-1)]
         error_dict = {
             "turn": turn,
-            "round": round,
+            "round": n_round,
             "reason": 'illegal move',
             "bot_position": bot_position
             }
@@ -129,25 +137,26 @@ def play_turn(gamestate, bot_position):
     # only execute move if errors not exceeded
     if len(team_errors) > 4 or fatal_error:
         gameover = True
-        whowins = 1-team # the other team
+        whowins = 1 - team  # the other team
+        new_turn = None
+        new_round = None
     else:
         # take step
         bots[turn] = bot_position
         # then apply rules
+        # is bot in home or enemy territory
         x_walls = [i[0] for i in walls]
         boundary = max(x_walls) / 2  # float
         if team == 0:
             bot_in_homezone = bot_position[0] < boundary
         elif team == 1:
             bot_in_homezone = bot_position[0] > boundary
-
         # update food list
         if not bot_in_homezone:
             if bot_position in food:
                 food.pop(food.index(bot_position))
+                # This is modifying the old game state
                 score[team] = score[team] + 1
-
-
         # check if anyone was eaten
         if bot_in_homezone:
             enemy_bots = [bots[i] for i in enemy_idx]
@@ -156,20 +165,26 @@ def play_turn(gamestate, bot_position):
                 eaten_idx = enemy_idx[enemy_bots.index(bot_position)]
                 init_positions = initial_positions(walls)
                 bots[eaten_idx] = init_positions[eaten_idx]
-                deaths[team] = deaths[team] + 1
+                deaths[abs(team-1)] = deaths[abs(team-1)] + 1
 
         # check for game over
         whowins = None
-        if round+1 >= gamestate["max_round"]:
+        if n_round+1 >= gamestate["max_round"]:
             gameover = True
-            whowins = 0 if score[0] > score[1] else 1
+            if score[0] > score[1]:
+                whowins = 0
+            elif score[0] < score[1]:
+                whowins = 1
+            else:
+                # tie
+                whowins = 2
         if gamestate["timeout"]:
             gameover = True
         new_turn = (turn + 1) % 4
         if new_turn == 0:
-            new_round = round + 1
+            new_round = n_round + 1
         else:
-            new_round = round
+            new_round = n_round
 
     errors = gamestate["errors"]
     errors[team] = team_errors
@@ -296,6 +311,5 @@ def get_legal_moves(walls, bot_position):
     return possible_moves
 
 # TODO ???
-# - write tests for play turn (check that all rules are correctly applied)
 # - refactor Rike's initial positions code
 # - keep track of error dict for future additions
