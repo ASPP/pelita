@@ -16,8 +16,9 @@ class TestNQRandom_Player:
         ]
         gm = GameMaster(test_layout, team, 2, 1)
         gm.play()
-        assert gm.universe.bots[0].current_pos == (1, 1)
-        assert gm.universe.bots[1].current_pos == (9, 1)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        assert universe.bots[0].current_pos == (1, 1)
+        assert universe.bots[1].current_pos == (9, 1)
 
     def test_path(self):
         test_layout = (
@@ -32,8 +33,9 @@ class TestNQRandom_Player:
         ]
         gm = GameMaster(test_layout, team, 2, 7)
         gm.play()
-        assert gm.universe.bots[0].current_pos == (4, 3)
-        assert gm.universe.bots[1].current_pos == (10, 3)
+        universe = CTFUniverse._from_json_dict(gm.game_state)
+        assert universe.bots[0].current_pos == (4, 3)
+        assert universe.bots[1].current_pos == (10, 3)
 
 class TestPlayers:
     # Simple checks that the players are running to avoid API discrepancies
