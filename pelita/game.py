@@ -167,7 +167,7 @@ def play_turn(gamestate, bot_position):
                 eaten_idx = enemy_idx[enemy_bots.index(bot_position)]
                 init_positions = initial_positions(walls)
                 bots[eaten_idx] = init_positions[eaten_idx]
-                deaths[team] = deaths[team] + 1
+                deaths[abs(team-1)] = deaths[abs(team-1)] + 1
 
         # check for game over
         whowins = None
