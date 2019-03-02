@@ -1,11 +1,11 @@
 """Tests for Pelita game module"""
 import pytest
+
+from pathlib import Path
 import numpy as np
-from pelita.game import initial_positions
-from pelita.game import play_turn
-from pelita.game import get_legal_moves
 
 from pelita import layout
+from pelita.game import initial_positions, get_legal_moves, play_turn
 
 def test_initial_positions_basic():
     """Checks basic example for initial positions"""
@@ -87,8 +87,8 @@ def test_initial_positions_same_in_layout_random(n_times):
 @pytest.mark.parametrize('layout_name', layout.get_available_layouts())
 def test_initial_positions_same_in_layout(layout_name):
     """Check initial positions are the same as what the layout says for all layouts"""
-    l = layout.load_layout(layout_name=layout_name)
-    parsed_l = layout.parse_layout(l[1])
+    l = layout.get_layout_by_name(layout_name=layout_name)
+    parsed_l = layout.parse_layout(l)
     exp = parsed_l["bots"]
     walls = parsed_l["walls"]
     out = initial_positions(walls)
@@ -96,9 +96,8 @@ def test_initial_positions_same_in_layout(layout_name):
 
 def test_get_legal_moves_basic():
     """Check that the output of legal moves contains all legal moves for one example layout"""
-    l = layout.load_layout(layout_name="layout_small_without_dead_ends_100")
-    # l = layout.load_layout(layout_name="layout_normal_with_dead_ends_100")
-    parsed_l = layout.parse_layout(l[1])
+    l = layout.get_layout_by_name(layout_name="layout_small_without_dead_ends_100")
+    parsed_l = layout.parse_layout(l)
     legal_moves = get_legal_moves(parsed_l["walls"], parsed_l["bots"][0])
     exp = [(2, 5), (1, 6), (1, 5)]
     assert legal_moves == exp
@@ -278,8 +277,8 @@ def test_play_turn_move():
     seedval = np.random.randint(2**32)
     print(f'seedval: {seedval}')
     turn = 0
-    l = layout.load_layout(layout_file="layouts/small_without_dead_ends_100.layout")
-    parsed_l = layout.parse_layout(l[1])
+    l = Path("layouts/small_without_dead_ends_100.layout").read_text()
+    parsed_l = layout.parse_layout(l)
     game_state = {
         "food": parsed_l["food"],
         "walls": parsed_l["walls"],
@@ -315,8 +314,8 @@ def test_minimal_game():
 def setup_random_basic_gamestate():
     """helper function for testing play turn"""
     turn = 0
-    l = layout.load_layout(layout_file="layouts/small_without_dead_ends_100.layout")
-    parsed_l = layout.parse_layout(l[1])
+    l = Path("layouts/small_without_dead_ends_100.layout").read_text()
+    parsed_l = layout.parse_layout(l)
     game_state = {
         "food": parsed_l["food"],
         "walls": parsed_l["walls"],
@@ -340,8 +339,8 @@ def setup_random_basic_gamestate():
 def setup_specific_basic_gamestate(layout_id):
     """helper function for testing play turn"""
     turn = 0
-    l = layout.load_layout(layout_file=layout_id)
-    parsed_l = layout.parse_layout(l[1])
+    l = Path(layout_id).read_text()
+    parsed_l = layout.parse_layout(l)
     game_state = {
         "food": parsed_l["food"],
         "walls": parsed_l["walls"],
