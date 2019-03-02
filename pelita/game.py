@@ -106,7 +106,7 @@ def play_turn(gamestate, bot_position):
     bots = gamestate["bots"]
     turn = gamestate["turn"]
     team = turn % 2
-    enemy_idx = (1, 3) if team == 0 else(0, 2)
+    enemy_idx = (1, 3) if team == 0 else (0, 2)
     gameover = gamestate["gameover"]
     score = gamestate["score"]
     food = gamestate["food"]
@@ -134,7 +134,9 @@ def play_turn(gamestate, bot_position):
     # only execute move if errors not exceeded
     if len(team_errors) > 4 or fatal_error:
         gameover = True
-        whowins = 1-team # the other team
+        whowins = 1 - team  # the other team
+        new_turn = None
+        new_round = None
     else:
         # take step
         bots[turn] = bot_position
@@ -151,6 +153,7 @@ def play_turn(gamestate, bot_position):
         if not bot_in_homezone:
             if bot_position in food:
                 food.pop(food.index(bot_position))
+                # This is modifying the old game state
                 score[team] = score[team] + 1
 
 
