@@ -119,7 +119,8 @@ def play_turn(gamestate, bot_position):
     # previous errors
     team_errors = gamestate["errors"][team]
     # check is step is legal
-    legal_moves = get_legal_moves(walls, bot_position)
+
+    legal_moves = get_legal_moves(walls, gamestate["bots"][gamestate["turn"]])
     if bot_position not in legal_moves:
         bot_position = legal_moves[randint(0, len(legal_moves)-1)]
         error_dict = {
