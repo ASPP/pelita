@@ -210,6 +210,20 @@ class Bot:
         return legal_moves
 
     @property
+    def legal_positions(self):
+        """ The legal positions that the bot can reach from its current position,
+        including the current position.
+        """
+        legal_positions = []
+
+        for move in [(0, 0), (-1, 0), (1, 0), (0, 1), (0, -1)]:
+            new_pos = (self.position[0] + move[0], self.position[1] + move[1])
+            if not new_pos in self.walls:
+                legal_positions.append(new_pos)
+
+        return legal_positions
+
+    @property
     def _team(self):
        """ Both of our bots.
        """
