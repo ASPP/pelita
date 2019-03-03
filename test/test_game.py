@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 
 from pelita import layout
-from pelita.game import initial_positions, get_legal_moves, play_turn
+from pelita.game import initial_positions, get_legal_moves, play_turn, run_game
 
 def test_initial_positions_basic():
     """Checks basic example for initial positions"""
@@ -283,7 +283,7 @@ def test_play_turn_move():
         "food": parsed_l["food"],
         "walls": parsed_l["walls"],
         "bots": parsed_l["bots"],
-        "max_round": 300,
+        "max_rounds": 300,
         "team_names": ("a", "b"),
         "turn": turn,
         "round": 0,
@@ -297,19 +297,10 @@ def test_play_turn_move():
         "fatal_errors": [{}, {}],
         }
     legal_moves = get_legal_moves(game_state["walls"], game_state["bots"][turn])
-    print(legal_moves)
     game_state_new = play_turn(game_state, legal_moves[0])
     assert game_state_new["bots"][turn] == legal_moves[0]
 
 
-@pytest.mark.xfail()
-def test_minimal_game():
-    def move(b, s):
-        return b.position, s
-
-    layout_name, layout_string = layout.get_random_layout()
-    l = layout.parse_layout(layout_string)
-    run_game([move, move], rounds=20, layout_dict=l)
 
 def setup_random_basic_gamestate():
     """helper function for testing play turn"""
@@ -320,7 +311,7 @@ def setup_random_basic_gamestate():
         "food": parsed_l["food"],
         "walls": parsed_l["walls"],
         "bots": parsed_l["bots"],
-        "max_round": 300,
+        "max_rounds": 300,
         "team_names": ("a", "b"),
         "turn": turn,
         "round": 0,
@@ -345,7 +336,7 @@ def setup_specific_basic_gamestate(layout_id):
         "food": parsed_l["food"],
         "walls": parsed_l["walls"],
         "bots": parsed_l["bots"],
-        "max_round": 300,
+        "max_rounds": 300,
         "team_names": ("a", "b"),
         "turn": turn,
         "round": 0,
@@ -359,3 +350,34 @@ def setup_specific_basic_gamestate(layout_id):
         "fatal_errors": [{}, {}],
         }
     return game_state
+
+
+def test_minimal_game():
+    def move(b, s):
+        return b.position, s
+
+    layout_name, layout_string = layout.get_random_layout()
+    l = layout.parse_layout(layout_string)
+    final_state = run_game([move, move], rounds=20, layout_dict=l)
+    assert final_state['gameover'] is True
+    assert final_state['score'] == [0, 0]
+    assert final_state['round'] == 19
+
+def test_minimal_losing_game():
+    def move0(b, s):
+        if b.round == 0 and b.bot_index == 0:
+            # trigger a bad move in the first round
+            return (0, 0), s
+        else:
+            return b.position, s
+    def move1(b, s):
+        return b.position, s
+
+    layout_name, layout_string = layout.get_random_layout()
+    l = layout.parse_layout(layout_string)
+    final_state = run_game([move0, move1], rounds=20, layout_dict=l)
+    assert final_state['gameover'] is True
+    assert final_state['score'] == [0, 0]
+    assert len(final_state['errors'][0]) == 1
+    assert len(final_state['errors'][1]) == 0
+    assert final_state['round'] == 19
