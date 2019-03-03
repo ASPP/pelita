@@ -1,5 +1,10 @@
 """This is the game module. Written in 2019 in Born by Carlos and Lisa."""
+
+import dataclasses
 from random import randint
+import typing
+
+from . import layout
 
 class FatalException(Exception):
     pass
@@ -7,6 +12,82 @@ class FatalException(Exception):
 class NonFatalException(Exception):
     pass
 
+@dataclasses.dataclass
+class GameState:
+    """ Internal game state. """
+
+    ### The layout attributes
+    #: Walls. List of (int, int)
+    walls: typing.List
+
+    #: Food. List of (int, int)
+    food: typing.List
+
+    def width(self):
+        """ The width of the maze. """
+        return max(self.walls)[0]
+
+    def height(self):
+        """ The height of the maze. """
+        return max(self.walls)[1]
+
+    ### Round/turn information
+    #: Current bot
+    turn: int
+
+    def current_team(self):
+        """ The team of the current turn. """
+        return self.turn % 2
+
+    #: Current round
+    round: int
+
+    #: Is the game finished?
+    gameover: bool
+
+    #: Who won?
+    whowins: int
+
+    ### Bot/team status
+    #: Positions of all bots. List of (int, int)
+    bots: typing.List
+
+    #: Score of the teams. List of int
+    score: typing.List[int]
+
+    #: Death (respawn) count of the teams. List of int
+    deaths: typing.List[int]
+
+    #: Fatal errors
+    fatal_errors: typing.List
+
+    #: Errors
+    errors: typing.List
+
+    ### Configuration
+    #: Maximum number of rounds
+    max_rounds: int
+
+    #: Time till timeout
+    timeout: int
+
+    ### Informative
+    #: Name of the layout
+    layout_name: str
+
+    #: Name of the teams. List of str
+    team_names: typing.List[str]
+
+    #: Messages the bots say. Keeps only the recent one at the respective bot’s index.
+    say: typing.List[str]
+
+    ### Internal
+    #: Internal team representation
+    team_specs: typing.List
+
+    def pretty_str(self):
+        return (layout.layout_as_str(walls=self.walls, food=self.food, bots=self.bots) + "\n" +
+                str({ k: v for k, v in dataclasses.asdict(self).items() if k not in ['walls', 'food']}))
 
 def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump=False,
              max_team_errors=5, timeout_length=3, viewers=None):
@@ -30,7 +111,7 @@ def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump
     return state
 
 def setup_game(team_specs, layout_dict, max_rounds=300):
-    game_state = dict(
+    game_state = GameState(
         team_specs=[None] * 2,
         bots=layout_dict['bots'][:],
         turn=None,
@@ -49,6 +130,7 @@ def setup_game(team_specs, layout_dict, max_rounds=300):
         errors=[[], []],
         whowins=None
     )
+    game_state = dataclasses.asdict(game_state)
 
     # for now team_specs will be two move functions
     game_state['team_specs'] = []
@@ -254,22 +336,6 @@ def play_turn(gamestate, bot_position):
     gamestate.update(gamestate_new)
     return gamestate
 
-
-#  canonical_keys = {
-#                  "food" food,
-#                  "walls": walls,
-#                  "bots": bots,
-#                  "maxrounds": maxrounds,
-#                  "team_names": team_names,
-#                  "turn": turn,
-#                  "round": round,
-#                  "timeouts": timeouts,
-#                  "gameover": gameover,
-#                  "whowins": whowins,
-#                  "team_say": team_say,
-#                  "score": score,
-#                  "deaths": deaths,
-#                  }
 
 def initial_positions(walls):
     """Calculate initial positions.
