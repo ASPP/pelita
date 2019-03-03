@@ -5,6 +5,9 @@
 __pycache__/
 *.py[cod]
 
+# pytest
+.pytest_cache/
+
 # ipython notebook
 .ipynb_checkpoints
 
@@ -20,6 +23,7 @@ __pycache__/
 .cache
 .idea
 .vscode
+.spyproject
 
 
 # other generic files to ignore
