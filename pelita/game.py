@@ -5,6 +5,7 @@ from random import Random
 import typing
 
 from . import layout
+from .gamestate_filters import noiser
 
 class FatalException(Exception):
     pass
@@ -100,7 +101,7 @@ def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump
 
     # we create the initial game state
     # initialize the exceptions lists
-    state = setup_game(team_specs, layout_dict, max_rounds=rounds)
+    state = setup_game(team_specs, layout_dict, max_rounds=rounds, seed=seed)
 
     while not state.get('gameover'):
         state = play_turn_(state)
@@ -113,7 +114,7 @@ def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump
 
     return state
 
-def setup_game(team_specs, layout_dict, max_rounds=300):
+def setup_game(team_specs, layout_dict, max_rounds=300, seed=None):
     game_state = GameState(
         team_specs=[None] * 2,
         bots=layout_dict['bots'][:],
@@ -156,6 +157,10 @@ def request_new_position(game_state):
     return new_position
 
 def prepare_bot_state(game_state):
+    bot_position = game_state['bots'][game_state['turn']]
+    enemy_positions = game_state['...']
+    noiser(walls=game_state['walls'], bot_position=, enemy_positions, rnd=game_state['rnd'])
+
     bot_state = {
         'walls': game_state['walls'],
         'food': game_state['food'],
@@ -168,6 +173,8 @@ def prepare_bot_state(game_state):
         'team_name': game_state['team_names'],
         'timeout_count': [0, 0],
     }
+
+    # apply noise
     return bot_state
 
 def prepare_viewer_state(game_state):
