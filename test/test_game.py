@@ -72,13 +72,11 @@ def test_initial_positions(simple_layout):
     assert i_pos == expected
 
 
-@pytest.mark.parametrize('n_times', range(30))
-def test_initial_positions_same_in_layout_random(n_times):
+@pytest.mark.parametrize('layout_t', [layout.get_random_layout() for _ in range(30)])
+def test_initial_positions_same_in_layout_random(layout_t):
     """Check initial positions are the same as what the layout says for 30 random layouts"""
-    seedval = np.random.randint(2**32)
-    print(f'seedval: {seedval}')
-    l = layout.get_random_layout()
-    parsed_l = layout.parse_layout(l[1])
+    layout_name, layout_string = layout_t # get_random_layout returns a tuple of name and string
+    parsed_l = layout.parse_layout(layout_string)
     exp = parsed_l["bots"]
     walls = parsed_l["walls"]
     out = initial_positions(walls)
@@ -102,14 +100,12 @@ def test_get_legal_moves_basic():
     exp = [(2, 5), (1, 6), (1, 5)]
     assert legal_moves == exp
 
-@pytest.mark.parametrize('n_times', range(50))
+@pytest.mark.parametrize('layout_t', [layout.get_random_layout() for _ in range(50)])
 @pytest.mark.parametrize('bot_idx', (0, 1, 2, 3))
-def test_get_legal_moves_random(n_times, bot_idx):
+def test_get_legal_moves_random(layout_t, bot_idx):
     """Check that the output of legal moves returns only moves that are 1 field away and not inside a wall"""
-    seedval = np.random.randint(2**32)
-    print(f'seedval: {seedval}')
-    l = layout.get_random_layout()
-    parsed_l = layout.parse_layout(l[1])
+    layout_name, layout_string = layout_t # get_random_layout returns a tuple of name and string
+    parsed_l = layout.parse_layout(layout_string)
     bot = parsed_l["bots"][bot_idx]
     legal_moves = get_legal_moves(parsed_l["walls"], bot)
     for move in legal_moves:
@@ -120,8 +116,6 @@ def test_get_legal_moves_random(n_times, bot_idx):
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
 def test_play_turn_apply_error(turn):
     """check that quits when there are too many errors"""
-    seedval = np.random.randint(2**32)
-    print(f'seedval: {seedval}')
     game_state = setup_random_basic_gamestate()
     error_dict = {
         "turn": 0,
@@ -143,8 +137,6 @@ def test_play_turn_apply_error(turn):
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
 def test_play_turn_fatal(turn):
     """Checks that game quite after fatal error"""
-    seedval = np.random.randint(2**32)
-    print(f'seedval: {seedval}')
     game_state = setup_random_basic_gamestate()
     game_state["turn"] = turn
     team = turn % 2
@@ -159,8 +151,6 @@ def test_play_turn_fatal(turn):
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
 def test_play_turn_illegal_move(turn):
     """check that illegal moves are added to error dict and bot still takes move"""
-    seedval = np.random.randint(2**32)
-    print(f'seedval: {seedval}')
     game_state = setup_random_basic_gamestate()
     game_state["turn"] = turn
     team = turn % 2
@@ -262,8 +252,6 @@ def test_play_turn_friendly_fire(setups):
 def test_play_turn_maxrounds(score):
     """Check that game quits at maxrounds and choses correct winner"""
     # this works for ties as well, because there are no points to be gained at init positions
-    seedval = np.random.randint(2**32)
-    print(f'seedval: {seedval}')
     game_state = setup_random_basic_gamestate()
     game_state["round"] = 300
     game_state["score"] = score[0]
@@ -274,8 +262,6 @@ def test_play_turn_maxrounds(score):
 
 def test_play_turn_move():
     """Checks that bot is moved to intended space"""
-    seedval = np.random.randint(2**32)
-    print(f'seedval: {seedval}')
     turn = 0
     l = Path("layouts/small_without_dead_ends_100.layout").read_text()
     parsed_l = layout.parse_layout(l)
@@ -297,7 +283,6 @@ def test_play_turn_move():
         "fatal_errors": [{}, {}],
         }
     legal_moves = get_legal_moves(game_state["walls"], game_state["bots"][turn])
-    print(legal_moves)
     game_state_new = play_turn(game_state, legal_moves[0])
     assert game_state_new["bots"][turn] == legal_moves[0]
 
