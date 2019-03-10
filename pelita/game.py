@@ -1,7 +1,7 @@
 """This is the game module. Written in 2019 in Born by Carlos and Lisa."""
 
 import dataclasses
-from random import randint
+from random import Random
 import typing
 
 from . import layout
@@ -85,6 +85,9 @@ class GameState:
     #: Internal team representation
     team_specs: typing.List
 
+    #: Random number generator
+    rnd: typing.Any
+
     def pretty_str(self):
         return (layout.layout_as_str(walls=self.walls, food=self.food, bots=self.bots) + "\n" +
                 str({ k: v for k, v in dataclasses.asdict(self).items() if k not in ['walls', 'food']}))
@@ -128,7 +131,8 @@ def setup_game(team_specs, layout_dict, max_rounds=300):
         team_names=[None] * 2,
         fatal_errors=[False] * 2,
         errors=[[], []],
-        whowins=None
+        whowins=None,
+        rnd=Random(seed)
     )
     game_state = dataclasses.asdict(game_state)
 
@@ -261,7 +265,7 @@ def play_turn(gamestate, bot_position):
     # check is step is legal
     legal_moves = get_legal_moves(walls, gamestate["bots"][gamestate["turn"]])
     if bot_position not in legal_moves:
-        bot_position = legal_moves[randint(0, len(legal_moves)-1)]
+        bot_position = legal_moves[gamestate['rnd'].randint(0, len(legal_moves)-1)]
         error_dict = {
             "turn": turn,
             "round": n_round,

@@ -2,6 +2,8 @@
 import pytest
 
 from pathlib import Path
+import random
+
 import numpy as np
 
 from pelita import layout
@@ -281,6 +283,7 @@ def test_play_turn_move():
         "deaths": 0,
         "errors": [[], []],
         "fatal_errors": [{}, {}],
+        "rnd": random.Random()
         }
     legal_moves = get_legal_moves(game_state["walls"], game_state["bots"][turn])
     game_state_new = play_turn(game_state, legal_moves[0])
@@ -309,6 +312,7 @@ def setup_random_basic_gamestate():
         "deaths": 0,
         "errors": [[], []],
         "fatal_errors": [{}, {}],
+        "rnd": random.Random()
         }
     return game_state
 
@@ -334,6 +338,7 @@ def setup_specific_basic_gamestate(layout_id):
         "deaths": [0, 0],
         "errors": [[], []],
         "fatal_errors": [{}, {}],
+        "rnd": random.Random()
         }
     return game_state
 
