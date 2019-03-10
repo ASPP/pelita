@@ -53,17 +53,15 @@ class Team(AbstractTeam):
             The name of the team
 
         """
-        universe = datamodel.CTFUniverse._from_json_dict(game_state)
-
         #: Storage for the team state
         self._team_state = None
         self._team_game = [None, None]
 
         #: Storage for the random generator
-        self._bot_random = [None] * len(universe.bots)
+        self._bot_random = [None] * len(game_state['positions'])
 
         #: Store the last known bot positions
-        self._last_know_position = [b.current_pos for b in universe.bots if b.team_index == team_id]
+        self._last_know_position = game_state['positions'][:]
 
         #: Store a history of bot positions
         self._bot_track = [[], []]
@@ -74,9 +72,9 @@ class Team(AbstractTeam):
         # To make things a little simpler, we also initialise a random generator
         # for all enemy bots
 
-        for bot in universe.bots:
+        for idx, bot in enumerate(game_state['positions']):
             # we take the bot’s index as a value for the seed_offset
-            self._bot_random[bot.index] = random.Random(game_state["seed"] + bot.index)
+            self._bot_random[idx] = random.Random(game_state["rng"] + idx)
 
         return self.team_name
 
@@ -97,13 +95,8 @@ class Team(AbstractTeam):
         -------
         move : dict
         """
+        bots = make_bots(**game_state)
 
-        universe = datamodel.CTFUniverse._from_json_dict(game_state)
-        bots = bots_from_universe(universe,
-                                  rng=self._bot_random,
-                                  round=game_state['round_index'],
-                                  team_name=game_state['team_name'],
-                                  timeout_count=game_state['timeout_teams'])
 
         me = bots[bot_id]
         team = bots[bot_id]._team
@@ -208,6 +201,20 @@ class Bot:
                 legal_moves.append(move)
 
         return legal_moves
+
+    @property
+    def legal_positions(self):
+        """ The legal positions that the bot can reach from its current position,
+        including the current position.
+        """
+        legal_positions = []
+
+        for move in [(0, 0), (-1, 0), (1, 0), (0, 1), (0, -1)]:
+            new_pos = (self.position[0] + move[0], self.position[1] + move[1])
+            if not new_pos in self.walls:
+                legal_positions.append(new_pos)
+
+        return legal_positions
 
     @property
     def _team(self):
@@ -398,7 +405,7 @@ def make_bots(*, walls, food, positions, initial_positions, score, is_noisy, rng
                   food=[f for f in food if f in homezone],
                   is_noisy=is_noisy[i],
                   score=score[i % 2],
-                  random=rng[i],
+                  random=rng,
                   round=round,
                   is_blue=(i % 2 == 0),
                   team_name=team_name[i % 2],

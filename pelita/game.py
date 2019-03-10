@@ -1,6 +1,93 @@
 """This is the game module. Written in 2019 in Born by Carlos and Lisa."""
-from random import randint
 
+import dataclasses
+from random import randint
+import typing
+
+from . import layout
+
+class FatalException(Exception):
+    pass
+
+class NonFatalException(Exception):
+    pass
+
+@dataclasses.dataclass
+class GameState:
+    """ Internal game state. """
+
+    ### The layout attributes
+    #: Walls. List of (int, int)
+    walls: typing.List
+
+    #: Food. List of (int, int)
+    food: typing.List
+
+    def width(self):
+        """ The width of the maze. """
+        return max(self.walls)[0]
+
+    def height(self):
+        """ The height of the maze. """
+        return max(self.walls)[1]
+
+    ### Round/turn information
+    #: Current bot
+    turn: int
+
+    def current_team(self):
+        """ The team of the current turn. """
+        return self.turn % 2
+
+    #: Current round
+    round: int
+
+    #: Is the game finished?
+    gameover: bool
+
+    #: Who won?
+    whowins: int
+
+    ### Bot/team status
+    #: Positions of all bots. List of (int, int)
+    bots: typing.List
+
+    #: Score of the teams. List of int
+    score: typing.List[int]
+
+    #: Death (respawn) count of the teams. List of int
+    deaths: typing.List[int]
+
+    #: Fatal errors
+    fatal_errors: typing.List
+
+    #: Errors
+    errors: typing.List
+
+    ### Configuration
+    #: Maximum number of rounds
+    max_rounds: int
+
+    #: Time till timeout
+    timeout: int
+
+    ### Informative
+    #: Name of the layout
+    layout_name: str
+
+    #: Name of the teams. List of str
+    team_names: typing.List[str]
+
+    #: Messages the bots say. Keeps only the recent one at the respective bot’s index.
+    say: typing.List[str]
+
+    ### Internal
+    #: Internal team representation
+    team_specs: typing.List
+
+    def pretty_str(self):
+        return (layout.layout_as_str(walls=self.walls, food=self.food, bots=self.bots) + "\n" +
+                str({ k: v for k, v in dataclasses.asdict(self).items() if k not in ['walls', 'food']}))
 
 def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump=False,
              max_team_errors=5, timeout_length=3, viewers=None):
@@ -10,27 +97,48 @@ def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump
 
     # we create the initial game state
     # initialize the exceptions lists
-    state = setup_game(team_specs, layout_dict)
+    state = setup_game(team_specs, layout_dict, max_rounds=rounds)
 
     while not state.get('gameover'):
         state = play_turn_(state)
 
+        # generate the reduced viewer state
+        viewer_state = prepare_viewer_state(state)
         for viewer in viewers:
             # show a state to the viewer
             viewer.show_state(state)
 
     return state
 
-def setup_game(team_specs, layout_dict):
-    game_state = {}
-    game_state.update(layout_dict)
+def setup_game(team_specs, layout_dict, max_rounds=300):
+    game_state = GameState(
+        team_specs=[None] * 2,
+        bots=layout_dict['bots'][:],
+        turn=None,
+        round=None,
+        max_rounds=max_rounds,
+        timeout=3,
+        gameover=False,
+        score=[0] * 2,
+        food=layout_dict['food'][:],
+        walls=layout_dict['walls'][:],
+        deaths=[0] * 2,
+        say=[""] * 2,
+        layout_name=None,
+        team_names=[None] * 2,
+        fatal_errors=[False] * 2,
+        errors=[[], []],
+        whowins=None
+    )
+    game_state = dataclasses.asdict(game_state)
 
     # for now team_specs will be two move functions
     game_state['team_specs'] = []
-    for team in team_specs:
+    for idx, team in enumerate(team_specs):
         # wrap the move function in a Team
         from .player.team import Team as _Team
         team_player = _Team('local-team', team)
+        team_name = team_player.set_initial(idx, prepare_bot_state(game_state))
         game_state['team_specs'].append(team_player)
 
     return game_state
@@ -40,7 +148,26 @@ def request_new_position(game_state):
     move_fun = game_state['team_specs'][team]
 
     bot_state = prepare_bot_state(game_state)
-    return move_fun(bot_state)
+    new_position = move_fun.get_move(game_state['turn'], bot_state)
+    return new_position
+
+def prepare_bot_state(game_state):
+    bot_state = {
+        'walls': game_state['walls'],
+        'food': game_state['food'],
+        'positions': game_state['bots'],
+        'initial_positions': initial_positions(game_state['walls']),
+        'score': game_state['score'],
+        'is_noisy': [False] * 4,
+        'rng': False,
+        'round': game_state['round'],
+        'team_name': game_state['team_names'],
+        'timeout_count': [0, 0],
+    }
+    return bot_state
+
+def prepare_viewer_state(game_state):
+    return game_state
 
 
 def play_turn_(game_state):
@@ -48,10 +175,19 @@ def play_turn_(game_state):
     if game_state['gameover']:
         raise ValueError("Game is already over!")
 
+    if game_state['round'] is None:
+        # we have not started yet
+        # initialize round and turn
+        game_state['round'] = 0
+        game_state['turn'] = 0
+
     team = game_state['turn'] % 2
     # request a new move from the current team
     try:
-        position = request_new_position(game_state)
+        position_dict = request_new_position(game_state)
+        position = tuple(position_dict['move'])
+        if position_dict.get('say'):
+            game_state['say'][game_state['turn']] = position_dict['say']
     except FatalException as e:
         # FatalExceptions (such as PlayerDisconnect) should immediately
         # finish the game
@@ -123,7 +259,6 @@ def play_turn(gamestate, bot_position):
     # previous errors
     team_errors = gamestate["errors"][team]
     # check is step is legal
-
     legal_moves = get_legal_moves(walls, gamestate["bots"][gamestate["turn"]])
     if bot_position not in legal_moves:
         bot_position = legal_moves[randint(0, len(legal_moves)-1)]
@@ -169,7 +304,7 @@ def play_turn(gamestate, bot_position):
 
         # check for game over
         whowins = None
-        if n_round+1 >= gamestate["max_round"]:
+        if n_round+1 >= gamestate["max_rounds"]:
             gameover = True
             if score[0] > score[1]:
                 whowins = 0
@@ -178,8 +313,6 @@ def play_turn(gamestate, bot_position):
             else:
                 # tie
                 whowins = 2
-        if gamestate["timeout"]:
-            gameover = True
         new_turn = (turn + 1) % 4
         if new_turn == 0:
             new_round = n_round + 1
@@ -203,22 +336,6 @@ def play_turn(gamestate, bot_position):
     gamestate.update(gamestate_new)
     return gamestate
 
-
-#  canonical_keys = {
-#                  "food" food,
-#                  "walls": walls,
-#                  "bots": bots,
-#                  "maxrounds": maxrounds,
-#                  "team_names": team_names,
-#                  "turn": turn,
-#                  "round": round,
-#                  "timeouts": timeouts,
-#                  "gameover": gameover,
-#                  "whowins": whowins,
-#                  "team_say": team_say,
-#                  "score": score,
-#                  "deaths": deaths,
-#                  }
 
 def initial_positions(walls):
     """Calculate initial positions.
