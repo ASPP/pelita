@@ -72,6 +72,12 @@ class GameState:
     #: Time till timeout
     timeout: int
 
+    #: Noise radius
+    noise_radius: int
+
+    #: Sight distance
+    sight_distance: int
+
     ### Informative
     #: Name of the layout
     layout_name: str
@@ -122,6 +128,8 @@ def setup_game(team_specs, layout_dict, max_rounds=300, seed=None):
         round=None,
         max_rounds=max_rounds,
         timeout=3,
+        noise_radius=5,
+        sight_distance=5,
         gameover=False,
         score=[0] * 2,
         food=layout_dict['food'][:],

@@ -70,6 +70,9 @@ def noiser(walls, bot_position, enemy_positions, noise_radius=5, sight_distance=
             new_pos, noisy_flag = alter_pos(b, noise_radius, rnd, walls)
             noised_positions[count] = new_pos
             is_noisy[count] = noisy_flag
+        else:
+            noised_positions[count] = b
+            is_noisy[count] = False
 
     return { "enemy_positions": noised_positions, "is_noisy": is_noisy }
 
