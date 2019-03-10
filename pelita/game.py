@@ -121,6 +121,7 @@ def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump
     return state
 
 def setup_game(team_specs, layout_dict, max_rounds=300, seed=None):
+    """ Generates a game state for the given teams and layout with otherwise default values. """
     game_state = GameState(
         team_specs=[None] * 2,
         bots=layout_dict['bots'][:],
@@ -158,17 +159,20 @@ def setup_game(team_specs, layout_dict, max_rounds=300, seed=None):
 
 def request_new_position(game_state):
     team = game_state['turn'] % 2
+    bot_turn = game_state['turn'] // 2
     move_fun = game_state['team_specs'][team]
 
     bot_state = prepare_bot_state(game_state)
-    new_position = move_fun.get_move(game_state['turn'], bot_state)
+    new_position = move_fun.get_move(bot_state)
     return new_position
 
 def prepare_bot_state(game_state, idx=None):
     if idx is not None: # for initial step
         turn = idx
+        bot_turn = None
     else:
         turn = game_state['turn']
+        bot_turn = game_state['turn'] % 2
 
     bot_position = game_state['bots'][turn]
     own_team = turn % 2
@@ -213,7 +217,7 @@ def prepare_bot_state(game_state, idx=None):
         'team': team_state,
         'enemy': enemy_state,
         'round': game_state['round'],
-        'turn': game_state['turn'], # or move into team_state?
+        'bot_turn': bot_turn
     }
 
     return bot_state

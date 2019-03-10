@@ -58,27 +58,17 @@ class Team(AbstractTeam):
         self._team_game = [None, None]
 
         #: Storage for the random generator
-        self._bot_random = [None] * len(game_state['positions'])
-
-        #: Store the last known bot positions
-        self._last_know_position = game_state['positions'][:]
+        self._bot_random = random.Random(game_state['seed'])
 
         #: Store a history of bot positions
         self._bot_track = [[], []]
 
-        #: Store if we have been eaten before our move
-        self._bot_eaten = [False, False]
-
         # To make things a little simpler, we also initialise a random generator
         # for all enemy bots
 
-        for idx, bot in enumerate(game_state['positions']):
-            # we take the bot’s index as a value for the seed_offset
-            self._bot_random[idx] = random.Random(game_state["rng"] + idx)
-
         return self.team_name
 
-    def get_move(self, bot_id, game_state):
+    def get_move(self, game_state):
         """ Requests a move from the Player who controls the Bot with id `bot_id`.
 
         This method returns a dict with a key `move` and a value specifying the direction
@@ -86,8 +76,6 @@ class Team(AbstractTeam):
 
         Parameters
         ----------
-        bot_id : int
-            The id of the bot who needs to play
         game_state : dict
             The initial game state
 
@@ -95,43 +83,30 @@ class Team(AbstractTeam):
         -------
         move : dict
         """
-        bots = make_bots(**game_state)
+        me = make_bots(**game_state)
 
-
-        me = bots[bot_id]
-        team = bots[bot_id]._team
-        turn = bot_id // 2
+        team = me._team
 
         for idx, mybot in enumerate(team):
-            # we assume we have been eaten, when we’re on our initial_position
-            # and we could not move back to our previous position
-            if mybot.position == mybot._initial_position:
-                last_pos = self._last_know_position[idx]
-                try:
-                    mybot.get_move(last_pos)
-                except ValueError:
-                    self._bot_eaten[idx] = True
-                    self._bot_track[idx] = []
-
-            self._last_know_position[idx] = mybot.position
+            # If a bot has been eaten, we reset it’s bot track
+            if mybot.has_respawned:
+                self._bot_track[idx] = []
 
         # Add our track
-        if len(self._bot_track[turn]) == 0:
-            self._bot_track[turn] = [me.position]
+        if len(self._bot_track[me.bot_turn]) == 0:
+            self._bot_track[me.bot_turn] = [me.position]
 
         for idx, mybot in enumerate(team):
             # If the track of any bot is empty,
             # Add its current position
-            if turn != idx:
+            if me.bot_turn != idx:
                 self._bot_track[idx].append(mybot.position)
 
             mybot.track = self._bot_track[idx][:]
-            mybot._eaten = self._bot_eaten[idx]
 
         self._team_game = team
-        move, state = self._team_move(self._team_game[turn], self._team_state)
+        move, state = self._team_move(self._team_game[me.bot_turn], self._team_state)
 
-        self._bot_eaten[turn] = False
         # restore the team state
         self._team_state = state
 
@@ -152,33 +127,38 @@ def create_homezones(width, height):
                 for y in range(0, height)]
     ]
 
+
 class Bot:
     def __init__(self, *, bot_index,
+                          is_on_team,
                           position,
                           initial_position,
                           walls,
                           homezone,
                           food,
-                          is_noisy,
                           score,
                           random,
                           round,
                           is_blue,
                           team_name,
-                          timeout_count):
+                          timeout_count,
+                          bot_turn=None,
+                          has_respawned=None,
+                          is_noisy=None):
         self._bots = None
         self._say = None
 
         #: The previous positions of this bot including the current one.
         self.track = []
-        self._eaten = False
-        self._initial_position = initial_position
+
+        #: Is this a friendly bot?
+        self.is_on_team = is_on_team
 
         self.random = random
         self.position = position
+        self.initial_position = initial_position
         self.walls = walls
 
-        self.is_noisy = is_noisy
         self.homezone = homezone
         self.food = food
         self.score  = score
@@ -187,6 +167,18 @@ class Bot:
         self.is_blue = is_blue
         self.team_name = team_name
         self.timeout_count = timeout_count
+
+        # Attributes for Bot
+        if self.is_on_team:
+            assert has_respawned is not None
+            self.has_respawned = has_respawned
+            assert bot_turn is not None
+            self.bot_turn = bot_turn
+
+        # Attributes for Enemy
+        if not self.is_on_team:
+            assert is_noisy is not None
+            self.is_noisy = is_noisy
 
     @property
     def legal_moves(self):
@@ -220,10 +212,10 @@ class Bot:
     def _team(self):
        """ Both of our bots.
        """
-       if self.is_blue:
-           return [self._bots[0], self._bots[2]]
+       if self.is_on_team:
+           return self._bots['team']
        else:
-           return [self._bots[1], self._bots[3]]
+           return self._bots['enemy']
 
     @property
     def turn(self):
@@ -239,10 +231,10 @@ class Bot:
     def enemy(self):
         """ The list of enemy bots
         """
-        if self.is_blue:
-            return [self._bots[1], self._bots[3]]
+        if not self.is_on_team:
+            return self._bots['team']
         else:
-            return [self._bots[0], self._bots[2]]
+            return self._bots['enemy']
 
     def say(self, text):
         """ Print some text in the graphical interface. """
@@ -389,31 +381,51 @@ def _rebuild_universe(bots):
 
 
 # def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_blue):
-def make_bots(*, walls, food, positions, initial_positions, score, is_noisy, rng, round, team_name, timeout_count):
-    """ Creates a set of 4 bots with the given specification. """
-    width = max(walls)[0] + 1
-    height = max(walls)[1] + 1
-    homezones = create_homezones(width, height)
-    bots = []
-    for i, position in enumerate(positions):
-        homezone = homezones[i % 2]
-        bot = Bot(bot_index=i,
-                  position=positions[i],
-                  initial_position=initial_positions[i],
-                  walls=walls,
-                  homezone=homezone,
-                  food=[f for f in food if f in homezone],
-                  is_noisy=is_noisy[i],
-                  score=score[i % 2],
-                  random=rng,
-                  round=round,
-                  is_blue=(i % 2 == 0),
-                  team_name=team_name[i % 2],
-                  timeout_count=timeout_count[i % 2])
-        bots.append(bot)
-    for bot in bots:
-        bot._bots = bots
-    return bots
+def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
+    bots = {}
+    team_bots = []
+    for idx, position in enumerate(team['bot_positions']):
+        b = Bot(bot_index=idx,
+            is_on_team=True,
+            score=team['score'],
+            has_respawned=team['has_respawned'],
+            timeout_count=team['timeout_count'],
+            food=team['food'],
+            walls=walls,
+            round=round,
+            bot_turn=bot_turn,
+            random=seed, # TODO
+            position=team['bot_positions'][idx],
+            initial_position=(0, 0),
+            team_name="",
+            is_blue=team['team_index'] % 2 == 0,
+            homezone=[])
+        b._bots = bots
+        team_bots.append(b)
+
+    enemy_bots = []
+    for idx, position in enumerate(enemy['bot_positions']):
+        b = Bot(bot_index=idx,
+            is_on_team=False,
+            score=enemy['score'],
+            is_noisy=enemy['is_noisy'][idx],
+            timeout_count=enemy['timeout_count'],
+            food=enemy['food'],
+            walls=walls,
+            round=round,
+            random=seed, # TODO
+            position=enemy['bot_positions'][idx],
+            initial_position=(0, 0),
+            team_name="",
+            is_blue=enemy['team_index'] % 2 == 0,
+            homezone=[])
+        b._bots = bots
+        enemy_bots.append(b)
+
+    bots['team'] = team_bots
+    bots['enemy'] = enemy_bots
+    return team_bots[bot_turn]
+
 
 def bots_from_universe(universe, rng, round, team_name, timeout_count):
     """ Creates 4 bots given a universe. """
