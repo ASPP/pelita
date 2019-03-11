@@ -2,6 +2,7 @@
 
 import dataclasses
 from random import Random
+import sys
 import typing
 
 from . import layout
@@ -170,9 +171,11 @@ def prepare_bot_state(game_state, idx=None):
     if idx is not None: # for initial step
         turn = idx
         bot_turn = None
+        seed = game_state['rnd'].randint(0, sys.maxsize)
     else:
         turn = game_state['turn']
         bot_turn = game_state['turn'] % 2
+        seed = None
 
     bot_position = game_state['bots'][turn]
     own_team = turn % 2
@@ -213,7 +216,7 @@ def prepare_bot_state(game_state, idx=None):
 
     bot_state = {
         'walls': game_state['walls'], # only in initial round
-        'seed': 0, # only in initial round
+        'seed': seed, # only used in set_intital phase
         'team': team_state,
         'enemy': enemy_state,
         'round': game_state['round'],
