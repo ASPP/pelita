@@ -354,7 +354,7 @@ def test_minimal_game():
     assert final_state['score'] == [0, 0]
     assert final_state['round'] == 19
 
-def test_minimal_losing_game():
+def test_minimal_losing_game_has_one_error():
     def move0(b, s):
         if b.round == 0 and b.bot_index == 0:
             # trigger a bad move in the first round

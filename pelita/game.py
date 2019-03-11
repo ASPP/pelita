@@ -168,13 +168,14 @@ def request_new_position(game_state):
     return new_position
 
 def prepare_bot_state(game_state, idx=None):
-    if idx is not None: # for initial step
+    if game_state.get('turn') is None and idx is not None:
+        # We assume that we are in get_initial phase
         turn = idx
         bot_turn = None
         seed = game_state['rnd'].randint(0, sys.maxsize)
     else:
         turn = game_state['turn']
-        bot_turn = game_state['turn'] % 2
+        bot_turn = game_state['turn'] // 2
         seed = None
 
     bot_position = game_state['bots'][turn]
