@@ -111,7 +111,7 @@ def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump
     state = setup_game(team_specs, layout_dict, max_rounds=rounds, seed=seed)
 
     while not state.get('gameover'):
-        state = play_turn_(state)
+        state = play_turn(state)
 
         # generate the reduced viewer state
         viewer_state = prepare_viewer_state(state)
@@ -230,7 +230,7 @@ def prepare_viewer_state(game_state):
     return game_state
 
 
-def play_turn_(game_state):
+def play_turn(game_state):
     # if the game is already over, we return a value error
     if game_state['gameover']:
         raise ValueError("Game is already over!")
@@ -270,11 +270,11 @@ def play_turn_(game_state):
         position = None
 
     # try to execute the move and return the new state
-    game_state = play_turn(game_state, position)
+    game_state = apply_move(game_state, position)
     return game_state
 
 
-def play_turn(gamestate, bot_position):
+def apply_move(gamestate, bot_position):
     """Plays a single step of a bot by applying the game rules to the game state. The rules are:
     - if the playing team has an error count of >5 or a fatal error they lose
     - a legal step must not be on a wall, else the error count is increased by 1 and a random move is chosen for the bot
