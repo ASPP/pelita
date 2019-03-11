@@ -5,6 +5,7 @@ from random import Random
 import typing
 
 from . import layout
+from .gamestate_filters import noiser
 
 class FatalException(Exception):
     pass
@@ -71,6 +72,12 @@ class GameState:
     #: Time till timeout
     timeout: int
 
+    #: Noise radius
+    noise_radius: int
+
+    #: Sight distance
+    sight_distance: int
+
     ### Informative
     #: Name of the layout
     layout_name: str
@@ -100,7 +107,7 @@ def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump
 
     # we create the initial game state
     # initialize the exceptions lists
-    state = setup_game(team_specs, layout_dict, max_rounds=rounds)
+    state = setup_game(team_specs, layout_dict, max_rounds=rounds, seed=seed)
 
     while not state.get('gameover'):
         state = play_turn_(state)
@@ -113,7 +120,7 @@ def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump
 
     return state
 
-def setup_game(team_specs, layout_dict, max_rounds=300):
+def setup_game(team_specs, layout_dict, max_rounds=300, seed=None):
     game_state = GameState(
         team_specs=[None] * 2,
         bots=layout_dict['bots'][:],
@@ -121,6 +128,8 @@ def setup_game(team_specs, layout_dict, max_rounds=300):
         round=None,
         max_rounds=max_rounds,
         timeout=3,
+        noise_radius=5,
+        sight_distance=5,
         gameover=False,
         score=[0] * 2,
         food=layout_dict['food'][:],
@@ -142,7 +151,7 @@ def setup_game(team_specs, layout_dict, max_rounds=300):
         # wrap the move function in a Team
         from .player.team import Team as _Team
         team_player = _Team('local-team', team)
-        team_name = team_player.set_initial(idx, prepare_bot_state(game_state))
+        team_name = team_player.set_initial(idx, prepare_bot_state(game_state, idx))
         game_state['team_specs'].append(team_player)
 
     return game_state
@@ -155,19 +164,58 @@ def request_new_position(game_state):
     new_position = move_fun.get_move(game_state['turn'], bot_state)
     return new_position
 
-def prepare_bot_state(game_state):
-    bot_state = {
-        'walls': game_state['walls'],
-        'food': game_state['food'],
-        'positions': game_state['bots'],
-        'initial_positions': initial_positions(game_state['walls']),
-        'score': game_state['score'],
-        'is_noisy': [False] * 4,
-        'rng': False,
-        'round': game_state['round'],
-        'team_name': game_state['team_names'],
-        'timeout_count': [0, 0],
+def prepare_bot_state(game_state, idx=None):
+    if idx is not None: # for initial step
+        turn = idx
+    else:
+        turn = game_state['turn']
+
+    bot_position = game_state['bots'][turn]
+    own_team = turn % 2
+    enemy_team = 1 - own_team
+    enemy_positions = game_state['bots'][enemy_team::2]
+    noised_positions = noiser(walls=game_state['walls'],
+                              bot_position=bot_position,
+                              enemy_positions=enemy_positions,
+                              noise_radius=game_state['noise_radius'],
+                              sight_distance=game_state['sight_distance'],
+                              rnd=game_state['rnd'])
+
+    width = max(game_state['walls'])[0]
+    def in_homezone(position, team_id):
+        on_left_side = position[0] < width // 2
+        if team_id % 2 == 0:
+            return on_left_side
+        else:
+            return not on_left_side
+
+    team_state = {
+        'team_index': own_team,
+        'bot_positions': game_state['bots'][own_team::2],
+        'score': game_state['score'][own_team],
+        'has_respawned': [False] * 2, # TODO
+        'timeout_count': 0, # TODO
+        'food': [food for food in game_state['food'] if in_homezone(food, own_team)]
     }
+
+    enemy_state = {
+        'team_index': enemy_team,
+        'bot_positions': noised_positions['enemy_positions'],
+        'is_noisy': noised_positions['is_noisy'],
+        'score': game_state['score'][enemy_team],
+        'timeout_count': 0, # TODO. Could be left out for the enemy
+        'food': [food for food in game_state['food'] if in_homezone(food, enemy_team)]
+    }
+
+    bot_state = {
+        'walls': game_state['walls'], # only in initial round
+        'seed': 0, # only in initial round
+        'team': team_state,
+        'enemy': enemy_state,
+        'round': game_state['round'],
+        'turn': game_state['turn'], # or move into team_state?
+    }
+
     return bot_state
 
 def prepare_viewer_state(game_state):
