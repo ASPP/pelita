@@ -5,7 +5,6 @@ from io import StringIO
 import random
 
 from . import AbstractTeam
-from .. import datamodel
 
 
 class Team(AbstractTeam):
@@ -336,50 +335,6 @@ class Bot:
             return out.getvalue()
 
 
-def _rebuild_universe(bots):
-    """ Rebuilds a universe from the list of bots.
-
-    """
-    if not len(bots) == 4:
-        raise ValueError("Can only build a universe with 4 bots.")
-
-    uni_bots = []
-    zones = []
-    for idx, b in enumerate(bots):
-        homezone = (min(b.homezone)[0], max(b.homezone)[0] + 1)
-        if idx < 2:
-            zones.append(homezone)
-
-        bot = datamodel.Bot(idx,
-                            initial_pos=b._initial_position,
-                            team_index=idx%2,
-                            homezone=homezone,
-                            current_pos=b.position,
-                            noisy=b.is_noisy)
-        uni_bots.append(bot)
-
-    uni_teams = [
-        datamodel.Team(0, zones[0], bots[0].score),
-        datamodel.Team(1, zones[1], bots[1].score)
-    ]
-
-    width = max(bots[0].walls)[0] + 1
-    height = max(bots[0].walls)[1] + 1
-    maze = datamodel.Maze(width, height)
-    for pos in maze:
-        if pos in bots[0].walls:
-            maze[pos] = True
-    food = bots[0].food + bots[0].enemy[1].food
-
-    game_state = {
-        'round_index': bots[0].round,
-        'team_name': [bots[0].team_name, bots[1].team_name],
-        'timeout_teams': [bots[0].timeout_count, bots[1].timeout_count]
-    }
-
-    return datamodel.CTFUniverse(maze, food, uni_teams, uni_bots), game_state
-
-
 # def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_blue):
 def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
     bots = {}
@@ -440,28 +395,39 @@ def bots_from_universe(universe, rng, round, team_name, timeout_count):
                      team_name=team_name,
                      timeout_count=timeout_count)
 
-def bots_from_layout(layout, is_blue, score, rng, round, team_name, timeout_count):
+def bot_from_layout(layout, is_blue, score, round, team_name, timeout_count):
     """ Creates 4 bots given a layout. """
-    if is_blue:
-        positions = [layout.bots[0], layout.enemy[0], layout.bots[1], layout.enemy[1]]
-    else:
-        positions = [layout.enemy[0], layout.bots[0], layout.enemy[1], layout.bots[1]]
+    width = max(layout.walls)[0]
+    def in_homezone(position, is_blue):
+        on_left_side = position[0] < width // 2
+        if is_blue:
+            return on_left_side
+        else:
+            return not on_left_side
 
-    # initial positions are grouped by [blue_initials, red_initials] in the layout
-    # we have to reorder them.
-    initial_positions=[layout.initial_positions[0][0], layout.initial_positions[1][0],
-                       layout.initial_positions[0][1], layout.initial_positions[1][1]]
+    team = {
+        'bot_positions': layout.bots[:],
+        'team_index': 0 if is_blue else 1,
+        'score': 0,
+        'has_respawned': False,
+        'timeout_count': 0,
+        'food': [food for food in layout.food if in_homezone(food, is_blue)],
+    }
+    enemy = {
+        'bot_positions': layout.enemy[:],
+        'team_index': 0 if not is_blue else 1,
+        'score': 0,
+        'timeout_count': 0,
+        'food': [food for food in layout.food if in_homezone(food, not is_blue)],
+        'is_noisy': [False] * len(layout.enemy),
+    }
 
     return make_bots(walls=layout.walls[:],
-                     food=layout.food,
-                     positions=positions,
-                     initial_positions=initial_positions,
-                     score=score,
-                     is_noisy=[False] * 4,
-                     rng=rng,
-                     round=round,
-                     team_name=team_name,
-                     timeout_count=timeout_count)
+                     team=team,
+                     enemy=enemy,
+                     round=None,
+                     bot_turn=0,
+                     seed=None)
 
 
 def new_style_team(module):
@@ -755,39 +721,46 @@ def load_layout(layout_str):
         build.append(stripped)
 
     height = len(build)
-    mesh = datamodel.Mesh(width, height, data=list("".join(build)))
+    data=list("".join(build))
+    def idx_to_coord(idx):
+        """ Maps a 1-D index to a 2-D coord given a width and height. """
+        return (idx % width, idx // width)
+
     # Check that the layout is surrounded with walls
-    for i in range(width):
-        if not (mesh[i, 0] == mesh[i, height - 1] == '#'):
-            raise ValueError("Layout not surrounded with #.")
-    for j in range(height):
-        if not (mesh[0, j] == mesh[width - 1, j] == '#'):
-            raise ValueError("Layout not surrounded with #.")
+    for idx, char in enumerate(data):
+        x, y = idx_to_coord(idx)
+        if x == 0 or x == width - 1:
+            if not char == '#':
+                raise ValueError(f"Layout not surrounded with # at ({x}, {y}).")
+        if y == 0 or y == height - 1:
+            if not char == '#':
+                raise ValueError(f"Layout not surrounded with # at ({x}, {y}).")
 
     walls = []
     # extract the non-wall values from mesh
-    for idx, val in mesh.items():
-        # We know that each val is only one character, so it is
+    for idx, char in enumerate(data):
+        coord = idx_to_coord(idx)
+        # We know that each char is only one character, so it is
         # either wall or something else
-        if '#' in val:
-            walls.append(idx)
+        if '#' in char:
+            walls.append(coord)
         # free: skip
-        elif ' ' in val:
+        elif ' ' in char:
             continue
         # food
-        elif '.' in val:
-            food.append(idx)
+        elif '.' in char:
+            food.append(coord)
         # other
         else:
-            if 'E' in val:
+            if 'E' in char:
                 # We can have several undefined enemies
-                enemy.append(idx)
-            elif '0' in val:
-                bots[0] = idx
-            elif '1' in val:
-                bots[1] = idx
+                enemy.append(coord)
+            elif '0' in char:
+                bots[0] = coord
+            elif '1' in char:
+                bots[1] = coord
             else:
-                raise ValueError("Unknown character %s in maze." % val)
+                raise ValueError("Unknown character %s in maze." % char)
 
     walls = sorted(walls)
     return Layout(walls, food, bots, enemy)
