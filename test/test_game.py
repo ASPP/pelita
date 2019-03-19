@@ -343,6 +343,47 @@ def setup_specific_basic_gamestate(layout_id):
     return game_state
 
 
+def test_max_rounds():
+    l = """
+    ########
+    #20  13#
+    #      #
+    ########
+    """
+    def move(bot, s):
+        # in the first round (round #0),
+        # all bots move to the south
+        if bot.round == 0:
+            # go one step to the right
+            return (bot.position[0], bot.position[1] + 1), s
+        else:
+            # There should not be more then one round in this test
+            raise RuntimeError("We should not be here in this test")
+    
+    l = layout.parse_layout(l)
+    assert l['bots'][0] == (2, 1)
+    assert l['bots'][1] == (5, 1)
+    assert l['bots'][2] == (1, 1)
+    assert l['bots'][3] == (6, 1)
+    # max_rounds == 0 should not call move at all
+    final_state = run_game([move, move], layout_dict=l, rounds=0)
+#    assert final_state['round'] == 0
+    assert final_state['bots'][0] == (2, 1)
+    assert final_state['bots'][1] == (5, 1)
+    assert final_state['bots'][2] == (1, 1)
+    assert final_state['bots'][3] == (6, 1)
+    # max_rounds == 1 should call move just once
+    final_state = run_game([move, move], layout_dict=l, rounds=1)
+#    assert final_state['round'] == 1
+    assert final_state['bots'][0] == (2, 1)
+    assert final_state['bots'][0] == (2, 2)
+    assert final_state['bots'][1] == (5, 2)
+    assert final_state['bots'][2] == (1, 2)
+    assert final_state['bots'][3] == (6, 2)
+    with pytest.raises(RuntimeError):
+        final_state = run_game([move, move], layout_dict=l, rounds=2)
+
+
 def test_minimal_game():
     def move(b, s):
         return b.position, s

@@ -256,6 +256,12 @@ def play_turn(game_state):
         game_state['round'] = 0
         game_state['turn'] = 0
 
+    if game_state['round'] >= game_state['max_rounds']:
+        # TODO
+        # set gameover state properly
+        game_state['gameover'] = True
+        return game_state
+
     team = game_state['turn'] % 2
     # request a new move from the current team
     try:
