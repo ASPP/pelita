@@ -1,6 +1,6 @@
 import random
 
-from ..player.team import create_layout, bots_from_layout
+from ..player.team import create_layout, bot_from_layout
 from ..graph import Graph
 
 def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, seed=None,
@@ -14,14 +14,10 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
 
     layout = create_layout(layout, food=food, bots=bots, enemy=enemy)
 
-    rng = [random.Random(seed) for _ in range(4)]
+    rng = random.Random(seed)
     if score is None:
         score = [0, 0]
-    bots = bots_from_layout(layout, is_blue, score, rng, round, team_name=['blue', 'red'], timeout_count=[0, 0])
+    bot = bot_from_layout(layout, is_blue, score, round, team_name=['blue', 'red'], timeout_count=[0, 0])
+    bot.random = rng
 
-    if is_blue:
-        team = [bots[0], bots[2]]
-    else:
-        team = [bots[1], bots[3]]
-
-    return team[0]
+    return bot

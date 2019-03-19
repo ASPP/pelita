@@ -2,6 +2,7 @@
 
 import dataclasses
 from random import Random
+import sys
 import typing
 
 from . import layout
@@ -110,7 +111,7 @@ def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump
     state = setup_game(team_specs, layout_dict, max_rounds=rounds, seed=seed)
 
     while not state.get('gameover'):
-        state = play_turn_(state)
+        state = play_turn(state)
 
         # generate the reduced viewer state
         viewer_state = prepare_viewer_state(state)
@@ -121,6 +122,7 @@ def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump
     return state
 
 def setup_game(team_specs, layout_dict, max_rounds=300, seed=None):
+    """ Generates a game state for the given teams and layout with otherwise default values. """
     game_state = GameState(
         team_specs=[None] * 2,
         bots=layout_dict['bots'][:],
@@ -158,17 +160,23 @@ def setup_game(team_specs, layout_dict, max_rounds=300, seed=None):
 
 def request_new_position(game_state):
     team = game_state['turn'] % 2
+    bot_turn = game_state['turn'] // 2
     move_fun = game_state['team_specs'][team]
 
     bot_state = prepare_bot_state(game_state)
-    new_position = move_fun.get_move(game_state['turn'], bot_state)
+    new_position = move_fun.get_move(bot_state)
     return new_position
 
 def prepare_bot_state(game_state, idx=None):
-    if idx is not None: # for initial step
+    if game_state.get('turn') is None and idx is not None:
+        # We assume that we are in get_initial phase
         turn = idx
+        bot_turn = None
+        seed = game_state['rnd'].randint(0, sys.maxsize)
     else:
         turn = game_state['turn']
+        bot_turn = game_state['turn'] // 2
+        seed = None
 
     bot_position = game_state['bots'][turn]
     own_team = turn % 2
@@ -209,11 +217,11 @@ def prepare_bot_state(game_state, idx=None):
 
     bot_state = {
         'walls': game_state['walls'], # only in initial round
-        'seed': 0, # only in initial round
+        'seed': seed, # only used in set_intital phase
         'team': team_state,
         'enemy': enemy_state,
         'round': game_state['round'],
-        'turn': game_state['turn'], # or move into team_state?
+        'bot_turn': bot_turn
     }
 
     return bot_state
@@ -222,7 +230,7 @@ def prepare_viewer_state(game_state):
     return game_state
 
 
-def play_turn_(game_state):
+def play_turn(game_state):
     # if the game is already over, we return a value error
     if game_state['gameover']:
         raise ValueError("Game is already over!")
@@ -262,11 +270,11 @@ def play_turn_(game_state):
         position = None
 
     # try to execute the move and return the new state
-    game_state = play_turn(game_state, position)
+    game_state = apply_move(game_state, position)
     return game_state
 
 
-def play_turn(gamestate, bot_position):
+def apply_move(gamestate, bot_position):
     """Plays a single step of a bot by applying the game rules to the game state. The rules are:
     - if the playing team has an error count of >5 or a fatal error they lose
     - a legal step must not be on a wall, else the error count is increased by 1 and a random move is chosen for the bot

@@ -7,7 +7,7 @@ import random
 import numpy as np
 
 from pelita import layout
-from pelita.game import initial_positions, get_legal_moves, play_turn, run_game
+from pelita.game import initial_positions, get_legal_moves, apply_move, run_game
 
 def test_initial_positions_basic():
     """Checks basic example for initial positions"""
@@ -130,7 +130,7 @@ def test_play_turn_apply_error(turn):
     game_state["errors"] = [[error_dict, error_dict, error_dict, error_dict],
                             [error_dict, error_dict, error_dict, error_dict]]
     illegal_move = game_state["walls"][0]
-    game_state_new = play_turn(game_state, illegal_move)
+    game_state_new = apply_move(game_state, illegal_move)
     assert game_state_new["gameover"]
     assert len(game_state_new["errors"][team]) == 5
     assert game_state_new["whowins"] == int(not team)
@@ -146,7 +146,7 @@ def test_play_turn_fatal(turn):
     fatal_list[team] = {"error":True}
     game_state["fatal_errors"] = fatal_list
     move = get_legal_moves(game_state["walls"], game_state["bots"][turn])
-    game_state_new = play_turn(game_state, move[0])
+    game_state_new = apply_move(game_state, move[0])
     assert game_state_new["gameover"]
     assert game_state_new["whowins"] == int(not team)
 
@@ -157,7 +157,7 @@ def test_play_turn_illegal_move(turn):
     game_state["turn"] = turn
     team = turn % 2
     illegal_move = game_state["walls"][0]
-    game_state_new = play_turn(game_state, illegal_move)
+    game_state_new = apply_move(game_state, illegal_move)
     assert len(game_state_new["errors"][team]) == 1
     assert set(game_state_new["errors"][team][0].keys()) == set(["turn", "round", "reason", "bot_position"])
     assert game_state_new["bots"][turn] in get_legal_moves(game_state["walls"], game_state["bots"][turn])
@@ -189,7 +189,7 @@ def test_play_turn_eating_enemy_food(turn, which_food):
         # food belongs to team 0
         game_state["bots"][turn] = (6, 4)
         move = (7, 4)
-    game_state_new = play_turn(game_state, move)
+    game_state_new = apply_move(game_state, move)
 
     if team == which_food:
         assert game_state_new["score"][team] == 0
@@ -217,7 +217,7 @@ def test_play_turn_killing(turn):
     enemy_idx = (1, 3) if team == 0 else(0, 2)
     (friend_idx,) = set([0, 1, 2, 3]) - set([*enemy_idx, turn])
 
-    game_state_new = play_turn(game_state, game_state["bots"][friend_idx])
+    game_state_new = apply_move(game_state, game_state["bots"][friend_idx])
     # assert game_state_new["DEATHS"][team] == 5
     assert game_state_new["score"] == [0, 0]
     assert game_state_new["deaths"] == [0, 0]
@@ -244,7 +244,7 @@ def test_play_turn_friendly_fire(setups):
     game_state["turn"] = turn
     enemy_idx = (1, 3) if team == 0 else (0, 2)
     game_state["bots"][enemy_idx[0]] = enemy_pos
-    game_state_new = play_turn(game_state, enemy_pos)
+    game_state_new = apply_move(game_state, enemy_pos)
     # assert game_state_new["DEATHS"][team] == 5
     assert game_state_new["score"][team] == 5
 
@@ -258,7 +258,7 @@ def test_play_turn_maxrounds(score):
     game_state["round"] = 300
     game_state["score"] = score[0]
     move = get_legal_moves(game_state["walls"], game_state["bots"][0])
-    game_state_new = play_turn(game_state, move[0])
+    game_state_new = apply_move(game_state, move[0])
     assert game_state_new["gameover"]
     assert game_state_new["whowins"] == score[1]
 
@@ -286,7 +286,7 @@ def test_play_turn_move():
         "rnd": random.Random()
         }
     legal_moves = get_legal_moves(game_state["walls"], game_state["bots"][turn])
-    game_state_new = play_turn(game_state, legal_moves[0])
+    game_state_new = apply_move(game_state, legal_moves[0])
     assert game_state_new["bots"][turn] == legal_moves[0]
 
 
@@ -354,7 +354,7 @@ def test_minimal_game():
     assert final_state['score'] == [0, 0]
     assert final_state['round'] == 19
 
-def test_minimal_losing_game():
+def test_minimal_losing_game_has_one_error():
     def move0(b, s):
         if b.round == 0 and b.bot_index == 0:
             # trigger a bad move in the first round

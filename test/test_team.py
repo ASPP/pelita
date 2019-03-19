@@ -2,7 +2,7 @@ import pytest
 
 from pelita.datamodel import CTFUniverse
 from pelita.game_master import GameMaster
-from pelita.player.team import Team, split_layout_str, create_layout, _rebuild_universe, bots_from_universe
+from pelita.player.team import Team, split_layout_str, create_layout, bots_from_universe
 from pelita.utils import setup_test_game
 
 def stopping(bot, state):
