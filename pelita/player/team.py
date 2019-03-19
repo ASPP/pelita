@@ -2,9 +2,18 @@
 import collections
 from functools import reduce
 from io import StringIO
+import logging
 import random
+import subprocess
+
+import zmq
 
 from . import AbstractTeam
+from .. import libpelita
+from ..simplesetup import ZMQConnection, ZMQConnectionError, ZMQReplyTimeout, ZMQUnreachablePeer, DEAD_CONNECTION_TIMEOUT
+
+
+_logger = logging.getLogger(__name__)
 
 
 class Team(AbstractTeam):
@@ -116,6 +125,167 @@ class Team(AbstractTeam):
 
     def __repr__(self):
         return "Team(%r, %s)" % (self.team_name, repr(self._team_move))
+
+
+class RemoteTeam:
+    """ Start a child process with the given `team_spec` and handle
+    communication with it through a zmq.PAIR connection.
+
+    It also does some basic checks for correct return values and tries to
+    terminate the child process once it is not needed anymore.
+
+    Parameters
+    ----------
+    zmq_context
+        A zmq_context (if None, a new one will be created)
+    team_spec
+        The string to pass as a command line argument to pelita_player
+    address
+        The zmq address (an address will be chosen randomly, if empty)
+    """
+    def __init__(self, team_spec, team_name=None, address="tcp://", zmq_context=None, timeout_length=3):
+        if zmq_context is None:
+            zmq_context = zmq.Context()
+        socket = zmq_context.socket(zmq.PAIR)
+        port = socket.bind_to_random_port('tcp://*')
+        self._team_spec = team_spec
+        self._team_name = team_name
+        self.bound_to_address =f"tcp://localhost:{port}"
+        self.zmqconnection = ZMQConnection(socket)
+        self.timeout_length = timeout_length
+        self.proc = self._call_pelita_player(team_spec, self.bound_to_address)
+
+    def _call_pelita_player(self, team_spec, address, color='', dump=None):
+        """ Starts another process with the same Python executable,
+        the same start script (pelitagame) and runs `team_spec`
+        as a standalone client on URL `addr`.
+        """
+        player = 'pelita.scripts.pelita_player'
+        external_call = [libpelita.get_python_process(),
+                         '-m',
+                         player,
+                         team_spec,
+                         address,
+                         '--color',
+                         color]
+
+        _logger.debug("Executing: %r", external_call)
+        if dump:
+            stdout = Path(dump + '.' + (color or module_spec) + '.out').open('w')
+            stderr = Path(dump + '.' + (color or module_spec) + '.err').open('w')
+            return (subprocess.Popen(external_call, stdout=stdout, stderr=stderr), stdout, stderr)
+        else:
+            return (subprocess.Popen(external_call), None, None)
+
+    # TODO
+#   def team_name(self):
+#       try:
+#           self.zmqconnection.send("team_name", {})
+#           return self.zmqconnection.recv_timeout(DEAD_CONNECTION_TIMEOUT)
+#       except ZMQReplyTimeout:
+#           _logger.info("Detected a timeout, returning a string nonetheless.")
+#           return "%error%"
+#       except ZMQUnreachablePeer:
+#           _logger.info("Detected a DeadConnection, returning a string nonetheless.")
+#           return "%error%"
+
+    def set_initial(self, team_id, game_state):
+        try:
+            self.zmqconnection.send("set_initial", {"team_id": team_id,
+                                                    "game_state": game_state})
+            team_name = self.zmqconnection.recv_timeout(self.timeout_length)
+            if team_name:
+                self._team_name = team_name
+            return team_name
+        except ZMQReplyTimeout:
+            # answer did not arrive in time
+            raise PlayerTimeout()
+        except ZMQUnreachablePeer:
+            _logger.info("Could not properly send the message. Maybe just a slow client. Ignoring in set_initial.")
+        except ZMQConnectionError as e:
+            _logger.info("Detected a ConnectionError: %s", e)
+            return '%%%s%%' % e
+
+    def get_move(self, game_state, timeout_length=None):
+        try:
+            self.zmqconnection.send("get_move", {"game_state": game_state})
+            reply = self.zmqconnection.recv_timeout(self.timeout_length)
+            # make sure it is a dict
+            reply = dict(reply)
+            # make sure that the move is a tuple
+            reply["move"] = tuple(reply.get("move"))
+            return reply
+        except ZMQReplyTimeout:
+            # answer did not arrive in time
+            raise PlayerTimeout()
+        except TypeError:
+            # if we could not convert into a tuple or dict (e.g. bad reply)
+            return None
+        except ZMQUnreachablePeer:
+            # if the remote connection is closed
+            raise PlayerDisconnected()
+        except ZMQConnectionError:
+            raise
+
+    def _exit(self):
+        try:
+            self.zmqconnection.send("exit", {}, timeout=1)
+        except ZMQUnreachablePeer:
+            _logger.info("Remote Player %r is already dead during exit. Ignoring.", self)
+
+    def __del__(self):
+        self._exit()
+        self.proc[0].terminate()
+
+    def __repr__(self):
+        team_name = f" ({self._team_name})" if self._team_name else ""
+        return f"RemoteTeam<{self._team_spec}{team_name} on {self.bound_to_address}>" 
+
+
+def make_team(team_spec, team_name=None, zmq_context=None):
+    """ Creates a Team object for the given team_spec.
+
+    If no zmq_context is passed for a remote team, then a new context
+    will be automatically created and returned. Otherwise, the same
+    zmq_context (or None) will be returned.
+
+    Parameters
+    ----------
+    team_spec : callable or str
+        A move function or a team_spec that is passed on to pelita_player
+
+    team_name : str, optional
+        Optional team name for a local team
+
+    zmq_context : zmq context, optional
+        ZMQ context to avoid having to create a new context for every team
+
+    Returns
+    -------
+    team_player, zmq_context : tuple
+        The team class to interact with
+        The new ZMQ context
+
+    """
+    if callable(team_spec):
+        _logger.debug("Making a local team for %s", team_spec)
+        # wrap the move function in a Team
+        if team_name is None:
+            team_name = 'local-team'
+        team_player = Team(team_name, team_spec)
+    elif isinstance(team_spec, str):
+        _logger.debug("Making a remote team for %s", team_spec)
+        # wrap the move function in a Team
+        if team_spec.startswith('tcp://'):
+            # remote team TODO
+            pass
+        else:
+            # start pelita-player
+            if not zmq_context:
+                zmq_context = zmq.Context()
+            team_player = RemoteTeam(team_spec=team_spec, zmq_context=zmq_context)
+
+    return team_player, zmq_context
 
 
 def create_homezones(width, height):

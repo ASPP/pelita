@@ -1,17 +1,30 @@
 """This is the game module. Written in 2019 in Born by Carlos and Lisa."""
 
 import dataclasses
+import logging
 from random import Random
 import sys
 import typing
 
 from . import layout
 from .gamestate_filters import noiser
+from .player.team import make_team
 
-class FatalException(Exception):
+_logger = logging.getLogger(__name__)
+
+class FatalException(Exception): # TODO rename to FatalGameException etc
     pass
 
 class NonFatalException(Exception):
+    pass
+
+class PlayerTimeout(NonFatalException):
+    pass
+
+class PlayerDisconnected(FatalException):
+    # unsure, if PlayerDisconnected should be fatal in the sense of that the team loses
+    # it could simply be a network error for both teams
+    # and it would be random who will be punished
     pass
 
 @dataclasses.dataclass
@@ -98,7 +111,7 @@ class GameState:
 
     def pretty_str(self):
         return (layout.layout_as_str(walls=self.walls, food=self.food, bots=self.bots) + "\n" +
-                str({ k: v for k, v in dataclasses.asdict(self).items() if k not in ['walls', 'food']}))
+                str({ f.name: getattr(self, f.name) for f in dataclasses.fields(self) if f.name not in ['walls', 'food']}))
 
 def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump=False,
              max_team_errors=5, timeout_length=3, viewers=None):
@@ -147,16 +160,18 @@ def setup_game(team_specs, layout_dict, max_rounds=300, seed=None):
     )
     game_state = dataclasses.asdict(game_state)
 
-    # for now team_specs will be two move functions
+    # we start with a dummy zmq_context
+    # make_team will generate and return a new context, if it is needed
+    zmq_context = None
+    
     game_state['team_specs'] = []
-    for idx, team in enumerate(team_specs):
-        # wrap the move function in a Team
-        from .player.team import Team as _Team
-        team_player = _Team('local-team', team)
-        team_name = team_player.set_initial(idx, prepare_bot_state(game_state, idx))
-        game_state['team_specs'].append(team_player)
+    for idx, team_spec in enumerate(team_specs):
+        team, zmq_context = make_team(team_spec)
+        team_name = team.set_initial(idx, prepare_bot_state(game_state, idx))
+        game_state['team_specs'].append(team)
 
     return game_state
+
 
 def request_new_position(game_state):
     team = game_state['turn'] % 2

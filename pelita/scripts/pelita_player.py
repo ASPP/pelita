@@ -17,7 +17,7 @@ import sys
 import zmq
 
 import pelita
-from ..player.team import new_style_team
+from ..player.team import new_style_team, make_team
 
 _logger = logging.getLogger(__name__)
 
@@ -79,6 +79,14 @@ def check_team_name(name):
     if name.isspace():
         raise ValueError('Invalid team name (no letters): "%s"'%name)
 
+# helper teams for the demo mode
+# TODO: Rewrite the old demo players to the new API
+def stopping(bot, state):
+    return bot.position, state
+
+def random(bot, state):
+    import random
+    return random.choice(bot.legal_positions), state
 
 def load_team(spec):
     """ Tries to load a team from a given spec.
@@ -87,11 +95,14 @@ def load_team(spec):
     If this fails, it will try to load a factory.
     """
     if spec == '0':
-        from ..player.FoodEatingPlayer import team
-        return team()
+        #from ..player.FoodEatingPlayer import team
+        #return team()
+        team, _ = make_team(stopping, team_name="stopping")
+        return team
     elif spec == '1':
-        from ..player.RandomExplorerPlayer import team
-        return team()
+        #from ..player.RandomExplorerPlayer import team
+        team, _ = make_team(random, team_name="random")
+        return team
     try:
         factory = load_factory(spec)
     except (FileNotFoundError, ImportError, ValueError,

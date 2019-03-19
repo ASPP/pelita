@@ -587,8 +587,8 @@ class SimpleClient:
     def set_initial(self, team_id, game_state):
         return self.team.set_initial(team_id, game_state)
 
-    def get_move(self, bot_id, game_state):
-        return self.team.get_move(bot_id, game_state)
+    def get_move(self, game_state):
+        return self.team.get_move(game_state)
 
     def exit(self):
         raise ExitLoop()

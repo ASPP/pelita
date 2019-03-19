@@ -372,3 +372,16 @@ def test_minimal_losing_game_has_one_error():
     assert len(final_state['errors'][0]) == 1
     assert len(final_state['errors'][1]) == 0
     assert final_state['round'] == 19
+
+
+def test_minimal_remote_game():
+    def move(b, s):
+        return b.position, s
+
+    layout_name, layout_string = layout.get_random_layout()
+    l = layout.parse_layout(layout_string)
+    final_state = run_game(["test/demo01_stopping.py", move], rounds=20, layout_dict=l)
+    final_state = run_game(["test/demo01_stopping.py", 'test/demo02_random.py'], rounds=20, layout_dict=l)
+    assert final_state['gameover'] is True
+    assert final_state['score'] == [0, 0]
+    assert final_state['round'] == 19
