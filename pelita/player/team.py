@@ -297,6 +297,9 @@ def create_homezones(width, height):
                 for y in range(0, height)]
     ]
 
+def _ensure_tuples(list):
+    """ Ensures that an iterable is a list of position tuples. """
+    return [tuple(item) for item in list]
 
 class Bot:
     def __init__(self, *, bot_index,
@@ -325,12 +328,12 @@ class Bot:
         self.is_on_team = is_on_team
 
         self.random = random
-        self.position = position
-        self.initial_position = initial_position
-        self.walls = walls
+        self.position = tuple(position)
+        self.initial_position = tuple(initial_position)
+        self.walls = _ensure_tuples(walls)
 
-        self.homezone = homezone
-        self.food = food
+        self.homezone = _ensure_tuples(homezone)
+        self.food = _ensure_tuples(food)
         self.score  = score
         self.bot_index  = bot_index
         self.round = round
