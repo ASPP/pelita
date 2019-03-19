@@ -92,6 +92,7 @@ class Team(AbstractTeam):
         move : dict
         """
         me = make_bots(**game_state)
+        me.random = self._bot_random
 
         team = me._team
 
