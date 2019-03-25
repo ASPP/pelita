@@ -12,7 +12,7 @@ import sys
 import time
 
 import pelita
-from pelita import libpelita, datamodel
+from pelita import libpelita, game, layout
 
 # silence stupid warnings from logging module
 logging.root.manager.emittedNoHandlerWarning = 1
@@ -377,9 +377,11 @@ def main():
             controller = None
             publisher = None
 
-        libpelita.run_game(team_specs=team_specs, rounds=args.rounds, layout=layout_string, layout_name=layout_name,
-                           seed=args.seed, dump=args.dump, max_timeouts=args.max_timeouts, timeout_length=args.timeout_length,
-                           viewers=viewers, controller=controller, publisher=publisher)
+        #libpelita.run_game(team_specs=team_specs, rounds=args.rounds, layout=layout_string, layout_name=layout_name,
+        #                   seed=args.seed, dump=args.dump, max_timeouts=args.max_timeouts, timeout_length=args.timeout_length,
+        #                   viewers=viewers, controller=controller, publisher=publisher)
+        layout_dict = layout.parse_layout(layout_string)
+        game.run_game(team_specs=team_specs, rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, seed=args.seed)
 
 if __name__ == '__main__':
     main()
