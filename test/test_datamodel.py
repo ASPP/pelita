@@ -6,7 +6,7 @@ from pelita.layout import Layout
 
 # the legal chars for a basic CTFUniverse
 # see also: CTFUniverse.create factory.
-layout_chars = maze_components
+layout_chars = None
 
 class TestStaticmethods:
     def test_get_initial_positions(self):
