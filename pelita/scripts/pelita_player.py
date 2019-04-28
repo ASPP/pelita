@@ -53,7 +53,13 @@ def make_client(team_spec, address, color=None):
 
         raise
 
-    print("%s team '%s' -> '%s'" % (color, team_spec, team.team_name))
+    if color == 'blue':
+        pie = '\033[94m' + 'ᗧ' + '\033[0m'
+    elif color == 'red':
+        pie = '\033[91m' + 'ᗧ' + '\033[0m'
+    else:
+        pie = 'ᗧ'
+    print(f"{pie} {color} team '{team_spec}' -> '{team.team_name}'")
 
     client = pelita.simplesetup.SimpleClient(team, address=address)
     return client

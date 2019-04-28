@@ -145,7 +145,7 @@ class RemoteTeam:
     address
         The zmq address (an address will be chosen randomly, if empty)
     """
-    def __init__(self, team_spec, team_name=None, address="tcp://", zmq_context=None, timeout_length=3):
+    def __init__(self, team_spec, team_name=None, address="tcp://", zmq_context=None, timeout_length=3, idx=None):
         if zmq_context is None:
             zmq_context = zmq.Context()
         socket = zmq_context.socket(zmq.PAIR)
@@ -155,7 +155,11 @@ class RemoteTeam:
         self.bound_to_address =f"tcp://localhost:{port}"
         self.zmqconnection = ZMQConnection(socket)
         self.timeout_length = timeout_length
-        self.proc = self._call_pelita_player(team_spec, self.bound_to_address)
+        if idx == 0:
+            color='blue'
+        if idx == 1:
+            color='red'
+        self.proc = self._call_pelita_player(team_spec, self.bound_to_address, color=color)
 
     def _call_pelita_player(self, team_spec, address, color='', dump=None):
         """ Starts another process with the same Python executable,
@@ -244,7 +248,7 @@ class RemoteTeam:
         return f"RemoteTeam<{self._team_spec}{team_name} on {self.bound_to_address}>" 
 
 
-def make_team(team_spec, team_name=None, zmq_context=None):
+def make_team(team_spec, team_name=None, zmq_context=None, idx=None):
     """ Creates a Team object for the given team_spec.
 
     If no zmq_context is passed for a remote team, then a new context
@@ -285,7 +289,7 @@ def make_team(team_spec, team_name=None, zmq_context=None):
             # start pelita-player
             if not zmq_context:
                 zmq_context = zmq.Context()
-            team_player = RemoteTeam(team_spec=team_spec, zmq_context=zmq_context)
+            team_player = RemoteTeam(team_spec=team_spec, zmq_context=zmq_context, idx=idx)
 
     return team_player, zmq_context
 

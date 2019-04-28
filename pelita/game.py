@@ -165,7 +165,7 @@ def setup_game(team_specs, layout_dict, max_rounds=300, seed=None):
     
     game_state['team_specs'] = []
     for idx, team_spec in enumerate(team_specs):
-        team, zmq_context = make_team(team_spec)
+        team, zmq_context = make_team(team_spec, idx=idx)
         team_name = team.set_initial(idx, prepare_bot_state(game_state, idx))
         game_state['team_specs'].append(team)
 
