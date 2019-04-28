@@ -588,7 +588,7 @@ def bot_from_layout(layout, is_blue, score, round, team_name, timeout_count):
         'bot_positions': layout.bots[:],
         'team_index': 0 if is_blue else 1,
         'score': 0,
-        'has_respawned': False,
+        'has_respawned': True,
         'timeout_count': 0,
         'food': [food for food in layout.food if in_homezone(food, is_blue)],
     }
