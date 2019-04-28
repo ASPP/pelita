@@ -1,17 +1,24 @@
 """This is the game module. Written in 2019 in Born by Carlos and Lisa."""
 
 import dataclasses
+import itertools
 import logging
+import os
 from random import Random
+import subprocess
 import sys
 import typing
 
 from . import layout
 from .exceptions import FatalException, NonFatalException
 from .gamestate_filters import noiser
+from .libpelita import get_python_process, SimplePublisher
+from .network import bind_socket, setup_controller
 from .player.team import make_team
+from .viewer import ProgressViewer
 
 _logger = logging.getLogger(__name__)
+_mswindows = (sys.platform == "win32")
 
 @dataclasses.dataclass
 class GameState:
@@ -95,35 +102,126 @@ class GameState:
     #: Random number generator
     rnd: typing.Any
 
+    #: Viewers
+    viewers: typing.List
+
+    #: Controller
+    controller: typing.Optional
+
     def pretty_str(self):
         return (layout.layout_as_str(walls=self.walls, food=self.food, bots=self.bots) + "\n" +
                 str({ f.name: getattr(self, f.name) for f in dataclasses.fields(self) if f.name not in ['walls', 'food']}))
 
-def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None, dump=False,
-             max_team_errors=5, timeout_length=3, viewers=None):
-    """ Run a match for `max_rounds` rounds.
 
-    """
+class TkViewer:
+    def __init__(self, *, address, controller, geometry=None, delay=None, stop_after=None):
+        self.proc = self._run_external_viewer(address, controller, geometry=geometry, delay=delay, stop_after=stop_after)
+
+    def _run_external_viewer(self, subscribe_sock, controller, geometry, delay, stop_after):
+        # Something on OS X prevents Tk from running in a forked process.
+        # Therefore we cannot use multiprocessing here. subprocess works, though.
+        viewer_args = [ str(subscribe_sock) ]
+        if controller:
+            viewer_args += ["--controller-address", str(controller)]
+        if geometry:
+            viewer_args += ["--geometry", "{0}x{1}".format(*geometry)]
+        if delay:
+            viewer_args += ["--delay", str(delay)]
+        if stop_after is not None:
+            viewer_args += ["--stop-after", str(stop_after)]
+
+        tkviewer = 'pelita.scripts.pelita_tkviewer'
+        external_call = [get_python_process(),
+                        '-m',
+                        tkviewer] + viewer_args
+        _logger.debug("Executing: %r", external_call)
+        # os.setsid will keep the viewer from closing when the main process exits
+        # a better solution might be to decouple the viewer from the main process
+        if _mswindows:
+            p = subprocess.Popen(external_call, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+        else:
+            p = subprocess.Popen(external_call, preexec_fn=os.setsid)
+        return p
+
+
+def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None, dump=False,
+             max_team_errors=5, timeout_length=3, viewers=None, controller=None, viewer_options=None):
+    """ Run a match for `max_rounds` rounds. """
 
     if viewers is None:
         viewers = []
 
     # we create the initial game state
-    # initialize the exceptions lists
-    state = setup_game(team_specs, layout_dict, max_rounds=max_rounds, seed=seed)
+    state = setup_game(team_specs, layout_dict=layout_dict, max_rounds=max_rounds, seed=seed,
+                       viewers=viewers, controller=controller, viewer_options=viewer_options)
 
+    # Play the game until it is gameover.
     while not state.get('gameover'):
+
+        # If we have a controller, wait here for a `play_step` message.
+        if state['controller']:
+            action = state['controller'].await_action('play_step')
+            if action == 'exit':
+                break
+            elif action == 'play_step':
+                pass
+
         state = play_turn(state)
 
-        # generate the reduced viewer state
-        viewer_state = prepare_viewer_state(state)
-        for viewer in viewers:
-            # show a state to the viewer
-            viewer.show_state(state)
+    # The game is over. We are nice and clean up.
+    # for team in state['team_specs']:
+    #    if hasattr(team, '_exit'):
+    #        team._exit()
 
     return state
 
-def setup_game(team_specs, layout_dict, max_rounds=300, seed=None):
+
+def setup_viewers(viewers=None, options=None):
+    """ Returns a list of viewers from the given strings. """
+    if viewers is None:
+        viewers = []
+
+    if options is None:
+        options = {}
+
+    zmq_publisher = None
+
+    viewer_state = {
+        'viewers': [],
+        'procs': [],
+        'controller': None
+    }
+
+    for viewer in viewers:
+        if viewer == 'ascii':
+            pass
+        elif viewer == 'progress':
+            viewer_state['viewers'].append(ProgressViewer())
+        elif viewer in ('tk', 'tk-no-sync'):
+            if not zmq_publisher:
+                zmq_publisher = SimplePublisher(address='tcp://127.0.0.1:*')
+                viewer_state['viewers'].append(zmq_publisher)
+            if viewer == 'tk':
+                viewer_state['controller'] = setup_controller()
+            if viewer_state['controller']:
+                proc = TkViewer(address=zmq_publisher.socket_addr, controller=viewer_state['controller'].socket_addr,
+                                stop_after=options.get('stop_at'),
+                                geometry=options.get('geometry'),
+                                delay=options.get('delay'))
+            else:
+                proc = TkViewer(address=zmq_publisher.socket_addr, controller=None,
+                                stop_after=options.get('stop_at'),
+                                geometry=options.get('geometry'),
+                                delay=options.get('delay'))
+
+        else:
+            raise ValueError(f"Unknown viewer {viewer}.")
+
+    return viewer_state
+
+
+def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=None, dump=False,
+               max_team_errors=5, timeout_length=3, viewers=None, controller=None, viewer_options=None):
     """ Generates a game state for the given teams and layout with otherwise default values. """
     def split_food(width, food):
         team_food = [set(), set()]
@@ -131,6 +229,8 @@ def setup_game(team_specs, layout_dict, max_rounds=300, seed=None):
             idx = pos[0] // (width // 2)
             team_food[idx].add(pos)
         return team_food
+
+    viewer_state = setup_viewers(viewers, options=viewer_options)
     
     width = max(layout_dict['walls'])[0] + 1
     food = split_food(width, layout_dict['food'])
@@ -155,21 +255,60 @@ def setup_game(team_specs, layout_dict, max_rounds=300, seed=None):
         fatal_errors=[False] * 2,
         errors=[[], []],
         whowins=None,
-        rnd=Random(seed)
+        rnd=Random(seed),
+        viewers=[],
+        controller=None,
     )
     game_state = dataclasses.asdict(game_state)
+
+    # We must set the viewers after `asdict` to avoid
+    # deepcopying the zmq sockets
+    game_state['viewers'] = viewer_state['viewers']
+    game_state['controller'] = viewer_state['controller']
+
+    if game_state['controller']:
+        # Wait until the controller tells us that it is ready
+        # We then can send the initial maze
+        # TODO: Waiting for the viewer to be ready could
+        # be done simultaneously with calling setup_teams
+        action = game_state['controller'].await_action('set_initial')
+        if action == 'exit':
+            return game_state
+        elif action == 'set_initial':
+            pass
+
+    # Send maze before team creation.
+    # This gives a more fluent UI as it does not have to wait for the clients
+    # to answer to the server.
+    update_viewers(game_state)
+
+    team_state = setup_teams(team_specs, game_state)
+    game_state.update(team_state)
+
+    # Send updated game state with team names to the viewers
+    update_viewers(game_state)
+
+    return game_state
+
+
+def setup_teams(team_specs, game_state):
+    """ Creates the teams according to the `team_specs`. """
+    team_state = {
+        'team_specs': [],
+        'team_names': []
+    }
 
     # we start with a dummy zmq_context
     # make_team will generate and return a new context, if it is needed
     zmq_context = None
-    
-    game_state['team_specs'] = []
+
     for idx, team_spec in enumerate(team_specs):
         team, zmq_context = make_team(team_spec, idx=idx)
         team_name = team.set_initial(idx, prepare_bot_state(game_state, idx))
-        game_state['team_specs'].append(team)
-
-    return game_state
+        team_state['team_names'].append(team_name) # TODO this could be an attribute of the team_spec team (and only be used in prepare_viewer).
+        team_state['team_specs'].append(team)
+    
+    return team_state
 
 
 def request_new_position(game_state):
@@ -181,7 +320,12 @@ def request_new_position(game_state):
     new_position = move_fun.get_move(bot_state)
     return new_position
 
+
 def prepare_bot_state(game_state, idx=None):
+    """ Prepares the bot’s game state for the current bot.
+
+    """
+
     if game_state.get('turn') is None and idx is not None:
         # We assume that we are in get_initial phase
         turn = idx
@@ -240,6 +384,14 @@ def prepare_bot_state(game_state, idx=None):
 
     return bot_state
 
+
+def update_viewers(game_state):
+    """ Sends the current game_state to the viewers. """
+    viewer_state = prepare_viewer_state(game_state)
+    for viewer in game_state['viewers']:
+        viewer.show_state(viewer_state)
+
+
 def prepare_viewer_state(game_state):
     """ Prepares a state that can be sent to the viewers. """
     viewer_state = {}
@@ -247,6 +399,8 @@ def prepare_viewer_state(game_state):
     viewer_state['food'] = list((viewer_state['food'][0] | viewer_state['food'][1]))
     del viewer_state['team_specs']
     del viewer_state['rnd']
+    del viewer_state['viewers']
+    del viewer_state['controller']
     return viewer_state
 
 
@@ -309,6 +463,10 @@ def play_turn(game_state):
 
     # Check if this was the last move of the game (final round or food eaten)
     game_state.update(check_final_move(game_state))
+
+    # Send updated game state with team names to the viewers
+    update_viewers(game_state)
+
     return game_state
 
 

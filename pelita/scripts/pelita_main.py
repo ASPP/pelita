@@ -361,27 +361,40 @@ def main():
     
     print("Using layout '%s'" % layout_name)
 
-    with libpelita.channel_setup(publish_to=args.publish_to) as channels:
-        if args.viewer.startswith('tk'):
-            geometry = args.geometry
-            delay = int(1000./args.fps)
-            controller = channels["controller"]
-            controller_addr = controller.socket_addr
-            publisher = channels["publisher"]
-            if args.viewer == 'tk-no-sync':
-                controller = None
-                controller_addr = None
-            viewer = libpelita.run_external_viewer(publisher.socket_addr, controller_addr,
-                                                   geometry=geometry, delay=delay, stop_after=args.stop_after)
-        else:
-            controller = None
-            publisher = None
+#   with libpelita.channel_setup(publish_to=args.publish_to) as channels:
+#       if args.viewer.startswith('tk'):
+#           geometry = args.geometry
+#           delay = int(1000./args.fps)
+#           controller = channels["controller"]
+#           controller_addr = controller.socket_addr
+#           publisher = channels["publisher"]
+#           if args.viewer == 'tk-no-sync':
+#               controller = None
+#               controller_addr = None
+#           viewer = libpelita.run_external_viewer(publisher.socket_addr, controller_addr,
+#                                                  geometry=geometry, delay=delay, stop_after=args.stop_after)
+#       else:
+#           controller = None
+#           publisher = None
 
         #libpelita.run_game(team_specs=team_specs, rounds=args.rounds, layout=layout_string, layout_name=layout_name,
         #                   seed=args.seed, dump=args.dump, max_timeouts=args.max_timeouts, timeout_length=args.timeout_length,
         #                   viewers=viewers, controller=controller, publisher=publisher)
-        layout_dict = layout.parse_layout(layout_string)
-        game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, seed=args.seed)
+    
+    geometry = args.geometry
+    delay = int(1000./args.fps)
+    stop_after = args.stop_after
+
+    viewer_options = {
+        "geometry": geometry,
+        "delay": delay,
+        "stop_at": stop_after
+    }
+
+    layout_dict = layout.parse_layout(layout_string)
+    game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, seed=args.seed,
+                  timeout_length=args.timeout_length, max_team_errors=args.max_timeouts, dump=args.dump,
+                  viewers=[args.viewer], viewer_options=viewer_options)
 
 if __name__ == '__main__':
     main()
