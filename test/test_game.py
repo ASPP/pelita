@@ -176,7 +176,7 @@ def test_play_turn_eating_enemy_food(turn, which_food):
     #6# #2     .##. ... .#
     #7# ##################
     game_state = setup_specific_basic_gamestate("layouts/small_without_dead_ends_001.layout")
-    prev_len_food = len(game_state["food"])
+    prev_len_food = [len(team_food) for team_food in game_state["food"]]
     #turn = 0
     team = turn % 2
     game_state["turn"] = turn
@@ -193,10 +193,10 @@ def test_play_turn_eating_enemy_food(turn, which_food):
 
     if team == which_food:
         assert game_state_new["score"][team] == 0
-        assert prev_len_food == len(game_state_new["food"])
+        assert prev_len_food[team] == len(game_state_new["food"][team])
     elif team != which_food:
         assert game_state_new["score"][team] > 0
-        assert prev_len_food > len(game_state_new["food"])
+        assert prev_len_food[team] > len(game_state_new["food"][team])
 
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
@@ -382,6 +382,30 @@ def test_max_rounds():
     assert final_state['bots'][3] == (6, 2)
     with pytest.raises(RuntimeError):
         final_state = run_game([move, move], layout_dict=l, rounds=2)
+
+
+@pytest.mark.parametrize('bot_to_move', [0, 1, 2, 3])
+def test_finished_when_no_food(bot_to_move):
+    l = """
+    ########
+    #  0.2 #
+    # 3.1  #
+    ########
+    """
+    def move(bot, s):
+        if bot_to_move in (0, 2) and bot.is_blue:
+            return (4, 1), s
+            # eat the food between 0 and 2
+        if bot_to_move in (1, 3) and not bot.is_blue:
+            # eat the food between 3 and 1
+            return (3, 2), s
+        return bot.position, s
+
+    l = layout.parse_layout(l)
+    final_state = run_game([move, move], layout_dict=l, rounds=20)
+    assert final_state['round'] == 0
+    assert final_state['turn'] == bot_to_move
+
 
 
 def test_minimal_game():

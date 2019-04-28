@@ -35,7 +35,7 @@ class GameState:
     #: Walls. List of (int, int)
     walls: typing.List
 
-    #: Food. List of (int, int)
+    #: Food per team. List of sets of (int, int)
     food: typing.List
 
     def width(self):
@@ -136,6 +136,16 @@ def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump
 
 def setup_game(team_specs, layout_dict, max_rounds=300, seed=None):
     """ Generates a game state for the given teams and layout with otherwise default values. """
+    def split_food(width, food):
+        team_food = [set(), set()]
+        for pos in food:
+            idx = pos[0] // (width // 2)
+            team_food[idx].add(pos)
+        return team_food
+    
+    width = max(layout_dict['walls'])[0] + 1
+    food = split_food(width, layout_dict['food'])
+
     game_state = GameState(
         team_specs=[None] * 2,
         bots=layout_dict['bots'][:],
@@ -147,7 +157,7 @@ def setup_game(team_specs, layout_dict, max_rounds=300, seed=None):
         sight_distance=5,
         gameover=False,
         score=[0] * 2,
-        food=layout_dict['food'][:],
+        food=food,
         walls=layout_dict['walls'][:],
         deaths=[0] * 2,
         say=[""] * 2,
@@ -218,7 +228,7 @@ def prepare_bot_state(game_state, idx=None):
         'score': game_state['score'][own_team],
         'has_respawned': [False] * 2, # TODO
         'timeout_count': 0, # TODO
-        'food': [food for food in game_state['food'] if in_homezone(food, own_team)]
+        'food': list(game_state['food'][own_team]), #[food for food in game_state['food'] if in_homezone(food, own_team)]
     }
 
     enemy_state = {
@@ -227,7 +237,7 @@ def prepare_bot_state(game_state, idx=None):
         'is_noisy': noised_positions['is_noisy'],
         'score': game_state['score'][enemy_team],
         'timeout_count': 0, # TODO. Could be left out for the enemy
-        'food': [food for food in game_state['food'] if in_homezone(food, enemy_team)]
+        'food': list(game_state['food'][enemy_team]), # [food for food in game_state['food'] if in_homezone(food, enemy_team)]
     }
 
     bot_state = {
@@ -242,7 +252,13 @@ def prepare_bot_state(game_state, idx=None):
     return bot_state
 
 def prepare_viewer_state(game_state):
-    return game_state
+    """ Prepares a state that can be sent to the viewers. """
+    viewer_state = {}
+    viewer_state.update(game_state)
+    viewer_state['food'] = list((viewer_state['food'][0] | viewer_state['food'][1]))
+    del viewer_state['team_specs']
+    del viewer_state['rnd']
+    return viewer_state
 
 
 def play_turn(game_state):
@@ -369,8 +385,8 @@ def apply_move(gamestate, bot_position):
             bot_in_homezone = bot_position[0] > boundary
         # update food list
         if not bot_in_homezone:
-            if bot_position in food:
-                food.pop(food.index(bot_position))
+            if bot_position in food[1 - team]:
+                food[1 - team].remove(bot_position)
                 # This is modifying the old game state
                 score[team] = score[team] + 1
         # check if anyone was eaten
@@ -385,7 +401,7 @@ def apply_move(gamestate, bot_position):
 
         # check for game over
         whowins = None
-        if n_round+1 >= gamestate["max_rounds"]:
+        if n_round+1 >= gamestate["max_rounds"] or any(not f for f in food):
             gameover = True
             if score[0] > score[1]:
                 whowins = 0
