@@ -138,9 +138,9 @@ class TkViewer:
 
             _logger.debug(message["__action__"])
             # we curretly don’t care about the action
-            data = message["__data__"]
-            if data:
-                self.app.observe(data)
+            game_state = message["__data__"]
+            if game_state:
+                self.app.observe(game_state)
 
             self._delay = 2
             self._after(2, self.read_queue)
