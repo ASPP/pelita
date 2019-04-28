@@ -7,25 +7,11 @@ import sys
 import typing
 
 from . import layout
+from .exceptions import FatalException, NonFatalException
 from .gamestate_filters import noiser
 from .player.team import make_team
 
 _logger = logging.getLogger(__name__)
-
-class FatalException(Exception): # TODO rename to FatalGameException etc
-    pass
-
-class NonFatalException(Exception):
-    pass
-
-class PlayerTimeout(NonFatalException):
-    pass
-
-class PlayerDisconnected(FatalException):
-    # unsure, if PlayerDisconnected should be fatal in the sense of that the team loses
-    # it could simply be a network error for both teams
-    # and it would be random who will be punished
-    pass
 
 @dataclasses.dataclass
 class GameState:
@@ -308,7 +294,7 @@ def play_turn(game_state):
         game_state['fatal_errors'][team].append(exception_event)
         position = None
     except NonFatalException as e:
-        # NoneFatalExceptions (such as Timeouts and ValueErrors in the JSON handling)
+        # NonFatalExceptions (such as Timeouts and ValueErrors in the JSON handling)
         # are collected and added to team_errors
         exception_event = {
             'type': str(e),
