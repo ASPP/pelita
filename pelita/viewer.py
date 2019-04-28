@@ -19,30 +19,36 @@ class AbstractViewer(metaclass=abc.ABCMeta):
         pass
 
 class ProgressViewer(AbstractViewer):
+    def show_state(self, game_state):
+        return self.observe(game_state)
+
     def observe(self, game_state):
-        universe = datamodel.CTFUniverse._from_json_dict(game_state)
-        round_index = game_state["round_index"]
-        game_time = game_state["game_time"]
+        score = game_state["score"]
+        round_index = game_state["round"]
+        if round_index is None:
+            return
+        game_time = game_state["max_rounds"]
         percentage = int(100.0 * round_index / game_time)
-        if game_state["bot_id"] is not None:
-            bot_sign = game_state["bot_id"]
+        if game_state["turn"] is not None:
+            if game_state["turn"] % 2 == 0:
+                bot_sign = f'\033[94m{game_state["turn"]}\033[0m'
+            elif game_state["turn"] % 2 == 1:
+                bot_sign = f'\033[91m{game_state["turn"]}\033[0m'
         else:
             bot_sign = ' '
         string = ("[%s] %3i%% (%i / %i) [%s]" % (
                     bot_sign, percentage,
                     round_index, game_time,
-                    ":".join(str(t.score) for t in universe.teams)))
+                    ":".join(str(s) for s in score)))
         sys.stdout.write(string + ("\b" * len(string)))
         sys.stdout.flush()
 
-        state = {}
-        state.update(game_state)
-        del state['maze']
-        del state['food']
-        del state['teams']
-        del state['bots']
+        if game_state["gameover"]:
+            state = {}
+            state.update(game_state)
+            del state['walls']
+            del state['food']
 
-        if game_state["finished"]:
             sys.stdout.write("\n")
             print("Final state:", state)
 
