@@ -6,8 +6,8 @@ import random
 
 import numpy as np
 
-from pelita import layout
-from pelita.game import initial_positions, get_legal_moves, apply_move, run_game
+from pelita import game, layout
+from pelita.game import initial_positions, get_legal_moves, apply_move, run_game, setup_game
 
 def test_initial_positions_basic():
     """Checks basic example for initial positions"""
@@ -179,22 +179,29 @@ def test_play_turn_eating_enemy_food(turn, which_food):
     team = turn % 2
     prev_len_food = [len(team_food) for team_food in game_state["food"]]
 
-    if which_food == 1:
-        # food belongs to team 1
-        game_state["bots"][turn] = (11, 1)
-        move = (10, 1)
-    else:
-        # food belongs to team 0
+    if which_food == 0:
+        # Try to eat food on left side
         game_state["bots"][turn] = (6, 4)
         move = (7, 4)
+    else:
+        # Try to eat food on right side
+        game_state["bots"][turn] = (11, 1)
+        move = (10, 1)
+
     game_state_new = apply_move(game_state, move)
 
     if team == which_food:
+        # No changes for either team
         assert game_state_new["score"][team] == 0
+        assert game_state_new["score"][1 - team] == 0
         assert prev_len_food[team] == len(game_state_new["food"][team])
+        assert prev_len_food[1 - team] == len(game_state_new["food"][1 - team])
     elif team != which_food:
+        # Own team gains points, other team loses food
         assert game_state_new["score"][team] > 0
-        assert prev_len_food[team] > len(game_state_new["food"][team])
+        assert game_state_new["score"][1 - team] == 0
+        assert prev_len_food[team] == len(game_state_new["food"][team])
+        assert prev_len_food[1 - team] > len(game_state_new["food"][1 - team])
 
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
@@ -255,8 +262,7 @@ def test_play_turn_maxrounds(score):
     game_state = setup_random_basic_gamestate()
     game_state["round"] = 300
     game_state["score"] = score[0]
-    move = get_legal_moves(game_state["walls"], game_state["bots"][0])
-    game_state_new = apply_move(game_state, move[0])
+    game_state_new = game.play_turn(game_state)
     assert game_state_new["gameover"]
     assert game_state_new["whowins"] == score[1]
 
@@ -319,7 +325,7 @@ def setup_specific_basic_gamestate(layout_id, *, round=0, turn=0):
 def test_max_rounds():
     l = """
     ########
-    #20  13#
+    #20..13#
     #      #
     ########
     """
@@ -339,16 +345,15 @@ def test_max_rounds():
     assert l['bots'][2] == (1, 1)
     assert l['bots'][3] == (6, 1)
     # max_rounds == 0 should not call move at all
-#    assert final_state['round'] == 0
     final_state = run_game([move, move], layout_dict=l, max_rounds=0)
+    assert final_state['round'] is None
     assert final_state['bots'][0] == (2, 1)
     assert final_state['bots'][1] == (5, 1)
     assert final_state['bots'][2] == (1, 1)
     assert final_state['bots'][3] == (6, 1)
     # max_rounds == 1 should call move just once
-#    assert final_state['round'] == 1
-    assert final_state['bots'][0] == (2, 1)
     final_state = run_game([move, move], layout_dict=l, max_rounds=1)
+    assert final_state['round'] == 0
     assert final_state['bots'][0] == (2, 2)
     assert final_state['bots'][1] == (5, 2)
     assert final_state['bots'][2] == (1, 2)
@@ -357,19 +362,38 @@ def test_max_rounds():
         final_state = run_game([move, move], layout_dict=l, max_rounds=2)
 
 
+def test_update_round_counter():
+    tests = {
+        (None, None): (0, 0),
+        (0, 0): (0, 1),
+        (0, 1): (0, 2),
+        (0, 2): (0, 3),
+        (0, 3): (1, 0),
+        (1, 3): (2, 0)
+    }
+
+    for (round0, turn0), (round1, turn1) in tests.items():
+        res = game.update_round_counter({'turn': turn0, 'round': round0, 'gameover': False})
+        assert res == {'turn': turn1, 'round': round1}
+    pass
+
+
 @pytest.mark.parametrize('bot_to_move', [0, 1, 2, 3])
 def test_finished_when_no_food(bot_to_move):
+    """ Test that the game is over when a team has eaten its food. """
     l = """
     ########
     #  0.2 #
     # 3.1  #
     ########
     """
+    bot_turn = bot_to_move // 2
+    team_to_move = bot_to_move % 2
     def move(bot, s):
-        if bot_to_move in (0, 2) and bot.is_blue:
+        if team_to_move == 0 and bot.is_blue and bot_turn == bot.bot_turn:
             return (4, 1), s
             # eat the food between 0 and 2
-        if bot_to_move in (1, 3) and not bot.is_blue:
+        if team_to_move == 1 and (not bot.is_blue) and bot_turn == bot.bot_turn:
             # eat the food between 3 and 1
             return (3, 2), s
         return bot.position, s
