@@ -254,6 +254,63 @@ def test_play_turn_friendly_fire(setups):
     assert game_state_new["score"][team] == 5
 
 
+def test_multiple_enemies_killing():
+    """ Check that you can kill multiple enemies at once. """
+
+    l0 = """
+    ########
+    #  ..  #
+    # 210  #
+    ########
+
+    ########
+    #  ..  #
+    #  3   #
+    ########
+    """
+
+    l1 = """
+    ########
+    #  ..  #
+    #  103 #
+    ########
+
+    ########
+    #  ..  #
+    #   2  #
+    ########
+    """
+    # dummy bots
+    stopping = lambda bot, s: (bot.position, s)
+
+    parsed_l0 = layout.parse_layout(l0)
+    for bot in (0, 2):
+        game_state = setup_game([stopping, stopping], layout_dict=parsed_l0)
+
+        game_state['turn'] = bot
+        # get position of bots 1 (and 3)
+        kill_position = game_state['bots'][1]
+        assert kill_position == game_state['bots'][3]
+        new_state = apply_move(game_state, kill_position)
+        # team 0 scores twice
+        assert new_state['score'] == [10, 0]
+        # bots 1 and 3 are back to origin
+        assert new_state['bots'][1::2] == [(6, 2), (6, 1)]
+
+    parsed_l1 = layout.parse_layout(l1)
+    for bot in (1, 3):
+        game_state = setup_game([stopping, stopping], layout_dict=parsed_l1)
+
+        game_state['turn'] = bot
+        # get position of bots 0 (and 2)
+        kill_position = game_state['bots'][0]
+        assert kill_position == game_state['bots'][2]
+        new_state = apply_move(game_state, kill_position)
+        # team 1 scores twice
+        assert new_state['score'] == [0, 10]
+        # bots 0 and 2 are back to origin
+        assert new_state['bots'][0::2] == [(1, 1), (1, 2)]
+
 
 @pytest.mark.parametrize('score', ([[3, 3], 2], [[1, 13], 1], [[13, 1], 0]))
 def test_play_turn_maxrounds(score):
