@@ -175,11 +175,9 @@ def test_play_turn_eating_enemy_food(turn, which_food):
     #5# #0# ###.  .  # # #
     #6# #2     .##. ... .#
     #7# ##################
-    game_state = setup_specific_basic_gamestate("layouts/small_without_dead_ends_001.layout")
-    prev_len_food = [len(team_food) for team_food in game_state["food"]]
-    #turn = 0
+    game_state = setup_specific_basic_gamestate("layouts/small_without_dead_ends_001.layout", round=0, turn=turn)
     team = turn % 2
-    game_state["turn"] = turn
+    prev_len_food = [len(team_food) for team_food in game_state["food"]]
 
     if which_food == 1:
         # food belongs to team 1
@@ -291,55 +289,30 @@ def test_play_turn_move():
 
 
 
-def setup_random_basic_gamestate():
+def setup_random_basic_gamestate(*, round=0, turn=0):
     """helper function for testing play turn"""
     turn = 0
     l = Path("layouts/small_without_dead_ends_100.layout").read_text()
     parsed_l = layout.parse_layout(l)
-    game_state = {
-        "food": parsed_l["food"],
-        "walls": parsed_l["walls"],
-        "bots": parsed_l["bots"],
-        "max_rounds": 300,
-        "team_names": ("a", "b"),
-        "turn": turn,
-        "round": 0,
-        "timeout": [],
-        "gameover": False,
-        "whowins": None,
-        "team_say": "bla",
-        "score": [0, 0],
-        "deaths": 0,
-        "errors": [[], []],
-        "fatal_errors": [{}, {}],
-        "rnd": random.Random()
-        }
+
+    stopping = lambda bot, s: (bot.position, s)
+
+    game_state = setup_game([stopping, stopping], layout_dict=parsed_l)
+    game_state['round'] = round
+    game_state['turn'] = turn
     return game_state
 
 
-def setup_specific_basic_gamestate(layout_id):
+def setup_specific_basic_gamestate(layout_id, *, round=0, turn=0):
     """helper function for testing play turn"""
-    turn = 0
     l = Path(layout_id).read_text()
     parsed_l = layout.parse_layout(l)
-    game_state = {
-        "food": parsed_l["food"],
-        "walls": parsed_l["walls"],
-        "bots": parsed_l["bots"],
-        "max_rounds": 300,
-        "team_names": ("a", "b"),
-        "turn": turn,
-        "round": 0,
-        "timeout": [],
-        "gameover": False,
-        "whowins": None,
-        "team_say": "bla",
-        "score": [0, 0],
-        "deaths": [0, 0],
-        "errors": [[], []],
-        "fatal_errors": [{}, {}],
-        "rnd": random.Random()
-        }
+
+    stopping = lambda bot, s: (bot.position, s)
+
+    game_state = setup_game([stopping, stopping], layout_dict=parsed_l)
+    game_state['round'] = round
+    game_state['turn'] = turn
     return game_state
 
 
