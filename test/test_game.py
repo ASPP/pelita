@@ -366,22 +366,22 @@ def test_max_rounds():
     assert l['bots'][2] == (1, 1)
     assert l['bots'][3] == (6, 1)
     # max_rounds == 0 should not call move at all
-    final_state = run_game([move, move], layout_dict=l, rounds=0)
 #    assert final_state['round'] == 0
+    final_state = run_game([move, move], layout_dict=l, max_rounds=0)
     assert final_state['bots'][0] == (2, 1)
     assert final_state['bots'][1] == (5, 1)
     assert final_state['bots'][2] == (1, 1)
     assert final_state['bots'][3] == (6, 1)
     # max_rounds == 1 should call move just once
-    final_state = run_game([move, move], layout_dict=l, rounds=1)
 #    assert final_state['round'] == 1
     assert final_state['bots'][0] == (2, 1)
+    final_state = run_game([move, move], layout_dict=l, max_rounds=1)
     assert final_state['bots'][0] == (2, 2)
     assert final_state['bots'][1] == (5, 2)
     assert final_state['bots'][2] == (1, 2)
     assert final_state['bots'][3] == (6, 2)
     with pytest.raises(RuntimeError):
-        final_state = run_game([move, move], layout_dict=l, rounds=2)
+        final_state = run_game([move, move], layout_dict=l, max_rounds=2)
 
 
 @pytest.mark.parametrize('bot_to_move', [0, 1, 2, 3])
@@ -402,7 +402,7 @@ def test_finished_when_no_food(bot_to_move):
         return bot.position, s
 
     l = layout.parse_layout(l)
-    final_state = run_game([move, move], layout_dict=l, rounds=20)
+    final_state = run_game([move, move], layout_dict=l, max_rounds=20)
     assert final_state['round'] == 0
     assert final_state['turn'] == bot_to_move
 
@@ -414,7 +414,7 @@ def test_minimal_game():
 
     layout_name, layout_string = layout.get_random_layout()
     l = layout.parse_layout(layout_string)
-    final_state = run_game([move, move], rounds=20, layout_dict=l)
+    final_state = run_game([move, move], max_rounds=20, layout_dict=l)
     assert final_state['gameover'] is True
     assert final_state['score'] == [0, 0]
     assert final_state['round'] == 19
@@ -431,7 +431,7 @@ def test_minimal_losing_game_has_one_error():
 
     layout_name, layout_string = layout.get_random_layout()
     l = layout.parse_layout(layout_string)
-    final_state = run_game([move0, move1], rounds=20, layout_dict=l)
+    final_state = run_game([move0, move1], max_rounds=20, layout_dict=l)
     assert final_state['gameover'] is True
     assert final_state['score'] == [0, 0]
     assert len(final_state['errors'][0]) == 1
@@ -445,8 +445,8 @@ def test_minimal_remote_game():
 
     layout_name, layout_string = layout.get_random_layout()
     l = layout.parse_layout(layout_string)
-    final_state = run_game(["test/demo01_stopping.py", move], rounds=20, layout_dict=l)
-    final_state = run_game(["test/demo01_stopping.py", 'test/demo02_random.py'], rounds=20, layout_dict=l)
+    final_state = run_game(["test/demo01_stopping.py", move], max_rounds=20, layout_dict=l)
+    final_state = run_game(["test/demo01_stopping.py", 'test/demo02_random.py'], max_rounds=20, layout_dict=l)
     assert final_state['gameover'] is True
     assert final_state['score'] == [0, 0]
     assert final_state['round'] == 19

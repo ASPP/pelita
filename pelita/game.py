@@ -113,7 +113,7 @@ class GameState:
         return (layout.layout_as_str(walls=self.walls, food=self.food, bots=self.bots) + "\n" +
                 str({ f.name: getattr(self, f.name) for f in dataclasses.fields(self) if f.name not in ['walls', 'food']}))
 
-def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump=False,
+def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None, dump=False,
              max_team_errors=5, timeout_length=3, viewers=None):
 
     if viewers is None:
@@ -121,7 +121,7 @@ def run_game(team_specs, *, rounds, layout_dict, layout_name="", seed=None, dump
 
     # we create the initial game state
     # initialize the exceptions lists
-    state = setup_game(team_specs, layout_dict, max_rounds=rounds, seed=seed)
+    state = setup_game(team_specs, layout_dict, max_rounds=max_rounds, seed=seed)
 
     while not state.get('gameover'):
         state = play_turn(state)
