@@ -432,7 +432,10 @@ def test_update_round_counter():
     for (round0, turn0), (round1, turn1) in tests.items():
         res = game.update_round_counter({'turn': turn0, 'round': round0, 'gameover': False})
         assert res == {'turn': turn1, 'round': round1}
-    pass
+
+    for (round0, turn0), (round1, turn1) in tests.items():
+        with pytest.raises(ValueError):
+            res = game.update_round_counter({'turn': turn0, 'round': round0, 'gameover': True})
 
 
 @pytest.mark.parametrize('bot_to_move', [0, 1, 2, 3])
