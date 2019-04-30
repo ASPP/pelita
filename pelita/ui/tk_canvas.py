@@ -8,6 +8,7 @@ import tkinter
 import tkinter.font
 
 from ..libpelita import firstNN
+from ..game import update_round_counter
 from .tk_sprites import BotSprite, Food, Wall, col
 from .tk_utils import wm_delete_window_handler
 from .tk_sprites import BotSprite, Food, Wall, RED, BLUE, YELLOW, GREY, BROWN
@@ -681,10 +682,8 @@ class TkApplication:
             return
 
         if self._stop_after is not None:
-            if self._game_state['round'] is None:
-                _logger.debug('---> play_step')
-                self.controller_socket.send_json({"__action__": "play_step"})
-            elif (self._game_state['round'] < self._stop_after):
+            next_step = update_round_counter(self._game_state)
+            if (next_step['round'] < self._stop_after):
                 _logger.debug('---> play_step')
                 self.controller_socket.send_json({"__action__": "play_step"})
             else:
@@ -699,8 +698,9 @@ class TkApplication:
         if not self.controller_socket:
             return
 
-        if self._game_state['round']:
-            self._stop_after = self._game_state['round'] + 1
+        if self._game_state['round'] is not None:
+            next_step = update_round_counter(self._game_state)
+            self._stop_after = next_step['round'] + 1
         else:
             self._stop_after = 1
             self._delay = self._min_delay
