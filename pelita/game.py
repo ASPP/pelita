@@ -415,6 +415,16 @@ def apply_move(gamestate, bot_position):
             bots[enemy_idx] = init_positions[enemy_idx]
             deaths[abs(team-1)] = deaths[abs(team-1)] + 1
             _logger.info(f"Bot {enemy_idx} respawns at {bots[enemy_idx]}.")
+    else:
+        # check if bot was eaten itself
+        enemies_on_target = [idx for idx in enemy_idx if bots[idx] == bot_position]
+        if len(enemies_on_target) > 0:
+            _logger.info(f"Bot {turn} was eaten by bots {enemies_on_target} at {bot_position}.")
+            score[1 - team] = score[1 - team] + 5
+            init_positions = initial_positions(walls)
+            bots[turn] = init_positions[turn]
+            deaths[team] = deaths[team] + 1
+            _logger.info(f"Bot {turn} respawns at {bots[turn]}.")
 
     gamestate.update(check_gameover(gamestate))
 
