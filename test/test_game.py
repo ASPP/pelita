@@ -312,6 +312,158 @@ def test_multiple_enemies_killing():
         assert new_state['bots'][0::2] == [(1, 1), (1, 2)]
 
 
+def test_suicide():
+    """ Check that suicide works. """
+
+    l0 = """
+    ########
+    #  ..  #
+    #3210  #
+    ########
+    """
+
+    l1 = """
+    ########
+    #  ..  #
+    #  1032#
+    ########
+    """
+    # dummy bots
+    stopping = lambda bot, s: (bot.position, s)
+
+    parsed_l0 = layout.parse_layout(l0)
+    for bot in (1, 3):
+        game_state = setup_game([stopping, stopping], layout_dict=parsed_l0)
+
+        game_state['turn'] = bot
+        # get position of bot 2
+        suicide_position = game_state['bots'][2]
+        new_state = apply_move(game_state, suicide_position)
+        # team 1 scores
+        assert new_state['score'] == [5, 0]
+#        # bots 1 and 3 are back to origin
+#        assert new_state['bots'][1::2] == [(6, 2), (6, 1)]
+
+    parsed_l1 = layout.parse_layout(l1)
+    for bot in (0, 2):
+        game_state = setup_game([stopping, stopping], layout_dict=parsed_l1)
+
+        game_state['turn'] = bot
+        # get position of bot 3
+        suicide_position = game_state['bots'][3]
+        new_state = apply_move(game_state, suicide_position)
+        # team 0 scores
+        assert new_state['score'] == [0, 5]
+
+
+def test_cascade_kill():
+    cascade = [
+    """
+    ########
+    #1 ..30#
+    #     2#
+    ########
+    """,
+    """
+    ########
+    #0 .. 3#
+    #     2#
+    ########
+
+    ########
+    #1 ..  #
+    #      #
+    ########
+    """,
+    """
+    ########
+    #0 .. 3#
+    #     1#
+    ########
+
+    ########
+    #  ..  #
+    #     2#
+    ########
+    """,
+    """
+    ########
+    #0 .. 3#
+    #2    1#
+    ########
+    """
+    ]
+    def move(bot, state):
+        if not bot.is_blue and bot.turn == 1 and bot.round == 0:
+            return (6, 1), state
+        return bot.position, state
+    layouts = [layout.parse_layout(l) for l in cascade]
+    state = setup_game([move, move], max_rounds=5, layout_dict=layout.parse_layout(cascade[0]))
+    assert state['bots'] == layouts[0]['bots']
+    state = game.play_turn(state) # Bot 0 moves
+    assert state['bots'] == layouts[0]['bots']
+    state = game.play_turn(state) # Bot 1 moves
+    state = game.play_turn(state) # Bot 2 moves
+    state = game.play_turn(state) # Bot 3 moves, kills 0. Bot 0 and 1 are on same spot
+    assert state['bots'] == layouts[1]['bots']
+    state = game.play_turn(state) # Bot 0 moves, kills 1. Bot 1 and 2 are on same spot
+    assert state['bots'] == layouts[2]['bots']
+    state = game.play_turn(state) # Bot 1 moves, kills 2.
+    assert state['bots'] == layouts[3]['bots']
+
+
+def test_cascade_suicide():
+    cascade = [
+    """
+    ########
+    #1 ..03#
+    #     2#
+    ########
+    """,
+    """
+    ########
+    #0 .. 3#
+    #     2#
+    ########
+
+    ########
+    #1 ..  #
+    #      #
+    ########
+    """,
+    """
+    ########
+    #0 .. 3#
+    #     1#
+    ########
+
+    ########
+    #  ..  #
+    #     2#
+    ########
+    """,
+    """
+    ########
+    #0 .. 3#
+    #2    1#
+    ########
+    """
+    ]
+    def move(bot, state):
+        if bot.is_blue and bot.turn == 0 and bot.round == 0:
+            return (6, 1), state
+        return bot.position, state
+    layouts = [layout.parse_layout(l) for l in cascade]
+    state = setup_game([move, move], max_rounds=5, layout_dict=layout.parse_layout(cascade[0]))
+    assert state['bots'] == layouts[0]['bots']
+    state = game.play_turn(state) # Bot 0 moves onto 3. Gets killed. Bot 0 and 1 are on same spot.
+    assert state['bots'] == layouts[1]['bots']
+    state = game.play_turn(state) # Bot 1 moves, gets killed. Bot 1 and 2 are on same spot
+    assert state['bots'] == layouts[2]['bots']
+    state = game.play_turn(state) # Bot 2 moves, gets killed.
+    assert state['bots'] == layouts[3]['bots']
+
+
 @pytest.mark.parametrize('score', ([[3, 3], 2], [[1, 13], 1], [[13, 1], 0]))
 def test_play_turn_maxrounds(score):
     """Check that game quits at maxrounds and choses correct winner"""
