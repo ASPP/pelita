@@ -163,7 +163,7 @@ def setup_game(team_specs, layout_dict, max_rounds=300, seed=None):
         food=food,
         walls=layout_dict['walls'][:],
         deaths=[0] * 2,
-        say=[""] * 2,
+        say=[""] * 4,
         layout_name=None,
         team_names=[None] * 2,
         fatal_errors=[False] * 2,
@@ -508,10 +508,16 @@ def check_final_move(game_state):
     dict { 'gameover' , 'whowins' }
         Flags if the game is over and who won it
     """
-    whowins = None
-    gameover = False
 
-    if not game_state['gameover']:
+    if game_state['gameover']:
+        # Game already finished.
+        whowins = game_state['whowins']
+        gameover = game_state['gameover']
+
+    else:
+        whowins = None
+        gameover = False
+
         # The game is over when the next step would give us
         # game_state['round'] == game_state['max_rounds']
         # or when one team has lost all their food
