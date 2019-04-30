@@ -115,6 +115,9 @@ class GameState:
 
 def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None, dump=False,
              max_team_errors=5, timeout_length=3, viewers=None):
+    """ Run a match for `max_rounds` rounds.
+
+    """
 
     if viewers is None:
         viewers = []
@@ -262,6 +265,18 @@ def prepare_viewer_state(game_state):
 
 
 def play_turn(game_state):
+    """ Plays the next turn of the game.
+
+    This function increases the round and turn counters, requests a move
+    and returns a new game_state.
+
+    Raises
+    ------
+    ValueError
+        If gamestate['gameover'] is True
+    """
+    # TODO: Return a copy of the game_state
+
     # if the game is already over, we return a value error
     if game_state['gameover']:
         raise ValueError("Game is already over!")
@@ -418,7 +433,20 @@ def apply_move(gamestate, bot_position):
 
 
 def update_round_counter(game_state):
-    """ Returns a dict with updated turn and round numbers. """
+    """ Takes the round and turn from the game state dict, increases them by one
+    and returns a new dict.
+
+    Returns
+    -------
+    dict { 'round' , 'turn' }
+        The updated round and turn
+
+    Raises
+    ------
+    ValueError
+        If gamestate['gameover'] is True
+    """
+
     if game_state['gameover']:
         raise ValueError("Game is already over")
     turn = game_state['turn']
@@ -445,6 +473,16 @@ def update_round_counter(game_state):
 
 
 def check_gameover(game_state):
+    """ Checks for errors and fatal errors in `game_state` and sets the winner
+    accordingly.
+
+    Returns
+    -------
+    dict { 'gameover' , 'whowins' }
+        Flags if the game is over and who won it
+
+    """
+
     # check for game over
     whowins = None
     gameover = False
@@ -462,7 +500,14 @@ def check_gameover(game_state):
 
 
 def check_final_move(game_state):
-    "Checks if this was the final move."
+    """ Checks if this was the final move in the game or
+    if one team has lost all their food.
+
+    Returns
+    -------
+    dict { 'gameover' , 'whowins' }
+        Flags if the game is over and who won it
+    """
     whowins = None
     gameover = False
 
