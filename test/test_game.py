@@ -475,6 +475,102 @@ def test_cascade_kill_2():
     assert state['bots'] == layouts[3]['bots']
 
 
+def test_cascade_kill_rescue_1():
+    """ Checks that killing occurs only for the bot whose turn it is
+    or for any bot that this bot moves onto.
+    If a bot respawns on an enemy, it will only be killed when it is its own
+    or the enemy’s turn (and neither of them moves).
+    If bot moves before it is the enemy’s turn. Bot is rescued.
+    """
+    cascade = [
+    """
+    ########
+    #30.. 2#
+    #1     #
+    ########
+    """,
+    """
+    ########
+    #0 .. 2#
+    #1     #
+    ########
+
+    ########
+    #  .. 3#
+    #      #
+    ########
+    """,
+    """
+    ########
+    #0 ..23#
+    #1     #
+    ########
+    """
+    ]
+    def move(bot, state):
+        if bot.is_blue and bot.turn == 0 and bot.round == 0:
+            return (1, 1), state
+        if bot.is_blue and bot.turn == 1 and bot.round == 0:
+            return (5, 1), state
+        return bot.position, state
+    layouts = [layout.parse_layout(l) for l in cascade]
+    state = setup_game([move, move], max_rounds=5, layout_dict=layout.parse_layout(cascade[0]))
+    assert state['bots'] == layouts[0]['bots']
+    state = game.play_turn(state) # Bot 0 moves, kills 3. Bot 2 and 3 are on same spot
+    assert state['bots'] == layouts[1]['bots']
+    state = game.play_turn(state) # Bot 1 stands. Bot 2 and 3 are on same spot
+    assert state['bots'] == layouts[1]['bots']
+    state = game.play_turn(state) # Bot 2 moves. Rescues itself
+    assert state['bots'] == layouts[2]['bots']
+
+
+def test_cascade_kill_rescue_2():
+    """ Checks that killing occurs only for the bot whose turn it is
+    or for any bot that this bot moves onto.
+    If a bot respawns on an enemy, it will only be killed when it is its own
+    or the enemy’s turn (and neither of them moves).
+    If enemy moves before it is the bot’s turn. Bot is rescued.
+    """
+    cascade = [
+    """
+    ########
+    #3 ..  #
+    #10   2#
+    ########
+    """,
+    """
+    ########
+    #3 ..  #
+    #0    1#
+    ########
+
+    ########
+    #  ..  #
+    #     2#
+    ########
+    """,
+    """
+    ########
+    #3 ..  #
+    #0   12#
+    ########
+    """
+    ]
+    def move(bot, state):
+        if bot.is_blue and bot.turn == 0 and bot.round == 0:
+            return (1, 2), state
+        if not bot.is_blue and bot.turn == 0 and bot.round == 0:
+            return (5, 2), state
+        return bot.position, state
+    layouts = [layout.parse_layout(l) for l in cascade]
+    state = setup_game([move, move], max_rounds=5, layout_dict=layout.parse_layout(cascade[0]))
+    assert state['bots'] == layouts[0]['bots']
+    state = game.play_turn(state) # Bot 0 moves, kills 1. Bot 1 and 2 are on same spot
+    assert state['bots'] == layouts[1]['bots']
+    state = game.play_turn(state) # Bot 1 moves. Bot 2 is rescued.
+    assert state['bots'] == layouts[2]['bots']
+
+
 def test_cascade_suicide():
     cascade = [
     """
