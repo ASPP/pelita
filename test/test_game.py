@@ -400,15 +400,78 @@ def test_cascade_kill():
     layouts = [layout.parse_layout(l) for l in cascade]
     state = setup_game([move, move], max_rounds=5, layout_dict=layout.parse_layout(cascade[0]))
     assert state['bots'] == layouts[0]['bots']
-    state = game.play_turn(state) # Bot 0 moves
+    state = game.play_turn(state) # Bot 0 stands
     assert state['bots'] == layouts[0]['bots']
-    state = game.play_turn(state) # Bot 1 moves
-    state = game.play_turn(state) # Bot 2 moves
+    state = game.play_turn(state) # Bot 1 stands
+    state = game.play_turn(state) # Bot 2 stands
     state = game.play_turn(state) # Bot 3 moves, kills 0. Bot 0 and 1 are on same spot
     assert state['bots'] == layouts[1]['bots']
-    state = game.play_turn(state) # Bot 0 moves, kills 1. Bot 1 and 2 are on same spot
+    state = game.play_turn(state) # Bot 0 stands, kills 1. Bot 1 and 2 are on same spot
     assert state['bots'] == layouts[2]['bots']
-    state = game.play_turn(state) # Bot 1 moves, kills 2.
+    state = game.play_turn(state) # Bot 1 stands, kills 2.
+    assert state['bots'] == layouts[3]['bots']
+
+
+def test_cascade_kill_2():
+    """ Checks that killing occurs only for the bot whose turn it is
+    or for any bot that this bot moves onto.
+    If a bot respawns on an enemy, it will only be killed when it is its own
+    or the enemy’s turn (and neither of them moves).
+    """
+    cascade = [
+    """
+    ########
+    #30.. 2#
+    #1     #
+    ########
+    """,
+    """
+    ########
+    #0 .. 2#
+    #1     #
+    ########
+
+    ########
+    #  .. 3#
+    #      #
+    ########
+    """,
+    """
+    ########
+    #0 .. 3#
+    #1     #
+    ########
+
+    ########
+    #  ..  #
+    #2     #
+    ########
+    """,
+    """
+    ########
+    #0 .. 3#
+    #2    1#
+    ########
+    """
+    ]
+    def move(bot, state):
+        if bot.is_blue and bot.turn == 0 and bot.round == 0:
+            return (1, 1), state
+        return bot.position, state
+    layouts = [layout.parse_layout(l) for l in cascade]
+    state = setup_game([move, move], max_rounds=5, layout_dict=layout.parse_layout(cascade[0]))
+    assert state['bots'] == layouts[0]['bots']
+    state = game.play_turn(state) # Bot 0 moves, kills 3. Bot 2 and 3 are on same spot
+    assert state['bots'] == layouts[1]['bots']
+    state = game.play_turn(state) # Bot 1 stands. Bot 2 and 3 are on same spot
+    assert state['bots'] == layouts[1]['bots']
+    state = game.play_turn(state) # Bot 2 stands, gets killed. Bot 1 and 2 are on same spot
+    assert state['bots'] == layouts[2]['bots']
+    state = game.play_turn(state) # Bot 3 stands. Bot 1 and 2 are on same spot
+    assert state['bots'] == layouts[2]['bots']
+    state = game.play_turn(state) # Bot 0 stands. Bot 1 and 2 are on same spot
+    assert state['bots'] == layouts[2]['bots']
+    state = game.play_turn(state) # Bot 1 stands, kills 2.
     assert state['bots'] == layouts[3]['bots']
 
 
