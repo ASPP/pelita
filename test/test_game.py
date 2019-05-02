@@ -6,8 +6,8 @@ import random
 
 import numpy as np
 
-from pelita import layout
-from pelita.game import initial_positions, get_legal_moves, apply_move, run_game
+from pelita import game, layout
+from pelita.game import initial_positions, get_legal_moves, apply_move, run_game, setup_game
 
 def test_initial_positions_basic():
     """Checks basic example for initial positions"""
@@ -175,28 +175,33 @@ def test_play_turn_eating_enemy_food(turn, which_food):
     #5# #0# ###.  .  # # #
     #6# #2     .##. ... .#
     #7# ##################
-    game_state = setup_specific_basic_gamestate("layouts/small_without_dead_ends_001.layout")
-    prev_len_food = len(game_state["food"])
-    #turn = 0
+    game_state = setup_specific_basic_gamestate("layouts/small_without_dead_ends_001.layout", round=0, turn=turn)
     team = turn % 2
-    game_state["turn"] = turn
+    prev_len_food = [len(team_food) for team_food in game_state["food"]]
 
-    if which_food == 1:
-        # food belongs to team 1
-        game_state["bots"][turn] = (11, 1)
-        move = (10, 1)
-    else:
-        # food belongs to team 0
+    if which_food == 0:
+        # Try to eat food on left side
         game_state["bots"][turn] = (6, 4)
         move = (7, 4)
+    else:
+        # Try to eat food on right side
+        game_state["bots"][turn] = (11, 1)
+        move = (10, 1)
+
     game_state_new = apply_move(game_state, move)
 
     if team == which_food:
+        # No changes for either team
         assert game_state_new["score"][team] == 0
-        assert prev_len_food == len(game_state_new["food"])
+        assert game_state_new["score"][1 - team] == 0
+        assert prev_len_food[team] == len(game_state_new["food"][team])
+        assert prev_len_food[1 - team] == len(game_state_new["food"][1 - team])
     elif team != which_food:
+        # Own team gains points, other team loses food
         assert game_state_new["score"][team] > 0
-        assert prev_len_food > len(game_state_new["food"])
+        assert game_state_new["score"][1 - team] == 0
+        assert prev_len_food[team] == len(game_state_new["food"][team])
+        assert prev_len_food[1 - team] > len(game_state_new["food"][1 - team])
 
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
@@ -249,6 +254,374 @@ def test_play_turn_friendly_fire(setups):
     assert game_state_new["score"][team] == 5
 
 
+def test_multiple_enemies_killing():
+    """ Check that you can kill multiple enemies at once. """
+
+    l0 = """
+    ########
+    #  ..  #
+    # 210  #
+    ########
+
+    ########
+    #  ..  #
+    #  3   #
+    ########
+    """
+
+    l1 = """
+    ########
+    #  ..  #
+    #  103 #
+    ########
+
+    ########
+    #  ..  #
+    #   2  #
+    ########
+    """
+    # dummy bots
+    stopping = lambda bot, s: (bot.position, s)
+
+    parsed_l0 = layout.parse_layout(l0)
+    for bot in (0, 2):
+        game_state = setup_game([stopping, stopping], layout_dict=parsed_l0)
+
+        game_state['turn'] = bot
+        # get position of bots 1 (and 3)
+        kill_position = game_state['bots'][1]
+        assert kill_position == game_state['bots'][3]
+        new_state = apply_move(game_state, kill_position)
+        # team 0 scores twice
+        assert new_state['score'] == [10, 0]
+        # bots 1 and 3 are back to origin
+        assert new_state['bots'][1::2] == [(6, 2), (6, 1)]
+
+    parsed_l1 = layout.parse_layout(l1)
+    for bot in (1, 3):
+        game_state = setup_game([stopping, stopping], layout_dict=parsed_l1)
+
+        game_state['turn'] = bot
+        # get position of bots 0 (and 2)
+        kill_position = game_state['bots'][0]
+        assert kill_position == game_state['bots'][2]
+        new_state = apply_move(game_state, kill_position)
+        # team 1 scores twice
+        assert new_state['score'] == [0, 10]
+        # bots 0 and 2 are back to origin
+        assert new_state['bots'][0::2] == [(1, 1), (1, 2)]
+
+
+def test_suicide():
+    """ Check that suicide works. """
+
+    l0 = """
+    ########
+    #  ..  #
+    #3210  #
+    ########
+    """
+
+    l1 = """
+    ########
+    #  ..  #
+    #  1032#
+    ########
+    """
+    # dummy bots
+    stopping = lambda bot, s: (bot.position, s)
+
+    parsed_l0 = layout.parse_layout(l0)
+    for bot in (1, 3):
+        game_state = setup_game([stopping, stopping], layout_dict=parsed_l0)
+
+        game_state['turn'] = bot
+        # get position of bot 2
+        suicide_position = game_state['bots'][2]
+        new_state = apply_move(game_state, suicide_position)
+        # team 1 scores
+        assert new_state['score'] == [5, 0]
+#        # bots 1 and 3 are back to origin
+#        assert new_state['bots'][1::2] == [(6, 2), (6, 1)]
+
+    parsed_l1 = layout.parse_layout(l1)
+    for bot in (0, 2):
+        game_state = setup_game([stopping, stopping], layout_dict=parsed_l1)
+
+        game_state['turn'] = bot
+        # get position of bot 3
+        suicide_position = game_state['bots'][3]
+        new_state = apply_move(game_state, suicide_position)
+        # team 0 scores
+        assert new_state['score'] == [0, 5]
+
+
+def test_cascade_kill():
+    cascade = [
+    """
+    ########
+    #1 ..30#
+    #     2#
+    ########
+    """,
+    """
+    ########
+    #0 .. 3#
+    #     2#
+    ########
+
+    ########
+    #1 ..  #
+    #      #
+    ########
+    """,
+    """
+    ########
+    #0 .. 3#
+    #     1#
+    ########
+
+    ########
+    #  ..  #
+    #     2#
+    ########
+    """,
+    """
+    ########
+    #0 .. 3#
+    #2    1#
+    ########
+    """
+    ]
+    def move(bot, state):
+        if not bot.is_blue and bot.turn == 1 and bot.round == 0:
+            return (6, 1), state
+        return bot.position, state
+    layouts = [layout.parse_layout(l) for l in cascade]
+    state = setup_game([move, move], max_rounds=5, layout_dict=layout.parse_layout(cascade[0]))
+    assert state['bots'] == layouts[0]['bots']
+    state = game.play_turn(state) # Bot 0 stands
+    assert state['bots'] == layouts[0]['bots']
+    state = game.play_turn(state) # Bot 1 stands
+    state = game.play_turn(state) # Bot 2 stands
+    state = game.play_turn(state) # Bot 3 moves, kills 0. Bot 0 and 1 are on same spot
+    assert state['bots'] == layouts[1]['bots']
+    state = game.play_turn(state) # Bot 0 stands, kills 1. Bot 1 and 2 are on same spot
+    assert state['bots'] == layouts[2]['bots']
+    state = game.play_turn(state) # Bot 1 stands, kills 2.
+    assert state['bots'] == layouts[3]['bots']
+
+
+def test_cascade_kill_2():
+    """ Checks that killing occurs only for the bot whose turn it is
+    or for any bot that this bot moves onto.
+    If a bot respawns on an enemy, it will only be killed when it is its own
+    or the enemy’s turn (and neither of them moves).
+    """
+    cascade = [
+    """
+    ########
+    #30.. 2#
+    #1     #
+    ########
+    """,
+    """
+    ########
+    #0 .. 2#
+    #1     #
+    ########
+
+    ########
+    #  .. 3#
+    #      #
+    ########
+    """,
+    """
+    ########
+    #0 .. 3#
+    #1     #
+    ########
+
+    ########
+    #  ..  #
+    #2     #
+    ########
+    """,
+    """
+    ########
+    #0 .. 3#
+    #2    1#
+    ########
+    """
+    ]
+    def move(bot, state):
+        if bot.is_blue and bot.turn == 0 and bot.round == 0:
+            return (1, 1), state
+        return bot.position, state
+    layouts = [layout.parse_layout(l) for l in cascade]
+    state = setup_game([move, move], max_rounds=5, layout_dict=layout.parse_layout(cascade[0]))
+    assert state['bots'] == layouts[0]['bots']
+    state = game.play_turn(state) # Bot 0 moves, kills 3. Bot 2 and 3 are on same spot
+    assert state['bots'] == layouts[1]['bots']
+    state = game.play_turn(state) # Bot 1 stands. Bot 2 and 3 are on same spot
+    assert state['bots'] == layouts[1]['bots']
+    state = game.play_turn(state) # Bot 2 stands, gets killed. Bot 1 and 2 are on same spot
+    assert state['bots'] == layouts[2]['bots']
+    state = game.play_turn(state) # Bot 3 stands. Bot 1 and 2 are on same spot
+    assert state['bots'] == layouts[2]['bots']
+    state = game.play_turn(state) # Bot 0 stands. Bot 1 and 2 are on same spot
+    assert state['bots'] == layouts[2]['bots']
+    state = game.play_turn(state) # Bot 1 stands, kills 2.
+    assert state['bots'] == layouts[3]['bots']
+
+
+def test_cascade_kill_rescue_1():
+    """ Checks that killing occurs only for the bot whose turn it is
+    or for any bot that this bot moves onto.
+    If a bot respawns on an enemy, it will only be killed when it is its own
+    or the enemy’s turn (and neither of them moves).
+    If bot moves before it is the enemy’s turn. Bot is rescued.
+    """
+    cascade = [
+    """
+    ########
+    #30.. 2#
+    #1     #
+    ########
+    """,
+    """
+    ########
+    #0 .. 2#
+    #1     #
+    ########
+
+    ########
+    #  .. 3#
+    #      #
+    ########
+    """,
+    """
+    ########
+    #0 ..23#
+    #1     #
+    ########
+    """
+    ]
+    def move(bot, state):
+        if bot.is_blue and bot.turn == 0 and bot.round == 0:
+            return (1, 1), state
+        if bot.is_blue and bot.turn == 1 and bot.round == 0:
+            return (5, 1), state
+        return bot.position, state
+    layouts = [layout.parse_layout(l) for l in cascade]
+    state = setup_game([move, move], max_rounds=5, layout_dict=layout.parse_layout(cascade[0]))
+    assert state['bots'] == layouts[0]['bots']
+    state = game.play_turn(state) # Bot 0 moves, kills 3. Bot 2 and 3 are on same spot
+    assert state['bots'] == layouts[1]['bots']
+    state = game.play_turn(state) # Bot 1 stands. Bot 2 and 3 are on same spot
+    assert state['bots'] == layouts[1]['bots']
+    state = game.play_turn(state) # Bot 2 moves. Rescues itself
+    assert state['bots'] == layouts[2]['bots']
+
+
+def test_cascade_kill_rescue_2():
+    """ Checks that killing occurs only for the bot whose turn it is
+    or for any bot that this bot moves onto.
+    If a bot respawns on an enemy, it will only be killed when it is its own
+    or the enemy’s turn (and neither of them moves).
+    If enemy moves before it is the bot’s turn. Bot is rescued.
+    """
+    cascade = [
+    """
+    ########
+    #3 ..  #
+    #10   2#
+    ########
+    """,
+    """
+    ########
+    #3 ..  #
+    #0    1#
+    ########
+
+    ########
+    #  ..  #
+    #     2#
+    ########
+    """,
+    """
+    ########
+    #3 ..  #
+    #0   12#
+    ########
+    """
+    ]
+    def move(bot, state):
+        if bot.is_blue and bot.turn == 0 and bot.round == 0:
+            return (1, 2), state
+        if not bot.is_blue and bot.turn == 0 and bot.round == 0:
+            return (5, 2), state
+        return bot.position, state
+    layouts = [layout.parse_layout(l) for l in cascade]
+    state = setup_game([move, move], max_rounds=5, layout_dict=layout.parse_layout(cascade[0]))
+    assert state['bots'] == layouts[0]['bots']
+    state = game.play_turn(state) # Bot 0 moves, kills 1. Bot 1 and 2 are on same spot
+    assert state['bots'] == layouts[1]['bots']
+    state = game.play_turn(state) # Bot 1 moves. Bot 2 is rescued.
+    assert state['bots'] == layouts[2]['bots']
+
+
+def test_cascade_suicide():
+    cascade = [
+    """
+    ########
+    #1 ..03#
+    #     2#
+    ########
+    """,
+    """
+    ########
+    #0 .. 3#
+    #     2#
+    ########
+
+    ########
+    #1 ..  #
+    #      #
+    ########
+    """,
+    """
+    ########
+    #0 .. 3#
+    #     1#
+    ########
+
+    ########
+    #  ..  #
+    #     2#
+    ########
+    """,
+    """
+    ########
+    #0 .. 3#
+    #2    1#
+    ########
+    """
+    ]
+    def move(bot, state):
+        if bot.is_blue and bot.turn == 0 and bot.round == 0:
+            return (6, 1), state
+        return bot.position, state
+    layouts = [layout.parse_layout(l) for l in cascade]
+    state = setup_game([move, move], max_rounds=5, layout_dict=layout.parse_layout(cascade[0]))
+    assert state['bots'] == layouts[0]['bots']
+    state = game.play_turn(state) # Bot 0 moves onto 3. Gets killed. Bot 0 and 1 are on same spot.
+    assert state['bots'] == layouts[1]['bots']
+    state = game.play_turn(state) # Bot 1 moves, gets killed. Bot 1 and 2 are on same spot
+    assert state['bots'] == layouts[2]['bots']
+    state = game.play_turn(state) # Bot 2 moves, gets killed.
+    assert state['bots'] == layouts[3]['bots']
+
 
 @pytest.mark.parametrize('score', ([[3, 3], 2], [[1, 13], 1], [[13, 1], 0]))
 def test_play_turn_maxrounds(score):
@@ -257,8 +630,7 @@ def test_play_turn_maxrounds(score):
     game_state = setup_random_basic_gamestate()
     game_state["round"] = 300
     game_state["score"] = score[0]
-    move = get_legal_moves(game_state["walls"], game_state["bots"][0])
-    game_state_new = apply_move(game_state, move[0])
+    game_state_new = game.play_turn(game_state)
     assert game_state_new["gameover"]
     assert game_state_new["whowins"] == score[1]
 
@@ -291,56 +663,117 @@ def test_play_turn_move():
 
 
 
-def setup_random_basic_gamestate():
+def setup_random_basic_gamestate(*, round=0, turn=0):
     """helper function for testing play turn"""
     turn = 0
     l = Path("layouts/small_without_dead_ends_100.layout").read_text()
     parsed_l = layout.parse_layout(l)
-    game_state = {
-        "food": parsed_l["food"],
-        "walls": parsed_l["walls"],
-        "bots": parsed_l["bots"],
-        "max_rounds": 300,
-        "team_names": ("a", "b"),
-        "turn": turn,
-        "round": 0,
-        "timeout": [],
-        "gameover": False,
-        "whowins": None,
-        "team_say": "bla",
-        "score": [0, 0],
-        "deaths": 0,
-        "errors": [[], []],
-        "fatal_errors": [{}, {}],
-        "rnd": random.Random()
-        }
+
+    stopping = lambda bot, s: (bot.position, s)
+
+    game_state = setup_game([stopping, stopping], layout_dict=parsed_l)
+    game_state['round'] = round
+    game_state['turn'] = turn
     return game_state
 
 
-def setup_specific_basic_gamestate(layout_id):
+def setup_specific_basic_gamestate(layout_id, *, round=0, turn=0):
     """helper function for testing play turn"""
-    turn = 0
     l = Path(layout_id).read_text()
     parsed_l = layout.parse_layout(l)
-    game_state = {
-        "food": parsed_l["food"],
-        "walls": parsed_l["walls"],
-        "bots": parsed_l["bots"],
-        "max_rounds": 300,
-        "team_names": ("a", "b"),
-        "turn": turn,
-        "round": 0,
-        "timeout": [],
-        "gameover": False,
-        "whowins": None,
-        "team_say": "bla",
-        "score": [0, 0],
-        "deaths": [0, 0],
-        "errors": [[], []],
-        "fatal_errors": [{}, {}],
-        "rnd": random.Random()
-        }
+
+    stopping = lambda bot, s: (bot.position, s)
+
+    game_state = setup_game([stopping, stopping], layout_dict=parsed_l)
+    game_state['round'] = round
+    game_state['turn'] = turn
     return game_state
+
+
+def test_max_rounds():
+    l = """
+    ########
+    #20..13#
+    #      #
+    ########
+    """
+    def move(bot, s):
+        # in the first round (round #0),
+        # all bots move to the south
+        if bot.round == 0:
+            # go one step to the right
+            return (bot.position[0], bot.position[1] + 1), s
+        else:
+            # There should not be more then one round in this test
+            raise RuntimeError("We should not be here in this test")
+    
+    l = layout.parse_layout(l)
+    assert l['bots'][0] == (2, 1)
+    assert l['bots'][1] == (5, 1)
+    assert l['bots'][2] == (1, 1)
+    assert l['bots'][3] == (6, 1)
+    # max_rounds == 0 should not call move at all
+    final_state = run_game([move, move], layout_dict=l, max_rounds=0)
+    assert final_state['round'] is None
+    assert final_state['bots'][0] == (2, 1)
+    assert final_state['bots'][1] == (5, 1)
+    assert final_state['bots'][2] == (1, 1)
+    assert final_state['bots'][3] == (6, 1)
+    # max_rounds == 1 should call move just once
+    final_state = run_game([move, move], layout_dict=l, max_rounds=1)
+    assert final_state['round'] == 0
+    assert final_state['bots'][0] == (2, 2)
+    assert final_state['bots'][1] == (5, 2)
+    assert final_state['bots'][2] == (1, 2)
+    assert final_state['bots'][3] == (6, 2)
+    with pytest.raises(RuntimeError):
+        final_state = run_game([move, move], layout_dict=l, max_rounds=2)
+
+
+def test_update_round_counter():
+    tests = {
+        (None, None): (0, 0),
+        (0, 0): (0, 1),
+        (0, 1): (0, 2),
+        (0, 2): (0, 3),
+        (0, 3): (1, 0),
+        (1, 3): (2, 0)
+    }
+
+    for (round0, turn0), (round1, turn1) in tests.items():
+        res = game.update_round_counter({'turn': turn0, 'round': round0, 'gameover': False})
+        assert res == {'turn': turn1, 'round': round1}
+
+    for (round0, turn0), (round1, turn1) in tests.items():
+        with pytest.raises(ValueError):
+            res = game.update_round_counter({'turn': turn0, 'round': round0, 'gameover': True})
+
+
+@pytest.mark.parametrize('bot_to_move', [0, 1, 2, 3])
+def test_finished_when_no_food(bot_to_move):
+    """ Test that the game is over when a team has eaten its food. """
+    l = """
+    ########
+    #  0.2 #
+    # 3.1  #
+    ########
+    """
+    bot_turn = bot_to_move // 2
+    team_to_move = bot_to_move % 2
+    def move(bot, s):
+        if team_to_move == 0 and bot.is_blue and bot_turn == bot.bot_turn:
+            return (4, 1), s
+            # eat the food between 0 and 2
+        if team_to_move == 1 and (not bot.is_blue) and bot_turn == bot.bot_turn:
+            # eat the food between 3 and 1
+            return (3, 2), s
+        return bot.position, s
+
+    l = layout.parse_layout(l)
+    final_state = run_game([move, move], layout_dict=l, max_rounds=20)
+    assert final_state['round'] == 0
+    assert final_state['turn'] == bot_to_move
+
 
 
 def test_minimal_game():
@@ -349,7 +782,7 @@ def test_minimal_game():
 
     layout_name, layout_string = layout.get_random_layout()
     l = layout.parse_layout(layout_string)
-    final_state = run_game([move, move], rounds=20, layout_dict=l)
+    final_state = run_game([move, move], max_rounds=20, layout_dict=l)
     assert final_state['gameover'] is True
     assert final_state['score'] == [0, 0]
     assert final_state['round'] == 19
@@ -366,7 +799,7 @@ def test_minimal_losing_game_has_one_error():
 
     layout_name, layout_string = layout.get_random_layout()
     l = layout.parse_layout(layout_string)
-    final_state = run_game([move0, move1], rounds=20, layout_dict=l)
+    final_state = run_game([move0, move1], max_rounds=20, layout_dict=l)
     assert final_state['gameover'] is True
     assert final_state['score'] == [0, 0]
     assert len(final_state['errors'][0]) == 1
@@ -380,8 +813,8 @@ def test_minimal_remote_game():
 
     layout_name, layout_string = layout.get_random_layout()
     l = layout.parse_layout(layout_string)
-    final_state = run_game(["test/demo01_stopping.py", move], rounds=20, layout_dict=l)
-    final_state = run_game(["test/demo01_stopping.py", 'test/demo02_random.py'], rounds=20, layout_dict=l)
+    final_state = run_game(["test/demo01_stopping.py", move], max_rounds=20, layout_dict=l)
+    final_state = run_game(["test/demo01_stopping.py", 'test/demo02_random.py'], max_rounds=20, layout_dict=l)
     assert final_state['gameover'] is True
     assert final_state['score'] == [0, 0]
     assert final_state['round'] == 19
