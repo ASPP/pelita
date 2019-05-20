@@ -630,6 +630,10 @@ class TkApplication:
         if not self.size_changed:
             return
         self.ui.game_canvas.delete("wall")
+        # we keep all wall items stored in a list
+        # some versions of Python seem to forget about drawing
+        # them otherwise
+        self.wall_items = []
         num = 0
         for wall in game_state['walls']:
             model_x, model_y = wall
@@ -639,6 +643,7 @@ class TkApplication:
                               if [model_x + dx, model_y + dy] in game_state['walls']]
             wall_item = Wall(self.mesh_graph, wall_neighbors=wall_neighbors, position=(model_x, model_y))
             wall_item.draw(self.ui.game_canvas)
+            self.wall_items.append(wall_item)
             num += 1
 
     def init_bot_sprites(self, bot_positions):
