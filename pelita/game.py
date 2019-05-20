@@ -118,7 +118,7 @@ class GameState:
     controller: typing.Optional
 
     def pretty_str(self):
-        return (layout.layout_as_str(walls=self.walls, food=self.food, bots=self.bots) + "\n" +
+        return (layout.layout_as_str(walls=self.walls, food=list(self.food[0] | self.food[1]), bots=self.bots) + "\n" +
                 str({ f.name: getattr(self, f.name) for f in dataclasses.fields(self) if f.name not in ['walls', 'food']}))
 
 
