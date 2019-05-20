@@ -398,7 +398,7 @@ class Bot:
     @property
     def turn(self):
         """ The turn of our bot. """
-        return self.bot_index // 2
+        return self.bot_index % 2
 
     @property
     def other(self):
