@@ -11,6 +11,13 @@ from pelita.utils import Graph
 
 from utils import next_step
 
+def move_to_position(move):
+    def pos_move(bot, state):
+        m, s = move(bot, state)
+        return (bot.position[0] + m[0], bot.position[1] + m[1]), s
+    return pos_move
+
+@move_to_position
 def move(bot, state):
 
     if state is None:
