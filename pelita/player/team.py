@@ -10,6 +10,7 @@ import zmq
 
 from . import AbstractTeam
 from .. import libpelita
+from ..exceptions import PlayerDisconnected, PlayerTimeout
 from ..simplesetup import ZMQConnection, ZMQConnectionError, ZMQReplyTimeout, ZMQUnreachablePeer, DEAD_CONNECTION_TIMEOUT
 
 
@@ -102,19 +103,25 @@ class Team(AbstractTeam):
                 self._bot_track[idx] = []
 
         # Add our track
-        if len(self._bot_track[me.bot_turn]) == 0:
-            self._bot_track[me.bot_turn] = [me.position]
+        self._bot_track[me.bot_turn].append(me.position)
 
         for idx, mybot in enumerate(team):
             # If the track of any bot is empty,
             # Add its current position
             if me.bot_turn != idx:
-                self._bot_track[idx].append(mybot.position)
+                if len(self._bot_track[idx]) == 0:
+                    self._bot_track[idx].append(mybot.position)
 
             mybot.track = self._bot_track[idx][:]
 
         self._team_game = team
-        move, state = self._team_move(self._team_game[me.bot_turn], self._team_state)
+
+        try:
+            move, state = self._team_move(self._team_game[me.bot_turn], self._team_state)
+        except Exception as e:
+            return {
+                "error": repr(e),
+            }
 
         # restore the team state
         self._team_state = state
@@ -144,7 +151,7 @@ class RemoteTeam:
     address
         The zmq address (an address will be chosen randomly, if empty)
     """
-    def __init__(self, team_spec, team_name=None, address="tcp://", zmq_context=None, timeout_length=3):
+    def __init__(self, team_spec, team_name=None, address="tcp://", zmq_context=None, timeout_length=3, idx=None):
         if zmq_context is None:
             zmq_context = zmq.Context()
         socket = zmq_context.socket(zmq.PAIR)
@@ -154,7 +161,11 @@ class RemoteTeam:
         self.bound_to_address =f"tcp://localhost:{port}"
         self.zmqconnection = ZMQConnection(socket)
         self.timeout_length = timeout_length
-        self.proc = self._call_pelita_player(team_spec, self.bound_to_address)
+        if idx == 0:
+            color='blue'
+        if idx == 1:
+            color='red'
+        self.proc = self._call_pelita_player(team_spec, self.bound_to_address, color=color)
 
     def _call_pelita_player(self, team_spec, address, color='', dump=None):
         """ Starts another process with the same Python executable,
@@ -213,6 +224,8 @@ class RemoteTeam:
             reply = self.zmqconnection.recv_timeout(self.timeout_length)
             # make sure it is a dict
             reply = dict(reply)
+            if "error" in reply:
+                return reply
             # make sure that the move is a tuple
             reply["move"] = tuple(reply.get("move"))
             return reply
@@ -243,7 +256,7 @@ class RemoteTeam:
         return f"RemoteTeam<{self._team_spec}{team_name} on {self.bound_to_address}>" 
 
 
-def make_team(team_spec, team_name=None, zmq_context=None):
+def make_team(team_spec, team_name=None, zmq_context=None, idx=None):
     """ Creates a Team object for the given team_spec.
 
     If no zmq_context is passed for a remote team, then a new context
@@ -284,7 +297,7 @@ def make_team(team_spec, team_name=None, zmq_context=None):
             # start pelita-player
             if not zmq_context:
                 zmq_context = zmq.Context()
-            team_player = RemoteTeam(team_spec=team_spec, zmq_context=zmq_context)
+            team_player = RemoteTeam(team_spec=team_spec, zmq_context=zmq_context, idx=idx)
 
     return team_player, zmq_context
 
@@ -393,7 +406,7 @@ class Bot:
     @property
     def turn(self):
         """ The turn of our bot. """
-        return self.bot_index // 2
+        return self.bot_index % 2
 
     @property
     def other(self):
@@ -442,7 +455,7 @@ class Bot:
     @property
     def eaten(self):
         """ True if this bot has been eaten in the last turn. """
-        return self._eaten
+        return self.has_respawned
 
     def _repr_html_(self):
         """ Jupyter-friendly representation. """
@@ -517,7 +530,7 @@ def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
         b = Bot(bot_index=idx,
             is_on_team=True,
             score=team['score'],
-            has_respawned=team['has_respawned'],
+            has_respawned=team['has_respawned'][idx],
             timeout_count=team['timeout_count'],
             food=team['food'],
             walls=walls,
@@ -583,7 +596,7 @@ def bot_from_layout(layout, is_blue, score, round, team_name, timeout_count):
         'bot_positions': layout.bots[:],
         'team_index': 0 if is_blue else 1,
         'score': 0,
-        'has_respawned': False,
+        'has_respawned': True,
         'timeout_count': 0,
         'food': [food for food in layout.food if in_homezone(food, is_blue)],
     }

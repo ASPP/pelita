@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 
 import pelita
 from pelita.ui.tk_viewer import TkViewer
@@ -18,6 +19,8 @@ def geometry_string(s):
         msg = "%s is not a valid geometry specification" %s
         raise argparse.ArgumentTypeError(msg)
     return geometry
+
+LOG_TK = os.environ.get("PELITA_LOG_TK", None)
 
 parser = argparse.ArgumentParser(description='Open a Tk viewer')
 parser.add_argument('subscribe_sock', metavar="URL", type=str,
@@ -48,7 +51,7 @@ def main():
         sys.exit(0)
 
 
-    if args.log:
+    if LOG_TK or args.log:
         pelita.libpelita.start_logging(args.log)
 
     tkargs = {

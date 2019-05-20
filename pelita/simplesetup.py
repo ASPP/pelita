@@ -623,6 +623,7 @@ class SimplePublisher(AbstractViewer):
 
 
     def _send(self, message):
+        _logger.debug("--#>")
         as_json = json.dumps(message)
         self.socket.send_unicode(as_json)
 
@@ -635,6 +636,12 @@ class SimplePublisher(AbstractViewer):
         message = {"__action__": "observe",
                    "__data__": {"game_state": game_state}}
         self._send(message)
+
+    def show_state(self, game_state):
+        message = {"__action__": "observe",
+                   "__data__": game_state}
+        self._send(message)
+
 
 class SimpleSubscriber(AbstractViewer):
     """ Subscribes to a given zmq socket and passes

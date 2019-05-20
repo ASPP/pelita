@@ -56,7 +56,7 @@ class TkSprite:
         x, y = self.position
         return self.mesh.mesh_trafo(x, y).screen(*shift)
 
-    def draw(self, canvas, universe=None):
+    def draw(self, canvas, game_state=None):
         raise NotImplementedError
 
     def bounding_box(self, scale_factor=1.0):
@@ -68,9 +68,9 @@ class TkSprite:
         _tag = self._tag or "tag" + str(id(self))
         return _tag
 
-    def redraw(self, canvas, universe=None):
+    def redraw(self, canvas, game_state=None):
         self.delete(canvas)
-        self.draw(canvas, universe)
+        self.draw(canvas, game_state)
 
     def delete(self, canvas):
         canvas.delete(self.tag)
@@ -79,11 +79,19 @@ class BotSprite(TkSprite):
     def __init__(self, mesh, team=0, bot_id=0, **kwargs):
         self.bot_id = bot_id
         self.team = team
+        self.width = mesh.mesh_width
+
         self.is_harvester = None
 
         super(BotSprite, self).__init__(mesh, **kwargs)
 
-    def move_to(self, new_pos, canvas, universe=None, force=None, say="", show_id=False):
+    def is_harvester_at(self, pos):
+        if self.team == 0:
+            return pos[0] >= self.width // 2
+        elif self.team == 1:
+            return pos[0] < self.width // 2
+
+    def move_to(self, new_pos, canvas, game_state=None, force=None, say="", show_id=False):
         old_direction = self.direction
         old_position = self.position
 
@@ -91,8 +99,8 @@ class BotSprite(TkSprite):
         if (old_position is None
             or old_direction != self.direction
             or force
-            or self.is_harvester != universe.bots[self.bot_id].is_harvester):
-            self.redraw(canvas, universe)
+            or self.is_harvester != self.is_harvester_at(game_state['bots'][self.bot_id])):
+            self.redraw(canvas, game_state)
         else:
             dx = self.position[0] - old_position[0]
             dy = self.position[1] - old_position[1]
@@ -140,8 +148,8 @@ class BotSprite(TkSprite):
         eye_box = [self.screen((item.real, item.imag)) for item in eye_box]
         canvas.create_oval(eye_box, fill=eye_col, width=0, tag=self.tag)
 
-    def draw(self, canvas, universe):
-        self.is_harvester = universe.bots[self.bot_id].is_harvester
+    def draw(self, canvas, game_state):
+        self.is_harvester = self.is_harvester_at(game_state['bots'][self.bot_id])
 
         if self.is_harvester:
             if self.team == 0:
@@ -203,7 +211,7 @@ class Wall(TkSprite):
         super(Wall, self).__init__(mesh, **kwargs)
 
 
-    def draw(self, canvas, universe=None):
+    def draw(self, canvas, game_state=None):
         scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5
         if not ((0, 1) in self.wall_neighbors or
                 (1, 0) in self.wall_neighbors or
@@ -236,7 +244,7 @@ class Food(TkSprite):
     def food_pos_tag(cls, position):
         return "Food" + str(position)
 
-    def draw(self, canvas, universe=None):
+    def draw(self, canvas, game_state=None):
         if self.position[0] < self.mesh.num_x/2:
             fill = BLUE
         else:
