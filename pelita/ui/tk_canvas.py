@@ -680,6 +680,9 @@ class TkApplication:
     def request_step(self):
         if not self.controller_socket:
             return
+        
+        if self._game_state['gameover']:
+            return
 
         if self._stop_after is not None:
             next_step = update_round_counter(self._game_state)
@@ -698,6 +701,9 @@ class TkApplication:
         if not self.controller_socket:
             return
 
+        if self._game_state['gameover']:
+            return
+
         if self._game_state['round'] is not None:
             next_step = update_round_counter(self._game_state)
             self._stop_after = next_step['round'] + 1
@@ -708,13 +714,10 @@ class TkApplication:
 
     def observe(self, game_state):
         # TODO
-        game_state['timeout_teams'] = [0, 0]
-        game_state['times_killed'] = [0, 0]
-        game_state['team_time'] = [0, 0]
-        game_state['teams_disqualified'] = [0, 0]
+        game_state['timeout_teams'] = [len(errors) for errors in game_state['errors']]
+        game_state['teams_disqualified'] = [fatal and fatal[0]['type'] for fatal in game_state['fatal_errors']]
         game_state['bot_destroyed'] = []
         game_state['food_eaten'] = []
-        game_state['say'] = ["", "", "", ""]
         self.update(game_state)
         if self._stop_after is not None:
             if self._stop_after == 0:

@@ -103,19 +103,25 @@ class Team(AbstractTeam):
                 self._bot_track[idx] = []
 
         # Add our track
-        if len(self._bot_track[me.bot_turn]) == 0:
-            self._bot_track[me.bot_turn] = [me.position]
+        self._bot_track[me.bot_turn].append(me.position)
 
         for idx, mybot in enumerate(team):
             # If the track of any bot is empty,
             # Add its current position
             if me.bot_turn != idx:
-                self._bot_track[idx].append(mybot.position)
+                if len(self._bot_track[idx]) == 0:
+                    self._bot_track[idx].append(mybot.position)
 
             mybot.track = self._bot_track[idx][:]
 
         self._team_game = team
-        move, state = self._team_move(self._team_game[me.bot_turn], self._team_state)
+
+        try:
+            move, state = self._team_move(self._team_game[me.bot_turn], self._team_state)
+        except Exception as e:
+            return {
+                "error": repr(e),
+            }
 
         # restore the team state
         self._team_state = state
@@ -218,6 +224,8 @@ class RemoteTeam:
             reply = self.zmqconnection.recv_timeout(self.timeout_length)
             # make sure it is a dict
             reply = dict(reply)
+            if "error" in reply:
+                return reply
             # make sure that the move is a tuple
             reply["move"] = tuple(reply.get("move"))
             return reply
@@ -447,7 +455,7 @@ class Bot:
     @property
     def eaten(self):
         """ True if this bot has been eaten in the last turn. """
-        return self._eaten
+        return self.has_respawned
 
     def _repr_html_(self):
         """ Jupyter-friendly representation. """
@@ -522,7 +530,7 @@ def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
         b = Bot(bot_index=idx,
             is_on_team=True,
             score=team['score'],
-            has_respawned=team['has_respawned'],
+            has_respawned=team['has_respawned'][idx],
             timeout_count=team['timeout_count'],
             food=team['food'],
             walls=walls,

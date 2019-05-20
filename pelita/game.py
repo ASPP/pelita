@@ -92,6 +92,15 @@ class GameState:
     #: Name of the teams. List of str
     team_names: typing.List[str]
 
+    #: Time each team needed
+    team_time: typing.List[float]
+
+    #: Times each team got killed
+    times_killed: typing.List[int]
+
+    #: Recently respawned?
+    respawned: typing.List[int] 
+
     #: Messages the bots say. Keeps only the recent one at the respective bot’s index.
     say: typing.List[str]
 
@@ -252,12 +261,15 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         say=[""] * 4,
         layout_name=None,
         team_names=[None] * 2,
-        fatal_errors=[False] * 2,
+        fatal_errors=[[], []],
         errors=[[], []],
         whowins=None,
         rnd=Random(seed),
         viewers=[],
         controller=None,
+        team_time=[0, 0],
+        times_killed=[0, 0],
+        respawned=[True] * 4
     )
     game_state = dataclasses.asdict(game_state)
 
@@ -355,13 +367,17 @@ def prepare_bot_state(game_state, idx=None):
         else:
             return not on_left_side
 
+    respawned = game_state['respawned'][own_team::2]
+    # reset the respawned cache
+    game_state['respawned'][own_team::2] = [False, False]
+
     team_state = {
         'team_index': own_team,
         'bot_positions': game_state['bots'][own_team::2],
         'score': game_state['score'][own_team],
-        'has_respawned': [False] * 2, # TODO
-        'timeout_count': 0, # TODO
-        'food': list(game_state['food'][own_team]), #[food for food in game_state['food'] if in_homezone(food, own_team)]
+        'has_respawned': respawned,
+        'timeout_count': len(game_state['errors'][own_team]),
+        'food': list(game_state['food'][own_team]),
     }
 
     enemy_state = {
@@ -370,7 +386,7 @@ def prepare_bot_state(game_state, idx=None):
         'is_noisy': noised_positions['is_noisy'],
         'score': game_state['score'][enemy_team],
         'timeout_count': 0, # TODO. Could be left out for the enemy
-        'food': list(game_state['food'][enemy_team]), # [food for food in game_state['food'] if in_homezone(food, enemy_team)]
+        'food': list(game_state['food'][enemy_team]),
     }
 
     bot_state = {
@@ -434,14 +450,23 @@ def play_turn(game_state):
     # request a new move from the current team
     try:
         position_dict = request_new_position(game_state)
-        position = tuple(position_dict['move'])
+        if "error" in position_dict:
+            raise FatalException(f"Exception in client: {position_dict['error']}")
+        try:
+            position = tuple(position_dict['move'])
+        except TypeError as e:
+            raise NonFatalException(f"Type error {e}")
+
         if position_dict.get('say'):
             game_state['say'][game_state['turn']] = position_dict['say']
+        else:
+            game_state['say'][game_state['turn']] = ""
     except FatalException as e:
         # FatalExceptions (such as PlayerDisconnect) should immediately
         # finish the game
         exception_event = {
-            'type': str(e),
+            'type': e.__class__.__name__,
+            'description': str(e),
             'turn': game_state['turn'],
             'round': game_state['round'],
         }
@@ -451,7 +476,8 @@ def play_turn(game_state):
         # NonFatalExceptions (such as Timeouts and ValueErrors in the JSON handling)
         # are collected and added to team_errors
         exception_event = {
-            'type': str(e),
+            'type': e.__class__.__name__,
+            'description': str(e),
             'turn': game_state['turn'],
             'round': game_state['round'],
         }
@@ -557,6 +583,7 @@ def apply_move(gamestate, bot_position):
             score[team] = score[team] + 5
             init_positions = initial_positions(walls)
             bots[enemy_idx] = init_positions[enemy_idx]
+            gamestate['respawned'][enemy_idx] = True
             deaths[abs(team-1)] = deaths[abs(team-1)] + 1
             _logger.info(f"Bot {enemy_idx} respawns at {bots[enemy_idx]}.")
     else:
