@@ -5,6 +5,7 @@ from io import StringIO
 import logging
 import random
 import subprocess
+import traceback
 
 import zmq
 
@@ -117,10 +118,24 @@ class Team(AbstractTeam):
         self._team_game = team
 
         try:
-            move, state = self._team_move(self._team_game[me.bot_turn], self._team_state)
+            res = self._team_move(self._team_game[me.bot_turn], self._team_state)
+            try:
+                if len(res) != 2:
+                    raise ValueError(f"Function move did not return move and state: got {res} instead.")
+            except TypeError:
+                raise ValueError(f"Function move did not return move and state: got {res} instead.")
+            move, state = res
+            try:
+                if len(move) != 2:
+                    raise ValueError(f"Function move did not return a valid position: got {move} instead.")
+            except TypeError:
+                raise ValueError(f"Function move did not return a valid position: got {move} instead.")
         except Exception as e:
+            # Our client had an exception. We print a traceback and
+            # return the type of the exception to the server.
+            traceback.print_exc()
             return {
-                "error": repr(e),
+                "error": (type(e).__name__, str(e)),
             }
 
         # restore the team state
@@ -215,8 +230,8 @@ class RemoteTeam:
         except ZMQUnreachablePeer:
             _logger.info("Could not properly send the message. Maybe just a slow client. Ignoring in set_initial.")
         except ZMQConnectionError as e:
-            _logger.info("Detected a ConnectionError: %s", e)
-            return '%%%s%%' % e
+            _logger.warning("Detected a ConnectionError: %s", e)
+            raise PlayerDisconnected(e) from None
 
     def get_move(self, game_state, timeout_length=None):
         try:

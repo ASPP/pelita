@@ -106,7 +106,7 @@ class GameState:
 
     ### Internal
     #: Internal team representation
-    team_specs: typing.List
+    teams: typing.List
 
     #: Random number generator
     rnd: typing.Any
@@ -178,7 +178,7 @@ def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None, 
         state = play_turn(state)
 
     # The game is over. We are nice and clean up.
-    # for team in state['team_specs']:
+    # for team in state['teams']:
     #    if hasattr(team, '_exit'):
     #        team._exit()
 
@@ -245,7 +245,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
     food = split_food(width, layout_dict['food'])
 
     game_state = GameState(
-        team_specs=[None] * 2,
+        teams=[None] * 2,
         bots=layout_dict['bots'][:],
         turn=None,
         round=None,
@@ -304,29 +304,48 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
 
 
 def setup_teams(team_specs, game_state):
-    """ Creates the teams according to the `team_specs`. """
-    team_state = {
-        'team_specs': [],
-        'team_names': []
-    }
+    """ Creates the teams according to the `teams`. """
 
     # we start with a dummy zmq_context
     # make_team will generate and return a new context, if it is needed
     zmq_context = None
 
+    teams = []
+    # First, create all teams
+    # If a team is a RemoteTeam, this will start a subprocess
     for idx, team_spec in enumerate(team_specs):
         team, zmq_context = make_team(team_spec, idx=idx)
-        team_name = team.set_initial(idx, prepare_bot_state(game_state, idx))
-        team_state['team_names'].append(team_name) # TODO this could be an attribute of the team_spec team (and only be used in prepare_viewer).
-        team_state['team_specs'].append(team)
+        teams.append(team)
+
+    # Send the initial state to the teams and await the team name 
+    team_names = []
+    for idx, team in enumerate(teams):
+        try:
+            team_name = team.set_initial(idx, prepare_bot_state(game_state, idx))
+        except FatalException as e:
+            exception_event = {
+                'type': e.__class__.__name__,
+                'description': str(e),
+                'turn': idx,
+                'round': None,
+            }
+            game_state['fatal_errors'][idx].append(exception_event)
+            position = None
+            game_print(idx, f"{type(e).__name__}: {e}")
+            team_name = "%%%error%%%"
+        team_names.append(team_name)
     
+    team_state = {
+        'teams': teams,
+        'team_names': team_names
+    }
     return team_state
 
 
 def request_new_position(game_state):
     team = game_state['turn'] % 2
     bot_turn = game_state['turn'] // 2
-    move_fun = game_state['team_specs'][team]
+    move_fun = game_state['teams'][team]
 
     bot_state = prepare_bot_state(game_state)
     new_position = move_fun.get_move(bot_state)
@@ -413,7 +432,7 @@ def prepare_viewer_state(game_state):
     viewer_state = {}
     viewer_state.update(game_state)
     viewer_state['food'] = list((viewer_state['food'][0] | viewer_state['food'][1]))
-    del viewer_state['team_specs']
+    del viewer_state['teams']
     del viewer_state['rnd']
     del viewer_state['viewers']
     del viewer_state['controller']
@@ -446,12 +465,14 @@ def play_turn(game_state):
     # Now update the round counter
     game_state.update(update_round_counter(game_state))
 
-    team = game_state['turn'] % 2
+    turn = game_state['turn']
+    team = turn % 2
     # request a new move from the current team
     try:
         position_dict = request_new_position(game_state)
         if "error" in position_dict:
-            raise FatalException(f"Exception in client: {position_dict['error']}")
+            error_type, error_string = position_dict['error']
+            raise FatalException(f"Exception in client ({error_type}): {error_string}")
         try:
             position = tuple(position_dict['move'])
         except TypeError as e:
@@ -472,6 +493,7 @@ def play_turn(game_state):
         }
         game_state['fatal_errors'][team].append(exception_event)
         position = None
+        game_print(turn, f"{type(e).__name__}: {e}")
     except NonFatalException as e:
         # NonFatalExceptions (such as Timeouts and ValueErrors in the JSON handling)
         # are collected and added to team_errors
@@ -483,6 +505,7 @@ def play_turn(game_state):
         }
         game_state['errors'][team].append(exception_event)
         position = None
+        game_print(turn, f"{type(e).__name__}: {e}")
 
     # try to execute the move and return the new state
     game_state = apply_move(game_state, position)
@@ -543,6 +566,7 @@ def apply_move(gamestate, bot_position):
     # check is step is legal
     legal_moves = get_legal_moves(walls, gamestate["bots"][gamestate["turn"]])
     if bot_position not in legal_moves:
+        bad_bot_position = bot_position
         bot_position = legal_moves[gamestate['rnd'].randint(0, len(legal_moves)-1)]
         error_dict = {
             "turn": turn,
@@ -550,6 +574,7 @@ def apply_move(gamestate, bot_position):
             "reason": 'illegal move',
             "bot_position": bot_position
             }
+        game_print(turn, f"Illegal move {bad_bot_position} not in {sorted(legal_moves)}. Choosing a random move instead: {bot_position}")
         team_errors.append(error_dict)
 
     # only execute move if errors not exceeded
@@ -815,3 +840,10 @@ def get_legal_moves(walls, bot_position):
 # TODO ???
 # - refactor Rike's initial positions code
 # - keep track of error dict for future additions
+
+def game_print(turn, msg):
+    if turn % 2 == 0:
+        pie = '\033[94m' + 'ᗧ' + '\033[0m' + f' blue team, bot {turn // 2}'
+    elif turn % 2 == 1:
+        pie = '\033[91m' + 'ᗧ' + '\033[0m' + f' red team, bot {turn // 2}'
+    print(f'{pie}: {msg}')

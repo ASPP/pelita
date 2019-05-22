@@ -1,13 +1,28 @@
 """Tests for Pelita game module"""
 import pytest
 
+from contextlib import contextmanager
+import os
 from pathlib import Path
 import random
+from textwrap import dedent
 
 import numpy as np
 
 from pelita import game, layout
 from pelita.game import initial_positions, get_legal_moves, apply_move, run_game, setup_game
+
+
+@contextmanager
+def temp_wd(path):
+    """ Temporarily change the working directory to path. """
+    old = os.getcwd()
+    try:
+        os.chdir(path)
+        yield
+    finally:
+        os.chdir(old)
+
 
 def test_initial_positions_basic():
     """Checks basic example for initial positions"""
@@ -726,9 +741,23 @@ def test_max_rounds():
     assert final_state['bots'][1] == (5, 2)
     assert final_state['bots'][2] == (1, 2)
     assert final_state['bots'][3] == (6, 2)
-    with pytest.raises(RuntimeError):
-        final_state = run_game([move, move], layout_dict=l, max_rounds=2)
-
+    # max_rounds == 2 should finish and have the first team lose
+    final_state = run_game([move, move], layout_dict=l, max_rounds=2)
+    assert final_state['round'] == 1
+    assert final_state['turn'] == 0
+    assert final_state['bots'][0] == (2, 2)
+    assert final_state['bots'][1] == (5, 2)
+    assert final_state['bots'][2] == (1, 2)
+    assert final_state['bots'][3] == (6, 2)
+    assert final_state['gameover']
+    assert final_state['whowins'] == 1
+    assert final_state['fatal_errors'][0][0] == {
+        'type': 'FatalException',
+        'description': 'Exception in client (RuntimeError): We should not be here in this test',
+        'round': 1,
+        'turn': 0,
+    }
+ 
 
 def test_update_round_counter():
     tests = {
@@ -818,3 +847,123 @@ def test_minimal_remote_game():
     assert final_state['gameover'] is True
     assert final_state['score'] == [0, 0]
     assert final_state['round'] == 19
+
+
+def test_non_existing_file():
+    # TODO: Change error message to be more meaningful
+    layout_name, layout_string = layout.get_random_layout()
+    l = layout.parse_layout(layout_string)
+    res = run_game(["blah", "nothing"], max_rounds=1, layout_dict=l)
+    assert res['fatal_errors'][0][0] == {
+        'description': 'Could not load blah',
+        'round': None,
+        'turn': 0,
+        'type': 'PlayerDisconnected'
+    }
+
+def test_remote_errors(tmp_path):
+    # TODO: Change error messages to be more meaningful
+    # we change to the tmp dir, to make our paths simpler
+    syntax_error = dedent("""
+    def move(b, state)
+        return b.position, state
+    """)
+    import_error = dedent("""
+    import does_not_exist
+    def move(b, state):
+        return b.position, state
+    """)
+
+    layout_name, layout_string = layout.get_random_layout()
+    l = layout.parse_layout(layout_string)
+
+    with temp_wd(tmp_path):
+        s_py = Path("s.py")
+        s_py.write_text(syntax_error)
+        i_py = Path("i.py")
+        i_py.write_text(import_error)
+
+        res = run_game([str(s_py), str(i_py)], layout_dict=l, max_rounds=20)
+        assert res['fatal_errors'][0][0] == {
+            'description': 'Could not load s.py',
+            'round': None,
+            'turn': 0,
+            'type': 'PlayerDisconnected'
+        }
+        res = run_game(["0", str(i_py)], layout_dict=l, max_rounds=20)
+        assert res['fatal_errors'][1][0] == {
+            'description': 'Could not load i.py',
+            'round': None,
+            'turn': 1,
+            'type': 'PlayerDisconnected'
+        }
+        res = run_game([str(i_py), "1"], layout_dict=l, max_rounds=20)
+        assert res['fatal_errors'][0][0] == {
+            'description': 'Could not load i.py',
+            'round': None,
+            'turn': 0,
+            'type': 'PlayerDisconnected'
+        }
+
+
+@pytest.mark.parametrize('team_to_test', [0, 1])
+def test_bad_move_function(team_to_test):
+    """ Test that having a move function that returns a bad type
+    appends a FatalException. """
+
+    def stopping(b, state):
+        return b.position, state
+    def move0(b, state):
+        return None
+    def move1(b, state):
+        return 0
+    def move2(b, state):
+        return 0, 0
+    def move3(b, state):
+        return 0, 0, 0
+    def move4(b): # TypeError: move4() takes 1 positional argument but 2 were given
+        return (0, 0), 0
+
+    layout_name, layout_string = layout.get_random_layout()
+    l = layout.parse_layout(layout_string)
+
+    def test_run_game(move):
+        # Flips the order of the teams depending on team_to_test
+        if team_to_test == 0:
+            teams = [move, stopping]
+        elif team_to_test == 1:
+            teams = [stopping, move]
+        return run_game(teams, layout_dict=l, max_rounds=10)
+
+    other = 1 - team_to_test
+
+    res = test_run_game(move0)
+    assert res['gameover']
+    assert res['whowins'] == other
+    assert res['fatal_errors'][team_to_test][0]['type'] == 'FatalException'
+    assert res['fatal_errors'][team_to_test][0]['description'] == 'Exception in client (ValueError): Function move did not return move and state: got None instead.'
+
+    res = test_run_game(move1)
+    assert res['gameover']
+    assert res['whowins'] == other
+    assert res['fatal_errors'][team_to_test][0]['type'] == 'FatalException'
+    assert res['fatal_errors'][team_to_test][0]['description'] == 'Exception in client (ValueError): Function move did not return move and state: got 0 instead.'
+
+    res = test_run_game(move2)
+    assert res['gameover']
+    assert res['whowins'] == other
+    assert res['fatal_errors'][team_to_test][0]['type'] == 'FatalException'
+    assert res['fatal_errors'][team_to_test][0]['description'] == 'Exception in client (ValueError): Function move did not return a valid position: got 0 instead.'
+
+    res = test_run_game(move3)
+    assert res['gameover']
+    assert res['whowins'] == other
+    assert res['fatal_errors'][team_to_test][0]['type'] == 'FatalException'
+    assert res['fatal_errors'][team_to_test][0]['description'] == 'Exception in client (ValueError): Function move did not return move and state: got (0, 0, 0) instead.'
+
+    res = test_run_game(move4)
+    assert res['gameover']
+    assert res['whowins'] == other
+    assert res['fatal_errors'][team_to_test][0]['type'] == 'FatalException'
+    assert res['fatal_errors'][team_to_test][0]['description'] == 'Exception in client (TypeError): move4() takes 1 positional argument but 2 were given'
+
