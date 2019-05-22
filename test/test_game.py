@@ -890,6 +890,8 @@ def test_remote_errors(tmp_path):
             'turn': 0,
             'type': 'PlayerDisconnected'
         }
+        # Both teams fail during setup: DRAW
+        assert res['whowins'] == 2
         res = run_game(["0", str(i_py)], layout_dict=l, max_rounds=20)
         assert res['fatal_errors'][1][0] == {
             'description': 'Could not load i.py',
@@ -897,6 +899,7 @@ def test_remote_errors(tmp_path):
             'turn': 1,
             'type': 'PlayerDisconnected'
         }
+        assert res['whowins'] == 0
         res = run_game([str(i_py), "1"], layout_dict=l, max_rounds=20)
         assert res['fatal_errors'][0][0] == {
             'description': 'Could not load i.py',
@@ -904,6 +907,7 @@ def test_remote_errors(tmp_path):
             'turn': 0,
             'type': 'PlayerDisconnected'
         }
+        assert res['whowins'] == 1
 
 
 @pytest.mark.parametrize('team_to_test', [0, 1])
