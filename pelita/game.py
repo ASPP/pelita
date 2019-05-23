@@ -331,8 +331,12 @@ def setup_teams(team_specs, game_state):
             }
             game_state['fatal_errors'][idx].append(exception_event)
             position = None
-            game_print(idx, f"{type(e).__name__}: {e}")
-            team_name = "%%%error%%%"
+            if len(e.args) > 1:
+                game_print(idx, f"{type(e).__name__} ({e.args[0]}): {e.args[1]}")
+                team_name = f"%%%{e.args[0]}%%%"
+            else:
+                game_print(idx, f"{type(e).__name__}: {e}")
+                team_name = "%%%error%%%"
         team_names.append(team_name)
     
     team_state = {

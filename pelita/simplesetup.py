@@ -188,9 +188,10 @@ class ZMQConnection:
 
         try:
             msg_error = py_obj['__error__']
-            _logger.warning(f'Received error reply: {msg_error}. Closing socket.')
+            error_type, error_message = msg_error
+            _logger.warning(f'Received error reply ({error_type}): {error_message}. Closing socket.')
             self.socket.close()
-            raise ZMQConnectionError(msg_error)
+            raise ZMQConnectionError(*msg_error)
         except KeyError:
             pass
 

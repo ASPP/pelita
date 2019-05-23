@@ -55,7 +55,10 @@ def make_client(team_spec, address, color=None):
             action = py_obj["__action__"]
             data = py_obj["__data__"]
 
-            socket.send_json({'__uuid__': uuid_, '__error__': 'Could not load %s' % team_spec})
+            socket.send_json({
+                '__uuid__': uuid_,
+                '__error__': (e.__class__.__name__, f'Could not load {team_spec}: {e}')
+            })
         except zmq.ZMQError as e:
             raise IOError('failed to connect the client to address %s: %s'
                           % (address, e))

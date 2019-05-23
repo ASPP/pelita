@@ -230,8 +230,13 @@ class RemoteTeam:
         except ZMQUnreachablePeer:
             _logger.info("Could not properly send the message. Maybe just a slow client. Ignoring in set_initial.")
         except ZMQConnectionError as e:
-            _logger.warning("Detected a ConnectionError: %s", e)
-            raise PlayerDisconnected(e) from None
+            if len(e.args) > 1:
+                error_type, error_message = e.args
+                _logger.warning(f"Client connection failed ({error_type}): {error_message}")
+            else:
+                error_message = e.args[0]
+                _logger.warning(f"Client connection failed: {error_message}")
+            raise PlayerDisconnected(*e.args) from None
 
     def get_move(self, game_state, timeout_length=None):
         try:
