@@ -778,6 +778,70 @@ def test_update_round_counter():
             res = game.update_round_counter({'turn': turn0, 'round': round0, 'gameover': True})
 
 
+def test_last_round_check():
+    # (max_rounds, current_round, turn): gameover
+    test_map = {
+        (0, None, None): True,
+        (1, None, None): False,
+        (0, 0, 0): True,
+        (1, 0, 0): False,
+        (1, 0, 3): True,
+        (1, 0, 4): True,
+    } 
+    for test_val, test_res in test_map.items():
+        max_rounds, current_round, current_turn = test_val
+        state = {
+            'max_rounds': max_rounds,
+            'round': current_round,
+            'turn': current_turn,
+            'gameover': False,
+            'score': [0, 0],
+            'food': [{(1,1)}, {(1,1)}] # dummy food
+        }
+        res = game.check_final_move(state)
+        assert res['gameover'] == test_res
+
+
+def test_error_finishes_game():
+    # the mapping is as follows:
+    # [(num_fatal_0, num_errors_0), (num_fatal_1, num_errors_1), result_flag]
+    # the result flag: 0/1: team 0/1 wins, 2: draw, False: no winner yet
+    assert game.MAX_ALLOWED_ERRORS == 4, "Test assumes MAX_ALLOWED_ERRORS is 4"
+
+    error_map = {
+        ((0, 0), (0, 0)): False,
+        ((0, 1), (0, 0)): False,
+        ((0, 0), (0, 1)): False,
+        ((0, 2), (0, 2)): False,
+        ((0, 4), (0, 0)): False,
+        ((0, 0), (0, 4)): False,
+        ((0, 4), (0, 4)): False,
+        ((0, 5), (0, 0)): 1,
+        ((0, 0), (0, 5)): 0,
+        ((0, 5), (0, 5)): 2,
+        ((1, 0), (0, 0)): 1,
+        ((0, 0), (1, 0)): 0,
+        ((1, 0), (1, 0)): 2,
+        ((1, 1), (1, 0)): 2,
+        ((1, 0), (0, 5)): 1,
+        ((0, 5), (1, 0)): 0,
+    }
+    for test_vals, test_res in error_map.items():
+        ((fatal_0, errors_0), (fatal_1, errors_1)) = test_vals
+        # just faking a bunch of errors in our game state
+        state = {
+            "fatal_errors": [[None] * fatal_0, [None] * fatal_1],
+            "errors": [[None] * errors_0, [None] * errors_1]
+        }
+        res = game.check_errors(state)
+        if test_res is False:
+            assert res["whowins"] is None
+            assert res["gameover"] is False
+        else:
+            assert res["whowins"] == test_res
+            assert res["gameover"] is True
+
+
 @pytest.mark.parametrize('bot_to_move', [0, 1, 2, 3])
 def test_finished_when_no_food(bot_to_move):
     """ Test that the game is over when a team has eaten its food. """
@@ -802,7 +866,6 @@ def test_finished_when_no_food(bot_to_move):
     final_state = run_game([move, move], layout_dict=l, max_rounds=20)
     assert final_state['round'] == 0
     assert final_state['turn'] == bot_to_move
-
 
 
 def test_minimal_game():
