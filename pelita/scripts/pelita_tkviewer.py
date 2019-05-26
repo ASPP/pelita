@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import sys
 
 import pelita
 from pelita.ui.tk_viewer import TkViewer
@@ -43,8 +44,9 @@ parser.add_argument('--log', help='print debugging log information to'
 def main():
     args = parser.parse_args()
     if args.version:
-        if pelita._git_version:
-            print("Pelita {} (git: {})".format(pelita.__version__, pelita._git_version))
+        git_version = pelita._git_version()
+        if git_version:
+            print("Pelita {} (git: {})".format(pelita.__version__, git_version))
         else:
             print("Pelita {}".format(pelita.__version__))
 
