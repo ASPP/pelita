@@ -684,8 +684,8 @@ def update_round_counter(game_state):
 #        raise ValueError("Exceeded maximum number of rounds.")
 
     return {
+        'round': round,
         'turn': turn,
-        'round': round
     }
 
 
