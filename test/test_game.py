@@ -2,6 +2,7 @@
 import pytest
 
 from contextlib import contextmanager
+import inspect
 import os
 from pathlib import Path
 import random
@@ -1076,3 +1077,18 @@ def test_bad_move_function(team_to_test):
     assert res['fatal_errors'][team_to_test][0]['type'] == 'FatalException'
     assert res['fatal_errors'][team_to_test][0]['description'] == 'Exception in client (TypeError): move4() takes 1 positional argument but 2 were given'
 
+
+def test_setup_game_run_game_have_same_args():
+    # We want to ensure that setup_game and run_game provide
+    # the same API.
+
+    # check that the parameters are the same
+    params_setup_game = inspect.signature(setup_game).parameters.keys()
+    params_run_game = inspect.signature(run_game).parameters.keys()
+    assert params_setup_game == params_run_game
+
+    # As run_game calls setup_game, we want to ensure that if a default is given
+    # in both setup_game and run_game it has the same value in both lists.
+    common_defaults = setup_game.__kwdefaults__.keys() & run_game.__kwdefaults__.keys()
+    for kwarg in common_defaults:
+        assert setup_game.__kwdefaults__[kwarg] == run_game.__kwdefaults__[kwarg], f"Default values for {kwarg} are different"
