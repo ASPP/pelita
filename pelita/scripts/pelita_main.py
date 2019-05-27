@@ -274,8 +274,9 @@ def main():
         sys.exit(0)
 
     if args.version:
-        if pelita._git_version:
-            print("Pelita {} (git: {})".format(pelita.__version__, pelita._git_version))
+        git_version = pelita._git_version()
+        if git_version:
+            print("Pelita {} (git: {})".format(pelita.__version__, git_version))
         else:
             print("Pelita {}".format(pelita.__version__))
         sys.exit(0)
