@@ -38,7 +38,8 @@ def test_initial_positions_basic():
     assert len(out) == 4
     assert out == exp
 
-small_test_layouts = [
+
+@pytest.mark.parametrize('simple_layout', [
     # We use these test layouts to check that our algorithm finds
     # the expected initial position. This is noted by the location
     # of the respective bots in the layout.
@@ -78,15 +79,56 @@ small_test_layouts = [
     #####0##
     #####  #
     ########
-    """]
-
-@pytest.mark.parametrize('simple_layout', small_test_layouts)
+    """,
+    # similarly degenerate case: 2 starts in the enemy’s homezone,
+    # even though there would still be space in its own homezone
+    # TODO: The initial position algorithm could be adapted to
+    # prefer the homezones before going to other territory
+    # (this will reduce awkward respawn situations).
+    """
+    ########
+    #    1##
+    #0### 3#
+    #### ###
+    #### ###
+    #### ###
+    ##### ##
+    #####2 #
+    ########
+    """,
+    ])
 def test_initial_positions(simple_layout):
     parsed = layout.parse_layout(simple_layout)
     i_pos = initial_positions(parsed['walls'])
     expected = parsed['bots']
     assert len(i_pos) == 4
     assert i_pos == expected
+
+
+@pytest.mark.parametrize('bad_layout', [
+    # not enough free spaces
+    """
+    ########
+    #####0##
+    ########
+    """,
+    """
+    ########
+    ##1#####
+    ########
+    """,
+    # TODO: Should this even be a valid layout?
+    """
+    ########
+    ########
+    ########
+    ########
+    """,
+])
+def test_no_initial_positions_possible(bad_layout):
+    parsed = layout.parse_layout(bad_layout)
+    with pytest.raises(ValueError): # TODO should probably already raise in parse_layout
+        initial_positions(parsed['walls'])
 
 
 @pytest.mark.parametrize('layout_t', [layout.get_random_layout() for _ in range(30)])
