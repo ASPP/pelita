@@ -20,8 +20,18 @@ from .viewer import ProgressViewer
 _logger = logging.getLogger(__name__)
 _mswindows = (sys.platform == "win32")
 
+
+### Global constants
+# All constants that are currently not redefinable in setup_game
+
 #: Maximum number of errors before a team loses
 MAX_ALLOWED_ERRORS = 4
+
+#: The maximum distance between two bots before noise is applied
+SIGHT_DISTANCE = 5
+
+#: The radius for the uniform noise
+NOISE_RADIUS = 5
 
 @dataclasses.dataclass
 class GameState:
@@ -254,8 +264,8 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         round=None,
         max_rounds=max_rounds,
         timeout=3,
-        noise_radius=5,
-        sight_distance=5,
+        noise_radius=NOISE_RADIUS,
+        sight_distance=SIGHT_DISTANCE,
         gameover=False,
         score=[0] * 2,
         food=food,
