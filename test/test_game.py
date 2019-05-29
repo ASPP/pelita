@@ -74,6 +74,32 @@ def test_initial_positions(simple_layout):
     assert i_pos == expected
 
 
+@pytest.mark.parametrize('bad_layout', [
+    # not enough free spaces
+    """
+    ########
+    #####0##
+    ########
+    """,
+    """
+    ########
+    ##1#####
+    ########
+    """,
+    # TODO: Should this even be a valid layout?
+    """
+    ########
+    ########
+    ########
+    ########
+    """,
+])
+def test_no_initial_positions_possible(bad_layout):
+    parsed = layout.parse_layout(bad_layout)
+    with pytest.raises(ValueError): # TODO should probably already raise in parse_layout
+        initial_positions(parsed['walls'])
+
+
 @pytest.mark.parametrize('layout_t', [layout.get_random_layout() for _ in range(30)])
 def test_initial_positions_same_in_layout_random(layout_t):
     """Check initial positions are the same as what the layout says for 30 random layouts"""
