@@ -158,7 +158,7 @@ class ZMQConnection:
         msg_uuid = str(uuid.uuid4())
         _logger.debug("---> %r [%s]", action, msg_uuid)
 
-        # Check before sending. Forever is a long time.
+        # Check before sending that the socket can receive
         socks = dict(self.pollout.poll(timeout * 1000))
         if socks.get(self.socket) == zmq.POLLOUT:
             # I think we need to set NOBLOCK here, else we may run into a
@@ -182,21 +182,23 @@ class ZMQConnection:
         try:
             py_obj = json.loads(json_message)
         except ValueError:
-            _logger.warn('Received non-json message from self. Triggering a timeout.')
+            _logger.warning('Received non-json message from self. Triggering a timeout.')
             raise ZMQReplyTimeout()
         #print repr(json_msg)
 
         try:
             msg_error = py_obj['__error__']
+            error_type, error_message = msg_error
+            _logger.warning(f'Received error reply ({error_type}): {error_message}. Closing socket.')
             self.socket.close()
-            raise ZMQConnectionError(msg_error)
+            raise ZMQConnectionError(*msg_error)
         except KeyError:
             pass
 
         try:
             msg_uuid = py_obj["__uuid__"]
         except KeyError:
-            _logger.warn('__uuid__ missing in message.')
+            _logger.warning('__uuid__ missing in message.')
             msg_uuid = None
         
         msg_return = py_obj.get("__return__")

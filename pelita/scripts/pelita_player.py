@@ -14,6 +14,7 @@ import string
 import subprocess
 import sys
 
+import json
 import zmq
 
 import pelita
@@ -41,16 +42,29 @@ def make_client(team_spec, address, color=None):
     try:
         team = load_team(team_spec)
     except Exception as e:
+        # We could not load the team.
+        # Wait for the set_initial message from the server
+        # and reply with an error.
         context = zmq.Context()
         socket = context.socket(zmq.PAIR)
         try:
             socket.connect(address)
-            query = socket.recv_json() # throw away the get_initial message
-            socket.send_json({'__error__': 'Could not load %s' % team_spec})
+            json_message = socket.recv_unicode()
+            py_obj = json.loads(json_message)
+            uuid_ = py_obj["__uuid__"]
+            action = py_obj["__action__"]
+            data = py_obj["__data__"]
+
+            socket.send_json({
+                '__uuid__': uuid_,
+                '__error__': (e.__class__.__name__, f'Could not load {team_spec}: {e}')
+            })
         except zmq.ZMQError as e:
             raise IOError('failed to connect the client to address %s: %s'
                           % (address, e))
-
+        # TODO: Do not raise here but wait for zmq to return a sensible error message
+        # We need a way to distinguish between syntax errors in the client
+        # and general zmq disconnects
         raise
 
     if color == 'blue':
@@ -113,7 +127,7 @@ def load_team(spec):
         factory = load_factory(spec)
     except (FileNotFoundError, ImportError, ValueError,
             AttributeError, TypeError, IOError) as e:
-        print("failure while loading team '%s'" % spec, file=sys.stderr)
+        print("Failure while loading team '%s'" % spec, file=sys.stderr)
         print('ERROR: %s' % e, file=sys.stderr)
         raise
     try:
