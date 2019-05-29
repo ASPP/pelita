@@ -6,7 +6,7 @@ import sys
 
 import zmq
 
-from . import datamodel
+from . import layout
 
 class AbstractViewer(metaclass=abc.ABCMeta):
     def set_initial(self, game_state):
@@ -52,36 +52,43 @@ class ProgressViewer(AbstractViewer):
             sys.stdout.write("\n")
             print("Final state:", state)
 
-class AsciiViewer(AbstractViewer):
+class AsciiViewer:
     """ A viewer that dumps ASCII charts on stdout. """
 
-    def observe(self, game_state):
-        universe = datamodel.CTFUniverse._from_json_dict(game_state)
+    def show_state(self, game_state):
+        uni_str = layout.layout_as_str(walls=game_state['walls'],
+                                       food=game_state['food'],
+                                       bots=game_state['bots'])
 
+        # Everything that we print explicitly is removed from the state dict.
         state = {}
         state.update(game_state)
-        del state['maze']
+        del state['walls']
         del state['food']
-        del state['teams']
         del state['bots']
+        del state['round']
+        del state['turn']
+        del state['score']
 
         info = (
             "Round: {round!r} Turn: {turn!r} Score {s0}:{s1}\n"
             "Game State: {state!r}\n"
             "\n"
             "{universe}"
-        ).format(round=game_state["round_index"],
-                 turn=game_state["bot_id"],
-                 s0=universe.teams[0].score,
-                 s1=universe.teams[1].score,
+        ).format(round=game_state["round"],
+                 turn=game_state["turn"],
+                 s0=game_state["score"][0],
+                 s1=game_state["score"][1],
                  state=state,
-                 universe=universe.compact_str)
+                 universe=uni_str)
 
         print(info)
-        winning_team_idx = state.get("team_wins")
-        if winning_team_idx is not None:
-            print(("Game Over: Team: '%s' wins!" %
-                game_state["team_name"][winning_team_idx]))
+        if state.get("gameover"):
+            if state["whowins"] == 2:
+                print("Game Over: Draw.")
+            else:
+                winner = game_state["team_names"][state["whowins"]]
+                print(f"Game Over: Team: '{winner}' wins!")
 
 
 class ReplyToViewer(AbstractViewer):
