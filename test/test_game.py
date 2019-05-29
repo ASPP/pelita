@@ -23,7 +23,8 @@ def test_initial_positions_basic():
     assert len(out) == 4
     assert out == exp
 
-small_test_layouts = [
+
+@pytest.mark.parametrize('simple_layout', [
     # We use these test layouts to check that our algorithm finds
     # the expected initial position. This is noted by the location
     # of the respective bots in the layout.
@@ -63,9 +64,24 @@ small_test_layouts = [
     #####0##
     #####  #
     ########
-    """]
-
-@pytest.mark.parametrize('simple_layout', small_test_layouts)
+    """,
+    # similarly degenerate case: 2 starts in the enemy’s homezone,
+    # even though there would still be space in its own homezone
+    # TODO: The initial position algorithm could be adapted to
+    # prefer the homezones before going to other territory
+    # (this will reduce awkward respawn situations).
+    """
+    ########
+    #    1##
+    #0### 3#
+    #### ###
+    #### ###
+    #### ###
+    ##### ##
+    #####2 #
+    ########
+    """,
+    ])
 def test_initial_positions(simple_layout):
     parsed = layout.parse_layout(simple_layout)
     i_pos = initial_positions(parsed['walls'])
