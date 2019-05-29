@@ -8,21 +8,9 @@ import zmq
 
 from . import layout
 
-class AbstractViewer(metaclass=abc.ABCMeta):
-    def set_initial(self, game_state):
-        """ This method is called when the first universe is ready.
-        """
-        pass
 
-    @abc.abstractmethod
-    def observe(self, game_state):
-        pass
-
-class ProgressViewer(AbstractViewer):
+class ProgressViewer:
     def show_state(self, game_state):
-        return self.observe(game_state)
-
-    def observe(self, game_state):
         score = game_state["score"]
         round_index = game_state["round"]
         if round_index is None:
@@ -91,7 +79,7 @@ class AsciiViewer:
                 print(f"Game Over: Team: '{winner}' wins!")
 
 
-class ReplyToViewer(AbstractViewer):
+class ReplyToViewer: # TODO
     """ A viewer which dumps to a given stream.
     """
     def __init__(self, reply_to):
@@ -124,7 +112,7 @@ class ReplyToViewer(AbstractViewer):
         self._send(message)
 
 
-class DumpingViewer(AbstractViewer):
+class DumpingViewer: # TODO
     """ A viewer which dumps to a given stream.
     """
     def __init__(self, stream):

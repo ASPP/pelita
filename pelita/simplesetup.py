@@ -36,7 +36,6 @@ import zmq
 
 from .datamodel import CTFUniverse
 from .game_master import GameMaster, PlayerDisconnected, PlayerTimeout
-from .viewer import AbstractViewer
 
 _logger = logging.getLogger(__name__)
 
@@ -607,7 +606,7 @@ class SimpleClient:
     def __repr__(self):
         return "SimpleClient(%r, %r, %r)" % (self.team, self.team_name(), self.address)
 
-class SimplePublisher(AbstractViewer):
+class SimplePublisher:
     """ Sets up a simple Publisher which sends all viewed events
     over a zmq connection.
 
@@ -644,64 +643,3 @@ class SimplePublisher(AbstractViewer):
                    "__data__": game_state}
         self._send(message)
 
-
-class SimpleSubscriber(AbstractViewer):
-    """ Subscribes to a given zmq socket and passes
-    all incoming data to a viewer.
-
-    Parameters
-    ----------
-    viewer : Viewer
-        Viewer with AbstractPlayer-like interface
-    address : string
-        The address of the publisher we want to subscribe to.
-    """
-    def __init__(self, viewer, address):
-        self.viewer = viewer
-        self.address = address
-
-    def on_start(self):
-        self.context = zmq.Context()
-        self.socket = self.context.socket(zmq.SUB)
-        self.socket.setsockopt_unicode(zmq.SUBSCRIBE, "")
-        self.socket.connect(self.address)
-
-    def run(self):
-        self.on_start()
-        try:
-            while True:
-                self._loop()
-        except (KeyboardInterrupt, ExitLoop):
-            self.socket.close()
-
-    def _loop(self):
-        """ Waits for incoming requests and tries to get a proper
-        answer from the player.
-        """
-        data = self.socket.recv_unicode()
-        py_obj = json.loads(data)
-
-        action = py_obj.get("__action__")
-        data = py_obj.get("__data__") or {}
-
-        getattr(self, action)(**data)
-
-    def set_initial(self, game_state):
-        universe = CTFUniverse._from_json_dict(game_state)
-        return self.viewer.set_initial(CTFUniverse._from_json_dict(universe), game_state)
-
-    def observe(self, game_state):
-        universe = CTFUniverse._from_json_dict(game_state)
-        return self.viewer.observe(CTFUniverse._from_json_dict(universe), game_state)
-
-    def exit(self):
-        raise ExitLoop()
-
-    def autoplay_process(self):
-        # We use a multiprocessing because it behaves well with KeyboardInterrupt.
-        background_process = multiprocessing.Process(target=self.run)
-        background_process.start()
-        return background_process
-
-    def __repr__(self):
-        return "SimpleSubscriber(%r, %r)" % (self.viewer, self.address)

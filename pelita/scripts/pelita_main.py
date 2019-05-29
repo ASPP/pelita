@@ -54,7 +54,7 @@ class ReplayPublisher:
                 message = json.loads(state)
                 yield self.publisher._send(message)
 
-class ResultPrinter(pelita.viewer.AbstractViewer):
+class ResultPrinter: # TODO
     def observe(self, game_state):
         universe = datamodel.CTFUniverse._from_json_dict(game_state)
         self.print_bad_bot_status(universe, game_state)
