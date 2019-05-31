@@ -2,6 +2,7 @@
 import pytest
 
 from contextlib import contextmanager
+import inspect
 import os
 from pathlib import Path
 import random
@@ -396,10 +397,13 @@ def test_suicide():
         # get position of bot 2
         suicide_position = game_state['bots'][2]
         new_state = apply_move(game_state, suicide_position)
-        # team 1 scores
+        # team 0 scores
         assert new_state['score'] == [5, 0]
 #        # bots 1 and 3 are back to origin
-#        assert new_state['bots'][1::2] == [(6, 2), (6, 1)]
+        if bot == 1:
+            assert new_state['bots'][1::2] == [(6, 2), (1, 2)]
+        elif bot == 3:
+            assert new_state['bots'][1::2] == [(3, 2), (6, 1)]
 
     parsed_l1 = layout.parse_layout(l1)
     for bot in (0, 2):
@@ -844,44 +848,45 @@ def test_last_round_check():
         assert res['gameover'] == test_res
 
 
-def test_error_finishes_game():
+@pytest.mark.parametrize(
+    'team_errors, team_wins', [
+        (((0, 0), (0, 0)), False),
+        (((0, 1), (0, 0)), False),
+        (((0, 0), (0, 1)), False),
+        (((0, 2), (0, 2)), False),
+        (((0, 4), (0, 0)), False),
+        (((0, 0), (0, 4)), False),
+        (((0, 4), (0, 4)), False),
+        (((0, 5), (0, 0)), 1),
+        (((0, 0), (0, 5)), 0),
+        (((0, 5), (0, 5)), 2),
+        (((1, 0), (0, 0)), 1),
+        (((0, 0), (1, 0)), 0),
+        (((1, 0), (1, 0)), 2),
+        (((1, 1), (1, 0)), 2),
+        (((1, 0), (0, 5)), 1),
+        (((0, 5), (1, 0)), 0),
+    ]
+)
+def test_error_finishes_game(team_errors, team_wins):
     # the mapping is as follows:
     # [(num_fatal_0, num_errors_0), (num_fatal_1, num_errors_1), result_flag]
     # the result flag: 0/1: team 0/1 wins, 2: draw, False: no winner yet
     assert game.MAX_ALLOWED_ERRORS == 4, "Test assumes MAX_ALLOWED_ERRORS is 4"
 
-    error_map = {
-        ((0, 0), (0, 0)): False,
-        ((0, 1), (0, 0)): False,
-        ((0, 0), (0, 1)): False,
-        ((0, 2), (0, 2)): False,
-        ((0, 4), (0, 0)): False,
-        ((0, 0), (0, 4)): False,
-        ((0, 4), (0, 4)): False,
-        ((0, 5), (0, 0)): 1,
-        ((0, 0), (0, 5)): 0,
-        ((0, 5), (0, 5)): 2,
-        ((1, 0), (0, 0)): 1,
-        ((0, 0), (1, 0)): 0,
-        ((1, 0), (1, 0)): 2,
-        ((1, 1), (1, 0)): 2,
-        ((1, 0), (0, 5)): 1,
-        ((0, 5), (1, 0)): 0,
+    (fatal_0, errors_0), (fatal_1, errors_1) = team_errors
+    # just faking a bunch of errors in our game state
+    state = {
+        "fatal_errors": [[None] * fatal_0, [None] * fatal_1],
+        "errors": [[None] * errors_0, [None] * errors_1]
     }
-    for test_vals, test_res in error_map.items():
-        ((fatal_0, errors_0), (fatal_1, errors_1)) = test_vals
-        # just faking a bunch of errors in our game state
-        state = {
-            "fatal_errors": [[None] * fatal_0, [None] * fatal_1],
-            "errors": [[None] * errors_0, [None] * errors_1]
-        }
-        res = game.check_errors(state)
-        if test_res is False:
-            assert res["whowins"] is None
-            assert res["gameover"] is False
-        else:
-            assert res["whowins"] == test_res
-            assert res["gameover"] is True
+    res = game.check_errors(state)
+    if team_wins is False:
+        assert res["whowins"] is None
+        assert res["gameover"] is False
+    else:
+        assert res["whowins"] == team_wins
+        assert res["gameover"] is True
 
 
 @pytest.mark.parametrize('bot_to_move', [0, 1, 2, 3])
@@ -1076,3 +1081,18 @@ def test_bad_move_function(team_to_test):
     assert res['fatal_errors'][team_to_test][0]['type'] == 'FatalException'
     assert res['fatal_errors'][team_to_test][0]['description'] == 'Exception in client (TypeError): move4() takes 1 positional argument but 2 were given'
 
+
+def test_setup_game_run_game_have_same_args():
+    # We want to ensure that setup_game and run_game provide
+    # the same API.
+
+    # check that the parameters are the same
+    params_setup_game = inspect.signature(setup_game).parameters.keys()
+    params_run_game = inspect.signature(run_game).parameters.keys()
+    assert params_setup_game == params_run_game
+
+    # As run_game calls setup_game, we want to ensure that if a default is given
+    # in both setup_game and run_game it has the same value in both lists.
+    common_defaults = setup_game.__kwdefaults__.keys() & run_game.__kwdefaults__.keys()
+    for kwarg in common_defaults:
+        assert setup_game.__kwdefaults__[kwarg] == run_game.__kwdefaults__[kwarg], f"Default values for {kwarg} are different"
