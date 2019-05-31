@@ -15,7 +15,7 @@ from .gamestate_filters import noiser
 from .libpelita import get_python_process, SimplePublisher
 from .network import bind_socket, setup_controller
 from .player.team import make_team
-from .viewer import ProgressViewer
+from .viewer import ProgressViewer, AsciiViewer
 
 _logger = logging.getLogger(__name__)
 _mswindows = (sys.platform == "win32")
@@ -216,7 +216,7 @@ def setup_viewers(viewers=None, options=None):
 
     for viewer in viewers:
         if viewer == 'ascii':
-            pass
+            viewer_state['viewers'].append(AsciiViewer())
         elif viewer == 'progress':
             viewer_state['viewers'].append(ProgressViewer())
         elif viewer in ('tk', 'tk-no-sync'):
