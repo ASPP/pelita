@@ -455,7 +455,7 @@ def test_cascade_kill():
     """
     ]
     def move(bot, state):
-        if not bot.is_blue and bot.turn == 1 and bot.round == 0:
+        if not bot.is_blue and bot.turn == 1 and bot.round == 1:
             return (6, 1), state
         return bot.position, state
     layouts = [layout.parse_layout(l) for l in cascade]
@@ -516,7 +516,7 @@ def test_cascade_kill_2():
     """
     ]
     def move(bot, state):
-        if bot.is_blue and bot.turn == 0 and bot.round == 0:
+        if bot.is_blue and bot.turn == 0 and bot.round == 1:
             return (1, 1), state
         return bot.position, state
     layouts = [layout.parse_layout(l) for l in cascade]
@@ -569,9 +569,9 @@ def test_cascade_kill_rescue_1():
     """
     ]
     def move(bot, state):
-        if bot.is_blue and bot.turn == 0 and bot.round == 0:
+        if bot.is_blue and bot.turn == 0 and bot.round == 1:
             return (1, 1), state
-        if bot.is_blue and bot.turn == 1 and bot.round == 0:
+        if bot.is_blue and bot.turn == 1 and bot.round == 1:
             return (5, 1), state
         return bot.position, state
     layouts = [layout.parse_layout(l) for l in cascade]
@@ -618,9 +618,9 @@ def test_cascade_kill_rescue_2():
     """
     ]
     def move(bot, state):
-        if bot.is_blue and bot.turn == 0 and bot.round == 0:
+        if bot.is_blue and bot.turn == 0 and bot.round == 1:
             return (1, 2), state
-        if not bot.is_blue and bot.turn == 0 and bot.round == 0:
+        if not bot.is_blue and bot.turn == 0 and bot.round == 1:
             return (5, 2), state
         return bot.position, state
     layouts = [layout.parse_layout(l) for l in cascade]
@@ -670,7 +670,7 @@ def test_cascade_suicide():
     """
     ]
     def move(bot, state):
-        if bot.is_blue and bot.turn == 0 and bot.round == 0:
+        if bot.is_blue and bot.turn == 0 and bot.round == 1:
             return (6, 1), state
         return bot.position, state
     layouts = [layout.parse_layout(l) for l in cascade]
@@ -689,7 +689,7 @@ def test_play_turn_maxrounds(score):
     """Check that game quits at maxrounds and choses correct winner"""
     # this works for ties as well, because there are no points to be gained at init positions
     game_state = setup_random_basic_gamestate()
-    game_state["round"] = 300
+    game_state["round"] = 301
     game_state["score"] = score[0]
     game_state_new = game.play_turn(game_state)
     assert game_state_new["gameover"]
@@ -761,13 +761,13 @@ def test_max_rounds():
     def move(bot, s):
         # in the first round (round #0),
         # all bots move to the south
-        if bot.round == 0:
+        if bot.round == 1:
             # go one step to the right
             return (bot.position[0], bot.position[1] + 1), s
         else:
             # There should not be more then one round in this test
             raise RuntimeError("We should not be here in this test")
-    
+
     l = layout.parse_layout(l)
     assert l['bots'][0] == (2, 1)
     assert l['bots'][1] == (5, 1)
@@ -782,14 +782,14 @@ def test_max_rounds():
     assert final_state['bots'][3] == (6, 1)
     # max_rounds == 1 should call move just once
     final_state = run_game([move, move], layout_dict=l, max_rounds=1)
-    assert final_state['round'] == 0
+    assert final_state['round'] == 1
     assert final_state['bots'][0] == (2, 2)
     assert final_state['bots'][1] == (5, 2)
     assert final_state['bots'][2] == (1, 2)
     assert final_state['bots'][3] == (6, 2)
     # max_rounds == 2 should finish and have the first team lose
     final_state = run_game([move, move], layout_dict=l, max_rounds=2)
-    assert final_state['round'] == 1
+    assert final_state['round'] == 2
     assert final_state['turn'] == 0
     assert final_state['bots'][0] == (2, 2)
     assert final_state['bots'][1] == (5, 2)
@@ -800,19 +800,19 @@ def test_max_rounds():
     assert final_state['fatal_errors'][0][0] == {
         'type': 'FatalException',
         'description': 'Exception in client (RuntimeError): We should not be here in this test',
-        'round': 1,
+        'round': 2,
         'turn': 0,
     }
- 
+
 
 def test_update_round_counter():
     tests = {
-        (None, None): (0, 0),
-        (0, 0): (0, 1),
-        (0, 1): (0, 2),
-        (0, 2): (0, 3),
-        (0, 3): (1, 0),
-        (1, 3): (2, 0)
+        (None, None): (1, 0),
+        (1, 0): (1, 1),
+        (1, 1): (1, 2),
+        (1, 2): (1, 3),
+        (1, 3): (2, 0),
+        (2, 3): (3, 0)
     }
 
     for (round0, turn0), (round1, turn1) in tests.items():
@@ -829,22 +829,24 @@ def test_last_round_check():
     test_map = {
         (0, None, None): True,
         (1, None, None): False,
-        (0, 0, 0): True,
-        (1, 0, 0): False,
-        (1, 0, 3): True,
-        (1, 0, 4): True,
-    } 
+        (0, 1, 0): True,
+        (1, 1, 0): False,
+        (1, 1, 3): True,
+        (1, 1, 4): True,
+    }
     for test_val, test_res in test_map.items():
         max_rounds, current_round, current_turn = test_val
         state = {
             'max_rounds': max_rounds,
             'round': current_round,
             'turn': current_turn,
+            'fatal_errors': [[],[]],
+            'errors': [[],[]],
             'gameover': False,
             'score': [0, 0],
             'food': [{(1,1)}, {(1,1)}] # dummy food
         }
-        res = game.check_final_move(state)
+        res = game.check_gameover(state, detect_final_move=True)
         assert res['gameover'] == test_res
 
 
@@ -880,7 +882,7 @@ def test_error_finishes_game(team_errors, team_wins):
         "fatal_errors": [[None] * fatal_0, [None] * fatal_1],
         "errors": [[None] * errors_0, [None] * errors_1]
     }
-    res = game.check_errors(state)
+    res = game.check_gameover(state)
     if team_wins is False:
         assert res["whowins"] is None
         assert res["gameover"] is False
@@ -911,7 +913,7 @@ def test_finished_when_no_food(bot_to_move):
 
     l = layout.parse_layout(l)
     final_state = run_game([move, move], layout_dict=l, max_rounds=20)
-    assert final_state['round'] == 0
+    assert final_state['round'] == 1
     assert final_state['turn'] == bot_to_move
 
 
@@ -924,11 +926,11 @@ def test_minimal_game():
     final_state = run_game([move, move], max_rounds=20, layout_dict=l)
     assert final_state['gameover'] is True
     assert final_state['score'] == [0, 0]
-    assert final_state['round'] == 19
+    assert final_state['round'] == 20
 
 def test_minimal_losing_game_has_one_error():
     def move0(b, s):
-        if b.round == 0 and b.bot_index == 0:
+        if b.round == 1 and b.bot_index == 0:
             # trigger a bad move in the first round
             return (0, 0), s
         else:
@@ -943,7 +945,7 @@ def test_minimal_losing_game_has_one_error():
     assert final_state['score'] == [0, 0]
     assert len(final_state['errors'][0]) == 1
     assert len(final_state['errors'][1]) == 0
-    assert final_state['round'] == 19
+    assert final_state['round'] == 20
 
 
 def test_minimal_remote_game():
@@ -956,7 +958,7 @@ def test_minimal_remote_game():
     final_state = run_game(["test/demo01_stopping.py", 'test/demo02_random.py'], max_rounds=20, layout_dict=l)
     assert final_state['gameover'] is True
     assert final_state['score'] == [0, 0]
-    assert final_state['round'] == 19
+    assert final_state['round'] == 20
 
 
 def test_non_existing_file():
