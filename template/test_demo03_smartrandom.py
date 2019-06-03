@@ -12,8 +12,8 @@ def test_legalmoves():
     """
     for i in range(10):
         bot = setup_test_game(layout=layout, is_blue=True)
-        next_move,_ = move(bot, None)
-        assert next_move in ((0,1), (0,0))
+        next_pos,_ = move(bot, None)
+        assert next_pos in ((1,2), (1,1))
 
 def test_eat_enemy():
     # check that we indeed eat an enemy when possible
@@ -24,8 +24,8 @@ def test_eat_enemy():
     ########
     """
     bot = setup_test_game(layout=layout, is_blue=True)
-    next_move, _ = move(bot, None)
-    assert next_move == (0,-1)
+    next_pos, _ = move(bot, None)
+    assert next_pos == (1,1)
 
 def test_eat_food():
     # check that we indeed collect food when possible
@@ -36,8 +36,8 @@ def test_eat_food():
     ########
     """
     bot = setup_test_game(layout=layout, is_blue=True)
-    next_move, _ = move(bot, None)
-    assert next_move == (0,-1)
+    next_pos, _ = move(bot, None)
+    assert next_pos == (5,1)
 
 def test_no_kamikaze_stop():
     # Check that we stop if escaping would kill us
@@ -48,5 +48,5 @@ def test_no_kamikaze_stop():
     ########
     """
     bot = setup_test_game(layout=layout, is_blue=True)
-    next_move, _ = move(bot, None)
-    assert next_move == (0, 0)
+    next_pos, _ = move(bot, None)
+    assert next_pos == (5, 2)
