@@ -190,8 +190,8 @@ timeout_opt.add_argument('--no-timeout', const=None, action='store_const',
 game_settings.add_argument('--max-timeouts', type=int, default=5,
                            dest='max_timeouts', help='Maximum number of timeouts allowed (default: 5).')
 parser.set_defaults(timeout_length=3)
-game_settings.add_argument('--stop-at', dest='stop_after', type=int, metavar="N",
-                           help='Stop at round N.')
+game_settings.add_argument('--stop-at', dest='stop_at', type=int, metavar="N",
+                           help='Stop before playing round N.')
 
 viewer_settings = parser.add_argument_group('Viewer settings')
 viewer_settings.add_argument('--geometry', type=geometry_string, metavar='NxM',
@@ -327,7 +327,7 @@ def main():
             controller_addr = controller.socket_addr
             publisher = channels["publisher"]
             viewer = libpelita.run_external_viewer(publisher.socket_addr, controller_addr,
-                                                    geometry=geometry, delay=delay, stop_after=args.stop_after)
+                                                    geometry=geometry, delay=delay, stop_at=args.stop_at)
             replay_publisher = ReplayPublisher(args.replayfile, publisher, controller)
             replay_publisher.run()
         sys.exit(0)
@@ -384,12 +384,12 @@ def main():
     
     geometry = args.geometry
     delay = int(1000./args.fps)
-    stop_after = args.stop_after
+    stop_at = args.stop_at
 
     viewer_options = {
         "geometry": geometry,
         "delay": delay,
-        "stop_at": stop_after
+        "stop_at": stop_at
     }
 
     layout_dict = layout.parse_layout(layout_string)
