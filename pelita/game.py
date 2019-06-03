@@ -679,7 +679,7 @@ def update_round_counter(game_state):
 
     if turn is None and round is None:
         turn = 0
-        round = 0
+        round = 1
     else:
         # if one of turn or round is None bot not both, it is illegal.
         # TODO: fail with a better error message
@@ -792,13 +792,13 @@ def check_final_move(game_state):
         gameover = False
 
         # The game is over when the next step would give us
-        # game_state['round'] == game_state['max_rounds']
+        # game_state['round'] > game_state['max_rounds']
         # or when one team has lost all their food
 
         next_step = update_round_counter(game_state)
         _logger.debug(f"Next step has {next_step}")
 
-        if next_step['round'] >= game_state['max_rounds'] or any(not f for f in game_state['food']):
+        if next_step['round'] > game_state['max_rounds'] or any(not f for f in game_state['food']):
             gameover = True
             if game_state['score'][0] > game_state['score'][1]:
                 whowins = 0
