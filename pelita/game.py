@@ -112,7 +112,7 @@ class GameState:
     times_killed: typing.List[int]
 
     #: Recently respawned?
-    respawned: typing.List[int] 
+    respawned: typing.List[int]
 
     #: Messages the bots say. Keeps only the recent one at the respective bot’s index.
     say: typing.List[str]
@@ -256,7 +256,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         return team_food
 
     viewer_state = setup_viewers(viewers, options=viewer_options)
-    
+
     width = max(layout_dict['walls'])[0] + 1
     food = split_food(width, layout_dict['food'])
 
@@ -332,7 +332,7 @@ def setup_teams(team_specs, game_state):
         team, zmq_context = make_team(team_spec, idx=idx)
         teams.append(team)
 
-    # Send the initial state to the teams and await the team name 
+    # Send the initial state to the teams and await the team name
     team_names = []
     for idx, team in enumerate(teams):
         try:
@@ -353,7 +353,7 @@ def setup_teams(team_specs, game_state):
                 game_print(idx, f"{type(e).__name__}: {e}")
                 team_name = "%%%error%%%"
         team_names.append(team_name)
-    
+
     team_state = {
         'teams': teams,
         'team_names': team_names
@@ -699,11 +699,11 @@ def update_round_counter(game_state):
 
 def check_gameover(game_state):
     """ Checks if this was the final moves or if the errors have exceeded the threshold.
-    
+
     Returns
     -------
     dict { 'gameover' , 'whowins' }
-        Flags if the game is over and who won it 
+        Flags if the game is over and who won it
     """
     # If a team has exceeded their allowes errors, we finish immediately.
     winning_dict = check_errors(game_state)
