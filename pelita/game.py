@@ -310,7 +310,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
 
     # Check if one of the teams has already generate a fatal error
     # or if the game has finished (might happen if we set it up with max_rounds=0).
-    game_state.update(check_gameover(game_state))
+    game_state.update(check_gameover(game_state, detect_final_move=True))
 
     # Send updated game state with team names to the viewers
     update_viewers(game_state)
@@ -524,7 +524,7 @@ def play_turn(game_state):
     # (we do not want to apply the move in this case)
     # Note: Since we already updated the move counter, we do not check anymore,
     # if the game has exceeded its rounds.
-    game_state.update(check_errors(game_state))
+    game_state.update(check_gameover(game_state))
 
     if not game_state['gameover']:
         # ok. we can apply the move for this team
@@ -532,7 +532,7 @@ def play_turn(game_state):
         game_state = apply_move(game_state, position)
 
         # Check again, if we had errors or if this was the last move of the game (final round or food eaten)
-        game_state.update(check_gameover(game_state))
+        game_state.update(check_gameover(game_state, detect_final_move=True))
 
     # Send updated game state with team names to the viewers
     update_viewers(game_state)
@@ -599,7 +599,7 @@ def apply_move(gamestate, bot_position):
         team_errors.append(error_dict)
 
     # only execute move if errors not exceeded
-    gamestate.update(check_errors(gamestate))
+    gamestate.update(check_gameover(gamestate))
     if gamestate['gameover']:
         return gamestate
 
@@ -697,7 +697,7 @@ def update_round_counter(game_state):
     }
 
 
-def check_gameover(game_state):
+def check_gameover(game_state, detect_final_move=False):
     """ Checks if this was the final moves or if the errors have exceeded the threshold.
 
     Returns
@@ -705,113 +705,56 @@ def check_gameover(game_state):
     dict { 'gameover' , 'whowins' }
         Flags if the game is over and who won it
     """
-    # If a team has exceeded their allowes errors, we finish immediately.
-    winning_dict = check_errors(game_state)
-    if winning_dict['gameover']:
-        return winning_dict
-
-    # No team wins/loses because of errors?
-    # Good. Now check if the game finishes because the food is gone
-    # or because we are in the final turn of the last round.
-    winning_dict = check_final_move(game_state)
-    return winning_dict
-
-
-def check_errors(game_state):
-    """ Checks for errors and fatal errors in `game_state` and sets the winner
-    accordingly.
-
-    Returns
-    -------
-    dict { 'gameover' , 'whowins' }
-        Flags if the game is over and who won it
-
-    """
-
-    # check for game over
-    whowins = None
-    gameover = False
 
     # If any team has a fatal error, this team loses.
     # If both teams have a fatal error, it’s a draw.
     num_fatals = [len(f) for f in game_state['fatal_errors']]
     if num_fatals[0] == 0 and num_fatals[1] == 0:
+        # no one has any fatal errors
         pass
     elif num_fatals[0] > 0 and num_fatals[1] > 0:
-        gameover = True
-        whowins = 2 # draw
+        # both teams have fatal errors: it is a draw
+        return { 'whowins' : 2, 'gameover' : True}
     else:
+        # some one has fatal errors
         for team in (0, 1):
             if num_fatals[team] > 0:
-                gameover = True
-                whowins = 1 - team
-
-    if gameover:
-        return {
-            'whowins': whowins,
-            'gameover': gameover
-        }
+                return { 'whowins' : 1 - team, 'gameover' : True}
 
     # If any team has more than MAX_ALLOWED_ERRORS errors, this team loses.
     # If both teams have more than MAX_ALLOWED_ERRORS errors, it’s a draw.
     num_errors = [len(f) for f in game_state['errors']]
     if num_errors[0] <= MAX_ALLOWED_ERRORS and num_errors[1] <= MAX_ALLOWED_ERRORS:
+        # no one has exceeded the max number of errors
         pass
     elif num_errors[0] > MAX_ALLOWED_ERRORS and num_errors[1] > MAX_ALLOWED_ERRORS:
-        gameover = True
-        whowins = 2 # draw
+        # both teams have exceeded the max number of errors
+        return { 'whowins' : 2, 'gameover' : True}
     else:
+        # some one has exceeded the max number of errors
         for team in (0, 1):
             if num_errors[team] > MAX_ALLOWED_ERRORS:
-                gameover = True
-                whowins = 1 - team
+                return { 'whowins' : 1 - team, 'gameover' : True}
 
-    return {
-        'whowins': whowins,
-        'gameover': gameover
-    }
-
-
-def check_final_move(game_state):
-    """ Checks if this was the final move in the game or
-    if one team has lost all their food.
-
-    Returns
-    -------
-    dict { 'gameover' , 'whowins' }
-        Flags if the game is over and who won it
-    """
-
-    if game_state['gameover']:
-        # Game already finished.
-        whowins = game_state['whowins']
-        gameover = game_state['gameover']
-
-    else:
-        whowins = None
-        gameover = False
-
-        # The game is over when the next step would give us
-        # game_state['round'] > game_state['max_rounds']
-        # or when one team has lost all their food
-
+    if detect_final_move:
+        # No team wins/loses because of errors?
+        # Good. Now check if the game finishes because the food is gone
+        # or because we are in the final turn of the last round.
         next_step = update_round_counter(game_state)
         _logger.debug(f"Next step has {next_step}")
 
-        if next_step['round'] > game_state['max_rounds'] or any(not f for f in game_state['food']):
-            gameover = True
+        # count how much food is left for each team
+        food_left = [len(f) for f in game_state['food']]
+        if next_step['round'] > game_state['max_rounds'] or any(f == 0 for f in food_left):
             if game_state['score'][0] > game_state['score'][1]:
                 whowins = 0
             elif game_state['score'][0] < game_state['score'][1]:
                 whowins = 1
             else:
-                # tie
                 whowins = 2
+            return { 'whowins' : whowins, 'gameover' : True}
 
-    return {
-        'whowins': whowins,
-        'gameover': gameover
-    }
+    return { 'whowins' : None, 'gameover' : False}
 
 
 def initial_positions(walls):
