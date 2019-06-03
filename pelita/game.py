@@ -182,9 +182,6 @@ def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None, 
              max_team_errors=5, timeout_length=3, viewers=None, controller=None, viewer_options=None):
     """ Run a match for `max_rounds` rounds. """
 
-    if viewers is None:
-        viewers = []
-
     # we create the initial game state
     state = setup_game(team_specs, layout_dict=layout_dict, max_rounds=max_rounds, seed=seed,
                        viewers=viewers, controller=controller, viewer_options=viewer_options)
@@ -200,11 +197,6 @@ def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None, 
 
         # play the next turn
         state = play_turn(state)
-
-    # The game is over. We are nice and clean up.
-    # for team in state['teams']:
-    #    if hasattr(team, '_exit'):
-    #        team._exit()
 
     return state
 
