@@ -18,6 +18,6 @@ def test_stays_there():
         except ValueError:
             # loc is a wall, skip this position
             continue
-        next_move, _ = move(bot, None)
-        assert next_move == (0,0)
+        next_pos, _ = move(bot, None)
+        assert next_pos == bot.position
 
