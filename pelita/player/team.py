@@ -322,7 +322,9 @@ def make_team(team_spec, team_name=None, zmq_context=None, idx=None):
     return team_player, zmq_context
 
 
-def create_homezones(width, height):
+def create_homezones(walls):
+    width = max(walls)[0]+1
+    height = max(walls)[1]+1
     return [
         [(x, y) for x in range(0, width // 2)
                 for y in range(0, height)],
@@ -545,6 +547,9 @@ class Bot:
 # def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_blue):
 def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
     bots = {}
+
+    homezone = create_homezones(walls)
+
     team_bots = []
     for idx, position in enumerate(team['bot_positions']):
         b = Bot(bot_index=idx,
@@ -561,7 +566,7 @@ def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
             initial_position=(0, 0),
             team_name="",
             is_blue=team['team_index'] % 2 == 0,
-            homezone=[])
+            homezone=homezone[team['team_index']])
         b._bots = bots
         team_bots.append(b)
 
@@ -580,7 +585,7 @@ def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
             initial_position=(0, 0),
             team_name="",
             is_blue=enemy['team_index'] % 2 == 0,
-            homezone=[])
+            homezone=homezone[enemy['team_index']])
         b._bots = bots
         enemy_bots.append(b)
 
