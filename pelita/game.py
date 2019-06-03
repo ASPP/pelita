@@ -165,6 +165,18 @@ class TkViewer:
             p = subprocess.Popen(external_call, preexec_fn=os.setsid)
         return p
 
+def controller_exit(state, await_action='play_step'):
+    """Wait for the controller to receive a action from a viewer
+
+    action can be 'exit' (return True), 'play_setup', 'set_initial' (return True)
+    """
+
+    if state['controller']:
+        todo = state['controller'].await_action(await_action)
+        if todo == 'exit':
+            return True
+        elif todo in ('play_step', 'set_initial'):
+            return False
 
 def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None, dump=False,
              max_team_errors=5, timeout_length=3, viewers=None, controller=None, viewer_options=None):
@@ -180,14 +192,13 @@ def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None, 
     # Play the game until it is gameover.
     while not state.get('gameover'):
 
-        # If we have a controller, wait here for a `play_step` message.
-        if state['controller']:
-            action = state['controller'].await_action('play_step')
-            if action == 'exit':
-                break
-            elif action == 'play_step':
-                pass
+        # this is only needed if we have a controller, for example a viewer
+        # this function call *blocks* until the viewer has replied
+        if controller_exit(state):
+            # if the controller asks us, we'll exit and stop playing
+            break
 
+        # play the next turn
         state = play_turn(state)
 
     # The game is over. We are nice and clean up.
@@ -291,16 +302,11 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
     game_state['viewers'] = viewer_state['viewers']
     game_state['controller'] = viewer_state['controller']
 
-    if game_state['controller']:
-        # Wait until the controller tells us that it is ready
-        # We then can send the initial maze
-        # TODO: Waiting for the viewer to be ready could
-        # be done simultaneously with calling setup_teams
-        action = game_state['controller'].await_action('set_initial')
-        if action == 'exit':
-            return game_state
-        elif action == 'set_initial':
-            pass
+    # Wait until the controller tells us that it is ready
+    # We then can send the initial maze
+    # This call *blocks* until the controller replies
+    if controller_exit(game_state, await_action='set_initial'):
+        return game_state
 
     # Send maze before team creation.
     # This gives a more fluent UI as it does not have to wait for the clients
