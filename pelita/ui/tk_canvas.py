@@ -283,6 +283,8 @@ class TkApplication:
 
         self._check_speed_button_state()
 
+        self._observed_steps = set()
+
         self.running = True
 
         self.master.bind('q', lambda event: self.quit())
@@ -718,6 +720,12 @@ class TkApplication:
         self.request_step()
 
     def observe(self, game_state):
+        step = (game_state['round'], game_state['turn'])
+        if step in self._observed_steps:
+            skip_request = True
+        else:
+            skip_request = False
+            self._observed_steps.add(step)
         # TODO
         game_state['timeout_teams'] = [len(errors) for errors in game_state['errors']]
         game_state['teams_disqualified'] = [fatal and fatal[0]['type'] for fatal in game_state['fatal_errors']]
@@ -730,9 +738,16 @@ class TkApplication:
                 self.running = False
                 self._delay = self._stop_after_delay
             else:
-                self.master.after(self._delay, self.request_step)
+                if skip_request:
+                    _logger.debug("Skipping next request.")
+                else:
+                    self.master.after(self._delay, self.request_step)
         elif self.running:
-            self.master.after(self._delay, self.request_step)
+            if skip_request:
+                _logger.debug("Skipping next request.")
+            else:
+                self.master.after(self._delay, self.request_step)
+
 
     def on_quit(self):
         """ override for things which must be done when we exit.
