@@ -685,7 +685,7 @@ class TkApplication:
     def request_step(self):
         if not self.controller_socket:
             return
-        
+
         if self._game_state['gameover']:
             return
 

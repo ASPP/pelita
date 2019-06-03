@@ -359,7 +359,7 @@ def main():
         layout_string = layout_path.read_text()
     else:
         layout_name, layout_string = pelita.layout.get_random_layout(args.filter)
-    
+
     print("Using layout '%s'" % layout_name)
 
 #   with libpelita.channel_setup(publish_to=args.publish_to) as channels:
@@ -381,7 +381,7 @@ def main():
         #libpelita.run_game(team_specs=team_specs, rounds=args.rounds, layout=layout_string, layout_name=layout_name,
         #                   seed=args.seed, dump=args.dump, max_timeouts=args.max_timeouts, timeout_length=args.timeout_length,
         #                   viewers=viewers, controller=controller, publisher=publisher)
-    
+
     geometry = args.geometry
     delay = int(1000./args.fps)
     stop_at = args.stop_at
