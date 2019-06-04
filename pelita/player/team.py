@@ -594,19 +594,6 @@ def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
     return team_bots[bot_turn]
 
 
-def bots_from_universe(universe, rng, round, team_name, timeout_count):
-    """ Creates 4 bots given a universe. """
-    return make_bots(walls=[pos for pos, is_wall in universe.maze.items() if is_wall],
-                     food=universe.food,
-                     positions=[b.current_pos for b in universe.bots],
-                     initial_positions=[b.initial_pos for b in universe.bots],
-                     score=[t.score for t in universe.teams],
-                     is_noisy=[b.noisy for b in universe.bots],
-                     rng=rng,
-                     round=round,
-                     team_name=team_name,
-                     timeout_count=timeout_count)
-
 def bot_from_layout(layout, is_blue, score, round, team_name, timeout_count):
     """ Creates 4 bots given a layout. """
     width = max(layout.walls)[0]

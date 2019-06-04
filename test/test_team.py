@@ -2,7 +2,7 @@ import pytest
 
 from pelita.datamodel import CTFUniverse
 from pelita.game_master import GameMaster
-from pelita.player.team import Team, split_layout_str, create_layout, bots_from_universe
+from pelita.player.team import Team, split_layout_str, create_layout
 from pelita.utils import setup_test_game
 
 def stopping(bot, state):
@@ -221,50 +221,6 @@ class TestStoppingTeam:
         assert universe.bots[0].current_pos == (1, 1)
         assert universe.bots[1].current_pos == (10, 1)
         assert round_counting._storage['rounds'] == 3
-
-
-class TestRebuild:
-    def test_too_few_bots(self):
-        test_layout = (
-        """ ############
-            #0#.   .# 1#
-            ############ """)
-
-
-        team = [
-            Team(stopping),
-            Team(stopping)
-        ]
-        gm = GameMaster(test_layout, team, 2, 1)
-        with pytest.raises(IndexError):
-            gm.play()
-
-    def test_rebuild_uni(self):
-        layout = """
-        ############
-        #0#.   .# 1#
-        ############
-        """
-        bot = setup_test_game(layout=layout, is_blue=True)
-        assert bot._team[0].position == (1, 1)
-        assert bot._team[1].position == (10, 1)
-        assert bot._team[0].enemy[0].position is None
-        assert bot._team[0].enemy[1].position is None
-
-        uni, state = _rebuild_universe(bot._bots)
-        assert uni.bots[0].current_pos == (1, 1)
-        assert uni.bots[2].current_pos == (10, 1)
-        assert uni.bots[1].current_pos == (9, 1)
-        assert uni.bots[3].current_pos == (10, 1)
-
-        with pytest.raises(ValueError):
-            uni, state = _rebuild_universe(bot._bots[0:2])
-
-        bots = bots_from_universe(uni, [None] * 4, round=0,
-                                                   team_name=state['team_name'],
-                                                   timeout_count=state['timeout_teams'])
-        uni2, state = _rebuild_universe(bots)
-        assert uni2 == uni
 
 
 class TestTrack:
