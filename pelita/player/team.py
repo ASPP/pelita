@@ -594,39 +594,6 @@ def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
     return team_bots[bot_turn]
 
 
-def bot_from_layout(layout, is_blue, score, round, team_name, timeout_count):
-    """ Creates 4 bots given a layout. """
-    width = max(layout.walls)[0]
-    def in_homezone(position, is_blue):
-        on_left_side = position[0] < width // 2
-        if is_blue:
-            return on_left_side
-        else:
-            return not on_left_side
-
-    team = {
-        'bot_positions': layout.bots[:],
-        'team_index': 0 if is_blue else 1,
-        'score': 0,
-        'has_respawned': [True, True],
-        'timeout_count': 0,
-        'food': [food for food in layout.food if in_homezone(food, is_blue)],
-    }
-    enemy = {
-        'bot_positions': layout.enemy[:],
-        'team_index': 0 if not is_blue else 1,
-        'score': 0,
-        'timeout_count': 0,
-        'food': [food for food in layout.food if in_homezone(food, not is_blue)],
-        'is_noisy': [False] * len(layout.enemy),
-    }
-
-    return make_bots(walls=layout.walls[:],
-                     team=team,
-                     enemy=enemy,
-                     round=None,
-                     bot_turn=0,
-                     seed=None)
 
 
 def new_style_team(module):
