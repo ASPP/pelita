@@ -288,3 +288,136 @@ def test_track_and_kill_count():
         # assertions might have been caught in run_game
         # check that all is good
         assert state['fatal_errors'] == [[], []]
+
+
+@pytest.mark.parametrize('bot_to_move', range(4))
+def test_eaten_flag_kill(bot_to_move):
+    """ Test that the eaten flag is set correctly in kill situations. """
+    layout = """
+    ########
+    #  10  #
+    #  32  #
+    #......#
+    ########
+    """
+    def move(bot, state):
+        x, y = bot.position
+        new_pos = bot.position
+        if bot_to_move == 0:
+            # we move in the first round as blue team in turn == 0
+            if bot.round == 1 and bot.is_blue and bot.turn == 0:
+                new_pos = (x - 1, y)
+            # The red team should notice immediately
+            if bot.round == 1 and not bot.is_blue and bot.turn == 0:
+                assert bot.eaten
+                assert bot.other.eaten is False
+            else:
+                assert bot.eaten is False
+                assert bot.other.eaten is False
+        if bot_to_move == 1:
+            # we move in the first round as red team
+            if bot.round == 1 and not bot.is_blue and bot.turn == 0:
+                new_pos = (x + 1, y)
+            # The other team should notice immediately that its other bot (#0) has been eaten
+            if bot.round == 1 and bot.is_blue and bot.turn == 1:
+                assert bot.eaten is False
+                assert bot.other.eaten
+            else:
+                assert bot.eaten is False
+                assert bot.other.eaten is False
+        if bot_to_move == 2:
+            # we move in the first round as blue team in turn == 1
+            if bot.round == 1 and bot.is_blue and bot.turn == 1:
+                new_pos = (x - 1, y)
+            # The red team should notice immediately
+            if bot.round == 1 and not bot.is_blue and bot.turn == 1:
+                assert bot.eaten
+                assert bot.other.eaten is False
+            else:
+                assert bot.eaten is False
+                assert bot.other.eaten is False
+        if bot_to_move == 3:
+            # we move in the first round as red team in turn == 1
+            if bot.round == 1 and not bot.is_blue and bot.turn == 1:
+                new_pos = (x + 1, y)
+            # The blue team should notice immediately (in round == 2!)
+            if bot.round == 2 and bot.is_blue and bot.turn == 0:
+                assert bot.eaten is False
+                assert bot.other.eaten
+            else:
+                assert bot.eaten is False
+                assert bot.other.eaten is False
+
+        # otherwise return current position
+        return new_pos, state
+    state = run_game([move, move], max_rounds=3, layout_dict=parse_layout(layout))
+    # assertions might have been caught in run_game
+    # check that all is good
+    assert state['fatal_errors'] == [[], []]
+
+
+@pytest.mark.parametrize("bot_to_move", range(4))
+def test_eaten_flag_suicide(bot_to_move):
+    """ Test that the eaten flag is set correctly in suicide situations. """
+    layout = """
+    ########
+    #  01  #
+    #  23  #
+    #......#
+    ########
+    """
+    def move(bot, state):
+        x, y = bot.position
+        new_pos = bot.position
+        if bot_to_move == 0:
+            # we move in the first round as blue team in turn == 0
+            if bot.round == 1 and bot.is_blue and bot.turn == 0:
+                new_pos = (x + 1, y)
+            # we should notice in our next turn
+            if bot.round == 1 and bot.is_blue and bot.turn == 1:
+                assert bot.eaten is False
+                assert bot.other.eaten
+            else:
+                assert bot.eaten is False
+                assert bot.other.eaten is False
+        if bot_to_move == 1:
+            # we move in the first round as red team
+            if bot.round == 1 and not bot.is_blue and bot.turn == 0:
+                new_pos = (x - 1, y)
+            # we should notice in our next turn
+            if bot.round == 1 and not bot.is_blue and bot.turn == 1:
+                assert bot.eaten is False
+                assert bot.other.eaten
+            else:
+                assert bot.eaten is False
+                assert bot.other.eaten is False
+        if bot_to_move == 2:
+            # we move in the first round as blue team in turn == 1
+            if bot.round == 1 and bot.is_blue and bot.turn == 1:
+                new_pos = (x + 1, y)
+            # we should notice in our next turn (next round!)
+            if bot.round == 2 and bot.is_blue and bot.turn == 0:
+                assert bot.eaten is False
+                assert bot.other.eaten
+            else:
+                assert bot.eaten is False
+                assert bot.other.eaten is False
+        if bot_to_move == 3:
+            # we move in the first round as red team in turn == 1
+            if bot.round == 1 and not bot.is_blue and bot.turn == 1:
+                new_pos = (x - 1, y)
+            # we should notice in our next turn (next round!)
+            if bot.round == 2 and not bot.is_blue and bot.turn == 0:
+                assert bot.eaten is False
+                assert bot.other.eaten
+            else:
+                assert bot.eaten is False
+                assert bot.other.eaten is False
+
+        # otherwise return current position
+        return new_pos, state
+    state = run_game([move, move], max_rounds=3, layout_dict=parse_layout(layout))
+    # assertions might have been caught in run_game
+    # check that all is good
+    assert state['fatal_errors'] == [[], []]
+
