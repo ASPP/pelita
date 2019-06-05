@@ -724,9 +724,8 @@ def test_play_turn_move():
 
 
 
-def setup_random_basic_gamestate(*, round=0, turn=0):
+def setup_random_basic_gamestate(*, round=1, turn=0):
     """helper function for testing play turn"""
-    turn = 0
     l = Path("layouts/small_without_dead_ends_100.layout").read_text()
     parsed_l = layout.parse_layout(l)
 
@@ -759,7 +758,7 @@ def test_max_rounds():
     ########
     """
     def move(bot, s):
-        # in the first round (round #0),
+        # in the first round (round #1),
         # all bots move to the south
         if bot.round == 1:
             # go one step to the right
