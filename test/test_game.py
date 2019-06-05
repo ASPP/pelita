@@ -3,6 +3,7 @@ import pytest
 
 from contextlib import contextmanager
 import inspect
+import itertools
 import os
 from pathlib import Path
 import random
@@ -1097,3 +1098,30 @@ def test_setup_game_run_game_have_same_args():
     common_defaults = setup_game.__kwdefaults__.keys() & run_game.__kwdefaults__.keys()
     for kwarg in common_defaults:
         assert setup_game.__kwdefaults__[kwarg] == run_game.__kwdefaults__[kwarg], f"Default values for {kwarg} are different"
+
+
+@pytest.mark.parametrize('bot_to_move', range(4))
+# all combinations of True False in a list of 4
+@pytest.mark.parametrize('respawn_flags', itertools.product(*[(True, False)] * 4))
+def test_prepare_bot_state_resets_respawned_flag(bot_to_move, respawn_flags):
+    """ Check that `prepare_bot_state` resets the respawned_flag. """
+    team_id = bot_to_move % 2
+    other_team_id = 1 - team_id
+
+    # specify which bot should move
+    test_state = setup_random_basic_gamestate(turn=bot_to_move)
+   
+    respawn_flags = list(respawn_flags) # needs to be a list
+    test_state['respawned'] = respawn_flags[:] # copy to avoid reference issues
+
+    # create bot state for current turn
+    bot_state = game.prepare_bot_state(test_state)
+
+    # all respawn flags for this team should be False again
+    assert test_state['respawned'][team_id::2] == [False, False]
+
+    # all respawn flags for other team should still be as before
+    assert test_state['respawned'][other_team_id::2] == respawn_flags[other_team_id::2]
+
+    # bot state should have proper respawn flags
+    assert bot_state['team']['has_respawned'] == respawn_flags[team_id::2]

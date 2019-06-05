@@ -1,15 +1,15 @@
 import pytest
 
-from pelita.datamodel import CTFUniverse
-from pelita.game_master import GameMaster
+from pelita.layout import parse_layout
+from pelita.game import run_game, setup_game, play_turn
 from pelita.player.team import Team, split_layout_str, create_layout
 from pelita.utils import setup_test_game
 
 def stopping(bot, state):
-    return (0, 0), state
+    return bot.position, state
 
 def randomBot(bot, state):
-    legal = bot.legal_moves[:]
+    legal = bot.legal_positions[:]
     return bot.random.choice(legal), state
 
 class TestLayout:
@@ -186,7 +186,7 @@ class TestStoppingTeam:
             state[bot.turn] = state.get(bot.turn, 0) + 1
             storage_copy['rounds'] = state[bot.turn]
             print(state)
-            return (0, 0), state
+            return bot.position, state
         inner._storage = storage_copy
         return inner
 
@@ -198,66 +198,93 @@ class TestStoppingTeam:
 
         round_counting = self.round_counting()
         team = [
-            Team(stopping),
-            Team(round_counting)
+            stopping,
+            round_counting
         ]
-        gm = GameMaster(test_layout, team, 4, 1)
-        gm.play()
-        universe = CTFUniverse._from_json_dict(gm.game_state)
-        assert universe.bots[0].current_pos == (1, 1)
-        assert universe.bots[1].current_pos == (10, 1)
+        state = run_game(team, max_rounds=1, layout_dict=parse_layout(test_layout))
+        assert state['bots'][0] == (1, 1)
+        assert state['bots'][1] == (10, 1)
         assert round_counting._storage['rounds'] == 1
-
 
         round_counting = self.round_counting()
         team = [
-            Team(stopping),
-            Team(round_counting)
+            stopping,
+            round_counting
         ]
-        gm = GameMaster(test_layout, team, 4, 3)
-        gm.play()
-        universe = CTFUniverse._from_json_dict(gm.game_state)
-        print(universe.pretty)
-        assert universe.bots[0].current_pos == (1, 1)
-        assert universe.bots[1].current_pos == (10, 1)
+        state = run_game(team, max_rounds=3, layout_dict=parse_layout(test_layout))
+        assert state['bots'][0] == (1, 1)
+        assert state['bots'][1] == (10, 1)
         assert round_counting._storage['rounds'] == 3
 
 
-class TestTrack:
-    def test_track(self):
-        def trackingBot(bot, state):
-            turn = bot.turn
-            other = bot.other
-            if bot.round == 0 and turn == 0:
-                assert bot.track[0] == bot.position
-                state = {}
-                state[turn] = {}
-                state[1 - turn] = {}
-                state[turn]['track'] = []
-                state[1 - turn]['track'] = []
+def test_track_and_kill_count():
+    # for each team, we track whether they have been eaten at least once
+    # and count the number of times they have been killed
+    bot_states = {
+        0: [{'track': [], 'eaten': False, 'times_killed': 0}, {'track': [], 'eaten': False, 'times_killed': 0}],
+        1: [{'track': [], 'eaten': False, 'times_killed': 0}, {'track': [], 'eaten': False, 'times_killed': 0}]
+    }
+    def trackingBot(bot, state):
+        turn = bot.turn
+        other = bot.other
 
-            if bot.eaten or not state[turn]['track']:
-                state[turn]['track'] = [bot.position]
-            if other.eaten or not state[1 - turn]['track']:
-                state[1 - turn]['track'] = [other.position]
-            else:
-                state[1 - turn]['track'].append(other.position)
+        # first move. get the state from the global cache
+        if state is None:
+            team_idx = 0 if bot.is_blue else 1
+            state = bot_states[team_idx]
 
-            assert bot.track[0] == bot._initial_position
-            assert bot.track == state[turn]['track'] # bot.round * 2 + 1 + turn
-            assert bot.track[-1] == bot.position
-            return randomBot(bot, state)
+        if bot.round == 1 and turn == 0:
+            assert bot.track[0] == bot.position
+       
+        if bot.eaten:
+            state[turn]['eaten'] = True
+            state[turn]['times_killed'] += 1
+        if other.eaten:
+            state[1 - turn]['eaten'] = True
+            state[1 - turn]['times_killed'] += 1
 
-        layout = """
-        ############
-        ##02   .3 1#
-        ############
-        #.#      #.#
-        ############
-        """
-        team = [
-            Team(trackingBot),
-            Team(trackingBot)
-        ]
-        gm = GameMaster(layout, team, 4, 300)
-        gm.play()
+        if bot.eaten or not state[turn]['track']:
+            state[turn]['track'] = [bot.position]
+        if other.eaten or not state[1 - turn]['track']:
+            state[1 - turn]['track'] = [other.position]
+        else:
+            state[1 - turn]['track'].append(other.position)
+
+        # The assertion is that the first position in bot.track
+        # is always the respawn position.
+        # However, in our test case, this will only happen, once
+        # a bot has been eaten.
+        if state[turn]['eaten']:
+            assert bot.track[0] == bot.initial_position
+        assert bot.track == state[turn]['track'] # bot.round * 2 + 1 + turn
+        assert bot.track[-1] == bot.position
+        # just move randomly. hopefully, this means some bots will be killed
+        return randomBot(bot, state)
+
+    layout = """
+    ##########
+    # 02 .3 1#
+    # ########
+    #.##. .###
+    ##########
+    """
+    team = [
+        trackingBot,
+        trackingBot
+    ]
+    state = setup_game(team, max_rounds=300, layout_dict=parse_layout(layout))
+    while not state['gameover']:
+        state = play_turn(state)
+        # Check that our count is consistent with what the game thinks
+        # for each team, we have to subtract the kills that are still in state['respawned'],
+        # as they have not been passed to the bot yet
+        respawned_0 = sum(state['respawned'][0::2])
+        sum_killed_0 = bot_states[0][0]['times_killed'] + bot_states[0][1]['times_killed']
+        assert state['deaths'][0] - respawned_0 == sum_killed_0
+        respawned_1 = sum(state['respawned'][1::2])
+        sum_killed_1 = bot_states[1][0]['times_killed'] + bot_states[1][1]['times_killed']
+        assert state['deaths'][1] - respawned_1 == sum_killed_1
+
+        # assertions might have been caught in run_game
+        # check that all is good
+        assert state['fatal_errors'] == [[], []]

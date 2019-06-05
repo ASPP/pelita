@@ -104,14 +104,14 @@ class Team(AbstractTeam):
                 self._bot_track[idx] = []
 
         # Add our track
-        self._bot_track[me.bot_turn].append(me.position)
+        if len(self._bot_track[me.bot_turn]) == 0:
+            self._bot_track[me.bot_turn] = [me.position]
 
         for idx, mybot in enumerate(team):
             # If the track of any bot is empty,
             # Add its current position
             if me.bot_turn != idx:
-                if len(self._bot_track[idx]) == 0:
-                    self._bot_track[idx].append(mybot.position)
+                self._bot_track[idx].append(mybot.position)
 
             mybot.track = self._bot_track[idx][:]
 
@@ -555,7 +555,13 @@ class Bot:
 def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
     bots = {}
 
+    team_index = team['team_index']
+    enemy_index = enemy['team_index']
+
     homezone = create_homezones(walls)
+    initial_positions = layout.initial_positions(walls)
+    team_initial_positions = initial_positions[team_index::2]
+    enemy_initial_positions = initial_positions[enemy_index::2]
 
     team_bots = []
     for idx, position in enumerate(team['bot_positions']):
@@ -570,10 +576,10 @@ def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
             bot_turn=bot_turn,
             random=seed,
             position=team['bot_positions'][idx],
-            initial_position=(0, 0),
-            team_name="",
-            is_blue=team['team_index'] % 2 == 0,
-            homezone=homezone[team['team_index']])
+            initial_position=team_initial_positions[idx],
+            is_blue=team_index % 2 == 0,
+            homezone=homezone[team_index],
+            team_name=team['name'])
         b._bots = bots
         team_bots.append(b)
 
@@ -589,10 +595,10 @@ def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
             round=round,
             random=seed,
             position=enemy['bot_positions'][idx],
-            initial_position=(0, 0),
-            team_name="",
-            is_blue=enemy['team_index'] % 2 == 0,
-            homezone=homezone[enemy['team_index']])
+            initial_position=enemy_initial_positions[idx],
+            is_blue=enemy_index % 2 == 0,
+            homezone=homezone[enemy_index],
+            team_name=enemy['name'])
         b._bots = bots
         enemy_bots.append(b)
 

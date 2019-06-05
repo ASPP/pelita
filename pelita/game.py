@@ -643,6 +643,7 @@ def apply_move(gamestate, bot_position):
             score[1 - team] = score[1 - team] + 5
             init_positions = initial_positions(walls)
             bots[turn] = init_positions[turn]
+            gamestate['respawned'][turn] = True
             deaths[team] = deaths[team] + 1
             _logger.info(f"Bot {turn} respawns at {bots[turn]}.")
 
