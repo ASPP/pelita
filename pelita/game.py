@@ -15,7 +15,7 @@ from .gamestate_filters import noiser
 from .libpelita import get_python_process, SimplePublisher
 from .network import bind_socket, setup_controller
 from .player.team import make_team
-from .viewer import ProgressViewer, AsciiViewer, ReplyToViewer, DumpingViewer
+from .viewer import ProgressViewer, AsciiViewer, ReplyToViewer, DumpingViewer, ResultPrinter
 
 _logger = logging.getLogger(__name__)
 _mswindows = (sys.platform == "win32")
@@ -245,6 +245,9 @@ def setup_viewers(viewers=None, options=None):
 
         else:
             raise ValueError(f"Unknown viewer {viewer}.")
+
+    # Add the result printer as the final viewer:
+    viewer_state['viewers'].append(ResultPrinter())
 
     return viewer_state
 

@@ -127,4 +127,30 @@ class DumpingViewer:
         self._send(game_state)
 
 
+class ResultPrinter:
+    def show_state(self, state):
+        if state["gameover"]:
+            self.print_possible_winner(state)
 
+    def print_possible_winner(self, state):
+        """ Checks the game state for a winner.
+
+        This is needed for pelita.scripts parsing the output.
+        """
+        winning_team = state.get("whowins")
+        if winning_team in (0, 1):
+            winner = state['team_names'][winning_team]
+            loser = state['team_names'][1 - winning_team]
+            winner_score = state['score'][winning_team]
+            loser_score = state['score'][1 - winning_team]
+            msg = f"Finished. '{winner}' won over '{loser}'. ({winner_score}:{loser_score})"
+        elif winning_team == 2:
+            t1, t2 = state['team_names']
+            s1, s2 = state['score']
+            msg = f"Finished. '{t1}' and '{t2}' had a draw. ({s1}:{s2})"
+        else:
+            return
+
+        # We must flush, else our forceful stopping of Tk
+        # won't let us pipe it.
+        print(msg, flush=True)
