@@ -178,8 +178,10 @@ class RemoteTeam:
         self.timeout_length = timeout_length
         if idx == 0:
             color='blue'
-        if idx == 1:
+        elif idx == 1:
             color='red'
+        else:
+            color=''
         self.proc = self._call_pelita_player(team_spec, self.bound_to_address, color=color)
 
     def _call_pelita_player(self, team_spec, address, color='', dump=None):
@@ -204,17 +206,16 @@ class RemoteTeam:
         else:
             return (subprocess.Popen(external_call), None, None)
 
-    # TODO
-#   def team_name(self):
-#       try:
-#           self.zmqconnection.send("team_name", {})
-#           return self.zmqconnection.recv_timeout(DEAD_CONNECTION_TIMEOUT)
-#       except ZMQReplyTimeout:
-#           _logger.info("Detected a timeout, returning a string nonetheless.")
-#           return "%error%"
-#       except ZMQUnreachablePeer:
-#           _logger.info("Detected a DeadConnection, returning a string nonetheless.")
-#           return "%error%"
+    def team_name(self):
+        try:
+            self.zmqconnection.send("team_name", {})
+            return self.zmqconnection.recv_timeout(DEAD_CONNECTION_TIMEOUT)
+        except ZMQReplyTimeout:
+            _logger.info("Detected a timeout, returning a string nonetheless.")
+            return "%error%"
+        except ZMQUnreachablePeer:
+            _logger.info("Detected a DeadConnection, returning a string nonetheless.")
+            return "%error%"
 
     def set_initial(self, team_id, game_state):
         try:

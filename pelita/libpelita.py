@@ -18,6 +18,7 @@ import uuid
 import zmq
 
 from .simplesetup import RemoteTeamPlayer, SimpleController, SimplePublisher, SimpleServer
+from .player.team import make_team
 
 _logger = logging.getLogger(__name__)
 _mswindows = (sys.platform == "win32")
@@ -304,27 +305,9 @@ def call_pelita(team_specs, *, rounds, filter, viewer, dump, seed):
 
 
 def check_team(team_spec):
-    ctx = zmq.Context()
-    socket = ctx.socket(zmq.PAIR)
-
-    if team_spec.module is None:
-        _logger.info("Binding zmq.PAIR to %s", team_spec.address)
-        socket.bind(team_spec.address)
-
-    else:
-        _logger.info("Binding zmq.PAIR to %s", team_spec.address)
-        socket_port = socket.bind_to_random_port(team_spec.address)
-        team_spec = team_spec._replace(address="%s:%d" % (team_spec.address, socket_port))
-
-    team_player = RemoteTeamPlayer(socket)
-
-    if team_spec.module:
-        with _call_pelita_player(team_spec.module, team_spec.address):
-            name = team_player.team_name()
-    else:
-        name = team_player.team_name()
-
-    return name
+    """ Instanciates a team from a team_spec and returns its name """
+    team, _zmq_context = make_team(team_spec)
+    return team.team_name()
 
 def strip_module_prefix(module):
     if "@" in module:
