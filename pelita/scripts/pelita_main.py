@@ -18,41 +18,6 @@ from pelita import libpelita, game, layout
 logging.root.manager.emittedNoHandlerWarning = 1
 _logger = logging.getLogger(__name__)
 
-class ReplayPublisher:
-    def __init__(self, replayfile, publisher, controller):
-        with open(replayfile) as f:
-            self.old_game = f.read().split("\x04")
-
-        self.publisher = publisher
-        self.controller = controller
-        self.controller.game_master = self
-
-        # Holds the current iterator
-        self._iter = None
-
-        # This is technically not correct,
-        # but for now we don’t care what the request was
-        # and return a single step either way
-        self.set_initial = self.iter_step
-        self.play_round = self.iter_step
-        self.play_step = self.iter_step
-
-    def run(self):
-        self.controller.run()
-
-    def iter_step(self):
-        if not self._iter:
-            self._iter = self.iter()
-        try:
-            next(self._iter)
-        except StopIteration:
-            pass
-
-    def iter(self):
-        for state in self.old_game:
-            if state.strip():
-                message = json.loads(state)
-                yield self.publisher._send(message)
 
 class ResultPrinter: # TODO
     def observe(self, game_state):
@@ -261,13 +226,6 @@ Layout specification:
 
 
 def main():
-    config = {
-        "publish-addr": None,
-        "controller-addr": None,
-        "viewers": [],
-        "external-viewers": []
-    }
-
     args = parser.parse_args()
     if args.help or args.long_help:
         parser.print_help()
@@ -300,36 +258,40 @@ def main():
             print("NAME:", team_name)
         sys.exit(0)
 
-
-    viewers = []
-    if args.dump:
-        viewers.append(pelita.viewer.DumpingViewer(open(args.dump, "w")))
-    if args.viewer == 'ascii':
-        viewers.append(pelita.viewer.AsciiViewer())
-    if args.viewer == 'progress':
-        viewers.append(pelita.viewer.ProgressViewer())
-    if args.reply_to:
-        viewers.append(pelita.viewer.ReplyToViewer(args.reply_to))
     if args.viewer == 'null':
-        pass
+        viewers = []
+    else:
+        viewers = [args.viewer]
 
-    # Adding the result printer to the viewers.
-    viewers.append(ResultPrinter())
+    geometry = args.geometry
+    delay = int(1000./args.fps)
+    stop_at = args.stop_at
+
+    viewer_options = {
+        "geometry": geometry,
+        "delay": delay,
+        "stop_at": stop_at
+    }
 
     if args.replayfile:
-        if not args.viewer == 'tk':
-            raise RuntimeError("Can only replay with the tk viewer.")
+        viewer_state = game.setup_viewers(viewers, options=viewer_options)
+        if game.controller_exit(viewer_state, await_action='set_initial'):
+            sys.exit(0)
 
-        with libpelita.channel_setup(publish_to=args.publish_to) as channels:
-            geometry = args.geometry
-            delay = int(1000./args.fps)
-            controller = channels["controller"]
-            controller_addr = controller.socket_addr
-            publisher = channels["publisher"]
-            viewer = libpelita.run_external_viewer(publisher.socket_addr, controller_addr,
-                                                    geometry=geometry, delay=delay, stop_at=args.stop_at)
-            replay_publisher = ReplayPublisher(args.replayfile, publisher, controller)
-            replay_publisher.run()
+        old_game = Path(args.replayfile).read_text().split("\x04")
+        for state in old_game:
+            if not state.strip():
+                continue
+            state = json.loads(state)
+            # walls, bots, food must be list of tuple
+            state['walls'] = list(map(tuple, state['walls']))
+            state['bots'] = list(map(tuple, state['bots']))
+            state['food'] = list(map(tuple, state['food']))
+            for viewer in viewer_state['viewers']:
+                viewer.show_state(state)
+            if game.controller_exit(viewer_state):
+                break
+
         sys.exit(0)
 
     # Run a normal game
@@ -362,40 +324,10 @@ def main():
 
     print("Using layout '%s'" % layout_name)
 
-#   with libpelita.channel_setup(publish_to=args.publish_to) as channels:
-#       if args.viewer.startswith('tk'):
-#           geometry = args.geometry
-#           delay = int(1000./args.fps)
-#           controller = channels["controller"]
-#           controller_addr = controller.socket_addr
-#           publisher = channels["publisher"]
-#           if args.viewer == 'tk-no-sync':
-#               controller = None
-#               controller_addr = None
-#           viewer = libpelita.run_external_viewer(publisher.socket_addr, controller_addr,
-#                                                  geometry=geometry, delay=delay, stop_after=args.stop_after)
-#       else:
-#           controller = None
-#           publisher = None
-
-        #libpelita.run_game(team_specs=team_specs, rounds=args.rounds, layout=layout_string, layout_name=layout_name,
-        #                   seed=args.seed, dump=args.dump, max_timeouts=args.max_timeouts, timeout_length=args.timeout_length,
-        #                   viewers=viewers, controller=controller, publisher=publisher)
-
-    geometry = args.geometry
-    delay = int(1000./args.fps)
-    stop_at = args.stop_at
-
-    viewer_options = {
-        "geometry": geometry,
-        "delay": delay,
-        "stop_at": stop_at
-    }
-
     layout_dict = layout.parse_layout(layout_string)
     game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, seed=args.seed,
                   timeout_length=args.timeout_length, max_team_errors=args.max_timeouts, dump=args.dump,
-                  viewers=[args.viewer], viewer_options=viewer_options)
+                  viewers=viewers, viewer_options=viewer_options)
 
 if __name__ == '__main__':
     main()
