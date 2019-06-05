@@ -42,6 +42,7 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
         'has_respawned': [True, True],
         'timeout_count': 0,
         'food': food[team_index],
+        'name': "blue" if is_blue else "red"
     }
     enemy = {
         'bot_positions': layout.enemy[:],
@@ -50,6 +51,7 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
         'timeout_count': 0,
         'food': food[enemy_index],
         'is_noisy': [False] * len(layout.enemy),
+        'name': "red" if is_blue else "blue"
     }
 
     bot = make_bots(walls=layout.walls[:],

@@ -305,7 +305,7 @@ def make_team(team_spec, team_name=None, zmq_context=None, idx=None):
         _logger.debug("Making a local team for %s", team_spec)
         # wrap the move function in a Team
         if team_name is None:
-            team_name = 'local-team'
+            team_name = f'local-team ({team_spec.__name__})'
         team_player = Team(team_name, team_spec)
     elif isinstance(team_spec, str):
         _logger.debug("Making a remote team for %s", team_spec)
@@ -516,20 +516,27 @@ class Bot:
         width = max(bot.walls)[0] + 1
         height = max(bot.walls)[1] + 1
 
+        if bot.is_blue:
+            blue = bot
+            red = bot.other
+        else:
+            blue = bot.other
+            red = bot
+
         header = ("{blue}{you_blue} vs {red}{you_red}.\n" +
             "Playing on {col} side. Current turn: {turn}. Round: {round}, score: {blue_score}:{red_score}. " +
             "timeouts: {blue_timeouts}:{red_timeouts}").format(
-            blue=bot._bots[0].team_name,
-            red=bot._bots[1].team_name,
+            blue=blue.team_name,
+            red=red.team_name,
             turn=bot.turn,
             round=bot.round,
-            blue_score=bot._bots[0].score,
-            red_score=bot._bots[1].score,
+            blue_score=blue.score,
+            red_score=red.score,
             col="blue" if bot.is_blue else "red",
             you_blue=" (you)" if bot.is_blue else "",
             you_red=" (you)" if not bot.is_blue else "",
-            blue_timeouts=bot._bots[0].timeout_count,
-            red_timeouts=bot._bots[1].timeout_count,
+            blue_timeouts=blue.timeout_count,
+            red_timeouts=red.timeout_count,
         )
 
         with StringIO() as out:

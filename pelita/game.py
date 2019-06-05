@@ -416,6 +416,7 @@ def prepare_bot_state(game_state, idx=None):
         'has_respawned': respawned,
         'timeout_count': len(game_state['errors'][own_team]),
         'food': list(game_state['food'][own_team]),
+        'name': game_state['team_names'][own_team]
     }
 
     enemy_state = {
@@ -425,6 +426,7 @@ def prepare_bot_state(game_state, idx=None):
         'score': game_state['score'][enemy_team],
         'timeout_count': 0, # TODO. Could be left out for the enemy
         'food': list(game_state['food'][enemy_team]),
+        'name': game_state['team_names'][enemy_team]
     }
 
     bot_state = {
