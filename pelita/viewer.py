@@ -3,11 +3,13 @@
 import abc
 import json
 import sys
+import logging
 
 import zmq
 
 from . import layout
 
+_logger = logging.getLogger(__name__)
 
 class ProgressViewer:
     def show_state(self, game_state):
@@ -79,7 +81,7 @@ class AsciiViewer:
                 print(f"Game Over: Team: '{winner}' wins!")
 
 
-class ReplyToViewer: # TODO
+class ReplyToViewer:
     """ A viewer which dumps to a given stream.
     """
     def __init__(self, reply_to):
@@ -91,6 +93,7 @@ class ReplyToViewer: # TODO
         self.sock.linger = 1000
 
         self.sock.connect(reply_to)
+        _logger.debug(f"Connecting zmq.PAIR to {reply_to}")
 
         self.pollout = zmq.Poller()
         self.pollout.register(self.sock, zmq.POLLOUT)
@@ -101,15 +104,8 @@ class ReplyToViewer: # TODO
             as_json = json.dumps(message)
             self.sock.send_unicode(as_json, flags=zmq.NOBLOCK)
 
-    def set_initial(self, game_state):
-        message = {"__action__": "set_initial",
-                   "__data__": {"game_state": game_state}}
-        self._send(message)
-
-    def observe(self, game_state):
-        message = {"__action__": "observe",
-                   "__data__": {"game_state": game_state}}
-        self._send(message)
+    def show_state(self, game_state):
+        self._send(game_state)
 
 
 class DumpingViewer: # TODO

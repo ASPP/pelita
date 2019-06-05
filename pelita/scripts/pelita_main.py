@@ -273,6 +273,8 @@ def main():
         "stop_at": stop_at
     }
 
+    if args.reply_to:
+        viewers.append(('reply-to', args.reply_to))
     if args.replayfile:
         viewer_state = game.setup_viewers(viewers, options=viewer_options)
         if game.controller_exit(viewer_state, await_action='set_initial'):
