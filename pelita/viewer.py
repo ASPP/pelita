@@ -1,8 +1,6 @@
 """ The observers. """
 
-import abc
 import json
-import sys
 import logging
 
 import zmq
@@ -30,8 +28,7 @@ class ProgressViewer:
                     bot_sign, percentage,
                     round_index, game_time,
                     ":".join(str(s) for s in score)))
-        sys.stdout.write(string + ("\b" * len(string)))
-        sys.stdout.flush()
+        print(string + ("\b" * len(string)), flush=True)
 
         if game_state["gameover"]:
             state = {}
@@ -39,7 +36,7 @@ class ProgressViewer:
             del state['walls']
             del state['food']
 
-            sys.stdout.write("\n")
+            print()
             print("Final state:", state)
 
 class AsciiViewer:
