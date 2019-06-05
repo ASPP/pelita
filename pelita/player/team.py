@@ -10,7 +10,7 @@ import traceback
 import zmq
 
 from . import AbstractTeam
-from .. import libpelita
+from .. import libpelita, layout
 from ..exceptions import PlayerDisconnected, PlayerTimeout
 from ..simplesetup import ZMQConnection, ZMQConnectionError, ZMQReplyTimeout, ZMQUnreachablePeer, DEAD_CONNECTION_TIMEOUT
 
