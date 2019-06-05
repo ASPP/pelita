@@ -108,7 +108,7 @@ class ReplyToViewer:
         self._send(game_state)
 
 
-class DumpingViewer: # TODO
+class DumpingViewer:
     """ A viewer which dumps to a given stream.
     """
     def __init__(self, stream):
@@ -123,13 +123,8 @@ class DumpingViewer: # TODO
         self.stream.write("\x04\n")
         self.stream.flush()
 
-    def set_initial(self, game_state):
-        message = {"__action__": "set_initial",
-                   "__data__": {"game_state": game_state}}
-        self._send(message)
+    def show_state(self, game_state):
+        self._send(game_state)
 
-    def observe(self, game_state):
-        message = {"__action__": "observe",
-                   "__data__": {"game_state": game_state}}
-        self._send(message)
+
 
