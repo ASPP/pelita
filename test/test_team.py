@@ -1,6 +1,6 @@
 import pytest
 
-from pelita.layout import parse_layout
+from pelita.layout import parse_layout, get_random_layout, initial_positions
 from pelita.game import run_game, setup_game, play_turn
 from pelita.player.team import Team, split_layout_str, create_layout
 from pelita.utils import setup_test_game
@@ -421,3 +421,38 @@ def test_eaten_flag_suicide(bot_to_move):
     # check that all is good
     assert state['fatal_errors'] == [[], []]
 
+
+@pytest.mark.parametrize('_n_test', range(10))
+def test_initial_position(_n_test):
+    """ Test that out test team receives the correct inital positions."""
+    layout_name, layout_string = get_random_layout()
+    l = parse_layout(layout_string)
+    initial_pos = initial_positions(l['walls'])
+    
+    def move(bot, state):
+        if bot.is_blue and bot.turn == 0:
+            assert bot.initial_position == initial_pos[0]
+            assert bot.other.initial_position == initial_pos[2]
+            assert bot.enemy[0].initial_position == initial_pos[1]
+            assert bot.enemy[1].initial_position == initial_pos[3]
+        if bot.is_blue and bot.turn == 1:
+            assert bot.initial_position == initial_pos[2]
+            assert bot.other.initial_position == initial_pos[0]
+            assert bot.enemy[0].initial_position == initial_pos[1]
+            assert bot.enemy[1].initial_position == initial_pos[3]
+        if not bot.is_blue and bot.turn == 0:
+            assert bot.initial_position == initial_pos[1]
+            assert bot.other.initial_position == initial_pos[3]
+            assert bot.enemy[0].initial_position == initial_pos[0]
+            assert bot.enemy[1].initial_position == initial_pos[2]
+        if not bot.is_blue and bot.turn == 1:
+            assert bot.initial_position == initial_pos[3]
+            assert bot.other.initial_position == initial_pos[1]
+            assert bot.enemy[0].initial_position == initial_pos[0]
+            assert bot.enemy[1].initial_position == initial_pos[2]
+        return randomBot(bot, state)
+
+    state = run_game([move, move], max_rounds=3, layout_dict=l)
+    # assertions might have been caught in run_game
+    # check that all is good
+    assert state['fatal_errors'] == [[], []]
