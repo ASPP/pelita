@@ -291,15 +291,14 @@ def start_match(config, teams, shuffle=False):
 
     (final_state, stdout, stderr) = play_game_with_config(config, teams)
     try:
-        game_draw = final_state['game_draw']
-        team_wins = final_state['team_wins']
+        whowins = final_state['whowins']
 
-        if game_draw:
+        if whowins == 2:
             config.print('‘{t1}’ and ‘{t2}’ had a draw.'.format(t1=config.team_name(team1),
                                                                 t2=config.team_name(team2)))
             return False
-        elif team_wins == 0 or team_wins == 1:
-            winner = teams[team_wins]
+        elif whowins == 0 or whowins == 1:
+            winner = teams[whowins]
             config.print('‘{team}’ wins'.format(team=config.team_name(winner)))
             return winner
         else:
