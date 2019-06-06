@@ -4,15 +4,13 @@ import unittest
 import random
 import time
 
-from pelita.datamodel import CTFUniverse, east, stop, west
+from pelita.datamodel import east, stop, west
 from pelita.game import setup_game, run_game, play_turn
-from pelita.game_master import GameMaster
 from pelita.layout import parse_layout
-from pelita.player import (AbstractPlayer, SimpleTeam,
-                           random_player, StoppingPlayer, stepping_player,
+from pelita.player import (random_player, stopping_player, stepping_player,
                            round_based_player, speaking_player)
 
-
+@pytest.mark.xfail(reason="Tests for convenience functions on Bot/AbstractPlayer are missing")
 class TestAbstractPlayer:
     def assertUniversesEqual(self, uni1, uni2):
         assert uni1 == uni2, '\n' + uni1.pretty + '\n' + uni2.pretty
@@ -472,75 +470,3 @@ def test_speaking_player():
     assert state["say"][0].startswith("Going")
     assert state["say"][1] == ""
 
-
-class TestSimpleTeam:
-
-    class BrokenPlayer_with_nothing:
-        pass
-
-    class BrokenPlayer_without_set_initial:
-        def _set_initial(self, universe):
-            pass
-
-    class BrokenPlayer_without_get_move:
-        def _set_initial(self, universe):
-            pass
-
-    def test_player_api_methods(self):
-        with pytest.raises(TypeError):
-            SimpleTeam(self.BrokenPlayer_with_nothing())
-        with pytest.raises(TypeError):
-            SimpleTeam(self.BrokenPlayer_without_set_initial())
-        with pytest.raises(TypeError):
-            SimpleTeam(self.BrokenPlayer_without_get_move())
-
-    def test_init(self):
-        with pytest.raises(ValueError):
-            SimpleTeam()
-        object_which_is_neither_string_nor_team = 5
-        with pytest.raises(TypeError):
-            SimpleTeam(object_which_is_neither_string_nor_team)
-
-        team0 = SimpleTeam("my team")
-        assert team0.team_name == "my team"
-        assert len(team0._players) == 0
-
-        team1 = SimpleTeam("my team", SteppingPlayer([]))
-        assert team1.team_name == "my team"
-        assert len(team1._players) == 1
-
-        team2 = SimpleTeam("my other team", SteppingPlayer([]), SteppingPlayer([]))
-        assert team2.team_name == "my other team"
-        assert len(team2._players) == 2
-
-        team3 = SimpleTeam(SteppingPlayer([]))
-        assert team3.team_name == ""
-        assert len(team3._players) == 1
-
-        team4 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
-        assert team4.team_name == ""
-        assert len(team4._players) == 2
-
-    def test_too_few_players(self):
-        layout = (
-            """ ######
-                #0123#
-                ###### """
-        )
-        dummy_universe = CTFUniverse.create(layout, 4)
-        team1 = SimpleTeam(SteppingPlayer('^'))
-
-        with pytest.raises(ValueError):
-            team1.set_initial(0, dummy_universe._to_json_dict())
-
-class TestAbstracts:
-    class BrokenPlayer(AbstractPlayer):
-        pass
-
-    def test_AbstractPlayer(self):
-        with pytest.raises(TypeError):
-            AbstractPlayer()
-
-    def test_BrokenPlayer(self):
-        with pytest.raises(TypeError):
-            self.BrokenPlayer()
