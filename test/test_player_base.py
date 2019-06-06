@@ -4,12 +4,13 @@ import unittest
 import random
 import time
 
-from pelita import datamodel
 from pelita.datamodel import CTFUniverse, east, stop, west
+from pelita.game import setup_game, run_game, play_turn
 from pelita.game_master import GameMaster
+from pelita.layout import parse_layout
 from pelita.player import (AbstractPlayer, SimpleTeam,
-                           RandomPlayer, StoppingPlayer, SteppingPlayer,
-                           RoundBasedPlayer, SpeakingPlayer)
+                           RandomPlayer, StoppingPlayer, stepping_player,
+                           round_based_player, speaking_player)
 
 
 class TestAbstractPlayer:
@@ -289,44 +290,37 @@ class TestSteppingPlayer:
         movements_0 = [east, east]
         movements_1 = [west, west]
         teams = [
-            SimpleTeam(SteppingPlayer(movements_0), SteppingPlayer(movements_0)),
-            SimpleTeam(SteppingPlayer(movements_1), SteppingPlayer(movements_1))
+            stepping_player(movements_0, movements_0),
+            stepping_player(movements_1, movements_1)
         ]
-        gm = GameMaster(test_layout, teams, 4, 2)
-        universe = datamodel.CTFUniverse._from_json_dict(gm.game_state)
-
-        assert universe.bots[0].current_pos == (1, 1)
-        assert universe.bots[1].current_pos == (10, 1)
-        assert universe.bots[2].current_pos == (1, 2)
-        assert universe.bots[3].current_pos == (10, 2)
-
-        gm.play()
-        universe = datamodel.CTFUniverse._from_json_dict(gm.game_state)
-        assert universe.bots[0].current_pos == (3, 1)
-        assert universe.bots[1].current_pos == (8, 1)
-        assert universe.bots[2].current_pos == (3, 2)
-        assert universe.bots[3].current_pos == (8, 2)
+        state = setup_game(teams, layout_dict=parse_layout(test_layout), max_rounds=2)
+        assert state['bots'] == [(1, 1), (10, 1), (1, 2), (10, 2)]
+        state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=2)
+        assert state['bots'] == [(3, 1), (8, 1), (3, 2), (8, 2)]
 
     def test_shorthand(self):
         test_layout = (
         """ ############
-            #0  .  .   #
-            #         1#
+            #0  .  .  3#
+            #2        1#
             ############ """)
         num_rounds = 5
         teams = [
-            SimpleTeam(SteppingPlayer('>v<^-)')),
-            SimpleTeam(SteppingPlayer('<^>v-)'))
+            stepping_player('>v<^-', '-----'),
+            stepping_player('<^>v-', '-----')
         ]
-        gm = GameMaster(test_layout, teams, 2, num_rounds)
-        player0_expected_positions = [(1,1), (2,1), (2,2), (1,2), (1,1)]
-        player1_expected_positions = [(10,2), (9,2), (9,1), (10,1), (10,2)]
-        gm.set_initial()
-        for i in range(num_rounds):
-            universe = datamodel.CTFUniverse._from_json_dict(gm.game_state)
-            assert universe.bots[0].current_pos == player0_expected_positions[i]
-            assert universe.bots[1].current_pos == player1_expected_positions[i]
-            gm.play_round()
+        state = setup_game(teams, layout_dict=parse_layout(test_layout), max_rounds=5)
+        player0_expected_positions = [(1,1), (2,1), (2,2), (1,2), (1,1), (1, 1)]
+        player1_expected_positions = [(10,2), (9,2), (9,1), (10,1), (10,2), (10, 2)]
+
+        assert state['bots'][0] == player0_expected_positions[0]
+        assert state['bots'][1] == player1_expected_positions[0]
+        for i in range(1, num_rounds+1):
+            for step in range(4):
+                state = play_turn(state)
+            assert state['bots'][0] == player0_expected_positions[i]
+            assert state['bots'][1] == player1_expected_positions[i]
+
 
     def test_too_many_moves(self):
         test_layout = (
@@ -337,13 +331,15 @@ class TestSteppingPlayer:
         movements_0 = [east, east]
         movements_1 = [west, west]
         teams = [
-            SimpleTeam(SteppingPlayer(movements_0), SteppingPlayer(movements_0)),
-            SimpleTeam(SteppingPlayer(movements_1), SteppingPlayer(movements_1))
+            stepping_player(movements_0, movements_0),
+            stepping_player(movements_1, movements_1)
         ]
-        gm = GameMaster(test_layout, teams, 4, 3)
+        state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=2)
+        assert state['fatal_errors'] == [[], []]
+        state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=3)
+        assert len(state['fatal_errors'][0])
+        # TODO: check for exact turn/round of the failure
 
-        with pytest.raises(ValueError):
-            gm.play()
 
 class TestRoundBasedPlayer:
     def test_round_based_players(self):
