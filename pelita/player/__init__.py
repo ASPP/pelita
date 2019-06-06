@@ -1,9 +1,9 @@
 
 from .base import AbstractTeam, SimpleTeam, AbstractPlayer
 
-from .base import (SteppingPlayer, SpeakingPlayer,
-                   RoundBasedPlayer, MoveExceptionPlayer, InitialExceptionPlayer,
-                   DebuggablePlayer)
+from .base import (stepping_player, speaking_player,
+                   round_based_player, move_exception_player,
+                   debuggable_player)
 
 from .team import Team
 
