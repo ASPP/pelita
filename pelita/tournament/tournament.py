@@ -237,7 +237,6 @@ def present_teams(config):
 def set_name(team):
     """Get name of team."""
     try:
-        team = libpelita.prepare_team(team)
         return libpelita.check_team(team)
     except Exception:
         print("*** ERROR: I could not load team {team}. Please help!".format(team=team))
