@@ -9,7 +9,7 @@ from .team import Team
 
 from .RandomPlayers import random_player, nq_random_player
 from .FoodEatingPlayer import FoodEatingPlayer
-from .SmartEatingPlayer import SmartEatingPlayer
+from .SmartEatingPlayer import smart_eating_player
 from .RandomExplorerPlayer import RandomExplorerPlayer
 from .SmartRandomPlayer import SmartRandomPlayer
 from .StoppingPlayer import stopping_player
@@ -18,6 +18,6 @@ SANE_PLAYERS = [
     random_player,
     nq_random_player,
     FoodEatingPlayer,
-    SmartEatingPlayer,
+    smart_eating_player,
     RandomExplorerPlayer,
     SmartRandomPlayer]
