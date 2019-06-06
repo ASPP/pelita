@@ -286,11 +286,9 @@ def call_pelita(team_specs, *, rounds, filter, viewer, dump, seed):
                 socket_ready = evts.get(reply_sock, False)
                 if socket_ready:
                     try:
-                        pelita_status = json.loads(reply_sock.recv_string())
-                        game_state = pelita_status['__data__']['game_state']
-                        finished = game_state.get("finished", None)
-                        team_wins = game_state.get("team_wins", None)
-                        game_draw = game_state.get("game_draw", None)
+                        game_state = json.loads(reply_sock.recv_string())
+                        finished = game_state.get("gameover", None)
+                        whowins = game_state.get("whowins", None)
                         if finished:
                             final_game_state = game_state
                             break
