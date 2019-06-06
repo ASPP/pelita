@@ -25,7 +25,7 @@ def nq_random_player(bot, state):
                 pass
     # just in case, there is really no way to go to:
     if not legal_positions:
-        return datamodel.stop
+        return bot.position, state
     # and select a move at random
     return bot.random.choice(legal_positions), state
 

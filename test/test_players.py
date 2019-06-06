@@ -1,6 +1,8 @@
-from pelita.datamodel import CTFUniverse, east, stop, west
-from pelita.game_master import GameMaster
-from pelita.player import SimpleTeam
+import pytest
+
+from pelita.datamodel import east, stop, west
+from pelita.game import run_game
+from pelita.layout import parse_layout
 from pelita.player import nq_random_player, SANE_PLAYERS
 
 
@@ -9,16 +11,16 @@ class TestNQRandom_Player:
         test_layout = (
         """ ############
             #0#.   .# 1#
+            ###.   .####
+            #2#.   .# 3#
             ############ """)
-        team = [
-            SimpleTeam(NQRandomPlayer()),
-            SimpleTeam(NQRandomPlayer())
+        teams = [
+            nq_random_player,
+            nq_random_player
         ]
-        gm = GameMaster(test_layout, team, 2, 1)
-        gm.play()
-        universe = CTFUniverse._from_json_dict(gm.game_state)
-        assert universe.bots[0].current_pos == (1, 1)
-        assert universe.bots[1].current_pos == (9, 1)
+        state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=1)
+        assert state['bots'][0] == (1, 1)
+        assert state['bots'][1] == (9, 1)
 
     def test_path(self):
         test_layout = (
@@ -26,36 +28,36 @@ class TestNQRandom_Player:
             #  . # .# ##
             # ## #  # ##
             #0#.   .##1#
+            ###.   .####
+            #2#.   .# 3#
             ############ """)
-        team = [
-            SimpleTeam(NQRandomPlayer()),
-            SimpleTeam(NQRandomPlayer())
+        teams = [
+            nq_random_player,
+            nq_random_player
         ]
-        gm = GameMaster(test_layout, team, 2, 7)
-        gm.play()
-        universe = CTFUniverse._from_json_dict(gm.game_state)
-        assert universe.bots[0].current_pos == (4, 3)
-        assert universe.bots[1].current_pos == (10, 3)
+        state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=7)
+        assert state['bots'][0] == (4, 3)
+        assert state['bots'][1] == (10, 3)
 
-class TestPlayers:
+
+@pytest.mark.parametrize('player', SANE_PLAYERS)
+def test_players(player):
     # Simple checks that the players are running to avoid API discrepancies
-    def test_players(self):
-        test_layout = (
-        """ ############
-            #  . # .  ##
-            # ## #    ##
-            # ## #  # ##
-            # ## #  # ##
-            #    #  # ##
-            #0#.   .  1#
-            ############ """)
-        
-        for player in SANE_PLAYERS:
-            team = [
-                SimpleTeam(player()),
-                SimpleTeam(NQRandomPlayer())
-            ]
-            gm = GameMaster(test_layout, team, 2, 20)
-            gm.play()
-            assert gm.finished is True
+    test_layout = (
+    """ ############
+        #2 . # . 3##
+        # ## #    ##
+        # ## #  # ##
+        # ## #  # ##
+        #    #  # ##
+        #0#.   .  1#
+        ############ """)
+    
+    teams = [
+        player,
+        nq_random_player
+    ]
+    state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=20)
+    assert state['gameover']
+    assert state['fatal_errors'] == [[], []]
 
