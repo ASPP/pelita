@@ -114,7 +114,7 @@ class Graph(UserDict):
 
         initial, maze = args
         def legal_neighbors(maze, pos):
-            neighbor_moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+            neighbor_moves = [(0, 0), (-1, 0), (1, 0), (0, 1), (0, -1)]
             legal = []
             for move in neighbor_moves:
                 neighbor = move_pos(pos, move)

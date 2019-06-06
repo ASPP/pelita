@@ -1,9 +1,10 @@
 import pytest
 import unittest
 
-from pelita.datamodel import CTFUniverse, east, north, south, stop, west
+from pelita.datamodel import east, north, south, stop, west
 from pelita.graph import (Graph, NoPathException, diff_pos, iter_adjacencies,
                           manhattan_dist, move_pos)
+from pelita.layout import parse_layout
 
 
 class TestStaticmethods:
@@ -83,46 +84,41 @@ class TestGraph:
             #2#####    #####1#
             #     . #  .  .#3#
             ################## """)
-        universe = CTFUniverse.create(test_layout, 4)
-        al = Graph(universe.free_positions())
-        free = {pos for pos, val in universe.maze.items() if not val}
+        layout = parse_layout(test_layout)
+        graph = Graph(layout['bots'][0], layout['walls'])
 
-        assert not ((0, 0) in al)
+        assert not ((0, 0) in graph)
         with pytest.raises(NoPathException):
-            al.pos_within((0, 0), 0)
-        assert not ((6, 2) in al)
+            graph.pos_within((0, 0), 0)
+        assert not ((6, 2) in graph)
         with pytest.raises(NoPathException):
-            al.pos_within((6, 2), 0)
+            graph.pos_within((6, 2), 0)
 
-        assert (1, 1) in al
-        unittest.TestCase().assertCountEqual([(1, 1)], al.pos_within((1, 1), 0))
+        assert (1, 1) in graph
+        unittest.TestCase().assertCountEqual([(1, 1)], graph.pos_within((1, 1), 0))
         target = [(1, 1), (1, 2), (1,3), (2, 3), (3, 3)]
-        unittest.TestCase().assertCountEqual(target, al.pos_within((1, 1), 5))
-        # assuming a_star is working properly
+        unittest.TestCase().assertCountEqual(target, graph.pos_within((1, 1), 5))
+        # check that distance in a_star is working properly
         for pos in target:
-            assert len(al.a_star((1, 1), pos)) < 5
-        for pos in free.difference(target):
-            assert len(al.a_star((1, 1), pos)) >= 5
+            assert len(graph.a_star((1, 1), pos)) < 5
+        for pos in set(graph).difference(target):
+            assert len(graph.a_star((1, 1), pos)) >= 5
 
     def test_basic_adjacency_list(self):
         test_layout = (
         """ ######
             #    #
             ###### """)
-        universe = CTFUniverse.create(test_layout, 0)
-        al = Graph(universe.free_positions())
+        layout = parse_layout(test_layout)
+        graph = Graph((1, 1), layout['walls'])
         target = { (4, 1): [(4, 1), (3, 1)],
                    (1, 1): [(2, 1), (1, 1)],
                    (2, 1): [(3, 1), (2, 1), (1, 1)],
                    (3, 1): [(4, 1), (3, 1), (2, 1)]}
 
-        for val in al.values():
-            val.sort()
-
-        for val in target.values():
-            val.sort()
-
-        assert target == al
+        sorted_g = {k: sorted(v) for k, v in graph.items()}
+        sorted_t = {k: sorted(v) for k, v in target.items()}
+        assert sorted_g == sorted_t
 
     def test_extended_adjacency_list(self):
         test_layout = (
@@ -131,8 +127,8 @@ class TestGraph:
             # #####    ##### #
             #     . #  .  .#1#
             ################## """)
-        universe = CTFUniverse.create(test_layout, 2)
-        al = Graph(universe.free_positions())
+        layout = parse_layout(test_layout)
+        graph = Graph((1, 1), layout['walls'])
 
         adjacency_target = {(7, 3): [(7, 2), (7, 3), (6, 3)],
          (1, 3): [(1, 2), (2, 3), (1, 3)],
@@ -169,22 +165,19 @@ class TestGraph:
          (14, 3): [(14, 3), (13, 3)],
          (10, 2): [(10, 3), (10, 1), (10, 2), (9, 2)]}
 
-        for val in al.values():
-            val.sort()
+        sorted_g = {k: sorted(v) for k, v in graph.items()}
+        sorted_t = {k: sorted(v) for k, v in adjacency_target.items()}
 
-        for val in adjacency_target.values():
-            val.sort()
-
-        assert adjacency_target == al
+        assert sorted_t == sorted_g
 
     def test_bfs_to_self(self):
         test_layout = (
         """ ############
             #0.     #.1#
             ############ """)
-        universe = CTFUniverse.create(test_layout, 2)
-        al = Graph(universe.free_positions())
-        assert [] == al.bfs((1,1), [(1, 1), (2, 1)])
+        layout = parse_layout(test_layout)
+        graph = Graph((1, 1), layout['walls'])
+        assert [] == graph.bfs((1,1), [(1, 1), (2, 1)])
 
     def test_a_star(self):
         test_layout = (
@@ -194,26 +187,25 @@ class TestGraph:
             # ### . #  .  ##3#
             #                #
             ################## """)
-
-        universe = CTFUniverse.create(test_layout, 4)
-        al = Graph(universe.free_positions())
+        layout = parse_layout(test_layout)
+        graph = Graph((1, 1), layout['walls'])
 
         #Test distance to middle from both sides
-        assert 11 == len(al.a_star((1, 1), (7, 2)))
-        assert 12 == len(al.a_star((2, 1), (7, 2)))
-        assert 14 == len(al.a_star((16, 1), (7, 2)))
-        assert 15 == len(al.a_star((15, 1), (7, 2)))    
+        assert 11 == len(graph.a_star((1, 1), (7, 2)))
+        assert 12 == len(graph.a_star((2, 1), (7, 2)))
+        assert 14 == len(graph.a_star((16, 1), (7, 2)))
+        assert 15 == len(graph.a_star((15, 1), (7, 2)))    
 
         # Test basic assertions
-        assert 0 == len(al.a_star((1, 1), (1, 1)))
-        assert 1 == len(al.a_star((1, 1), (2, 1)))
-        assert 1 == len(al.a_star((2, 1), (1, 1)))
+        assert 0 == len(graph.a_star((1, 1), (1, 1)))
+        assert 1 == len(graph.a_star((1, 1), (2, 1)))
+        assert 1 == len(graph.a_star((2, 1), (1, 1)))
 
         # Test distance to middle from both sides
-        assert 11 == len(al.a_star((1, 1), (7, 2)))
-        assert 12 == len(al.a_star((2, 1), (7, 2)))
-        assert 14 == len(al.a_star((16, 1), (7, 2)))
-        assert 15 == len(al.a_star((15, 1), (7, 2)))
+        assert 11 == len(graph.a_star((1, 1), (7, 2)))
+        assert 12 == len(graph.a_star((2, 1), (7, 2)))
+        assert 14 == len(graph.a_star((16, 1), (7, 2)))
+        assert 15 == len(graph.a_star((15, 1), (7, 2)))
 
     def test_a_star2(self):
         test_layout = (
@@ -222,13 +214,11 @@ class TestGraph:
                 # # #0 #
                 #      #
                 ######## """ )
-        universe = CTFUniverse.create(test_layout, 2)
-        al = Graph(universe.free_positions())
+        layout = parse_layout(test_layout)
+        graph = Graph((1, 1), layout['walls'])
         #Test distance to middle from both sides
-        print(al.a_star(universe.bots[0].current_pos, universe.bots[1].current_pos))
-        print(al.a_star(universe.bots[1].current_pos, universe.bots[0].current_pos))
-        assert 7 == len(al.a_star(universe.bots[0].current_pos, universe.bots[1].current_pos))
-        assert 7 == len(al.a_star(universe.bots[1].current_pos, universe.bots[0].current_pos))
+        assert 7 == len(graph.a_star(layout['bots'][0], layout['bots'][1]))
+        assert 7 == len(graph.a_star(layout['bots'][1], layout['bots'][0]))
 
     def test_a_star3(self):
         test_layout = (
@@ -242,19 +232,20 @@ class TestGraph:
             # ####### #### #   #   #  #  #       #                         #
             # #   1      #     ###   ##### ##      ############# ###########
             # #   #      # #   #   #     # ##    #   #                     #
-            #    ######################### ##    ## ######### ##############"""
+            #    ######################### ##    ## ######### ##############
+            ################################################################"""
         )
-        universe = CTFUniverse.create(test_layout, 2)
-        al = Graph(universe.free_positions())
+        layout = parse_layout(test_layout)
+        graph = Graph((1, 1), layout['walls'])
         #Test distance to middle from both sides
-        assert 15 == len(al.a_star(universe.bots[0].current_pos, universe.bots[1].current_pos))
-        assert 15 == len(al.a_star(universe.bots[1].current_pos, universe.bots[0].current_pos))
+        assert 15 == len(graph.a_star(layout['bots'][0], layout['bots'][1]))
+        assert 15 == len(graph.a_star(layout['bots'][1], layout['bots'][0]))
 
     def test_a_star_left_right(self):
         def len_of_shortest_path(layout):
-            uni = CTFUniverse.create(layout, 2)
-            al = Graph(uni.free_positions())
-            path = al.a_star(uni.bots[0].current_pos, uni.bots[1].current_pos)
+            layout = parse_layout(layout)
+            graph = Graph((1, 1), layout['walls'])
+            path = graph.a_star(layout['bots'][0], layout['bots'][1])
             return len(path)
 
         l1 = """
@@ -283,37 +274,39 @@ class TestGraph:
             #2#####    #####1#
             #     . #  .  .#3#
             ################## """)
-        universe = CTFUniverse.create(test_layout, 4)
-        al = Graph(universe.free_positions())
-        assert [] == al.a_star((1, 1), (1, 1))
-        assert [] == al.bfs((1, 1), [(1, 1)])
+        layout = parse_layout(test_layout)
+        graph = Graph((1, 1), layout['walls'])
+        assert [] == graph.a_star((1, 1), (1, 1))
+        assert [] == graph.bfs((1, 1), [(1, 1)])
 
     def test_bfs_exceptions(self):
         test_layout = (
         """ ############
             #0.     #.1#
             ############ """)
-        universe = CTFUniverse.create(test_layout, 2)
-        al = Graph(universe.free_positions())
+        layout = parse_layout(test_layout)
+        # TODO: We cannot set up an unconnected graph currently
+        graph = Graph((1, 1), layout['walls'])
         with pytest.raises(NoPathException):
-            al.bfs((1, 1), [(10, 1)])
+            graph.bfs((1, 1), [(10, 1)])
         with pytest.raises(NoPathException):
-            al.bfs((1, 1), [(10, 1), (9, 1)])
+            graph.bfs((1, 1), [(10, 1), (9, 1)])
         with pytest.raises(NoPathException):
-            al.bfs((0, 1), [(10, 1)])
+            graph.bfs((0, 1), [(10, 1)])
         with pytest.raises(NoPathException):
-            al.bfs((1, 1), [(11, 1)])
+            graph.bfs((1, 1), [(11, 1)])
 
     def test_a_star_exceptions(self):
         test_layout = (
         """ ############
             #0.     #.1#
             ############ """)
-        universe = CTFUniverse.create(test_layout, 2)
-        al = Graph(universe.free_positions())
+        layout = parse_layout(test_layout)
+        # TODO: We cannot set up an unconnected graph currently
+        graph = Graph((1, 1), layout['walls'])
         with pytest.raises(NoPathException):
-            al.a_star((1, 1), (10, 1))
+            graph.a_star((1, 1), (10, 1))
         with pytest.raises(NoPathException):
-            al.a_star((0, 1), (10, 1))
+            graph.a_star((0, 1), (10, 1))
         with pytest.raises(NoPathException):
-            al.a_star((1, 1), (11, 1))
+            graph.a_star((1, 1), (11, 1))
