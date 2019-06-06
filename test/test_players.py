@@ -1,7 +1,7 @@
 from pelita.datamodel import CTFUniverse, east, stop, west
 from pelita.game_master import GameMaster
 from pelita.player import SimpleTeam
-from pelita.player import NQRandomPlayer, SANE_PLAYERS
+from pelita.player import nq_random_player, SANE_PLAYERS
 
 
 class TestNQRandom_Player:

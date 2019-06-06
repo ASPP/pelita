@@ -5,8 +5,7 @@ import collections
 
 from pelita.datamodel import CTFUniverse
 from pelita.game_master import GameMaster, ManhattanNoiser, PlayerTimeout, NoFoodWarning
-from pelita.player import AbstractPlayer, SimpleTeam, StoppingPlayer, SteppingPlayer
-from pelita.viewer import AbstractViewer
+from pelita.player import stopping_player, stepping_player
 
 
 class TestGameMaster:

@@ -9,7 +9,7 @@ from pelita.game import setup_game, run_game, play_turn
 from pelita.game_master import GameMaster
 from pelita.layout import parse_layout
 from pelita.player import (AbstractPlayer, SimpleTeam,
-                           RandomPlayer, StoppingPlayer, stepping_player,
+                           random_player, StoppingPlayer, stepping_player,
                            round_based_player, speaking_player)
 
 
@@ -348,33 +348,31 @@ class TestRoundBasedPlayer:
             #0  .  .  1#
             #2        3#
             ############ """)
-        movements_0 = [east, east]
-        movements_1_0 = {0: west, 2: west}
-        movements_1_1 = {2: west}
+        # index 0 can be ignored
+        movements_0 = [None, east, east]
+        movements_1_0 = {1: west, 3: west}
+        movements_1_1 = {3: west}
         teams = [
-            SimpleTeam(RoundBasedPlayer(movements_0), RoundBasedPlayer(movements_0)),
-            SimpleTeam(RoundBasedPlayer(movements_1_0), RoundBasedPlayer(movements_1_1))
+            round_based_player(movements_0, movements_0),
+            round_based_player(movements_1_0, movements_1_1)
         ]
-        gm = GameMaster(test_layout, teams, 4, 3)
-        universe = datamodel.CTFUniverse._from_json_dict(gm.game_state)
+        state = setup_game(teams, layout_dict=parse_layout(test_layout), max_rounds=3)
+        assert state['bots'][0] == (1, 1)
+        assert state['bots'][1] == (10, 1)
+        assert state['bots'][2] == (1, 2)
+        assert state['bots'][3] == (10, 2)
 
-        assert universe.bots[0].current_pos == (1, 1)
-        assert universe.bots[1].current_pos == (10, 1)
-        assert universe.bots[2].current_pos == (1, 2)
-        assert universe.bots[3].current_pos == (10, 2)
-
-        gm.play()
-        universe = datamodel.CTFUniverse._from_json_dict(gm.game_state)
-        assert universe.bots[0].current_pos == (3, 1)
-        assert universe.bots[1].current_pos == (8, 1)
-        assert universe.bots[2].current_pos == (3, 2)
-        assert universe.bots[3].current_pos == (9, 2)
+        state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=3)
+        assert state['bots'][0] == (3, 1)
+        assert state['bots'][1] == (8, 1)
+        assert state['bots'][2] == (3, 2)
+        assert state['bots'][3] == (9, 2)
 
 class TestRandomPlayerSeeds:
     def test_demo_players(self):
         test_layout = (
         """ ################
-            #              #
+            #2            3#
             #              #
             #              #
             #   0      1   #
@@ -384,42 +382,27 @@ class TestRandomPlayerSeeds:
             #.            .#
             ################ """)
         teams = [
-            SimpleTeam(RandomPlayer()),
-            SimpleTeam(RandomPlayer())
+            random_player,
+            random_player
         ]
-        gm = GameMaster(test_layout, teams, 2, 5, seed=20)
-        universe = datamodel.CTFUniverse._from_json_dict(gm.game_state)
-        assert universe.bots[0].current_pos == (4, 4)
-        assert universe.bots[1].current_pos == (4 + 7, 4)
-        gm.play()
+        state = setup_game(teams, layout_dict=parse_layout(test_layout), max_rounds=20, seed=20)
+        assert state['bots'][0] == (4, 4)
+        assert state['bots'][1] == (4 + 7, 4)
 
-        universe = datamodel.CTFUniverse._from_json_dict(gm.game_state)
-        pos_left_bot = universe.bots[0].current_pos
-        pos_right_bot = universe.bots[1].current_pos
+        state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=20, seed=20)
+        pos_left_bot = state['bots'][0]
+        pos_right_bot = state['bots'][1]
 
         # running again to test seed:
-        teams = [
-            SimpleTeam(RandomPlayer()),
-            SimpleTeam(RandomPlayer())
-        ]
-        gm = GameMaster(test_layout, teams, 2, 5, seed=20)
-        gm.play()
-        universe = datamodel.CTFUniverse._from_json_dict(gm.game_state)
-        assert universe.bots[0].current_pos == pos_left_bot
-        assert universe.bots[1].current_pos == pos_right_bot
+        state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=20, seed=20)
+        assert state['bots'][0] == pos_left_bot
+        assert state['bots'][1] == pos_right_bot
 
         # running again with other seed:
-        teams = [
-            SimpleTeam(RandomPlayer()),
-            SimpleTeam(RandomPlayer())
-        ]
-        gm = GameMaster(test_layout, teams, 2, 5, seed=200)
-        gm.play()
-        universe = datamodel.CTFUniverse._from_json_dict(gm.game_state)
+        state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=20, seed=200)
         # most probably, either the left bot or the right bot or both are at
         # a different position
-        assert universe.bots[0].current_pos != pos_left_bot \
-                     or universe.bots[1].current_pos != pos_right_bot
+        assert not (state['bots'][0] == pos_left_bot and state['bots'][1] == pos_right_bot)
 
     def test_random_seeds(self):
         test_layout = (
@@ -433,56 +416,61 @@ class TestRandomPlayerSeeds:
             #              #
             #.            .#
             ################ """)
-        players_a = [RandomPlayer() for _ in range(4)]
+        def init_rng_players():
+            player_rngs = []
+            def rng_test(bot, state):
+                player_rngs.append(bot.random)
+                return bot.position, state
+            team = [
+                rng_test,
+                rng_test
+            ]
+            return team, player_rngs
 
-        team_1 = [
-            SimpleTeam(players_a[0], players_a[2]),
-            SimpleTeam(players_a[1], players_a[3])
-        ]
-        gm1 = GameMaster(test_layout, team_1, 4, 5, seed=20)
-        gm1.set_initial()
-        random_numbers_a = [player.rnd.randint(0, 10000) for player in players_a]
-        # check that each player has a different seed (if randomness allows)
-        assert len(set(random_numbers_a)) == 4, "Probably not all player seeds were unique."
+        team0, player_rngs0 = init_rng_players()
+        state = setup_game(team0, layout_dict=parse_layout(test_layout), max_rounds=5, seed=20)
+        # play two steps
+        play_turn(play_turn(state))
+        assert len(player_rngs0) == 2
+        # generate some random numbers for each player
+        random_numbers0 = [rng.randint(0, 10000) for rng in player_rngs0]
+        # teams should have generated a different number
+        assert random_numbers0[0] != random_numbers0[1]
 
-        players_b = [RandomPlayer() for _ in range(4)]
+        team1, player_rngs1 = init_rng_players()
+        state = setup_game(team1, layout_dict=parse_layout(test_layout), max_rounds=5, seed=20)
+        # play two steps
+        play_turn(play_turn(state))
+        assert len(player_rngs1) == 2
+        # generate some random numbers for each player
+        random_numbers1 = [rng.randint(0, 10000) for rng in player_rngs1]
+        # teams should have generated the same numbers as before
+        assert random_numbers0 == random_numbers1
 
-        team_2 = [
-            SimpleTeam(players_b[0], players_b[2]),
-            SimpleTeam(players_b[1], players_b[3])
-        ]
-        gm2 = GameMaster(test_layout, team_2, 4, 5, seed=20)
-        gm2.set_initial()
-        random_numbers_b = [player.rnd.randint(0, 10000) for player in players_b]
-        assert random_numbers_a == random_numbers_b
-
-        players_c = [RandomPlayer() for _ in range(4)]
-
-        team_3 = [
-            SimpleTeam(players_c[0], players_c[2]),
-            SimpleTeam(players_c[1], players_c[3])
-        ]
-        gm3 = GameMaster(test_layout, team_3, 4, 5, seed=200)
-        gm3.set_initial()
-        random_numbers_c = [player.rnd.randint(0, 10000) for player in players_c]
-
-        assert random_numbers_a != random_numbers_c
+        # now, use a different seed
+        team2, player_rngs2 = init_rng_players()
+        state = setup_game(team2, layout_dict=parse_layout(test_layout), max_rounds=5, seed=200)
+        # play two steps
+        play_turn(play_turn(state))
+        assert len(player_rngs2) == 2
+        # generate some random numbers for each player
+        random_numbers2 = [rng.randint(0, 10000) for rng in player_rngs0]
+        # teams should have generated different numbers than before
+        assert random_numbers0 != random_numbers2
 
 
-class TestSpeakingPlayer:
-    def test_demo_players(self):
-        test_layout = (
-        """ ############
-            #0 #.  .# 1#
-            ############ """)
-        team = [
-            SimpleTeam(SpeakingPlayer()),
-            SimpleTeam(RandomPlayer())
-        ]
-        gm = GameMaster(test_layout, team, 2, 1)
-        gm.play()
-        assert gm.game_state["bot_talk"][0].startswith("Going")
-        assert gm.game_state["bot_talk"][1] == ""
+def test_speaking_player():
+    test_layout = (
+    """ ############
+        #02#.  .#31#
+        ############ """)
+    teams = [
+        speaking_player,
+        random_player
+    ]
+    state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=1)
+    assert state["say"][0].startswith("Going")
+    assert state["say"][1] == ""
 
 
 class TestSimpleTeam:

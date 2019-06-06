@@ -560,7 +560,8 @@ def round_based_player(*bot_moves):
     """
     def move(bot, state):
         try:
-            return bot_moves[bot.turn][bot.round], state
+            next_move = bot_moves[bot.turn][bot.round]
+            return (bot.position[0] + next_move[0], bot.position[1] + next_move[1]), state
         except (IndexError, KeyError):
             return bot.position, state
     return move

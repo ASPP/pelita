@@ -7,16 +7,16 @@ from .base import (stepping_player, speaking_player,
 
 from .team import Team
 
-from .RandomPlayers import RandomPlayer, NQRandomPlayer
+from .RandomPlayers import random_player, nq_random_player
 from .FoodEatingPlayer import FoodEatingPlayer
 from .SmartEatingPlayer import SmartEatingPlayer
 from .RandomExplorerPlayer import RandomExplorerPlayer
 from .SmartRandomPlayer import SmartRandomPlayer
-from .StoppingPlayer import StoppingPlayer
+from .StoppingPlayer import stopping_player
 
 SANE_PLAYERS = [
-    RandomPlayer,
-    NQRandomPlayer,
+    random_player,
+    nq_random_player,
     FoodEatingPlayer,
     SmartEatingPlayer,
     RandomExplorerPlayer,
