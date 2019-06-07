@@ -15,5 +15,5 @@ def move(bot, state):
     # - move away from our team mate if we already are in the same position, or
     # - we can stop if our only other legal move would put us in the same
     #   position as our team mate
-    next_move = bot.random.choice(possible_moves)
-    return next_move, state
+    next_pos = bot.random.choice(possible_moves)
+    return next_pos, state

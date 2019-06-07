@@ -9,13 +9,7 @@ from pelita.utils import Graph
 
 from utils import next_step
 
-def move_to_position(move):
-    def pos_move(bot, state):
-        m, s = move(bot, state)
-        return (bot.position[0] + m[0], bot.position[1] + m[1]), s
-    return pos_move
-
-@move_to_position
+#@move_to_position
 def move(bot, state):
     # we need to create a dictionary to keep information (state) along rounds
     # the state object will be passed untouched at every new round
@@ -58,6 +52,6 @@ def move(bot, state):
                 next_pos = bot.get_position(bot.random.choice(bot.legal_moves))
 
     # return the move needed to get from our position to the next position
-    next_move = bot.get_move(next_pos)
-    return next_move, state
+    #next_move = bot.get_move(next_pos)
+    return next_pos, state #next_move, state
 

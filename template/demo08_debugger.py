@@ -10,5 +10,5 @@ def move(bot, state):
     # in Python >= 3.7 this can be changed to simply
     # breakpoint()
     import pdb; pdb.set_trace()
-    next_move = (0,0)
-    return next_move, state
+    next_pos = (0,0)
+    return next_pos, state
