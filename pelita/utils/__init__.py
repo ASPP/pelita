@@ -60,4 +60,7 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
                      round=None,
                      bot_turn=0,
                      seed=seed)
+    # TODO: Random handling needs to be improved
+    bot.random = random.Random(seed)
     return bot
+
