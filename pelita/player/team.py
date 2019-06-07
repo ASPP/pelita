@@ -169,18 +169,35 @@ class RemoteTeam:
     def __init__(self, team_spec, team_name=None, address="tcp://", zmq_context=None, timeout_length=3, idx=None):
         if zmq_context is None:
             zmq_context = zmq.Context()
-        socket = zmq_context.socket(zmq.PAIR)
-        port = socket.bind_to_random_port('tcp://*')
+
         self._team_spec = team_spec
         self._team_name = team_name
-        self.bound_to_address =f"tcp://localhost:{port}"
-        self.zmqconnection = ZMQConnection(socket)
         self.timeout_length = timeout_length
-        if idx == 0:
-            color='blue'
-        if idx == 1:
-            color='red'
-        self.proc = self._call_pelita_player(team_spec, self.bound_to_address, color=color)
+
+        if team_spec.startswith('remote:tcp://'):
+            _logger.info("Received remote address.")
+            send_addr = team_spec[len("remote:"):]
+            address = "tcp://*"
+            self.bound_to_address = address
+
+            socket = zmq_context.socket(zmq.DEALER)
+            socket.connect(send_addr)
+            _logger.info("Connecting zmq.DEALER to {}.".format(send_addr))
+            socket.send_json({"REQUEST": address})
+            self.proc = None
+        else:
+            socket = zmq_context.socket(zmq.PAIR)
+            port = socket.bind_to_random_port('tcp://*')
+            self.bound_to_address = f"tcp://localhost:{port}"
+            if idx == 0:
+                color='blue'
+            elif idx == 1:
+                color='red'
+            else:
+                color=''
+            self.proc = self._call_pelita_player(team_spec, self.bound_to_address, color=color)
+
+        self.zmqconnection = ZMQConnection(socket)
 
     def _call_pelita_player(self, team_spec, address, color='', dump=None):
         """ Starts another process with the same Python executable,
@@ -204,17 +221,23 @@ class RemoteTeam:
         else:
             return (subprocess.Popen(external_call), None, None)
 
-    # TODO
-#   def team_name(self):
-#       try:
-#           self.zmqconnection.send("team_name", {})
-#           return self.zmqconnection.recv_timeout(DEAD_CONNECTION_TIMEOUT)
-#       except ZMQReplyTimeout:
-#           _logger.info("Detected a timeout, returning a string nonetheless.")
-#           return "%error%"
-#       except ZMQUnreachablePeer:
-#           _logger.info("Detected a DeadConnection, returning a string nonetheless.")
-#           return "%error%"
+    @property
+    def team_name(self):
+        if self._team_name is not None:
+            return self._team_name
+
+        try:
+            self.zmqconnection.send("team_name", {})
+            team_name = self.zmqconnection.recv_timeout(DEAD_CONNECTION_TIMEOUT)
+            if team_name:
+                self._team_name = team_name
+            return team_name
+        except ZMQReplyTimeout:
+            _logger.info("Detected a timeout, returning a string nonetheless.")
+            return "%error%"
+        except ZMQUnreachablePeer:
+            _logger.info("Detected a DeadConnection, returning a string nonetheless.")
+            return "%error%"
 
     def set_initial(self, team_id, game_state):
         try:
@@ -269,7 +292,8 @@ class RemoteTeam:
 
     def __del__(self):
         self._exit()
-        self.proc[0].terminate()
+        if self.proc:
+            self.proc[0].terminate()
 
     def __repr__(self):
         team_name = f" ({self._team_name})" if self._team_name else ""
@@ -310,6 +334,8 @@ def make_team(team_spec, team_name=None, zmq_context=None, idx=None):
     elif isinstance(team_spec, str):
         _logger.debug("Making a remote team for %s", team_spec)
         # wrap the move function in a Team
+            # TODO
+
         if team_spec.startswith('tcp://'):
             # remote team TODO
             pass

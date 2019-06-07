@@ -17,7 +17,8 @@ import uuid
 
 import zmq
 
-from .simplesetup import RemoteTeamPlayer, SimpleController, SimplePublisher, SimpleServer
+from .simplesetup import SimplePublisher
+from .player.team import make_team
 
 _logger = logging.getLogger(__name__)
 _mswindows = (sys.platform == "win32")
@@ -304,155 +305,10 @@ def call_pelita(team_specs, *, rounds, filter, viewer, dump, seed):
 
 
 def check_team(team_spec):
-    ctx = zmq.Context()
-    socket = ctx.socket(zmq.PAIR)
+    """ Instanciates a team from a team_spec and returns its name """
+    team, _zmq_context = make_team(team_spec)
+    return team.team_name
 
-    if team_spec.module is None:
-        _logger.info("Binding zmq.PAIR to %s", team_spec.address)
-        socket.bind(team_spec.address)
-
-    else:
-        _logger.info("Binding zmq.PAIR to %s", team_spec.address)
-        socket_port = socket.bind_to_random_port(team_spec.address)
-        team_spec = team_spec._replace(address="%s:%d" % (team_spec.address, socket_port))
-
-    team_player = RemoteTeamPlayer(socket)
-
-    if team_spec.module:
-        with _call_pelita_player(team_spec.module, team_spec.address):
-            name = team_player.team_name()
-    else:
-        name = team_player.team_name()
-
-    return name
-
-def strip_module_prefix(module):
-    if "@" in module:
-        try:
-            prefix, module = module.split("@")
-            return ModuleSpec(prefix=prefix, module=module)
-        except ValueError:
-            raise ValueError("Bad module definition: {}.".format(module))
-    else:
-        return ModuleSpec(prefix=None, module=module)
-
-def prepare_team(team_spec):
-    # check, if team_spec is a move function
-    if callable(team_spec):
-        return TeamSpec(module=None, address=team_spec)
-    # check if we've been given an address which a remote
-    # player wants to connect to
-    if "://" in team_spec:
-        module = None
-        address = team_spec
-    else:
-        module = strip_module_prefix(team_spec)
-        address = "tcp://127.0.0.1"
-    return TeamSpec(module, address)
-
-def run_game(team_specs, *, rounds, layout, layout_name="", seed=None, dump=False,
-                            max_timeouts=5, timeout_length=3,
-                            viewers=None, controller=None, publisher=None):
-
-    if viewers is None:
-        viewers = []
-
-    teams = [prepare_team(team_spec) for team_spec in team_specs]
-
-    server = SimpleServer(layout_string=layout,
-                          rounds=rounds,
-                          bind_addrs=[team.address for team in teams],
-                          max_timeouts=max_timeouts,
-                          timeout_length=timeout_length,
-                          layout_name=layout_name,
-                          seed=seed)
-
-    # Update our teams with the bound addresses
-    teams = [
-        team._replace(address=address)
-        for team, address in zip(teams, server.bind_addresses)
-    ]
-
-    color = {}
-    for idx, team in enumerate(teams):
-        if idx == 0:
-            color[team] = 'Blue'
-        elif idx == 1:
-            color[team] = 'Red'
-        else:
-            color[team] = ''
-        if team.module is None:
-            print("Waiting for external team %d to connect to %s." % (idx, team.address))
-
-    external_players = [
-        call_pelita_player(team.module, team.address, color[team], dump=dump)
-        for team in teams
-        if team.module
-    ]
-
-    for viewer in viewers:
-        server.game_master.register_viewer(viewer)
-
-    if publisher:
-        server.game_master.register_viewer(publisher)
-
-    with autoclose_subprocesses(external_players):
-        if controller is not None:
-            if controller.game_master is None:
-                controller.game_master = server.game_master
-            controller.run()
-            server.exit_teams()
-        else:
-            server.run()
-        return server.game_master.game_state
-
-@contextlib.contextmanager
-def tk_viewer(publish_to=None, geometry=None, delay=None):
-    if publish_to is None:
-        publish_to = "tcp://127.0.0.1:*"
-    publisher = SimplePublisher(publish_to)
-    controller = SimpleController(None, "tcp://127.0.0.1:*")
-
-    viewer = run_external_viewer(publisher.socket_addr, controller.socket_addr,
-                                 geometry=geometry, delay=delay)
-    yield { "publisher": publisher, "controller": controller }
-
-
-@contextlib.contextmanager
-def channel_setup(publish_to=None, reply_to=None):
-    if publish_to is None:
-        publish_to = "tcp://127.0.0.1:*"
-    publisher = SimplePublisher(publish_to)
-    controller = SimpleController(None, "tcp://127.0.0.1:*", reply_to=reply_to)
-
-    yield { "publisher": publisher, "controller": controller }
-
-
-def run_external_viewer(subscribe_sock, controller, geometry, delay, stop_after):
-    # Something on OS X prevents Tk from running in a forked process.
-    # Therefore we cannot use multiprocessing here. subprocess works, though.
-    viewer_args = [ str(subscribe_sock) ]
-    if controller:
-        viewer_args += ["--controller-address", str(controller)]
-    if geometry:
-        viewer_args += ["--geometry", "{0}x{1}".format(*geometry)]
-    if delay:
-        viewer_args += ["--delay", str(delay)]
-    if stop_after is not None:
-        viewer_args += ["--stop-after", str(stop_after)]
-
-    tkviewer = 'pelita.scripts.pelita_tkviewer'
-    external_call = [get_python_process(),
-                     '-m',
-                     tkviewer] + viewer_args
-    _logger.debug("Executing: %r", external_call)
-    # os.setsid will keep the viewer from closing when the main process exits
-    # a better solution might be to decouple the viewer from the main process
-    if _mswindows:
-        p = subprocess.Popen(external_call, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
-    else:
-        p = subprocess.Popen(external_call, preexec_fn=os.setsid)
-    return p
 
 @contextlib.contextmanager
 def autoclose_subprocesses(subprocesses):

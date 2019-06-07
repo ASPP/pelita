@@ -185,7 +185,7 @@ def main():
         if not args.team_specs:
             raise ValueError("No teams specified.")
         for team_spec in args.team_specs:
-            team_name = libpelita.check_team(libpelita.prepare_team(team_spec))
+            team_name = libpelita.check_team(team_spec)
             print("NAME:", team_name)
         sys.exit(0)
 

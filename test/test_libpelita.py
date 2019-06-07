@@ -2,7 +2,9 @@ import pytest
 
 import sys
 
+from pelita.simplesetup import ZMQConnectionError
 from pelita import libpelita
+
 
 class TestLibpelitaUtils:
     def test_firstNN(self):
@@ -36,3 +38,15 @@ class TestCallPelita:
         assert state['team_wins'] == 1
         assert state['game_draw'] is None
 
+
+def test_check_team_external():
+    assert libpelita.check_team("pelita/player/StoppingPlayer") == "Stopping"
+
+def test_check_team_external_fails():
+    with pytest.raises(ZMQConnectionError):
+        libpelita.check_team("Unknown Module")
+
+def test_check_team_internal():
+    def move(b, s):
+        return b.position, s
+    assert libpelita.check_team(move) == "local-team (move)"
