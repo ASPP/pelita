@@ -12,6 +12,7 @@ import typing
 from . import layout
 from .exceptions import FatalException, NonFatalException
 from .gamestate_filters import noiser
+from .layout import initial_positions, get_legal_moves
 from .libpelita import get_python_process, SimplePublisher
 from .network import bind_socket, setup_controller
 from .player.team import make_team
@@ -416,6 +417,7 @@ def prepare_bot_state(game_state, idx=None):
         'has_respawned': respawned,
         'timeout_count': len(game_state['errors'][own_team]),
         'food': list(game_state['food'][own_team]),
+        'name': game_state['team_names'][own_team]
     }
 
     enemy_state = {
@@ -425,6 +427,7 @@ def prepare_bot_state(game_state, idx=None):
         'score': game_state['score'][enemy_team],
         'timeout_count': 0, # TODO. Could be left out for the enemy
         'food': list(game_state['food'][enemy_team]),
+        'name': game_state['team_names'][enemy_team]
     }
 
     bot_state = {
@@ -640,6 +643,7 @@ def apply_move(gamestate, bot_position):
             score[1 - team] = score[1 - team] + 5
             init_positions = initial_positions(walls)
             bots[turn] = init_positions[turn]
+            gamestate['respawned'][turn] = True
             deaths[team] = deaths[team] + 1
             _logger.info(f"Bot {turn} respawns at {bots[turn]}.")
 
@@ -756,96 +760,6 @@ def check_gameover(game_state, detect_final_move=False):
 
     return { 'whowins' : None, 'gameover' : False}
 
-
-def initial_positions(walls):
-    """Calculate initial positions.
-
-    Given the list of walls, returns the free positions that are closest to the
-    bottom left and top right corner. The algorithm starts searching from
-    (1, height-2) and (width-2, 1) respectively and uses the Manhattan distance
-    for judging what is closest. On equal distances, a smaller distance in the
-    x value is preferred.
-    """
-    width = max(walls)[0] + 1
-    height = max(walls)[1] + 1
-
-    left_start = (1, height - 2)
-    left = []
-    right_start = (width - 2, 1)
-    right = []
-
-    dist = 0
-    while len(left) < 2:
-        # iterate through all possible x distances (inclusive)
-        for x_dist in range(dist + 1):
-            y_dist = dist - x_dist
-            pos = (left_start[0] + x_dist, left_start[1] - y_dist)
-            # if both coordinates are out of bounds, we stop
-            if not (0 <= pos[0] < width) and not (0 <= pos[1] < height):
-                raise ValueError("Not enough free initial positions.")
-            # if one coordinate is out of bounds, we just continue
-            if not (0 <= pos[0] < width) or not (0 <= pos[1] < height):
-                continue
-            # check if the new value is free
-            if pos not in walls:
-                left.append(pos)
-
-            if len(left) == 2:
-                break
-
-        dist += 1
-
-    dist = 0
-    while len(right) < 2:
-        # iterate through all possible x distances (inclusive)
-        for x_dist in range(dist + 1):
-            y_dist = dist - x_dist
-            pos = (right_start[0] - x_dist, right_start[1] + y_dist)
-            # if both coordinates are out of bounds, we stop
-            if not (0 <= pos[0] < width) and not (0 <= pos[1] < height):
-                raise ValueError("Not enough free initial positions.")
-            # if one coordinate is out of bounds, we just continue
-            if not (0 <= pos[0] < width) or not (0 <= pos[1] < height):
-                continue
-            # check if the new value is free
-            if pos not in walls:
-                right.append(pos)
-
-            if len(right) == 2:
-                break
-
-        dist += 1
-
-    # lower indices start further away
-    left.reverse()
-    right.reverse()
-    return [left[0], right[0], left[1], right[1]]
-
-
-def get_legal_moves(walls, bot_position):
-    """ Returns legal moves given a position.
-
-     Parameters
-    ----------
-    walls : list
-        position of the walls of current layout.
-    bot_position: tuple
-        position of current bot.
-
-    Returns
-    -------
-    list
-        legal moves.
-    """
-    north = (0, -1)
-    south = (0, 1)
-    east = (1, 0)
-    west = (-1, 0)
-    stop = (0, 0)
-    directions = [north, east, west, south, stop]
-    potential_moves = [(i[0] + bot_position[0], i[1] + bot_position[1]) for i in directions]
-    possible_moves = [i for i in potential_moves if i not in walls]
-    return possible_moves
 
 # TODO ???
 # - refactor Rike's initial positions code

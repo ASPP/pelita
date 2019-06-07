@@ -1,15 +1,15 @@
 import pytest
 
-from pelita.datamodel import CTFUniverse
-from pelita.game_master import GameMaster
-from pelita.player.team import Team, split_layout_str, create_layout, bots_from_universe
+from pelita.layout import parse_layout, get_random_layout, initial_positions
+from pelita.game import run_game, setup_game, play_turn
+from pelita.player.team import Team, split_layout_str, create_layout
 from pelita.utils import setup_test_game
 
 def stopping(bot, state):
-    return (0, 0), state
+    return bot.position, state
 
 def randomBot(bot, state):
-    legal = bot.legal_moves[:]
+    legal = bot.legal_positions[:]
     return bot.random.choice(legal), state
 
 class TestLayout:
@@ -186,7 +186,7 @@ class TestStoppingTeam:
             state[bot.turn] = state.get(bot.turn, 0) + 1
             storage_copy['rounds'] = state[bot.turn]
             print(state)
-            return (0, 0), state
+            return bot.position, state
         inner._storage = storage_copy
         return inner
 
@@ -198,110 +198,261 @@ class TestStoppingTeam:
 
         round_counting = self.round_counting()
         team = [
-            Team(stopping),
-            Team(round_counting)
+            stopping,
+            round_counting
         ]
-        gm = GameMaster(test_layout, team, 4, 1)
-        gm.play()
-        universe = CTFUniverse._from_json_dict(gm.game_state)
-        assert universe.bots[0].current_pos == (1, 1)
-        assert universe.bots[1].current_pos == (10, 1)
+        state = run_game(team, max_rounds=1, layout_dict=parse_layout(test_layout))
+        assert state['bots'][0] == (1, 1)
+        assert state['bots'][1] == (10, 1)
         assert round_counting._storage['rounds'] == 1
-
 
         round_counting = self.round_counting()
         team = [
-            Team(stopping),
-            Team(round_counting)
+            stopping,
+            round_counting
         ]
-        gm = GameMaster(test_layout, team, 4, 3)
-        gm.play()
-        universe = CTFUniverse._from_json_dict(gm.game_state)
-        print(universe.pretty)
-        assert universe.bots[0].current_pos == (1, 1)
-        assert universe.bots[1].current_pos == (10, 1)
+        state = run_game(team, max_rounds=3, layout_dict=parse_layout(test_layout))
+        assert state['bots'][0] == (1, 1)
+        assert state['bots'][1] == (10, 1)
         assert round_counting._storage['rounds'] == 3
 
 
-class TestRebuild:
-    def test_too_few_bots(self):
-        test_layout = (
-        """ ############
-            #0#.   .# 1#
-            ############ """)
+def test_track_and_kill_count():
+    # for each team, we track whether they have been eaten at least once
+    # and count the number of times they have been killed
+    bot_states = {
+        0: [{'track': [], 'eaten': False, 'times_killed': 0}, {'track': [], 'eaten': False, 'times_killed': 0}],
+        1: [{'track': [], 'eaten': False, 'times_killed': 0}, {'track': [], 'eaten': False, 'times_killed': 0}]
+    }
+    def trackingBot(bot, state):
+        turn = bot.turn
+        other = bot.other
+
+        # first move. get the state from the global cache
+        if state is None:
+            team_idx = 0 if bot.is_blue else 1
+            state = bot_states[team_idx]
+
+        if bot.round == 1 and turn == 0:
+            assert bot.track[0] == bot.position
+       
+        if bot.eaten:
+            state[turn]['eaten'] = True
+            state[turn]['times_killed'] += 1
+        if other.eaten:
+            state[1 - turn]['eaten'] = True
+            state[1 - turn]['times_killed'] += 1
+
+        if bot.eaten or not state[turn]['track']:
+            state[turn]['track'] = [bot.position]
+        if other.eaten or not state[1 - turn]['track']:
+            state[1 - turn]['track'] = [other.position]
+        else:
+            state[1 - turn]['track'].append(other.position)
+
+        # The assertion is that the first position in bot.track
+        # is always the respawn position.
+        # However, in our test case, this will only happen, once
+        # a bot has been eaten.
+        if state[turn]['eaten']:
+            assert bot.track[0] == bot.initial_position
+        assert bot.track == state[turn]['track'] # bot.round * 2 + 1 + turn
+        assert bot.track[-1] == bot.position
+        # just move randomly. hopefully, this means some bots will be killed
+        return randomBot(bot, state)
+
+    layout = """
+    ##########
+    # 02 .3 1#
+    # ########
+    #.##. .###
+    ##########
+    """
+    team = [
+        trackingBot,
+        trackingBot
+    ]
+    state = setup_game(team, max_rounds=300, layout_dict=parse_layout(layout))
+    while not state['gameover']:
+        state = play_turn(state)
+        # Check that our count is consistent with what the game thinks
+        # for each team, we have to subtract the kills that are still in state['respawned'],
+        # as they have not been passed to the bot yet
+        respawned_0 = sum(state['respawned'][0::2])
+        sum_killed_0 = bot_states[0][0]['times_killed'] + bot_states[0][1]['times_killed']
+        assert state['deaths'][0] - respawned_0 == sum_killed_0
+        respawned_1 = sum(state['respawned'][1::2])
+        sum_killed_1 = bot_states[1][0]['times_killed'] + bot_states[1][1]['times_killed']
+        assert state['deaths'][1] - respawned_1 == sum_killed_1
+
+        # assertions might have been caught in run_game
+        # check that all is good
+        assert state['fatal_errors'] == [[], []]
 
 
-        team = [
-            Team(stopping),
-            Team(stopping)
-        ]
-        gm = GameMaster(test_layout, team, 2, 1)
-        with pytest.raises(IndexError):
-            gm.play()
-
-    def test_rebuild_uni(self):
-        layout = """
-        ############
-        #0#.   .# 1#
-        ############
-        """
-        bot = setup_test_game(layout=layout, is_blue=True)
-        assert bot._team[0].position == (1, 1)
-        assert bot._team[1].position == (10, 1)
-        assert bot._team[0].enemy[0].position is None
-        assert bot._team[0].enemy[1].position is None
-
-        uni, state = _rebuild_universe(bot._bots)
-        assert uni.bots[0].current_pos == (1, 1)
-        assert uni.bots[2].current_pos == (10, 1)
-        assert uni.bots[1].current_pos == (9, 1)
-        assert uni.bots[3].current_pos == (10, 1)
-
-        with pytest.raises(ValueError):
-            uni, state = _rebuild_universe(bot._bots[0:2])
-
-        bots = bots_from_universe(uni, [None] * 4, round=0,
-                                                   team_name=state['team_name'],
-                                                   timeout_count=state['timeout_teams'])
-        uni2, state = _rebuild_universe(bots)
-        assert uni2 == uni
-
-
-class TestTrack:
-    def test_track(self):
-        def trackingBot(bot, state):
-            turn = bot.turn
-            other = bot.other
-            if bot.round == 0 and turn == 0:
-                assert bot.track[0] == bot.position
-                state = {}
-                state[turn] = {}
-                state[1 - turn] = {}
-                state[turn]['track'] = []
-                state[1 - turn]['track'] = []
-
-            if bot.eaten or not state[turn]['track']:
-                state[turn]['track'] = [bot.position]
-            if other.eaten or not state[1 - turn]['track']:
-                state[1 - turn]['track'] = [other.position]
+@pytest.mark.parametrize('bot_to_move', range(4))
+def test_eaten_flag_kill(bot_to_move):
+    """ Test that the eaten flag is set correctly in kill situations. """
+    layout = """
+    ########
+    #  10  #
+    #  32  #
+    #......#
+    ########
+    """
+    def move(bot, state):
+        x, y = bot.position
+        new_pos = bot.position
+        if bot_to_move == 0:
+            # we move in the first round as blue team in turn == 0
+            if bot.round == 1 and bot.is_blue and bot.turn == 0:
+                new_pos = (x - 1, y)
+            # The red team should notice immediately
+            if bot.round == 1 and not bot.is_blue and bot.turn == 0:
+                assert bot.eaten
+                assert bot.other.eaten is False
             else:
-                state[1 - turn]['track'].append(other.position)
+                assert bot.eaten is False
+                assert bot.other.eaten is False
+        if bot_to_move == 1:
+            # we move in the first round as red team
+            if bot.round == 1 and not bot.is_blue and bot.turn == 0:
+                new_pos = (x + 1, y)
+            # The other team should notice immediately that its other bot (#0) has been eaten
+            if bot.round == 1 and bot.is_blue and bot.turn == 1:
+                assert bot.eaten is False
+                assert bot.other.eaten
+            else:
+                assert bot.eaten is False
+                assert bot.other.eaten is False
+        if bot_to_move == 2:
+            # we move in the first round as blue team in turn == 1
+            if bot.round == 1 and bot.is_blue and bot.turn == 1:
+                new_pos = (x - 1, y)
+            # The red team should notice immediately
+            if bot.round == 1 and not bot.is_blue and bot.turn == 1:
+                assert bot.eaten
+                assert bot.other.eaten is False
+            else:
+                assert bot.eaten is False
+                assert bot.other.eaten is False
+        if bot_to_move == 3:
+            # we move in the first round as red team in turn == 1
+            if bot.round == 1 and not bot.is_blue and bot.turn == 1:
+                new_pos = (x + 1, y)
+            # The blue team should notice immediately (in round == 2!)
+            if bot.round == 2 and bot.is_blue and bot.turn == 0:
+                assert bot.eaten is False
+                assert bot.other.eaten
+            else:
+                assert bot.eaten is False
+                assert bot.other.eaten is False
 
-            assert bot.track[0] == bot._initial_position
-            assert bot.track == state[turn]['track'] # bot.round * 2 + 1 + turn
-            assert bot.track[-1] == bot.position
-            return randomBot(bot, state)
+        # otherwise return current position
+        return new_pos, state
+    state = run_game([move, move], max_rounds=3, layout_dict=parse_layout(layout))
+    # assertions might have been caught in run_game
+    # check that all is good
+    assert state['fatal_errors'] == [[], []]
 
-        layout = """
-        ############
-        ##02   .3 1#
-        ############
-        #.#      #.#
-        ############
-        """
-        team = [
-            Team(trackingBot),
-            Team(trackingBot)
-        ]
-        gm = GameMaster(layout, team, 4, 300)
-        gm.play()
+
+@pytest.mark.parametrize("bot_to_move", range(4))
+def test_eaten_flag_suicide(bot_to_move):
+    """ Test that the eaten flag is set correctly in suicide situations. """
+    layout = """
+    ########
+    #  01  #
+    #  23  #
+    #......#
+    ########
+    """
+    def move(bot, state):
+        x, y = bot.position
+        new_pos = bot.position
+        if bot_to_move == 0:
+            # we move in the first round as blue team in turn == 0
+            if bot.round == 1 and bot.is_blue and bot.turn == 0:
+                new_pos = (x + 1, y)
+            # we should notice in our next turn
+            if bot.round == 1 and bot.is_blue and bot.turn == 1:
+                assert bot.eaten is False
+                assert bot.other.eaten
+            else:
+                assert bot.eaten is False
+                assert bot.other.eaten is False
+        if bot_to_move == 1:
+            # we move in the first round as red team
+            if bot.round == 1 and not bot.is_blue and bot.turn == 0:
+                new_pos = (x - 1, y)
+            # we should notice in our next turn
+            if bot.round == 1 and not bot.is_blue and bot.turn == 1:
+                assert bot.eaten is False
+                assert bot.other.eaten
+            else:
+                assert bot.eaten is False
+                assert bot.other.eaten is False
+        if bot_to_move == 2:
+            # we move in the first round as blue team in turn == 1
+            if bot.round == 1 and bot.is_blue and bot.turn == 1:
+                new_pos = (x + 1, y)
+            # we should notice in our next turn (next round!)
+            if bot.round == 2 and bot.is_blue and bot.turn == 0:
+                assert bot.eaten is False
+                assert bot.other.eaten
+            else:
+                assert bot.eaten is False
+                assert bot.other.eaten is False
+        if bot_to_move == 3:
+            # we move in the first round as red team in turn == 1
+            if bot.round == 1 and not bot.is_blue and bot.turn == 1:
+                new_pos = (x - 1, y)
+            # we should notice in our next turn (next round!)
+            if bot.round == 2 and not bot.is_blue and bot.turn == 0:
+                assert bot.eaten is False
+                assert bot.other.eaten
+            else:
+                assert bot.eaten is False
+                assert bot.other.eaten is False
+
+        # otherwise return current position
+        return new_pos, state
+    state = run_game([move, move], max_rounds=3, layout_dict=parse_layout(layout))
+    # assertions might have been caught in run_game
+    # check that all is good
+    assert state['fatal_errors'] == [[], []]
+
+
+@pytest.mark.parametrize('_n_test', range(10))
+def test_initial_position(_n_test):
+    """ Test that out test team receives the correct inital positions."""
+    layout_name, layout_string = get_random_layout()
+    l = parse_layout(layout_string)
+    initial_pos = initial_positions(l['walls'])
+    
+    def move(bot, state):
+        if bot.is_blue and bot.turn == 0:
+            assert bot.initial_position == initial_pos[0]
+            assert bot.other.initial_position == initial_pos[2]
+            assert bot.enemy[0].initial_position == initial_pos[1]
+            assert bot.enemy[1].initial_position == initial_pos[3]
+        if bot.is_blue and bot.turn == 1:
+            assert bot.initial_position == initial_pos[2]
+            assert bot.other.initial_position == initial_pos[0]
+            assert bot.enemy[0].initial_position == initial_pos[1]
+            assert bot.enemy[1].initial_position == initial_pos[3]
+        if not bot.is_blue and bot.turn == 0:
+            assert bot.initial_position == initial_pos[1]
+            assert bot.other.initial_position == initial_pos[3]
+            assert bot.enemy[0].initial_position == initial_pos[0]
+            assert bot.enemy[1].initial_position == initial_pos[2]
+        if not bot.is_blue and bot.turn == 1:
+            assert bot.initial_position == initial_pos[3]
+            assert bot.other.initial_position == initial_pos[1]
+            assert bot.enemy[0].initial_position == initial_pos[0]
+            assert bot.enemy[1].initial_position == initial_pos[2]
+        return randomBot(bot, state)
+
+    state = run_game([move, move], max_rounds=3, layout_dict=l)
+    # assertions might have been caught in run_game
+    # check that all is good
+    assert state['fatal_errors'] == [[], []]

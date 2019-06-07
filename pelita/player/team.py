@@ -10,7 +10,7 @@ import traceback
 import zmq
 
 from . import AbstractTeam
-from .. import libpelita
+from .. import libpelita, layout
 from ..exceptions import PlayerDisconnected, PlayerTimeout
 from ..simplesetup import ZMQConnection, ZMQConnectionError, ZMQReplyTimeout, ZMQUnreachablePeer, DEAD_CONNECTION_TIMEOUT
 
@@ -104,14 +104,14 @@ class Team(AbstractTeam):
                 self._bot_track[idx] = []
 
         # Add our track
-        self._bot_track[me.bot_turn].append(me.position)
+        if len(self._bot_track[me.bot_turn]) == 0:
+            self._bot_track[me.bot_turn] = [me.position]
 
         for idx, mybot in enumerate(team):
             # If the track of any bot is empty,
             # Add its current position
             if me.bot_turn != idx:
-                if len(self._bot_track[idx]) == 0:
-                    self._bot_track[idx].append(mybot.position)
+                self._bot_track[idx].append(mybot.position)
 
             mybot.track = self._bot_track[idx][:]
 
@@ -305,7 +305,7 @@ def make_team(team_spec, team_name=None, zmq_context=None, idx=None):
         _logger.debug("Making a local team for %s", team_spec)
         # wrap the move function in a Team
         if team_name is None:
-            team_name = 'local-team'
+            team_name = f'local-team ({team_spec.__name__})'
         team_player = Team(team_name, team_spec)
     elif isinstance(team_spec, str):
         _logger.debug("Making a remote team for %s", team_spec)
@@ -516,20 +516,27 @@ class Bot:
         width = max(bot.walls)[0] + 1
         height = max(bot.walls)[1] + 1
 
+        if bot.is_blue:
+            blue = bot
+            red = bot.other
+        else:
+            blue = bot.other
+            red = bot
+
         header = ("{blue}{you_blue} vs {red}{you_red}.\n" +
             "Playing on {col} side. Current turn: {turn}. Round: {round}, score: {blue_score}:{red_score}. " +
             "timeouts: {blue_timeouts}:{red_timeouts}").format(
-            blue=bot._bots[0].team_name,
-            red=bot._bots[1].team_name,
+            blue=blue.team_name,
+            red=red.team_name,
             turn=bot.turn,
             round=bot.round,
-            blue_score=bot._bots[0].score,
-            red_score=bot._bots[1].score,
+            blue_score=blue.score,
+            red_score=red.score,
             col="blue" if bot.is_blue else "red",
             you_blue=" (you)" if bot.is_blue else "",
             you_red=" (you)" if not bot.is_blue else "",
-            blue_timeouts=bot._bots[0].timeout_count,
-            red_timeouts=bot._bots[1].timeout_count,
+            blue_timeouts=blue.timeout_count,
+            red_timeouts=red.timeout_count,
         )
 
         with StringIO() as out:
@@ -548,7 +555,13 @@ class Bot:
 def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
     bots = {}
 
+    team_index = team['team_index']
+    enemy_index = enemy['team_index']
+
     homezone = create_homezones(walls)
+    initial_positions = layout.initial_positions(walls)
+    team_initial_positions = initial_positions[team_index::2]
+    enemy_initial_positions = initial_positions[enemy_index::2]
 
     team_bots = []
     for idx, position in enumerate(team['bot_positions']):
@@ -563,10 +576,10 @@ def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
             bot_turn=bot_turn,
             random=seed,
             position=team['bot_positions'][idx],
-            initial_position=(0, 0),
-            team_name="",
-            is_blue=team['team_index'] % 2 == 0,
-            homezone=homezone[team['team_index']])
+            initial_position=team_initial_positions[idx],
+            is_blue=team_index % 2 == 0,
+            homezone=homezone[team_index],
+            team_name=team['name'])
         b._bots = bots
         team_bots.append(b)
 
@@ -582,10 +595,10 @@ def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
             round=round,
             random=seed,
             position=enemy['bot_positions'][idx],
-            initial_position=(0, 0),
-            team_name="",
-            is_blue=enemy['team_index'] % 2 == 0,
-            homezone=homezone[enemy['team_index']])
+            initial_position=enemy_initial_positions[idx],
+            is_blue=enemy_index % 2 == 0,
+            homezone=homezone[enemy_index],
+            team_name=enemy['name'])
         b._bots = bots
         enemy_bots.append(b)
 
@@ -594,52 +607,6 @@ def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
     return team_bots[bot_turn]
 
 
-def bots_from_universe(universe, rng, round, team_name, timeout_count):
-    """ Creates 4 bots given a universe. """
-    return make_bots(walls=[pos for pos, is_wall in universe.maze.items() if is_wall],
-                     food=universe.food,
-                     positions=[b.current_pos for b in universe.bots],
-                     initial_positions=[b.initial_pos for b in universe.bots],
-                     score=[t.score for t in universe.teams],
-                     is_noisy=[b.noisy for b in universe.bots],
-                     rng=rng,
-                     round=round,
-                     team_name=team_name,
-                     timeout_count=timeout_count)
-
-def bot_from_layout(layout, is_blue, score, round, team_name, timeout_count):
-    """ Creates 4 bots given a layout. """
-    width = max(layout.walls)[0]
-    def in_homezone(position, is_blue):
-        on_left_side = position[0] < width // 2
-        if is_blue:
-            return on_left_side
-        else:
-            return not on_left_side
-
-    team = {
-        'bot_positions': layout.bots[:],
-        'team_index': 0 if is_blue else 1,
-        'score': 0,
-        'has_respawned': [True, True],
-        'timeout_count': 0,
-        'food': [food for food in layout.food if in_homezone(food, is_blue)],
-    }
-    enemy = {
-        'bot_positions': layout.enemy[:],
-        'team_index': 0 if not is_blue else 1,
-        'score': 0,
-        'timeout_count': 0,
-        'food': [food for food in layout.food if in_homezone(food, not is_blue)],
-        'is_noisy': [False] * len(layout.enemy),
-    }
-
-    return make_bots(walls=layout.walls[:],
-                     team=team,
-                     enemy=enemy,
-                     round=None,
-                     bot_turn=0,
-                     seed=None)
 
 
 def new_style_team(module):
