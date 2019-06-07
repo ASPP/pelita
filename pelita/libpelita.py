@@ -307,7 +307,7 @@ def call_pelita(team_specs, *, rounds, filter, viewer, dump, seed):
 def check_team(team_spec):
     """ Instanciates a team from a team_spec and returns its name """
     team, _zmq_context = make_team(team_spec)
-    return team.team_name()
+    return team.team_name
 
 
 @contextlib.contextmanager

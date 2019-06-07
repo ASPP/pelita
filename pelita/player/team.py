@@ -221,10 +221,17 @@ class RemoteTeam:
         else:
             return (subprocess.Popen(external_call), None, None)
 
+    @property
     def team_name(self):
+        if self._team_name is not None:
+            return self._team_name
+
         try:
             self.zmqconnection.send("team_name", {})
-            return self.zmqconnection.recv_timeout(DEAD_CONNECTION_TIMEOUT)
+            team_name = self.zmqconnection.recv_timeout(DEAD_CONNECTION_TIMEOUT)
+            if team_name:
+                self._team_name = team_name
+            return team_name
         except ZMQReplyTimeout:
             _logger.info("Detected a timeout, returning a string nonetheless.")
             return "%error%"
