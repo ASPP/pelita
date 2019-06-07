@@ -1,13 +1,13 @@
 """ The observers. """
 
-import abc
 import json
-import sys
+import logging
 
 import zmq
 
 from . import layout
 
+_logger = logging.getLogger(__name__)
 
 class ProgressViewer:
     def show_state(self, game_state):
@@ -28,8 +28,7 @@ class ProgressViewer:
                     bot_sign, percentage,
                     round_index, game_time,
                     ":".join(str(s) for s in score)))
-        sys.stdout.write(string + ("\b" * len(string)))
-        sys.stdout.flush()
+        print(string + ("\b" * len(string)), flush=True)
 
         if game_state["gameover"]:
             state = {}
@@ -37,7 +36,7 @@ class ProgressViewer:
             del state['walls']
             del state['food']
 
-            sys.stdout.write("\n")
+            print()
             print("Final state:", state)
 
 class AsciiViewer:
@@ -79,7 +78,7 @@ class AsciiViewer:
                 print(f"Game Over: Team: '{winner}' wins!")
 
 
-class ReplyToViewer: # TODO
+class ReplyToViewer:
     """ A viewer which dumps to a given stream.
     """
     def __init__(self, reply_to):
@@ -91,6 +90,7 @@ class ReplyToViewer: # TODO
         self.sock.linger = 1000
 
         self.sock.connect(reply_to)
+        _logger.debug(f"Connecting zmq.PAIR to {reply_to}")
 
         self.pollout = zmq.Poller()
         self.pollout.register(self.sock, zmq.POLLOUT)
@@ -101,18 +101,11 @@ class ReplyToViewer: # TODO
             as_json = json.dumps(message)
             self.sock.send_unicode(as_json, flags=zmq.NOBLOCK)
 
-    def set_initial(self, game_state):
-        message = {"__action__": "set_initial",
-                   "__data__": {"game_state": game_state}}
-        self._send(message)
-
-    def observe(self, game_state):
-        message = {"__action__": "observe",
-                   "__data__": {"game_state": game_state}}
-        self._send(message)
+    def show_state(self, game_state):
+        self._send(game_state)
 
 
-class DumpingViewer: # TODO
+class DumpingViewer:
     """ A viewer which dumps to a given stream.
     """
     def __init__(self, stream):
@@ -127,13 +120,34 @@ class DumpingViewer: # TODO
         self.stream.write("\x04\n")
         self.stream.flush()
 
-    def set_initial(self, game_state):
-        message = {"__action__": "set_initial",
-                   "__data__": {"game_state": game_state}}
-        self._send(message)
+    def show_state(self, game_state):
+        self._send(game_state)
 
-    def observe(self, game_state):
-        message = {"__action__": "observe",
-                   "__data__": {"game_state": game_state}}
-        self._send(message)
 
+class ResultPrinter:
+    def show_state(self, state):
+        if state["gameover"]:
+            self.print_possible_winner(state)
+
+    def print_possible_winner(self, state):
+        """ Checks the game state for a winner.
+
+        This is needed for pelita.scripts parsing the output.
+        """
+        winning_team = state.get("whowins")
+        if winning_team in (0, 1):
+            winner = state['team_names'][winning_team]
+            loser = state['team_names'][1 - winning_team]
+            winner_score = state['score'][winning_team]
+            loser_score = state['score'][1 - winning_team]
+            msg = f"Finished. '{winner}' won over '{loser}'. ({winner_score}:{loser_score})"
+        elif winning_team == 2:
+            t1, t2 = state['team_names']
+            s1, s2 = state['score']
+            msg = f"Finished. '{t1}' and '{t2}' had a draw. ({s1}:{s2})"
+        else:
+            return
+
+        # We must flush, else our forceful stopping of Tk
+        # won't let us pipe it.
+        print(msg, flush=True)
