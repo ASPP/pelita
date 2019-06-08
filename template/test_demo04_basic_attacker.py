@@ -11,7 +11,7 @@ def test_eat_food():
     """
     bot = setup_test_game(layout=layout, is_blue=True)
     next_move, _ = move(bot, None)
-    assert next_move == (1, 0)
+    assert next_move == (6, 1)
 
 def test_no_kamikaze():
     # do we avoid enemies when they can kill us?
@@ -26,7 +26,7 @@ def test_no_kamikaze():
     # where to go to avoid a bot
     bot.track = [(4,2), (5,2)]
     next_move, _ = move(bot, None)
-    assert next_move == (-1, 0)
+    assert next_move == (4, 2)
 
 def test_shortest_path():
     # is the Graph implementation in pelita giving us the shortest path to the
@@ -67,6 +67,5 @@ def test_shortest_path():
             # create a layout where we are starting from the current step in
             # the path
             bot = setup_test_game(layout=l, is_blue=True, bots=[step])
-            next_move, state = move(bot, state)
-            next_pos = (step[0]+next_move[0], step[1]+next_move[1])
+            next_pos, state = move(bot, state)
             assert next_pos == path[idx+1]

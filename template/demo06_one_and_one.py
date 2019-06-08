@@ -12,11 +12,11 @@ def move(bot, state):
 
     if bot.turn == 0:
         # keep the modified state from defender
-        next_move, state_defender = move_defender(bot, state['defender'])
+        next_pos, state_defender = move_defender(bot, state['defender'])
         state['defender'] = state_defender
     else:
         # keep the modified state from attacker
-        next_move, state_attacker = move_attacker(bot, state['attacker'])
+        next_pos, state_attacker = move_attacker(bot, state['attacker'])
         state['attacker'] = state_attacker
 
-    return next_move, state
+    return next_pos, state

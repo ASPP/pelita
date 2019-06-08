@@ -18,15 +18,14 @@ def move(bot, state):
     if state[bot.turn]:
         # speak for as many rounds as EATEN_INTERTIA
         bot.say(MESSAGE)
-        state[turn] -= 1
+        state[bot.turn] -= 1
 
     # copy the available moves, so that we can use random.shuffle,
     # which unfortunately shuffles lists in-place.
-    legal_moves = bot.legal_moves[:]
-    bot.random.shuffle(legal_moves)
-    for next_move in legal_moves:
-        new_pos = bot.get_position(next_move)
+    legal_positions = bot.legal_positions[:]
+    bot.random.shuffle(legal_positions)
+    for new_pos in legal_positions:
         if new_pos not in bot.track:
            break
 
-    return next_move, state
+    return new_pos, state

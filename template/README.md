@@ -2,17 +2,19 @@ Pelita
 ======
 
 ## Table of contents
+- [Pelita](#pelita)
+  - [Table of contents](#table-of-contents)
 - [Introduction](#introduction)
-- [Your task](#your-task)
-- [Content of this repository](#content-of-this-repository)
-- [Running a game](#running-a-game)
-- [Testing](#testing)
-  - [Manual testing](#manual-testing)
-  - [Unit testing](#unit-testing)
-- [Full API description](#full-api-description)
-  - [The maze](#the-maze)
-  - [The `move` function](#the-move-function)
-  - [The `Bot` object](#the-bot-object)
+  - [Your task](#your-task)
+  - [Content of this repository](#content-of-this-repository)
+  - [Running a game](#running-a-game)
+  - [Testing](#testing)
+    - [Manual testing](#manual-testing)
+    - [Unit testing](#unit-testing)
+  - [Full API Description](#full-api-description)
+    - [The maze](#the-maze)
+    - [The `move` function](#the-move-function)
+    - [The `Bot` object](#the-bot-object)
 
 ------------------------------------------------
 
@@ -42,10 +44,10 @@ through the maze, kill the enemy's pacmen, and eat the enemy's food. You can fin
 TEAM_NAME = 'StoppingBots'
 
 def move(bot, state):
-    next_move = (0,0)
-    return next_move, state
+    next_pos = bot.position
+    return next_pos, state
 ```
-As seen above, your implementation consists of a team name (the `TEAM_NAME` string) and a function `move`, which given a bot and a state returns the next move for current bot and a state. In the [Full API Description](#full-api-description) section you'll find all the details.
+As seen above, your implementation consists of a team name (the `TEAM_NAME` string) and a function `move`, which given a bot and a state returns the next position for current bot and a state. In the [Full API Description](#full-api-description) section you'll find all the details.
 
 ## Content of this repository
 In this repository you will find several demo implementations (all files named `demoXX_XXX.py`), that you can use as a starting point for your own implementations. There is also an example `utils.py` module and a series of unit tests for the demo implementations (all files named `test_demoXX_XXX.py`). You can run the tests with `pytest` by typing:
@@ -107,20 +109,27 @@ from pelita.utils import setup_test_game
 def test_stays_there():
     layout="""
     ########
-    #0    .#
+    #     .#
     #.1  EE#
     ########
     """
-    bot = setup_test_game(layout=layout, is_blue=True)
-    next_move, _ = move(bot, None)
-    assert next_move == (0,0)
+    all_locations = ((x, y) for x in range(8) for y in range(4))
+    for loc in all_locations:
+        try:
+            bot = setup_test_game(layout=layout, is_blue=True, bots=[loc])
+        except ValueError:
+            # loc is a wall, skip this position
+            continue
+        next_pos, _ = move(bot, None)
+        assert next_pos == bot.position
 ```
 
 For setting up test games there is a utility function you can import from `pelita.utils`:
 
-**`setup_test_game(layout, is_blue=True, round=None, score=None, seed=None, food=None, bots=None, enemy=None) ⟶ game`**
+**`setup_test_game(layout, game=None, is_blue=True, round=None, score=None, seed=None, food=None, bots=None, enemy=None) ⟶ bot`**
 
 Given a layout string, returns a [Bot](#the-bot-object) that you can pass to the [move](#the-move-function) function. Printing a `Bot` will print the layout string corresponding to the current game state. In the simplest form a layout string is a multiline string where the character `#` identifies walls, `.` the food pellets, `E` the enemy bots (you must have two of them for a layout to be legal), and `0` and `1` representing the bots in your team corresponding to turn `0` and `1`. In addition to the layout, `setup_test_game` has a number of optional keyword arguments:
+- game: #TODO
 - `is_blue`: whether your bots are on the blue team, and enemy bots on the red team
 - `round`: the current round
 - `score`: the current score
@@ -179,8 +188,8 @@ def move(bot, state):
     if bot.turn == 0 and bot.round == 0:
         print(bot)
     ...
-    next_move = (0, 0)
-    return next_move, state
+    next_pos = (0, 0)
+    return next_pos, state
 ```
 Running a game with this bot implementation will print the following string on standard output:
 ```
@@ -232,7 +241,7 @@ $ pelita --list-layouts
  For the tournament only layouts without dead ends will be used and all layouts will have the default values for width and height. Additionally, all layouts will have a wall on all squares around the border.
 
 ### The `move` function
-**`move(bot, state) ⟶ (dx, dy), state`**
+**`move(bot, state) ⟶ (x, y), state`**
 
 The `move` function gets two input arguments:
 
@@ -247,20 +256,14 @@ The `move` function gets two input arguments:
             # -> both bots will have access to this dictionary
             state = {}
         ...
-        return next_move, state
+        return next_pos, state
     ```
 
 The `move` function returns two values:
 
-1. **`(dx, dy)`** a move for the bot in your team corresponding to the current turn. The move is a tuple of two integers `(dx, dy)`, which can be:
+1. **`(x, y)`** a position for the bot in your team corresponding to the current turn. The position is a tuple of two integers `(x, y)`, which are the coordinates on the game grid.
 
-  - **`(1, 0)`** for moving to the right (East)
-  - **`(-1, 0)`** for moving to the left (West)
-  - **`(0, 1)`** for moving down (South)
-  - **`(0, -1)`** for moving up (North)
-  - **`(0, 0)`** for stopping (no move)
-
-  Note that the returned move must be a legal move, i.e. you can not move your bot on a wall. If you return an illegal move, a random move will be executed instead and a timeout will be recorded for your team. After 5 timeouts the game is over and you lose the game. 
+  Note that the returned position must represent a legal move, i.e. you can not move your bot on a wall. If you return an illegal position, a random move will be executed instead and a timeout will be recorded for your team. After 5 timeouts the game is over and you lose the game. 
 
 2. **`state`** the `state` object described above
 
@@ -312,10 +315,6 @@ Note that the `Bot` object is read-only, i.e. any modifications you make to that
 - **`bot.track`** is a list of the coordinates of the positions that the bot has taken until now. It gets reset every time the bot gets eaten by an enemy ghost. When you are eaten, the property **`bot.eaten`** is set to `True` until the next round.
 
 - **`bot.score`** and **`bot.round`** tell you the score of your team and the round you are playing.
-
-- **`bot.get_move(next_position) ⟶ (dx, dy)`** is a method of the `Bot` object which gives you the move `(dx, dy)` you have to make to get to the position `next_position`. If `next_position` can not be reached with a legal move you'll get a `ValueError`.
-
-- **`bot.get_position(next_move) ⟶ (x, y)`** is a method of the `Bot` object which gives you the position `(x, y)` you will have if you execute the move `next_move`. If `next_move` is not a legal move you'll get a `ValueError`
 
 - **`bot.random`** is an instance of the Python internal pseudo-random number generator. Do not import the Python `random` module in your code, just use this for all your random operations. Example of using it are found in [demo02_random.py](demo02_random.py), [demo03_smartrandom.py](demo03_smartrandom.py), and several others. If you need to use the `numpy` random module, initialize it with a seed taken from this instance like this:
     ```python

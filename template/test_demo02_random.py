@@ -18,7 +18,7 @@ def test_always_legal():
         except ValueError:
             # loc is a wall, skip this position
             continue
-        next_move, _ = move(bot, None)
-        legal_moves = bot.legal_moves
-        assert next_move in legal_moves
+        next_pos, _ = move(bot, None)
+        legal_positions = bot.legal_positions
+        assert next_pos in legal_positions
 

@@ -4,5 +4,5 @@ TEAM_NAME = 'StoppingBots'
 
 def move(bot, state):
     # do not move at all
-    next_move = (0,0)
-    return next_move, state
+    next_pos = bot.position
+    return next_pos, state
