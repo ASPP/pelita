@@ -1,30 +1,27 @@
-from pelita.datamodel import stop
-from pelita.player import AbstractPlayer, SimpleTeam
 
+def smart_random_player(bot, state):
+    dangerous_enemy_pos = [enemy.position
+        for enemy in bot.enemy if enemy in enemy.homezone]
+    killable_enemy_pos = [enemy.position
+        for enemy in bot.enemy if enemy not in enemy.homezone]
 
-class SmartRandomPlayer(AbstractPlayer):
-    def get_move(self):
-        dangerous_enemy_pos = [bot.current_pos
-            for bot in self.enemy_bots if bot.is_destroyer]
-        killable_enemy_pos = [bot.current_pos
-            for bot in self.enemy_bots if bot.is_harvester]
-
-        smart_moves = []
-        for move, new_pos in list(self.legal_moves.items()):
-            if (move == stop or
-                new_pos in dangerous_enemy_pos):
-                continue # bad idea
-            elif (new_pos in killable_enemy_pos or
-                  new_pos in self.enemy_food):
-                return move # get it!
-            else:
-                smart_moves.append(move)
-
-        if smart_moves:
-            return self.rnd.choice(smart_moves)
+    smart_positions = []
+    for new_pos in bot.legal_positions[:]:
+        if (new_pos == bot.position or
+            new_pos in dangerous_enemy_pos):
+            continue # bad idea
+        elif (new_pos in killable_enemy_pos or
+              new_pos in bot.enemy[0].food):
+            return new_pos, state # get it
         else:
-            # we ran out of smart moves
-            return stop
+            smart_positions.append(new_pos)
 
-def team():
-    return SimpleTeam("The Smart Random Players", SmartRandomPlayer(), SmartRandomPlayer())
+    if smart_positions:
+        return bot.random.choice(smart_positions), state
+    else:
+        # we ran out of smart moves
+        return bot.position, state
+
+
+TEAM_NAME = "The Smart Random Players"
+move = smart_random_player

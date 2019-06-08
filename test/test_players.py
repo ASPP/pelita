@@ -59,5 +59,8 @@ def test_players(player):
     ]
     state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=20)
     assert state['gameover']
+    # ensure that all test players ran correctly
     assert state['fatal_errors'] == [[], []]
+    # our test players should never return invalid moves
+    assert state['errors'] == [[], []]
 

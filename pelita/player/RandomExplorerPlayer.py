@@ -1,26 +1,37 @@
-from pelita import datamodel
-from pelita.player import AbstractPlayer, SimpleTeam
 
-
-class RandomExplorerPlayer(AbstractPlayer):
+def random_explorer_player(bot, state):
     """ Least visited random player. Will prefer moving to a position it’s never seen before. """
-    def set_initial(self):
-        self.visited = []
 
-    def get_move(self):
-        if self.current_pos in self.visited:
-            self.visited.remove(self.current_pos)
-        self.visited.insert(0, self.current_pos)
+    if state is None:
+        # first turn, first round
+        state = {}
 
-        moves = dict(self.legal_moves)
-        for pos in self.visited:
-            if len(moves) == 1:
-                return list(moves.keys())[0]
-            if len(moves) == 0:
-                return datamodel.stop
-            moves = {k: v for k, v in moves.items() if pos != v}
-        # more than one move left
-        return self.rnd.choice(list(moves.keys()))
+    if not bot.turn in state:
+        # initialize bot
+        state[bot.turn] = {
+            'visited': []
+        }
 
-def team():
-    return SimpleTeam("Random Explorer Players", RandomExplorerPlayer(), RandomExplorerPlayer())
+    if bot.position in state[bot.turn]['visited']:
+        state[bot.turn]['visited'].remove(bot.position)
+    state[bot.turn]['visited'].insert(0, bot.position)
+
+    # possible candidates
+    positions = bot.legal_positions[:]
+    # go through all visited positions and remove them
+    # from our candidate list
+    for pos in state[bot.turn]['visited']:
+        if len(positions) == 1:
+            # only one position left, we’ll take it
+            return positions[0], state
+        if len(positions) == 0:
+            return bot.position, state
+        if pos in positions:
+            positions.remove(pos)
+
+    # more than one move left
+    return bot.random.choice(positions), state
+
+
+TEAM_NAME = "Random Explorer Players"
+move = random_explorer_player
