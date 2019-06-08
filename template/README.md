@@ -118,6 +118,7 @@ def test_stays_there():
         try:
             bot = setup_test_game(layout=layout, is_blue=True, bots=[loc])
         except ValueError:
+            # loc is a wall, skip this position
             continue
         next_pos, _ = move(bot, None)
         assert next_pos == bot.position
