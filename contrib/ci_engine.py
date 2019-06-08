@@ -49,6 +49,8 @@ import argparse
 import hashlib
 import logging
 import os
+from pathlib import Path
+from modulefinder import ModuleFinder
 import random
 import sqlite3
 import subprocess
@@ -90,12 +92,12 @@ class CI_Engine:
                     self.players.append({'name': os.path.basename(p),
                                          'path': p
                     })
-            elif os.path.isdir(path):
+            else:
                 self.players.append({'name' : name,
                                      'path' : path
                                      })
-            else:
-                logger.warning('%s seems not to be an existing directory, ignoring %s' % (path, name))
+#            else:
+#                logger.warning('%s seems not to be an existing directory, ignoring %s' % (path, name))
 
         self.rounds = config['general'].getint('rounds', None)
         self.filter = config['general'].get('filter', None)
@@ -114,15 +116,16 @@ class CI_Engine:
         for pname, path in [[p['name'], p['path']] for p in self.players]:
             if pname not in self.dbwrapper.get_players():
                 logger.debug('Adding %s to data base.' % pname)
-                self.dbwrapper.add_player(pname, hashdir(path))
+                self.dbwrapper.add_player(pname, hashmodule(path))
         # reset players where the directory hash changed
         for player in self.players:
             path = player['path']
             name = player['name']
-            if hashdir(path) != self.dbwrapper.get_player_hash(name):
-                logger.debug('Resetting %s because his directory hash changed.' % name)
+            new_hash = hashmodule(path)
+            if new_hash != self.dbwrapper.get_player_hash(name):
+                logger.debug('Resetting %s because its module hash changed.' % name)
                 self.dbwrapper.remove_player(name)
-                self.dbwrapper.add_player(name, hashdir(path))
+                self.dbwrapper.add_player(name, new_hash)
 
 
     def run_game(self, p1, p2):
@@ -146,10 +149,10 @@ class CI_Engine:
                                                             dump=self.dump,
                                                             seed=self.seed)
 
-        if final_state['game_draw']:
+        if final_state['whowins'] == 2:
             result = -1
         else:
-            result = final_state['team_wins']
+            result = final_state['whowins']
 
         logger.info('Final state: %r', final_state)
         logger.debug('Stdout: %r', stdout)
@@ -475,6 +478,27 @@ def hashdir(pathname):
             pass
     return sha1.hexdigest()
 
+def hashmodule(module):
+    logger.debug(f"Hashing module {module}")
+    finder = ModuleFinder()
+    finder.run_script(module)
+    # finder.modules is a dict modulename:module
+    # only keep relative modules
+    paths = {name:Path(mod.__file__)
+            for name, mod in finder.modules.items()
+            if mod.__file__}
+    relative_paths = [
+        (name, p) for name, p in paths.items()
+        if not p.is_absolute()
+    ]
+    # sort relative paths by module name and generate our sha
+    sha1 = hashlib.sha1()
+    for name, path in sorted(relative_paths):
+        logger.debug(f"Hashing {module}: Adding {name}")
+        sha1.update(path.read_bytes())
+    res = sha1.hexdigest()
+    logger.debug(f"SHA1 for {module}: {res}.")
+    return res
 
 class Test_DB_Wrapper(unittest.TestCase):
     """Tests for the DB_Wrapper class."""
