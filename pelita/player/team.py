@@ -93,8 +93,12 @@ class Team(AbstractTeam):
         -------
         move : dict
         """
-        me = make_bots(**game_state)
-        me.random = self._bot_random
+        me = make_bots(walls=game_state['walls'],
+                       team=game_state['team'],
+                       enemy=game_state['enemy'],
+                       round=game_state['round'],
+                       bot_turn=game_state['bot_turn'],
+                       rng=self._bot_random)
 
         team = me._team
 
@@ -578,7 +582,7 @@ class Bot:
 
 
 # def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_blue):
-def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
+def make_bots(*, walls, team, enemy, round, bot_turn, rng):
     bots = {}
 
     team_index = team['team_index']
@@ -600,7 +604,7 @@ def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
             walls=walls,
             round=round,
             bot_turn=bot_turn,
-            random=seed,
+            random=rng,
             position=team['bot_positions'][idx],
             initial_position=team_initial_positions[idx],
             is_blue=team_index % 2 == 0,
@@ -619,7 +623,7 @@ def make_bots(*, walls, team, enemy, round, bot_turn, seed=None):
             food=enemy['food'],
             walls=walls,
             round=round,
-            random=seed,
+            random=rng,
             position=enemy['bot_positions'][idx],
             initial_position=enemy_initial_positions[idx],
             is_blue=enemy_index % 2 == 0,
