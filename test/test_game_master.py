@@ -64,9 +64,9 @@ class TestGameMaster:
             #2#####    #####1#
             #     . #  .  .#3#
             ################## """)
-        team_1 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
+        team_1 = stopping_player
         with pytest.raises(ValueError):
-            GameMaster(test_layout_4, [team_1], 4, 200)
+            setup_game([team_1], layout_dict=parse_layout(test_layout_4), max_rounds=300)
 
     def test_too_many_registered_teams(self):
         test_layout_4 = (
@@ -75,14 +75,8 @@ class TestGameMaster:
             #2#####    #####1#
             #     . #  .  .#3#
             ################## """)
-
-        team_1 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
-        team_2 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
-        team_3 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
-
+        team_1 = stopping_player
         with pytest.raises(ValueError):
-            GameMaster(test_layout_4, [team_1, team_2, team_3], 4, 200)
-
             setup_game([team_1] * 3, layout_dict=parse_layout(test_layout_4), max_rounds=300)
 
 

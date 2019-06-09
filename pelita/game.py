@@ -257,6 +257,10 @@ def setup_viewers(viewers=None, options=None):
 def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=None, dump=False,
                max_team_errors=5, timeout_length=3, viewers=None, controller=None, viewer_options=None):
     """ Generates a game state for the given teams and layout with otherwise default values. """
+
+    # check that two teams have been given
+    if not len(team_specs) == 2:
+        raise ValueError("Two teams must be given.")
     def split_food(width, food):
         team_food = [set(), set()]
         for pos in food:
