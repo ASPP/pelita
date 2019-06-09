@@ -261,6 +261,24 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
     # check that two teams have been given
     if not len(team_specs) == 2:
         raise ValueError("Two teams must be given.")
+    
+    # check that the given bot positions are all valid
+    if not len(layout_dict['bots']) == 4:
+        raise ValueError("Number of bots in layout must be 4.")
+    
+    width, height = layout.wall_dimensions(layout_dict['walls'])
+
+    for idx, pos in enumerate(layout_dict['bots']):
+        if pos in layout_dict['walls']:
+            raise ValueError(f"Bot {idx} must not be on wall: {pos}.")
+        try:
+            if len(pos) != 2:
+                raise ValueError(f"Bot {idx} must be a valid position: got {pos} instead.")
+        except TypeError:
+            raise ValueError(f"Bot {idx} must be a valid position: got {pos} instead.")
+        if not (0, 0) <= pos < (width, height):
+            raise ValueError(f"Bot {idx} is not inside the layout: {pos}.")
+
     def split_food(width, food):
         team_food = [set(), set()]
         for pos in food:
@@ -268,9 +286,6 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
             team_food[idx].add(pos)
         return team_food
 
-    viewer_state = setup_viewers(viewers, options=viewer_options)
-
-    width = max(layout_dict['walls'])[0] + 1
     food = split_food(width, layout_dict['food'])
 
     # warn if one of the food lists is already empty

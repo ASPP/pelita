@@ -80,6 +80,75 @@ class TestGameMaster:
             setup_game([team_1] * 3, layout_dict=parse_layout(test_layout_4), max_rounds=300)
 
 
+    @pytest.mark.parametrize('bots', [
+        ([(1, 1), (4, 2), (1, 2), (4, 1)], True), # n=4: good layout
+        ([(1, 1), (1, 1), (1, 1), (1, 1)], True), # n=4, all on same spot: good layout
+        ([(0, 1), (4, 2), (1, 2), (4, 1)], False), # n=4, bot on wall: bad layout
+        ([(1, 1), None, (1, 2), (4, 1)], False),# n=4, empty: bad layout
+        ([(1, 1), None, (1, 2)], False),# n=3, empty: bad layout
+        ([(1, 1), (1, 2)], False),# n=2, empty: bad layout
+        ([(-1, 1), (4, 2), (1, 2), (4, 1)], False), # n=4, illegal value: bad layout
+        ([], False), # n=0, illegal value: bad layout
+        ([(1, 1)], False),# n=3, empty: bad layout
+        ([(1, 1), (4, 2), (1, 2), (4, 1), None], False), # n=5, illegal value: bad layout
+        ([(1, 1), (4, 2), (1, 2), (4, 1), (1, 3)], False) # n=5, illegal value: bad layout
+        ])
+    def test_setup_game_with_different_number_of_bots(self, bots):
+        layout = """
+        ######
+        #  . #
+        # .# #
+        ######
+        """
+        bot_pos, should_succeed = bots
+        parsed = parse_layout(layout)
+        parsed['bots'] = bot_pos
+
+        if should_succeed:
+            state = setup_game([stopping_player] * 2, layout_dict=parsed, max_rounds=5)
+            assert state['bots'] == bot_pos
+            state = run_game([stopping_player] * 2, layout_dict=parsed, max_rounds=5)
+            assert state['fatal_errors'] == [[], []]
+            assert state['errors'] == [[], []]
+        else:
+            with pytest.raises(ValueError):
+                setup_game([stopping_player] * 2, layout_dict=parsed, max_rounds=300)
+
+    @pytest.mark.parametrize('layout', [
+        """
+        ######
+        #0 . #
+        # . 1#
+        ######
+        """,
+        """
+        ######
+        #0  .#
+        #.3 1#
+        ######
+        """])
+    def test_setup_game_with_too_few_bots_in_layout(self, layout):
+        with pytest.raises(ValueError):
+            parsed = parse_layout(layout)
+            setup_game([stopping_player] * 2, layout_dict=parsed, max_rounds=300)
+
+    @pytest.mark.parametrize('layout', [
+        """
+        ######
+        #0 .3#
+        #4. 1#
+        ######
+        """,
+        """
+        ######
+        #0 6.#
+        #.3 1#
+        ######
+        """])
+    def test_setup_game_with_wrong_bots_in_layout(self, layout):
+        with pytest.raises(ValueError):
+            parsed = parse_layout(layout) # fails here
+            setup_game([stopping_player] * 2, layout_dict=parsed, max_rounds=300)
 
     @pytest.mark.parametrize('layout', [
         """
