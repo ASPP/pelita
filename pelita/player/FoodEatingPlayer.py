@@ -1,31 +1,34 @@
-from pelita import datamodel
-from pelita.graph import Graph, NoPathException, diff_pos
-from pelita.player import AbstractPlayer, SimpleTeam
+from pelita.graph import Graph, NoPathException
+
+def food_eating_player(bot, state):
+    if state is None:
+        # first turn, first round
+        state = {
+            'graph': Graph(bot.position, bot.walls)
+        }
+
+    if not bot.turn in state:
+        state[bot.turn] = {
+            'next_food': None
+        }
+
+    # check if food is still there for us to eat
+    if (state[bot.turn]['next_food'] is None
+        or state[bot.turn]['next_food'] not in bot.enemy[0].food):
+        if not bot.enemy[0].food:
+            # all food has been eaten? ok. I’ll stop
+            next_pos = bot.position
+            return next_pos, state
+
+        state[bot.turn]['next_food'] = bot.random.choice(bot.enemy[0].food)
+
+    try:
+        next_pos = state['graph'].a_star(bot.position, state[bot.turn]['next_food'])[-1]
+    except NoPathException:
+        next_pos = bot.position
+
+    return next_pos, state
 
 
-class FoodEatingPlayer(AbstractPlayer):
-    def set_initial(self):
-        self.graph = Graph(self.current_uni.reachable([self.initial_pos]))
-        self.next_food = None
-
-    def goto_pos(self, pos):
-        return self.graph.a_star(self.current_pos, pos)[-1]
-
-    def get_move(self):
-        # check, if food is still present
-        if (self.next_food is None
-                or self.next_food not in self.enemy_food):
-            if not self.enemy_food:
-                # all food has been eaten? ok. i’ll stop
-                return datamodel.stop
-            self.next_food = self.rnd.choice(self.enemy_food)
-
-        try:
-            next_pos = self.goto_pos(self.next_food)
-            move = diff_pos(self.current_pos, next_pos)
-            return move
-        except NoPathException:
-            return datamodel.stop
-
-def team():
-    return SimpleTeam("The Food Eating Players", FoodEatingPlayer(), FoodEatingPlayer())
+TEAM_NAME = "The Smart Eating Players"
+move = food_eating_player

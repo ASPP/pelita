@@ -10,9 +10,9 @@ from pelita import libpelita
 from pelita.scripts.pelita_player import load_factory, load_team
 
 SIMPLE_MODULE = """
-from pelita.player import SimpleTeam, StoppingPlayer
-def team():
-    return SimpleTeam("%s", StoppingPlayer, StoppingPlayer)
+from pelita.player import stopping_player
+TEAM_NAME = "%s"
+move = stopping_player
 """
 
 SIMPLE_FAILING_MODULE = """

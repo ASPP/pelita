@@ -1,40 +1,40 @@
-from pelita import datamodel
-from pelita.graph import Graph, NoPathException, diff_pos
-from pelita.player import AbstractPlayer, SimpleTeam
+from pelita.graph import Graph, NoPathException
 
 
-class SmartEatingPlayer(AbstractPlayer):
-    def set_initial(self):
-        self.graph = Graph(self.current_uni.reachable([self.initial_pos]))
-        self.next_food = None
+def smart_eating_player(bot, state):
+    if state is None:
+        # first turn, first round
+        state = {
+            'graph': Graph(bot.position, bot.walls)
+        }
 
-    def goto_pos(self, pos):
-        return self.graph.a_star(self.current_pos, pos)[-1]
+    if not bot.turn in state:
+        state[bot.turn] = {
+            'next_food': None
+        }
 
-    def get_move(self):
-        # check, if food is still present
-        if (self.next_food is None
-                or self.next_food not in self.enemy_food):
-            if not self.enemy_food:
-                # all food has been eaten? ok. i’ll stop
-                return datamodel.stop
-            self.next_food = self.rnd.choice(self.enemy_food)
+    # check, if food is still present
+    if (state[bot.turn]['next_food'] is None
+            or state[bot.turn]['next_food'] not in bot.enemy[0].food):
+        if not bot.enemy[0].food:
+            # all food has been eaten? ok. i’ll stop
+            return bot.position, state
+        state[bot.turn]['next_food'] = bot.random.choice(bot.enemy[0].food)
 
-        try:
-            dangerous_enemy_pos = [bot.current_pos
-                                   for bot in self.enemy_bots if bot.is_destroyer]
+    try:
+        dangerous_enemy_pos = [enemy.position for enemy in bot.enemy if enemy.position in enemy.homezone]
 
-            next_pos = self.goto_pos(self.next_food)
-            # check, if the next_pos has an enemy on it
-            if next_pos in dangerous_enemy_pos:
-                # whoops, better wait this round and take another food next time
-                self.next_food = None
-                return datamodel.stop
+        next_pos = state['graph'].a_star(bot.position, state[bot.turn]['next_food'])[-1]
+        # check, if the next_pos has an enemy on it
+        if next_pos in dangerous_enemy_pos:
+            # whoops, better wait this round and take another food next time
+            state[bot.turn]['next_food'] = None
+            return bot.position, state
 
-            move = diff_pos(self.current_pos, next_pos)
-            return move
-        except NoPathException:
-            return datamodel.stop
+        return next_pos, state
+    except NoPathException:
+        return bot.position, state
 
-def team():
-    return SimpleTeam("Smart Eating Players", SmartEatingPlayer(), SmartEatingPlayer())
+
+TEAM_NAME = "Smart Eating Players"
+move = smart_eating_player

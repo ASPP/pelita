@@ -499,15 +499,15 @@ class AbstractPlayer(metaclass=abc.ABCMeta):
                 getattr(self, "_index", None),
                 getattr(self, "current_pos", None))
 
-class SpeakingPlayer(AbstractPlayer):
+
+def speaking_player(bot, state):
     """ A player that makes moves at random and tells us about it. """
+    move = bot.random.choice(bot.legal_positions)
+    bot.say(f"Going {move}.")
+    return move, state
 
-    def get_move(self):
-        move = self.rnd.choice(list(self.legal_moves.keys()))
-        self.say("Going %r." % (move,))
-        return move
 
-class SteppingPlayer(AbstractPlayer):
+def stepping_player(*bot_moves):
     """ A Player with predetermined set of moves.
 
     Parameters
@@ -522,26 +522,34 @@ class SteppingPlayer(AbstractPlayer):
     of the previous example is: ``'><v^-'``.
 
     """
+    _MOVES = {
+        '^': (0, -1),
+        'v': (0, 1),
+        '<': (-1, 0),
+        '>': (1, 0),
+        '-': (0, 0),
+    }
 
+    def convert(next_move):
+        if isinstance(next_move, str):
+            return _MOVES[next_move]
+        else:
+            return next_move
 
-    _MOVES = {'^': datamodel.north,
-              'v': datamodel.south,
-              '<': datamodel.west,
-              '>': datamodel.east,
-              '-': datamodel.stop}
+    converted_moves = [map(convert, m) for m in bot_moves]
+    iterators = [iter(m) for m in converted_moves]
 
-    def __init__(self, moves):
-        if isinstance(moves, str):
-            moves = (self._MOVES[move] for move in moves)
-        self.moves = iter(moves)
-
-    def get_move(self):
+    def move(bot, state):
+        moves_iter = iterators[bot.turn]
         try:
-            return next(self.moves)
+            next_move = next(moves_iter)
+            return (bot.position[0] + next_move[0], bot.position[1] + next_move[1]), state
         except StopIteration:
             raise ValueError()
+    return move
 
-class RoundBasedPlayer(AbstractPlayer):
+
+def round_based_player(*bot_moves):
     """ A Player which makes a decision dependent on the round index
     in a dict or list. (Or anything which responds to moves[idx].)
 
@@ -550,43 +558,26 @@ class RoundBasedPlayer(AbstractPlayer):
     moves : list or dict of moves
         the moves to make, a move is determined by moves[round]
     """
-    def __init__(self, moves):
-        self.moves = moves
-        self.round_index = None
-
-    def get_move(self):
-        if self.round_index is None:
-            self.round_index = 0
-        else:
-            self.round_index += 1
-
+    def move(bot, state):
         try:
-            return self.moves[self.round_index]
+            next_move = bot_moves[bot.turn][bot.round]
+            return (bot.position[0] + next_move[0], bot.position[1] + next_move[1]), state
         except (IndexError, KeyError):
-            return datamodel.stop
+            return bot.position, state
+    return move
 
-class MoveExceptionPlayer(AbstractPlayer):
+
+def move_exception_player(bot, state):
     """ Player that raises an Exception on get_move(). """
+    raise Exception("Exception from MoveExceptionPlayer.")
 
-    def get_move(self):
-        raise Exception("Exception from MoveExceptionPlayer.")
 
-class InitialExceptionPlayer(AbstractPlayer):
-    """ Player that raises an Exception on set_initial(). """
-
-    def set_initial(self):
-        raise Exception("Exception from InitialExceptionPlayer.")
-
-    def get_move(self):
-        pass
-
-class DebuggablePlayer(AbstractPlayer):
+def debuggable_player(bot, state):
     """ Player which invokes pdb on each move. 
 
-    Setting ``direction`` inside the debugger will change
+    Setting ``positions`` inside the debugger will change
     its behaviour.
     """
-    def get_move(self):
-        direction = datamodel.stop
-        pdb.set_trace()
-        return direction
+    position = bot.position
+    pdb.set_trace()
+    return position, state
