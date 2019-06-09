@@ -4,7 +4,7 @@ import unittest
 from pelita.datamodel import CTFUniverse
 from pelita.game_master import GameMaster, PlayerTimeout
 from pelita.exceptions import NoFoodWarning
-from pelita.game import setup_game, run_game
+from pelita.game import setup_game, run_game, play_turn
 from pelita.layout import parse_layout
 from pelita.player import stopping_player, stepping_player
 
@@ -18,44 +18,34 @@ class TestGameMaster:
             #     . #  .  .#3#
             ################## """)
 
-        team_1 = SimpleTeam("team1", SteppingPlayer([]), SteppingPlayer([]))
-        team_2 = SimpleTeam("team2", SteppingPlayer([]), SteppingPlayer([]))
-        game_master = GameMaster(test_layout, [team_1, team_2], 4, 200)
+        def team_pattern(fn):
+            # The pattern for a local team.
+            return f'local-team ({fn})'
 
-        assert game_master.game_state["team_name"][0] == ""
-        assert game_master.game_state["team_name"][1] == ""
+        def team_1(bot, state):
+            assert bot.team_name == team_pattern('team_1')
+            assert bot.other.team_name == team_pattern('team_1')
+            assert bot.enemy[0].team_name == team_pattern('team_2')
+            assert bot.enemy[1].team_name == team_pattern('team_2')
+            return bot.position, state
 
-        game_master.set_initial()
-        assert game_master.game_state["team_name"][0] == "team1"
-        assert game_master.game_state["team_name"][1] == "team2"
+        def team_2(bot, state):
+            assert bot.team_name == team_pattern('team_2')
+            assert bot.other.team_name == team_pattern('team_2')
+            assert bot.enemy[0].team_name == team_pattern('team_1')
+            assert bot.enemy[1].team_name == team_pattern('team_1')
+            return bot.position, state
 
-        # check that all players know it, before the game started
-        assert team_1._players[0].current_state["team_name"][0] == "team1"
-        assert team_1._players[0].current_state["team_name"][1] == "team2"
-        assert team_1._players[1].current_state["team_name"][0] == "team1"
-        assert team_1._players[1].current_state["team_name"][1] == "team2"
+        state = setup_game([team_1, team_2], layout_dict=parse_layout(test_layout), max_rounds=3)
+        assert state['team_names'] == [team_pattern('team_1'), team_pattern('team_2')]
 
-        assert team_2._players[0].current_state["team_name"][0] == "team1"
-        assert team_2._players[0].current_state["team_name"][1] == "team2"
-        assert team_2._players[1].current_state["team_name"][0] == "team1"
-        assert team_2._players[1].current_state["team_name"][1] == "team2"
+        state = play_turn(state)
+        # check that player did not fail
+        assert state['fatal_errors'] == [[], []]
 
-    def test_team_names_in_simpleteam(self):
-        test_layout = (
-        """ ##################
-            #0#.  .  # .     #
-            #2#####    #####1#
-            #     . #  .  .#3#
-            ################## """)
-
-        team_1 = SimpleTeam('team1', SteppingPlayer([]), SteppingPlayer([]))
-        team_2 = SimpleTeam('team2', SteppingPlayer([]), SteppingPlayer([]))
-
-        game_master = GameMaster(test_layout, [team_1, team_2], 4, 200)
-        game_master.set_initial()
-
-        assert game_master.game_state["team_name"][0] == "team1"
-        assert game_master.game_state["team_name"][1] == "team2"
+        state = play_turn(state)
+        # check that player did not fail
+        assert state['fatal_errors'] == [[], []]
 
     def test_too_few_registered_teams(self):
         test_layout_4 = (
