@@ -12,7 +12,8 @@ from textwrap import dedent
 import numpy as np
 
 from pelita import game, layout
-from pelita.game import initial_positions, get_legal_moves, apply_move, run_game, setup_game
+from pelita.game import initial_positions, get_legal_moves, apply_move, run_game, setup_game, play_turn
+from pelita.player import stepping_player
 
 
 @contextmanager
@@ -683,6 +684,143 @@ def test_cascade_suicide():
     assert state['bots'] == layouts[2]['bots']
     state = game.play_turn(state) # Bot 2 moves, gets killed.
     assert state['bots'] == layouts[3]['bots']
+
+
+def test_moving_through_maze():
+    test_start = """
+        ######
+        #0 . #
+        #.. 1#
+        #2  3#
+        ###### """
+    parsed = layout.parse_layout(test_start)
+    teams = [
+        stepping_player('>-v>>>-', '-^^->->'),
+        stepping_player('<<-<<<-', '-------')
+    ]
+    state = setup_game(teams, layout_dict=parsed, max_rounds=8)
+
+    # play first round
+    for i in range(4):
+        state = game.play_turn(state)
+    test_first_round = layout.parse_layout(
+        """ ######
+            # 0. #
+            #..1 #
+            #2  3#
+            ###### """)
+    
+    assert test_first_round['bots'] == state['bots']
+    assert test_first_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['score'] == [0, 0]
+
+    for i in range(4):
+        state = game.play_turn(state)
+    test_second_round = layout.parse_layout(
+        """ ######
+            #  . #
+            #.   #
+            #    #
+            ######
+            ######
+            # 0  #
+            #21  #
+            #   3#
+            ###### """)
+
+    assert test_second_round['bots'] == state['bots']
+    assert test_second_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['score'] == [0, 1]
+
+    for i in range(4):
+        state = game.play_turn(state)
+    test_third_round = layout.parse_layout(
+        """ ######
+            #2 . #
+            #.0 1#
+            #   3#
+            ###### """)
+
+    assert test_third_round['bots'] == state['bots']
+    assert test_third_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['score'] == [game.KILL_POINTS, 1]
+
+    for i in range(4):
+        state = game.play_turn(state)
+    test_fourth_round = layout.parse_layout(
+        """ ######
+            #  . #
+            #.   #
+            #    #
+            ######
+            ######
+            #2   #
+            #0 1 #
+            #   3#
+            ###### """)
+
+    assert test_fourth_round['bots'] == state['bots']
+    assert test_fourth_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['score'] == [game.KILL_POINTS, game.KILL_POINTS + 1]
+
+    for i in range(4):
+        state = game.play_turn(state)
+    test_fifth_round = layout.parse_layout(
+        """ ######
+            #  . #
+            #.   #
+            #    #
+            ######
+            ######
+            # 2  #
+            # 0 1#
+            #   3#
+            ###### """)
+    assert test_fifth_round['bots'] == state['bots']
+    assert test_fifth_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['score'] == [game.KILL_POINTS * 2, game.KILL_POINTS + 1]
+
+    for i in range(4):
+        state = game.play_turn(state)
+    test_sixth_round = layout.parse_layout(
+        """ ######
+            #  . #
+            #.   #
+            #    #
+            ######
+            ######
+            # 2  #
+            #0 1 #
+            #   3#
+            ###### """)
+    
+    assert test_sixth_round['bots'] == state['bots']
+    assert test_sixth_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['score'] == [game.KILL_POINTS * 2, game.KILL_POINTS * 2+ 1]
+
+    for i in range(3): # !! Only move three bots
+        state = game.play_turn(state)
+
+    test_seventh_round = layout.parse_layout(
+        """ ######
+            #    #
+            #.   #
+            #    #
+            ######
+            ######
+            #  2 #
+            #0 1 #
+            #   3#
+            ###### """)
+    
+    assert test_seventh_round['bots'] == state['bots']
+    assert test_seventh_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['score'] == [game.KILL_POINTS * 2 + 1, game.KILL_POINTS * 2 + 1]
+    assert state['gameover'] == True
+    assert state['whowins'] == 2
+
+    with pytest.raises(ValueError):
+        state = game.play_turn(state)
 
 
 @pytest.mark.parametrize('score', ([[3, 3], 2], [[1, 13], 1], [[13, 1], 0]))

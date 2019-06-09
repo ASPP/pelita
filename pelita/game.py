@@ -26,6 +26,9 @@ _mswindows = (sys.platform == "win32")
 ### Global constants
 # All constants that are currently not redefinable in setup_game
 
+#: The points a team gets for killing another bot
+KILL_POINTS = 5
+
 #: Maximum number of errors before a team loses
 MAX_ALLOWED_ERRORS = 4
 
@@ -663,7 +666,7 @@ def apply_move(gamestate, bot_position):
         killed_enemies = [idx for idx in enemy_idx if bot_position == bots[idx]]
         for enemy_idx in killed_enemies:
             _logger.info(f"Bot {turn} eats enemy bot {enemy_idx} at {bot_position}.")
-            score[team] = score[team] + 5
+            score[team] = score[team] + KILL_POINTS
             init_positions = initial_positions(walls)
             bots[enemy_idx] = init_positions[enemy_idx]
             gamestate['respawned'][enemy_idx] = True
@@ -674,7 +677,7 @@ def apply_move(gamestate, bot_position):
         enemies_on_target = [idx for idx in enemy_idx if bots[idx] == bot_position]
         if len(enemies_on_target) > 0:
             _logger.info(f"Bot {turn} was eaten by bots {enemies_on_target} at {bot_position}.")
-            score[1 - team] = score[1 - team] + 5
+            score[1 - team] = score[1 - team] + KILL_POINTS
             init_positions = initial_positions(walls)
             bots[turn] = init_positions[turn]
             gamestate['respawned'][turn] = True
