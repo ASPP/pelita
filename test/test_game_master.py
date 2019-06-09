@@ -2,7 +2,10 @@ import pytest
 import unittest
 
 from pelita.datamodel import CTFUniverse
-from pelita.game_master import GameMaster, PlayerTimeout, NoFoodWarning
+from pelita.game_master import GameMaster, PlayerTimeout
+from pelita.exceptions import NoFoodWarning
+from pelita.game import setup_game, run_game
+from pelita.layout import parse_layout
 from pelita.player import stopping_player, stepping_player
 
 
@@ -80,25 +83,28 @@ class TestGameMaster:
         with pytest.raises(ValueError):
             GameMaster(test_layout_4, [team_1, team_2, team_3], 4, 200)
 
-    def test_no_food(self):
-        team_1 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
-        team_2 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
+            setup_game([team_1] * 3, layout_dict=parse_layout(test_layout_4), max_rounds=300)
 
-        both_starving_layout = (
-            """ ######
-                #0   #
-                #   1#
-                ###### """)
-        with pytest.warns(NoFoodWarning):
-            GameMaster(both_starving_layout, [team_1, team_2], 2, 1)
 
-        one_side_starving_layout = (
-            """ ######
-                #0  .#
-                #   1#
-                ###### """)
+
+    @pytest.mark.parametrize('layout', [
+        """
+        ######
+        #0 3 #
+        # 2 1#
+        ######
+        """,
+        """
+        ######
+        #0 3.#
+        # 2 1#
+        ######
+        """])
+    def test_no_food(self, layout):
         with pytest.warns(NoFoodWarning):
-            GameMaster(one_side_starving_layout, [team_1, team_2], 2, 1)
+            parsed = parse_layout(layout)
+            setup_game([stopping_player] * 2, layout_dict=parsed, max_rounds=300)
+
 
 class TestAbstracts:
     class BrokenViewer(AbstractViewer):

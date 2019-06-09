@@ -8,9 +8,10 @@ from random import Random
 import subprocess
 import sys
 import typing
+from warnings import warn
 
 from . import layout
-from .exceptions import FatalException, NonFatalException
+from .exceptions import FatalException, NonFatalException, NoFoodWarning
 from .gamestate_filters import noiser
 from .layout import initial_positions, get_legal_moves
 from .libpelita import get_python_process, SimplePublisher
@@ -267,6 +268,13 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
 
     width = max(layout_dict['walls'])[0] + 1
     food = split_food(width, layout_dict['food'])
+
+    # warn if one of the food lists is already empty
+    side_no_food = [idx for idx, f in enumerate(food) if len(f) == 0]
+    if side_no_food:
+        warn(f"Layout has no food for team {side_no_food}.", NoFoodWarning)
+    
+    viewer_state = setup_viewers(viewers, options=viewer_options)
 
     game_state = GameState(
         teams=[None] * 2,
