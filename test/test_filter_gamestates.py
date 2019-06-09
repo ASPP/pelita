@@ -24,7 +24,7 @@ def make_gamestate():
         ################## """
 
     lt_dict = lt.parse_layout(layout)
-    game_state = setup_game([dummy_team, dummy_team], lt_dict)
+    game_state = setup_game([dummy_team, dummy_team], layout_dict=lt_dict, max_rounds=1)
 
     return game_state
 
