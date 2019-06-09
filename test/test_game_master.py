@@ -169,18 +169,6 @@ class TestGameMaster:
             setup_game([stopping_player] * 2, layout_dict=parsed, max_rounds=300)
 
 
-class TestAbstracts:
-    class BrokenViewer(AbstractViewer):
-        pass
-
-    def test_AbstractViewer(self):
-        with pytest.raises(TypeError):
-            AbstractViewer()
-
-    def test_BrokenViewer(self):
-        with pytest.raises(TypeError):
-            self.BrokenViewer()
-
 class TestGame:
 
     def test_game(self):
