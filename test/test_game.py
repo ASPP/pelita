@@ -1263,3 +1263,85 @@ def test_prepare_bot_state_resets_respawned_flag(bot_to_move, respawn_flags):
 
     # bot state should have proper respawn flags
     assert bot_state['team']['has_respawned'] == respawn_flags[team_id::2]
+
+
+def test_bot_does_not_eat_own_food():
+    test_layout = """
+        ######
+        #0 .3#
+        #.21 #
+        ######
+    """
+    teams = [
+        stepping_player('v', '<'),
+        stepping_player('^', '<')
+    ]
+    state = setup_game(teams, layout_dict=layout.parse_layout(test_layout), max_rounds=2)
+    assert state['bots'] == [(1, 1), (3, 2), (2, 2), (4, 1)]
+    assert state['food'] == [{(1, 2)}, {(3, 1)}]
+    for i in range(4):
+        state = play_turn(state)
+    assert state['bots'] == [(1, 2), (3, 1), (1, 2), (3, 1)]
+    assert state['food'] == [{(1, 2)}, {(3, 1)}]
+
+
+def test_suicide_win():
+    # Test how a bot eats a food pellet that the enemy sits on
+    # Since it is the last pellet, the game will end directly
+    test_layout = """
+        ######
+        #0 .1#
+        #.   #
+        #2  3#
+        ######
+    """
+    teams = [
+        stepping_player('>>', '--'),
+        stepping_player('<-', '--')
+    ]
+    state = setup_game(teams, layout_dict=layout.parse_layout(test_layout), max_rounds=2)
+    assert state['bots'] == [(1, 1), (4, 1), (1, 3), (4, 3)]
+    assert state['food'] == [{(1, 2)}, {(3, 1)}]
+    # play until finished
+    state = run_game(teams, layout_dict=layout.parse_layout(test_layout), max_rounds=2)
+    # bot 0 has been reset
+    assert state['bots'] == [(1, 2), (3, 1), (1, 3), (4, 3)]
+    assert state['food'] == [{(1, 2)}, set()]
+    assert state['gameover'] == True
+    assert state['whowins'] == 1
+    assert state['round'] == 2
+    assert state['turn'] == 0
+    assert state['score'] == [1, game.KILL_POINTS]
+
+
+def test_double_suicide():
+    # Test how a bot can be killed when it runs into two bots
+    test_layout = """
+        ######
+        # 01 #
+        #.  .#
+        ######
+
+        ######
+        # 2  #
+        #. 3.#
+        ######
+    """
+    teams = [
+        stepping_player('-', '-'),
+        stepping_player('<', '-')
+    ]
+    state = setup_game(teams, layout_dict=layout.parse_layout(test_layout), max_rounds=2)
+    assert state['bots'] == [(2, 1), (3, 1), (2, 1), (3, 2)]
+    assert state['food'] == [{(1, 2)}, {(4, 2)}]
+    # play a two turns so that 1 moves
+    state = play_turn(state)
+    state = play_turn(state)
+    # bot 1 has been reset
+    assert state['bots'] == [(2, 1), (4, 2), (2, 1), (3, 2)]
+    assert state['food'] == [{(1, 2)}, {(4, 2)}]
+    assert state['gameover'] == False
+    assert state['round'] == 1
+    assert state['turn'] == 1
+    # only a single KILL_POINT has been given
+    assert state['score'] == [game.KILL_POINTS, 0]
