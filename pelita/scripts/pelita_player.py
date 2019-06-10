@@ -115,13 +115,12 @@ def load_team(spec):
     If this fails, it will try to load a factory.
     """
     if spec == '0':
-        #from ..player.FoodEatingPlayer import team
-        #return team()
-        team, _ = make_team(stopping, team_name="stopping")
+        from ..player.FoodEatingPlayer import move, TEAM_NAME
+        team, _ = make_team(move, team_name=TEAM_NAME)
         return team
     elif spec == '1':
-        #from ..player.RandomExplorerPlayer import team
-        team, _ = make_team(random, team_name="random")
+        from ..player.RandomExplorerPlayer import move, TEAM_NAME
+        team, _ = make_team(move, team_name=TEAM_NAME)
         return team
     try:
         factory = load_factory(spec)
