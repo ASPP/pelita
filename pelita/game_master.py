@@ -7,8 +7,6 @@ import time
 import uuid
 from warnings import warn
 
-from . import datamodel
-from .datamodel import Bot, CTFUniverse
 from .graph import Graph, NoPathException, manhattan_dist
 
 

@@ -1,6 +1,5 @@
 import pytest
 
-from pelita.datamodel import east, stop, west
 from pelita.game import run_game
 from pelita.layout import parse_layout
 from pelita.player import nq_random_player, SANE_PLAYERS

@@ -34,9 +34,6 @@ import uuid
 
 import zmq
 
-from .datamodel import CTFUniverse
-from .game_master import GameMaster, PlayerDisconnected, PlayerTimeout
-
 _logger = logging.getLogger(__name__)
 
 class ZMQUnreachablePeer(Exception):
