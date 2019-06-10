@@ -548,9 +548,9 @@ class Bot:
 
         if bot.is_blue:
             blue = bot
-            red = bot.other
+            red = bot.enemy[0]
         else:
-            blue = bot.other
+            blue = bot.enemy[0]
             red = bot
 
         header = ("{blue}{you_blue} vs {red}{you_red}.\n" +
