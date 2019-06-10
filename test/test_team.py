@@ -456,3 +456,46 @@ def test_initial_position(_n_test):
     # assertions might have been caught in run_game
     # check that all is good
     assert state['fatal_errors'] == [[], []]
+
+
+def test_bot_attributes():
+    test_layout = """
+        ##################
+        #.#... .##.     3#
+        # # #  .  .### #1#
+        # ####.   .      #
+        #      .   .#### #
+        #0# ###.  .  # # #
+        #2     .##. ...#.#
+        ##################
+    """
+
+    parsed = parse_layout(test_layout)
+    width = max(parsed['walls'])[0] + 1
+    height = max(parsed['walls'])[1] + 1
+    homezones = [[], []]
+    homezones[0] = [(x, y)
+                    for x in range(0, width // 2)
+                    for y in range(0, height)]
+    homezones[1] = [(x, y)
+                    for x in range(width // 2, width)
+                    for y in range(0, height)]
+
+    assert set(homezones[0]) & set(homezones[1]) == set()
+
+    def asserting_team(bot, state):
+        assert bot.homezone == bot.other.homezone
+        assert bot.walls == parsed['walls']
+        if bot.is_blue:
+            assert set(bot.homezone) == set(homezones[0])
+            assert set(bot.enemy[0].homezone) == set(homezones[1])
+        else:
+            assert set(bot.homezone) == set(homezones[1])
+            assert set(bot.enemy[0].homezone) == set(homezones[0])
+        return bot.position, state
+
+    state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed)
+    # assertions might have been caught in run_game
+    # check that all is good
+    assert state['fatal_errors'] == [[], []]
+
