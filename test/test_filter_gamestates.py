@@ -313,7 +313,7 @@ def test_noiser_noising_at_noise_radius_extreme(ii):
          (6, 1), (5, 1), (4, 1), (3, 1)]]
 ])
 def test_uniform_noise_manhattan(noise_radius, expected, test_layout=None):
-    # Test how bot 1 observers bot 0
+    # Test how bot 1 observes bot 0
     if not test_layout:
         test_layout = (
         """ ##################
@@ -393,11 +393,99 @@ def test_uniform_noise_manhattan(noise_radius, expected, test_layout=None):
         ################## """], # noised by one
 ])
 def test_uniform_noise_manhattan_graphical(noise_radius, test_layout):
-    # Test how bot 1 observers bot 0
+    # Test how bot 1 observes bot 0
     # the expected locations are where the food is placed
     parsed = parse_layout(test_layout)
     expected = parsed['food'] + [parsed['bots'][0]]
     test_uniform_noise_manhattan(noise_radius, expected, test_layout=test_layout)
+
+
+@pytest.mark.parametrize('test_layout, is_noisy', [
+    ["""
+        ##################
+        # #..    #     # #
+        #.#####    ##### #
+        #.#....  #     # #
+        #.#####.   ##### #
+        #..0..#..  #  1  #
+        #.#####.   ##### #
+        #.#....  #     # #
+        #.#####    ##### #
+        # #..    #     # #
+        ################## """, True],
+    ["""
+        ##################
+        # #      #   ..# #
+        # #####    #####.#
+        # #      # ....#.#
+        # #####   .#####.#
+        #  1  #  ..#..0..#
+        # #####   .#####.#
+        # #      # ....#.#
+        # #####    #####.#
+        # #      #   ..# #
+        ################## """, True],
+    ["""
+        ##################
+        # #..    #     # #
+        #.#####    ##### #
+        #.#....  #     # #
+        #.#####.   ##### #
+        #..0..#.. 1#     #
+        #.#####.   ##### #
+        #.#....  #     # #
+        #.#####    ##### #
+        # #..    #     # #
+        ################## """, True],
+    ["""
+        ##################
+        # #..    #     # #
+        #.#####    ##### #
+        #.#....  #     # #
+        #.#####.   ##### #
+        #..0..#..1 #     #
+        #.#####.   ##### #
+        #.#....  #     # #
+        #.#####    ##### #
+        # #..    #     # #
+        ################## """, True],
+        # when we move too close,
+        # the noise disappears
+    ["""
+        ##################
+        # #      #     # #
+        # #####    ##### #
+        # #      #     # #
+        # #####    ##### #
+        #  0  # 1  #     #
+        # #####    ##### #
+        # #      #     # #
+        # #####    ##### #
+        # #      #     # #
+        ################## """, False],
+])
+def test_uniform_noise_manhattan_graphical_distance(test_layout, is_noisy):
+    # Test how bot 1 observes bot 0
+    # the expected locations are where the food is placed
+    parsed = parse_layout(test_layout)
+    expected = parsed['food'] + [parsed['bots'][0]]
+
+    position_bucket = collections.defaultdict(int)
+    NUM_TESTS = 400
+    for i in range(NUM_TESTS):
+        noised = gf.noiser(walls=parsed['walls'],
+                            bot_position=parsed['bots'][1],
+                            enemy_positions=[parsed['bots'][0]])
+                            # use default values for radius and distance
+                            # noise_radius=5, sight_distance=5
+        assert noised['is_noisy'] == [is_noisy]
+
+        noised_pos = noised['enemy_positions'][0]
+        position_bucket[noised_pos] += 1
+    assert NUM_TESTS == sum(position_bucket.values())
+    # Since this is a randomized algorithm we need to be a bit lenient with
+    # our tests. We check that each position was selected at least once.
+    assert set(position_bucket.keys()) == set(expected)
 
 
 def test_uniform_noise_4_bots_manhattan():
