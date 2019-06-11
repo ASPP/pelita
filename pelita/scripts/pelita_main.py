@@ -107,6 +107,8 @@ viewer_opt.add_argument('--tk', action='store_const', const='tk',
 viewer_opt.add_argument('--tk-no-sync', action='store_const', const='tk-no-sync',
                         dest='viewer', help=long_help('Uses the tk viewer in an unsynchronized mode.'))
 parser.set_defaults(viewer='tk')
+parser.add_argument('--export-svg', dest="export_svg", type=str, metavar='FOLDER',
+                    help=long_help('Export svg to given folder.'))
 
 advanced_settings = parser.add_argument_group('Advanced settings')
 advanced_settings.add_argument('--reply-to', type=str, metavar='URL', dest='reply_to',
@@ -193,6 +195,9 @@ def main():
         viewers = []
     else:
         viewers = [args.viewer]
+
+    if args.export_svg:
+        viewers.append(('svg', args.export_svg))
 
     geometry = args.geometry
     delay = int(1000./args.fps)
