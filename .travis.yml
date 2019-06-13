@@ -29,7 +29,9 @@ script:
     fi
 - >
     if [[ $TRAVIS_PYTHON_VERSION == 3.6 || $TRAVIS_PYTHON_VERSION == 3.7 ]] ; then
-      git clone https://github.com/ASPP/pelita_template && ( cd pelita_template/ && python -m pytest . )
+    # We must clone pelita_template to a location outside of the pelita repo
+    # Otherwise pelita’s own setup.cfg will be used for test configuration
+      (cd .. && git clone https://github.com/ASPP/pelita_template) && ( cd ../pelita_template/ && python -m pytest . )
     fi
 
 # push coverage
