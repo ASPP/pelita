@@ -10,6 +10,7 @@ from pelita.utils import Graph
 from utils import next_step
 
 def move(bot, state):
+    enemy = bot.enemy
     # we need to create a dictionary to keep information (state) along rounds
     # the state object will be passed untouched at every new round
     if state is None:
@@ -27,29 +28,28 @@ def move(bot, state):
 
     # choose a target food pellet if we still don't have one or
     # if the old target has been already eaten
-    if (target is None) or (target not in bot.enemy[0].food):
-        target = state[bot.turn] = bot.random.choice(bot.enemy[0].food)
+    if (target is None) or (target not in enemy[0].food):
+        target = state[bot.turn] = bot.random.choice(enemy[0].food)
 
     # get the next position along the shortest path to reach our target
     next_pos = next_step(bot.position, target, state['graph'])
 
     # now, let's check if we are getting too near to our enemy
     # where are the enemy ghosts?
-    for enemy_pos in (bot.enemy[0].position, bot.enemy[1].position):
+    for enemy_pos in (enemy[0].position, enemy[1].position):
         if (next_pos == enemy_pos) and (next_pos not in bot.homezone):
             # we are in the enemy zone: they can eat us!
             # 1. let's forget about this target (the enemy is sitting on it for
             #    now). We will choose a new target in the next round
             state[bot.turn] = None
             # 2. let us step back
-            # bot.track[-1] is always the current position, so to backtrack
-            # we select bot.track[-2]
+            #    - bot.track[-1] is always the current position, so to backtrack
+            #      we select bot.track[-2]
             next_pos = bot.track[-2]
             if next_pos == enemy_pos:
                 # we would step back on a ghost who is chasing us, let us just
                 # take a random move
                 next_pos = bot.get_position(bot.random.choice(bot.legal_moves))
 
-    # return the position needed to get from our position to the next position
     return next_pos, state
 
