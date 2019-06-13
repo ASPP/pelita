@@ -4,13 +4,9 @@ from unittest.mock import MagicMock
 import re
 from textwrap import dedent
 
-try:
-    from pelita.tournament import komode, roundrobin, tournament
-    from pelita.tournament.komode import Team, Match, Bye
-    from pelita.tournament import tournament
-except (ImportError, SyntaxError):
-    # We expect this to fail below Python 3.5
-    pass
+from pelita.tournament import komode, roundrobin, tournament
+from pelita.tournament.komode import Team, Match, Bye
+from pelita.tournament import tournament
 
 
 class TestKoMode:
