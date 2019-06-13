@@ -1,8 +1,10 @@
 import pytest
 import unittest
 
-from pelita.datamodel import CTFUniverse
-from pelita.game_master import GameMaster, PlayerTimeout, NoFoodWarning
+from pelita.game_master import GameMaster, PlayerTimeout
+from pelita.exceptions import NoFoodWarning
+from pelita.game import setup_game, run_game, play_turn
+from pelita.layout import parse_layout
 from pelita.player import stopping_player, stepping_player
 
 
@@ -15,44 +17,34 @@ class TestGameMaster:
             #     . #  .  .#3#
             ################## """)
 
-        team_1 = SimpleTeam("team1", SteppingPlayer([]), SteppingPlayer([]))
-        team_2 = SimpleTeam("team2", SteppingPlayer([]), SteppingPlayer([]))
-        game_master = GameMaster(test_layout, [team_1, team_2], 4, 200)
+        def team_pattern(fn):
+            # The pattern for a local team.
+            return f'local-team ({fn})'
 
-        assert game_master.game_state["team_name"][0] == ""
-        assert game_master.game_state["team_name"][1] == ""
+        def team_1(bot, state):
+            assert bot.team_name == team_pattern('team_1')
+            assert bot.other.team_name == team_pattern('team_1')
+            assert bot.enemy[0].team_name == team_pattern('team_2')
+            assert bot.enemy[1].team_name == team_pattern('team_2')
+            return bot.position, state
 
-        game_master.set_initial()
-        assert game_master.game_state["team_name"][0] == "team1"
-        assert game_master.game_state["team_name"][1] == "team2"
+        def team_2(bot, state):
+            assert bot.team_name == team_pattern('team_2')
+            assert bot.other.team_name == team_pattern('team_2')
+            assert bot.enemy[0].team_name == team_pattern('team_1')
+            assert bot.enemy[1].team_name == team_pattern('team_1')
+            return bot.position, state
 
-        # check that all players know it, before the game started
-        assert team_1._players[0].current_state["team_name"][0] == "team1"
-        assert team_1._players[0].current_state["team_name"][1] == "team2"
-        assert team_1._players[1].current_state["team_name"][0] == "team1"
-        assert team_1._players[1].current_state["team_name"][1] == "team2"
+        state = setup_game([team_1, team_2], layout_dict=parse_layout(test_layout), max_rounds=3)
+        assert state['team_names'] == [team_pattern('team_1'), team_pattern('team_2')]
 
-        assert team_2._players[0].current_state["team_name"][0] == "team1"
-        assert team_2._players[0].current_state["team_name"][1] == "team2"
-        assert team_2._players[1].current_state["team_name"][0] == "team1"
-        assert team_2._players[1].current_state["team_name"][1] == "team2"
+        state = play_turn(state)
+        # check that player did not fail
+        assert state['fatal_errors'] == [[], []]
 
-    def test_team_names_in_simpleteam(self):
-        test_layout = (
-        """ ##################
-            #0#.  .  # .     #
-            #2#####    #####1#
-            #     . #  .  .#3#
-            ################## """)
-
-        team_1 = SimpleTeam('team1', SteppingPlayer([]), SteppingPlayer([]))
-        team_2 = SimpleTeam('team2', SteppingPlayer([]), SteppingPlayer([]))
-
-        game_master = GameMaster(test_layout, [team_1, team_2], 4, 200)
-        game_master.set_initial()
-
-        assert game_master.game_state["team_name"][0] == "team1"
-        assert game_master.game_state["team_name"][1] == "team2"
+        state = play_turn(state)
+        # check that player did not fail
+        assert state['fatal_errors'] == [[], []]
 
     def test_too_few_registered_teams(self):
         test_layout_4 = (
@@ -61,9 +53,9 @@ class TestGameMaster:
             #2#####    #####1#
             #     . #  .  .#3#
             ################## """)
-        team_1 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
+        team_1 = stopping_player
         with pytest.raises(ValueError):
-            GameMaster(test_layout_4, [team_1], 4, 200)
+            setup_game([team_1], layout_dict=parse_layout(test_layout_4), max_rounds=300)
 
     def test_too_many_registered_teams(self):
         test_layout_4 = (
@@ -72,161 +64,102 @@ class TestGameMaster:
             #2#####    #####1#
             #     . #  .  .#3#
             ################## """)
-
-        team_1 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
-        team_2 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
-        team_3 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
-
+        team_1 = stopping_player
         with pytest.raises(ValueError):
-            GameMaster(test_layout_4, [team_1, team_2, team_3], 4, 200)
+            setup_game([team_1] * 3, layout_dict=parse_layout(test_layout_4), max_rounds=300)
 
-    def test_no_food(self):
-        team_1 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
-        team_2 = SimpleTeam(SteppingPlayer([]), SteppingPlayer([]))
 
-        both_starving_layout = (
-            """ ######
-                #0   #
-                #   1#
-                ###### """)
+    @pytest.mark.parametrize('bots', [
+        ([(1, 1), (4, 2), (1, 2), (4, 1)], True), # n=4: good layout
+        ([(1, 1), (1, 1), (1, 1), (1, 1)], True), # n=4, all on same spot: good layout
+        ([(0, 1), (4, 2), (1, 2), (4, 1)], False), # n=4, bot on wall: bad layout
+        ([(1, 1), None, (1, 2), (4, 1)], False),# n=4, empty: bad layout
+        ([(1, 1), None, (1, 2)], False),# n=3, empty: bad layout
+        ([(1, 1), (1, 2)], False),# n=2, empty: bad layout
+        ([(-1, 1), (4, 2), (1, 2), (4, 1)], False), # n=4, illegal value: bad layout
+        ([], False), # n=0, illegal value: bad layout
+        ([(1, 1)], False),# n=3, empty: bad layout
+        ([(1, 1), (4, 2), (1, 2), (4, 1), None], False), # n=5, illegal value: bad layout
+        ([(1, 1), (4, 2), (1, 2), (4, 1), (1, 3)], False) # n=5, illegal value: bad layout
+        ])
+    def test_setup_game_with_different_number_of_bots(self, bots):
+        layout = """
+        ######
+        #  . #
+        # .# #
+        ######
+        """
+        bot_pos, should_succeed = bots
+        parsed = parse_layout(layout)
+        parsed['bots'] = bot_pos
+
+        if should_succeed:
+            state = setup_game([stopping_player] * 2, layout_dict=parsed, max_rounds=5)
+            assert state['bots'] == bot_pos
+            state = run_game([stopping_player] * 2, layout_dict=parsed, max_rounds=5)
+            assert state['fatal_errors'] == [[], []]
+            assert state['errors'] == [[], []]
+        else:
+            with pytest.raises(ValueError):
+                setup_game([stopping_player] * 2, layout_dict=parsed, max_rounds=300)
+
+    @pytest.mark.parametrize('layout', [
+        """
+        ######
+        #0 . #
+        # . 1#
+        ######
+        """,
+        """
+        ######
+        #0  .#
+        #.3 1#
+        ######
+        """])
+    def test_setup_game_with_too_few_bots_in_layout(self, layout):
+        with pytest.raises(ValueError):
+            parsed = parse_layout(layout)
+            setup_game([stopping_player] * 2, layout_dict=parsed, max_rounds=300)
+
+    @pytest.mark.parametrize('layout', [
+        """
+        ######
+        #0 .3#
+        #4. 1#
+        ######
+        """,
+        """
+        ######
+        #0 6.#
+        #.3 1#
+        ######
+        """])
+    def test_setup_game_with_wrong_bots_in_layout(self, layout):
+        with pytest.raises(ValueError):
+            parsed = parse_layout(layout) # fails here
+            setup_game([stopping_player] * 2, layout_dict=parsed, max_rounds=300)
+
+    @pytest.mark.parametrize('layout', [
+        """
+        ######
+        #0 3 #
+        # 2 1#
+        ######
+        """,
+        """
+        ######
+        #0 3.#
+        # 2 1#
+        ######
+        """])
+    def test_no_food(self, layout):
         with pytest.warns(NoFoodWarning):
-            GameMaster(both_starving_layout, [team_1, team_2], 2, 1)
+            parsed = parse_layout(layout)
+            setup_game([stopping_player] * 2, layout_dict=parsed, max_rounds=300)
 
-        one_side_starving_layout = (
-            """ ######
-                #0  .#
-                #   1#
-                ###### """)
-        with pytest.warns(NoFoodWarning):
-            GameMaster(one_side_starving_layout, [team_1, team_2], 2, 1)
 
-class TestAbstracts:
-    class BrokenViewer(AbstractViewer):
-        pass
-
-    def test_AbstractViewer(self):
-        with pytest.raises(TypeError):
-            AbstractViewer()
-
-    def test_BrokenViewer(self):
-        with pytest.raises(TypeError):
-            self.BrokenViewer()
-
+@pytest.mark.xfail(reason="WIP")
 class TestGame:
-
-    def test_game(self):
-
-        test_start = (
-            """ ######
-                #0 . #
-                #.. 1#
-                ###### """)
-
-        number_bots = 2
-
-        # The problem here is that the layout does not allow us to specify a
-        # different inital position and current position. When testing universe
-        # equality by comparing its string representation, this does not matter.
-        # But if we want to compare using the __eq__ method, but specify the
-        # target as ascii encoded maze/layout we need to convert the layout to a
-        # CTFUniverse and then modify the initial positions. For this we define
-        # a closure here to quickly generate a target universe to compare to.
-        # Also we adapt the score, in case food has been eaten
-
-        def create_TestUniverse(layout, black_score=0, white_score=0):
-            initial_pos = [(1, 1), (4, 2)]
-            universe = CTFUniverse.create(layout, number_bots)
-            universe.teams[0].score = black_score
-            universe.teams[1].score = white_score
-            for i, pos in enumerate(initial_pos):
-                universe.bots[i].initial_pos = pos
-            if not (1, 2) in universe.food_list:
-                universe.teams[1].score += 1
-            if not (2, 2) in universe.food_list:
-                universe.teams[1].score += 1
-            if not (3, 1) in universe.food_list:
-                universe.teams[0].score += 1
-            return universe
-
-
-        teams = [SimpleTeam(SteppingPlayer('>-v>>>')), SimpleTeam(SteppingPlayer('<<-<<<'))]
-        gm = GameMaster(test_start, teams, number_bots, 200)
-
-        gm.set_initial()
-        gm.play_round()
-        test_first_round = (
-            """ ######
-                # 0. #
-                #..1 #
-                ###### """)
-        universe = CTFUniverse._from_json_dict(gm.game_state)
-        assert create_TestUniverse(test_first_round) == universe
-
-        gm.play_round()
-        test_second_round = (
-            """ ######
-                # 0. #
-                #.1  #
-                ###### """)
-        universe = CTFUniverse._from_json_dict(gm.game_state)
-        assert create_TestUniverse(test_second_round) == universe
-
-        gm.play_round()
-        test_third_round = (
-            """ ######
-                #  . #
-                #.0 1#
-                ###### """)
-        universe = CTFUniverse._from_json_dict(gm.game_state)
-        assert create_TestUniverse(test_third_round,
-            black_score=universe.KILLPOINTS) == universe
-
-        gm.play_round()
-        test_fourth_round = (
-            """ ######
-                #0 . #
-                #. 1 #
-                ###### """)
-        universe = CTFUniverse._from_json_dict(gm.game_state)
-        assert create_TestUniverse(test_fourth_round,
-            black_score=universe.KILLPOINTS, white_score=universe.KILLPOINTS) == universe
-
-        gm.play_round()
-        test_fifth_round = (
-            """ ######
-                # 0. #
-                #.1  #
-                ###### """)
-        universe = CTFUniverse._from_json_dict(gm.game_state)
-        assert create_TestUniverse(test_fifth_round,
-            black_score=universe.KILLPOINTS, white_score=universe.KILLPOINTS) == universe
-
-        print(universe.pretty)
-        gm.play_round()
-        test_sixth_round = (
-            """ ######
-                #  0 #
-                #.1  #
-                ###### """)
-        universe = CTFUniverse._from_json_dict(gm.game_state)
-        print(universe.pretty)
-        # The game will have finished after bot 0 has eaten the pellet
-        assert create_TestUniverse(test_sixth_round,
-            black_score=universe.KILLPOINTS, white_score=universe.KILLPOINTS) == universe
-        assert gm.game_state['finished'] is True
-
-        teams = [SimpleTeam(SteppingPlayer('>-v>>>')), SimpleTeam(SteppingPlayer('<<-<<<'))]
-        # now play the full game
-        gm = GameMaster(test_start, teams, number_bots, 200)
-        gm.play()
-        test_sixth_round = (
-            """ ######
-                #  0 #
-                #.1  #
-                ###### """)
-        universe = CTFUniverse._from_json_dict(gm.game_state)
-        assert create_TestUniverse(test_sixth_round,
-            black_score=universe.KILLPOINTS, white_score=universe.KILLPOINTS) == universe
 
     def test_malicous_player(self):
 

@@ -118,7 +118,7 @@ def parse_layout(layout_str):
      ########
 
 
-    If items are overlapping, several layout strings can be concateneted:
+    If items are overlapping, several layout strings can be concatenated:
      ########
      #0  .  #
      #     1#
@@ -444,7 +444,17 @@ def get_legal_moves(walls, bot_position):
     -------
     list
         legal moves.
+
+    Raises
+    ------
+    ValueError
+        if position invalid or on wall
     """
+    width, height = wall_dimensions(walls)
+    if not (0, 0) <= bot_position < (width, height):
+        raise ValueError(f"Position {bot_position} not inside maze ({width}x{height}).")
+    if bot_position in walls:
+        raise ValueError(f"Position {bot_position} is on a wall.")
     north = (0, -1)
     south = (0, 1)
     east = (1, 0)

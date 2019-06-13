@@ -5,7 +5,6 @@ import pdb
 import random
 import time
 
-from .. import datamodel
 
 class AbstractTeam(metaclass=abc.ABCMeta):
     """ Abstract team class.

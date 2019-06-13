@@ -8,9 +8,10 @@ from random import Random
 import subprocess
 import sys
 import typing
+from warnings import warn
 
 from . import layout
-from .exceptions import FatalException, NonFatalException
+from .exceptions import FatalException, NonFatalException, NoFoodWarning
 from .gamestate_filters import noiser
 from .layout import initial_positions, get_legal_moves
 from .libpelita import get_python_process, SimplePublisher
@@ -24,6 +25,9 @@ _mswindows = (sys.platform == "win32")
 
 ### Global constants
 # All constants that are currently not redefinable in setup_game
+
+#: The points a team gets for killing another bot
+KILL_POINTS = 5
 
 #: Maximum number of errors before a team loses
 MAX_ALLOWED_ERRORS = 4
@@ -256,6 +260,28 @@ def setup_viewers(viewers=None, options=None):
 def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=None, dump=False,
                max_team_errors=5, timeout_length=3, viewers=None, controller=None, viewer_options=None):
     """ Generates a game state for the given teams and layout with otherwise default values. """
+
+    # check that two teams have been given
+    if not len(team_specs) == 2:
+        raise ValueError("Two teams must be given.")
+    
+    # check that the given bot positions are all valid
+    if not len(layout_dict['bots']) == 4:
+        raise ValueError("Number of bots in layout must be 4.")
+    
+    width, height = layout.wall_dimensions(layout_dict['walls'])
+
+    for idx, pos in enumerate(layout_dict['bots']):
+        if pos in layout_dict['walls']:
+            raise ValueError(f"Bot {idx} must not be on wall: {pos}.")
+        try:
+            if len(pos) != 2:
+                raise ValueError(f"Bot {idx} must be a valid position: got {pos} instead.")
+        except TypeError:
+            raise ValueError(f"Bot {idx} must be a valid position: got {pos} instead.")
+        if not (0, 0) <= pos < (width, height):
+            raise ValueError(f"Bot {idx} is not inside the layout: {pos}.")
+
     def split_food(width, food):
         team_food = [set(), set()]
         for pos in food:
@@ -263,10 +289,14 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
             team_food[idx].add(pos)
         return team_food
 
-    viewer_state = setup_viewers(viewers, options=viewer_options)
-
-    width = max(layout_dict['walls'])[0] + 1
     food = split_food(width, layout_dict['food'])
+
+    # warn if one of the food lists is already empty
+    side_no_food = [idx for idx, f in enumerate(food) if len(f) == 0]
+    if side_no_food:
+        warn(f"Layout has no food for team {side_no_food}.", NoFoodWarning)
+    
+    viewer_state = setup_viewers(viewers, options=viewer_options)
 
     game_state = GameState(
         teams=[None] * 2,
@@ -636,7 +666,7 @@ def apply_move(gamestate, bot_position):
         killed_enemies = [idx for idx in enemy_idx if bot_position == bots[idx]]
         for enemy_idx in killed_enemies:
             _logger.info(f"Bot {turn} eats enemy bot {enemy_idx} at {bot_position}.")
-            score[team] = score[team] + 5
+            score[team] = score[team] + KILL_POINTS
             init_positions = initial_positions(walls)
             bots[enemy_idx] = init_positions[enemy_idx]
             gamestate['respawned'][enemy_idx] = True
@@ -647,7 +677,7 @@ def apply_move(gamestate, bot_position):
         enemies_on_target = [idx for idx in enemy_idx if bots[idx] == bot_position]
         if len(enemies_on_target) > 0:
             _logger.info(f"Bot {turn} was eaten by bots {enemies_on_target} at {bot_position}.")
-            score[1 - team] = score[1 - team] + 5
+            score[1 - team] = score[1 - team] + KILL_POINTS
             init_positions = initial_positions(walls)
             bots[turn] = init_positions[turn]
             gamestate['respawned'][turn] = True

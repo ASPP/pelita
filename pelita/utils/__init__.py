@@ -35,6 +35,8 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
         team_index = 1
         enemy_index = 0
 
+    rng = random.Random(seed)
+
     team = {
         'bot_positions': layout.bots[:],
         'team_index': team_index,
@@ -55,12 +57,10 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
     }
 
     bot = make_bots(walls=layout.walls[:],
-                     team=team,
-                     enemy=enemy,
-                     round=None,
-                     bot_turn=0,
-                     seed=seed)
-    # TODO: Random handling needs to be improved
-    bot.random = random.Random(seed)
+                    team=team,
+                    enemy=enemy,
+                    round=None,
+                    bot_turn=0,
+                    rng=rng)
     return bot
 

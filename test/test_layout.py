@@ -256,3 +256,38 @@ def test_equal_positions():
     layout = parse_layout(layout_str)
     assert layout['bots'] == [(1, 1)]*4
 
+
+@pytest.mark.parametrize('pos, legal_moves', [
+    ((2, 2), {(2, 1), (2, 3), (1, 2), (3, 2), (2, 2)}),
+    ((1, 1), {(1, 2), (2, 1), (1, 1)}),
+    ((4, 2), {(4, 2), (4, 1), (4, 3), (3, 2)}),
+    ((4, 1), {(4, 2), (4, 1)})
+])
+def test_legal_moves(pos, legal_moves):
+    test_layout = (
+        """ ######
+            #  # #
+            #    #
+            #    #
+            ###### """)
+    parsed = parse_layout(test_layout)
+    assert set(get_legal_moves(parsed['walls'], pos)) == legal_moves
+
+
+@pytest.mark.parametrize('pos', [
+    (0, 0),
+    (0, 1),
+    (-1, 0),
+    (7, 7),
+    (3, 1)
+])
+def test_legal_moves_fail(pos):
+    test_layout = (
+        """ ######
+            #  # #
+            #    #
+            #    #
+            ###### """)
+    parsed = parse_layout(test_layout)
+    with pytest.raises(ValueError):
+        get_legal_moves(parsed['walls'], pos)

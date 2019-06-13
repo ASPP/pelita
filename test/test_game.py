@@ -12,7 +12,8 @@ from textwrap import dedent
 import numpy as np
 
 from pelita import game, layout
-from pelita.game import initial_positions, get_legal_moves, apply_move, run_game, setup_game
+from pelita.game import initial_positions, get_legal_moves, apply_move, run_game, setup_game, play_turn
+from pelita.player import stepping_player
 
 
 @contextmanager
@@ -685,6 +686,143 @@ def test_cascade_suicide():
     assert state['bots'] == layouts[3]['bots']
 
 
+def test_moving_through_maze():
+    test_start = """
+        ######
+        #0 . #
+        #.. 1#
+        #2  3#
+        ###### """
+    parsed = layout.parse_layout(test_start)
+    teams = [
+        stepping_player('>-v>>>-', '-^^->->'),
+        stepping_player('<<-<<<-', '-------')
+    ]
+    state = setup_game(teams, layout_dict=parsed, max_rounds=8)
+
+    # play first round
+    for i in range(4):
+        state = game.play_turn(state)
+    test_first_round = layout.parse_layout(
+        """ ######
+            # 0. #
+            #..1 #
+            #2  3#
+            ###### """)
+    
+    assert test_first_round['bots'] == state['bots']
+    assert test_first_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['score'] == [0, 0]
+
+    for i in range(4):
+        state = game.play_turn(state)
+    test_second_round = layout.parse_layout(
+        """ ######
+            #  . #
+            #.   #
+            #    #
+            ######
+            ######
+            # 0  #
+            #21  #
+            #   3#
+            ###### """)
+
+    assert test_second_round['bots'] == state['bots']
+    assert test_second_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['score'] == [0, 1]
+
+    for i in range(4):
+        state = game.play_turn(state)
+    test_third_round = layout.parse_layout(
+        """ ######
+            #2 . #
+            #.0 1#
+            #   3#
+            ###### """)
+
+    assert test_third_round['bots'] == state['bots']
+    assert test_third_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['score'] == [game.KILL_POINTS, 1]
+
+    for i in range(4):
+        state = game.play_turn(state)
+    test_fourth_round = layout.parse_layout(
+        """ ######
+            #  . #
+            #.   #
+            #    #
+            ######
+            ######
+            #2   #
+            #0 1 #
+            #   3#
+            ###### """)
+
+    assert test_fourth_round['bots'] == state['bots']
+    assert test_fourth_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['score'] == [game.KILL_POINTS, game.KILL_POINTS + 1]
+
+    for i in range(4):
+        state = game.play_turn(state)
+    test_fifth_round = layout.parse_layout(
+        """ ######
+            #  . #
+            #.   #
+            #    #
+            ######
+            ######
+            # 2  #
+            # 0 1#
+            #   3#
+            ###### """)
+    assert test_fifth_round['bots'] == state['bots']
+    assert test_fifth_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['score'] == [game.KILL_POINTS * 2, game.KILL_POINTS + 1]
+
+    for i in range(4):
+        state = game.play_turn(state)
+    test_sixth_round = layout.parse_layout(
+        """ ######
+            #  . #
+            #.   #
+            #    #
+            ######
+            ######
+            # 2  #
+            #0 1 #
+            #   3#
+            ###### """)
+    
+    assert test_sixth_round['bots'] == state['bots']
+    assert test_sixth_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['score'] == [game.KILL_POINTS * 2, game.KILL_POINTS * 2+ 1]
+
+    for i in range(3): # !! Only move three bots
+        state = game.play_turn(state)
+
+    test_seventh_round = layout.parse_layout(
+        """ ######
+            #    #
+            #.   #
+            #    #
+            ######
+            ######
+            #  2 #
+            #0 1 #
+            #   3#
+            ###### """)
+    
+    assert test_seventh_round['bots'] == state['bots']
+    assert test_seventh_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['score'] == [game.KILL_POINTS * 2 + 1, game.KILL_POINTS * 2 + 1]
+    assert state['gameover'] == True
+    assert state['whowins'] == 2
+
+    with pytest.raises(ValueError):
+        state = game.play_turn(state)
+
+
 @pytest.mark.parametrize('score', ([[3, 3], 2], [[1, 13], 1], [[13, 1], 0]))
 def test_play_turn_maxrounds(score):
     """Check that game quits at maxrounds and choses correct winner"""
@@ -1125,3 +1263,85 @@ def test_prepare_bot_state_resets_respawned_flag(bot_to_move, respawn_flags):
 
     # bot state should have proper respawn flags
     assert bot_state['team']['has_respawned'] == respawn_flags[team_id::2]
+
+
+def test_bot_does_not_eat_own_food():
+    test_layout = """
+        ######
+        #0 .3#
+        #.21 #
+        ######
+    """
+    teams = [
+        stepping_player('v', '<'),
+        stepping_player('^', '<')
+    ]
+    state = setup_game(teams, layout_dict=layout.parse_layout(test_layout), max_rounds=2)
+    assert state['bots'] == [(1, 1), (3, 2), (2, 2), (4, 1)]
+    assert state['food'] == [{(1, 2)}, {(3, 1)}]
+    for i in range(4):
+        state = play_turn(state)
+    assert state['bots'] == [(1, 2), (3, 1), (1, 2), (3, 1)]
+    assert state['food'] == [{(1, 2)}, {(3, 1)}]
+
+
+def test_suicide_win():
+    # Test how a bot eats a food pellet that the enemy sits on
+    # Since it is the last pellet, the game will end directly
+    test_layout = """
+        ######
+        #0 .1#
+        #.   #
+        #2  3#
+        ######
+    """
+    teams = [
+        stepping_player('>>', '--'),
+        stepping_player('<-', '--')
+    ]
+    state = setup_game(teams, layout_dict=layout.parse_layout(test_layout), max_rounds=2)
+    assert state['bots'] == [(1, 1), (4, 1), (1, 3), (4, 3)]
+    assert state['food'] == [{(1, 2)}, {(3, 1)}]
+    # play until finished
+    state = run_game(teams, layout_dict=layout.parse_layout(test_layout), max_rounds=2)
+    # bot 0 has been reset
+    assert state['bots'] == [(1, 2), (3, 1), (1, 3), (4, 3)]
+    assert state['food'] == [{(1, 2)}, set()]
+    assert state['gameover'] == True
+    assert state['whowins'] == 1
+    assert state['round'] == 2
+    assert state['turn'] == 0
+    assert state['score'] == [1, game.KILL_POINTS]
+
+
+def test_double_suicide():
+    # Test how a bot can be killed when it runs into two bots
+    test_layout = """
+        ######
+        # 01 #
+        #.  .#
+        ######
+
+        ######
+        # 2  #
+        #. 3.#
+        ######
+    """
+    teams = [
+        stepping_player('-', '-'),
+        stepping_player('<', '-')
+    ]
+    state = setup_game(teams, layout_dict=layout.parse_layout(test_layout), max_rounds=2)
+    assert state['bots'] == [(2, 1), (3, 1), (2, 1), (3, 2)]
+    assert state['food'] == [{(1, 2)}, {(4, 2)}]
+    # play a two turns so that 1 moves
+    state = play_turn(state)
+    state = play_turn(state)
+    # bot 1 has been reset
+    assert state['bots'] == [(2, 1), (4, 2), (2, 1), (3, 2)]
+    assert state['food'] == [{(1, 2)}, {(4, 2)}]
+    assert state['gameover'] == False
+    assert state['round'] == 1
+    assert state['turn'] == 1
+    # only a single KILL_POINT has been given
+    assert state['score'] == [game.KILL_POINTS, 0]

@@ -13,3 +13,7 @@ class PlayerDisconnected(FatalException):
     # it could simply be a network error for both teams
     # and it would be random who will be punished
     pass
+
+class NoFoodWarning(Warning):
+    """ Warns when a layout has no food during setup. """
+    pass
