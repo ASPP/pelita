@@ -10,7 +10,7 @@ def move(bot, state):
     # get a tuple with our enemy positions
     enemy_pos = (enemy[0].position, enemy[1].position)
 
-    # sensible moves are all legal moves that do not cause death
+    # sensible positions are all legal positions that do not cause death
     sensible_positions = bot.legal_positions[:]
     # if we would step on a ghost outside our homezone we discard this move
     for next_pos in bot.legal_positions:
@@ -24,8 +24,8 @@ def move(bot, state):
     else:
         # we can do something without risk
 
-        # collect positions that have something interesting in it (food or enemy to
-        # be eaten
+        # collect positions that have something interesting in it (food or
+        # enemy to be eaten
         interesting_positions = []
         # reshuffle the list of sensible moves
         bot.random.shuffle(sensible_positions)
@@ -38,12 +38,13 @@ def move(bot, state):
             if cond1 or cond2:
                     # if either one condition is met, this position is interesting
                     interesting_positions.append(new_pos)
-        # do we have any interesting moves to do?
+        # now we have scanned all sensible positions
+        # do we have any interesting left?
         if len(interesting_positions) > 0:
             # yes, so choose one at random
             next_pos = bot.random.choice(interesting_positions)
         else:
-            # all sensible moves are equally interesting, so pick
+            # all sensible positions are equally (un)interesting, so pick
             # one that we haven't seen already
             for next_pos in sensible_positions:
                 if next_pos not in bot.track:
