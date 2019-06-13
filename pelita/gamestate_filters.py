@@ -103,26 +103,28 @@ def alter_pos(bot_pos, noise_radius, rnd, walls):
 
     possible_positions = [
         (i, j)
-        for i in range(x_min, x_max)
-        for j in range(y_min, y_max)
+        for i in range(x_min, x_max + 1) # max + 1 since range is not inclusive at upper end
+        for j in range(y_min, y_max + 1) # max + 1 since range is not inclusive at upper end
         if manhattan_dist((i, j), bot_pos) <= noise_radius
+        and not (i, j) in walls # check that the bot won't returned as positioned on a wall square
     ]
 
-    # shuffle the list of positions
-    rnd.shuffle(possible_positions)
-    final_pos = bot_pos
-    noisy = False
-    for pos in possible_positions:
-        # check that the bot won't returned as positioned on a wall square
-        if pos in walls:
-            continue
-        else:
-            final_pos = pos
-            noisy = True
-            break
-            # return the final_pos and a flag if it is noisy or not
+    if len(possible_positions) < 1:
+        # this should not happen
+        # anyway. return the bot’s current position
+        # TODO: Should probably raise?
+        final_pos = bot_pos
+        noisy = False
+    elif len(possible_positions) == 1:
+        final_pos = possible_positions[0]
+        noisy = False
+    else:
+        # select a random position
+        final_pos = rnd.choice(possible_positions)
+        noisy = True
+
+    # return the final_pos and a flag if it is noisy or not
     return (final_pos, noisy)
-    # return ((0,0), True)
 
 
 def manhattan_dist(pos1, pos2):
