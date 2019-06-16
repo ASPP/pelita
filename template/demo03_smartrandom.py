@@ -27,8 +27,6 @@ def move(bot, state):
         # collect positions that have something interesting in it (food or
         # enemy to be eaten
         interesting_positions = []
-        # reshuffle the list of sensible moves
-        bot.random.shuffle(sensible_positions)
         for new_pos in sensible_positions:
             # the new position is interesting if
             # 1. we are in our homezone and we can eat an enemy
