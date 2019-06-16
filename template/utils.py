@@ -5,7 +5,7 @@ def shortest_path(bot_position, target_position, graph):
     return graph.a_star(bot_position, target_position)
 
 def walls_to_nxgraph(walls):
-    """Return a networkx Graph object given a pelita maze (walls)"""
+    """Return a networkx Graph object given the walls"""
     import networkx
     graph = networkx.Graph()
     width = max([coord[0] for coord in walls]) + 1
