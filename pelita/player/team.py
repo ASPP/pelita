@@ -19,32 +19,20 @@ _logger = logging.getLogger(__name__)
 
 
 class Team(AbstractTeam):
-    """ Simple class used to register an arbitrary number of (Abstract-)Players.
-
-    Each Player is used to control a Bot in the Universe.
-
-    SimpleTeam transforms the `set_initial` and `get_move` messages
-    from the GameMaster into calls to the user-supplied functions.
+    """
+    Wraps a move function and forwards it the `set_initial`
+    and `get_move` requests.
 
     Parameters
     ----------
+    team_move : function with (bot, state) -> position
+        the team’s move function
     team_name :
         the name of the team (optional)
-    players : functions with signature (datadict, storage) -> move
-        the Players who shall join this SimpleTeam
     """
-    def __init__(self, *args):
-        if not args:
-            raise ValueError("No teams given.")
-
-        if isinstance(args[0], str):
-            self.team_name = args[0]
-            team_move = args[1]
-        else:
-            self.team_name = ""
-            team_move = args[0]
-
+    def __init__(self, team_move, *, team_name=""):
         self._team_move = team_move
+        self.team_name = team_name
 
     def set_initial(self, team_id, game_state):
         """ Sets the bot indices for the team and returns the team name.
@@ -151,7 +139,7 @@ class Team(AbstractTeam):
         }
 
     def __repr__(self):
-        return "Team(%r, %s)" % (self.team_name, repr(self._team_move))
+        return f'Team({self._team_move!r}, {self.team_name!r})'
 
 
 class RemoteTeam:
@@ -334,7 +322,7 @@ def make_team(team_spec, team_name=None, zmq_context=None, idx=None):
         # wrap the move function in a Team
         if team_name is None:
             team_name = f'local-team ({team_spec.__name__})'
-        team_player = Team(team_name, team_spec)
+        team_player = Team(team_spec, team_name=team_name)
     elif isinstance(team_spec, str):
         _logger.debug("Making a remote team for %s", team_spec)
         # wrap the move function in a Team
@@ -649,7 +637,7 @@ def new_style_team(module):
         raise TypeError("move is not a function")
     if type(name) is not str:
         raise TypeError("TEAM_NAME is not a string")
-    return lambda: Team(name, move)
+    return lambda: Team(move, team_name=name)
 
 
 # @dataclass
