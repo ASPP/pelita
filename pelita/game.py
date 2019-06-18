@@ -316,7 +316,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         layout_name=None,
         team_names=[None] * 2,
         fatal_errors=[[], []],
-        errors=[[], []],
+        errors=[{}, {}],
         whowins=None,
         rnd=Random(seed),
         viewers=[],
@@ -519,6 +519,7 @@ def play_turn(game_state):
     game_state.update(update_round_counter(game_state))
 
     turn = game_state['turn']
+    round = game_state['round']
     team = turn % 2
     # request a new move from the current team
     try:
@@ -552,11 +553,9 @@ def play_turn(game_state):
         # are collected and added to team_errors
         exception_event = {
             'type': e.__class__.__name__,
-            'description': str(e),
-            'turn': game_state['turn'],
-            'round': game_state['round'],
+            'description': str(e)
         }
-        game_state['errors'][team].append(exception_event)
+        game_state['errors'][team][(round, turn)] = exception_event
         position = None
         game_print(turn, f"{type(e).__name__}: {e}")
 
@@ -624,24 +623,33 @@ def apply_move(gamestate, bot_position):
 
     # previous errors
     team_errors = gamestate["errors"][team]
-    # check is step is legal
+
+    # the allowed moves for the current bot
     legal_moves = get_legal_moves(walls, gamestate["bots"][gamestate["turn"]])
-    if bot_position not in legal_moves:
-        bad_bot_position = bot_position
-        bot_position = legal_moves[gamestate['rnd'].randint(0, len(legal_moves)-1)]
-        error_dict = {
-            "turn": turn,
-            "round": n_round,
-            "reason": 'illegal move',
-            "bot_position": bot_position
-            }
-        game_print(turn, f"Illegal move {bad_bot_position} not in {sorted(legal_moves)}. Choosing a random move instead: {bot_position}")
-        team_errors.append(error_dict)
+
+    # unless we have already made an error, check if we made a legal move
+    if not (n_round, turn) in team_errors:
+        if bot_position not in legal_moves:
+            error_dict = {
+                "reason": 'illegal move',
+                "bot_position": bot_position
+                }
+            # add the error to the team’s errors
+            game_print(turn, f"Illegal move {bot_position} not in {sorted(legal_moves)}.")
+            team_errors[(n_round, turn)] = error_dict
 
     # only execute move if errors not exceeded
     gamestate.update(check_gameover(gamestate))
     if gamestate['gameover']:
         return gamestate
+
+    # Now check if we must make a random move
+    if (n_round, turn) in team_errors:
+        # There was an error for this round and turn
+        # (but not enough that the game is over)
+        # We execute a random move
+        bot_position = gamestate['rnd'].choice(legal_moves)
+        game_print(turn, f"Choosing a random move instead: {bot_position}")
 
     # take step
     bots[turn] = bot_position

@@ -180,21 +180,23 @@ def test_play_turn_apply_error(turn):
     """check that quits when there are too many errors"""
     game_state = setup_random_basic_gamestate()
     error_dict = {
-        "turn": 0,
-        "round": 0,
         "reason": 'illegal move',
         "bot_position": (1, 2)
     }
     game_state["turn"] = turn
     team = turn % 2
-    game_state["errors"] = [[error_dict, error_dict, error_dict, error_dict],
-                            [error_dict, error_dict, error_dict, error_dict]]
+    game_state["errors"] = [{(r, t): error_dict for r in (1, 2) for t in (0, 1)},
+                            {(r, t): error_dict for r in (1, 2) for t in (0, 1)}]
+    # we pretend that two rounds have already been played
+    # so that the error dictionaries are sane
+    game_state["round"] = 3
+
     illegal_move = game_state["walls"][0]
     game_state_new = apply_move(game_state, illegal_move)
     assert game_state_new["gameover"]
     assert len(game_state_new["errors"][team]) == 5
     assert game_state_new["whowins"] == int(not team)
-    assert set(game_state_new["errors"][team][4].keys()) == set(["turn", "round", "reason", "bot_position"])
+    assert set(game_state_new["errors"][team][(3, turn)].keys()) == set(["reason", "bot_position"])
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
 def test_play_turn_fatal(turn):
@@ -219,7 +221,7 @@ def test_play_turn_illegal_move(turn):
     illegal_move = game_state["walls"][0]
     game_state_new = apply_move(game_state, illegal_move)
     assert len(game_state_new["errors"][team]) == 1
-    assert set(game_state_new["errors"][team][0].keys()) == set(["turn", "round", "reason", "bot_position"])
+    assert game_state_new["errors"][team][(1, turn)].keys() == set(["reason", "bot_position"])
     assert game_state_new["bots"][turn] in get_legal_moves(game_state["walls"], game_state["bots"][turn])
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
