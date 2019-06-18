@@ -1,9 +1,12 @@
 import pytest
 
 import subprocess
+import tempfile
+from textwrap import dedent
 
 import pelita.game
 from pelita import libpelita
+from pelita.player import stopping_player
 
 
 addr_stopping = 'tcp://127.0.0.1:52301'
@@ -45,3 +48,42 @@ def test_remote_run_game(remote_teams):
     assert state['whowins'] == 1
     assert state['fatal_errors'] == [[], []]
     assert state['errors'] == [{}, {}]
+
+def test_remote_timeout():
+    # We have a slow player that also generates a bad move
+    # in its second turn.
+    # We need to detect both.
+
+    layout = """
+        ##########
+        #  2  3  #
+        #0  ..  1#
+        ##########
+        """
+
+    tp = """
+    import time
+    TEAM_NAME = "500ms timeout"
+    def move(b, s):
+        if b.round == 1 and b.turn == 1:
+            return (-2, 0), s
+        time.sleep(0.5)
+        return b.position, s
+    """
+    with tempfile.NamedTemporaryFile('w+', suffix='.py') as f:
+        print(dedent(tp), file=f, flush=True)
+        timeout_player = f.name
+
+        state = pelita.game.run_game([stopping_player, timeout_player],
+                                     max_rounds=8,
+                                     layout_dict=pelita.layout.parse_layout(layout),
+                                     timeout_length=0.5)
+
+    assert state['whowins'] == 0
+    assert state['fatal_errors'] == [[], []]
+    assert state['errors'] == [{},
+        {(1, 1): {'description': '', 'type': 'PlayerTimeout'},
+        (1, 3): {'bot_position': (-2, 0), 'reason': 'illegal move'},
+        (2, 1): {'description': '', 'type': 'PlayerTimeout'},
+        (2, 3): {'description': '', 'type': 'PlayerTimeout'},
+        (3, 1): {'description': '', 'type': 'PlayerTimeout'}}]

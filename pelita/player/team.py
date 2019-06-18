@@ -240,8 +240,8 @@ class RemoteTeam:
             return self._team_name
 
         try:
-            self.zmqconnection.send("team_name", {})
-            team_name = self.zmqconnection.recv_timeout(self._request_timeout)
+            msg_id = self.zmqconnection.send("team_name", {})
+            team_name = self.zmqconnection.recv_timeout(msg_id, self._request_timeout)
             if team_name:
                 self._team_name = team_name
             return team_name
@@ -255,9 +255,9 @@ class RemoteTeam:
     def set_initial(self, team_id, game_state):
         timeout_length = game_state['timeout_length']
         try:
-            self.zmqconnection.send("set_initial", {"team_id": team_id,
+            msg_id = self.zmqconnection.send("set_initial", {"team_id": team_id,
                                                     "game_state": game_state})
-            team_name = self.zmqconnection.recv_timeout(timeout_length)
+            team_name = self.zmqconnection.recv_timeout(msg_id, timeout_length)
             if team_name:
                 self._team_name = team_name
             return team_name
@@ -278,8 +278,8 @@ class RemoteTeam:
     def get_move(self, game_state):
         timeout_length = game_state['timeout_length']
         try:
-            self.zmqconnection.send("get_move", {"game_state": game_state})
-            reply = self.zmqconnection.recv_timeout(timeout_length)
+            msg_id = self.zmqconnection.send("get_move", {"game_state": game_state})
+            reply = self.zmqconnection.recv_timeout(msg_id, timeout_length)
             # make sure it is a dict
             reply = dict(reply)
             if "error" in reply:

@@ -135,8 +135,6 @@ class ZMQConnection:
         Poller for incoming connections
     pollout : zmq poller
         Poller for outgoing connections
-    last_uuid : uuid
-        Uuid which the next incoming message has to match
     """
     def __init__(self, socket):
         self.socket = socket
@@ -145,14 +143,17 @@ class ZMQConnection:
         self.pollout = zmq.Poller()
         self.pollout.register(socket, zmq.POLLOUT)
 
-        self.last_uuid = None
-
     def send(self, action, data, timeout=None):
+        """ Sends a message or request `action`
+        and attached data to the socket and returns the
+        message id that is needed to receive the reply.
+        """
+
         if timeout is None:
             timeout = DEAD_CONNECTION_TIMEOUT
 
-        msg_uuid = str(uuid.uuid4())
-        _logger.debug("---> %r [%s]", action, msg_uuid)
+        msg_id = str(uuid.uuid4())
+        _logger.debug("---> %r [%s]", action, msg_id)
 
         # Check before sending that the socket can receive
         socks = dict(self.pollout.poll(timeout * 1000))
@@ -160,7 +161,7 @@ class ZMQConnection:
             # I think we need to set NOBLOCK here, else we may run into a
             # race condition if a connection was closed between poll and send.
             # NOBLOCK should raise, so we can catch that
-            message_obj = {"__uuid__": msg_uuid, "__action__": action, "__data__": data}
+            message_obj = {"__uuid__": msg_id, "__action__": action, "__data__": data}
             json_message = json.dumps(message_obj)
             try:
                 self.socket.send_unicode(json_message, flags=zmq.NOBLOCK)
@@ -169,9 +170,9 @@ class ZMQConnection:
                 raise ZMQUnreachablePeer()
         else:
             raise ZMQUnreachablePeer()
-        self.last_uuid = msg_uuid
+        return msg_id
 
-    def recv(self):
+    def recv(self, expected_id):
         # return tuple
         # (action, data)
         json_message = self.socket.recv_unicode()
@@ -192,25 +193,22 @@ class ZMQConnection:
             pass
 
         try:
-            msg_uuid = py_obj["__uuid__"]
+            msg_id = py_obj["__uuid__"]
         except KeyError:
             _logger.warning('__uuid__ missing in message.')
-            msg_uuid = None
         
         msg_return = py_obj.get("__return__")
 
-        _logger.debug("<--- %r [%s]", msg_return, msg_uuid)
+        _logger.debug("<--- %r [%s]", msg_return, msg_id)
 
-        if msg_uuid == self.last_uuid:
-            self.last_uuid = None
+        if msg_id == expected_id:
             return msg_return
         else:
-            self.last_uuid = None
             raise UnknownMessageId()
 
-    def recv_timeout(self, timeout):
+    def recv_timeout(self, expected_id, timeout):
         if timeout is None:
-            return self.recv()
+            return self.recv(expected_id)
 
         time_now = time.monotonic()
         #: calculate until when it may take
@@ -222,7 +220,7 @@ class ZMQConnection:
             socks = dict(self.pollin.poll(time_left * 1000)) # poll needs milliseconds
             if socks.get(self.socket) == zmq.POLLIN:
                 try:
-                    reply = self.recv()
+                    reply = self.recv(expected_id)
                     # No error? Then it is the answer that we wanted. Good.
                     return reply
                 except UnknownMessageId:
