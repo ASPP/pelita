@@ -151,33 +151,51 @@ class RemoteTeam:
 
     Parameters
     ----------
-    zmq_context
-        A zmq_context (if None, a new one will be created)
     team_spec
         The string to pass as a command line argument to pelita_player
-    address
-        The zmq address (an address will be chosen randomly, if empty)
+        or the address of a remote player
+    team_name
+        Overrides the team name
+    zmq_context
+        A zmq_context (if None, a new one will be created)
+    idx
+        The team index (currently only used to specify the team’s color)
     """
-    def __init__(self, team_spec, team_name=None, address="tcp://", zmq_context=None, timeout_length=3, idx=None):
+    def __init__(self, team_spec, *, team_name=None, zmq_context=None, idx=None):
         if zmq_context is None:
             zmq_context = zmq.Context()
 
         self._team_spec = team_spec
         self._team_name = team_name
-        self.timeout_length = timeout_length
 
         if team_spec.startswith('remote:tcp://'):
-            _logger.info("Received remote address.")
+            # We connect to a remote player that is listening
+            # on the given team_spec address.
+            # We create a new DEALER socket and send a single
+            # REQUEST message to the remote address.
+            # The remote player will then create a new instance
+            # of a player and forward all of our zmq traffic
+            # to that player.
+
+            # remove the "remote:" part from the address
             send_addr = team_spec[len("remote:"):]
             address = "tcp://*"
             self.bound_to_address = address
 
             socket = zmq_context.socket(zmq.DEALER)
             socket.connect(send_addr)
-            _logger.info("Connecting zmq.DEALER to {}.".format(send_addr))
+            _logger.info("Connecting zmq.DEALER to remote player at {}.".format(send_addr))
             socket.send_json({"REQUEST": address})
             self.proc = None
+
         else:
+            # We bind to a local tcp port with a zmq PAIR socket
+            # and start a new subprocess of pelita_player.py
+            # that includes the address of that socket and the
+            # team_spec as command line arguments.
+            # The subprocess will then connect to this address
+            # and load the team.
+
             socket = zmq_context.socket(zmq.PAIR)
             port = socket.bind_to_random_port('tcp://*')
             self.bound_to_address = f"tcp://localhost:{port}"
@@ -318,24 +336,17 @@ def make_team(team_spec, team_name=None, zmq_context=None, idx=None):
 
     """
     if callable(team_spec):
-        _logger.debug("Making a local team for %s", team_spec)
+        _logger.info("Making a local team for %s", team_spec)
         # wrap the move function in a Team
         if team_name is None:
             team_name = f'local-team ({team_spec.__name__})'
         team_player = Team(team_spec, team_name=team_name)
     elif isinstance(team_spec, str):
-        _logger.debug("Making a remote team for %s", team_spec)
-        # wrap the move function in a Team
-            # TODO
-
-        if team_spec.startswith('tcp://'):
-            # remote team TODO
-            pass
-        else:
-            # start pelita-player
-            if not zmq_context:
-                zmq_context = zmq.Context()
-            team_player = RemoteTeam(team_spec=team_spec, zmq_context=zmq_context, idx=idx)
+        _logger.info("Making a remote team for %s", team_spec)
+        # set up the zmq connections and build a RemoteTeam
+        if not zmq_context:
+            zmq_context = zmq.Context()
+        team_player = RemoteTeam(team_spec=team_spec, zmq_context=zmq_context, idx=idx)
 
     return team_player, zmq_context
 
