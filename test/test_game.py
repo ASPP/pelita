@@ -12,7 +12,7 @@ from textwrap import dedent
 import numpy as np
 
 from pelita import game, layout
-from pelita.game import initial_positions, get_legal_moves, apply_move, run_game, setup_game, play_turn
+from pelita.game import initial_positions, get_legal_positions, apply_move, run_game, setup_game, play_turn
 from pelita.player import stepping_player
 
 
@@ -158,7 +158,7 @@ def test_get_legal_moves_basic():
     """Check that the output of legal moves contains all legal moves for one example layout"""
     l = layout.get_layout_by_name(layout_name="layout_small_without_dead_ends_100")
     parsed_l = layout.parse_layout(l)
-    legal_moves = get_legal_moves(parsed_l["walls"], parsed_l["bots"][0])
+    legal_moves = get_legal_positions(parsed_l["walls"], parsed_l["bots"][0])
     exp = [(2, 5), (1, 6), (1, 5)]
     assert legal_moves == exp
 
@@ -169,7 +169,7 @@ def test_get_legal_moves_random(layout_t, bot_idx):
     layout_name, layout_string = layout_t # get_random_layout returns a tuple of name and string
     parsed_l = layout.parse_layout(layout_string)
     bot = parsed_l["bots"][bot_idx]
-    legal_moves = get_legal_moves(parsed_l["walls"], bot)
+    legal_moves = get_legal_positions(parsed_l["walls"], bot)
     for move in legal_moves:
         assert move not in parsed_l["walls"]
         assert  abs((move[0] - bot[0])+(move[1] - bot[1])) <= 1
@@ -207,7 +207,7 @@ def test_play_turn_fatal(turn):
     fatal_list = [{}, {}]
     fatal_list[team] = {"error":True}
     game_state["fatal_errors"] = fatal_list
-    move = get_legal_moves(game_state["walls"], game_state["bots"][turn])
+    move = get_legal_positions(game_state["walls"], game_state["bots"][turn])
     game_state_new = apply_move(game_state, move[0])
     assert game_state_new["gameover"]
     assert game_state_new["whowins"] == int(not team)
@@ -222,7 +222,7 @@ def test_play_turn_illegal_move(turn):
     game_state_new = apply_move(game_state, illegal_move)
     assert len(game_state_new["errors"][team]) == 1
     assert game_state_new["errors"][team][(1, turn)].keys() == set(["reason", "bot_position"])
-    assert game_state_new["bots"][turn] in get_legal_moves(game_state["walls"], game_state["bots"][turn])
+    assert game_state_new["bots"][turn] in get_legal_positions(game_state["walls"], game_state["bots"][turn])
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
 @pytest.mark.parametrize('which_food', (0, 1))
@@ -859,7 +859,7 @@ def test_play_turn_move():
         "fatal_errors": [{}, {}],
         "rnd": random.Random()
         }
-    legal_moves = get_legal_moves(game_state["walls"], game_state["bots"][turn])
+    legal_moves = get_legal_positions(game_state["walls"], game_state["bots"][turn])
     game_state_new = apply_move(game_state, legal_moves[0])
     assert game_state_new["bots"][turn] == legal_moves[0]
 

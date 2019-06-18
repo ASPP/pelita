@@ -13,7 +13,7 @@ from warnings import warn
 from . import layout
 from .exceptions import FatalException, NonFatalException, NoFoodWarning
 from .gamestate_filters import noiser
-from .layout import initial_positions, get_legal_moves
+from .layout import initial_positions, get_legal_positions
 from .libpelita import get_python_process, SimplePublisher
 from .network import bind_socket, setup_controller
 from .player.team import make_team
@@ -625,17 +625,17 @@ def apply_move(gamestate, bot_position):
     team_errors = gamestate["errors"][team]
 
     # the allowed moves for the current bot
-    legal_moves = get_legal_moves(walls, gamestate["bots"][gamestate["turn"]])
+    legal_positions = get_legal_positions(walls, gamestate["bots"][gamestate["turn"]])
 
     # unless we have already made an error, check if we made a legal move
     if not (n_round, turn) in team_errors:
-        if bot_position not in legal_moves:
+        if bot_position not in legal_positions:
             error_dict = {
                 "reason": 'illegal move',
                 "bot_position": bot_position
                 }
             # add the error to the team’s errors
-            game_print(turn, f"Illegal move {bot_position} not in {sorted(legal_moves)}.")
+            game_print(turn, f"Illegal position. {bot_position} not in legal positions: {sorted(legal_positions)}.")
             team_errors[(n_round, turn)] = error_dict
 
     # only execute move if errors not exceeded
@@ -646,10 +646,10 @@ def apply_move(gamestate, bot_position):
     # Now check if we must make a random move
     if (n_round, turn) in team_errors:
         # There was an error for this round and turn
-        # (but not enough that the game is over)
+        # but the game is not over.
         # We execute a random move
-        bot_position = gamestate['rnd'].choice(legal_moves)
-        game_print(turn, f"Choosing a random move instead: {bot_position}")
+        bot_position = gamestate['rnd'].choice(legal_positions)
+        game_print(turn, f"Setting a legal position at random: {bot_position}")
 
     # take step
     bots[turn] = bot_position
