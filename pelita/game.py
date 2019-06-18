@@ -360,14 +360,15 @@ def setup_teams(team_specs, game_state):
     """ Creates the teams according to the `teams`. """
 
     # we start with a dummy zmq_context
-    # make_team will generate and return a new context, if it is needed
+    # make_team will generate and return a new zmq_context,
+    # if it is needed for a remote team
     zmq_context = None
 
     teams = []
     # First, create all teams
     # If a team is a RemoteTeam, this will start a subprocess
     for idx, team_spec in enumerate(team_specs):
-        team, zmq_context = make_team(team_spec, idx=idx)
+        team, zmq_context = make_team(team_spec, idx=idx, zmq_context=zmq_context)
         teams.append(team)
 
     # Send the initial state to the teams and await the team name
@@ -383,7 +384,6 @@ def setup_teams(team_specs, game_state):
                 'round': None,
             }
             game_state['fatal_errors'][idx].append(exception_event)
-            position = None
             if len(e.args) > 1:
                 game_print(idx, f"{type(e).__name__} ({e.args[0]}): {e.args[1]}")
                 team_name = f"%%%{e.args[0]}%%%"
@@ -469,7 +469,7 @@ def prepare_bot_state(game_state, idx=None):
 
     bot_state = {
         'walls': game_state['walls'], # only in initial round
-        'seed': seed, # only used in set_intital phase
+        'seed': seed, # only used in set_initial phase
         'team': team_state,
         'enemy': enemy_state,
         'round': game_state['round'],
