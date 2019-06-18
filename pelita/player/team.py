@@ -168,6 +168,9 @@ class RemoteTeam:
         self._team_spec = team_spec
         self._team_name = team_name
 
+        #: Default timeout for a request, unless specified in the game_state
+        self._request_timeout = 3
+
         if team_spec.startswith('remote:tcp://'):
             # We connect to a remote player that is listening
             # on the given team_spec address.
@@ -238,7 +241,7 @@ class RemoteTeam:
 
         try:
             self.zmqconnection.send("team_name", {})
-            team_name = self.zmqconnection.recv_timeout(DEAD_CONNECTION_TIMEOUT)
+            team_name = self.zmqconnection.recv_timeout(self._request_timeout)
             if team_name:
                 self._team_name = team_name
             return team_name
@@ -250,10 +253,11 @@ class RemoteTeam:
             return "%error%"
 
     def set_initial(self, team_id, game_state):
+        timeout_length = game_state['timeout_length']
         try:
             self.zmqconnection.send("set_initial", {"team_id": team_id,
                                                     "game_state": game_state})
-            team_name = self.zmqconnection.recv_timeout(self.timeout_length)
+            team_name = self.zmqconnection.recv_timeout(timeout_length)
             if team_name:
                 self._team_name = team_name
             return team_name
@@ -271,10 +275,11 @@ class RemoteTeam:
                 _logger.warning(f"Client connection failed: {error_message}")
             raise PlayerDisconnected(*e.args) from None
 
-    def get_move(self, game_state, timeout_length=None):
+    def get_move(self, game_state):
+        timeout_length = game_state['timeout_length']
         try:
             self.zmqconnection.send("get_move", {"game_state": game_state})
-            reply = self.zmqconnection.recv_timeout(self.timeout_length)
+            reply = self.zmqconnection.recv_timeout(timeout_length)
             # make sure it is a dict
             reply = dict(reply)
             if "error" in reply:

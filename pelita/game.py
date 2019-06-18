@@ -129,6 +129,9 @@ class GameState:
     #: Random number generator
     rnd: typing.Any
 
+    #: Timeout length
+    timeout_length: typing.Optional[int]
+
     #: Viewers
     viewers: typing.List
 
@@ -188,7 +191,7 @@ def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None, 
     """ Run a match for `max_rounds` rounds. """
 
     # we create the initial game state
-    state = setup_game(team_specs, layout_dict=layout_dict, max_rounds=max_rounds, seed=seed,
+    state = setup_game(team_specs, layout_dict=layout_dict, max_rounds=max_rounds, timeout_length=timeout_length, seed=seed,
                        viewers=viewers, controller=controller, viewer_options=viewer_options)
 
     # Play the game until it is gameover.
@@ -323,7 +326,8 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         controller=None,
         team_time=[0, 0],
         times_killed=[0, 0],
-        respawned=[True] * 4
+        respawned=[True] * 4,
+        timeout_length=timeout_length
     )
     game_state = dataclasses.asdict(game_state)
 
@@ -473,7 +477,8 @@ def prepare_bot_state(game_state, idx=None):
         'team': team_state,
         'enemy': enemy_state,
         'round': game_state['round'],
-        'bot_turn': bot_turn
+        'bot_turn': bot_turn,
+        'timeout_length': game_state['timeout_length']
     }
 
     return bot_state
