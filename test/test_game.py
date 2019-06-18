@@ -154,23 +154,23 @@ def test_initial_positions_same_in_layout(layout_name):
     out = initial_positions(walls)
     assert out == exp
 
-def test_get_legal_moves_basic():
+def test_get_legal_positions_basic():
     """Check that the output of legal moves contains all legal moves for one example layout"""
     l = layout.get_layout_by_name(layout_name="layout_small_without_dead_ends_100")
     parsed_l = layout.parse_layout(l)
-    legal_moves = get_legal_positions(parsed_l["walls"], parsed_l["bots"][0])
+    legal_positions = get_legal_positions(parsed_l["walls"], parsed_l["bots"][0])
     exp = [(2, 5), (1, 6), (1, 5)]
-    assert legal_moves == exp
+    assert legal_positions == exp
 
 @pytest.mark.parametrize('layout_t', [layout.get_random_layout() for _ in range(50)])
 @pytest.mark.parametrize('bot_idx', (0, 1, 2, 3))
-def test_get_legal_moves_random(layout_t, bot_idx):
+def test_get_legal_positions_random(layout_t, bot_idx):
     """Check that the output of legal moves returns only moves that are 1 field away and not inside a wall"""
     layout_name, layout_string = layout_t # get_random_layout returns a tuple of name and string
     parsed_l = layout.parse_layout(layout_string)
     bot = parsed_l["bots"][bot_idx]
-    legal_moves = get_legal_positions(parsed_l["walls"], bot)
-    for move in legal_moves:
+    legal_positions = get_legal_positions(parsed_l["walls"], bot)
+    for move in legal_positions:
         assert move not in parsed_l["walls"]
         assert  abs((move[0] - bot[0])+(move[1] - bot[1])) <= 1
 
@@ -191,8 +191,8 @@ def test_play_turn_apply_error(turn):
     # so that the error dictionaries are sane
     game_state["round"] = 3
 
-    illegal_move = game_state["walls"][0]
-    game_state_new = apply_move(game_state, illegal_move)
+    illegal_position = game_state["walls"][0]
+    game_state_new = apply_move(game_state, illegal_position)
     assert game_state_new["gameover"]
     assert len(game_state_new["errors"][team]) == 5
     assert game_state_new["whowins"] == int(not team)
@@ -213,13 +213,13 @@ def test_play_turn_fatal(turn):
     assert game_state_new["whowins"] == int(not team)
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
-def test_play_turn_illegal_move(turn):
+def test_play_turn_illegal_position(turn):
     """check that illegal moves are added to error dict and bot still takes move"""
     game_state = setup_random_basic_gamestate()
     game_state["turn"] = turn
     team = turn % 2
-    illegal_move = game_state["walls"][0]
-    game_state_new = apply_move(game_state, illegal_move)
+    illegal_position = game_state["walls"][0]
+    game_state_new = apply_move(game_state, illegal_position)
     assert len(game_state_new["errors"][team]) == 1
     assert game_state_new["errors"][team][(1, turn)].keys() == set(["reason", "bot_position"])
     assert game_state_new["bots"][turn] in get_legal_positions(game_state["walls"], game_state["bots"][turn])
@@ -859,9 +859,9 @@ def test_play_turn_move():
         "fatal_errors": [{}, {}],
         "rnd": random.Random()
         }
-    legal_moves = get_legal_positions(game_state["walls"], game_state["bots"][turn])
-    game_state_new = apply_move(game_state, legal_moves[0])
-    assert game_state_new["bots"][turn] == legal_moves[0]
+    legal_positions = get_legal_positions(game_state["walls"], game_state["bots"][turn])
+    game_state_new = apply_move(game_state, legal_positions[0])
+    assert game_state_new["bots"][turn] == legal_positions[0]
 
 
 
