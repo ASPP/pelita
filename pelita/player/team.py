@@ -419,18 +419,18 @@ class Bot:
             self.is_noisy = is_noisy
 
     @property
-    def legal_moves(self):
+    def legal_directions(self):
         """ The legal moves that the bot can make from its current position,
         including no move at all.
         """
-        legal_moves = [(0, 0)]
+        legal_directions = [(0, 0)]
 
         for move in [(-1, 0), (1, 0), (0, 1), (0, -1)]:
             new_pos = (self.position[0] + move[0], self.position[1] + move[1])
             if not new_pos in self.walls:
-                legal_moves.append(move)
+                legal_directions.append(move)
 
-        return legal_moves
+        return legal_directions
 
     @property
     def legal_positions(self):
@@ -439,8 +439,8 @@ class Bot:
         """
         legal_positions = []
 
-        for move in [(0, 0), (-1, 0), (1, 0), (0, 1), (0, -1)]:
-            new_pos = (self.position[0] + move[0], self.position[1] + move[1])
+        for direction in [(0, 0), (-1, 0), (1, 0), (0, 1), (0, -1)]:
+            new_pos = (self.position[0] + direction[0], self.position[1] + direction[1])
             if not new_pos in self.walls:
                 legal_positions.append(new_pos)
 
@@ -478,8 +478,8 @@ class Bot:
         """ Print some text in the graphical interface. """
         self._say = text
 
-    def get_move(self, position):
-        """ Return the move needed to get to the given position.
+    def get_direction(self, position):
+        """ Return the direction needed to get to the given position.
 
         Raises
         ======
@@ -487,21 +487,21 @@ class Bot:
             If the position cannot be reached by a legal move
         """
         direction = (position[0] - self.position[0], position[1] - self.position[1])
-        if direction not in self.legal_moves:
+        if direction not in self.legal_directions:
             raise ValueError("Cannot reach position %s (would have been: %s)." % (position, direction))
         return direction
 
-    def get_position(self, move):
-        """ Return the position reached with the given move
+    def get_position(self, direction):
+        """ Return the position reached with the given direction
 
         Raises
         ======
         ValueError
-            If the move is not legal.
+            If the direction is not legal.
         """
-        if move not in self.legal_moves:
-            raise ValueError(f"Move {move} is not legal.")
-        position = (move[0] + self.position[0], move[1] + self.position[1])
+        if direction not in self.legal_directions:
+            raise ValueError(f"Direction {direction} is not legal.")
+        position = (direction[0] + self.position[0], direction[1] + self.position[1])
         return position
 
     @property
