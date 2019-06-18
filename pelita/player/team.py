@@ -625,21 +625,6 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
     return team_bots[bot_turn]
 
 
-
-
-def new_style_team(module):
-    """ Looks for a new-style team in `module`.
-    """
-    # look for a new-style team
-    move = getattr(module, "move")
-    name = getattr(module, "TEAM_NAME")
-    if not callable(move):
-        raise TypeError("move is not a function")
-    if type(name) is not str:
-        raise TypeError("TEAM_NAME is not a string")
-    return lambda: Team(move, team_name=name)
-
-
 # @dataclass
 class Layout:
     def __init__(self, walls, food, bots, enemy):
