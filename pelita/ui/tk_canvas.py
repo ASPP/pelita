@@ -488,7 +488,7 @@ class TkApplication:
 
         def status(team_idx):
             try:
-                ret = "Timeouts: %d, Killed: %d, Time: %.2f" % (game_state["timeout_teams"][team_idx], game_state["times_killed"][team_idx], game_state["team_time"][team_idx])
+                ret = "Errors: %d, Killed: %d, Time: %.2f" % (game_state["num_errors"][team_idx], game_state["times_killed"][team_idx], game_state["team_time"][team_idx])
                 disqualified = game_state["teams_disqualified"][team_idx]
                 if disqualified is not None:
                     ret += ", Disqualified: %s" % disqualified
@@ -727,7 +727,6 @@ class TkApplication:
             skip_request = False
             self._observed_steps.add(step)
         # TODO
-        game_state['timeout_teams'] = [len(errors) for errors in game_state['errors']]
         game_state['teams_disqualified'] = [fatal and fatal[0]['type'] for fatal in game_state['fatal_errors']]
         game_state['bot_destroyed'] = []
         game_state['food_eaten'] = []

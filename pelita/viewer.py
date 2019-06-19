@@ -9,6 +9,33 @@ from . import layout
 
 _logger = logging.getLogger(__name__)
 
+
+def simplify_state(game_state):
+    """ Simplify the state dict that is sent to a viewer
+    by reducing the amount of redundant information.
+
+    Returns
+    -------
+    state : dict
+        a new state dict
+    """
+    state = {}
+    state.update(game_state)
+    # we only send the current error
+    round_turn = (game_state["round"], game_state["turn"])
+
+    # reset error list so that we don’t overwrite
+    # the one from game_state
+    state["errors"] = []
+    state["num_errors"] = []
+    for team_errors in game_state["errors"]:
+        state["num_errors"].append(len(team_errors))
+        # retrieve the current error or None
+        current_error = team_errors.get(round_turn)
+        state["errors"].append(current_error)
+    return state
+
+
 class ProgressViewer:
     def show_state(self, game_state):
         score = game_state["score"]
@@ -121,7 +148,8 @@ class DumpingViewer:
         self.stream.flush()
 
     def show_state(self, game_state):
-        self._send(game_state)
+        state = simplify_state(game_state)
+        self._send(state)
 
 
 class ResultPrinter:
