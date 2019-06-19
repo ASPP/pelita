@@ -45,8 +45,6 @@ class ZMQReplyTimeout(Exception):
 class ZMQConnectionError(Exception):
     """ Raised when the connection has errored. """
 
-class UnknownMessageId(Exception):
-    """ Is raised when a reply arrives with unexpected id. """
 
 #: The timeout to use during sending
 DEAD_CONNECTION_TIMEOUT = 3.0
@@ -172,16 +170,27 @@ class ZMQConnection:
             raise ZMQUnreachablePeer()
         return msg_id
 
-    def recv(self, expected_id):
-        # return tuple
-        # (action, data)
+    def _recv(self):
+        """ Receive the next message on the socket.
+
+        Returns
+        -------
+        (msg_id, reply)
+            The message id and its data.
+
+        Raises
+        ------
+        ZMQReplyTimeout
+            if the message cannot be parsed from JSON
+        ZMQConnectionError
+            if an error message is returned
+        """
         json_message = self.socket.recv_unicode()
         try:
             py_obj = json.loads(json_message)
         except ValueError:
             _logger.warning('Received non-json message from self. Triggering a timeout.')
             raise ZMQReplyTimeout()
-        #print repr(json_msg)
 
         try:
             msg_error = py_obj['__error__']
@@ -195,23 +204,45 @@ class ZMQConnection:
         try:
             msg_id = py_obj["__uuid__"]
         except KeyError:
+            msg_id = None
             _logger.warning('__uuid__ missing in message.')
         
         msg_return = py_obj.get("__return__")
 
         _logger.debug("<--- %r [%s]", msg_return, msg_id)
-
-        if msg_id == expected_id:
-            return msg_return
-        else:
-            raise UnknownMessageId()
+        return msg_id, msg_return
 
     def recv_timeout(self, expected_id, timeout):
+        """ Waits `timeout` seconds for a reply with msg_id `expected_id`.
+
+        Returns
+        -------
+        reply
+            The reply for the `expected_id`
+
+        Raises
+        ------
+        ZMQReplyTimeout
+            if the message cannot be parsed from JSON
+            if the message was not received in time
+        ZMQConnectionError
+            if an error message is returned
+        """
+        # special case for no timeout
+        # just loop until we receive the correct reply
         if timeout is None:
-            return self.recv(expected_id)
+            while True:
+                msg_id, reply = self._recv()
+                if msg_id == expected_id:
+                    return reply
+
+        # normal timeout handling
 
         time_now = time.monotonic()
-        #: calculate until when it may take
+        # calculate until when it may take
+        # NB: When rewriting this code,
+        # ensure that the case timeout=0
+        # can still be handled
         timeout_until = time_now + timeout
 
         while time_now < timeout_until:
@@ -219,17 +250,22 @@ class ZMQConnection:
 
             socks = dict(self.pollin.poll(time_left * 1000)) # poll needs milliseconds
             if socks.get(self.socket) == zmq.POLLIN:
-                try:
-                    reply = self.recv(expected_id)
-                    # No error? Then it is the answer that we wanted. Good.
+                msg_id, reply = self._recv()
+
+                # check, if it is the correct reply and return
+                if msg_id == expected_id:
                     return reply
-                except UnknownMessageId:
-                    # Okay, false alarm. Reset the current time and try again.
+
+                else:
+                    # We received a message with the wrong id.
+                    # Reset the current time and try again.
                     time_now = time.monotonic()
                     continue
-                # answer did not arrive in time
             else:
-                raise ZMQReplyTimeout()
+                # poll timed out
+                # answer did not arrive in time
+                break
+
         raise ZMQReplyTimeout()
 
     def __repr__(self):
