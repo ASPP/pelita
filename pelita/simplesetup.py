@@ -34,7 +34,6 @@ import uuid
 
 import zmq
 
-from .viewer import simplify_state
 
 _logger = logging.getLogger(__name__)
 
@@ -368,8 +367,7 @@ class SimplePublisher:
         self.socket.send_unicode(as_json)
 
     def show_state(self, game_state):
-        state = simplify_state(game_state)
         message = {"__action__": "observe",
-                   "__data__": state}
+                   "__data__": game_state}
         self._send(message)
 

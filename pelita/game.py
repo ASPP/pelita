@@ -487,10 +487,43 @@ def update_viewers(game_state):
 
 
 def prepare_viewer_state(game_state):
-    """ Prepares a state that can be sent to the viewers. """
+    """ Prepares a state that can be sent to the viewers by removing
+    date that cannot be serialized (ie. sockets or keys that
+    cannot be used in a json object).
+
+    Furthermore, some redundant data is removed when it has
+    already been sent at an earlier date.
+
+    Returns
+    -------
+    viewer_state : dict
+       a new state dict
+    """
     viewer_state = {}
     viewer_state.update(game_state)
     viewer_state['food'] = list((viewer_state['food'][0] | viewer_state['food'][1]))
+
+    # game_state["errors"] has a tuple as a dict key
+    # that cannot be serialized in json.
+    # To fix this problem, we only send the current error
+    # and add another attribute "num_errors"
+    # to the final dict.
+
+    # the key for the current round, turn
+    round_turn = (game_state["round"], game_state["turn"])
+    viewer_state["errors"] = [
+        # retrieve the current error or None
+        team_errors.get(round_turn)
+        for team_errors in game_state["errors"]
+    ]
+
+    # add the number of errors
+    viewer_state["num_errors"] = [
+        len(team_errors)
+        for team_errors in game_state["errors"]
+    ]
+
+    # remove unserializable values
     del viewer_state['teams']
     del viewer_state['rnd']
     del viewer_state['viewers']
