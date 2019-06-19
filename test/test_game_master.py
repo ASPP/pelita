@@ -98,7 +98,7 @@ class TestGameMaster:
             assert state['bots'] == bot_pos
             state = run_game([stopping_player] * 2, layout_dict=parsed, max_rounds=5)
             assert state['fatal_errors'] == [[], []]
-            assert state['errors'] == [[], []]
+            assert state['errors'] == [{}, {}]
         else:
             with pytest.raises(ValueError):
                 setup_game([stopping_player] * 2, layout_dict=parsed, max_rounds=300)

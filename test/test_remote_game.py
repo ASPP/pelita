@@ -30,7 +30,7 @@ def test_remote_call_pelita(remote_teams):
     res, stdout, stderr = libpelita.call_pelita(remote_teams, rounds=30, filter='small', viewer='null', dump=None, seed=None)
     assert res['whowins'] == 1
     assert res['fatal_errors'] == [[], []]
-    assert res['errors'] == [[], []]
+    assert res['errors'] == [{}, {}]
 
 
 def test_remote_run_game(remote_teams):
@@ -44,4 +44,4 @@ def test_remote_run_game(remote_teams):
     state = pelita.game.run_game(remote_teams, max_rounds=30, layout_dict=pelita.layout.parse_layout(layout))
     assert state['whowins'] == 1
     assert state['fatal_errors'] == [[], []]
-    assert state['errors'] == [[], []]
+    assert state['errors'] == [{}, {}]
