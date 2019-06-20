@@ -1107,7 +1107,7 @@ def test_non_existing_file():
     l = layout.parse_layout(layout_string)
     res = run_game(["blah", "nothing"], max_rounds=1, layout_dict=l)
     assert res['fatal_errors'][0][0] == {
-        'description': '(\'ModuleNotFoundError\', "Could not load blah: No module named \'blah\'")',
+        'description': '("Could not load blah: No module named \'blah\'", \'ModuleNotFoundError\')',
         'round': None,
         'turn': 0,
         'type': 'PlayerDisconnected'
@@ -1137,7 +1137,7 @@ def test_remote_errors(tmp_path):
 
         res = run_game([str(s_py), str(i_py)], layout_dict=l, max_rounds=20)
         assert res['fatal_errors'][0][0] == {
-            'description': "('SyntaxError', 'Could not load s.py: invalid syntax (s.py, line 2)')",
+            'description': "('Could not load s.py: invalid syntax (s.py, line 2)', 'SyntaxError')",
             'round': None,
             'turn': 0,
             'type': 'PlayerDisconnected'
@@ -1146,7 +1146,7 @@ def test_remote_errors(tmp_path):
         assert res['whowins'] == 2
         res = run_game(["0", str(i_py)], layout_dict=l, max_rounds=20)
         assert res['fatal_errors'][1][0] == {
-            'description': '(\'ModuleNotFoundError\', "Could not load i.py: No module named \'does_not_exist\'")',
+            'description': '("Could not load i.py: No module named \'does_not_exist\'", \'ModuleNotFoundError\')',
             'round': None,
             'turn': 1,
             'type': 'PlayerDisconnected'
@@ -1154,7 +1154,7 @@ def test_remote_errors(tmp_path):
         assert res['whowins'] == 0
         res = run_game([str(i_py), "1"], layout_dict=l, max_rounds=20)
         assert res['fatal_errors'][0][0] == {
-            'description': '(\'ModuleNotFoundError\', "Could not load i.py: No module named \'does_not_exist\'")',
+            'description': '("Could not load i.py: No module named \'does_not_exist\'", \'ModuleNotFoundError\')',
             'round': None,
             'turn': 0,
             'type': 'PlayerDisconnected'

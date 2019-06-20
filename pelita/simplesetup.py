@@ -1,28 +1,3 @@
-""" simplesetup.py defines the SimpleServer and SimpleClient classes
-which allow for easy game setup via zmq sockets.
-
-Notes
------
-
-Timeout handling was far more elegant (imho) with actors / futures.
-Back then, timeouts were reply-based which meant that no other incoming
-messages would change the timeouts of other messages.
-
-Now it is all sockets so that each incoming message will reset the timeout
-and we need to manually handle this.
-
-A proper solution would use quick-and-dirty queues with size one.
-(Which would also allow us to store the received messages.)
-
-In 2.7, thread queues are too slow for that. (Asymptotically they only
-check every 50ms for new messages which accumulates quickly in our scheme.)
-
-Gevent queues are fast but do not like zeromq (there is a hack, though);
-in a future version we might want to revisit this decision. At the time
-we switch to Python 3.2+, if thread queues might have become fast enough
-(or maybe if the gevent interface likes our old messaging layer), we should
-re-investigate this decision.
-"""
 
 import json
 import logging
@@ -42,8 +17,13 @@ class ZMQUnreachablePeer(Exception):
 class ZMQReplyTimeout(Exception):
     """ Is raised when an ZMQ socket does not answer in time. """
 
-class ZMQConnectionError(Exception):
-    """ Raised when the connection has errored. """
+class ZMQClientError(Exception):
+    """ Used to propagate errors from the client.
+    Raised when the zmq connection receives an __error__ message. """
+    def __init__(self, message, error_type, *args):
+        self.message = message
+        self.error_type = error_type
+        super().__init__(message, error_type, *args)
 
 
 #: The timeout to use during sending
@@ -182,7 +162,7 @@ class ZMQConnection:
         ------
         ZMQReplyTimeout
             if the message cannot be parsed from JSON
-        ZMQConnectionError
+        ZMQClientError
             if an error message is returned
         """
         json_message = self.socket.recv_unicode()
@@ -197,7 +177,7 @@ class ZMQConnection:
             error_type, error_message = msg_error
             _logger.warning(f'Received error reply ({error_type}): {error_message}. Closing socket.')
             self.socket.close()
-            raise ZMQConnectionError(*msg_error)
+            raise ZMQClientError(error_message, error_type)
         except KeyError:
             pass
 

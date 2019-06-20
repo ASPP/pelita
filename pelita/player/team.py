@@ -12,7 +12,7 @@ import zmq
 from . import AbstractTeam
 from .. import libpelita, layout
 from ..exceptions import PlayerDisconnected, PlayerTimeout
-from ..simplesetup import ZMQConnection, ZMQConnectionError, ZMQReplyTimeout, ZMQUnreachablePeer, DEAD_CONNECTION_TIMEOUT
+from ..simplesetup import ZMQConnection, ZMQClientError, ZMQReplyTimeout, ZMQUnreachablePeer, DEAD_CONNECTION_TIMEOUT
 
 
 _logger = logging.getLogger(__name__)
@@ -277,13 +277,10 @@ class RemoteTeam:
             raise PlayerTimeout()
         except ZMQUnreachablePeer:
             _logger.info("Could not properly send the message. Maybe just a slow client. Ignoring in set_initial.")
-        except ZMQConnectionError as e:
-            if len(e.args) > 1:
-                error_type, error_message = e.args
-                _logger.warning(f"Client connection failed ({error_type}): {error_message}")
-            else:
-                error_message = e.args[0]
-                _logger.warning(f"Client connection failed: {error_message}")
+        except ZMQClientError as e:
+            error_message = e.message
+            error_type = e.error_type
+            _logger.warning(f"Client connection failed ({error_type}): {error_message}")
             raise PlayerDisconnected(*e.args) from None
 
     def get_move(self, game_state):
@@ -307,7 +304,7 @@ class RemoteTeam:
         except ZMQUnreachablePeer:
             # if the remote connection is closed
             raise PlayerDisconnected()
-        except ZMQConnectionError:
+        except ZMQClientError:
             raise
 
     def _exit(self):

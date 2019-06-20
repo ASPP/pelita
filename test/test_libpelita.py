@@ -2,7 +2,7 @@ import pytest
 
 import sys
 
-from pelita.simplesetup import ZMQConnectionError
+from pelita.simplesetup import ZMQClientError
 from pelita import libpelita
 
 
@@ -43,7 +43,7 @@ def test_check_team_external():
     assert libpelita.check_team("pelita/player/StoppingPlayer") == "Stopping"
 
 def test_check_team_external_fails():
-    with pytest.raises(ZMQConnectionError):
+    with pytest.raises(ZMQClientError):
         libpelita.check_team("Unknown Module")
 
 def test_check_team_internal():
