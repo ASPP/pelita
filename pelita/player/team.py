@@ -136,6 +136,8 @@ class Team(AbstractTeam):
         except Exception as e:
             # Our client had an exception. We print a traceback and
             # return the type of the exception to the server.
+            # If this is a remote player, then this will be detected in pelita_player
+            # and pelita_player will close the connection automatically.
             traceback.print_exc()
             return {
                 "error": (type(e).__name__, str(e)),

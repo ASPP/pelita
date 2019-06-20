@@ -4,8 +4,10 @@ import uuid
 
 import zmq
 
-from pelita.simplesetup import bind_socket, extract_port_range, SimpleClient
+from pelita.simplesetup import bind_socket, extract_port_range
 from pelita.player.team import make_team
+from pelita.scripts.pelita_player import player_handle_request
+
 
 @pytest.fixture(scope="module")
 def zmq_context():
@@ -53,8 +55,8 @@ def test_simpleclient(zmq_context):
     port = sock.bind_to_random_port('tcp://127.0.0.1')
 
     team, _ = make_team(stopping, team_name='test stopping player')
-    client = SimpleClient(team, address=f'tcp://127.0.0.1:{port}')
-    client.on_start()
+    client_sock = zmq_context.socket(zmq.PAIR)
+    client_sock.connect(f'tcp://127.0.0.1:{port}')
 
     # Faking some data
     _uuid = uuid.uuid4().__str__()
@@ -70,7 +72,8 @@ def test_simpleclient(zmq_context):
         }
     }
     sock.send_json(set_initial)
-    client._loop()
+    player_handle_request(client_sock, team)
+
     assert sock.recv_json() == {
         '__uuid__': _uuid,
         '__return__': 'test stopping player'
@@ -111,7 +114,8 @@ def test_simpleclient(zmq_context):
         }
     }
     sock.send_json(get_move)
-    client._loop()
+    player_handle_request(client_sock, team)
+
     assert sock.recv_json() == {
         '__uuid__': _uuid,
         '__return__': {
