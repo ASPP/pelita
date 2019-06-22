@@ -373,24 +373,15 @@ class SimplePublisher:
         self.socket_addr = bind_socket(self.socket, self.address, '--publish')
         _logger.debug("Bound zmq.PUB to {}".format(self.socket_addr))
 
-
-    def _send(self, message):
-        _logger.debug("--#>")
+    def _send(self, action, data):
+        info = {'round': data['round'], 'turn': data['turn']}
+        if data['gameover']:
+            info['gameover'] = True
+        _logger.debug(f"--#> [{action}] %r", info)
+        message = {"__action__": action, "__data__": data}
         as_json = json.dumps(message)
         self.socket.send_unicode(as_json)
 
-    def set_initial(self, game_state):
-        message = {"__action__": "set_initial",
-                   "__data__": {"game_state": game_state}}
-        self._send(message)
-
-    def observe(self, game_state):
-        message = {"__action__": "observe",
-                   "__data__": {"game_state": game_state}}
-        self._send(message)
-
     def show_state(self, game_state):
-        message = {"__action__": "observe",
-                   "__data__": game_state}
-        self._send(message)
+        self._send(action="observe", data=game_state)
 

@@ -44,7 +44,7 @@ class Controller:
                     sender, msg = self.socket.recv_multipart()
                     msg = json.loads(msg)
                     action = msg['__action__']
-                    _logger.debug('Received action %r from %r', action, sender)
+                    _logger.debug('<=== %r from %r', action, sender)
                 except ValueError:
                     _logger.warning('Could not deserialize message from %r', sender)
                     continue
