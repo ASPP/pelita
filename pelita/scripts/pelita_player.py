@@ -18,8 +18,6 @@ from ..player.team import new_style_team, make_team
 
 _logger = logging.getLogger(__name__)
 
-class MalformedBuiltinTeam(ValueError):
-    pass
 
 DEFAULT_FACTORY = 'team'
 
@@ -103,13 +101,11 @@ def load_team(spec):
     If this fails, it will try to load a factory.
     """
     if spec == '0':
-        from ..player.FoodEatingPlayer import move, TEAM_NAME
-        team, _ = make_team(move, team_name=TEAM_NAME)
-        return team
+        from ..player import FoodEatingPlayer
+        return team_from_module(FoodEatingPlayer)
     elif spec == '1':
-        from ..player.RandomExplorerPlayer import move, TEAM_NAME
-        team, _ = make_team(move, team_name=TEAM_NAME)
-        return team
+        from ..player import RandomExplorerPlayer
+        return team_from_module(RandomExplorerPlayer)
     try:
         factory = load_factory(spec)
     except (FileNotFoundError, ImportError, ValueError,
