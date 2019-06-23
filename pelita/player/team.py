@@ -23,6 +23,10 @@ class Team(AbstractTeam):
     Wraps a move function and forwards it the `set_initial`
     and `get_move` requests.
 
+    The Team class holds the team’s state between turns, the team’s
+    random number generator and the bot track (resets every time a bot
+    is killed).
+
     Parameters
     ----------
     team_move : function with (bot, state) -> position
@@ -33,6 +37,16 @@ class Team(AbstractTeam):
     def __init__(self, team_move, *, team_name=""):
         self._team_move = team_move
         self.team_name = team_name
+
+        #: Storage for the team state
+        self._state = None
+
+        #: The team’s random number generator
+        self._random = None
+
+        #: The history of bot positions
+        self._bot_track = [[], []]
+
 
     def set_initial(self, team_id, game_state):
         """ Sets the bot indices for the team and returns the team name.
@@ -51,18 +65,15 @@ class Team(AbstractTeam):
             The name of the team
 
         """
-        #: Storage for the team state
-        self._team_state = None
-        self._team_game = [None, None]
+        # Reset the team state
+        self._state = None
 
-        #: Storage for the random generator
-        self._bot_random = random.Random(game_state['seed'])
+        # Initialize the random number generator
+        # with the seed that we received from game
+        self._random = random.Random(game_state['seed'])
 
-        #: Store a history of bot positions
+        # Reset the bot tracks
         self._bot_track = [[], []]
-
-        # To make things a little simpler, we also initialise a random generator
-        # for all enemy bots
 
         return self.team_name
 
@@ -86,7 +97,7 @@ class Team(AbstractTeam):
                        enemy=game_state['enemy'],
                        round=game_state['round'],
                        bot_turn=game_state['bot_turn'],
-                       rng=self._bot_random)
+                       rng=self._random)
 
         team = me._team
 
@@ -107,10 +118,10 @@ class Team(AbstractTeam):
 
             mybot.track = self._bot_track[idx][:]
 
-        self._team_game = team
-
         try:
-            res = self._team_move(self._team_game[me.bot_turn], self._team_state)
+            # request a move from the current bot
+            res = self._team_move(team[me.bot_turn], self._state)
+            # check that the returned value # is a tuple of (position, state)
             try:
                 if len(res) != 2:
                     raise ValueError(f"Function move did not return move and state: got {res} instead.")
@@ -130,8 +141,8 @@ class Team(AbstractTeam):
                 "error": (type(e).__name__, str(e)),
             }
 
-        # restore the team state
-        self._team_state = state
+        # save the returned team state for the next turn
+        self._state = state
 
         return {
             "move": move,
