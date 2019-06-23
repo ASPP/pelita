@@ -9,6 +9,24 @@ from .simplesetup import bind_socket
 
 _logger = logging.getLogger(__name__)
 
+## Pelita network data structures
+
+# ControlRequest
+# {__action__}
+
+# ViewerUpdate
+# {__action__, __data__}
+
+# Request
+# {__uuid__, __action__, __data__}
+
+# Reply
+# {__uuid__, __return__}
+
+# Error
+# {__uuid__, __error__, __error_msg__}
+
+
 class Controller:
     def __init__(self, address='tcp://127.0.0.1:*', zmq_context=None):
         self.address = address
