@@ -19,32 +19,34 @@ _logger = logging.getLogger(__name__)
 
 
 class Team(AbstractTeam):
-    """ Simple class used to register an arbitrary number of (Abstract-)Players.
+    """
+    Wraps a move function and forwards it the `set_initial`
+    and `get_move` requests.
 
-    Each Player is used to control a Bot in the Universe.
-
-    SimpleTeam transforms the `set_initial` and `get_move` messages
-    from the GameMaster into calls to the user-supplied functions.
+    The Team class holds the team’s state between turns, the team’s
+    random number generator and the bot track (resets every time a bot
+    is killed).
 
     Parameters
     ----------
+    team_move : function with (bot, state) -> position
+        the team’s move function
     team_name :
         the name of the team (optional)
-    players : functions with signature (datadict, storage) -> move
-        the Players who shall join this SimpleTeam
     """
-    def __init__(self, *args):
-        if not args:
-            raise ValueError("No teams given.")
-
-        if isinstance(args[0], str):
-            self.team_name = args[0]
-            team_move = args[1]
-        else:
-            self.team_name = ""
-            team_move = args[0]
-
+    def __init__(self, team_move, *, team_name=""):
         self._team_move = team_move
+        self.team_name = team_name
+
+        #: Storage for the team state
+        self._state = None
+
+        #: The team’s random number generator
+        self._random = None
+
+        #: The history of bot positions
+        self._bot_track = [[], []]
+
 
     def set_initial(self, team_id, game_state):
         """ Sets the bot indices for the team and returns the team name.
@@ -63,18 +65,15 @@ class Team(AbstractTeam):
             The name of the team
 
         """
-        #: Storage for the team state
-        self._team_state = None
-        self._team_game = [None, None]
+        # Reset the team state
+        self._state = None
 
-        #: Storage for the random generator
-        self._bot_random = random.Random(game_state['seed'])
+        # Initialize the random number generator
+        # with the seed that we received from game
+        self._random = random.Random(game_state['seed'])
 
-        #: Store a history of bot positions
+        # Reset the bot tracks
         self._bot_track = [[], []]
-
-        # To make things a little simpler, we also initialise a random generator
-        # for all enemy bots
 
         return self.team_name
 
@@ -98,7 +97,7 @@ class Team(AbstractTeam):
                        enemy=game_state['enemy'],
                        round=game_state['round'],
                        bot_turn=game_state['bot_turn'],
-                       rng=self._bot_random)
+                       rng=self._random)
 
         team = me._team
 
@@ -119,10 +118,10 @@ class Team(AbstractTeam):
 
             mybot.track = self._bot_track[idx][:]
 
-        self._team_game = team
-
         try:
-            res = self._team_move(self._team_game[me.bot_turn], self._team_state)
+            # request a move from the current bot
+            res = self._team_move(team[me.bot_turn], self._state)
+            # check that the returned value # is a tuple of (position, state)
             try:
                 if len(res) != 2:
                     raise ValueError(f"Function move did not return move and state: got {res} instead.")
@@ -142,8 +141,8 @@ class Team(AbstractTeam):
                 "error": (type(e).__name__, str(e)),
             }
 
-        # restore the team state
-        self._team_state = state
+        # save the returned team state for the next turn
+        self._state = state
 
         return {
             "move": move,
@@ -151,7 +150,7 @@ class Team(AbstractTeam):
         }
 
     def __repr__(self):
-        return "Team(%r, %s)" % (self.team_name, repr(self._team_move))
+        return f'Team({self._team_move!r}, {self.team_name!r})'
 
 
 class RemoteTeam:
@@ -163,33 +162,54 @@ class RemoteTeam:
 
     Parameters
     ----------
-    zmq_context
-        A zmq_context (if None, a new one will be created)
     team_spec
         The string to pass as a command line argument to pelita_player
-    address
-        The zmq address (an address will be chosen randomly, if empty)
+        or the address of a remote player
+    team_name
+        Overrides the team name
+    zmq_context
+        A zmq_context (if None, a new one will be created)
+    idx
+        The team index (currently only used to specify the team’s color)
     """
-    def __init__(self, team_spec, team_name=None, address="tcp://", zmq_context=None, timeout_length=3, idx=None):
+    def __init__(self, team_spec, *, team_name=None, zmq_context=None, idx=None):
         if zmq_context is None:
             zmq_context = zmq.Context()
 
         self._team_spec = team_spec
         self._team_name = team_name
-        self.timeout_length = timeout_length
+
+        #: Default timeout for a request, unless specified in the game_state
+        self._request_timeout = 3
 
         if team_spec.startswith('remote:tcp://'):
-            _logger.info("Received remote address.")
+            # We connect to a remote player that is listening
+            # on the given team_spec address.
+            # We create a new DEALER socket and send a single
+            # REQUEST message to the remote address.
+            # The remote player will then create a new instance
+            # of a player and forward all of our zmq traffic
+            # to that player.
+
+            # remove the "remote:" part from the address
             send_addr = team_spec[len("remote:"):]
             address = "tcp://*"
             self.bound_to_address = address
 
             socket = zmq_context.socket(zmq.DEALER)
             socket.connect(send_addr)
-            _logger.info("Connecting zmq.DEALER to {}.".format(send_addr))
+            _logger.info("Connecting zmq.DEALER to remote player at {}.".format(send_addr))
             socket.send_json({"REQUEST": address})
             self.proc = None
+
         else:
+            # We bind to a local tcp port with a zmq PAIR socket
+            # and start a new subprocess of pelita_player.py
+            # that includes the address of that socket and the
+            # team_spec as command line arguments.
+            # The subprocess will then connect to this address
+            # and load the team.
+
             socket = zmq_context.socket(zmq.PAIR)
             port = socket.bind_to_random_port('tcp://*')
             self.bound_to_address = f"tcp://localhost:{port}"
@@ -231,8 +251,8 @@ class RemoteTeam:
             return self._team_name
 
         try:
-            self.zmqconnection.send("team_name", {})
-            team_name = self.zmqconnection.recv_timeout(DEAD_CONNECTION_TIMEOUT)
+            msg_id = self.zmqconnection.send("team_name", {})
+            team_name = self.zmqconnection.recv_timeout(msg_id, self._request_timeout)
             if team_name:
                 self._team_name = team_name
             return team_name
@@ -244,10 +264,11 @@ class RemoteTeam:
             return "%error%"
 
     def set_initial(self, team_id, game_state):
+        timeout_length = game_state['timeout_length']
         try:
-            self.zmqconnection.send("set_initial", {"team_id": team_id,
+            msg_id = self.zmqconnection.send("set_initial", {"team_id": team_id,
                                                     "game_state": game_state})
-            team_name = self.zmqconnection.recv_timeout(self.timeout_length)
+            team_name = self.zmqconnection.recv_timeout(msg_id, timeout_length)
             if team_name:
                 self._team_name = team_name
             return team_name
@@ -265,10 +286,11 @@ class RemoteTeam:
                 _logger.warning(f"Client connection failed: {error_message}")
             raise PlayerDisconnected(*e.args) from None
 
-    def get_move(self, game_state, timeout_length=None):
+    def get_move(self, game_state):
+        timeout_length = game_state['timeout_length']
         try:
-            self.zmqconnection.send("get_move", {"game_state": game_state})
-            reply = self.zmqconnection.recv_timeout(self.timeout_length)
+            msg_id = self.zmqconnection.send("get_move", {"game_state": game_state})
+            reply = self.zmqconnection.recv_timeout(msg_id, timeout_length)
             # make sure it is a dict
             reply = dict(reply)
             if "error" in reply:
@@ -330,24 +352,17 @@ def make_team(team_spec, team_name=None, zmq_context=None, idx=None):
 
     """
     if callable(team_spec):
-        _logger.debug("Making a local team for %s", team_spec)
+        _logger.info("Making a local team for %s", team_spec)
         # wrap the move function in a Team
         if team_name is None:
             team_name = f'local-team ({team_spec.__name__})'
-        team_player = Team(team_name, team_spec)
+        team_player = Team(team_spec, team_name=team_name)
     elif isinstance(team_spec, str):
-        _logger.debug("Making a remote team for %s", team_spec)
-        # wrap the move function in a Team
-            # TODO
-
-        if team_spec.startswith('tcp://'):
-            # remote team TODO
-            pass
-        else:
-            # start pelita-player
-            if not zmq_context:
-                zmq_context = zmq.Context()
-            team_player = RemoteTeam(team_spec=team_spec, zmq_context=zmq_context, idx=idx)
+        _logger.info("Making a remote team for %s", team_spec)
+        # set up the zmq connections and build a RemoteTeam
+        if not zmq_context:
+            zmq_context = zmq.Context()
+        team_player = RemoteTeam(team_spec=team_spec, zmq_context=zmq_context, idx=idx)
 
     return team_player, zmq_context
 
@@ -635,21 +650,6 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
     bots['team'] = team_bots
     bots['enemy'] = enemy_bots
     return team_bots[bot_turn]
-
-
-
-
-def new_style_team(module):
-    """ Looks for a new-style team in `module`.
-    """
-    # look for a new-style team
-    move = getattr(module, "move")
-    name = getattr(module, "TEAM_NAME")
-    if not callable(move):
-        raise TypeError("move is not a function")
-    if type(name) is not str:
-        raise TypeError("TEAM_NAME is not a string")
-    return lambda: Team(name, move)
 
 
 # @dataclass

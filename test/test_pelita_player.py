@@ -7,7 +7,7 @@ import tempfile
 
 import pelita
 from pelita import libpelita
-from pelita.scripts.pelita_player import load_factory, load_team
+from pelita.scripts.pelita_player import load_team_from_module, load_team
 
 SIMPLE_MODULE = """
 from pelita.player import stopping_player
@@ -33,7 +33,7 @@ class TestLoadFactory:
                 f.write(SIMPLE_MODULE)
 
             spec = str(module)
-            load_factory(spec)
+            load_team_from_module(spec)
 
     def test_simple_file_import(self):
         modules_before = list(sys.modules.keys())
@@ -45,7 +45,7 @@ class TestLoadFactory:
                 f.write(SIMPLE_MODULE)
 
             spec = str(initfile)
-            load_factory(spec)
+            load_team_from_module(spec)
 
     def test_failing_import(self):
         modules_before = list(sys.modules.keys())
@@ -58,7 +58,7 @@ class TestLoadFactory:
 
             spec = str(module)
             with pytest.raises(AttributeError):
-                load_factory(spec)
+                load_team_from_module(spec)
 
     def test_import_of_pyc(self):
         with tempfile.TemporaryDirectory() as d:
@@ -72,7 +72,7 @@ class TestLoadFactory:
             initfile.unlink()
 
             spec = str(pycfile)
-            load_factory(spec)
+            load_team_from_module(spec)
 
 class TestLoadTeam:
     def test_simple_module_import_forbidden_names(self):
@@ -104,13 +104,16 @@ class TestLoadTeam:
                 spec = str(module)
                 load_team(spec)
 
+    # These test cases need to be handled in one function
+    # ie. not in a parametrized test, as the will need
+    # to be run inside the same Python session
     load_team_cases = [
         ("pelita/player/StoppingPlayer", None),
 #        ("StoppingPlayer,StoppingPlayer", None),
         ("NonExistingPlayer", ImportError),
 #        ("StoppingPlayer,StoppingPlayer,FoodEatingPlayer", ValueError),
-        ('doc/source/groupN:team', None),
-        ('doc/source/groupN/__init__.py', ImportError),
+        ('doc/source/groupN', AttributeError), # TODO: Should be rewritten for a proper team
+        ('doc/source/groupN/__init__.py', ImportError), # TODO: Should be rewritten for a proper team
         ('doc/source/groupN', ValueError), # Has already been imported
     ]
 

@@ -18,7 +18,7 @@ import json
 import zmq
 
 import pelita
-from ..player.team import new_style_team, make_team
+from ..player.team import make_team
 
 _logger = logging.getLogger(__name__)
 
@@ -123,28 +123,22 @@ def load_team(spec):
         team, _ = make_team(move, team_name=TEAM_NAME)
         return team
     try:
-        factory = load_factory(spec)
+        team = load_team_from_module(spec)
     except (FileNotFoundError, ImportError, ValueError,
             AttributeError, TypeError, IOError) as e:
         print("Failure while loading team '%s'" % spec, file=sys.stderr)
         print('ERROR: %s' % e, file=sys.stderr)
         raise
-    try:
-        team = factory()
-    except TypeError:
-        print("Factory for {} is not callable.".format(spec), file=sys.stderr)
-        raise
 
     check_team_name(team.team_name)
     return team
 
-def load_factory(pathspec: str):
-    """ Tries to load and return a factory from a given pathspec.
+def load_team_from_module(path: str):
+    """ Tries to load and return a team from a given path.
 
-    The pathspec is a path to a module (which can be a folder with an
-    __init__.py file) or an importable .py file, followed by an optional ":"
-    and the name of a factory method (defaults to "team") that returns a
-    SimpleTeam.
+    The path should be a Python module (which can be a folder with an
+    __init__.py file) or an importable .py file.
+    The module must contain a function `move` and a variable `TEAM_NAME`.
 
     Parameters
     ----------
@@ -167,11 +161,7 @@ def load_factory(pathspec: str):
     FileNotFoundError
         if the parent folder cannot be found
     """
-    # strip off the factory_name after the first :
-    pathname, _, factory_name = pathspec.partition(':')
-    factory_name = factory_name or DEFAULT_FACTORY
-
-    path = Path(pathname)
+    path = Path(path)
 
     if not path.parent.exists():
         raise FileNotFoundError("Folder {} does not exist.".format(path.parent))
@@ -180,15 +170,27 @@ def load_factory(pathspec: str):
     modname = path.stem
 
     if modname in sys.modules:
-        raise ValueError("Module {} has already been imported.".format(modname))
+        raise ValueError("A module named ‘{}’ has already been imported.".format(modname))
 
     with with_sys_path(dirname):
         module = importlib.import_module(modname)
 
-    try:
-        return getattr(module, factory_name)
-    except AttributeError as e:
-        return new_style_team(module)
+    return team_from_module(module)
+
+
+def team_from_module(module):
+    """ Looks for a move function and a team name in
+    `module` and returns a team.
+    """
+    # look for a new-style team
+    move = getattr(module, "move")
+    name = getattr(module, "TEAM_NAME")
+    if not callable(move):
+        raise TypeError("move is not a function")
+    if type(name) is not str:
+        raise TypeError("TEAM_NAME is not a string")
+    team, _ = make_team(move, team_name=name)
+    return team
 
 
 def with_zmq_router(team, address):
