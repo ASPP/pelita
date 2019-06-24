@@ -9,6 +9,8 @@ from . import layout
 
 _logger = logging.getLogger(__name__)
 
+
+
 class ProgressViewer:
     def show_state(self, game_state):
         score = game_state["score"]

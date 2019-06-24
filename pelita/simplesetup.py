@@ -34,6 +34,7 @@ import uuid
 
 import zmq
 
+
 _logger = logging.getLogger(__name__)
 
 class ZMQUnreachablePeer(Exception):
@@ -398,16 +399,6 @@ class SimplePublisher:
         _logger.debug("--#>")
         as_json = json.dumps(message)
         self.socket.send_unicode(as_json)
-
-    def set_initial(self, game_state):
-        message = {"__action__": "set_initial",
-                   "__data__": {"game_state": game_state}}
-        self._send(message)
-
-    def observe(self, game_state):
-        message = {"__action__": "observe",
-                   "__data__": {"game_state": game_state}}
-        self._send(message)
 
     def show_state(self, game_state):
         message = {"__action__": "observe",
