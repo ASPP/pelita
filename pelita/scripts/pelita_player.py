@@ -181,7 +181,7 @@ def player_handle_request(socket, team):
         if '__error__' in message_obj:
             _logger.warning("o-!> %r [%s]", message_obj['__error__'], msg_id)
         else:
-            _logger.warning("o--> %r [%s]", message_obj['__return__'], msg_id)
+            _logger.debug("o--> %r [%s]", message_obj['__return__'], msg_id)
 
 
 def check_team_name(name):
