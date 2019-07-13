@@ -54,10 +54,10 @@ parser.add_argument('--version', help='Show the version number and exit.',
 parser.add_argument('--log', help='Print debugging log information to'
                     ' LOGFILE (default \'stderr\').',
                     metavar='LOGFILE', const='-', nargs='?')
-parser.add_argument('--dump', help=long_help('Print game dumps to file (will be overwritten)'),
-                    metavar='DUMPFILE', const='pelita.dump', nargs='?')
+parser.add_argument('--write-replay', help=long_help('Print game dumps to file (will be overwritten)'),
+                    metavar='REPLAYFILE', const='pelita.dump', nargs='?')
 parser.add_argument('--replay', help=long_help('Replay a dumped game'),
-                    metavar='DUMPFILE', dest='replayfile', const='pelita.dump', nargs='?')
+                    metavar='REPLAYFILE', dest='replayfile', const='pelita.dump', nargs='?')
 parser.add_argument('--list-layouts', action='store_true',
                     help='List all available layouts.')
 parser.add_argument('--check-team', action="store_true",
@@ -206,8 +206,8 @@ def main():
 
     if args.reply_to:
         viewers.append(('reply-to', args.reply_to))
-    if args.dump:
-        viewers.append(('dump-to', args.dump))
+    if args.write_replay:
+        viewers.append(('write-replay-to', args.write_replay))
     
     if args.replayfile:
         viewer_state = game.setup_viewers(viewers, options=viewer_options)
@@ -262,7 +262,7 @@ def main():
 
     layout_dict = layout.parse_layout(layout_string)
     game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, seed=args.seed,
-                  timeout_length=args.timeout_length, max_team_errors=args.max_timeouts, dump=args.dump,
+                  timeout_length=args.timeout_length, max_team_errors=args.max_timeouts,
                   viewers=viewers, viewer_options=viewer_options)
 
 if __name__ == '__main__':

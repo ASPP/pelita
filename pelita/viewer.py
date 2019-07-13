@@ -107,7 +107,7 @@ class ReplyToViewer:
         self._send(game_state)
 
 
-class DumpingViewer:
+class ReplayWriter:
     """ A viewer which dumps to a given stream.
     """
     def __init__(self, stream):

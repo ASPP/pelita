@@ -18,7 +18,7 @@ from .layout import initial_positions, get_legal_positions
 from .libpelita import get_python_process, SimplePublisher
 from .network import bind_socket, setup_controller
 from .player.team import make_team
-from .viewer import ProgressViewer, AsciiViewer, ReplyToViewer, DumpingViewer, ResultPrinter
+from .viewer import ProgressViewer, AsciiViewer, ReplyToViewer, ReplayWriter, ResultPrinter
 
 _logger = logging.getLogger(__name__)
 _mswindows = (sys.platform == "win32")
@@ -233,8 +233,8 @@ def setup_viewers(viewers=None, options=None):
             viewer_state['viewers'].append(ProgressViewer())
         elif len(viewer) == 2 and viewer[0] == 'reply-to':
             viewer_state['viewers'].append(ReplyToViewer(viewer[1]))
-        elif len(viewer) == 2 and viewer[0] == 'dump-to':
-            viewer_state['viewers'].append(DumpingViewer(open(viewer[1], 'w')))
+        elif len(viewer) == 2 and viewer[0] == 'write-replay-to':
+            viewer_state['viewers'].append(ReplayWriter(open(viewer[1], 'w')))
         elif viewer in ('tk', 'tk-no-sync'):
             if not zmq_publisher:
                 zmq_publisher = SimplePublisher(address='tcp://127.0.0.1:*')
