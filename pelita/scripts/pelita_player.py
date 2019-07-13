@@ -3,14 +3,10 @@
 import argparse
 import contextlib
 import importlib
-import inspect
-import keyword
 import logging
 import os
 from pathlib import Path
-import random
 import signal
-import string
 import subprocess
 import sys
 
@@ -22,8 +18,6 @@ from ..player.team import make_team
 
 _logger = logging.getLogger(__name__)
 
-class MalformedBuiltinTeam(ValueError):
-    pass
 
 DEFAULT_FACTORY = 'team'
 
@@ -99,14 +93,6 @@ def check_team_name(name):
     if name.isspace():
         raise ValueError('Invalid team name (no letters): "%s"'%name)
 
-# helper teams for the demo mode
-# TODO: Rewrite the old demo players to the new API
-def stopping(bot, state):
-    return bot.position, state
-
-def random(bot, state):
-    import random
-    return random.choice(bot.legal_positions), state
 
 def load_team(spec):
     """ Tries to load a team from a given spec.
@@ -115,13 +101,11 @@ def load_team(spec):
     If this fails, it will try to load a factory.
     """
     if spec == '0':
-        from ..player.FoodEatingPlayer import move, TEAM_NAME
-        team, _ = make_team(move, team_name=TEAM_NAME)
-        return team
+        from ..player import FoodEatingPlayer
+        return team_from_module(FoodEatingPlayer)
     elif spec == '1':
-        from ..player.RandomExplorerPlayer import move, TEAM_NAME
-        team, _ = make_team(move, team_name=TEAM_NAME)
-        return team
+        from ..player import RandomExplorerPlayer
+        return team_from_module(RandomExplorerPlayer)
     try:
         team = load_team_from_module(spec)
     except (FileNotFoundError, ImportError, ValueError,
