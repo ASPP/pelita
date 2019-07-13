@@ -7,6 +7,7 @@ import os
 from random import Random
 import subprocess
 import sys
+import time
 import typing
 from warnings import warn
 
@@ -409,7 +410,15 @@ def request_new_position(game_state):
     move_fun = game_state['teams'][team]
 
     bot_state = prepare_bot_state(game_state)
+
+    start_time = time.monotonic()
+
     new_position = move_fun.get_move(bot_state)
+
+    duration = time.monotonic() - start_time
+    # update the team_time
+    game_state['team_time'][team] += duration
+
     return new_position
 
 
