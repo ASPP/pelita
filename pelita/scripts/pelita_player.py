@@ -15,6 +15,7 @@ import zmq
 
 import pelita
 from ..player.team import make_team
+from ..simplesetup import json_default_handler
 
 _logger = logging.getLogger(__name__)
 
@@ -30,8 +31,29 @@ def with_sys_path(dirname):
         sys.path.remove(dirname)
 
 
-def make_client(team_spec, address, color=None):
+def run_player(team_spec, address, color=None):
+    """ Creates a team from `team_spec` and runs
+    a game through the zmq PAIR socket on `address`.
+
+    Parameters
+    ----------
+    team_spec : str
+        path to the module that declares the team
+    address : address to zmq PAIR socket
+        the address of the remote team socket
+    color : string, optional
+        the color of the team (for nicer output)
+
+    """
+
     address = address.replace('*', 'localhost')
+    # Connect to the given address
+    context = zmq.Context()
+    socket = context.socket(zmq.PAIR)
+    try:
+        socket.connect(address)
+    except zmq.ZMQError as e:
+        raise IOError(f"Failed to connect the client to address {address}: {e}")
 
     try:
         team = load_team(team_spec)
@@ -39,10 +61,7 @@ def make_client(team_spec, address, color=None):
         # We could not load the team.
         # Wait for the set_initial message from the server
         # and reply with an error.
-        context = zmq.Context()
-        socket = context.socket(zmq.PAIR)
         try:
-            socket.connect(address)
             json_message = socket.recv_unicode()
             py_obj = json.loads(json_message)
             uuid_ = py_obj["__uuid__"]
@@ -51,7 +70,8 @@ def make_client(team_spec, address, color=None):
 
             socket.send_json({
                 '__uuid__': uuid_,
-                '__error__': (e.__class__.__name__, f'Could not load {team_spec}: {e}')
+                '__error__': e.__class__.__name__,
+                '__error_msg__': f'Could not load {team_spec}: {e}'
             })
         except zmq.ZMQError as e:
             raise IOError('failed to connect the client to address %s: %s'
@@ -69,8 +89,99 @@ def make_client(team_spec, address, color=None):
         pie = 'ᗧ'
     print(f"{pie} {color} team '{team_spec}' -> '{team.team_name}'")
 
-    client = pelita.simplesetup.SimpleClient(team, address=address)
-    return client
+    while True:
+        cont = player_handle_request(socket, team)
+        if not cont:
+            return
+
+
+def player_handle_request(socket, team):
+    """ Awaits a new request on `socket` and dispatches it
+    to `team`.
+
+    Parameters
+    ----------
+    socket : zmq PAIR socket
+        the connection to the main pelita game
+    team : a Team object
+        the team that handles the requests
+
+    Returns
+    -------
+    continue_processing : bool
+        True if still running, False on exit
+
+    """
+
+    # Waits for incoming requests and tries to get a proper
+    # answer from the player.
+
+    try:
+        json_message = socket.recv_unicode()
+        py_obj = json.loads(json_message)
+        msg_id = py_obj["__uuid__"]
+        action = py_obj["__action__"]
+        data = py_obj["__data__"]
+        _logger.debug("<o-- %r [%s]", action, msg_id)
+
+        # feed client actor here …
+        if action == "set_initial":
+            retval = team.set_initial(**data)
+        elif action == "get_move":
+            retval = team.get_move(**data)
+        elif action == "team_name":
+            retval = team.team_name
+        elif action == "exit":
+            return False
+        else:
+            _logger.warning(f"Player received unknown action {action}.")
+
+        message_obj = {
+            "__uuid__": msg_id,
+            "__return__": retval
+        }
+
+        if "error" in retval:
+            # The team class has flagged an error.
+            # We return the result (in the finally clause)
+            # but return false to exit the process.
+            return False
+        else:
+            # continue
+            return True
+ 
+    except KeyboardInterrupt as e:
+        # catch KeyboardInterrupt to avoid spamming stderr
+        msg_id = None
+        message_obj = {
+            '__error__': e.__class__.__name__
+        }
+        return True
+
+    except Exception as e:
+        # All client exceptions should have been caught in the
+        # team class. This clause is a safety net for
+        # exceptions that are not caused by a bot.
+
+        msg = "Exception in client code for team %s." % team
+        print(msg, file=sys.stderr)
+        message_obj = {
+            '__uuid__': msg_id,
+            '__error__': e.__class__.__name__,
+            '__error_msg__': str(e)
+        }
+        return False
+
+    finally:
+        # we use our own json_default_handler
+        # to automatically convert numpy ints to json
+        json_message = json.dumps(message_obj, default=json_default_handler)
+        # return the message
+        socket.send_unicode(json_message)
+        if '__error__' in message_obj:
+            _logger.warning("o-!> %r [%s]", message_obj['__error__'], msg_id)
+        else:
+            _logger.warning("o--> %r [%s]", message_obj['__return__'], msg_id)
 
 
 def check_team_name(name):
@@ -273,10 +384,8 @@ def main():
     if args.remote:
         with_zmq_router(args.team, args.address)
     else:
-        client = make_client(args.team, args.address, args.color)
-        ret = client.run()
+        run_player(args.team, args.address, args.color)
 
-    sys.exit(ret)
 
 if __name__ == '__main__':
     main()

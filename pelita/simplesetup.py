@@ -1,28 +1,3 @@
-""" simplesetup.py defines the SimpleServer and SimpleClient classes
-which allow for easy game setup via zmq sockets.
-
-Notes
------
-
-Timeout handling was far more elegant (imho) with actors / futures.
-Back then, timeouts were reply-based which meant that no other incoming
-messages would change the timeouts of other messages.
-
-Now it is all sockets so that each incoming message will reset the timeout
-and we need to manually handle this.
-
-A proper solution would use quick-and-dirty queues with size one.
-(Which would also allow us to store the received messages.)
-
-In 2.7, thread queues are too slow for that. (Asymptotically they only
-check every 50ms for new messages which accumulates quickly in our scheme.)
-
-Gevent queues are fast but do not like zeromq (there is a hack, though);
-in a future version we might want to revisit this decision. At the time
-we switch to Python 3.2+, if thread queues might have become fast enough
-(or maybe if the gevent interface likes our old messaging layer), we should
-re-investigate this decision.
-"""
 
 import json
 import logging
@@ -43,8 +18,13 @@ class ZMQUnreachablePeer(Exception):
 class ZMQReplyTimeout(Exception):
     """ Is raised when an ZMQ socket does not answer in time. """
 
-class ZMQConnectionError(Exception):
-    """ Raised when the connection has errored. """
+class ZMQClientError(Exception):
+    """ Used to propagate errors from the client.
+    Raised when the zmq connection receives an __error__ message. """
+    def __init__(self, message, error_type, *args):
+        self.message = message
+        self.error_type = error_type
+        super().__init__(message, error_type, *args)
 
 
 #: The timeout to use during sending
@@ -183,7 +163,7 @@ class ZMQConnection:
         ------
         ZMQReplyTimeout
             if the message cannot be parsed from JSON
-        ZMQConnectionError
+        ZMQClientError
             if an error message is returned
         """
         json_message = self.socket.recv_unicode()
@@ -194,11 +174,11 @@ class ZMQConnection:
             raise ZMQReplyTimeout()
 
         try:
-            msg_error = py_obj['__error__']
-            error_type, error_message = msg_error
+            error_type = py_obj['__error__']
+            error_message = py_obj.get('__error_msg__', '')
             _logger.warning(f'Received error reply ({error_type}): {error_message}. Closing socket.')
             self.socket.close()
-            raise ZMQConnectionError(*msg_error)
+            raise ZMQClientError(error_message, error_type)
         except KeyError:
             pass
 
@@ -272,111 +252,6 @@ class ZMQConnection:
     def __repr__(self):
         return "ZMQConnection(%r)" % self.socket
 
-class ExitLoop(Exception):
-    """ If this is raised, we’ll close the inner loop.
-    """
-
-
-class SimpleClient:
-    """ Sets up a simple Client with most settings pre-configured.
-
-    Example
-    -------
-        client = SimpleClient(SimpleTeam("the good ones", BFSPlayer(), NQRandomPlayer()))
-        client.run() # runs in the same thread / process
-
-        client.autoplay_process() # runs in a background process
-
-    Parameters
-    ----------
-    team: PlayerTeam
-        A Player which defines the algorithms for each Bot.
-    team_name : string
-        The name of the team. (optional, if not defined in team)
-    address : string
-        The address which the client has to connect to.
-    """
-    def __init__(self, team, team_name="", address=None):
-        self.team = team
-        self.team.remote_game = True
-        self._team_name = getattr(self.team, "team_name", team_name)
-
-        self.address = address
-
-    def on_start(self):
-        # We connect here because zmq likes to have its own
-        # thread/process/whatever.
-        self.context = zmq.Context()
-        self.socket = self.context.socket(zmq.PAIR)
-        try:
-            self.socket.connect(self.address)
-        except zmq.ZMQError as e:
-            raise IOError('failed to connect the client to address %s: %s'
-                          % (self.address, e))
-
-    def run(self):
-        self.on_start()
-        try:
-            while True:
-                self._loop()
-        except (KeyboardInterrupt, ExitLoop):
-            pass
-
-    def _loop(self):
-        """ Waits for incoming requests and tries to get a proper
-        answer from the player.
-        """
-
-        json_message = self.socket.recv_unicode()
-        py_obj = json.loads(json_message)
-        uuid_ = py_obj["__uuid__"]
-        action = py_obj["__action__"]
-        data = py_obj["__data__"]
-
-        try:
-            # feed client actor here …
-            #
-            # TODO: This code is dangerous as a malicious message
-            # could call anything on this object. This needs to
-            # be fixed analogous to the `expose` method in
-            # the previous messaging framework.
-            retval = getattr(self, action)(**data)
-        except (KeyboardInterrupt, ExitLoop):
-            raise
-        except Exception as e:
-            msg = "Exception in client code for team %s." % self.team
-            print(msg, file=sys.stderr)
-            # return None. Let it crash next time the server tries to send.
-            retval = None
-            raise
-        finally:
-            try:
-                message_obj = {"__uuid__": uuid_, "__return__": retval}
-                json_message = json.dumps(message_obj, default=json_default_handler)
-                self.socket.send_unicode(json_message)
-            except NameError:
-                pass
-
-    def set_initial(self, team_id, game_state):
-        return self.team.set_initial(team_id, game_state)
-
-    def get_move(self, game_state):
-        return self.team.get_move(game_state)
-
-    def exit(self):
-        raise ExitLoop()
-
-    def team_name(self):
-        return self._team_name
-
-    def autoplay_process(self):
-        # We use a multiprocessing because it behaves well with KeyboardInterrupt.
-        background_process = multiprocessing.Process(target=self.run)
-        background_process.start()
-        return background_process
-
-    def __repr__(self):
-        return "SimpleClient(%r, %r, %r)" % (self.team, self.team_name(), self.address)
 
 class SimplePublisher:
     """ Sets up a simple Publisher which sends all viewed events
@@ -394,14 +269,15 @@ class SimplePublisher:
         self.socket_addr = bind_socket(self.socket, self.address, '--publish')
         _logger.debug("Bound zmq.PUB to {}".format(self.socket_addr))
 
-
-    def _send(self, message):
-        _logger.debug("--#>")
+    def _send(self, action, data):
+        info = {'round': data['round'], 'turn': data['turn']}
+        if data['gameover']:
+            info['gameover'] = True
+        _logger.debug(f"--#> [{action}] %r", info)
+        message = {"__action__": action, "__data__": data}
         as_json = json.dumps(message)
         self.socket.send_unicode(as_json)
 
     def show_state(self, game_state):
-        message = {"__action__": "observe",
-                   "__data__": game_state}
-        self._send(message)
+        self._send(action="observe", data=game_state)
 

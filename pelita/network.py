@@ -9,6 +9,24 @@ from .simplesetup import bind_socket
 
 _logger = logging.getLogger(__name__)
 
+## Pelita network data structures
+
+# ControlRequest
+# {__action__}
+
+# ViewerUpdate
+# {__action__, __data__}
+
+# Request
+# {__uuid__, __action__, __data__}
+
+# Reply
+# {__uuid__, __return__}
+
+# Error
+# {__uuid__, __error__, __error_msg__}
+
+
 class Controller:
     def __init__(self, address='tcp://127.0.0.1:*', zmq_context=None):
         self.address = address
@@ -44,7 +62,7 @@ class Controller:
                     sender, msg = self.socket.recv_multipart()
                     msg = json.loads(msg)
                     action = msg['__action__']
-                    _logger.debug('Received action %r from %r', action, sender)
+                    _logger.debug('<=== %r from %r', action, sender)
                 except ValueError:
                     _logger.warning('Could not deserialize message from %r', sender)
                     continue
