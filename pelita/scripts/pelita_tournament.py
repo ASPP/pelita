@@ -4,8 +4,7 @@ import argparse
 import datetime
 import itertools
 import logging
-import os
-import pathlib
+from pathlib import Path
 import random
 import re
 import shlex
@@ -21,14 +20,14 @@ from ..tournament.tournament import Config, State
 
 def create_directory(prefix):
     for suffix in itertools.count(0):
-        name = '{}-{:02d}'.format(prefix, suffix)
+        path = Path('{}-{:02d}'.format(prefix, suffix))
         try:
-            os.mkdir(name)
+            path.mkdir()
         except FileExistsError:
             pass
         else:
             break
-    return name
+    return path
 
 def input_choice(text, choices, vars):
     selected = ""
@@ -205,27 +204,19 @@ def main():
         def escape(s):
             return "-" + re.sub(r'[\W]', '_', str(s)) if s else ""
 
-        storage_folder = create_directory('./store{location}{year}'.format(location=escape(config.location),
-                                                                      year=escape(config.date)))
+        storage_folder = create_directory(f'./store{escape(config.location)}{escape(config.date)}')
 
         config.tournament_log_folder = storage_folder
+        config.tournament_log_file = storage_folder / 'tournament.out'
 
-        # open the log file (fail if it exists)
-        logfile = os.path.join(storage_folder, 'tournament.out')
-        #fd = os.open(logfile, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o0666)
-        config.tournament_log_file = logfile #os.fdopen(fd, 'w')
-
-        try:
-            libpelita.start_logging(os.path.join(storage_folder, 'tournament.log'))
-        except AttributeError:
-            pass
+        libpelita.start_logging(storage_folder / 'tournament.log')
 
     if args.rounds:
         config.rounds = args.rounds
 
-    if os.path.isfile(args.state):
+    if Path(args.state).is_file():
         if not args.load_state:
-            config.print("Found state file in {state_file}. Restore with --load-state. Aborting.".format(state_file=args.state))
+            config.print(f"Found state file in {args.state}. Restore with --load-state. Aborting.")
             sys.exit(-1)
         else:
             state = State.load(config, args.state)
