@@ -31,10 +31,12 @@ def remote_teams():
 
 
 def test_remote_call_pelita(remote_teams):
-    res, stdout, stderr = libpelita.call_pelita(remote_teams, rounds=30, filter='small', viewer='null', dump=None, seed=None)
+    res, stdout, stderr = libpelita.call_pelita(remote_teams, rounds=30, filter='small', viewer='null', seed=None)
     assert res['whowins'] == 1
     assert res['fatal_errors'] == [[], []]
-    assert res['errors'] == [{}, {}]
+    # errors for call_pelita only contains the last thrown error, hence None
+    # TODO: should be alligned so that call_pelita and run_game return the same thing
+    assert res['errors'] == [None, None]
 
 
 def test_remote_run_game(remote_teams):
