@@ -3,6 +3,8 @@ import collections
 from functools import reduce
 from io import StringIO
 import logging
+import os
+from pathlib import Path
 import random
 import subprocess
 import traceback
@@ -174,7 +176,7 @@ class RemoteTeam:
     idx
         The team index (currently only used to specify the team’s color)
     """
-    def __init__(self, team_spec, *, team_name=None, zmq_context=None, idx=None):
+    def __init__(self, team_spec, *, team_name=None, zmq_context=None, idx=None, store_output=False):
         if zmq_context is None:
             zmq_context = zmq.Context()
 
@@ -221,11 +223,12 @@ class RemoteTeam:
                 color='red'
             else:
                 color=''
-            self.proc = self._call_pelita_player(team_spec, self.bound_to_address, color=color)
+            self.proc = self._call_pelita_player(team_spec, self.bound_to_address,
+                                                 color=color, store_output=store_output)
 
         self.zmqconnection = ZMQConnection(socket)
 
-    def _call_pelita_player(self, team_spec, address, color='', dump=None):
+    def _call_pelita_player(self, team_spec, address, color='', store_output=False):
         """ Starts another process with the same Python executable,
         the same start script (pelitagame) and runs `team_spec`
         as a standalone client on URL `addr`.
@@ -240,10 +243,16 @@ class RemoteTeam:
                          color]
 
         _logger.debug("Executing: %r", external_call)
-        if dump:
-            stdout = Path(dump + '.' + (color or module_spec) + '.out').open('w')
-            stderr = Path(dump + '.' + (color or module_spec) + '.err').open('w')
-            return (subprocess.Popen(external_call, stdout=stdout, stderr=stderr), stdout, stderr)
+        if store_output:
+            store_path = Path(store_output)
+            stdout = (store_path / f"{color or team_spec}.out").open('w')
+            stderr = (store_path / f"{color or team_spec}.err").open('w')
+
+            # We must run in unbuffered mode to enforce flushing of stdout/stderr,
+            # otherwise we may lose some of what is printed
+            proc = subprocess.Popen(external_call, stdout=stdout, stderr=stderr,
+                                    env=dict(os.environ, PYTHONUNBUFFERED='x'))
+            return (proc, stdout, stderr)
         else:
             return (subprocess.Popen(external_call), None, None)
 
@@ -325,7 +334,7 @@ class RemoteTeam:
         return f"RemoteTeam<{self._team_spec}{team_name} on {self.bound_to_address}>" 
 
 
-def make_team(team_spec, team_name=None, zmq_context=None, idx=None):
+def make_team(team_spec, team_name=None, zmq_context=None, idx=None, store_output=False):
     """ Creates a Team object for the given team_spec.
 
     If no zmq_context is passed for a remote team, then a new context
@@ -361,7 +370,7 @@ def make_team(team_spec, team_name=None, zmq_context=None, idx=None):
         # set up the zmq connections and build a RemoteTeam
         if not zmq_context:
             zmq_context = zmq.Context()
-        team_player = RemoteTeam(team_spec=team_spec, zmq_context=zmq_context, idx=idx)
+        team_player = RemoteTeam(team_spec=team_spec, zmq_context=zmq_context, idx=idx, store_output=store_output)
 
     return team_player, zmq_context
 

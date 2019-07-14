@@ -1,5 +1,6 @@
 import pytest
 
+from pathlib import Path
 import subprocess
 import tempfile
 from textwrap import dedent
@@ -87,3 +88,58 @@ def test_remote_timeout():
         (2, 1): {'description': '', 'type': 'PlayerTimeout'},
         (2, 3): {'description': '', 'type': 'PlayerTimeout'},
         (3, 1): {'description': '', 'type': 'PlayerTimeout'}}]
+
+
+def test_remote_dumps_are_written():
+    layout = """
+        ##########
+        #  2  3  #
+        #0  ..  1#
+        ##########
+        """
+
+    p1 = dedent("""
+    import sys
+    TEAM_NAME="p1"
+    def move(b, s):
+        print(f"{b.round} {b.turn} p1", file=sys.stdout)
+        print(f"p1err", file=sys.stderr)
+        return b.position, s
+    """)
+
+    p2 = dedent("""
+    import sys
+    TEAM_NAME="p2"
+    def move(b, s):
+        print(f"{b.round} {b.turn} p2", file=sys.stdout)
+        print("p2err", file=sys.stderr)
+        return b.position, s
+    """)
+    out_folder = tempfile.TemporaryDirectory()
+
+    with tempfile.NamedTemporaryFile('w+', suffix='.py') as f:
+        with tempfile.NamedTemporaryFile('w+', suffix='.py') as g:
+            print(p1, file=f, flush=True)
+            print(p2, file=g, flush=True)
+
+            state = pelita.game.run_game([f.name, g.name],
+                                         max_rounds=2,
+                                         layout_dict=pelita.layout.parse_layout(layout),
+                                         store_output=out_folder.name)
+
+    assert state['whowins'] == 2
+    assert state['fatal_errors'] == [[], []]
+    assert state['errors'] == [{}, {}]
+
+    path = Path(out_folder.name)
+    blue_lines = (path / 'blue.out').read_text().split('\n')
+    red_lines = (path / 'red.out').read_text().split('\n')
+    # The first line contains the welcome message 'blue team 'path' -> 'name''
+    assert 'blue team' in blue_lines[0]
+    assert 'red team' in red_lines[0]
+    # now check what has been printed
+    assert blue_lines[1:] == ['1 0 p1', '1 1 p1', '2 0 p1', '2 1 p1', '']
+    assert red_lines[1:] == ['1 0 p2', '1 1 p2', '2 0 p2', '2 1 p2', '']
+
+    assert (path / 'blue.err').read_text() == 'p1err\np1err\np1err\np1err\n'
+    assert (path / 'red.err').read_text() == 'p2err\np2err\np2err\np2err\n'

@@ -58,6 +58,8 @@ parser.add_argument('--write-replay', help=long_help('Print game dumps to file (
                     metavar='REPLAYFILE', const='pelita.dump', nargs='?')
 parser.add_argument('--replay', help=long_help('Replay a dumped game'),
                     metavar='REPLAYFILE', dest='replayfile', const='pelita.dump', nargs='?')
+parser.add_argument('--store-output', help=long_help('Write all stdout/stderr to the given folder'),
+                    metavar='FOLDER')
 parser.add_argument('--list-layouts', action='store_true',
                     help='List all available layouts.')
 parser.add_argument('--check-team', action="store_true",
@@ -263,7 +265,8 @@ def main():
     layout_dict = layout.parse_layout(layout_string)
     game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, seed=args.seed,
                   timeout_length=args.timeout_length, max_team_errors=args.max_timeouts,
-                  viewers=viewers, viewer_options=viewer_options)
+                  viewers=viewers, viewer_options=viewer_options,
+                  store_output=args.store_output)
 
 if __name__ == '__main__':
     main()

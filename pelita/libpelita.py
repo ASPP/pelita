@@ -225,7 +225,7 @@ def run_and_terminate_process(args, **kwargs):
                     p.kill()
 
 
-def call_pelita(team_specs, *, rounds, filter, viewer, seed, write_replay=False):
+def call_pelita(team_specs, *, rounds, filter, viewer, seed, write_replay=False, store_output=False):
     """ Starts a new process with the given command line arguments and waits until finished.
 
     Returns
@@ -252,6 +252,7 @@ def call_pelita(team_specs, *, rounds, filter, viewer, seed, write_replay=False)
     viewer = ['--' + viewer] if viewer else []
     seed = ['--seed', seed] if seed else []
     write_replay = ['--write-replay', write_replay] if write_replay else []
+    store_output = ['--store-output', store_output] if store_output else []
 
     cmd = [get_python_process(), '-m', 'pelita.scripts.pelita_main',
            team1, team2,
@@ -260,7 +261,8 @@ def call_pelita(team_specs, *, rounds, filter, viewer, seed, write_replay=False)
            *filter,
            *viewer,
            *seed,
-           *write_replay]
+           *write_replay,
+           *store_output]
 
     # We need to run a process in the background in order to await the zmq events
     # stdout and stderr are written to temporary files in order to be more portable
