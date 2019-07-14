@@ -145,3 +145,96 @@ def test_remote_dumps_are_written():
 
     assert (path / 'blue.err').read_text() == 'p1err\np1err\np1err\np1err\n'
     assert (path / 'red.err').read_text() == 'p2err\np2err\np2err\np2err\n'
+
+
+@pytest.mark.parametrize("failing_team", [0, 1])
+def test_remote_dumps_with_failure(failing_team):
+    layout = """
+        ##########
+        #  2  3  #
+        #0  ..  1#
+        ##########
+        """
+
+    failing_player = dedent("""
+    TEAM_NAME="failing"
+    def move(b, s):
+        if b.round == 2 and b.turn == 0:
+            # introduce an error
+            0 / 0
+        return b.position, s
+    """)
+
+    good_player = dedent("""
+    TEAM_NAME="good"
+    def move(b, s):
+        return b.position, s
+    """)
+    out_folder = tempfile.TemporaryDirectory()
+
+    with tempfile.NamedTemporaryFile('w+', suffix='.py') as f:
+        with tempfile.NamedTemporaryFile('w+', suffix='.py') as g:
+            print(failing_player, file=f, flush=True)
+            print(good_player, file=g, flush=True)
+
+            if failing_team == 0:
+                teams = [f.name, g.name]
+            elif failing_team == 1:
+                teams = [g.name, f.name]
+
+            state = pelita.game.run_game(teams,
+                                         max_rounds=2,
+                                         layout_dict=pelita.layout.parse_layout(layout),
+                                         store_output=out_folder.name)
+
+    assert state['whowins'] == 1 - failing_team
+    # when team 1 fails, it’s turn will be 1
+    if failing_team == 0:
+        fail_turn = 0
+    elif failing_team == 1:
+        fail_turn = 1
+    assert state['fatal_errors'][failing_team][0] == {'type': 'FatalException',
+                                           'description': 'Exception in client (ZeroDivisionError): division by zero',
+                                           'turn': fail_turn,
+                                           'round': 2}
+    assert state['fatal_errors'][1 - failing_team] == []
+    assert state['errors'] == [{}, {}]
+
+    path = Path(out_folder.name)
+
+    # stdout is still the same for both teams
+
+    blue_lines = (path / 'blue.out').read_text().split('\n')
+    red_lines = (path / 'red.out').read_text().split('\n')
+    # The first line contains the welcome message 'blue team 'path' -> 'name''
+    assert 'blue team' in blue_lines[0]
+    assert 'red team' in red_lines[0]
+    # now check what has been printed
+    assert blue_lines[1:] == ['']
+    assert red_lines[1:] == ['']
+
+    blue_err = (path / 'blue.err').read_text().split('\n')
+    red_err = (path / 'red.err').read_text().split('\n')
+
+    if failing_team == 0:
+        fail_err = blue_err
+        good_err = red_err
+    elif failing_team == 1:
+        fail_err = red_err
+        good_err = blue_err
+
+    # Error is of the form:
+    # Traceback (most recent call last):
+    #   File ".../pelita/player/team.py", line 125, in get_move
+    #     res = self._team_move(team[me.bot_turn], self._state)
+    #   File "......", line 7, in move
+    #     0 / 0
+    # ZeroDivisionError: division by zero
+    # -- empty line (index -1)
+
+    assert fail_err[0] == "Traceback (most recent call last):"
+    assert "0 / 0" in fail_err[-3]
+    assert fail_err[-2] == "ZeroDivisionError: division by zero"
+
+    # No errors for red
+    assert good_err == [""]
