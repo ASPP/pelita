@@ -325,9 +325,13 @@ class RemoteTeam:
             _logger.info("Remote Player %r is already dead during exit. Ignoring.", self)
 
     def __del__(self):
-        self._exit()
-        if self.proc:
-            self.proc[0].terminate()
+        try:
+            self._exit()
+            if self.proc:
+                self.proc[0].terminate()
+        except AttributeError:
+            # in case we exit before self.proc or self.zmqconnection have been set
+            pass
 
     def __repr__(self):
         team_name = f" ({self._team_name})" if self._team_name else ""
