@@ -4,7 +4,6 @@
 import builtins
 import io
 import json
-import os
 from pathlib import Path
 import random
 import re
@@ -248,10 +247,16 @@ def play_game_with_config(config, teams):
     team1, team2 = teams
 
     if config.tournament_log_folder:
-        dumpfile = os.path.join(config.tournament_log_folder, "dump-{time}".format(time=time.strftime('%Y%m%d-%H%M%S')))
-        dump = dumpfile
+        log_folder = config.tournament_log_folder / f"match-{time.strftime('%Y%m%d-%H%M%S')}"
+        log_folder.mkdir()
+        replay_file = log_folder / 'replay'
+        log_kwargs = {
+            'write_replay': str(replay_file),
+            'store_output': str(log_folder)
+        }
     else:
-        dump = None
+        log_folder = None
+        log_kwargs = {}
 
     seed = str(random.randint(0, sys.maxsize))
 
@@ -259,13 +264,13 @@ def play_game_with_config(config, teams):
                                 rounds=config.rounds,
                                 filter=config.filter,
                                 viewer=config.viewer,
-                                dump=dump,
-                                seed=seed)
+                                seed=seed,
+                                **log_kwargs)
 
-    if dump:
+    if log_folder:
         (_final_state, stdout, stderr) = res
-        Path(dump + '.out').write_text(stdout)
-        Path(dump + '.err').write_text(stderr)
+        (log_folder / 'main.out').write_text(stdout)
+        (log_folder / 'main.err').write_text(stderr)
 
     return res
 

@@ -18,7 +18,7 @@ from .layout import initial_positions, get_legal_positions
 from .libpelita import get_python_process, SimplePublisher
 from .network import bind_socket, setup_controller
 from .player.team import make_team
-from .viewer import ProgressViewer, AsciiViewer, ReplyToViewer, DumpingViewer, ResultPrinter
+from .viewer import ProgressViewer, AsciiViewer, ReplyToViewer, ReplayWriter, ResultPrinter
 
 _logger = logging.getLogger(__name__)
 _mswindows = (sys.platform == "win32")
@@ -187,13 +187,15 @@ def controller_exit(state, await_action='play_step'):
         elif todo in ('play_step', 'set_initial'):
             return False
 
-def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None, dump=False,
-             max_team_errors=5, timeout_length=3, viewers=None, controller=None, viewer_options=None):
+def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None,
+             max_team_errors=5, timeout_length=3, viewers=None, controller=None, viewer_options=None,
+             store_output=False):
     """ Run a match for `max_rounds` rounds. """
 
     # we create the initial game state
     state = setup_game(team_specs, layout_dict=layout_dict, max_rounds=max_rounds, timeout_length=timeout_length, seed=seed,
-                       viewers=viewers, controller=controller, viewer_options=viewer_options)
+                       viewers=viewers, controller=controller, viewer_options=viewer_options,
+                       store_output=store_output)
 
     # Play the game until it is gameover.
     while not state.get('gameover'):
@@ -233,8 +235,8 @@ def setup_viewers(viewers=None, options=None):
             viewer_state['viewers'].append(ProgressViewer())
         elif len(viewer) == 2 and viewer[0] == 'reply-to':
             viewer_state['viewers'].append(ReplyToViewer(viewer[1]))
-        elif len(viewer) == 2 and viewer[0] == 'dump-to':
-            viewer_state['viewers'].append(DumpingViewer(open(viewer[1], 'w')))
+        elif len(viewer) == 2 and viewer[0] == 'write-replay-to':
+            viewer_state['viewers'].append(ReplayWriter(open(viewer[1], 'w')))
         elif viewer in ('tk', 'tk-no-sync'):
             if not zmq_publisher:
                 zmq_publisher = SimplePublisher(address='tcp://127.0.0.1:*')
@@ -261,8 +263,9 @@ def setup_viewers(viewers=None, options=None):
     return viewer_state
 
 
-def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=None, dump=False,
-               max_team_errors=5, timeout_length=3, viewers=None, controller=None, viewer_options=None):
+def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=None,
+               max_team_errors=5, timeout_length=3, viewers=None, controller=None, viewer_options=None,
+               store_output=False):
     """ Generates a game state for the given teams and layout with otherwise default values. """
 
     # check that two teams have been given
@@ -348,7 +351,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
     # to answer to the server.
     update_viewers(game_state)
 
-    team_state = setup_teams(team_specs, game_state)
+    team_state = setup_teams(team_specs, game_state, store_output=store_output)
     game_state.update(team_state)
 
     # Check if one of the teams has already generate a fatal error
@@ -361,7 +364,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
     return game_state
 
 
-def setup_teams(team_specs, game_state):
+def setup_teams(team_specs, game_state, store_output=False):
     """ Creates the teams according to the `teams`. """
 
     # we start with a dummy zmq_context
@@ -373,7 +376,7 @@ def setup_teams(team_specs, game_state):
     # First, create all teams
     # If a team is a RemoteTeam, this will start a subprocess
     for idx, team_spec in enumerate(team_specs):
-        team, zmq_context = make_team(team_spec, idx=idx, zmq_context=zmq_context)
+        team, zmq_context = make_team(team_spec, idx=idx, zmq_context=zmq_context, store_output=store_output)
         teams.append(team)
 
     # Send the initial state to the teams and await the team name

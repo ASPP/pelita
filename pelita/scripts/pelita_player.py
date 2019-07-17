@@ -132,6 +132,11 @@ def player_handle_request(socket, team):
         elif action == "team_name":
             retval = team.team_name
         elif action == "exit":
+            # quit and don’t return anything
+            message_obj = {
+                "__uuid__": msg_id,
+                "__return__": None
+            }
             return False
         else:
             _logger.warning(f"Player received unknown action {action}.")

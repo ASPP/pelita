@@ -103,7 +103,6 @@ class CI_Engine:
         self.rounds = config['general'].getint('rounds', None)
         self.filter = config['general'].get('filter', None)
         self.viewer = config['general'].get('viewer', 'null')
-        self.dump = config['general'].get('dump', None)
         self.seed = config['general'].get('seed', None)
 
         self.db_file = config.get('general', 'db_file')
@@ -156,7 +155,6 @@ class CI_Engine:
                                                             rounds=self.rounds,
                                                             filter=self.filter,
                                                             viewer=self.viewer,
-                                                            dump=self.dump,
                                                             seed=self.seed)
 
         if final_state['whowins'] == 2:
