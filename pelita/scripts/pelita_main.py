@@ -58,7 +58,7 @@ parser.add_argument('--write-replay', help=long_help('Print game dumps to file (
                     metavar='REPLAYFILE', const='pelita.dump', nargs='?')
 parser.add_argument('--replay', help=long_help('Replay a dumped game'),
                     metavar='REPLAYFILE', dest='replayfile', const='pelita.dump', nargs='?')
-parser.add_argument('--store-output', help=long_help('Write all stdout/stderr to the given folder'),
+parser.add_argument('--store-output', help=long_help('Write all player’s stdout/stderr to the given folder (must exist)'),
                     metavar='FOLDER')
 parser.add_argument('--list-layouts', action='store_true',
                     help='List all available layouts.')
