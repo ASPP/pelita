@@ -1,6 +1,5 @@
 """This is the game module. Written in 2019 in Born by Carlos and Lisa."""
 
-import dataclasses
 import itertools
 import logging
 import os
@@ -38,110 +37,6 @@ SIGHT_DISTANCE = 5
 
 #: The radius for the uniform noise
 NOISE_RADIUS = 5
-
-@dataclasses.dataclass
-class GameState:
-    """ Internal game state. """
-
-    ### The layout attributes
-    #: Walls. List of (int, int)
-    walls: typing.List
-
-    #: Food per team. List of sets of (int, int)
-    food: typing.List
-
-    def width(self):
-        """ The width of the maze. """
-        return max(self.walls)[0]
-
-    def height(self):
-        """ The height of the maze. """
-        return max(self.walls)[1]
-
-    ### Round/turn information
-    #: Current bot
-    turn: int
-
-    def current_team(self):
-        """ The team of the current turn. """
-        return self.turn % 2
-
-    #: Current round
-    round: int
-
-    #: Is the game finished?
-    gameover: bool
-
-    #: Who won?
-    whowins: int
-
-    ### Bot/team status
-    #: Positions of all bots. List of (int, int)
-    bots: typing.List
-
-    #: Score of the teams. List of int
-    score: typing.List[int]
-
-    #: Death (respawn) count of the teams. List of int
-    deaths: typing.List[int]
-
-    #: Fatal errors
-    fatal_errors: typing.List
-
-    #: Errors
-    errors: typing.List
-
-    ### Configuration
-    #: Maximum number of rounds
-    max_rounds: int
-
-    #: Time till timeout
-    timeout: int
-
-    #: Noise radius
-    noise_radius: int
-
-    #: Sight distance
-    sight_distance: int
-
-    ### Informative
-    #: Name of the layout
-    layout_name: str
-
-    #: Name of the teams. List of str
-    team_names: typing.List[str]
-
-    #: Time each team needed
-    team_time: typing.List[float]
-
-    #: Times each team got killed
-    times_killed: typing.List[int]
-
-    #: Recently respawned?
-    respawned: typing.List[int]
-
-    #: Messages the bots say. Keeps only the recent one at the respective bot’s index.
-    say: typing.List[str]
-
-    ### Internal
-    #: Internal team representation
-    teams: typing.List
-
-    #: Random number generator
-    rnd: typing.Any
-
-    #: Timeout length
-    timeout_length: typing.Optional[int]
-
-    #: Viewers
-    viewers: typing.List
-
-    #: Controller
-    controller: typing.Optional
-
-    def pretty_str(self):
-        return (layout.layout_as_str(walls=self.walls, food=list(self.food[0] | self.food[1]), bots=self.bots) + "\n" +
-                str({ f.name: getattr(self, f.name) for f in dataclasses.fields(self) if f.name not in ['walls', 'food']}))
 
 
 class TkViewer:
@@ -305,40 +200,93 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
     
     viewer_state = setup_viewers(viewers, options=viewer_options)
 
-    game_state = GameState(
-        teams=[None] * 2,
-        bots=layout_dict['bots'][:],
-        turn=None,
-        round=None,
-        max_rounds=max_rounds,
-        timeout=3,
-        noise_radius=NOISE_RADIUS,
-        sight_distance=SIGHT_DISTANCE,
-        gameover=False,
-        score=[0] * 2,
-        food=food,
-        walls=layout_dict['walls'][:],
-        deaths=[0] * 2,
-        say=[""] * 4,
-        layout_name=None,
-        team_names=[None] * 2,
-        fatal_errors=[[], []],
-        errors=[{}, {}],
-        whowins=None,
-        rnd=Random(seed),
-        viewers=[],
-        controller=None,
-        team_time=[0, 0],
-        times_killed=[0, 0],
-        respawned=[True] * 4,
-        timeout_length=timeout_length
-    )
-    game_state = dataclasses.asdict(game_state)
+    # Initialize the game state.
 
-    # We must set the viewers after `asdict` to avoid
-    # deepcopying the zmq sockets
-    game_state['viewers'] = viewer_state['viewers']
-    game_state['controller'] = viewer_state['controller']
+    game_state = dict(
+        ### The layout attributes
+        #: Walls. List of (int, int)
+        walls=layout_dict['walls'][:],
+
+        #: Food per team. List of sets of (int, int)
+        food=food,
+
+        ### Round/turn information
+        #: Current bot, int, None
+        turn=None,
+
+        #: Current round, int, None
+        round=None,
+
+        #: Is the game finished? bool
+        gameover=False,
+
+        #: Who won? int, None
+        whowins=None,
+
+        ### Bot/team status
+        #: Positions of all bots. List of (int, int)
+        bots=layout_dict['bots'][:],
+
+        #: Score of the teams. List of int
+        score=[0] * 2,
+
+        #: Death (respawn) count of the teams. List of int
+        deaths=[0] * 2,
+
+        #: Fatal errors
+        fatal_errors=[[], []],
+
+        #: Errors
+        errors=[{}, {}],
+
+        ### Configuration
+        #: Maximum number of rounds, int
+        max_rounds=max_rounds,
+
+        #: Time till timeout, int
+        timeout=3,
+
+        #: Noise radius, int
+        noise_radius=NOISE_RADIUS,
+
+        #: Sight distance, int
+        sight_distance=SIGHT_DISTANCE,
+
+        ### Informative
+        #: Name of the layout, str
+        layout_name=None,
+
+        #: Name of the teams. List of str
+        team_names=[None] * 2,
+
+        #: Time each team needed, list of float
+        team_time=[0, 0],
+
+        #: Times each team got killed, list of int
+        times_killed=[0, 0],
+
+        #: Recently respawned? Will be set to False when it was shown to a team.
+        respawned=[True] * 4,
+
+        #: Messages the bots say. Keeps only the recent one at the respective bot’s index.
+        say=[""] * 4,
+
+        ### Internal
+        #: Internal team representation
+        teams=[None] * 2,
+
+        #: Random number generator
+        rnd=Random(seed),
+
+        #: Timeout length, int, None
+        timeout_length=timeout_length,
+
+        #: Viewers, list
+        viewers=viewer_state['viewers'],
+
+        #: Controller
+        controller=viewer_state['controller']
+    )
 
     # Wait until the controller tells us that it is ready
     # We then can send the initial maze
