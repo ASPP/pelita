@@ -1390,8 +1390,8 @@ def test_team_time():
     assert state["team_time"][1] > 20 * DELAY
 
     # this is an estimate. the times could be higher on a slow Python
-    assert state["team_time"][0] < 10 * DELAY + 0.01, "Bad team_time or very slow Python implementation"
-    assert state["team_time"][1] < 20 * DELAY + 0.01, "Bad team_time or very slow Python implementation"
+    assert state["team_time"][0] < 10 * DELAY + 0.05, "Bad team_time or very slow Python implementation"
+    assert state["team_time"][1] < 20 * DELAY + 0.05, "Bad team_time or very slow Python implementation"
 
     # because of overhead, the time of team 0 should be less
     # than twice the time of team 1
