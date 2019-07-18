@@ -15,8 +15,8 @@ from . import layout
 from .exceptions import FatalException, NonFatalException, NoFoodWarning
 from .gamestate_filters import noiser
 from .layout import initial_positions, get_legal_positions
-from .libpelita import get_python_process, SimplePublisher
-from .network import bind_socket, setup_controller
+from .libpelita import get_python_process
+from .network import bind_socket, setup_controller, ZMQPublisher
 from .player.team import make_team
 from .viewer import ProgressViewer, AsciiViewer, ReplyToViewer, ReplayWriter, ResultPrinter
 
@@ -239,7 +239,7 @@ def setup_viewers(viewers=None, options=None):
             viewer_state['viewers'].append(ReplayWriter(open(viewer[1], 'w')))
         elif viewer in ('tk', 'tk-no-sync'):
             if not zmq_publisher:
-                zmq_publisher = SimplePublisher(address='tcp://127.0.0.1:*')
+                zmq_publisher = ZMQPublisher(address='tcp://127.0.0.1:*')
                 viewer_state['viewers'].append(zmq_publisher)
             if viewer == 'tk':
                 viewer_state['controller'] = setup_controller()

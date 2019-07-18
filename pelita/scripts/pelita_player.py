@@ -15,7 +15,7 @@ import zmq
 
 import pelita
 from ..player.team import make_team
-from ..simplesetup import json_default_handler
+from ..network import json_default_handler
 
 _logger = logging.getLogger(__name__)
 

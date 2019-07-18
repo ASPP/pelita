@@ -58,7 +58,7 @@ import sys
 import unittest
 
 from pelita import libpelita
-from pelita.simplesetup import ZMQClientError
+from pelita.network import ZMQClientError
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', '--test', help="run unittests", action="store_true")
