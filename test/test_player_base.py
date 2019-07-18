@@ -4,11 +4,19 @@ import unittest
 import random
 import time
 
-from pelita.datamodel import east, stop, west
 from pelita.game import setup_game, run_game, play_turn
 from pelita.layout import parse_layout
 from pelita.player import (random_player, stopping_player, stepping_player,
                            round_based_player, speaking_player)
+
+
+# some directions that are used in the tests
+north = (0, -1)
+south = (0, 1)
+west  = (-1, 0)
+east  = (1, 0)
+stop  = (0, 0)
+
 
 @pytest.mark.xfail(reason="Tests for convenience functions on Bot/AbstractPlayer are missing")
 class TestAbstractPlayer:

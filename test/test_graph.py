@@ -1,10 +1,17 @@
 import pytest
 import unittest
 
-from pelita.datamodel import east, north, south, stop, west
 from pelita.graph import (Graph, NoPathException, diff_pos, iter_adjacencies,
                           manhattan_dist, move_pos)
 from pelita.layout import parse_layout
+
+
+# some directions that are used in the tests
+north = (0, -1)
+south = (0, 1)
+west  = (-1, 0)
+east  = (1, 0)
+stop  = (0, 0)
 
 
 class TestStaticmethods:
