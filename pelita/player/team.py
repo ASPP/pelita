@@ -11,7 +11,6 @@ import traceback
 
 import zmq
 
-from . import AbstractTeam
 from .. import libpelita, layout
 from ..exceptions import PlayerDisconnected, PlayerTimeout
 from ..network import ZMQConnection, ZMQClientError, ZMQReplyTimeout, ZMQUnreachablePeer
@@ -20,7 +19,7 @@ from ..network import ZMQConnection, ZMQClientError, ZMQReplyTimeout, ZMQUnreach
 _logger = logging.getLogger(__name__)
 
 
-class Team(AbstractTeam):
+class Team:
     """
     Wraps a move function and forwards it the `set_initial`
     and `get_move` requests.

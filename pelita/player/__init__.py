@@ -1,6 +1,4 @@
 
-from .base import AbstractTeam, SimpleTeam, AbstractPlayer
-
 from .base import (stepping_player, speaking_player,
                    round_based_player, move_exception_player,
                    debuggable_player)
