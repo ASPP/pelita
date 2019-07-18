@@ -273,7 +273,9 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         raise ValueError("Two teams must be given.")
     
     # check that the given bot positions are all valid
-    if not len(layout_dict['bots']) == 4:
+    # and None of them are None (`parse_layout` returns a None position
+    # when fewer than 4 bots are defined)
+    if not len(layout_dict['bots']) == 4 or None in layout_dict['bots']:
         raise ValueError("Number of bots in layout must be 4.")
     
     width, height = layout.wall_dimensions(layout_dict['walls'])
