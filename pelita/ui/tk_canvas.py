@@ -488,7 +488,9 @@ class TkApplication:
 
         def status(team_idx):
             try:
-                ret = "Errors: %d, Killed: %d, Time: %.2f" % (game_state["num_errors"][team_idx], game_state["times_killed"][team_idx], game_state["team_time"][team_idx])
+                # sum the deaths of both bots in this team
+                deaths = sum(game_state['deaths'][team_idx]) + sum(game_state['deaths'][team_idx+2])
+                ret = "Errors: %d, Deaths: %d, Time: %.2f" % (game_state["num_errors"][team_idx], deaths, game_state["team_time"][team_idx])
                 disqualified = game_state["teams_disqualified"][team_idx]
                 if disqualified is not None:
                     ret += ", Disqualified: %s" % disqualified

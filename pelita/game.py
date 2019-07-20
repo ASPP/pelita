@@ -232,9 +232,6 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         #: Score of the teams. List of int
         score=[0] * 2,
 
-        #: Death (respawn) count of the teams. List of int
-        deaths=[0] * 2,
-
         #: Fatal errors
         fatal_errors=[[], []],
 
@@ -264,11 +261,11 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         #: Time each team needed, list of float
         team_time=[0, 0],
 
-        #: Times each team got killed, list of int
-        times_killed=[0, 0],
+        # List of bot deaths, which is a list of number of deaths per round (with length = number of rounds)
+        deaths = [[0],[0],[0],[0]],
 
-        #: Recently respawned? Will be set to False when it was shown to a team.
-        respawned=[True] * 4,
+        # List of bot kills, which is a list of number of kills per round (with length = number of rounds)
+        kills = [[0],[0],[0],[0]],
 
         #: Messages the bots say. Keeps only the recent one at the respective bot’s index.
         say=[""] * 4,
@@ -409,15 +406,12 @@ def prepare_bot_state(game_state, idx=None):
         else:
             return not on_left_side
 
-    respawned = game_state['respawned'][own_team::2]
-    # reset the respawned cache
-    game_state['respawned'][own_team::2] = [False, False]
-
     team_state = {
         'team_index': own_team,
         'bot_positions': game_state['bots'][own_team::2],
         'score': game_state['score'][own_team],
-        'has_respawned': respawned,
+        'kills': game_state['kills'][own_team::2],
+        'deaths': game_state['deaths'][own_team::2],
         'timeout_count': len(game_state['errors'][own_team]),
         'food': list(game_state['food'][own_team]),
         'name': game_state['team_names'][own_team]
@@ -428,6 +422,8 @@ def prepare_bot_state(game_state, idx=None):
         'bot_positions': noised_positions['enemy_positions'],
         'is_noisy': noised_positions['is_noisy'],
         'score': game_state['score'][enemy_team],
+        'kills': game_state['kills'][enemy_team::2],
+        'deaths': game_state['deaths'][enemy_team::2],
         'timeout_count': 0, # TODO. Could be left out for the enemy
         'food': list(game_state['food'][enemy_team]),
         'name': game_state['team_names'][enemy_team]
@@ -586,7 +582,7 @@ def apply_move(gamestate, bot_position):
     - if a bot lands on an enemy food pellet, it eats it. It cannot eat it's own teams food
     - if a bot lands on an enemy bot in it's own homezone, it kills the enemy
     - if a bot lands on an enemy bot in it's the enemy's homezone, it dies
-    - when a bot dies, it respawns in it's own homezone
+    - when a bot dies, it reappears in it's own homezone at the initial position
     - a game ends when max_rounds is exceeded
 
     Parameters
@@ -616,6 +612,7 @@ def apply_move(gamestate, bot_position):
     walls = gamestate["walls"]
     food = gamestate["food"]
     n_round = gamestate["round"]
+    kills = gamestate["kills"]
     deaths = gamestate["deaths"]
     fatal_error = True if gamestate["fatal_errors"][team] else False
     #TODO how are fatal errors passed to us? dict with same structure as regular errors?
@@ -677,9 +674,9 @@ def apply_move(gamestate, bot_position):
             score[team] = score[team] + KILL_POINTS
             init_positions = initial_positions(walls)
             bots[enemy_idx] = init_positions[enemy_idx]
-            gamestate['respawned'][enemy_idx] = True
-            deaths[abs(team-1)] = deaths[abs(team-1)] + 1
-            _logger.info(f"Bot {enemy_idx} respawns at {bots[enemy_idx]}.")
+            kills[turn][-1] += 1
+            deaths[enemy_idx][-1] += 1
+            _logger.info(f"Bot {enemy_idx} reappears at {bots[enemy_idx]}.")
     else:
         # check if bot was eaten itself
         enemies_on_target = [idx for idx in enemy_idx if bots[idx] == bot_position]
@@ -688,9 +685,8 @@ def apply_move(gamestate, bot_position):
             score[1 - team] = score[1 - team] + KILL_POINTS
             init_positions = initial_positions(walls)
             bots[turn] = init_positions[turn]
-            gamestate['respawned'][turn] = True
-            deaths[team] = deaths[team] + 1
-            _logger.info(f"Bot {turn} respawns at {bots[turn]}.")
+            deaths[turn][-1] += 1
+            _logger.info(f"Bot {turn} reappears at {bots[turn]}.")
 
     errors = gamestate["errors"]
     errors[team] = team_errors
@@ -699,14 +695,15 @@ def apply_move(gamestate, bot_position):
         "bots": bots,
         "score": score,
         "deaths": deaths,
-        "errors": errors
+        "kills": kills,
+        "errors": errors,
         }
 
     gamestate.update(gamestate_new)
     return gamestate
 
 
-def update_round_counter(game_state):
+def update_round_and_killing_counter(game_state):
     """ Takes the round and turn from the game state dict, increases them by one
     and returns a new dict.
 
@@ -725,6 +722,8 @@ def update_round_counter(game_state):
         raise ValueError("Game is already over")
     turn = game_state['turn']
     round = game_state['round']
+    deaths = game_state['deaths']
+    kills = game_state['kills']
 
     if turn is None and round is None:
         turn = 0
@@ -736,6 +735,11 @@ def update_round_counter(game_state):
         if turn >= 4:
             turn = turn % 4
             round = round + 1
+            # append counter of deaths and kills for each bot
+            for bot in deaths:
+                bot.append(0)
+            for bot in kills:
+                bot.append(0)
 
 #    if round >= game_state['max_rounds']:
 #        raise ValueError("Exceeded maximum number of rounds.")
@@ -743,6 +747,8 @@ def update_round_counter(game_state):
     return {
         'round': round,
         'turn': turn,
+        'deaths': deaths,
+        'kills': kills,
     }
 
 
@@ -785,16 +791,18 @@ def check_gameover(game_state, detect_final_move=False):
             if num_errors[team] > MAX_ALLOWED_ERRORS:
                 return { 'whowins' : 1 - team, 'gameover' : True}
 
-    if detect_final_move:
+    if detect_final_move and game_state['round'] is not None:
         # No team wins/loses because of errors?
         # Good. Now check if the game finishes because the food is gone
         # or because we are in the final turn of the last round.
-        next_step = update_round_counter(game_state)
-        _logger.debug(f"Next step has {next_step}")
+        #next_step = update_round_and_killing_counter(game_state)
+        next_round = game_state['round']
+        if game_state['turn'] == 3:
+            next_round += 1
 
         # count how much food is left for each team
         food_left = [len(f) for f in game_state['food']]
-        if next_step['round'] > game_state['max_rounds'] or any(f == 0 for f in food_left):
+        if next_round > game_state['max_rounds'] or any(f == 0 for f in food_left):
             if game_state['score'][0] > game_state['score'][1]:
                 whowins = 0
             elif game_state['score'][0] < game_state['score'][1]:

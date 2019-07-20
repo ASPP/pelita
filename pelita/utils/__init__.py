@@ -37,11 +37,19 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
 
     rng = random.Random(seed)
 
+    # take care of kills and deaths
+    kills = [[0], [0]]
+    deaths = [[0], [0]]
+    if round is not None:
+        kills = [[0]*round, [0]*round]
+        deaths = [[0]*round, [0]*round]
+
     team = {
         'bot_positions': layout.bots[:],
         'team_index': team_index,
         'score': score[team_index],
-        'has_respawned': [True, True],
+        'kills': kills,
+        'deaths': deaths,
         'timeout_count': 0,
         'food': food[team_index],
         'name': "blue" if is_blue else "red"
@@ -50,6 +58,8 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
         'bot_positions': layout.enemy[:],
         'team_index': enemy_index,
         'score': score[enemy_index],
+        'kills': kills,
+        'deaths': deaths,
         'timeout_count': 0,
         'food': food[enemy_index],
         'is_noisy': [False] * len(layout.enemy),

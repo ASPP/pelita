@@ -104,7 +104,7 @@ class Team:
 
         for idx, mybot in enumerate(team):
             # If a bot has been eaten, we reset it’s bot track
-            if mybot.has_respawned:
+            if len(mybot.deaths) > 0 and mybot.deaths[-1] > 0:
                 self._bot_track[idx] = []
 
         # Add our track
@@ -403,13 +403,14 @@ class Bot:
                           homezone,
                           food,
                           score,
+                          kills,
+                          deaths,
                           random,
                           round,
                           is_blue,
                           team_name,
                           timeout_count,
                           bot_turn=None,
-                          has_respawned=None,
                           is_noisy=None):
         self._bots = None
         self._say = None
@@ -428,6 +429,8 @@ class Bot:
         self.homezone = _ensure_tuples(homezone)
         self.food = _ensure_tuples(food)
         self.score  = score
+        self.kills = kills
+        self.deaths = deaths
         self.bot_index  = bot_index
         self.round = round
         self.is_blue = is_blue
@@ -436,8 +439,6 @@ class Bot:
 
         # Attributes for Bot
         if self.is_on_team:
-            assert has_respawned is not None
-            self.has_respawned = has_respawned
             assert bot_turn is not None
             self.bot_turn = bot_turn
 
@@ -532,10 +533,6 @@ class Bot:
         position = (direction[0] + self.position[0], direction[1] + self.position[1])
         return position
 
-    @property
-    def eaten(self):
-        """ True if this bot has been eaten in the last turn. """
-        return self.has_respawned
 
     def _repr_html_(self):
         """ Jupyter-friendly representation. """
@@ -626,7 +623,8 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
         b = Bot(bot_index=idx,
             is_on_team=True,
             score=team['score'],
-            has_respawned=team['has_respawned'][idx],
+            deaths=team['deaths'][idx],
+            kills=team['kills'][idx],
             timeout_count=team['timeout_count'],
             food=team['food'],
             walls=walls,
@@ -646,6 +644,8 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
         b = Bot(bot_index=idx,
             is_on_team=False,
             score=enemy['score'],
+            kills=enemy['kills'][idx],
+            deaths=enemy['deaths'][idx],
             is_noisy=enemy['is_noisy'][idx],
             timeout_count=enemy['timeout_count'],
             food=enemy['food'],
