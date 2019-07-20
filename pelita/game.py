@@ -512,7 +512,7 @@ def play_turn(game_state):
         raise ValueError("Game is already over!")
 
     # Now update the round counter
-    game_state.update(update_round_counter(game_state))
+    game_state.update(update_round_and_killing_counter(game_state))
 
     turn = game_state['turn']
     round = game_state['round']
