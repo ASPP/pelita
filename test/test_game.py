@@ -315,7 +315,7 @@ def test_play_turn_killing(turn):
     game_state_new = apply_move(game_state, game_state["bots"][friend_idx])
     # assert game_state_new["DEATHS"][team] == 5
     assert game_state_new["score"] == [0, 0]
-    assert game_state_new["deaths"] == [0, 0]
+    assert game_state_new["deaths"] == [[0]]*4
 
 @pytest.mark.parametrize('setups', ((0, (1, 4)),
                                     (1, (16, 3)),
