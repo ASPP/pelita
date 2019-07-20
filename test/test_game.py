@@ -942,13 +942,6 @@ def test_max_rounds():
     assert l['bots'][1] == (5, 1)
     assert l['bots'][2] == (1, 1)
     assert l['bots'][3] == (6, 1)
-    # max_rounds == 0 should not call move at all
-    final_state = run_game([move, move], layout_dict=l, max_rounds=0)
-    assert final_state['round'] is None
-    assert final_state['bots'][0] == (2, 1)
-    assert final_state['bots'][1] == (5, 1)
-    assert final_state['bots'][2] == (1, 1)
-    assert final_state['bots'][3] == (6, 1)
     # max_rounds == 1 should call move just once
     final_state = run_game([move, move], layout_dict=l, max_rounds=1)
     assert final_state['round'] == 1
