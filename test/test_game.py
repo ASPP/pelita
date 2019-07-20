@@ -1268,6 +1268,7 @@ def test_setup_game_run_game_have_same_args():
         assert setup_game.__kwdefaults__[kwarg] == run_game.__kwdefaults__[kwarg], f"Default values for {kwarg} are different"
 
 
+@pytest.mark.xfail(reason="FLAG does not exist anymore")
 @pytest.mark.parametrize('bot_to_move', range(4))
 # all combinations of True False in a list of 4
 @pytest.mark.parametrize('respawn_flags', itertools.product(*[(True, False)] * 4))
