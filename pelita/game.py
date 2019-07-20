@@ -166,13 +166,13 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
     # check that two teams have been given
     if not len(team_specs) == 2:
         raise ValueError("Two teams must be given.")
-    
+
     # check that the given bot positions are all valid
     # and None of them are None (`parse_layout` returns a None position
     # when fewer than 4 bots are defined)
     if not len(layout_dict['bots']) == 4 or None in layout_dict['bots']:
         raise ValueError("Number of bots in layout must be 4.")
-    
+
     width, height = layout.wall_dimensions(layout_dict['walls'])
 
     for idx, pos in enumerate(layout_dict['bots']):
@@ -199,7 +199,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
     side_no_food = [idx for idx, f in enumerate(food) if len(f) == 0]
     if side_no_food:
         warn(f"Layout has no food for team {side_no_food}.", NoFoodWarning)
-    
+
     viewer_state = setup_viewers(viewers, options=viewer_options)
 
     # Initialize the game state.
@@ -397,14 +397,6 @@ def prepare_bot_state(game_state, idx=None):
                               noise_radius=game_state['noise_radius'],
                               sight_distance=game_state['sight_distance'],
                               rnd=game_state['rnd'])
-
-    width = max(game_state['walls'])[0]
-    def in_homezone(position, team_id):
-        on_left_side = position[0] < width // 2
-        if team_id % 2 == 0:
-            return on_left_side
-        else:
-            return not on_left_side
 
     team_state = {
         'team_index': own_team,

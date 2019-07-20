@@ -334,7 +334,7 @@ class RemoteTeam:
 
     def __repr__(self):
         team_name = f" ({self._team_name})" if self._team_name else ""
-        return f"RemoteTeam<{self._team_spec}{team_name} on {self.bound_to_address}>" 
+        return f"RemoteTeam<{self._team_spec}{team_name} on {self.bound_to_address}>"
 
 
 def make_team(team_spec, team_name=None, zmq_context=None, idx=None, store_output=False):
