@@ -112,9 +112,9 @@ class TestLoadTeam:
 #        ("StoppingPlayer,StoppingPlayer", None),
         ("NonExistingPlayer", ImportError),
 #        ("StoppingPlayer,StoppingPlayer,FoodEatingPlayer", ValueError),
-        ('doc/source/groupN', AttributeError), # TODO: Should be rewritten for a proper team
-        ('doc/source/groupN/__init__.py', ImportError), # TODO: Should be rewritten for a proper team
-        ('doc/source/groupN', ValueError), # Has already been imported
+        #('doc/source/groupN', AttributeError), # TODO: Should be rewritten for a proper team
+        #('doc/source/groupN/__init__.py', ImportError), # TODO: Should be rewritten for a proper team
+        #('doc/source/groupN', ValueError), # Has already been imported
     ]
 
     def test_load_team(self):
@@ -125,4 +125,4 @@ class TestLoadTeam:
                     load_team(path)
             else:
                 load_team(path)
- 
+
