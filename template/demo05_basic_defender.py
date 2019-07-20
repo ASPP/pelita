@@ -9,7 +9,7 @@ TEAM_NAME = 'Basic Defender Bots'
 
 from pelita.utils import Graph
 
-from utils import next_step
+from utils import shortest_path
 
 
 def move(bot, state):
@@ -31,8 +31,8 @@ def move(bot, state):
     else:
         raise Exception('We should never be here!')
 
-    # get the next step to be done to reach our target enemy bot
-    next_pos = next_step(bot.position, target, state)
+    # get the next position along the shortest path to our target enemy bot
+    next_pos = shortest_path(bot.position, target, state)[-1]
 
     # let's check that we don't go into the enemy homezone, i.e. stop at the
     # border

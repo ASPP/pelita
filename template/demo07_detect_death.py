@@ -1,4 +1,4 @@
-# This bots goes for food and if it gets eaten on the way, it cries out loud
+# This bots moves randomly and if it gets eaten on the way, it cries out loud
 TEAM_NAME = "Death Detectors Bots"
 
 MESSAGE = 'I am a zombie now!'
@@ -10,7 +10,7 @@ def move(bot, state):
         # initialize a state dictionary for both bots
         state = {0:0, 1:0}
 
-    # check if we have benn eaten in the previous round
+    # check if we have been eaten in the previous round
     if bot.eaten:
         # set the speak inertia
         state[bot.turn] = EATEN_INERTIA
@@ -20,7 +20,7 @@ def move(bot, state):
         bot.say(MESSAGE)
         state[bot.turn] -= 1
 
-    # copy the available moves, so that we can use random.shuffle,
+    # copy the available positions, so that we can use random.shuffle,
     # which unfortunately shuffles lists in-place.
     legal_positions = bot.legal_positions[:]
     bot.random.shuffle(legal_positions)
