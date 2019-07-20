@@ -183,6 +183,9 @@ def main():
     if args.log:
         libpelita.start_logging(args.log)
 
+    if args.rounds < 1:
+        raise ValueError(f"Must play at least one round (rounds={args.rounds}).")
+
     if args.check_team:
         if not args.team_specs:
             raise ValueError("No teams specified.")
@@ -210,7 +213,7 @@ def main():
         viewers.append(('reply-to', args.reply_to))
     if args.write_replay:
         viewers.append(('write-replay-to', args.write_replay))
-    
+
     if args.replayfile:
         viewer_state = game.setup_viewers(viewers, options=viewer_options)
         if game.controller_exit(viewer_state, await_action='set_initial'):
