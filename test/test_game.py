@@ -997,12 +997,9 @@ def test_update_round_counter():
 def test_last_round_check():
     # (max_rounds, current_round, turn): gameover
     test_map = {
-        (0, None, None): True,
         (1, None, None): False,
-        (0, 1, 0): True,
         (1, 1, 0): False,
         (1, 1, 3): True,
-        (1, 1, 4): True,
     }
     for test_val, test_res in test_map.items():
         max_rounds, current_round, current_turn = test_val
@@ -1017,6 +1014,7 @@ def test_last_round_check():
             'food': [{(1,1)}, {(1,1)}] # dummy food
         }
         res = game.check_gameover(state, detect_final_move=True)
+        print(test_val)
         assert res['gameover'] == test_res
 
 
