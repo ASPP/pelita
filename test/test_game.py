@@ -176,6 +176,33 @@ def test_get_legal_positions_random(layout_t, bot_idx):
         assert  abs((move[0] - bot[0])+(move[1] - bot[1])) <= 1
 
 
+# All combinations of bots that can be switched on/off
+@pytest.mark.parametrize('bots_hidden', itertools.product(*[(True, False)] * 4))
+def test_setup_game_bad_number_of_bots(bots_hidden):
+    """ setup_game should fail when a wrong number of bots is given. """
+    test_layout = """
+        ##################
+        #0#.  .  # .     #
+        #2#####    #####3#
+        #     . #  .  .#1#
+        ################## """
+    # remove bot x when bots_hidden[x] is True
+    for x in range(4):
+        if bots_hidden[x]:
+            test_layout = test_layout.replace(str(x), ' ')
+    parsed_layout = layout.parse_layout(test_layout)
+
+    # dummy player
+    stopping = lambda bot, s: (bot.position, s)
+
+    if list(bots_hidden) == [False] * 4:
+        # no bots are hidden. it should succeed
+        setup_game([stopping, stopping], layout_dict=parsed_layout, max_rounds=10)
+    else:
+        with pytest.raises(ValueError):
+            setup_game([stopping, stopping], layout_dict=parsed_layout, max_rounds=10)
+
+
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
 def test_play_turn_apply_error(turn):
     """check that quits when there are too many errors"""

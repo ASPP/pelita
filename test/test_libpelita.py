@@ -4,7 +4,7 @@ import subprocess
 import sys
 import tempfile
 
-from pelita.simplesetup import ZMQClientError
+from pelita.network import ZMQClientError
 from pelita import libpelita
 
 
