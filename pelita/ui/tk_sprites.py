@@ -118,12 +118,13 @@ class BotSprite(TkSprite):
         canvas.delete("show_id" + self.tag)
         # we print the bot_id in the lower left corner
         if show_id:
+            local_idx = 0 if self.bot_id < 2 else 1
             shift = 4
-            canvas.create_text(self.bounding_box()[0][0]-1 + shift, self.bounding_box()[1][1] - shift, text=self.bot_id, font=(None, 12), fill="white", tag="show_id"+self.tag)
-            canvas.create_text(self.bounding_box()[0][0]+1 + shift, self.bounding_box()[1][1] - shift, text=self.bot_id, font=(None, 12), fill="white", tag="show_id"+self.tag)
-            canvas.create_text(self.bounding_box()[0][0] + shift, self.bounding_box()[1][1]-1 - shift, text=self.bot_id, font=(None, 12), fill="white", tag="show_id"+self.tag)
-            canvas.create_text(self.bounding_box()[0][0] + shift, self.bounding_box()[1][1]+1 - shift, text=self.bot_id, font=(None, 12), fill="white", tag="show_id"+self.tag)
-            canvas.create_text(self.bounding_box()[0][0] + shift, self.bounding_box()[1][1] - shift, text=self.bot_id, font=(None, 12), fill="black", tag="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0]-1 + shift, self.bounding_box()[1][1] - shift, text=local_idx, font=(None, 12), fill="white", tag="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0]+1 + shift, self.bounding_box()[1][1] - shift, text=local_idx, font=(None, 12), fill="white", tag="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0] + shift, self.bounding_box()[1][1]-1 - shift, text=local_idx, font=(None, 12), fill="white", tag="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0] + shift, self.bounding_box()[1][1]+1 - shift, text=local_idx, font=(None, 12), fill="white", tag="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0] + shift, self.bounding_box()[1][1] - shift, text=local_idx, font=(None, 12), fill="black", tag="show_id"+self.tag)
 
 
     def draw_bot(self, canvas, outer_col, eye_col, mirror=False):
