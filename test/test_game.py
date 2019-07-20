@@ -882,7 +882,8 @@ def test_play_turn_move():
         "whowins": None,
         "team_say": "bla",
         "score": 0,
-        "deaths": 0,
+        "kills":[[0]]*4,
+        "deaths": [[0]]*4,
         "errors": [[], []],
         "fatal_errors": [{}, {}],
         "rnd": random.Random()
