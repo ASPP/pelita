@@ -8,7 +8,7 @@ import tkinter
 import tkinter.font
 
 from ..libpelita import firstNN
-from ..game import update_round_counter
+from ..game import update_round_and_killing_counter
 from .tk_sprites import BotSprite, Food, Wall, col
 from .tk_utils import wm_delete_window_handler
 from .tk_sprites import BotSprite, Food, Wall, RED, BLUE, YELLOW, GREY, BROWN
@@ -695,7 +695,7 @@ class TkApplication:
             return
 
         if self._stop_after is not None:
-            next_step = update_round_counter(self._game_state)
+            next_step = update_round_and_killing_counter(self._game_state)
             if (next_step['round'] < self._stop_after):
                 _logger.debug('---> play_step')
                 self.controller_socket.send_json({"__action__": "play_step"})
@@ -715,7 +715,7 @@ class TkApplication:
             return
 
         if self._game_state['round'] is not None:
-            next_step = update_round_counter(self._game_state)
+            next_step = update_round_and_killing_counter(self._game_state)
             self._stop_after = next_step['round'] + 1
         else:
             self._stop_after = 1
