@@ -84,14 +84,14 @@ class TestAbstractPlayer:
         unittest.TestCase().assertCountEqual(player_3.team_food, universe.team_food(player_3.team.index))
 
         assert {(0, 1): (1, 2), (0, 0): (1, 1)} == \
-                player_0.legal_moves
+                player_0.legal_directions
         assert {(0, 1): (15, 3), (0, -1): (15, 1), (0, 0): (15, 2),
                           (1, 0): (16, 2)} == \
-                player_1.legal_moves
+                player_1.legal_directions
         assert {(0, 1): (1, 3), (0, -1): (1, 1), (0, 0): (1, 2)} == \
-                player_2.legal_moves
+                player_2.legal_directions
         assert {(0, -1): (15, 2), (0, 0): (15, 3)} == \
-                player_3.legal_moves
+                player_3.legal_directions
 
         assert player_1.current_state["round_index"] == None
         assert player_1.current_state["bot_id"] == None
