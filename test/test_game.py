@@ -739,7 +739,7 @@ def test_moving_through_maze():
             #..1 #
             #2  3#
             ###### """)
-    
+
     assert test_first_round['bots'] == state['bots']
     assert test_first_round['food'] == list(state['food'][0]) + list(state['food'][1])
     assert state['score'] == [0, 0]
@@ -823,7 +823,7 @@ def test_moving_through_maze():
             #0 1 #
             #   3#
             ###### """)
-    
+
     assert test_sixth_round['bots'] == state['bots']
     assert test_sixth_round['food'] == list(state['food'][0]) + list(state['food'][1])
     assert state['score'] == [game.KILL_POINTS * 2, game.KILL_POINTS * 2+ 1]
@@ -842,7 +842,7 @@ def test_moving_through_maze():
             #0 1 #
             #   3#
             ###### """)
-    
+
     assert test_seventh_round['bots'] == state['bots']
     assert test_seventh_round['food'] == list(state['food'][0]) + list(state['food'][1])
     assert state['score'] == [game.KILL_POINTS * 2 + 1, game.KILL_POINTS * 2 + 1]
@@ -1278,7 +1278,7 @@ def test_prepare_bot_state_resets_respawned_flag(bot_to_move, respawn_flags):
 
     # specify which bot should move
     test_state = setup_random_basic_gamestate(turn=bot_to_move)
-   
+
     respawn_flags = list(respawn_flags) # needs to be a list
     test_state['respawned'] = respawn_flags[:] # copy to avoid reference issues
 
