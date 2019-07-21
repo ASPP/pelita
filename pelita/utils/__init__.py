@@ -69,7 +69,7 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
     bot = make_bots(walls=layout.walls[:],
                     team=team,
                     enemy=enemy,
-                    round=None,
+                    round=round,
                     bot_turn=0,
                     rng=rng)
     return bot
