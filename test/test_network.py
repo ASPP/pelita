@@ -97,7 +97,7 @@ def test_simpleclient(zmq_context):
                     'kills': [0]*2,
                     'deaths': [0]*2,
                     'bot_eaten': [False]*2,
-                    'timeout_count': 0,
+                    'error_count': 0,
                     'food': [(1, 1)],
                     'name': 'dummy',
                 },
@@ -111,7 +111,7 @@ def test_simpleclient(zmq_context):
                     'food': [(2, 2)],
                     'name': 'other dummy',
                     'is_noisy': [False, False],
-                    'timeout_count': 0
+                    'error_count': 0
                 },
                 'round': 1,
                 'bot_turn': 0,
