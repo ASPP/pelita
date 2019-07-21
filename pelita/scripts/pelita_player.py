@@ -146,7 +146,12 @@ def player_handle_request(socket, team):
             "__return__": retval
         }
 
-        if "error" in retval:
+        # retval can be a string with a team name,
+        # a dict with a move and optionally additional data,
+        # or a dict with error key and message, if something
+        # went wrong
+
+        if isinstance(retval, dict) and 'error' in retval:
             # The team class has flagged an error.
             # We return the result (in the finally clause)
             # but return false to exit the process.
