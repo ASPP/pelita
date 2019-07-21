@@ -137,10 +137,9 @@ def test_stays_there():
 
 For setting up test games there is a utility function you can import from `pelita.utils`:
 
-**`setup_test_game(layout, game=None, is_blue=True, round=None, score=None, seed=None, food=None, bots=None, enemy=None) ⟶ bot`**
+**`setup_test_game(layout, is_blue=True, round=None, score=None, seed=None, food=None, bots=None, enemy=None) ⟶ bot`**
 
 Given a layout string, returns a [Bot](#the-bot-object) that you can pass to the [move](#the-move-function) function. Printing a `Bot` will print the layout string corresponding to the current game state. In the simplest form a layout string is a multiline string where the character `#` identifies walls, `.` the food pellets, `E` the enemy bots (you must have two of them for a layout to be legal), and `0` and `1` representing the bots in your team corresponding to turn `0` and `1`. In addition to the layout, `setup_test_game` has a number of optional keyword arguments:
-- game: #TODO
 - `is_blue`: whether your bots are on the blue team, and enemy bots on the red team
 - `round`: the current round
 - `score`: the current score
