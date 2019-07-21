@@ -163,7 +163,7 @@ def parse_layout(layout_str):
     # initialize walls, food and bots from the first layout
     out = parse_single_layout(layout_list.pop(0))
     for layout in layout_list:
-        items = parse_layout(layout)
+        items = parse_single_layout(layout)
         # walls should always be the same
         if items['walls'] != out['walls']:
             raise ValueError('Walls are not equal in all layouts!')
