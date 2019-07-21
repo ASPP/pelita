@@ -1072,10 +1072,10 @@ def test_finished_when_no_food(bot_to_move):
     bot_turn = bot_to_move // 2
     team_to_move = bot_to_move % 2
     def move(bot, s):
-        if team_to_move == 0 and bot.is_blue and bot_turn == bot.bot_turn:
+        if team_to_move == 0 and bot.is_blue and bot_turn == bot._bot_turn:
             return (4, 1), s
             # eat the food between 0 and 2
-        if team_to_move == 1 and (not bot.is_blue) and bot_turn == bot.bot_turn:
+        if team_to_move == 1 and (not bot.is_blue) and bot_turn == bot._bot_turn:
             # eat the food between 3 and 1
             return (3, 2), s
         return bot.position, s
@@ -1099,7 +1099,7 @@ def test_minimal_game():
 
 def test_minimal_losing_game_has_one_error():
     def move0(b, s):
-        if b.round == 1 and b.bot_index == 0:
+        if b.round == 1 and b._bot_index == 0:
             # trigger a bad move in the first round
             return (0, 0), s
         else:

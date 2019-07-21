@@ -108,20 +108,20 @@ class Team:
                 self._bot_track[idx] = []
 
         # Add our track
-        if len(self._bot_track[me.bot_turn]) == 0:
-            self._bot_track[me.bot_turn] = [me.position]
+        if len(self._bot_track[me._bot_turn]) == 0:
+            self._bot_track[me._bot_turn] = [me.position]
 
         for idx, mybot in enumerate(team):
             # If the track of any bot is empty,
             # Add its current position
-            if me.bot_turn != idx:
+            if me._bot_turn != idx:
                 self._bot_track[idx].append(mybot.position)
 
             mybot.track = self._bot_track[idx][:]
 
         try:
             # request a move from the current bot
-            res = self._team_move(team[me.bot_turn], self._state)
+            res = self._team_move(team[me._bot_turn], self._state)
             # check that the returned value # is a tuple of (position, state)
             try:
                 if len(res) != 2:
@@ -420,11 +420,11 @@ class Bot:
         self.track = []
 
         #: Is this a friendly bot?
-        self.is_on_team = is_on_team
+        self._is_on_team = is_on_team
 
         self.random = random
         self.position = tuple(position)
-        self.initial_position = tuple(initial_position)
+        self._initial_position = tuple(initial_position)
         self.walls = _ensure_tuples(walls)
 
         self.homezone = _ensure_tuples(homezone)
@@ -433,19 +433,19 @@ class Bot:
         self.kills = kills
         self.deaths = deaths
         self.eaten = eaten
-        self.bot_index  = bot_index
+        self._bot_index  = bot_index
         self.round = round
         self.is_blue = is_blue
         self.team_name = team_name
         self.error_count = error_count
 
         # Attributes for Bot
-        if self.is_on_team:
+        if self._is_on_team:
             assert bot_turn is not None
-            self.bot_turn = bot_turn
+            self._bot_turn = bot_turn
 
         # Attributes for Enemy
-        if not self.is_on_team:
+        if not self._is_on_team:
             assert is_noisy is not None
             self.is_noisy = is_noisy
 
@@ -481,7 +481,7 @@ class Bot:
     def _team(self):
        """ Both of our bots.
        """
-       if self.is_on_team:
+       if self._is_on_team:
            return self._bots['team']
        else:
            return self._bots['enemy']
@@ -489,7 +489,7 @@ class Bot:
     @property
     def turn(self):
         """ The turn of our bot. """
-        return self.bot_index % 2
+        return self._bot_index % 2
 
     @property
     def other(self):
@@ -500,7 +500,7 @@ class Bot:
     def enemy(self):
         """ The list of enemy bots
         """
-        if not self.is_on_team:
+        if not self._is_on_team:
             return self._bots['team']
         else:
             return self._bots['enemy']
@@ -559,7 +559,7 @@ class Bot:
                     if (x, y) in bot.enemy[0].food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
                     for idx in range(4):
                         if bot._bots[idx].position == (x, y):
-                            if idx == self.bot_index:
+                            if idx == self._bot_index:
                                 out.write('<b>' + str(idx) + '</b>')
                             else:
                                 out.write(str(idx))

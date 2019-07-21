@@ -433,25 +433,25 @@ def test_initial_position(_n_test):
 
     def move(bot, state):
         if bot.is_blue and bot.turn == 0:
-            assert bot.initial_position == initial_pos[0]
-            assert bot.other.initial_position == initial_pos[2]
-            assert bot.enemy[0].initial_position == initial_pos[1]
-            assert bot.enemy[1].initial_position == initial_pos[3]
+            assert bot._initial_position == initial_pos[0]
+            assert bot.other._initial_position == initial_pos[2]
+            assert bot.enemy[0]._initial_position == initial_pos[1]
+            assert bot.enemy[1]._initial_position == initial_pos[3]
         if bot.is_blue and bot.turn == 1:
-            assert bot.initial_position == initial_pos[2]
-            assert bot.other.initial_position == initial_pos[0]
-            assert bot.enemy[0].initial_position == initial_pos[1]
-            assert bot.enemy[1].initial_position == initial_pos[3]
+            assert bot._initial_position == initial_pos[2]
+            assert bot.other._initial_position == initial_pos[0]
+            assert bot.enemy[0]._initial_position == initial_pos[1]
+            assert bot.enemy[1]._initial_position == initial_pos[3]
         if not bot.is_blue and bot.turn == 0:
-            assert bot.initial_position == initial_pos[1]
-            assert bot.other.initial_position == initial_pos[3]
-            assert bot.enemy[0].initial_position == initial_pos[0]
-            assert bot.enemy[1].initial_position == initial_pos[2]
+            assert bot._initial_position == initial_pos[1]
+            assert bot.other._initial_position == initial_pos[3]
+            assert bot.enemy[0]._initial_position == initial_pos[0]
+            assert bot.enemy[1]._initial_position == initial_pos[2]
         if not bot.is_blue and bot.turn == 1:
-            assert bot.initial_position == initial_pos[3]
-            assert bot.other.initial_position == initial_pos[1]
-            assert bot.enemy[0].initial_position == initial_pos[0]
-            assert bot.enemy[1].initial_position == initial_pos[2]
+            assert bot._initial_position == initial_pos[3]
+            assert bot.other._initial_position == initial_pos[1]
+            assert bot.enemy[0]._initial_position == initial_pos[0]
+            assert bot.enemy[1]._initial_position == initial_pos[2]
         return randomBot(bot, state)
 
     state = run_game([move, move], max_rounds=3, layout_dict=l)
