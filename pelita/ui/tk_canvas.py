@@ -521,7 +521,8 @@ class TkApplication:
         turn = firstNN(game_state.get("turn"), "–")
         layout_name = firstNN(game_state.get("layout_name"), "–")
 
-        bot_repr = {'–':'–', 0: 'Blue Bot 0', 1: 'Red Bot 0', 2: 'Blue Bot 1', 3: 'Red Bot 1'}
+        bot_repr = {'–':'–', 0: 'Blue Team, Bot 0', 1: 'Red Team, Bot 0',
+                             2: 'Blue Team, Bot 1', 3: 'Red Team, Bot 1'}
         roundturn = "%s, Round % 3s/%s" % (bot_repr[turn], round, max_rounds)
 
         if self._fps is not None:
