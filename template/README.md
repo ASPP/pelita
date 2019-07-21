@@ -101,14 +101,14 @@ You can pass several options to the `pelita` command to help you with testing.
 
 - **`--ascii`** you can pass the option `--ascii` to the `pelita` command to  suppress the graphical interface and instead use a textual visualization in the terminal, which contains a lot of useful debug info.
 
-- **`--progress`** similar to **`--null`** but showing the progress of the running game.
+- **`--progress`** similar to `--null` but showing the progress of the running game.
 
 - **`--no-timeout`** you can pass the option `--no-timeout` to disable the timeout detection. This is useful for example if you want to run a debugger on your bot, like in [demo08_debugger.py](demo08_debugger.py)
 
 - **`--help`** the full list of supported options can be obtained by passing `--help`.
 
 ### Unit testing
-You should write unit tests to test your utility functions and to test your bot implementations. It is quite hard to test a full strategy, especially because you can not have a real opponent in a test game. It is useful to focus on specific situations (called `layouts`) and verify that your bot is doing the right thing. Several examples are available in this repo in the files named `test_XXX.py`. If you name your test files starting with `test_` your tests will be automatically picked up by `pytest` when you run on the console:
+You should write unit tests to test your utility functions and to test your bot implementations. It is quite hard to test a full strategy, especially because you can not have a real opponent in a test game. It is useful to focus on specific situations (called `layouts`) and verify that your bot is doing the right thing. Several examples are available in this repo in the files named `test_XXX.py`. If you name your test files starting with `test_` your tests will be automatically picked up by `pytest` when you run on the console in the directory where you cloned this repo:
 ```bash
 $ python3 -m pytest
 ```
@@ -272,11 +272,11 @@ The `move` function gets two input arguments:
 
 The `move` function returns two values:
 
-1. **`(x, y)`** a position for the bot in your team corresponding to the current turn. The position is a tuple of two integers `(x, y)`, which are the coordinates on the game grid.
+1. **`(x, y)`** the position where to move the bot in your team corresponding to the current turn. The position is a tuple of two integers `(x, y)`, which are the coordinates on the game grid.
 
-  Note that the returned position must represent a legal move, i.e. you can not move your bot on a wall. If you return an illegal position, a random move will be executed instead and a timeout will be recorded for your team. After 5 timeouts the game is over and you lose the game. 
+  Note that the returned position must represent a legal position, i.e. you can not move your bot on a wall or outside of the maze. If you return an illegal position, a legal position will be chosen at random instead and an error will be recorded for your team. After 5 errors the game is over and you lose the game. 
 
-2. **`state`** the `state` object described above
+2. **`state`** the `state` object described above.
 
 ### The `Bot` object
 Note that the `Bot` object is read-only, i.e. any modifications you make to that object within the `move` function will be discarded at the next round. Use the `state` object for keeping state between rounds.
@@ -287,7 +287,7 @@ Note that the `Bot` object is read-only, i.e. any modifications you make to that
 
 - **`bot.position`** is a tuple of the coordinates your bot is on at the moment. For example `(3, 9)`.
 
-- **`bot.legal_moves`** is a list of moves your bot can make without hitting a wall. Note that not moving, i.e. `(0, 0)` is always a legal move.
+- **`bot.legal_positions`** is a list of positions your bot can take without hitting a wall. Note that you can always stay where you are, i.e. you can let your `move` function return `bot.position`.
 
 - **`bot.walls`** is a list of the coordinates of the walls in the maze: 
     ```python
@@ -304,7 +304,7 @@ Note that the `Bot` object is read-only, i.e. any modifications you make to that
     
     graph = Graph(bot.position, bot.walls)
     ```
-    Example usage of `Graph` can be found in [demo05_basic_defender.py](demo05_basic_defender.py). More advanced graph features can be obtained by converting the maze to a [networkx](https://networkx.github.io/) graph. For this you can use the `walls_to_nxgraph` function in [utils.py](utils.py)
+    Example usage of `Graph` can be found in [demo04_basic_attacker.py](demo04_basic_attacker.py) and [demo05_basic_defender.py](demo05_basic_defender.py). More advanced graph features can be obtained by converting the maze to a [networkx](https://networkx.github.io/) graph. For this you can use the `walls_to_nxgraph` function in [utils.py](utils.py)
 
 - **`bot.homezone`** is a list of all the coordinates of your side of the maze, so if for example you are the red team in a `32×16` maze, your homezone will be:
     ```python
@@ -314,7 +314,7 @@ Note that the `Bot` object is read-only, i.e. any modifications you make to that
     ```python
     (3, 9) in bot.homezone
     ```
-    You can check if you got assigned the blue team – your homezone is the left side of the maze – with **`bot.is_blue`**. Otherwise you are the red team and your homezone is the right side of the maze. The blue team plays the first move.
+    You can check if you got assigned the blue team – your homezone is the left side of the maze – with **`bot.is_blue`**. Otherwise you are the red team and your homezone is the right side of the maze. The blue team always plays the first move.
 
 - **`bot.food`** is the list of the coordinates of the food pellets in your own homezone
     ```python
@@ -333,15 +333,21 @@ Note that the `Bot` object is read-only, i.e. any modifications you make to that
     ```
     Note that you want to do it only **once** per game!
 
-- **`bot.timeout_count`** is a count of the timeouts your team has got. Remember that after 5 timeouts you lose the game, independent of the score.
+- **`bot.error_count`** is a count of the error your team has got. Remember that if you commit 5 errors you lose the game, independent of the score. Errors are either timeouts (it takes longer than 3 seconds to excute your `move` function) or illegal positions returned by your `move` function.
 
 - **`bot.say(text)`** allows you to print `text` as a sort of speech bubble attached to your bot in the graphical user interface.
+
+- **`bot.kills`** is the number of enemy bots your bots has killed until now.
+
+- **`bot.deaths`** is the number of times your bot has been killed until now.
 
 - **`bot.enemy`** is a list containing the references to the two enemy bots, which are also `Bot` objects, so they have all the properties we have just seen above. So, for example the position of the first enemy bot:
     ```python
     bot.enemy[0].position
     ```
     This position may be not exact (see below the `is_noisy` property).
+
+- **`bot.enemy.food`** is the list of coordinates of the food pellets you want to eat.
 
 - **`bot.enemy[0].is_noisy`** <a id="is-noisy"></a> if the enemy bot is located more than 5 squares away from your bot, then its position `bot.enemy[0].position` will not be exact. A uniformly distributed noise between `-5` and `+5` squares will be added to it instead. The distance of your bot from the enemy bot is measured in grid space, i.e. if your bot is in `(Bx, By)` and the enemy bot is in `(Ex, Ey)`, the distance will be `abs(Bx-Ex) + abs(By-Ey)`. An example of using the `is_noisy` property is given in [demo05_basic_defender.py](demo05_basic_defender.py).
 
