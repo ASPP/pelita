@@ -492,8 +492,9 @@ class TkApplication:
         def status(team_idx):
             try:
                 # sum the deaths of both bots in this team
-                deaths = sum(game_state['deaths'][team_idx]) + sum(game_state['deaths'][team_idx+2])
-                ret = "Errors: %d, Deaths: %d, Time: %.2f" % (game_state["num_errors"][team_idx], deaths, game_state["team_time"][team_idx])
+                deaths = game_state['deaths'][team_idx] + game_state['deaths'][team_idx+2]
+                kills = game_state['kills'][team_idx] + game_state['kills'][team_idx+2]
+                ret = "Errors: %d, Kills: %d, Deaths: %d, Time: %.2f" % (game_state["num_errors"][team_idx], kills, deaths, game_state["team_time"][team_idx])
                 return ret
             except TypeError:
                 return ""
