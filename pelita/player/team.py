@@ -104,7 +104,7 @@ class Team:
 
         for idx, mybot in enumerate(team):
             # If a bot has been eaten, we reset it’s bot track
-            if len(mybot.deaths) > 0 and mybot.deaths[-1] > 0:
+            if mybot.eaten:
                 self._bot_track[idx] = []
 
         # Add our track
@@ -405,6 +405,7 @@ class Bot:
                           score,
                           kills,
                           deaths,
+                          eaten,
                           random,
                           round,
                           is_blue,
@@ -431,6 +432,7 @@ class Bot:
         self.score  = score
         self.kills = kills
         self.deaths = deaths
+        self.eaten = eaten
         self.bot_index  = bot_index
         self.round = round
         self.is_blue = is_blue
@@ -625,6 +627,7 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
             score=team['score'],
             deaths=team['deaths'][idx],
             kills=team['kills'][idx],
+            eaten=team['bot_eaten'][idx],
             timeout_count=team['timeout_count'],
             food=team['food'],
             walls=walls,
@@ -646,6 +649,7 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
             score=enemy['score'],
             kills=enemy['kills'][idx],
             deaths=enemy['deaths'][idx],
+            eaten=enemy['bot_eaten'][idx],
             is_noisy=enemy['is_noisy'][idx],
             timeout_count=enemy['timeout_count'],
             food=enemy['food'],

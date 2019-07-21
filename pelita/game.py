@@ -261,11 +261,14 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         #: Time each team needed, list of float
         team_time=[0, 0],
 
-        # List of bot deaths, which is a list of number of deaths per round (with length = number of rounds)
-        deaths = [[0],[0],[0],[0]],
+        # List of bot deaths, which counts the number of deaths per bot
+        deaths = [0]*4,
 
-        # List of bot kills, which is a list of number of kills per round (with length = number of rounds)
-        kills = [[0],[0],[0],[0]],
+        # List of bot kills, which counts the number of kills per bot
+        kills = [0]*4,
+
+        # List of boolean flags weather bot has been eaten since its last move
+        bot_eaten = [False]*4,
 
         #: Messages the bots say. Keeps only the recent one at the respective bot’s index.
         say=[""] * 4,
@@ -404,6 +407,7 @@ def prepare_bot_state(game_state, idx=None):
         'score': game_state['score'][own_team],
         'kills': game_state['kills'][own_team::2],
         'deaths': game_state['deaths'][own_team::2],
+        'bot_eaten': game_state['bot_eaten'][own_team::2],
         'timeout_count': len(game_state['errors'][own_team]),
         'food': list(game_state['food'][own_team]),
         'name': game_state['team_names'][own_team]
@@ -416,6 +420,7 @@ def prepare_bot_state(game_state, idx=None):
         'score': game_state['score'][enemy_team],
         'kills': game_state['kills'][enemy_team::2],
         'deaths': game_state['deaths'][enemy_team::2],
+        'bot_eaten': game_state['bot_eaten'][enemy_team::2],
         'timeout_count': 0, # TODO. Could be left out for the enemy
         'food': list(game_state['food'][enemy_team]),
         'name': game_state['team_names'][enemy_team]
@@ -606,9 +611,14 @@ def apply_move(gamestate, bot_position):
     n_round = gamestate["round"]
     kills = gamestate["kills"]
     deaths = gamestate["deaths"]
+    bot_eaten = gamestate["bot_eaten"]
     fatal_error = True if gamestate["fatal_errors"][team] else False
     #TODO how are fatal errors passed to us? dict with same structure as regular errors?
     #TODO do we need to communicate that fatal error was the reason for game over in any other way?
+
+
+    # reset our own bot_eaten flag
+    bot_eaten[turn] = False
 
     # previous errors
     team_errors = gamestate["errors"][team]
@@ -658,7 +668,7 @@ def apply_move(gamestate, bot_position):
             food[1 - team].remove(bot_position)
             # This is modifying the old game state
             score[team] = score[team] + 1
-    # check if anyone was eaten
+    # check if we killed someone
     if bot_in_homezone:
         killed_enemies = [idx for idx in enemy_idx if bot_position == bots[idx]]
         for enemy_idx in killed_enemies:
@@ -666,18 +676,21 @@ def apply_move(gamestate, bot_position):
             score[team] = score[team] + KILL_POINTS
             init_positions = initial_positions(walls)
             bots[enemy_idx] = init_positions[enemy_idx]
-            kills[turn][-1] += 1
-            deaths[enemy_idx][-1] += 1
+            kills[turn] += 1
+            deaths[enemy_idx] += 1
+            bot_eaten[enemy_idx] = True
             _logger.info(f"Bot {enemy_idx} reappears at {bots[enemy_idx]}.")
     else:
-        # check if bot was eaten itself
+        # check if we have been eaten
         enemies_on_target = [idx for idx in enemy_idx if bots[idx] == bot_position]
         if len(enemies_on_target) > 0:
             _logger.info(f"Bot {turn} was eaten by bots {enemies_on_target} at {bot_position}.")
             score[1 - team] = score[1 - team] + KILL_POINTS
             init_positions = initial_positions(walls)
             bots[turn] = init_positions[turn]
-            deaths[turn][-1] += 1
+            deaths[turn] += 1
+            kills[enemies_on_target[0]] += 1
+            bot_eaten[turn] = True
             _logger.info(f"Bot {turn} reappears at {bots[turn]}.")
 
     errors = gamestate["errors"]
@@ -688,6 +701,7 @@ def apply_move(gamestate, bot_position):
         "score": score,
         "deaths": deaths,
         "kills": kills,
+        "bot_eaten": bot_eaten,
         "errors": errors,
         }
 
@@ -714,8 +728,6 @@ def update_round_and_killing_counter(game_state):
         raise ValueError("Game is already over")
     turn = game_state['turn']
     round = game_state['round']
-    deaths = game_state['deaths']
-    kills = game_state['kills']
 
     if turn is None and round is None:
         turn = 0
@@ -727,20 +739,10 @@ def update_round_and_killing_counter(game_state):
         if turn >= 4:
             turn = turn % 4
             round = round + 1
-            # append counter of deaths and kills for each bot
-            for bot in deaths:
-                bot.append(0)
-            for bot in kills:
-                bot.append(0)
-
-#    if round >= game_state['max_rounds']:
-#        raise ValueError("Exceeded maximum number of rounds.")
 
     return {
         'round': round,
         'turn': turn,
-        'deaths': deaths,
-        'kills': kills,
     }
 
 

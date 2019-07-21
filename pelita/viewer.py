@@ -67,10 +67,10 @@ class AsciiViewer:
         state = {}
         state.update(game_state)
         # for death and kills just leave a summary
-        state['blue deaths'] = [sum(items) for items in state['deaths'][::2]]
-        state['blue kills'] = [sum(items) for items in state['kills'][::2]]
-        state['red deaths'] = [sum(items) for items in state['deaths'][1::2]]
-        state['red kills'] = [sum(items) for items in state['kills'][1::2]]
+        state['blue deaths'] = state['deaths'][::2]
+        state['blue kills'] = state['kills'][::2]
+        state['red deaths'] = state['deaths'][1::2]
+        state['red kills'] = state['kills'][1::2]
         del state['kills']
         del state['deaths']
         del state['walls']

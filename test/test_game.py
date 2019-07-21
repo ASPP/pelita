@@ -315,7 +315,7 @@ def test_play_turn_killing(turn):
     game_state_new = apply_move(game_state, game_state["bots"][friend_idx])
     # assert game_state_new["DEATHS"][team] == 5
     assert game_state_new["score"] == [0, 0]
-    assert game_state_new["deaths"] == [[0]]*4
+    assert game_state_new["deaths"] == [0]*4
 
 @pytest.mark.parametrize('setups', ((0, (1, 4)),
                                     (1, (16, 3)),
@@ -882,8 +882,9 @@ def test_play_turn_move():
         "whowins": None,
         "team_say": "bla",
         "score": 0,
-        "kills":[[0]]*4,
-        "deaths": [[0]]*4,
+        "kills":[0]*4,
+        "deaths": [0]*4,
+        "bot_eaten": [False]*4,
         "errors": [[], []],
         "fatal_errors": [{}, {}],
         "rnd": random.Random()
@@ -981,8 +982,8 @@ def test_update_round_counter():
         res = game.update_round_and_killing_counter({'turn': turn0,
                                                      'round': round0,
                                                      'gameover': False,
-                                                     'kills': [[0]]*4,
-                                                     'deaths': [[0]]*4})
+                                                     'kills': [0]*4,
+                                                     'deaths': [0]*4})
         assert all(item in res.items() for item in {'turn': turn1, 'round': round1}.items())
 
     for (round0, turn0), (round1, turn1) in tests.items():
