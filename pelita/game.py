@@ -84,13 +84,13 @@ def controller_exit(state, await_action='play_step'):
 
 def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None,
              max_team_errors=5, timeout_length=3, viewers=None, controller=None, viewer_options=None,
-             store_output=False):
+             store_output=False, team_names=(None, None)):
     """ Run a match for `max_rounds` rounds. """
 
     # we create the initial game state
     state = setup_game(team_specs, layout_dict=layout_dict, layout_name=layout_name, max_rounds=max_rounds, timeout_length=timeout_length, seed=seed,
                        viewers=viewers, controller=controller, viewer_options=viewer_options,
-                       store_output=store_output)
+                       store_output=store_output, team_names=team_names)
 
     # Play the game until it is gameover.
     while not state.get('gameover'):
@@ -160,7 +160,7 @@ def setup_viewers(viewers=None, options=None):
 
 def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=None,
                max_team_errors=5, timeout_length=3, viewers=None, controller=None, viewer_options=None,
-               store_output=False):
+               store_output=False, team_names=(None, None)):
     """ Generates a game state for the given teams and layout with otherwise default values. """
 
     # check that two teams have been given
@@ -255,8 +255,8 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         #: Name of the layout, str
         layout_name=layout_name,
 
-        #: Name of the teams. List of str
-        team_names=[None] * 2,
+        #: Name of the teams. Tuple of str
+        team_names=team_names,
 
         #: Time each team needed, list of float
         team_time=[0, 0],
@@ -326,10 +326,10 @@ def setup_teams(team_specs, game_state, store_output=False):
     # First, create all teams
     # If a team is a RemoteTeam, this will start a subprocess
     for idx, team_spec in enumerate(team_specs):
-        team, zmq_context = make_team(team_spec, idx=idx, zmq_context=zmq_context, store_output=store_output)
+        team, zmq_context = make_team(team_spec, idx=idx, zmq_context=zmq_context, store_output=store_output, team_name=game_state['team_names'][idx])
         teams.append(team)
 
-    # Send the initial state to the teams and await the team name
+    # Send the initial state to the teams and await the team name (if the teams are local, the name can be get from the game_state directly
     team_names = []
     for idx, team in enumerate(teams):
         try:
