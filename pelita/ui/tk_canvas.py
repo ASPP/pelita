@@ -491,9 +491,6 @@ class TkApplication:
                 # sum the deaths of both bots in this team
                 deaths = sum(game_state['deaths'][team_idx]) + sum(game_state['deaths'][team_idx+2])
                 ret = "Errors: %d, Deaths: %d, Time: %.2f" % (game_state["num_errors"][team_idx], deaths, game_state["team_time"][team_idx])
-                disqualified = game_state["teams_disqualified"][team_idx]
-                if disqualified is not None:
-                    ret += ", Disqualified: %s" % disqualified
                 return ret
             except TypeError:
                 return ""
@@ -730,7 +727,6 @@ class TkApplication:
             skip_request = False
             self._observed_steps.add(step)
         # TODO
-        game_state['teams_disqualified'] = [fatal and fatal[0]['type'] for fatal in game_state['fatal_errors']]
         game_state['bot_destroyed'] = []
         game_state['food_eaten'] = []
         self.update(game_state)
