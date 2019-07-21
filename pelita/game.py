@@ -88,7 +88,7 @@ def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None,
     """ Run a match for `max_rounds` rounds. """
 
     # we create the initial game state
-    state = setup_game(team_specs, layout_dict=layout_dict, max_rounds=max_rounds, timeout_length=timeout_length, seed=seed,
+    state = setup_game(team_specs, layout_dict=layout_dict, layout_name=layout_name, max_rounds=max_rounds, timeout_length=timeout_length, seed=seed,
                        viewers=viewers, controller=controller, viewer_options=viewer_options,
                        store_output=store_output)
 
@@ -253,7 +253,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
 
         ### Informative
         #: Name of the layout, str
-        layout_name=None,
+        layout_name=layout_name,
 
         #: Name of the teams. List of str
         team_names=[None] * 2,
