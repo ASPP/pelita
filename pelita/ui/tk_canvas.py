@@ -15,6 +15,9 @@ from .tk_sprites import BotSprite, Food, Wall, RED, BLUE, YELLOW, GREY, BROWN
 
 _logger = logging.getLogger(__name__)
 
+def _ensure_tuples(list):
+    """ Ensures that an iterable is a list of position tuples. """
+    return [tuple(item) for item in list]
 
 
 def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
@@ -373,7 +376,7 @@ class TkApplication:
 
         eaten_food = []
         for food_pos, food_item in self.food_items.items():
-            if not list(food_pos) in game_state["food"]:
+            if not food_pos in game_state["food"]:
                 self.ui.game_canvas.delete(food_item.tag)
                 eaten_food.append(food_pos)
         for food_pos in eaten_food:
@@ -550,7 +553,10 @@ class TkApplication:
                     contents = []
 
                 if bots:
-                    contents += ["bots(" + ",".join(bots) + ")"]
+                    bot_map = {0:'blue 0', 1:'red 0', 2:'blue 1', 3:'red 1'}
+                    contents += ["bots(" \
+                                 + ", ".join(bot_map[bot] for bot in bots) \
+                                 + ")"]
 
                 contents = " ".join(contents)
                 if not contents:
@@ -626,7 +632,7 @@ class TkApplication:
             model_x, model_y = position
             food_item = Food(self.mesh_graph, position=(model_x, model_y))
             food_item.draw(self.ui.game_canvas)
-            self.food_items[tuple(position)] = food_item
+            self.food_items[position] = food_item
 
     def draw_maze(self, game_state):
         if not self.size_changed:
@@ -642,7 +648,7 @@ class TkApplication:
             wall_neighbors = [(dx, dy)
                               for dx in [-1, 0, 1]
                               for dy in [-1, 0, 1]
-                              if [model_x + dx, model_y + dy] in game_state['walls']]
+                              if (model_x + dx, model_y + dy) in game_state['walls']]
             wall_item = Wall(self.mesh_graph, wall_neighbors=wall_neighbors, position=(model_x, model_y))
             wall_item.draw(self.ui.game_canvas)
             self.wall_items.append(wall_item)
@@ -726,6 +732,10 @@ class TkApplication:
         else:
             skip_request = False
             self._observed_steps.add(step)
+        # ensure walls, foods and bots positions are list of tuples
+        game_state['walls'] = _ensure_tuples(game_state['walls'])
+        game_state['food'] = _ensure_tuples(game_state['food'])
+        game_state['bots'] = _ensure_tuples(game_state['bots'])
         # TODO
         game_state['bot_destroyed'] = []
         game_state['food_eaten'] = []
