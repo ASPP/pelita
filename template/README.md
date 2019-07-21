@@ -24,17 +24,23 @@ Introduction
 
 Pelita is a PacMan™ like game. Two teams each of two bots are placed in a maze with food pellets. The maze is split into two parts, the left one belongs to the team on the left (the blue team), the right one belongs to the team on the right (the red team). When a bot is in its own homezone it is a ghost. A ghost can defend its own food pellets by killing the enemies. When a bot is in its enemy's homezone it is a pacman and can eat the enemy's food. The rules:
 
-- **eating food**: when a bot eats a food pellet, the food pellet is permanently removed from the maze and **one point** is scored for the bot's team
+- **eating food**: when a bot eats a food pellet, the food pellet is permanently removed from the maze and **one point** is scored for the bot's team.
 
-- **eating enemies**: when a ghost eats an enemy pacman, the eaten pacman is immediately reset to its starting position and **5 points** are scored for the ghost's team
+- **eating enemies**: when a ghost eats an enemy pacman, the eaten pacman is immediately reset to its starting position and **5 points** are scored for the ghost's team.
 
-- **observation**: bots can see their enemies' positions only when the enemies are within a distance of **5** squares. If the enemies are further away than that, their position is noisy (more details [below](#is-noisy)).
+- **enemy position**: bots can know their enemies' exact positions only when the enemies are within a distance of **5** squares. If the enemies are further away than that, the bots have access only to a noisy position (more details [below](#is-noisy)).
 
-- **timeout**: each bot has **3** seconds to return a valid move. If it doesn't return in time or if the move returned is illegal, a random move is executed instead and a timeout is recorded. After 5 timeouts the team is disqualified and loses the game.
+- **timeouts**: each bot has **3** seconds to return a valid move. If it doesn't return in time a random legal move is executed instead and an error is recorded.
 
-- **game over**: the game ends when one team eats all of its enemy's food pellets or after **300** rounds.
+- **illegal moves**: if a bot returns an illegal move, a random legal move is executed instead and an error is recorded.
 
-- **winning**: the team with the highest score after game over wins the game, regardless of which team finished the food.
+- **errors**: each team can commit a maximum of 4 errors. At the 5th error the team is disqualified and the game is over. Errors are either illegal moves or timeouts.
+
+- **fatal errors**: if a bot raises an Exception, the team is immediately disqualified and the game is over.
+
+- **game over**: the game ends when one team eats all of its enemy's food pellets or after **300** rounds or if a team is disqualified.
+
+- **the winner**: the team with the highest score after game over wins the game, regardless of which team finished the food. A team also wins if the opponent team is disqualified, regardless of the score.
 
 ## Your task
 
@@ -47,10 +53,10 @@ def move(bot, state):
     next_pos = bot.position
     return next_pos, state
 ```
-As seen above, your implementation consists of a team name (the `TEAM_NAME` string) and a function `move`, which given a bot and a state returns the next position for current bot and a state. In the [Full API Description](#full-api-description) section you'll find all the details.
+As seen above, your implementation consists of a team name (the `TEAM_NAME` string) and a function `move`, which given a bot and a state returns the next position for current bot and a state. Don't panic right now, in the [Full API Description](#full-api-description) section you'll find all the details.
 
 ## Content of this repository
-In this repository you will find several demo implementations (all files named `demoXX_XXX.py`), that you can use as a starting point for your own implementations. There is also an example `utils.py` module and a series of unit tests for the demo implementations (all files named `test_demoXX_XXX.py`). You can run the tests with `pytest` by typing:
+In this repository you will find several demo implementations (all files named `demoXX_XXX.py`), that you can use as a starting point for your own implementations. There is also an example `utils.py` module and a series of unit tests for the demo implementations (all files named `test_demoXX_XXX.py`). You can run the tests within a clone of this repo with `pytest` by typing:
 ```bash
 $ python3 -m pytest
 ```
@@ -69,14 +75,15 @@ More info about the command `pelita` [below](#manual-testing)
 There are several strategies to test your bot implementations.
 
 ### Manual testing
-The `pelita` command has several features to help you with testing.
+You can pass several options to the `pelita` command to help you with testing.
+
 - **`--seed SEED`** you can pass the `--seed` option to the `pelita` command to repeat a game using the same random seed. The random seed for a game is printed on standard output:
     ```bash
     $ pelita demo03_smartrandom.py demo02_random.py
     Replay this game with --seed 7487886765553999309
     Using layout 'layout_normal_without_dead_ends_033'
-    Blue team 'demo03_smartrandom.py' -> 'SmartRandomBots'
-    Red team 'demo02_random.py' -> 'RandomBots'
+    ᗧ blue team 'demo03_smartrandom.py' -> 'SmartRandomBots'
+    ᗧ red team 'demo02_random.py' -> 'RandomBots'
     ...
     ```
     You can replay this exact game:
@@ -87,15 +94,19 @@ The `pelita` command has several features to help you with testing.
 
 - **`--stop-at ROUND`** you can pass the `--stop-at` option to the `pelita` command to stop a game at a specific round. You can then, for example, show the grid, play the next turns step by step, etc.
 
-- selecting a specific square in the grid will show its coordinates and if the square is a wall or contains food or bots:
+- selecting a specific square in the grid will show its coordinates and if the square is a wall or contains food or bots are sitting on it:
     ![](pelita_GUI_grid_selection.png)
 
-- **`--null`** you can pass the option `--null` to suppress the graphical interface and just let the game play in the background. This is useful if you want to play many games and just look at their outcome, for example to gather statistics.
+- **`--null`** you can pass the option `--null` to the `pelita` command to suppress the graphical interface and just let the game play in the background. This is useful if you want to play many games and just look at their outcome, for example to gather statistics.
+
+- **`--ascii`** you can pass the option `--ascii` to the `pelita` command to  suppress the graphical interface and instead use a textual visualization in the terminal, which contains a lot of useful debug info.
+
+- **`--progress`** similar to **`--null`** but showing the progress of the running game.
 
 - **`--no-timeout`** you can pass the option `--no-timeout` to disable the timeout detection. This is useful for example if you want to run a debugger on your bot, like in [demo08_debugger.py](demo08_debugger.py)
 
 - **`--help`** the full list of supported options can be obtained by passing `--help`.
-    
+
 ### Unit testing
 You should write unit tests to test your utility functions and to test your bot implementations. It is quite hard to test a full strategy, especially because you can not have a real opponent in a test game. It is useful to focus on specific situations (called `layouts`) and verify that your bot is doing the right thing. Several examples are available in this repo in the files named `test_XXX.py`. If you name your test files starting with `test_` your tests will be automatically picked up by `pytest` when you run on the console:
 ```bash
