@@ -352,3 +352,11 @@ Note that the `Bot` object is read-only, i.e. any modifications you make to that
 
 - **`bot.enemy[0].team_name`** you can also inspect the enemy team name with `bot.enemy[0].team_name`.
 
+### Running multiple games in the background
+You may want to run multiple games in the background to gather statistics about your implementation,
+or to fit some parameters of your implementation. The script [demo10_background_games.py](demo10_background_games.py) is an example of this. This script uses `pelita` as a library, i.e. it is not run using the `pelita` command, but simply calling it with:
+```bash
+python3 demo10_background_games.py
+```
+
+
