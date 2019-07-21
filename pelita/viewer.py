@@ -19,11 +19,13 @@ class ProgressViewer:
             return
         game_time = game_state["max_rounds"]
         percentage = int(100.0 * round_index / game_time)
-        if game_state["turn"] is not None:
-            if game_state["turn"] % 2 == 0:
-                bot_sign = f'\033[94m{game_state["turn"]}\033[0m'
-            elif game_state["turn"] % 2 == 1:
-                bot_sign = f'\033[91m{game_state["turn"]}\033[0m'
+        turn = game_state["turn"]
+        if turn is not None:
+            bot_idx = turn // 2
+            if turn % 2 == 0:
+                bot_sign = f'\033[94mBlue Team, Bot {bot_idx}\033[0m'
+            elif turn % 2 == 1:
+                bot_sign = f'\033[91mRed Team, Bot {bot_idx}\033[0m'
         else:
             bot_sign = ' '
         string = ("[%s] %3i%% (%i / %i) [%s]" % (
