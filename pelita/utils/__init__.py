@@ -44,7 +44,7 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
         'kills': [0]*2,
         'deaths': [0]*2,
         'bot_eaten' : [False]*2,
-        'timeout_count': 0,
+        'error_count': 0,
         'food': food[team_index],
         'name': "blue" if is_blue else "red"
     }
@@ -55,7 +55,7 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
         'kills': [0]*2,
         'deaths': [0]*2,
         'bot_eaten': [False]*2,
-        'timeout_count': 0,
+        'error_count': 0,
         'food': food[enemy_index],
         'is_noisy': [False] * len(layout.enemy),
         'name': "red" if is_blue else "blue"

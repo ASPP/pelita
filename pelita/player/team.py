@@ -410,7 +410,7 @@ class Bot:
                           round,
                           is_blue,
                           team_name,
-                          timeout_count,
+                          error_count,
                           bot_turn=None,
                           is_noisy=None):
         self._bots = None
@@ -437,7 +437,7 @@ class Bot:
         self.round = round
         self.is_blue = is_blue
         self.team_name = team_name
-        self.timeout_count = timeout_count
+        self.error_count = error_count
 
         # Attributes for Bot
         if self.is_on_team:
@@ -592,8 +592,8 @@ class Bot:
             col="blue" if bot.is_blue else "red",
             you_blue=" (you)" if bot.is_blue else "",
             you_red=" (you)" if not bot.is_blue else "",
-            blue_timeouts=blue.timeout_count,
-            red_timeouts=red.timeout_count,
+            blue_timeouts=blue.error_count,
+            red_timeouts=red.error_count,
         )
 
         with StringIO() as out:
@@ -628,7 +628,7 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
             deaths=team['deaths'][idx],
             kills=team['kills'][idx],
             eaten=team['bot_eaten'][idx],
-            timeout_count=team['timeout_count'],
+            error_count=team['error_count'],
             food=team['food'],
             walls=walls,
             round=round,
@@ -651,7 +651,7 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
             deaths=enemy['deaths'][idx],
             eaten=enemy['bot_eaten'][idx],
             is_noisy=enemy['is_noisy'][idx],
-            timeout_count=enemy['timeout_count'],
+            error_count=enemy['error_count'],
             food=enemy['food'],
             walls=walls,
             round=round,
