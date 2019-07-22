@@ -979,7 +979,7 @@ def test_update_round_counter():
     }
 
     for (round0, turn0), (round1, turn1) in tests.items():
-        res = game.update_round_and_killing_counter({'turn': turn0,
+        res = game.update_round_counter({'turn': turn0,
                                                      'round': round0,
                                                      'gameover': False,
                                                      'kills': [0]*4,
@@ -988,7 +988,7 @@ def test_update_round_counter():
 
     for (round0, turn0), (round1, turn1) in tests.items():
         with pytest.raises(ValueError):
-            res = game.update_round_and_killing_counter({'turn': turn0,
+            res = game.update_round_counter({'turn': turn0,
                                                          'round': round0,
                                                          'gameover': True,
                                                          'kills': [[0]]*4,
