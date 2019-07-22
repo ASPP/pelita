@@ -84,8 +84,12 @@ def controller_exit(state, await_action='play_step'):
 
 def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None,
              max_team_errors=5, timeout_length=3, viewers=None, controller=None, viewer_options=None,
-             store_output=False, team_names=(None, None)):
+             store_output=False, team_names=(None, None), allow_exceptions=False):
     """ Run a match for `max_rounds` rounds. """
+
+    # allow exception will force exceptions in the clients to be raised.
+    # This flag must be used when using run_game directly, like in tests or
+    # in background games
 
     # we create the initial game state
     state = setup_game(team_specs, layout_dict=layout_dict, layout_name=layout_name, max_rounds=max_rounds, timeout_length=timeout_length, seed=seed,
@@ -102,7 +106,7 @@ def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None,
             break
 
         # play the next turn
-        state = play_turn(state)
+        state = play_turn(state, allow_exceptions=allow_exceptions)
 
     return state
 
@@ -160,7 +164,7 @@ def setup_viewers(viewers=None, options=None):
 
 def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=None,
                max_team_errors=5, timeout_length=3, viewers=None, controller=None, viewer_options=None,
-               store_output=False, team_names=(None, None)):
+               store_output=False, team_names=(None, None), allow_exceptions=False):
     """ Generates a game state for the given teams and layout with otherwise default values. """
 
     # check that two teams have been given
@@ -301,7 +305,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
     # to answer to the server.
     update_viewers(game_state)
 
-    team_state = setup_teams(team_specs, game_state, store_output=store_output)
+    team_state = setup_teams(team_specs, game_state, store_output=store_output, allow_exceptions=allow_exceptions)
     game_state.update(team_state)
 
     # Check if one of the teams has already generate a fatal error
@@ -314,7 +318,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
     return game_state
 
 
-def setup_teams(team_specs, game_state, store_output=False):
+def setup_teams(team_specs, game_state, store_output=False, allow_exceptions=False):
     """ Creates the teams according to the `teams`. """
 
     # we start with a dummy zmq_context
@@ -335,6 +339,7 @@ def setup_teams(team_specs, game_state, store_output=False):
         try:
             team_name = team.set_initial(idx, prepare_bot_state(game_state, idx))
         except FatalException as e:
+            if allow_exceptions: raise
             exception_event = {
                 'type': e.__class__.__name__,
                 'description': str(e),
@@ -491,7 +496,7 @@ def prepare_viewer_state(game_state):
     return viewer_state
 
 
-def play_turn(game_state):
+def play_turn(game_state, allow_exceptions=False):
     """ Plays the next turn of the game.
 
     This function increases the round and turn counters, requests a move
@@ -530,6 +535,7 @@ def play_turn(game_state):
         else:
             game_state['say'][game_state['turn']] = ""
     except FatalException as e:
+        if allow_exceptions: raise
         # FatalExceptions (such as PlayerDisconnect) should immediately
         # finish the game
         exception_event = {
@@ -542,6 +548,7 @@ def play_turn(game_state):
         position = None
         game_print(turn, f"{type(e).__name__}: {e}")
     except NonFatalException as e:
+        if allow_exceptions: raise
         # NonFatalExceptions (such as Timeouts and ValueErrors in the JSON handling)
         # are collected and added to team_errors
         exception_event = {
