@@ -172,7 +172,10 @@ def parse_layout(layout_str):
         # add the bots
         for bot_idx, bot_pos in enumerate(items['bots']):
             if bot_pos:
-                # this bot position is not None, overwrite whatever we had before
+                # this bot position is not None, overwrite whatever we had before, unless
+                # it already holds a different coordinate
+                if out['bots'][bot_idx] and out['bots'][bot_idx] != bot_pos:
+                    raise ValueError(f"Cannot set bot {bot_idx} to position {bot_pos} (already at {out['bots'][bot_idx]}).")
                 out['bots'][bot_idx] = bot_pos
 
     return out
@@ -255,6 +258,11 @@ def parse_single_layout(layout_str):
                         raise ValueError
                 except ValueError:
                     raise ValueError(f"Unknown character {char} in maze!")
+
+                # bot_idx is a valid character.
+                if bots[bot_idx]:
+                    # bot_idx has already been set before
+                    raise ValueError(f"Cannot set bot {bot_idx} to position {coord} (already at {bots[bot_idx]}).")
                 bots[bot_idx] = coord
     walls.sort()
     food.sort()
