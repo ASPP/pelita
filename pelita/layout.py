@@ -171,40 +171,62 @@ def parse_layout(layout_str, allow_enemy_chars=False):
         # the last layout has not been closed, complain here!
         raise ValueError(f"Layout does not end with a row of walls (line: {i})!")
 
-    # initialize walls, food and bots from the first layout
-    out = parse_single_layout(layout_list.pop(0), num_bots=num_bots, allow_enemy_chars=allow_enemy_chars)
+    # set empty default values
+    walls = []
+    food = []
+    bots = [None] * num_bots
+    if allow_enemy_chars:
+        enemy = []
 
+    # iterate through all layouts
     for layout in layout_list:
         items = parse_single_layout(layout, num_bots=num_bots, allow_enemy_chars=allow_enemy_chars)
+        # initialize walls from the first layout
+        if not walls:
+            walls = items['walls']
+
         # walls should always be the same
-        if items['walls'] != out['walls']:
+        if items['walls'] != walls:
             raise ValueError('Walls are not equal in all layouts!')
+
         # add the food, removing duplicates
-        out['food'] = list(set(out['food'] + items['food']))
+        food = list(set(food + items['food']))
+
         # add the enemy, removing duplicates
         if allow_enemy_chars:
-            out['enemy'] = list(set(out['enemy'] + items['enemy']))
+            enemy = list(set(enemy + items['enemy']))
+
         # add the bots
         for bot_idx, bot_pos in enumerate(items['bots']):
             if bot_pos:
                 # this bot position is not None, overwrite whatever we had before, unless
                 # it already holds a different coordinate
-                if out['bots'][bot_idx] and out['bots'][bot_idx] != bot_pos:
-                    raise ValueError(f"Cannot set bot {bot_idx} to position {bot_pos} (already at {out['bots'][bot_idx]}).")
-                out['bots'][bot_idx] = bot_pos
+                if bots[bot_idx] and bots[bot_idx] != bot_pos:
+                    raise ValueError(f"Cannot set bot {bot_idx} to position {bot_pos} (already at {bots[bot_idx]}).")
+                bots[bot_idx] = bot_pos
 
     if allow_enemy_chars:
         # validate that we have at most two enemies
-        if len(out['enemy']) > 2:
-            raise ValueError(f"More than two enemies defined: {out['enemy']}!")
-        elif len(out['enemy']) == 2:
+        if len(enemy) > 2:
+            raise ValueError(f"More than two enemies defined: {enemy}!")
+        elif len(enemy) == 2:
             # do nothing
             pass
-        elif len(out['enemy']) == 1:
+        elif len(enemy) == 1:
             # we use the position for both enemies
-            out['enemy'] = [out['enemy'][0], out['enemy'][0]]
+            enemy = [enemy[0], enemy[0]]
         else:
-            out['enemy'] = [None, None]
+            enemy = [None, None]
+
+    # build parsed layout, ensuring walls and food are sorted
+    out = {
+        'walls': sorted(walls),
+        'food': sorted(food),
+        'bots': bots
+    }
+
+    if allow_enemy_chars:
+        out['enemy'] = sorted(enemy)
 
     return out
 
