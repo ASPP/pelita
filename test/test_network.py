@@ -4,7 +4,7 @@ import uuid
 
 import zmq
 
-from pelita.simplesetup import bind_socket, extract_port_range
+from pelita.network import bind_socket, extract_port_range
 from pelita.player.team import make_team
 from pelita.scripts.pelita_player import player_handle_request
 

@@ -11,16 +11,15 @@ import traceback
 
 import zmq
 
-from . import AbstractTeam
 from .. import libpelita, layout
 from ..exceptions import PlayerDisconnected, PlayerTimeout
-from ..simplesetup import ZMQConnection, ZMQClientError, ZMQReplyTimeout, ZMQUnreachablePeer, DEAD_CONNECTION_TIMEOUT
+from ..network import ZMQConnection, ZMQClientError, ZMQReplyTimeout, ZMQUnreachablePeer
 
 
 _logger = logging.getLogger(__name__)
 
 
-class Team(AbstractTeam):
+class Team:
     """
     Wraps a move function and forwards it the `set_initial`
     and `get_move` requests.
@@ -375,6 +374,8 @@ def make_team(team_spec, team_name=None, zmq_context=None, idx=None, store_outpu
         if not zmq_context:
             zmq_context = zmq.Context()
         team_player = RemoteTeam(team_spec=team_spec, zmq_context=zmq_context, idx=idx, store_output=store_output)
+    else:
+        raise TypeError(f"Not possible to create team from {team_spec} (wrong type).")
 
     return team_player, zmq_context
 

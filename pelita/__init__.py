@@ -1,8 +1,8 @@
-from . import (game_master,
+from . import (game,
                layout,
                libpelita,
+               network,
                player,
-               simplesetup,
                viewer,
                utils,
                __version_from_git)

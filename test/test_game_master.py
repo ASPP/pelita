@@ -1,7 +1,6 @@
 import pytest
 import unittest
 
-from pelita.game_master import GameMaster, PlayerTimeout
 from pelita.exceptions import NoFoodWarning
 from pelita.game import setup_game, run_game, play_turn
 from pelita.layout import parse_layout

@@ -17,7 +17,6 @@ import uuid
 
 import zmq
 
-from .simplesetup import SimplePublisher
 from .player.team import make_team
 
 _logger = logging.getLogger(__name__)

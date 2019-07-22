@@ -14,8 +14,8 @@ from . import layout
 from .exceptions import FatalException, NonFatalException, NoFoodWarning
 from .gamestate_filters import noiser
 from .layout import initial_positions, get_legal_positions
-from .libpelita import get_python_process, SimplePublisher
-from .network import bind_socket, setup_controller
+from .libpelita import get_python_process
+from .network import bind_socket, setup_controller, ZMQPublisher
 from .player.team import make_team
 from .viewer import ProgressViewer, AsciiViewer, ReplyToViewer, ReplayWriter, ResultPrinter
 
@@ -134,7 +134,7 @@ def setup_viewers(viewers=None, options=None):
             viewer_state['viewers'].append(ReplayWriter(open(viewer[1], 'w')))
         elif viewer in ('tk', 'tk-no-sync'):
             if not zmq_publisher:
-                zmq_publisher = SimplePublisher(address='tcp://127.0.0.1:*')
+                zmq_publisher = ZMQPublisher(address='tcp://127.0.0.1:*')
                 viewer_state['viewers'].append(zmq_publisher)
             if viewer == 'tk':
                 viewer_state['controller'] = setup_controller()
@@ -168,7 +168,9 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         raise ValueError("Two teams must be given.")
     
     # check that the given bot positions are all valid
-    if not len(layout_dict['bots']) == 4:
+    # and None of them are None (`parse_layout` returns a None position
+    # when fewer than 4 bots are defined)
+    if not len(layout_dict['bots']) == 4 or None in layout_dict['bots']:
         raise ValueError("Number of bots in layout must be 4.")
     
     width, height = layout.wall_dimensions(layout_dict['walls'])
