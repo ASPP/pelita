@@ -346,7 +346,7 @@ Note that the `Bot` object is read-only, i.e. any modifications you make to that
     ```
     This position may be not exact (see below the `is_noisy` property).
 
-- **`bot.enemy.food`** is the list of coordinates of the food pellets you want to eat.
+- **`bot.enemy[0].food`** is the list of coordinates of the food pellets you want to eat.
 
 - **`bot.enemy[0].is_noisy`** <a id="is-noisy"></a> if the enemy bot is located more than 5 squares away from your bot, then its position `bot.enemy[0].position` will not be exact. A uniformly distributed noise between `-5` and `+5` squares will be added to it instead. The distance of your bot from the enemy bot is measured in grid space, i.e. if your bot is in `(Bx, By)` and the enemy bot is in `(Ex, Ey)`, the distance will be `abs(Bx-Ex) + abs(By-Ey)`. An example of using the `is_noisy` property is given in [demo05_basic_defender.py](demo05_basic_defender.py).
 
