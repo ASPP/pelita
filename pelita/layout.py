@@ -98,7 +98,7 @@ def get_layout_by_name(layout_name):
         # thus reraise as ValueError with appropriate error message.
         raise ValueError("Layout: '%s' is not known." % ke.args)
 
-def parse_layout(layout_str):
+def parse_layout(layout_str, allow_enemy_chars=False):
     """Parse a layout string
 
     Return a dict
@@ -130,8 +130,19 @@ def parse_layout(layout_str):
      #  .  3#
      ########
 
-     In this case, bot '0' and bot '2' are on top of each other at position (1,1)
-    """
+    In this case, bot '0' and bot '2' are on top of each other at position (1,1)
+
+    If `allow_enemy_chars` is True, we additionally allow for the definition of
+    at most 2 enemy characters with the letter "E". The returned dict will then
+    additionally contain an entry "enemy" which contains these coordinates.
+    If only one enemy character is given, both will be assumed sitting on the
+    same spot. """
+
+    if allow_enemy_chars:
+        num_bots = 2
+    else:
+        num_bots = 4
+
     layout_list = []
     start = False
     for i, line in enumerate(layout_str.splitlines()):
@@ -161,14 +172,18 @@ def parse_layout(layout_str):
         raise ValueError(f"Layout does not end with a row of walls (line: {i})!")
 
     # initialize walls, food and bots from the first layout
-    out = parse_single_layout(layout_list.pop(0))
+    out = parse_single_layout(layout_list.pop(0), num_bots=num_bots, allow_enemy_chars=allow_enemy_chars)
+
     for layout in layout_list:
-        items = parse_single_layout(layout)
+        items = parse_single_layout(layout, num_bots=num_bots, allow_enemy_chars=allow_enemy_chars)
         # walls should always be the same
         if items['walls'] != out['walls']:
             raise ValueError('Walls are not equal in all layouts!')
         # add the food, removing duplicates
         out['food'] = list(set(out['food'] + items['food']))
+        # add the enemy, removing duplicates
+        if allow_enemy_chars:
+            out['enemy'] = list(set(out['enemy'] + items['enemy']))
         # add the bots
         for bot_idx, bot_pos in enumerate(items['bots']):
             if bot_pos:
@@ -178,9 +193,22 @@ def parse_layout(layout_str):
                     raise ValueError(f"Cannot set bot {bot_idx} to position {bot_pos} (already at {out['bots'][bot_idx]}).")
                 out['bots'][bot_idx] = bot_pos
 
+    if allow_enemy_chars:
+        # validate that we have at most two enemies
+        if len(out['enemy']) > 2:
+            raise ValueError(f"More than two enemies defined: {out['enemy']}!")
+        elif len(out['enemy']) == 2:
+            # do nothing
+            pass
+        elif len(out['enemy']) == 1:
+            # we use the position for both enemies
+            out['enemy'] = [out['enemy'][0], out['enemy'][0]]
+        else:
+            out['enemy'] = [None, None]
+
     return out
 
-def parse_single_layout(layout_str):
+def parse_single_layout(layout_str, num_bots=4, allow_enemy_chars=False):
     """Parse a single layout from a string
 
     See parse_layout for details about valid layout strings.
@@ -231,8 +259,10 @@ def parse_single_layout(layout_str):
     height = len(rows)
     walls = []
     food = []
-    # bot positions (we assume 4 bots)
-    bots = [None]*4
+    # bot positions
+    bots = [None] * num_bots
+    # enemy positions (only used for team-style layouts)
+    enemy = []
 
     # iterate through the grid of characters
     for y, row in enumerate(rows):
@@ -248,10 +278,16 @@ def parse_single_layout(layout_str):
             elif char == ' ':
                 # empty
                 continue
+            elif char == 'E':
+                # enemy
+                if allow_enemy_chars:
+                    enemy.append(coord)
+                else:
+                    raise ValueError(f"Enemy character not allowed.")
             else:
                 # bot
                 try:
-                    # we expect an 0<=index<=3
+                    # we expect an 0<=index<=num_bots
                     bot_idx = int(char)
                     if bot_idx >= len(bots):
                         # reuse the except below
@@ -266,7 +302,11 @@ def parse_single_layout(layout_str):
                 bots[bot_idx] = coord
     walls.sort()
     food.sort()
-    return {'walls':walls, 'food':food, 'bots':bots}
+    out = {'walls':walls, 'food':food, 'bots':bots}
+    if allow_enemy_chars:
+        enemy.sort()
+        out['enemy'] = enemy
+    return out
 
 def layout_as_str(*, walls, food=None, bots=None):
     """Given walls, food and bots return a string layout representation
