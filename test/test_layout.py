@@ -138,6 +138,41 @@ def test_combined_layouts_empty_lines():
     from_single = parse_single_layout(layouts)
     assert from_combined == from_single
 
+def test_duplicate_bots_forbidden():
+    layouts = """
+                 ####
+                 #11#
+                 ####
+                 """
+    with pytest.raises(ValueError):
+        parse_layout(layouts)
+
+def test_duplicate_bots_forbidden_multiple():
+    layouts = """
+                 ####
+                 # 1#
+                 ####
+
+                 ####
+                 #1 #
+                 ####
+                 """
+    with pytest.raises(ValueError):
+        parse_layout(layouts)
+
+def test_duplicate_bots_allowed():
+    layouts = """
+                 ####
+                 # 1#
+                 ####
+
+                 ####
+                 # 1#
+                 ####
+                 """
+    parsed_layout = parse_layout(layouts)
+    assert parsed_layout['bots'][1] == (2, 1)
+
 def test_combined_layouts_broken_lines():
     layouts = """
                  ####
