@@ -509,7 +509,7 @@ def play_turn(game_state):
         raise ValueError("Game is already over!")
 
     # Now update the round counter
-    game_state.update(update_round_and_killing_counter(game_state))
+    game_state.update(update_round_counter(game_state))
 
     turn = game_state['turn']
     round = game_state['round']
@@ -709,7 +709,7 @@ def apply_move(gamestate, bot_position):
     return gamestate
 
 
-def update_round_and_killing_counter(game_state):
+def update_round_counter(game_state):
     """ Takes the round and turn from the game state dict, increases them by one
     and returns a new dict.
 
@@ -789,7 +789,7 @@ def check_gameover(game_state, detect_final_move=False):
         # No team wins/loses because of errors?
         # Good. Now check if the game finishes because the food is gone
         # or because we are in the final turn of the last round.
-        #next_step = update_round_and_killing_counter(game_state)
+        #next_step = update_round_counter(game_state)
         next_round = game_state['round']
         if game_state['turn'] == 3:
             next_round += 1
