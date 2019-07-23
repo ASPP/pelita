@@ -290,7 +290,6 @@ def test_track_and_kill_count():
         assert state['fatal_errors'] == [[], []]
 
 
-@pytest.mark.xfail(reason="WIP")
 @pytest.mark.parametrize('bot_to_move', range(4))
 def test_eaten_flag_kill(bot_to_move):
     """ Test that the eaten flag is set correctly in kill situations. """
@@ -312,6 +311,7 @@ def test_eaten_flag_kill(bot_to_move):
             if bot.round == 1 and not bot.is_blue and bot.turn == 0:
                 assert bot.eaten
                 assert bot.other.eaten is False
+            # as bot 1 has been moved, the eaten flag will be reset in all other cases
             else:
                 assert bot.eaten is False
                 assert bot.other.eaten is False
@@ -323,6 +323,10 @@ def test_eaten_flag_kill(bot_to_move):
             if bot.round == 1 and bot.is_blue and bot.turn == 1:
                 assert bot.eaten is False
                 assert bot.other.eaten
+            # When bot 0 moves, the flag is still set
+            elif bot.round == 2 and bot.is_blue and bot.turn == 0:
+                assert bot.eaten
+                assert bot.other.eaten is False
             else:
                 assert bot.eaten is False
                 assert bot.other.eaten is False
@@ -334,6 +338,7 @@ def test_eaten_flag_kill(bot_to_move):
             if bot.round == 1 and not bot.is_blue and bot.turn == 1:
                 assert bot.eaten
                 assert bot.other.eaten is False
+            # as bot 2 has been moved, the eaten flag will be reset in all other cases
             else:
                 assert bot.eaten is False
                 assert bot.other.eaten is False
@@ -341,10 +346,14 @@ def test_eaten_flag_kill(bot_to_move):
             # we move in the first round as red team in turn == 1
             if bot.round == 1 and not bot.is_blue and bot.turn == 1:
                 new_pos = (x + 1, y)
-            # The blue team should notice immediately (in round == 2!)
+            # The blue team should notice immediately (in round == 2!) that bot 1 has been eaten
             if bot.round == 2 and bot.is_blue and bot.turn == 0:
                 assert bot.eaten is False
                 assert bot.other.eaten
+            # When bot 1 moves, the flag is still set
+            elif bot.round == 2 and bot.is_blue and bot.turn == 1:
+                assert bot.eaten
+                assert bot.other.eaten is False
             else:
                 assert bot.eaten is False
                 assert bot.other.eaten is False
