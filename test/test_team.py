@@ -201,7 +201,7 @@ class TestStoppingTeam:
             stopping,
             round_counting
         ]
-        state = run_game(team, max_rounds=1, layout_dict=parse_layout(test_layout))
+        state = run_game(team, max_rounds=1, layout_dict=parse_layout(test_layout), allow_exceptions=True)
         assert state['bots'][0] == (1, 1)
         assert state['bots'][1] == (10, 1)
         assert round_counting._storage['rounds'] == 1
@@ -211,7 +211,7 @@ class TestStoppingTeam:
             stopping,
             round_counting
         ]
-        state = run_game(team, max_rounds=3, layout_dict=parse_layout(test_layout))
+        state = run_game(team, max_rounds=3, layout_dict=parse_layout(test_layout), allow_exceptions=True)
         assert state['bots'][0] == (1, 1)
         assert state['bots'][1] == (10, 1)
         assert round_counting._storage['rounds'] == 3
@@ -360,7 +360,7 @@ def test_eaten_flag_kill(bot_to_move):
 
         # otherwise return current position
         return new_pos, state
-    state = run_game([move, move], max_rounds=3, layout_dict=parse_layout(layout))
+    state = run_game([move, move], max_rounds=3, layout_dict=parse_layout(layout), allow_exceptions=True)
     # assertions might have been caught in run_game
     # check that all is good
     assert state['fatal_errors'] == [[], []]
@@ -442,7 +442,7 @@ def test_eaten_flag_suicide(bot_to_move):
 
         # otherwise return current position
         return new_pos, state
-    state = run_game([move, move], max_rounds=3, layout_dict=parse_layout(layout))
+    state = run_game([move, move], max_rounds=3, layout_dict=parse_layout(layout), allow_exceptions=True)
     # assertions might have been caught in run_game
     # check that all is good
     assert state['fatal_errors'] == [[], []]
