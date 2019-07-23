@@ -226,7 +226,9 @@ def parse_layout(layout_str, allow_enemy_chars=False):
     }
 
     if allow_enemy_chars:
-        out['enemy'] = sorted(enemy)
+        # sort the enemy characters
+        # be careful, since it may contain None
+        out['enemy'] = sorted(enemy, key=lambda x: () if x is None else x)
 
     return out
 
