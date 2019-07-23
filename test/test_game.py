@@ -885,6 +885,7 @@ def test_play_turn_move():
         "kills":[0]*4,
         "deaths": [0]*4,
         "bot_eaten": [False]*4,
+        "food_eaten": [0]*4,
         "errors": [[], []],
         "fatal_errors": [{}, {}],
         "rnd": random.Random()

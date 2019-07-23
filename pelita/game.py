@@ -278,6 +278,10 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         # List of boolean flags weather bot has been eaten since its last move
         bot_eaten = [False]*4,
 
+        # List of food counters, which counts how many food pellets each bot has
+        # eaten since last move
+        food_eaten = [0]*4,
+
         #: Messages the bots say. Keeps only the recent one at the respective bot’s index.
         say=[""] * 4,
 
@@ -417,6 +421,7 @@ def prepare_bot_state(game_state, idx=None):
         'kills': game_state['kills'][own_team::2],
         'deaths': game_state['deaths'][own_team::2],
         'bot_eaten': game_state['bot_eaten'][own_team::2],
+        'food_eaten': game_state['food_eaten'][own_team::2],
         'error_count': len(game_state['errors'][own_team]),
         'food': list(game_state['food'][own_team]),
         'name': game_state['team_names'][own_team]
@@ -430,7 +435,8 @@ def prepare_bot_state(game_state, idx=None):
         'kills': game_state['kills'][enemy_team::2],
         'deaths': game_state['deaths'][enemy_team::2],
         'bot_eaten': game_state['bot_eaten'][enemy_team::2],
-        'error_count': 0, # TODO. Could be left out for the enemy
+        'food_eaten': game_state['food_eaten'][enemy_team::2],
+        'error_count': len(game_state['errors'][enemy_team]),
         'food': list(game_state['food'][enemy_team]),
         'name': game_state['team_names'][enemy_team]
     }
@@ -623,6 +629,7 @@ def apply_move(gamestate, bot_position):
     kills = gamestate["kills"]
     deaths = gamestate["deaths"]
     bot_eaten = gamestate["bot_eaten"]
+    food_eaten = gamestate["food_eaten"]
     fatal_error = True if gamestate["fatal_errors"][team] else False
     #TODO how are fatal errors passed to us? dict with same structure as regular errors?
     #TODO do we need to communicate that fatal error was the reason for game over in any other way?
@@ -679,6 +686,7 @@ def apply_move(gamestate, bot_position):
             food[1 - team].remove(bot_position)
             # This is modifying the old game state
             score[team] = score[team] + 1
+            food_eaten[turn] += 1
     # check if we killed someone
     if bot_in_homezone:
         killed_enemies = [idx for idx in enemy_idx if bot_position == bots[idx]]
@@ -713,6 +721,7 @@ def apply_move(gamestate, bot_position):
         "deaths": deaths,
         "kills": kills,
         "bot_eaten": bot_eaten,
+        "food_eaten": food_eaten,
         "errors": errors,
         }
 
