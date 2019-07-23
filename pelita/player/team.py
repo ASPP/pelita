@@ -104,6 +104,8 @@ class Team:
 
         for idx, mybot in enumerate(team):
             # If a bot has been eaten, we reset it’s bot track
+            # note that this may reset the track twice, because
+            # the bot.eaten flag is updated only once for each round
             if mybot.eaten:
                 self._bot_track[idx] = []
 
