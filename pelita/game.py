@@ -266,9 +266,13 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         team_time=[0, 0],
 
         # List of bot deaths, which counts the number of deaths per bot
+        # In other words, deaths[bot_idx] is the number of times the bot
+        # bot_idx has been killed until now.
         deaths = [0]*4,
 
         # List of bot kills, which counts the number of kills per bot
+        # In other words, kills[bot_idx] is the number of times the bot
+        # bot_idx has killed another bot until now.
         kills = [0]*4,
 
         # List of boolean flags weather bot has been eaten since its last move
