@@ -518,7 +518,7 @@ def play_turn(game_state, allow_exceptions=False):
         raise ValueError("Game is already over!")
 
     # Now update the round counter
-    game_state.update(update_round_counter(game_state))
+    game_state.update(next_round_turn(game_state))
 
     turn = game_state['turn']
     round = game_state['round']
@@ -720,9 +720,9 @@ def apply_move(gamestate, bot_position):
     return gamestate
 
 
-def update_round_counter(game_state):
-    """ Takes the round and turn from the game state dict, increases them by one
-    and returns a new dict.
+def next_round_turn(game_state):
+    """ Takes the round and turn from the game state dict and returns
+    the round and turn of the next step in a dict.
 
     Returns
     -------
@@ -796,14 +796,14 @@ def check_gameover(game_state, detect_final_move=False):
             if num_errors[team] > MAX_ALLOWED_ERRORS:
                 return { 'whowins' : 1 - team, 'gameover' : True}
 
-    if detect_final_move and game_state['round'] is not None:
+    if detect_final_move:
         # No team wins/loses because of errors?
         # Good. Now check if the game finishes because the food is gone
         # or because we are in the final turn of the last round.
-        #next_step = update_round_counter(game_state)
-        next_round = game_state['round']
-        if game_state['turn'] == 3:
-            next_round += 1
+
+        # will we overshoot the max rounds with the next step?
+        next_step = next_round_turn(game_state)
+        next_round = next_step['round']
 
         # count how much food is left for each team
         food_left = [len(f) for f in game_state['food']]
@@ -818,10 +818,6 @@ def check_gameover(game_state, detect_final_move=False):
 
     return { 'whowins' : None, 'gameover' : False}
 
-
-# TODO ???
-# - refactor Rike's initial positions code
-# - keep track of error dict for future additions
 
 def game_print(turn, msg):
     if turn % 2 == 0:

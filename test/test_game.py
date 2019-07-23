@@ -979,16 +979,16 @@ def test_update_round_counter():
     }
 
     for (round0, turn0), (round1, turn1) in tests.items():
-        res = game.update_round_counter({'turn': turn0,
-                                         'round': round0,
-                                         'gameover': False,})
+        res = game.next_round_turn({'turn': turn0,
+                                    'round': round0,
+                                    'gameover': False,})
         assert all(item in res.items() for item in {'turn': turn1, 'round': round1}.items())
 
     for (round0, turn0), (round1, turn1) in tests.items():
         with pytest.raises(ValueError):
-            res = game.update_round_counter({'turn': turn0,
-                                             'round': round0,
-                                             'gameover': True,})
+            res = game.next_round_turn({'turn': turn0,
+                                        'round': round0,
+                                        'gameover': True,})
 
 
 def test_last_round_check():
