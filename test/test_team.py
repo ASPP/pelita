@@ -216,7 +216,6 @@ class TestStoppingTeam:
         assert state['bots'][1] == (10, 1)
         assert round_counting._storage['rounds'] == 3
 
-@pytest.mark.xfail(reason="WIP")
 def test_track_and_kill_count():
     # for each team, we track whether they have been eaten at least once
     # and count the number of times they have been killed
@@ -228,36 +227,40 @@ def test_track_and_kill_count():
         turn = bot.turn
         other = bot.other
 
+        # make sure no one moves in the last round, so that we don't get kills/deaths
+        # that are undetectable, for example, if bot2 gets killed by bot4 in the last
+        # move, the team bot0,bot2 has no way of detecting that kill.
+        # Also, don't move in the first round, so we can initialize the tracks with no
+        # risk of getting eaten before doing it
+        if bot.round == 300:
+            return bot.position, state
+        elif bot.round == 1:
+            # check that the track is initialized correctly
+            assert bot.track == [bot.position]
+            # initialize our own track
+            state[turn]['track'] = [bot.position]
+
         # first move. get the state from the global cache
         if state is None:
             team_idx = 0 if bot.is_blue else 1
             state = bot_states[team_idx]
 
-        if bot.round == 1 and turn == 0:
-            assert bot.track[0] == bot.position
-
         if bot.eaten:
             state[turn]['eaten'] = True
             state[turn]['times_killed'] += 1
-        if other.eaten:
-            state[1 - turn]['eaten'] = True
-            state[1 - turn]['times_killed'] += 1
-
-        if bot.eaten or not state[turn]['track']:
             state[turn]['track'] = [bot.position]
-        if other.eaten or not state[1 - turn]['track']:
-            state[1 - turn]['track'] = [other.position]
+            # check that the track contains only the initial position
+            # after the bot has been eaten
+            assert bot.track == [bot._initial_position]
         else:
-            state[1 - turn]['track'].append(other.position)
+            # update the track if we haven't been eaten
+            state[turn]['track'].append(bot.position)
 
-        # The assertion is that the first position in bot.track
-        # is always the respawn position.
-        # However, in our test case, this will only happen, once
-        # a bot has been eaten.
-        if state[turn]['eaten']:
-            assert bot.track[0] == bot.initial_position
-        assert bot.track == state[turn]['track'] # bot.round * 2 + 1 + turn
+        # our track should be the same as the one from the game master
+        assert bot.track == state[turn]['track']
+        # the last item in the track is the current position
         assert bot.track[-1] == bot.position
+
         # just move randomly. hopefully, this means some bots will be killed
         return randomBot(bot, state)
 
@@ -275,16 +278,16 @@ def test_track_and_kill_count():
     state = setup_game(team, max_rounds=300, layout_dict=parse_layout(layout))
     while not state['gameover']:
         state = play_turn(state)
+        # check at the end of every round only, where all the counts should be updated
+        if state['turn'] != 4: continue
         # Check that our count is consistent with what the game thinks
-        # for each team, we have to subtract the kills that are still in state['respawned'],
-        # as they have not been passed to the bot yet
-        respawned_0 = sum(state['respawned'][0::2])
         sum_killed_0 = bot_states[0][0]['times_killed'] + bot_states[0][1]['times_killed']
-        assert state['deaths'][0] - respawned_0 == sum_killed_0
-        respawned_1 = sum(state['respawned'][1::2])
+        assert sum(state['deaths'][0::2]) == sum_killed_0
         sum_killed_1 = bot_states[1][0]['times_killed'] + bot_states[1][1]['times_killed']
-        assert state['deaths'][1] - respawned_1 == sum_killed_1
-
+        assert sum(state['deaths'][1::2])  == sum_killed_1
+        # also check that the kills counts are consistent
+        assert sum(state['kills'][1::2]) == sum_killed_0
+        assert sum(state['kills'][0::2]) == sum_killed_1
         # assertions might have been caught in run_game
         # check that all is good
         assert state['fatal_errors'] == [[], []]
