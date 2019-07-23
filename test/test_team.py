@@ -357,7 +357,6 @@ def test_eaten_flag_kill(bot_to_move):
     assert state['fatal_errors'] == [[], []]
 
 
-@pytest.mark.xfail(reason="WIP")
 @pytest.mark.parametrize("bot_to_move", range(4))
 def test_eaten_flag_suicide(bot_to_move):
     """ Test that the eaten flag is set correctly in suicide situations. """
@@ -375,10 +374,14 @@ def test_eaten_flag_suicide(bot_to_move):
             # we move in the first round as blue team in turn == 0
             if bot.round == 1 and bot.is_blue and bot.turn == 0:
                 new_pos = (x + 1, y)
-            # we should notice in our next turn
+            # our other bot should notice it in our next turn
             if bot.round == 1 and bot.is_blue and bot.turn == 1:
                 assert bot.eaten is False
                 assert bot.other.eaten
+            # bot 0 will notice it in the next round
+            elif bot.round == 2 and bot.is_blue and bot.turn == 0:
+                assert bot.eaten
+                assert bot.other.eaten is False
             else:
                 assert bot.eaten is False
                 assert bot.other.eaten is False
@@ -390,6 +393,10 @@ def test_eaten_flag_suicide(bot_to_move):
             if bot.round == 1 and not bot.is_blue and bot.turn == 1:
                 assert bot.eaten is False
                 assert bot.other.eaten
+            # bot 1 will notice it in the next round
+            elif bot.round == 2 and not bot.is_blue and bot.turn == 0:
+                assert bot.eaten
+                assert bot.other.eaten is False
             else:
                 assert bot.eaten is False
                 assert bot.other.eaten is False
@@ -401,6 +408,10 @@ def test_eaten_flag_suicide(bot_to_move):
             if bot.round == 2 and bot.is_blue and bot.turn == 0:
                 assert bot.eaten is False
                 assert bot.other.eaten
+            # bot 2 will notice it in the next round as well
+            elif bot.round == 2 and bot.is_blue and bot.turn == 1:
+                assert bot.eaten
+                assert bot.other.eaten is False
             else:
                 assert bot.eaten is False
                 assert bot.other.eaten is False
@@ -412,6 +423,10 @@ def test_eaten_flag_suicide(bot_to_move):
             if bot.round == 2 and not bot.is_blue and bot.turn == 0:
                 assert bot.eaten is False
                 assert bot.other.eaten
+            # bot 3 will notice it in the next round as well
+            elif bot.round == 2 and not bot.is_blue and bot.turn == 1:
+                assert bot.eaten
+                assert bot.other.eaten is False
             else:
                 assert bot.eaten is False
                 assert bot.other.eaten is False
