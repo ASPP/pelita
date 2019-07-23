@@ -1269,32 +1269,40 @@ def test_setup_game_run_game_have_same_args():
         assert setup_game.__kwdefaults__[kwarg] == run_game.__kwdefaults__[kwarg], f"Default values for {kwarg} are different"
 
 
-@pytest.mark.xfail(reason="FLAG does not exist anymore")
 @pytest.mark.parametrize('bot_to_move', range(4))
 # all combinations of True False in a list of 4
-@pytest.mark.parametrize('respawn_flags', itertools.product(*[(True, False)] * 4))
-def test_prepare_bot_state_resets_respawned_flag(bot_to_move, respawn_flags):
-    """ Check that `prepare_bot_state` resets the respawned_flag. """
+@pytest.mark.parametrize('bot_eaten_flags', itertools.product(*[(True, False)] * 4))
+def test_apply_move_resets_bot_eaten(bot_to_move, bot_eaten_flags):
+    """ Check that `prepare_bot_state` sees the proper bot_eaten flag
+    and that `apply_move` will reset the flag to False. """
     team_id = bot_to_move % 2
+    other_bot = (bot_to_move + 2) % 4
     other_team_id = 1 - team_id
 
     # specify which bot should move
     test_state = setup_random_basic_gamestate(turn=bot_to_move)
 
-    respawn_flags = list(respawn_flags) # needs to be a list
-    test_state['respawned'] = respawn_flags[:] # copy to avoid reference issues
+    bot_eaten_flags = list(bot_eaten_flags) # needs to be a list
+    test_state['bot_eaten'] = bot_eaten_flags[:] # copy to avoid reference issues
 
     # create bot state for current turn
+    current_bot_position = test_state['bots'][bot_to_move]
     bot_state = game.prepare_bot_state(test_state)
 
-    # all respawn flags for this team should be False again
-    assert test_state['respawned'][team_id::2] == [False, False]
+    # bot state should have proper bot_eaten flag
+    assert bot_state['team']['bot_eaten'] == bot_eaten_flags[team_id::2]
 
-    # all respawn flags for other team should still be as before
-    assert test_state['respawned'][other_team_id::2] == respawn_flags[other_team_id::2]
+    # apply a dummy move that should reset bot_eaten for the current bot
+    new_test_state = game.apply_move(test_state, current_bot_position)
 
-    # bot state should have proper respawn flags
-    assert bot_state['team']['has_respawned'] == respawn_flags[team_id::2]
+    # the bot_eaten flag should be False again
+    assert test_state['bot_eaten'][bot_to_move] == False
+
+    # the bot_eaten flags for other bot should still be as before
+    assert test_state['bot_eaten'][other_bot] == bot_eaten_flags[other_bot]
+
+    # all bot_eaten flags for other team should still be as before
+    assert test_state['bot_eaten'][other_team_id::2] == bot_eaten_flags[other_team_id::2]
 
 
 def test_bot_does_not_eat_own_food():
