@@ -323,6 +323,13 @@ def test_track_and_kill_count():
         # check that all is good
         assert state['fatal_errors'] == [[], []]
 
+    # check that the game has run at all
+    assert state['round'] >= 1
+    # check that someone has been killed, or the whole test is not doing anything
+    assert sum(state['deaths']) > 0
+    # check that each single bot has been eaten, or we are not testing the full range of possibilities
+    assert all(state['deaths'])
+
 
 @pytest.mark.parametrize('bot_to_move', range(4))
 def test_eaten_flag_kill(bot_to_move):
