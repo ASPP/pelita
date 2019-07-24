@@ -315,7 +315,7 @@ def test_play_turn_killing(turn):
     game_state_new = apply_move(game_state, game_state["bots"][friend_idx])
     # assert game_state_new["DEATHS"][team] == 5
     assert game_state_new["score"] == [0, 0]
-    assert game_state_new["deaths"] == [0, 0]
+    assert game_state_new["deaths"] == [0]*4
 
 @pytest.mark.parametrize('setups', ((0, (1, 4)),
                                     (1, (16, 3)),
@@ -739,7 +739,7 @@ def test_moving_through_maze():
             #..1 #
             #2  3#
             ###### """)
-    
+
     assert test_first_round['bots'] == state['bots']
     assert test_first_round['food'] == list(state['food'][0]) + list(state['food'][1])
     assert state['score'] == [0, 0]
@@ -823,7 +823,7 @@ def test_moving_through_maze():
             #0 1 #
             #   3#
             ###### """)
-    
+
     assert test_sixth_round['bots'] == state['bots']
     assert test_sixth_round['food'] == list(state['food'][0]) + list(state['food'][1])
     assert state['score'] == [game.KILL_POINTS * 2, game.KILL_POINTS * 2+ 1]
@@ -842,7 +842,7 @@ def test_moving_through_maze():
             #0 1 #
             #   3#
             ###### """)
-    
+
     assert test_seventh_round['bots'] == state['bots']
     assert test_seventh_round['food'] == list(state['food'][0]) + list(state['food'][1])
     assert state['score'] == [game.KILL_POINTS * 2 + 1, game.KILL_POINTS * 2 + 1]
@@ -882,7 +882,9 @@ def test_play_turn_move():
         "whowins": None,
         "team_say": "bla",
         "score": 0,
-        "deaths": 0,
+        "kills":[0]*4,
+        "deaths": [0]*4,
+        "bot_eaten": [False]*4,
         "errors": [[], []],
         "fatal_errors": [{}, {}],
         "rnd": random.Random()
@@ -941,13 +943,6 @@ def test_max_rounds():
     assert l['bots'][1] == (5, 1)
     assert l['bots'][2] == (1, 1)
     assert l['bots'][3] == (6, 1)
-    # max_rounds == 0 should not call move at all
-    final_state = run_game([move, move], layout_dict=l, max_rounds=0)
-    assert final_state['round'] is None
-    assert final_state['bots'][0] == (2, 1)
-    assert final_state['bots'][1] == (5, 1)
-    assert final_state['bots'][2] == (1, 1)
-    assert final_state['bots'][3] == (6, 1)
     # max_rounds == 1 should call move just once
     final_state = run_game([move, move], layout_dict=l, max_rounds=1)
     assert final_state['round'] == 1
@@ -984,23 +979,24 @@ def test_update_round_counter():
     }
 
     for (round0, turn0), (round1, turn1) in tests.items():
-        res = game.update_round_counter({'turn': turn0, 'round': round0, 'gameover': False})
-        assert res == {'turn': turn1, 'round': round1}
+        res = game.next_round_turn({'turn': turn0,
+                                    'round': round0,
+                                    'gameover': False,})
+        assert all(item in res.items() for item in {'turn': turn1, 'round': round1}.items())
 
     for (round0, turn0), (round1, turn1) in tests.items():
         with pytest.raises(ValueError):
-            res = game.update_round_counter({'turn': turn0, 'round': round0, 'gameover': True})
+            res = game.next_round_turn({'turn': turn0,
+                                        'round': round0,
+                                        'gameover': True,})
 
 
 def test_last_round_check():
     # (max_rounds, current_round, turn): gameover
     test_map = {
-        (0, None, None): True,
         (1, None, None): False,
-        (0, 1, 0): True,
         (1, 1, 0): False,
         (1, 1, 3): True,
-        (1, 1, 4): True,
     }
     for test_val, test_res in test_map.items():
         max_rounds, current_round, current_turn = test_val
@@ -1071,10 +1067,10 @@ def test_finished_when_no_food(bot_to_move):
     bot_turn = bot_to_move // 2
     team_to_move = bot_to_move % 2
     def move(bot, s):
-        if team_to_move == 0 and bot.is_blue and bot_turn == bot.bot_turn:
+        if team_to_move == 0 and bot.is_blue and bot_turn == bot._bot_turn:
             return (4, 1), s
             # eat the food between 0 and 2
-        if team_to_move == 1 and (not bot.is_blue) and bot_turn == bot.bot_turn:
+        if team_to_move == 1 and (not bot.is_blue) and bot_turn == bot._bot_turn:
             # eat the food between 3 and 1
             return (3, 2), s
         return bot.position, s
@@ -1098,7 +1094,7 @@ def test_minimal_game():
 
 def test_minimal_losing_game_has_one_error():
     def move0(b, s):
-        if b.round == 1 and b.bot_index == 0:
+        if b.round == 1 and b._bot_index == 0:
             # trigger a bad move in the first round
             return (0, 0), s
         else:
@@ -1270,29 +1266,38 @@ def test_setup_game_run_game_have_same_args():
 
 @pytest.mark.parametrize('bot_to_move', range(4))
 # all combinations of True False in a list of 4
-@pytest.mark.parametrize('respawn_flags', itertools.product(*[(True, False)] * 4))
-def test_prepare_bot_state_resets_respawned_flag(bot_to_move, respawn_flags):
-    """ Check that `prepare_bot_state` resets the respawned_flag. """
+@pytest.mark.parametrize('bot_eaten_flags', itertools.product(*[(True, False)] * 4))
+def test_apply_move_resets_bot_eaten(bot_to_move, bot_eaten_flags):
+    """ Check that `prepare_bot_state` sees the proper bot_eaten flag
+    and that `apply_move` will reset the flag to False. """
     team_id = bot_to_move % 2
+    other_bot = (bot_to_move + 2) % 4
     other_team_id = 1 - team_id
 
     # specify which bot should move
     test_state = setup_random_basic_gamestate(turn=bot_to_move)
-   
-    respawn_flags = list(respawn_flags) # needs to be a list
-    test_state['respawned'] = respawn_flags[:] # copy to avoid reference issues
+
+    bot_eaten_flags = list(bot_eaten_flags) # needs to be a list
+    test_state['bot_eaten'] = bot_eaten_flags[:] # copy to avoid reference issues
 
     # create bot state for current turn
+    current_bot_position = test_state['bots'][bot_to_move]
     bot_state = game.prepare_bot_state(test_state)
 
-    # all respawn flags for this team should be False again
-    assert test_state['respawned'][team_id::2] == [False, False]
+    # bot state should have proper bot_eaten flag
+    assert bot_state['team']['bot_eaten'] == bot_eaten_flags[team_id::2]
 
-    # all respawn flags for other team should still be as before
-    assert test_state['respawned'][other_team_id::2] == respawn_flags[other_team_id::2]
+    # apply a dummy move that should reset bot_eaten for the current bot
+    new_test_state = game.apply_move(test_state, current_bot_position)
 
-    # bot state should have proper respawn flags
-    assert bot_state['team']['has_respawned'] == respawn_flags[team_id::2]
+    # the bot_eaten flag should be False again
+    assert test_state['bot_eaten'][bot_to_move] == False
+
+    # the bot_eaten flags for other bot should still be as before
+    assert test_state['bot_eaten'][other_bot] == bot_eaten_flags[other_bot]
+
+    # all bot_eaten flags for other team should still be as before
+    assert test_state['bot_eaten'][other_team_id::2] == bot_eaten_flags[other_team_id::2]
 
 
 def test_bot_does_not_eat_own_food():

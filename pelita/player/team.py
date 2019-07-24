@@ -104,24 +104,24 @@ class Team:
 
         for idx, mybot in enumerate(team):
             # If a bot has been eaten, we reset it’s bot track
-            if mybot.has_respawned:
+            if mybot.eaten:
                 self._bot_track[idx] = []
 
         # Add our track
-        if len(self._bot_track[me.bot_turn]) == 0:
-            self._bot_track[me.bot_turn] = [me.position]
+        if len(self._bot_track[me._bot_turn]) == 0:
+            self._bot_track[me._bot_turn] = [me.position]
 
         for idx, mybot in enumerate(team):
             # If the track of any bot is empty,
             # Add its current position
-            if me.bot_turn != idx:
+            if me._bot_turn != idx:
                 self._bot_track[idx].append(mybot.position)
 
             mybot.track = self._bot_track[idx][:]
 
         try:
             # request a move from the current bot
-            res = self._team_move(team[me.bot_turn], self._state)
+            res = self._team_move(team[me._bot_turn], self._state)
             # check that the returned value # is a tuple of (position, state)
             try:
                 if len(res) != 2:
@@ -334,7 +334,7 @@ class RemoteTeam:
 
     def __repr__(self):
         team_name = f" ({self._team_name})" if self._team_name else ""
-        return f"RemoteTeam<{self._team_spec}{team_name} on {self.bound_to_address}>" 
+        return f"RemoteTeam<{self._team_spec}{team_name} on {self.bound_to_address}>"
 
 
 def make_team(team_spec, team_name=None, zmq_context=None, idx=None, store_output=False):
@@ -403,13 +403,15 @@ class Bot:
                           homezone,
                           food,
                           score,
+                          kills,
+                          deaths,
+                          eaten,
                           random,
                           round,
                           is_blue,
                           team_name,
-                          timeout_count,
+                          error_count,
                           bot_turn=None,
-                          has_respawned=None,
                           is_noisy=None):
         self._bots = None
         self._say = None
@@ -418,47 +420,48 @@ class Bot:
         self.track = []
 
         #: Is this a friendly bot?
-        self.is_on_team = is_on_team
+        self._is_on_team = is_on_team
 
         self.random = random
         self.position = tuple(position)
-        self.initial_position = tuple(initial_position)
+        self._initial_position = tuple(initial_position)
         self.walls = _ensure_tuples(walls)
 
         self.homezone = _ensure_tuples(homezone)
         self.food = _ensure_tuples(food)
         self.score  = score
-        self.bot_index  = bot_index
+        self.kills = kills
+        self.deaths = deaths
+        self.eaten = eaten
+        self._bot_index  = bot_index
         self.round = round
         self.is_blue = is_blue
         self.team_name = team_name
-        self.timeout_count = timeout_count
+        self.error_count = error_count
 
         # Attributes for Bot
-        if self.is_on_team:
-            assert has_respawned is not None
-            self.has_respawned = has_respawned
+        if self._is_on_team:
             assert bot_turn is not None
-            self.bot_turn = bot_turn
+            self._bot_turn = bot_turn
 
         # Attributes for Enemy
-        if not self.is_on_team:
+        if not self._is_on_team:
             assert is_noisy is not None
             self.is_noisy = is_noisy
 
-    @property
-    def legal_directions(self):
-        """ The legal moves that the bot can make from its current position,
-        including no move at all.
-        """
-        legal_directions = [(0, 0)]
+    # @property
+    # def legal_directions(self):
+        # """ The legal moves that the bot can make from its current position,
+        # including no move at all.
+        # """
+        # legal_directions = [(0, 0)]
 
-        for move in [(-1, 0), (1, 0), (0, 1), (0, -1)]:
-            new_pos = (self.position[0] + move[0], self.position[1] + move[1])
-            if not new_pos in self.walls:
-                legal_directions.append(move)
+        # for move in [(-1, 0), (1, 0), (0, 1), (0, -1)]:
+            # new_pos = (self.position[0] + move[0], self.position[1] + move[1])
+            # if not new_pos in self.walls:
+                # legal_directions.append(move)
 
-        return legal_directions
+        # return legal_directions
 
     @property
     def legal_positions(self):
@@ -478,7 +481,7 @@ class Bot:
     def _team(self):
        """ Both of our bots.
        """
-       if self.is_on_team:
+       if self._is_on_team:
            return self._bots['team']
        else:
            return self._bots['enemy']
@@ -486,7 +489,7 @@ class Bot:
     @property
     def turn(self):
         """ The turn of our bot. """
-        return self.bot_index % 2
+        return self._bot_index % 2
 
     @property
     def other(self):
@@ -497,7 +500,7 @@ class Bot:
     def enemy(self):
         """ The list of enemy bots
         """
-        if not self.is_on_team:
+        if not self._is_on_team:
             return self._bots['team']
         else:
             return self._bots['enemy']
@@ -506,36 +509,32 @@ class Bot:
         """ Print some text in the graphical interface. """
         self._say = text
 
-    def get_direction(self, position):
-        """ Return the direction needed to get to the given position.
+    # def get_direction(self, position):
+        # """ Return the direction needed to get to the given position.
 
-        Raises
-        ======
-        ValueError
-            If the position cannot be reached by a legal move
-        """
-        direction = (position[0] - self.position[0], position[1] - self.position[1])
-        if direction not in self.legal_directions:
-            raise ValueError("Cannot reach position %s (would have been: %s)." % (position, direction))
-        return direction
+        # Raises
+        # ======
+        # ValueError
+            # If the position cannot be reached by a legal move
+        # """
+        # direction = (position[0] - self.position[0], position[1] - self.position[1])
+        # if direction not in self.legal_directions:
+            # raise ValueError("Cannot reach position %s (would have been: %s)." % (position, direction))
+        # return direction
 
-    def get_position(self, direction):
-        """ Return the position reached with the given direction
+    # def get_position(self, direction):
+        # """ Return the position reached with the given direction
 
-        Raises
-        ======
-        ValueError
-            If the direction is not legal.
-        """
-        if direction not in self.legal_directions:
-            raise ValueError(f"Direction {direction} is not legal.")
-        position = (direction[0] + self.position[0], direction[1] + self.position[1])
-        return position
+        # Raises
+        # ======
+        # ValueError
+            # If the direction is not legal.
+        # """
+        # if direction not in self.legal_directions:
+            # raise ValueError(f"Direction {direction} is not legal.")
+        # position = (direction[0] + self.position[0], direction[1] + self.position[1])
+        # return position
 
-    @property
-    def eaten(self):
-        """ True if this bot has been eaten in the last turn. """
-        return self.has_respawned
 
     def _repr_html_(self):
         """ Jupyter-friendly representation. """
@@ -560,7 +559,7 @@ class Bot:
                     if (x, y) in bot.enemy[0].food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
                     for idx in range(4):
                         if bot._bots[idx].position == (x, y):
-                            if idx == self.bot_index:
+                            if idx == self._bot_index:
                                 out.write('<b>' + str(idx) + '</b>')
                             else:
                                 out.write(str(idx))
@@ -593,8 +592,8 @@ class Bot:
             col="blue" if bot.is_blue else "red",
             you_blue=" (you)" if bot.is_blue else "",
             you_red=" (you)" if not bot.is_blue else "",
-            blue_timeouts=blue.timeout_count,
-            red_timeouts=red.timeout_count,
+            blue_timeouts=blue.error_count,
+            red_timeouts=red.error_count,
         )
 
         with StringIO() as out:
@@ -626,8 +625,10 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
         b = Bot(bot_index=idx,
             is_on_team=True,
             score=team['score'],
-            has_respawned=team['has_respawned'][idx],
-            timeout_count=team['timeout_count'],
+            deaths=team['deaths'][idx],
+            kills=team['kills'][idx],
+            eaten=team['bot_eaten'][idx],
+            error_count=team['error_count'],
             food=team['food'],
             walls=walls,
             round=round,
@@ -646,8 +647,11 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
         b = Bot(bot_index=idx,
             is_on_team=False,
             score=enemy['score'],
+            kills=enemy['kills'][idx],
+            deaths=enemy['deaths'][idx],
+            eaten=enemy['bot_eaten'][idx],
             is_noisy=enemy['is_noisy'][idx],
-            timeout_count=enemy['timeout_count'],
+            error_count=enemy['error_count'],
             food=enemy['food'],
             walls=walls,
             round=round,

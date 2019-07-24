@@ -350,7 +350,7 @@ class Controller:
 
                 expected_actions = [await_action]
                 if accept_exit:
-                    expected_actions.append('exit') 
+                    expected_actions.append('exit')
                 if action in expected_actions:
                     return action
                 _logger.warning('Unexpected action %r. (Expected: %s) Ignoring.', action, ", ".join(expected_actions))
@@ -359,7 +359,7 @@ class Controller:
 
     def recv_start(self, timeout=None):
         """ Waits `timeout` seconds for start message.
-        
+
         Returns `True`, when the message arrives, `False` when an exit
         message arrives or a timeout occurs.
         """

@@ -8,13 +8,16 @@ import tkinter
 import tkinter.font
 
 from ..libpelita import firstNN
-from ..game import update_round_counter
+from ..game import next_round_turn
 from .tk_sprites import BotSprite, Food, Wall, col
 from .tk_utils import wm_delete_window_handler
 from .tk_sprites import BotSprite, Food, Wall, RED, BLUE, YELLOW, GREY, BROWN
 
 _logger = logging.getLogger(__name__)
 
+def _ensure_tuples(list):
+    """ Ensures that an iterable is a list of position tuples. """
+    return [tuple(item) for item in list]
 
 
 def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
@@ -373,7 +376,7 @@ class TkApplication:
 
         eaten_food = []
         for food_pos, food_item in self.food_items.items():
-            if not list(food_pos) in game_state["food"]:
+            if not food_pos in game_state["food"]:
                 self.ui.game_canvas.delete(food_item.tag)
                 eaten_food.append(food_pos)
         for food_pos in eaten_food:
@@ -488,10 +491,10 @@ class TkApplication:
 
         def status(team_idx):
             try:
-                ret = "Errors: %d, Killed: %d, Time: %.2f" % (game_state["num_errors"][team_idx], game_state["times_killed"][team_idx], game_state["team_time"][team_idx])
-                disqualified = game_state["teams_disqualified"][team_idx]
-                if disqualified is not None:
-                    ret += ", Disqualified: %s" % disqualified
+                # sum the deaths of both bots in this team
+                deaths = game_state['deaths'][team_idx] + game_state['deaths'][team_idx+2]
+                kills = game_state['kills'][team_idx] + game_state['kills'][team_idx+2]
+                ret = "Errors: %d, Kills: %d, Deaths: %d, Time: %.2f" % (game_state["num_errors"][team_idx], kills, deaths, game_state["team_time"][team_idx])
                 return ret
             except TypeError:
                 return ""
@@ -519,7 +522,9 @@ class TkApplication:
         turn = firstNN(game_state.get("turn"), "–")
         layout_name = firstNN(game_state.get("layout_name"), "–")
 
-        roundturn = "Bot %s, Round % 3s/%s" % (turn, round, max_rounds)
+        bot_repr = {'–':'–', 0: 'Blue Team, Bot 0', 1: 'Red Team, Bot 0',
+                             2: 'Blue Team, Bot 1', 3: 'Red Team, Bot 1'}
+        roundturn = "%s, Round % 3s/%s" % (bot_repr[turn], round, max_rounds)
 
         if self._fps is not None:
             fps_info = "%.f fps" % self._fps
@@ -550,7 +555,10 @@ class TkApplication:
                     contents = []
 
                 if bots:
-                    contents += ["bots(" + ",".join(bots) + ")"]
+                    bot_map = {0:'blue 0', 1:'red 0', 2:'blue 1', 3:'red 1'}
+                    contents += ["bots(" \
+                                 + ", ".join(bot_map[bot] for bot in bots) \
+                                 + ")"]
 
                 contents = " ".join(contents)
                 if not contents:
@@ -626,7 +634,7 @@ class TkApplication:
             model_x, model_y = position
             food_item = Food(self.mesh_graph, position=(model_x, model_y))
             food_item.draw(self.ui.game_canvas)
-            self.food_items[tuple(position)] = food_item
+            self.food_items[position] = food_item
 
     def draw_maze(self, game_state):
         if not self.size_changed:
@@ -642,7 +650,7 @@ class TkApplication:
             wall_neighbors = [(dx, dy)
                               for dx in [-1, 0, 1]
                               for dy in [-1, 0, 1]
-                              if [model_x + dx, model_y + dy] in game_state['walls']]
+                              if (model_x + dx, model_y + dy) in game_state['walls']]
             wall_item = Wall(self.mesh_graph, wall_neighbors=wall_neighbors, position=(model_x, model_y))
             wall_item.draw(self.ui.game_canvas)
             self.wall_items.append(wall_item)
@@ -692,7 +700,7 @@ class TkApplication:
             return
 
         if self._stop_after is not None:
-            next_step = update_round_counter(self._game_state)
+            next_step = next_round_turn(self._game_state)
             if (next_step['round'] < self._stop_after):
                 _logger.debug('---> play_step')
                 self.controller_socket.send_json({"__action__": "play_step"})
@@ -712,7 +720,7 @@ class TkApplication:
             return
 
         if self._game_state['round'] is not None:
-            next_step = update_round_counter(self._game_state)
+            next_step = next_round_turn(self._game_state)
             self._stop_after = next_step['round'] + 1
         else:
             self._stop_after = 1
@@ -726,8 +734,11 @@ class TkApplication:
         else:
             skip_request = False
             self._observed_steps.add(step)
+        # ensure walls, foods and bots positions are list of tuples
+        game_state['walls'] = _ensure_tuples(game_state['walls'])
+        game_state['food'] = _ensure_tuples(game_state['food'])
+        game_state['bots'] = _ensure_tuples(game_state['bots'])
         # TODO
-        game_state['teams_disqualified'] = [fatal and fatal[0]['type'] for fatal in game_state['fatal_errors']]
         game_state['bot_destroyed'] = []
         game_state['food_eaten'] = []
         self.update(game_state)

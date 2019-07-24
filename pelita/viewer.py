@@ -19,11 +19,13 @@ class ProgressViewer:
             return
         game_time = game_state["max_rounds"]
         percentage = int(100.0 * round_index / game_time)
-        if game_state["turn"] is not None:
-            if game_state["turn"] % 2 == 0:
-                bot_sign = f'\033[94m{game_state["turn"]}\033[0m'
-            elif game_state["turn"] % 2 == 1:
-                bot_sign = f'\033[91m{game_state["turn"]}\033[0m'
+        turn = game_state["turn"]
+        if turn is not None:
+            bot_idx = turn // 2
+            if turn % 2 == 0:
+                bot_sign = f'\033[94mBlue Team, Bot {bot_idx}\033[0m'
+            elif turn % 2 == 1:
+                bot_sign = f'\033[91mRed Team, Bot {bot_idx}\033[0m'
         else:
             bot_sign = ' '
         string = ("[%s] %3i%% (%i / %i) [%s]" % (
@@ -44,14 +46,33 @@ class ProgressViewer:
 class AsciiViewer:
     """ A viewer that dumps ASCII charts on stdout. """
 
+    def color_bots(self, layout_str):
+        out_str = layout_str
+        for turn in range(4):
+            team = turn % 2
+            bot_idx = turn // 2
+            col = '\033[94m' if team == 0 else '\033[91m'
+            out_str = out_str.replace(str(turn),f'{col}{bot_idx}\033[0m')
+
+        return out_str
+
     def show_state(self, game_state):
         uni_str = layout.layout_as_str(walls=game_state['walls'],
                                        food=game_state['food'],
                                        bots=game_state['bots'])
 
+        # color bots
+        uni_str = self.color_bots(uni_str)
         # Everything that we print explicitly is removed from the state dict.
         state = {}
         state.update(game_state)
+        # for death and kills just leave a summary
+        state['blue deaths'] = state['deaths'][::2]
+        state['blue kills'] = state['kills'][::2]
+        state['red deaths'] = state['deaths'][1::2]
+        state['red kills'] = state['kills'][1::2]
+        del state['kills']
+        del state['deaths']
         del state['walls']
         del state['food']
         del state['bots']
@@ -59,19 +80,26 @@ class AsciiViewer:
         del state['turn']
         del state['score']
 
+        turn = game_state["turn"]
+        if turn is not None:
+            team = 'Blue' if turn % 2 == 0 else 'Red'
+            bot_idx = turn // 2
+        else:
+            team = '–'
+            bot_idx = '–'
+        round=game_state["round"]
+        s0=game_state["score"][0]
+        s1=game_state["score"][1]
+        state=state
+        universe=uni_str
+        length = len(universe.splitlines()[0])
         info = (
-            "Round: {round!r} Turn: {turn!r} Score {s0}:{s1}\n"
-            "Game State: {state!r}\n"
-            "\n"
-            "{universe}"
-        ).format(round=game_state["round"],
-                 turn=game_state["turn"],
-                 s0=game_state["score"][0],
-                 s1=game_state["score"][1],
-                 state=state,
-                 universe=uni_str)
+                f"Round: {round!r} | Team: {team} | Bot: {bot_idx!r} | Score {s0}:{s1}\n"
+            f"Game State: {state!r}\n"
+            f"\n"
+            f"{universe}\n")
 
-        print(info)
+        print(info+"–"*length)
         if state.get("gameover"):
             if state["whowins"] == 2:
                 print("Game Over: Draw.")
