@@ -266,17 +266,16 @@ class TkApplication:
                        command=self.quit).pack(side=tkinter.TOP, fill=tkinter.BOTH, anchor=tkinter.CENTER)
 
         # Add circles to show which bot is active.
-        self.ui.bot_traffic_lights_canvas = tkinter.Canvas(self.ui.status_02, height=25, width=82,
+        self.ui.bot_traffic_lights_canvas = tkinter.Canvas(self.ui.status_02, height=25, width=44,
                                                            background="white", bd=0, highlightthickness=0,
                                                            relief='ridge')
         self.ui.bot_traffic_lights_canvas.pack(side=tkinter.LEFT)
         self.ui.bot_traffic_lights_c = []
-        bot_colors = [BLUE, RED, BLUE, RED]
         for idx in range(4):
-            spacing = 20
-            wi, he = 15, 15
-            x0, y0 = 2.5 + idx * spacing, 3.5
-            circle = self.ui.bot_traffic_lights_canvas.create_oval(x0, y0, x0 + wi, y0 + he, outline=bot_colors[idx], width=2)
+            spacing = 10
+            wi, he = 5, 5
+            x0, y0 = 2.5 + idx * spacing, 9
+            circle = self.ui.bot_traffic_lights_canvas.create_oval(x0, y0, x0 + wi, y0 + he, outline="#999", width=2)
             self.ui.bot_traffic_lights_c.append(circle)
 
         self.ui.status_round_info = tkinter.Label(self.ui.status_02, text="", background="white")
@@ -544,12 +543,12 @@ class TkApplication:
             fps_info = "– fps"
         self.ui.status_fps_info.config(text=fps_info)
 
+        bot_colors = [BLUE, RED, BLUE, RED]
         for idx, circle in enumerate(self.ui.bot_traffic_lights_c):
             if turn == idx:
-                current_col = self.ui.bot_traffic_lights_canvas.itemcget(circle, 'outline')
-                self.ui.bot_traffic_lights_canvas.itemconfig(circle, fill=current_col)
+                self.ui.bot_traffic_lights_canvas.itemconfig(circle, fill=bot_colors[idx], outline=bot_colors[idx])
             else:
-                self.ui.bot_traffic_lights_canvas.itemconfig(circle, fill="")
+                self.ui.bot_traffic_lights_canvas.itemconfig(circle, fill="#bbb", outline="#bbb")
 
         self.ui.status_layout_info.config(text=layout_name)
 
