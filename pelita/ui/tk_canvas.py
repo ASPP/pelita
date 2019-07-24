@@ -149,7 +149,7 @@ class TkApplication:
         self.ui = UI()
 
         self.ui.header_canvas = tkinter.Canvas(master, height=38)
-        self.ui.header_canvas.config(background="white")
+        self.ui.header_canvas.config(background="white", bd=0, highlightthickness=0, relief='ridge')
 
         self.ui.sub_header = tkinter.Frame(master, height=25)
         self.ui.sub_header.config(background="white")
@@ -158,7 +158,7 @@ class TkApplication:
         self.ui.status_canvas.config(background="white")
 
         self.ui.game_canvas = tkinter.Canvas(master)
-        self.ui.game_canvas.config(background="white")
+        self.ui.game_canvas.config(background="white", bd=0, highlightthickness=0, relief='ridge')
         self.ui.game_canvas.bind('<Configure>', lambda e: master.after_idle(self.update))
         self.ui.game_canvas.bind('<Button-1>', self.on_click)
 
