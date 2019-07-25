@@ -1,20 +1,20 @@
 
 import collections
-from functools import reduce
-from io import StringIO
 import logging
 import os
-from pathlib import Path
 import random
 import subprocess
 import traceback
+from functools import reduce
+from io import StringIO
+from pathlib import Path
 
 import zmq
 
-from .. import libpelita, layout
+from .. import layout, libpelita
 from ..exceptions import PlayerDisconnected, PlayerTimeout
-from ..network import ZMQConnection, ZMQClientError, ZMQReplyTimeout, ZMQUnreachablePeer
-
+from ..layout import layout_as_str, parse_layout, wall_dimensions
+from ..network import ZMQClientError, ZMQConnection, ZMQReplyTimeout, ZMQUnreachablePeer
 
 _logger = logging.getLogger(__name__)
 
@@ -599,10 +599,10 @@ class Bot:
         with StringIO() as out:
             out.write(header)
 
-            layout = Layout(walls=bot.walls[:],
-                            food=bot.food + bot.enemy[0].food,
-                            bots=[b.position for b in bot._team],
-                            enemy=[e.position for e in bot.enemy])
+            layout = layout_as_str(walls=bot.walls[:],
+                                   food=bot.food + bot.enemy[0].food,
+                                   bots=[b.position for b in bot._team],
+                                   enemy=[e.position for e in bot.enemy])
 
             out.write(str(layout))
             return out.getvalue()
@@ -669,214 +669,6 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
     return team_bots[bot_turn]
 
 
-# @dataclass
-class Layout:
-    def __init__(self, walls, food, bots, enemy):
-        if not food:
-            food = []
-
-        if not bots:
-            bots = [None, None]
-
-        if not enemy:
-            enemy = [None, None]
-
-        # input validation
-        for pos in [*food, *bots, *enemy]:
-            if pos:
-                if len(pos) != 2:
-                    raise ValueError("Items must be tuples of length 2.")
-                if pos in walls:
-                    raise ValueError("Item at %r placed on walls." % (pos,))
-                else:
-                    walls_width = max(walls)[0] + 1
-                    walls_height = max(walls)[1] + 1
-                    if not (0 <= pos[0] < walls_width) or not (0 <= pos[1] < walls_height):
-                        raise ValueError("Item at %r not in bounds." % (pos,))
-
-
-        if len(bots) > 2:
-            raise ValueError("Too many bots given.")
-
-        self.walls = sorted(walls)
-        self.food = sorted(food)
-        self.bots = bots
-        self.enemy = enemy
-        self.initial_positions = self.guess_initial_positions(self.walls)
-
-    def guess_initial_positions(self, walls):
-        """ Returns the free positions that are closest to the bottom left and
-        top right corner. The algorithm starts searching from (1, -2) and (-2, 1)
-        respectively and uses the manhattan distance for judging what is closest.
-        On equal distances, a smaller distance in the x value is preferred.
-        """
-        walls_width = max(walls)[0] + 1
-        walls_height = max(walls)[1] + 1
-
-        left_start = (1, walls_height - 2)
-        left_initials = []
-        right_start = (walls_width - 2, 1)
-        right_initials = []
-
-        dist = 0
-        while len(left_initials) < 2:
-            # iterate through all possible x distances (inclusive)
-            for x_dist in range(dist + 1):
-                y_dist = dist - x_dist
-                pos = (left_start[0] + x_dist, left_start[1] - y_dist)
-                # if both coordinates are out of bounds, we stop
-                if not (0 <= pos[0] < walls_width) and not (0 <= pos[1] < walls_height):
-                    raise ValueError("Not enough free initial positions.")
-                # if one coordinate is out of bounds, we just continue
-                if not (0 <= pos[0] < walls_width) or not (0 <= pos[1] < walls_height):
-                    continue
-                # check if the new value is free
-                if not pos in walls:
-                    left_initials.append(pos)
-
-                if len(left_initials) == 2:
-                    break
-
-            dist += 1
-
-        dist = 0
-        while len(right_initials) < 2:
-            # iterate through all possible x distances (inclusive)
-            for x_dist in range(dist + 1):
-                y_dist = dist - x_dist
-                pos = (right_start[0] - x_dist, right_start[1] + y_dist)
-                # if both coordinates are out of bounds, we stop
-                if not (0 <= pos[0] < walls_width) and not (0 <= pos[1] < walls_height):
-                    raise ValueError("Not enough free initial positions.")
-                # if one coordinate is out of bounds, we just continue
-                if not (0 <= pos[0] < walls_width) or not (0 <= pos[1] < walls_height):
-                    continue
-                # check if the new value is free
-                if not pos in walls:
-                    right_initials.append(pos)
-
-                if len(right_initials) == 2:
-                    break
-
-            dist += 1
-
-        # lower indices start further away
-        left_initials.reverse()
-        right_initials.reverse()
-        return left_initials, right_initials
-
-    def merge(self, other):
-        """ Merges `self` with the `other` layout.
-        """
-
-        if not self.walls:
-            self.walls = other.walls
-        if self.walls != other.walls:
-            raise ValueError("Walls are not equal.")
-
-        self.food += other.food
-        # remove duplicates
-        self.food = list(set(self.food))
-
-        # update all newer bot positions
-        for idx, b in enumerate(other.bots):
-            if b:
-                self.bots[idx] = b
-
-        # merge all enemies and then take the last 2
-        enemies = [e for e in [*self.enemy, *other.enemy] if e is not None]
-        self.enemy = enemies[-2:]
-        # if self.enemy smaller than 2, we pad with None again
-        for _ in range(2 - len(self.enemy)):
-            self.enemy.append(None)
-
-        # return our merged self
-        return self
-
-    def _repr_html_(self):
-        walls = self.walls
-        walls_width = max(walls)[0] + 1
-        walls_height = max(walls)[1] + 1
-        with StringIO() as out:
-            out.write("<table>")
-            for y in range(walls_height):
-                out.write("<tr>")
-                for x in range(walls_width):
-                    if (x, y) in walls:
-                        bg = 'style="background-color: {}"'.format(
-                            "rgb(94, 158, 217)" if x < walls_width // 2 else
-                            "rgb(235, 90, 90)")
-                    elif (x, y) in self.initial_positions[0]:
-                        bg = 'style="background-color: #ffffcc"'
-                    elif (x, y) in self.initial_positions[1]:
-                        bg = 'style="background-color: #ffffcc"'
-                    else:
-                        bg = ""
-                    out.write("<td %s>" % bg)
-                    if (x, y) in walls: out.write("#")
-                    if (x, y) in self.food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
-                    for idx, pos in enumerate(self.bots):
-                        if pos == (x, y):
-                            out.write(str(idx))
-                    for pos in self.enemy:
-                        if pos == (x, y):
-                            out.write('E')
-                    out.write("</td>")
-                out.write("</tr>")
-            out.write("</table>")
-            return out.getvalue()
-
-    def __str__(self):
-        walls = self.walls
-        walls_width = max(walls)[0] + 1
-        walls_height = max(walls)[1] + 1
-        with StringIO() as out:
-            out.write('\n')
-            # first, print walls and food
-            for y in range(walls_height):
-                for x in range(walls_width):
-                    if (x, y) in walls: out.write('#')
-                    elif (x, y) in self.food: out.write('.')
-                    else: out.write(' ')
-                out.write('\n')
-            out.write('\n')
-            # print walls and bots
-
-            # Do we have bots/enemies sitting on each other?
-
-            # assign bots to their positions
-            bots = {}
-            for pos in self.enemy:
-                bots[pos] = bots.get(pos, []) + ['E']
-            for idx, pos in enumerate(self.bots):
-                bots[pos] = bots.get(pos, []) + [str(idx)]
-            # strip all None positions from bots
-            try:
-                bots.pop(None)
-            except KeyError:
-                pass
-
-            while bots:
-                for y in range(walls_height):
-                    for x in range(walls_width):
-                        if (x, y) in walls: out.write('#')
-                        elif (x, y) in bots:
-                            elem = bots[(x, y)].pop(0)
-                            out.write(elem)
-                            # cleanup
-                            if len(bots[(x, y)]) == 0:
-                                bots.pop((x, y))
-
-                        else: out.write(' ')
-                    out.write('\n')
-                out.write('\n')
-            return out.getvalue()
-
-    def __eq__(self, other):
-        return ((self.walls, self.food, self.bots, self.enemy, self.initial_positions) ==
-                (other.walls, other.food, other.bots, self.enemy, other.initial_positions))
-
-
 def create_layout(*layout_strings, food=None, bots=None, enemy=None):
     """ Create a layout from layout strings with additional food, bots and enemy positions.
 
@@ -887,106 +679,43 @@ def create_layout(*layout_strings, food=None, bots=None, enemy=None):
     ======
     ValueError
         If walls are not equal in all layouts
+        If enemy argument is not a list of two
     """
 
-    # layout_strings can be a list of strings or one huge string
-    # with many layouts after another
-    layouts = [
-        load_layout(layout)
-        for layout_str in layout_strings
-        for layout in split_layout_str(layout_str)
-    ]
-    merged = reduce(lambda x, y: x.merge(y), layouts)
-    additional_layout = Layout(walls=merged.walls, food=food, bots=bots, enemy=enemy)
-    merged.merge(additional_layout)
-    return merged
+    layout_str = "\n\n".join(layout_strings)
+    parsed_layout = parse_layout(layout_str, allow_enemy_chars=True)
 
-def split_layout_str(layout_str):
-    """ Turns a layout string containing many layouts into a list
-    of simple layouts.
-    """
-    out = []
-    current_layout = []
-    for row in layout_str.splitlines():
-        stripped = row.strip()
-        if not stripped:
-            # found an empty line
-            # if we have a current_layout, append it to out
-            # and reset it
-            if current_layout:
-                out.append(current_layout)
-                current_layout = []
-            continue
-        # non-empty line: append to current_layout
-        current_layout.append(row)
+    width, height = wall_dimensions(parsed_layout['walls'])
 
-    # We still have a current layout at the end: append
-    if current_layout:
-        out.append(current_layout)
+    def _check_valid_pos(pos, item):
+        print(pos, width, height)
+        if pos in parsed_layout['walls']:
+            raise ValueError(f"{item} must not be on wall (given: {pos})!")
+        if not ((0 <= pos[0] < width) and (0 <= pos[1] < height)):
+            raise ValueError(f"{item} is outside of maze (given: {pos} but dimensions are {width}x{height})!")
 
-    return ['\n'.join(l) for l in out]
+    # if additional food was supplied, we add it
+    if food:
+        for f in food:
+            _check_valid_pos(f, "food")
+        parsed_layout['food'] = sorted(list(set(food + parsed_layout['food'])))
 
-def load_layout(layout_str):
-    """ Loads a *single* (partial) layout from a string. """
-    build = []
-    width = None
-    height = None
+    # override bots if given and not None
+    if bots is not None:
+        if not len(bots) == 2:
+            raise ValueError(f"bots must be a list of 2 ({bots})!")
+        for idx, pos in enumerate(bots):
+            if pos is not None:
+                _check_valid_pos(pos, "bot")
+                parsed_layout['bots'][idx] = pos
 
-    food = []
-    bots = [None, None]
-    enemy = []
+    # override enemies if given
+    if enemy is not None:
+        if not len(enemy) == 2:
+            raise ValueError(f"enemy must be a list of 2 ({enemy})!")
+        for idx, e in enumerate(enemy):
+            if e is not None:
+                _check_valid_pos(e, "enemy")
+                parsed_layout['enemy'][idx] = e
 
-    for row in layout_str.splitlines():
-        stripped = row.strip()
-        if not stripped:
-            continue
-        if width is not None:
-            if len(stripped) != width:
-                raise ValueError("Layout has differing widths.")
-        width = len(stripped)
-        build.append(stripped)
-
-    height = len(build)
-    data=list("".join(build))
-    def idx_to_coord(idx):
-        """ Maps a 1-D index to a 2-D coord given a width and height. """
-        return (idx % width, idx // width)
-
-    # Check that the layout is surrounded with walls
-    for idx, char in enumerate(data):
-        x, y = idx_to_coord(idx)
-        if x == 0 or x == width - 1:
-            if not char == '#':
-                raise ValueError(f"Layout not surrounded with # at ({x}, {y}).")
-        if y == 0 or y == height - 1:
-            if not char == '#':
-                raise ValueError(f"Layout not surrounded with # at ({x}, {y}).")
-
-    walls = []
-    # extract the non-wall values from mesh
-    for idx, char in enumerate(data):
-        coord = idx_to_coord(idx)
-        # We know that each char is only one character, so it is
-        # either wall or something else
-        if '#' in char:
-            walls.append(coord)
-        # free: skip
-        elif ' ' in char:
-            continue
-        # food
-        elif '.' in char:
-            food.append(coord)
-        # other
-        else:
-            if 'E' in char:
-                # We can have several undefined enemies
-                enemy.append(coord)
-            elif '0' in char:
-                bots[0] = coord
-            elif '1' in char:
-                bots[1] = coord
-            else:
-                raise ValueError("Unknown character %s in maze." % char)
-
-    walls = sorted(walls)
-    return Layout(walls, food, bots, enemy)
+    return parsed_layout
