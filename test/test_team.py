@@ -1,8 +1,8 @@
 import pytest
 
-from pelita.layout import parse_layout, get_random_layout, initial_positions
+from pelita.layout import parse_layout, get_random_layout, initial_positions, layout_as_str
 from pelita.game import run_game, setup_game, play_turn
-from pelita.player.team import Team, split_layout_str, create_layout
+from pelita.player.team import Team, create_layout
 from pelita.utils import setup_test_game
 
 def stopping(bot, state):
@@ -12,166 +12,154 @@ def randomBot(bot, state):
     legal = bot.legal_positions[:]
     return bot.random.choice(legal), state
 
-class TestLayout:
-    layout="""
-    ########
-    # ###E0#
-    #1E    #
-    ########
-    """
-    layout2="""
-    ########
-    # ###  #
-    # . ...#
-    ########
-    """
-
-    def test_split_layout(self):
-        layout = split_layout_str(self.layout)
-        assert len(layout) == 1
-        assert layout[0].strip() != ""
-
-        mini = """####
-                  #  #
-                  ####"""
-        layout = split_layout_str(mini)
-        assert len(layout) == 1
-        assert layout[0].strip() != ""
-
-    def test_load(self):
-        layout = create_layout(self.layout, self.layout2)
-        assert layout.bots == [(6, 1), (1, 2)]
-        assert layout.enemy == [(5, 1), (2, 2)]
-
-    def test_concat(self):
-        layout = create_layout(self.layout + self.layout2)
-        assert layout.bots == [(6, 1), (1, 2)]
-        assert layout.enemy == [(5, 1), (2, 2)]
-
-    def test_load1(self):
-        layout = create_layout(self.layout)
-        assert layout.bots == [(6, 1), (1, 2)]
-        assert layout.enemy == [(5, 1), (2, 2)]
-
-    def test_equal_positions(self):
-        layout_str = """
-            ########
-            #0###  #
-            # . ...#
-            ########
-
-            ########
-            #1###  #
-            # . ...#
-            ########
-
-            ########
-            #E###  #
-            # . ...#
-            ########
-
-            ########
-            #E###  #
-            # . ...#
-            ########
-        """
-        layout = create_layout(layout_str)
-        assert layout.bots == [(1, 1), (1, 1)]
-        assert layout.enemy ==  [(1, 1), (1, 1)]
-        setup_test_game(layout=layout_str)
-
-    def test_define_after(self):
-        layout = create_layout(self.layout, food=[(1, 1)], bots=[None, None], enemy=None)
-        assert layout.bots == [(6, 1), (1, 2)]
-        assert layout.enemy == [(5, 1), (2, 2)]
-        layout = create_layout(self.layout, food=[(1, 1)], bots=[None, (1, 2)], enemy=None)
-        assert layout.bots == [(6, 1), (1, 2)]
-        assert layout.enemy == [(5, 1), (2, 2)]
-
-        layout = create_layout(self.layout, food=[(1, 1)], bots=[None, (1, 2)], enemy=[(5, 1)])
-        assert layout.enemy == [(2, 2), (5, 1)]
-
-        layout = create_layout(self.layout2, food=[(1, 1)], bots=[None, (1, 2)], enemy=[(5, 1), (2, 2)])
-        assert layout.bots == [None, (1, 2)]
-        assert layout.enemy == [(5, 1), (2, 2)]
-
-        with pytest.raises(ValueError):
-            # placed bot on walls
-            layout = create_layout(self.layout2, food=[(1, 1)], bots=[(0, 1), (1, 2)], enemy=[(5, 1), (2, 2)])
-
-        with pytest.raises(ValueError):
-            # placed bot outside maze
-            layout = create_layout(self.layout2, food=[(1, 1)], bots=[(1, 40), (1, 2)], enemy=[(5, 1), (2, 2)])
-
-        with pytest.raises(ValueError):
-            # too many bots
-            layout = create_layout(self.layout2, food=[(1, 1)], bots=[(1, 1), (1, 2), (2, 2)], enemy=[(5, 1), (2, 2)])
-
-    def test_repr(self):
-        layout = create_layout(self.layout, food=[(1, 1)], bots=[None, None], enemy=None)
-        assert layout._repr_html_()
-        str1 = str(create_layout(self.layout, food=[(1, 1)], bots=[None, None], enemy=None))
-        assert str1 == """
-########
-#.###  #
-#      #
-########
-
+layout1="""
 ########
 # ###E0#
 #1E    #
 ########
-
+"""
+layout2="""
+########
+# ###  #
+# . ...#
+########
 """
 
-        layout_merge = create_layout(self.layout, food=[(1, 1)], bots=[(1, 2), (1, 2)], enemy=[(1, 1), (1, 1)])
-        str2 = str(layout_merge)
-        assert str2 == """
+
+def test_load():
+    layout = create_layout(layout1, layout2)
+    assert layout['bots'] == [(6, 1), (1, 2)]
+    assert layout['enemy'] == [(2, 2), (5, 1)]
+
+def test_concat():
+    layout = create_layout(layout1 + layout2)
+    assert layout['bots'] == [(6, 1), (1, 2)]
+    assert layout['enemy'] == [(2, 2), (5, 1)]
+
+def test_load1():
+    layout = create_layout(layout1)
+    assert layout['bots'] == [(6, 1), (1, 2)]
+    assert layout['enemy'] == [(2, 2), (5, 1)]
+
+def test_equal_positions():
+    layout_str = """
+        ########
+        #0###  #
+        # . ...#
+        ########
+
+        ########
+        #1###  #
+        # . ...#
+        ########
+
+        ########
+        #E###  #
+        # . ...#
+        ########
+
+        ########
+        #E###  #
+        # . ...#
+        ########
+    """
+    layout = create_layout(layout_str)
+    assert layout['bots'] == [(1, 1), (1, 1)]
+    assert layout['enemy'] ==  [(1, 1), (1, 1)]
+    setup_test_game(layout=layout_str)
+
+def test_define_after():
+    layout = create_layout(layout1, food=[(1, 1)], bots=[None, None], enemy=None)
+    assert layout['bots'] == [(6, 1), (1, 2)]
+    assert layout['enemy'] == [(2, 2), (5, 1)]
+    layout = create_layout(layout1, food=[(1, 1)], bots=[None, (1, 1)], enemy=None)
+    assert layout['bots'] == [(6, 1), (1, 1)]
+    assert layout['enemy'] == [(2, 2), (5, 1)]
+
+    with pytest.raises(ValueError):
+        # must define all enemies
+        layout = create_layout(layout1, food=[(1, 1)], bots=[None, (1, 2)], enemy=[(5, 1)])
+
+    layout = create_layout(layout2, food=[(1, 1)], bots=[None, (1, 2)], enemy=[(5, 1), (2, 2)])
+    assert layout['bots'] == [None, (1, 2)]
+    assert layout['enemy'] == [(5, 1), (2, 2)]
+
+    with pytest.raises(ValueError):
+        # placed bot on walls
+        layout = create_layout(layout2, food=[(1, 1)], bots=[(0, 1), (1, 2)], enemy=[(5, 1), (2, 2)])
+
+    with pytest.raises(ValueError):
+        # placed bot outside maze
+        layout = create_layout(layout2, food=[(1, 1)], bots=[(1, 40), (1, 2)], enemy=[(5, 1), (2, 2)])
+
+    with pytest.raises(ValueError):
+        # placed bot outside maze
+        layout = create_layout(layout2, food=[(1, 1)], bots=[(40, 40), (1, 2)], enemy=[(5, 1), (2, 2)])
+
+    with pytest.raises(ValueError):
+        # placed bot outside maze
+        layout = create_layout(layout2, food=[(1, 1)], bots=[(-40, 4), (1, 2)], enemy=[(5, 1), (2, 2)])
+
+    with pytest.raises(ValueError):
+        # too many bots
+        layout = create_layout(layout2, food=[(1, 1)], bots=[(1, 1), (1, 2), (2, 2)], enemy=[(5, 1), (2, 2)])
+
+def test_repr():
+    layout = create_layout(layout1, food=[(1, 1)], bots=[None, None], enemy=None)
+    str1 = layout_as_str(**layout)
+    assert str1 == """\
+########
+#.###E0#
+#1E    #
+########
+"""
+
+    layout_merge = create_layout(layout1, food=[(1, 1)], bots=[(1, 2), (1, 2)], enemy=[(1, 1), (1, 1)])
+    str2 = layout_as_str(**layout_merge)
+    assert str2 == """\
 ########
 #.###  #
 #      #
 ########
-
 ########
 #E###  #
 #0     #
 ########
-
 ########
 #E###  #
 #1     #
 ########
-
 """
-        # load again
-        assert create_layout(str2) == layout_merge
+    # load again
+    assert create_layout(str2) == layout_merge
 
-    def test_solo_bot(self):
-        l = """
-        ########
-        #.###  #
-        #      #
-        ########
+def test_two_enemies():
+    # single E evaluates to two enemies
+    l = """
+    ########
+    #.###  #
+    #      #
+    ########
 
-        ########
-        # ###  #
-        #0E    #
-        ########
-        """
-        layout = create_layout(l, food=[(1, 1)], bots=[None, None], enemy=None)
-        assert layout._repr_html_()
-        str1 = str(create_layout(l, food=[(1, 1)], bots=[None, None], enemy=None))
-        assert str1 == """
+    ########
+    # ###  #
+    #0E    #
+    ########
+    """
+    str1 = layout_as_str(**create_layout(l, food=[(1, 1)], bots=[None, None], enemy=None))
+    assert str1 == """\
 ########
 #.###  #
 #      #
 ########
-
 ########
 # ###  #
 #0E    #
 ########
-
+########
+# ###  #
+# E    #
+########
 """
 
 

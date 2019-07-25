@@ -138,6 +138,41 @@ def test_combined_layouts_empty_lines():
     from_single = parse_single_layout(layouts)
     assert from_combined == from_single
 
+def test_duplicate_bots_forbidden():
+    layouts = """
+                 ####
+                 #11#
+                 ####
+                 """
+    with pytest.raises(ValueError):
+        parse_layout(layouts)
+
+def test_duplicate_bots_forbidden_multiple():
+    layouts = """
+                 ####
+                 # 1#
+                 ####
+
+                 ####
+                 #1 #
+                 ####
+                 """
+    with pytest.raises(ValueError):
+        parse_layout(layouts)
+
+def test_duplicate_bots_allowed():
+    layouts = """
+                 ####
+                 # 1#
+                 ####
+
+                 ####
+                 # 1#
+                 ####
+                 """
+    parsed_layout = parse_layout(layouts)
+    assert parsed_layout['bots'][1] == (2, 1)
+
 def test_combined_layouts_broken_lines():
     layouts = """
                  ####
@@ -291,3 +326,113 @@ def test_legal_positions_fail(pos):
     parsed = parse_layout(test_layout)
     with pytest.raises(ValueError):
         get_legal_positions(parsed['walls'], pos)
+
+def test_enemy_raises():
+    layouts = """
+        ####
+        #E1#
+        ####
+
+        ####
+        #1 #
+        ####
+        """
+    with pytest.raises(ValueError):
+        parse_layout(layouts)
+
+@pytest.mark.parametrize('layout,enemy_pos', [
+    ("""
+        ####
+        #E #
+        ####
+        """, [(1, 1), (1, 1)]), # one enemy sets both coordinates
+    ("""
+        ####
+        #EE#
+        ####
+        """, [(1, 1), (2, 1)]), # two enemies
+    ("""
+        ####
+        #E #
+        ####
+        ####
+        #E #
+        ####
+        """, [(1, 1), (1, 1)]), # two enemies two layouts on the same spot
+    ("""
+        ####
+        #E #
+        ####
+        ####
+        # E#
+        ####
+        """, [(1, 1), (2, 1)]), # two enemies in two layouts
+    ("""
+        ####
+        # E#
+        ####
+        ####
+        #E #
+        ####
+        """, [(1, 1), (2, 1)]), # two enemies in two layouts (list is sorted)
+    ("""
+        ####
+        # E#
+        ####
+        ####
+        #EE#
+        ####
+        """, [(1, 1), (2, 1)]), # two enemies in two layouts with duplication
+    ("""
+        #######
+        #E E E#
+        #######
+        """, None), # this will raise ValueError
+    ("""
+        ####
+        #  #
+        ####
+        """, [None, None]), # this will set both to None
+])
+def test_enemy_positions(layout, enemy_pos):
+    if enemy_pos is None:
+        with pytest.raises(ValueError):
+            parse_layout(layout, allow_enemy_chars=True)
+    else:
+        assert parse_layout(layout, allow_enemy_chars=True)['enemy'] == enemy_pos
+
+def test_layout_for_team():
+    # test that we can convert a layout to team-style
+    l1 = """
+    ####
+    #01#
+    #32#
+    #..#
+    ####
+    """
+    blue1 = layout_as_str(**layout_for_team(parse_layout(l1), is_blue=True))
+    red1 = layout_as_str(**layout_for_team(parse_layout(l1), is_blue=False))
+
+    assert blue1 == """\
+####
+#0E#
+#E1#
+#..#
+####
+"""
+
+    assert red1 == """\
+####
+#E0#
+#1E#
+#..#
+####
+"""
+
+
+    # cannot convert layout that is already in team-style
+    with pytest.raises(ValueError):
+        layout_for_team(parse_layout(blue1))
+
+    with pytest.raises(ValueError):
+        layout_for_team(parse_layout(red1))

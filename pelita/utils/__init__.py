@@ -3,11 +3,10 @@ import random
 from ..player.team import create_layout, make_bots
 from ..graph import Graph
 
-def split_food(layout):
-    width = max(layout.walls)[0] + 1
 
+def split_food(width, food):
     team_food = [set(), set()]
-    for pos in layout.food:
+    for pos in food:
         idx = pos[0] // (width // 2)
         team_food[idx].add(pos)
     return team_food
@@ -26,7 +25,9 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
         score = [0, 0]
 
     layout = create_layout(layout, food=food, bots=bots, enemy=enemy)
-    food = split_food(layout)
+    width = max(layout['walls'])[0] + 1
+
+    food = split_food(width, layout['food'])
 
     if is_blue:
         team_index = 0
@@ -38,7 +39,7 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
     rng = random.Random(seed)
 
     team = {
-        'bot_positions': layout.bots[:],
+        'bot_positions': layout['bots'][:],
         'team_index': team_index,
         'score': score[team_index],
         'kills': [0]*2,
@@ -49,7 +50,7 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
         'name': "blue" if is_blue else "red"
     }
     enemy = {
-        'bot_positions': layout.enemy[:],
+        'bot_positions': layout['enemy'][:],
         'team_index': enemy_index,
         'score': score[enemy_index],
         'kills': [0]*2,
@@ -57,11 +58,11 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
         'bot_eaten': [False]*2,
         'error_count': 0,
         'food': food[enemy_index],
-        'is_noisy': [False] * len(layout.enemy),
+        'is_noisy': [False] * len(layout['enemy']),
         'name': "red" if is_blue else "blue"
     }
 
-    bot = make_bots(walls=layout.walls[:],
+    bot = make_bots(walls=layout['walls'][:],
                     team=team,
                     enemy=enemy,
                     round=round,
