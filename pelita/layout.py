@@ -332,7 +332,7 @@ def parse_single_layout(layout_str, num_bots=4, allow_enemy_chars=False):
         out['enemy'] = enemy
     return out
 
-def layout_as_str(*, walls, food=None, bots=None):
+def layout_as_str(*, walls, food=None, bots=None, enemy=None):
     """Given walls, food and bots return a string layout representation
 
     Returns a combined layout string.
@@ -351,21 +351,27 @@ def layout_as_str(*, walls, food=None, bots=None):
     width = max(walls)[0] + 1
     height = max(walls)[1] + 1
 
+    # enemy is optional
+    if enemy is None:
+        enemy = []
 
     # flag to check if we have overlapping objects
 
     # when need_combined is True, we force the printing of a combined layout
     # string:
     # - the first layout will have walls and food
-    # - subsequent layouts will have walls and bots
+    # - subsequent layouts will have walls and bots (and enemies, if given)
     # You'll get as many layouts as you have overlapping bots
     need_combined = False
 
+    # combine bots an enemy lists
+    bots_and_enemy = bots + enemy if enemy else bots
+
     # first, check if we have overlapping bots
-    if len(set(bots)) != len(bots):
+    if len(set(bots_and_enemy)) != len(bots_and_enemy):
         need_combined = True
     else:
-        need_combined = any(coord in food for coord in bots)
+        need_combined = any(coord in food for coord in bots_and_enemy)
     # then, check that bots are not overlapping with food
 
     out = io.StringIO()
@@ -383,6 +389,8 @@ def layout_as_str(*, walls, food=None, bots=None):
                     # we won't need a combined layout later
                     if (x, y) in bots:
                         out.write(str(bots.index((x, y))))
+                    elif (x, y) in enemy:
+                        out.write("E")
                     else:
                         out.write(' ')
                 else:
@@ -404,6 +412,14 @@ def layout_as_str(*, walls, food=None, bots=None):
         # append bot_index to the list of bots at this coordinate
         # if still no bot was seen here we have to start with an empty list
         coord_bots[pos] = coord_bots.get(pos, []) + [str(idx)]
+
+    # add enemies to mapping
+    for pos in enemy:
+        if pos is None:
+            # if an enemy coordinate is None
+            # don't put the enemy in the layout
+            continue
+        coord_bots[pos] = coord_bots.get(pos, []) + ["E"]
 
     # loop through the bot coordinates
     while coord_bots:
