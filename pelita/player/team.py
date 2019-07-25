@@ -688,7 +688,6 @@ def create_layout(*layout_strings, food=None, bots=None, enemy=None):
     width, height = wall_dimensions(parsed_layout['walls'])
 
     def _check_valid_pos(pos, item):
-        print(pos, width, height)
         if pos in parsed_layout['walls']:
             raise ValueError(f"{item} must not be on wall (given: {pos})!")
         if not ((0 <= pos[0] < width) and (0 <= pos[1] < height)):
