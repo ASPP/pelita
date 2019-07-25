@@ -149,7 +149,7 @@ class TkApplication:
         self.ui = UI()
 
         self.ui.header_canvas = tkinter.Canvas(master, height=38)
-        self.ui.header_canvas.config(background="white")
+        self.ui.header_canvas.config(background="white", bd=0, highlightthickness=0, relief='ridge')
 
         self.ui.sub_header = tkinter.Frame(master, height=25)
         self.ui.sub_header.config(background="white")
@@ -158,7 +158,7 @@ class TkApplication:
         self.ui.status_canvas.config(background="white")
 
         self.ui.game_canvas = tkinter.Canvas(master)
-        self.ui.game_canvas.config(background="white")
+        self.ui.game_canvas.config(background="white", bd=0, highlightthickness=0, relief='ridge')
         self.ui.game_canvas.bind('<Configure>', lambda e: master.after_idle(self.update))
         self.ui.game_canvas.bind('<Button-1>', self.on_click)
 
@@ -265,6 +265,18 @@ class TkApplication:
                        padx=12,
                        command=self.quit).pack(side=tkinter.TOP, fill=tkinter.BOTH, anchor=tkinter.CENTER)
 
+        # Add circles to show which bot is active.
+        self.ui.bot_traffic_lights_canvas = tkinter.Canvas(self.ui.status_02, height=25, width=44,
+                                                           background="white", bd=0, highlightthickness=0,
+                                                           relief='ridge')
+        self.ui.bot_traffic_lights_canvas.pack(side=tkinter.LEFT)
+        self.ui.bot_traffic_lights_c = []
+        for idx in range(4):
+            spacing = 10
+            wi, he = 5, 5
+            x0, y0 = 2.5 + idx * spacing, 9
+            circle = self.ui.bot_traffic_lights_canvas.create_oval(x0, y0, x0 + wi, y0 + he, outline="#999", width=2)
+            self.ui.bot_traffic_lights_c.append(circle)
 
         self.ui.status_round_info = tkinter.Label(self.ui.status_02, text="", background="white")
         self.ui.status_round_info.pack(side=tkinter.LEFT)
@@ -522,17 +534,22 @@ class TkApplication:
         turn = firstNN(game_state.get("turn"), "–")
         layout_name = firstNN(game_state.get("layout_name"), "–")
 
-        bot_repr = {'–':'–', 0: 'Blue Team, Bot 0', 1: 'Red Team, Bot 0',
-                             2: 'Blue Team, Bot 1', 3: 'Red Team, Bot 1'}
-        roundturn = "%s, Round % 3s/%s" % (bot_repr[turn], round, max_rounds)
+        round_info = f"Round {round:>3}/{max_rounds}"
+        self.ui.status_round_info.config(text=round_info)
 
         if self._fps is not None:
             fps_info = "%.f fps" % self._fps
         else:
             fps_info = "– fps"
-        self.ui.status_fps_info.config(text=fps_info, )
+        self.ui.status_fps_info.config(text=fps_info)
 
-        self.ui.status_round_info.config(text=roundturn)
+        bot_colors = [BLUE, RED, BLUE, RED]
+        for idx, circle in enumerate(self.ui.bot_traffic_lights_c):
+            if turn == idx:
+                self.ui.bot_traffic_lights_canvas.itemconfig(circle, fill=bot_colors[idx], outline=bot_colors[idx])
+            else:
+                self.ui.bot_traffic_lights_canvas.itemconfig(circle, fill="#bbb", outline="#bbb")
+
         self.ui.status_layout_info.config(text=layout_name)
 
     def draw_selected(self, game_state):
