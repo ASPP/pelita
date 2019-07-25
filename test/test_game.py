@@ -1428,3 +1428,47 @@ def test_team_time():
     # because of overhead, the time of team 0 should be less
     # than twice the time of team 1
     assert state["team_time"][1] < 2 * state["team_time"][0]
+
+
+def test_remote_game_closes_players_on_exit():
+    layout_name, layout_string = layout.get_random_layout()
+    l = layout.parse_layout(layout_string)
+
+    # run a remote demo game with "0" and "1"
+    state = run_game(["0", "1"], layout_dict=l, max_rounds=20, allow_exceptions=True)
+    assert state["gameover"]
+    # Check that both processes have exited
+    assert state["teams"][0].proc[0].wait(timeout=3) == 0
+    assert state["teams"][1].proc[0].wait(timeout=3) == 0
+
+
+def test_manual_remote_game_closes_players():
+    layout_name, layout_string = layout.get_random_layout()
+    l = layout.parse_layout(layout_string)
+
+    # run a remote demo game with "0" and "1"
+    state = setup_game(["0", "1"], layout_dict=l, max_rounds=10, allow_exceptions=True)
+    assert not state["gameover"]
+    while not state["gameover"]:
+        # still running
+        # still running
+        assert state["teams"][0].proc[0].poll() is None
+        assert state["teams"][1].proc[0].poll() is None
+        state = play_turn(state)
+
+    # Check that both processes have exited
+    assert state["teams"][0].proc[0].wait(timeout=3) == 0
+    assert state["teams"][1].proc[0].wait(timeout=3) == 0
+
+
+def test_invalid_setup_game_closes_players():
+    layout_name, layout_string = layout.get_random_layout()
+    l = layout.parse_layout(layout_string)
+
+    # setup a remote demo game with "0" and "1" but bad max rounds
+    state = setup_game(["0", "1"], layout_dict=l, max_rounds=0, allow_exceptions=True)
+    assert state["gameover"]
+    # Check that both processes have exited
+    assert state["teams"][0].proc[0].wait(timeout=3) == 0
+    assert state["teams"][1].proc[0].wait(timeout=3) == 0
+

@@ -152,6 +152,10 @@ class Team:
             "say": me._say
         }
 
+    def _exit(self):
+        """ Dummy function. Only needed for `RemoteTeam`. """
+        pass
+
     def __repr__(self):
         return f'Team({self._team_move!r}, {self.team_name!r})'
 
@@ -318,8 +322,12 @@ class RemoteTeam:
             raise
 
     def _exit(self):
+        # We only want to exit once.
+        if getattr(self, '_sent_exit', False):
+            return
         try:
             self.zmqconnection.send("exit", {}, timeout=1)
+            self._sent_exit = True
         except ZMQUnreachablePeer:
             _logger.info("Remote Player %r is already dead during exit. Ignoring.", self)
 

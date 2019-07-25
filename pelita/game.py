@@ -319,6 +319,9 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
     # Send updated game state with team names to the viewers
     update_viewers(game_state)
 
+    # exit remote teams in case we are game over
+    check_exit_remote_teams(game_state)
+
     return game_state
 
 
@@ -580,6 +583,9 @@ def play_turn(game_state, allow_exceptions=False):
     # Send updated game state with team names to the viewers
     update_viewers(game_state)
 
+    # exit remote teams in case we are game over
+    check_exit_remote_teams(game_state)
+
     return game_state
 
 
@@ -817,6 +823,17 @@ def check_gameover(game_state, detect_final_move=False):
             return { 'whowins' : whowins, 'gameover' : True}
 
     return { 'whowins' : None, 'gameover' : False}
+
+
+def check_exit_remote_teams(game_state):
+    """ If the we are gameover, we want the remote teams to shut down. """
+    if game_state['gameover']:
+        _logger.info("Gameover. Telling teams to exit.")
+        for team in game_state['teams']:
+            try:
+                team._exit()
+            except AttributeError:
+                pass
 
 
 def game_print(turn, msg):
