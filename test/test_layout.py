@@ -400,3 +400,39 @@ def test_enemy_positions(layout, enemy_pos):
             parse_layout(layout, allow_enemy_chars=True)
     else:
         assert parse_layout(layout, allow_enemy_chars=True)['enemy'] == enemy_pos
+
+def test_layout_for_team():
+    # test that we can convert a layout to team-style
+    l1 = """
+    ####
+    #01#
+    #32#
+    #..#
+    ####
+    """
+    blue1 = layout_as_str(**layout_for_team(parse_layout(l1), is_blue=True))
+    red1 = layout_as_str(**layout_for_team(parse_layout(l1), is_blue=False))
+
+    assert blue1 == """\
+####
+#0E#
+#E1#
+#..#
+####
+"""
+
+    assert red1 == """\
+####
+#E0#
+#1E#
+#..#
+####
+"""
+
+
+    # cannot convert layout that is already in team-style
+    with pytest.raises(ValueError):
+        layout_for_team(parse_layout(blue1))
+
+    with pytest.raises(ValueError):
+        layout_for_team(parse_layout(red1))

@@ -440,6 +440,28 @@ def layout_as_str(*, walls, food=None, bots=None, enemy=None):
     return out.getvalue()
 
 
+def layout_for_team(layout, is_blue=True):
+    """ Converts a layout dict with 4 bots to a layout
+    from the view of the specified team.
+    """
+    if "enemy" in layout:
+        raise ValueError("Layout is already in team-style.")
+
+    if is_blue:
+        bots = layout['bots'][0::2]
+        enemy = layout['bots'][1::2]
+    else:
+        bots = layout['bots'][1::2]
+        enemy = layout['bots'][0::2]
+
+    return {
+        'walls': layout['walls'][:],
+        'food': layout['food'][:],
+        'bots': bots,
+        'enemy': enemy,
+    }
+
+
 def wall_dimensions(walls):
     """ Given a list of walls, returns a tuple of (width, height)."""
     width = max(walls)[0] + 1
