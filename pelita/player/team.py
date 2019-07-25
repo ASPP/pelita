@@ -702,8 +702,8 @@ def create_layout(*layout_strings, food=None, bots=None, enemy=None):
 
     # override bots if given and not None
     if bots is not None:
-        if not len(bots) == 2:
-            raise ValueError(f"bots must be a list of 2 ({bots})!")
+        if len(bots) > 2:
+            raise ValueError(f"bots must not be more than 2 ({bots})!")
         for idx, pos in enumerate(bots):
             if pos is not None:
                 _check_valid_pos(pos, "bot")
