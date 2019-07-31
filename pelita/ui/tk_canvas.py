@@ -148,7 +148,7 @@ class TkApplication:
 
         self.ui = UI()
 
-        self.ui.header_canvas = tkinter.Canvas(master, height=38)
+        self.ui.header_canvas = tkinter.Canvas(master, height=50)
         self.ui.header_canvas.config(background="white", bd=0, highlightthickness=0, relief='ridge')
 
         self.ui.sub_header = tkinter.Frame(master, height=25)
@@ -513,7 +513,7 @@ class TkApplication:
 
         left_status = status(0)
         right_status = status(1)
-        status_font_size = max(font_size - 3, 3)
+        status_font_size = max(font_size - 5, 3)
 
         top = 15
         spacer = 3
@@ -525,8 +525,8 @@ class TkApplication:
         self.ui.header_canvas.create_text(center, top, text=left_team, font=(None, font_size), fill=BLUE, tag="title", anchor=tkinter.E)
         self.ui.header_canvas.create_text(center+2, top, text=right_team, font=(None, font_size), fill=RED, tag="title", anchor=tkinter.W)
 
-        bottom_text = self.ui.header_canvas.create_text(0 + 5, 15 + font_size, text=" " + left_status, font=(None, status_font_size), tag="title", anchor=tkinter.W)
-        self.ui.header_canvas.create_text(self.ui.header_canvas.winfo_width() - 5, 15 + font_size, text=right_status + " ", font=(None, status_font_size), tag="title", anchor=tkinter.E)
+        bottom_text = self.ui.header_canvas.create_text(0 + 5, 20 + font_size, text=" " + left_status, font=(None, status_font_size), tag="title", anchor=tkinter.W)
+        self.ui.header_canvas.create_text(self.ui.header_canvas.winfo_width() - 5, 20 + font_size, text=right_status + " ", font=(None, status_font_size), tag="title", anchor=tkinter.E)
 
     def draw_status_info(self, game_state):
         round = firstNN(game_state.get("round"), "–")
