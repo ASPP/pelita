@@ -14,7 +14,7 @@ def test_walls_to_nx_graph_full():
     ########
     """
     l = create_layout(layout)
-    graph = utils.walls_to_nxgraph(l.walls)
+    graph = utils.walls_to_nxgraph(l['walls'])
     # test that we generate a path of the proper size
     assert len(graph.nodes) == 12
     # test that the graph doesn't have walls in between
@@ -31,7 +31,7 @@ def test_walls_to_nx_graph_one_wall():
     ########
     """
     l = create_layout(layout)
-    graph = utils.walls_to_nxgraph(l.walls)
+    graph = utils.walls_to_nxgraph(l['walls'])
     assert networkx.shortest_path_length(graph, (1,1), (6,1)) == 7
     with pytest.raises(networkx.NodeNotFound):
         networkx.has_path(graph, (3,1), (0,0))
@@ -47,6 +47,6 @@ def test_walls_to_nx_graph_impossible():
     ########
     """
     l = create_layout(layout)
-    graph = utils.walls_to_nxgraph(l.walls)
+    graph = utils.walls_to_nxgraph(l['walls'])
     assert networkx.has_path(graph, (1,1), (6,1)) is False
 
