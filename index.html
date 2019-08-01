@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Pelita &#8212; Pelita 0.9.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -43,31 +41,6 @@
 <p><strong>A first fight:</strong> ‘The SmartRandomPlayers’ v ‘The FoodEatingPlayers’</p>
 </div>
 <div class="col-md-6 docutils container">
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SmartRandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">dangerous_enemy_pos</span> <span class="o">=</span> <span class="p">[</span><span class="n">bot</span><span class="o">.</span><span class="n">current_pos</span>
-            <span class="k">for</span> <span class="n">bot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enemy_bots</span> <span class="k">if</span> <span class="n">bot</span><span class="o">.</span><span class="n">is_destroyer</span><span class="p">]</span>
-        <span class="n">killable_enemy_pos</span> <span class="o">=</span> <span class="p">[</span><span class="n">bot</span><span class="o">.</span><span class="n">current_pos</span>
-            <span class="k">for</span> <span class="n">bot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enemy_bots</span> <span class="k">if</span> <span class="n">bot</span><span class="o">.</span><span class="n">is_harvester</span><span class="p">]</span>
-
-        <span class="n">smart_moves</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">move</span><span class="p">,</span> <span class="n">new_pos</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">legal_moves</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">move</span> <span class="o">==</span> <span class="n">stop</span> <span class="ow">or</span>
-                <span class="n">new_pos</span> <span class="ow">in</span> <span class="n">dangerous_enemy_pos</span><span class="p">):</span>
-                <span class="k">continue</span> <span class="c1"># bad idea</span>
-            <span class="k">elif</span> <span class="p">(</span><span class="n">new_pos</span> <span class="ow">in</span> <span class="n">killable_enemy_pos</span> <span class="ow">or</span>
-                  <span class="n">new_pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enemy_food</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">move</span> <span class="c1"># get it!</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">smart_moves</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">move</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">smart_moves</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnd</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">smart_moves</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># we ran out of smart moves</span>
-            <span class="k">return</span> <span class="n">stop</span>
-</pre></div>
-</div>
 </div>
 </div>
 </div>
@@ -75,9 +48,9 @@
 <div class="section" id="resources">
 <h2>Resources<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><a class="reference external" href="https://aspp.github.com/pelita/">Documentation</a></li>
-<li><a class="reference external" href="https://github.com/ASPP/pelita">Source code</a></li>
-<li><a class="reference external" href="https://github.com/ASPP/pelita/issues">Issue tracker</a></li>
+<li><p><a class="reference external" href="https://aspp.github.com/pelita/">Documentation</a></p></li>
+<li><p><a class="reference external" href="https://github.com/ASPP/pelita">Source code</a></p></li>
+<li><p><a class="reference external" href="https://github.com/ASPP/pelita/issues">Issue tracker</a></p></li>
 </ul>
 </div>
 <div class="section" id="description-of-the-game">
@@ -118,9 +91,9 @@ with some predefined players.</p>
 <div class="section" id="indices-and-tables">
 <h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
 </div>
 </div>
@@ -161,13 +134,11 @@ with some predefined players.</p>
 
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -188,7 +159,7 @@ with some predefined players.</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

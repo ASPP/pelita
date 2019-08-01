@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Development &#8212; Pelita 0.9.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -41,36 +39,30 @@
 <div class="section" id="coding-conventions">
 <h2>Coding conventions<a class="headerlink" href="#coding-conventions" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Python 3</li>
-<li>Docstrings should follow the <a class="reference external" href="https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt">Numpy convention</a></li>
-<li>Write code compatible with 3.3+</li>
-<li>For internal messages, use the <code class="docutils literal notranslate"><span class="pre">logging</span></code> module with an appropriate logging
-level, which makes their appearance completely configurable.</li>
-<li>Follow your instinct, follow the style of the surrounding lines.</li>
+<li><p>Python 3</p></li>
+<li><p>Docstrings should follow the <a class="reference external" href="https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt">Numpy convention</a></p></li>
+<li><p>Write code compatible with 3.3+</p></li>
+<li><p>For internal messages, use the <code class="docutils literal notranslate"><span class="pre">logging</span></code> module with an appropriate logging
+level, which makes their appearance completely configurable.</p></li>
+<li><p>Follow your instinct, follow the style of the surrounding lines.</p></li>
 </ul>
 </div>
 <div class="section" id="changelog-milestones">
 <h2>Changelog milestones<a class="headerlink" href="#changelog-milestones" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">v0.1.1 – 2012-05-23:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
-<li>Bugfix/Maintenance Release</li>
-<li>tying together loose ends</li>
+<dl class="field-list simple">
+<dt class="field-odd">v0.1.1 – 2012-05-23</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Bugfix/Maintenance Release</p></li>
+<li><p>tying together loose ends</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">v0.1.0 – 2011-09-21:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
-<li>Initial Release</li>
-<li>for St. Andrews Summerschool</li>
+</dd>
+<dt class="field-even">v0.1.0 – 2011-09-21</dt>
+<dd class="field-even"><ul class="simple">
+<li><p>Initial Release</p></li>
+<li><p>for St. Andrews Summerschool</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </div>
 <div class="section" id="git-repository">
 <h2>Git-Repository<a class="headerlink" href="#git-repository" title="Permalink to this headline">¶</a></h2>
@@ -99,8 +91,8 @@ your own fork. We are, after all, consenting adults, but please don’t rewrite
 history in the ASPP repository.</p>
 <p>If you need to read up on pull-requests, please see:</p>
 <ul class="simple">
-<li><a class="reference external" href="https://help.github.com/articles/fork-a-repo/">https://help.github.com/articles/fork-a-repo/</a></li>
-<li><a class="reference external" href="https://help.github.com/articles/using-pull-requests/">https://help.github.com/articles/using-pull-requests/</a></li>
+<li><p><a class="reference external" href="https://help.github.com/articles/fork-a-repo/">https://help.github.com/articles/fork-a-repo/</a></p></li>
+<li><p><a class="reference external" href="https://help.github.com/articles/using-pull-requests/">https://help.github.com/articles/using-pull-requests/</a></p></li>
 </ul>
 </div>
 <div class="section" id="commit-markers">
@@ -108,47 +100,52 @@ history in the ASPP repository.</p>
 <p>Commits should be marked. Declare both functionality and area.</p>
 <div class="section" id="functionality-markers">
 <h4>Functionality Markers<a class="headerlink" href="#functionality-markers" title="Permalink to this headline">¶</a></h4>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">BF</span></code> or <code class="docutils literal notranslate"><span class="pre">FIX</span></code>:</th><td class="field-body">bug fix</td>
-</tr>
-<tr class="field-even field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">RF</span></code>:</th><td class="field-body">refactoring</td>
-</tr>
-<tr class="field-odd field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">NF</span></code>:</th><td class="field-body">new feature</td>
-</tr>
-<tr class="field-even field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">ENH</span></code>:</th><td class="field-body">enhancement of an existing feature/facility</td>
-</tr>
-<tr class="field-odd field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">BW</span></code>:</th><td class="field-body">addresses backward-compatibility</td>
-</tr>
-<tr class="field-even field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">OPT</span></code>:</th><td class="field-body">optimization</td>
-</tr>
-<tr class="field-odd field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">BK</span></code>:</th><td class="field-body">breaks something and/or tests fail</td>
-</tr>
-<tr class="field-even field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">FO</span></code>:</th><td class="field-body">code formatting (adding spaces etc.)</td>
-</tr>
-<tr class="field-odd field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">PL</span></code>:</th><td class="field-body">making pylint happier</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">BF</span></code> or <code class="docutils literal notranslate"><span class="pre">FIX</span></code></dt>
+<dd class="field-odd"><p>bug fix</p>
+</dd>
+<dt class="field-even"><code class="docutils literal notranslate"><span class="pre">RF</span></code></dt>
+<dd class="field-even"><p>refactoring</p>
+</dd>
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">NF</span></code></dt>
+<dd class="field-odd"><p>new feature</p>
+</dd>
+<dt class="field-even"><code class="docutils literal notranslate"><span class="pre">ENH</span></code></dt>
+<dd class="field-even"><p>enhancement of an existing feature/facility</p>
+</dd>
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">BW</span></code></dt>
+<dd class="field-odd"><p>addresses backward-compatibility</p>
+</dd>
+<dt class="field-even"><code class="docutils literal notranslate"><span class="pre">OPT</span></code></dt>
+<dd class="field-even"><p>optimization</p>
+</dd>
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">BK</span></code></dt>
+<dd class="field-odd"><p>breaks something and/or tests fail</p>
+</dd>
+<dt class="field-even"><code class="docutils literal notranslate"><span class="pre">FO</span></code></dt>
+<dd class="field-even"><p>code formatting (adding spaces etc.)</p>
+</dd>
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">PL</span></code></dt>
+<dd class="field-odd"><p>making pylint happier</p>
+</dd>
+</dl>
 </div>
 <div class="section" id="code-area-markers">
 <h4>Code Area Markers<a class="headerlink" href="#code-area-markers" title="Permalink to this headline">¶</a></h4>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">DOC</span></code>:</th><td class="field-body">documentation</td>
-</tr>
-<tr class="field-even field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">UT</span></code>:</th><td class="field-body">unit tests</td>
-</tr>
-<tr class="field-odd field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">BLD</span></code>:</th><td class="field-body">build-system, setup.py</td>
-</tr>
-<tr class="field-even field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">GIT</span></code>:</th><td class="field-body">repository mods, e.g. .gitconfig .gitattributes</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">DOC</span></code></dt>
+<dd class="field-odd"><p>documentation</p>
+</dd>
+<dt class="field-even"><code class="docutils literal notranslate"><span class="pre">UT</span></code></dt>
+<dd class="field-even"><p>unit tests</p>
+</dd>
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">BLD</span></code></dt>
+<dd class="field-odd"><p>build-system, setup.py</p>
+</dd>
+<dt class="field-even"><code class="docutils literal notranslate"><span class="pre">GIT</span></code></dt>
+<dd class="field-even"><p>repository mods, e.g. .gitconfig .gitattributes</p>
+</dd>
+</dl>
 </div>
 <div class="section" id="example">
 <h4>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h4>
@@ -258,25 +255,25 @@ development. In our case we split it into four distinct sections: <code class="d
 center for sketches and doodles.  You can read about the agile project wall in
 the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the-agile-samurai">The Agile Samurai</a> by Jonathan Rasmusson</p>
 <p>Here are some photos:</p>
-<div class="figure" id="id1">
+<div class="figure align-default" id="id1">
 <a class="reference internal image-reference" href="_images/project_wall_full.jpg"><img alt="the whole wall" src="_images/project_wall_full.jpg" style="width: 820px;" /></a>
-<p class="caption"><span class="caption-text">The whole wall</span></p>
+<p class="caption"><span class="caption-text">The whole wall</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
-<div class="figure" id="id2">
+<div class="figure align-default" id="id2">
 <a class="reference internal image-reference" href="_images/project_wall_todo.jpg"><img alt="The 'todo' section" src="_images/project_wall_todo.jpg" style="width: 640px;" /></a>
-<p class="caption"><span class="caption-text">The ‘todo’ section</span></p>
+<p class="caption"><span class="caption-text">The ‘todo’ section</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
-<div class="figure" id="id3">
+<div class="figure align-default" id="id3">
 <a class="reference internal image-reference" href="_images/project_wall_current.jpg"><img alt="the 'current' section" src="_images/project_wall_current.jpg" style="width: 640px;" /></a>
-<p class="caption"><span class="caption-text">The ‘current’ section</span></p>
+<p class="caption"><span class="caption-text">The ‘current’ section</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </div>
-<div class="figure" id="id4">
+<div class="figure align-default" id="id4">
 <a class="reference internal image-reference" href="_images/project_wall_done.jpg"><img alt="the done section" src="_images/project_wall_done.jpg" style="width: 640px;" /></a>
-<p class="caption"><span class="caption-text">The ‘done’ section</span></p>
+<p class="caption"><span class="caption-text">The ‘done’ section</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </div>
-<div class="figure" id="id5">
+<div class="figure align-default" id="id5">
 <a class="reference internal image-reference" href="_images/project_wall_nice.jpg"><img alt="the nice to have section" src="_images/project_wall_nice.jpg" style="width: 640px;" /></a>
-<p class="caption"><span class="caption-text">The ‘nice to have’ section</span></p>
+<p class="caption"><span class="caption-text">The ‘nice to have’ section</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 </div>
@@ -338,13 +335,11 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
 
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -365,7 +360,7 @@ the book: <a class="reference external" href="http://pragprog.com/book/jtrap/the
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

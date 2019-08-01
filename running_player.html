@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Running Players &#8212; Pelita 0.9.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -106,26 +104,25 @@ own layout in a file and load it into the game with:</p>
 </div>
 <p>As you can see from the example, only a few characters are needed to encode a
 maze:</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">'#'</span></code>:</th><td class="field-body">wall</td>
-</tr>
-<tr class="field-even field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">'</span> <span class="pre">'</span></code>:</th><td class="field-body">free space</td>
-</tr>
-<tr class="field-odd field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">'.'</span></code>:</th><td class="field-body">food</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">'#'</span></code></dt>
+<dd class="field-odd"><p>wall</p>
+</dd>
+<dt class="field-even"><code class="docutils literal notranslate"><span class="pre">'</span> <span class="pre">'</span></code></dt>
+<dd class="field-even"><p>free space</p>
+</dd>
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">'.'</span></code></dt>
+<dd class="field-odd"><p>food</p>
+</dd>
+</dl>
 <p>In addition, the starting position of each bot is specified by a number. In the
 above example <code class="docutils literal notranslate"><span class="pre">0</span></code> and <code class="docutils literal notranslate"><span class="pre">2</span></code> are on the team on the left and <code class="docutils literal notranslate"><span class="pre">1</span></code> and <code class="docutils literal notranslate"><span class="pre">3</span></code>
 are on the team on the right.  There are some restrictions on the encoding
 however:</p>
 <ul class="simple">
-<li>The maze must be rectangular and even in the x-direction.</li>
-<li>It must be fully enclosed by walls.</li>
-<li>No illegal characters can be used.</li>
+<li><p>The maze must be rectangular and even in the x-direction.</p></li>
+<li><p>It must be fully enclosed by walls.</p></li>
+<li><p>No illegal characters can be used.</p></li>
 </ul>
 <p>Any leading or trailing whitespace will be stripped. The layout will be
 parsed for correctness and an exception will be raised if any errors are
@@ -224,19 +221,6 @@ module itself:</p>
 from a terminal, the client code can be made to interact with user input.</p>
 <p>For a start, let us consider a Player which does nothing but call the Python
 debugger for help:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pdb</span>
-<span class="k">class</span> <span class="nc">DebuggablePlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Player which invokes pdb on each move. </span>
-
-<span class="sd">    Setting ``direction`` inside the debugger will change</span>
-<span class="sd">    its behaviour.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">direction</span> <span class="o">=</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span>
-        <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">direction</span>
-</pre></div>
-</div>
 <p>We want to use this player in our left team and let the server choose a random
 team for the right hand side. Additionally, we disable the timeouts:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pelita --no-timeout DebuggablePlayer
@@ -258,12 +242,12 @@ each step:</p>
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
+<p class="admonition-title">Note</p>
 <p>Taking standard input may sometimes misbehave. Possible issues may include
 the occasional not responding on keystrokes, garbled output and the
 failure to automatically shutdown the program. In these cases, it is
 useful to press the keyboard interrupt (CTRL+C) a couple of times.</p>
-<p class="last">Obviously, mixing two DebuggingPlayers, both waiting on input will lead to
+<p>Obviously, mixing two DebuggingPlayers, both waiting on input will lead to
 confusion.</p>
 </div>
 </div>
@@ -313,13 +297,11 @@ confusion.</p>
 
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -340,7 +322,7 @@ confusion.</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

@@ -13,11 +13,11 @@ pelita.viewer
 
    .. autosummary::
    
-      AbstractViewer
       AsciiViewer
-      DumpingViewer
       ProgressViewer
+      ReplayWriter
       ReplyToViewer
+      ResultPrinter
    
    
 

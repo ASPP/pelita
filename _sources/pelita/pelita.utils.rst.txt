@@ -10,6 +10,7 @@ pelita.utils
    .. autosummary::
    
       setup_test_game
+      split_food
    
    
 

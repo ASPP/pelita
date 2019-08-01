@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Writing a Player &#8212; Pelita 0.9.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -42,37 +40,35 @@
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p>To begin with, we must define a few classes and some terminology which will be
 used throughout this documentation.</p>
-<dl class="docutils">
-<dt><cite>pelita.datamodel.CTFUniverse</cite>:</dt>
-<dd>The game’s universe. Holds a list of <code class="docutils literal notranslate"><span class="pre">Bot</span></code> instances, a list of <code class="docutils literal notranslate"><span class="pre">Team</span></code>
+<dl class="simple">
+<dt><cite>pelita.datamodel.CTFUniverse</cite>:</dt><dd><p>The game’s universe. Holds a list of <code class="docutils literal notranslate"><span class="pre">Bot</span></code> instances, a list of <code class="docutils literal notranslate"><span class="pre">Team</span></code>
 instances, a single <code class="docutils literal notranslate"><span class="pre">Maze</span></code> object and a list with the positions of food.
-Can be queried to obtain information about the game.</dd>
-<dt><cite>pelita.datamodel.Bot</cite>:</dt>
-<dd>The data structure used to store the bot. This holds the position of the
+Can be queried to obtain information about the game.</p>
+</dd>
+<dt><cite>pelita.datamodel.Bot</cite>:</dt><dd><p>The data structure used to store the bot. This holds the position of the
 <code class="docutils literal notranslate"><span class="pre">Bot</span></code> inside the Maze, its initial position, which team it belongs to
-etc..</dd>
-<dt><cite>pelita.datamodel.Team</cite>:</dt>
-<dd>In capture-the-flag each <code class="docutils literal notranslate"><span class="pre">Bot</span></code> belongs to a <code class="docutils literal notranslate"><span class="pre">Team</span></code>. The team stores the
-homezone of a team and its score.</dd>
-<dt><cite>pelita.datamodel.Maze</cite>:</dt>
-<dd>Data structure that stores the maze or layout, i.e. where walls are.</dd>
-<dt><cite>pelita.game_master.GameMaster</cite>:</dt>
-<dd>Controller object that asks players for moves and updates the <code class="docutils literal notranslate"><span class="pre">Universe</span></code>.
+etc..</p>
+</dd>
+<dt><cite>pelita.datamodel.Team</cite>:</dt><dd><p>In capture-the-flag each <code class="docutils literal notranslate"><span class="pre">Bot</span></code> belongs to a <code class="docutils literal notranslate"><span class="pre">Team</span></code>. The team stores the
+homezone of a team and its score.</p>
+</dd>
+<dt><cite>pelita.datamodel.Maze</cite>:</dt><dd><p>Data structure that stores the maze or layout, i.e. where walls are.</p>
+</dd>
+<dt><cite>pelita.game_master.GameMaster</cite>:</dt><dd><p>Controller object that asks players for moves and updates the <code class="docutils literal notranslate"><span class="pre">Universe</span></code>.
 You will never need to interact with this object but it’s good to know that
-this is the central object that coordinates the game.</dd>
+this is the central object that coordinates the game.</p>
+</dd>
 </dl>
 <p>In addition to these classes there are two additional relevant concepts:</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">Player</span></code>:</th><td class="field-body">Your implementation of the <em>intelligence</em> for a <code class="docutils literal notranslate"><span class="pre">Bot</span></code>. The abstraction is
-that a <em>player</em> object controls a <em>bot</em> object.</td>
-</tr>
-<tr class="field-even field"><th class="field-name"><code class="docutils literal notranslate"><span class="pre">move</span></code>:</th><td class="field-body">A tuple that indicates where a <code class="docutils literal notranslate"><span class="pre">Bot</span></code> should move.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">Player</span></code></dt>
+<dd class="field-odd"><p>Your implementation of the <em>intelligence</em> for a <code class="docutils literal notranslate"><span class="pre">Bot</span></code>. The abstraction is
+that a <em>player</em> object controls a <em>bot</em> object.</p>
+</dd>
+<dt class="field-even"><code class="docutils literal notranslate"><span class="pre">move</span></code></dt>
+<dd class="field-even"><p>A tuple that indicates where a <code class="docutils literal notranslate"><span class="pre">Bot</span></code> should move.</p>
+</dd>
+</dl>
 </div>
 <div class="section" id="player-basics">
 <h2>Player Basics<a class="headerlink" href="#player-basics" title="Permalink to this headline">¶</a></h2>
@@ -97,7 +93,7 @@ method <code class="docutils literal notranslate"><span class="pre">get_move()</
 <p>An example of such a player is the trivial <cite>pelita.player.StoppingPlayer</cite>
 which simply returns <code class="docutils literal notranslate"><span class="pre">stop</span></code>:</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
+<p class="admonition-title">Note</p>
 <p>Besides the definition of your player, this file must contain a factory
 function called <cite>team</cite> that returns a team (remember that the default game is a
 fight between two teams of two bots each):</p>
@@ -107,7 +103,7 @@ fight between two teams of two bots each):</p>
         <span class="k">return</span> <span class="n">SimpleTeam</span><span class="p">(</span><span class="s2">&quot;MyTeam&quot;</span><span class="p">,</span> <span class="n">StoppingPlayer</span><span class="p">(),</span> <span class="n">StoppingPlayer</span><span class="p">())</span>
 </pre></div>
 </div>
-<p class="last">For more information about this, see also:<a class="reference internal" href="running_player.html"><span class="doc">Running Players</span></a></p>
+<p>For more information about this, see also:<a class="reference internal" href="running_player.html"><span class="doc">Running Players</span></a></p>
 </div>
 <p>Note: the current state or the <code class="docutils literal notranslate"><span class="pre">CTFUniverse</span></code> is always implicitly available
 via the <code class="docutils literal notranslate"><span class="pre">current_uni</span></code> property inherited from <code class="docutils literal notranslate"><span class="pre">AbstractPlayer</span></code>. But more
@@ -117,29 +113,22 @@ about that later.</p>
 <h2>Doing More<a class="headerlink" href="#doing-more" title="Permalink to this headline">¶</a></h2>
 <p>A minimally more useful example is the <cite>pelita.players.RandomPlayer</cite> which always
 selects a move at random from the possible moves:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">RandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A player that makes moves at random. &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnd</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">legal_moves</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
-</pre></div>
-</div>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
+<p class="admonition-title">Warning</p>
 <p>In the above example, we use an internal random number generator,
 <cite>self.rnd</cite> instead of the one from the <cite>random</cite> module.</p>
-<p class="last"><cite>self.rnd</cite> is seeded by the <cite>GameMaster</cite> during startup. This means
+<p><cite>self.rnd</cite> is seeded by the <cite>GameMaster</cite> during startup. This means
 that whenever we initialise <cite>GameMaster</cite> with the same seed, we will get
 the same numbers in our Player. This is very useful for testing,
 especially when playing against other Players which use randomness,
 because we can replay previous test games with improved algorithms.</p>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
+<p class="admonition-title">Note</p>
 <p>To make the above example (and many of the following examples) work, it
 might be necessary to add appropriate imports to your python source file,
 for example:</p>
-<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pelita.player</span> <span class="k">import</span> <span class="n">AbstractPlayer</span><span class="p">,</span> <span class="n">SimpleTeam</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pelita.player</span> <span class="k">import</span> <span class="n">AbstractPlayer</span><span class="p">,</span> <span class="n">SimpleTeam</span>
 <span class="kn">from</span> <span class="nn">pelita.datamodel</span> <span class="k">import</span> <span class="n">north</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">west</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">stop</span>
 </pre></div>
 </div>
@@ -151,30 +140,6 @@ moves there. <code class="docutils literal notranslate"><span class="pre">legal_
 <p>The next example is the not-quite random player
 <code class="docutils literal notranslate"><span class="pre">pelita.player.NQRandomPlayer</span></code>.  This one does not move back to the position
 where it was on its last turn and never stops in place:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">NQRandomPlayer</span><span class="p">(</span><span class="n">AbstractPlayer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Not-Quite-RandomPlayer that will move randomly but not stop or reverse. &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">get_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">legal_moves</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_moves</span>
-        <span class="c1"># Remove stop</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">del</span> <span class="n">legal_moves</span><span class="p">[</span><span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="c1"># now remove the move that would lead to the previous_position</span>
-        <span class="c1"># unless there is no where else to go.</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">legal_moves</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">legal_moves</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_pos</span><span class="p">:</span>
-                    <span class="k">break</span>
-            <span class="k">del</span> <span class="n">legal_moves</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-        <span class="c1"># just in case, there is really no way to go to:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">legal_moves</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">datamodel</span><span class="o">.</span><span class="n">stop</span>
-        <span class="c1"># and select a move at random</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnd</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">legal_moves</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
-</pre></div>
-</div>
 <p>Here we can see the use of another convenience method: <code class="docutils literal notranslate"><span class="pre">previous_pos</span></code> which
 gives the position the bot had in the previous round.</p>
 <p>Additional information about the bot and game state can also be retrieved
@@ -187,38 +152,38 @@ with the <code class="docutils literal notranslate"><span class="pre">current_st
 encoded as the tuple <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y)</span></code>. There are no negative coordinates. The
 following example illustrates this for a few positions:</p>
 <blockquote>
-<div><table border="1" class="docutils">
+<div><table class="docutils align-default">
 <colgroup>
-<col width="20%" />
-<col width="20%" />
-<col width="20%" />
-<col width="20%" />
-<col width="20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>(0, 0)</td>
-<td>(1, 0)</td>
-<td>(2, 0)</td>
-<td>(3, 0)</td>
-<td>…</td>
+<tbody>
+<tr class="row-odd"><td><p>(0, 0)</p></td>
+<td><p>(1, 0)</p></td>
+<td><p>(2, 0)</p></td>
+<td><p>(3, 0)</p></td>
+<td><p>…</p></td>
 </tr>
-<tr class="row-even"><td>(0, 1)</td>
-<td>(1, 1)</td>
-<td>(2, 1)</td>
-<td>(3, 1)</td>
-<td>…</td>
+<tr class="row-even"><td><p>(0, 1)</p></td>
+<td><p>(1, 1)</p></td>
+<td><p>(2, 1)</p></td>
+<td><p>(3, 1)</p></td>
+<td><p>…</p></td>
 </tr>
-<tr class="row-odd"><td>(0, 2)</td>
-<td>(1, 2)</td>
-<td>(2, 2)</td>
-<td>(3, 2)</td>
-<td>…</td>
+<tr class="row-odd"><td><p>(0, 2)</p></td>
+<td><p>(1, 2)</p></td>
+<td><p>(2, 2)</p></td>
+<td><p>(3, 2)</p></td>
+<td><p>…</p></td>
 </tr>
-<tr class="row-even"><td>…</td>
-<td>…</td>
-<td>…</td>
-<td>…</td>
-<td>…</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 </tbody>
 </table>
@@ -237,43 +202,43 @@ following example illustrates this for a few positions:</p>
 The <a class="reference external" href="https://en.wikipedia.org/wiki/Euclidean_distance">Euclidean distance</a>
 is the length of the vector connecting the centers
 of the cells where the objects are located:</p>
-<div class="figure" id="id2">
+<div class="figure align-default" id="id2">
 <a class="reference internal image-reference" href="_images/distance_euclidean.png"><img alt="Euclidean distance." src="_images/distance_euclidean.png" style="width: 252px;" /></a>
 <p class="caption"><span class="caption-text"><strong>Euclidean distance:</strong> The Euclidean distance between the two bots is
-<span class="math notranslate nohighlight">\(\sqrt{(x_1-x_2)^2 + (y_1-y_2)^2} = \sqrt{2^2+2^2} = \sqrt 8 \approx 2.83...\)</span></span></p>
+<span class="math notranslate nohighlight">\(\sqrt{(x_1-x_2)^2 + (y_1-y_2)^2} = \sqrt{2^2+2^2} = \sqrt 8 \approx 2.83...\)</span></span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
 <p>The <a class="reference external" href="https://en.wikipedia.org/wiki/Taxicab_geometry">Manhattan distance</a>,
 also known as L1-distance or taxicab-distance, is the
 absolute difference of the coordinates of the two objects:</p>
-<div class="figure" id="id3">
+<div class="figure align-default" id="id3">
 <a class="reference internal image-reference" href="_images/distance_manhattan.png"><img alt="Manhattan distance." src="_images/distance_manhattan.png" style="width: 252px;" /></a>
-<p class="caption"><span class="caption-text"><strong>Manhattan distance:</strong> The Manhattan distance between the two bots is <span class="math notranslate nohighlight">\(4\)</span>.</span></p>
+<p class="caption"><span class="caption-text"><strong>Manhattan distance:</strong> The Manhattan distance between the two bots is <span class="math notranslate nohighlight">\(4\)</span>.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </div>
 <p>The maze distance counts the number of cells of the shortest path that
 connects the two objects:</p>
-<div class="figure" id="id4">
+<div class="figure align-default" id="id4">
 <a class="reference internal image-reference" href="_images/distance_maze.png"><img alt="Maze distance." src="_images/distance_maze.png" style="width: 252px;" /></a>
-<p class="caption"><span class="caption-text"><strong>Maze distance:</strong> The Maze distance between the two bots is <span class="math notranslate nohighlight">\(6\)</span>.</span></p>
+<p class="caption"><span class="caption-text"><strong>Maze distance:</strong> The Maze distance between the two bots is <span class="math notranslate nohighlight">\(6\)</span>.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </div>
 <p>Note that Manhattan and maze distances are always integer values.
 In the game, distances are almost always measured either in Manhattan or in
 maze distance.
 We provide a series of convenience methods for dealing with position
 and distances in <cite>pelita.graph</cite>:</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.graph.html#pelita.graph.move_pos" title="pelita.graph.move_pos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_pos</span></code></a></td>
-<td>Adds a position tuple and a move tuple.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="pelita/pelita.graph.html#pelita.graph.move_pos" title="pelita.graph.move_pos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_pos</span></code></a></p></td>
+<td><p>Adds a position tuple and a move tuple.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.graph.html#pelita.graph.diff_pos" title="pelita.graph.diff_pos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diff_pos</span></code></a></td>
-<td>Return the move required to move from one position to another.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="pelita/pelita.graph.html#pelita.graph.diff_pos" title="pelita.graph.diff_pos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diff_pos</span></code></a></p></td>
+<td><p>Return the move required to move from one position to another.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.graph.html#pelita.graph.manhattan_dist" title="pelita.graph.manhattan_dist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">manhattan_dist</span></code></a></td>
-<td>Manhattan distance between two points.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pelita/pelita.graph.html#pelita.graph.manhattan_dist" title="pelita.graph.manhattan_dist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">manhattan_dist</span></code></a></p></td>
+<td><p>Manhattan distance between two points.</p></td>
 </tr>
 </tbody>
 </table>
@@ -319,8 +284,8 @@ approach using this method could be as follows:</p>
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Even though <code class="docutils literal notranslate"><span class="pre">time_spent()</span></code> takes into account the initial calculations
+<p class="admonition-title">Note</p>
+<p>Even though <code class="docutils literal notranslate"><span class="pre">time_spent()</span></code> takes into account the initial calculations
 done in <code class="docutils literal notranslate"><span class="pre">AbstractPlayer</span></code>, it knows nothing about network delays.
 Therefore, it seems adviseable not to wait until the last millisecond
 before returning.</p>
@@ -335,9 +300,9 @@ cases, it may even generate a second timeout <em>before</em> its execution.</p>
 own execution time and returning early, if necessary. For long lasting
 tasks, it may be a good idea to experiment with concurrency.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
+<p class="admonition-title">Note</p>
 <p>A remark on timeout handling during the <code class="docutils literal notranslate"><span class="pre">set_initial()</span></code> phase.</p>
-<p class="last">Sometimes, it may seem a good idea to do some pre-calculations during the
+<p>Sometimes, it may seem a good idea to do some pre-calculations during the
 <code class="docutils literal notranslate"><span class="pre">set_initial</span></code> phase. We like to enforce this by also giving each Player
 some extra time. There is no strict limit, but after three seconds, the
 <code class="docutils literal notranslate"><span class="pre">GameMaster</span></code> is going to move on with its duty. Just make sure you’ll be
@@ -358,14 +323,14 @@ our universe.:</p>
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
+<p class="admonition-title">Note</p>
 <p>Please compare the above syntax with:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pos</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">maze</span><span class="p">:</span>
     <span class="k">pass</span>
 </pre></div>
 </div>
-<p class="last">This checks whether a coordinate is valid.</p>
+<p>This checks whether a coordinate is valid.</p>
 </div>
 <p>Players may use an adjacency list representation provided by
 <code class="docutils literal notranslate"><span class="pre">pelita.graph.Graph</span></code>. Let’s have a quick look at how this is
@@ -375,10 +340,10 @@ alternative existing package such as <a class="reference external" href="https:/
 <code class="docutils literal notranslate"><span class="pre">pelita.datamodel.CTFUniverse</span></code> class provides the method
 <code class="docutils literal notranslate"><span class="pre">pelita.datamodel.CTFUniverse.free_positions()</span></code>.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
+<p class="admonition-title">Note</p>
 <p>For example, importing the graph into networkx can be done by iterating over
 all free positions and subsequently adding edges to every position’s neighbors:</p>
-<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
 
 <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
 
@@ -393,9 +358,9 @@ all free positions and subsequently adding edges to every position’s neighbors
 </div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
+<p class="admonition-title">Note</p>
 <p>Similarly, importing a maze to numpy can be done with the following method:</p>
-<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="c1"># create an empty numpy matrix with the same size as the maze</span>
 <span class="n">walls_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">maze</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">maze</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
@@ -443,66 +408,16 @@ properties of <code class="docutils literal notranslate"><span class="pre">Abstr
 be of interest to the curious reader.</p>
 <p>Let’s take a quick look as the implementation
 of <code class="docutils literal notranslate"><span class="pre">current_uni</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">current_uni</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; The current Universe.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        universe : Universe</span>
-<span class="sd">            the current Universe</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-</pre></div>
-</div>
 <p>Importantly we see that the <code class="docutils literal notranslate"><span class="pre">AbstractPlayer</span></code> automatically maintains a stack
 of previous states of the Universe called <code class="docutils literal notranslate"><span class="pre">universe_states</span></code>.
 As we can see <code class="docutils literal notranslate"><span class="pre">current_uni</span></code> is simply the top element of this stack. This
 allows us to access the properties and methods of the <code class="docutils literal notranslate"><span class="pre">CTFUniverse</span></code>, for
 example look at the implementation of <code class="docutils literal notranslate"><span class="pre">legal_moves</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">legal_moves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; The currently possible moves, and where they lead.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        legal_moves : dict mapping moves to positions</span>
-<span class="sd">            the currently legal moves</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">legal_moves</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pos</span><span class="p">)</span>
-</pre></div>
-</div>
 <p>Here we can see that this simply calls the method <code class="docutils literal notranslate"><span class="pre">legal_moves(pos)</span></code>
 which is provided by <code class="docutils literal notranslate"><span class="pre">CTFUniverse</span></code>. We also see one of the convenience
 properties used in the <code class="docutils literal notranslate"><span class="pre">bfs_food()</span></code> method: <code class="docutils literal notranslate"><span class="pre">current_pos</span></code> which returns the
 current position of the bot.  Let’s have a look at this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">current_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; The current position of this bot.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        current_pos : tuple of (int, int)</span>
-<span class="sd">            the current position (x, y) of this bot</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">current_pos</span>
-</pre></div>
-</div>
 <p>We see that this makes use of the <code class="docutils literal notranslate"><span class="pre">me</span></code> property which is defined as follows:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">me</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; The Bot object this Player controls.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        me : Bot</span>
-<span class="sd">            the bot controlled by this player</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">]</span>
-</pre></div>
-</div>
 <p>As you can see, <code class="docutils literal notranslate"><span class="pre">me</span></code> will simply obtain the <code class="docutils literal notranslate"><span class="pre">Bot</span></code> instance controlled by
 this player from the current universe using the hidden <code class="docutils literal notranslate"><span class="pre">_index</span></code> attribute of
 the player. In practice, you should be able to avoid having to use the
@@ -510,21 +425,6 @@ the player. In practice, you should be able to avoid having to use the
 wish to do something exotic.</p>
 <p>Lets now have a look at the convenience property <code class="docutils literal notranslate"><span class="pre">enemy_food</span></code> Again, this is
 simply forwarded to the <code class="docutils literal notranslate"><span class="pre">CTFUniverse</span></code> using <code class="docutils literal notranslate"><span class="pre">current_uni</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">enemy_food</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Food owned by the enemy which can be eaten by this Player&#39;s bot.</span>
-
-<span class="sd">        Please note that it is valid for this list to be empty during get_move.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        enemy_food : list of position tuples (int, int)</span>
-<span class="sd">            The positions (x, y) of edible food</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">enemy_food</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">team_index</span><span class="p">)</span>
-</pre></div>
-</div>
 <p>As with <code class="docutils literal notranslate"><span class="pre">legal_moves</span></code>, a method from <code class="docutils literal notranslate"><span class="pre">CTFUniverse</span></code> is called, namely
 <code class="docutils literal notranslate"><span class="pre">enemy_food</span></code>. However, we need to tell it which team we are on. This is
 obtained using the <code class="docutils literal notranslate"><span class="pre">me</span></code> property to access the controlled <code class="docutils literal notranslate"><span class="pre">Bot</span></code> instance,
@@ -535,18 +435,6 @@ at the source code.</p>
 <p>Now that you know about <code class="docutils literal notranslate"><span class="pre">universe_states</span></code>, <code class="docutils literal notranslate"><span class="pre">_index</span></code> and <code class="docutils literal notranslate"><span class="pre">current_pos</span></code>
 let’s have a look at how the <code class="docutils literal notranslate"><span class="pre">previous_pos</span></code> property (used in the
 <code class="docutils literal notranslate"><span class="pre">NQRandomPlayer</span></code>) is implemented:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">previous_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; The previous position of the bot.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        previous_pos : tuple of (int, int)</span>
-<span class="sd">            the previous position (x, y) of this bot</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">universe_states</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">bots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">]</span><span class="o">.</span><span class="n">current_pos</span>
-</pre></div>
-</div>
 <p>Again, we will make use of <code class="docutils literal notranslate"><span class="pre">universe_states</span></code>, but this time we will look at
 the second element from the top of the stack. The <code class="docutils literal notranslate"><span class="pre">CTFUniverse</span></code> maintains a
 list of bots <code class="docutils literal notranslate"><span class="pre">bots</span></code> and the hidden attribute <code class="docutils literal notranslate"><span class="pre">_index</span></code> can be used to obtain
@@ -556,47 +444,8 @@ obtain its previous position.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">team</span></code> property uses the <code class="docutils literal notranslate"><span class="pre">me</span></code> property to access the bots
 <code class="docutils literal notranslate"><span class="pre">team_index</span></code> which it then uses in <code class="docutils literal notranslate"><span class="pre">current_uni.teams</span></code> to get the
 respective <code class="docutils literal notranslate"><span class="pre">Team</span></code> instance:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">team</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; The Team object this Player&#39;s Bot is on.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        team : Team</span>
-<span class="sd">            the team of the bot controlled by this player</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">teams</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">team_index</span><span class="p">]</span>
-</pre></div>
-</div>
 <p>Something similar is achieved for the <code class="docutils literal notranslate"><span class="pre">team_border</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">team_border</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Positions of the border positions.</span>
-<span class="sd">        These are the last positions in the zone of the team.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        team_border : list of tuple of (int, int)</span>
-<span class="sd">            the border positions</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">team_border</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">team_index</span><span class="p">)</span>
-</pre></div>
-</div>
 <p>And again for <code class="docutils literal notranslate"><span class="pre">enemy_bots</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">enemy_bots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; A list of enemy Bots.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        enemy_bots : list of Bot objects</span>
-<span class="sd">            all Bots on all enemy teams</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_uni</span><span class="o">.</span><span class="n">enemy_bots</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">me</span><span class="o">.</span><span class="n">team_index</span><span class="p">)</span>
-</pre></div>
-</div>
 </div>
 </div>
 
@@ -649,13 +498,11 @@ respective <code class="docutils literal notranslate"><span class="pre">Team</sp
 
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -676,7 +523,7 @@ respective <code class="docutils literal notranslate"><span class="pre">Team</sp
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

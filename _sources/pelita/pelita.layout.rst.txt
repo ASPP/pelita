@@ -11,26 +11,21 @@ pelita.layout
    
       get_available_layouts
       get_layout_by_name
+      get_legal_positions
       get_random_layout
+      initial_positions
+      layout_as_str
+      layout_for_team
+      parse_layout
+      parse_single_layout
+      wall_dimensions
    
    
 
    
    
-   .. rubric:: Classes
-
-   .. autosummary::
-   
-      Layout
-   
    
 
    
-   
-   .. rubric:: Exceptions
-
-   .. autosummary::
-   
-      LayoutEncodingException
    
    

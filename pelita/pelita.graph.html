@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>pelita.graph &#8212; Pelita 0.9.1 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -18,7 +16,6 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="pelita.layout" href="pelita.layout.html" />
-    <link rel="prev" title="pelita.game_master" href="pelita.game_master.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -39,53 +36,53 @@
 <span id="pelita-graph"></span><h1>pelita.graph<a class="headerlink" href="#module-pelita.graph" title="Permalink to this headline">¶</a></h1>
 <p>Basic graph module</p>
 <p class="rubric">Functions</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pelita.graph.diff_pos" title="pelita.graph.diff_pos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diff_pos</span></code></a>(initial,&nbsp;target)</td>
-<td>Return the move required to move from one position to another.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelita.graph.diff_pos" title="pelita.graph.diff_pos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diff_pos</span></code></a>(initial, target)</p></td>
+<td><p>Return the move required to move from one position to another.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.graph.iter_adjacencies" title="pelita.graph.iter_adjacencies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iter_adjacencies</span></code></a>(initial,&nbsp;adjacencies_for_pos)</td>
-<td>Returns an adjacency list starting at the initial positions.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelita.graph.iter_adjacencies" title="pelita.graph.iter_adjacencies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iter_adjacencies</span></code></a>(initial, adjacencies_for_pos)</p></td>
+<td><p>Returns an adjacency list starting at the initial positions.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pelita.graph.manhattan_dist" title="pelita.graph.manhattan_dist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">manhattan_dist</span></code></a>(pos1,&nbsp;pos2)</td>
-<td>Manhattan distance between two points.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelita.graph.manhattan_dist" title="pelita.graph.manhattan_dist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">manhattan_dist</span></code></a>(pos1, pos2)</p></td>
+<td><p>Manhattan distance between two points.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pelita.graph.move_pos" title="pelita.graph.move_pos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_pos</span></code></a>(position,&nbsp;move)</td>
-<td>Adds a position tuple and a move tuple.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelita.graph.move_pos" title="pelita.graph.move_pos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_pos</span></code></a>(position, move)</p></td>
+<td><p>Adds a position tuple and a move tuple.</p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Classes</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pelita.graph.Graph" title="pelita.graph.Graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Graph</span></code></a>(*args)</td>
-<td>Adjacency list [1] representation of a Maze.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelita.graph.Graph" title="pelita.graph.Graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Graph</span></code></a>(*args)</p></td>
+<td><p>Adjacency list [1] representation of a Maze.</p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Exceptions</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pelita.graph.NoPathException" title="pelita.graph.NoPathException"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NoPathException</span></code></a></td>
-<td></td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelita.graph.NoPathException" title="pelita.graph.NoPathException"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NoPathException</span></code></a></p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
 <dl class="class">
 <dt id="pelita.graph.Graph">
-<em class="property">class </em><code class="descclassname">pelita.graph.</code><code class="descname">Graph</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#Graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.Graph" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pelita.graph.</code><code class="sig-name descname">Graph</code><span class="sig-paren">(</span><em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#Graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.Graph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserDict</span></code></p>
 <p>Adjacency list [1] representation of a Maze.</p>
 <p>The <cite>Graph</cite> is mostly a wrapper for a <cite>dict</cite>. Given a position,
@@ -93,211 +90,183 @@ it returns the positions reachable from there.</p>
 <p>[1] <a class="reference external" href="http://en.wikipedia.org/wiki/Adjacency_list">http://en.wikipedia.org/wiki/Adjacency_list</a></p>
 <dl class="method">
 <dt id="pelita.graph.Graph.a_star">
-<code class="descname">a_star</code><span class="sig-paren">(</span><em>initial</em>, <em>target</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#Graph.a_star"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.Graph.a_star" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">a_star</code><span class="sig-paren">(</span><em class="sig-param">initial</em>, <em class="sig-param">target</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#Graph.a_star"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.Graph.a_star" title="Permalink to this definition">¶</a></dt>
 <dd><p>A* search.</p>
 <p>A* (A Star) [1] from one position to another. The search will return the
 shortest path from the <cite>initial</cite> position to the <cite>target</cite> using the
 Manhattan distance as a heuristic.
 Algorithm here is partially taken from [2] and inlined for speed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>initial</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the initial position</li>
-<li><strong>target</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the target position</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the initial position</p></li>
+<li><p><strong>target</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the target position</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>path</strong> – one of the the shortest paths from <cite>initial</cite> to the closest <cite>target</cite>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>path</strong> – one of the the shortest paths from <cite>initial</cite> to the closest <cite>target</cite>
 (excluding the <cite>initial</cite> position itself)</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">list of (int, int)</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><a class="reference internal" href="#pelita.graph.NoPathException" title="pelita.graph.NoPathException"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NoPathException</span></code></a> – if no path from <cite>initial</cite> to one of <cite>targets</cite></li>
-<li>[1] <a class="reference external" href="http://en.wikipedia.org/wiki/A*_search_algorithm">http://en.wikipedia.org/wiki/A*_search_algorithm</a></li>
-<li>[2] <a class="reference external" href="http://www.redblobgames.com/pathfinding/a-star/implementation.html#python">http://www.redblobgames.com/pathfinding/a-star/implementation.html#python</a></li>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of (int, int)</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="#pelita.graph.NoPathException" title="pelita.graph.NoPathException"><strong>NoPathException</strong></a> – if no path from <cite>initial</cite> to one of <cite>targets</cite></p></li>
+<li><p><strong>[</strong><strong>1</strong><strong>] </strong><strong>http://en.wikipedia.org/wiki/A*_search_algorithm</strong> – </p></li>
+<li><p><strong>[</strong><strong>2</strong><strong>] </strong><strong>http://www.redblobgames.com/pathfinding/a-star/implementation.html#python</strong> – </p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pelita.graph.Graph.bfs">
-<code class="descname">bfs</code><span class="sig-paren">(</span><em>initial</em>, <em>targets</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#Graph.bfs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.Graph.bfs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">bfs</code><span class="sig-paren">(</span><em class="sig-param">initial</em>, <em class="sig-param">targets</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#Graph.bfs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.Graph.bfs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Breadth first search (bfs).</p>
 <p>Breadth first search [1] from one position to multiple targets. The
 search will return a path from the <cite>initial</cite> position to the closest
 position in <cite>targets</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>initial</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the first position</li>
-<li><strong>targets</strong> (<em>list of tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the target positions</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the first position</p></li>
+<li><p><strong>targets</strong> (<em>list of tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the target positions</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>path</strong> – the path from <cite>initial</cite> to the closest <cite>target</cite></p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">lits of tuple of (int, int)</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><a class="reference internal" href="#pelita.graph.NoPathException" title="pelita.graph.NoPathException"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NoPathException</span></code></a> – if no path from <cite>initial</cite> to one of <cite>targets</cite></li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">NoPositionException</span></code> – if either <cite>initial</cite> or <cite>targets</cite> does not exist</li>
-<li>[1] <a class="reference external" href="http://en.wikipedia.org/wiki/Breadth-first_search">http://en.wikipedia.org/wiki/Breadth-first_search</a></li>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>path</strong> – the path from <cite>initial</cite> to the closest <cite>target</cite></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>lits of tuple of (int, int)</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="#pelita.graph.NoPathException" title="pelita.graph.NoPathException"><strong>NoPathException</strong></a> – if no path from <cite>initial</cite> to one of <cite>targets</cite></p></li>
+<li><p><strong>NoPositionException</strong> – if either <cite>initial</cite> or <cite>targets</cite> does not exist</p></li>
+<li><p><strong>[</strong><strong>1</strong><strong>] </strong><strong>http://en.wikipedia.org/wiki/Breadth-first_search</strong> – </p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pelita.graph.Graph.pos_within">
-<code class="descname">pos_within</code><span class="sig-paren">(</span><em>position</em>, <em>distance</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#Graph.pos_within"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.Graph.pos_within" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pos_within</code><span class="sig-paren">(</span><em class="sig-param">position</em>, <em class="sig-param">distance</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#Graph.pos_within"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.Graph.pos_within" title="Permalink to this definition">¶</a></dt>
 <dd><p>Positions within a certain distance.</p>
 <p>Calculates all positions within a certain distance of a target
 <cite>position</cite> in maze space. Within means strictly less than (<cite>&lt;</cite>) in this
 case.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>position</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the first position</li>
-<li><strong>distance</strong> (<em>int</em>) – the distance in maze space</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the first position</p></li>
+<li><p><strong>distance</strong> (<em>int</em>) – the distance in maze space</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>pos_within</strong> – the positions within the given distance</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">set of tuple of (int, int)</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pelita.graph.NoPathException" title="pelita.graph.NoPathException"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NoPathException</span></code></a> – if <cite>position</cite> does not exist in the adjacency list</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>pos_within</strong> – the positions within the given distance</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>set of tuple of (int, int)</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="#pelita.graph.NoPathException" title="pelita.graph.NoPathException"><strong>NoPathException</strong></a> – if <cite>position</cite> does not exist in the adjacency list</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="exception">
 <dt id="pelita.graph.NoPathException">
-<em class="property">exception </em><code class="descclassname">pelita.graph.</code><code class="descname">NoPathException</code><a class="reference internal" href="../_modules/pelita/graph.html#NoPathException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.NoPathException" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-prename descclassname">pelita.graph.</code><code class="sig-name descname">NoPathException</code><a class="reference internal" href="../_modules/pelita/graph.html#NoPathException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.NoPathException" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pelita.graph.diff_pos">
-<code class="descclassname">pelita.graph.</code><code class="descname">diff_pos</code><span class="sig-paren">(</span><em>initial</em>, <em>target</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#diff_pos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.diff_pos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pelita.graph.</code><code class="sig-name descname">diff_pos</code><span class="sig-paren">(</span><em class="sig-param">initial</em>, <em class="sig-param">target</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#diff_pos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.diff_pos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the move required to move from one position to another.</p>
 <p>Will return the move required to transition from <cite>initial</cite> to <cite>target</cite>. If
 <cite>initial</cite> equals <cite>target</cite> this is <cite>stop</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>initial</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the starting position</li>
-<li><strong>target</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the target position</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the starting position</p></li>
+<li><p><strong>target</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the target position</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>move</strong> – the resulting move</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple of (int, int)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>move</strong> – the resulting move</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple of (int, int)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pelita.graph.iter_adjacencies">
-<code class="descclassname">pelita.graph.</code><code class="descname">iter_adjacencies</code><span class="sig-paren">(</span><em>initial</em>, <em>adjacencies_for_pos</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#iter_adjacencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.iter_adjacencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pelita.graph.</code><code class="sig-name descname">iter_adjacencies</code><span class="sig-paren">(</span><em class="sig-param">initial</em>, <em class="sig-param">adjacencies_for_pos</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#iter_adjacencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.iter_adjacencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an adjacency list starting at the initial positions.</p>
 <p>Given some starting positions and a method which returns the adjacencies
 per position, we iterate over all reachable positions and their respective
 neighbours.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>initial</strong> (<em>list</em><em>(</em><em>pos</em><em>)</em>) – List of initial positions</li>
-<li><strong>adjacencies_from_pos</strong> (<em>callable</em>) – Given a position, this function should return all reachable positions.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial</strong> (<em>list</em><em>(</em><em>pos</em><em>)</em>) – List of initial positions</p></li>
+<li><p><strong>adjacencies_from_pos</strong> (<em>callable</em>) – Given a position, this function should return all reachable positions.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>adjacency_list</strong> – Generator which contains all reachable positions and their adjacencies</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">generator of (pos, list(pos))</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>adjacency_list</strong> – Generator which contains all reachable positions and their adjacencies</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>generator of (pos, list(pos))</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pelita.graph.manhattan_dist">
-<code class="descclassname">pelita.graph.</code><code class="descname">manhattan_dist</code><span class="sig-paren">(</span><em>pos1</em>, <em>pos2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#manhattan_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.manhattan_dist" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pelita.graph.</code><code class="sig-name descname">manhattan_dist</code><span class="sig-paren">(</span><em class="sig-param">pos1</em>, <em class="sig-param">pos2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#manhattan_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.manhattan_dist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manhattan distance between two points.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>pos1</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the first position</li>
-<li><strong>pos2</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the second position</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pos1</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the first position</p></li>
+<li><p><strong>pos2</strong> (<em>tuple of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em>) – the second position</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>manhattan_dist</strong> – Manhattan distance between two points</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>manhattan_dist</strong> – Manhattan distance between two points</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pelita.graph.move_pos">
-<code class="descclassname">pelita.graph.</code><code class="descname">move_pos</code><span class="sig-paren">(</span><em>position</em>, <em>move</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#move_pos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.move_pos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pelita.graph.</code><code class="sig-name descname">move_pos</code><span class="sig-paren">(</span><em class="sig-param">position</em>, <em class="sig-param">move</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/graph.html#move_pos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.graph.move_pos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a position tuple and a move tuple.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>position</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em>) – current position</li>
-<li><strong>move</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em>) – direction vector</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em>) – current position</p></li>
+<li><p><strong>move</strong> (<em>tuple of int</em><em> (</em><em>x</em><em>, </em><em>y</em><em>)</em>) – direction vector</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>move_pos</strong> – new position coordinates</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple of int (x, y)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>move_pos</strong> – new position coordinates</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple of int (x, y)</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -336,13 +305,9 @@ neighbours.</p>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="pelita.__layouts.html">pelita.__layouts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.__version_from_git.html">pelita.__version_from_git</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pelita.containers.html">pelita.containers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pelita.datamodel.html">pelita.datamodel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pelita.game_master.html">pelita.game_master</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">pelita.graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.layout.html">pelita.layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.player.html">pelita.player</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pelita.simplesetup.html">pelita.simplesetup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.ui.html">pelita.ui</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.utils.html">pelita.utils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.viewer.html">pelita.viewer</a></li>
@@ -352,13 +317,11 @@ neighbours.</p>
 
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -379,7 +342,7 @@ neighbours.</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

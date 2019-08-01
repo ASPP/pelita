@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>pelita.utils &#8212; Pelita 0.9.1 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -36,8 +34,17 @@
   <h1>Source code for pelita.utils</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">random</span>
 
-<span class="kn">from</span> <span class="nn">..player.team</span> <span class="k">import</span> <span class="n">create_layout</span><span class="p">,</span> <span class="n">bots_from_layout</span>
+<span class="kn">from</span> <span class="nn">..player.team</span> <span class="k">import</span> <span class="n">create_layout</span><span class="p">,</span> <span class="n">make_bots</span>
 <span class="kn">from</span> <span class="nn">..graph</span> <span class="k">import</span> <span class="n">Graph</span>
+
+
+<span class="k">def</span> <span class="nf">split_food</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">food</span><span class="p">):</span>
+    <span class="n">team_food</span> <span class="o">=</span> <span class="p">[</span><span class="nb">set</span><span class="p">(),</span> <span class="nb">set</span><span class="p">()]</span>
+    <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">food</span><span class="p">:</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="p">(</span><span class="n">width</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">team_food</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">team_food</span>
+
 
 <div class="viewcode-block" id="setup_test_game"><a class="viewcode-back" href="../../pelita/pelita.utils.html#pelita.utils.setup_test_game">[docs]</a><span class="k">def</span> <span class="nf">setup_test_game</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">game</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_blue</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">food</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bots</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">enemy</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -48,19 +55,55 @@
     <span class="k">if</span> <span class="n">game</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Re-using an old game is not implemented yet.&quot;</span><span class="p">)</span>
 
-    <span class="n">layout</span> <span class="o">=</span> <span class="n">create_layout</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span> <span class="n">food</span><span class="o">=</span><span class="n">food</span><span class="p">,</span> <span class="n">bots</span><span class="o">=</span><span class="n">bots</span><span class="p">,</span> <span class="n">enemy</span><span class="o">=</span><span class="n">enemy</span><span class="p">)</span>
-
-    <span class="n">rng</span> <span class="o">=</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
     <span class="k">if</span> <span class="n">score</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">score</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="n">bots</span> <span class="o">=</span> <span class="n">bots_from_layout</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span> <span class="n">is_blue</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">rng</span><span class="p">,</span> <span class="nb">round</span><span class="p">,</span> <span class="n">team_name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span><span class="p">],</span> <span class="n">timeout_count</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">layout</span> <span class="o">=</span> <span class="n">create_layout</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span> <span class="n">food</span><span class="o">=</span><span class="n">food</span><span class="p">,</span> <span class="n">bots</span><span class="o">=</span><span class="n">bots</span><span class="p">,</span> <span class="n">enemy</span><span class="o">=</span><span class="n">enemy</span><span class="p">)</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">layout</span><span class="p">[</span><span class="s1">&#39;walls&#39;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="n">food</span> <span class="o">=</span> <span class="n">split_food</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">layout</span><span class="p">[</span><span class="s1">&#39;food&#39;</span><span class="p">])</span>
 
     <span class="k">if</span> <span class="n">is_blue</span><span class="p">:</span>
-        <span class="n">team</span> <span class="o">=</span> <span class="p">[</span><span class="n">bots</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bots</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">team_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">enemy_index</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">team</span> <span class="o">=</span> <span class="p">[</span><span class="n">bots</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">bots</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span>
+        <span class="n">team_index</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">enemy_index</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">return</span> <span class="n">team</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+    <span class="n">team</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;bot_positions&#39;</span><span class="p">:</span> <span class="n">layout</span><span class="p">[</span><span class="s1">&#39;bots&#39;</span><span class="p">][:],</span>
+        <span class="s1">&#39;team_index&#39;</span><span class="p">:</span> <span class="n">team_index</span><span class="p">,</span>
+        <span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="n">score</span><span class="p">[</span><span class="n">team_index</span><span class="p">],</span>
+        <span class="s1">&#39;kills&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span>
+        <span class="s1">&#39;deaths&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span>
+        <span class="s1">&#39;bot_eaten&#39;</span> <span class="p">:</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span>
+        <span class="s1">&#39;error_count&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">&#39;food&#39;</span><span class="p">:</span> <span class="n">food</span><span class="p">[</span><span class="n">team_index</span><span class="p">],</span>
+        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s2">&quot;blue&quot;</span> <span class="k">if</span> <span class="n">is_blue</span> <span class="k">else</span> <span class="s2">&quot;red&quot;</span>
+    <span class="p">}</span>
+    <span class="n">enemy</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;bot_positions&#39;</span><span class="p">:</span> <span class="n">layout</span><span class="p">[</span><span class="s1">&#39;enemy&#39;</span><span class="p">][:],</span>
+        <span class="s1">&#39;team_index&#39;</span><span class="p">:</span> <span class="n">enemy_index</span><span class="p">,</span>
+        <span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="n">score</span><span class="p">[</span><span class="n">enemy_index</span><span class="p">],</span>
+        <span class="s1">&#39;kills&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span>
+        <span class="s1">&#39;deaths&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span>
+        <span class="s1">&#39;bot_eaten&#39;</span><span class="p">:</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span>
+        <span class="s1">&#39;error_count&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">&#39;food&#39;</span><span class="p">:</span> <span class="n">food</span><span class="p">[</span><span class="n">enemy_index</span><span class="p">],</span>
+        <span class="s1">&#39;is_noisy&#39;</span><span class="p">:</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">layout</span><span class="p">[</span><span class="s1">&#39;enemy&#39;</span><span class="p">]),</span>
+        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span> <span class="k">if</span> <span class="n">is_blue</span> <span class="k">else</span> <span class="s2">&quot;blue&quot;</span>
+    <span class="p">}</span>
+
+    <span class="n">bot</span> <span class="o">=</span> <span class="n">make_bots</span><span class="p">(</span><span class="n">walls</span><span class="o">=</span><span class="n">layout</span><span class="p">[</span><span class="s1">&#39;walls&#39;</span><span class="p">][:],</span>
+                    <span class="n">team</span><span class="o">=</span><span class="n">team</span><span class="p">,</span>
+                    <span class="n">enemy</span><span class="o">=</span><span class="n">enemy</span><span class="p">,</span>
+                    <span class="nb">round</span><span class="o">=</span><span class="nb">round</span><span class="p">,</span>
+                    <span class="n">bot_turn</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                    <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">bot</span></div>
+
 </pre></div>
 
           </div>
@@ -98,13 +141,11 @@
 
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -125,7 +166,7 @@
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>User API Reference &#8212; Pelita 0.9.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -42,120 +40,120 @@ when writing a player.</p>
 <div class="section" id="convenience-properties-of-abstractplayer">
 <h2>Convenience Properties of <code class="docutils literal notranslate"><span class="pre">AbstractPlayer</span></code><a class="headerlink" href="#convenience-properties-of-abstractplayer" title="Permalink to this headline">¶</a></h2>
 <p class="rubric">Basic Properties</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">current_uni</span></code></td>
-<td>The current Universe.</td>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">current_uni</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">current_state</span></code></td>
-<td>The current game state.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">current_state</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">me</span></code></td>
-<td>The Bot object this Player controls.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">me</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">team</span></code></td>
-<td>The Team object this Player’s Bot is on.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">team</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">legal_moves</span></code></td>
-<td>The currently possible moves, and where they lead.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">legal_moves</span></code></p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Positional Properties</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">initial_pos</span></code></td>
-<td>The initial_pos of this bot.</td>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">initial_pos</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">current_pos</span></code></td>
-<td>The current position of this bot.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">current_pos</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">previous_pos</span></code></td>
-<td>The previous position of the bot.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">previous_pos</span></code></p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Team Properties</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">team_border</span></code></td>
-<td>Positions of the border positions.</td>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">team_border</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">team_bots</span></code></td>
-<td>A list of all Bots that are on this Player’s Bot’s Team including the current bot.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">team_bots</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">other_team_bots</span></code></td>
-<td>A list of Bots that are on this Player’s team excluding the current bot.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">other_team_bots</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">team_food</span></code></td>
-<td>Food owned by the team which can be eaten by the enemy Player’s bot.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">team_food</span></code></p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Enemy Properties</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">enemy_team</span></code></td>
-<td>The enemy Team.</td>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">enemy_team</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">enemy_bots</span></code></td>
-<td>A list of enemy Bots.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">enemy_bots</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">enemy_food</span></code></td>
-<td>Food owned by the enemy which can be eaten by this Player’s bot.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">enemy_food</span></code></p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="example-players">
 <h2>Example Players<a class="headerlink" href="#example-players" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">StoppingPlayer</span></code></td>
-<td>A Player that just stands still.</td>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">StoppingPlayer</span></code></p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomPlayer</span></code></td>
-<td>A player that makes moves at random.</td>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomPlayer</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">NQRandomPlayer</span></code></td>
-<td>Not-Quite-RandomPlayer that will move randomly but not stop or reverse.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NQRandomPlayer</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">SmartRandomPlayer</span></code></td>
-<td></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SmartRandomPlayer</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomExplorerPlayer</span></code></td>
-<td>Least visited random player.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomExplorerPlayer</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">FoodEatingPlayer</span></code></td>
-<td></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">FoodEatingPlayer</span></code></p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -163,41 +161,41 @@ when writing a player.</p>
 <div class="section" id="accessing-pelita-datamodel">
 <h2>Accessing <code class="docutils literal notranslate"><span class="pre">pelita.datamodel</span></code><a class="headerlink" href="#accessing-pelita-datamodel" title="Permalink to this headline">¶</a></h2>
 <p class="rubric">Important Classes</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse" title="pelita.datamodel.CTFUniverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CTFUniverse</span></code></a>(maze,&nbsp;food,&nbsp;teams,&nbsp;bots)</td>
-<td>The Universe: representation of the game state.</td>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">CTFUniverse</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.Bot" title="pelita.datamodel.Bot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Bot</span></code></a>(index,&nbsp;initial_pos,&nbsp;team_index,&nbsp;homezone)</td>
-<td>A bot on a team.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Bot</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.Team" title="pelita.datamodel.Team"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Team</span></code></a>(index,&nbsp;zone[,&nbsp;score])</td>
-<td>A team of bots.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Team</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.Maze" title="pelita.datamodel.Maze"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Maze</span></code></a>(width,&nbsp;height[,&nbsp;data])</td>
-<td>The <cite>Maze</cite> object holds the walls of the universe.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Maze</span></code></p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Maze components</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">Wall</span></code></td>
-<td>str(object=’‘) -&gt; str str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</td>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Wall</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">Free</span></code></td>
-<td>str(object=’‘) -&gt; str str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Free</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">Food</span></code></td>
-<td>str(object=’‘) -&gt; str str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Food</span></code></p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -205,20 +203,20 @@ when writing a player.</p>
 <div class="section" id="helper-functions-in-pelita-graph">
 <h2>Helper functions in <code class="docutils literal notranslate"><span class="pre">pelita.graph</span></code><a class="headerlink" href="#helper-functions-in-pelita-graph" title="Permalink to this headline">¶</a></h2>
 <p class="rubric">Convenience Functions</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.graph.html#pelita.graph.move_pos" title="pelita.graph.move_pos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_pos</span></code></a>(position,&nbsp;move)</td>
-<td>Adds a position tuple and a move tuple.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="pelita/pelita.graph.html#pelita.graph.move_pos" title="pelita.graph.move_pos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_pos</span></code></a>(position, move)</p></td>
+<td><p>Adds a position tuple and a move tuple.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.graph.html#pelita.graph.diff_pos" title="pelita.graph.diff_pos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diff_pos</span></code></a>(initial,&nbsp;target)</td>
-<td>Return the move required to move from one position to another.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="pelita/pelita.graph.html#pelita.graph.diff_pos" title="pelita.graph.diff_pos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diff_pos</span></code></a>(initial, target)</p></td>
+<td><p>Return the move required to move from one position to another.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.graph.html#pelita.graph.manhattan_dist" title="pelita.graph.manhattan_dist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">manhattan_dist</span></code></a>(pos1,&nbsp;pos2)</td>
-<td>Manhattan distance between two points.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pelita/pelita.graph.html#pelita.graph.manhattan_dist" title="pelita.graph.manhattan_dist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">manhattan_dist</span></code></a>(pos1, pos2)</p></td>
+<td><p>Manhattan distance between two points.</p></td>
 </tr>
 </tbody>
 </table>
@@ -226,65 +224,65 @@ when writing a player.</p>
 <div class="section" id="interfacing-with-the-ctfuniverse">
 <h2>Interfacing with the <code class="docutils literal notranslate"><span class="pre">CTFUniverse</span></code><a class="headerlink" href="#interfacing-with-the-ctfuniverse" title="Permalink to this headline">¶</a></h2>
 <p class="rubric">Attributes</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="16%" />
-<col width="84%" />
+<col style="width: 16%" />
+<col style="width: 84%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>maze</td>
-<td>instance of <cite>pelita.datamodel.Maze</cite></td>
+<tbody>
+<tr class="row-odd"><td><p>maze</p></td>
+<td><p>instance of <cite>pelita.datamodel.Maze</cite></p></td>
 </tr>
-<tr class="row-even"><td>teams</td>
-<td>list of instances of <cite>pelita.datamodel.Team</cite></td>
+<tr class="row-even"><td><p>teams</p></td>
+<td><p>list of instances of <cite>pelita.datamodel.Team</cite></p></td>
 </tr>
-<tr class="row-odd"><td>bots</td>
-<td>list of instances of <cite>pelita.datamodel.Bot</cite></td>
+<tr class="row-odd"><td><p>bots</p></td>
+<td><p>list of instances of <cite>pelita.datamodel.Bot</cite></p></td>
 </tr>
-<tr class="row-even"><td>food</td>
-<td>list of positions of food</td>
+<tr class="row-even"><td><p>food</p></td>
+<td><p>list of positions of food</p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Convenience Properties and Functions</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.bot_positions" title="pelita.datamodel.CTFUniverse.bot_positions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bot_positions</span></code></a></td>
-<td>Current positions of all bots.</td>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bot_positions</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.food_list" title="pelita.datamodel.CTFUniverse.food_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">food_list</span></code></a></td>
-<td>Positions of all the food.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">food_list</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.pretty" title="pelita.datamodel.CTFUniverse.pretty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pretty</span></code></a></td>
-<td>Provide detailed, readable info about universe state.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pretty</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.enemy_team" title="pelita.datamodel.CTFUniverse.enemy_team"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enemy_team</span></code></a>(team_index)</td>
-<td>Obtain the enemy team.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">enemy_team</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.enemy_bots" title="pelita.datamodel.CTFUniverse.enemy_bots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enemy_bots</span></code></a>(team_index)</td>
-<td>Obtain enemy bot objects.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">enemy_bots</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.enemy_food" title="pelita.datamodel.CTFUniverse.enemy_food"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enemy_food</span></code></a>(team_index)</td>
-<td>Food that is edible by a team</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">enemy_food</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.legal_moves" title="pelita.datamodel.CTFUniverse.legal_moves"><code class="xref py py-obj docutils literal notranslate"><span class="pre">legal_moves</span></code></a>(position)</td>
-<td>Obtain legal moves and where they lead.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">legal_moves</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.other_team_bots" title="pelita.datamodel.CTFUniverse.other_team_bots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">other_team_bots</span></code></a>(bot_index)</td>
-<td>Obtain other bots on team.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">other_team_bots</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.team_border" title="pelita.datamodel.CTFUniverse.team_border"><code class="xref py py-obj docutils literal notranslate"><span class="pre">team_border</span></code></a>(team_index)</td>
-<td>Positions of the border positions.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">team_border</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.team_bots" title="pelita.datamodel.CTFUniverse.team_bots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">team_bots</span></code></a>(team_index)</td>
-<td>Obtain all Bot objects in a Team.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">team_bots</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="pelita/pelita.datamodel.html#pelita.datamodel.CTFUniverse.team_food" title="pelita.datamodel.CTFUniverse.team_food"><code class="xref py py-obj docutils literal notranslate"><span class="pre">team_food</span></code></a>(team_index)</td>
-<td>Food that is owned by a team</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">team_food</span></code></p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -292,14 +290,14 @@ when writing a player.</p>
 <div class="section" id="interfacing-with-the-maze">
 <h2>Interfacing with the <code class="docutils literal notranslate"><span class="pre">Maze</span></code><a class="headerlink" href="#interfacing-with-the-maze" title="Permalink to this headline">¶</a></h2>
 <p class="rubric">Convenience Properties and Functions</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></td>
-<td>The shape (width, height) of the Mesh.</td>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -350,13 +348,11 @@ when writing a player.</p>
 
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -377,7 +373,7 @@ when writing a player.</p>
       &copy;2011–2015, Valentin Haenel, Rike-Benjamin Schuppner et. al..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
