@@ -1,11 +1,7 @@
 
-from pelita import datamodel
-from pelita.player import AbstractPlayer, SimpleTeam
-
-class StoppingPlayer(AbstractPlayer):
+def stopping_player(bot, state):
     """ A Player that just stands still. """
-    def get_move(self):
-        return datamodel.stop
+    return bot.position, state
 
-def team():
-    return SimpleTeam("Stopping", StoppingPlayer(), StoppingPlayer())
+TEAM_NAME = "Stopping"
+move = stopping_player

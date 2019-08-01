@@ -4,13 +4,9 @@ from unittest.mock import MagicMock
 import re
 from textwrap import dedent
 
-try:
-    from pelita.tournament import komode, roundrobin, tournament
-    from pelita.tournament.komode import Team, Match, Bye
-    from pelita.tournament import tournament
-except (ImportError, SyntaxError):
-    # We expect this to fail below Python 3.5
-    pass
+from pelita.tournament import komode, roundrobin, tournament
+from pelita.tournament.komode import Team, Match, Bye
+from pelita.tournament import tournament
 
 
 class TestKoMode:
@@ -140,8 +136,7 @@ class TestSingleMatch:
 
         teams = ["pelita/player/StoppingPlayer", "pelita/player/StoppingPlayer"]
         (state, stdout, stderr) = tournament.play_game_with_config(config, teams)
-        assert state['team_wins'] == None
-        assert state['game_draw'] == True
+        assert state['whowins'] == 2
 
         config.rounds = 200
         config.team_spec = lambda x: x
@@ -149,16 +144,14 @@ class TestSingleMatch:
         teams = ["pelita/player/SmartEatingPlayer", "pelita/player/StoppingPlayer"]
         (state, stdout, stderr) = tournament.play_game_with_config(config, teams)
         print(state)
-        assert state['team_wins'] == 0
-        assert state['game_draw'] == None
+        assert state['whowins'] == 0
 
         config.rounds = 200
         config.team_spec = lambda x: x
         config.viewer = 'ascii'
         teams = ["pelita/player/StoppingPlayer", "pelita/player/SmartEatingPlayer"]
         (state, stdout, stderr) = tournament.play_game_with_config(config, teams)
-        assert state['team_wins'] == 1
-        assert state['game_draw'] == None
+        assert state['whowins'] == 1
 
     def test_start_match(self):
         stdout = []

@@ -4,7 +4,6 @@
 import builtins
 import io
 import json
-import os
 from pathlib import Path
 import random
 import re
@@ -237,7 +236,6 @@ def present_teams(config):
 def set_name(team):
     """Get name of team."""
     try:
-        team = libpelita.prepare_team(team)
         return libpelita.check_team(team)
     except Exception:
         print("*** ERROR: I could not load team {team}. Please help!".format(team=team))
@@ -249,10 +247,16 @@ def play_game_with_config(config, teams):
     team1, team2 = teams
 
     if config.tournament_log_folder:
-        dumpfile = os.path.join(config.tournament_log_folder, "dump-{time}".format(time=time.strftime('%Y%m%d-%H%M%S')))
-        dump = dumpfile
+        log_folder = config.tournament_log_folder / f"match-{time.strftime('%Y%m%d-%H%M%S')}"
+        log_folder.mkdir()
+        replay_file = log_folder / 'replay'
+        log_kwargs = {
+            'write_replay': str(replay_file),
+            'store_output': str(log_folder)
+        }
     else:
-        dump = None
+        log_folder = None
+        log_kwargs = {}
 
     seed = str(random.randint(0, sys.maxsize))
 
@@ -260,13 +264,13 @@ def play_game_with_config(config, teams):
                                 rounds=config.rounds,
                                 filter=config.filter,
                                 viewer=config.viewer,
-                                dump=dump,
-                                seed=seed)
+                                seed=seed,
+                                **log_kwargs)
 
-    if dump:
+    if log_folder:
         (_final_state, stdout, stderr) = res
-        Path(dump + '.out').write_text(stdout)
-        Path(dump + '.err').write_text(stderr)
+        (log_folder / 'main.out').write_text(stdout)
+        (log_folder / 'main.err').write_text(stderr)
 
     return res
 
@@ -291,15 +295,14 @@ def start_match(config, teams, shuffle=False):
 
     (final_state, stdout, stderr) = play_game_with_config(config, teams)
     try:
-        game_draw = final_state['game_draw']
-        team_wins = final_state['team_wins']
+        whowins = final_state['whowins']
 
-        if game_draw:
+        if whowins == 2:
             config.print('‘{t1}’ and ‘{t2}’ had a draw.'.format(t1=config.team_name(team1),
                                                                 t2=config.team_name(team2)))
             return False
-        elif team_wins == 0 or team_wins == 1:
-            winner = teams[team_wins]
+        elif whowins == 0 or whowins == 1:
+            winner = teams[whowins]
             config.print('‘{team}’ wins'.format(team=config.team_name(winner)))
             return winner
         else:

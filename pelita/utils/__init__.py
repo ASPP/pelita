@@ -1,7 +1,16 @@
 import random
 
-from ..player.team import create_layout, bots_from_layout
+from ..player.team import create_layout, make_bots
 from ..graph import Graph
+
+
+def split_food(width, food):
+    team_food = [set(), set()]
+    for pos in food:
+        idx = pos[0] // (width // 2)
+        team_food[idx].add(pos)
+    return team_food
+
 
 def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, seed=None,
                     food=None, bots=None, enemy=None):
@@ -12,16 +21,52 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
     if game is not None:
         raise RuntimeError("Re-using an old game is not implemented yet.")
 
-    layout = create_layout(layout, food=food, bots=bots, enemy=enemy)
-
-    rng = [random.Random(seed) for _ in range(4)]
     if score is None:
         score = [0, 0]
-    bots = bots_from_layout(layout, is_blue, score, rng, round, team_name=['blue', 'red'], timeout_count=[0, 0])
+
+    layout = create_layout(layout, food=food, bots=bots, enemy=enemy)
+    width = max(layout['walls'])[0] + 1
+
+    food = split_food(width, layout['food'])
 
     if is_blue:
-        team = [bots[0], bots[2]]
+        team_index = 0
+        enemy_index = 1
     else:
-        team = [bots[1], bots[3]]
+        team_index = 1
+        enemy_index = 0
 
-    return team[0]
+    rng = random.Random(seed)
+
+    team = {
+        'bot_positions': layout['bots'][:],
+        'team_index': team_index,
+        'score': score[team_index],
+        'kills': [0]*2,
+        'deaths': [0]*2,
+        'bot_eaten' : [False]*2,
+        'error_count': 0,
+        'food': food[team_index],
+        'name': "blue" if is_blue else "red"
+    }
+    enemy = {
+        'bot_positions': layout['enemy'][:],
+        'team_index': enemy_index,
+        'score': score[enemy_index],
+        'kills': [0]*2,
+        'deaths': [0]*2,
+        'bot_eaten': [False]*2,
+        'error_count': 0,
+        'food': food[enemy_index],
+        'is_noisy': [False] * len(layout['enemy']),
+        'name': "red" if is_blue else "blue"
+    }
+
+    bot = make_bots(walls=layout['walls'][:],
+                    team=team,
+                    enemy=enemy,
+                    round=round,
+                    bot_turn=0,
+                    rng=rng)
+    return bot
+

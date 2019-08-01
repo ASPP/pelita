@@ -49,6 +49,8 @@ import argparse
 import hashlib
 import logging
 import os
+from pathlib import Path
+from modulefinder import ModuleFinder
 import random
 import sqlite3
 import subprocess
@@ -56,6 +58,7 @@ import sys
 import unittest
 
 from pelita import libpelita
+from pelita.network import ZMQClientError
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', '--test', help="run unittests", action="store_true")
@@ -90,17 +93,16 @@ class CI_Engine:
                     self.players.append({'name': os.path.basename(p),
                                          'path': p
                     })
-            elif os.path.isdir(path):
+            else:
                 self.players.append({'name' : name,
                                      'path' : path
                                      })
-            else:
-                logger.warning('%s seems not to be an existing directory, ignoring %s' % (path, name))
+#            else:
+#                logger.warning('%s seems not to be an existing directory, ignoring %s' % (path, name))
 
         self.rounds = config['general'].getint('rounds', None)
         self.filter = config['general'].get('filter', None)
         self.viewer = config['general'].get('viewer', 'null')
-        self.dump = config['general'].get('dump', None)
         self.seed = config['general'].get('seed', None)
 
         self.db_file = config.get('general', 'db_file')
@@ -111,19 +113,29 @@ class CI_Engine:
                 logger.debug('Removing %s from data base, because he is not among the current players.' % (pname))
                 self.dbwrapper.remove_player(pname)
         # add new players into db
-        for pname, path in [[p['name'], p['path']] for p in self.players]:
+        for player in self.players:
+            pname, path = player['name'], player['path']
             if pname not in self.dbwrapper.get_players():
                 logger.debug('Adding %s to data base.' % pname)
-                self.dbwrapper.add_player(pname, hashdir(path))
+                self.dbwrapper.add_player(pname, hashpath(path))
+
         # reset players where the directory hash changed
         for player in self.players:
             path = player['path']
             name = player['name']
-            if hashdir(path) != self.dbwrapper.get_player_hash(name):
-                logger.debug('Resetting %s because his directory hash changed.' % name)
+            new_hash = hashpath(path)
+            if new_hash != self.dbwrapper.get_player_hash(name):
+                logger.debug('Resetting %s because its module hash changed.' % name)
                 self.dbwrapper.remove_player(name)
-                self.dbwrapper.add_player(name, hashdir(path))
+                self.dbwrapper.add_player(pname, hashpath(path))
 
+        for player in self.players:
+            try:
+                libpelita.check_team(player['path'])
+            except ZMQClientError as e:
+                e_type, e_msg = e.args
+                logger.debug(f'Could not import {pname} ({e_type}): {e_msg}')
+                player['error'] = e.args
 
     def run_game(self, p1, p2):
         """Run a single game.
@@ -143,13 +155,12 @@ class CI_Engine:
                                                             rounds=self.rounds,
                                                             filter=self.filter,
                                                             viewer=self.viewer,
-                                                            dump=self.dump,
                                                             seed=self.seed)
 
-        if final_state['game_draw']:
+        if final_state['whowins'] == 2:
             result = -1
         else:
-            result = final_state['team_wins']
+            result = final_state['whowins']
 
         logger.info('Final state: %r', final_state)
         logger.debug('Stdout: %r', stdout)
@@ -181,8 +192,9 @@ class CI_Engine:
             # choose the player with the least number of played game,
             # mix him with another random player
             # mis the sides and let them play
+            broken_players = {idx for idx, player in enumerate(self.players) if player.get('error')}
             game_count = [[sum(self.get_results(i)), i] for i in range(len(self.players))]
-            players_sorted = [idx for count, idx in sorted(game_count)]
+            players_sorted = [idx for count, idx in sorted(game_count) if not idx in broken_players]
             a, rest = players_sorted[0], players_sorted[1:]
             b = random.choice(rest)
             players = [a, b]
@@ -253,14 +265,16 @@ class CI_Engine:
         """Pretty print the current results.
 
         """
-        print(' ' * 41 + ''.join("            % 2i" % idx for idx, p in enumerate(self.players)))
+        good_players = [p for p in self.players if not p.get('error')]
+        bad_players = [p for p in self.players if p.get('error')]
+        print(' ' * 41 + ''.join("            % 2i" % idx for idx, p in enumerate(good_players)))
         result = []
-        for idx, p in enumerate(self.players):
+        for idx, p in enumerate(good_players):
             win, loss, draw = self.get_results(idx)
             score = 0 if (win+loss+draw) == 0 else (win-loss) / (win+loss+draw)
             result.append([score, p['name']])
             print('% 2i: %17s (%6.2f): %3d,%3d,%3d  ' % (idx, p['name'][0:17], score, win, loss, draw), end=' ')
-            for idx2, p2 in enumerate(self.players):
+            for idx2, p2 in enumerate(good_players):
                 win, loss, draw = self.get_results(idx, idx2)
                 print('  %3d,%3d,%3d' % (win, loss, draw), end=' ')
             print()
@@ -268,6 +282,8 @@ class CI_Engine:
         result.sort(reverse=True)
         for [score, name] in result:
             print("% 30s %6.2f" % (name, score))
+        for p in bad_players:
+            print("% 30s ***%30s***" % (p['name'], p['error']))
 
 
 class DB_Wrapper:
@@ -430,6 +446,34 @@ class DB_Wrapper:
         return relevant_results
 
 
+def hashpath(pathname):
+    """If given a directory, calculate the SHA1 sum of its contents.
+    If given a Python script, calculate the SHA1 sum of all of its (relative)
+    module imports.
+
+    Parameters
+    ----------
+    pathname : str
+        the path of the directory or the Python script to check
+
+    Returns
+    -------
+    hexdigest : str
+        the SHA1
+
+    Examples
+    --------
+
+    >>> hashpath('/tmp')
+    'cac36aaf1c64d7f93c9d874471f23de1cbfd5249'
+    >>> hashpath('demo01_stopping.py')
+    'd2c07aafb6fbf2474f3b38e3baf4bb931994d844'
+    """
+    if Path(pathname).is_dir():
+        return hashdir(pathname)
+    else:
+        return hashmodule(pathname)
+
 def hashdir(pathname):
     """Calculate the SHA1 sum of the contents of a directory.
 
@@ -475,6 +519,50 @@ def hashdir(pathname):
             pass
     return sha1.hexdigest()
 
+def hashmodule(pathname):
+    """Calculate the SHA1 sum of all relative imports in a script.
+
+    It operates by going through all modules that ModuleFinder.run_script
+    finds, sorting them alphabetically and calculating the SHA1 of
+    the contents of the files.
+
+    Parameters
+    ----------
+    pathname : str
+        the path of the script to check
+
+    Returns
+    -------
+    hexdigest : str
+        the SHA1
+
+    Examples
+    --------
+
+    >>> hashmodule('demo01_stopping.py')
+    'd2c07aafb6fbf2474f3b38e3baf4bb931994d844'
+
+    """
+    logger.debug(f"Hashing module {pathname}")
+    finder = ModuleFinder()
+    finder.run_script(pathname)
+    # finder.modules is a dict modulename:module
+    # only keep relative modules
+    paths = {name:Path(mod.__file__)
+            for name, mod in finder.modules.items()
+            if mod.__file__}
+    relative_paths = [
+        (name, p) for name, p in paths.items()
+        if not p.is_absolute()
+    ]
+    # sort relative paths by module name and generate our sha
+    sha1 = hashlib.sha1()
+    for name, path in sorted(relative_paths):
+        logger.debug(f"Hashing {pathname}: Adding {name}")
+        sha1.update(path.read_bytes())
+    res = sha1.hexdigest()
+    logger.debug(f"SHA1 for {pathname}: {res}.")
+    return res
 
 class Test_DB_Wrapper(unittest.TestCase):
     """Tests for the DB_Wrapper class."""

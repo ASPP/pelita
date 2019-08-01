@@ -1,36 +1,38 @@
-from pelita import datamodel
-from pelita.player import AbstractPlayer, SimpleTeam
 
-
-class RandomPlayer(AbstractPlayer):
+def random_player(bot, state):
     """ A player that makes moves at random. """
-
-    def get_move(self):
-        return self.rnd.choice(list(self.legal_moves.keys()))
+    return bot.random.choice(bot.legal_positions), state
 
 
-class NQRandomPlayer(AbstractPlayer):
+def nq_random_player(bot, state):
     """ Not-Quite-RandomPlayer that will move randomly but not stop or reverse. """
 
-    def get_move(self):
-        legal_moves = self.legal_moves
-        # Remove stop
-        try:
-            del legal_moves[datamodel.stop]
-        except KeyError:
-            pass
-        # now remove the move that would lead to the previous_position
-        # unless there is no where else to go.
-        if len(legal_moves) > 1:
-            for (k,v) in legal_moves.items():
-                if v == self.previous_pos:
-                    break
-            del legal_moves[k]
-        # just in case, there is really no way to go to:
-        if not legal_moves:
-            return datamodel.stop
-        # and select a move at random
-        return self.rnd.choice(list(legal_moves.keys()))
+    legal_positions = bot.legal_positions[:]
+    # Remove stop
+    try:
+        legal_positions.remove(bot.position)
+    except ValueError:
+        pass
+    # now remove the move that would lead to the previous_position
+    # unless there is no where else to go.
+    if len(legal_positions) > 1:
+        if len(bot.track) >= 2:
+            try:
+                legal_positions.remove(bot.track[-2])
+            except ValueError:
+                # if we did not move in the last round,
+                # there will be nothing left to delete
+                pass
+    # just in case, there is really no way to go to:
+    if not legal_positions:
+        return bot.position, state
+    # and select a move at random
+    return bot.random.choice(legal_positions), state
 
-def team():
-    return SimpleTeam("The Random Players", RandomPlayer(), NQRandomPlayer())
+
+TEAM_NAME = "The Random Players"
+def move(bot, state):
+    if bot.turn == 0:
+        return random_player(bot, state)
+    else:
+        return nq_random_player(bot, state)

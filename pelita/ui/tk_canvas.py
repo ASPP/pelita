@@ -7,14 +7,17 @@ import zmq
 import tkinter
 import tkinter.font
 
-from ..datamodel import CTFUniverse
 from ..libpelita import firstNN
+from ..game import next_round_turn
 from .tk_sprites import BotSprite, Food, Wall, col
 from .tk_utils import wm_delete_window_handler
 from .tk_sprites import BotSprite, Food, Wall, RED, BLUE, YELLOW, GREY, BROWN
 
 _logger = logging.getLogger(__name__)
 
+def _ensure_tuples(list):
+    """ Ensures that an iterable is a list of position tuples. """
+    return [tuple(item) for item in list]
 
 
 def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
@@ -146,7 +149,7 @@ class TkApplication:
         self.ui = UI()
 
         self.ui.header_canvas = tkinter.Canvas(master, height=38)
-        self.ui.header_canvas.config(background="white")
+        self.ui.header_canvas.config(background="white", bd=0, highlightthickness=0, relief='ridge')
 
         self.ui.sub_header = tkinter.Frame(master, height=25)
         self.ui.sub_header.config(background="white")
@@ -155,7 +158,7 @@ class TkApplication:
         self.ui.status_canvas.config(background="white")
 
         self.ui.game_canvas = tkinter.Canvas(master)
-        self.ui.game_canvas.config(background="white")
+        self.ui.game_canvas.config(background="white", bd=0, highlightthickness=0, relief='ridge')
         self.ui.game_canvas.bind('<Configure>', lambda e: master.after_idle(self.update))
         self.ui.game_canvas.bind('<Button-1>', self.on_click)
 
@@ -262,6 +265,18 @@ class TkApplication:
                        padx=12,
                        command=self.quit).pack(side=tkinter.TOP, fill=tkinter.BOTH, anchor=tkinter.CENTER)
 
+        # Add circles to show which bot is active.
+        self.ui.bot_traffic_lights_canvas = tkinter.Canvas(self.ui.status_02, height=25, width=44,
+                                                           background="white", bd=0, highlightthickness=0,
+                                                           relief='ridge')
+        self.ui.bot_traffic_lights_canvas.pack(side=tkinter.LEFT)
+        self.ui.bot_traffic_lights_c = []
+        for idx in range(4):
+            spacing = 10
+            wi, he = 5, 5
+            x0, y0 = 2.5 + idx * spacing, 9
+            circle = self.ui.bot_traffic_lights_canvas.create_oval(x0, y0, x0 + wi, y0 + he, outline="#999", width=2)
+            self.ui.bot_traffic_lights_c.append(circle)
 
         self.ui.status_round_info = tkinter.Label(self.ui.status_02, text="", background="white")
         self.ui.status_round_info.pack(side=tkinter.LEFT)
@@ -283,6 +298,8 @@ class TkApplication:
 
         self._check_speed_button_state()
 
+        self._observed_steps = set()
+
         self.running = True
 
         self.master.bind('q', lambda event: self.quit())
@@ -299,9 +316,9 @@ class TkApplication:
             self.master.after_idle(self.request_initial)
 
 
-    def init_mesh(self, universe):
-        width = universe.maze.width
-        height = universe.maze.height
+    def init_mesh(self, game_state):
+        width = max(game_state['walls'])[0] + 1
+        height = max(game_state['walls'])[1] + 1
 
         if self.geometry is None:
             screensize = (
@@ -315,13 +332,13 @@ class TkApplication:
         scale = int(min(scale_x, scale_y, 50))
 
         self.mesh_graph = MeshGraph(width, height, scale * width, scale * height)
-        self.init_bot_sprites(universe)
+        self.init_bot_sprites(game_state['bots'])
 
-    def update(self, universe=None, game_state=None):
+    def update(self, game_state=None):
         # Update the times for the fps calculation (if we are running)
         # Our fps is only relevant for how often the bots update our viewer.
         # When the viewer updates itself, we do not count it.
-        if self.running and universe and game_state:
+        if self.running and game_state:
             self._times.append(time.monotonic())
             if len(self._times) > 3:
                 # take the mean of the last two time differences
@@ -336,19 +353,17 @@ class TkApplication:
                 # Garbage collect old times
                 self._times = self._times[-3:]
 
-        if universe is not None:
-            self._universe = universe
         if game_state is not None:
             self._game_state = game_state
-        universe = self._universe
         game_state = self._game_state
-
-        if not universe:
+        if not game_state:
             return
 
-        if game_state['game_uuid'] != self.game_uuid:
-            self.game_uuid = game_state['game_uuid']
-            self.init_mesh(universe)
+        #if game_state['game_uuid'] != self.game_uuid:
+        if not self.game_uuid:
+            #self.game_uuid = game_state['game_uuid']
+            self.game_uuid = 1
+            self.init_mesh(game_state)
 
         if ((self.mesh_graph.screen_width, self.mesh_graph.screen_height)
             != (self.ui.game_canvas.winfo_width(), self.ui.game_canvas.winfo_height())):
@@ -364,39 +379,48 @@ class TkApplication:
             if self._default_font.cget('size') != self._default_font_size:
                 self._default_font.configure(size=self._default_font_size)
 
-        self.draw_universe(universe, game_state)
+        self.draw_universe(game_state)
 
-        for food_eaten in game_state["food_eaten"]:
-            food_tag = Food.food_pos_tag(tuple(food_eaten["food_pos"]))
-            self.ui.game_canvas.delete(food_tag)
+# TODO
+#        for food_eaten in game_state["food_eaten"]:
+#            food_tag = Food.food_pos_tag(tuple(food_eaten["food_pos"]))
+#            self.ui.game_canvas.delete(food_tag)
 
-        winning_team_idx = game_state.get("team_wins")
-        if winning_team_idx is not None:
-            team_name = game_state["team_name"][winning_team_idx]
-            self.draw_game_over(team_name)
-        elif game_state.get("game_draw"):
-            self.draw_game_draw()
-        else:
+        eaten_food = []
+        for food_pos, food_item in self.food_items.items():
+            if not food_pos in game_state["food"]:
+                self.ui.game_canvas.delete(food_item.tag)
+                eaten_food.append(food_pos)
+        for food_pos in eaten_food:
+            del self.food_items[food_pos]
+
+        winning_team_idx = game_state.get("whowins")
+        if winning_team_idx is None:
             self.draw_end_of_game(None)
+        elif winning_team_idx in (0, 1):
+            team_name = game_state["team_names"][winning_team_idx]
+            self.draw_game_over(team_name)
+        elif winning_team_idx == 2:
+            self.draw_game_draw()
 
         self.size_changed = False
 
-    def draw_universe(self, universe, game_state):
-        self.mesh_graph.num_x = universe.maze.width
-        self.mesh_graph.num_y = universe.maze.height
+    def draw_universe(self, game_state):
+        self.mesh_graph.num_x = max(game_state['walls'])[0] + 1
+        self.mesh_graph.num_y = max(game_state['walls'])[1] + 1
 
-        self.draw_grid(universe)
-        self.draw_selected(universe, game_state)
-        self.draw_background(universe)
-        self.draw_maze(universe)
-        self.draw_food(universe)
+        self.draw_grid()
+        self.draw_selected(game_state)
+        self.draw_background()
+        self.draw_maze(game_state)
+        self.draw_food(game_state)
 
-        self.draw_title(universe, game_state)
-        self.draw_bots(universe, game_state)
+        self.draw_title(game_state)
+        self.draw_bots(game_state)
 
-        self.draw_status_info(universe, game_state)
+        self.draw_status_info(game_state)
 
-    def draw_grid(self, universe):
+    def draw_grid(self):
         """ Draws a light grid on the background.
         """
         if not self.size_changed:
@@ -443,7 +467,7 @@ class TkApplication:
             self.selected = (x, y)
         self.update()
 
-    def draw_background(self, universe):
+    def draw_background(self):
         """ Draws a line between blue and red team.
         """
         if not self.size_changed:
@@ -460,7 +484,7 @@ class TkApplication:
             y_bottom = self.mesh_graph.mesh_to_screen_y(self.mesh_graph.mesh_height - 1, 0)
             self.ui.game_canvas.create_line(x_orig, y_top, x_orig, y_bottom, width=scale, fill=color, tag="background")
 
-    def draw_title(self, universe, game_state):
+    def draw_title(self, game_state):
         self.ui.header_canvas.delete("title")
 
         center = self.ui.header_canvas.winfo_width() // 2
@@ -470,8 +494,8 @@ class TkApplication:
         except (KeyError, TypeError):
             team_time = [0, 0]
 
-        left_team = "%s %d " % (game_state["team_name"][0], universe.teams[0].score)
-        right_team = " %d %s" % (universe.teams[1].score, game_state["team_name"][1])
+        left_team = "%s %d " % (game_state["team_names"][0], game_state["score"][0])
+        right_team = " %d %s" % (game_state["score"][1], game_state["team_names"][1])
         font_size = guess_size(left_team + ' : ' + right_team,
                                self.ui.header_canvas.winfo_width(),
                                30,
@@ -479,10 +503,10 @@ class TkApplication:
 
         def status(team_idx):
             try:
-                ret = "Timeouts: %d, Killed: %d, Time: %.2f" % (game_state["timeout_teams"][team_idx], game_state["times_killed"][team_idx], game_state["team_time"][team_idx])
-                disqualified = game_state["teams_disqualified"][team_idx]
-                if disqualified is not None:
-                    ret += ", Disqualified: %s" % disqualified
+                # sum the deaths of both bots in this team
+                deaths = game_state['deaths'][team_idx] + game_state['deaths'][team_idx+2]
+                kills = game_state['kills'][team_idx] + game_state['kills'][team_idx+2]
+                ret = "Errors: %d, Kills: %d, Deaths: %d, Time: %.2f" % (game_state["num_errors"][team_idx], kills, deaths, game_state["team_time"][team_idx])
                 return ret
             except TypeError:
                 return ""
@@ -504,31 +528,38 @@ class TkApplication:
         bottom_text = self.ui.header_canvas.create_text(0 + 5, 15 + font_size, text=" " + left_status, font=(None, status_font_size), tag="title", anchor=tkinter.W)
         self.ui.header_canvas.create_text(self.ui.header_canvas.winfo_width() - 5, 15 + font_size, text=right_status + " ", font=(None, status_font_size), tag="title", anchor=tkinter.E)
 
-    def draw_status_info(self, universe, game_state):
-        round = firstNN(game_state.get("round_index"), "–")
-        max_rounds = firstNN(game_state.get("game_time"), "–")
-        turn = firstNN(game_state.get("bot_id"), "–")
+    def draw_status_info(self, game_state):
+        round = firstNN(game_state.get("round"), "–")
+        max_rounds = firstNN(game_state.get("max_rounds"), "–")
+        turn = firstNN(game_state.get("turn"), "–")
         layout_name = firstNN(game_state.get("layout_name"), "–")
 
-        roundturn = "Bot %s, Round % 3s/%s" % (turn, round, max_rounds)
+        round_info = f"Round {round:>3}/{max_rounds}"
+        self.ui.status_round_info.config(text=round_info)
 
         if self._fps is not None:
             fps_info = "%.f fps" % self._fps
         else:
             fps_info = "– fps"
-        self.ui.status_fps_info.config(text=fps_info, )
+        self.ui.status_fps_info.config(text=fps_info)
 
-        self.ui.status_round_info.config(text=roundturn)
+        bot_colors = [BLUE, RED, BLUE, RED]
+        for idx, circle in enumerate(self.ui.bot_traffic_lights_c):
+            if turn == idx:
+                self.ui.bot_traffic_lights_canvas.itemconfig(circle, fill=bot_colors[idx], outline=bot_colors[idx])
+            else:
+                self.ui.bot_traffic_lights_canvas.itemconfig(circle, fill="#bbb", outline="#bbb")
+
         self.ui.status_layout_info.config(text=layout_name)
 
-    def draw_selected(self, universe, game_state):
+    def draw_selected(self, game_state):
         self.ui.game_canvas.delete("selected")
         if self.selected:
             def field_status(pos):
-                has_food = pos in universe.food
-                is_wall = universe.maze[pos]
-                bots = [str(bot.index) for bot in universe.bots if bot.current_pos == pos]
-                if pos[0] < universe.maze.width // 2:
+                has_food = pos in game_state['food']
+                is_wall = pos in game_state['walls']
+                bots = [idx for idx, bot in enumerate(game_state['bots']) if bot==pos]
+                if pos[0] < (max(game_state['walls'])[0] + 1) // 2:
                     zone = "blue"
                 else:
                     zone = "red"
@@ -541,7 +572,10 @@ class TkApplication:
                     contents = []
 
                 if bots:
-                    contents += ["bots(" + ",".join(bots) + ")"]
+                    bot_map = {0:'blue 0', 1:'red 0', 2:'blue 1', 3:'red 1'}
+                    contents += ["bots(" \
+                                 + ", ".join(bot_map[bot] for bot in bots) \
+                                 + ")"]
 
                 contents = " ".join(contents)
                 if not contents:
@@ -608,48 +642,54 @@ class TkApplication:
     def clear(self):
         self.ui.game_canvas.delete(tkinter.ALL)
 
-    def draw_food(self, universe):
+    def draw_food(self, game_state):
         if not self.size_changed:
             return
         self.ui.game_canvas.delete("food")
-        for position in universe.food_list:
+        self.food_items = {}
+        for position in game_state['food']:
             model_x, model_y = position
             food_item = Food(self.mesh_graph, position=(model_x, model_y))
             food_item.draw(self.ui.game_canvas)
+            self.food_items[position] = food_item
 
-    def draw_maze(self, universe):
+    def draw_maze(self, game_state):
         if not self.size_changed:
             return
         self.ui.game_canvas.delete("wall")
+        # we keep all wall items stored in a list
+        # some versions of Python seem to forget about drawing
+        # them otherwise
+        self.wall_items = []
         num = 0
-        for position, wall in universe.maze.items():
-            model_x, model_y = position
-            if wall:
-                wall_neighbors = [(dx, dy)
-                                  for dx in [-1, 0, 1]
-                                  for dy in [-1, 0, 1]
-                                  if universe.maze.get((model_x + dx, model_y + dy), None)]
-                wall_item = Wall(self.mesh_graph, wall_neighbors=wall_neighbors, position=(model_x, model_y))
-                wall_item.draw(self.ui.game_canvas)
-                num += 1
+        for wall in game_state['walls']:
+            model_x, model_y = wall
+            wall_neighbors = [(dx, dy)
+                              for dx in [-1, 0, 1]
+                              for dy in [-1, 0, 1]
+                              if (model_x + dx, model_y + dy) in game_state['walls']]
+            wall_item = Wall(self.mesh_graph, wall_neighbors=wall_neighbors, position=(model_x, model_y))
+            wall_item.draw(self.ui.game_canvas)
+            self.wall_items.append(wall_item)
+            num += 1
 
-    def init_bot_sprites(self, universe):
+    def init_bot_sprites(self, bot_positions):
         for sprite in self.bot_sprites.values():
             sprite.delete(self.ui.game_canvas)
         self.bot_sprites = {
-            bot.index: BotSprite(self.mesh_graph, team=bot.team_index, bot_id=bot.index, position=bot.current_pos)
-            for bot in universe.bots
+            idx: BotSprite(self.mesh_graph, team=idx % 2, bot_id=idx, position=bot)
+            for idx, bot in enumerate(bot_positions)
         }
 
-    def draw_bots(self, universe, game_state):
+    def draw_bots(self, game_state):
         if game_state:
             for bot in game_state["bot_destroyed"]:
-                self.bot_sprites[bot["bot_id"]].position = None
+                self.bot_sprites[bot["turn"]].position = None
         for bot_id, bot_sprite in self.bot_sprites.items():
-            say = game_state and game_state["bot_talk"][bot_id]
-            bot_sprite.move_to(universe.bots[bot_sprite.bot_id].current_pos,
+            say = game_state and game_state["say"][bot_id]
+            bot_sprite.move_to(game_state["bots"][bot_sprite.bot_id],
                                self.ui.game_canvas,
-                               universe,
+                               game_state,
                                force=self.size_changed,
                                say=say,
                                show_id=self._grid_enabled)
@@ -666,50 +706,82 @@ class TkApplication:
 
     def request_initial(self):
         if self.controller_socket:
+            _logger.debug('---> set_initial')
             self.controller_socket.send_json({"__action__": "set_initial"})
 
     def request_step(self):
-        if self.controller_socket:
-            self.controller_socket.send_json({"__action__": "play_step"})
+        if not self.controller_socket:
+            return
 
-    def request_round(self):
+        if self._game_state['gameover']:
+            return
+
         if self._stop_after is not None:
-            if self._game_state['round_index'] is None:
-                if self.controller_socket:
-                    self.controller_socket.send_json({"__action__": "play_round"})
-            elif (self._game_state['round_index'] < self._stop_after - 1):
-                if self._game_state['bot_id'] == 3:
-                    if self.controller_socket:
-                        self.controller_socket.send_json({"__action__": "play_round"})
+            next_step = next_round_turn(self._game_state)
+            if (next_step['round'] < self._stop_after):
+                _logger.debug('---> play_step')
+                self.controller_socket.send_json({"__action__": "play_step"})
             else:
                 self._stop_after = None
                 self.running = False
                 self._delay = self._stop_after_delay
         else:
-            if self.controller_socket:
-                self.controller_socket.send_json({"__action__": "play_round"})
+            _logger.debug('---> play_step')
+            self.controller_socket.send_json({"__action__": "play_step"})
 
-    def observe(self, data):
-        universe = data["universe"]
-        universe = CTFUniverse._from_json_dict(universe)
-        game_state = data["game_state"]
+    def request_round(self):
+        if not self.controller_socket:
+            return
 
-        self.update(universe, game_state)
+        if self._game_state['gameover']:
+            return
+
+        if self._game_state['round'] is not None:
+            next_step = next_round_turn(self._game_state)
+            self._stop_after = next_step['round'] + 1
+        else:
+            self._stop_after = 1
+            self._delay = self._min_delay
+        self.request_step()
+
+    def observe(self, game_state):
+        step = (game_state['round'], game_state['turn'])
+        if step in self._observed_steps:
+            skip_request = True
+        else:
+            skip_request = False
+            self._observed_steps.add(step)
+        # ensure walls, foods and bots positions are list of tuples
+        game_state['walls'] = _ensure_tuples(game_state['walls'])
+        game_state['food'] = _ensure_tuples(game_state['food'])
+        game_state['bots'] = _ensure_tuples(game_state['bots'])
+        # TODO
+        game_state['bot_destroyed'] = []
+        game_state['food_eaten'] = []
+        self.update(game_state)
         if self._stop_after is not None:
             if self._stop_after == 0:
                 self._stop_after = None
                 self.running = False
                 self._delay = self._stop_after_delay
             else:
-                self.master.after(self._delay, self.request_round)
+                if skip_request:
+                    _logger.debug("Skipping next request.")
+                else:
+                    self.master.after(self._delay, self.request_step)
         elif self.running:
-            self.master.after(self._delay, self.request_step)
+            if skip_request:
+                _logger.debug("Skipping next request.")
+            else:
+                self.master.after(self._delay, self.request_step)
+
 
     def on_quit(self):
         """ override for things which must be done when we exit.
         """
         self.running = False
         if self.controller_socket:
+            _logger.debug('---> exit')
             self.controller_socket.send_json({"__action__": "exit"})
         else:
             # force closing the window (though this might not work)

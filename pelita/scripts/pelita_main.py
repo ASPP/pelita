@@ -12,114 +12,11 @@ import sys
 import time
 
 import pelita
-from pelita import libpelita
+from pelita import libpelita, game, layout
 
 # silence stupid warnings from logging module
 logging.root.manager.emittedNoHandlerWarning = 1
 _logger = logging.getLogger(__name__)
-
-class ReplayPublisher:
-    def __init__(self, replayfile, publisher, controller):
-        with open(replayfile) as f:
-            self.old_game = f.read().split("\x04")
-
-        self.publisher = publisher
-        self.controller = controller
-        self.controller.game_master = self
-
-        # Holds the current iterator
-        self._iter = None
-
-        # This is technically not correct,
-        # but for now we don’t care what the request was
-        # and return a single step either way
-        self.set_initial = self.iter_step
-        self.play_round = self.iter_step
-        self.play_step = self.iter_step
-
-    def run(self):
-        self.controller.run()
-
-    def iter_step(self):
-        if not self._iter:
-            self._iter = self.iter()
-        try:
-            next(self._iter)
-        except StopIteration:
-            pass
-
-    def iter(self):
-        for state in self.old_game:
-            if state.strip():
-                message = json.loads(state)
-                yield self.publisher._send(message)
-
-class ResultPrinter(pelita.viewer.AbstractViewer):
-    def observe(self, universe, game_state):
-        self.print_bad_bot_status(universe, game_state)
-        if game_state["finished"]:
-            self.print_possible_winner(universe, game_state)
-
-    def print_bad_bot_status(self, universe, game_state):
-        for bot_id, reason in game_state["bot_error"].items():
-            if reason == "timeout":
-                sys.stderr.write("Timeout #%r for team %r (bot index %r).\n" % (
-                                  game_state["timeout_teams"][universe.bots[bot_id].team_index],
-                                  universe.bots[bot_id].team_index,
-                                  bot_id))
-            elif reason == "illegal_move":
-                sys.stderr.write("Illegal move -> Timeout #%r for team %r (bot index %r).\n" % (
-                                  game_state["timeout_teams"][universe.bots[bot_id].team_index],
-                                  universe.bots[bot_id].team_index,
-                                  bot_id))
-
-            else:
-                sys.stderr.write("Problem for team %r (bot index %r) (%s).\n" % (
-                                  universe.bots[bot_id].team_index,
-                                  bot_id,
-                                  reason))
-
-        for team_id, reason in enumerate(game_state["teams_disqualified"]):
-            if reason == "timeout":
-                sys.stderr.write("Team %r had too many timeouts. Team disqualified.\n" % team_id)
-            elif reason == "disconnected":
-                sys.stderr.write("Team %r disconnected. Team disqualified.\n" % team_id)
-            elif reason is not None:
-                sys.stderr.write("Team %r disqualified (%r).\n" % (team_id, reason))
-
-
-    def print_possible_winner(self, universe, game_state):
-        """ Checks the event list for a potential winner and prints this information.
-
-        This is needed for pelita.scripts parsing the output.
-        """
-        winning_team = game_state.get("team_wins")
-        if winning_team is not None:
-            winner = universe.teams[winning_team]
-            winner_name = game_state["team_name"][winner.index]
-            loser = universe.enemy_team(winning_team)
-            loser_name = game_state["team_name"][loser.index]
-            msg = "Finished. '%s' won over '%s'. (%r:%r)" % (
-                    winner_name, loser_name,
-                    winner.score, loser.score
-                )
-            sys.stdout.flush()
-        elif game_state.get("game_draw") is not None:
-            t0 = universe.teams[0]
-            t0_name = game_state["team_name"][t0.index]
-            t1 = universe.teams[1]
-            t1_name = game_state["team_name"][t1.index]
-            msg = "Finished. '%s' and '%s' had a draw. (%r:%r)" % (
-                    t0_name, t1_name,
-                    t0.score, t1.score
-                )
-        else:
-            return
-
-        print(msg)
-        # We must manually flush, else our forceful stopping of Tk
-        # won't let us pipe it.
-        sys.stdout.flush()
 
 
 def geometry_string(s):
@@ -157,10 +54,12 @@ parser.add_argument('--version', help='Show the version number and exit.',
 parser.add_argument('--log', help='Print debugging log information to'
                     ' LOGFILE (default \'stderr\').',
                     metavar='LOGFILE', const='-', nargs='?')
-parser.add_argument('--dump', help=long_help('Print game dumps to file (will be overwritten)'),
-                    metavar='DUMPFILE', const='pelita.dump', nargs='?')
+parser.add_argument('--write-replay', help=long_help('Print game dumps to file (will be overwritten)'),
+                    metavar='REPLAYFILE', const='pelita.dump', nargs='?')
 parser.add_argument('--replay', help=long_help('Replay a dumped game'),
-                    metavar='DUMPFILE', dest='replayfile', const='pelita.dump', nargs='?')
+                    metavar='REPLAYFILE', dest='replayfile', const='pelita.dump', nargs='?')
+parser.add_argument('--store-output', help=long_help('Write all player’s stdout/stderr to the given folder (must exist)'),
+                    metavar='FOLDER')
 parser.add_argument('--list-layouts', action='store_true',
                     help='List all available layouts.')
 parser.add_argument('--check-team', action="store_true",
@@ -189,8 +88,8 @@ timeout_opt.add_argument('--no-timeout', const=None, action='store_const',
 game_settings.add_argument('--max-timeouts', type=int, default=5,
                            dest='max_timeouts', help='Maximum number of timeouts allowed (default: 5).')
 parser.set_defaults(timeout_length=3)
-game_settings.add_argument('--stop-at', dest='stop_after', type=int, metavar="N",
-                           help='Stop at round N.')
+game_settings.add_argument('--stop-at', dest='stop_at', type=int, metavar="N",
+                           help='Stop before playing round N.')
 
 viewer_settings = parser.add_argument_group('Viewer settings')
 viewer_settings.add_argument('--geometry', type=geometry_string, metavar='NxM',
@@ -260,21 +159,15 @@ Layout specification:
 
 
 def main():
-    config = {
-        "publish-addr": None,
-        "controller-addr": None,
-        "viewers": [],
-        "external-viewers": []
-    }
-
     args = parser.parse_args()
     if args.help or args.long_help:
         parser.print_help()
         sys.exit(0)
 
     if args.version:
-        if pelita._git_version:
-            print("Pelita {} (git: {})".format(pelita.__version__, pelita._git_version))
+        git_version = pelita._git_version()
+        if git_version:
+            print("Pelita {} (git: {})".format(pelita.__version__, git_version))
         else:
             print("Pelita {}".format(pelita.__version__))
         sys.exit(0)
@@ -290,44 +183,56 @@ def main():
     if args.log:
         libpelita.start_logging(args.log)
 
+    if args.rounds < 1:
+        raise ValueError(f"Must play at least one round (rounds={args.rounds}).")
+
     if args.check_team:
         if not args.team_specs:
             raise ValueError("No teams specified.")
         for team_spec in args.team_specs:
-            team_name = libpelita.check_team(libpelita.prepare_team(team_spec))
+            team_name = libpelita.check_team(team_spec)
             print("NAME:", team_name)
         sys.exit(0)
 
-
-    viewers = []
-    if args.dump:
-        viewers.append(pelita.viewer.DumpingViewer(open(args.dump, "w")))
-    if args.viewer == 'ascii':
-        viewers.append(pelita.viewer.AsciiViewer())
-    if args.viewer == 'progress':
-        viewers.append(pelita.viewer.ProgressViewer())
-    if args.reply_to:
-        viewers.append(pelita.viewer.ReplyToViewer(args.reply_to))
     if args.viewer == 'null':
-        pass
+        viewers = []
+    else:
+        viewers = [args.viewer]
 
-    # Adding the result printer to the viewers.
-    viewers.append(ResultPrinter())
+    geometry = args.geometry
+    delay = int(1000./args.fps)
+    stop_at = args.stop_at
+
+    viewer_options = {
+        "geometry": geometry,
+        "delay": delay,
+        "stop_at": stop_at
+    }
+
+    if args.reply_to:
+        viewers.append(('reply-to', args.reply_to))
+    if args.write_replay:
+        viewers.append(('write-replay-to', args.write_replay))
 
     if args.replayfile:
-        if not args.viewer == 'tk':
-            raise RuntimeError("Can only replay with the tk viewer.")
+        viewer_state = game.setup_viewers(viewers, options=viewer_options)
+        if game.controller_exit(viewer_state, await_action='set_initial'):
+            sys.exit(0)
 
-        with libpelita.channel_setup(publish_to=args.publish_to) as channels:
-            geometry = args.geometry
-            delay = int(1000./args.fps)
-            controller = channels["controller"]
-            controller_addr = controller.socket_addr
-            publisher = channels["publisher"]
-            viewer = libpelita.run_external_viewer(publisher.socket_addr, controller_addr,
-                                                    geometry=geometry, delay=delay, stop_after=args.stop_after)
-            replay_publisher = ReplayPublisher(args.replayfile, publisher, controller)
-            replay_publisher.run()
+        old_game = Path(args.replayfile).read_text().split("\x04")
+        for state in old_game:
+            if not state.strip():
+                continue
+            state = json.loads(state)
+            # walls, bots, food must be list of tuple
+            state['walls'] = list(map(tuple, state['walls']))
+            state['bots'] = list(map(tuple, state['bots']))
+            state['food'] = list(map(tuple, state['food']))
+            for viewer in viewer_state['viewers']:
+                viewer.show_state(state)
+            if game.controller_exit(viewer_state):
+                break
+
         sys.exit(0)
 
     # Run a normal game
@@ -357,28 +262,14 @@ def main():
         layout_string = layout_path.read_text()
     else:
         layout_name, layout_string = pelita.layout.get_random_layout(args.filter)
-    
+
     print("Using layout '%s'" % layout_name)
 
-    with libpelita.channel_setup(publish_to=args.publish_to) as channels:
-        if args.viewer.startswith('tk'):
-            geometry = args.geometry
-            delay = int(1000./args.fps)
-            controller = channels["controller"]
-            controller_addr = controller.socket_addr
-            publisher = channels["publisher"]
-            if args.viewer == 'tk-no-sync':
-                controller = None
-                controller_addr = None
-            viewer = libpelita.run_external_viewer(publisher.socket_addr, controller_addr,
-                                                   geometry=geometry, delay=delay, stop_after=args.stop_after)
-        else:
-            controller = None
-            publisher = None
-
-        libpelita.run_game(team_specs=team_specs, rounds=args.rounds, layout=layout_string, layout_name=layout_name,
-                           seed=args.seed, dump=args.dump, max_timeouts=args.max_timeouts, timeout_length=args.timeout_length,
-                           viewers=viewers, controller=controller, publisher=publisher)
+    layout_dict = layout.parse_layout(layout_string)
+    game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, seed=args.seed,
+                  timeout_length=args.timeout_length, max_team_errors=args.max_timeouts,
+                  viewers=viewers, viewer_options=viewer_options,
+                  store_output=args.store_output)
 
 if __name__ == '__main__':
     main()
