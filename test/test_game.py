@@ -884,7 +884,7 @@ def test_play_turn_move():
         "score": 0,
         "kills":[0]*4,
         "deaths": [0]*4,
-        "bot_eaten": [False]*4,
+        "bot_was_killed": [False]*4,
         "errors": [[], []],
         "fatal_errors": [{}, {}],
         "rnd": random.Random()
@@ -1266,9 +1266,9 @@ def test_setup_game_run_game_have_same_args():
 
 @pytest.mark.parametrize('bot_to_move', range(4))
 # all combinations of True False in a list of 4
-@pytest.mark.parametrize('bot_eaten_flags', itertools.product(*[(True, False)] * 4))
-def test_apply_move_resets_bot_eaten(bot_to_move, bot_eaten_flags):
-    """ Check that `prepare_bot_state` sees the proper bot_eaten flag
+@pytest.mark.parametrize('bot_was_killed_flags', itertools.product(*[(True, False)] * 4))
+def test_apply_move_resets_bot_was_killed(bot_to_move, bot_was_killed_flags):
+    """ Check that `prepare_bot_state` sees the proper bot_was_killed flag
     and that `apply_move` will reset the flag to False. """
     team_id = bot_to_move % 2
     other_bot = (bot_to_move + 2) % 4
@@ -1277,27 +1277,27 @@ def test_apply_move_resets_bot_eaten(bot_to_move, bot_eaten_flags):
     # specify which bot should move
     test_state = setup_random_basic_gamestate(turn=bot_to_move)
 
-    bot_eaten_flags = list(bot_eaten_flags) # needs to be a list
-    test_state['bot_eaten'] = bot_eaten_flags[:] # copy to avoid reference issues
+    bot_was_killed_flags = list(bot_was_killed_flags) # needs to be a list
+    test_state['bot_was_killed'] = bot_was_killed_flags[:] # copy to avoid reference issues
 
     # create bot state for current turn
     current_bot_position = test_state['bots'][bot_to_move]
     bot_state = game.prepare_bot_state(test_state)
 
-    # bot state should have proper bot_eaten flag
-    assert bot_state['team']['bot_eaten'] == bot_eaten_flags[team_id::2]
+    # bot state should have proper bot_was_killed flag
+    assert bot_state['team']['bot_was_killed'] == bot_was_killed_flags[team_id::2]
 
-    # apply a dummy move that should reset bot_eaten for the current bot
+    # apply a dummy move that should reset bot_was_killed for the current bot
     new_test_state = game.apply_move(test_state, current_bot_position)
 
-    # the bot_eaten flag should be False again
-    assert test_state['bot_eaten'][bot_to_move] == False
+    # the bot_was_killed flag should be False again
+    assert test_state['bot_was_killed'][bot_to_move] == False
 
-    # the bot_eaten flags for other bot should still be as before
-    assert test_state['bot_eaten'][other_bot] == bot_eaten_flags[other_bot]
+    # the bot_was_killed flags for other bot should still be as before
+    assert test_state['bot_was_killed'][other_bot] == bot_was_killed_flags[other_bot]
 
-    # all bot_eaten flags for other team should still be as before
-    assert test_state['bot_eaten'][other_team_id::2] == bot_eaten_flags[other_team_id::2]
+    # all bot_was_killed flags for other team should still be as before
+    assert test_state['bot_was_killed'][other_team_id::2] == bot_was_killed_flags[other_team_id::2]
 
 
 def test_bot_does_not_eat_own_food():

@@ -286,9 +286,9 @@ def test_track_and_kill_count():
         team = state['turn'] % 2
 
         # The current bot knows about its deaths, *unless* it made suicide,
-        # so we have to substract 1 if bot_eaten is True
+        # so we have to substract 1 if bot_was_killed is True
         suicide_correction = [0] * 4
-        suicide_correction[state['turn']] = 1 if state['bot_eaten'][state['turn']] else 0
+        suicide_correction[state['turn']] = 1 if state['bot_was_killed'][state['turn']] else 0
 
         # The other team knows about its deaths, *unless* one of the bots got eaten
         # just now, or the previous bot made suicide
@@ -299,7 +299,7 @@ def test_track_and_kill_count():
 
         # suicide
         prev_idx = state['turn'] - 1
-        if old_deaths[prev_idx] == deaths[prev_idx] and state['bot_eaten'][prev_idx]:
+        if old_deaths[prev_idx] == deaths[prev_idx] and state['bot_was_killed'][prev_idx]:
             other_team_correction[prev_idx] = 1
 
         assert bot_states[0][0]['times_killed'] == deaths[0] - suicide_correction[0] - other_team_correction[0]
