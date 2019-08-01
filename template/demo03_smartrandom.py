@@ -1,5 +1,5 @@
 # This bot moves randomly, with some improvements:
-# - it eats enemies in the vicinity
+# - it kills enemies in the vicinity
 # - it eats food in the vicinity
 # - does not do kamikaze
 # - avoids going back to positions it has seen already
@@ -24,12 +24,12 @@ def move(bot, state):
     else:
         # we can do something without risk
 
-        # collect positions that have something interesting in it (food or
-        # enemy to be eaten
+        # collect positions that have something interesting in it (food can be
+        # eaten or enemy can be killed)
         interesting_positions = []
         for new_pos in sensible_positions:
             # the new position is interesting if
-            # 1. we are in our homezone and we can eat an enemy
+            # 1. we are in our homezone and we can kill an enemy
             cond1 = (new_pos in bot.homezone) and (new_pos in enemy_pos)
             # or, if 2. we are in enemy's homezone and we can eat food
             cond2 = (new_pos in enemy[0].homezone) and (new_pos in enemy[0].food)
