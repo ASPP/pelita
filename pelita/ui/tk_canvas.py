@@ -45,13 +45,15 @@ class MeshGraph:
     def rect_width(self):
         """ The width of a single field.
         """
-        return float(self.screen_width) / self.mesh_width
+        # we have to adjust by one pixel for the border
+        return float(self.screen_width - 1) / self.mesh_width
 
     @property
     def rect_height(self):
         """ The height of a single field.
         """
-        return float(self.screen_height) / self.mesh_height
+        # we have to adjust by one pixel for the border
+        return float(self.screen_height - 1) / self.mesh_height
 
     @property
     def half_scale_x(self):
@@ -439,10 +441,10 @@ class TkApplication:
             y1_ = self.mesh_graph.mesh_to_screen_y(y1, 0)
             self.ui.game_canvas.create_line(x0_, y0_, x1_, y1_, width=0.01, fill="#884488", tag="grid")
 
-        for x in range(self.mesh_graph.mesh_width):
+        for x in range(self.mesh_graph.mesh_width + 1):
             draw_line(x - 0.5, -0.5, x - 0.5, self.mesh_graph.mesh_height)
 
-        for y in range(self.mesh_graph.mesh_height):
+        for y in range(self.mesh_graph.mesh_height + 1):
             draw_line(-0.5, y - 0.5, self.mesh_graph.mesh_width, y - 0.5)
 
     def toggle_grid(self):
