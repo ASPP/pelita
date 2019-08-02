@@ -236,15 +236,9 @@ def call_pelita(team_specs, *, rounds, filter, viewer, seed, write_replay=False,
     ctx = zmq.Context()
     reply_sock = ctx.socket(zmq.PAIR)
 
-    if os.name.upper() == 'POSIX':
-        filename = 'pelita-reply.{uuid}'.format(pid=os.getpid(), uuid=uuid.uuid4())
-        path = os.path.join(tempfile.gettempdir(), filename)
-        reply_addr = 'ipc://' + path
-        reply_sock.bind(reply_addr)
-    else:
-        addr = 'tcp://127.0.0.1'
-        reply_port = reply_sock.bind_to_random_port(addr)
-        reply_addr = 'tcp://127.0.0.1' + ':' + str(reply_port)
+    addr = 'tcp://127.0.0.1'
+    reply_port = reply_sock.bind_to_random_port(addr)
+    reply_addr = 'tcp://127.0.0.1' + ':' + str(reply_port)
 
     rounds = ['--rounds', str(rounds)] if rounds else []
     filter = ['--filter', filter] if filter else []
