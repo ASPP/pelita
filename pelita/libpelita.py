@@ -237,8 +237,9 @@ def call_pelita(team_specs, *, rounds, filter, viewer, seed, write_replay=False,
     reply_sock = ctx.socket(zmq.PAIR)
 
     if os.name.upper() == 'POSIX':
+        # create an auto-removable temporary directory instead of polluting /tmp
         filename = 'pelita-reply.{uuid}'.format(pid=os.getpid(), uuid=uuid.uuid4())
-        path = os.path.join(tempfile.gettempdir(), filename)
+        path = os.path.join(tempfile.TemporaryDirectory(prefix='pelita-replies-'), filename)
         reply_addr = 'ipc://' + path
         reply_sock.bind(reply_addr)
     else:
