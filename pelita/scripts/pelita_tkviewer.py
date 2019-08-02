@@ -54,7 +54,7 @@ def main():
 
 
     if LOG_TK or args.log:
-        pelita.libpelita.start_logging(args.log)
+        pelita.utils.start_logging(args.log)
 
     tkargs = {
         'address': args.subscribe_sock,

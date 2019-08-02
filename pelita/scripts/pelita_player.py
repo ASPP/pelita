@@ -159,7 +159,7 @@ def player_handle_request(socket, team):
         else:
             # continue
             return True
- 
+
     except KeyboardInterrupt as e:
         # catch KeyboardInterrupt to avoid spamming stderr
         msg_id = None
@@ -364,7 +364,7 @@ def with_zmq_router(team, address):
 def play_remote(team, pair_addr):
     player_path = os.environ.get("PELITA_PATH") or os.path.dirname(sys.argv[0])
     player = 'pelita.scripts.pelita_player'
-    external_call = [pelita.libpelita.get_python_process(),
+    external_call = [sys.executable,
                     '-m',
                     player,
                     team,
@@ -387,7 +387,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        pelita.libpelita.start_logging(args.log)
+        pelita.utils.start_logging(args.log)
     except AttributeError:
         pass
 

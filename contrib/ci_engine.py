@@ -57,8 +57,8 @@ import subprocess
 import sys
 import unittest
 
-from pelita import libpelita
 from pelita.network import ZMQClientError
+from pelita.tournament.tournament import check_team, call_pelita
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', '--test', help="run unittests", action="store_true")
@@ -131,7 +131,7 @@ class CI_Engine:
 
         for player in self.players:
             try:
-                libpelita.check_team(player['path'])
+                check_team(player['path'])
             except ZMQClientError as e:
                 e_type, e_msg = e.args
                 logger.debug(f'Could not import {pname} ({e_type}): {e_msg}')
@@ -151,7 +151,7 @@ class CI_Engine:
         """
         team_specs = [self.players[i]['path'] for i in (p1, p2)]
 
-        final_state, stdout, stderr = libpelita.call_pelita(team_specs,
+        final_state, stdout, stderr = call_pelita(team_specs,
                                                             rounds=self.rounds,
                                                             filter=self.filter,
                                                             viewer=self.viewer,

@@ -2,12 +2,13 @@ import pytest
 
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 from textwrap import dedent
 
 import pelita.game
-from pelita import libpelita
 from pelita.player import stopping_player
+from pelita.tournament.tournament import call_pelita, run_and_terminate_process
 
 
 addr_stopping = 'tcp://127.0.0.1:52301'
@@ -18,20 +19,20 @@ addr_food_eater = 'tcp://127.0.0.1:52302'
 # The processes should automatically terminate then
 @pytest.fixture(scope="module")
 def remote_teams():
-    remote = [libpelita.get_python_process(), '-m', 'pelita.scripts.pelita_player', '--remote']
+    remote = [sys.executable, '-m', 'pelita.scripts.pelita_player', '--remote']
 
     remote_stopping = remote + ['pelita/player/StoppingPlayer', addr_stopping]
     remote_food_eater = remote + ['pelita/player/FoodEatingPlayer', addr_food_eater]
 
 #    procs = [subprocess.Popen(args) for args in [remote_stopping, remote_food_eater]]
     teams = [f'remote:{addr_stopping}', f'remote:{addr_food_eater}']
-    with libpelita.run_and_terminate_process(remote_stopping):
-        with libpelita.run_and_terminate_process(remote_food_eater):
+    with run_and_terminate_process(remote_stopping):
+        with run_and_terminate_process(remote_food_eater):
             yield teams
 
 
 def test_remote_call_pelita(remote_teams):
-    res, stdout, stderr = libpelita.call_pelita(remote_teams, rounds=30, filter='small', viewer='null', seed=None)
+    res, stdout, stderr = call_pelita(remote_teams, rounds=30, filter='small', viewer='null', seed=None)
     assert res['whowins'] == 1
     assert res['fatal_errors'] == [[], []]
     # errors for call_pelita only contains the last thrown error, hence None

@@ -7,7 +7,6 @@ import zmq
 import tkinter
 import tkinter.font
 
-from ..libpelita import firstNN
 from ..game import next_round_turn
 from .tk_sprites import BotSprite, Food, Wall, col
 from .tk_utils import wm_delete_window_handler
@@ -531,10 +530,10 @@ class TkApplication:
         self.ui.header_canvas.create_text(self.ui.header_canvas.winfo_width() - 5, 20 + font_size, text=right_status + " ", font=(None, status_font_size), tag="title", anchor=tkinter.E)
 
     def draw_status_info(self, game_state):
-        round = firstNN(game_state.get("round"), "–")
-        max_rounds = firstNN(game_state.get("max_rounds"), "–")
-        turn = firstNN(game_state.get("turn"), "–")
-        layout_name = firstNN(game_state.get("layout_name"), "–")
+        round = "–" if game_state["round"] is None else game_state["round"]
+        max_rounds = "–" if game_state["max_rounds"] is None else game_state["max_rounds"]
+        turn = "–" if game_state["turn"] is None else game_state["turn"]
+        layout_name = "–" if game_state["layout_name"] is None else game_state["layout_name"]
 
         round_info = f"Round {round:>3}/{max_rounds}"
         self.ui.status_round_info.config(text=round_info)

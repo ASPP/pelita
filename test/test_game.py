@@ -1382,54 +1382,6 @@ def test_double_suicide():
     assert state['score'] == [game.KILL_POINTS, 0]
 
 
-def test_team_time():
-    # we test the team time with two
-    # move functions,
-    # one with a tiny delay and the other
-    # with twice that delay
-
-    DELAY = 0.01
-
-    def move0(b, s):
-        time.sleep(DELAY)
-        return b.position, s
-
-    def move1(b, s):
-        time.sleep(2 * DELAY)
-        return b.position, s
-
-    l = Path("layouts/small_without_dead_ends_100.layout").read_text()
-    parsed_l = layout.parse_layout(l)
-    state = setup_game([move0, move1], layout_dict=parsed_l, max_rounds=5)
-    assert state["team_time"] == [0, 0]
-    state = play_turn(state)
-    t0 = state["team_time"][0]
-    assert state["team_time"][0] > 0
-    assert state["team_time"][1] == 0
-    state = play_turn(state)
-    # check that t0 has not changed
-    assert t0 == state["team_time"][0]
-    assert state["team_time"][0] > 0
-    assert state["team_time"][1] > 0
-
-    # play till finished
-    while not state["gameover"]:
-        state = play_turn(state)
-
-    # because of overhead, the following equations should hold
-    # for the team time
-    assert state["team_time"][0] > 10 * DELAY
-    assert state["team_time"][1] > 20 * DELAY
-
-    # this is an estimate. the times could be higher on a slow Python
-    assert state["team_time"][0] < 10 * DELAY + 0.05, "Bad team_time or very slow Python implementation"
-    assert state["team_time"][1] < 20 * DELAY + 0.05, "Bad team_time or very slow Python implementation"
-
-    # because of overhead, the time of team 0 should be less
-    # than twice the time of team 1
-    assert state["team_time"][1] < 2 * state["team_time"][0]
-
-
 def test_remote_game_closes_players_on_exit():
     layout_name, layout_string = layout.get_random_layout()
     l = layout.parse_layout(layout_string)

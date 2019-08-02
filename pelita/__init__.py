@@ -1,6 +1,5 @@
 from . import (game,
                layout,
-               libpelita,
                network,
                player,
                viewer,
