@@ -44,14 +44,8 @@ parser.add_argument('--log', help='print debugging log information to'
 def main():
     args = parser.parse_args()
     if args.version:
-        git_version = pelita._git_version()
-        if git_version:
-            print("Pelita {} (git: {})".format(pelita.__version__, git_version))
-        else:
-            print("Pelita {}".format(pelita.__version__))
-
+        print("Pelita {}".format(pelita.__version__))
         sys.exit(0)
-
 
     if LOG_TK or args.log:
         pelita.utils.start_logging(args.log)
