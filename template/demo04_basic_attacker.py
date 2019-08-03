@@ -6,7 +6,9 @@
 TEAM_NAME = 'Basic Attacker Bots'
 
 
-from utils import shortest_path, walls_to_graph
+import networkx
+
+from utils import walls_to_graph
 
 
 def move(bot, state):
@@ -31,8 +33,9 @@ def move(bot, state):
     if (target is None) or (target not in enemy[0].food):
         # position of the target food pellet
         target = bot.random.choice(enemy[0].food)
-        # shortest path from here to the target
-        path = shortest_path(bot.position, target, state['graph'])
+        # use networkx to get the shortest path from here to the target
+        # we do not use the first position, which is always equal to bot_position
+        path = networkx.shortest_path(state['graph'], bot.position, target)[1:]
         state[bot.turn] = (target, path)
 
     # get the next position along the shortest path to reach our target

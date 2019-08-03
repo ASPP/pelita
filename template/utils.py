@@ -1,11 +1,5 @@
 import networkx
 
-def shortest_path(bot_position, target_position, graph):
-    """Given a graph representation of the maze, return a list of coordinates that are
-    the shortest path to the target_position."""
-
-    # we do not return the first position, which is always equal to bot_position
-    return networkx.shortest_path(graph, bot_position, target_position)[1:]
 
 def walls_to_graph(walls):
     """Return a networkx Graph object given the walls"""
