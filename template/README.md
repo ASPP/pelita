@@ -26,7 +26,7 @@ Pelita is a PacMan™ like game. Two teams each of two bots are placed in a maze
 
 - **eating food**: when a bot eats a food pellet, the food pellet is permanently removed from the maze and **one point** is scored for the bot's team.
 
-- **eating enemies**: when a ghost kills an enemy pacman, the killed pacman is immediately reset to its starting position and **5 points** are scored for the ghost's team.
+- **killing enemies**: when a ghost kills an enemy pacman, the killed pacman is immediately reset to its starting position and **5 points** are scored for the ghost's team.
 
 - **enemy position**: bots can know their enemies' exact positions only when the enemies are within a distance of **5** squares. If the enemies are further away than that, the bots have access only to a noisy position (more details [below](#is-noisy)).
 
