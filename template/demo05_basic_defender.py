@@ -7,16 +7,17 @@
 
 TEAM_NAME = 'Basic Defender Bots'
 
-from pelita.utils import Graph
 
-from utils import shortest_path
+import networkx
+
+from utils import walls_to_graph
 
 
 def move(bot, state):
 
     if state is None:
         # initialize the state object to be a graph representation of the maze
-        state = Graph(bot.position, bot.walls)
+        state = walls_to_graph(bot.walls)
 
     turn = bot.turn
     if bot.enemy[0].is_noisy and bot.enemy[1].is_noisy:
@@ -32,7 +33,7 @@ def move(bot, state):
         raise Exception('We should never be here!')
 
     # get the next position along the shortest path to our target enemy bot
-    next_pos = shortest_path(bot.position, target, state)[-1]
+    next_pos = networkx.shortest_path(state, bot.position, target)[1]
 
     # let's check that we don't go into the enemy homezone, i.e. stop at the
     # border

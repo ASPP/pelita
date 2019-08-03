@@ -302,14 +302,10 @@ Note that the `Bot` object is read-only, i.e. any modifications you make to that
     ```python
     (3, 9) in bot.walls
     ```
-    The maze can be represented as a graph. Pelita has its own minimal implementation of a graph, which offers
-    a couple of short-path algorithm implementations. The maze can be converted to a graph with
-    ```python
-    from pelita.utils import Graph
+    
+    The maze can be represented as a graph. If you want to use [networkx](https://networkx.github.io) for shortest path algorithms, you can use the `walls_to_graph` function in [utils.py](utils.py).
 
-    graph = Graph(bot.position, bot.walls)
-    ```
-    Example usage of `Graph` can be found in [demo04_basic_attacker.py](demo04_basic_attacker.py) and [demo05_basic_defender.py](demo05_basic_defender.py). More advanced graph features can be obtained by converting the maze to a [networkx](https://networkx.github.io/) graph. For this you can use the `walls_to_nxgraph` function in [utils.py](utils.py)
+    Examples for using a graph representation for shortest path calculations can be found in [demo04_basic_attacker.py](demo04_basic_attacker.py) and [demo05_basic_defender.py](demo05_basic_defender.py).
 
 - **`bot.homezone`** is a list of all the coordinates of your side of the maze, so if for example you are the red team in a `32×16` maze, your homezone will be:
     ```python
