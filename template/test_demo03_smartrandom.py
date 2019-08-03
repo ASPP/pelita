@@ -15,8 +15,8 @@ def test_legalmoves():
         next_pos,_ = move(bot, None)
         assert next_pos in ((1,2), (1,1))
 
-def test_eat_enemy():
-    # check that we indeed eat an enemy when possible
+def test_kill_enemy():
+    # check that we indeed kill an enemy when possible
     layout="""
     ########
     #E###.##

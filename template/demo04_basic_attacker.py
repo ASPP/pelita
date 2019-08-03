@@ -1,6 +1,6 @@
 # This bot selects a food pellet at random, then goes and tries to get it by
 # following the shortest path to it.
-# It tries on the way to avoid being eaten by the enemy: if the next move
+# It tries on the way to avoid being killed by the enemy: if the next move
 # to get to the food would put it on a ghost, then it chooses a random safe
 # position
 TEAM_NAME = 'Basic Attacker Bots'

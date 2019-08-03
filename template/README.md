@@ -15,6 +15,7 @@ Pelita
     - [The maze](#the-maze)
     - [The `move` function](#the-move-function)
     - [The `Bot` object](#the-bot-object)
+    - [Running multiple games in the background](#running-multiple-games-in-the-background)
 
 ------------------------------------------------
 
@@ -26,7 +27,7 @@ Pelita is a PacMan™ like game. Two teams each of two bots are placed in a maze
 
 - **eating food**: when a bot eats a food pellet, the food pellet is permanently removed from the maze and **one point** is scored for the bot's team.
 
-- **eating enemies**: when a ghost eats an enemy pacman, the eaten pacman is immediately reset to its starting position and **5 points** are scored for the ghost's team.
+- **killing enemies**: when a ghost kills an enemy pacman, the killed pacman is immediately reset to its starting position and **5 points** are scored for the ghost's team.
 
 - **enemy position**: bots can know their enemies' exact positions only when the enemies are within a distance of **5** squares. If the enemies are further away than that, the bots have access only to a noisy position (more details [below](#is-noisy)).
 
@@ -108,7 +109,9 @@ You can pass several options to the `pelita` command to help you with testing.
 - **`--help`** the full list of supported options can be obtained by passing `--help`.
 
 ### Unit testing
-You should write unit tests to test your utility functions and to test your bot implementations. It is quite hard to test a full strategy, especially because you can not have a real opponent in a test game. It is useful to focus on specific situations (called `layouts`) and verify that your bot is doing the right thing. Several examples are available in this repo in the files named `test_XXX.py`. If you name your test files starting with `test_` your tests will be automatically picked up by `pytest` when you run on the console in the directory where you cloned this repo:
+You should write unit tests to test your utility functions and to test your bot implementations. It is quite hard to test a full strategy, especially because you can not have a real opponent in a test game. It is useful to focus on specific situations (called `layouts`) and verify that your bot is doing the right thing.
+
+Several examples for unit testing are available in this repo in the files named `test_XXX.py`. If you name your test files starting with `test_` your tests will be automatically picked up by `pytest` when you run on the console in the directory where you cloned this repo:
 ```bash
 $ python3 -m pytest
 ```
@@ -139,7 +142,10 @@ For setting up test games there is a utility function you can import from `pelit
 
 **`setup_test_game(layout, is_blue=True, round=None, score=None, seed=None, food=None, bots=None, enemy=None) ⟶ bot`**
 
-Given a layout string, returns a [Bot](#the-bot-object) that you can pass to the [move](#the-move-function) function. Printing a `Bot` will print the layout string corresponding to the current game state. In the simplest form a layout string is a multiline string where the character `#` identifies walls, `.` the food pellets, `E` the enemy bots (you must have two of them for a layout to be legal), and `0` and `1` representing the bots in your team corresponding to turn `0` and `1`. In addition to the layout, `setup_test_game` has a number of optional keyword arguments:
+Given a layout string, returns a [Bot](#the-bot-object) that you can pass to the [move](#the-move-function) function.
+Note that layouts must have an even width. The blue team's homezone is always on the left and the red team's homezone is always on the right. In the `setup_test_game` function you can pass `is_blue` which defines which side you are currently playing on.
+
+Printing a `Bot` will print the layout string corresponding to the current game state. In the simplest form a layout string is a multiline string where the character `#` identifies walls, `.` the food pellets, `E` the enemy bots (you must have two of them for a layout to be legal), and `0` and `1` representing the bots in your team corresponding to turn `0` and `1`. In addition to the layout, `setup_test_game` has a number of optional keyword arguments:
 - `is_blue`: whether your bots are on the blue team, and enemy bots on the red team
 - `round`: the current round
 - `score`: the current score
@@ -296,6 +302,7 @@ Note that the `Bot` object is read-only, i.e. any modifications you make to that
     ```python
     (3, 9) in bot.walls
     ```
+    
     The maze can be represented as a graph. If you want to use [networkx](https://networkx.github.io) for shortest path algorithms, you can use the `walls_to_graph` function in [utils.py](utils.py).
 
     Examples for using a graph representation for shortest path calculations can be found in [demo04_basic_attacker.py](demo04_basic_attacker.py) and [demo05_basic_defender.py](demo05_basic_defender.py).
@@ -317,7 +324,7 @@ Note that the `Bot` object is read-only, i.e. any modifications you make to that
     as soon as the enemy will start eating your food pellets this list will shorten up!
 
 
-- **`bot.track`** is a list of the coordinates of the positions that the bot has taken until now. It gets reset every time the bot gets eaten by an enemy ghost. When you are eaten, the property **`bot.eaten`** is set to `True` until the next round.
+- **`bot.track`** is a list of the coordinates of the positions that the bot has taken until now. It gets reset every time the bot gets killed by an enemy ghost. When you are killed, the property **`bot.was_killed`** is set to `True` until the next round.
 
 - **`bot.score`** and **`bot.round`** tell you the score of your team and the round you are playing.
 
