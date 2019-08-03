@@ -77,7 +77,7 @@ class TkViewer:
         self.address = address
         self.controller_address = controller_address
         self.delay = delay
-        self.geometry = geometry if geometry else (901, 511)
+        self.geometry = geometry if geometry else (900, 580)
         self.stop_after = stop_after
 
         self.context = zmq.Context()

@@ -127,10 +127,17 @@ class BotSprite(TkSprite):
             canvas.create_text(self.bounding_box()[0][0] + shift, self.bounding_box()[1][1] - shift, text=local_idx, font=(None, 12), fill="black", tag="show_id"+self.tag)
 
 
-    def draw_bot(self, canvas, outer_col, eye_col, mirror=False):
+    def draw_bot(self, canvas, outer_col, eye_col, is_blue=True):
         direction = self.direction
+        # set default direction, if we start from our initial position
         if direction is None:
-            direction = 0 if mirror else 180
+            direction = 0 if is_blue else 180
+
+        # ensure that our eyes are never on the bottom
+        if direction == 0:
+            flip = True
+        else:
+            flip = False
 
         # bot body
         canvas.create_arc(self.bounding_box(), start=rotate(20, direction), extent=320, style="pieslice",
@@ -141,9 +148,10 @@ class BotSprite(TkSprite):
         eye_size = 0.15
         eye_box = (-eye_size - eye_size * 1j, eye_size + eye_size * 1j)
         # shift it to the middle of the bot just over the mouth
-        # take also care of mirroring
-        mirror = -1 if mirror else 1
-        eye_box = [item + 0.4 + mirror * 0.6j for item in eye_box]
+        eye_box = [item + 0.4 + 0.6j for item in eye_box]
+        # take also care of flipping
+        if flip:
+            eye_box = [item.conjugate() for item in eye_box]
         # rotate based on direction
         eye_box = [cmath.exp(1j * math.radians(-direction)) * item for item in eye_box]
         eye_box = [self.screen((item.real, item.imag)) for item in eye_box]
@@ -154,16 +162,16 @@ class BotSprite(TkSprite):
 
         if self.is_harvester:
             if self.team == 0:
-                self.draw_bot(canvas, outer_col=BLUE, eye_col=YELLOW, mirror=True)
+                self.draw_bot(canvas, outer_col=BLUE, eye_col=YELLOW, is_blue=True)
             else:
-                self.draw_bot(canvas, outer_col=RED, eye_col=YELLOW)
+                self.draw_bot(canvas, outer_col=RED, eye_col=YELLOW, is_blue=False)
         else:
             if self.team == 0:
-                self.draw_destroyer(canvas, outer_col=BLUE, eye_col=YELLOW, mirror=True)
+                self.draw_destroyer(canvas, outer_col=BLUE, eye_col=YELLOW)
             else:
                 self.draw_destroyer(canvas, outer_col=RED, eye_col=YELLOW)
 
-    def draw_destroyer(self, canvas, outer_col, eye_col, mirror=False):
+    def draw_destroyer(self, canvas, outer_col, eye_col):
         direction = self.direction
         box_ll, box_tr = self.bounding_box()
 
