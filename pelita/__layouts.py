@@ -2407,10 +2407,6 @@ layout_normal_without_dead_ends_049 = """eJyFUUkOxDAIu+cVSL5bM9P//61hMaGXTqQoLAY
 99gCkREvsLhZTwHkViAAYbMBJ4VOWJlOUZS7B2xyuBkdjpt/sObbtdKhBuSDy1tGh0owWzRfNl3C
 Do5k9+FBAaZA1ARF8Rl/nHqnvhvwsw7UnvbWSv3Q4d+6bwqYRpM=
 """
-layout_normal_without_dead_ends_050 = """eJyFkUEOxDAIA+95hSXfre72/39bwARFPWxRWpEGzDgl/8eiBIDxqN4Tyt2dBYTqOApiOcQ8Jj9R
-gNo6oo1yf+tYYVT9zRKVZAHkbFSmNKFqBJKTwD47JmIYinNPIzrbCpWPSxuXrQyDyTZmLR0MDwts
-6mHIDj0s9LQsOO+gcGeiGa6+VY03Qn37pfC1hSMMRRtfL3+b6wdhjEbn
-"""
 layout_normal_without_dead_ends_051 = """eJyFUckNwDAI+3cKJP6ox/67FXykfbVEinIYG0Pmd2wZHdgKaw4dwePVgKoEZOABNM+4Hg9Dw5Qm
 OkYDhPcD6MoMIQYktnCCHwuvKtKaVCfD/HdKiWEqt4ivNDQuQug3YF1hk2jyWoiSdJH0pOpmo17F
 csEEM9gvy3aRZgm2a0RTDHuszq5eU39KbcCpfI7oNTMz/I37Bh06RqU=
