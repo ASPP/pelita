@@ -394,11 +394,6 @@ class TkApplication:
 
         self.draw_universe(game_state)
 
-# TODO
-#        for food_eaten in game_state["food_eaten"]:
-#            food_tag = Food.food_pos_tag(tuple(food_eaten["food_pos"]))
-#            self.ui.game_canvas.delete(food_tag)
-
         eaten_food = []
         for food_pos, food_item in self.food_items.items():
             if not food_pos in game_state["food"]:
@@ -695,8 +690,9 @@ class TkApplication:
 
     def draw_bots(self, game_state):
         if game_state:
-            for bot in game_state["bot_destroyed"]:
-                self.bot_sprites[bot["turn"]].position = None
+            for bot_id, was_killed in enumerate(game_state["bot_was_killed"]):
+                if was_killed:
+                    self.bot_sprites[bot_id].position = None
         for bot_id, bot_sprite in self.bot_sprites.items():
             say = game_state and game_state["say"][bot_id]
             bot_sprite.move_to(game_state["bots"][bot_sprite.bot_id],
@@ -767,9 +763,6 @@ class TkApplication:
         game_state['walls'] = _ensure_tuples(game_state['walls'])
         game_state['food'] = _ensure_tuples(game_state['food'])
         game_state['bots'] = _ensure_tuples(game_state['bots'])
-        # TODO
-        game_state['bot_destroyed'] = []
-        game_state['food_eaten'] = []
         self.update(game_state)
         if self._stop_after is not None:
             if self._stop_after == 0:
