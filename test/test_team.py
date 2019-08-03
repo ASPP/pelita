@@ -225,7 +225,7 @@ def test_track_and_kill_count():
         if bot.round == 1 and turn == 0:
             assert bot.track[0] == bot.position
 
-        if bot.eaten:
+        if bot.was_killed:
             state[turn]['eaten'] = True
             # if bot.deaths has increased from our last known value,
             # we add a kill
@@ -234,15 +234,15 @@ def test_track_and_kill_count():
             if state[turn]['deaths'] != bot.deaths:
                 state[turn]['times_killed'] += 1
             state[turn]['deaths'] = bot.deaths
-        if other.eaten:
+        if other.was_killed:
             state[1 - turn]['eaten'] = True
             if state[1 - turn]['deaths'] != bot.other.deaths:
                 state[1 - turn]['times_killed'] += 1
             state[1 - turn]['deaths'] = bot.other.deaths
 
-        if bot.eaten or not state[turn]['track']:
+        if bot.was_killed or not state[turn]['track']:
             state[turn]['track'] = [bot.position]
-        if other.eaten or not state[1 - turn]['track']:
+        if other.was_killed or not state[1 - turn]['track']:
             state[1 - turn]['track'] = [other.position]
         else:
             state[1 - turn]['track'].append(other.position)
@@ -286,9 +286,9 @@ def test_track_and_kill_count():
         team = state['turn'] % 2
 
         # The current bot knows about its deaths, *unless* it made suicide,
-        # so we have to substract 1 if bot_eaten is True
+        # so we have to substract 1 if bot_was_killed is True
         suicide_correction = [0] * 4
-        suicide_correction[state['turn']] = 1 if state['bot_eaten'][state['turn']] else 0
+        suicide_correction[state['turn']] = 1 if state['bot_was_killed'][state['turn']] else 0
 
         # The other team knows about its deaths, *unless* one of the bots got eaten
         # just now, or the previous bot made suicide
@@ -299,7 +299,7 @@ def test_track_and_kill_count():
 
         # suicide
         prev_idx = state['turn'] - 1
-        if old_deaths[prev_idx] == deaths[prev_idx] and state['bot_eaten'][prev_idx]:
+        if old_deaths[prev_idx] == deaths[prev_idx] and state['bot_was_killed'][prev_idx]:
             other_team_correction[prev_idx] = 1
 
         assert bot_states[0][0]['times_killed'] == deaths[0] - suicide_correction[0] - other_team_correction[0]
@@ -338,54 +338,54 @@ def test_eaten_flag_kill(bot_to_move):
                 new_pos = (x - 1, y)
             # The red team should notice immediately
             if bot.round == 1 and not bot.is_blue and bot.turn == 0:
-                assert bot.eaten
-                assert bot.other.eaten is False
+                assert bot.was_killed
+                assert bot.other.was_killed is False
             # as bot 1 has been moved, the eaten flag will be reset in all other cases
             else:
-                assert bot.eaten is False
-                assert bot.other.eaten is False
+                assert bot.was_killed is False
+                assert bot.other.was_killed is False
         if bot_to_move == 1:
             # we move in the first round as red team
             if bot.round == 1 and not bot.is_blue and bot.turn == 0:
                 new_pos = (x + 1, y)
             # The other team should notice immediately that its other bot (#0) has been eaten
             if bot.round == 1 and bot.is_blue and bot.turn == 1:
-                assert bot.eaten is False
-                assert bot.other.eaten
+                assert bot.was_killed is False
+                assert bot.other.was_killed
             # When bot 0 moves, the flag is still set
             elif bot.round == 2 and bot.is_blue and bot.turn == 0:
-                assert bot.eaten
-                assert bot.other.eaten is False
+                assert bot.was_killed
+                assert bot.other.was_killed is False
             else:
-                assert bot.eaten is False
-                assert bot.other.eaten is False
+                assert bot.was_killed is False
+                assert bot.other.was_killed is False
         if bot_to_move == 2:
             # we move in the first round as blue team in turn == 1
             if bot.round == 1 and bot.is_blue and bot.turn == 1:
                 new_pos = (x - 1, y)
             # The red team should notice immediately
             if bot.round == 1 and not bot.is_blue and bot.turn == 1:
-                assert bot.eaten
-                assert bot.other.eaten is False
+                assert bot.was_killed
+                assert bot.other.was_killed is False
             # as bot 2 has been moved, the eaten flag will be reset in all other cases
             else:
-                assert bot.eaten is False
-                assert bot.other.eaten is False
+                assert bot.was_killed is False
+                assert bot.other.was_killed is False
         if bot_to_move == 3:
             # we move in the first round as red team in turn == 1
             if bot.round == 1 and not bot.is_blue and bot.turn == 1:
                 new_pos = (x + 1, y)
             # The blue team should notice immediately (in round == 2!) that bot 1 has been eaten
             if bot.round == 2 and bot.is_blue and bot.turn == 0:
-                assert bot.eaten is False
-                assert bot.other.eaten
+                assert bot.was_killed is False
+                assert bot.other.was_killed
             # When bot 1 moves, the flag is still set
             elif bot.round == 2 and bot.is_blue and bot.turn == 1:
-                assert bot.eaten
-                assert bot.other.eaten is False
+                assert bot.was_killed
+                assert bot.other.was_killed is False
             else:
-                assert bot.eaten is False
-                assert bot.other.eaten is False
+                assert bot.was_killed is False
+                assert bot.other.was_killed is False
 
         # otherwise return current position
         return new_pos, state
@@ -414,60 +414,60 @@ def test_eaten_flag_suicide(bot_to_move):
                 new_pos = (x + 1, y)
             # our other bot should notice it in our next turn
             if bot.round == 1 and bot.is_blue and bot.turn == 1:
-                assert bot.eaten is False
-                assert bot.other.eaten
+                assert bot.was_killed is False
+                assert bot.other.was_killed
             # bot 0 will notice it in the next round
             elif bot.round == 2 and bot.is_blue and bot.turn == 0:
-                assert bot.eaten
-                assert bot.other.eaten is False
+                assert bot.was_killed
+                assert bot.other.was_killed is False
             else:
-                assert bot.eaten is False
-                assert bot.other.eaten is False
+                assert bot.was_killed is False
+                assert bot.other.was_killed is False
         if bot_to_move == 1:
             # we move in the first round as red team
             if bot.round == 1 and not bot.is_blue and bot.turn == 0:
                 new_pos = (x - 1, y)
             # we should notice in our next turn
             if bot.round == 1 and not bot.is_blue and bot.turn == 1:
-                assert bot.eaten is False
-                assert bot.other.eaten
+                assert bot.was_killed is False
+                assert bot.other.was_killed
             # bot 1 will notice it in the next round
             elif bot.round == 2 and not bot.is_blue and bot.turn == 0:
-                assert bot.eaten
-                assert bot.other.eaten is False
+                assert bot.was_killed
+                assert bot.other.was_killed is False
             else:
-                assert bot.eaten is False
-                assert bot.other.eaten is False
+                assert bot.was_killed is False
+                assert bot.other.was_killed is False
         if bot_to_move == 2:
             # we move in the first round as blue team in turn == 1
             if bot.round == 1 and bot.is_blue and bot.turn == 1:
                 new_pos = (x + 1, y)
             # we should notice in our next turn (next round!)
             if bot.round == 2 and bot.is_blue and bot.turn == 0:
-                assert bot.eaten is False
-                assert bot.other.eaten
+                assert bot.was_killed is False
+                assert bot.other.was_killed
             # bot 2 will notice it in the next round as well
             elif bot.round == 2 and bot.is_blue and bot.turn == 1:
-                assert bot.eaten
-                assert bot.other.eaten is False
+                assert bot.was_killed
+                assert bot.other.was_killed is False
             else:
-                assert bot.eaten is False
-                assert bot.other.eaten is False
+                assert bot.was_killed is False
+                assert bot.other.was_killed is False
         if bot_to_move == 3:
             # we move in the first round as red team in turn == 1
             if bot.round == 1 and not bot.is_blue and bot.turn == 1:
                 new_pos = (x - 1, y)
             # we should notice in our next turn (next round!)
             if bot.round == 2 and not bot.is_blue and bot.turn == 0:
-                assert bot.eaten is False
-                assert bot.other.eaten
+                assert bot.was_killed is False
+                assert bot.other.was_killed
             # bot 3 will notice it in the next round as well
             elif bot.round == 2 and not bot.is_blue and bot.turn == 1:
-                assert bot.eaten
-                assert bot.other.eaten is False
+                assert bot.was_killed
+                assert bot.other.was_killed is False
             else:
-                assert bot.eaten is False
-                assert bot.other.eaten is False
+                assert bot.was_killed is False
+                assert bot.other.was_killed is False
 
         # otherwise return current position
         return new_pos, state

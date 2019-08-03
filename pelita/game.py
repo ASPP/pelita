@@ -275,7 +275,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         kills = [0]*4,
 
         # List of boolean flags weather bot has been eaten since its last move
-        bot_eaten = [False]*4,
+        bot_was_killed = [False]*4,
 
         #: Messages the bots say. Keeps only the recent one at the respective bot’s index.
         say=[""] * 4,
@@ -418,7 +418,7 @@ def prepare_bot_state(game_state, idx=None):
         'score': game_state['score'][own_team],
         'kills': game_state['kills'][own_team::2],
         'deaths': game_state['deaths'][own_team::2],
-        'bot_eaten': game_state['bot_eaten'][own_team::2],
+        'bot_was_killed': game_state['bot_was_killed'][own_team::2],
         'error_count': len(game_state['errors'][own_team]),
         'food': list(game_state['food'][own_team]),
         'name': game_state['team_names'][own_team]
@@ -431,7 +431,7 @@ def prepare_bot_state(game_state, idx=None):
         'score': game_state['score'][enemy_team],
         'kills': game_state['kills'][enemy_team::2],
         'deaths': game_state['deaths'][enemy_team::2],
-        'bot_eaten': game_state['bot_eaten'][enemy_team::2],
+        'bot_was_killed': game_state['bot_was_killed'][enemy_team::2],
         'error_count': 0, # TODO. Could be left out for the enemy
         'food': list(game_state['food'][enemy_team]),
         'name': game_state['team_names'][enemy_team]
@@ -627,14 +627,14 @@ def apply_move(gamestate, bot_position):
     n_round = gamestate["round"]
     kills = gamestate["kills"]
     deaths = gamestate["deaths"]
-    bot_eaten = gamestate["bot_eaten"]
+    bot_was_killed = gamestate["bot_was_killed"]
     fatal_error = True if gamestate["fatal_errors"][team] else False
     #TODO how are fatal errors passed to us? dict with same structure as regular errors?
     #TODO do we need to communicate that fatal error was the reason for game over in any other way?
 
 
-    # reset our own bot_eaten flag
-    bot_eaten[turn] = False
+    # reset our own bot_was_killed flag
+    bot_was_killed[turn] = False
 
     # previous errors
     team_errors = gamestate["errors"][team]
@@ -694,7 +694,7 @@ def apply_move(gamestate, bot_position):
             bots[enemy_idx] = init_positions[enemy_idx]
             kills[turn] += 1
             deaths[enemy_idx] += 1
-            bot_eaten[enemy_idx] = True
+            bot_was_killed[enemy_idx] = True
             _logger.info(f"Bot {enemy_idx} reappears at {bots[enemy_idx]}.")
     else:
         # check if we have been eaten
@@ -706,7 +706,7 @@ def apply_move(gamestate, bot_position):
             bots[turn] = init_positions[turn]
             deaths[turn] += 1
             kills[enemies_on_target[0]] += 1
-            bot_eaten[turn] = True
+            bot_was_killed[turn] = True
             _logger.info(f"Bot {turn} reappears at {bots[turn]}.")
 
     errors = gamestate["errors"]
@@ -717,7 +717,7 @@ def apply_move(gamestate, bot_position):
         "score": score,
         "deaths": deaths,
         "kills": kills,
-        "bot_eaten": bot_eaten,
+        "bot_was_killed": bot_was_killed,
         "errors": errors,
         }
 
