@@ -28,7 +28,8 @@ def test_call_pelita():
     assert state['gameover'] is True
     assert state['whowins'] == 2
     # Quick assert that there is text in stdout
-    assert len(stdout.split('\n')) == 6
+    assert len(stdout.split('\n')) > 0
+    assert "Finished" in stdout
 
     teams = ["pelita/player/SmartEatingPlayer", "pelita/player/StoppingPlayer"]
     (state, stdout, stderr) = call_pelita(teams, rounds=rounds, viewer=viewer, filter=filter, seed=None)
