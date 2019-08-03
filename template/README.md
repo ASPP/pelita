@@ -15,6 +15,7 @@ Pelita
     - [The maze](#the-maze)
     - [The `move` function](#the-move-function)
     - [The `Bot` object](#the-bot-object)
+    - [Running multiple games in the background](#running-multiple-games-in-the-background)
 
 ------------------------------------------------
 
@@ -108,7 +109,9 @@ You can pass several options to the `pelita` command to help you with testing.
 - **`--help`** the full list of supported options can be obtained by passing `--help`.
 
 ### Unit testing
-You should write unit tests to test your utility functions and to test your bot implementations. It is quite hard to test a full strategy, especially because you can not have a real opponent in a test game. It is useful to focus on specific situations (called `layouts`) and verify that your bot is doing the right thing. Several examples are available in this repo in the files named `test_XXX.py`. If you name your test files starting with `test_` your tests will be automatically picked up by `pytest` when you run on the console in the directory where you cloned this repo:
+You should write unit tests to test your utility functions and to test your bot implementations. It is quite hard to test a full strategy, especially because you can not have a real opponent in a test game. It is useful to focus on specific situations (called `layouts`) and verify that your bot is doing the right thing.
+
+Several examples for unit testing are available in this repo in the files named `test_XXX.py`. If you name your test files starting with `test_` your tests will be automatically picked up by `pytest` when you run on the console in the directory where you cloned this repo:
 ```bash
 $ python3 -m pytest
 ```
@@ -139,7 +142,10 @@ For setting up test games there is a utility function you can import from `pelit
 
 **`setup_test_game(layout, is_blue=True, round=None, score=None, seed=None, food=None, bots=None, enemy=None) ⟶ bot`**
 
-Given a layout string, returns a [Bot](#the-bot-object) that you can pass to the [move](#the-move-function) function. Printing a `Bot` will print the layout string corresponding to the current game state. In the simplest form a layout string is a multiline string where the character `#` identifies walls, `.` the food pellets, `E` the enemy bots (you must have two of them for a layout to be legal), and `0` and `1` representing the bots in your team corresponding to turn `0` and `1`. In addition to the layout, `setup_test_game` has a number of optional keyword arguments:
+Given a layout string, returns a [Bot](#the-bot-object) that you can pass to the [move](#the-move-function) function.
+Note that layouts must have an even width. The blue team's homezone is always on the left and the red team's homezone is always on the right. In the `setup_test_game` function you can pass `is_blue` which defines which side you are currently playing on.
+
+Printing a `Bot` will print the layout string corresponding to the current game state. In the simplest form a layout string is a multiline string where the character `#` identifies walls, `.` the food pellets, `E` the enemy bots (you must have two of them for a layout to be legal), and `0` and `1` representing the bots in your team corresponding to turn `0` and `1`. In addition to the layout, `setup_test_game` has a number of optional keyword arguments:
 - `is_blue`: whether your bots are on the blue team, and enemy bots on the red team
 - `round`: the current round
 - `score`: the current score
