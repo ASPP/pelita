@@ -165,16 +165,20 @@ class ResultPrinter:
         This is needed for pelita.scripts parsing the output.
         """
         winning_team = state.get("whowins")
+        if state['round'] == 1:
+            num_rounds = "1 round"
+        else:
+            num_rounds = f"{state['round']} rounds"
         if winning_team in (0, 1):
             winner = state['team_names'][winning_team]
             loser = state['team_names'][1 - winning_team]
             winner_score = state['score'][winning_team]
             loser_score = state['score'][1 - winning_team]
-            msg = f"Finished. '{winner}' won over '{loser}'. ({winner_score}:{loser_score})"
+            msg = f"Finished after {num_rounds}. '{winner}' won over '{loser}'. ({winner_score}:{loser_score})"
         elif winning_team == 2:
             t1, t2 = state['team_names']
             s1, s2 = state['score']
-            msg = f"Finished. '{t1}' and '{t2}' had a draw. ({s1}:{s2})"
+            msg = f"Finished after {num_rounds}. '{t1}' and '{t2}' had a draw. ({s1}:{s2})"
         else:
             return
 
