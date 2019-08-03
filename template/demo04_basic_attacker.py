@@ -5,9 +5,8 @@
 # position
 TEAM_NAME = 'Basic Attacker Bots'
 
-from pelita.utils import Graph
 
-from utils import shortest_path
+from utils import shortest_path, walls_to_graph
 
 
 def move(bot, state):
@@ -23,7 +22,7 @@ def move(bot, state):
         state[1] = (None, None)
         # initialize a graph representation of the maze
         # this can be shared among our bots
-        state['graph'] = Graph(bot.position, bot.walls)
+        state['graph'] = walls_to_graph(bot.walls)
 
     target, path = state[bot.turn]
 
@@ -37,7 +36,7 @@ def move(bot, state):
         state[bot.turn] = (target, path)
 
     # get the next position along the shortest path to reach our target
-    next_pos = path.pop()
+    next_pos = path.pop(0)
     # if we are not in our homezone we should check if it is safe to proceed
     if next_pos not in bot.homezone:
         # get a list of safe positions
