@@ -1,8 +1,8 @@
-# This bots moves randomly and if it gets eaten on the way, it cries out loud
+# This bots moves randomly and if it gets killed on the way, it cries out loud
 TEAM_NAME = "Death Detectors Bots"
 
 MESSAGE = 'I am a zombie now!'
-EATEN_INERTIA = 10
+SPEAK_INERTIA = 10
 
 def move(bot, state):
 
@@ -10,13 +10,13 @@ def move(bot, state):
         # initialize a state dictionary for both bots
         state = {0:0, 1:0}
 
-    # check if we have been eaten in the previous round
-    if bot.eaten:
+    # check if we have been killed in the previous round
+    if bot.was_killed:
         # set the speak inertia
-        state[bot.turn] = EATEN_INERTIA
+        state[bot.turn] = SPEAK_INERTIA
 
     if state[bot.turn]:
-        # speak for as many rounds as EATEN_INTERTIA
+        # speak for as many rounds as SPEAK_INERTIA
         bot.say(MESSAGE)
         state[bot.turn] -= 1
 
