@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pelita.utils &#8212; Pelita 0.9.1 documentation</title>
+    <title>pelita.utils &#8212; Pelita 2.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -32,10 +32,24 @@
           <div class="body" role="main">
             
   <h1>Source code for pelita.utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">random</span>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">random</span>
 
-<span class="kn">from</span> <span class="nn">..player.team</span> <span class="k">import</span> <span class="n">create_layout</span><span class="p">,</span> <span class="n">make_bots</span>
-<span class="kn">from</span> <span class="nn">..graph</span> <span class="k">import</span> <span class="n">Graph</span>
+<span class="kn">from</span> <span class="nn">.player.team</span> <span class="k">import</span> <span class="n">create_layout</span><span class="p">,</span> <span class="n">make_bots</span>
+<span class="kn">from</span> <span class="nn">.graph</span> <span class="k">import</span> <span class="n">Graph</span>
+
+
+<span class="k">def</span> <span class="nf">start_logging</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">module</span><span class="o">=</span><span class="s1">&#39;pelita&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span> <span class="ow">or</span> <span class="n">filename</span> <span class="o">==</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span>
+        <span class="n">hdlr</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">hdlr</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+    <span class="n">FORMAT</span> <span class="o">=</span> <span class="s1">&#39;[</span><span class="si">%(relativeCreated)06d</span><span class="s1"> </span><span class="si">%(name)s</span><span class="s1">:</span><span class="si">%(levelname).1s</span><span class="s1">][</span><span class="si">%(funcName)s</span><span class="s1">] </span><span class="si">%(message)s</span><span class="s1">&#39;</span>
+    <span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="n">FORMAT</span><span class="p">)</span>
+    <span class="n">hdlr</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">hdlr</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">split_food</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">food</span><span class="p">):</span>

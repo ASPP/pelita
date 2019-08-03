@@ -11,6 +11,7 @@ pelita.utils
    
       setup_test_game
       split_food
+      start_logging
    
    
 
