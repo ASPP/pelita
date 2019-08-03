@@ -164,7 +164,7 @@ layout="""
 #0. # .#
 #1.  EE#
 ########
- 
+
 ########
 #   #  #
 #     .#
@@ -185,7 +185,7 @@ print(game)
 #   #  #
 #   .  #
 ########
- 
+
 ########
 #0  #  #
 #1   EE#
@@ -243,7 +243,7 @@ Now you can copy and paste this string in a test, pass it to `setup_test_game` a
 ## Full API Description
 
 ### The maze
-The maze is a grid. Each square in the grid is defined by its coordinates. The default width of the maze is `32` squares, the default height is `16` squares. The coordinate system has the origin `(0, 0)` in the top left (North-West) of the maze and its maximum value `(31, 15)` in the bottom right (South-East). Each square which is not a wall can be empty or contain a food pellet or one or more bots. The different mazes are called `layouts`. You can get a list of all available layouts with 
+The maze is a grid. Each square in the grid is defined by its coordinates. The default width of the maze is `32` squares, the default height is `16` squares. The coordinate system has the origin `(0, 0)` in the top left (North-West) of the maze and its maximum value `(31, 15)` in the bottom right (South-East). Each square which is not a wall can be empty or contain a food pellet or one or more bots. The different mazes are called `layouts`. You can get a list of all available layouts with
 
 ```bash
 $ pelita --list-layouts
@@ -273,7 +273,7 @@ The `move` function returns two values:
 
 1. **`(x, y)`** the position where to move the bot in your team corresponding to the current turn. The position is a tuple of two integers `(x, y)`, which are the coordinates on the game grid.
 
-  Note that the returned position must represent a legal position, i.e. you can not move your bot on a wall or outside of the maze. If you return an illegal position, a legal position will be chosen at random instead and an error will be recorded for your team. After 5 errors the game is over and you lose the game. 
+  Note that the returned position must represent a legal position, i.e. you can not move your bot on a wall or outside of the maze. If you return an illegal position, a legal position will be chosen at random instead and an error will be recorded for your team. After 5 errors the game is over and you lose the game.
 
 2. **`state`** the `state` object described above.
 
@@ -288,7 +288,7 @@ Note that the `Bot` object is read-only, i.e. any modifications you make to that
 
 - **`bot.legal_positions`** is a list of positions your bot can take without hitting a wall. Note that you can always stay where you are, i.e. you can let your `move` function return `bot.position`.
 
-- **`bot.walls`** is a list of the coordinates of the walls in the maze: 
+- **`bot.walls`** is a list of the coordinates of the walls in the maze:
     ```python
     [(0, 0), (1, 0), (2, 0), ..., (29, 15), (30, 15), (31, 15)]
     ```
@@ -296,14 +296,9 @@ Note that the `Bot` object is read-only, i.e. any modifications you make to that
     ```python
     (3, 9) in bot.walls
     ```
-    The maze can be represented as a graph. Pelita has its own minimal implementation of a graph, which offers
-    a couple of short-path algorithm implementations. The maze can be converted to a graph with
-    ```python
-    from pelita.utils import Graph
-    
-    graph = Graph(bot.position, bot.walls)
-    ```
-    Example usage of `Graph` can be found in [demo04_basic_attacker.py](demo04_basic_attacker.py) and [demo05_basic_defender.py](demo05_basic_defender.py). More advanced graph features can be obtained by converting the maze to a [networkx](https://networkx.github.io/) graph. For this you can use the `walls_to_nxgraph` function in [utils.py](utils.py)
+    The maze can be represented as a graph. If you want to use [networkx](https://networkx.github.io) for shortest path algorithms, you can use the `walls_to_graph` function in [utils.py](utils.py).
+
+    Examples for using a graph representation for shortest path calculations can be found in [demo04_basic_attacker.py](demo04_basic_attacker.py) and [demo05_basic_defender.py](demo05_basic_defender.py).
 
 - **`bot.homezone`** is a list of all the coordinates of your side of the maze, so if for example you are the red team in a `32×16` maze, your homezone will be:
     ```python
