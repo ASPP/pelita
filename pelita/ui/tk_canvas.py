@@ -39,20 +39,21 @@ class MeshGraph:
         self.mesh_height = mesh_height
         self.screen_height = screen_height
         self.screen_width = screen_width
+        self.padding = 10
 
     @property
     def rect_width(self):
         """ The width of a single field.
         """
         # we have to adjust by one pixel for the border
-        return float(self.screen_width - 1) / self.mesh_width
+        return float(self.screen_width - 1 - 2 * self.padding) / self.mesh_width
 
     @property
     def rect_height(self):
         """ The height of a single field.
         """
         # we have to adjust by one pixel for the border
-        return float(self.screen_height - 1) / self.mesh_height
+        return float(self.screen_height - 1 - 2 * self.padding) / self.mesh_height
 
     @property
     def half_scale_x(self):
@@ -77,15 +78,26 @@ class MeshGraph:
         # coords are between -1 and +1: shift on [0, 1]
         trafo_x = (model_x + 1.0) / 2.0
 
-        real_x = self.rect_width * (mesh_x + trafo_x)
+        real_x = self.rect_width * (mesh_x + trafo_x) + self.padding
         return real_x
 
     def mesh_to_screen_y(self, mesh_y, model_y):
         # coords are between -1 and +1: shift on [0, 1]
         trafo_y = (model_y + 1.0) / 2.0
 
-        real_y = self.rect_height * (mesh_y + trafo_y)
+        real_y = self.rect_height * (mesh_y + trafo_y) + self.padding
         return real_y
+
+    def screen_to_mesh_coord(self, screen_x, screen_y):
+        # returns the mesh coordinate of the selected screen coordinate
+        # or None, when it is outside of the mesh
+
+        x = int((screen_x - self.padding) / self.rect_width)
+        y = int((screen_y - self.padding) / self.rect_height)
+
+        if not 0 <= x < self.mesh_width or not 0 <= y < self.mesh_height:
+            return None
+        return (x, y)
 
     def __repr__(self):
         return "MeshGraph(%d, %d, %d, %d)" % (self.mesh_width, self.mesh_height,
@@ -441,10 +453,10 @@ class TkApplication:
             self.ui.game_canvas.create_line(x0_, y0_, x1_, y1_, width=0.01, fill="#884488", tag="grid")
 
         for x in range(self.mesh_graph.mesh_width + 1):
-            draw_line(x - 0.5, -0.5, x - 0.5, self.mesh_graph.mesh_height)
+            draw_line(x - 0.5, -0.5, x - 0.5, self.mesh_graph.mesh_height - 0.5)
 
         for y in range(self.mesh_graph.mesh_height + 1):
-            draw_line(-0.5, y - 0.5, self.mesh_graph.mesh_width, y - 0.5)
+            draw_line(-0.5, y - 0.5, self.mesh_graph.mesh_width - 0.5, y - 0.5)
 
     def toggle_grid(self):
         self._grid_enabled = not self._grid_enabled
@@ -460,12 +472,11 @@ class TkApplication:
 
     def on_click(self, event):
         raw_x, raw_y = event.x, event.y
-        x = int(raw_x / self.mesh_graph.screen_width * self.mesh_graph.mesh_width)
-        y = int(raw_y / self.mesh_graph.screen_height * self.mesh_graph.mesh_height)
-        if self.selected == (x, y):
+        selected = self.mesh_graph.screen_to_mesh_coord(event.x, event.y)
+        if self.selected == selected:
             self.selected = None
         else:
-            self.selected = (x, y)
+            self.selected = selected
         self.update()
 
     def draw_background(self):
