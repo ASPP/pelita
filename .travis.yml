@@ -35,9 +35,9 @@ script:
     fi
 
 # push coverage
-after_success:
-- codecov
-- coveralls
+#after_success:
+#- codecov
+#- coveralls
 
 # generate sphinx documentation in doc/build/html/
 before_deploy:
