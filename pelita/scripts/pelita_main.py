@@ -12,7 +12,9 @@ import sys
 import time
 
 import pelita
-from pelita import libpelita, game, layout
+from pelita import game, layout, utils
+# TODO: The check_team option
+from pelita.tournament.tournament import check_team
 
 # silence stupid warnings from logging module
 logging.root.manager.emittedNoHandlerWarning = 1
@@ -165,11 +167,7 @@ def main():
         sys.exit(0)
 
     if args.version:
-        git_version = pelita._git_version()
-        if git_version:
-            print("Pelita {} (git: {})".format(pelita.__version__, git_version))
-        else:
-            print("Pelita {}".format(pelita.__version__))
+        print("Pelita {}".format(pelita.__version__))
         sys.exit(0)
 
     if args.list_layouts:
@@ -181,7 +179,7 @@ def main():
         raise ValueError("Options --tk (or --tk-no-sync) and --no-publish are mutually exclusive.")
 
     if args.log:
-        libpelita.start_logging(args.log)
+        utils.start_logging(args.log)
 
     if args.rounds < 1:
         raise ValueError(f"Must play at least one round (rounds={args.rounds}).")
@@ -190,7 +188,7 @@ def main():
         if not args.team_specs:
             raise ValueError("No teams specified.")
         for team_spec in args.team_specs:
-            team_name = libpelita.check_team(team_spec)
+            team_name = check_team(team_spec)
             print("NAME:", team_name)
         sys.exit(0)
 

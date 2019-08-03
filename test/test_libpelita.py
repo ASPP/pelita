@@ -5,17 +5,18 @@ import sys
 import tempfile
 
 from pelita.network import ZMQClientError
-from pelita import libpelita
+from pelita.scripts.pelita_tournament import firstNN
+from pelita.tournament.tournament import call_pelita, check_team
 
 
 class TestLibpelitaUtils:
     def test_firstNN(self):
-        assert libpelita.firstNN(None, False, True) == False
-        assert libpelita.firstNN(True, False, True) == True
-        assert libpelita.firstNN(None, None, True) == True
-        assert libpelita.firstNN(None, 2, True) == 2
-        assert libpelita.firstNN(None, None, None) == None
-        assert libpelita.firstNN() == None
+        assert firstNN(None, False, True) == False
+        assert firstNN(True, False, True) == True
+        assert firstNN(None, None, True) == True
+        assert firstNN(None, 2, True) == 2
+        assert firstNN(None, None, None) == None
+        assert firstNN() == None
 
 def test_call_pelita():
     rounds = 200
@@ -23,34 +24,34 @@ def test_call_pelita():
     filter = 'small'
 
     teams = ["pelita/player/StoppingPlayer", "pelita/player/StoppingPlayer"]
-    (state, stdout, stderr) = libpelita.call_pelita(teams, rounds=rounds, viewer='null', filter=filter, seed=None)
+    (state, stdout, stderr) = call_pelita(teams, rounds=rounds, viewer='null', filter=filter, seed=None)
     assert state['gameover'] is True
     assert state['whowins'] == 2
     # Quick assert that there is text in stdout
     assert len(stdout.split('\n')) == 6
 
     teams = ["pelita/player/SmartEatingPlayer", "pelita/player/StoppingPlayer"]
-    (state, stdout, stderr) = libpelita.call_pelita(teams, rounds=rounds, viewer=viewer, filter=filter, seed=None)
+    (state, stdout, stderr) = call_pelita(teams, rounds=rounds, viewer=viewer, filter=filter, seed=None)
     assert state['gameover'] is True
     assert state['whowins'] == 0
 
     teams = ["pelita/player/StoppingPlayer", "pelita/player/SmartEatingPlayer"]
-    (state, stdout, stderr) = libpelita.call_pelita(teams, rounds=rounds, viewer=viewer, filter=filter, seed=None)
+    (state, stdout, stderr) = call_pelita(teams, rounds=rounds, viewer=viewer, filter=filter, seed=None)
     assert state['gameover'] is True
     assert state['whowins'] == 1
 
 
 def test_check_team_external():
-    assert libpelita.check_team("pelita/player/StoppingPlayer") == "Stopping"
+    assert check_team("pelita/player/StoppingPlayer") == "Stopping"
 
 def test_check_team_external_fails():
     with pytest.raises(ZMQClientError):
-        libpelita.check_team("Unknown Module")
+        check_team("Unknown Module")
 
 def test_check_team_internal():
     def move(b, s):
         return b.position, s
-    assert libpelita.check_team(move) == "local-team (move)"
+    assert check_team(move) == "local-team (move)"
 
 
 def test_write_replay_is_idempotent():
@@ -60,7 +61,7 @@ def test_write_replay_is_idempotent():
         with tempfile.NamedTemporaryFile() as g:
             # run a quick game and save the game states to f
 
-            cmd = [libpelita.get_python_process(), '-m', 'pelita.scripts.pelita_main',
+            cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
                     '--write-replay', f.name,
                     '--filter', 'small',
                     '--null']
@@ -73,7 +74,7 @@ def test_write_replay_is_idempotent():
             assert len(first_run) > 0
 
             # run a replay of f and store in g
-            cmd = [libpelita.get_python_process(), '-m', 'pelita.scripts.pelita_main',
+            cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
                     '--write-replay', g.name,
                     '--replay', f.name,
                     '--null']

@@ -13,9 +13,53 @@ import sys
 import shutil
 import yaml
 
-from .. import libpelita
 from ..tournament import tournament
 from ..tournament.tournament import Config, State
+from ..utils import start_logging
+
+
+def firstNN(*args):
+    """
+    Return the first argument not None.
+
+    Example
+    -------
+        >>> firstNN(None, False, True)
+        False
+        >>> firstNN(True, False, True)
+        True
+        >>> firstNN(None, None, True)
+        True
+        >>> firstNN(None, 2, True)
+        2
+        >>> firstNN(None, None, None)
+        None
+        >>> firstNN()
+        None
+    """
+    return next(filter(lambda x: x is not None, args), None)
+
+
+def shlex_unsplit(cmd):
+    """
+    Translates a list of command arguments into bash-like ‘human’ readable form.
+    Pseudo-reverses shlex.split()
+
+    Example
+    -------
+        >>> shlex_unsplit(["command", "-f", "Hello World"])
+        "command -f 'Hello World'"
+
+    Parameters
+    ----------
+    cmd : list of string
+        command + parameter list
+
+    Returns
+    -------
+    string
+    """
+    return " ".join(shlex.quote(arg) for arg in cmd)
 
 
 def create_directory(prefix):
@@ -91,9 +135,9 @@ def setup():
             print("Please enter the location of the sound-giving binary:")
             sound_path = input()
         elif res == "s":
-            sound_path = libpelita.shlex_unsplit(sound["say"])
+            sound_path = shlex_unsplit(sound["say"])
         elif res == "f":
-            sound_path = libpelita.shlex_unsplit(sound["flite"])
+            sound_path = shlex_unsplit(sound["flite"])
         else:
             continue
 
@@ -189,9 +233,9 @@ def main():
         with open(args.config) as f:
             config_data = yaml.load(f)
             config_data['viewer'] = args.viewer or config_data.get('viewer', 'tk')
-            config_data['interactive'] = libpelita.firstNN(args.interactive, config_data.get('interactive'), True)
+            config_data['interactive'] = firstNN(args.interactive, config_data.get('interactive'), True)
             config_data['statefile'] = args.state
-            config_data['speak'] = libpelita.firstNN(args.speak, config_data.get('speak'))
+            config_data['speak'] = firstNN(args.speak, config_data.get('speak'))
             config_data['speaker'] = args.speaker or config_data.get('speaker')
 
             config = Config(config_data)
@@ -209,7 +253,7 @@ def main():
         config.tournament_log_folder = storage_folder
         config.tournament_log_file = storage_folder / 'tournament.out'
 
-        libpelita.start_logging(storage_folder / 'tournament.log')
+        start_logging(storage_folder / 'tournament.log')
 
     if args.rounds:
         config.rounds = args.rounds

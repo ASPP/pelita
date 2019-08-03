@@ -6,7 +6,6 @@ import sys
 import tempfile
 
 import pelita
-from pelita import libpelita
 from pelita.scripts.pelita_player import load_team_from_module, load_team
 
 SIMPLE_MODULE = """

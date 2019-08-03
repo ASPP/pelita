@@ -1,7 +1,21 @@
+import logging
 import random
 
-from ..player.team import create_layout, make_bots
-from ..graph import Graph
+from .player.team import create_layout, make_bots
+from .graph import Graph
+
+
+def start_logging(filename, module='pelita'):
+    if not filename or filename == '-':
+        hdlr = logging.StreamHandler()
+    else:
+        hdlr = logging.FileHandler(filename, mode='w')
+    logger = logging.getLogger(module)
+    FORMAT = '[%(relativeCreated)06d %(name)s:%(levelname).1s][%(funcName)s] %(message)s'
+    formatter = logging.Formatter(FORMAT)
+    hdlr.setFormatter(formatter)
+    logger.addHandler(hdlr)
+    logger.setLevel(logging.DEBUG)
 
 
 def split_food(width, food):

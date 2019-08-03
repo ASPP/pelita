@@ -2,12 +2,16 @@
 # -*- coding:utf-8 -*-
 
 import builtins
+import contextlib
 import io
 import json
+import logging
+import os
 from pathlib import Path
 import random
 import re
 import shlex
+import signal
 import subprocess
 import sys
 import tempfile
@@ -16,11 +20,14 @@ import time
 import yaml
 import zmq
 
-from pelita import libpelita
 from . import roundrobin
 from . import komode
+from ..player.team import make_team
 
-_logger = libpelita.logging.getLogger(__name__)
+
+_logger = logging.getLogger(__name__)
+_mswindows = (sys.platform == "win32")
+
 
 # Number of points a teams gets for matches in the first round
 # Probably not worth it to make it options.
@@ -28,6 +35,138 @@ POINTS_DRAW = 1
 POINTS_WIN = 2
 
 LOGFILE = None
+
+
+def check_team(team_spec):
+    """ Instanciates a team from a team_spec and returns its name """
+    team, _zmq_context = make_team(team_spec)
+    return team.team_name
+
+
+@contextlib.contextmanager
+def run_and_terminate_process(args, **kwargs):
+    """ This serves as a contextmanager around `subprocess.Popen`, ensuring that
+    after the body of the with-clause has finished, the process itself (and the
+    process’s children) terminates as well.
+
+    On Unix we try sending a SIGTERM before killing the process group but as
+    afterwards we only wait on the first child, this means that the grand children
+    do not get the chance to properly terminate.
+    In cases where the first child has children that should properly close, the
+    first child should catch SIGTERM with a signal handler and wait on its children.
+
+    On Windows we send a CTRL_BREAK_EVENT to the whole process group and
+    hope for the best. :)
+    """
+
+    _logger.debug(f"Executing: {''.join(args)}")
+
+    try:
+        if _mswindows:
+            p = subprocess.Popen(args, **kwargs, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+        else:
+            p = subprocess.Popen(args, **kwargs, preexec_fn=os.setsid)
+        yield p
+    finally:
+        if _mswindows:
+            _logger.debug("Sending CTRL_BREAK_EVENT to {proc} with pid {pid}.".format(proc=p, pid=p.pid))
+            os.kill(p.pid, signal.CTRL_BREAK_EVENT)
+        else:
+            try:
+                pgid = os.getpgid(p.pid)
+                _logger.debug("Sending SIGTERM to pgid {pgid}.".format(pgid=pgid))
+                os.killpg(pgid, signal.SIGTERM) # send sigterm, or ...
+                try:
+                    # It would be nicer to wait with os.waitid on the process group
+                    # but that does not seem to exist on macOS.
+                    p.wait(3)
+                except subprocess.TimeoutExpired:
+                    _logger.debug("Sending SIGKILL to pgid {pgid}.".format(pgid=pgid))
+                    os.killpg(pgid, signal.SIGKILL) # send sigkill, or ...
+            except ProcessLookupError:
+                # did our process group vanish?
+                # we try killing only the child process then
+                _logger.debug("Sending SIGTERM to pid {pid}.".format(pid=p.pid))
+                p.terminate()
+                try:
+                    p.wait(3)
+                except subprocess.TimeoutExpired:
+                    _logger.debug("Sending SIGKILL to pid {pid}.".format(pid=p.pid))
+                    p.kill()
+
+
+def call_pelita(team_specs, *, rounds, filter, viewer, seed, write_replay=False, store_output=False):
+    """ Starts a new process with the given command line arguments and waits until finished.
+
+    Returns
+    =======
+    tuple of (game_state, stdout, stderr)
+    """
+    team1, team2 = team_specs
+
+    ctx = zmq.Context()
+    reply_sock = ctx.socket(zmq.PAIR)
+
+    addr = 'tcp://127.0.0.1'
+    reply_port = reply_sock.bind_to_random_port(addr)
+    reply_addr = 'tcp://127.0.0.1' + ':' + str(reply_port)
+
+    rounds = ['--rounds', str(rounds)] if rounds else []
+    filter = ['--filter', filter] if filter else []
+    viewer = ['--' + viewer] if viewer else []
+    seed = ['--seed', seed] if seed else []
+    write_replay = ['--write-replay', write_replay] if write_replay else []
+    store_output = ['--store-output', store_output] if store_output else []
+
+    cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
+           team1, team2,
+           '--reply-to', reply_addr,
+           *rounds,
+           *filter,
+           *viewer,
+           *seed,
+           *write_replay,
+           *store_output]
+
+    # We need to run a process in the background in order to await the zmq events
+    # stdout and stderr are written to temporary files in order to be more portable
+    with tempfile.TemporaryFile(mode='w+t') as stdout_buf, tempfile.TemporaryFile(mode='w+t') as stderr_buf:
+        # We use the environment variable PYTHONUNBUFFERED here to retrieve stdout without buffering
+        with run_and_terminate_process(cmd, stdout=stdout_buf, stderr=stderr_buf,
+                                            universal_newlines=True,
+                                            env=dict(os.environ, PYTHONUNBUFFERED='x')) as proc:
+
+            poll = zmq.Poller()
+            poll.register(reply_sock, zmq.POLLIN)
+
+            final_game_state = None
+
+            while True:
+                evts = dict(poll.poll(1000))
+
+                if not evts and proc.poll() is not None:
+                    # no more events and proc has finished.
+                    # we break the loop
+                    break
+
+                socket_ready = evts.get(reply_sock, False)
+                if socket_ready:
+                    try:
+                        game_state = json.loads(reply_sock.recv_string())
+                        finished = game_state.get("gameover", None)
+                        whowins = game_state.get("whowins", None)
+                        if finished:
+                            final_game_state = game_state
+                            break
+                    except ValueError:  # JSONDecodeError
+                        pass
+                    except KeyError:
+                        pass
+
+        stdout_buf.seek(0)
+        stderr_buf.seek(0)
+        return (final_game_state, stdout_buf.read(), stderr_buf.read())
+
 
 
 def create_team_id(team_id, idx):
@@ -236,7 +375,7 @@ def present_teams(config):
 def set_name(team):
     """Get name of team."""
     try:
-        return libpelita.check_team(team)
+        return check_team(team)
     except Exception:
         print("*** ERROR: I could not load team {team}. Please help!".format(team=team))
         print(sys.stderr)
@@ -260,7 +399,7 @@ def play_game_with_config(config, teams):
 
     seed = str(random.randint(0, sys.maxsize))
 
-    res = libpelita.call_pelita([config.team_spec(team1), config.team_spec(team2)],
+    res = call_pelita([config.team_spec(team1), config.team_spec(team2)],
                                 rounds=config.rounds,
                                 filter=config.filter,
                                 viewer=config.viewer,

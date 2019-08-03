@@ -4,6 +4,7 @@ import logging
 import os
 import random
 import subprocess
+import sys
 import traceback
 from functools import reduce
 from io import StringIO
@@ -11,7 +12,7 @@ from pathlib import Path
 
 import zmq
 
-from .. import layout, libpelita
+from .. import layout
 from ..exceptions import PlayerDisconnected, PlayerTimeout
 from ..layout import layout_as_str, parse_layout, wall_dimensions
 from ..network import ZMQClientError, ZMQConnection, ZMQReplyTimeout, ZMQUnreachablePeer
@@ -237,7 +238,7 @@ class RemoteTeam:
         as a standalone client on URL `addr`.
         """
         player = 'pelita.scripts.pelita_player'
-        external_call = [libpelita.get_python_process(),
+        external_call = [sys.executable,
                          '-m',
                          player,
                          team_spec,

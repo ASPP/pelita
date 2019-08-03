@@ -14,7 +14,6 @@ from . import layout
 from .exceptions import FatalException, NonFatalException, NoFoodWarning
 from .gamestate_filters import noiser
 from .layout import initial_positions, get_legal_positions
-from .libpelita import get_python_process
 from .network import bind_socket, setup_controller, ZMQPublisher
 from .player.team import make_team
 from .viewer import ProgressViewer, AsciiViewer, ReplyToViewer, ReplayWriter, ResultPrinter
@@ -57,7 +56,7 @@ class TkViewer:
             viewer_args += ["--stop-after", str(stop_after)]
 
         tkviewer = 'pelita.scripts.pelita_tkviewer'
-        external_call = [get_python_process(),
+        external_call = [sys.executable,
                         '-m',
                         tkviewer] + viewer_args
         _logger.debug("Executing: %r", external_call)
