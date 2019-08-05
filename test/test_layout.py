@@ -25,9 +25,18 @@ def test_get_available_layouts():
     assert 100 == len(available)
 
 def test_get_layout_by_name():
-    target_layout = Path('layouts/normal_with_dead_ends_001.layout').read_text()
-    loaded = get_layout_by_name('layout_normal_with_dead_ends_001')
-    assert target_layout == loaded
+    target_layout = """
+##################
+#. ... .##.     3#
+# # #  .  .### #1#
+# # ##.   .      #
+#      .   .## # #
+#0# ###.  .  # # #
+#2     .##. ... .#
+##################
+"""
+    loaded = get_layout_by_name('small_without_dead_ends_001')
+    assert target_layout.strip() == loaded.strip()
 
 def test_get_random_layout():
     fails = 0

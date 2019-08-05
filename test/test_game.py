@@ -157,7 +157,7 @@ def test_initial_positions_same_in_layout(layout_name):
 
 def test_get_legal_positions_basic():
     """Check that the output of legal moves contains all legal moves for one example layout"""
-    l = layout.get_layout_by_name(layout_name="layout_small_without_dead_ends_100")
+    l = layout.get_layout_by_name(layout_name="small_without_dead_ends_100")
     parsed_l = layout.parse_layout(l)
     legal_positions = get_legal_positions(parsed_l["walls"], parsed_l["bots"][0])
     exp = [(2, 5), (1, 6), (1, 5)]
@@ -265,7 +265,7 @@ def test_play_turn_eating_enemy_food(turn, which_food):
     #5# #0# ###.  .  # # #
     #6# #2     .##. ... .#
     #7# ##################
-    game_state = setup_specific_basic_gamestate("layouts/small_without_dead_ends_001.layout", round=0, turn=turn)
+    game_state = setup_specific_basic_gamestate("small_without_dead_ends_001", round=0, turn=turn)
     team = turn % 2
     prev_len_food = [len(team_food) for team_food in game_state["food"]]
 
@@ -306,7 +306,7 @@ def test_play_turn_killing(turn):
     #5# #0# ###.  .  # # #
     #6# #2     .##. ... .#
     #7# ##################
-    game_state = setup_specific_basic_gamestate("layouts/small_without_dead_ends_001.layout")
+    game_state = setup_specific_basic_gamestate("small_without_dead_ends_001")
     team = turn % 2
     game_state["turn"] = turn
     enemy_idx = (1, 3) if team == 0 else(0, 2)
@@ -332,7 +332,7 @@ def test_play_turn_friendly_fire(setups):
     #5# #0# ###.  .  # # #
     #6# #2     .##. ... .#
     #7# ##################
-    game_state = setup_specific_basic_gamestate("layouts/small_without_dead_ends_001.layout")
+    game_state = setup_specific_basic_gamestate("small_without_dead_ends_001")
     turn = setups[0]
     enemy_pos = setups[1]
     team = turn % 2
@@ -867,7 +867,7 @@ def test_play_turn_maxrounds(score):
 def test_play_turn_move():
     """Checks that bot is moved to intended space"""
     turn = 0
-    l = Path("layouts/small_without_dead_ends_100.layout").read_text()
+    l = layout.get_layout_by_name("small_without_dead_ends_100")
     parsed_l = layout.parse_layout(l)
     game_state = {
         "food": parsed_l["food"],
@@ -897,7 +897,7 @@ def test_play_turn_move():
 
 def setup_random_basic_gamestate(*, round=1, turn=0):
     """helper function for testing play turn"""
-    l = Path("layouts/small_without_dead_ends_100.layout").read_text()
+    l = layout.get_layout_by_name("small_without_dead_ends_100")
     parsed_l = layout.parse_layout(l)
 
     stopping = lambda bot, s: (bot.position, s)
@@ -910,7 +910,7 @@ def setup_random_basic_gamestate(*, round=1, turn=0):
 
 def setup_specific_basic_gamestate(layout_id, *, round=0, turn=0):
     """helper function for testing play turn"""
-    l = Path(layout_id).read_text()
+    l = layout.get_layout_by_name(layout_id)
     parsed_l = layout.parse_layout(l)
 
     stopping = lambda bot, s: (bot.position, s)
