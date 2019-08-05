@@ -1,14 +1,7 @@
-import base64
 import io
+from pathlib import Path
+import pkg_resources
 import random
-import zlib
-
-try:
-    from . import __layouts
-except SyntaxError as err:
-    print("Invalid syntax in __layouts module. Pelita will not be able to use built-in layouts.")
-    print(err)
-
 
 def get_random_layout(filter=''):
     """ Return a random layout string from the available ones.
@@ -31,7 +24,7 @@ def get_random_layout(filter=''):
         >>> get_random_layout(filter='without_dead_ends')
 
     """
-    layouts_names = [item for item in get_available_layouts() if filter in item]
+    layouts_names = get_available_layouts(filter=filter)
     layout_choice = random.choice(layouts_names)
     return layout_choice, get_layout_by_name(layout_choice)
 
@@ -56,9 +49,9 @@ def get_available_layouts(filter=''):
         >>> get_available_layouts(filter='without_dead_ends')
 
     """
-    # loop in layouts dictionary and look for layout strings
-    return [item for item in dir(__layouts) if item.startswith('layout_') and
-            filter in item]
+    # loop in layouts directory and look for layout files
+    return [item[:-(len('.layout'))] for item in pkg_resources.resource_listdir('pelita', '_layouts')
+                 if item.endswith('.layout') and filter in item]
 
 def get_layout_by_name(layout_name):
     """ Get a layout.
@@ -82,15 +75,12 @@ def get_layout_by_name(layout_name):
     --------
     get_available_layouts
     """
-    # decode and return this layout
     try:
-        return zlib.decompress(base64.decodebytes(__layouts.__dict__[layout_name].encode())).decode()
-    except KeyError as ke:
-        # This happens if layout_name is not a valid key in the __dict__.
-        # I.e. if the layout_name is not available.
-        # The error message would be to terse "KeyError: 'non_existing_layout'",
-        # thus reraise as ValueError with appropriate error message.
-        raise ValueError("Layout: '%s' is not known." % ke.args)
+        return pkg_resources.resource_string('pelita', '_layouts/' + layout_name + '.layout').decode()
+    except FileNotFoundError:
+        # This happens if layout_name is not found in the layouts directory
+        # reraise as ValueError with appropriate error message.
+        raise ValueError(f"Layout: '{layout_name}' is not known.") from None
 
 def parse_layout(layout_str, allow_enemy_chars=False):
     """Parse a layout string
