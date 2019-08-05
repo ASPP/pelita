@@ -391,7 +391,9 @@ def prepare_bot_state(game_state, idx=None):
 
     """
 
-    if game_state.get('turn') is None and idx is not None:
+    bot_initialization = game_state.get('turn') is None and idx is not None
+
+    if bot_initialization:
         # We assume that we are in get_initial phase
         turn = idx
         bot_turn = None
@@ -438,14 +440,18 @@ def prepare_bot_state(game_state, idx=None):
     }
 
     bot_state = {
-        'walls': game_state['walls'], # only in initial round
-        'seed': seed, # only used in set_initial phase
         'team': team_state,
         'enemy': enemy_state,
         'round': game_state['round'],
         'bot_turn': bot_turn,
         'timeout_length': game_state['timeout_length']
     }
+
+    if bot_initialization:
+        bot_state.update({
+            'walls': game_state['walls'], # only in initial round
+            'seed': seed # only used in set_initial phase
+        })
 
     return bot_state
 

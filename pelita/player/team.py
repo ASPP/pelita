@@ -77,6 +77,9 @@ class Team:
         # Reset the bot tracks
         self._bot_track = [[], []]
 
+        # Store the walls, which are only transmitted once
+        self._walls = game_state['walls']
+
         return self.team_name
 
     def get_move(self, game_state):
@@ -94,7 +97,7 @@ class Team:
         -------
         move : dict
         """
-        me = make_bots(walls=game_state['walls'],
+        me = make_bots(walls=self._walls,
                        team=game_state['team'],
                        enemy=game_state['enemy'],
                        round=game_state['round'],
