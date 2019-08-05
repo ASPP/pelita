@@ -6,7 +6,7 @@ The maze will be sent to sys.out .
 
 import sys
 import optparse
-from .maze_generator import get_new_maze
+from maze_generator import get_new_maze
 
 
 def default(str):

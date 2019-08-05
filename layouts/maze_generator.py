@@ -22,7 +22,12 @@ Completely rewritten by Pietro Berkes
 import numpy
 import networkx as nx
 
-from pelita.datamodel import north, south, east, west
+
+north = (0, -1)
+south = (0, 1)
+east = (1, 0)
+west = (-1, 0)
+
 
 # character constants for walls, food, and empty spaces
 W = b'#'
@@ -171,7 +176,7 @@ def walls_to_graph(maze):
 
     h, w = maze.shape
 
-    graph = nx.Graph()
+    graph = nx.DiGraph()
     # define nodes for maze
     for x in range(w):
         for y in range(h):
@@ -188,7 +193,7 @@ def walls_to_graph(maze):
             if neighbor in nodes:
                 graph.add_edge(pos, neighbor, data=[dir_])
 
-    return graph, nodes[0]
+    return graph, list(nodes)[0]
 
 
 def find_dead_ends(graph, start_node, width):
@@ -199,21 +204,22 @@ def find_dead_ends(graph, start_node, width):
         x = node[0]
         # do not consider dead ends on the right side of the maze, as those
         # represents passages to the enemy's side
-        if graph.degree(node) == 1 and x < width - 1:
+        if graph.in_degree(node) == 1 and x < width - 1:
             dead_ends.append(node)
 
-    for node in nx.bfs_successors(graph, start_node):
+    for node, _ in nx.bfs_successors(graph, start_node):
         collect_dead_ends(node)
 
     return dead_ends
 
 
-def remove_dead_end(dead_node, maze):
+def remove_dead_end(dead_node, maze_graph, maze):
     """Remove one dead end in a maze."""
 
     h, w = maze.shape
-    pos = dead_node.data
-    free_dir = dead_node.get_edges_out()[0].data[0]
+    pos = dead_node
+    edges_out = list(maze_graph.out_edges(dead_node, data=True))[0]
+    free_dir = edges_out[-1]['data'][0]
 
     # first, try to pierce the wall straight ahead
     # this might not be possible if we are on the borders of the maze
@@ -245,7 +251,8 @@ def remove_all_dead_ends(maze):
         if len(dead_ends) == 0:
             break
 
-        remove_dead_end(dead_ends[0], maze[1:height - 1, 1:width // 2])
+        remove_dead_end(dead_ends[0], maze_graph,
+                        maze[1:height - 1, 1:width // 2])
 
 
 def add_pacman_stuff(maze, max_food):
