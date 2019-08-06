@@ -18,6 +18,7 @@ the first wall has k gaps, the next wall has k/2 gaps, etc. (min=1)
 Inspired by code by Dan Gillick
 Completely rewritten by Pietro Berkes
 """
+import sys
 
 import numpy
 import networkx as nx
@@ -297,6 +298,8 @@ def get_new_maze(height, width, nfood=30, seed=None, dead_ends=False):
     if seed is None:
         seed = numpy.random.randint(1, 2 ** 31 - 1)
     numpy.random.seed(seed)
+
+    print(f'Seed: {seed}', file=sys.stderr)
 
     maze = empty_maze(height, width)
     create_half_maze(maze, height // 2)
