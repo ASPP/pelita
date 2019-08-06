@@ -588,8 +588,7 @@ class TkApplication:
                 if not contents:
                     contents = "empty"
 
-                return "[{x}, {y}] in {color} zone: {contents}".format(
-                    x=pos[0], y=pos[1], color=zone, contents=contents)
+                return f"{pos} in {zone} zone: {contents}"
 
             self.ui.status_selected.config(text=field_status(self.selected))
 
