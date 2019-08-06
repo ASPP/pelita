@@ -48,15 +48,15 @@ def detect_chambers(graph, length):
         if len(subgraphs) == 1:
             # the graph wasn't split, skip this node
             continue
-        elif len(subgraphs) > 2:
-            # this shouldn't happen
-            raise Exception('dimensionality error!')
         else:
-            chamber = subgraphs[0]
-            # if the smallest subgraph has more than one node, we have detected
-            # a chamber
-            if len(chamber) > 1:
-                chambers.append(chamber)
+            # loop through the subgraphs, irgnoring the biggest one, which
+            # is the "rest" after the split of the chambers
+            for subgraph in subgraphs[:-1]:
+                chamber = subgraph
+                # if the subgraph has more than one node, we have detected
+                # a chamber
+                if len(chamber) > 1:
+                    chambers.append(chamber)
     # loop through all possible pairs of chambers, and only retain those
     # who are not subset of others
     dupes = []
@@ -109,10 +109,12 @@ if connectivity < 2:
 
     if len(food_chambers) > 0:
         repr_nodes = [chamber[2] for chamber in food_chambers]
-        print(f'{flname}: Detected {len(food_chambers)} chambers: {repr_nodes}')
+        print(f'{flname}: Detected {len(food_chambers)} food chamber(s): {repr_nodes}')
         # print the cut node and its companion on the other side of the maze
         #mirror = width-cut[0]-1, height-cut[1]-1
         #print(f'{flname}: {cut},{mirror} - food: {count}')
         #break
-
+    else:
+        repr_nodes = [chamber.pop() for chamber in chambers]
+        print(f'{flname}: Detected {len(chambers)} empty chamber(s): {repr_nodes}')
 
