@@ -241,7 +241,6 @@ def remove_dead_end(dead_node, maze_graph, maze):
             maze[pierce_y, pierce_x] = E
             break
 
-
 def remove_all_dead_ends(maze):
     height, width = maze.shape
     while True:
@@ -254,6 +253,83 @@ def remove_all_dead_ends(maze):
 
         remove_dead_end(dead_ends[0], maze_graph,
                         maze[1:height - 1, 1:width // 2])
+
+def get_connectivity(maze, maze_graph=None):
+    if maze_graph is None:
+        maze_graph,_ = walls_to_graph(maze, class_=nx.Graph)
+    return nx.node_connectivity(maze_graph)
+
+def open_door_into_chamber(maze, chamber):
+    height, width = maze.shape
+    # look for the first wall around the chamber which is not on the
+    # outer border or on the dividing border
+    done = False
+    print('Trying to open door into the chamber', file=sys.stderr)
+    for nodex, nodey in chamber:
+        print(f'working on ({nodex,nodey})',file=sys.stderr)
+        for dirx, diry in (north, south, east, west):
+            lmaze = maze.copy()
+            neighbor_x, neighbor_y = nodex+dirx, nodey+diry
+            is_wall = (maze[neighbor_y,neighbor_x] == W)
+            inner_x = not (neighbor_x == 0 or neighbor_x == width-1)
+            inner_y = not (neighbor_y == 0 or neighbor_y == height-1)
+            non_divide = not (neighbor_x == width//2 -1 or neighbor_x == width//2)
+            candidate_wall = is_wall and inner_x and inner_y and non_divide
+            if candidate_wall:
+                print(f'Found candidate wall ({neighbor_x},{neighbor_y})', file=sys.stderr)
+
+                lmaze[neighbor_y, neighbor_x] = E
+                # fix also the center mirrored element
+                lmaze[height-neighbor_y-1, width-neighbor_x-1] = E
+                # now check that we fixed the problem
+                connectivity = get_connectivity(lmaze)
+                if connectivity > 1:
+
+                    # We have found a wall to remove that opens the chamber
+                    maze[neighbor_y, neighbor_x] = E
+                    maze[height-neighbor_y-1, width-neighbor_x-1] = E
+                    done = True
+                    print(f'Opening on: ({neighbor_x}, {neighbor_y})')
+                    break
+        if done:
+            break
+
+
+
+def remove_all_chambers(maze):
+    height, width = maze.shape
+    maze_graph,_ = walls_to_graph(maze, class_=nx.Graph)
+    # when the connectivity of the graph is 1, there is one node that when
+    # removed splits the graph in two. The node is the entrance to a chamber
+    connectivity = get_connectivity(maze, maze_graph)
+    while connectivity < 2:
+        # There are chambers
+        # A "cut" is a node in the vicinity of the chamber's entrance
+        cut = nx.algorithms.connectivity.cuts.minimum_node_cut(maze_graph)
+        cut = cut.pop()
+        print(f'Detected chamber on {cut}', file=sys.stderr)
+        # Remove the node, so that we split the graph in two
+        maze_graph.remove_node(cut)
+        # There are now two disconnected graphs, the smallest one is the
+        # one defining the chamber
+        chamber = min(nx.connected_components(maze_graph), key=len)
+        # Check if there is food in the chamber
+        with_food = False
+        for node in chamber:
+            if maze[node[1], node[0]] == F:
+                with_food = True
+                break
+        if with_food:
+            # there is food in the chamber, so we need to open a new door
+            # pierce a hole into one of the walls around the chamber
+            open_door_into_chamber(maze, chamber)
+            # get a new graph and calculate new connectivity
+            maze_graph,_ = walls_to_graph(maze[1:height-1,1:width-1], class_=nx.Graph)
+            connectivity = get_connectivity(maze, maze_graph)
+        else:
+            break
+
+
 
 
 def add_pacman_stuff(maze, max_food):
@@ -315,6 +391,11 @@ def get_new_maze(height, width, nfood=30, seed=None, dead_ends=False):
     # complete right part of maze with mirror copy
     maze[:, width // 2:] = numpy.flipud(numpy.fliplr(maze[:, :width // 2]))
 
+
     # add food and pacman
     add_pacman_stuff(maze, max_food=2 * nfood)
+
+    # remove chamber
+    remove_all_chambers(maze)
+
     return maze_to_str(maze)
