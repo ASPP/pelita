@@ -163,7 +163,7 @@ def _add_wall(maze, ngaps, vertical):
             _add_wall(sub_maze, max(1, ngaps // 2), not vertical)
 
 
-def walls_to_graph(maze):
+def walls_to_graph(maze, class_=nx.DiGraph):
     """Transform a maze in a graph.
 
     The data on the nodes correspond to their coordinates, data on edges is
@@ -176,7 +176,7 @@ def walls_to_graph(maze):
 
     h, w = maze.shape
 
-    graph = nx.DiGraph()
+    graph = class_()
     # define nodes for maze
     for x in range(w):
         for y in range(h):
