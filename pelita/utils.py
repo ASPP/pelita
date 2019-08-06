@@ -26,6 +26,54 @@ def split_food(width, food):
     return team_food
 
 
+def bot_to_gamestate(bot):
+    if bot.is_blue:
+        turn = bot.turn * 2
+        teams = [bot, bot.enemy[0]]
+        bots = [bot._bots['team'][0], bot._bots['enemy'][0], bot._bots['team'][1], bot._bots['enemy'][1]]
+    else:
+        turn = bot.turn * 2 + 1
+        teams = [bot.enemy[0], bot]
+        bots = [bot._bots['enemy'][0], bot._bots['team'][0], bot._bots['enemy'][1], bot._bots['team'][1]]
+
+    bot_was_killed = [False] * 4 # TODO
+
+    game_state = {
+       "bots": [b.position for b in bots],
+       "turn": turn,
+       "gameover": False, # otherwise there is no bot
+       "score": [t.score for t in teams],
+       "food": [t.food for t in teams],
+       "walls": bot.walls,
+       "round": bot.round,
+       "kills": [b.kills for b in bots],
+       "deaths": [b.deaths for b in bots],
+       "bot_was_killed": bot_was_killed,
+       "errors": [[], []],
+       "fatal_errors": [[], []],
+       "noise_radius": 0,
+       "sight_distance": 0,
+       "rnd": None,
+       "team_names": [t.team_name for t in teams],
+       "timeout_length": 3 # TODO
+    }
+    return game_state
+
+def simulate_move(bot, pos):
+    gs = bot_to_gamestate(bot)
+    from .game import apply_move, prepare_bot_state
+    from .player.team import make_bots
+
+    bs = prepare_bot_state(apply_move(gs, pos))
+    me = make_bots(walls=bot.walls,
+                   team=bs['team'],
+                   enemy=bs['enemy'],
+                   round=bs['round'],
+                   bot_turn=bs['bot_turn'],
+                   rng=bot.random)
+    return me
+
+
 def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, seed=None,
                     food=None, bots=None, enemy=None):
     """Returns the first bot object given a layout.
