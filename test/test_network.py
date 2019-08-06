@@ -67,7 +67,11 @@ def test_simpleclient(zmq_context):
             'team_id': 0,
             'game_state': {
                 'seed': 0,
-                'walls': []
+                'walls': [(0, 0), (1, 0), (2, 0), (3, 0),
+                          (0, 1),                 (3, 1),
+                          (0, 2),                 (3, 2),
+                          (0, 3), (1, 3), (2, 3), (3, 3),
+                          ],
             }
         }
     }
@@ -85,11 +89,6 @@ def test_simpleclient(zmq_context):
         '__action__': "get_move",
         '__data__': {
             'game_state': {
-                'walls': [(0, 0), (1, 0), (2, 0), (3, 0),
-                          (0, 1),                 (3, 1),
-                          (0, 2),                 (3, 2),
-                          (0, 3), (1, 3), (2, 3), (3, 3),
-                          ],
                 'team': {
                     'team_index': 0,
                     'bot_positions': [(1, 1), (1, 1)],
