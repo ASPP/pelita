@@ -208,7 +208,7 @@ def find_dead_ends(graph, start_node, width):
         if graph.in_degree(node) == 1 and x < width - 1:
             dead_ends.append(node)
 
-    for node, _ in nx.bfs_successors(graph, start_node):
+    for node in graph.nodes():
         collect_dead_ends(node)
 
     return dead_ends
