@@ -18,6 +18,7 @@ the first wall has k gaps, the next wall has k/2 gaps, etc. (min=1)
 Inspired by code by Dan Gillick
 Completely rewritten by Pietro Berkes
 """
+import sys
 
 import numpy
 import networkx as nx
