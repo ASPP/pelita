@@ -32,17 +32,10 @@
           <div class="body" role="main">
             
   <h1>Source code for pelita.layout</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">base64</span>
-<span class="kn">import</span> <span class="nn">io</span>
+<span></span><span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">pkg_resources</span>
 <span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">zlib</span>
-
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">__layouts</span>
-<span class="k">except</span> <span class="ne">SyntaxError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid syntax in __layouts module. Pelita will not be able to use built-in layouts.&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
-
 
 <div class="viewcode-block" id="get_random_layout"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.get_random_layout">[docs]</a><span class="k">def</span> <span class="nf">get_random_layout</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Return a random layout string from the available ones.</span>
@@ -65,7 +58,7 @@
 <span class="sd">        &gt;&gt;&gt; get_random_layout(filter=&#39;without_dead_ends&#39;)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">layouts_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">get_available_layouts</span><span class="p">()</span> <span class="k">if</span> <span class="nb">filter</span> <span class="ow">in</span> <span class="n">item</span><span class="p">]</span>
+    <span class="n">layouts_names</span> <span class="o">=</span> <span class="n">get_available_layouts</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="nb">filter</span><span class="p">)</span>
     <span class="n">layout_choice</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">layouts_names</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">layout_choice</span><span class="p">,</span> <span class="n">get_layout_by_name</span><span class="p">(</span><span class="n">layout_choice</span><span class="p">)</span></div>
 
@@ -90,9 +83,9 @@
 <span class="sd">        &gt;&gt;&gt; get_available_layouts(filter=&#39;without_dead_ends&#39;)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># loop in layouts dictionary and look for layout strings</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">__layouts</span><span class="p">)</span> <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;layout_&#39;</span><span class="p">)</span> <span class="ow">and</span>
-            <span class="nb">filter</span> <span class="ow">in</span> <span class="n">item</span><span class="p">]</span></div>
+    <span class="c1"># loop in layouts directory and look for layout files</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">item</span><span class="p">[:</span><span class="o">-</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;.layout&#39;</span><span class="p">))]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_listdir</span><span class="p">(</span><span class="s1">&#39;pelita&#39;</span><span class="p">,</span> <span class="s1">&#39;_layouts&#39;</span><span class="p">)</span>
+                 <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.layout&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">filter</span> <span class="ow">in</span> <span class="n">item</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="get_layout_by_name"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.get_layout_by_name">[docs]</a><span class="k">def</span> <span class="nf">get_layout_by_name</span><span class="p">(</span><span class="n">layout_name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Get a layout.</span>
@@ -116,15 +109,12 @@
 <span class="sd">    --------</span>
 <span class="sd">    get_available_layouts</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># decode and return this layout</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">zlib</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">base64</span><span class="o">.</span><span class="n">decodebytes</span><span class="p">(</span><span class="n">__layouts</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">layout_name</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">()))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-    <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">ke</span><span class="p">:</span>
-        <span class="c1"># This happens if layout_name is not a valid key in the __dict__.</span>
-        <span class="c1"># I.e. if the layout_name is not available.</span>
-        <span class="c1"># The error message would be to terse &quot;KeyError: &#39;non_existing_layout&#39;&quot;,</span>
-        <span class="c1"># thus reraise as ValueError with appropriate error message.</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Layout: &#39;</span><span class="si">%s</span><span class="s2">&#39; is not known.&quot;</span> <span class="o">%</span> <span class="n">ke</span><span class="o">.</span><span class="n">args</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_string</span><span class="p">(</span><span class="s1">&#39;pelita&#39;</span><span class="p">,</span> <span class="s1">&#39;_layouts/&#39;</span> <span class="o">+</span> <span class="n">layout_name</span> <span class="o">+</span> <span class="s1">&#39;.layout&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+        <span class="c1"># This happens if layout_name is not found in the layouts directory</span>
+        <span class="c1"># reraise as ValueError with appropriate error message.</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Layout: &#39;</span><span class="si">{layout_name}</span><span class="s2">&#39; is not known.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">None</span></div>
 
 <div class="viewcode-block" id="parse_layout"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.parse_layout">[docs]</a><span class="k">def</span> <span class="nf">parse_layout</span><span class="p">(</span><span class="n">layout_str</span><span class="p">,</span> <span class="n">allow_enemy_chars</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Parse a layout string</span>
