@@ -38,7 +38,6 @@ def test_maze_bytes_str_conversions():
 
 
 def test_create_half_maze():
-def test_creaate_half_maze():
     # this test is not really testing that create_half_maze does a good job
     # we only test that we keep in returning the same maze when the random
     # seed is fixed, in case something changes during future porting/refactoring
