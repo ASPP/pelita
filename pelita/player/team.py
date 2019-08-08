@@ -594,7 +594,7 @@ class Bot:
 
         header = ("{blue}{you_blue} vs {red}{you_red}.\n" +
             "Playing on {col} side. Current turn: {turn}. Round: {round}, score: {blue_score}:{red_score}. " +
-            "timeouts: {blue_timeouts}:{red_timeouts}").format(
+            "timeouts: {blue_timeouts}:{red_timeouts}\n").format(
             blue=blue.team_name,
             red=red.team_name,
             turn=bot.turn,
