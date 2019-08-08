@@ -316,7 +316,7 @@ def parse_single_layout(layout_str, num_bots=4, allow_enemy_chars=False):
         out['enemy'] = enemy
     return out
 
-def layout_as_str(*, walls, food=None, bots=None, enemy=None):
+def layout_as_str(*, walls, food=None, bots=None, enemy=None, noisy=None):
     """Given walls, food and bots return a string layout representation
 
     Returns a combined layout string.
@@ -338,6 +338,15 @@ def layout_as_str(*, walls, food=None, bots=None, enemy=None):
     # enemy is optional
     if enemy is None:
         enemy = []
+
+    # if noisy is given, it must be of the same length as enemy
+    if noisy is None:
+        noisy_enemies = set()
+    elif len(noisy) != len(enemy):
+        raise ValueError("Parameter `noisy` must have same length as `enemy`.")
+    else:
+        # if an enemy is flagged as noisy, we put it into the set of noisy_enemies
+        noisy_enemies = {e for e, is_noisy in zip(enemy, noisy) if is_noisy}
 
     # flag to check if we have overlapping objects
 
@@ -374,7 +383,10 @@ def layout_as_str(*, walls, food=None, bots=None, enemy=None):
                     if (x, y) in bots:
                         out.write(str(bots.index((x, y))))
                     elif (x, y) in enemy:
-                        out.write("E")
+                        if (x, y) in noisy_enemies:
+                            out.write("?")
+                        else:
+                            out.write("E")
                     else:
                         out.write(' ')
                 else:
