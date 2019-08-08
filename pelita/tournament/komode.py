@@ -6,8 +6,6 @@ import math
 import queue
 from collections import defaultdict, namedtuple
 
-import numpy as np
-
 def sort_ranks(teams):
     """ Re-orders a list
 
@@ -129,11 +127,11 @@ def knockout_matrix(tree):
     N = len(initial_teams)
     height = N * 2 - 1
     width = len(teams)
-    matrix = np.empty([height, width], dtype=np.object_)
 
-    matrix.fill(Empty())
-
-    matrix[::2, 0] = initial_teams
+    matrix = [[Empty() for _w in range(width)] for _h in range(height)]
+    # fill left column with initial teams
+    for idx, t in enumerate(initial_teams):
+        matrix[idx * 2][0] = t
 
     last_match = None
 
@@ -146,19 +144,27 @@ def knockout_matrix(tree):
         for m_idx, match in enumerate(generation):
         #    print("M:", match)
             if isinstance(match, Match):
-                start_row = matrix[:, left_col].tolist().index(match.t1)
-                end_row = matrix[:, left_col].tolist().index(match.t2)
+                # find row idx of the match partners
+                for row_idx, row in enumerate(matrix):
+                    if row[left_col] == match.t1:
+                        start_row = row_idx
+                    if row[left_col] == match.t2:
+                        end_row = row_idx
                 middle_row = math.floor(start_row + (end_row - start_row) / 2)
 
-                matrix[start_row:end_row, col].fill(Element('│'))
-                matrix[start_row, col] = Element('┐')
-                matrix[end_row, col] = Element('┘')
-                matrix[middle_row, col] = match
+                # draw next match
+                for row in range(start_row, end_row):
+                    matrix[row][col] = Element('│')
+                matrix[start_row][col] = Element('┐')
+                matrix[end_row][col] = Element('┘')
+                matrix[middle_row][col] = match
                 last_match = (middle_row, col)
 
             if isinstance(match, Bye):
-                row = matrix[:, left_col].tolist().index(match.team)
-                matrix[row, col] = match
+                for row_idx, row in enumerate(matrix):
+                    if row[left_col] == match.team:
+                        break
+                matrix[row_idx][col] = match
 
     return matrix, last_match
 
@@ -169,29 +175,35 @@ def print_knockout(tree, name_trafo=identity, highlight=None):
     matrix, final_match = knockout_matrix(tree)
 
     winner_row = final_match[0]
-    winning_team = matrix[final_match].winner
-    winner = matrix[final_match] = FinalMatch(* matrix[final_match])
+    winning_team = matrix[final_match[0]][final_match[1]].winner
+    winner = matrix[final_match[0]][final_match[1]] = FinalMatch(* matrix[final_match[0]][final_match[1]])
     winner.winner = winning_team
 
     def is_tight(elem):
         return not isinstance(elem, Empty) and not isinstance(elem, Element)
 
-    matrix[winner_row - 1, -1] = BorderTop(winner, is_tight(matrix[winner_row - 1, -2]))
-    matrix[winner_row + 1, -1] = BorderBottom(winner, is_tight(matrix[winner_row + 1, -2]))
+    matrix[winner_row - 1][-1] = BorderTop(winner, is_tight(matrix[winner_row - 1][-2]))
+    matrix[winner_row + 1][-1] = BorderBottom(winner, is_tight(matrix[winner_row + 1][-2]))
 
-    colwidths = np.amax(np.vectorize(lambda self: self.size(trafo=name_trafo))(matrix), axis=0)
+    # estimate the width that a column needs
+    colwidths = [0] * len(matrix[0])
+    for row in matrix:
+        for col_idx, elem in enumerate(row):
+            current_width = elem.size(trafo=name_trafo)
+            old_width = colwidths[col_idx]
+            colwidths[col_idx] = max(current_width, old_width)
 
     with StringIO() as output:
-        for row in range(matrix.shape[0]):
-            for col in range(0, matrix.shape[1]):
+        for row in range(len(matrix)):
+            for col in range(len(matrix[0])):
                 try:
-                    elem = matrix[row, col]
+                    elem = matrix[row][col]
 
                     str = elem.to_s(colwidths[col], trafo=name_trafo, highlighted=elem in highlight)
                     print(str, end="", file=output)
                 except AttributeError:
                     print("Here:", end="")
-                    print(row, col, matrix[row, col])
+                    print(row, col, matrix[row][col])
                     raise
             print(file=output)
         return output.getvalue()
