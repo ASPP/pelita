@@ -65,13 +65,19 @@ def test_create_half_maze():
     assert np.all(maze == expected)
 
 def test_conversion_to_nx_graph():
-    np.random.seed(SEED)
-    maze = mg.empty_maze(16,32)
-    mg.create_half_maze(maze, 8)
+    maze_str = """##################
+                  #       ##       #
+                  # # #      ### # #
+                  # # ##           #
+                  #           ## # #
+                  # # ###      # # #
+                  #       ##       #
+                  ##################"""
+    maze = mg.str_to_maze(maze_str)
     graph, _ = mg.walls_to_graph(maze)
     # now derive a maze from a graph manually
     # - start with a maze full of walls
-    newmaze = mg.empty_maze(16,32)
+    newmaze = mg.empty_maze(maze.shape[0], maze.shape[1])
     newmaze.fill(mg.W)
     # - loop through each node of the graph and remove a wall at the
     # corresponding coordinate
