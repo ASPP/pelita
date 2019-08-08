@@ -3,6 +3,7 @@ import textwrap
 import numpy as np
 from pelita._layouts import maze_generator as mg
 
+SEED = 103525239
 
 def test_maze_bytes_str_conversions():
     # note that the first empty line is needed!
@@ -34,3 +35,32 @@ def test_maze_bytes_str_conversions():
     maze_bytes = bytes(maze_str, 'ascii')
     assert mg.maze_to_bytes(maze_arr) == maze_bytes
     assert mg.maze_to_str(maze_arr) == maze_str
+
+
+def test_creaate_half_maze():
+    # this test is not really testing that create_half_maze does a good job
+    # we only test that we keep in returning the same maze when the random
+    # seed is fixed, in case something changes during future porting/refactoring
+    maze_str = """################################
+                  #   #    #  #  #               #
+                  # # #    #  #                  #
+                  # #         # ##               #
+                  # #   # ##                     #
+                  # # #    ####                  #
+                  # # #                          #
+                  # # ##### ######               #
+                  # ###          #               #
+                  #   #                          #
+                  # # #                          #
+                  ######### #  #                 #
+                  #              #               #
+                  #    #                         #
+                  #              #               #
+                  ################################"""
+
+    np.random.seed(SEED)
+    maze = mg.empty_maze(16,32)
+    mg.create_half_maze(maze, 8)
+    expected = mg.str_to_maze(maze_str)
+    assert np.all(maze == expected)
+
