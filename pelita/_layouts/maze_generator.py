@@ -56,18 +56,39 @@ def empty_maze(height, width):
 
 
 def maze_to_bytes(maze):
-    """Return string representation of maze."""
+    """Return bytes representation of maze."""
     lines = [b''.join(maze[i,:])
              for i in range(maze.shape[0])]
     return b'\n'.join(lines)
 
+def maze_to_str(maze):
+    """Return a ascii-string representation of maze."""
+    bytes_ = maze_to_bytes(maze)
+    return bytes_.decode('ascii')
 
-def bytest_to_maze(str):
-    """Return a maze array from a string representation."""
-    maze = numpy.array([list(ln.strip()) for ln in str.splitlines()
-                        if len(ln.strip()) > 1])
+def bytes_to_maze(bytes_):
+    """Return a maze numpy bytes array from a bytes representation."""
+    rows = []
+    for line in bytes_.splitlines():
+        line = line.strip()
+        if len(line) == 0:
+            # skip empty lines
+            continue
+        cols = []
+        for idx in range(len(line.strip())):
+            # this crazyness is needed because bytes do not iterate like
+            # strings: see the comments about iterating over bytes in
+            # https://docs.python.org/3/library/stdtypes.html#bytes-objects
+            cols.append(line[idx:idx+1])
+        rows.append(cols)
+
+    maze = numpy.array(rows, dtype=bytes)
     return maze
 
+def str_to_maze(str_):
+    """Return a maze numpy bytes array from a ascii string representation."""
+    bytes_maze = str_.encode('ascii')
+    return bytes_to_maze(bytes_maze)
 
 def create_half_maze(maze, ngaps_center):
     """Fill the left half of the maze with random walls.
