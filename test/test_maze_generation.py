@@ -95,7 +95,8 @@ def test_find_one_dead_end():
 
     maze = mg.str_to_maze(maze_dead)
     graph, _ = mg.walls_to_graph(maze)
-    dead_ends = mg.find_dead_ends(graph, (0,0), maze.shape[0])
+    width = maze.shape[1]
+    dead_ends = mg.find_dead_ends(graph, (0,0), width)
     assert len(dead_ends) == 1
     assert dead_ends[0] == (1,1)
 
@@ -111,7 +112,8 @@ def test_find_multiple_dead_ends():
 
     maze = mg.str_to_maze(maze_dead)
     graph, _ = mg.walls_to_graph(maze)
-    dead_ends = mg.find_dead_ends(graph, (0,0), maze.shape[0])
+    width = maze.shape[1]
+    dead_ends = mg.find_dead_ends(graph, (0,0), width)
     assert len(dead_ends) == 3
     dead_ends.sort()
     assert dead_ends[0] == (1,1)
@@ -119,4 +121,23 @@ def test_find_multiple_dead_ends():
     assert dead_ends[2] == (3,5)
 
 def test_find_multiple_dead_ends_on_the_right():
+    # this maze has exactly three dead ends at coordinates (10,1), (10,5), (8,5)
+    maze_dead = """############
+                   #        # #
+                   #          #
+                   #          #
+                   #      # # #
+                   #      # # #
+                   ############"""
+
+    maze = mg.str_to_maze(maze_dead)
+    graph, _ = mg.walls_to_graph(maze)
+    width = maze.shape[1]
+    dead_ends = mg.find_dead_ends(graph, (0,0), width)
+    assert len(dead_ends) == 3
+    dead_ends.sort()
+    assert dead_ends[2] == (10,5)
+    assert dead_ends[1] == (10,1)
+    assert dead_ends[0] == (8,5)
+
 def test_remove_one_dead_end():
