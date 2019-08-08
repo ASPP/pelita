@@ -415,7 +415,8 @@ def layout_as_str(*, walls, food=None, bots=None, enemy=None, noisy=None):
             # if an enemy coordinate is None
             # don't put the enemy in the layout
             continue
-        coord_bots[pos] = coord_bots.get(pos, []) + ["E"]
+        enemy_char = '?' if pos in noisy_enemies else 'E'
+        coord_bots[pos] = coord_bots.get(pos, []) + [enemy_char]
 
     # loop through the bot coordinates
     while coord_bots:
