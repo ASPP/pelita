@@ -141,3 +141,44 @@ def test_find_multiple_dead_ends_on_the_right():
     assert dead_ends[0] == (8,5)
 
 def test_remove_one_dead_end():
+    # this maze has exactly one dead end at coordinate (1,1)
+    maze_dead = """########
+                   # #    #
+                   #      #
+                   #      #
+                   ########"""
+
+    maze = mg.str_to_maze(maze_dead)
+    graph, _ = mg.walls_to_graph(maze)
+    mg.remove_dead_end((1,1), graph, maze)
+    assert maze[1,1] == mg.E
+
+def test_remove_multiple_dead_ends():
+    # this maze has exactly three dead ends at coordinates (1,1), (1,5), (3,5)
+    maze_dead = """############
+                   # #        #
+                   #          #
+                   #          #
+                   # # #      #
+                   # # #      #
+                   ############"""
+
+    np.random.seed(SEED)
+    maze = mg.str_to_maze(maze_dead)
+    graph, _ = mg.walls_to_graph(maze)
+    mg.remove_all_dead_ends(maze)
+    # There are many ways of getting rid of the two dead ends at the bottom
+    # The one that requires the less work is to remove the left-bottom wall
+    # This one is the solution we get from remove_all_dead_ends, but just
+    # because the order in which we find dead ends is from top to bottom and from
+    # left to right.
+    # In other words, remove the dead ends here actually means getting this maze back
+    expected_maze = """############
+                       #          #
+                       #          #
+                       #          #
+                       # # #      #
+                       #   #      #
+                       ############"""
+    expected_maze = mg.str_to_maze(expected_maze)
+    assert np.all(maze == expected_maze)
