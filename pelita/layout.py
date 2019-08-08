@@ -117,8 +117,8 @@ def parse_layout(layout_str, allow_enemy_chars=False):
     In this case, bot '0' and bot '2' are on top of each other at position (1,1)
 
     If `allow_enemy_chars` is True, we additionally allow for the definition of
-    at most 2 enemy characters with the letter "E". The returned dict will then
-    additionally contain an entry "enemy" which contains these coordinates.
+    at most 2 enemy characters with the letters "E" and "?". The returned dict will
+    then additionally contain an entry "enemy" which contains these coordinates.
     If only one enemy character is given, both will be assumed sitting on the
     same spot. """
 
@@ -286,7 +286,7 @@ def parse_single_layout(layout_str, num_bots=4, allow_enemy_chars=False):
             elif char == ' ':
                 # empty
                 continue
-            elif char == 'E':
+            elif char == 'E' or char == '?':
                 # enemy
                 if allow_enemy_chars:
                     enemy.append(coord)
