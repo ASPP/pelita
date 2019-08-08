@@ -85,4 +85,38 @@ def test_conversion_to_nx_graph():
         newmaze[node[1], node[0]] = mg.E
     assert np.all(maze == newmaze)
 
+def test_find_one_dead_end():
+    # this maze has exactly one dead end at coordinate (1,1)
+    maze_dead = """########
+                   # #    #
+                   #      #
+                   #      #
+                   ########"""
+
+    maze = mg.str_to_maze(maze_dead)
+    graph, _ = mg.walls_to_graph(maze)
+    dead_ends = mg.find_dead_ends(graph, (0,0), maze.shape[0])
+    assert len(dead_ends) == 1
+    assert dead_ends[0] == (1,1)
+
+def test_find_multiple_dead_ends():
+    # this maze has exactly three dead ends at coordinates (1,1), (1,5), (3,5)
+    maze_dead = """############
+                   # #        #
+                   #          #
+                   #          #
+                   # # #      #
+                   # # #      #
+                   ############"""
+
+    maze = mg.str_to_maze(maze_dead)
+    graph, _ = mg.walls_to_graph(maze)
+    dead_ends = mg.find_dead_ends(graph, (0,0), maze.shape[0])
+    assert len(dead_ends) == 3
+    dead_ends.sort()
+    assert dead_ends[0] == (1,1)
+    assert dead_ends[1] == (1,5)
+    assert dead_ends[2] == (3,5)
+
+def test_find_multiple_dead_ends_on_the_right():
 def test_remove_one_dead_end():
