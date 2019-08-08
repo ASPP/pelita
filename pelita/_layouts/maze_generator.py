@@ -185,7 +185,7 @@ def _add_wall(maze, ngaps, vertical):
             _add_wall(sub_maze, max(1, ngaps // 2), not vertical)
 
 
-def walls_to_graph(maze, class_=nx.DiGraph):
+def walls_to_graph(maze):
     """Transform a maze in a graph.
 
     The data on the nodes correspond to their coordinates, data on edges is
@@ -197,28 +197,28 @@ def walls_to_graph(maze, class_=nx.DiGraph):
     """
 
     h, w = maze.shape
+    directions = [west, east, north, south]
 
-    graph = class_()
+    graph = nx.Graph()
     # define nodes for maze
     for x in range(w):
         for y in range(h):
             if maze[y, x] != W:
-                graph.add_node((x, y))
+                graph.add_node((x,y))
+                # this is a free position, get its neighbors too
+                for dx, dy in directions:
+                    nbx, nby = (x+dx, y+dy)
+                    # do not go out of bounds
+                    try:
+                        if maze[nby, nbx] == E:
+                            graph.add_edge((x, y), (nbx, nby))
+                    except IndexError:
+                        # this move brought us out of the maze, just ignore it
+                        continue
+    return graph
 
-    directions = [west, east, north, south]
 
-    # add edges
-    nodes = graph.nodes()
-    for pos in nodes:
-        for dir_ in directions:
-            neighbor = (pos[0] + dir_[0], pos[1] + dir_[1])
-            if neighbor in nodes:
-                graph.add_edge(pos, neighbor, data=[dir_])
-
-    return graph, list(nodes)[0]
-
-
-def find_dead_ends(graph, start_node, width):
+def find_dead_ends(graph, width):
     """Find dead ends in a graph."""
 
     dead_ends = []
@@ -226,7 +226,7 @@ def find_dead_ends(graph, start_node, width):
         x = node[0]
         # do not consider dead ends on the right side of the maze, as those
         # represents passages to the enemy's side
-        if graph.in_degree(node) == 1 and x < width - 1:
+        if graph.degree(node) == 1 and x < width - 1:
             dead_ends.append(node)
 
     for node in graph.nodes():
@@ -239,41 +239,30 @@ def remove_dead_end(dead_node, maze_graph, maze):
     """Remove one dead end in a maze."""
 
     h, w = maze.shape
-    pos = dead_node
-    edges_out = list(maze_graph.out_edges(dead_node, data=True))[0]
-    free_dir = edges_out[-1]['data'][0]
 
-    # first, try to pierce the wall straight ahead
-    # this might not be possible if we are on the borders of the maze
-    # this dictionary gives us the sequence of directions to try
-    free_to_pierce = {west: [east, north, south],
-                      east: [west, north, south],
-                      north: [south, west, east],
-                      south: [north, west, east]
-                      }
+    # loop through the neighboring positions and remove the first wall we find
+    # as long as it is not on the outer border or in the middle of the maze
+    # not in the central wall x==w//2-1
+    directions = (north, south, east, west)
+    for direction in directions:
+        nbx = dead_node[0]+direction[0]
+        nby = dead_node[1]+direction[1]
+        if nbx not in (0,w-1,w//2-1) and nby not in (0,h-1):
+            neighbor = maze[nby, nbx]
+            if neighbor == W:
+                maze[nby, nbx] = E
+                break
 
-    for pierce_dir in free_to_pierce[free_dir]:
-        pierce_x, pierce_y = pos[0] + pierce_dir[0], pos[1] + pierce_dir[1]
-        # remember not to pierce walls in the central wall (x==w-1), as those
-        # might become dead ends during the mirroring step
-        if (pierce_x >= 0 and pierce_x < w - 1
-            and pierce_y >= 0
-            and pierce_y < h):
-            maze[pierce_y, pierce_x] = E
-            break
 
 def remove_all_dead_ends(maze):
     height, width = maze.shape
     while True:
-        maze_graph, start_node = walls_to_graph(maze[1:height - 1,
-                                                     1:width // 2])
-        dead_ends = find_dead_ends(maze_graph,
-                                   start_node, width // 2 - 1)
+        maze_graph = walls_to_graph(maze)
+        dead_ends = find_dead_ends(maze_graph, width)
         if len(dead_ends) == 0:
             break
 
-        remove_dead_end(dead_ends[0], maze_graph,
-                        maze[1:height - 1, 1:width // 2])
+        remove_dead_end(dead_ends[0], maze_graph, maze)
 
 def get_connectivity(maze, maze_graph=None):
     if maze_graph is None:

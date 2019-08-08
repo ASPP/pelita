@@ -74,7 +74,7 @@ def test_conversion_to_nx_graph():
                   #       ##       #
                   ##################"""
     maze = mg.str_to_maze(maze_str)
-    graph, _ = mg.walls_to_graph(maze)
+    graph = mg.walls_to_graph(maze)
     # now derive a maze from a graph manually
     # - start with a maze full of walls
     newmaze = mg.empty_maze(maze.shape[0], maze.shape[1])
@@ -94,9 +94,9 @@ def test_find_one_dead_end():
                    ########"""
 
     maze = mg.str_to_maze(maze_dead)
-    graph, _ = mg.walls_to_graph(maze)
+    graph = mg.walls_to_graph(maze)
     width = maze.shape[1]
-    dead_ends = mg.find_dead_ends(graph, (0,0), width)
+    dead_ends = mg.find_dead_ends(graph, width)
     assert len(dead_ends) == 1
     assert dead_ends[0] == (1,1)
 
@@ -111,9 +111,9 @@ def test_find_multiple_dead_ends():
                    ############"""
 
     maze = mg.str_to_maze(maze_dead)
-    graph, _ = mg.walls_to_graph(maze)
+    graph = mg.walls_to_graph(maze)
     width = maze.shape[1]
-    dead_ends = mg.find_dead_ends(graph, (0,0), width)
+    dead_ends = mg.find_dead_ends(graph, width)
     assert len(dead_ends) == 3
     dead_ends.sort()
     assert dead_ends[0] == (1,1)
@@ -131,9 +131,9 @@ def test_find_multiple_dead_ends_on_the_right():
                    ############"""
 
     maze = mg.str_to_maze(maze_dead)
-    graph, _ = mg.walls_to_graph(maze)
+    graph = mg.walls_to_graph(maze)
     width = maze.shape[1]
-    dead_ends = mg.find_dead_ends(graph, (0,0), width)
+    dead_ends = mg.find_dead_ends(graph, width)
     assert len(dead_ends) == 3
     dead_ends.sort()
     assert dead_ends[2] == (10,5)
@@ -149,7 +149,7 @@ def test_remove_one_dead_end():
                    ########"""
 
     maze = mg.str_to_maze(maze_dead)
-    graph, _ = mg.walls_to_graph(maze)
+    graph = mg.walls_to_graph(maze)
     mg.remove_dead_end((1,1), graph, maze)
     assert maze[1,1] == mg.E
 
@@ -165,7 +165,7 @@ def test_remove_multiple_dead_ends():
 
     np.random.seed(SEED)
     maze = mg.str_to_maze(maze_dead)
-    graph, _ = mg.walls_to_graph(maze)
+    graph = mg.walls_to_graph(maze)
     mg.remove_all_dead_ends(maze)
     # There are many ways of getting rid of the two dead ends at the bottom
     # The one that requires the less work is to remove the left-bottom wall
@@ -182,3 +182,4 @@ def test_remove_multiple_dead_ends():
                        ############"""
     expected_maze = mg.str_to_maze(expected_maze)
     assert np.all(maze == expected_maze)
+
