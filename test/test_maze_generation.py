@@ -37,6 +37,7 @@ def test_maze_bytes_str_conversions():
     assert mg.maze_to_str(maze_arr) == maze_str
 
 
+def test_create_half_maze():
 def test_creaate_half_maze():
     # this test is not really testing that create_half_maze does a good job
     # we only test that we keep in returning the same maze when the random
@@ -64,3 +65,19 @@ def test_creaate_half_maze():
     expected = mg.str_to_maze(maze_str)
     assert np.all(maze == expected)
 
+def test_conversion_to_nx_graph():
+    np.random.seed(SEED)
+    maze = mg.empty_maze(16,32)
+    mg.create_half_maze(maze, 8)
+    graph, _ = mg.walls_to_graph(maze)
+    # now derive a maze from a graph manually
+    # - start with a maze full of walls
+    newmaze = mg.empty_maze(16,32)
+    newmaze.fill(mg.W)
+    # - loop through each node of the graph and remove a wall at the
+    # corresponding coordinate
+    for node in graph.nodes():
+        newmaze[node[1], node[0]] = mg.E
+    assert np.all(maze == newmaze)
+
+def test_remove_one_dead_end():
