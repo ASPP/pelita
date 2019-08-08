@@ -55,14 +55,14 @@ def empty_maze(height, width):
     return maze
 
 
-def maze_to_str(maze):
+def maze_to_bytes(maze):
     """Return string representation of maze."""
     lines = [b''.join(maze[i,:])
              for i in range(maze.shape[0])]
     return b'\n'.join(lines)
 
 
-def str_to_maze(str):
+def bytest_to_maze(str):
     """Return a maze array from a string representation."""
     maze = numpy.array([list(ln.strip()) for ln in str.splitlines()
                         if len(ln.strip()) > 1])
@@ -427,4 +427,4 @@ def get_new_maze(height, width, nfood=30, seed=None, dead_ends=False):
     # remove chamber
     remove_all_chambers(maze)
 
-    return maze_to_str(maze)
+    return maze_to_bytes(maze)
