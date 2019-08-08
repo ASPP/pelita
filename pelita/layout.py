@@ -1,4 +1,8 @@
-import importlib.resources as importlib_resources
+try:
+    import importlib.resources as importlib_resources
+except ImportError:
+    # Python 3.6
+    import importlib_resources
 import io
 from pathlib import Path
 import random
