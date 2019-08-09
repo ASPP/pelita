@@ -188,3 +188,43 @@ def test_remove_multiple_dead_ends(set_seed):
     expected_maze = mg.str_to_maze(expected_maze)
     assert np.all(maze == expected_maze)
 
+def test_find_chamber():
+    # This maze has one single chamber, whose entrance is one of the
+    # nodes (1,2), (1,3) or (1,4)
+    maze_chamber = """############
+                      #   #      #
+                      #   #      #
+                      # ###      #
+                      #          #
+                      #          #
+                      ############"""
+
+    maze = mg.str_to_maze(maze_chamber)
+    maze_orig = maze.copy()
+    mg.remove_all_dead_ends(maze)
+    # first, check that the chamber is not mistaken for a dead end
+    assert np.all(maze_orig == maze)
+    # now check that we detect it
+    graph = mg.walls_to_graph(maze)
+    # there are actually two nodes that can be considered entrances
+    entrance, chamber = mg.find_chamber(graph)
+    assert entrance in ((1,2), (1,3), (1,4))
+    # check that the chamber contains the right nodes. Convert to set, because
+    # the order is irrelevant
+    if entrance == (1,4):
+        expected_chamber = {(1,1), (1,2), (1,3), (2,1), (2,2), (3,1), (3,2)}
+    elif entrance == (1,3):
+        expected_chamber = {(1,1), (1,2), (2,1), (2,2), (3,1), (3,2)}
+    else:
+        expected_chamber = {(1,1), (2,1), (2,2), (3,1), (3,2)}
+    assert set(chamber) == expected_chamber
+
+    # now remove the chamber and verify that we don't detect anything
+    # we just remove wall (4,1) manually
+    maze = mg.str_to_maze(maze_chamber)
+    maze[1,4] = maze[1,5] # REMEMBER! Indexing is maze[y,x]!!!
+    print(mg.maze_to_str(maze))
+    graph = mg.walls_to_graph(maze)
+    entrance, chamber = mg.find_chamber(graph)
+    assert entrance is None
+    assert chamber == []

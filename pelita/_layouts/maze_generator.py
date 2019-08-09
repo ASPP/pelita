@@ -261,6 +261,35 @@ def remove_all_dead_ends(maze):
 
         remove_dead_end(dead_ends[0], maze_graph, maze)
 
+def find_chamber(graph):
+    """Detect chambers (rooms with a single square entrance).
+
+    Return (entrance, chamber), where `entrance` is the node representing the
+    entrance to the chamber (None if no chamber is found), and `chamber` is the
+    list of nodes within the chamber (empty list if no nodes are in the chamber).
+
+    The entrance to a chamber is a node that when removed from the graph
+    will result in the graph to be split into two disconnected graphs."""
+    # minimum_node_cut returns a set of nodes of minimum cardinality that
+    # disconnects the graph. This means that we have a chamber if the length
+    # of this set is one, i.e. there is one node that when removed disconnects
+    # the graph
+    cuts = nx.minimum_node_cut(graph)
+    if len(cuts) > 1:
+        # no chambers, yeah!
+        return None, []
+    entrance = cuts.pop()
+    # remove the cut, i.e. put a wall on the entrance
+    lgraph = nx.restricted_view(graph, [entrance],[])
+    # now get the resulting subgraphs
+    subgraphs = sorted(nx.connected_components(lgraph), key=len)
+    # let's get the smalles subgraph: this is going to be a chamber
+    # (other subgraphs are other chambers (if any) and the 'rest' of the graph
+    # return a list of nodes, instead of a set
+    chamber = list(subgraphs[0])
+    return entrance, chamber
+
+def remove_all_chambers(graph):
 def get_connectivity(maze, maze_graph=None):
     if maze_graph is None:
         maze_graph,_ = walls_to_graph(maze, class_=nx.Graph)
