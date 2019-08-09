@@ -289,113 +289,52 @@ def find_chamber(graph):
     chamber = list(subgraphs[0])
     return entrance, chamber
 
-def remove_all_chambers(graph):
-def get_connectivity(maze, maze_graph=None):
-    if maze_graph is None:
-        maze_graph,_ = walls_to_graph(maze, class_=nx.Graph)
-    return nx.node_connectivity(maze_graph)
+def get_neighboring_walls(maze, locs):
+    """Given a list of coordinates in the maze, return all neighboring walls.
 
-def open_door_into_chamber(maze, chamber):
+    Walls on the outer border are ignored automatically."""
     height, width = maze.shape
-    # look for the first wall around the chamber which is not on the
-    # outer border or on the dividing border
-    done = False
-    for nodex, nodey in chamber:
+    walls = []
+    seen = []
+    for nodex, nodey in locs:
+        # if we are already on the border, skip this node
+        if nodex<=0 or nodex>=(width-1) or nodey<=0 or nodey>=(height-1):
+            continue
+        # explore all directions around the current node
         for dirx, diry in (north, south, east, west):
-            # make a local copy of the maze to be modified for tests
-            #lmaze = maze.copy()
             # get coordinates of neighbor in direction (dirx, diry)
             adjx, adjy = nodex+dirx, nodey+diry
-            # check that we still are inside the maze and not on the
-            # dividing border between the two homezones
-            if adjx<=0 or adjx>=(width//2-1) or adjy<=0 or adjy>=(height-1):
-                # we can skip this neighbor
-                continue
-            # first condition, the neighbor is a wall
-            is_wall = (maze[adjy,adjx] == W)
-            if is_wall:
-                maze[adjy, adjx] = E
-                # fix also the center mirrored element
-                maze[height-adjy-1, width-adjx-1] = E
-                done = True
-                break
-        if done:
-            break
-
-
-def remove_all_chambers(maze):
-    height, width = maze.shape
-    maze_graph,_ = walls_to_graph(maze, class_=nx.Graph)
-    # when the connectivity of the graph is 1, there is one node that when
-    # removed splits the graph in two. The node is the entrance to a chamber
-    connectivity = get_connectivity(maze, maze_graph)
-    while connectivity < 2:
-        # There are chambers
-        # loop through all nodes to find out where the chambers are
-        chambers = []
-        for node in maze_graph:
-            # only detect in the left half of the maze, we know the maze is symmetric
-            if node[0] >= (width//2-1):
-                continue
-            # make a local copy of the graph
-            G = maze_graph.copy()
-            # remove the current node and check if we split the graph in two
-            G.remove_node(node)
-            # sort the subgraphs by length, shortest first
-            subgraphs = sorted(nx.connected_components(G), key=len)
-            if len(subgraphs) == 1:
-                # the graph wasn't split, skip this node
+            if (adjx, adjy) in seen:
+                # we have visited this neighbor already
                 continue
             else:
-                # loop through the subgraphs, irgnoring the biggest one, which
-                # is the "rest" after the split of the chambers
-                for subgraph in subgraphs[:-1]:
-                    chamber = subgraph
-                    # if the subgraph has more than one node, we have detected
-                    # a chamber
-                    if len(chamber) > 1:
-                        chambers.append(chamber)
-        # loop through all possible pairs of chambers, and only retain those
-        # who are not subset of others
-        dupes = []
-        for idx1, ch1 in enumerate(chambers):
-            for idx2 in range(idx1+1, len(chambers)):
-                ch2 = chambers[idx2]
-                if ch1 in dupes or ch2 in dupes:
-                    continue
-                if ch1 < ch2:
-                    dupes.append(ch1)
-                elif ch2 < ch1:
-                    dupes.append(ch2)
+                seen.append((adjx, adjy))
+            # check that we still are inside the maze
+            if adjx<=0 or adjx>=(width-1) or adjy<=0 or adjy>=(height-1):
+                # the neighbor is out of the maze
+                continue
+            if maze[adjy,adjx] == W:
+                # this is a wall, store it
+                walls.append((adjx, adjy))
+    return walls
 
-        for dupe in dupes:
-            chambers.remove(dupe)
+def remove_all_chambers(maze):
+    maze_graph = walls_to_graph(maze)
+    # this will find one of the chambers, if there is any
+    entrance, chamber = find_chamber(maze_graph)
+    while entrance is not None:
+        # get all the walls around the chamber
+        walls = get_neighboring_walls(maze, chamber)
+        # choose a wall at random among the neighboring one and get rid of it
+        bad_wall = random.choice(walls)
+        maze[bad_wall[1], bad_wall[0]] = E
+        # we may have opened a door into this chamber, but there may be more
+        # to get rid of. Or, the wall we picked wasn't good enough.
+        # Well, as long as we keep on doing this we will eventually get rid
+        # of all the chambers
+        maze_graph = walls_to_graph(maze)
+        entrance, chamber = find_chamber(maze_graph)
 
-        # now that we have a list of the chambers, let's care only about those
-        # that contain food
-        food_chambers = []
-        for chamber in chambers:
-            with_food = False
-            for node in chamber:
-                if maze[node[1], node[0]] == F:
-                    with_food = True
-            if with_food:
-                food_chambers.append(chamber)
-
-        # for each food chamber, open a door to the chamber by
-        # piercing a hole into one of the walls around the chamber
-        for chamber in food_chambers:
-            open_door_into_chamber(maze, chamber)
-
-        # now that are no chambers with food anymore,
-        # let's spin again in case there were some chambers contained into other
-        # chambers
-        # - get a new graph and calculate new connectivity
-        maze_graph,_ = walls_to_graph(maze, class_=nx.Graph)
-        connectivity = get_connectivity(maze, maze_graph)
-        # even if connectivity is 1, if we don't have any food chambers we can stop
-        if connectivity < 2 and len(food_chambers) == 0:
-            connectivity = 2
 
 def add_pacman_stuff(maze, max_food):
     """Add PacMen and food. """

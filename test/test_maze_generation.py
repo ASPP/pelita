@@ -1,6 +1,7 @@
 import random
 import textwrap
 
+import networkx as nx
 import numpy as np
 import pytest
 
@@ -222,8 +223,74 @@ def test_find_chamber():
     # we just remove wall (4,1) manually
     maze = mg.str_to_maze(maze_chamber)
     maze[1,4] = maze[1,5] # REMEMBER! Indexing is maze[y,x]!!!
-    print(mg.maze_to_str(maze))
     graph = mg.walls_to_graph(maze)
     entrance, chamber = mg.find_chamber(graph)
     assert entrance is None
     assert chamber == []
+
+
+
+
+maze_one_chamber = """############
+                      #   #      #
+                      #   #      #
+                      # ###      #
+                      #          #
+                      #          #
+                      ############"""
+maze_two_chambers = """############
+                       #   #      #
+                       #   #      #
+                       # ###  # ###
+                       #      #   #
+                       #      #   #
+                       #      #   #
+                       #      #   #
+                       ############"""
+maze_neighbor_chambers = """####################
+                            #   ##   #         #
+                            #   ##   #         #
+                            # ###### #         #
+                            #                  #
+                            #                  #
+                            #                  #
+                            ####################"""
+maze_chamber_in_chamber = """######################
+                             #                    #
+                             #                    #
+                             #                    #
+                             ##### ####           #
+                             #        #           #
+                             #   #    #           #
+                             ######################"""
+maze_chamber_bonanza = """################################
+                          #   #   #                      #
+                          #   #   #                      #
+                          #   ### #                      #
+                          #                              #
+                          #                              #
+                          ###### ##########              #
+                          #               #              #
+                          #               #              #
+                          # ###########   #              #
+                          #           #                  #
+                          ##### ####  #   #              #
+                          #        #  #   #              #
+                          #   #    #  #   #              #
+                          ################################"""
+
+
+@pytest.mark.parametrize("maze_chamber", (maze_one_chamber,
+                                          maze_two_chambers,
+                                          maze_neighbor_chambers,
+                                          maze_chamber_in_chamber,
+                                          maze_chamber_bonanza,))
+def test_remove_all_chambers(set_seed, maze_chamber):
+    maze = mg.str_to_maze(maze_chamber)
+    mg.remove_all_chambers(maze)
+    # there are no more chambers if the connectivity of the graph is larger than 1
+    graph = mg.walls_to_graph(maze)
+    assert nx.node_connectivity(graph) > 1
+    #XXX: TODO -> an easy way of getting rid of chambers is to just remove all the
+    # walls. How can we test that this is not what we are doing but that instead
+    # we are removing just a few walls?
