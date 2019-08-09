@@ -232,7 +232,7 @@ def find_dead_ends(graph, width):
     return dead_ends
 
 
-def remove_dead_end(dead_node, maze_graph, maze):
+def remove_dead_end(dead_node, maze):
     """Remove one dead end in a maze."""
 
     h, w = maze.shape
@@ -259,7 +259,7 @@ def remove_all_dead_ends(maze):
         if len(dead_ends) == 0:
             break
 
-        remove_dead_end(dead_ends[0], maze_graph, maze)
+        remove_dead_end(dead_ends[0], maze)
 
 def find_chamber(graph):
     """Detect chambers (rooms with a single square entrance).

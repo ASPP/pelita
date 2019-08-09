@@ -156,8 +156,7 @@ def test_remove_one_dead_end():
                    ########"""
 
     maze = mg.str_to_maze(maze_dead)
-    graph = mg.walls_to_graph(maze)
-    mg.remove_dead_end((1,1), graph, maze)
+    mg.remove_dead_end((1,1), maze)
     assert maze[1,1] == mg.E
 
 def test_remove_multiple_dead_ends(set_seed):
