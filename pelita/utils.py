@@ -1,8 +1,9 @@
 import logging
 import random
 
-from .player.team import create_layout, make_bots
 from .graph import Graph
+from .layout import get_layout_by_name, layout_as_str, layout_for_team, parse_layout
+from .player.team import create_layout, make_bots
 
 
 def start_logging(filename, module='pelita'):
@@ -24,6 +25,12 @@ def split_food(width, food):
         idx = pos[0] // (width // 2)
         team_food[idx].add(pos)
     return team_food
+
+
+def load_builtin_layout(layout_name, *, is_blue=True):
+    """ Loads a builtin layout with the given `layout_name` and returns a layout string.
+    """
+    return layout_as_str(**layout_for_team(parse_layout(get_layout_by_name(layout_name)), is_blue=is_blue))
 
 
 def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, seed=None,
