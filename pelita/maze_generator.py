@@ -366,7 +366,7 @@ def add_pacmen(maze):
     maze[1, -2] = b'3'
     maze[2, -2] = b'1'
 
-def get_new_maze(height, width, nfood=30, seed=None):
+def get_new_maze(height, width, nfood, seed=None):
     """Create a new maze in text format.
 
     The maze is created with a recursive creation algorithm. The maze part of
