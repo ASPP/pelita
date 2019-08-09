@@ -151,8 +151,9 @@
 <span class="sd">    In this case, bot &#39;0&#39; and bot &#39;2&#39; are on top of each other at position (1,1)</span>
 
 <span class="sd">    If `allow_enemy_chars` is True, we additionally allow for the definition of</span>
-<span class="sd">    at most 2 enemy characters with the letter &quot;E&quot;. The returned dict will then</span>
-<span class="sd">    additionally contain an entry &quot;enemy&quot; which contains these coordinates.</span>
+<span class="sd">    at most 2 enemy characters with the letters &quot;E&quot; and &quot;?&quot;. The returned dict will</span>
+<span class="sd">    then additionally contain an entry &quot;enemy&quot; which contains these coordinates and</span>
+<span class="sd">    an entry &quot;is_noisy&quot; that specifies which of the given enemies is noisy.</span>
 <span class="sd">    If only one enemy character is given, both will be assumed sitting on the</span>
 <span class="sd">    same spot. &quot;&quot;&quot;</span>
 
@@ -195,6 +196,7 @@
     <span class="n">bots</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_bots</span>
     <span class="k">if</span> <span class="n">allow_enemy_chars</span><span class="p">:</span>
         <span class="n">enemy</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">noisy_enemy</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="c1"># iterate through all layouts</span>
     <span class="k">for</span> <span class="n">layout</span> <span class="ow">in</span> <span class="n">layout_list</span><span class="p">:</span>
@@ -212,7 +214,10 @@
 
         <span class="c1"># add the enemy, removing duplicates</span>
         <span class="k">if</span> <span class="n">allow_enemy_chars</span><span class="p">:</span>
-            <span class="n">enemy</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">enemy</span> <span class="o">+</span> <span class="n">items</span><span class="p">[</span><span class="s1">&#39;enemy&#39;</span><span class="p">]))</span>
+            <span class="c1"># enemy contains _all_ enemies</span>
+            <span class="n">enemy</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">enemy</span> <span class="o">+</span> <span class="n">items</span><span class="p">[</span><span class="s1">&#39;enemy&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">items</span><span class="p">[</span><span class="s1">&#39;noisy_enemy&#39;</span><span class="p">]))</span>
+            <span class="c1"># noisy_enemy contains only the noisy enemies</span>
+            <span class="n">noisy_enemy</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s1">&#39;noisy_enemy&#39;</span><span class="p">])</span>
 
         <span class="c1"># add the bots</span>
         <span class="k">for</span> <span class="n">bot_idx</span><span class="p">,</span> <span class="n">bot_pos</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s1">&#39;bots&#39;</span><span class="p">]):</span>
@@ -247,6 +252,7 @@
         <span class="c1"># sort the enemy characters</span>
         <span class="c1"># be careful, since it may contain None</span>
         <span class="n">out</span><span class="p">[</span><span class="s1">&#39;enemy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">enemy</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">()</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;is_noisy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="ow">in</span> <span class="n">noisy_enemy</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">out</span><span class="p">[</span><span class="s1">&#39;enemy&#39;</span><span class="p">]]</span>
 
     <span class="k">return</span> <span class="n">out</span></div>
 
@@ -305,6 +311,7 @@
     <span class="n">bots</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_bots</span>
     <span class="c1"># enemy positions (only used for team-style layouts)</span>
     <span class="n">enemy</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">noisy_enemy</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="c1"># iterate through the grid of characters</span>
     <span class="k">for</span> <span class="n">y</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
@@ -324,6 +331,12 @@
                 <span class="c1"># enemy</span>
                 <span class="k">if</span> <span class="n">allow_enemy_chars</span><span class="p">:</span>
                     <span class="n">enemy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Enemy character not allowed.&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="s1">&#39;?&#39;</span><span class="p">:</span>
+                <span class="c1"># noisy_enemy</span>
+                <span class="k">if</span> <span class="n">allow_enemy_chars</span><span class="p">:</span>
+                    <span class="n">noisy_enemy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Enemy character not allowed.&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -346,11 +359,11 @@
     <span class="n">food</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
     <span class="n">out</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;walls&#39;</span><span class="p">:</span><span class="n">walls</span><span class="p">,</span> <span class="s1">&#39;food&#39;</span><span class="p">:</span><span class="n">food</span><span class="p">,</span> <span class="s1">&#39;bots&#39;</span><span class="p">:</span><span class="n">bots</span><span class="p">}</span>
     <span class="k">if</span> <span class="n">allow_enemy_chars</span><span class="p">:</span>
-        <span class="n">enemy</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
-        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;enemy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">enemy</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;enemy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">enemy</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;noisy_enemy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">noisy_enemy</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">out</span></div>
 
-<div class="viewcode-block" id="layout_as_str"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.layout_as_str">[docs]</a><span class="k">def</span> <span class="nf">layout_as_str</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">walls</span><span class="p">,</span> <span class="n">food</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bots</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">enemy</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="layout_as_str"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.layout_as_str">[docs]</a><span class="k">def</span> <span class="nf">layout_as_str</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">walls</span><span class="p">,</span> <span class="n">food</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bots</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">enemy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_noisy</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Given walls, food and bots return a string layout representation</span>
 
 <span class="sd">    Returns a combined layout string.</span>
@@ -372,6 +385,15 @@
     <span class="c1"># enemy is optional</span>
     <span class="k">if</span> <span class="n">enemy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">enemy</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># if noisy is given, it must be of the same length as enemy</span>
+    <span class="k">if</span> <span class="n">is_noisy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">noisy_enemies</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">is_noisy</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">enemy</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Parameter `noisy` must have same length as `enemy`.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># if an enemy is flagged as noisy, we put it into the set of noisy_enemies</span>
+        <span class="n">noisy_enemies</span> <span class="o">=</span> <span class="p">{</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">e_is_noisy</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">enemy</span><span class="p">,</span> <span class="n">is_noisy</span><span class="p">)</span> <span class="k">if</span> <span class="n">e_is_noisy</span><span class="p">}</span>
 
     <span class="c1"># flag to check if we have overlapping objects</span>
 
@@ -408,7 +430,10 @@
                     <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">bots</span><span class="p">:</span>
                         <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">bots</span><span class="o">.</span><span class="n">index</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))))</span>
                     <span class="k">elif</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">enemy</span><span class="p">:</span>
-                        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;E&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">noisy_enemies</span><span class="p">:</span>
+                            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;?&quot;</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;E&quot;</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -437,7 +462,8 @@
             <span class="c1"># if an enemy coordinate is None</span>
             <span class="c1"># don&#39;t put the enemy in the layout</span>
             <span class="k">continue</span>
-        <span class="n">coord_bots</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">coord_bots</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="p">[])</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">]</span>
+        <span class="n">enemy_char</span> <span class="o">=</span> <span class="s1">&#39;?&#39;</span> <span class="k">if</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">noisy_enemies</span> <span class="k">else</span> <span class="s1">&#39;E&#39;</span>
+        <span class="n">coord_bots</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">coord_bots</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="p">[])</span> <span class="o">+</span> <span class="p">[</span><span class="n">enemy_char</span><span class="p">]</span>
 
     <span class="c1"># loop through the bot coordinates</span>
     <span class="k">while</span> <span class="n">coord_bots</span><span class="p">:</span>

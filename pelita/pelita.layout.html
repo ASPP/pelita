@@ -57,7 +57,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pelita.layout.initial_positions" title="pelita.layout.initial_positions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initial_positions</span></code></a>(walls)</p></td>
 <td><p>Calculate initial positions.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelita.layout.layout_as_str" title="pelita.layout.layout_as_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layout_as_str</span></code></a>(*, walls[, food, bots, enemy])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelita.layout.layout_as_str" title="pelita.layout.layout_as_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layout_as_str</span></code></a>(*, walls[, food, bots, enemy, …])</p></td>
 <td><p>Given walls, food and bots return a string layout representation</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pelita.layout.layout_for_team" title="pelita.layout.layout_for_team"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layout_for_team</span></code></a>(layout[, is_blue])</p></td>
@@ -184,7 +184,7 @@ x value is preferred.</p>
 
 <dl class="function">
 <dt id="pelita.layout.layout_as_str">
-<code class="sig-prename descclassname">pelita.layout.</code><code class="sig-name descname">layout_as_str</code><span class="sig-paren">(</span><em class="sig-param">*</em>, <em class="sig-param">walls</em>, <em class="sig-param">food=None</em>, <em class="sig-param">bots=None</em>, <em class="sig-param">enemy=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#layout_as_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.layout_as_str" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pelita.layout.</code><code class="sig-name descname">layout_as_str</code><span class="sig-paren">(</span><em class="sig-param">*</em>, <em class="sig-param">walls</em>, <em class="sig-param">food=None</em>, <em class="sig-param">bots=None</em>, <em class="sig-param">enemy=None</em>, <em class="sig-param">is_noisy=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#layout_as_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.layout_as_str" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given walls, food and bots return a string layout representation</p>
 <p>Returns a combined layout string.</p>
 <p>The first layout string contains walls and food, the subsequent layout
@@ -235,8 +235,9 @@ bot characters ‘0’, ‘1’, ‘2’, and ‘3’.</p>
 </dl>
 <p>In this case, bot ‘0’ and bot ‘2’ are on top of each other at position (1,1)</p>
 <p>If <cite>allow_enemy_chars</cite> is True, we additionally allow for the definition of
-at most 2 enemy characters with the letter “E”. The returned dict will then
-additionally contain an entry “enemy” which contains these coordinates.
+at most 2 enemy characters with the letters “E” and “?”. The returned dict will
+then additionally contain an entry “enemy” which contains these coordinates and
+an entry “is_noisy” that specifies which of the given enemies is noisy.
 If only one enemy character is given, both will be assumed sitting on the
 same spot.</p>
 </dd></dl>
