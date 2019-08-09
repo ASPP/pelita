@@ -248,6 +248,13 @@ class Wall(TkSprite):
                             canvas.create_line(self.screen((0, 0)), self.screen((2*dx, 2*dy)), fill=BROWN,
                                                width=scale, tag=(self.tag, "wall"), capstyle="round")
 
+            # if we are drawing a closed square, fill in the internal part
+            # detect the square when we are on the bottom-left vertex of it
+            square_neighbors = {(0,0), (0,-1), (1,0),(1,-1)}
+            if square_neighbors <= set(self.wall_neighbors):
+                canvas.create_line(self.screen((1,0)), self.screen((1,-2)), fill=BROWN,
+                                   width=scale, tag=(self.tag, "wall"))
+
 
 class Food(TkSprite):
     @classmethod
