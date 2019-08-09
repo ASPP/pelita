@@ -1,6 +1,10 @@
+try:
+    import importlib.resources as importlib_resources
+except ImportError:
+    # Python 3.6
+    import importlib_resources
 import io
 from pathlib import Path
-import pkg_resources
 import random
 
 def get_random_layout(filter=''):
@@ -50,7 +54,7 @@ def get_available_layouts(filter=''):
 
     """
     # loop in layouts directory and look for layout files
-    return [item[:-(len('.layout'))] for item in pkg_resources.resource_listdir('pelita', '_layouts')
+    return [item[:-(len('.layout'))] for item in importlib_resources.contents('pelita._layouts')
                  if item.endswith('.layout') and filter in item]
 
 def get_layout_by_name(layout_name):
@@ -76,7 +80,7 @@ def get_layout_by_name(layout_name):
     get_available_layouts
     """
     try:
-        return pkg_resources.resource_string('pelita', '_layouts/' + layout_name + '.layout').decode()
+        return importlib_resources.read_text('pelita._layouts', layout_name + '.layout')
     except FileNotFoundError:
         # This happens if layout_name is not found in the layouts directory
         # reraise as ValueError with appropriate error message.
