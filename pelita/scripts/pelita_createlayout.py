@@ -5,34 +5,41 @@ The maze will be sent to sys.out .
 """
 
 import sys
-import optparse
-from maze_generator import get_new_maze
+import argparse
+
+from pelita.maze_generator import get_new_maze
+
+HEIGHT = 16
+WIDTH = 32
+FOOD = 30
+SEED = None
+
+def default(text, default):
+    return text + f' (default: {default})'
 
 
-def default(str):
-    return str + ' [Default: %default]'
 
+def main():
+    parser = argparse.ArgumentParser(
+                  description='Return a new random layout to be used by pelita',
+                  add_help=True)
 
-def main(argv):
-    parser = optparse.OptionParser()
+    parser.add_argument('--height', '-y', default=HEIGHT, type=int, metavar='Y',
+                        help=default('height of the maze', HEIGHT))
+    parser.add_argument('--width', '-x', default=WIDTH, type=int, metavar='X',
+                        help=default('width of the maze', WIDTH))
+    parser.add_argument('--food', '-f', default=FOOD, type=int, metavar='F',
+                        help=default('food pellets for each team', FOOD))
+    parser.add_argument('--seed', '-s', default=SEED, type=int, metavar='S',
+                        help=default('random seed', SEED))
 
-    parser.add_option("-y", "--height", type="int", default=16,
-                      help=default("height of the maze"))
-    parser.add_option("-x", "--width", type="int", default=32,
-                      help=default("width of the maze"))
+    args = parser.parse_args()
 
-    parser.add_option("-f", "--food", type="int", default=30,
-                      help=default("number of food dots for each team"))
+    maze_str = get_new_maze(args.height, args.width, nfood=args.food,
+                            seed=args.seed)
 
-    parser.add_option("--seed", type="int", default=None,
-                      help="fix the random seed used to generate the maze")
-    parser.add_option("--dead-ends", action="store_true", dest="dead_ends",
-                      default=False,
-                      help="allow dead ends in the maze")
-    opts, args = parser.parse_args()
-    sys.stdout.write(get_new_maze(opts.height, opts.width, nfood=opts.food,
-                                  seed=opts.seed))
-
+    sys.stdout.write(maze_str+'\n')
+    sys.stdout.close()
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()
