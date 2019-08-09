@@ -42,17 +42,26 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelita.utils.setup_test_game" title="pelita.utils.setup_test_game"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_test_game</span></code></a>(*, layout[, game, is_blue, …])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelita.utils.load_builtin_layout" title="pelita.utils.load_builtin_layout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_builtin_layout</span></code></a>(layout_name, *[, is_blue])</p></td>
+<td><p>Loads a builtin layout with the given <cite>layout_name</cite> and returns a layout string.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelita.utils.setup_test_game" title="pelita.utils.setup_test_game"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_test_game</span></code></a>(*, layout[, game, is_blue, …])</p></td>
 <td><p>Returns the first bot object given a layout.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_food</span></code>(width, food)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_food</span></code>(width, food)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">start_logging</span></code>(filename[, module])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">start_logging</span></code>(filename[, module])</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
+<dl class="function">
+<dt id="pelita.utils.load_builtin_layout">
+<code class="sig-prename descclassname">pelita.utils.</code><code class="sig-name descname">load_builtin_layout</code><span class="sig-paren">(</span><em class="sig-param">layout_name</em>, <em class="sig-param">*</em>, <em class="sig-param">is_blue=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/utils.html#load_builtin_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.utils.load_builtin_layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a builtin layout with the given <cite>layout_name</cite> and returns a layout string.</p>
+</dd></dl>
+
 <dl class="function">
 <dt id="pelita.utils.setup_test_game">
 <code class="sig-prename descclassname">pelita.utils.</code><code class="sig-name descname">setup_test_game</code><span class="sig-paren">(</span><em class="sig-param">*</em>, <em class="sig-param">layout</em>, <em class="sig-param">game=None</em>, <em class="sig-param">is_blue=True</em>, <em class="sig-param">round=None</em>, <em class="sig-param">score=None</em>, <em class="sig-param">seed=None</em>, <em class="sig-param">food=None</em>, <em class="sig-param">bots=None</em>, <em class="sig-param">enemy=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/utils.html#setup_test_game"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.utils.setup_test_game" title="Permalink to this definition">¶</a></dt>

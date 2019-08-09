@@ -9,6 +9,7 @@ pelita.utils
 
    .. autosummary::
    
+      load_builtin_layout
       setup_test_game
       split_food
       start_logging
