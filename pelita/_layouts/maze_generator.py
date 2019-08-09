@@ -329,7 +329,10 @@ def remove_all_chambers(maze):
         bad_wall = random.choice(walls)
         maze[bad_wall[1], bad_wall[0]] = E
         # we may have opened a door into this chamber, but there may be more
-        # to get rid of. Or, the wall we picked wasn't good enough.
+        # chambers to get rid of. Or, the wall we picked wasn't good enough and
+        # didn't really open a new door to the chamber. I have no idea how to
+        # distinguish this two cases. If we knew how to, we would spare quite
+        # a few iterations here?
         # Well, as long as we keep on doing this we will eventually get rid
         # of all the chambers
         maze_graph = walls_to_graph(maze)
