@@ -171,7 +171,6 @@ def test_remove_multiple_dead_ends(set_seed):
                    ############"""
 
     maze = mg.str_to_maze(maze_dead)
-    graph = mg.walls_to_graph(maze)
     mg.remove_all_dead_ends(maze)
     # There are many ways of getting rid of the two dead ends at the bottom
     # The one that requires the less work is to remove the left-bottom wall
