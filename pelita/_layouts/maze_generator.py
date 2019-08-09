@@ -225,15 +225,9 @@ def find_dead_ends(graph, width):
     """Find dead ends in a graph."""
 
     dead_ends = []
-    def collect_dead_ends(node):
-        x = node[0]
-        # do not consider dead ends on the right side of the maze, as those
-        # represents passages to the enemy's side
-        if graph.degree(node) == 1 and x < width - 1:
-            dead_ends.append(node)
-
     for node in graph.nodes():
-        collect_dead_ends(node)
+        if graph.degree(node) == 1 and node[0] < width-1:
+            dead_ends.append(node)
 
     return dead_ends
 
