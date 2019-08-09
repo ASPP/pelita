@@ -29,12 +29,9 @@ def main(argv):
     parser.add_option("--dead-ends", action="store_true", dest="dead_ends",
                       default=False,
                       help="allow dead ends in the maze")
-    parser.add_option("--no-dead-ends", action="store_false", dest="dead_ends",
-                      help="do not allow dead ends in the maze [Default]")
-
     opts, args = parser.parse_args()
-    sys.stdout.buffer.write(get_new_maze(opts.height, opts.width, nfood=opts.food,
-                            seed=opts.seed, dead_ends=opts.dead_ends))
+    sys.stdout.write(get_new_maze(opts.height, opts.width, nfood=opts.food,
+                                  seed=opts.seed))
 
 
 if __name__ == "__main__":
