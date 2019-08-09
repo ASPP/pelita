@@ -18,6 +18,7 @@ the first wall has k gaps, the next wall has k/2 gaps, etc. (min=1)
 Inspired by code by Dan Gillick
 Completely rewritten by Pietro Berkes
 """
+import random
 import sys
 
 import numpy
@@ -102,7 +103,8 @@ def create_half_maze(maze, ngaps_center):
     # the gaps in the central wall have to be chosen such that they can
     # be mirrored
     ch = maze.shape[0] - 2
-    candidates = numpy.random.permutation(ch // 2)
+    candidates = list(range(ch//2))
+    random.shuffle(candidates)
     half_gaps_pos = candidates[:ngaps_center // 2]
     gaps_pos = []
     for pos in half_gaps_pos:
@@ -138,8 +140,9 @@ def _add_wall_at(maze, pos, ngaps, vertical, gaps_pos=None):
     ngaps = max(1, ngaps)
     # choose position of gaps if necessary
     if gaps_pos is None:
-        # choose random positions
-        gaps_pos = numpy.random.permutation(numpy.arange(ch)).tolist()
+        # choose aandom positions
+        gaps_pos = list(range(ch))
+        random.shuffle(gaps_pos)
         gaps_pos = gaps_pos[:ngaps]
         # do not block entrances
         if maze[0][pos + 1] == E:
@@ -174,10 +177,10 @@ def _add_wall(maze, ngaps, vertical):
 
     size = cw if vertical else ch
     # create a wall only if there is some space in this direction
-    min_size = numpy.random.randint(3, 6)
+    min_size = random.randint(3, 5)
     if size >= min_size:
         # place the wall at random spot
-        pos = numpy.random.randint(1, size - 1)
+        pos = random.randint(1, size-2)
         sub_mazes = _add_wall_at(maze, pos, ngaps, vertical)
 
         # recursively add walls
@@ -385,8 +388,8 @@ def add_pacman_stuff(maze, max_food):
     ## random food
     total_food = 0
     while total_food < max_food:
-        row = numpy.random.randint(1, h - 1)
-        col = numpy.random.randint(1, (w // 2) - 1)
+        row = random.randint(1, h-2)
+        col = random.randint(1, w//2-2)
         if (row > h - 6) and (col < 6): continue
         if maze[row, col] == E:
             maze[row, col] = F
@@ -411,8 +414,8 @@ def get_new_maze(height, width, nfood=30, seed=None, dead_ends=False):
     """
 
     if seed is None:
-        seed = numpy.random.randint(1, 2 ** 31 - 1)
-    numpy.random.seed(seed)
+        seed = random.randint(1, 2 ** 31 - 1)
+    random.seed(seed)
 
     print(f'Seed: {seed}', file=sys.stderr)
 
