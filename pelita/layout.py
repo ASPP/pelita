@@ -117,8 +117,9 @@ def parse_layout(layout_str, allow_enemy_chars=False):
     In this case, bot '0' and bot '2' are on top of each other at position (1,1)
 
     If `allow_enemy_chars` is True, we additionally allow for the definition of
-    at most 2 enemy characters with the letter "E". The returned dict will then
-    additionally contain an entry "enemy" which contains these coordinates.
+    at most 2 enemy characters with the letters "E" and "?". The returned dict will
+    then additionally contain an entry "enemy" which contains these coordinates and
+    an entry "is_noisy" that specifies which of the given enemies is noisy.
     If only one enemy character is given, both will be assumed sitting on the
     same spot. """
 
@@ -161,6 +162,7 @@ def parse_layout(layout_str, allow_enemy_chars=False):
     bots = [None] * num_bots
     if allow_enemy_chars:
         enemy = []
+        noisy_enemy = set()
 
     # iterate through all layouts
     for layout in layout_list:
@@ -178,7 +180,10 @@ def parse_layout(layout_str, allow_enemy_chars=False):
 
         # add the enemy, removing duplicates
         if allow_enemy_chars:
-            enemy = list(set(enemy + items['enemy']))
+            # enemy contains _all_ enemies
+            enemy = list(set(enemy + items['enemy'] + items['noisy_enemy']))
+            # noisy_enemy contains only the noisy enemies
+            noisy_enemy.update(items['noisy_enemy'])
 
         # add the bots
         for bot_idx, bot_pos in enumerate(items['bots']):
@@ -213,6 +218,7 @@ def parse_layout(layout_str, allow_enemy_chars=False):
         # sort the enemy characters
         # be careful, since it may contain None
         out['enemy'] = sorted(enemy, key=lambda x: () if x is None else x)
+        out['is_noisy'] = [e in noisy_enemy for e in out['enemy']]
 
     return out
 
@@ -271,6 +277,7 @@ def parse_single_layout(layout_str, num_bots=4, allow_enemy_chars=False):
     bots = [None] * num_bots
     # enemy positions (only used for team-style layouts)
     enemy = []
+    noisy_enemy = []
 
     # iterate through the grid of characters
     for y, row in enumerate(rows):
@@ -290,6 +297,12 @@ def parse_single_layout(layout_str, num_bots=4, allow_enemy_chars=False):
                 # enemy
                 if allow_enemy_chars:
                     enemy.append(coord)
+                else:
+                    raise ValueError(f"Enemy character not allowed.")
+            elif char == '?':
+                # noisy_enemy
+                if allow_enemy_chars:
+                    noisy_enemy.append(coord)
                 else:
                     raise ValueError(f"Enemy character not allowed.")
             else:
@@ -312,11 +325,11 @@ def parse_single_layout(layout_str, num_bots=4, allow_enemy_chars=False):
     food.sort()
     out = {'walls':walls, 'food':food, 'bots':bots}
     if allow_enemy_chars:
-        enemy.sort()
-        out['enemy'] = enemy
+        out['enemy'] = sorted(enemy)
+        out['noisy_enemy'] = sorted(noisy_enemy)
     return out
 
-def layout_as_str(*, walls, food=None, bots=None, enemy=None):
+def layout_as_str(*, walls, food=None, bots=None, enemy=None, is_noisy=None):
     """Given walls, food and bots return a string layout representation
 
     Returns a combined layout string.
@@ -338,6 +351,15 @@ def layout_as_str(*, walls, food=None, bots=None, enemy=None):
     # enemy is optional
     if enemy is None:
         enemy = []
+
+    # if noisy is given, it must be of the same length as enemy
+    if is_noisy is None:
+        noisy_enemies = set()
+    elif len(is_noisy) != len(enemy):
+        raise ValueError("Parameter `noisy` must have same length as `enemy`.")
+    else:
+        # if an enemy is flagged as noisy, we put it into the set of noisy_enemies
+        noisy_enemies = {e for e, e_is_noisy in zip(enemy, is_noisy) if e_is_noisy}
 
     # flag to check if we have overlapping objects
 
@@ -374,7 +396,10 @@ def layout_as_str(*, walls, food=None, bots=None, enemy=None):
                     if (x, y) in bots:
                         out.write(str(bots.index((x, y))))
                     elif (x, y) in enemy:
-                        out.write("E")
+                        if (x, y) in noisy_enemies:
+                            out.write("?")
+                        else:
+                            out.write("E")
                     else:
                         out.write(' ')
                 else:
@@ -403,7 +428,8 @@ def layout_as_str(*, walls, food=None, bots=None, enemy=None):
             # if an enemy coordinate is None
             # don't put the enemy in the layout
             continue
-        coord_bots[pos] = coord_bots.get(pos, []) + ["E"]
+        enemy_char = '?' if pos in noisy_enemies else 'E'
+        coord_bots[pos] = coord_bots.get(pos, []) + [enemy_char]
 
     # loop through the bot coordinates
     while coord_bots:

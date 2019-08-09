@@ -402,6 +402,14 @@ def test_enemy_raises():
         #  #
         ####
         """, [None, None]), # this will set both to None
+    ("""
+        ####
+        # E#
+        ####
+        ####
+        #??#
+        ####
+        """, [(1, 1), (2, 1)]), # two enemies in two layouts with duplication and question marks
 ])
 def test_enemy_positions(layout, enemy_pos):
     if enemy_pos is None:

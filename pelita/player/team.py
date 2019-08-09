@@ -594,7 +594,7 @@ class Bot:
 
         header = ("{blue}{you_blue} vs {red}{you_red}.\n" +
             "Playing on {col} side. Current turn: {turn}. Round: {round}, score: {blue_score}:{red_score}. " +
-            "timeouts: {blue_timeouts}:{red_timeouts}").format(
+            "timeouts: {blue_timeouts}:{red_timeouts}\n").format(
             blue=blue.team_name,
             red=red.team_name,
             turn=bot.turn,
@@ -614,7 +614,8 @@ class Bot:
             layout = layout_as_str(walls=bot.walls[:],
                                    food=bot.food + bot.enemy[0].food,
                                    bots=[b.position for b in bot._team],
-                                   enemy=[e.position for e in bot.enemy])
+                                   enemy=[e.position for e in bot.enemy],
+                                   is_noisy=[e.is_noisy for e in bot.enemy])
 
             out.write(str(layout))
             return out.getvalue()
@@ -681,7 +682,7 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
     return team_bots[bot_turn]
 
 
-def create_layout(*layout_strings, food=None, bots=None, enemy=None):
+def create_layout(*layout_strings, food=None, bots=None, enemy=None, is_noisy=None):
     """ Create a layout from layout strings with additional food, bots and enemy positions.
 
     Walls must be equal in all layout strings. Food positions will be collected.
@@ -728,5 +729,13 @@ def create_layout(*layout_strings, food=None, bots=None, enemy=None):
             if e is not None:
                 _check_valid_pos(e, "enemy")
                 parsed_layout['enemy'][idx] = e
+
+    # override is_noisy if given
+    if is_noisy is not None:
+        if not len(is_noisy) == 2:
+            raise ValueError(f"is_noisy must be a list of 2 ({is_noisy})!")
+        for idx, e_is_noisy in enumerate(is_noisy):
+            if e_is_noisy is not None:
+                parsed_layout['is_noisy'][idx] = e_is_noisy
 
     return parsed_layout

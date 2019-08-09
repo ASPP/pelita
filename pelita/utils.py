@@ -34,7 +34,7 @@ def load_builtin_layout(layout_name, *, is_blue=True):
 
 
 def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, seed=None,
-                    food=None, bots=None, enemy=None):
+                    food=None, bots=None, enemy=None, is_noisy=None):
     """Returns the first bot object given a layout.
 
     The returned Bot instance can be passed to a move function to test its return value.
@@ -45,7 +45,7 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
     if score is None:
         score = [0, 0]
 
-    layout = create_layout(layout, food=food, bots=bots, enemy=enemy)
+    layout = create_layout(layout, food=food, bots=bots, enemy=enemy, is_noisy=is_noisy)
     width = max(layout['walls'])[0] + 1
 
     food = split_food(width, layout['food'])
@@ -79,7 +79,7 @@ def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, 
         'bot_was_killed': [False]*2,
         'error_count': 0,
         'food': food[enemy_index],
-        'is_noisy': [False] * len(layout['enemy']),
+        'is_noisy': layout['is_noisy'],
         'name': "red" if is_blue else "blue"
     }
 
