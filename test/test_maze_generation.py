@@ -322,14 +322,10 @@ def test_get_new_maze(set_seed, iteration):
     assert np.all(left_maze == maze[:,:width//2])
 
     # check that we don't have any dead ends
-    # this means that, except for the external walls, no node in the graph
-    # should have only one connection
+    # no node in the graph should have only one connection
     graph = mg.walls_to_graph(maze)
-    for node in graph:
-        # avoid external walls
-        nodex, nodey = node
-        if (nodex in (0,width-1)) or (nodey in (0,height-1)):
-            assert graph.degree(node) > 1
+    for node, degree in graph.degree():
+        assert degree > 1
 
     # now check that we don't have chambers, i.e. the connectivity of the
     # graph is > 1
