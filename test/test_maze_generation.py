@@ -5,7 +5,7 @@ import networkx as nx
 import numpy as np
 import pytest
 
-from pelita._layouts import maze_generator as mg
+import pelita.maze_generator as mg
 
 SEED = 103525239
 
