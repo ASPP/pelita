@@ -38,7 +38,7 @@ for COUNT in $(seq -w 1 $N); do
 done
 for COUNT in $(seq -w 1 $N); do
     echo "Generating big_$COUNT..."
-    pelita-createlayout -y {HEIGHT*2} -x {WIDTH*22} -f {FOOD*2} -s $RANDOM > big_${{COUNT}}.layout
+    pelita-createlayout -y {HEIGHT*2} -x {WIDTH*2} -f {FOOD*2} -s $RANDOM > big_${{COUNT}}.layout
 done
 
 """
