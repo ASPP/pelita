@@ -380,6 +380,10 @@ def get_new_maze(height, width, nfood, seed=None):
     nfood -- number of food dots for each team
     seed -- if not None, the random seed used to generate the maze
     """
+    if nfood > (height*width)//2:
+        raise ValueError(f'Can not fit {nfood} food pellets in {height*width//2} squares')
+    if width%2 != 0:
+        raise ValueError(f'Width must be even ({width} given)')
 
     if seed is None:
         seed = random.randint(1, 2 ** 31 - 1)

@@ -330,3 +330,11 @@ def test_get_new_maze(set_seed, iteration):
     # now check that we don't have chambers, i.e. the connectivity of the
     # graph is > 1
     assert nx.node_connectivity(graph) > 1
+
+def test_illegal_food():
+    with pytest.raises(ValueError):
+        mg.get_new_maze(2,4,100)
+
+def test_odd_width():
+    with pytest.raises(ValueError):
+        mg.get_new_maze(2,3,1)
