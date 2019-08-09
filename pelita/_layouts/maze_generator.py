@@ -17,6 +17,7 @@ the first wall has k gaps, the next wall has k/2 gaps, etc. (min=1)
 
 Inspired by code by Dan Gillick
 Completely rewritten by Pietro Berkes
+Rewritten again (but not completely) by Tiziano Zito
 """
 import random
 import sys
