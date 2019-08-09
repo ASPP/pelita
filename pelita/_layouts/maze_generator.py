@@ -339,30 +339,33 @@ def remove_all_chambers(maze):
         entrance, chamber = find_chamber(maze_graph)
 
 
-def add_pacman_stuff(maze, max_food):
-    """Add PacMen and food. """
+def add_food(maze, max_food):
+    """Add max_food pellets on the left side of the maze.
 
+    Does not put food on the pacmen's starting positions
+    """
     h, w = maze.shape
-
-    ## starting pacmen positions
-    maze[-2, 1] = '2'
-    maze[-3, 1] = '0'
-    maze[1, -2] = '3'
-    maze[2, -2] = '1'
-
-    ## random food
-    total_food = 0
-    while total_food < max_food:
+    pacmen = [(1,h-2), (1,h-3), (w-2,1), (w-2,2)]
+    # we just add food on the left side, away from the dividing border
+    food = 0
+    while food < max_food:
         row = random.randint(1, h-2)
-        col = random.randint(1, w//2-2)
-        if (row > h - 6) and (col < 6): continue
+        col = random.randint(1, w//2 -2)
+        if (col, row) in pacmen:
+            continue
         if maze[row, col] == E:
             maze[row, col] = F
-            maze[h - row - 1, w - col - 1] = F
-            total_food += 2
+            food += 1
 
 
-def get_new_maze(height, width, nfood=30, seed=None, dead_ends=False):
+def add_pacmen(maze):
+    ## starting pacmen positions
+    maze[-2, 1] = b'2'
+    maze[-3, 1] = b'0'
+    maze[1, -2] = b'3'
+    maze[2, -2] = b'1'
+
+def get_new_maze(height, width, nfood=30, seed=None):
     """Create a new maze in text format.
 
     The maze is created with a recursive creation algorithm. The maze part of
@@ -375,14 +378,11 @@ def get_new_maze(height, width, nfood=30, seed=None, dead_ends=False):
     height, width -- the size of the maze, including the outer walls
     nfood -- number of food dots for each team
     seed -- if not None, the random seed used to generate the maze
-    dead_ends -- if False, remove all dead ends in the maze
     """
 
     if seed is None:
         seed = random.randint(1, 2 ** 31 - 1)
     random.seed(seed)
-
-    print(f'Seed: {seed}', file=sys.stderr)
 
     maze = empty_maze(height, width)
     create_half_maze(maze, height // 2)
@@ -392,17 +392,18 @@ def get_new_maze(height, width, nfood=30, seed=None, dead_ends=False):
     maze[-3, 1] = E
 
     # remove dead ends
-    if not dead_ends:
-        remove_all_dead_ends(maze)
+    remove_all_dead_ends(maze)
+
+    # remove chambers
+    remove_all_chambers(maze)
+
+    # add food
+    add_food(maze, nfood)
 
     # complete right part of maze with mirror copy
     maze[:, width // 2:] = numpy.flipud(numpy.fliplr(maze[:, :width // 2]))
 
+    # add pacman
+    add_pacmen(maze)
 
-    # add food and pacman
-    add_pacman_stuff(maze, max_food=2 * nfood)
-
-    # remove chamber
-    remove_all_chambers(maze)
-
-    return maze_to_bytes(maze)
+    return maze_to_str(maze)
