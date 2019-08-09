@@ -294,3 +294,43 @@ def test_remove_all_chambers(set_seed, maze_chamber):
     #XXX: TODO -> an easy way of getting rid of chambers is to just remove all the
     # walls. How can we test that this is not what we are doing but that instead
     # we are removing just a few walls?
+
+@pytest.mark.parametrize('iteration', range(1,11))
+def test_get_new_maze(set_seed, iteration):
+    # generate a few mazes and check them for consistency
+    local_seed = random.randint(1,2**31-1)*iteration
+    maze_str = mg.get_new_maze(8,16,nfood=15,seed=local_seed)
+    maze = mg.str_to_maze(maze_str)
+    height, width = maze.shape
+    # check that the returned maze has all the pacmen
+    for pacman in (b'0',b'1',b'2',b'3'):
+        assert np.any(maze == pacman)
+        # now that we now we have a pacman, check that we have it only once
+        # and remove it by putting an empty space instead
+        row, col = np.nonzero(maze == pacman)
+        assert len(row) == 1
+        assert len(col) == 1
+        maze[row,col] = b' '
+
+    # check that we have in total twice nfood in the maze
+    assert (maze == b'.').sum() == 15*2
+    # remove the food for computing dead ends and chambers
+    maze[maze == b'.'] = b' '
+
+    # check that the returned maze is center-mirror symmetric
+    left_maze = np.flipud(np.fliplr(maze[:,width//2:]))
+    assert np.all(left_maze == maze[:,:width//2])
+
+    # check that we don't have any dead ends
+    # this means that, except for the external walls, no node in the graph
+    # should have only one connection
+    graph = mg.walls_to_graph(maze)
+    for node in graph:
+        # avoid external walls
+        nodex, nodey = node
+        if (nodex in (0,width-1)) or (nodey in (0,height-1)):
+            assert graph.degree(node) > 1
+
+    # now check that we don't have chambers, i.e. the connectivity of the
+    # graph is > 1
+    assert nx.node_connectivity(graph) > 1
