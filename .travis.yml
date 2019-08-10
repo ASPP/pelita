@@ -20,7 +20,7 @@ install:
 script:
 - >
     python -c "import zmq; print('Using pyzmq {} and zmq {}.'.format(zmq.pyzmq_version(), zmq.zmq_version()))" &&
-    python -m pytest --cov=pelita -v test/ &&
+    python -m pytest --cov=pelita test/ &&
     python -m pelita.scripts.pelita_main --progress &&
     pelita --null --rounds 100 --filter small $player 2>&1
 - >
