@@ -1,7 +1,8 @@
+import pytest
+
+from textwrap import dedent
 
 from pelita import utils
-
-import pytest
 
 @pytest.mark.parametrize('is_blue', [True, False])
 def test_setup_test_game(is_blue):
@@ -48,3 +49,28 @@ def test_setup_test_game(is_blue):
     assert test_game.enemy[0].is_noisy is False
     assert test_game.enemy[1].is_noisy is True
 
+
+def test_load_builtin_layout():
+    layout = utils.load_builtin_layout("small_without_dead_ends_001")
+    assert layout.strip() == dedent("""
+    ##################
+    #. ... .##.     E#
+    # # #  .  .### #E#
+    # # ##.   .      #
+    #      .   .## # #
+    #0# ###.  .  # # #
+    #1     .##. ... .#
+    ##################
+    """).strip()
+
+    layout = utils.load_builtin_layout("small_without_dead_ends_001", is_blue=False)
+    assert layout.strip() == dedent("""
+    ##################
+    #. ... .##.     1#
+    # # #  .  .### #0#
+    # # ##.   .      #
+    #      .   .## # #
+    #E# ###.  .  # # #
+    #E     .##. ... .#
+    ##################
+    """).strip()
