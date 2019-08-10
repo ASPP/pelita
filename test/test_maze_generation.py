@@ -331,10 +331,45 @@ def test_get_new_maze(set_seed, iteration):
     # graph is > 1
     assert nx.node_connectivity(graph) > 1
 
-def test_illegal_food():
-    with pytest.raises(ValueError):
-        mg.get_new_maze(2,4,100)
-
 def test_odd_width():
     with pytest.raises(ValueError):
         mg.get_new_maze(2,3,1)
+
+def test_add_food():
+    mini = """########
+              #      #
+              #      #
+              ########"""
+    maze = mg.str_to_maze(mini)
+    # We have 12 empty squares in total, so 6 on the left side.
+    # -> 2 slots are taken by the dividing border, so we have 4 left
+    # -> 2 are reserved for pacmen, so we have only 2 slots for food
+    # - check that we can indeed accommodate 2 pellets in the maze
+    lmaze = maze.copy()
+    mg.add_food(lmaze, 2)
+    assert (lmaze == mg.F).sum() == 2
+    # - check that if we add a wall in a free spot that is not reserved by the
+    #   pacmen we can only accommodate 1 pellet
+    lmaze = maze.copy()
+    lmaze[1,2] = mg.W
+    mg.add_food(lmaze, 1)
+    assert (lmaze == mg.F).sum() == 1
+    # - if we try to add more food, we complain
+    lmaze = maze.copy()
+    lmaze[1,2] = mg.W
+    with pytest.raises(ValueError):
+        mg.add_food(lmaze, 2)
+    # - check that if no space is left we complain
+    lmaze = maze.copy()
+    lmaze[1,2], lmaze[2,2] = mg.W, mg.W
+    with pytest.raises(ValueError):
+        mg.add_food(lmaze, 1)
+    # - check that we fail if we get passed unreasonable amounts of food
+    lmaze = maze.copy()
+    with pytest.raises(ValueError):
+        mg.add_food(lmaze, -1)
+    # - check that we can cope with no food to add
+    lmaze = maze.copy()
+    mg.add_food(lmaze, 0)
+    assert np.all(lmaze == maze)
+

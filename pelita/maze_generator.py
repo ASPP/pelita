@@ -343,21 +343,34 @@ def remove_all_chambers(maze):
 def add_food(maze, max_food):
     """Add max_food pellets on the left side of the maze.
 
-    Does not put food on the pacmen's starting positions
+    We exclude the pacmen's starting positions and the central dividing border
     """
+    if max_food == 0:
+        # no food needs to be added, return here
+        return
     h, w = maze.shape
-    pacmen = [(1,h-2), (1,h-3), (w-2,1), (w-2,2)]
-    # we just add food on the left side, away from the dividing border
-    food = 0
-    while food < max_food:
-        row = random.randint(1, h-2)
-        col = random.randint(1, w//2 -2)
-        if (col, row) in pacmen:
-            continue
-        if maze[row, col] == E:
-            maze[row, col] = F
-            food += 1
+    pacmen = [(1,h-2), (1,h-3)]
+    # get all free slots on the left side, excluding the dividing border
+    free_y, free_x = numpy.where(maze[:,:w//2-1] == E)
+    # convert it to a list of coordinate tuples
+    free = list(zip(free_x, free_y))
+    # remove the pacmen starting coordinates (we have to check that they are
+    # indeed free before try to remove them
+    [free.remove(pacman) for pacman in pacmen if pacman in free]
+    # check if we have any free slots left
+    if len(free) == 0 and max_food > 0:
+        raise ValueError(f'No space left for food in maze')
+    elif max_food > len(free):
+        # check if we can indeed fit so much food in the maze
+        raise ValueError(f'Can not fit {max_food} pellet in {len(free)} free slots')
+    elif max_food < 0:
+        raise ValueError(f'Can not add negative number of food ({max_food} given)')
 
+    # now take max_food random positions out of this list
+    food = random.sample(free, max_food)
+    # fit it in the maze
+    for col, row in food:
+        maze[row, col] = F
 
 def add_pacmen(maze):
     ## starting pacmen positions
@@ -380,8 +393,6 @@ def get_new_maze(height, width, nfood, seed=None):
     nfood -- number of food dots for each team
     seed -- if not None, the random seed used to generate the maze
     """
-    if nfood > (height*width)//2:
-        raise ValueError(f'Can not fit {nfood} food pellets in {height*width//2} squares')
     if width%2 != 0:
         raise ValueError(f'Width must be even ({width} given)')
 
