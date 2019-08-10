@@ -222,7 +222,7 @@ def test_find_chamber():
     # now remove the chamber and verify that we don't detect anything
     # we just remove wall (4,1) manually
     maze = mg.str_to_maze(maze_chamber)
-    maze[1,4] = maze[1,5] # REMEMBER! Indexing is maze[y,x]!!!
+    maze[1,4] = mg.E # REMEMBER! Indexing is maze[y,x]!!!
     graph = mg.walls_to_graph(maze)
     entrance, chamber = mg.find_chamber(graph)
     assert entrance is None
@@ -310,12 +310,12 @@ def test_get_new_maze(set_seed, iteration):
         row, col = np.nonzero(maze == pacman)
         assert len(row) == 1
         assert len(col) == 1
-        maze[row,col] = b' '
+        maze[row,col] = mg.E
 
     # check that we have in total twice nfood in the maze
-    assert (maze == b'.').sum() == 15*2
+    assert (maze == mg.F).sum() == 15*2
     # remove the food for computing dead ends and chambers
-    maze[maze == b'.'] = b' '
+    maze[maze == mg.F] = mg.E
 
     # check that the returned maze is center-mirror symmetric
     left_maze = np.flipud(np.fliplr(maze[:,width//2:]))
