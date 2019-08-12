@@ -155,8 +155,8 @@ Team Specification:
 
 Layout specification:
     If neither --layoutfile nor --layout are specified, the maze is
-    chosen at random from the pool of available layouts.
-    You can restrict this pool by using --filter.
+    chosen at random from the pool of built-in normal-sized layouts.
+    You can change this pool by using --size.
 """
 
 
