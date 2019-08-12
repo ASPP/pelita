@@ -7,58 +7,59 @@ import io
 from pathlib import Path
 import random
 
-def get_random_layout(filter=''):
+def get_random_layout(size='normal'):
     """ Return a random layout string from the available ones.
 
     Parameters
     ----------
-    filter : str
-        only return layouts which contain "filter" in their name.
-        Default is no filter.
+    size : str
+        only return layouts of size 'small', 'normal', 'big', 'all'.
+        Default is 'normal'.
+
+        'small'  -> width=16, height=8,  food=10
+        'normal' -> width=32, height=16, food=30
+        'big'    -> width=64, height=32, food=60
+        'all'    -> all of the above
 
     Returns
     -------
     layout : tuple(str, str)
         the name of the layout, a random layout string
 
-    Examples
-    --------
-    To only get layouts without dead ends you may use:
-
-        >>> get_random_layout(filter='without_dead_ends')
-
     """
-    layouts_names = get_available_layouts(filter=filter)
+    layouts_names = get_available_layouts(size=size)
     layout_choice = random.choice(layouts_names)
     return layout_choice, get_layout_by_name(layout_choice)
 
-def get_available_layouts(filter=''):
-    """ The names of the available layouts.
+def get_available_layouts(size='normal'):
+    """Return the names of the built-in layouts.
 
     Parameters
     ----------
-    filter : str
-        only return layouts which contain 'filter' in their name.
-        Default is no filter.
+    size : str
+        only return layouts of size 'small', 'normal', 'big', 'all'.
+        Default is 'normal'.
+
+        'small'  -> width=16, height=8,  food=10
+        'normal' -> width=32, height=16, food=30
+        'big'    -> width=64, height=32, food=60
+        'all'    -> all of the above
+
 
     Returns
     -------
     layout_names : list of str
         the available layouts
 
-    Examples
-    --------
-    To only get layouts without dead ends you may use:
-
-        >>> get_available_layouts(filter='without_dead_ends')
-
     """
     # loop in layouts directory and look for layout files
+    if size == 'all':
+        size = ''
     return [item[:-(len('.layout'))] for item in importlib_resources.contents('pelita._layouts')
-                 if item.endswith('.layout') and filter in item]
+                 if item.endswith('.layout') and size in item]
 
 def get_layout_by_name(layout_name):
-    """ Get a layout.
+    """Get a built-in layout by name
 
     Parameters
     ----------
