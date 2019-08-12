@@ -53,6 +53,9 @@ def get_available_layouts(size='normal'):
 
     """
     # loop in layouts directory and look for layout files
+    valid = ('small', 'normal', 'big', 'all')
+    if size not in valid:
+        raise ValueError(f"Invalid layout size ('{size}' given). Valid: {valid}")
     if size == 'all':
         size = ''
     return [item[:-(len('.layout'))] for item in importlib_resources.contents('pelita._layouts')
