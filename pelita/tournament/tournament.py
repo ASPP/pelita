@@ -67,6 +67,11 @@ def run_and_terminate_process(args, **kwargs):
         else:
             p = subprocess.Popen(args, **kwargs, preexec_fn=os.setsid)
         yield p
+        p.poll()
+        if p.returncode is not None:
+            _logger.debug(f"Subprocess exited with {p.returncode}.")
+        else:
+            _logger.debug(f"Subprocess has not exited yet.")
     finally:
         if _mswindows:
             _logger.debug("Sending CTRL_BREAK_EVENT to {proc} with pid {pid}.".format(proc=p, pid=p.pid))
