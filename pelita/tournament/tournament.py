@@ -157,6 +157,17 @@ def call_pelita(team_specs, *, rounds, size, viewer, seed, write_replay=False, s
                         whowins = game_state.get("whowins", None)
                         if finished:
                             final_game_state = game_state
+                            # The game in the subprocess has finished but the process
+                            # may still be running.
+                            # Give it a little time to finish writing everything.
+                            # Once we exit the `with` statement, the subprocess will
+                            # be terminated.
+                            try:
+                                proc.wait(1)
+                            except subprocess.TimeoutExpired:
+                                # It didn’t terminate in time by itself.
+                                # We exit anyway.
+                                pass
                             break
                     except ValueError:  # JSONDecodeError
                         pass
