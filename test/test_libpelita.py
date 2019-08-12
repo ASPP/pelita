@@ -21,10 +21,10 @@ class TestLibpelitaUtils:
 def test_call_pelita():
     rounds = 200
     viewer = 'ascii'
-    filter = 'small'
+    size = 'small'
 
     teams = ["pelita/player/StoppingPlayer", "pelita/player/StoppingPlayer"]
-    (state, stdout, stderr) = call_pelita(teams, rounds=rounds, viewer='null', filter=filter, seed=None)
+    (state, stdout, stderr) = call_pelita(teams, rounds=rounds, viewer='null', size=size, seed=None)
     assert state['gameover'] is True
     assert state['whowins'] == 2
     # Quick assert that there is text in stdout
@@ -32,12 +32,12 @@ def test_call_pelita():
     assert "Finished" in stdout
 
     teams = ["pelita/player/SmartEatingPlayer", "pelita/player/StoppingPlayer"]
-    (state, stdout, stderr) = call_pelita(teams, rounds=rounds, viewer=viewer, filter=filter, seed=None)
+    (state, stdout, stderr) = call_pelita(teams, rounds=rounds, viewer=viewer, size=size, seed=None)
     assert state['gameover'] is True
     assert state['whowins'] == 0
 
     teams = ["pelita/player/StoppingPlayer", "pelita/player/SmartEatingPlayer"]
-    (state, stdout, stderr) = call_pelita(teams, rounds=rounds, viewer=viewer, filter=filter, seed=None)
+    (state, stdout, stderr) = call_pelita(teams, rounds=rounds, viewer=viewer, size=size, seed=None)
     assert state['gameover'] is True
     assert state['whowins'] == 1
 
@@ -64,7 +64,7 @@ def test_write_replay_is_idempotent():
 
             cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
                     '--write-replay', f.name,
-                    '--filter', 'small',
+                    '--size', 'small',
                     '--null']
 
             subprocess.check_output(cmd)
