@@ -6,7 +6,7 @@ from pelita import utils
 
 @pytest.mark.parametrize('is_blue', [True, False])
 def test_setup_test_game(is_blue):
-    layout = utils.load_builtin_layout('small_without_dead_ends_001', is_blue=is_blue)
+    layout = utils.load_builtin_layout('small_001', is_blue=is_blue)
     test_game = utils.setup_test_game(layout=layout, is_blue=is_blue)
 
     if is_blue:
@@ -51,26 +51,26 @@ def test_setup_test_game(is_blue):
 
 
 def test_load_builtin_layout():
-    layout = utils.load_builtin_layout("small_without_dead_ends_001")
+    layout = utils.load_builtin_layout("small_001")
     assert layout.strip() == dedent("""
-    ##################
-    #. ... .##.     E#
-    # # #  .  .### #E#
-    # # ##.   .      #
-    #      .   .## # #
-    #0# ###.  .  # # #
-    #1     .##. ... .#
-    ##################
+################
+# ..       .. E#
+#. ######..  #E#
+#  .  .   .  # #
+# #  .   .  .  #
+#0#  ..###### .#
+#1 ..       .. #
+################
     """).strip()
 
-    layout = utils.load_builtin_layout("small_without_dead_ends_001", is_blue=False)
+    layout = utils.load_builtin_layout("small_001", is_blue=False)
     assert layout.strip() == dedent("""
-    ##################
-    #. ... .##.     1#
-    # # #  .  .### #0#
-    # # ##.   .      #
-    #      .   .## # #
-    #E# ###.  .  # # #
-    #E     .##. ... .#
-    ##################
+################
+# ..       .. 1#
+#. ######..  #0#
+#  .  .   .  # #
+# #  .   .  .  #
+#E#  ..###### .#
+#E ..       .. #
+################
     """).strip()

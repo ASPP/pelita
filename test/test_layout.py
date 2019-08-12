@@ -18,24 +18,24 @@ LAYOUT2="""
 
 
 def test_get_available_layouts():
-    available = get_available_layouts()
-    assert 600 == len(available)
+    available = get_available_layouts(size='all')
+    assert 300 == len(available)
     # now also test the filter
-    available = get_available_layouts(filter='normal_without_dead_ends')
+    available = get_available_layouts(size='normal')
     assert 100 == len(available)
 
 def test_get_layout_by_name():
     target_layout = """
-##################
-#. ... .##.     3#
-# # #  .  .### #1#
-# # ##.   .      #
-#      .   .## # #
-#0# ###.  .  # # #
-#2     .##. ... .#
-##################
+################
+# ..       .. 3#
+#. ######..  #1#
+#  .  .   .  # #
+# #  .   .  .  #
+#0#  ..###### .#
+#2 ..       .. #
+################
 """
-    loaded = get_layout_by_name('small_without_dead_ends_001')
+    loaded = get_layout_by_name('small_001')
     assert target_layout.strip() == loaded.strip()
 
 def test_get_random_layout():
