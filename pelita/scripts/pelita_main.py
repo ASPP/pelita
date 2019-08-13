@@ -171,7 +171,8 @@ def main():
         sys.exit(0)
 
     if args.list_layouts:
-        layouts = pelita.layout.get_available_layouts()
+        layouts = pelita.layout.get_available_layouts(size='all')
+        layouts.sort()
         print('\n'.join(layouts))
         sys.exit(0)
 
