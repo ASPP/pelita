@@ -221,7 +221,7 @@ class Wall(TkSprite):
 
 
     def draw(self, canvas, game_state=None):
-        scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5
+        scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.6
         if not ((0, 1) in self.wall_neighbors or
                 (1, 0) in self.wall_neighbors or
                 (0, -1) in self.wall_neighbors or
@@ -230,7 +230,7 @@ class Wall(TkSprite):
             # draw only a small dot.
             # TODO add diagonal lines
             canvas.create_line(self.screen((-0.3, 0)), self.screen((+0.3, 0)), fill=BROWN,
-                               width=0.8 * scale, tag=(self.tag, "wall"), capstyle="round")
+                               width=scale, tag=(self.tag, "wall"), capstyle="round")
         else:
             neighbours = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
             for dx in [-1, 0, 1]:
@@ -246,7 +246,15 @@ class Wall(TkSprite):
                             pass
                         else:
                             canvas.create_line(self.screen((0, 0)), self.screen((2*dx, 2*dy)), fill=BROWN,
-                                               width=0.8 * scale, tag=(self.tag, "wall"), capstyle="round")
+                                               width=scale, tag=(self.tag, "wall"), capstyle="round")
+
+            # if we are drawing a closed square, fill in the internal part
+            # detect the square when we are on the bottom-left vertex of it
+            square_neighbors = {(0,0), (0,-1), (1,0),(1,-1)}
+            if square_neighbors <= set(self.wall_neighbors):
+                canvas.create_line(self.screen((1,0)), self.screen((1,-2)), fill=BROWN,
+                                   width=scale, tag=(self.tag, "wall"))
+
 
 class Food(TkSprite):
     @classmethod
