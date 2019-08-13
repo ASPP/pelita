@@ -23,5 +23,5 @@ def smart_random_player(bot, state):
         return bot.position, state
 
 
-TEAM_NAME = "The Smart Random Players"
+TEAM_NAME = "Smart Random Players"
 move = smart_random_player
