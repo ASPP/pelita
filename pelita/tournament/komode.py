@@ -4,13 +4,17 @@ import math
 import queue
 from collections import defaultdict, namedtuple
 
-def sort_ranks(teams):
-    """ Re-orders a list
+def sort_ranks(teams, bonusmatch=False):
+    """ Re-orders a ranked list of teams such that
+    the best and worst team are next to each other,
+    the second best and second best are next to each other, etc.
+
+    If bonusmatch is True, then the worst team will be left
+    out until the final match
 
     Parameters
     ----------
-    new_data : list of appropriate length
-        the new data
+    teams : ranked list of teams
 
     Raises
     ------
@@ -20,15 +24,31 @@ def sort_ranks(teams):
         if new_data has inappropriate length
 
     """
+    if len(teams) < 2:
+        return teams
 
+    if bonusmatch:
+        # pop last item from teams list
+        bonus_team = [teams.pop()]
+    else:
+        bonus_team = []
+
+    # if the number of teams is not even, we need to leave out another team
     l = len(teams)
     if l % 2 != 0:
-        bonus = [teams[-1]]
+        # pop last item from teams list
+        remainder_team = [teams.pop()]
     else:
-        bonus = []
+        remainder_team = []
+
+    # top half
     good_teams = teams[:l//2]
+    # bottom half
     bad_teams = reversed(teams[l//2:2*(l//2)])
-    return [team for pair in zip(good_teams, bad_teams) for team in pair] + bonus
+
+    pairs = [team for pair in zip(good_teams, bad_teams)
+                  for team in pair]
+    return pairs + remainder_team + bonus_team
 
 def identity(x):
     return x

@@ -12,11 +12,24 @@ from pelita.tournament import tournament
 class TestKoMode:
     def test_sort_ranks(self):
         sort_ranks = komode.sort_ranks
-        assert sort_ranks(range(7)) == [0, 5, 1, 4, 2, 3, 6]
-        assert sort_ranks(range(4)) == [0, 3, 1, 2]
-        assert sort_ranks(range(2)) == [0, 1]
-        assert sort_ranks(range(1)) == [0]
+        assert sort_ranks([0, 1, 2, 3, 4, 5, 6]) == [0, 5, 1, 4, 2, 3, 6]
+        assert sort_ranks([0, 1, 2, 3, 4, 5]) == [0, 5, 1, 4, 2, 3]
+        assert sort_ranks([0, 1, 2, 3, 4]) == [0, 3, 1, 2, 4]
+        assert sort_ranks([0, 1, 2, 3]) == [0, 3, 1, 2]
+        assert sort_ranks([0, 1, 2]) == [0, 1, 2]
+        assert sort_ranks([0, 1]) == [0, 1]
+        assert sort_ranks([0]) == [0]
         assert sort_ranks([]) == []
+
+        assert sort_ranks([0, 1, 2, 3, 4, 5, 6], bonusmatch=True) == [0, 5, 1, 4, 2, 3, 6]
+        assert sort_ranks([0, 1, 2, 3, 4, 5], bonusmatch=True) == [0, 3, 1, 2, 4, 5]
+        assert sort_ranks([0, 1, 2, 3, 4], bonusmatch=True) == [0, 3, 1, 2, 4]
+        assert sort_ranks([0, 1, 2, 3], bonusmatch=True) == [0, 1, 2, 3]
+        assert sort_ranks([0, 1, 2], bonusmatch=True) == [0, 1, 2]
+        assert sort_ranks([0, 1], bonusmatch=True) == [0, 1]
+        assert sort_ranks([0], bonusmatch=True) == [0]
+        assert sort_ranks([], bonusmatch=True) == []
+
 
     def test_prepared_matches(self):
         with pytest.raises(ValueError):

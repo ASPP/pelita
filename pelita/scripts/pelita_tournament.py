@@ -282,12 +282,7 @@ def main():
     state.round2["round_robin_ranking"] = rr_ranking
     state.save(args.state)
 
-    if config.bonusmatch:
-        sorted_ranking = tournament.komode.sort_ranks(rr_ranking[:-1]) + [rr_ranking[-1]]
-    else:
-        sorted_ranking = tournament.komode.sort_ranks(rr_ranking)
-
-    winner = tournament.round2(config, sorted_ranking, state)
+    winner = tournament.round2(config, rr_ranking, state)
 
     config.print('The winner of the %s Pelita tournament is...' % config.location, wait=2, end=" ")
     config.print('{team_name}. Congratulations'.format(team_name=config.team_name(winner)), wait=2)
