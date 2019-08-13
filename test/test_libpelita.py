@@ -42,6 +42,29 @@ def test_call_pelita():
     assert state['whowins'] == 1
 
 
+@pytest.mark.parametrize('seed,success', [
+        (None, True),
+        (0, True),
+        (1, True),
+        ("1", True),
+        ("193294814091830945831093", True),
+        ("1.0", False),
+        ("daflj", False),
+])
+def test_bad_seeds(seed, success):
+    rounds = 2
+    viewer = 'null'
+    size = 'small'
+
+    teams = ["pelita/player/StoppingPlayer", "pelita/player/StoppingPlayer"]
+    if success:
+        (state, stdout, stderr) = call_pelita(teams, rounds=rounds, viewer='null', size=size, seed=seed)
+        assert state['gameover'] is True
+    else:
+        with pytest.raises(ValueError):
+                call_pelita(teams, rounds=rounds, viewer='null', size=size, seed=seed)
+
+
 def test_check_team_external():
     assert check_team("pelita/player/StoppingPlayer") == "Stopping"
 
