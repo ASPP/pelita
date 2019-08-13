@@ -66,7 +66,7 @@ def test_bad_seeds(seed, success):
 
 
 def test_check_team_external():
-    assert check_team("pelita/player/StoppingPlayer") == "Stopping"
+    assert check_team("pelita/player/StoppingPlayer") == "Stopping Players"
 
 def test_check_team_external_fails():
     with pytest.raises(ZMQClientError):
