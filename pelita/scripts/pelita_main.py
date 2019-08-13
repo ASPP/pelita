@@ -136,16 +136,16 @@ Team Specification:
     * TEAM_NAME
         a string with the name of the team.
 
-    * move(turn, game) -> next_move
-        a function that takes the current game and returns the move for the bot
-        with index `turn`, where `turn` is 0 or 1.
+    * move(bot, state) -> next_position
+        a function which given a bot and a state returns the next position for
+        current bot and a state.
 
     Example file: my_stopping_bots.py
 
         TEAM_NAME = 'My stopping bots'
 
-        def move(turn, game):
-            return (0, 0)
+        def move(bot, state):
+            return bot.position
 
     A game between two teams of stopping bots can then be played as
 
