@@ -20,7 +20,7 @@ install:
 script:
 - >
     python -c "import zmq; print('Using pyzmq {} and zmq {}.'.format(zmq.pyzmq_version(), zmq.zmq_version()))" &&
-    echo "Sarting tests..." && python -m pytest test/ && echo "Tests finished." && echo "Starting pelita CLI as a module..." &&
+    echo "Starting tests..." && python -m pytest test/ && echo "Tests finished." && echo "Starting pelita CLI as a module..." &&
     python -m pelita.scripts.pelita_main --null && echo "Pelita CLI as a module finished." && echo "Starting pelita CLI as a script..." &&
     pelita --null --rounds 100 --size small $player && echo "Pelita CLI as a script finished."
 - >
