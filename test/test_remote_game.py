@@ -1,6 +1,7 @@
 import pytest
 
 from pathlib import Path
+import random
 import subprocess
 import sys
 import tempfile
@@ -11,20 +12,26 @@ from pelita.player import stopping_player
 from pelita.tournament import call_pelita, run_and_terminate_process
 
 
-addr_stopping = 'tcp://127.0.0.1:52301'
-addr_food_eater = 'tcp://127.0.0.1:52302'
-
 # Runs the processes for the remote teams
 # and sets up `remote_teams` as a pytest fixture
 # The processes should automatically terminate then
+# also, listens on different ports each time, to avoid collisions and dead
+# locks
+RNG = random.Random()
+
 @pytest.fixture(scope="module")
 def remote_teams():
+    # get random port numbers within the range of dynamic ports
+    port_stopping = RNG.randint(49153,65534)
+    port_food_eater = port_stopping+1
+
+    addr_stopping = f'tcp://127.0.0.1:{port_stopping}'
+    addr_food_eater = f'tcp://127.0.0.1:{port_food_eater}'
     remote = [sys.executable, '-m', 'pelita.scripts.pelita_player', '--remote']
 
-    remote_stopping = remote + ['pelita/player/StoppingPlayer', addr_stopping]
+    remote_stopping = remote + ['pelita/player/StoppingPlayer', addr_stopping ]
     remote_food_eater = remote + ['pelita/player/FoodEatingPlayer', addr_food_eater]
 
-#    procs = [subprocess.Popen(args) for args in [remote_stopping, remote_food_eater]]
     teams = [f'remote:{addr_stopping}', f'remote:{addr_food_eater}']
     with run_and_terminate_process(remote_stopping):
         with run_and_terminate_process(remote_food_eater):
