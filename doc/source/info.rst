@@ -11,10 +11,7 @@ Authors and Contributors
 Getting in Touch
 ================
 
-Please use our `project mailing list
-<https://portal.bccn-berlin.de/cgi-bin/mailman/listinfo/pelita>`_ for questions
-and discussion. Use the `GitHub issues page
-<https://github.com/ASPP/pelita/issues>`_ to report bugs.
+Please use the `GitHub issues page <https://github.com/ASPP/pelita/issues>`_ for questions and discussion.
 
 License
 =======
@@ -22,10 +19,6 @@ License
 Pelita is licensed under the terms of the `Simplified (two-clause) BSD License
 <https://www.opensource.org/licenses/BSD-2-Clause>`_.
 A copy of the license is included with the source, in the file ``COPYING``.
-
-To generate API documentation from the docstring one needs a recent copy of
-`Sphinx <http://sphinx-doc.org>`_ and of the `numpydoc
-<http://pypi.python.org/pypi/numpydoc>`_ sphinx extension.
 
 Acknowledgements
 ================
@@ -38,7 +31,9 @@ introductory course [DeNeroKlein]_.
 This software was developed for the “Advanced Scientific Programming in Python”
 summer school, as a teaching aid for the group project.
 
-* `Nikiti, Greece, 2017 <https://python.g-node.org/wiki/start>`_
+* `Camerino, Italy, 2019 <https://python.g-node.org/wiki/start>`_
+* `Camerino, Italy, 2018 <https://python.g-node.org/python-summerschool-2018/>`_
+* `Nikiti, Greece, 2017 <https://python.g-node.org/python-summerschool-2017/>`_
 * `Reading, UK, 2016 <https://python.g-node.org/python-summerschool-2016/>`_
 * `Munich, Germany, 2015 <https://python.g-node.org/python-summerschool-2015/>`_
 * `Split, Croatia, 2014 <https://python.g-node.org/python-summerschool-2014/>`_
