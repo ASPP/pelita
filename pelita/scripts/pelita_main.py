@@ -78,9 +78,9 @@ layout_opt.add_argument('--layoutfile', metavar='FILE',
                         help='Load a maze layout from FILE.')
 layout_opt.add_argument('--layout', metavar='NAME',
                         help='Load a maze layout by name.')
-layout_opt.add_argument('--filter', metavar='STRING', default='normal_without_dead_ends',
-                        help='Restrict the pool of random layouts to those whose name contains STRING.'
-                        ' Default: \'normal_without_dead_ends\'')
+layout_opt.add_argument('--size', metavar='STRING', default='normal',
+                        help="Pick a random maze layout of specified size."
+                        " Possible sizes: 'small' (16x8), 'normal' (32x16), 'big' (64x32), 'all' (any of the previous). Default: 'normal'")
 
 timeout_opt = game_settings.add_mutually_exclusive_group()
 timeout_opt.add_argument('--timeout', type=float, metavar="SEC",
@@ -155,8 +155,8 @@ Team Specification:
 
 Layout specification:
     If neither --layoutfile nor --layout are specified, the maze is
-    chosen at random from the pool of available layouts.
-    You can restrict this pool by using --filter.
+    chosen at random from the pool of built-in normal-sized layouts.
+    You can change this pool by using --size.
 """
 
 
@@ -259,7 +259,7 @@ def main():
         layout_name = str(layout_path)
         layout_string = layout_path.read_text()
     else:
-        layout_name, layout_string = pelita.layout.get_random_layout(args.filter)
+        layout_name, layout_string = pelita.layout.get_random_layout(args.size)
 
     print("Using layout '%s'" % layout_name)
 

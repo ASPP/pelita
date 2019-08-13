@@ -22,7 +22,7 @@ script:
     python -c "import zmq; print('Using pyzmq {} and zmq {}.'.format(zmq.pyzmq_version(), zmq.zmq_version()))" &&
     python -m pytest --cov=pelita test/ &&
     python -m pelita.scripts.pelita_main --progress &&
-    pelita --null --rounds 100 --filter small $player 2>&1
+    pelita --null --rounds 100 --size small $player 2>&1
 - >
     if [[ $TRAVIS_PYTHON_VERSION == 3.6 || $TRAVIS_PYTHON_VERSION == 3.7 ]] ; then
       pelita-tournament --non-interactive --viewer null

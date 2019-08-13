@@ -95,7 +95,7 @@ def run_and_terminate_process(args, **kwargs):
                     p.kill()
 
 
-def call_pelita(team_specs, *, rounds, filter, viewer, seed, write_replay=False, store_output=False):
+def call_pelita(team_specs, *, rounds, size, viewer, seed, write_replay=False, store_output=False):
     """ Starts a new process with the given command line arguments and waits until finished.
 
     Returns
@@ -112,7 +112,7 @@ def call_pelita(team_specs, *, rounds, filter, viewer, seed, write_replay=False,
     reply_addr = 'tcp://127.0.0.1' + ':' + str(reply_port)
 
     rounds = ['--rounds', str(rounds)] if rounds else []
-    filter = ['--filter', filter] if filter else []
+    size = ['--size', size] if size else []
     viewer = ['--' + viewer] if viewer else []
     seed = ['--seed', seed] if seed else []
     write_replay = ['--write-replay', write_replay] if write_replay else []
@@ -122,7 +122,7 @@ def call_pelita(team_specs, *, rounds, filter, viewer, seed, write_replay=False,
            team1, team2,
            '--reply-to', reply_addr,
            *rounds,
-           *filter,
+           *size,
            *viewer,
            *seed,
            *write_replay,
@@ -209,7 +209,7 @@ class Config:
         self.date = config["date"]
 
         self.rounds = config.get("rounds")
-        self.filter = config.get("filter")
+        self.size = config.get("size")
 
         self.viewer = config.get("viewer")
         self.interactive = config.get("interactive")
@@ -401,7 +401,7 @@ def play_game_with_config(config, teams):
 
     res = call_pelita([config.team_spec(team1), config.team_spec(team2)],
                                 rounds=config.rounds,
-                                filter=config.filter,
+                                size=config.size,
                                 viewer=config.viewer,
                                 seed=seed,
                                 **log_kwargs)
