@@ -20,18 +20,19 @@ install:
 script:
 - >
     python -c "import zmq; print('Using pyzmq {} and zmq {}.'.format(zmq.pyzmq_version(), zmq.zmq_version()))" &&
-    python -m pytest test/ &&
-    python -m pelita.scripts.pelita_main --progress &&
-    pelita --null --rounds 100 --size small $player 2>&1
+    echo "Sarting tests..." && python -m pytest test/ && echo "Tests finished." && echo "Starting pelita CLI as a module..." &&
+    python -m pelita.scripts.pelita_main --null && echo "Pelita CLI as a module finished." && echo "Starting pelita CLI as a script..." &&
+    pelita --null --rounds 100 --size small $player && echo "Pelita CLI as a script finished."
 - >
     if [[ $TRAVIS_PYTHON_VERSION == 3.6 || $TRAVIS_PYTHON_VERSION == 3.7 ]] ; then
-      pelita-tournament --non-interactive --viewer null
+      echo "Starting tournament..." && pelita-tournament --non-interactive --viewer null && echo "Tournament finished."
     fi
 - >
     if [[ $TRAVIS_PYTHON_VERSION == 3.6 || $TRAVIS_PYTHON_VERSION == 3.7 ]] ; then
     # We must clone pelita_template to a location outside of the pelita repo
     # Otherwise pelita’s own setup.cfg will be used for test configuration
-      (cd .. && git clone https://github.com/ASPP/pelita_template) && ( cd ../pelita_template/ && python -m pytest . )
+      (cd .. && echo "Test pelita_template..." && git clone https://github.com/ASPP/pelita_template) && ( cd ../pelita_template/ && python -m pytest . &&
+      echo "Finished testing pelita_template.")
     fi
 
 # push coverage
