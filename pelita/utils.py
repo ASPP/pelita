@@ -1,6 +1,7 @@
 import logging
 import random
 
+import networkx
 from .layout import get_layout_by_name, layout_as_str, layout_for_team, parse_layout
 from .player.team import create_layout, make_bots
 
@@ -25,6 +26,28 @@ def split_food(width, food):
         team_food[idx].add(pos)
     return team_food
 
+def walls_to_graph(walls):
+    """Return a networkx Graph object given the walls.
+
+    Nodes in the graph are (x,y) coordinates in the layout which are not walls.
+    Edges in the graph are ((x1,y1), (x2,y2)) tuples of coordinates of two adjacent nodes."""
+    graph = networkx.Graph()
+    extreme = max(walls)
+    width =  extreme[0] + 1
+    heigth = extreme[1] + 1
+    for x in range(width):
+        for y in range(heigth):
+            if (x, y) not in walls:
+                # this is a free position, get its neighbors
+                for delta_x, delta_y in ((1,0), (-1,0), (0,1), (0,-1)):
+                    neighbor = (x + delta_x, y + delta_y)
+                    # we don't need to check for getting neighbors out of the maze
+                    # because our mazes are all surrounded by walls, i.e. our
+                    # deltas will not put us out of the maze
+                    if neighbor not in walls:
+                        # this is a genuine neighbor, add an edge in the graph
+                        graph.add_edge((x, y), neighbor)
+    return graph
 
 def load_builtin_layout(layout_name, *, is_blue=True):
     """ Loads a builtin layout with the given `layout_name` and returns a layout string.
