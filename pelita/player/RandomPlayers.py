@@ -1,9 +1,3 @@
-
-def random_player(bot, state):
-    """ A player that makes moves at random. """
-    return bot.random.choice(bot.legal_positions), state
-
-
 def nq_random_player(bot, state):
     """ Not-Quite-RandomPlayer that will move randomly but not stop or reverse. """
 
@@ -30,9 +24,5 @@ def nq_random_player(bot, state):
     return bot.random.choice(legal_positions), state
 
 
-TEAM_NAME = "The Random Players"
-def move(bot, state):
-    if bot.turn == 0:
-        return random_player(bot, state)
-    else:
-        return nq_random_player(bot, state)
+TEAM_NAME = "Random Players"
+move = nq_random_player
