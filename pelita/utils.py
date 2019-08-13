@@ -1,7 +1,6 @@
 import logging
 import random
 
-from .graph import Graph
 from .layout import get_layout_by_name, layout_as_str, layout_for_team, parse_layout
 from .player.team import create_layout, make_bots
 
