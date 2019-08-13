@@ -1,10 +1,13 @@
-from pelita.graph import Graph, NoPathException
+import networkx
+
+from pelita.utils import walls_to_graph
+
 
 def food_eating_player(bot, state):
     if state is None:
         # first turn, first round
         state = {
-            'graph': Graph(bot.position, bot.walls)
+            'graph': walls_to_graph(bot.walls)
         }
 
     if not bot.turn in state:
@@ -22,13 +25,11 @@ def food_eating_player(bot, state):
 
         state[bot.turn]['next_food'] = bot.random.choice(bot.enemy[0].food)
 
-    try:
-        next_pos = state['graph'].a_star(bot.position, state[bot.turn]['next_food'])[-1]
-    except NoPathException:
-        next_pos = bot.position
+    # the first position in the shortest path is always bot.position
+    next_pos = networkx.shortest_path(state['graph'], bot.position, state[bot.turn]['next_food'])[1]
 
     return next_pos, state
 
 
-TEAM_NAME = "The Smart Eating Players"
+TEAM_NAME = "Food Eating Players"
 move = food_eating_player
