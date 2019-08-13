@@ -109,6 +109,19 @@ def call_pelita(team_specs, *, rounds, size, viewer, seed, write_replay=False, s
     """
     team1, team2 = team_specs
 
+    if seed is not None:
+        if isinstance(seed, int):
+            # convert to str
+            seed = str(seed)
+        elif isinstance(seed, str):
+            # try that it can be converted to int
+            try:
+                int(seed)
+            except ValueError:
+                raise ValueError("seed must be an int, a string that can be converted to int or None.")
+        else:
+            raise ValueError("seed must be an int, a string that can be converted to int or None.")
+
     ctx = zmq.Context()
     reply_sock = ctx.socket(zmq.PAIR)
 
@@ -119,7 +132,7 @@ def call_pelita(team_specs, *, rounds, size, viewer, seed, write_replay=False, s
     rounds = ['--rounds', str(rounds)] if rounds else []
     size = ['--size', size] if size else []
     viewer = ['--' + viewer] if viewer else []
-    seed = ['--seed', str(seed)] if seed else []
+    seed = ['--seed', seed] if seed else []
     write_replay = ['--write-replay', write_replay] if write_replay else []
     store_output = ['--store-output', store_output] if store_output else []
 
