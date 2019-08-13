@@ -67,6 +67,11 @@ def run_and_terminate_process(args, **kwargs):
         else:
             p = subprocess.Popen(args, **kwargs, preexec_fn=os.setsid)
         yield p
+        p.poll()
+        if p.returncode is not None:
+            _logger.debug(f"Subprocess exited with {p.returncode}.")
+        else:
+            _logger.debug(f"Subprocess has not exited yet.")
     finally:
         if _mswindows:
             _logger.debug("Sending CTRL_BREAK_EVENT to {proc} with pid {pid}.".format(proc=p, pid=p.pid))
@@ -114,7 +119,7 @@ def call_pelita(team_specs, *, rounds, size, viewer, seed, write_replay=False, s
     rounds = ['--rounds', str(rounds)] if rounds else []
     size = ['--size', size] if size else []
     viewer = ['--' + viewer] if viewer else []
-    seed = ['--seed', seed] if seed else []
+    seed = ['--seed', str(seed)] if seed else []
     write_replay = ['--write-replay', write_replay] if write_replay else []
     store_output = ['--store-output', store_output] if store_output else []
 
@@ -157,6 +162,17 @@ def call_pelita(team_specs, *, rounds, size, viewer, seed, write_replay=False, s
                         whowins = game_state.get("whowins", None)
                         if finished:
                             final_game_state = game_state
+                            # The game in the subprocess has finished but the process
+                            # may still be running.
+                            # Give it a little time to finish writing everything.
+                            # Once we exit the `with` statement, the subprocess will
+                            # be terminated.
+                            try:
+                                proc.wait(1)
+                            except subprocess.TimeoutExpired:
+                                # It didn’t terminate in time by itself.
+                                # We exit anyway.
+                                pass
                             break
                     except ValueError:  # JSONDecodeError
                         pass
