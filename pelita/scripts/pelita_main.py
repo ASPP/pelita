@@ -155,9 +155,8 @@ Team Specification:
     Demo players can be found at https://github.com/ASPP/pelita_template
 
 Layout specification:
-    If neither --layoutfile nor --layout are specified, the maze is
-    chosen at random from the pool of built-in normal-sized layouts.
-    You can change this pool by using --size.
+    If --layout is not specified, the maze is chosen at random from the pool of
+    built-in normal-sized layouts. You can change this pool by using --size.
 """
 
 
