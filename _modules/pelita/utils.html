@@ -35,7 +35,7 @@
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">random</span>
 
-<span class="kn">from</span> <span class="nn">.graph</span> <span class="k">import</span> <span class="n">Graph</span>
+<span class="kn">import</span> <span class="nn">networkx</span>
 <span class="kn">from</span> <span class="nn">.layout</span> <span class="k">import</span> <span class="n">get_layout_by_name</span><span class="p">,</span> <span class="n">layout_as_str</span><span class="p">,</span> <span class="n">layout_for_team</span><span class="p">,</span> <span class="n">parse_layout</span>
 <span class="kn">from</span> <span class="nn">.player.team</span> <span class="k">import</span> <span class="n">create_layout</span><span class="p">,</span> <span class="n">make_bots</span>
 
@@ -60,6 +60,28 @@
         <span class="n">team_food</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">team_food</span>
 
+<div class="viewcode-block" id="walls_to_graph"><a class="viewcode-back" href="../../pelita/pelita.utils.html#pelita.utils.walls_to_graph">[docs]</a><span class="k">def</span> <span class="nf">walls_to_graph</span><span class="p">(</span><span class="n">walls</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a networkx Graph object given the walls.</span>
+
+<span class="sd">    Nodes in the graph are (x,y) coordinates in the layout which are not walls.</span>
+<span class="sd">    Edges in the graph are ((x1,y1), (x2,y2)) tuples of coordinates of two adjacent nodes.&quot;&quot;&quot;</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">networkx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+    <span class="n">extreme</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">walls</span><span class="p">)</span>
+    <span class="n">width</span> <span class="o">=</span>  <span class="n">extreme</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">heigth</span> <span class="o">=</span> <span class="n">extreme</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">width</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">heigth</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">walls</span><span class="p">:</span>
+                <span class="c1"># this is a free position, get its neighbors</span>
+                <span class="k">for</span> <span class="n">delta_x</span><span class="p">,</span> <span class="n">delta_y</span> <span class="ow">in</span> <span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)):</span>
+                    <span class="n">neighbor</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">delta_x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">delta_y</span><span class="p">)</span>
+                    <span class="c1"># we don&#39;t need to check for getting neighbors out of the maze</span>
+                    <span class="c1"># because our mazes are all surrounded by walls, i.e. our</span>
+                    <span class="c1"># deltas will not put us out of the maze</span>
+                    <span class="k">if</span> <span class="n">neighbor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">walls</span><span class="p">:</span>
+                        <span class="c1"># this is a genuine neighbor, add an edge in the graph</span>
+                        <span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">neighbor</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">graph</span></div>
 
 <div class="viewcode-block" id="load_builtin_layout"><a class="viewcode-back" href="../../pelita/pelita.utils.html#pelita.utils.load_builtin_layout">[docs]</a><span class="k">def</span> <span class="nf">load_builtin_layout</span><span class="p">(</span><span class="n">layout_name</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">is_blue</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Loads a builtin layout with the given `layout_name` and returns a layout string.</span>

@@ -54,6 +54,9 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">start_logging</span></code>(filename[, module])</p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelita.utils.walls_to_graph" title="pelita.utils.walls_to_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">walls_to_graph</span></code></a>(walls)</p></td>
+<td><p>Return a networkx Graph object given the walls.</p></td>
+</tr>
 </tbody>
 </table>
 <dl class="function">
@@ -68,6 +71,14 @@
 <dd><p>Returns the first bot object given a layout.</p>
 <p>The returned Bot instance can be passed to a move function to test its return value.
 The layout is a string that can be passed to create_layout.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pelita.utils.walls_to_graph">
+<code class="sig-prename descclassname">pelita.utils.</code><code class="sig-name descname">walls_to_graph</code><span class="sig-paren">(</span><em class="sig-param">walls</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/utils.html#walls_to_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.utils.walls_to_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a networkx Graph object given the walls.</p>
+<p>Nodes in the graph are (x,y) coordinates in the layout which are not walls.
+Edges in the graph are ((x1,y1), (x2,y2)) tuples of coordinates of two adjacent nodes.</p>
 </dd></dl>
 
 </div>
@@ -104,7 +115,6 @@ The layout is a string that can be passed to create_layout.</p>
 <li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user-api.html">User API Reference</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="pelita.graph.html">pelita.graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.layout.html">pelita.layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.player.html">pelita.player</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pelita.ui.html">pelita.ui</a></li>
