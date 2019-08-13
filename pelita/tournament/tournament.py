@@ -119,7 +119,7 @@ def call_pelita(team_specs, *, rounds, size, viewer, seed, write_replay=False, s
     rounds = ['--rounds', str(rounds)] if rounds else []
     size = ['--size', size] if size else []
     viewer = ['--' + viewer] if viewer else []
-    seed = ['--seed', seed] if seed else []
+    seed = ['--seed', str(seed)] if seed else []
     write_replay = ['--write-replay', write_replay] if write_replay else []
     store_output = ['--store-output', store_output] if store_output else []
 
