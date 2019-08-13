@@ -10,8 +10,6 @@ import random
 from textwrap import dedent
 import time
 
-import numpy as np
-
 from pelita import game, layout
 from pelita.game import initial_positions, get_legal_positions, apply_move, run_game, setup_game, play_turn
 from pelita.player import stepping_player

@@ -13,8 +13,7 @@ import sys
 import shutil
 import yaml
 
-from ..tournament import tournament
-from ..tournament.tournament import Config, State
+from .. import tournament
 from ..utils import start_logging
 
 
@@ -147,7 +146,7 @@ def setup():
         # must set a few dummy variables
         config['teams'] = []
         config['bonusmatch'] = []
-        Config(config).say("Hello my master.")
+        tournament.Config(config).say("Hello my master.")
         success = input_choice("Did you hear any sound? (y/n)", [], "yn")
         if success == "y":
             del config["teams"]
@@ -238,7 +237,7 @@ def main():
             config_data['speak'] = firstNN(args.speak, config_data.get('speak'))
             config_data['speaker'] = args.speaker or config_data.get('speaker')
 
-            config = Config(config_data)
+            config = tournament.Config(config_data)
     except FileNotFoundError:
         print("‘{}’ not found. Create a new tournament with ‘--setup’.".format(args.config))
         sys.exit(1)
@@ -263,9 +262,9 @@ def main():
             config.print(f"Found state file in {args.state}. Restore with --load-state. Aborting.")
             sys.exit(-1)
         else:
-            state = State.load(config, args.state)
+            state = tournament.State.load(config, args.state)
     else:
-        state = State(config)
+        state = tournament.State(config)
 
     random.seed(config.seed)
 
@@ -278,16 +277,11 @@ def main():
     else:
         tournament.present_teams(config)
 
-    rr_ranking = tournament.round1(config, state)
+    rr_ranking = tournament.play_round1(config, state)
     state.round2["round_robin_ranking"] = rr_ranking
     state.save(args.state)
 
-    if config.bonusmatch:
-        sorted_ranking = tournament.komode.sort_ranks(rr_ranking[:-1]) + [rr_ranking[-1]]
-    else:
-        sorted_ranking = tournament.komode.sort_ranks(rr_ranking)
-
-    winner = tournament.round2(config, sorted_ranking, state)
+    winner = tournament.play_round2(config, rr_ranking, state)
 
     config.print('The winner of the %s Pelita tournament is...' % config.location, wait=2, end=" ")
     config.print('{team_name}. Congratulations'.format(team_name=config.team_name(winner)), wait=2)

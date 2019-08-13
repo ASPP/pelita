@@ -7,7 +7,6 @@ All configuration is done with a yaml file:
     ---
     location: Pelipolis
     date: 2525
-    team_prefix: group
     speak: false
     seed: null
     bonusmatch: True

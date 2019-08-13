@@ -1,7 +1,6 @@
-#!/usr/bin/env python3
-
 import itertools
 import random
+
 
 def initial_state(teams):
     rr = []
@@ -12,8 +11,3 @@ def initial_state(teams):
     # shuffle the matches for more fun
     random.shuffle(rr)
     return rr
-
-# def round_robin(state, teams):
-#    if not state:
-#        state = initial_state
-

@@ -6,7 +6,7 @@ import tempfile
 
 from pelita.network import ZMQClientError
 from pelita.scripts.pelita_tournament import firstNN
-from pelita.tournament.tournament import call_pelita, check_team
+from pelita.tournament import call_pelita, check_team
 
 
 class TestLibpelitaUtils:

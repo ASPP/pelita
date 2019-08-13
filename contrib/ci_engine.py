@@ -58,7 +58,7 @@ import sys
 import unittest
 
 from pelita.network import ZMQClientError
-from pelita.tournament.tournament import check_team, call_pelita
+from pelita.tournament import check_team, call_pelita
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', '--test', help="run unittests", action="store_true")
