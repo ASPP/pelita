@@ -14,7 +14,7 @@ import time
 import pelita
 from pelita import game, layout, utils
 # TODO: The check_team option
-from pelita.tournament.tournament import check_team
+from pelita.tournament import check_team
 
 # silence stupid warnings from logging module
 logging.root.manager.emittedNoHandlerWarning = 1

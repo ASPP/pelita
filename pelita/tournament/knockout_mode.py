@@ -1,8 +1,9 @@
-from io import StringIO
 import itertools
 import math
 import queue
 from collections import defaultdict, namedtuple
+from io import StringIO
+
 
 def sort_ranks(teams, bonusmatch=False):
     """ Re-orders a ranked list of teams such that
@@ -313,5 +314,3 @@ def tree_enumerate(tree):
         generations.append(enumerated[idx])
     generations.reverse()
     return generations
-
-

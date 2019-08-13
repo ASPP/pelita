@@ -4,14 +4,14 @@ from unittest.mock import MagicMock
 import re
 from textwrap import dedent
 
-from pelita.tournament import komode, roundrobin, tournament
-from pelita.tournament.komode import Team, Match, Bye
-from pelita.tournament import tournament
+from pelita import tournament
+from pelita.tournament import knockout_mode, roundrobin
+from pelita.tournament.knockout_mode import Team, Match, Bye
 
 
 class TestKoMode:
     def test_sort_ranks(self):
-        sort_ranks = komode.sort_ranks
+        sort_ranks = knockout_mode.sort_ranks
         assert sort_ranks([0, 1, 2, 3, 4, 5, 6]) == [0, 5, 1, 4, 2, 3, 6]
         assert sort_ranks([0, 1, 2, 3, 4, 5]) == [0, 5, 1, 4, 2, 3]
         assert sort_ranks([0, 1, 2, 3, 4]) == [0, 3, 1, 2, 4]
@@ -33,43 +33,43 @@ class TestKoMode:
 
     def test_prepared_matches(self):
         with pytest.raises(ValueError):
-            none = komode.prepare_matches([])
+            none = knockout_mode.prepare_matches([])
         with pytest.raises(ValueError):
-            none = komode.prepare_matches([], bonusmatch=True)
+            none = knockout_mode.prepare_matches([], bonusmatch=True)
 
-        single = komode.prepare_matches([1])
-        assert single == komode.Team(name=1)
-        single = komode.prepare_matches([1], bonusmatch=True)
-        assert single == komode.Team(name=1)
+        single = knockout_mode.prepare_matches([1])
+        assert single == knockout_mode.Team(name=1)
+        single = knockout_mode.prepare_matches([1], bonusmatch=True)
+        assert single == knockout_mode.Team(name=1)
 
-        pair = komode.prepare_matches([1,2])
+        pair = knockout_mode.prepare_matches([1,2])
         assert pair == Match(t1=Team(name=1), t2=Team(name=2))
-        pair = komode.prepare_matches([1,2], bonusmatch=True)
+        pair = knockout_mode.prepare_matches([1,2], bonusmatch=True)
         assert pair == Match(t1=Team(name=1), t2=Team(name=2))
 
-        triple = komode.prepare_matches([1,2,3])
+        triple = knockout_mode.prepare_matches([1,2,3])
         assert triple == Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Bye(team=Team(name=3)))
-        triple = komode.prepare_matches([1,2,3], bonusmatch=True)
+        triple = knockout_mode.prepare_matches([1,2,3], bonusmatch=True)
         assert triple == Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Bye(team=Team(name=3)))
 
-        matches = komode.prepare_matches([1,2,3,4])
+        matches = knockout_mode.prepare_matches([1,2,3,4])
         outcome = Match(t1=Match(t1=Team(name=1), t2=Team(name=4)), t2=Match(t1=Team(name=2), t2=Team(name=3)))
         assert matches == outcome
-        matches = komode.prepare_matches([1,2,3,4], bonusmatch=True)
+        matches = knockout_mode.prepare_matches([1,2,3,4], bonusmatch=True)
         outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Bye(team=Team(name=3))), t2=Bye(team=Bye(team=Team(name=4))))
         assert matches == outcome
 
-        matches = komode.prepare_matches([1,2,3,4,5])
+        matches = knockout_mode.prepare_matches([1,2,3,4,5])
         outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=4)), t2=Match(t1=Team(name=2), t2=Team(name=3))), t2=Bye(team=Bye(team=Team(name=5))))
         assert matches == outcome
-        matches = komode.prepare_matches([1,2,3,4,5], bonusmatch=True)
+        matches = knockout_mode.prepare_matches([1,2,3,4,5], bonusmatch=True)
         outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=4)), t2=Match(t1=Team(name=2), t2=Team(name=3))), t2=Bye(team=Bye(team=Team(name=5))))
         assert matches == outcome
 
-        matches = komode.prepare_matches([1,2,3,4,5,6])
+        matches = knockout_mode.prepare_matches([1,2,3,4,5,6])
         outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=6)), t2=Match(t1=Team(name=2), t2=Team(name=5))), t2=Bye(team=Match(t1=Team(name=3), t2=Team(name=4))))
         assert matches == outcome
-        matches = komode.prepare_matches([1,2,3,4,5,6], bonusmatch=True)
+        matches = knockout_mode.prepare_matches([1,2,3,4,5,6], bonusmatch=True)
         outcome = Match(t1=Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=4)), t2=Match(t1=Team(name=2), t2=Team(name=3))), t2=Bye(team=Bye(team=Team(name=5)))), t2=Bye(team=Bye(team=Bye(team=Team(name=6)))))
         assert matches == outcome
 
@@ -114,8 +114,8 @@ class TestKoMode:
         """),
 ])
 def test_knockout_output(teams, bonusmatch, check_output):
-    matches = komode.prepare_matches(teams, bonusmatch=bonusmatch)
-    printed = komode.print_knockout(matches)
+    matches = knockout_mode.prepare_matches(teams, bonusmatch=bonusmatch)
+    printed = knockout_mode.print_knockout(matches)
     # remove the whitespace to the right of the printed lines
     printed = re.sub(r'\s+$', '', printed, flags=re.MULTILINE)
     assert dedent(printed).strip() == dedent(check_output).strip()
@@ -282,13 +282,13 @@ class TestTournament:
         tournament.present_teams(config)
 
         state = tournament.State(config)
-        rr_ranking = tournament.round1(config, state)
+        rr_ranking = tournament.play_round1(config, state)
 
         if config.bonusmatch:
-            sorted_ranking = komode.sort_ranks(rr_ranking[:-1]) + [rr_ranking[-1]]
+            sorted_ranking = knockout_mode.sort_ranks(rr_ranking[:-1]) + [rr_ranking[-1]]
         else:
-            sorted_ranking = komode.sort_ranks(rr_ranking)
+            sorted_ranking = knockout_mode.sort_ranks(rr_ranking)
 
-        winner = tournament.round2(config, sorted_ranking, state)
+        winner = tournament.play_round2(config, sorted_ranking, state)
         assert winner == 'group1'
 

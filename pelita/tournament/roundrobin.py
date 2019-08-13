@@ -1,6 +1,7 @@
 import itertools
 import random
 
+
 def initial_state(teams):
     rr = []
     for pair in itertools.combinations(teams, 2):
@@ -10,4 +11,3 @@ def initial_state(teams):
     # shuffle the matches for more fun
     random.shuffle(rr)
     return rr
-

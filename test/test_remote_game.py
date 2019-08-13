@@ -8,7 +8,7 @@ from textwrap import dedent
 
 import pelita.game
 from pelita.player import stopping_player
-from pelita.tournament.tournament import call_pelita, run_and_terminate_process
+from pelita.tournament import call_pelita, run_and_terminate_process
 
 
 addr_stopping = 'tcp://127.0.0.1:52301'
