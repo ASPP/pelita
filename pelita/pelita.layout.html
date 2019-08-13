@@ -42,16 +42,16 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelita.layout.get_available_layouts" title="pelita.layout.get_available_layouts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_available_layouts</span></code></a>([filter])</p></td>
-<td><p>The names of the available layouts.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelita.layout.get_available_layouts" title="pelita.layout.get_available_layouts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_available_layouts</span></code></a>([size])</p></td>
+<td><p>Return the names of the built-in layouts.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pelita.layout.get_layout_by_name" title="pelita.layout.get_layout_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_layout_by_name</span></code></a>(layout_name)</p></td>
-<td><p>Get a layout.</p></td>
+<td><p>Get a built-in layout by name</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pelita.layout.get_legal_positions" title="pelita.layout.get_legal_positions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_legal_positions</span></code></a>(walls, bot_position)</p></td>
 <td><p>Returns all legal positions that a bot at <cite>bot_position</cite> can go to.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelita.layout.get_random_layout" title="pelita.layout.get_random_layout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_random_layout</span></code></a>([filter])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelita.layout.get_random_layout" title="pelita.layout.get_random_layout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_random_layout</span></code></a>([size])</p></td>
 <td><p>Return a random layout string from the available ones.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pelita.layout.initial_positions" title="pelita.layout.initial_positions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initial_positions</span></code></a>(walls)</p></td>
@@ -76,12 +76,17 @@
 </table>
 <dl class="function">
 <dt id="pelita.layout.get_available_layouts">
-<code class="sig-prename descclassname">pelita.layout.</code><code class="sig-name descname">get_available_layouts</code><span class="sig-paren">(</span><em class="sig-param">filter=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#get_available_layouts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.get_available_layouts" title="Permalink to this definition">¶</a></dt>
-<dd><p>The names of the available layouts.</p>
+<code class="sig-prename descclassname">pelita.layout.</code><code class="sig-name descname">get_available_layouts</code><span class="sig-paren">(</span><em class="sig-param">size='normal'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#get_available_layouts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.get_available_layouts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the names of the built-in layouts.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filter</strong> (<em>str</em>) – only return layouts which contain ‘filter’ in their name.
-Default is no filter.</p>
+<dd class="field-odd"><p><strong>size</strong> (<em>str</em>) – <p>only return layouts of size ‘small’, ‘normal’, ‘big’, ‘all’.
+Default is ‘normal’.</p>
+<p>’small’  -&gt; width=16, height=8,  food=10
+‘normal’ -&gt; width=32, height=16, food=30
+‘big’    -&gt; width=64, height=32, food=60
+‘all’    -&gt; all of the above</p>
+</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>layout_names</strong> – the available layouts</p>
@@ -90,17 +95,12 @@ Default is no filter.</p>
 <dd class="field-odd"><p>list of str</p>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
-<p>To only get layouts without dead ends you may use:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_available_layouts</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;without_dead_ends&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
 </dd></dl>
 
 <dl class="function">
 <dt id="pelita.layout.get_layout_by_name">
 <code class="sig-prename descclassname">pelita.layout.</code><code class="sig-name descname">get_layout_by_name</code><span class="sig-paren">(</span><em class="sig-param">layout_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#get_layout_by_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.get_layout_by_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a layout.</p>
+<dd><p>Get a built-in layout by name</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>layout_name</strong> (<em>str</em>) – a valid layout name</p>
@@ -150,12 +150,17 @@ can go to.</p>
 
 <dl class="function">
 <dt id="pelita.layout.get_random_layout">
-<code class="sig-prename descclassname">pelita.layout.</code><code class="sig-name descname">get_random_layout</code><span class="sig-paren">(</span><em class="sig-param">filter=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#get_random_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.get_random_layout" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pelita.layout.</code><code class="sig-name descname">get_random_layout</code><span class="sig-paren">(</span><em class="sig-param">size='normal'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelita/layout.html#get_random_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelita.layout.get_random_layout" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a random layout string from the available ones.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filter</strong> (<em>str</em>) – only return layouts which contain “filter” in their name.
-Default is no filter.</p>
+<dd class="field-odd"><p><strong>size</strong> (<em>str</em>) – <p>only return layouts of size ‘small’, ‘normal’, ‘big’, ‘all’.
+Default is ‘normal’.</p>
+<p>’small’  -&gt; width=16, height=8,  food=10
+‘normal’ -&gt; width=32, height=16, food=30
+‘big’    -&gt; width=64, height=32, food=60
+‘all’    -&gt; all of the above</p>
+</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>layout</strong> – the name of the layout, a random layout string</p>
@@ -164,11 +169,6 @@ Default is no filter.</p>
 <dd class="field-odd"><p>tuple(str, str)</p>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
-<p>To only get layouts without dead ends you may use:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_random_layout</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;without_dead_ends&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
 </dd></dl>
 
 <dl class="function">

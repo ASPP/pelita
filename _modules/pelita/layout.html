@@ -41,58 +41,62 @@
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">random</span>
 
-<div class="viewcode-block" id="get_random_layout"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.get_random_layout">[docs]</a><span class="k">def</span> <span class="nf">get_random_layout</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="get_random_layout"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.get_random_layout">[docs]</a><span class="k">def</span> <span class="nf">get_random_layout</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Return a random layout string from the available ones.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    filter : str</span>
-<span class="sd">        only return layouts which contain &quot;filter&quot; in their name.</span>
-<span class="sd">        Default is no filter.</span>
+<span class="sd">    size : str</span>
+<span class="sd">        only return layouts of size &#39;small&#39;, &#39;normal&#39;, &#39;big&#39;, &#39;all&#39;.</span>
+<span class="sd">        Default is &#39;normal&#39;.</span>
+
+<span class="sd">        &#39;small&#39;  -&gt; width=16, height=8,  food=10</span>
+<span class="sd">        &#39;normal&#39; -&gt; width=32, height=16, food=30</span>
+<span class="sd">        &#39;big&#39;    -&gt; width=64, height=32, food=60</span>
+<span class="sd">        &#39;all&#39;    -&gt; all of the above</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    layout : tuple(str, str)</span>
 <span class="sd">        the name of the layout, a random layout string</span>
 
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    To only get layouts without dead ends you may use:</span>
-
-<span class="sd">        &gt;&gt;&gt; get_random_layout(filter=&#39;without_dead_ends&#39;)</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">layouts_names</span> <span class="o">=</span> <span class="n">get_available_layouts</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="nb">filter</span><span class="p">)</span>
+    <span class="n">layouts_names</span> <span class="o">=</span> <span class="n">get_available_layouts</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span>
     <span class="n">layout_choice</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">layouts_names</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">layout_choice</span><span class="p">,</span> <span class="n">get_layout_by_name</span><span class="p">(</span><span class="n">layout_choice</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="get_available_layouts"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.get_available_layouts">[docs]</a><span class="k">def</span> <span class="nf">get_available_layouts</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; The names of the available layouts.</span>
+<div class="viewcode-block" id="get_available_layouts"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.get_available_layouts">[docs]</a><span class="k">def</span> <span class="nf">get_available_layouts</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the names of the built-in layouts.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    filter : str</span>
-<span class="sd">        only return layouts which contain &#39;filter&#39; in their name.</span>
-<span class="sd">        Default is no filter.</span>
+<span class="sd">    size : str</span>
+<span class="sd">        only return layouts of size &#39;small&#39;, &#39;normal&#39;, &#39;big&#39;, &#39;all&#39;.</span>
+<span class="sd">        Default is &#39;normal&#39;.</span>
+
+<span class="sd">        &#39;small&#39;  -&gt; width=16, height=8,  food=10</span>
+<span class="sd">        &#39;normal&#39; -&gt; width=32, height=16, food=30</span>
+<span class="sd">        &#39;big&#39;    -&gt; width=64, height=32, food=60</span>
+<span class="sd">        &#39;all&#39;    -&gt; all of the above</span>
+
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    layout_names : list of str</span>
 <span class="sd">        the available layouts</span>
 
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    To only get layouts without dead ends you may use:</span>
-
-<span class="sd">        &gt;&gt;&gt; get_available_layouts(filter=&#39;without_dead_ends&#39;)</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># loop in layouts directory and look for layout files</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;small&#39;</span><span class="p">,</span> <span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="s1">&#39;big&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">size</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Invalid layout size (&#39;</span><span class="si">{size}</span><span class="s2">&#39; given). Valid: </span><span class="si">{valid}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">size</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">item</span><span class="p">[:</span><span class="o">-</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;.layout&#39;</span><span class="p">))]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">importlib_resources</span><span class="o">.</span><span class="n">contents</span><span class="p">(</span><span class="s1">&#39;pelita._layouts&#39;</span><span class="p">)</span>
-                 <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.layout&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">filter</span> <span class="ow">in</span> <span class="n">item</span><span class="p">]</span></div>
+                 <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.layout&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">item</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="get_layout_by_name"><a class="viewcode-back" href="../../pelita/pelita.layout.html#pelita.layout.get_layout_by_name">[docs]</a><span class="k">def</span> <span class="nf">get_layout_by_name</span><span class="p">(</span><span class="n">layout_name</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Get a layout.</span>
+    <span class="sd">&quot;&quot;&quot;Get a built-in layout by name</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
