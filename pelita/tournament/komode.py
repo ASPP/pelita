@@ -242,22 +242,39 @@ def makepairs(matches):
     return matches[0]
 
 def prepare_matches(teams, bonusmatch=False):
+    """ Takes a ranked list of teams, matches them according to sort_ranks
+    and returns the Match tree.
+    """
+
     if not teams:
         raise ValueError("No teams given to sort.")
 
-    if bonusmatch and len(teams) > 1:
-        good_teams = sort_ranks(teams[:-1])
-        loser_team = teams[-1]
+    teams_sorted = sort_ranks(teams, bonusmatch=bonusmatch)
 
-        matches = makepairs([Team(t) for t in good_teams])
-        team = Team(loser_team)
-        for _depth in range(tree_depth(matches) - 1):
+    # If there is a bonus match, we must ensure that it will be played
+    # at the very last
+    if bonusmatch:
+        bonus_team = teams_sorted.pop()
+        if not teams_sorted:
+            return Team(bonus_team)
+
+    # pair up the games and return the tree starting from the winning team
+    match_tree = makepairs([Team(t) for t in teams_sorted])
+
+    if bonusmatch:
+        # now add enough Byes to the bonus_team
+        # so that we still have a balanced tree
+        # when we add the bonus_team as a final match
+        team = Team(bonus_team)
+        for _depth in range(tree_depth(match_tree) - 1):
             team = Bye(team)
-        final_match = Match(matches, team)
-        assert is_balanced(final_match)
-    else:
-        final_match = makepairs([Team(t) for t in teams])
-    return final_match
+
+        match_tree = Match(match_tree, team)
+
+    # ensure we have a balanced tree
+    assert is_balanced(match_tree)
+
+    return match_tree
 
 def is_balanced(tree):
     if isinstance(tree, Match):

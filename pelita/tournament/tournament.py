@@ -640,17 +640,6 @@ def round2(config, teams, state):
     teams is the list [group0, group1, ...] not the names of the agens, sorted
     by the result of the first round.
     """
-
-    # We need to resort the teams such that the best team plays agains the worst of the
-    # first round, the second best plays against the second worst, etc.
-    # If there is a bonus match, then the worst team will be excluded
-    # and only return in the final match.
-
-    if config.bonusmatch:
-        sorted_ranking = komode.sort_ranks(teams[:-1]) + [teams[-1]]
-    else:
-        sorted_ranking = komode.sort_ranks(teams)
-
     config.print()
     config.print('ROUND 2 (K.O.)')
     config.print('==============', speak=False)
@@ -662,7 +651,7 @@ def round2(config, teams, state):
     if tournament and last_match:
         config.print("Loading from state.", speak=False)
     else:
-        last_match = komode.prepare_matches(sorted_ranking, bonusmatch=config.bonusmatch)
+        last_match = komode.prepare_matches(teams, bonusmatch=config.bonusmatch)
         tournament = komode.tree_enumerate(last_match)
 
         state.round2["last_match"] = last_match

@@ -53,63 +53,72 @@ class TestKoMode:
         assert triple == Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Bye(team=Team(name=3)))
 
         matches = komode.prepare_matches([1,2,3,4])
-        outcome = Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Match(t1=Team(name=3), t2=Team(name=4)))
+        outcome = Match(t1=Match(t1=Team(name=1), t2=Team(name=4)), t2=Match(t1=Team(name=2), t2=Team(name=3)))
         assert matches == outcome
         matches = komode.prepare_matches([1,2,3,4], bonusmatch=True)
         outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Bye(team=Team(name=3))), t2=Bye(team=Bye(team=Team(name=4))))
         assert matches == outcome
 
         matches = komode.prepare_matches([1,2,3,4,5])
-        outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Match(t1=Team(name=3), t2=Team(name=4))), t2=Bye(team=Bye(team=Team(name=5))))
+        outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=4)), t2=Match(t1=Team(name=2), t2=Team(name=3))), t2=Bye(team=Bye(team=Team(name=5))))
         assert matches == outcome
         matches = komode.prepare_matches([1,2,3,4,5], bonusmatch=True)
         outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=4)), t2=Match(t1=Team(name=2), t2=Team(name=3))), t2=Bye(team=Bye(team=Team(name=5))))
         assert matches == outcome
 
         matches = komode.prepare_matches([1,2,3,4,5,6])
-        outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Match(t1=Team(name=3), t2=Team(name=4))), t2=Bye(team=Match(t1=Team(name=5), t2=Team(name=6))))
+        outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=6)), t2=Match(t1=Team(name=2), t2=Team(name=5))), t2=Bye(team=Match(t1=Team(name=3), t2=Team(name=4))))
         assert matches == outcome
         matches = komode.prepare_matches([1,2,3,4,5,6], bonusmatch=True)
         outcome = Match(t1=Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=4)), t2=Match(t1=Team(name=2), t2=Team(name=3))), t2=Bye(team=Bye(team=Team(name=5)))), t2=Bye(team=Bye(team=Bye(team=Team(name=6)))))
         assert matches == outcome
 
-    def test_output(self):
-        matches = komode.prepare_matches([1,2,3,4,5,6])
-        printed = komode.print_knockout(matches)
-        # remove the whitespace to the right of the printed lines
-        printed = re.sub(r'\s+$', '', printed, flags=re.MULTILINE)
-        outcome = """\
-         1 ┐
-           ├─ ??? ┐
-         2 ┘      │
-                  ├─ ??? ┐
-         3 ┐      │      │
-           ├─ ??? ┘      │  ┏━━━━━┓
-         4 ┘             ├──┨ ??? ┃
-                         │  ┗━━━━━┛
-         5 ┐             │
-           ├─ ??? ───────┘
-         6 ┘"""
-        assert dedent(printed) == dedent(outcome)
 
-        matches = komode.prepare_matches([1,2,3,4,5,6], bonusmatch=True)
-        printed = komode.print_knockout(matches)
-        print(printed)
-        # remove the whitespace to the right of the printed lines
-        printed = re.sub(r'\s+$', '', printed, flags=re.MULTILINE)
-        outcome = """\
-         1 ┐
-           ├─ ??? ┐
-         4 ┘      │
-                  ├─ ??? ┐
-         2 ┐      │      │
-           ├─ ??? ┘      ├─ ??? ┐
-         3 ┘             │      │  ┏━━━━━┓
-                         │      ├──┨ ??? ┃
-         5 ──────────────┘      │  ┗━━━━━┛
-                                │
-         6 ─────────────────────┘"""
-        assert dedent(printed) == dedent(outcome)
+@pytest.mark.parametrize('teams, bonusmatch, check_output', [
+    ([1, 2, 3, 4, 5], True, """
+        1 ┐
+          ├─ ??? ┐
+        4 ┘      │
+                 ├─ ??? ┐
+        2 ┐      │      │  ┏━━━━━┓
+          ├─ ??? ┘      ├──┨ ??? ┃
+        3 ┘             │  ┗━━━━━┛
+                        │
+        5 ──────────────┘
+        """),
+    ([1, 2, 3, 4, 5, 6], False, """
+        1 ┐
+          ├─ ??? ┐
+        6 ┘      │
+                 ├─ ??? ┐
+        2 ┐      │      │
+          ├─ ??? ┘      │  ┏━━━━━┓
+        5 ┘             ├──┨ ??? ┃
+                        │  ┗━━━━━┛
+        3 ┐             │
+          ├─ ??? ───────┘
+        4 ┘
+        """),
+    ([1, 2, 3, 4, 5, 6], True, """
+        1 ┐
+          ├─ ??? ┐
+        4 ┘      │
+                 ├─ ??? ┐
+        2 ┐      │      │
+          ├─ ??? ┘      ├─ ??? ┐
+        3 ┘             │      │  ┏━━━━━┓
+                        │      ├──┨ ??? ┃
+        5 ──────────────┘      │  ┗━━━━━┛
+                               │
+        6 ─────────────────────┘
+        """),
+])
+def test_knockout_output(teams, bonusmatch, check_output):
+    matches = komode.prepare_matches(teams, bonusmatch=bonusmatch)
+    printed = komode.print_knockout(matches)
+    # remove the whitespace to the right of the printed lines
+    printed = re.sub(r'\s+$', '', printed, flags=re.MULTILINE)
+    assert dedent(printed).strip() == dedent(check_output).strip()
 
 
 class TestRoundRobin:
