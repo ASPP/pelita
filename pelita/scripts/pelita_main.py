@@ -63,7 +63,7 @@ parser.add_argument('--replay', help=long_help('Replay a dumped game'),
 parser.add_argument('--store-output', help=long_help('Write all player’s stdout/stderr to the given folder (must exist)'),
                     metavar='FOLDER')
 parser.add_argument('--list-layouts', action='store_true',
-                    help='List all available layouts.')
+                    help='List all available built-in layouts.')
 parser.add_argument('--check-team', action="store_true",
                     help=long_help('Check that the team is valid (on first sight) and print its name.'))
 
@@ -74,10 +74,11 @@ game_settings.add_argument('--seed', type=int, metavar='SEED', default=None,
                            help='Initialize the random number generator with SEED.')
 
 layout_opt = game_settings.add_mutually_exclusive_group()
-layout_opt.add_argument('--layoutfile', metavar='FILE',
-                        help='Load a maze layout from FILE.')
-layout_opt.add_argument('--layout', metavar='NAME',
-                        help='Load a maze layout by name.')
+layout_opt.add_argument('--layout', metavar='LAYOUT',
+                        help='Use maze layout specified in LAYOUT. LAYOUT can be'
+                             ' a file containing a valid layout or the name of a '
+                             'built-in layout. Use --list-layouts to get a list '
+                             'of all available layouts.')
 layout_opt.add_argument('--size', metavar='STRING', default='normal',
                         help="Pick a random maze layout of specified size."
                         " Possible sizes: 'small' (16x8), 'normal' (32x16), 'big' (64x32), 'all' (any of the previous). Default: 'normal'")
@@ -136,16 +137,16 @@ Team Specification:
     * TEAM_NAME
         a string with the name of the team.
 
-    * move(turn, game) -> next_move
-        a function that takes the current game and returns the move for the bot
-        with index `turn`, where `turn` is 0 or 1.
+    * move(bot, state) -> next_position
+        a function which given a bot and a state returns the next position for
+        current bot and a state.
 
     Example file: my_stopping_bots.py
 
         TEAM_NAME = 'My stopping bots'
 
-        def move(turn, game):
-            return (0, 0)
+        def move(bot, state):
+            return bot.position
 
     A game between two teams of stopping bots can then be played as
 
@@ -154,9 +155,8 @@ Team Specification:
     Demo players can be found at https://github.com/ASPP/pelita_template
 
 Layout specification:
-    If neither --layoutfile nor --layout are specified, the maze is
-    chosen at random from the pool of built-in normal-sized layouts.
-    You can change this pool by using --size.
+    If --layout is not specified, the maze is chosen at random from the pool of
+    built-in normal-sized layouts. You can change this pool by using --size.
 """
 
 
@@ -171,7 +171,8 @@ def main():
         sys.exit(0)
 
     if args.list_layouts:
-        layouts = pelita.layout.get_available_layouts()
+        layouts = pelita.layout.get_available_layouts(size='all')
+        layouts.sort()
         print('\n'.join(layouts))
         sys.exit(0)
 
@@ -252,12 +253,19 @@ def main():
     random.seed(args.seed)
 
     if args.layout:
-        layout_name = args.layout
-        layout_string = pelita.layout.get_layout_by_name(args.layout)
-    elif args.layoutfile:
-        layout_path = Path(args.layoutfile)
-        layout_name = str(layout_path)
-        layout_string = layout_path.read_text()
+        # first check if the given layout is a file
+        layout_path = Path(args.layout)
+        if layout_path.exists():
+            # OK, this is a valid file, load it
+            layout_name = str(layout_path)
+            # use the basename of the path as a layout name
+            layout_name = layout_path.parts[-1]
+            layout_string = layout_path.read_text()
+        else:
+            # if the given layout is not a path, we assume it is the name of one
+            # of the built-in paths
+            layout_name = args.layout
+            layout_string = pelita.layout.get_layout_by_name(args.layout)
     else:
         layout_name, layout_string = pelita.layout.get_random_layout(args.size)
 
