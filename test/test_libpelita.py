@@ -28,8 +28,6 @@ def test_call_pelita():
     assert state['gameover'] is True
     assert state['whowins'] == 2
     # Quick assert that there is text in stdout
-    # explicitly ask stdout to flush
-    stdout.flush()
     assert len(stdout.split('\n')) > 0
     assert "Finished" in stdout
 
