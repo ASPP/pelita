@@ -1,3 +1,6 @@
+def random_player(bot, state):
+    return bot.random.choice(bot.legal_positions), state
+
 def nq_random_player(bot, state):
     """ Not-Quite-RandomPlayer that will move randomly but not stop or reverse. """
 
