@@ -166,6 +166,7 @@ class TkApplication:
 
         self.game_uuid = None
         self.bot_sprites = {}
+        self.shadow_sprites = {}
 
         self._universe = None
         self._game_state = None
@@ -696,6 +697,12 @@ class TkApplication:
             idx: BotSprite(self.mesh_graph, team=idx % 2, bot_id=idx, position=bot)
             for idx, bot in enumerate(bot_positions)
         }
+        for sprite in self.shadow_sprites.values():
+            sprite.delete(self.ui.game_canvas)
+        self.shadow_sprites = {
+            idx: BotSprite(self.mesh_graph, team=idx % 2, bot_id=idx, position=None, shadow=True)
+            for idx, bot in enumerate(bot_positions)
+        }
 
     def draw_bots(self, game_state):
         if game_state:
@@ -710,6 +717,19 @@ class TkApplication:
                                force=self.size_changed,
                                say=say,
                                show_id=self._grid_enabled)
+
+        for bot_id, bot_sprite in self.shadow_sprites.items():
+            shadow_bots = game_state.get('noisy_positions')
+            if shadow_bots:
+                if shadow_bots[bot_id] is None:
+                    bot_sprite.delete(self.ui.game_canvas)
+                else:
+                    bot_sprite.move_to(shadow_bots[bot_id],
+                                       self.ui.game_canvas,
+                                       game_state,
+                                       force=self.size_changed,
+                                       show_id=self._grid_enabled)
+
 
     def toggle_running(self):
         # We change from running to stopping or the other way round

@@ -77,10 +77,12 @@ class TkSprite:
         canvas.delete(self.tag)
 
 class BotSprite(TkSprite):
-    def __init__(self, mesh, team=0, bot_id=0, **kwargs):
+    def __init__(self, mesh, team=0, bot_id=0, shadow=False, **kwargs):
         self.bot_id = bot_id
         self.team = team
         self.width = mesh.mesh_width
+
+        self.shadow = shadow
 
         self.is_harvester = None
 
@@ -91,6 +93,11 @@ class BotSprite(TkSprite):
             return pos[0] >= self.width // 2
         elif self.team == 1:
             return pos[0] < self.width // 2
+
+    def delete(self, canvas):
+        canvas.delete("speak" + self.tag)
+        canvas.delete("show_id" + self.tag)
+        super().delete(canvas)
 
     def move_to(self, new_pos, canvas, game_state=None, force=None, say="", show_id=False):
         old_direction = self.direction
@@ -163,16 +170,23 @@ class BotSprite(TkSprite):
     def draw(self, canvas, game_state):
         self.is_harvester = self.is_harvester_at(game_state['bots'][self.bot_id])
 
+        if self.shadow:
+            col = "#555555"
+        elif self.team == 0:
+            col = BLUE
+        else:
+            col = RED
+
         if self.is_harvester:
             if self.team == 0:
-                self.draw_bot(canvas, outer_col=BLUE, eye_col=YELLOW, is_blue=True)
+                self.draw_bot(canvas, outer_col=col, eye_col=YELLOW, is_blue=True)
             else:
-                self.draw_bot(canvas, outer_col=RED, eye_col=YELLOW, is_blue=False)
+                self.draw_bot(canvas, outer_col=col, eye_col=YELLOW, is_blue=False)
         else:
             if self.team == 0:
-                self.draw_destroyer(canvas, outer_col=BLUE, eye_col=YELLOW)
+                self.draw_destroyer(canvas, outer_col=col, eye_col=YELLOW)
             else:
-                self.draw_destroyer(canvas, outer_col=RED, eye_col=YELLOW)
+                self.draw_destroyer(canvas, outer_col=col, eye_col=YELLOW)
 
     def draw_destroyer(self, canvas, outer_col, eye_col):
         direction = self.direction
