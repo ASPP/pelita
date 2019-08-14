@@ -222,11 +222,11 @@ def load_team(spec):
     If this fails, it will try to load a factory.
     """
     if spec == '0':
-        from ..player import FoodEatingPlayer
-        return team_from_module(FoodEatingPlayer)
+        from ..player import SmartEatingPlayer
+        return team_from_module(SmartEatingPlayer)
     elif spec == '1':
-        from ..player import RandomExplorerPlayer
-        return team_from_module(RandomExplorerPlayer)
+        from ..player import SmartRandomPlayer
+        return team_from_module(SmartRandomPlayer)
     try:
         team = load_team_from_module(spec)
     except (FileNotFoundError, ImportError, ValueError,
