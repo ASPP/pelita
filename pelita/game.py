@@ -104,6 +104,7 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
 
     layout_dict : dict
                a dictionary representing a maze, as returned by pelita.layout.parse_layout
+
     layout_name : str
                a name for the layout (will be used in the UI).
 
@@ -121,7 +122,7 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
 
     timeout_length : int or float
                   Time in seconds to wait for the move function (or for the remote
-                  client) to return. After timeout_length seconds are elapsed an
+                  client) to return. After timeout_length seconds are elapsed a
                   non-fatal error is recorded for the team.
 
     viewers : list[viewer1, viewer2]
