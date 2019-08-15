@@ -84,6 +84,82 @@ def controller_exit(state, await_action='play_step'):
 def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=None,
              max_team_errors=5, timeout_length=3, viewers=None, viewer_options=None,
              store_output=False, team_names=(None, None), allow_exceptions=False):
+    """ Run a pelita match.
+
+    Parameters
+    ----------
+    team_specs : list[team0, team1]
+              a list specifying the two teams to play the match with. The list
+              items team0 and team1 must be either
+               - a function with signature move(bot, state) -> (x, y), state
+                 the function takes a bot object and a state and returns the next
+                 position (x, y) of bot and state.
+                 state can be an arbitrary Python object, None by default
+               - the path to a Python module that defines at least a function
+                 called 'move' (specified as above), and a string TEAM_NAME.
+
+              When the team_specs are functions a "local" game will be run, when
+              they are paths to Python modules a "remote" game will be run instead.
+              See below in section Notes for more details about local and remote games.
+
+    layout_dict : dict
+               a dictionary representing a maze, as returned by pelita.layout.parse_layout
+    layout_name : str
+               a name for the layout (will be used in the UI).
+
+    max_rounds : int
+              The maximum number of rounds to play before the game is over. Default: 300.
+
+    seed : int
+        seed used to initialize the random number generator.
+
+    max_team_errors : int
+                   The maximum number of non fatal errors for a team before the
+                   game is over and the team is disqualified. Non fatal errors are
+                   timeouts and returning an illegal move. Fatal errors are raising
+                   Exceptions. Default: 5.
+
+    timeout_length : int or float
+                  Time in seconds to wait for the move function (or for the remote
+                  client) to return. After timeout_length seconds are elapsed an
+                  non-fatal error is recorded for the team.
+
+    viewers : list[viewer1, viewer2]
+           List of viewers to attach to the game. Implemented viewers: 'ascii',
+           'progress', tk'. If None, no viewer is attached.
+
+    viewer_options : do not use!
+
+    store_output : False or str
+               if store_output is a string it will be interpreted as a path to a
+               directory where to store stdout and stderr for the client processes.
+               It helps in debugging issues with the clients.
+
+    team_names : tuple(team_name_0, team_name_1)
+              a tuple containing the team names. If not given, names will be taken
+              from the team module TEAM_NAME variable or from the function name.
+
+    Notes
+    -----
+
+    - remote games
+        If teams_specs is a list of two Python modules, a "remote" game will be
+        played. This means that the game master will create one client subprocess for
+        each module. The game master communicates with the clients using the local
+        network and sends/receives messages in JSON format. The game master will ask
+        for the next position of a bot over the network, the clients will call their
+        move function to get the next position and will return the position over the
+        network. This setup allows for complete isolation of the clients, i.e. they
+        can not see or influence each other directly.
+
+    - local games
+        If team_specs is a list of two functions, a "local" game will be played. This
+        means that the game master will get the next position of a bot by calling the
+        corresponding move function directly. This mode is particularly useful to play
+        many games in the background without a UI, because it skips all the network
+        overhead of the remote games.
+
+    """
 
     # allow exception will force exceptions in the clients to be raised.
     # This flag must be used when using run_game directly, like in tests or
