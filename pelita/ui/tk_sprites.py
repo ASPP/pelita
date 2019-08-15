@@ -13,6 +13,9 @@ YELLOW = col(242, 255, 83)
 GREY = col(80, 80, 80)
 BROWN = col(48, 26, 22)
 
+SHADOW_RED = '#B37373'
+SHADOW_BLUE = '#6D92B3'
+
 def rotate(arc, rotation):
     """Helper for rotation normalisation."""
     return (arc + rotation) % 360
@@ -170,23 +173,24 @@ class BotSprite(TkSprite):
     def draw(self, canvas, game_state):
         self.is_harvester = self.is_harvester_at(game_state['bots'][self.bot_id])
 
-        if self.shadow:
-            col = "#555555"
-        elif self.team == 0:
-            col = BLUE
+        if self.team == 0:
+            col = BLUE if not self.shadow else SHADOW_BLUE
+            eye_col = YELLOW if not self.shadow else RED
         else:
-            col = RED
+            col = RED if not self.shadow else SHADOW_RED
+            eye_col = YELLOW if not self.shadow else BLUE
+
 
         if self.is_harvester:
             if self.team == 0:
-                self.draw_bot(canvas, outer_col=col, eye_col=YELLOW, is_blue=True)
+                self.draw_bot(canvas, outer_col=col, eye_col=eye_col, is_blue=True)
             else:
-                self.draw_bot(canvas, outer_col=col, eye_col=YELLOW, is_blue=False)
+                self.draw_bot(canvas, outer_col=col, eye_col=eye_col, is_blue=False)
         else:
             if self.team == 0:
-                self.draw_destroyer(canvas, outer_col=col, eye_col=YELLOW)
+                self.draw_destroyer(canvas, outer_col=col, eye_col=eye_col)
             else:
-                self.draw_destroyer(canvas, outer_col=col, eye_col=YELLOW)
+                self.draw_destroyer(canvas, outer_col=col, eye_col=eye_col)
 
     def draw_destroyer(self, canvas, outer_col, eye_col):
         direction = self.direction
