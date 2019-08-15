@@ -27,10 +27,28 @@ def split_food(width, food):
     return team_food
 
 def walls_to_graph(walls):
-    """Return a networkx Graph object given the walls.
+    """Return a networkx Graph object given the walls of a maze.
 
-    Nodes in the graph are (x,y) coordinates in the layout which are not walls.
-    Edges in the graph are ((x1,y1), (x2,y2)) tuples of coordinates of two adjacent nodes."""
+    Parameters
+    ----------
+    walls : list[(x0,y0), (x1,y1), ...]
+         a list of walls coordinates
+
+    Returns
+    -------
+    graph : networkx.Graph
+         a networkx Graph representing the free squares in the maze and their
+         connections. Note that 'free' in this context means that the corresponding
+         square in the maze is not a wall (but can contain food or bots).
+
+    Notes
+    -----
+    Nodes in the graph are (x,y) coordinates representing a square in the maze
+    which are not walls.
+    Edges in the graph are ((x1,y1), (x2,y2)) tuples of coordinates of two
+    adjacent squares. Adjacent means that you can go from one square to one of
+    its adjacent squares by making ore single step (up, down, left, or right).
+    """
     graph = networkx.Graph()
     extreme = max(walls)
     width =  extreme[0] + 1
