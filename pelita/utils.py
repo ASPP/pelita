@@ -1,30 +1,9 @@
-import logging
 import random
 
 import networkx
+
 from .layout import get_layout_by_name, layout_as_str, layout_for_team, parse_layout
 from .player.team import create_layout, make_bots
-
-
-def start_logging(filename, module='pelita'):
-    if not filename or filename == '-':
-        hdlr = logging.StreamHandler()
-    else:
-        hdlr = logging.FileHandler(filename, mode='w')
-    logger = logging.getLogger(module)
-    FORMAT = '[%(relativeCreated)06d %(name)s:%(levelname).1s][%(funcName)s] %(message)s'
-    formatter = logging.Formatter(FORMAT)
-    hdlr.setFormatter(formatter)
-    logger.addHandler(hdlr)
-    logger.setLevel(logging.DEBUG)
-
-
-def split_food(width, food):
-    team_food = [set(), set()]
-    for pos in food:
-        idx = pos[0] // (width // 2)
-        team_food[idx].add(pos)
-    return team_food
 
 def walls_to_graph(walls):
     """Return a networkx Graph object given the walls of a maze.
@@ -133,6 +112,13 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
 
     layout = create_layout(layout, food=food, bots=bots, enemy=enemy, is_noisy=is_noisy)
     width = max(layout['walls'])[0] + 1
+
+    def split_food(width, food):
+        team_food = [set(), set()]
+        for pos in food:
+            idx = pos[0] // (width // 2)
+            team_food[idx].add(pos)
+        return team_food
 
     food = split_food(width, layout['food'])
 
