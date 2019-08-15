@@ -81,10 +81,9 @@ def controller_exit(state, await_action='play_step'):
         elif todo in ('play_step', 'set_initial'):
             return False
 
-def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None,
-             max_team_errors=5, timeout_length=3, viewers=None, controller=None, viewer_options=None,
+def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=None,
+             max_team_errors=5, timeout_length=3, viewers=None, viewer_options=None,
              store_output=False, team_names=(None, None), allow_exceptions=False):
-    """ Run a match for `max_rounds` rounds. """
 
     # allow exception will force exceptions in the clients to be raised.
     # This flag must be used when using run_game directly, like in tests or
@@ -92,7 +91,7 @@ def run_game(team_specs, *, max_rounds, layout_dict, layout_name="", seed=None,
 
     # we create the initial game state
     state = setup_game(team_specs, layout_dict=layout_dict, layout_name=layout_name, max_rounds=max_rounds, timeout_length=timeout_length, seed=seed,
-                       viewers=viewers, controller=controller, viewer_options=viewer_options,
+                       viewers=viewers, viewer_options=viewer_options,
                        store_output=store_output, team_names=team_names)
 
     # Play the game until it is gameover.
@@ -162,7 +161,7 @@ def setup_viewers(viewers=None, options=None):
 
 
 def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=None,
-               max_team_errors=5, timeout_length=3, viewers=None, controller=None, viewer_options=None,
+               max_team_errors=5, timeout_length=3, viewers=None, viewer_options=None,
                store_output=False, team_names=(None, None), allow_exceptions=False):
     """ Generates a game state for the given teams and layout with otherwise default values. """
 
