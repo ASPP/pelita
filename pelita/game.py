@@ -96,10 +96,10 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
                  position (x, y) of bot and state.
                  state can be an arbitrary Python object, None by default
                - the path to a Python module that defines at least a function
-                 called 'move' (specified as above), and a string TEAM_NAME.
+                 called 'move' (specified as above) and a string TEAM_NAME.
 
-              When the team_specs are functions a "local" game will be run, when
-              they are paths to Python modules a "remote" game will be run instead.
+              When a team_spec is a function, a "local" game will be run, when
+              they are paths to Python modules, a "remote" game will be run instead.
               See below in section Notes for more details about local and remote games.
 
     layout_dict : dict
@@ -125,16 +125,16 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
                   client) to return. After timeout_length seconds are elapsed a
                   non-fatal error is recorded for the team.
 
-    viewers : list[viewer1, viewer2]
+    viewers : list[viewer1, viewer2, ...]
            List of viewers to attach to the game. Implemented viewers: 'ascii',
            'progress', tk'. If None, no viewer is attached.
 
     viewer_options : do not use!
 
     store_output : False or str
-               if store_output is a string it will be interpreted as a path to a
-               directory where to store stdout and stderr for the client processes.
-               It helps in debugging issues with the clients.
+                if store_output is a string it will be interpreted as a path to a
+                directory where to store stdout and stderr for the client processes.
+                It helps in debugging issues with the clients.
 
     team_names : tuple(team_name_0, team_name_1)
               a tuple containing the team names. If not given, names will be taken
@@ -144,8 +144,8 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
                     when True, allow teams to raise Exceptions. This is especially
                     useful when running local games, where you typically want to
                     see Exceptions do debug them. When running remote games,
-                    allow_exceptions should be False, so that the game master can
-                    collect the exceptions and cleanly create a game-over state if
+                    allow_exceptions should be False, so that the game can collect
+                    the exceptions and cleanly create a game-over state if
                     needed.
 
     Notes
@@ -153,17 +153,17 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
 
     - remote games
         If teams_specs is a list of two Python modules, a "remote" game will be
-        played. This means that the game master will create one client subprocess for
-        each module. The game master communicates with the clients using the local
-        network and sends/receives messages in JSON format. The game master will ask
-        for the next position of a bot over the network, the clients will call their
-        move function to get the next position and will return the position over the
+        played. This means that the game will create one client subprocess for
+        each module. The game communicates with the clients using the local network
+        and sends/receives messages in JSON format. The game master will ask for the
+        next position of a bot over the network, the clients will call their move
+        function to get the next position and will return the position over the
         network. This setup allows for complete isolation of the clients, i.e. they
         can not see or influence each other directly.
 
     - local games
         If team_specs is a list of two functions, a "local" game will be played. This
-        means that the game master will get the next position of a bot by calling the
+        means that the game will get the next position of a bot by calling the
         corresponding move function directly. This mode is particularly useful to play
         many games in the background without a UI, because it skips all the network
         overhead of the remote games.

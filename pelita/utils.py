@@ -10,7 +10,7 @@ def walls_to_graph(walls):
     Parameters
     ----------
     walls : list[(x0,y0), (x1,y1), ...]
-         a list of walls coordinates
+         a list of wall coordinates
 
     Returns
     -------
@@ -21,7 +21,7 @@ def walls_to_graph(walls):
 
     Notes
     -----
-    Nodes in the graph are (x,y) coordinates representing a square in the maze
+    Nodes in the graph are (x,y) coordinates representing squares in the maze
     which are not walls.
     Edges in the graph are ((x1,y1), (x2,y2)) tuples of coordinates of two
     adjacent squares. Adjacent means that you can go from one square to one of
@@ -187,8 +187,8 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
                      '''
 
     is_blue : bool
-           when True setups up the game assuming your bots are in the blue team,
-           i.e. the team with the homezone on the left side of the maze. Otherwise
+           when True, sets up up the game assuming your bots are in the blue team,
+           i.e. the team with the homezone on the left side of the maze. When False,
            your bots are assumed to be in the red team.
 
     round : int
@@ -196,7 +196,7 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
 
     score : list[int, int]
          set the score for you and the enemy team. Example: [12,15] -> your score
-         is 12, your enemy score is 15. If None score will be set to [0, 0]
+         is 12, your enemy score is 15. If None, score will be set to [0, 0]
 
     seed : int
         set the random number generator seed to get reproducible results if your
@@ -209,15 +209,15 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
     bots : list[(x0,y0), (x1,y1)]
         list of coordinates for your bots. These will override the positions found
         in the layout. If only one pair of coordinates is given, i.e. you pass just
-        [(x0,y0)] only the position for bot '0' will be set
+        [(x0,y0)], only the position for bot '0' will be overridden
 
     enemy : list[(x0,y0), (x1,y1)]
          list of coordinates for the enemy bots. These will override the positions
          found in the layout. If only one pair of coordinates is given, i.e. you
-         pass just [(x0,y0)] only the position for enemy bot '0' will be set
+         pass just [(x0,y0)], only the position for enemy bot '0' will be overridden
 
     is_noisy : list[bool, bool]
-            list of two booleans for the enemy bots is_noisy property
+            list of two booleans for the enemy bots’ is_noisy property
 
 
     Returns
