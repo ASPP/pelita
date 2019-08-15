@@ -12,7 +12,10 @@ import sys
 import time
 
 import pelita
-from pelita import game, layout, utils
+from pelita import game, layout
+
+from .script_utils import start_logging
+
 # TODO: The check_team option
 from pelita.tournament import check_team
 
@@ -180,7 +183,7 @@ def main():
         raise ValueError("Options --tk (or --tk-no-sync) and --no-publish are mutually exclusive.")
 
     if args.log:
-        utils.start_logging(args.log)
+        start_logging(args.log)
 
     if args.rounds < 1:
         raise ValueError(f"Must play at least one round (rounds={args.rounds}).")

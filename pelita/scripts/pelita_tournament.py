@@ -14,8 +14,7 @@ import shutil
 import yaml
 
 from .. import tournament
-from ..utils import start_logging
-
+from .script_utils import start_logging
 
 def firstNN(*args):
     """

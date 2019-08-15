@@ -5,6 +5,7 @@ import os
 import sys
 
 import pelita
+from .script_utils import start_logging
 from pelita.ui.tk_viewer import TkViewer
 
 
@@ -48,7 +49,7 @@ def main():
         sys.exit(0)
 
     if LOG_TK or args.log:
-        pelita.utils.start_logging(args.log)
+        start_logging(args.log)
 
     tkargs = {
         'address': args.subscribe_sock,
