@@ -621,19 +621,18 @@ def apply_move(gamestate, bot_position):
     """
     # TODO is a timeout counted as an error?
     # define local variables
-    bots = gamestate["bots"]
+    bots = gamestate["bots"][:]
     turn = gamestate["turn"]
     team = turn % 2
     enemy_idx = (1, 3) if team == 0 else (0, 2)
     gameover = gamestate["gameover"]
-    score = gamestate["score"]
-    food = gamestate["food"]
+    score = gamestate["score"][:]
+    food = gamestate["food"][:]
     walls = gamestate["walls"]
-    food = gamestate["food"]
     n_round = gamestate["round"]
-    kills = gamestate["kills"]
-    deaths = gamestate["deaths"]
-    bot_was_killed = gamestate["bot_was_killed"]
+    kills = gamestate["kills"][:]
+    deaths = gamestate["deaths"][:]
+    bot_was_killed = gamestate["bot_was_killed"][:]
     fatal_error = True if gamestate["fatal_errors"][team] else False
     #TODO how are fatal errors passed to us? dict with same structure as regular errors?
     #TODO do we need to communicate that fatal error was the reason for game over in any other way?

@@ -4,7 +4,6 @@ import random
 import networkx
 
 from .layout import get_random_layout, get_layout_by_name, parse_layout
-from .game import run_game
 from .player.team import create_layout, make_bots
 
 
@@ -128,6 +127,8 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
         As opposed to standard pelita matches, timeouts are not considered.
 
     """
+    from . import game
+    from .game import setup_game, play_turn, prepare_viewer_state
 
     # prepare layout argument to be passed to pelita.game.run_game
     if layout is None:
@@ -145,9 +146,14 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
             layout_name = '<string>'
             layout_dict = parse_layout(layout_str, allow_enemy_chars=True)
 
-    game_state = run_game((blue_move, red_move), layout_dict=layout_dict,
-                          layout_name=layout_name, max_rounds=max_rounds, seed=seed,
-                          team_names=('blue', 'red'), allow_exceptions=True)
+    game_state = setup_game((blue_move, red_move), layout_dict=layout_dict,
+                            layout_name=layout_name, max_rounds=max_rounds, seed=seed,
+                            team_names=('blue', 'red'), allow_exceptions=True)
+    replay = []
+    while not game_state['gameover']:
+        replay.append((game_state['round'], game_state['turn'], prepare_viewer_state(game_state)))
+        game_state = play_turn(game_state)
+
     out = {}
     out['walls'] = game_state['walls']
     out['round'] = game_state['round']
@@ -172,7 +178,21 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
     else:
         out['draw'] = True
 
-    return out
+    return out, replay
+
+def replay_background_game(replay_list, viewer='tk'):
+    from . import game
+    from .game import setup_game, play_turn, prepare_viewer_state
+
+    viewer_state = game.setup_viewers([viewer], options={})
+    if game.controller_exit(viewer_state, await_action='set_initial'):
+        return
+
+    for round, turn, state in replay_list:
+        for viewer in viewer_state['viewers']:
+            viewer.show_state(state)
+        if game.controller_exit(viewer_state):
+            break
 
 
 def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, seed=None,
