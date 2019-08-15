@@ -879,7 +879,7 @@ def test_play_turn_move():
         "gameover": False,
         "whowins": None,
         "team_say": "bla",
-        "score": 0,
+        "score": [0, 0],
         "kills":[0]*4,
         "deaths": [0]*4,
         "bot_was_killed": [False]*4,
