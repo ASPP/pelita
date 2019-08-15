@@ -2,7 +2,9 @@ import logging
 import random
 
 import networkx
-from .layout import get_layout_by_name, layout_as_str, layout_for_team, parse_layout
+
+from .layout import get_random_layout, get_layout_by_name, parse_layout
+from .game import run_game
 from .player.team import create_layout, make_bots
 
 
@@ -49,10 +51,128 @@ def walls_to_graph(walls):
                         graph.add_edge((x, y), neighbor)
     return graph
 
-def load_builtin_layout(layout_name, *, is_blue=True):
-    """ Loads a builtin layout with the given `layout_name` and returns a layout string.
+# this is a dumbed-down version of pelita.game.run_game, useful t be exposed to the
+# users to run background games. It hides most of the parameters of run_game which
+# are not relevant to the user in this setup and reformats the rest so that we
+# don't leak internal implementation details and indices.
+def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, seed=None):
+    """Run a pelita match.
+
+    Parameters
+    ----------
+    blue_move : function
+             the move function that will be used by the blue team
+
+    red_move : function
+             the move function that will be used by the red team
+
+    layout : str
+          specify the layout of the maze to play with. If None, a built-in
+          layout of normal size will be chosen at random. If specified it will
+          be interpreted as the name of a built-in layout, e.g. 'normal_083'.
+          You can also pass a layout string as in:
+          '''
+          ########
+          #. 1 E #
+          #0 E   #
+          ########
+          '''
+
+    max_rounds : int
+              maximum number of rounds to play before the game is over. Default: 300.
+
+    seed : int
+        seed used to initialize the random number generator.
+
+
+    Returns
+    -------
+    game_state : dict
+              the final game state as a dictionary. Dictionary keys are:
+              - 'walls' : list of walls coordinates for the layout
+              - 'layout' : the name of the used layout
+              - 'round' : the round at which the game was over
+              - 'draw' : True if the game ended in a draw
+              - 'blue_food' : list of food coordinates for the blue team. Note that
+                              this can be empty if the red team has eaten all the
+                              blue team's food
+             - 'red_food' : list of food coordinates for the red team
+             - 'blue_bots' : list of coordinates for the blue team's bots
+             - 'red_bots' : list of coordinates for the red team's bots
+             - 'blue_score' : score of the blue team
+             - 'red_score' : score of the red team
+             - 'blue_errors' : a dictionary collecting non-fatal errors for the
+                               blue team
+             - 'red_errors' : a dictionary collecting non-fatal errors for the
+                              red team
+             - 'blue_deaths' : a list with the number of times each bot in the blue
+                               team has been killed
+             - 'red_deaths' : a list with the number of times each bot in the red
+                              team has been killed
+             - 'blue_kills' : a list with the number of times each bot in the blue
+                              team has killed enemy bots
+             - 'red_kills' : a list with the number of times each bot in the red
+                              team has killed enemy bots
+             - 'blue_wins' : True if the blue team wins
+             - 'red_wins' : True if the red team wins
+
+    Notes
+    -----
+    - Move functions:
+        A move function is a function with signature move(bot, state) -> (x, y), state
+        the function takes a bot object and a state and returns the next position of
+        the current bot as a tuple (x, y) and state. `state` can be an arbitrary
+        Python object, None by default
+
+    - Timeouts:
+        As opposed to standard pelita matches, timeouts are not considered.
+
     """
-    return layout_as_str(**layout_for_team(parse_layout(get_layout_by_name(layout_name)), is_blue=is_blue))
+
+    # prepare layout argument to be passed to pelita.game.run_game
+    if layout is None:
+        layout_name, layout_str = get_random_layout(size='normal')
+        layout_dict = parse_layout(layout_str, allow_enemy_chars=False)
+    else:
+        try:
+            # check if this is a built-in layout
+            layout_name = layout
+            layout_str = get_layout_by_name(layout)
+            layout_dict = parse_layout(layout_str, allow_enemy_chars=False)
+        except ValueError:
+            # OK, then it is a (user-provided, i.e. with 'E's) layout string
+            layout_str = layout
+            layout_name = '<string>'
+            layout_dict = parse_layout(layout_str, allow_enemy_chars=True)
+
+    game_state = run_game((blue_move, red_move), layout_dict=layout_dict,
+                          layout_name=layout_name, max_rounds=max_rounds, seed=seed,
+                          team_names=('blue', 'red'), allow_exceptions=True)
+    out = {}
+    out['walls'] = game_state['walls']
+    out['round'] = game_state['round']
+    out['layout'] = layout_name
+    out['blue_food'] = list(game_state['food'][0])
+    out['red_food'] = list(game_state['food'][1])
+    out['blue_bots'] = game_state['bots'][::2]
+    out['red_bots'] = game_state['bots'][1::2]
+    out['blue_score'] = game_state['score'][0]
+    out['red_score'] = game_state['score'][1]
+    out['blue_errors'] = game_state['errors'][0]
+    out['red_errors'] = game_state['errors'][1]
+    out['blue_deaths'] = game_state['deaths'][::2]
+    out['red_deaths'] = game_state['deaths'][1::2]
+    out['blue_kills'] = game_state['kills'][::2]
+    out['red_kills'] = game_state['kills'][1::2]
+    out['blue_wins'], out['red_wins'], out['draw'] = False, False, False
+    if game_state['whowins'] == 0:
+        out['blue_wins'] = True
+    elif game_state['whowins'] == 1:
+        out['red_wins'] = True
+    else:
+        out['draw'] = True
+
+    return out
 
 
 def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, seed=None,
