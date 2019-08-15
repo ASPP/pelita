@@ -55,14 +55,60 @@ def load_builtin_layout(layout_name, *, is_blue=True):
     return layout_as_str(**layout_for_team(parse_layout(get_layout_by_name(layout_name)), is_blue=is_blue))
 
 
-def setup_test_game(*, layout, game=None, is_blue=True, round=None, score=None, seed=None,
+def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
                     food=None, bots=None, enemy=None, is_noisy=None):
-    """Returns the first bot object given a layout.
+    """Setup a test game environment useful for testing move functions.
 
-    The returned Bot instance can be passed to a move function to test its return value.
-    The layout is a string that can be passed to create_layout."""
-    if game is not None:
-        raise RuntimeError("Re-using an old game is not implemented yet.")
+    Parameters
+    ----------
+    layout : str
+          a valid layout string, like the one obtained by print(bot). For example:
+              layout='''
+                     ########
+                     #0    .#
+                     #.1  EE#
+                     ########
+                     '''
+
+    is_blue : bool
+           when True setups up the game assuming your bots are in the blue team,
+           i.e. the team with the homezone on the left side of the maze. Otherwise
+           your bots are assumed to be in the red team.
+
+    round : int
+         set the current round for the returned game state
+
+    score : list[int, int]
+         set the score for you and the enemy team. Example: [12,15] -> your score
+         is 12, your enemy score is 15. If None score will be set to [0, 0]
+
+    seed : int
+        set the random number generator seed to get reproducible results if your
+        move function uses the bot.random random generator
+
+    food : list[(x0,y0), (x1,y1),...]
+        list of coordinates for food pellets. The food will be added to the one
+        already found in the layout string
+
+    bots : list[(x0,y0), (x1,y1)]
+        list of coordinates for your bots. These will override the positions found
+        in the layout. If only one pair of coordinates is given, i.e. you pass just
+        [(x0,y0)] only the position for bot '0' will be set
+
+    enemy : list[(x0,y0), (x1,y1)]
+         list of coordinates for the enemy bots. These will override the positions
+         found in the layout. If only one pair of coordinates is given, i.e. you
+         pass just [(x0,y0)] only the position for enemy bot '0' will be set
+
+    is_noisy : list[bool, bool]
+            list of two booleans for the enemy bots is_noisy property
+
+
+    Returns
+    -------
+    bot : Bot
+       a Bot object suitable to be passed to a move function
+    """
 
     if score is None:
         score = [0, 0]
