@@ -139,6 +139,14 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
               a tuple containing the team names. If not given, names will be taken
               from the team module TEAM_NAME variable or from the function name.
 
+    allow_exceptions : bool
+                    when True, allow teams to raise Exceptions. This is especially
+                    useful when running local games, where you typically want to
+                    see Exceptions do debug them. When running remote games,
+                    allow_exceptions should be False, so that the game master can
+                    collect the exceptions and cleanly create a game-over state if
+                    needed.
+
     Notes
     -----
 
