@@ -40,6 +40,8 @@ for idx in range(NUM_GAMES):
     game['seed'] = game_seed
 
     # play each time on a different layout
+    result = run_background_game(blue_move=blue, red_move=red)
+    game['result'] = result
     game_state = run_background_game(blue_move=blue, red_move=red, seed=game_seed)
     game['state'] = game_state
 
@@ -64,17 +66,17 @@ score_difference = 0
 
 for i, game in enumerate(collection):
     blue = game['blue']
-    game_state = game['state']
-    if game_state['draw']:
+    result = game['state']
+    if result['draw']:
         draws += 1
     elif blue == 'attacker':
-        attacker_wins += game_state['blue_wins']
-        defender_wins += game_state['red_wins']
-        score_difference += game_state['blue_score'] - game_state['red_score']
+        attacker_wins += result['blue_wins']
+        defender_wins += result['red_wins']
+        score_difference += result['blue_score'] - result['red_score']
     elif blue == 'defender':
-        attacker_wins += game_state['red_wins']
-        defender_wins += game_state['blue_wins']
-        score_difference += game_state['red_score'] - game_state['blue_score']
+        attacker_wins += result['red_wins']
+        defender_wins += result['blue_wins']
+        score_difference += result['red_score'] - result['blue_score']
 
 print(f'Attacker wins: {attacker_wins}')
 print(f'Defender wins: {defender_wins}')
