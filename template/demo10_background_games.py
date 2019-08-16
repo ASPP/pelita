@@ -13,8 +13,6 @@ from demo04_basic_attacker import move as move_attacker
 
 NUM_GAMES = 100
 
-statistics = {'defender_wins': 0, 'attacker_wins': 0, 'draws': 0}
-
 collection = []
 
 for idx in range(NUM_GAMES):
@@ -47,6 +45,17 @@ with open('results.pic', 'wb') as fh:
 # - To open the pickle in another process:
 #with open('results.pic', 'rb') as fh:
 #    collection = pickle.load(fh)
+
+# - If you want to replay a particular game, let's say the 10th game:
+#replay = collection[10]
+
+# - first check who was blue
+#blue = replay['blue']
+# - get the random seed for the game
+#seed = replay['result']['seed']
+# - let's assume that the attacker was blue, and the sed was 1234567,
+#   then you can replay on the terminal with
+# pelita --seed 1234567 demo04_basic_attacker.py demo05_basic_defender.py
 
 # Here we only want to print some basic stats
 attacker_wins = 0
