@@ -15,9 +15,6 @@ NUM_GAMES = 100
 
 statistics = {'defender_wins': 0, 'attacker_wins': 0, 'draws': 0}
 
-# fix the seed to get replicable games
-seed = random.seed(42)
-
 collection = []
 
 for idx in range(NUM_GAMES):
@@ -35,15 +32,9 @@ for idx in range(NUM_GAMES):
         red = move_defender
         game['blue'] = 'attacker'
 
-    # get a seed for this game, so that we can replicate it later
-    game_seed = random.randint(1, 2**31)
-    game['seed'] = game_seed
-
     # play each time on a different layout
     result = run_background_game(blue_move=blue, red_move=red)
     game['result'] = result
-    game_state = run_background_game(blue_move=blue, red_move=red, seed=game_seed)
-    game['state'] = game_state
 
     # add to our collection of games
     collection.append(game)
