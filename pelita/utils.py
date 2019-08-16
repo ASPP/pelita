@@ -83,6 +83,7 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
     -------
     game_state : dict
               the final game state as a dictionary. Dictionary keys are:
+              - 'seed' : the seed used to initiliaze the random number generator
               - 'walls' : list of walls coordinates for the layout
               - 'layout' : the name of the used layout
               - 'round' : the round at which the game was over
@@ -141,10 +142,15 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
             layout_name = '<string>'
             layout_dict = parse_layout(layout_str, allow_enemy_chars=True)
 
+    # if the seed is not set explicitly, set it here
+    if seed is None:
+        seed = random.randint(1, 2**31)
+
     game_state = run_game((blue_move, red_move), layout_dict=layout_dict,
                           layout_name=layout_name, max_rounds=max_rounds, seed=seed,
                           team_names=('blue', 'red'), allow_exceptions=True)
     out = {}
+    out['seed'] = seed
     out['walls'] = game_state['walls']
     out['round'] = game_state['round']
     out['layout'] = layout_name
