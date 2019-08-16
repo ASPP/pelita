@@ -66,7 +66,7 @@ score_difference = 0
 
 for i, game in enumerate(collection):
     blue = game['blue']
-    result = game['state']
+    result = game['result']
     if result['draw']:
         draws += 1
     elif blue == 'attacker':
