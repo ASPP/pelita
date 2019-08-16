@@ -48,12 +48,12 @@ for idx in range(NUM_GAMES):
     # add to our collection of games
     collection.append(game)
 
-# at the end we can picke the results to be analyzed later
-#import pickle
-#with open('results.pic', 'wb') as fh:
-#    pickle.dump(collection, fh)
+# At the end we can picke the results to be analyzed later:
+import pickle
+with open('results.pic', 'wb') as fh:
+    pickle.dump(collection, fh)
 #
-# to open the pickle in another process
+# - To open the pickle in another process:
 #with open('results.pic', 'rb') as fh:
 #    collection = pickle.load(fh)
 
