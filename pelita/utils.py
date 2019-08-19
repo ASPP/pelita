@@ -46,7 +46,7 @@ def walls_to_graph(walls):
     return graph
 
 def _parse_layout_arg(*, layout=None, food=None, bots=None, enemy=None,
-                         is_noisy=None, is_blue=True, convert_to_agnostic=False):
+                         is_noisy=None, is_blue=True, agnostic=True):
     from .layout import (get_random_layout, get_layout_by_name, get_available_layouts,
                          parse_layout, layout_for_team, layout_agnostic)
 
@@ -54,18 +54,22 @@ def _parse_layout_arg(*, layout=None, food=None, bots=None, enemy=None,
     if layout is None:
         layout_name, layout_str = get_random_layout(size='normal')
         layout_dict = parse_layout(layout_str, allow_enemy_chars=False)
+        if not agnostic:
+            layout_dict = layout_for_team(layout_dict, is_blue=is_blue)
     elif layout in get_available_layouts(size='all'):
         # check if this is a built-in layout
         layout_name = layout
         layout_str = get_layout_by_name(layout)
         layout_dict = parse_layout(layout_str, allow_enemy_chars=False)
+        if not agnostic:
+            layout_dict = layout_for_team(layout_dict, is_blue=is_blue)
     else:
         # OK, then it is a (user-provided, i.e. with 'E's) layout string
         layout_str = layout
         layout_name = '<string>'
         layout_dict = parse_layout(layout_str, food=food, bots=bots, enemy=enemy,
                                    is_noisy=is_noisy, is_blue=is_blue, allow_enemy_chars=True)
-        if convert_to_agnostic:
+        if agnostic:
             layout_dict = layout_agnostic(layout_dict)
 
     return layout_dict, layout_name
@@ -156,7 +160,7 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
         seed = random.randint(1, 2**31)
         random.seed(seed)
 
-    layout_dict, layout_name = _parse_layout_arg(layout=layout, convert_to_agnostic=True)
+    layout_dict, layout_name = _parse_layout_arg(layout=layout, agnostic=True)
 
     game_state = run_game((blue_move, red_move), layout_dict=layout_dict,
                           layout_name=layout_name, max_rounds=max_rounds, seed=seed,
@@ -253,7 +257,7 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
 
     layout, layout_name = _parse_layout_arg(layout=layout, is_blue=is_blue,
                                food=food, bots=bots, enemy=enemy,
-                               is_noisy=is_noisy, convert_to_agnostic=False)
+                               is_noisy=is_noisy, agnostic=False)
 
     width = max(layout['walls'])[0] + 1
 
