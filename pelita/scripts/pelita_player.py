@@ -16,6 +16,7 @@ import zmq
 import pelita
 from ..player.team import make_team
 from ..network import json_default_handler
+from .script_utils import start_logging
 
 _logger = logging.getLogger(__name__)
 
@@ -387,7 +388,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        pelita.utils.start_logging(args.log)
+        start_logging(args.log)
     except AttributeError:
         pass
 

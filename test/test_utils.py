@@ -50,27 +50,3 @@ def test_setup_test_game(is_blue):
     assert test_game.enemy[1].is_noisy is True
 
 
-def test_load_builtin_layout():
-    layout = utils.load_builtin_layout("small_001")
-    assert layout.strip() == dedent("""
-################
-# ..       .. E#
-#. ######..  #E#
-#  .  .   .  # #
-# #  .   .  .  #
-#0#  ..###### .#
-#1 ..       .. #
-################
-    """).strip()
-
-    layout = utils.load_builtin_layout("small_001", is_blue=False)
-    assert layout.strip() == dedent("""
-################
-# ..       .. 1#
-#. ######..  #0#
-#  .  .   .  # #
-# #  .   .  .  #
-#E#  ..###### .#
-#E ..       .. #
-################
-    """).strip()
