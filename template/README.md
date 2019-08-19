@@ -23,11 +23,13 @@ Introduction
 ============
 ![](pelita_GUI.png)
 
-Pelita is a PacMan™ like game. Two teams each of two bots are placed in a maze with food pellets. The maze is split into two parts, the left one belongs to the team on the left (the blue team), the right one belongs to the team on the right (the red team). When a bot is in its own homezone it is a ghost. A ghost can defend its own food pellets by killing the enemies. When a bot is in its enemy's homezone it is a pacman and can eat the enemy's food. The rules:
+Pelita is a Pac-Man like game. Two teams each of two bots are placed in a maze with food pellets. The maze is split into two parts, the left one belongs to the team on the left (the blue team), the right one belongs to the team on the right (the red team). When a bot is in its own homezone it is a ghost. A ghost can defend its own food pellets by killing the enemies. When a bot is in its enemy's homezone it is a pac-man and can eat the enemy's food. The game is turn-based: one bot moves, the rules of the game are applied, a new state of the game is generated, the next bot moves. The first bot of the blue team moves first, then the first bot of the red team moves, then the second bot of the blue team, and finally the second bot of the read team. This defines a round. A standard game lasts at most 300 rounds.
+
+The rules:
 
 - **eating food**: when a bot eats a food pellet, the food pellet is permanently removed from the maze and **one point** is scored for the bot's team.
 
-- **killing enemies**: when a ghost kills an enemy pacman, the killed pacman is immediately reset to its starting position and **5 points** are scored for the ghost's team.
+- **killing enemies**: when a ghost kills an enemy pac-man, the killed pac-man is immediately reset to its starting position and **5 points** are scored for the ghost's team.
 
 - **enemy position**: bots can know their enemies' exact positions only when the enemies are within a distance of **5** squares. If the enemies are further away than that, the bots have access only to a noisy position (more details [below](#is-noisy)).
 
@@ -39,14 +41,14 @@ Pelita is a PacMan™ like game. Two teams each of two bots are placed in a maze
 
 - **fatal errors**: if a bot raises an Exception, the team is immediately disqualified and the game is over.
 
-- **game over**: the game ends when one team eats all of its enemy's food pellets or after **300** rounds or if a team is disqualified.
+- **game over**: the game ends when one team eats all of its enemy's food pellets **or** after **300** rounds **or** if a team is disqualified.
 
 - **the winner**: the team with the highest score after game over wins the game, regardless of which team finished the food. A team also wins if the opponent team is disqualified, regardless of the score.
 
 ## Your task
 
 Your task as a group is to write a bot implementation. You have to implement the *intelligence* to navigate your bots successfully
-through the maze, kill the enemy's pacmen, and eat the enemy's food. You can find a minimal implementation in the [demo01_stopping.py](demo01_stopping.py) file:
+through the maze, kill the enemy's pac-men, and eat the enemy's food. You can find a minimal implementation in the [demo01_stopping.py](demo01_stopping.py) file:
 ```python
 TEAM_NAME = 'StoppingBots'
 
@@ -57,9 +59,9 @@ def move(bot, state):
 As seen above, your implementation consists of a team name (the `TEAM_NAME` string) and a function `move`, which given a bot and a state returns the next position for current bot and a state. Don't panic right now, in the [Full API Description](#full-api-description) section you'll find all the details.
 
 ## Content of this repository
-In this repository you will find several demo implementations (all files named `demoXX_XXX.py`), that you can use as a starting point for your own implementations. There is also an example `utils.py` module and a series of unit tests for the demo implementations (all files named `test_demoXX_XXX.py`). You can run the tests within a clone of this repo with `pytest` by typing:
+In this repository you will find several demo implementations (all files named `demoXX_XXX.py`), that you can use as a starting point for your own implementations. There is also an example `utils.py` module where you can store utility functions that may be shared by different bot implementations. The files named  `test_demoXX_XXX.py` are example unit tests for some of the demo bot implementations. You can run the tests within a clone of this repo with `pytest` by typing:
 ```bash
-$ python3 -m pytest
+$ python -m pytest
 ```
 ## Running a game
 - To run a demo game, just type at the command line:
@@ -76,13 +78,15 @@ More info about the command `pelita` [below](#manual-testing)
 There are several strategies to test your bot implementations.
 
 ### Manual testing
+You can test an implementation by playing against some of the demo implementations or against itself.
+
 You can pass several options to the `pelita` command to help you with testing.
 
 - **`--seed SEED`** you can pass the `--seed` option to the `pelita` command to repeat a game using the same random seed. The random seed for a game is printed on standard output:
     ```bash
     $ pelita demo03_smartrandom.py demo02_random.py
     Replay this game with --seed 7487886765553999309
-    Using layout 'layout_normal_without_dead_ends_033'
+    Using layout 'nomral_018'
     ᗧ blue team 'demo03_smartrandom.py' -> 'SmartRandomBots'
     ᗧ red team 'demo02_random.py' -> 'RandomBots'
     ...
@@ -98,7 +102,7 @@ You can pass several options to the `pelita` command to help you with testing.
 - selecting a specific square in the grid will show its coordinates and if the square is a wall or contains food or bots are sitting on it:
     ![](pelita_GUI_grid_selection.png)
 
-- **`--null`** you can pass the option `--null` to the `pelita` command to suppress the graphical interface and just let the game play in the background. This is useful if you want to play many games and just look at their outcome, for example to gather statistics.
+- **`--null`** you can pass the option `--null` to the `pelita` command to suppress the graphical interface and just let the game play in the background. This is useful if you want to play many games and just look at their outcome, for example to gather statistics. (A better strategy to play games in the background is shown in [demo10_background_games.py](demo10_background_games.py)).
 
 - **`--ascii`** you can pass the option `--ascii` to the `pelita` command to  suppress the graphical interface and instead use a textual visualization in the terminal, which contains a lot of useful debug info.
 
@@ -109,52 +113,75 @@ You can pass several options to the `pelita` command to help you with testing.
 - **`--help`** the full list of supported options can be obtained by passing `--help`.
 
 ### Unit testing
-You should write unit tests to test your utility functions and to test your bot implementations. It is quite hard to test a full strategy, especially because you can not have a real opponent in a test game. It is useful to focus on specific situations (called `layouts`) and verify that your bot is doing the right thing.
+You should write unit tests to test your utility functions and to test your bot implementations. It is quite hard to test a full strategy, especially because you can not have a real opponent in a test game. It is useful to focus on specific situations (called `layouts`) and verify that your bot is doing the right thing. More info about layouts in the [Layouts](#layouts) section.
 
 Several examples for unit testing are available in this repo in the files named `test_XXX.py`. If you name your test files starting with `test_` your tests will be automatically picked up by `pytest` when you run on the console in the directory where you cloned this repo:
 ```bash
-$ python3 -m pytest
+$ python -m pytest
 ```
 An example unit test could look like this:
 ```python
-from demo01_stopping import move
-from pelita.utils import setup_test_game
-
-def test_stays_there():
-    layout="""
-    ########
-    #     .#
-    #.1  EE#
-    ########
-    """
-    all_locations = ((x, y) for x in range(8) for y in range(4))
-    for loc in all_locations:
-        try:
-            bot = setup_test_game(layout=layout, is_blue=True, bots=[loc])
-        except ValueError:
-            # loc is a wall, skip this position
-            continue
-        next_pos, _ = move(bot, None)
-        assert next_pos == bot.position
+def test_stays_there_builtin_random_layout():
+    # Using a random builtin layout, verify that the bot stays on its initial position
+    bot = setup_test_game(layout=None, is_blue=True)
+    next_pos, _ = move(bot, None)
+    # check that we did not move
+    assert next_pos == bot.position
 ```
 
-For setting up test games there is a utility function you can import from `pelita.utils`:
+For setting up test games there is a utility function you can import from the [utils.py](utils.py) module:
 
-**`setup_test_game(layout, is_blue=True, round=None, score=None, seed=None, food=None, bots=None, enemy=None) ⟶ bot`**
+**`setup_test_game(layout, is_blue=True, round=None, score=None, seed=None, food=None, bots=None, enemy=None, is_noisy=None) ⟶ bot`**
 
-Given a layout string, returns a [Bot](#the-bot-object) that you can pass to the [move](#the-move-function) function.
-Note that layouts must have an even width. The blue team's homezone is always on the left and the red team's homezone is always on the right. In the `setup_test_game` function you can pass `is_blue` which defines which side you are currently playing on.
+Given a layout, returns a [Bot](#the-bot-object) that you can pass to the [move](#the-move-function) function.
 
-Printing a `Bot` will print the layout string corresponding to the current game state. In the simplest form a layout string is a multiline string where the character `#` identifies walls, `.` the food pellets, `E` the enemy bots (you must have two of them for a layout to be legal), and `0` and `1` representing the bots in your team corresponding to turn `0` and `1`. In addition to the layout, `setup_test_game` has a number of optional keyword arguments:
-- `is_blue`: whether your bots are on the blue team, and enemy bots on the red team
-- `round`: the current round
-- `score`: the current score
-- `seed`: the random seed for the game
-- `food`: list of positions of additional food pellets; these will be added to those already specified in the layout string
-- `bots`: list of positions of your bots; if the list contains only one element, this specifies the position of your first bot; if it contains two positions, this specifies the position of both bots; will override the positions specified in the layout string; if you only want to change the position of your second bot, you can do this as `bots=[None, (2, 1)]`
-- `enemy`: list of positions of enemy bots; will override the positions specified in the layout string
+The blue team's homezone is always on the left and the red team's homezone is always on the right. In the `setup_test_game` function you can pass `is_blue` which defines which side you are currently playing on.
 
-For example a maze `8x4` with our bots in `(1, 1)` and `(1, 2)`, where the enemies are on `(5,2)` and `(6,2)` and food pellets in `(2, 2)` and `(6,1)`, and an additional wall in `(4,1)` will look like this:
+The full documentation for the `setup_test_game` function can be read in its docstring:
+```bash
+$ python
+>>> from utils import setup_test_game
+>>> help(setup_test_game)
+>>> ...
+```
+
+
+
+## Layouts
+When you play a game using the command `pelita` without specifying a specific layout with the `--layout` option, one of the built-in layouts will be picked at random. The name of the used layout is seen in the lower right corner of the GUI and it is also print to the terminal:
+```bash
+$ pelita
+Replay this game with --seed 354761256309345545
+Using layout 'normal_035'
+```
+
+When you run your own games or write tests, you may want to play a game on a fixed layout. You can do that by specifying the option `--layout normal_035` to the `pelita` command, or passing `layout="normal_035"` to `setup_test_game`.
+
+You may also want to specify very simple layouts to test some basic features of your bot that require you to know exactly where the walls, the enemies and the food are. In this case you can pass to `setup_test_game` a layout string. There are several examples of layout strings in the demo tests. 
+
+Printing a `Bot` instance by inserting `print(bot)` within your `move` function will print the layout string corresponding to the current layout. An example:
+```
+################################
+#. .#.   #  .  ##          .?  #
+#   #     .#..      ..         #
+#   #   ####      ########.  # #
+#   #  .#.  .  ##   #       .  #
+#   ## ##  # . ##. .# ###### # #
+#.# #   #..#        #      # #.#
+#.#.#...# . .    . ##  #       #
+#       #  ## .    . . #...#.#.#
+#.# #      #        #..#   # #.#
+# # ###### #. .## . #  ## ##   #
+#  .       #   ##  .  .#.  #   #
+# #  .########      ####   #   #
+#0  E     ..      ..#.     #   #
+#1  .          ##  .  #   .#. .#
+################################
+```
+
+The walls are identified by `#`, the food by `.`, your bots are `0` and `1`, the enemies are either `?`  or `E` depending if the enemy positions are noisy or exact (more details [below](#is-noisy)).
+
+You can create smaller mazes, which are easier to test with and can be typed directly into the tests. For example a maze `8x4` with our bots in `(1, 1)` and `(1, 2)`, where the enemies are on `(5,2)` and `(6,2)` and food pellets in `(2, 2)` and `(6,1)`, and an additional wall in `(4,1)` will look like this:
 ```python
 layout="""
 ########
@@ -163,98 +190,43 @@ layout="""
 ########
 """
 ```
-In case some objects are overlapping (for example you want to locate an enemy bot over a food pellet), you can either specify several layouts in the same multiline strings, each containing a partial layout, like this:
+In case some objects are overlapping (for example you want to locate an enemy bot over a food pellet) you can pass a partial layout and specify the positions of the objects in a list of coordinates to `setup_test_game`. For example:
 ```python
-layout="""
-########
-#0. # .#
-#1.  EE#
-########
 
-########
-#   #  #
-#     .#
-########
-"""
+def test_print_stuff():
+    layout="""
+    ########
+    #   #  #
+    #.. ...#
+    ########
+    """
+    bot = setup_test_game(layout, bots=[(1,1), (1,2)], enemy=[(5,2), (6,2)])
+    print(bot)
 ```
-You can also pass a partial layout and specify the positions of the objects in a list of coordinates. For example:
-```python
-layout="""
-########
-#   #  #
-#   .  #
-########
-"""
-game = setup_test_game(layout, bots=[(1,1), (1,2)], enemy=[(5,2), (6,2)])
-print(game)
-########
-#   #  #
-#   .  #
-########
+Save this into a file `test_test.py`. When you run this test with `python -m pytest -s test_test.py` you get:
+```bash
+...
 
+test_test.py blue (you) vs red.
+Playing on blue side. Current turn: 0. Round: None, score: 0:0. timeouts: 0:0
+########
+#   #  #
+#.. ...#
+########
 ########
 #0  #  #
 #1   EE#
 ########
+...
 ```
-If you notice a certain configuration in a game that you want to replicate in a test, you can print the game in your move function and then use the output string as a layout in a test. For example, you could have the following move function:
-```python
-def move(bot, state):
-    # print initial state
-    if bot.turn == 0 and bot.round == 0:
-        print(bot)
-    ...
-    next_pos = (0, 0)
-    return next_pos, state
-```
-Running a game with this bot implementation will print the following string on standard output:
-```
-################################
-# .  #  . .. ..         .      #
-#.   . .###### ##.. ##### ## # #
-#      .    .# ## . #  #   #   #
-# # ##..   . #.      .   . # # #
-#.#  #### ##     .########   # #
-#      .  .       .    # ..  # #
-## ######. ## ###         .#   #
-#   #.         ### ## .###### ##
-# #  .. #    .       .  .      #
-# #   ########.     ## ####  #.#
-# # # .   .      .# .   ..## # #
-#   #   #  # . ## #.    .      #
-# # ## ##### ..## ######. .   .#
-#      .         .. .. .  #  . #
-################################
+Notice that when there are overlapping object, two or more layouts will be printed. The effective layout is the one obtained by overlapping all of the partial layouts.
 
-################################
-#    #                        1#
-#       ###### ##   ##### ## #0#
-#            # ##   #  #   #   #
-# # ##       #             # # #
-# #  #### ##      ########   # #
-#                      #     # #
-## ######  ## ###          #   #
-#   #          ### ##  ###### ##
-#E#     #                      #
-# #E  ########      ## ####  # #
-# # #             #       ## # #
-#   #   #  #   ## #            #
-# # ## #####   ## ######       #
-#                         #    #
-################################
-```
-Now you can copy and paste this string in a test, pass it to `setup_test_game` and verify that your bot returns the move you were expecting.
-
+Notice that we have to pass the option `-s` to `pytest` so that it shows what we print. By default `pytest` swallows everything that gets printed to standard output and standard error on the terminal. 
 
 ## Full API Description
 
 ### The maze
-The maze is a grid. Each square in the grid is defined by its coordinates. The default width of the maze is `32` squares, the default height is `16` squares. The coordinate system has the origin `(0, 0)` in the top left (North-West) of the maze and its maximum value `(31, 15)` in the bottom right (South-East). Each square which is not a wall can be empty or contain a food pellet or one or more bots. The different mazes are called `layouts`. You can get a list of all available layouts with
-
-```bash
-$ pelita --list-layouts
-```
- For the tournament only layouts without dead ends will be used and all layouts will have the default values for width and height. Additionally, all layouts will have a wall on all squares around the border.
+The maze is a grid. Each square in the grid is defined by its coordinates. The default width of the maze is `32` squares, the default height is `16` squares. The coordinate system has the origin `(0, 0)` in the top left (North-West) of the maze and its maximum value `(31, 15)` in the bottom right (South-East). Each square which is not a wall can be empty or contain a food pellet or one or more bots. The different mazes are called `layouts`. For the tournament all layouts will have the default values for width and heigh and will have a wall on all squares around the border.
 
 ### The `move` function
 **`move(bot, state) ⟶ (x, y), state`**
@@ -274,6 +246,7 @@ The `move` function gets two input arguments:
         ...
         return next_pos, state
     ```
+    The `state` object will be passed untouched to the move function at every turn.
 
 The `move` function returns two values:
 
@@ -292,7 +265,7 @@ Note that the `Bot` object is read-only, i.e. any modifications you make to that
 
 - **`bot.position`** is a tuple of the coordinates your bot is on at the moment. For example `(3, 9)`.
 
-- **`bot.legal_positions`** is a list of positions your bot can take without hitting a wall. Note that you can always stay where you are, i.e. you can let your `move` function return `bot.position`.
+- **`bot.legal_positions`** is a list of positions your bot can take in the current turn without hitting a wall. At each turn the bot can move by one square in the grid, either horizontally or vertically, if the target square is not a wall. Note that the bot can always stay steady, i.e. you can let your `move` function return `bot.position`.
 
 - **`bot.walls`** is a list of the coordinates of the walls in the maze:
     ```python
@@ -334,7 +307,7 @@ Note that the `Bot` object is read-only, i.e. any modifications you make to that
     ```
     Note that you want to do it only **once** per game!
 
-- **`bot.error_count`** is a count of the error your team has got. Remember that if you commit 5 errors you lose the game, independent of the score. Errors are either timeouts (it takes longer than 3 seconds to excute your `move` function) or illegal positions returned by your `move` function.
+- **`bot.error_count`** is a count of the error your team has got. Remember that if you commit 5 errors you lose the game, independent of the score. Errors are either timeouts (it takes longer than 3 seconds to execute your `move` function) or illegal positions returned by your `move` function.
 
 - **`bot.say(text)`** allows you to print `text` as a sort of speech bubble attached to your bot in the graphical user interface.
 
@@ -350,15 +323,17 @@ Note that the `Bot` object is read-only, i.e. any modifications you make to that
 
 - **`bot.enemy[0].food`** is the list of coordinates of the food pellets you want to eat.
 
-- **`bot.enemy[0].is_noisy`** <a id="is-noisy"></a> if the enemy bot is located more than 5 squares away from your bot, then its position `bot.enemy[0].position` will not be exact. A uniformly distributed noise between `-5` and `+5` squares will be added to it instead. The distance of your bot from the enemy bot is measured in grid space, i.e. if your bot is in `(Bx, By)` and the enemy bot is in `(Ex, Ey)`, the distance will be `abs(Bx-Ex) + abs(By-Ey)`. An example of using the `is_noisy` property is given in [demo05_basic_defender.py](demo05_basic_defender.py).
-
 - **`bot.enemy[0].team_name`** you can also inspect the enemy team name with `bot.enemy[0].team_name`.
+
+- **`bot.enemy[0].is_noisy`**  <a id="is-noisy"></a> your bot has a sight-radius of 5 squares. This means that when an enemy bot is located more than 5 squares away from your bot, `bot.enemy[0].position` will not be exact and `bot.enemy[0].is_noisy` will be `True`. The sight-radius for red bot 1 is the red-dotted area in the picture below. Red bot 1 will see the exact position of blue bot 0, because it falls into its sight-radius. Instead, red bot 1 will see blue bot 1 as if it were located in one random legal position up to 5 squares away from its true position (this is the noise-radius, the blue-striped area around blue bot 1 in the picture). An example of using the `is_noisy` property is given in [demo05_basic_defender.py](demo05_basic_defender.py).
+
+![](pelita_GUI_noise.png)
 
 ### Running multiple games in the background
 You may want to run multiple games in the background to gather statistics about your implementation,
-or to fit some parameters of your implementation. The script [demo10_background_games.py](demo10_background_games.py) is an example of this. This script uses `pelita` as a library, i.e. it is not run using the `pelita` command, but simply calling it with:
+or to fit some parameters of your implementation. The script [demo10_background_games.py](demo10_background_games.py) is an example of this. You can run it like this:
 ```bash
-python3 demo10_background_games.py
+python demo10_background_games.py
 ```
 
 

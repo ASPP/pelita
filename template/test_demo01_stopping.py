@@ -1,7 +1,7 @@
 from demo01_stopping import move
-from pelita.utils import setup_test_game
+from utils import setup_test_game
 
-def test_stays_there():
+def test_stays_there_simple_layout():
     # Given a simple layout, verify that the bot does not move, indipendent
     # of its initial position.
     layout="""
@@ -11,13 +11,24 @@ def test_stays_there():
     ########
     """
     # generate all possible locations within the maze
-    all_locations = ((x, y) for x in range(8) for y in range(4))
+    all_locations = ((x, y) for x in range(1,7) for y in range(1,3))
     for loc in all_locations:
-        try:
-            bot = setup_test_game(layout=layout, is_blue=True, bots=[loc])
-        except ValueError:
-            # loc is a wall, skip this position
-            continue
+        bot = setup_test_game(layout=layout, is_blue=True, bots=[loc])
         next_pos, _ = move(bot, None)
+        # check that we did not move
         assert next_pos == bot.position
+
+def test_stays_there_builtin_fixed_layout():
+    # Using a fixed builtin layout, verify that the bot stays on its initial position
+    bot = setup_test_game(layout='normal_050', is_blue=True)
+    next_pos, _ = move(bot, None)
+    # check that we did not move
+    assert next_pos == bot.position
+
+def test_stays_there_builtin_random_layout():
+    # Using a random builtin layout, verify that the bot stays on its initial position
+    bot = setup_test_game(layout=None, is_blue=True)
+    next_pos, _ = move(bot, None)
+    # check that we did not move
+    assert next_pos == bot.position
 

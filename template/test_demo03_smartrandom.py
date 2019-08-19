@@ -1,5 +1,5 @@
 from demo03_smartrandom import move
-from pelita.utils import setup_test_game
+from utils import setup_test_game
 
 def test_legalmoves():
     # check that the only two valid moves are always returned

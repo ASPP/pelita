@@ -1,5 +1,5 @@
 from demo09_polite_random import move
-from pelita.utils import setup_test_game
+from utils import setup_test_game
 
 def test_nostep():
     """Check that the bot never steps on its teammate."""
