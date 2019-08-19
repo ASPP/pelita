@@ -6,46 +6,80 @@
 # - We'll use a team of basic defenders against a team of basic attackers
 import random
 
-import pelita.layout
-import pelita.game
+from pelita.utils import run_background_game
 
 from demo05_basic_defender import move as move_defender
 from demo04_basic_attacker import move as move_attacker
 
 NUM_GAMES = 100
 
-statistics = {'defender_wins': 0, 'attacker_wins': 0, 'draws': 0}
+collection = []
 
 for idx in range(NUM_GAMES):
-    # shuffle the color of the teams
-    defenders_index = random.choice((0, 1))
-    attackers_index = 1 - defenders_index
 
-    # set up the teams
-    teams = [None, None]
-    team_names = [None, None]
-    teams[defenders_index] = move_defender
-    teams[attackers_index] = move_attacker
-    team_names[defenders_index] = 'defenders'
-    team_names[attackers_index] = 'attackers'
+    # dictionary to store game parameters
+    game = {}
 
-    # use a different random layout every time
-    # use the same kinf of layouts that will be used in the tournament
-    layout_name, layout_string = pelita.layout.get_random_layout(filter='normal_without_dead_ends')
-
-    # run a game
-    game_state = pelita.game.run_game(teams, max_rounds=300, layout_name=layout_name,
-                                      layout_dict=pelita.layout.parse_layout(layout_string),
-                                      team_names=team_names)
-
-    # after the game is finished, update the stats
-    if game_state['whowins'] == defenders_index:
-        statistics['defender_wins'] += 1
-    elif game_state['whowins'] == attackers_index:
-        statistics['attacker_wins'] += 1
+    # play with the defenders and attackers as blue and red team alternatively
+    if idx%2 == 0:
+        blue = move_defender
+        red = move_attacker
+        game['blue'] = 'defender'
     else:
-        statistics['draws'] += 1
+        blue = move_attacker
+        red = move_defender
+        game['blue'] = 'attacker'
 
-print(statistics)
+    # play each time on a different layout
+    result = run_background_game(blue_move=blue, red_move=red)
+    game['result'] = result
 
+    # add to our collection of games
+    collection.append(game)
+
+# At the end we can picke the results to be analyzed later:
+#import pickle
+#with open('results.pic', 'wb') as fh:
+    pickle.dump(collection, fh)
+#
+# - To open the pickle in another process:
+#with open('results.pic', 'rb') as fh:
+#    collection = pickle.load(fh)
+
+# - If you want to replay a particular game, let's say the 10th game:
+#replay = collection[10]
+
+# - first check who was blue
+#blue = replay['blue']
+# - get the random seed for the game
+#seed = replay['result']['seed']
+# - let's assume that the attacker was blue, and the sed was 1234567,
+#   then you can replay on the terminal with
+# pelita --seed 1234567 demo04_basic_attacker.py demo05_basic_defender.py
+
+# Here we only want to print some basic stats
+attacker_wins = 0
+defender_wins = 0
+draws = 0
+# this is attacker_score-defender_score
+score_difference = 0
+
+for i, game in enumerate(collection):
+    blue = game['blue']
+    result = game['result']
+    if result['draw']:
+        draws += 1
+    elif blue == 'attacker':
+        attacker_wins += result['blue_wins']
+        defender_wins += result['red_wins']
+        score_difference += result['blue_score'] - result['red_score']
+    elif blue == 'defender':
+        attacker_wins += result['red_wins']
+        defender_wins += result['blue_wins']
+        score_difference += result['red_score'] - result['blue_score']
+
+print(f'Attacker wins: {attacker_wins}')
+print(f'Defender wins: {defender_wins}')
+print(f'Draws: {draws}')
+print(f'Average score difference: {score_difference/(i+1)}')
 
