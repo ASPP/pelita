@@ -6,7 +6,7 @@
 # - We'll use a team of basic defenders against a team of basic attackers
 import random
 
-from pelita.utils import run_background_game
+from utils import run_background_game
 
 from demo05_basic_defender import move as move_defender
 from demo04_basic_attacker import move as move_attacker
