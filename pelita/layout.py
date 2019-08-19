@@ -513,7 +513,7 @@ def layout_as_str(*, walls, food=None, bots=None, enemy=None, is_noisy=None):
     return out.getvalue()
 
 
-def layout_for_team(layout, is_blue=True):
+def layout_for_team(layout, is_blue=True, is_noisy=(False, False)):
     """ Converts a layout dict with 4 bots to a layout
     from the view of the specified team.
     """
@@ -532,6 +532,7 @@ def layout_for_team(layout, is_blue=True):
         'food': layout['food'][:],
         'bots': bots,
         'enemy': enemy,
+        'is_noisy' : is_noisy,
     }
 
 def layout_agnostic(layout_for_team, is_blue=True):
