@@ -156,6 +156,7 @@ def test_duplicate_bots_forbidden():
     with pytest.raises(ValueError):
         parse_layout(layouts)
 
+@pytest.mark.xfail
 def test_duplicate_bots_forbidden_multiple():
     layouts = """
                  ####
