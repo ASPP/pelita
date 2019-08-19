@@ -90,13 +90,21 @@ def get_layout_by_name(layout_name):
         # reraise as ValueError with appropriate error message.
         raise ValueError(f"Layout: '{layout_name}' is not known.") from None
 
-def parse_layout(layout_str, allow_enemy_chars=False):
-    """Parse a layout string
+def parse_layout(layout_str, allow_enemy_chars=False, food=None, bots=None,
+                 enemy=None, is_noisy=None, is_blue=True):
+    """Parse a layout string, with additional food, bots and enemy positions.
 
-    Return a dict
+    Return a dict (if allow_enemy_chars is False)
         {'walls': list_of_wall_coordinates,
          'food' : list_of_food_coordinates,
          'bot'  : list_of_4_bot_coordinate}
+         or (if allow_enemy_chars is True)
+        {'walls': list_of_wall_coordinates,
+         'food' : list_of_food_coordinates,
+         'bot'  : list_of_2_bot_coordinate,
+         'enemy': list_of_2_enemy_coordinates,
+         'is_noisy': list_of_two_bool}
+
 
     A layout string is composed of wall characters '#', food characters '.', and
     bot characters '0', '1', '2', and '3'.
@@ -166,10 +174,10 @@ def parse_layout(layout_str, allow_enemy_chars=False):
 
     # set empty default values
     walls = []
-    food = []
-    bots = [None] * num_bots
+    lfood = []
+    lbots = [None] * num_bots
     if allow_enemy_chars:
-        enemy = []
+        lenemy = []
         noisy_enemy = set()
 
     # iterate through all layouts
@@ -184,12 +192,12 @@ def parse_layout(layout_str, allow_enemy_chars=False):
             raise ValueError('Walls are not equal in all layouts!')
 
         # add the food, removing duplicates
-        food = list(set(food + items['food']))
+        lfood = list(set(lfood + items['food']))
 
         # add the enemy, removing duplicates
         if allow_enemy_chars:
             # enemy contains _all_ enemies
-            enemy = list(set(enemy + items['enemy'] + items['noisy_enemy']))
+            lenemy = list(set(lenemy + items['enemy'] + items['noisy_enemy']))
             # noisy_enemy contains only the noisy enemies
             noisy_enemy.update(items['noisy_enemy'])
 
@@ -198,37 +206,78 @@ def parse_layout(layout_str, allow_enemy_chars=False):
             if bot_pos:
                 # this bot position is not None, overwrite whatever we had before, unless
                 # it already holds a different coordinate
-                if bots[bot_idx] and bots[bot_idx] != bot_pos:
+                if lbots[bot_idx] and lbots[bot_idx] != bot_pos:
                     raise ValueError(f"Cannot set bot {bot_idx} to position {bot_pos} (already at {bots[bot_idx]}).")
-                bots[bot_idx] = bot_pos
+                lbots[bot_idx] = bot_pos
 
     if allow_enemy_chars:
         # validate that we have at most two enemies
-        if len(enemy) > 2:
-            raise ValueError(f"More than two enemies defined: {enemy}!")
-        elif len(enemy) == 2:
+        if len(lenemy) > 2:
+            raise ValueError(f"More than two enemies defined: {lenemy}!")
+        elif len(lenemy) == 2:
             # do nothing
             pass
-        elif len(enemy) == 1:
+        elif len(lenemy) == 1:
             # we use the position for both enemies
-            enemy = [enemy[0], enemy[0]]
+            lenemy = [lenemy[0], lenemy[0]]
         else:
-            enemy = [None, None]
+            lenemy = [None, None]
 
     # build parsed layout, ensuring walls and food are sorted
-    out = {
+    parsed_layout = {
         'walls': sorted(walls),
-        'food': sorted(food),
-        'bots': bots
+        'food': sorted(lfood),
+        'bots': lbots
     }
 
     if allow_enemy_chars:
         # sort the enemy characters
         # be careful, since it may contain None
-        out['enemy'] = sorted(enemy, key=lambda x: () if x is None else x)
-        out['is_noisy'] = [e in noisy_enemy for e in out['enemy']]
+        parsed_layout['enemy'] = sorted(lenemy, key=lambda x: () if x is None else x)
+        parsed_layout['is_noisy'] = [e in noisy_enemy for e in parsed_layout['enemy']]
+        width, height = wall_dimensions(parsed_layout['walls'])
 
-    return out
+    # now we can add the additional food:
+    def _check_valid_pos(pos, item):
+        if pos in parsed_layout['walls']:
+            raise ValueError(f"{item} must not be on wall (given: {pos})!")
+        if not ((0 <= pos[0] < width) and (0 <= pos[1] < height)):
+            raise ValueError(f"{item} is outside of maze (given: {pos} but dimensions are {width}x{height})!")
+
+    # if additional food was supplied, we add it
+    if food:
+        for f in food:
+            _check_valid_pos(f, "food")
+        parsed_layout['food'] = sorted(list(set(food + parsed_layout['food'])))
+
+    # override bots if given and not None
+    if bots is not None:
+        if len(bots) > 2:
+            raise ValueError(f"bots must not be more than 2 ({bots})!")
+        for idx, pos in enumerate(bots):
+            print(f'here {idx}:{pos}')
+            if pos is not None:
+                _check_valid_pos(pos, "bot")
+                parsed_layout['bots'][idx] = pos
+
+    # override enemies if given
+    if enemy is not None:
+        if not len(enemy) == 2:
+            raise ValueError(f"enemy must be a list of 2 ({enemy})!")
+        for idx, e in enumerate(enemy):
+            if e is not None:
+                _check_valid_pos(e, "enemy")
+                parsed_layout['enemy'][idx] = e
+
+    # override is_noisy if given
+    if is_noisy is not None:
+        if not len(is_noisy) == 2:
+            raise ValueError(f"is_noisy must be a list of 2 ({is_noisy})!")
+        for idx, e_is_noisy in enumerate(is_noisy):
+            if e_is_noisy is not None:
+                parsed_layout['is_noisy'][idx] = e_is_noisy
+
+    return parsed_layout
 
 def parse_single_layout(layout_str, num_bots=4, allow_enemy_chars=False):
     """Parse a single layout from a string
@@ -483,6 +532,26 @@ def layout_for_team(layout, is_blue=True):
         'food': layout['food'][:],
         'bots': bots,
         'enemy': enemy,
+    }
+
+def layout_agnostic(layout_for_team, is_blue=True):
+    """ Converts a layout dict with 2 bots and enemies to a layout
+    with 4 bots.
+    """
+    if "enemy" not in layout:
+        raise ValueError("Layout is already in server-style.")
+
+    if is_blue:
+        bots = [layout['bots'][0], layout['enemy'][0],
+                layout['bots'][1], layout['enemy'][1]]
+    else:
+        bots = [layout['enemy'][0], layout['bots'][0],
+                layout['enemy'][1], layout['bots'][1]]
+
+    return {
+        'walls': layout['walls'][:],
+        'food': layout['food'][:],
+        'bots': bots,
     }
 
 

@@ -2,7 +2,7 @@ import random
 
 import networkx
 
-from .player.team import create_layout, make_bots
+from .player.team import make_bots
 
 def walls_to_graph(walls):
     """Return a networkx Graph object given the walls of a maze.
@@ -44,6 +44,32 @@ def walls_to_graph(walls):
                         # this is a genuine neighbor, add an edge in the graph
                         graph.add_edge((x, y), neighbor)
     return graph
+
+def _parse_layout_arg(*, layout=None, food=None, bots=None, enemy=None,
+                         is_noisy=None, is_blue=True, convert_to_agnostic=False):
+    from .layout import (get_random_layout, get_layout_by_name, get_available_layouts,
+                         parse_layout, layout_for_team, layout_agnostic)
+
+    # prepare layout argument to be passed to pelita.game.run_game
+    if layout is None:
+        layout_name, layout_str = get_random_layout(size='normal')
+        layout_dict = parse_layout(layout_str, allow_enemy_chars=False)
+    elif layout in get_available_layouts(size='all'):
+        # check if this is a built-in layout
+        layout_name = layout
+        layout_str = get_layout_by_name(layout)
+        layout_dict = parse_layout(layout_str, allow_enemy_chars=False)
+    else:
+        # OK, then it is a (user-provided, i.e. with 'E's) layout string
+        layout_str = layout
+        layout_name = '<string>'
+        layout_dict = parse_layout(layout_str, food=food, bots=bots, enemy=enemy,
+                                   is_noisy=is_noisy, is_blue=is_blue, allow_enemy_chars=True)
+        if convert_to_agnostic:
+            layout_dict = layout_agnostic(layout_dict)
+
+    return layout_dict, layout_name
+
 
 # this is a dumbed-down version of pelita.game.run_game, useful t be exposed to the
 # users to run background games. It hides most of the parameters of run_game which
@@ -123,7 +149,6 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
         As opposed to standard pelita matches, timeouts are not considered.
 
     """
-    from .layout import get_random_layout, get_layout_by_name, parse_layout
     from .game import run_game
 
     # if the seed is not set explicitly, set it here
@@ -131,21 +156,7 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
         seed = random.randint(1, 2**31)
         random.seed(seed)
 
-    # prepare layout argument to be passed to pelita.game.run_game
-    if layout is None:
-        layout_name, layout_str = get_random_layout(size='normal')
-        layout_dict = parse_layout(layout_str, allow_enemy_chars=False)
-    else:
-        try:
-            # check if this is a built-in layout
-            layout_name = layout
-            layout_str = get_layout_by_name(layout)
-            layout_dict = parse_layout(layout_str, allow_enemy_chars=False)
-        except ValueError:
-            # OK, then it is a (user-provided, i.e. with 'E's) layout string
-            layout_str = layout
-            layout_name = '<string>'
-            layout_dict = parse_layout(layout_str, allow_enemy_chars=True)
+    layout_dict, layout_name = _parse_layout_arg(layout=layout, convert_to_agnostic=True)
 
     game_state = run_game((blue_move, red_move), layout_dict=layout_dict,
                           layout_name=layout_name, max_rounds=max_rounds, seed=seed,
@@ -185,13 +196,17 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
     Parameters
     ----------
     layout : str
-          a valid layout string, like the one obtained by print(bot). For example:
-              layout='''
-                     ########
-                     #0    .#
-                     #.1  EE#
-                     ########
-                     '''
+      specify the layout of the maze to play with. If None, a built-in
+      layout of normal size will be chosen at random. If specified it will
+      be interpreted as the name of a built-in layout, e.g. 'normal_083'.
+      You can also pass a layout string like the ones obtained by print(bot). For
+      example:
+      layout = '''
+               ########
+               #. 1 E #
+               #0 E   #
+               ########
+               '''
 
     is_blue : bool
            when True, sets up up the game assuming your bots are in the blue team,
@@ -236,7 +251,10 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
     if score is None:
         score = [0, 0]
 
-    layout = create_layout(layout, food=food, bots=bots, enemy=enemy, is_noisy=is_noisy)
+    layout, layout_name = _parse_layout_arg(layout=layout, is_blue=is_blue,
+                               food=food, bots=bots, enemy=enemy,
+                               is_noisy=is_noisy, convert_to_agnostic=False)
+
     width = max(layout['walls'])[0] + 1
 
     def split_food(width, food):
