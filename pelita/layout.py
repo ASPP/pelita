@@ -255,13 +255,12 @@ def parse_layout(layout_str, allow_enemy_chars=False, food=None, bots=None,
         if len(bots) > 2:
             raise ValueError(f"bots must not be more than 2 ({bots})!")
         for idx, pos in enumerate(bots):
-            print(f'here {idx}:{pos}')
             if pos is not None:
                 _check_valid_pos(pos, "bot")
                 parsed_layout['bots'][idx] = pos
 
     # override enemies if given
-    if enemy is not None:
+    if enemy is not None and allow_enemy_chars:
         if not len(enemy) == 2:
             raise ValueError(f"enemy must be a list of 2 ({enemy})!")
         for idx, e in enumerate(enemy):
@@ -270,12 +269,23 @@ def parse_layout(layout_str, allow_enemy_chars=False, food=None, bots=None,
                 parsed_layout['enemy'][idx] = e
 
     # override is_noisy if given
-    if is_noisy is not None:
+    if is_noisy is not None and allow_enemy_chars:
         if not len(is_noisy) == 2:
             raise ValueError(f"is_noisy must be a list of 2 ({is_noisy})!")
         for idx, e_is_noisy in enumerate(is_noisy):
             if e_is_noisy is not None:
                 parsed_layout['is_noisy'][idx] = e_is_noisy
+
+    # sanity checks
+    # check that no bot or enemy positions are None
+    if allow_enemy_chars:
+        for bot in parsed_layout['bots']:
+            if bot is None:
+                raise ValueError("Bot positions can not be None")
+
+        for enemy in parsed_layout['enemy']:
+            if enemy is None:
+                raise ValueError("Enemy positions can not be None")
 
     return parsed_layout
 
