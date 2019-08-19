@@ -67,7 +67,8 @@ def _parse_layout_arg(*, layout=None, food=None, bots=None, enemy=None,
         # OK, then it is a (user-provided, i.e. with 'E's) layout string
         layout_str = layout
         layout_name = '<string>'
-        layout_dict = parse_layout(layout_str, food=food, bots=bots, enemy=enemy,
+        # be strict and complain if the layout does not contain two bots and two enemies
+        layout_dict = parse_layout(layout_str, food=food, bots=bots, enemy=enemy, strict=True,
                                    is_noisy=is_noisy, is_blue=is_blue, allow_enemy_chars=True)
         if agnostic:
             layout_dict = layout_agnostic(layout_dict)

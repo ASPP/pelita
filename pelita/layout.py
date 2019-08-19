@@ -91,7 +91,7 @@ def get_layout_by_name(layout_name):
         raise ValueError(f"Layout: '{layout_name}' is not known.") from None
 
 def parse_layout(layout_str, allow_enemy_chars=False, food=None, bots=None,
-                 enemy=None, is_noisy=None, is_blue=True):
+                 enemy=None, is_noisy=None, is_blue=True, strict=False):
     """Parse a layout string, with additional food, bots and enemy positions.
 
     Return a dict (if allow_enemy_chars is False)
@@ -278,7 +278,7 @@ def parse_layout(layout_str, allow_enemy_chars=False, food=None, bots=None,
 
     # sanity checks
     # check that no bot or enemy positions are None
-    if allow_enemy_chars:
+    if allow_enemy_chars and strict:
         for bot in parsed_layout['bots']:
             if bot is None:
                 raise ValueError("Bot positions can not be None")
