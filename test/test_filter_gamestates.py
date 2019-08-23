@@ -31,14 +31,14 @@ def make_gamestate():
 
 
 def sub_test_noiser(new_bots, old_bots, turn, should_noise, test_other):
-    """ sub test fuction to check if noiser worked
+    """ sub test function to check if noiser worked
 
     Parameters
     ----------
     new_bots: bots after noising
     old_bots: bots before noising
     turn: which turn is it now? 0,1,2,3
-    should_noise: hould the noiser do something right now, or return same bots?
+    should_noise: should the noiser do something right now, or return same bots?
     test_other: true: then it checks if what was meant to happen to other bots happened
                                     and vice versa
 
@@ -298,7 +298,7 @@ def test_noiser_noising_at_noise_radius_extreme(ii):
     assert all(noised["is_noisy"])
 
     for noised_pos in noised["enemy_positions"]:
-        # check that the noised positon is legal
+        # check that the noised position is legal
         assert noised_pos not in gamestate["walls"]
         assert 0 <= noised_pos[0] < max(gamestate["walls"])[0]
         assert 0 <= noised_pos[1] < max(gamestate["walls"])[1]

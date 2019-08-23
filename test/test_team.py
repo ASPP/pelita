@@ -281,7 +281,7 @@ def test_track_and_kill_count():
         team = state['turn'] % 2
 
         # The current bot knows about its deaths, *unless* it made suicide,
-        # so we have to substract 1 if bot_was_killed is True
+        # so we have to subtract 1 if bot_was_killed is True
         suicide_correction = [0] * 4
         suicide_correction[state['turn']] = 1 if state['bot_was_killed'][state['turn']] else 0
 
@@ -474,7 +474,7 @@ def test_eaten_flag_suicide(bot_to_move):
 
 @pytest.mark.parametrize('_n_test', range(10))
 def test_initial_position(_n_test):
-    """ Test that out test team receives the correct inital positions."""
+    """ Test that out test team receives the correct initial positions."""
     layout_name, layout_string = get_random_layout()
     l = parse_layout(layout_string)
     initial_pos = initial_positions(l['walls'])

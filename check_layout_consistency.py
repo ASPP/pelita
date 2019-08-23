@@ -42,7 +42,7 @@ if __name__ == '__main__':
         with open(flname, "rt") as fl:
             layout = parse_layout(fl.read())
 
-    # first of all, check for simmetry
+    # first of all, check for symmetry
     # if something is found on the left, it should be found center-mirrored on the right
     height, width = get_hw(layout)
     known = layout['walls']+layout['food']

@@ -31,7 +31,7 @@ LOGFILE = None
 
 
 def check_team(team_spec):
-    """ Instanciates a team from a team_spec and returns its name """
+    """ Instantiates a team from a team_spec and returns its name """
     team, _zmq_context = make_team(team_spec)
     return team.team_name
 

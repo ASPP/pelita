@@ -622,7 +622,7 @@ class Test_DB_Wrapper(unittest.TestCase):
     def test_get_results(self):
         self.wrapper.add_player('p1', 'h1')
         self.wrapper.add_player('p2', 'h2')
-        # emtpy list if no results are available
+        # empty list if no results are available
         self.assertEqual(self.wrapper.get_results('p1'), [])
         self.wrapper.add_gameresult('p1', 'p2', 0, '', '')
         result = self.wrapper.get_results('p1')[0]

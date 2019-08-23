@@ -124,7 +124,7 @@ def _add_wall_at(maze, pos, ngaps, vertical, gaps_pos=None):
     add a wall with gaps
 
     maze -- maze where to place wall, plus a border of one element
-    pos -- position where to put the wall whithin the center of the maze
+    pos -- position where to put the wall within the center of the maze
            (border excluded)
     """
 
@@ -284,7 +284,7 @@ def find_chamber(graph):
     lgraph = nx.restricted_view(graph, [entrance],[])
     # now get the resulting subgraphs
     subgraphs = sorted(nx.connected_components(lgraph), key=len)
-    # let's get the smalles subgraph: this is going to be a chamber
+    # let's get the smallest subgraph: this is going to be a chamber
     # (other subgraphs are other chambers (if any) and the 'rest' of the graph
     # return a list of nodes, instead of a set
     chamber = list(subgraphs[0])

@@ -30,9 +30,9 @@ def walls_to_graph(walls):
     graph = networkx.Graph()
     extreme = max(walls)
     width =  extreme[0] + 1
-    heigth = extreme[1] + 1
+    height = extreme[1] + 1
     for x in range(width):
-        for y in range(heigth):
+        for y in range(height):
             if (x, y) not in walls:
                 # this is a free position, get its neighbors
                 for delta_x, delta_y in ((1,0), (-1,0), (0,1), (0,-1)):
@@ -114,7 +114,7 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
     -------
     game_state : dict
               the final game state as a dictionary. Dictionary keys are:
-              - 'seed' : the seed used to initiliaze the random number generator
+              - 'seed' : the seed used to initialize the random number generator
               - 'walls' : list of walls coordinates for the layout
               - 'layout' : the name of the used layout
               - 'round' : the round at which the game was over
