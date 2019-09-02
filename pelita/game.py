@@ -83,7 +83,8 @@ def controller_exit(state, await_action='play_step'):
 
 def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=None,
              max_team_errors=5, timeout_length=3, viewers=None, viewer_options=None,
-             store_output=False, team_names=(None, None), allow_exceptions=False):
+             store_output=False, team_names=(None, None), allow_exceptions=False,
+             print_result=True):
     """ Run a pelita match.
 
     Parameters
@@ -177,7 +178,7 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
     # we create the initial game state
     state = setup_game(team_specs, layout_dict=layout_dict, layout_name=layout_name, max_rounds=max_rounds, timeout_length=timeout_length, seed=seed,
                        viewers=viewers, viewer_options=viewer_options,
-                       store_output=store_output, team_names=team_names)
+                       store_output=store_output, team_names=team_names, print_result=print_result)
 
     # Play the game until it is gameover.
     while not state.get('gameover'):
@@ -194,7 +195,7 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
     return state
 
 
-def setup_viewers(viewers=None, options=None):
+def setup_viewers(viewers=None, options=None, print_result=True):
     """ Returns a list of viewers from the given strings. """
     if viewers is None:
         viewers = []
@@ -240,14 +241,16 @@ def setup_viewers(viewers=None, options=None):
             raise ValueError(f"Unknown viewer {viewer}.")
 
     # Add the result printer as the final viewer:
-    viewer_state['viewers'].append(ResultPrinter())
+    if print_result:
+        viewer_state['viewers'].append(ResultPrinter())
 
     return viewer_state
 
 
 def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=None,
                max_team_errors=5, timeout_length=3, viewers=None, viewer_options=None,
-               store_output=False, team_names=(None, None), allow_exceptions=False):
+               store_output=False, team_names=(None, None), allow_exceptions=False,
+               print_result=True):
     """ Generates a game state for the given teams and layout with otherwise default values. """
 
     # check that two teams have been given
@@ -287,7 +290,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
     if side_no_food:
         warn(f"Layout has no food for team {side_no_food}.", NoFoodWarning)
 
-    viewer_state = setup_viewers(viewers, options=viewer_options)
+    viewer_state = setup_viewers(viewers, options=viewer_options, print_result=print_result)
 
     # Initialize the game state.
 
