@@ -4,7 +4,7 @@ from utils import setup_test_game
 
 def test_always_legal_simple_layout():
     # Given a simple layout, verify that the bot always returns a valid position,
-    # indipendent of its initial position.
+    # independent of its initial position.
     layout="""
     ########
     #     .#
