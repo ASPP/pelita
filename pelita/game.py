@@ -149,6 +149,9 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
                     the exceptions and cleanly create a game-over state if
                     needed.
 
+    print_result : bool
+                when True (default), print the result of the match on the command line
+
     Notes
     -----
 
@@ -240,7 +243,7 @@ def setup_viewers(viewers=None, options=None, print_result=True):
         else:
             raise ValueError(f"Unknown viewer {viewer}.")
 
-    # Add the result printer as the final viewer:
+    # Add the result printer as the final viewer, if print_result has been given
     if print_result:
         viewer_state['viewers'].append(ResultPrinter())
 
