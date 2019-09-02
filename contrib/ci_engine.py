@@ -101,7 +101,7 @@ class CI_Engine:
 #                logger.warning('%s seems not to be an existing directory, ignoring %s' % (path, name))
 
         self.rounds = config['general'].getint('rounds', None)
-        self.filter = config['general'].get('filter', None)
+        self.size = config['general'].get('size', None)
         self.viewer = config['general'].get('viewer', 'null')
         self.seed = config['general'].get('seed', None)
 
@@ -153,7 +153,7 @@ class CI_Engine:
 
         final_state, stdout, stderr = call_pelita(team_specs,
                                                             rounds=self.rounds,
-                                                            filter=self.filter,
+                                                            size=self.size,
                                                             viewer=self.viewer,
                                                             seed=self.seed)
 
