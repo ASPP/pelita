@@ -26,7 +26,7 @@ All configuration is done with a yaml file:
           - "no-one"
         id: group3
 
-Apart from additional information regarding the event, the file allows for some basic configuration, such as the inital seed or whether there is supposed to be a final bonusmatch.
+Apart from additional information regarding the event, the file allows for some basic configuration, such as the initial seed or whether there is supposed to be a final bonusmatch.
 
 The most important part, of course, is the definition of the different teams.
 Each entry in the `teams` list is enumerated and internally referenced to by either its index or its `id`. The id parameter can therefore be used to distinguish between a `student_group0` and `tutor_group2`, for example.

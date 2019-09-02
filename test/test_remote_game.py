@@ -43,7 +43,7 @@ def test_remote_call_pelita(remote_teams):
     assert res['whowins'] == 1
     assert res['fatal_errors'] == [[], []]
     # errors for call_pelita only contains the last thrown error, hence None
-    # TODO: should be alligned so that call_pelita and run_game return the same thing
+    # TODO: should be aligned so that call_pelita and run_game return the same thing
     assert res['errors'] == [None, None]
 
 

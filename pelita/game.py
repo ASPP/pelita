@@ -682,10 +682,10 @@ def apply_move(gamestate, bot_position):
     """Plays a single step of a bot by applying the game rules to the game state. The rules are:
     - if the playing team has an error count of >5 or a fatal error they lose
     - a legal step must not be on a wall, else the error count is increased by 1 and a random move is chosen for the bot
-    - if a bot lands on an enemy food pellet, it eats it. It cannot eat it's own teams food
-    - if a bot lands on an enemy bot in it's own homezone, it kills the enemy
-    - if a bot lands on an enemy bot in it's the enemy's homezone, it dies
-    - when a bot dies, it reappears in it's own homezone at the initial position
+    - if a bot lands on an enemy food pellet, it eats it. It cannot eat its own teams’ food
+    - if a bot lands on an enemy bot in its own homezone, it kills the enemy
+    - if a bot lands on an enemy bot in its enemy’s homezone, it dies
+    - when a bot dies, it reappears in its own homezone at the initial position
     - a game ends when max_rounds is exceeded
 
     Parameters

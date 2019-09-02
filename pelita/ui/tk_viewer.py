@@ -137,7 +137,7 @@ class TkViewer:
             message = json.loads(message)
 
             _logger.debug(message["__action__"])
-            # we curretly don’t care about the action
+            # we currently don’t care about the action
             game_state = message["__data__"]
             if game_state:
                 self.app.observe(game_state)

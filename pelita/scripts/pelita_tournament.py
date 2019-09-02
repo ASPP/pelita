@@ -190,8 +190,8 @@ def main():
                         help='show this help message and exit',
                         action='store_true')
 
-    parser.add_argument('--speak', dest='speak', action='store_true', help='speak loudly every messsage on stdout')
-    parser.add_argument('--no-speak', dest='speak', action='store_false', help='do not speak every messsage on stdout')
+    parser.add_argument('--speak', dest='speak', action='store_true', help='speak loudly every message on stdout')
+    parser.add_argument('--no-speak', dest='speak', action='store_false', help='do not speak every message on stdout')
     parser.set_defaults(speak=None)
 
     parser.add_argument('--speaker', help='tool to say stuff', type=str)

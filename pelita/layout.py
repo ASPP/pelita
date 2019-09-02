@@ -164,7 +164,7 @@ def parse_layout(layout_str, allow_enemy_chars=False, food=None, bots=None,
         current_layout.append(row)
         if row.count('#') == len(row):
             # this is a closing string
-            # append the layout to tha layout list
+            # append the layout to the layout list
             layout_list.append('\n'.join(current_layout))
             start = False
 
