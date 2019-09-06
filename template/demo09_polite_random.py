@@ -4,7 +4,6 @@
 TEAM_NAME = 'PoliteRandomBots'
 
 def move(bot, state):
-
     possible_positions = []
     for pos in bot.legal_positions:
         if pos == bot.other.position:
@@ -16,4 +15,4 @@ def move(bot, state):
     # - we can stop if our only other legal position would put us in the same
     #   position as our team mate
     next_pos = bot.random.choice(possible_positions)
-    return next_pos, state
+    return next_pos

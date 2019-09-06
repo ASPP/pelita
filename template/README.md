@@ -54,9 +54,9 @@ TEAM_NAME = 'StoppingBots'
 
 def move(bot, state):
     next_pos = bot.position
-    return next_pos, state
+    return next_pos
 ```
-As seen above, your implementation consists of a team name (the `TEAM_NAME` string) and a function `move`, which given a bot and a state returns the next position for current bot and a state. Don't panic right now, in the [Full API Description](#full-api-description) section you'll find all the details.
+As seen above, your implementation consists of a team name (the `TEAM_NAME` string) and a function `move`, which given a bot and a state returns the next position for current bot. Don't panic right now, in the [Full API Description](#full-api-description) section you'll find all the details.
 
 ## Content of this repository
 In this repository you will find several demo implementations (all files named `demoXX_XXX.py`), that you can use as a starting point for your own implementations. There is also an example `utils.py` module where you can store utility functions that may be shared by different bot implementations. The files named  `test_demoXX_XXX.py` are example unit tests for some of the demo bot implementations. You can run the tests within a clone of this repo with `pytest` by typing:
@@ -124,7 +124,7 @@ An example unit test could look like this:
 def test_stays_there_builtin_random_layout():
     # Using a random builtin layout, verify that the bot stays on its initial position
     bot = setup_test_game(layout=None, is_blue=True)
-    next_pos, _ = move(bot, None)
+    next_pos = move(bot, {})
     # check that we did not move
     assert next_pos == bot.position
 ```
@@ -229,32 +229,25 @@ Notice that we have to pass the option `-s` to `pytest` so that it shows what we
 The maze is a grid. Each square in the grid is defined by its coordinates. The default width of the maze is `32` squares, the default height is `16` squares. The coordinate system has the origin `(0, 0)` in the top left (North-West) of the maze and its maximum value `(31, 15)` in the bottom right (South-East). Each square which is not a wall can be empty or contain a food pellet or one or more bots. The different mazes are called `layouts`. For the tournament all layouts will have the default values for width and height and will have a wall on all squares around the border.
 
 ### The `move` function
-**`move(bot, state) ⟶ (x, y), state`**
+**`move(bot, state) ⟶ (x, y)`**
 
 The `move` function gets two input arguments:
 
 - **`bot`** is a reference to the bot in your team corresponding to the current turn. It is an instance of the [`Bot` object](#the-bot-object), which contains all information about the current state of the game
 
-- **`state`** is an arbitrary object, `None` by default, which can be used to hold state between rounds. Example of usage for `state` can be found in [demo04_basic_attacker.py](demo04_basic_attacker.py), [demo05_basic_defender.py](demo05_basic_defender.py), [demo06_one_and_one.py](demo06_one_and_one.py):
+- **`state`** points to a dictionary which can be used to hold state between rounds. It is intially empty when the game starts, and the `move` function can store whatever it wants in it.
+
+Example of usage for `state` can be found in [demo04_basic_attacker.py](demo04_basic_attacker.py), [demo05_basic_defender.py](demo05_basic_defender.py), [demo06_one_and_one.py](demo06_one_and_one.py):
     ```python
     def move(bot, state):
-        if state is None:
-            # initialize an empty dictionary to keep information we
-            # want to share within our team during the game
-            # -> both bots will have access to this dictionary
-            state = {}
-        ...
-        return next_pos, state
+        state['something_to_remember'] = 'an important string'
+        return bot.position
     ```
     The `state` object will be passed untouched to the move function at every turn.
 
-The `move` function returns two values:
+The `move` function returns the position to move the bot to in the current turn. The position is a tuple of two integers `(x, y)`, which are the coordinates on the game grid.
 
-1. **`(x, y)`** the position where to move the bot in your team corresponding to the current turn. The position is a tuple of two integers `(x, y)`, which are the coordinates on the game grid.
-
-  Note that the returned position must represent a legal position, i.e. you can not move your bot on a wall or outside of the maze. If you return an illegal position, a legal position will be chosen at random instead and an error will be recorded for your team. After 5 errors the game is over and you lose the game.
-
-2. **`state`** the `state` object described above.
+Note that the returned value must represent a legal position, i.e. you can not move your bot onto a wall or outside of the maze. If you return an illegal position, a legal position will be chosen at random instead and an error will be recorded for your team. After 5 errors the game is over and you lose the game.
 
 ### The `Bot` object
 Note that the `Bot` object is read-only, i.e. any modifications you make to that object within the `move` function will be discarded at the next round. Use the `state` object for keeping state between rounds.
@@ -335,5 +328,3 @@ or to fit some parameters of your implementation. The script [demo10_background_
 ```bash
 python demo10_background_games.py
 ```
-
-

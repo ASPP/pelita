@@ -5,10 +5,10 @@ MESSAGE = 'I am a zombie now!'
 SPEAK_INERTIA = 10
 
 def move(bot, state):
-
-    if state is None:
+    if state == {}:
         # initialize a state dictionary for both bots
-        state = {0:0, 1:0}
+        state[0] = 0
+        state[1] = 1
 
     # check if we have been killed in the previous round
     if bot.was_killed:
@@ -28,4 +28,4 @@ def move(bot, state):
         if new_pos not in bot.track:
            break
 
-    return new_pos, state
+    return new_pos

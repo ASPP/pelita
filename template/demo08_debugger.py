@@ -8,5 +8,4 @@ TEAM_NAME = 'Debuggable Bot'
 
 def move(bot, state):
     breakpoint()
-    next_pos = (0,0)
-    return next_pos, state
+    return (0,0)

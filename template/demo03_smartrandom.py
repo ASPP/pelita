@@ -51,4 +51,4 @@ def move(bot, state):
             # positions have been visited already, so we just pick the
             # last one in the list
 
-    return next_pos, state
+    return next_pos
