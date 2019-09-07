@@ -28,3 +28,6 @@ coverage.xml
 
 # other
 .*.swp
+
+# macOS
+.DS_Store
