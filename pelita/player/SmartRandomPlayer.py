@@ -12,15 +12,15 @@ def smart_random_player(bot, state):
             continue # bad idea
         elif (new_pos in killable_enemy_pos or
               new_pos in bot.enemy[0].food):
-            return new_pos, state # get it
+            return new_pos # get it
         else:
             smart_positions.append(new_pos)
 
     if smart_positions:
-        return bot.random.choice(smart_positions), state
+        return bot.random.choice(smart_positions)
     else:
         # we ran out of smart moves
-        return bot.position, state
+        return bot.position
 
 
 TEAM_NAME = "Smart Random Players"

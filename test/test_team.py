@@ -6,11 +6,11 @@ from pelita.player.team import Team
 from pelita.utils import setup_test_game
 
 def stopping(bot, state):
-    return bot.position, state
+    return bot.position
 
 def randomBot(bot, state):
     legal = bot.legal_positions[:]
-    return bot.random.choice(legal), state
+    return bot.random.choice(legal)
 
 layout1="""
 ########
@@ -164,12 +164,10 @@ class TestStoppingTeam:
         storage_copy = {}
         def inner(bot, state):
             print(state)
-            if state is None:
-                state = {}
             state[bot.turn] = state.get(bot.turn, 0) + 1
             storage_copy['rounds'] = state[bot.turn]
             print(state)
-            return bot.position, state
+            return bot.position
         inner._storage = storage_copy
         return inner
 
@@ -213,9 +211,9 @@ def test_track_and_kill_count():
         other = bot.other
 
         # first move. get the state from the global cache
-        if state is None:
+        if state == {}:
             team_idx = 0 if bot.is_blue else 1
-            state = bot_states[team_idx]
+            state.update(enumerate(bot_states[team_idx]))
 
         if bot.round == 1 and turn == 0:
             assert bot.track[0] == bot.position
@@ -383,7 +381,7 @@ def test_eaten_flag_kill(bot_to_move):
                 assert bot.other.was_killed is False
 
         # otherwise return current position
-        return new_pos, state
+        return new_pos
     state = run_game([move, move], max_rounds=3, layout_dict=parse_layout(layout), allow_exceptions=True)
     # assertions might have been caught in run_game
     # check that all is good
@@ -465,7 +463,7 @@ def test_eaten_flag_suicide(bot_to_move):
                 assert bot.other.was_killed is False
 
         # otherwise return current position
-        return new_pos, state
+        return new_pos
     state = run_game([move, move], max_rounds=3, layout_dict=parse_layout(layout), allow_exceptions=True)
     # assertions might have been caught in run_game
     # check that all is good
@@ -542,7 +540,7 @@ def test_bot_attributes():
         else:
             assert set(bot.homezone) == set(homezones[1])
             assert set(bot.enemy[0].homezone) == set(homezones[0])
-        return bot.position, state
+        return bot.position
 
     state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed)
     # assertions might have been caught in run_game

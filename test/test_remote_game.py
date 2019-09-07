@@ -77,9 +77,9 @@ def test_remote_timeout():
     TEAM_NAME = "500ms timeout"
     def move(b, s):
         if b.round == 1 and b.turn == 1:
-            return (-2, 0), s
+            return (-2, 0)
         time.sleep(0.5)
-        return b.position, s
+        return b.position
     """
     with tempfile.NamedTemporaryFile('w+', suffix='.py') as f:
         print(dedent(tp), file=f, flush=True)
@@ -114,7 +114,7 @@ def test_remote_dumps_are_written():
     def move(b, s):
         print(f"{b.round} {b.turn} p1", file=sys.stdout)
         print(f"p1err", file=sys.stderr)
-        return b.position, s
+        return b.position
     """)
 
     p2 = dedent("""
@@ -123,7 +123,7 @@ def test_remote_dumps_are_written():
     def move(b, s):
         print(f"{b.round} {b.turn} p2", file=sys.stdout)
         print("p2err", file=sys.stderr)
-        return b.position, s
+        return b.position
     """)
     out_folder = tempfile.TemporaryDirectory()
 
@@ -170,13 +170,13 @@ def test_remote_dumps_with_failure(failing_team):
         if b.round == 2 and b.turn == 0:
             # introduce an error
             0 / 0
-        return b.position, s
+        return b.position
     """)
 
     good_player = dedent("""
     TEAM_NAME="good"
     def move(b, s):
-        return b.position, s
+        return b.position
     """)
     out_folder = tempfile.TemporaryDirectory()
 

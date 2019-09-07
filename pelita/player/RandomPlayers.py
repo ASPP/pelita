@@ -1,5 +1,5 @@
 def random_player(bot, state):
-    return bot.random.choice(bot.legal_positions), state
+    return bot.random.choice(bot.legal_positions)
 
 def nq_random_player(bot, state):
     """ Not-Quite-RandomPlayer that will move randomly but not stop or reverse. """
@@ -22,9 +22,9 @@ def nq_random_player(bot, state):
                 pass
     # just in case, there is really no way to go to:
     if not legal_positions:
-        return bot.position, state
+        return bot.position
     # and select a move at random
-    return bot.random.choice(legal_positions), state
+    return bot.random.choice(legal_positions)
 
 
 TEAM_NAME = "Random Players"

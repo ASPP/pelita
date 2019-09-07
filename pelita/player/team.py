@@ -41,7 +41,7 @@ class Team:
         self.team_name = team_name
 
         #: Storage for the team state
-        self._state = None
+        self._state = {}
 
         #: The team’s random number generator
         self._random = None
@@ -68,7 +68,7 @@ class Team:
 
         """
         # Reset the team state
-        self._state = None
+        self._state.clear()
 
         # Initialize the random number generator
         # with the seed that we received from game
@@ -125,14 +125,9 @@ class Team:
 
         try:
             # request a move from the current bot
-            res = self._team_move(team[me._bot_turn], self._state)
-            # check that the returned value # is a tuple of (position, state)
-            try:
-                if len(res) != 2:
-                    raise ValueError(f"Function move did not return move and state: got {res} instead.")
-            except TypeError:
-                raise ValueError(f"Function move did not return move and state: got {res} instead.")
-            move, state = res
+            move = self._team_move(team[me._bot_turn], self._state)
+
+            # check that the returned value is a position tuple
             try:
                 if len(move) != 2:
                     raise ValueError(f"Function move did not return a valid position: got {move} instead.")
@@ -147,9 +142,6 @@ class Team:
             return {
                 "error": (type(e).__name__, str(e)),
             }
-
-        # save the returned team state for the next turn
-        self._state = state
 
         return {
             "move": move,

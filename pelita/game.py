@@ -92,10 +92,10 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
     team_specs : list[team0, team1]
               a list specifying the two teams to play the match with. The list
               items team0 and team1 must be either
-               - a function with signature move(bot, state) -> (x, y), state
-                 the function takes a bot object and a state and returns the next
-                 position (x, y) of bot and state.
-                 state can be an arbitrary Python object, None by default
+               - a function with signature move(bot, state) -> (x, y)
+                 The function takes a bot object and a state and returns the next
+                 position (x, y) of the bot.
+
                - the path to a Python module that defines at least a function
                  called 'move' (specified as above) and a string TEAM_NAME.
 
