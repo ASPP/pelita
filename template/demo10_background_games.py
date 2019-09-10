@@ -40,7 +40,7 @@ for idx in range(NUM_GAMES):
 # At the end we can picke the results to be analyzed later:
 #import pickle
 #with open('results.pic', 'wb') as fh:
-    pickle.dump(collection, fh)
+#    pickle.dump(collection, fh)
 #
 # - To open the pickle in another process:
 #with open('results.pic', 'rb') as fh:
