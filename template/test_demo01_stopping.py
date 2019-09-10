@@ -1,5 +1,5 @@
 from demo01_stopping import move
-from utils import setup_test_game
+from pelita.utils import setup_test_game
 
 def test_stays_there_simple_layout():
     # Given a simple layout, verify that the bot does not move, independent

@@ -1,5 +1,5 @@
 from demo04_basic_attacker import move
-from utils import setup_test_game
+from pelita.utils import setup_test_game
 
 def test_eat_food():
     # do we eat food when it's available?

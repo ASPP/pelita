@@ -8,7 +8,7 @@ TEAM_NAME = 'Basic Attacker Bots'
 
 import networkx
 
-from utils import walls_to_graph
+from pelita.utils import walls_to_graph
 
 
 def move(bot, state):

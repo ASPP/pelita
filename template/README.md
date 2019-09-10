@@ -59,7 +59,7 @@ def move(bot, state):
 As seen above, your implementation consists of a team name (the `TEAM_NAME` string) and a function `move`, which given a bot and a state returns the next position for current bot. Don't panic right now, in the [Full API Description](#full-api-description) section you'll find all the details.
 
 ## Content of this repository
-In this repository you will find several demo implementations (all files named `demoXX_XXX.py`), that you can use as a starting point for your own implementations. There is also an example `utils.py` module where you can store utility functions that may be shared by different bot implementations. The files named  `test_demoXX_XXX.py` are example unit tests for some of the demo bot implementations. You can run the tests within a clone of this repo with `pytest` by typing:
+In this repository you will find several demo implementations (all files named `demoXX_XXX.py`), that you can use as a starting point for your own implementations. The files named  `test_demoXX_XXX.py` are example unit tests for some of the demo bot implementations. You can run the tests within a clone of this repo with `pytest` by typing:
 ```bash
 $ python -m pytest
 ```
@@ -129,7 +129,7 @@ def test_stays_there_builtin_random_layout():
     assert next_pos == bot.position
 ```
 
-For setting up test games there is a utility function you can import from the [utils.py](utils.py) module:
+For setting up test games there is a utility function you can import from the `pelita.utils` module:
 
 **`setup_test_game(layout, is_blue=True, round=None, score=None, seed=None, food=None, bots=None, enemy=None, is_noisy=None) ⟶ bot`**
 
@@ -140,7 +140,7 @@ The blue team's homezone is always on the left and the red team's homezone is al
 The full documentation for the `setup_test_game` function can be read in its docstring:
 ```bash
 $ python
->>> from utils import setup_test_game
+>>> from pelita.utils import setup_test_game
 >>> help(setup_test_game)
 >>> ...
 ```
@@ -269,7 +269,7 @@ Note that the `Bot` object is read-only, i.e. any modifications you make to that
     (3, 9) in bot.walls
     ```
     
-    The maze can be represented as a graph. If you want to use [networkx](https://networkx.github.io) for shortest path algorithms, you can use the `walls_to_graph` function in [utils.py](utils.py).
+    The maze can be represented as a graph. If you want to use [networkx](https://networkx.github.io) for shortest path algorithms, you can use the `walls_to_graph` function in `pelita.utils`.
 
     Examples for using a graph representation for shortest path calculations can be found in [demo04_basic_attacker.py](demo04_basic_attacker.py) and [demo05_basic_defender.py](demo05_basic_defender.py).
 
