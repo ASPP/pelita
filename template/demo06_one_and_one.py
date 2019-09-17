@@ -3,20 +3,21 @@ TEAM_NAME = 'one and one'
 
 from demo05_basic_defender import move as move_defender
 from demo04_basic_attacker import move as move_attacker
+from talk_util import say_underlined
 
 def move(bot, state):
-    # create a combined state to collect the states for both bots
-    if state is None:
-        # initialization
-        state = {'attacker' : None, 'defender' : None}
+    # Keep two "substates" — one for each bot
+    if state == {}:
+        state['attacker'] = {}
+        state['defender'] = {}
 
     if bot.turn == 0:
-        # keep the modified state from defender
-        next_pos, state_defender = move_defender(bot, state['defender'])
-        state['defender'] = state_defender
+        next_pos = move_defender(bot, state['defender'])
+        if bot.round < 10:
+            say_underlined(bot, 'defender')
     else:
-        # keep the modified state from attacker
-        next_pos, state_attacker = move_attacker(bot, state['attacker'])
-        state['attacker'] = state_attacker
+        next_pos = move_attacker(bot, state['attacker'])
+        if bot.round < 10:
+            say_underlined(bot, 'attacker')
 
-    return next_pos, state
+    return next_pos

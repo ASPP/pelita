@@ -8,22 +8,22 @@ TEAM_NAME = 'Basic Attacker Bots'
 
 import networkx
 
-from utils import walls_to_graph
+from pelita.utils import walls_to_graph
 
 
 def move(bot, state):
     enemy = bot.enemy
-    # we need to create a dictionary to keep information (state) along rounds
-    # the state object will be passed untouched at every new round
-    if state is None:
-        # initialize the state dictionary
-        state = {}
-        # each bot needs its own state dictionary to keep track of the
-        # food targets
+
+    # The state dictionary is initially empty
+    if state == {}:
+        # Initialize the state dictionary.
+        # Each bot needs its own state dictionary to keep track of the
+        # food targets.
         state[0] = (None, None)
         state[1] = (None, None)
-        # initialize a graph representation of the maze
-        # this can be shared among our bots
+
+        # Initialize a graph representation of the maze.
+        # This can be shared among our bots.
         state['graph'] = walls_to_graph(bot.walls)
 
     target, path = state[bot.turn]
@@ -57,5 +57,4 @@ def move(bot, state):
             # current position
             next_pos = bot.random.choice(safe_positions)
 
-    return next_pos, state
-
+    return next_pos

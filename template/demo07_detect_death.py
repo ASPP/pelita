@@ -4,11 +4,13 @@ TEAM_NAME = "Death Detectors Bots"
 MESSAGE = 'I am a zombie now!'
 SPEAK_INERTIA = 10
 
-def move(bot, state):
+from talk_util import say_underlined
 
-    if state is None:
+def move(bot, state):
+    if state == {}:
         # initialize a state dictionary for both bots
-        state = {0:0, 1:0}
+        state[0] = 0
+        state[1] = 1
 
     # check if we have been killed in the previous round
     if bot.was_killed:
@@ -17,7 +19,7 @@ def move(bot, state):
 
     if state[bot.turn]:
         # speak for as many rounds as SPEAK_INERTIA
-        bot.say(MESSAGE)
+        say_underlined(bot, MESSAGE)
         state[bot.turn] -= 1
 
     # copy the available positions, so that we can use random.shuffle,
@@ -28,4 +30,4 @@ def move(bot, state):
         if new_pos not in bot.track:
            break
 
-    return new_pos, state
+    return new_pos

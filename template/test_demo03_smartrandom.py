@@ -1,5 +1,5 @@
 from demo03_smartrandom import move
-from utils import setup_test_game
+from pelita.utils import setup_test_game
 
 def test_legalmoves():
     # check that the only two valid moves are always returned
@@ -12,7 +12,7 @@ def test_legalmoves():
     """
     for i in range(10):
         bot = setup_test_game(layout=layout, is_blue=True)
-        next_pos,_ = move(bot, None)
+        next_pos = move(bot, {})
         assert next_pos in ((1,2), (1,1))
 
 def test_kill_enemy():
@@ -24,7 +24,7 @@ def test_kill_enemy():
     ########
     """
     bot = setup_test_game(layout=layout, is_blue=True)
-    next_pos, _ = move(bot, None)
+    next_pos = move(bot, {})
     assert next_pos == (1,1)
 
 def test_eat_food():
@@ -36,7 +36,7 @@ def test_eat_food():
     ########
     """
     bot = setup_test_game(layout=layout, is_blue=True)
-    next_pos, _ = move(bot, None)
+    next_pos = move(bot, {})
     assert next_pos == (5,1)
 
 def test_no_kamikaze_stop():
@@ -48,5 +48,5 @@ def test_no_kamikaze_stop():
     ########
     """
     bot = setup_test_game(layout=layout, is_blue=True)
-    next_pos, _ = move(bot, None)
+    next_pos = move(bot, {})
     assert next_pos == (5, 2)

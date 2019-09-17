@@ -6,7 +6,7 @@
 # - We'll use a team of basic defenders against a team of basic attackers
 import random
 
-from utils import run_background_game
+from pelita.utils import run_background_game
 
 from demo05_basic_defender import move as move_defender
 from demo04_basic_attacker import move as move_attacker
@@ -40,7 +40,7 @@ for idx in range(NUM_GAMES):
 # At the end we can picke the results to be analyzed later:
 #import pickle
 #with open('results.pic', 'wb') as fh:
-    pickle.dump(collection, fh)
+#    pickle.dump(collection, fh)
 #
 # - To open the pickle in another process:
 #with open('results.pic', 'rb') as fh:
