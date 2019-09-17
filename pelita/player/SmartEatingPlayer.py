@@ -4,16 +4,12 @@ from pelita.utils import walls_to_graph
 
 
 def smart_eating_player(bot, state):
-    if state is None:
+    if 'graph' not in state:
         # first turn, first round
-        state = {
-            'graph': walls_to_graph(bot.walls)
-        }
+        state['graph'] = walls_to_graph(bot.walls)
 
-    if not bot.turn in state:
-        state[bot.turn] = {
-            'next_food': None
-        }
+    if bot.turn not in state:
+        state[bot.turn] = { 'next_food': None }
 
     # check, if food is still present
     if (state[bot.turn]['next_food'] is None
@@ -32,9 +28,9 @@ def smart_eating_player(bot, state):
     if next_pos in dangerous_enemy_pos:
         # whoops, better wait this round and take another food next time
         state[bot.turn]['next_food'] = None
-        return bot.position, state
+        return bot.position
 
-    return next_pos, state
+    return next_pos
 
 
 TEAM_NAME = "Smart Eating Players"

@@ -486,8 +486,8 @@ def test_cascade_kill():
     ]
     def move(bot, state):
         if not bot.is_blue and bot.turn == 1 and bot.round == 1:
-            return (6, 1), state
-        return bot.position, state
+            return (6, 1)
+        return bot.position
     layouts = [layout.parse_layout(l) for l in cascade]
     state = setup_game([move, move], max_rounds=5, layout_dict=layout.parse_layout(cascade[0]))
     assert state['bots'] == layouts[0]['bots']
@@ -547,8 +547,8 @@ def test_cascade_kill_2():
     ]
     def move(bot, state):
         if bot.is_blue and bot.turn == 0 and bot.round == 1:
-            return (1, 1), state
-        return bot.position, state
+            return (1, 1)
+        return bot.position
     layouts = [layout.parse_layout(l) for l in cascade]
     state = setup_game([move, move], max_rounds=5, layout_dict=layout.parse_layout(cascade[0]))
     assert state['bots'] == layouts[0]['bots']
@@ -600,10 +600,10 @@ def test_cascade_kill_rescue_1():
     ]
     def move(bot, state):
         if bot.is_blue and bot.turn == 0 and bot.round == 1:
-            return (1, 1), state
+            return (1, 1)
         if bot.is_blue and bot.turn == 1 and bot.round == 1:
-            return (5, 1), state
-        return bot.position, state
+            return (5, 1)
+        return bot.position
     layouts = [layout.parse_layout(l) for l in cascade]
     state = setup_game([move, move], max_rounds=5, layout_dict=layout.parse_layout(cascade[0]))
     assert state['bots'] == layouts[0]['bots']
@@ -649,10 +649,10 @@ def test_cascade_kill_rescue_2():
     ]
     def move(bot, state):
         if bot.is_blue and bot.turn == 0 and bot.round == 1:
-            return (1, 2), state
+            return (1, 2)
         if not bot.is_blue and bot.turn == 0 and bot.round == 1:
-            return (5, 2), state
-        return bot.position, state
+            return (5, 2)
+        return bot.position
     layouts = [layout.parse_layout(l) for l in cascade]
     state = setup_game([move, move], max_rounds=5, layout_dict=layout.parse_layout(cascade[0]))
     assert state['bots'] == layouts[0]['bots']
@@ -701,8 +701,8 @@ def test_cascade_suicide():
     ]
     def move(bot, state):
         if bot.is_blue and bot.turn == 0 and bot.round == 1:
-            return (6, 1), state
-        return bot.position, state
+            return (6, 1)
+        return bot.position
     layouts = [layout.parse_layout(l) for l in cascade]
     state = setup_game([move, move], max_rounds=5, layout_dict=layout.parse_layout(cascade[0]))
     assert state['bots'] == layouts[0]['bots']
@@ -940,7 +940,7 @@ def test_max_rounds():
         # all bots move to the south
         if bot.round == 1:
             # go one step to the right
-            return (bot.position[0], bot.position[1] + 1), s
+            return (bot.position[0], bot.position[1] + 1)
         else:
             # There should not be more then one round in this test
             raise RuntimeError("We should not be here in this test")
@@ -1075,12 +1075,12 @@ def test_finished_when_no_food(bot_to_move):
     team_to_move = bot_to_move % 2
     def move(bot, s):
         if team_to_move == 0 and bot.is_blue and bot_turn == bot._bot_turn:
-            return (4, 1), s
+            return (4, 1)
             # eat the food between 0 and 2
         if team_to_move == 1 and (not bot.is_blue) and bot_turn == bot._bot_turn:
             # eat the food between 3 and 1
-            return (3, 2), s
-        return bot.position, s
+            return (3, 2)
+        return bot.position
 
     l = layout.parse_layout(l)
     final_state = run_game([move, move], layout_dict=l, max_rounds=20)
@@ -1090,7 +1090,7 @@ def test_finished_when_no_food(bot_to_move):
 
 def test_minimal_game():
     def move(b, s):
-        return b.position, s
+        return b.position
 
     layout_name, layout_string = layout.get_random_layout()
     l = layout.parse_layout(layout_string)
@@ -1103,11 +1103,11 @@ def test_minimal_losing_game_has_one_error():
     def move0(b, s):
         if b.round == 1 and b._bot_index == 0:
             # trigger a bad move in the first round
-            return (0, 0), s
+            return (0, 0)
         else:
-            return b.position, s
+            return b.position
     def move1(b, s):
-        return b.position, s
+        return b.position
 
     layout_name, layout_string = layout.get_random_layout()
     l = layout.parse_layout(layout_string)
@@ -1121,7 +1121,7 @@ def test_minimal_losing_game_has_one_error():
 
 def test_minimal_remote_game():
     def move(b, s):
-        return b.position, s
+        return b.position
 
     layout_name, layout_string = layout.get_random_layout()
     l = layout.parse_layout(layout_string)
@@ -1149,12 +1149,12 @@ def test_remote_errors(tmp_path):
     # we change to the tmp dir, to make our paths simpler
     syntax_error = dedent("""
     def move(b, state)
-        return b.position, state
+        return b.position
     """)
     import_error = dedent("""
     import does_not_exist
     def move(b, state):
-        return b.position, state
+        return b.position
     """)
 
     layout_name, layout_string = layout.get_random_layout()
@@ -1199,13 +1199,11 @@ def test_bad_move_function(team_to_test):
     appends a FatalException. """
 
     def stopping(b, state):
-        return b.position, state
+        return b.position
     def move0(b, state):
         return None
     def move1(b, state):
         return 0
-    def move2(b, state):
-        return 0, 0
     def move3(b, state):
         return 0, 0, 0
     def move4(b): # TypeError: move4() takes 1 positional argument but 2 were given
@@ -1228,15 +1226,9 @@ def test_bad_move_function(team_to_test):
     assert res['gameover']
     assert res['whowins'] == other
     assert res['fatal_errors'][team_to_test][0]['type'] == 'FatalException'
-    assert res['fatal_errors'][team_to_test][0]['description'] == 'Exception in client (ValueError): Function move did not return move and state: got None instead.'
+    assert res['fatal_errors'][team_to_test][0]['description'] == 'Exception in client (ValueError): Function move did not return a valid position: got None instead.'
 
     res = test_run_game(move1)
-    assert res['gameover']
-    assert res['whowins'] == other
-    assert res['fatal_errors'][team_to_test][0]['type'] == 'FatalException'
-    assert res['fatal_errors'][team_to_test][0]['description'] == 'Exception in client (ValueError): Function move did not return move and state: got 0 instead.'
-
-    res = test_run_game(move2)
     assert res['gameover']
     assert res['whowins'] == other
     assert res['fatal_errors'][team_to_test][0]['type'] == 'FatalException'
@@ -1246,7 +1238,7 @@ def test_bad_move_function(team_to_test):
     assert res['gameover']
     assert res['whowins'] == other
     assert res['fatal_errors'][team_to_test][0]['type'] == 'FatalException'
-    assert res['fatal_errors'][team_to_test][0]['description'] == 'Exception in client (ValueError): Function move did not return move and state: got (0, 0, 0) instead.'
+    assert res['fatal_errors'][team_to_test][0]['description'] == 'Exception in client (ValueError): Function move did not return a valid position: got (0, 0, 0) instead.'
 
     res = test_run_game(move4)
     assert res['gameover']

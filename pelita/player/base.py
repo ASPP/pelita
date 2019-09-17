@@ -8,7 +8,7 @@ def speaking_player(bot, state):
     """ A player that makes moves at random and tells us about it. """
     move = bot.random.choice(bot.legal_positions)
     bot.say(f"Going {move}.")
-    return move, state
+    return move
 
 
 def stepping_player(*bot_moves):
@@ -47,7 +47,7 @@ def stepping_player(*bot_moves):
         moves_iter = iterators[bot.turn]
         try:
             next_move = next(moves_iter)
-            return (bot.position[0] + next_move[0], bot.position[1] + next_move[1]), state
+            return (bot.position[0] + next_move[0], bot.position[1] + next_move[1])
         except StopIteration:
             raise ValueError()
     return move
@@ -65,9 +65,9 @@ def round_based_player(*bot_moves):
     def move(bot, state):
         try:
             next_move = bot_moves[bot.turn][bot.round]
-            return (bot.position[0] + next_move[0], bot.position[1] + next_move[1]), state
+            return (bot.position[0] + next_move[0], bot.position[1] + next_move[1])
         except (IndexError, KeyError):
-            return bot.position, state
+            return bot.position
     return move
 
 
@@ -84,4 +84,4 @@ def debuggable_player(bot, state):
     """
     position = bot.position
     pdb.set_trace()
-    return position, state
+    return position

@@ -49,7 +49,7 @@ def test_simpleclient(zmq_context):
         print(bot)
         res.append(True)
         print(res)
-        return bot.position, state
+        return bot.position
 
     sock = zmq_context.socket(zmq.PAIR)
     port = sock.bind_to_random_port('tcp://127.0.0.1')

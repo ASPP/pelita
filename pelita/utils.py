@@ -145,10 +145,9 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
     Notes
     -----
     - Move functions:
-        A move function is a function with signature move(bot, state) -> (x, y), state
-        the function takes a bot object and a state and returns the next position of
-        the current bot as a tuple (x, y) and state. `state` can be an arbitrary
-        Python object, None by default
+        A move function is a function with signature move(bot, state) -> (x, y).
+        The function takes a bot object and a state and returns the next position of
+        the current bot as a tuple (x, y). `state` is initially an empty dictionary.
 
     - Timeouts:
         As opposed to standard pelita matches, timeouts are not considered.
