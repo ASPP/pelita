@@ -46,14 +46,24 @@ class MeshGraph:
         """ The width of a single field.
         """
         # we have to adjust by one pixel for the border
-        return float(self.screen_width - 1 - 2 * self.padding) / self.mesh_width
+        width = float(self.screen_width - 1 - 2 * self.padding) / self.mesh_width
+        # if the UI is not initialized yet (or just really really small) this may
+        # result in a negative value. Ensure that it is always positive or zero.
+        if width < 0:
+            width = 0.0
+        return width
 
     @property
     def rect_height(self):
         """ The height of a single field.
         """
         # we have to adjust by one pixel for the border
-        return float(self.screen_height - 1 - 2 * self.padding) / self.mesh_height
+        height = float(self.screen_height - 1 - 2 * self.padding) / self.mesh_height
+        # if the UI is not initialized yet (or just really really small) this may
+        # result in a negative value. Ensure that it is always positive or zero.
+        if height < 0:
+            height = 0.0
+        return height
 
     @property
     def half_scale_x(self):
