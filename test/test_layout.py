@@ -454,3 +454,38 @@ def test_layout_for_team():
 
     with pytest.raises(ValueError):
         layout_for_team(parse_layout(red1))
+
+def test_layout_agnostic():
+    """
+    Test if team-style layout can be converted to server-style layout.
+    
+    Uses this layout:
+
+    ####
+    #01#
+    #EE#
+    #..#
+    ####
+    """
+
+    l = {
+        'walls': [(0,0),(0,1),(0,2),(0,3),(1,0),(1,3),(2,0),(2,3),(3,0),(3,3),(4,0),(4,1),(4,2),(4,3)],
+        'food': [(3,1),(3,2)],
+        'bots': [(1,1),(1,2)],
+        'enemy': [(2,1),(2,2)]
+        }
+
+
+    l_expected_blue = {
+        'walls': [(0,0),(0,1),(0,2),(0,3),(1,0),(1,3),(2,0),(2,3),(3,0),(3,3),(4,0),(4,1),(4,2),(4,3)],
+        'food': [(3,1),(3,2)],
+        'bots': [(1,1),(2,1),(1,2),(2,2)]
+        }
+    l_expected_red = {
+        'walls': [(0,0),(0,1),(0,2),(0,3),(1,0),(1,3),(2,0),(2,3),(3,0),(3,3),(4,0),(4,1),(4,2),(4,3)],
+        'food': [(3,1),(3,2)],
+        'bots': [(2,1),(1,1),(2,2),(1,2)]
+        }
+
+    assert layout_agnostic(l, is_blue=True) == l_expected_blue
+    assert layout_agnostic(l, is_blue=False) == l_expected_red

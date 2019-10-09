@@ -545,9 +545,9 @@ def layout_for_team(layout, is_blue=True, is_noisy=(False, False)):
         'is_noisy' : is_noisy,
     }
 
-def layout_agnostic(layout_for_team, is_blue=True):
-    """ Converts a layout dict with 2 bots and enemies to a layout
-    with 4 bots.
+def layout_agnostic(layout, is_blue=True):
+    """ Converts a layout dict with 2 bots and enemies (team-style)
+    to a layout with 4 bots (server-style).
     """
     if "enemy" not in layout:
         raise ValueError("Layout is already in server-style.")
