@@ -1,4 +1,4 @@
-As of ``v0.9.1-758-g557c3a7`` the developers and contributors are::
+As of ``v0.9.1-760-g1a4b724`` the developers and contributors are::
 
     Rike-Benjamin Schuppner
     Valentin Haenel
@@ -19,6 +19,7 @@ As of ``v0.9.1-758-g557c3a7`` the developers and contributors are::
     Anna Chabuda
     Bartosz Telenczuk
     Christian Steigies
+    Daniel Hähnke
     Fabien Maussion
     Francesc Alted
     Ola Pidde
