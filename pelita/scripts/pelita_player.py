@@ -2,10 +2,10 @@
 
 import argparse
 import contextlib
-import importlib
 import logging
 import os
 from pathlib import Path
+import runpy
 import signal
 import subprocess
 import sys
@@ -22,15 +22,6 @@ _logger = logging.getLogger(__name__)
 
 
 DEFAULT_FACTORY = 'team'
-
-@contextlib.contextmanager
-def with_sys_path(dirname):
-    sys.path.insert(0, dirname)
-    try:
-        yield
-    finally:
-        sys.path.remove(dirname)
-
 
 def run_player(team_spec, address, color=None):
     """ Creates a team from `team_spec` and runs
@@ -258,8 +249,6 @@ def load_team_from_module(path: str):
 
     Raises
     ------
-    ValueError
-        if a module is already present in sys.modules
     AttributeError
         if the module has no factory with the given name
     ModuleNotFoundError
@@ -272,14 +261,7 @@ def load_team_from_module(path: str):
     if not path.parent.exists():
         raise FileNotFoundError("Folder {} does not exist.".format(path.parent))
 
-    dirname = str(path.parent)
-    modname = path.stem
-
-    if modname in sys.modules:
-        raise ValueError("A module named ‘{}’ has already been imported.".format(modname))
-
-    with with_sys_path(dirname):
-        module = importlib.import_module(modname)
+    module = runpy.run_path(path)
 
     return team_from_module(module)
 
@@ -289,8 +271,12 @@ def team_from_module(module):
     `module` and returns a team.
     """
     # look for a new-style team
-    move = getattr(module, "move")
-    name = getattr(module, "TEAM_NAME")
+    if isinstance(module, dict):
+        move = module['move']
+        name = module['TEAM_NAME']
+    else:
+        move = getattr(module, "move")
+        name = getattr(module, "TEAM_NAME")
     if not callable(move):
         raise TypeError("move is not a function")
     if type(name) is not str:
