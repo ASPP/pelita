@@ -53,7 +53,6 @@ from pathlib import Path
 from modulefinder import ModuleFinder
 import random
 import sqlite3
-import subprocess
 import sys
 import unittest
 
