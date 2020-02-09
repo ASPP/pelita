@@ -47,38 +47,38 @@ def test_initial_positions_basic():
     # of the respective bots in the layout.
     """
     ########
-    #0### 3#
-    #2    1#
+    #a### y#
+    #b    x#
     ########
     """,
     """
     ########
-    ##### 3#
-    #20   1#
+    ##### y#
+    #ba   x#
     ########
     """,
     """
     ########
-    #0###13#
-    #2    ##
+    #a###xy#
+    #b    ##
     ########
     """,
     """
     ########
-    #####1##
-    ##20  3#
+    #####x##
+    ##ba  y#
     ########
     """,
-    # very degenerate case: 0 and 1 would start on the same field
+    # very degenerate case: a and 1 would start on the same field
     # we don’t expect any sensible layout to be this way
     """
     ########
-    #####1##
-    #####23#
+    #####x##
+    #####by#
     ########
 
     ########
-    #####0##
+    #####a##
     #####  #
     ########
     """,
@@ -89,13 +89,13 @@ def test_initial_positions_basic():
     # (this will reduce awkward respawn situations).
     """
     ########
-    #    1##
-    #0### 3#
+    #    x##
+    #a### y#
     #### ###
     #### ###
     #### ###
     ##### ##
-    #####2 #
+    #####b #
     ########
     """,
     ])
@@ -111,12 +111,12 @@ def test_initial_positions(simple_layout):
     # not enough free spaces
     """
     ########
-    #####0##
+    #####a##
     ########
     """,
     """
     ########
-    ##1#####
+    ##x#####
     ########
     """,
     # TODO: Should this even be a valid layout?
@@ -180,14 +180,15 @@ def test_setup_game_bad_number_of_bots(bots_hidden):
     """ setup_game should fail when a wrong number of bots is given. """
     test_layout = """
         ##################
-        #0#.  .  # .     #
-        #2#####    #####3#
-        #     . #  .  .#1#
+        #a#.  .  # .     #
+        #b#####    #####y#
+        #     . #  .  .#x#
         ################## """
     # remove bot x when bots_hidden[x] is True
+    bot_names = ['a', 'x', 'b', 'y']
     for x in range(4):
         if bots_hidden[x]:
-            test_layout = test_layout.replace(str(x), ' ')
+            test_layout = test_layout.replace(bot_names[x], ' ')
     parsed_layout = layout.parse_layout(test_layout)
 
     # dummy player
@@ -256,11 +257,11 @@ def test_play_turn_eating_enemy_food(turn, which_food):
     """Check that you eat enemy food but not your own"""
     ### 012345678901234567
     #0# ##################
-    #1# #. ... .##.     3#
-    #2# # # #  .  .### #1#
+    #1# #. ... .##.     y#
+    #2# # # #  .  .### #x#
     #3# # # ##.   .      #
     #4# #      .   .## # #
-    #5# #0# ###.  .  # # #
+    #5# #a# ###.  .  # # #
     #6# #2     .##. ... .#
     #7# ##################
     game_state = setup_specific_basic_gamestate(round=0, turn=turn)
@@ -297,12 +298,12 @@ def test_play_turn_killing(turn):
     """Check that you can kill enemies but not yourself"""
     ### 012345678901234567
     #0# ##################
-    #1# #. ... .##.     3#
-    #2# # # #  .  .### #1#
+    #1# #. ... .##.     y#
+    #2# # # #  .  .### #x#
     #3# # # ##.   .      #
     #4# #      .   .## # #
-    #5# #0# ###.  .  # # #
-    #6# #2     .##. ... .#
+    #5# #a# ###.  .  # # #
+    #6# #b     .##. ... .#
     #7# ##################
     game_state = setup_specific_basic_gamestate()
     team = turn % 2
@@ -323,12 +324,12 @@ def test_play_turn_friendly_fire(setups):
     """Check that you can kill enemies but not yourself"""
     ### 012345678901234567
     #0# ##################
-    #1# #. ... .##.     3#
-    #2# # # #  .  .### #1#
+    #1# #. ... .##.     y#
+    #2# # # #  .  .### #x#
     #3# # # ##.   .      #
     #4# #      .   .## # #
-    #5# #0# ###.  .  # # #
-    #6# #2     .##. ... .#
+    #5# #a# ###.  .  # # #
+    #6# #b     .##. ... .#
     #7# ##################
     game_state = setup_specific_basic_gamestate()
     turn = setups[0]
@@ -348,24 +349,24 @@ def test_multiple_enemies_killing():
     l0 = """
     ########
     #  ..  #
-    # 210  #
+    # bxa  #
     ########
 
     ########
     #  ..  #
-    #  3   #
+    #  y   #
     ########
     """
 
     l1 = """
     ########
     #  ..  #
-    #  103 #
+    #  xay #
     ########
 
     ########
     #  ..  #
-    #   2  #
+    #   b  #
     ########
     """
     # dummy bots
@@ -376,7 +377,7 @@ def test_multiple_enemies_killing():
         game_state = setup_game([stopping, stopping], layout_dict=parsed_l0)
 
         game_state['turn'] = bot
-        # get position of bots 1 (and 3)
+        # get position of bots 1 (and y)
         kill_position = game_state['bots'][1]
         assert kill_position == game_state['bots'][3]
         new_state = apply_move(game_state, kill_position)
@@ -406,14 +407,14 @@ def test_suicide():
     l0 = """
     ########
     #  ..  #
-    #3210  #
+    #ybxa  #
     ########
     """
 
     l1 = """
     ########
     #  ..  #
-    #  1032#
+    #  xayb#
     ########
     """
     # dummy bots
@@ -451,36 +452,36 @@ def test_cascade_kill():
     cascade = [
     """
     ########
-    #1 ..30#
-    #     2#
+    #x ..ya#
+    #     b#
     ########
     """,
     """
     ########
-    #0 .. 3#
-    #     2#
+    #a .. y#
+    #     b#
     ########
 
     ########
-    #1 ..  #
+    #x ..  #
     #      #
     ########
     """,
     """
     ########
-    #0 .. 3#
-    #     1#
+    #a .. y#
+    #     x#
     ########
 
     ########
     #  ..  #
-    #     2#
+    #     b#
     ########
     """,
     """
     ########
-    #0 .. 3#
-    #2    1#
+    #a .. y#
+    #b    x#
     ########
     """
     ]
@@ -512,36 +513,36 @@ def test_cascade_kill_2():
     cascade = [
     """
     ########
-    #30.. 2#
-    #1     #
+    #ya.. b#
+    #x     #
     ########
     """,
     """
     ########
-    #0 .. 2#
-    #1     #
+    #a .. b#
+    #x     #
     ########
 
     ########
-    #  .. 3#
+    #  .. y#
     #      #
     ########
     """,
     """
     ########
-    #0 .. 3#
-    #1     #
+    #a .. y#
+    #x     #
     ########
 
     ########
     #  ..  #
-    #2     #
+    #b     #
     ########
     """,
     """
     ########
-    #0 .. 3#
-    #2    1#
+    #a .. y#
+    #b    x#
     ########
     """
     ]
@@ -576,25 +577,25 @@ def test_cascade_kill_rescue_1():
     cascade = [
     """
     ########
-    #30.. 2#
-    #1     #
+    #ya.. b#
+    #x     #
     ########
     """,
     """
     ########
-    #0 .. 2#
-    #1     #
+    #a .. b#
+    #x     #
     ########
 
     ########
-    #  .. 3#
+    #  .. y#
     #      #
     ########
     """,
     """
     ########
-    #0 ..23#
-    #1     #
+    #a ..by#
+    #x     #
     ########
     """
     ]
@@ -625,25 +626,25 @@ def test_cascade_kill_rescue_2():
     cascade = [
     """
     ########
-    #3 ..  #
-    #10   2#
+    #y ..  #
+    #xa   b#
     ########
     """,
     """
     ########
-    #3 ..  #
-    #0    1#
+    #y ..  #
+    #a    x#
     ########
 
     ########
     #  ..  #
-    #     2#
+    #     b#
     ########
     """,
     """
     ########
-    #3 ..  #
-    #0   12#
+    #y ..  #
+    #a   xb#
     ########
     """
     ]
@@ -666,36 +667,36 @@ def test_cascade_suicide():
     cascade = [
     """
     ########
-    #1 ..03#
-    #     2#
+    #x ..ay#
+    #     b#
     ########
     """,
     """
     ########
-    #0 .. 3#
-    #     2#
+    #a .. y#
+    #     b#
     ########
 
     ########
-    #1 ..  #
+    #x ..  #
     #      #
     ########
     """,
     """
     ########
-    #0 .. 3#
-    #     1#
+    #a .. y#
+    #     x#
     ########
 
     ########
     #  ..  #
-    #     2#
+    #     b#
     ########
     """,
     """
     ########
-    #0 .. 3#
-    #2    1#
+    #a .. y#
+    #b    x#
     ########
     """
     ]
@@ -717,9 +718,9 @@ def test_cascade_suicide():
 def test_moving_through_maze():
     test_start = """
         ######
-        #0 . #
-        #.. 1#
-        #2  3#
+        #a . #
+        #.. x#
+        #b  y#
         ###### """
     parsed = layout.parse_layout(test_start)
     teams = [
@@ -733,9 +734,9 @@ def test_moving_through_maze():
         state = game.play_turn(state)
     test_first_round = layout.parse_layout(
         """ ######
-            # 0. #
-            #..1 #
-            #2  3#
+            # a. #
+            #..x #
+            #b  y#
             ###### """)
 
     assert test_first_round['bots'] == state['bots']
@@ -751,9 +752,9 @@ def test_moving_through_maze():
             #    #
             ######
             ######
-            # 0  #
-            #21  #
-            #   3#
+            # a  #
+            #bx  #
+            #   y#
             ###### """)
 
     assert test_second_round['bots'] == state['bots']
@@ -764,9 +765,9 @@ def test_moving_through_maze():
         state = game.play_turn(state)
     test_third_round = layout.parse_layout(
         """ ######
-            #2 . #
-            #.0 1#
-            #   3#
+            #b . #
+            #.a x#
+            #   y#
             ###### """)
 
     assert test_third_round['bots'] == state['bots']
@@ -782,9 +783,9 @@ def test_moving_through_maze():
             #    #
             ######
             ######
-            #2   #
-            #0 1 #
-            #   3#
+            #b   #
+            #a x #
+            #   y#
             ###### """)
 
     assert test_fourth_round['bots'] == state['bots']
@@ -800,9 +801,9 @@ def test_moving_through_maze():
             #    #
             ######
             ######
-            # 2  #
-            # 0 1#
-            #   3#
+            # b  #
+            # a x#
+            #   y#
             ###### """)
     assert test_fifth_round['bots'] == state['bots']
     assert test_fifth_round['food'] == list(state['food'][0]) + list(state['food'][1])
@@ -817,9 +818,9 @@ def test_moving_through_maze():
             #    #
             ######
             ######
-            # 2  #
-            #0 1 #
-            #   3#
+            # b  #
+            #a x #
+            #   y#
             ###### """)
 
     assert test_sixth_round['bots'] == state['bots']
@@ -836,9 +837,9 @@ def test_moving_through_maze():
             #    #
             ######
             ######
-            #  2 #
-            #0 1 #
-            #   3#
+            #  b #
+            #a x #
+            #   y#
             ###### """)
 
     assert test_seventh_round['bots'] == state['bots']
@@ -910,12 +911,12 @@ def setup_specific_basic_gamestate(round=0, turn=0):
     """helper function for testing play turn"""
     l = """
 ##################
-#. ... .##.     3#
-# # #  .  .### #1#
+#. ... .##.     y#
+# # #  .  .### #x#
 # # ##.   .      #
 #      .   .## # #
-#0# ###.  .  # # #
-#2     .##. ... .#
+#a# ###.  .  # # #
+#b     .##. ... .#
 ##################
 """
     parsed_l = layout.parse_layout(l)
@@ -931,7 +932,7 @@ def setup_specific_basic_gamestate(round=0, turn=0):
 def test_max_rounds():
     l = """
     ########
-    #20..13#
+    #ba..xy#
     #      #
     ########
     """
@@ -1067,8 +1068,8 @@ def test_finished_when_no_food(bot_to_move):
     """ Test that the game is over when a team has eaten its food. """
     l = """
     ########
-    #  0.2 #
-    # 3.1  #
+    #  a.b #
+    # y.x  #
     ########
     """
     bot_turn = bot_to_move // 2
@@ -1302,8 +1303,8 @@ def test_apply_move_resets_bot_was_killed(bot_to_move, bot_was_killed_flags):
 def test_bot_does_not_eat_own_food():
     test_layout = """
         ######
-        #0 .3#
-        #.21 #
+        #a .y#
+        #.bx #
         ######
     """
     teams = [
@@ -1324,9 +1325,9 @@ def test_suicide_win():
     # Since it is the last pellet, the game will end directly
     test_layout = """
         ######
-        #0 .1#
+        #a .x#
         #.   #
-        #2  3#
+        #b  y#
         ######
     """
     teams = [
@@ -1352,13 +1353,13 @@ def test_double_suicide():
     # Test how a bot can be killed when it runs into two bots
     test_layout = """
         ######
-        # 01 #
+        # ax #
         #.  .#
         ######
 
         ######
-        # 2  #
-        #. 3.#
+        # b  #
+        #. y.#
         ######
     """
     teams = [

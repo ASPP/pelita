@@ -11,9 +11,9 @@ class TestGameMaster:
     def test_team_names(self):
         test_layout = (
         """ ##################
-            #0#.  .  # .     #
-            #2#####    #####1#
-            #     . #  .  .#3#
+            #a#.  .  # .     #
+            #b#####    #####x#
+            #     . #  .  .#y#
             ################## """)
 
         def team_pattern(fn):
@@ -48,9 +48,9 @@ class TestGameMaster:
     def test_too_few_registered_teams(self):
         test_layout_4 = (
         """ ##################
-            #0#.  .  # .     #
-            #2#####    #####1#
-            #     . #  .  .#3#
+            #a#.  .  # .     #
+            #b#####    #####x#
+            #     . #  .  .#y#
             ################## """)
         team_1 = stopping_player
         with pytest.raises(ValueError):
@@ -59,9 +59,9 @@ class TestGameMaster:
     def test_too_many_registered_teams(self):
         test_layout_4 = (
         """ ##################
-            #0#.  .  # .     #
-            #2#####    #####1#
-            #     . #  .  .#3#
+            #a#.  .  # .     #
+            #b#####    #####x#
+            #     . #  .  .#y#
             ################## """)
         team_1 = stopping_player
         with pytest.raises(ValueError):
@@ -105,14 +105,14 @@ class TestGameMaster:
     @pytest.mark.parametrize('layout', [
         """
         ######
-        #0 . #
-        # . 1#
+        #a . #
+        # . x#
         ######
         """,
         """
         ######
-        #0  .#
-        #.3 1#
+        #a  .#
+        #.y x#
         ######
         """])
     def test_setup_game_with_too_few_bots_in_layout(self, layout):
@@ -123,14 +123,14 @@ class TestGameMaster:
     @pytest.mark.parametrize('layout', [
         """
         ######
-        #0 .3#
-        #4. 1#
+        #a .y#
+        #z. x#
         ######
         """,
         """
         ######
-        #0 6.#
-        #.3 1#
+        #a q.#
+        #.y x#
         ######
         """])
     def test_setup_game_with_wrong_bots_in_layout(self, layout):
@@ -141,14 +141,14 @@ class TestGameMaster:
     @pytest.mark.parametrize('layout', [
         """
         ######
-        #0 3 #
-        # 2 1#
+        #a y #
+        # b x#
         ######
         """,
         """
         ######
-        #0 3.#
-        # 2 1#
+        #a y.#
+        # b x#
         ######
         """])
     def test_no_food(self, layout):
@@ -176,8 +176,8 @@ class TestGame:
 
         test_layout = (
             """ ######
-                #0 . #
-                #.. 1#
+                #a . #
+                #.. x#
                 ###### """)
 
         original_universe = None
@@ -212,8 +212,8 @@ class TestGame:
 
         test_layout = (
             """ ######
-                #0 . #
-                #.. 1#
+                #a . #
+                #.. x#
                 ###### """)
         teams = [SimpleTeam(FailingPlayer()), SimpleTeam(SteppingPlayer("^"))]
 
@@ -242,8 +242,8 @@ class TestGame:
 
         test_start = (
             """ ######
-                #0 . #
-                #.. 1#
+                #a . #
+                #.. x#
                 ###### """)
 
         number_bots = 2
@@ -308,8 +308,8 @@ class TestGame:
     def test_win_on_timeout_team_1(self):
         test_start = (
             """ ######
-                #0 ..#
-                #.. 1#
+                #a ..#
+                #.. x#
                 ###### """)
         # the game lasts two rounds, enough time for bot 1 to eat food
         NUM_ROUNDS = 2
@@ -341,8 +341,8 @@ class TestGame:
     def test_draw_on_timeout(self):
         test_start = (
             """ ######
-                #0 . #
-                # . 1#
+                #a . #
+                # . x#
                 ###### """)
         # the game lasts one round, and then draws
         NUM_ROUNDS = 1
@@ -370,8 +370,8 @@ class TestGame:
     def test_win_on_eating_all(self):
         test_start = (
             """ ######
-                #0 . #
-                # . 1#
+                #a . #
+                # . x#
                 ###### """
         )
         teams = [
@@ -403,8 +403,8 @@ class TestGame:
     def test_lose_on_eating_all(self):
         test_start = (
             """ ######
-                #0 . #
-                # . 1#
+                #a . #
+                # . x#
                 ###### """
         )
         teams = [
@@ -443,9 +443,9 @@ class TestGame:
         # 0 must move back and forth because of random steps
         test_start = (
             """ ######
-                #0 #.#
+                #a #.#
                 ###  #
-                ##. 1#
+                ##. x#
                 ###### """
         )
         # players do nothing
@@ -495,9 +495,9 @@ class TestGame:
         # immediately
         test_start = (
             """ ######
-                ##0.##
+                ##a.##
                 # ## #
-                ##. 1#
+                ##. x#
                 ###### """
         )
         # players do nothing
@@ -551,8 +551,8 @@ class TestGame:
 
         test_start = (
             """ ########
-                # 0  ..#
-                #..  1 #
+                # a  ..#
+                #..  x #
                 ######## """)
 
         number_bots = 2
@@ -658,7 +658,7 @@ class TestGame:
     def test_kill_count(self):
         test_start = (
             """ ######
-                #0  1#
+                #a  x#
                 #....#
                 ###### """)
         # the game lasts two rounds, enough time for bot 1 to eat food

@@ -360,34 +360,32 @@ def parse_single_layout(layout_str, num_bots=4, allow_enemy_chars=False):
             elif char == ' ':
                 # empty
                 continue
-            elif char == 'E':
-                # enemy
-                if allow_enemy_chars:
-                    enemy.append(coord)
-                else:
-                    raise ValueError(f"Enemy character not allowed.")
+            elif char in ['a', 'b', 'x', 'y']:
+                # legal bots
+                if char == 'a':
+                    bot_idx = 0
+                elif char == 'b':
+                    bot_idx = 2
+                elif char == 'x':
+                    bot_idx = 1
+                elif char == 'y':
+                    bot_idx = 3
+                if bots[bot_idx]:
+                    # bot_idx has already been set before
+                    raise ValueError(f"Cannot set bot {bot_idx} to position {coord} (already at {bots[bot_idx]}).")
+                bots[bot_idx] = coord
             elif char == '?':
-                # noisy_enemy
+                # noisy bots
+                noisy_enemy
                 if allow_enemy_chars:
                     noisy_enemy.append(coord)
                 else:
                     raise ValueError(f"Enemy character not allowed.")
             else:
                 # bot
-                try:
-                    # we expect an 0<=index<=num_bots
-                    bot_idx = int(char)
-                    if bot_idx >= len(bots):
-                        # reuse the except below
-                        raise ValueError
-                except ValueError:
-                    raise ValueError(f"Unknown character {char} in maze!")
+                raise ValueError(f"Unknown character {char} in maze!")
 
                 # bot_idx is a valid character.
-                if bots[bot_idx]:
-                    # bot_idx has already been set before
-                    raise ValueError(f"Cannot set bot {bot_idx} to position {coord} (already at {bots[bot_idx]}).")
-                bots[bot_idx] = coord
     walls.sort()
     food.sort()
     out = {'walls':walls, 'food':food, 'bots':bots}
@@ -446,7 +444,7 @@ def layout_as_str(*, walls, food=None, bots=None, enemy=None, is_noisy=None):
     else:
         need_combined = any(coord in food for coord in bots_and_enemy)
     # then, check that bots are not overlapping with food
-
+    bot_names = ['a', 'x', 'b', 'y']
     out = io.StringIO()
     for y in range(height):
         for x in range(width):
@@ -461,7 +459,7 @@ def layout_as_str(*, walls, food=None, bots=None, enemy=None, is_noisy=None):
                     # check if we have a bot here only when we know that
                     # we won't need a combined layout later
                     if (x, y) in bots:
-                        out.write(str(bots.index((x, y))))
+                        out.write(str(bot_names[bots.index((x, y))]))
                     elif (x, y) in enemy:
                         if (x, y) in noisy_enemies:
                             out.write("?")
@@ -487,7 +485,7 @@ def layout_as_str(*, walls, food=None, bots=None, enemy=None, is_noisy=None):
             continue
         # append bot_index to the list of bots at this coordinate
         # if still no bot was seen here we have to start with an empty list
-        coord_bots[pos] = coord_bots.get(pos, []) + [str(idx)]
+        coord_bots[pos] = coord_bots.get(pos, []) + [idx]
 
     # add enemies to mapping
     for pos in enemy:
@@ -509,7 +507,7 @@ def layout_as_str(*, walls, food=None, bots=None, enemy=None, is_noisy=None):
                     # get the first bot at this position and remove it
                     # from the list
                     bot_idx = coord_bots[(x, y)].pop(0)
-                    out.write(bot_idx)
+                    out.write(bot_names[bot_idx])
                     # if we are left without bots at this position
                     # remove the coordinate from the dict
                     if not coord_bots[(x, y)]:
