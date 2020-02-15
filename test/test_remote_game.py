@@ -246,3 +246,70 @@ def test_remote_dumps_with_failure(failing_team):
 
     # No errors for red
     assert good_err == [""]
+
+
+def test_remote_reproducible():
+    # Test that the rng gives reproducible results,
+    # even when sets are involved.
+    #
+    # Currently, we have disabled hashed seeds completely (PYTHONHASHSEED='0').
+    # If we make this dependent on the game_state’s internal seed,
+    # we should run this test several times with different starting seeds.
+    layout = """
+        ##############
+        #            #
+        #   2    3   #
+        #            #
+        #            #
+        #0    ..    1#
+        #            #
+        ##############
+        """
+
+    player = dedent("""
+    def random_player(bot, state):
+        # somehow list(set(bot.legal_positions)) seems to be quite
+        # stable even when randomized hashes are activated
+        # however, list(set(["A", "B", "C", "D"])) very consistently
+        # gives random results. We try to mix both tests to
+        # increase our chances of detecting failure
+
+        lettertest = list(set(list("ABCD")))
+
+        poss = list(set(bot.legal_positions))
+        if lettertest[0] == "A":
+            return bot.position
+        else:
+            return poss[0]
+
+    move = random_player
+    TEAM_NAME = "random test team"
+    """)
+    out_folder = tempfile.TemporaryDirectory()
+
+    testseed = random.randint(0, 20000)
+    num_tries = 6
+    all_paths = []
+
+    for num in range(num_tries):
+        # store all positions that the random bots are taking
+        paths = {i: [] for i in range(4)}
+
+        with tempfile.NamedTemporaryFile('w+', suffix='.py') as f:
+            with tempfile.NamedTemporaryFile('w+', suffix='.py') as g:
+                print(player, file=f, flush=True)
+                print(player, file=g, flush=True)
+
+                state = pelita.game.setup_game([f.name, g.name],
+                                               max_rounds=20,
+                                               layout_dict=pelita.layout.parse_layout(layout),
+                                               seed=testseed,
+                                               allow_exceptions=True)
+
+                while not state['gameover']:
+                    # play the next turn
+                    state = pelita.game.play_turn(state, allow_exceptions=True)
+                    # add current bot position to paths
+                    paths[state['turn']].append(state['bots'][state['turn']])
+        all_paths.append(paths)
+        assert all_paths[0] == paths, "Unstable paths. Possibly detected seed randomization."

@@ -250,10 +250,12 @@ class RemoteTeam:
             # We must run in unbuffered mode to enforce flushing of stdout/stderr,
             # otherwise we may lose some of what is printed
             proc = subprocess.Popen(external_call, stdout=stdout, stderr=stderr,
-                                    env=dict(os.environ, PYTHONUNBUFFERED='x'))
+                                    env=dict(os.environ,
+                                             PYTHONUNBUFFERED='x',
+                                             PYTHONHASHSEED='0'))
             return (proc, stdout, stderr)
         else:
-            return (subprocess.Popen(external_call), None, None)
+            return (subprocess.Popen(external_call, env=dict(os.environ, PYTHONHASHSEED='0')), None, None)
 
     @property
     def team_name(self):
