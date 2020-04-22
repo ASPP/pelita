@@ -222,9 +222,9 @@ def parse_layout(layout_str, food=None, bots=None):
                 lbots[bot_idx] = coord
             else:
                 raise ValueError(f"Unknown character {char} in maze at {coord}!")
-    if None in lbots:
-        none_bots = [bot_i2n[i] for i in lbots if i is None]
-        raise ValueError(f"Missing bot(s): {none_bots.join(' ')}")
+    for i, bot in enumerate(lbots):
+        if bot is None:
+            raise ValueError(f"Missing bot(s): {bot_i2n[i]}")
     lwalls.sort()
     lfood.sort()
 
