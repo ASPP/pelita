@@ -236,13 +236,14 @@ def parse_layout(layout_str, food=None, bots=None):
             raise ValueError(f"{item} is outside of maze (given: {pos} but dimensions are {width}x{height})!")
 
     # if additional food was supplied, we add it
-    for c in food:
-        if not ((0 <= c[0] < width) and (0 <= c[1] < height)):
-            raise ValueError(f"food item at {c} is outside of maze!")
-        elif c in lwalls:
-            raise ValueError(f"food item at {c} is on a wall!")
-        else:
-            lfood = sorted(list(set(food + lfood)))
+    if food is not None:
+        for c in food:
+            if not ((0 <= c[0] < width) and (0 <= c[1] < height)):
+                raise ValueError(f"food item at {c} is outside of maze!")
+            elif c in lwalls:
+                raise ValueError(f"food item at {c} is on a wall!")
+            else:
+                lfood = sorted(list(set(food + lfood)))
 
     if bots is not None:
         if len(bots.values()) > 4:
