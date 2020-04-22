@@ -142,6 +142,11 @@ def parse_layout(layout_str, food=None, bots=None):
     bot_n2i = {'a': 0, 'b': 2, 'x': 1, 'y': 3}
     bot_i2n = {0 : 'a', 2 : 'b', 1 : 'x', 3 : 'y'}
 
+    if bots is None:
+        bots = {}
+    if food is None:
+        food = []
+
     # Split Douple layouts into a list of two
     # set empty default values
     lwalls = []
@@ -236,28 +241,26 @@ def parse_layout(layout_str, food=None, bots=None):
             raise ValueError(f"{item} is outside of maze (given: {pos} but dimensions are {width}x{height})!")
 
     # if additional food was supplied, we add it
-    if food is not None:
-        for c in food:
-            if not ((0 <= c[0] < width) and (0 <= c[1] < height)):
-                raise ValueError(f"food item at {c} is outside of maze!")
-            elif c in lwalls:
-                raise ValueError(f"food item at {c} is on a wall!")
-            else:
-                lfood = sorted(list(set(food + lfood)))
+    for c in food:
+        if not ((0 <= c[0] < width) and (0 <= c[1] < height)):
+            raise ValueError(f"food item at {c} is outside of maze!")
+        elif c in lwalls:
+            raise ValueError(f"food item at {c} is on a wall!")
+        else:
+            lfood = sorted(list(set(food + lfood)))
 
-    if bots is not None:
-        if len(bots.values()) > 4:
-            raise ValueError(f"bots must not be more than 4 ({bots})!")
+    if len(bots.values()) > 4:
+        raise ValueError(f"bots must not be more than 4 ({bots})!")
 
-        # check if additional bots are on legal positions
-        for bn, bpos in bots.items():
-            if not ((0 <= bpos[0] < width) and (0 <= bpos[1] < height)):
-                raise ValueError(f"bot {bn} at {bpos} is outside of maze!")
-            elif bpos in lwalls:
-                raise ValueError(f"bot {bn} at {bpos} is on a wall!")
-            else:
-                # override bots
-                lbots[bot_n2i[bn]] = bpos
+    # check if additional bots are on legal positions
+    for bn, bpos in bots.items():
+        if not ((0 <= bpos[0] < width) and (0 <= bpos[1] < height)):
+            raise ValueError(f"bot {bn} at {bpos} is outside of maze!")
+        elif bpos in lwalls:
+            raise ValueError(f"bot {bn} at {bpos} is on a wall!")
+        else:
+            # override bots
+            lbots[bot_n2i[bn]] = bpos
 
     # build parsed layout, ensuring walls and food are sorted
     parsed_layout = {
