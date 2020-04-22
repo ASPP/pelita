@@ -138,6 +138,10 @@ def parse_layout(layout_str, food=None, bots=None):
     If only one enemy character is given, both will be assumed sitting on the
     same spot. """
 
+    # bot to index conversion
+    bot_n2i = {'a': 0, 'b': 2, 'x': 1, 'y': 3}
+    bot_i2n = {0 : 'a', 2 : 'b', 1 : 'x', 3 : 'y'}
+
     # Split Douple layouts into a list of two
     # set empty default values
     lwalls = []
@@ -219,7 +223,7 @@ def parse_layout(layout_str, food=None, bots=None):
             else:
                 raise ValueError(f"Unknown character {char} in maze at {coord}!")
     if None in lbots:
-        raise ValueError(f"Not all bots have been set. Missing bot {which(lbots is None)}")
+        raise ValueError(f"Not all bots have been set. Missing bot {bot_i2n[bot_lbots.index(None)}]")
     lwalls.sort()
     lfood.sort()
 
