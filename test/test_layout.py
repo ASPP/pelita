@@ -3,19 +3,6 @@ from textwrap import dedent
 import pytest
 from pelita.layout import *
 
-LAYOUT="""
-########
-# ###E0#
-#1E    #
-########
-"""
-LAYOUT2="""
-########
-# ###  #
-# . ...#
-########
-"""
-
 
 def test_get_available_layouts():
     available = get_available_layouts(size='all')
@@ -69,29 +56,9 @@ def test_not_enclosed_by_walls():
 def test_illegal_character():
     illegal_layout = (
         """ #######
-            #c    #
-            #     #
-            #     #
-            ####### """)
-    with pytest.raises(ValueError):
-        out = parse_single_layout(illegal_layout)
-
-def test_illegal_index():
-    illegal_layout = (
-        """ #######
-            #4    #
-            #     #
-            #     #
-            ####### """)
-    with pytest.raises(ValueError):
-        out = parse_single_layout(illegal_layout)
-
-def test_illegal_walls():
-    illegal_layout = (
-        """ ###  ##
-            #     #
-            #     #
-            #     #
+            #    x#
+            #a   c#
+            #b    #
             ####### """)
     with pytest.raises(ValueError):
         out = parse_single_layout(illegal_layout)
@@ -337,155 +304,4 @@ def test_legal_positions_fail(pos):
     with pytest.raises(ValueError):
         get_legal_positions(parsed['walls'], pos)
 
-def test_enemy_raises():
-    layouts = """
-        ####
-        #E1#
-        ####
 
-        ####
-        #1 #
-        ####
-        """
-    with pytest.raises(ValueError):
-        parse_layout(layouts)
-
-@pytest.mark.parametrize('layout,enemy_pos', [
-    ("""
-        ####
-        #E #
-        ####
-        """, [(1, 1), (1, 1)]), # one enemy sets both coordinates
-    ("""
-        ####
-        #EE#
-        ####
-        """, [(1, 1), (2, 1)]), # two enemies
-    ("""
-        ####
-        #E #
-        ####
-        ####
-        #E #
-        ####
-        """, [(1, 1), (1, 1)]), # two enemies two layouts on the same spot
-    ("""
-        ####
-        #E #
-        ####
-        ####
-        # E#
-        ####
-        """, [(1, 1), (2, 1)]), # two enemies in two layouts
-    ("""
-        ####
-        # E#
-        ####
-        ####
-        #E #
-        ####
-        """, [(1, 1), (2, 1)]), # two enemies in two layouts (list is sorted)
-    ("""
-        ####
-        # E#
-        ####
-        ####
-        #EE#
-        ####
-        """, [(1, 1), (2, 1)]), # two enemies in two layouts with duplication
-    ("""
-        #######
-        #E E E#
-        #######
-        """, None), # this will raise ValueError
-    ("""
-        ####
-        #  #
-        ####
-        """, [None, None]), # this will set both to None
-    ("""
-        ####
-        # E#
-        ####
-        ####
-        #??#
-        ####
-        """, [(1, 1), (2, 1)]), # two enemies in two layouts with duplication and question marks
-])
-def test_enemy_positions(layout, enemy_pos):
-    if enemy_pos is None:
-        with pytest.raises(ValueError):
-            parse_layout(layout, allow_enemy_chars=True)
-    else:
-        assert parse_layout(layout, allow_enemy_chars=True)['enemy'] == enemy_pos
-
-def test_layout_for_team():
-    # test that we can convert a layout to team-style
-    l1 = """
-    ####
-    #01#
-    #32#
-    #..#
-    ####
-    """
-    blue1 = layout_as_str(**layout_for_team(parse_layout(l1), is_blue=True))
-    red1 = layout_as_str(**layout_for_team(parse_layout(l1), is_blue=False))
-
-    assert blue1 == """\
-####
-#0E#
-#E1#
-#..#
-####
-"""
-
-    assert red1 == """\
-####
-#E0#
-#1E#
-#..#
-####
-"""
-
-
-    # cannot convert layout that is already in team-style
-    with pytest.raises(ValueError):
-        layout_for_team(parse_layout(blue1))
-
-    with pytest.raises(ValueError):
-        layout_for_team(parse_layout(red1))
-
-def test_layout_agnostic():
-    """
-    Test if team-style layout can be converted to server-style layout.
-    
-    Uses this layout:
-
-    ####
-    #01#
-    #EE#
-    #..#
-    ####
-    """
-
-    l = {
-        'walls': [(0,0),(0,1),(0,2),(0,3),(1,0),(1,3),(2,0),(2,3),(3,0),(3,3),(4,0),(4,1),(4,2),(4,3)],
-        'food': [(3,1),(3,2)],
-        'bots': [(1,1),(1,2)],
-        'enemy': [(2,1),(2,2)]
-        }
-
-
-    l_expected_blue = {
-        'walls': [(0,0),(0,1),(0,2),(0,3),(1,0),(1,3),(2,0),(2,3),(3,0),(3,3),(4,0),(4,1),(4,2),(4,3)],
-        'food': [(3,1),(3,2)],
-        'bots': [(1,1),(2,1),(1,2),(2,2)]
-        }
-    l_expected_red = {
-        'walls': [(0,0),(0,1),(0,2),(0,3),(1,0),(1,3),(2,0),(2,3),(3,0),(3,3),(4,0),(4,1),(4,2),(4,3)],
-        'food': [(3,1),(3,2)],
-        'bots': [(2,1),(1,1),(2,2),(1,2)]
-        }
-
-    assert layout_agnostic(l, is_blue=True) == l_expected_blue
-    assert layout_agnostic(l, is_blue=False) == l_expected_red
