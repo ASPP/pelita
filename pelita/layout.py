@@ -90,8 +90,7 @@ def get_layout_by_name(layout_name):
         # reraise as ValueError with appropriate error message.
         raise ValueError(f"Layout: '{layout_name}' is not known.") from None
 
-def parse_layout(layout_str, allow_enemy_chars=False, food=None, bots=None,
-                 enemy=None, is_noisy=None, is_blue=True, strict=False):
+def parse_layout(layout_str, food=None, bots=None):
     """Parse a layout string, with additional food, bots and enemy positions.
 
     Return a dict (if allow_enemy_chars is False)
@@ -139,11 +138,9 @@ def parse_layout(layout_str, allow_enemy_chars=False, food=None, bots=None,
     If only one enemy character is given, both will be assumed sitting on the
     same spot. """
 
-    if allow_enemy_chars:
-        num_bots = 2
-    else:
-        num_bots = 4
+    num_bots = 4
 
+    # Split Douple layouts into a list of two
     layout_list = []
     start = False
     for i, line in enumerate(layout_str.splitlines()):
@@ -176,13 +173,10 @@ def parse_layout(layout_str, allow_enemy_chars=False, food=None, bots=None,
     walls = []
     lfood = []
     lbots = [None] * num_bots
-    if allow_enemy_chars:
-        lenemy = []
-        noisy_enemy = set()
 
     # iterate through all layouts
     for layout in layout_list:
-        items = parse_single_layout(layout, num_bots=num_bots, allow_enemy_chars=allow_enemy_chars)
+        items = parse_single_layout(layout, num_bots=num_bots)
         # initialize walls from the first layout
         if not walls:
             walls = items['walls']
@@ -194,13 +188,6 @@ def parse_layout(layout_str, allow_enemy_chars=False, food=None, bots=None,
         # add the food, removing duplicates
         lfood = list(set(lfood + items['food']))
 
-        # add the enemy, removing duplicates
-        if allow_enemy_chars:
-            # enemy contains _all_ enemies
-            lenemy = list(set(lenemy + items['enemy'] + items['noisy_enemy']))
-            # noisy_enemy contains only the noisy enemies
-            noisy_enemy.update(items['noisy_enemy'])
-
         # add the bots
         for bot_idx, bot_pos in enumerate(items['bots']):
             if bot_pos:
@@ -210,19 +197,6 @@ def parse_layout(layout_str, allow_enemy_chars=False, food=None, bots=None,
                     raise ValueError(f"Cannot set bot {bot_idx} to position {bot_pos} (already at {bots[bot_idx]}).")
                 lbots[bot_idx] = bot_pos
 
-    if allow_enemy_chars:
-        # validate that we have at most two enemies
-        if len(lenemy) > 2:
-            raise ValueError(f"More than two enemies defined: {lenemy}!")
-        elif len(lenemy) == 2:
-            # do nothing
-            pass
-        elif len(lenemy) == 1:
-            # we use the position for both enemies
-            lenemy = [lenemy[0], lenemy[0]]
-        else:
-            lenemy = [None, None]
-
     # build parsed layout, ensuring walls and food are sorted
     parsed_layout = {
         'walls': sorted(walls),
@@ -230,14 +204,8 @@ def parse_layout(layout_str, allow_enemy_chars=False, food=None, bots=None,
         'bots': lbots
     }
 
-    if allow_enemy_chars:
-        # sort the enemy characters
-        # be careful, since it may contain None
-        parsed_layout['enemy'] = sorted(lenemy, key=lambda x: () if x is None else x)
-        parsed_layout['is_noisy'] = [e in noisy_enemy for e in parsed_layout['enemy']]
-        width, height = wall_dimensions(parsed_layout['walls'])
-
     # now we can add the additional food:
+    width, height = wall_dimensions(parsed_layout['walls'])
     def _check_valid_pos(pos, item):
         if pos in parsed_layout['walls']:
             raise ValueError(f"{item} must not be on wall (given: {pos})!")
@@ -252,44 +220,16 @@ def parse_layout(layout_str, allow_enemy_chars=False, food=None, bots=None,
 
     # override bots if given and not None
     if bots is not None:
-        if len(bots) > 2:
-            raise ValueError(f"bots must not be more than 2 ({bots})!")
+        if len(bots) > 4:
+            raise ValueError(f"bots must not be more than 4 ({bots})!")
         for idx, pos in enumerate(bots):
             if pos is not None:
                 _check_valid_pos(pos, "bot")
                 parsed_layout['bots'][idx] = pos
 
-    # override enemies if given
-    if enemy is not None and allow_enemy_chars:
-        if not len(enemy) == 2:
-            raise ValueError(f"enemy must be a list of 2 ({enemy})!")
-        for idx, e in enumerate(enemy):
-            if e is not None:
-                _check_valid_pos(e, "enemy")
-                parsed_layout['enemy'][idx] = e
-
-    # override is_noisy if given
-    if is_noisy is not None and allow_enemy_chars:
-        if not len(is_noisy) == 2:
-            raise ValueError(f"is_noisy must be a list of 2 ({is_noisy})!")
-        for idx, e_is_noisy in enumerate(is_noisy):
-            if e_is_noisy is not None:
-                parsed_layout['is_noisy'][idx] = e_is_noisy
-
-    # sanity checks
-    # check that no bot or enemy positions are None
-    if allow_enemy_chars and strict:
-        for bot in parsed_layout['bots']:
-            if bot is None:
-                raise ValueError("Bot positions can not be None")
-
-        for enemy in parsed_layout['enemy']:
-            if enemy is None:
-                raise ValueError("Enemy positions can not be None")
-
     return parsed_layout
 
-def parse_single_layout(layout_str, num_bots=4, allow_enemy_chars=False):
+def parse_single_layout(layout_str, num_bots=4):
     """Parse a single layout from a string
 
     See parse_layout for details about valid layout strings.
@@ -342,9 +282,6 @@ def parse_single_layout(layout_str, num_bots=4, allow_enemy_chars=False):
     food = []
     # bot positions
     bots = [None] * num_bots
-    # enemy positions (only used for team-style layouts)
-    enemy = []
-    noisy_enemy = []
 
     # iterate through the grid of characters
     for y, row in enumerate(rows):
@@ -374,24 +311,12 @@ def parse_single_layout(layout_str, num_bots=4, allow_enemy_chars=False):
                     # bot_idx has already been set before
                     raise ValueError(f"Cannot set bot {bot_idx} to position {coord} (already at {bots[bot_idx]}).")
                 bots[bot_idx] = coord
-            elif char == '?':
-                # noisy bots
-                noisy_enemy
-                if allow_enemy_chars:
-                    noisy_enemy.append(coord)
-                else:
-                    raise ValueError(f"Enemy character not allowed.")
             else:
-                # bot
                 raise ValueError(f"Unknown character {char} in maze!")
 
-                # bot_idx is a valid character.
     walls.sort()
     food.sort()
     out = {'walls':walls, 'food':food, 'bots':bots}
-    if allow_enemy_chars:
-        out['enemy'] = sorted(enemy)
-        out['noisy_enemy'] = sorted(noisy_enemy)
     return out
 
 def layout_as_str(*, walls, food=None, bots=None, enemy=None, is_noisy=None):
