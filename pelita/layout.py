@@ -233,13 +233,6 @@ def parse_layout(layout_str, food=None, bots=None):
     lwalls.sort()
     lfood.sort()
 
-    # now we can add the additional food:
-    def _check_valid_pos(pos, item):
-        if pos in parsed_layout['walls']:
-            raise ValueError(f"{item} must not be on wall (given: {pos})!")
-        if not ((0 <= pos[0] < width) and (0 <= pos[1] < height)):
-            raise ValueError(f"{item} is outside of maze (given: {pos} but dimensions are {width}x{height})!")
-
     # if additional food was supplied, we add it
     for c in food:
         if not ((0 <= c[0] < width) and (0 <= c[1] < height)):
@@ -249,8 +242,8 @@ def parse_layout(layout_str, food=None, bots=None):
         else:
             lfood = sorted(list(set(food + lfood)))
 
-    if len(bots.values()) > 4:
-        raise ValueError(f"bots must not be more than 4 ({bots})!")
+    if set(bots.keys()) <= {"a", "b", "c", "d"}
+        raise ValueError(f"Invalid Bot names in {bots}.")
 
     # check if additional bots are on legal positions
     for bn, bpos in bots.items():
