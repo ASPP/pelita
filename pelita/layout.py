@@ -138,103 +138,12 @@ def parse_layout(layout_str, food=None, bots=None):
     If only one enemy character is given, both will be assumed sitting on the
     same spot. """
 
-    num_bots = 4
-
     # Split Douple layouts into a list of two
-    layout_list = []
-    start = False
-    for i, line in enumerate(layout_str.splitlines()):
-        row = line.strip()
-        if not row:
-            # ignore emptylines
-            continue
-        if not start:
-            # start a new layout
-            # check that row is a valid opening string
-            if row.count('#') != len(row):
-                raise ValueError(f"Layout does not start with a row of walls (line: {i})!")
-            current_layout = [row]
-            start = True
-            continue
-        # we are in the middle of a layout, just append to the current
-        # layout unless we detect the closing string
-        current_layout.append(row)
-        if row.count('#') == len(row):
-            # this is a closing string
-            # append the layout to the layout list
-            layout_list.append('\n'.join(current_layout))
-            start = False
-
-    if start:
-        # the last layout has not been closed, complain here!
-        raise ValueError(f"Layout does not end with a row of walls (line: {i})!")
-
     # set empty default values
-    walls = []
+    lwalls = []
     lfood = []
-    lbots = [None] * num_bots
+    lbots = [None] * 4
 
-    # iterate through all layouts
-    for layout in layout_list:
-        items = parse_single_layout(layout, num_bots=num_bots)
-        # initialize walls from the first layout
-        if not walls:
-            walls = items['walls']
-
-        # walls should always be the same
-        if items['walls'] != walls:
-            raise ValueError('Walls are not equal in all layouts!')
-
-        # add the food, removing duplicates
-        lfood = list(set(lfood + items['food']))
-
-        # add the bots
-        for bot_idx, bot_pos in enumerate(items['bots']):
-            if bot_pos:
-                # this bot position is not None, overwrite whatever we had before, unless
-                # it already holds a different coordinate
-                if lbots[bot_idx] and lbots[bot_idx] != bot_pos:
-                    raise ValueError(f"Cannot set bot {bot_idx} to position {bot_pos} (already at {bots[bot_idx]}).")
-                lbots[bot_idx] = bot_pos
-
-    # build parsed layout, ensuring walls and food are sorted
-    parsed_layout = {
-        'walls': sorted(walls),
-        'food': sorted(lfood),
-        'bots': lbots
-    }
-
-    # now we can add the additional food:
-    width, height = wall_dimensions(parsed_layout['walls'])
-    def _check_valid_pos(pos, item):
-        if pos in parsed_layout['walls']:
-            raise ValueError(f"{item} must not be on wall (given: {pos})!")
-        if not ((0 <= pos[0] < width) and (0 <= pos[1] < height)):
-            raise ValueError(f"{item} is outside of maze (given: {pos} but dimensions are {width}x{height})!")
-
-    # if additional food was supplied, we add it
-    if food:
-        for f in food:
-            _check_valid_pos(f, "food")
-        parsed_layout['food'] = sorted(list(set(food + parsed_layout['food'])))
-
-    # override bots if given and not None
-    if bots is not None:
-        if len(bots) > 4:
-            raise ValueError(f"bots must not be more than 4 ({bots})!")
-        for idx, pos in enumerate(bots):
-            if pos is not None:
-                _check_valid_pos(pos, "bot")
-                parsed_layout['bots'][idx] = pos
-
-    return parsed_layout
-
-def parse_single_layout(layout_str, num_bots=4):
-    """Parse a single layout from a string
-
-    See parse_layout for details about valid layout strings.
-    """
-    # width of the layout (x-axis)
     width = None
     # list of layout rows
     rows = []
@@ -278,10 +187,6 @@ def parse_single_layout(layout_str, num_bots=4):
 
     # height of the layout (y-axis)
     height = len(rows)
-    walls = []
-    food = []
-    # bot positions
-    bots = [None] * num_bots
 
     # iterate through the grid of characters
     for y, row in enumerate(rows):
@@ -290,10 +195,10 @@ def parse_single_layout(layout_str, num_bots=4):
             # assign the char to the corresponding list
             if char == '#':
                 # wall
-                walls.append(coord)
+                lwalls.append(coord)
             elif char == '.':
                 # food
-                food.append(coord)
+                lfood.append(coord)
             elif char == ' ':
                 # empty
                 continue
@@ -307,17 +212,49 @@ def parse_single_layout(layout_str, num_bots=4):
                     bot_idx = 1
                 elif char == 'y':
                     bot_idx = 3
-                if bots[bot_idx]:
+                if lbots[bot_idx]:
                     # bot_idx has already been set before
-                    raise ValueError(f"Cannot set bot {bot_idx} to position {coord} (already at {bots[bot_idx]}).")
-                bots[bot_idx] = coord
+                    raise ValueError(f"Cannot set bot {bot_idx} to {coord} (already at {lbots[bot_idx]}).")
+                lbots[bot_idx] = coord
             else:
-                raise ValueError(f"Unknown character {char} in maze!")
+                raise ValueError(f"Unknown character {char} in maze at {coord}!")
+    if None in lbots:
+        raise ValueError(f"Not all bots have been set. Missing bot {which(lbots is None)}")
+    lwalls.sort()
+    lfood.sort()
 
-    walls.sort()
-    food.sort()
-    out = {'walls':walls, 'food':food, 'bots':bots}
-    return out
+    # build parsed layout, ensuring walls and food are sorted
+    parsed_layout = {
+        'walls': sorted(lwalls),
+        'food': sorted(lfood),
+        'bots': lbots
+    }
+
+    # now we can add the additional food:
+    width, height = wall_dimensions(parsed_layout['walls'])
+    def _check_valid_pos(pos, item):
+        if pos in parsed_layout['walls']:
+            raise ValueError(f"{item} must not be on wall (given: {pos})!")
+        if not ((0 <= pos[0] < width) and (0 <= pos[1] < height)):
+            raise ValueError(f"{item} is outside of maze (given: {pos} but dimensions are {width}x{height})!")
+
+    # if additional food was supplied, we add it
+    if food:
+        for f in food:
+            _check_valid_pos(f, "food")
+        parsed_layout['food'] = sorted(list(set(food + parsed_layout['food'])))
+
+    # override bots if given and not None
+    if bots is not None:
+        if len(bots) > 4:
+            raise ValueError(f"bots must not be more than 4 ({bots})!")
+        for idx, pos in enumerate(bots):
+            if pos is not None:
+                _check_valid_pos(pos, "bot")
+                parsed_layout['bots'][idx] = pos
+
+    return parsed_layout
+
 
 def layout_as_str(*, walls, food=None, bots=None, enemy=None, is_noisy=None):
     """Given walls, food and bots return a string layout representation
