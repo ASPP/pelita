@@ -242,7 +242,7 @@ def parse_layout(layout_str, food=None, bots=None):
         else:
             lfood = sorted(list(set(food + lfood)))
 
-    if set(bots.keys()) <= {"a", "b", "c", "d"}
+    if set(bots.keys()) <= {"a", "b", "c", "d"}:
         raise ValueError(f"Invalid Bot names in {bots}.")
 
     # check if additional bots are on legal positions
