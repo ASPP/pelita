@@ -605,9 +605,7 @@ class Bot:
 
             layout = layout_as_str(walls=bot.walls[:],
                                    food=bot.food + bot.enemy[0].food,
-                                   bots=[b.position for b in bot._team],
-                                   enemy=[e.position for e in bot.enemy],
-                                   is_noisy=[e.is_noisy for e in bot.enemy])
+                                   bots=[bot._team[0], bot.enemy[0], bot._team[1], bot.enemy[1]])
 
             out.write(str(layout))
             return out.getvalue()

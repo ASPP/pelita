@@ -51,8 +51,8 @@ def test_remote_run_game(remote_teams):
     # TODO: A failure here freezes pytest
     layout = """
         ##########
-        #  2  3  #
-        #0  ..  1#
+        #  b  y  #
+        #a  ..  x#
         ##########
         """
     state = pelita.game.run_game(remote_teams, max_rounds=30, layout_dict=pelita.layout.parse_layout(layout))
@@ -67,8 +67,8 @@ def test_remote_timeout():
 
     layout = """
         ##########
-        #  2  3  #
-        #0  ..  1#
+        #  b  y  #
+        #a  ..  x#
         ##########
         """
 
@@ -103,8 +103,8 @@ def test_remote_timeout():
 def test_remote_dumps_are_written():
     layout = """
         ##########
-        #  2  3  #
-        #0  ..  1#
+        #  b  y  #
+        #a  ..  x#
         ##########
         """
 
@@ -159,8 +159,8 @@ def test_remote_dumps_are_written():
 def test_remote_dumps_with_failure(failing_team):
     layout = """
         ##########
-        #  2  3  #
-        #0  ..  1#
+        #  b  y  #
+        #a  ..  x#
         ##########
         """
 

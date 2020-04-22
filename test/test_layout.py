@@ -323,3 +323,26 @@ def test_legal_positions_fail(pos):
         get_legal_positions(parsed['walls'], pos)
 
 
+def test_load():
+    layout1="""
+        ########
+        # ###ya#
+        #bx ...#
+        ########
+    """
+    layout = parse_layout(layout1)
+    assert layout['bots'] == [(6, 1), (2, 2), (1, 2),(5, 1)]
+
+def test_bots_in_same_position():
+    layout_str = """
+        ########
+        # ###  #
+        # . ...#
+        ########
+    """
+    bot_dict = {"a": (1, 1),
+                "b": (1, 1),
+                "x": (1, 1),
+                "y": (1, 1)}
+    layout = parse_layout(layout_str, bots=bot_dict)
+    assert layout['bots'] == [(1, 1), (1, 1), (1, 1),(1, 1)]

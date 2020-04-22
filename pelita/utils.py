@@ -45,33 +45,25 @@ def walls_to_graph(walls):
                         graph.add_edge((x, y), neighbor)
     return graph
 
-def _parse_layout_arg(*, layout=None, food=None, bots=None, enemy=None,
-                         is_noisy=None, is_blue=True, agnostic=True):
+def _parse_layout_arg(*, layout=None, food=None, bots=None):
     from .layout import (get_random_layout, get_layout_by_name, get_available_layouts,
-                         parse_layout, layout_for_team, layout_agnostic)
+                         parse_layout)
 
     # prepare layout argument to be passed to pelita.game.run_game
     if layout is None:
         layout_name, layout_str = get_random_layout(size='normal')
-        layout_dict = parse_layout(layout_str, allow_enemy_chars=False)
-        if not agnostic:
-            layout_dict = layout_for_team(layout_dict, is_blue=is_blue)
+        layout_dict = parse_layout(layout_str)
     elif layout in get_available_layouts(size='all'):
         # check if this is a built-in layout
         layout_name = layout
         layout_str = get_layout_by_name(layout)
-        layout_dict = parse_layout(layout_str, allow_enemy_chars=False)
-        if not agnostic:
-            layout_dict = layout_for_team(layout_dict, is_blue=is_blue)
+        layout_dict = parse_layout(layout_str)
     else:
-        # OK, then it is a (user-provided, i.e. with 'E's) layout string
+        # OK, then it is a (user-provided) layout string
         layout_str = layout
         layout_name = '<string>'
         # be strict and complain if the layout does not contain two bots and two enemies
-        layout_dict = parse_layout(layout_str, food=food, bots=bots, enemy=enemy, strict=True,
-                                   is_noisy=is_noisy, is_blue=is_blue, allow_enemy_chars=True)
-        if agnostic:
-            layout_dict = layout_agnostic(layout_dict)
+        layout_dict = parse_layout(layout_str, food=food, bots=bots)
 
     return layout_dict, layout_name
 
@@ -194,7 +186,7 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
 
 
 def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
-                    food=None, bots=None, enemy=None, is_noisy=None):
+                    food=None, bots=None, is_noisy=None):
     """Setup a test game environment useful for testing move functions.
 
     Parameters
@@ -203,14 +195,6 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
       specify the layout of the maze to play with. If None, a built-in
       layout of normal size will be chosen at random. If specified it will
       be interpreted as the name of a built-in layout, e.g. 'normal_083'.
-      You can also pass a layout string like the ones obtained by print(bot). For
-      example:
-      layout = '''
-               ########
-               #. 1 E #
-               #0 E   #
-               ########
-               '''
 
     is_blue : bool
            when True, sets up up the game assuming your bots are in the blue team,
@@ -232,18 +216,13 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
         list of coordinates for food pellets. The food will be added to the one
         already found in the layout string
 
-    bots : list[(x0,y0), (x1,y1)]
-        list of coordinates for your bots. These will override the positions found
+    bots : dict{"a": (x0,y0), "b":(x1,y1), "x":(x2,y2), "y":(x3,y3)}
+        dict of bot names and coordinates. These will override the positions found
         in the layout. If only one pair of coordinates is given, i.e. you pass just
         [(x0,y0)], only the position for bot '0' will be overridden
 
-    enemy : list[(x0,y0), (x1,y1)]
-         list of coordinates for the enemy bots. These will override the positions
-         found in the layout. If only one pair of coordinates is given, i.e. you
-         pass just [(x0,y0)], only the position for enemy bot '0' will be overridden
-
-    is_noisy : list[bool, bool]
-            list of two booleans for the enemy bots’ is_noisy property
+    is_noisy : dict{"a": (x0,y0), "b":(x1,y1), "x":(x2,y2), "y":(x3,y3)}
+            dict of bot names and booleans for the bots’ is_noisy property
 
 
     Returns
@@ -254,10 +233,10 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
 
     if score is None:
         score = [0, 0]
+    if is_noisy is None:
+        is_noisy = {}
 
-    layout, layout_name = _parse_layout_arg(layout=layout, is_blue=is_blue,
-                               food=food, bots=bots, enemy=enemy,
-                               is_noisy=is_noisy, agnostic=False)
+    layout, layout_name = _parse_layout_arg(layout=layout, food=food, bots=bots)
 
     width = max(layout['walls'])[0] + 1
 
@@ -273,14 +252,24 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
     if is_blue:
         team_index = 0
         enemy_index = 1
+        bot_positions = [layout['bots'][0], layout['bots'][2]]
+        enemy_positions = [layout['bots'][1], layout['bots'][3]]
+        is_noisy["x"] = is_noisy["x"] if "x" in is_noisy else False
+        is_noisy["y"] = is_noisy["y"] if "y" in is_noisy else False
+        is_noisy_enemy = [is_noisy["x"], is_noisy["y"]]
     else:
         team_index = 1
         enemy_index = 0
+        bot_positions = [layout['bots'][1], layout['bots'][3]]
+        enemy_positions = [layout['bots'][0], layout['bots'][2]]
+        is_noisy["a"] = is_noisy["a"] if "a" in is_noisy else False
+        is_noisy["b"] = is_noisy["b"] if "b" in is_noisy else False
+        is_noisy_enemy = [is_noisy["a"], is_noisy["b"]]
 
     rng = random.Random(seed)
 
     team = {
-        'bot_positions': layout['bots'][:],
+        'bot_positions': bot_positions,
         'team_index': team_index,
         'score': score[team_index],
         'kills': [0]*2,
@@ -291,7 +280,7 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
         'name': "blue" if is_blue else "red"
     }
     enemy = {
-        'bot_positions': layout['enemy'][:],
+        'bot_positions': enemy_positions,
         'team_index': enemy_index,
         'score': score[enemy_index],
         'kills': [0]*2,
@@ -299,7 +288,7 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
         'bot_was_killed': [False]*2,
         'error_count': 0,
         'food': food[enemy_index],
-        'is_noisy': layout['is_noisy'],
+        'is_noisy': is_noisy_enemy,
         'name': "red" if is_blue else "blue"
     }
 
