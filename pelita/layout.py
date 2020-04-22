@@ -218,7 +218,7 @@ def parse_layout(layout_str, food=None, bots=None):
                     bot_idx = 3
                 if lbots[bot_idx]:
                     # bot_idx has already been set before
-                    raise ValueError(f"Cannot set bot {bot_idx} to {coord} (already at {lbots[bot_idx]}).")
+                    raise ValueError(f"Cannot set bot {bot_i2n[bot_idx]} to {coord} (already at {lbots[bot_idx]}).")
                 lbots[bot_idx] = coord
             else:
                 raise ValueError(f"Unknown character {char} in maze at {coord}!")
