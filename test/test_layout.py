@@ -52,6 +52,10 @@ def test_get_random_layout_returns_correct_layout():
     layout2 = get_layout_by_name(name)
     assert layout == layout2
 
+def test_get_random_layout_random_seed():
+    name, layout = get_random_layout(size='small', seed=1)
+    assert name == 'small_007'
+
 def test_not_enclosed_by_walls():
     illegals = ("""# ###
                    #   #
@@ -458,7 +462,7 @@ def test_layout_for_team():
 def test_layout_agnostic():
     """
     Test if team-style layout can be converted to server-style layout.
-    
+
     Uses this layout:
 
     ####
