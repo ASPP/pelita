@@ -249,11 +249,11 @@ def main():
 
     if args.seed is None:
         seed = random.randint(0, sys.maxsize)
-        args.seed = seed
         print("Replay this game with --seed {seed}".format(seed=seed))
     else:
-        pass
-    random.seed(args.seed)
+        seed = args.seed
+
+    random.seed(seed)
 
     if args.layout:
         # first check if the given layout is a file
@@ -270,12 +270,12 @@ def main():
             layout_name = args.layout
             layout_string = pelita.layout.get_layout_by_name(args.layout)
     else:
-        layout_name, layout_string = pelita.layout.get_random_layout(args.size)
+        layout_name, layout_string = pelita.layout.get_random_layout(args.size, seed=seed)
 
     print("Using layout '%s'" % layout_name)
 
     layout_dict = layout.parse_layout(layout_string)
-    game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, seed=args.seed,
+    game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, seed=seed,
                   timeout_length=args.timeout_length, max_team_errors=args.max_timeouts,
                   viewers=viewers, viewer_options=viewer_options,
                   store_output=args.store_output)
