@@ -54,7 +54,7 @@ def test_get_random_layout_returns_correct_layout():
 
 def test_get_random_layout_random_seed():
     name, layout = get_random_layout(size='small', seed=1)
-    assert name == 'small_007'
+    assert name == 'small_018'
 
 def test_not_enclosed_by_walls():
     illegals = ("""# ###
