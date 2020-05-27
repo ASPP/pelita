@@ -62,8 +62,12 @@ def get_available_layouts(size='normal'):
         raise ValueError(f"Invalid layout size ('{size}' given). Valid: {valid}")
     if size == 'all':
         size = ''
-    return [item[:-(len('.layout'))] for item in importlib_resources.contents('pelita._layouts')
-                 if item.endswith('.layout') and size in item]
+    av_layouts = []
+    for item in importlib_resources.contents('pelita._layouts'):
+        if item.endswith('.layout') and size in item:
+            av_layouts.append(item[:-(len('.layout'))])
+
+    return sorted(av_layouts)
 
 def get_layout_by_name(layout_name):
     """Get a built-in layout by name
