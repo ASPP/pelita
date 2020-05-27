@@ -7,7 +7,6 @@ import io
 from pathlib import Path
 import random
 
-<<<<<<< HEAD
 # bot to index conversion
 BOT_N2I = {'a': 0, 'b': 2, 'x': 1, 'y': 3}
 BOT_I2N = {0: 'a', 2: 'b', 1: 'x', 3: 'y'}
