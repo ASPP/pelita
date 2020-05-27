@@ -7,12 +7,15 @@ import io
 from pathlib import Path
 import random
 
+<<<<<<< HEAD
 # bot to index conversion
 BOT_N2I = {'a': 0, 'b': 2, 'x': 1, 'y': 3}
 BOT_I2N = {0: 'a', 2: 'b', 1: 'x', 3: 'y'}
 
 
-def get_random_layout(size='normal'):
+RNG = random.Random()
+
+def get_random_layout(size='normal', seed=None):
     """ Return a random layout string from the available ones.
 
     Parameters
@@ -32,8 +35,10 @@ def get_random_layout(size='normal'):
         the name of the layout, a random layout string
 
     """
+    if seed is not None:
+        RNG.seed(seed)
     layouts_names = get_available_layouts(size=size)
-    layout_choice = random.choice(layouts_names)
+    layout_choice = RNG.choice(layouts_names)
     return layout_choice, get_layout_by_name(layout_choice)
 
 def get_available_layouts(size='normal'):
@@ -63,8 +68,12 @@ def get_available_layouts(size='normal'):
         raise ValueError(f"Invalid layout size ('{size}' given). Valid: {valid}")
     if size == 'all':
         size = ''
-    return [item[:-(len('.layout'))] for item in importlib_resources.contents('pelita._layouts')
-                 if item.endswith('.layout') and size in item]
+    av_layouts = []
+    for item in importlib_resources.contents('pelita._layouts'):
+        if item.endswith('.layout') and size in item:
+            av_layouts.append(item[:-(len('.layout'))])
+
+    return sorted(av_layouts)
 
 def get_layout_by_name(layout_name):
     """Get a built-in layout by name

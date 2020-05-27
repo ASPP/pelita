@@ -4,6 +4,8 @@ import networkx
 
 from .player.team import make_bots
 
+RNG = random.Random()
+
 def walls_to_graph(walls):
     """Return a networkx Graph object given the walls of a maze.
 
@@ -45,13 +47,13 @@ def walls_to_graph(walls):
                         graph.add_edge((x, y), neighbor)
     return graph
 
-def _parse_layout_arg(*, layout=None, food=None, bots=None):
+def _parse_layout_arg(*, layout=None, food=None, bots=None, seed=None):
     from .layout import (get_random_layout, get_layout_by_name, get_available_layouts,
                          parse_layout)
 
     # prepare layout argument to be passed to pelita.game.run_game
     if layout is None:
-        layout_name, layout_str = get_random_layout(size='normal')
+        layout_name, layout_str = get_random_layout(size='normal', seed=seed)
         layout_dict = parse_layout(layout_str)
     elif layout in get_available_layouts(size='all'):
         # check if this is a built-in layout
@@ -149,10 +151,10 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
 
     # if the seed is not set explicitly, set it here
     if seed is None:
-        seed = random.randint(1, 2**31)
-        random.seed(seed)
+        seed = RNG.randint(1, 2**31)
+        RNG.seed(seed)
 
-    layout_dict, layout_name = _parse_layout_arg(layout=layout, agnostic=True)
+    layout_dict, layout_name = _parse_layout_arg(layout=layout, agnostic=True, seed=seed)
 
     game_state = run_game((blue_move, red_move), layout_dict=layout_dict,
                           layout_name=layout_name, max_rounds=max_rounds, seed=seed,

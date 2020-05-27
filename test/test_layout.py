@@ -39,6 +39,10 @@ def test_get_random_layout_returns_correct_layout():
     layout2 = get_layout_by_name(name)
     assert layout == layout2
 
+def test_get_random_layout_random_seed():
+    name, layout = get_random_layout(size='small', seed=1)
+    assert name == 'small_018'
+
 def test_legal_layout():
     layout = """
              ######
