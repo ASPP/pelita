@@ -7,7 +7,9 @@ import io
 from pathlib import Path
 import random
 
-def get_random_layout(size='normal'):
+RNG = random.Random()
+
+def get_random_layout(size='normal', seed=None):
     """ Return a random layout string from the available ones.
 
     Parameters
@@ -27,8 +29,10 @@ def get_random_layout(size='normal'):
         the name of the layout, a random layout string
 
     """
+    if seed is not None:
+        RNG.seed(seed)
     layouts_names = get_available_layouts(size=size)
-    layout_choice = random.choice(layouts_names)
+    layout_choice = RNG.choice(layouts_names)
     return layout_choice, get_layout_by_name(layout_choice)
 
 def get_available_layouts(size='normal'):

@@ -270,7 +270,7 @@ def main():
             layout_name = args.layout
             layout_string = pelita.layout.get_layout_by_name(args.layout)
     else:
-        layout_name, layout_string = pelita.layout.get_random_layout(args.size)
+        layout_name, layout_string = pelita.layout.get_random_layout(args.size, seed=seed)
 
     print("Using layout '%s'" % layout_name)
 
