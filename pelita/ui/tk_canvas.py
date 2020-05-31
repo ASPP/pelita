@@ -11,6 +11,7 @@ from ..game import next_round_turn
 from .tk_sprites import BotSprite, Food, Wall, col
 from .tk_utils import wm_delete_window_handler
 from .tk_sprites import BotSprite, Food, Wall, RED, BLUE, YELLOW, GREY, BROWN
+from .. import layout
 
 _logger = logging.getLogger(__name__)
 
@@ -298,7 +299,7 @@ class TkApplication:
             spacing = 10
             wi, he = 5, 5
             x0, y0 = 2.5 + idx * spacing, 9
-            circle = self.ui.bot_traffic_lights_canvas.create_oval(x0, y0, x0 + wi, y0 + he, outline="#999", width=2)
+            circle = self.ui.bot_traffic_lights_canvas.create_text(x0, y0, text=layout.BOT_I2N[idx], font=(None, 11), fill="black")
             self.ui.bot_traffic_lights_c.append(circle)
 
         self.ui.status_round_info = tkinter.Label(self.ui.status_02, text="", background="white")
@@ -563,9 +564,9 @@ class TkApplication:
         bot_colors = [BLUE, RED, BLUE, RED]
         for idx, circle in enumerate(self.ui.bot_traffic_lights_c):
             if turn == idx:
-                self.ui.bot_traffic_lights_canvas.itemconfig(circle, fill=bot_colors[idx], outline=bot_colors[idx])
+                self.ui.bot_traffic_lights_canvas.itemconfig(circle, fill=bot_colors[idx])
             else:
-                self.ui.bot_traffic_lights_canvas.itemconfig(circle, fill="#bbb", outline="#bbb")
+                self.ui.bot_traffic_lights_canvas.itemconfig(circle, fill="#bbb")
 
         self.ui.status_layout_info.config(text=layout_name)
 
