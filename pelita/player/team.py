@@ -412,6 +412,7 @@ class Bot:
                           was_killed,
                           random,
                           round,
+                          bot_char,
                           is_blue,
                           team_name,
                           error_count,
@@ -439,6 +440,7 @@ class Bot:
         self.was_killed = was_killed
         self._bot_index  = bot_index
         self.round = round
+        self.char = bot_char
         self.is_blue = is_blue
         self.team_name = team_name
         self.error_count = error_count
@@ -587,12 +589,14 @@ class Bot:
         bot_positions = [blue.position, red.position, blue.other.position, red.other.position]
 
         header = ("{blue}{you_blue} vs {red}{you_red}.\n" +
-            "Playing on {col} side. Current turn: {turn}. Round: {round}, score: {blue_score}:{red_score}. " +
-            "timeouts: {blue_timeouts}:{red_timeouts}\n").format(
+                  "Playing on {col} side. Current turn: {turn}. "+
+                  "Bot: {bot_char}. Round: {round}, score: {blue_score}:{red_score}. " +
+                  "timeouts: {blue_timeouts}:{red_timeouts}\n").format(
             blue=blue.team_name,
             red=red.team_name,
             turn=bot.turn,
             round=bot.round,
+            bot_char=bot.char,
             blue_score=blue.score,
             red_score=red.score,
             col="blue" if bot.is_blue else "red",
@@ -638,6 +642,7 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
             walls=walls,
             round=round,
             bot_turn=bot_turn,
+            bot_char=BOT_I2N[team_index + idx*2],
             random=rng,
             position=team['bot_positions'][idx],
             initial_position=team_initial_positions[idx],
@@ -660,6 +665,7 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
             food=enemy['food'],
             walls=walls,
             round=round,
+            bot_char = BOT_I2N[team_index + idx*2],
             random=rng,
             position=enemy['bot_positions'][idx],
             initial_position=enemy_initial_positions[idx],
