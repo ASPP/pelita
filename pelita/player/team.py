@@ -583,6 +583,7 @@ class Bot:
             red = bot if not bot.turn else bot.other
 
         bot_positions = [blue.position, red.position, blue.other.position, red.other.position]
+        bot_noise = [blue.is_noisy, red.is_noisy, blue.other.is_noisy, red.other.is_noisy]
 
         header = ("{blue}{you_blue} vs {red}{you_red}.\n" +
                   "Playing on {col} side. Current turn: {turn}. "+
@@ -602,6 +603,11 @@ class Bot:
             red_timeouts=red.error_count,
         )
 
+        footer = ("Bots: {bots}\nNoisy: {noise}\nFood: {food}\n").format(
+                  bots={BOT_I2N[idx]:pos for idx, pos in enumerate(bot_positions)},
+                  noise={BOT_I2N[idx]:state for idx, state in enumerate(bot_noise)},
+                  food = bot.food + bot.enemy[0].food)
+
         with StringIO() as out:
             out.write(header)
 
@@ -610,6 +616,7 @@ class Bot:
                                    bots=bot_positions)
 
             out.write(str(layout))
+            out.write(footer)
             return out.getvalue()
 
 
