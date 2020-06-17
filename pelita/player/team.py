@@ -416,8 +416,8 @@ class Bot:
                           is_blue,
                           team_name,
                           error_count,
-                          bot_turn=None,
-                          is_noisy=None):
+                          is_noisy,
+                          bot_turn=None):
         self._bots = None
         self._say = None
 
@@ -444,16 +444,12 @@ class Bot:
         self.is_blue = is_blue
         self.team_name = team_name
         self.error_count = error_count
+        self.is_noisy = is_noisy
 
         # Attributes for Bot
         if self._is_on_team:
             assert bot_turn is not None
             self._bot_turn = bot_turn
-
-        # Attributes for Enemy
-        if not self._is_on_team:
-            assert is_noisy is not None
-            self.is_noisy = is_noisy
 
     # @property
     # def legal_directions(self):
@@ -637,6 +633,7 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
             deaths=team['deaths'][idx],
             kills=team['kills'][idx],
             was_killed=team['bot_was_killed'][idx],
+            is_noisy=False,
             error_count=team['error_count'],
             food=team['food'],
             walls=walls,
