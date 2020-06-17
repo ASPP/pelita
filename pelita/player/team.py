@@ -14,7 +14,7 @@ import zmq
 
 from .. import layout
 from ..exceptions import PlayerDisconnected, PlayerTimeout
-from ..layout import layout_as_str, parse_layout, wall_dimensions
+from ..layout import layout_as_str, parse_layout, wall_dimensions, BOT_I2N
 from ..network import ZMQClientError, ZMQConnection, ZMQReplyTimeout, ZMQUnreachablePeer
 
 _logger = logging.getLogger(__name__)
@@ -578,11 +578,13 @@ class Bot:
         height = max(bot.walls)[1] + 1
 
         if bot.is_blue:
-            blue = bot
+            blue = bot if not bot.turn else bot.other
             red = bot.enemy[0]
         else:
             blue = bot.enemy[0]
-            red = bot
+            red = bot if not bot.turn else bot.other
+
+        bot_positions = [blue.position, red.position, blue.other.position, red.other.position]
 
         header = ("{blue}{you_blue} vs {red}{you_red}.\n" +
             "Playing on {col} side. Current turn: {turn}. Round: {round}, score: {blue_score}:{red_score}. " +
@@ -605,7 +607,7 @@ class Bot:
 
             layout = layout_as_str(walls=bot.walls[:],
                                    food=bot.food + bot.enemy[0].food,
-                                   bots=[bot._team[0], bot.enemy[0], bot._team[1], bot.enemy[1]])
+                                   bots=bot_positions)
 
             out.write(str(layout))
             return out.getvalue()
