@@ -297,8 +297,7 @@ class TkApplication:
         self.ui.bot_traffic_lights_c = []
         for idx in range(4):
             spacing = 10
-            wi, he = 5, 5
-            x0, y0 = 2.5 + idx * spacing, 9
+            x0, y0 = 2.5 + idx * spacing, 13
             circle = self.ui.bot_traffic_lights_canvas.create_text(x0, y0, text=layout.BOT_I2N[idx], font=(None, 11), fill="black")
             self.ui.bot_traffic_lights_c.append(circle)
 
