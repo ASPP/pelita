@@ -131,6 +131,7 @@ def parse_layout(layout_str, food=None, bots=None):
 
       - food: a list of coordinates of additional food pellets
       - bots: a dictionary { char : (coord_x, coord_y)}, where char in 'a', 'b', 'x', 'y'
+              bots specified this way override the coordinates of bots found in the string
     """
 
     if bots is None:
