@@ -202,17 +202,10 @@ def parse_layout(layout_str, food=None, bots=None):
             elif char == ' ':
                 # empty
                 continue
-            elif char in ['a', 'b', 'x', 'y']:
+            elif char in BOT_N2I.keys():
                 # legal bots
-                if char == 'a':
-                    bot_idx = 0
-                elif char == 'b':
-                    bot_idx = 2
-                elif char == 'x':
-                    bot_idx = 1
-                elif char == 'y':
-                    bot_idx = 3
-                if lbots[bot_idx]:
+                bot_idx = BOT_N2I[char]
+                if lbots[bot_idx] is not None:
                     # bot_idx has already been set before
                     raise ValueError(f"Cannot set bot {BOT_I2N[bot_idx]} to {coord} (already at {lbots[bot_idx]}).")
                 lbots[bot_idx] = coord

@@ -283,7 +283,7 @@ def test_multiple_enemies_killing():
         game_state = setup_game([stopping, stopping], layout_dict=parsed_l0)
 
         game_state['turn'] = bot
-        # get position of bots 1 (and y)
+        # get position of bots x (and y)
         kill_position = game_state['bots'][1]
         assert kill_position == game_state['bots'][3]
         new_state = apply_move(game_state, kill_position)
@@ -384,7 +384,7 @@ def test_cascade_kill():
     ########
     """, {}),
     ]
-    overlaps = [{}, ]
+
     def move(bot, state):
         if not bot.is_blue and bot.turn == 1 and bot.round == 1:
             return (6, 1)
@@ -630,7 +630,7 @@ def test_moving_through_maze():
             # a. #
             #bx  #
             #   y#
-            ###### """, food=[(1,2)])
+            ###### """, bots={'b': (1, 2)}, food=[(1, 2)]) # b sitting on food
 
     assert test_second_round['bots'] == state['bots']
     assert test_second_round['food'] == list(state['food'][0]) + list(state['food'][1])
@@ -656,7 +656,7 @@ def test_moving_through_maze():
             #b . #
             #a x #
             #   y#
-            ###### """, food=[(1,2)])
+            ###### """, bots={'a': (1, 2)}, food=[(1, 2)]) # a sitting on food
 
     assert test_fourth_round['bots'] == state['bots']
     assert test_fourth_round['food'] == list(state['food'][0]) + list(state['food'][1])
@@ -682,7 +682,7 @@ def test_moving_through_maze():
             # b. #
             #a x #
             #   y#
-            ###### """, food=[(1,2)])
+            ###### """, bots={'a': (1, 2)}, food=[(1, 2)]) # a sitting on food
 
     assert test_sixth_round['bots'] == state['bots']
     assert test_sixth_round['food'] == list(state['food'][0]) + list(state['food'][1])
@@ -697,7 +697,7 @@ def test_moving_through_maze():
             #  b #
             #a x #
             #   y#
-            ###### """, food=[(1,2)])
+            ###### """, bots={'a': (1, 2)}, food=[(1, 2)]) # a sitting on food
 
     assert test_seventh_round['bots'] == state['bots']
     assert test_seventh_round['food'] == list(state['food'][0]) + list(state['food'][1])
