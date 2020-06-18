@@ -104,59 +104,40 @@ def get_layout_by_name(layout_name):
         raise ValueError(f"Layout: '{layout_name}' is not known.") from None
 
 def parse_layout(layout_str, food=None, bots=None):
-    """Parse a layout string, with additional food, bots and enemy positions.
+    """Parse a layout string.
 
-    Return a dict (if allow_enemy_chars is False)
+    A valid layout string is enclosed by walls and rectangular:
+
+     ########
+     #a  .  #
+     #b ## x#
+     #  .  y#
+     ########
+
+
+    Return a dict
         {'walls': list_of_wall_coordinates,
          'food' : list_of_food_coordinates,
-         'bot'  : list_of_4_bot_coordinate}
-         or (if allow_enemy_chars is True)
-        {'walls': list_of_wall_coordinates,
-         'food' : list_of_food_coordinates,
-         'bot'  : list_of_2_bot_coordinate,
-         'enemy': list_of_2_enemy_coordinates,
-         'is_noisy': list_of_two_bool}
+         'bots'  : list_of_bot_coordinates in the order (a,x,b,y) }
 
+    In the example above:
+    {'walls': [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
+               (2, 4), (3, 0), (3, 2), (3, 4), (4, 0), (4, 2), (4, 4), (5, 0),
+               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)],
+     'food': [(3, 3), (4, 1)],
+     'bots': [(1, 1), (6, 2), (1, 2), (6, 3)]}
 
-    A layout string is composed of wall characters '#', food characters '.', and
-    bot characters '0', '1', '2', and '3'.
+    Additional food and bots can be passed:
 
-    Valid layouts must be enclosed by walls and be of rectangular shape. Example:
-
-     ########
-     #0  .  #
-     #2    1#
-     #  .  3#
-     ########
-
-
-    If items are overlapping, several layout strings can be concatenated:
-     ########
-     #0  .  #
-     #     1#
-     #  .  3#
-     ########
-     ########
-     #2  .  #
-     #     1#
-     #  .  3#
-     ########
-
-    In this case, bot '0' and bot '2' are on top of each other at position (1,1)
-
-    If `allow_enemy_chars` is True, we additionally allow for the definition of
-    at most 2 enemy characters with the letters "E" and "?". The returned dict will
-    then additionally contain an entry "enemy" which contains these coordinates and
-    an entry "is_noisy" that specifies which of the given enemies is noisy.
-    If only one enemy character is given, both will be assumed sitting on the
-    same spot. """
+      - food: a list of coordinates of additional food pellets
+      - bots: a dictionary { char : (coord_x, coord_y)}, where char in 'a', 'b', 'x', 'y'
+    """
 
     if bots is None:
         bots = {}
     if food is None:
         food = []
 
-    # Split Douple layouts into a list of two
     # set empty default values
     lwalls = []
     lfood = []
@@ -275,23 +256,36 @@ def parse_layout(layout_str, food=None, bots=None):
 
 
 def layout_as_str(*, walls, food=None, bots=None):
-    """Given walls, food and bots return a string layout representation
-
-    Returns a combined layout string.
-
-    The first layout string contains walls and food, the subsequent layout
-    strings contain walls and bots. If bots are overlapping, as many layout
-    strings are appended as there are overlapping bots.
+    """Given a dictionary with walls, food and bots coordinates return a string layout representation
 
     Example:
 
-    ####
-    #  #
-    ####
+    Given:
+    {'walls': [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
+               (2, 4), (3, 0), (3, 2), (3, 4), (4, 0), (4, 2), (4, 4), (5, 0),
+               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)],
+     'food': [(3, 3), (4, 1)],
+     'bots': [(1, 1), (6, 2), (1, 2), (6, 3)]}
+
+    Return:
+    ########
+    #a  .  #
+    #b ## x#
+    #  .  y#
+    ########
+
+    Overlapping items are discarded. When overlapping, walls take precedence over
+    bots, which take precendence over food.
     """
     walls = sorted(walls)
     width = max(walls)[0] + 1
     height = max(walls)[1] + 1
+
+    # initialized empty containers
+    if food is None:
+        food = []
+    if bots is None:
+        bots = []
 
     out = io.StringIO()
     for y in range(height):
