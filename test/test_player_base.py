@@ -30,9 +30,9 @@ class TestAbstractPlayer:
 
         test_layout = (
         """ ##################
-            #0#.  .  # .     #
-            #2#####    ####1 #
-            #     . #  .  #3##
+            #a#.  .  # .     #
+            #b#####    ####x #
+            #     . #  .  #y##
             ################## """)
 
         player_0 = StoppingPlayer()
@@ -148,7 +148,8 @@ class TestAbstractPlayer:
 
         test_layout = (
         """ ############
-            #0 #.  .# 1#
+            #a #.  .# x#
+            #b #.  .# y#
             ############ """)
         team = [
             SimpleTeam(TimeSpendingPlayer()),
@@ -192,7 +193,7 @@ class TestAbstractPlayer:
 
         test_layout = (
         """ ############
-            #02#.  .#31#
+            #ab#.  .#yx#
             ############ """)
         teams = [
             SimpleTeam(RndPlayer(), SeedTestingPlayer()),
@@ -204,9 +205,9 @@ class TestAbstractPlayer:
     def test_simulate_move(self):
         test_layout = (
             """ ############
-                #  #.1 .#  #
-                #  #.03.#  #
-                #2  .  .   #
+                #  #.x .#  #
+                #  #.ay.#  #
+                #b  .  .   #
                 ############ """)
 
         p0 = StoppingPlayer()
@@ -290,8 +291,8 @@ class TestSteppingPlayer:
     def test_stepping_players(self):
         test_layout = (
         """ ############
-            #0  .  .  1#
-            #2        3#
+            #a  .  .  x#
+            #b        y#
             ############ """)
         movements_0 = [east, east]
         movements_1 = [west, west]
@@ -307,8 +308,8 @@ class TestSteppingPlayer:
     def test_shorthand(self):
         test_layout = (
         """ ############
-            #0  .  .  3#
-            #2        1#
+            #a  .  .  y#
+            #b        x#
             ############ """)
         num_rounds = 5
         teams = [
@@ -331,8 +332,8 @@ class TestSteppingPlayer:
     def test_too_many_moves(self):
         test_layout = (
         """ ############
-            #0  .  .  1#
-            #2        3#
+            #a  .  .  x#
+            #b        y#
             ############ """)
         movements_0 = [east, east]
         movements_1 = [west, west]
@@ -351,8 +352,8 @@ class TestRoundBasedPlayer:
     def test_round_based_players(self):
         test_layout = (
         """ ############
-            #0  .  .  1#
-            #2        3#
+            #a  .  .  x#
+            #b        y#
             ############ """)
         # index 0 can be ignored
         movements_0 = [None, east, east]
@@ -378,10 +379,10 @@ class TestRandomPlayerSeeds:
     def test_demo_players(self):
         test_layout = (
         """ ################
-            #2            3#
+            #b            y#
             #              #
             #              #
-            #   0      1   #
+            #   a      x   #
             #              #
             #              #
             #              #
@@ -416,8 +417,8 @@ class TestRandomPlayerSeeds:
             #              #
             #              #
             #              #
-            #   0      1   #
-            #   2      3   #
+            #   a      x   #
+            #   b      y   #
             #              #
             #              #
             #.            .#
@@ -468,7 +469,7 @@ class TestRandomPlayerSeeds:
 def test_speaking_player():
     test_layout = (
     """ ############
-        #02#.  .#31#
+        #ab#.  .#yx#
         ############ """)
     teams = [
         speaking_player,

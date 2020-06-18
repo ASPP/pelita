@@ -9,9 +9,9 @@ class TestNQRandom_Player:
     def test_demo_players(self):
         test_layout = (
         """ ############
-            #0#.   .# 1#
+            #a#.   .# x#
             ###.   .####
-            #2#.   .# 3#
+            #b#.   .# y#
             ############ """)
         teams = [
             nq_random_player,
@@ -26,9 +26,9 @@ class TestNQRandom_Player:
         """ ############
             #  . # .# ##
             # ## #  # ##
-            #0#.   .##1#
+            #a#.   .##x#
             ###.   .####
-            #2#.   .# 3#
+            #b#.   .# y#
             ############ """)
         teams = [
             nq_random_player,
@@ -44,12 +44,12 @@ def test_players(player):
     # Simple checks that the players are running to avoid API discrepancies
     test_layout = (
     """ ############
-        #2 . # . 3##
+        #b . # . y##
         # ## #    ##
         # ## #  # ##
         # ## #  # ##
         #    #  # ##
-        #0#.   .  1#
+        #a#.   .  x#
         ############ """)
     
     teams = [

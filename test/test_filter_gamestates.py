@@ -16,12 +16,12 @@ def make_gamestate():
     # get layout
     layout = """
         ##################
-        #. ... .##.     3#
-        # # #  .  .### #1#
+        #. ... .##.     y#
+        # # #  .  .### #x#
         # # ##.   .      #
         #      .   .## # #
-        #0# ###.  .  # # #
-        #2     .##. ... .#
+        #a# ###.  .  # # #
+        #b     .##. ... .#
         ################## """
 
     lt_dict = parse_layout(layout)
@@ -313,13 +313,13 @@ def test_noiser_noising_at_noise_radius_extreme(ii):
          (6, 1), (5, 1), (4, 1), (3, 1)]]
 ])
 def test_uniform_noise_manhattan(noise_radius, expected, test_layout=None):
-    # Test how bot 1 observes bot 0
+    # Test how bot 1(x) observes bot 0(a)
     if not test_layout:
         test_layout = (
         """ ##################
-            # #.  .  # .     #
+            # #.  .  # .    y#
             # #####    ##### #
-            #  0  . #  .  .#1#
+            #b a  . #  .  .#x#
             ################## """)
     parsed = parse_layout(test_layout)
 
@@ -345,55 +345,55 @@ def test_uniform_noise_manhattan(noise_radius, expected, test_layout=None):
 @pytest.mark.parametrize('noise_radius, test_layout', [
     [0, """
         ##################
-        # #      #       #
+        # #      # y     #
         # #####    ##### #
-        #  0    #      #1#
+        #b a    #      #x#
         ################## """], # original position. not noised
     [1, """
         ##################
-        #   .            #
-        #  .0.        1  #
-        #   .            #
+        #   .       y    #
+        #  .a.        x  #
+        #b  .            #
         ################## """], # noised by one
     [1, """
         ##################
-        #                #
-        #   .         1  #
-        #  .0.           #
+        # b          y   #
+        #   .         x  #
+        #  .a.           #
         ################## """], # noised by one
     [1, """
         ##################
-        #                #
-        #.            1  #
-        #0.              #
+        #  b          y  #
+        #.            x  #
+        #a.              #
         ################## """], # noised by one
     [1, """
         ##################
-        #              .0#
-        #  1            .#
+        #   b          .a#
+        #  x        y   .#
         #                #
         ################## """], # noised by on
     [1, """
         ##################
-        # #      #       #
+        # #  b   #   y   #
         # #####    ##### #
-        # .0.   #      #1#
+        # .a.   #      #x#
         ################## """], # noised by one
     [1, """
         ##################
-        # #      #       #
+        # #   b  #    y  #
         # #####    #####.#
-        #  1    #      #0#
+        #  x    #      #a#
         ################## """], # noised by one
     [1, """
         ##################
-        # #      #   .0. #
+        # #   b  #   .a. #
         # #####    ##### #
-        #  1    #      # #
+        #  x    #    y # #
         ################## """], # noised by one
 ])
 def test_uniform_noise_manhattan_graphical(noise_radius, test_layout):
-    # Test how bot 1 observes bot 0
+    # Test how bot 1(x) observes bot 0(a)
     # the expected locations are where the food is placed
     parsed = parse_layout(test_layout)
     expected = parsed['food'] + [parsed['bots'][0]]
@@ -403,11 +403,11 @@ def test_uniform_noise_manhattan_graphical(noise_radius, test_layout):
 @pytest.mark.parametrize('test_layout, is_noisy', [
     ["""
         ##################
-        # #..    #     # #
-        #.#####    ##### #
+        # #..  b #     # #
+        #.#####y   ##### #
         #.#....  #     # #
         #.#####.   ##### #
-        #..0..#..  #  1  #
+        #..a..#..  #  x  #
         #.#####.   ##### #
         #.#....  #     # #
         #.#####    ##### #
@@ -415,11 +415,11 @@ def test_uniform_noise_manhattan_graphical(noise_radius, test_layout):
         ################## """, True],
     ["""
         ##################
-        # #      #   ..# #
-        # #####    #####.#
+        # #    y #   ..# #
+        # #####b   #####.#
         # #      # ....#.#
         # #####   .#####.#
-        #  1  #  ..#..0..#
+        #  x  #  ..#..a..#
         # #####   .#####.#
         # #      # ....#.#
         # #####    #####.#
@@ -427,11 +427,11 @@ def test_uniform_noise_manhattan_graphical(noise_radius, test_layout):
         ################## """, True],
     ["""
         ##################
-        # #..    #     # #
-        #.#####    ##### #
+        # #..   y#     # #
+        #.##### b  ##### #
         #.#....  #     # #
         #.#####.   ##### #
-        #..0..#.. 1#     #
+        #..a..#.. x#     #
         #.#####.   ##### #
         #.#....  #     # #
         #.#####    ##### #
@@ -439,11 +439,11 @@ def test_uniform_noise_manhattan_graphical(noise_radius, test_layout):
         ################## """, True],
     ["""
         ##################
-        # #..    #     # #
-        #.#####    ##### #
+        # #..   y#     # #
+        #.##### b  ##### #
         #.#....  #     # #
         #.#####.   ##### #
-        #..0..#..1 #     #
+        #..a..#..x #     #
         #.#####.   ##### #
         #.#....  #     # #
         #.#####    ##### #
@@ -453,11 +453,11 @@ def test_uniform_noise_manhattan_graphical(noise_radius, test_layout):
         # the noise disappears
     ["""
         ##################
+        # #     y#     # #
+        # ##### b  ##### #
         # #      #     # #
         # #####    ##### #
-        # #      #     # #
-        # #####    ##### #
-        #  0  # 1  #     #
+        #  a  # x  #     #
         # #####    ##### #
         # #      #     # #
         # #####    ##### #
@@ -491,9 +491,9 @@ def test_uniform_noise_manhattan_graphical_distance(test_layout, is_noisy):
 def test_uniform_noise_4_bots_manhattan():
     test_layout = (
     """ ##################
-        # #. 2.  # .     #
-        # #####    #####3#
-        #   0  . # .  .#1#
+        # #. b.  # .     #
+        # #####    #####y#
+        #   a  . # .  .#x#
         ################## """)
     parsed = parse_layout(test_layout)
 
@@ -528,9 +528,9 @@ def test_uniform_noise_4_bots_manhattan():
 def test_uniform_noise_4_bots_no_noise_manhattan():
     test_layout = (
     """ ##################
-        # #.  .  # . 2   #
-        # #####    #####3#
-        #  0  . #  .  .#1#
+        # #.  .  # . b   #
+        # #####    #####y#
+        #  a  . #  .  .#x#
         ################## """)
     parsed = parse_layout(test_layout)
 
@@ -561,9 +561,9 @@ def test_uniform_noise_4_bots_no_noise_manhattan():
 def test_noise_manhattan_failure():
     test_layout = (
     """ ##################
-        ########## . 2   #
-        ########## #####3#
-        ###0###### .  . 1#
+        ########## . b   #
+        ########## #####y#
+        ###a###### .  . x#
         ################## """)
     # we test what bot 1 sees
     # bot 0 should not be noised
@@ -577,7 +577,7 @@ def test_noise_manhattan_failure():
         noised = gf.noiser(walls=parsed['walls'],
                             bot_position=parsed['bots'][1],
                             enemy_positions=parsed['bots'][0::2])
-                            
+
         assert noised['is_noisy'] == [False, False]
         noised_pos = noised['enemy_positions']
         assert noised_pos == parsed['bots'][0::2]

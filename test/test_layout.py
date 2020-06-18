@@ -1,20 +1,10 @@
+import pytest
+
+import itertools
 from pathlib import Path
 from textwrap import dedent
-import pytest
-from pelita.layout import *
 
-LAYOUT="""
-########
-# ###E0#
-#1E    #
-########
-"""
-LAYOUT2="""
-########
-# ###  #
-# . ...#
-########
-"""
+from pelita.layout import *
 
 
 def test_get_available_layouts():
@@ -27,12 +17,12 @@ def test_get_available_layouts():
 def test_get_layout_by_name():
     target_layout = """
 ################
-# ..       .. 3#
-#. ######..  #1#
+# ..       .. y#
+#. ######..  #x#
 #  .  .   .  # #
 # #  .   .  .  #
-#0#  ..###### .#
-#2 ..       .. #
+#a#  ..###### .#
+#b ..       .. #
 ################
 """
     loaded = get_layout_by_name('small_001')
@@ -56,165 +46,222 @@ def test_get_random_layout_random_seed():
     name, layout = get_random_layout(size='small', seed=1)
     assert name == 'small_018'
 
-def test_not_enclosed_by_walls():
-    illegals = ("""# ###
-                   #   #
-                   #####""",
-               """####
-                     #
-                  ####""",
-              """####
-                 #  #
-                 ## #""")
-    for illegal in illegals:
-        with pytest.raises(ValueError):
-            parse_single_layout(illegal)
+def test_legal_layout():
+    layout = """
+             ######
+             # . y#
+             #. #x#
+             #a# .#
+             #b . #
+             ######
+             """
+    parsed_layout = parse_layout(layout)
+    ewalls = []
+    for x in range(6):
+        for y in range(6):
+            if (x == 0 or x == 5) or (y == 0 or y == 5):
+                ewalls.append((x,y))
+    ewalls.extend([(3, 2),(2, 3)])
+    ewalls.sort()
+    efood = sorted([(2, 1), (1, 2), (4, 3), (3, 4)])
+    ebots = [(1, 3), (4, 2), (1, 4), (4, 1)]
+    assert parsed_layout['walls'] == ewalls
+    assert parsed_layout['food'] == efood
+    assert parsed_layout['bots'] == ebots
 
-def test_illegal_character():
-    illegal_layout = (
-        """ #######
-            #c    #
-            #     #
-            #     #
-            ####### """)
-    with pytest.raises(ValueError):
-        out = parse_single_layout(illegal_layout)
+def test_legal_layout_with_added_items():
+    layout = """
+             ######
+             # . y#
+             #. #x#
+             #a# .#
+             #  . #
+             ######
+             """
+    added_food = [(1,1), (4,4)]
+    added_bots = {'b': (1,4)}
+    parsed_layout = parse_layout(layout, food=added_food, bots=added_bots)
+    ewalls = []
+    for x in range(6):
+        for y in range(6):
+            if (x == 0 or x == 5) or (y == 0 or y == 5):
+                ewalls.append((x,y))
+    ewalls.extend([(3, 2),(2, 3)])
+    ewalls.sort()
+    efood = sorted([(2, 1), (1, 2), (4, 3), (3, 4)]+added_food)
+    ebots = [(1, 3), (4, 2), (1, 4), (4, 1)]
+    assert parsed_layout['walls'] == ewalls
+    assert parsed_layout['food'] == efood
+    assert parsed_layout['bots'] == ebots
 
-def test_illegal_index():
-    illegal_layout = (
-        """ #######
-            #4    #
-            #     #
-            #     #
-            ####### """)
-    with pytest.raises(ValueError):
-        out = parse_single_layout(illegal_layout)
+def test_hole_in_horizontal_border():
+    layout = """
+             ###### #########
+             # ..       .. y#
+             #. ######..  #x#
+             #  .  .   .  # #
+             # #  .   .  .  #
+             #a#  ..###### .#
+             #b ..       .. #
+             ################
+             """
+    with pytest.raises(ValueError, match=r"Layout must be enclosed by walls.*"):
+        parse_layout(layout)
 
-def test_illegal_walls():
-    illegal_layout = (
-        """ ###  ##
-            #     #
-            #     #
-            #     #
-            ####### """)
-    with pytest.raises(ValueError):
-        out = parse_single_layout(illegal_layout)
+def test_odd_width():
+    layout = """
+             ###############
+             #  .      .. y#
+             #. #####..  #x#
+             #  .     .  # #
+             # #  .  .  .  #
+             #a#  .###### .#
+             #b ..      .. #
+             ###############
+             """
+    with pytest.raises(ValueError, match=r"Layout width must be even.*"):
+        parse_layout(layout)
 
-def test_illegal_width():
-    illegal_layout = (
-        """ #####
-            #   #
-            #   #
-            #   #
-            ##### """)
-    with pytest.raises(ValueError):
-        out = parse_single_layout(illegal_layout)
+def test_different_widths():
+    layout = """
+             ################
+             # ..        .. y#
+             #. ######..  #x#
+             #  .  .   .  # #
+             # #  .   .  .  #
+             #a#  ..###### .#
+             #b ..       .. #
+             ################
+             """
+    with pytest.raises(ValueError, match=r"Layout rows have differing widths.*"):
+        parse_layout(layout)
 
-def test_different_width():
-    illegal_layout = (
-        """ #######
-            #      #
-            #     #
-            #     #
-            ####### """)
-    with pytest.raises(ValueError):
-        out = parse_single_layout(illegal_layout)
+def test_hole_in_vertical_border():
+    layout = """
+             ################
+             # ..       .. y#
+             #. ######..  # #
+             #  .  .   .  # x
+             # #  .   .  .  #
+             #a#  ..###### .#
+             #b ..       .. #
+             ################
+             """
+    with pytest.raises(ValueError, match=r"Layout must be enclosed by walls.*"):
+        parse_layout(layout)
 
-def test_combined_layouts():
-    layouts = """####
-                 #  #
-                 ####
-                 ####
-                 #  #
-                 ####
-                 ####
-                 #  #
-                 ####"""
-    from_combined = parse_layout(layouts)
-    from_single = parse_single_layout(layouts)
-    assert from_combined == from_single
+def test_last_row_not_complete():
+    layout = """
+             ################
+             # ..       .. y#
+             #. ######..  #x#
+             #  .  .   .  # #
+             # #  .   .  .  #
+             #a#  ..###### .#
+             #b ..       .. #
+             """
+    with pytest.raises(ValueError, match=r"Layout must be enclosed by walls.*"):
+        parse_layout(layout)
 
-def test_combined_layouts_empty_lines():
-    layouts = """
-                 ####
-                 #  #
-                 ####
+def test_twice_the_same_bot():
+    layout = """
+             ################
+             # ..       .. y#
+             #. ######..  #y#
+             #  .  .   .  # #
+             # #  .   .  .  #
+             #a#  ..###### .#
+             #b ..       .. #
+             ################
+             """
+    with pytest.raises(ValueError, match=r"Cannot set bot y to \(14, 2\) .*"):
+        parse_layout(layout)
 
-                 ####
-                 #  #
-                 ####
+def test_missing_one_bot():
+    layout = """
+             ################
+             # ..       .. y#
+             #. ######..  #x#
+             #  .  .   .  # #
+             # #  .   .  .  #
+             #a#  ..###### .#
+             #  ..       .. #
+             ################
+             """
+    with pytest.raises(ValueError, match=r".* ['b']"):
+        parse_layout(layout)
 
-                 ####
-                 #  #
-                 ####"""
-    from_combined = parse_layout(layouts)
-    from_single = parse_single_layout(layouts)
-    assert from_combined == from_single
+def test_broken_added_food():
+    layout = """
+             ######
+             # . y#
+             #. #x#
+             #a# .#
+             #b . #
+             ######
+             """
+    added_food = [(10,10)]
+    with pytest.raises(ValueError, match=r"food item at \(10, 10\) is .*"):
+        parsed_layout = parse_layout(layout, food=added_food)
+    added_food = [(2,3)]
+    with pytest.raises(ValueError, match=r"food item at \(2, 3\) is .*"):
+        parsed_layout = parse_layout(layout, food=added_food)
 
-def test_duplicate_bots_forbidden():
-    layouts = """
-                 ####
-                 #11#
-                 ####
-                 """
-    with pytest.raises(ValueError):
-        parse_layout(layouts)
+def test_broken_added_bot():
+    layout = """
+             ######
+             # . y#
+             #. #x#
+             # # .#
+             #b . #
+             ######
+             """
+    added_bots = {'a': (10,10)}
+    with pytest.raises(ValueError, match=r"bot a at \(10, 10\) is .*"):
+        parsed_layout = parse_layout(layout, bots=added_bots)
+    added_bots = {'a':(2,3)}
+    with pytest.raises(ValueError, match=r"bot a at \(2, 3\) is .*"):
+        parsed_layout = parse_layout(layout, bots=added_bots)
 
-@pytest.mark.xfail
-def test_duplicate_bots_forbidden_multiple():
-    layouts = """
-                 ####
-                 # 1#
-                 ####
+def test_override_bot():
+    layout = """
+             ######
+             # . y#
+             #. #x#
+             #a# .#
+             #b . #
+             ######
+             """
+    added_bots = {'a': (1,1)}
+    parsed_layout = parse_layout(layout, bots=added_bots)
+    assert parsed_layout['bots'][0] == (1,1)
 
-                 ####
-                 #1 #
-                 ####
-                 """
-    with pytest.raises(ValueError):
-        parse_layout(layouts)
-
-def test_duplicate_bots_allowed():
-    layouts = """
-                 ####
-                 # 1#
-                 ####
-
-                 ####
-                 # 1#
-                 ####
-                 """
-    parsed_layout = parse_layout(layouts)
-    assert parsed_layout['bots'][1] == (2, 1)
-
-def test_combined_layouts_broken_lines():
-    layouts = """
-                 ####
-                 #  #
-
-                 ####
-                 #  #
-                 ####
-
-                 ####
-                 #  #
-                 ####"""
-    with pytest.raises(ValueError):
-        from_combined = parse_layout(layouts)
+def test_wrong_bot_names():
+    layout = """
+             ######
+             # . y#
+             #. #x#
+             #a# .#
+             #b . #
+             ######
+             """
+    added_bots = {'e': (1,1)}
+    with pytest.raises(ValueError, match=r"Invalid Bot names in .*"):
+        parsed_layout = parse_layout(layout, bots=added_bots)
 
 def test_roundtrip():
     input_layout =  """ ########
-                        #0  .  #
-                        #2    1#
-                        #  .  3#
+                        #a  .  #
+                        #b    x#
+                        #  .  y#
                         ########
                         """
 
     expected_layout = \
 """########
-#0  .  #
-#2    1#
-#  .  3#
+#a  .  #
+#b    x#
+#  .  y#
 ########
 """
     layout = parse_layout(input_layout)
@@ -224,57 +271,47 @@ def test_roundtrip():
     out = layout_as_str(**layout)
     assert out == dedent(expected_layout)
 
-def test_roundtrip_overlapping():
-    input_layout =  """ ########
-                        #0  .  #
-                        #      #
-                        #  .  3#
-                        ########
-                        ########
-                        #2  .  #
-                        #      #
-                        #  .  1#
-                        ########
-                        ########
-                        #.  .  #
-                        #      #
-                        #  .   #
-                        ########"""
 
+def test_incomplete_roundtrip():
+    # We create a layout where a, b and x, y sit on top of each other and on a food pellet.
+    input_layout =  """ ########
+                        #b  .  #
+                        #      #
+                        #  .  x#
+                        ########
+                        """
+    ab_bots = (1, 1)
+    xy_bots = (6, 3)
+    bots = {'a': ab_bots, 'b': ab_bots, 'x': xy_bots, 'y': xy_bots }
+    food = [ab_bots, xy_bots]
+
+    # In the layout_as_str, a and x will be shown but nothing else
     expected_layout = \
 """########
-#.  .  #
+#a  .  #
 #      #
-#  .   #
-########
-########
-#0     #
-#      #
-#     1#
-########
-########
-#2     #
-#      #
-#     3#
+#  .  x#
 ########
 """
-    layout = parse_layout(input_layout)
+    layout = parse_layout(input_layout, bots=bots, food=food)
     out = layout_as_str(**layout)
     assert out == dedent(expected_layout)
-    layout = parse_layout(out)
-    out = layout_as_str(**layout)
-    assert out == dedent(expected_layout)
+
 
 def test_empty_lines():
     simple_layout_1 = (
         """ ####
+            #ax#
+            #by#
             #. #
-            #### """)
+        #### """)
 
     simple_layout_2 = (
         """
 
             ####
+            #ax#
+            #by#
             #. #
             ####
 
@@ -282,28 +319,6 @@ def test_empty_lines():
     layout1 = parse_layout(simple_layout_1)
     layout2 = parse_layout(simple_layout_2)
     assert layout1 == layout2
-
-def test_equal_positions():
-    layout_str = """
-        ########
-        #0###  #
-        # . ...#
-        ########
-        ########
-        #1###  #
-        # . ...#
-        ########
-        ########
-        #2###  #
-        # . ...#
-        ########
-        ########
-        #3###  #
-        # . ...#
-        ########
-    """
-    layout = parse_layout(layout_str)
-    assert layout['bots'] == [(1, 1)]*4
 
 
 @pytest.mark.parametrize('pos, legal_positions', [
@@ -315,9 +330,9 @@ def test_equal_positions():
 def test_legal_positions(pos, legal_positions):
     test_layout = (
         """ ######
-            #  # #
-            #    #
-            #    #
+            #a # #
+            #b   #
+            #xy  #
             ###### """)
     parsed = parse_layout(test_layout)
     assert set(get_legal_positions(parsed['walls'], pos)) == legal_positions
@@ -333,163 +348,58 @@ def test_legal_positions(pos, legal_positions):
 def test_legal_positions_fail(pos):
     test_layout = (
         """ ######
-            #  # #
-            #    #
-            #    #
+            #a # #
+            #b   #
+            #yx  #
             ###### """)
     parsed = parse_layout(test_layout)
     with pytest.raises(ValueError):
         get_legal_positions(parsed['walls'], pos)
 
-def test_enemy_raises():
-    layouts = """
-        ####
-        #E1#
-        ####
 
-        ####
-        #1 #
-        ####
-        """
-    with pytest.raises(ValueError):
-        parse_layout(layouts)
+def test_load():
+    layout1="""
+        ########
+        # ###ya#
+        #bx ...#
+        ########
+    """
+    layout = parse_layout(layout1)
+    assert layout['bots'] == [(6, 1), (2, 2), (1, 2),(5, 1)]
 
-@pytest.mark.parametrize('layout,enemy_pos', [
-    ("""
-        ####
-        #E #
-        ####
-        """, [(1, 1), (1, 1)]), # one enemy sets both coordinates
-    ("""
-        ####
-        #EE#
-        ####
-        """, [(1, 1), (2, 1)]), # two enemies
-    ("""
-        ####
-        #E #
-        ####
-        ####
-        #E #
-        ####
-        """, [(1, 1), (1, 1)]), # two enemies two layouts on the same spot
-    ("""
-        ####
-        #E #
-        ####
-        ####
-        # E#
-        ####
-        """, [(1, 1), (2, 1)]), # two enemies in two layouts
-    ("""
-        ####
-        # E#
-        ####
-        ####
-        #E #
-        ####
-        """, [(1, 1), (2, 1)]), # two enemies in two layouts (list is sorted)
-    ("""
-        ####
-        # E#
-        ####
-        ####
-        #EE#
-        ####
-        """, [(1, 1), (2, 1)]), # two enemies in two layouts with duplication
-    ("""
-        #######
-        #E E E#
-        #######
-        """, None), # this will raise ValueError
-    ("""
-        ####
-        #  #
-        ####
-        """, [None, None]), # this will set both to None
-    ("""
-        ####
-        # E#
-        ####
-        ####
-        #??#
-        ####
-        """, [(1, 1), (2, 1)]), # two enemies in two layouts with duplication and question marks
-])
-def test_enemy_positions(layout, enemy_pos):
-    if enemy_pos is None:
-        with pytest.raises(ValueError):
-            parse_layout(layout, allow_enemy_chars=True)
+def test_bots_in_same_position():
+    layout_str = """
+        ########
+        # ###  #
+        # . ...#
+        ########
+    """
+    bot_dict = {"a": (1, 1),
+                "b": (1, 1),
+                "x": (1, 1),
+                "y": (1, 1)}
+    layout = parse_layout(layout_str, bots=bot_dict)
+    assert layout['bots'] == [(1, 1), (1, 1), (1, 1),(1, 1)]
+
+
+# All combinations of bots that can be switched on/off
+@pytest.mark.parametrize('bots_hidden', itertools.product(*[(True, False)] * 4))
+def test_parse_layout_game_bad_number_of_bots(bots_hidden):
+    """ parse_layout should fail when a wrong number of bots is given. """
+    test_layout = """
+        ##################
+        #a#.  .  # .     #
+        #b#####    #####y#
+        #     . #  .  .#x#
+        ################## """
+    # remove bot i when bots_hidden[i] is True
+    for char, idx in BOT_N2I.items():
+        if bots_hidden[idx]:
+            test_layout = test_layout.replace(char, ' ')
+
+    if list(bots_hidden) == [False] * 4:
+        # no bots are hidden. it should succeed
+        parsed_layout = parse_layout(test_layout)
     else:
-        assert parse_layout(layout, allow_enemy_chars=True)['enemy'] == enemy_pos
-
-def test_layout_for_team():
-    # test that we can convert a layout to team-style
-    l1 = """
-    ####
-    #01#
-    #32#
-    #..#
-    ####
-    """
-    blue1 = layout_as_str(**layout_for_team(parse_layout(l1), is_blue=True))
-    red1 = layout_as_str(**layout_for_team(parse_layout(l1), is_blue=False))
-
-    assert blue1 == """\
-####
-#0E#
-#E1#
-#..#
-####
-"""
-
-    assert red1 == """\
-####
-#E0#
-#1E#
-#..#
-####
-"""
-
-
-    # cannot convert layout that is already in team-style
-    with pytest.raises(ValueError):
-        layout_for_team(parse_layout(blue1))
-
-    with pytest.raises(ValueError):
-        layout_for_team(parse_layout(red1))
-
-def test_layout_agnostic():
-    """
-    Test if team-style layout can be converted to server-style layout.
-
-    Uses this layout:
-
-    ####
-    #01#
-    #EE#
-    #..#
-    ####
-    """
-
-    l = {
-        'walls': [(0,0),(0,1),(0,2),(0,3),(1,0),(1,3),(2,0),(2,3),(3,0),(3,3),(4,0),(4,1),(4,2),(4,3)],
-        'food': [(3,1),(3,2)],
-        'bots': [(1,1),(1,2)],
-        'enemy': [(2,1),(2,2)]
-        }
-
-
-    l_expected_blue = {
-        'walls': [(0,0),(0,1),(0,2),(0,3),(1,0),(1,3),(2,0),(2,3),(3,0),(3,3),(4,0),(4,1),(4,2),(4,3)],
-        'food': [(3,1),(3,2)],
-        'bots': [(1,1),(2,1),(1,2),(2,2)]
-        }
-    l_expected_red = {
-        'walls': [(0,0),(0,1),(0,2),(0,3),(1,0),(1,3),(2,0),(2,3),(3,0),(3,3),(4,0),(4,1),(4,2),(4,3)],
-        'food': [(3,1),(3,2)],
-        'bots': [(2,1),(1,1),(2,2),(1,2)]
-        }
-
-    assert layout_agnostic(l, is_blue=True) == l_expected_blue
-    assert layout_agnostic(l, is_blue=False) == l_expected_red
+        with pytest.raises(ValueError):
+            parsed_layout = parse_layout(test_layout)

@@ -48,11 +48,10 @@ class AsciiViewer:
 
     def color_bots(self, layout_str):
         out_str = layout_str
-        for turn in range(4):
+        for turn, char in layout.BOT_I2N.items():
             team = turn % 2
-            bot_idx = turn // 2
             col = '\033[94m' if team == 0 else '\033[91m'
-            out_str = out_str.replace(str(turn),f'{col}{bot_idx}\033[0m')
+            out_str = out_str.replace(char, f'{col}{char}\033[0m')
 
         return out_str
 
@@ -84,9 +83,10 @@ class AsciiViewer:
         if turn is not None:
             team = 'Blue' if turn % 2 == 0 else 'Red'
             bot_idx = turn // 2
+            bot_name = layout.BOT_I2N[bot_idx]
         else:
             team = '–'
-            bot_idx = '–'
+            bot_name = '–'
         round=game_state["round"]
         s0=game_state["score"][0]
         s1=game_state["score"][1]
@@ -94,7 +94,7 @@ class AsciiViewer:
         universe=uni_str
         length = len(universe.splitlines()[0])
         info = (
-                f"Round: {round!r} | Team: {team} | Bot: {bot_idx!r} | Score {s0}:{s1}\n"
+                f"Round: {round!r} | Team: {team} | Bot: {bot_name} | Score {s0}:{s1}\n"
             f"Game State: {state!r}\n"
             f"\n"
             f"{universe}\n")

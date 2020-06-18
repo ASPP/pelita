@@ -14,7 +14,7 @@ import zmq
 
 from .. import layout
 from ..exceptions import PlayerDisconnected, PlayerTimeout
-from ..layout import layout_as_str, parse_layout, wall_dimensions
+from ..layout import layout_as_str, parse_layout, wall_dimensions, BOT_I2N
 from ..network import ZMQClientError, ZMQConnection, ZMQReplyTimeout, ZMQUnreachablePeer
 
 _logger = logging.getLogger(__name__)
@@ -412,11 +412,12 @@ class Bot:
                           was_killed,
                           random,
                           round,
+                          bot_char,
                           is_blue,
                           team_name,
                           error_count,
-                          bot_turn=None,
-                          is_noisy=None):
+                          is_noisy,
+                          bot_turn=None):
         self._bots = None
         self._say = None
 
@@ -439,19 +440,16 @@ class Bot:
         self.was_killed = was_killed
         self._bot_index  = bot_index
         self.round = round
+        self.char = bot_char
         self.is_blue = is_blue
         self.team_name = team_name
         self.error_count = error_count
+        self.is_noisy = is_noisy
 
         # Attributes for Bot
         if self._is_on_team:
             assert bot_turn is not None
             self._bot_turn = bot_turn
-
-        # Attributes for Enemy
-        if not self._is_on_team:
-            assert is_noisy is not None
-            self.is_noisy = is_noisy
 
     # @property
     # def legal_directions(self):
@@ -578,19 +576,24 @@ class Bot:
         height = max(bot.walls)[1] + 1
 
         if bot.is_blue:
-            blue = bot
+            blue = bot if not bot.turn else bot.other
             red = bot.enemy[0]
         else:
             blue = bot.enemy[0]
-            red = bot
+            red = bot if not bot.turn else bot.other
+
+        bot_positions = [blue.position, red.position, blue.other.position, red.other.position]
+        bot_noise = [blue.is_noisy, red.is_noisy, blue.other.is_noisy, red.other.is_noisy]
 
         header = ("{blue}{you_blue} vs {red}{you_red}.\n" +
-            "Playing on {col} side. Current turn: {turn}. Round: {round}, score: {blue_score}:{red_score}. " +
-            "timeouts: {blue_timeouts}:{red_timeouts}\n").format(
+                  "Playing on {col} side. Current turn: {turn}. "+
+                  "Bot: {bot_char}. Round: {round}, score: {blue_score}:{red_score}. " +
+                  "timeouts: {blue_timeouts}:{red_timeouts}\n").format(
             blue=blue.team_name,
             red=red.team_name,
             turn=bot.turn,
             round=bot.round,
+            bot_char=bot.char,
             blue_score=blue.score,
             red_score=red.score,
             col="blue" if bot.is_blue else "red",
@@ -600,16 +603,20 @@ class Bot:
             red_timeouts=red.error_count,
         )
 
+        footer = ("Bots: {bots}\nNoisy: {noise}\nFood: {food}\n").format(
+                  bots={BOT_I2N[idx]:pos for idx, pos in enumerate(bot_positions)},
+                  noise={BOT_I2N[idx]:state for idx, state in enumerate(bot_noise)},
+                  food = bot.food + bot.enemy[0].food)
+
         with StringIO() as out:
             out.write(header)
 
             layout = layout_as_str(walls=bot.walls[:],
                                    food=bot.food + bot.enemy[0].food,
-                                   bots=[b.position for b in bot._team],
-                                   enemy=[e.position for e in bot.enemy],
-                                   is_noisy=[e.is_noisy for e in bot.enemy])
+                                   bots=bot_positions)
 
             out.write(str(layout))
+            out.write(footer)
             return out.getvalue()
 
 
@@ -633,11 +640,13 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
             deaths=team['deaths'][idx],
             kills=team['kills'][idx],
             was_killed=team['bot_was_killed'][idx],
+            is_noisy=False,
             error_count=team['error_count'],
             food=team['food'],
             walls=walls,
             round=round,
             bot_turn=bot_turn,
+            bot_char=BOT_I2N[team_index + idx*2],
             random=rng,
             position=team['bot_positions'][idx],
             initial_position=team_initial_positions[idx],
@@ -660,6 +669,7 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
             food=enemy['food'],
             walls=walls,
             round=round,
+            bot_char = BOT_I2N[team_index + idx*2],
             random=rng,
             position=enemy['bot_positions'][idx],
             initial_position=enemy_initial_positions[idx],

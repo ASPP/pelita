@@ -30,21 +30,46 @@ def test_setup_test_game(is_blue):
     # Test that is_noisy is set properly
     layout = """
     ##################
-    #. ... .##.     ?#
+    #. ... .##.     y#
     # # #  .  .### # #
-    # # ##. E .      #
+    # # ##. x .      #
     #      .   .## # #
-    #0# ###.  .  # # #
-    #1     .##. ... .#
+    #a# ###.  .  # # #
+    #b     .##. ... .#
     ##################
     """
-    test_game = utils.setup_test_game(layout=layout, is_blue=is_blue)
+    test_game = utils.setup_test_game(layout=layout, is_blue=is_blue, is_noisy={"a":False, "b":True, "x":False, "y":True})
 
-    assert test_game.position == (1, 5)
-    assert test_game.other.position == (1, 6)
-    assert test_game.enemy[0].position == (8, 3)
-    assert test_game.enemy[1].position == (16, 1)
+    if is_blue:
+        assert test_game.position == (1, 5)
+        assert test_game.other.position == (1, 6)
+        assert test_game.enemy[0].position == (8, 3)
+        assert test_game.enemy[1].position == (16, 1)
+    else:
+        assert test_game.position == (8, 3)
+        assert test_game.other.position == (16, 1)
+        assert test_game.enemy[0].position == (1, 5)
+        assert test_game.enemy[1].position == (1, 6)
 
+    # load_builtin_layout loads unnoised enemies
+    assert test_game.enemy[0].is_noisy is False
+    assert test_game.enemy[1].is_noisy is True
+
+
+@pytest.mark.parametrize('is_blue', [True, False])
+def test_setup_test_game_incomplete_noisy_dict(is_blue):
+    # Test that is_noisy is set properly
+    layout = """
+    ##################
+    #. ... .##.     y#
+    # # #  .  .### # #
+    # # ##. x .      #
+    #      .   .## # #
+    #a# ###.  .  # # #
+    #b     .##. ... .#
+    ##################
+    """
+    test_game = utils.setup_test_game(layout=layout, is_blue=is_blue, is_noisy={"b":True, "y":True})
     # load_builtin_layout loads unnoised enemies
     assert test_game.enemy[0].is_noisy is False
     assert test_game.enemy[1].is_noisy is True

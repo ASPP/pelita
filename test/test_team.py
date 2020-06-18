@@ -3,7 +3,6 @@ import pytest
 from pelita.layout import parse_layout, get_random_layout, initial_positions, layout_as_str
 from pelita.game import run_game, setup_game, play_turn
 from pelita.player.team import Team
-from pelita.utils import setup_test_game
 
 def stopping(bot, state):
     return bot.position
@@ -11,152 +10,6 @@ def stopping(bot, state):
 def randomBot(bot, state):
     legal = bot.legal_positions[:]
     return bot.random.choice(legal)
-
-layout1="""
-########
-# ###E0#
-#1E    #
-########
-"""
-layout2="""
-########
-# ###  #
-# . ...#
-########
-"""
-
-
-def test_load():
-    layout = parse_layout(layout1+layout2, allow_enemy_chars=True)
-    assert layout['bots'] == [(6, 1), (1, 2)]
-    assert layout['enemy'] == [(2, 2), (5, 1)]
-
-def test_load1():
-    layout = parse_layout(layout1, allow_enemy_chars=True)
-    assert layout['bots'] == [(6, 1), (1, 2)]
-    assert layout['enemy'] == [(2, 2), (5, 1)]
-
-def test_equal_positions():
-    layout_str = """
-        ########
-        #0###  #
-        # . ...#
-        ########
-
-        ########
-        #1###  #
-        # . ...#
-        ########
-
-        ########
-        #E###  #
-        # . ...#
-        ########
-
-        ########
-        #E###  #
-        # . ...#
-        ########
-    """
-    layout = parse_layout(layout_str, allow_enemy_chars=True)
-    assert layout['bots'] == [(1, 1), (1, 1)]
-    assert layout['enemy'] ==  [(1, 1), (1, 1)]
-    setup_test_game(layout=layout_str)
-
-def test_define_after():
-    layout = parse_layout(layout1, food=[(1, 1)], bots=[None, None], enemy=None, allow_enemy_chars=True)
-    assert layout['bots'] == [(6, 1), (1, 2)]
-    assert layout['enemy'] == [(2, 2), (5, 1)]
-    layout = parse_layout(layout1, food=[(1, 1)], bots=[None, (1, 1)], enemy=None, allow_enemy_chars=True)
-    assert layout['bots'] == [(6, 1), (1, 1)]
-    assert layout['enemy'] == [(2, 2), (5, 1)]
-
-    with pytest.raises(ValueError):
-        # must define all enemies
-        layout = parse_layout(layout1, food=[(1, 1)], bots=[None, (1, 2)], enemy=[(5, 1)], allow_enemy_chars=True)
-
-    layout = parse_layout(layout2, food=[(1, 1)], bots=[None, (1, 2)], enemy=[(5, 1), (2, 2)], allow_enemy_chars=True)
-    assert layout['bots'] == [None, (1, 2)]
-    assert layout['enemy'] == [(5, 1), (2, 2)]
-
-    with pytest.raises(ValueError):
-        # placed bot on walls
-        layout = parse_layout(layout2, food=[(1, 1)], bots=[(0, 1), (1, 2)], enemy=[(5, 1), (2, 2)], allow_enemy_chars=True)
-
-    with pytest.raises(ValueError):
-        # placed bot outside maze
-        layout = parse_layout(layout2, food=[(1, 1)], bots=[(1, 40), (1, 2)], enemy=[(5, 1), (2, 2)], allow_enemy_chars=True)
-
-    with pytest.raises(ValueError):
-        # placed bot outside maze
-        layout = parse_layout(layout2, food=[(1, 1)], bots=[(40, 40), (1, 2)], enemy=[(5, 1), (2, 2)], allow_enemy_chars=True)
-
-    with pytest.raises(ValueError):
-        # placed bot outside maze
-        layout = parse_layout(layout2, food=[(1, 1)], bots=[(-40, 4), (1, 2)], enemy=[(5, 1), (2, 2)], allow_enemy_chars=True)
-
-    with pytest.raises(ValueError):
-        # too many bots
-        layout = parse_layout(layout2, food=[(1, 1)], bots=[(1, 1), (1, 2), (2, 2)], enemy=[(5, 1), (2, 2)], allow_enemy_chars=True)
-
-def test_repr():
-    layout = parse_layout(layout1, food=[(1, 1)], bots=[None, None], enemy=None, allow_enemy_chars=True)
-    str1 = layout_as_str(**layout)
-    assert str1 == """\
-########
-#.###E0#
-#1E    #
-########
-"""
-
-    layout_merge = parse_layout(layout1, food=[(1, 1)], bots=[(1, 2), (1, 2)], enemy=[(1, 1), (1, 1)], allow_enemy_chars=True)
-    str2 = layout_as_str(**layout_merge)
-    assert str2 == """\
-########
-#.###  #
-#      #
-########
-########
-#E###  #
-#0     #
-########
-########
-#E###  #
-#1     #
-########
-"""
-    # load again
-    assert parse_layout(str2, allow_enemy_chars=True) == layout_merge
-
-def test_two_enemies():
-    # single E evaluates to two enemies
-    l = """
-    ########
-    #.###  #
-    #      #
-    ########
-
-    ########
-    # ###  #
-    #0E    #
-    ########
-    """
-    str1 = layout_as_str(**parse_layout(l, food=[(1, 1)], bots=[None, None], enemy=None, allow_enemy_chars=True))
-    assert str1 == """\
-########
-#.###  #
-#      #
-########
-########
-# ###  #
-#0E    #
-########
-########
-# ###  #
-# E    #
-########
-"""
-
 
 class TestStoppingTeam:
     @staticmethod
@@ -174,7 +27,7 @@ class TestStoppingTeam:
     def test_stopping(self):
         test_layout = (
         """ ############
-            #0#.23 .# 1#
+            #a#.by .# x#
             ############ """)
 
         round_counting = self.round_counting()
@@ -253,7 +106,7 @@ def test_track_and_kill_count():
 
     layout = """
     ##########
-    # 02 .3 1#
+    # ab .y x#
     # ########
     #.##. .###
     ##########
@@ -317,8 +170,8 @@ def test_eaten_flag_kill(bot_to_move):
     """ Test that the eaten flag is set correctly in kill situations. """
     layout = """
     ########
-    #  10  #
-    #  32  #
+    #  xa  #
+    #  yb  #
     #......#
     ########
     """
@@ -393,8 +246,8 @@ def test_eaten_flag_suicide(bot_to_move):
     """ Test that the eaten flag is set correctly in suicide situations. """
     layout = """
     ########
-    #  01  #
-    #  23  #
+    #  ax  #
+    #  by  #
     #......#
     ########
     """
@@ -509,12 +362,12 @@ def test_initial_position(_n_test):
 def test_bot_attributes():
     test_layout = """
         ##################
-        #.#... .##.     3#
-        # # #  .  .### #1#
+        #.#... .##.     y#
+        # # #  .  .### #x#
         # ####.   .      #
         #      .   .#### #
-        #0# ###.  .  # # #
-        #2     .##. ...#.#
+        #a# ###.  .  # # #
+        #b     .##. ...#.#
         ##################
     """
 
