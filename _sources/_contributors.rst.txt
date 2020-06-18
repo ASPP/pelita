@@ -1,12 +1,12 @@
-As of ``v2.0.0-14-g06f196d`` the developers and contributors are::
+As of ``v2.0.0-62-g27f3abd6`` the developers and contributors are::
 
     Rike-Benjamin Schuppner
     Valentin Haenel
     Tiziano Zito
     Zbigniew Jędrzejewski-Szmek
+    Lisa Schwetlick
     Bastian Venthur
     Pietro Berkes
-    Lisa Schwetlick
     pransito
     Jakob Jordan
     Carlos Echeverria
