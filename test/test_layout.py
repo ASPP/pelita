@@ -185,7 +185,7 @@ def test_missing_one_bot():
              #  ..       .. #
              ################
              """
-    with pytest.raises(ValueError, match=r"Missing bot\(s\): b"):
+    with pytest.raises(ValueError, match=r".* ['b']"):
         parse_layout(layout)
 
 def test_broken_added_food():
