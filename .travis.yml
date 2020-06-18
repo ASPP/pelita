@@ -9,7 +9,7 @@ matrix:
 env:
   global:
     # our GITHUB_TOKEN
-    secure: acCojrLAQFpC5thBOVfOV77mxFATlWGVtuKB1e27jp/0kQx6RILu29OO9A0SzTMOxjGbI8G4pQy6tLDuNukoG5Rl6vBvHSEGS+naInBSgF7zc0zC9+YJK7gaJc5qZ6jnURsi84+bIEz//RP5WN5Yz3QsJ4t9QZ3zwbBESTdhA9M=
+    secure: CjDQa+g+9wr4vHq3Wo5sIKOxvfWZPIbSl+IHU1CgZHvRafFeANJHBS/bBpHM36lGHhNUFDByz7wXMD4AGPQiqJ1uQHuJ/CKZEBfPJj6BJ9JIy61FJT2UBtx1iVXc+39D7MpRt2IkgnBasjuYTlHEK8q9B8dhAIqt0zpK3pYOUG4=
 
 # install dependencies and pelita
 install:
