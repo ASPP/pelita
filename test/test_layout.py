@@ -1,6 +1,9 @@
+import pytest
+
+import itertools
 from pathlib import Path
 from textwrap import dedent
-import pytest
+
 from pelita.layout import *
 
 
@@ -268,6 +271,33 @@ def test_roundtrip():
     out = layout_as_str(**layout)
     assert out == dedent(expected_layout)
 
+
+def test_incomplete_roundtrip():
+    # We create a layout where a, b and x, y sit on top of each other and on a food pellet.
+    input_layout =  """ ########
+                        #b  .  #
+                        #      #
+                        #  .  x#
+                        ########
+                        """
+    ab_bots = (1, 1)
+    xy_bots = (6, 3)
+    bots = {'a': ab_bots, 'b': ab_bots, 'x': xy_bots, 'y': xy_bots }
+    food = [ab_bots, xy_bots]
+
+    # In the layout_as_str, a and x will be shown but nothing else
+    expected_layout = \
+"""########
+#a  .  #
+#      #
+#  .  x#
+########
+"""
+    layout = parse_layout(input_layout, bots=bots, food=food)
+    out = layout_as_str(**layout)
+    assert out == dedent(expected_layout)
+
+
 def test_empty_lines():
     simple_layout_1 = (
         """ ####
@@ -350,3 +380,26 @@ def test_bots_in_same_position():
                 "y": (1, 1)}
     layout = parse_layout(layout_str, bots=bot_dict)
     assert layout['bots'] == [(1, 1), (1, 1), (1, 1),(1, 1)]
+
+
+# All combinations of bots that can be switched on/off
+@pytest.mark.parametrize('bots_hidden', itertools.product(*[(True, False)] * 4))
+def test_parse_layout_game_bad_number_of_bots(bots_hidden):
+    """ parse_layout should fail when a wrong number of bots is given. """
+    test_layout = """
+        ##################
+        #a#.  .  # .     #
+        #b#####    #####y#
+        #     . #  .  .#x#
+        ################## """
+    # remove bot i when bots_hidden[i] is True
+    for char, idx in BOT_N2I.items():
+        if bots_hidden[idx]:
+            test_layout = test_layout.replace(char, ' ')
+
+    if list(bots_hidden) == [False] * 4:
+        # no bots are hidden. it should succeed
+        parsed_layout = parse_layout(test_layout)
+    else:
+        with pytest.raises(ValueError):
+            parsed_layout = parse_layout(test_layout)
