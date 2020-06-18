@@ -48,10 +48,8 @@ class AsciiViewer:
 
     def color_bots(self, layout_str):
         out_str = layout_str
-        # TODO Don’t hardcode the chars here
-        for turn, char in enumerate("axby"):
+        for turn, char in layout.BOT_I2N.items():
             team = turn % 2
-            bot_idx = turn // 2
             col = '\033[94m' if team == 0 else '\033[91m'
             out_str = out_str.replace(char, f'{col}{char}\033[0m')
 
