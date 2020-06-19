@@ -87,6 +87,15 @@ class BotSprite(TkSprite):
 
         self.shadow = shadow
 
+        if self.team == 0:
+            self.col = BLUE if not self.shadow else ""
+            self.outline_col = BLUE if not self.shadow else SHADOW_BLUE
+            self.eye_col = YELLOW if not self.shadow else BLUE
+        else:
+            self.col = RED if not self.shadow else ""
+            self.outline_col = RED if not self.shadow else SHADOW_RED
+            self.eye_col = YELLOW if not self.shadow else RED
+
         self.is_harvester = None
 
         super(BotSprite, self).__init__(mesh, **kwargs)
@@ -110,7 +119,10 @@ class BotSprite(TkSprite):
         if (old_position is None
             or old_direction != self.direction
             or force
-            or self.is_harvester != self.is_harvester_at(game_state['bots'][self.bot_id])):
+            or self.is_harvester != self.is_harvester_at(game_state['bots'][self.bot_id])
+            ):
+            # We cannot just move the shape in these cases
+            # We must redraw the whole shape
             self.redraw(canvas, game_state)
         else:
             dx = self.position[0] - old_position[0]
@@ -138,12 +150,11 @@ class BotSprite(TkSprite):
             canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1]+1 - shift_y, text=bot_name, font=(None, 12), fill="white", tag="show_id"+self.tag)
             canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1] - shift_y, text=bot_name, font=(None, 12), fill="black", tag="show_id"+self.tag)
 
-
-
-    def draw_bot(self, canvas, outer_col, eye_col, is_blue=True):
+    def draw_bot(self, canvas, is_blue=True):
         direction = self.direction
         # set default direction, if we start from our initial position
-        if direction is None:
+        # If we are a shadow, stay fixed.
+        if direction is None or self.shadow:
             direction = 0 if is_blue else 180
 
         # ensure that our eyes are never on the bottom
@@ -154,7 +165,7 @@ class BotSprite(TkSprite):
 
         # bot body
         canvas.create_arc(self.bounding_box(), start=rotate(20, direction), extent=320, style="pieslice",
-                          width=0, outline=outer_col, fill=outer_col, tag = self.tag)
+                          width=0, outline=self.outline_col, fill=self.col, tag=self.tag)
 
         # bot eye
         # first locate eye in the center
@@ -168,37 +179,29 @@ class BotSprite(TkSprite):
         # rotate based on direction
         eye_box = [cmath.exp(1j * math.radians(-direction)) * item for item in eye_box]
         eye_box = [self.screen((item.real, item.imag)) for item in eye_box]
-        canvas.create_oval(eye_box, fill=eye_col, width=0, tag=self.tag)
+        canvas.create_oval(eye_box, fill=self.eye_col, width=0, tag=self.tag)
 
     def draw(self, canvas, game_state):
-        self.is_harvester = self.is_harvester_at(game_state['bots'][self.bot_id])
-
-        if self.team == 0:
-            col = BLUE if not self.shadow else SHADOW_BLUE
-            eye_col = YELLOW if not self.shadow else RED
-        else:
-            col = RED if not self.shadow else SHADOW_RED
-            eye_col = YELLOW if not self.shadow else BLUE
-
+        self.is_harvester = self.is_harvester_at(self.position)
 
         if self.is_harvester:
             if self.team == 0:
-                self.draw_bot(canvas, outer_col=col, eye_col=eye_col, is_blue=True)
+                self.draw_bot(canvas, is_blue=True)
             else:
-                self.draw_bot(canvas, outer_col=col, eye_col=eye_col, is_blue=False)
+                self.draw_bot(canvas, is_blue=False)
         else:
             if self.team == 0:
-                self.draw_destroyer(canvas, outer_col=col, eye_col=eye_col)
+                self.draw_destroyer(canvas)
             else:
-                self.draw_destroyer(canvas, outer_col=col, eye_col=eye_col)
+                self.draw_destroyer(canvas)
 
-    def draw_destroyer(self, canvas, outer_col, eye_col):
-        direction = self.direction
+    def draw_destroyer(self, canvas):
         box_ll, box_tr = self.bounding_box()
 
         # ghost head
-        canvas.create_arc((box_ll, box_tr), start=0, extent=180, style="pieslice",
-                          width=0, outline=outer_col, fill=outer_col, tag = self.tag)
+        canvas.create_arc((box_ll, box_tr), start=0, extent=180, style="pieslice" if not self.shadow else "arc",
+                          width=0, outline=self.outline_col, fill=self.col, tag=self.tag)
+
         # ghost body
         box_ll = box_ll[0], box_ll[1] + (box_tr[1]-box_ll[1])/2.
         amplitude = (box_tr[1]-box_ll[1])/4.
@@ -217,7 +220,12 @@ class BotSprite(TkSprite):
         # add container edges for the polygon
         x.insert(0, box_ll[0]); y.insert(0, box_ll[1] - 1)
         x.append(box_tr[0]); y.append(box_ll[1] - 1)
-        canvas.create_polygon(list(zip(x,y)), width=1, outline=outer_col, fill=outer_col, tag=self.tag)
+
+        points = list(zip(x,y))
+        if self.shadow:
+            canvas.create_line(points, width=1, fill=self.outline_col, tag=self.tag)
+        else:
+            canvas.create_polygon(points, width=1, outline=self.outline_col, fill=self.col, tag=self.tag)
 
         # ghost eyes
         eye_size = 0.15
@@ -225,11 +233,11 @@ class BotSprite(TkSprite):
         # right eye
         eye_box_r = [item+ 0.4 - 0.5j for item in eye_box]
         eye_box_r = [self.screen((item.real, item.imag)) for item in eye_box_r]
-        canvas.create_oval(eye_box_r, fill=eye_col, width=0, tag=self.tag)
+        canvas.create_oval(eye_box_r, fill=self.eye_col, width=0, tag=self.tag)
         # left eye
         eye_box_l = [item- 0.4 - 0.5j for item in eye_box]
         eye_box_l = [self.screen((item.real, item.imag)) for item in eye_box_l]
-        canvas.create_oval(eye_box_l, fill=eye_col, width=0, tag=self.tag)
+        canvas.create_oval(eye_box_l, fill=self.eye_col, width=0, tag=self.tag)
 
 class Wall(TkSprite):
     def __init__(self, mesh, wall_neighbors=None, **kwargs):
