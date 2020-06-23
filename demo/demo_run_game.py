@@ -7,9 +7,9 @@ from pelita.player import smart_eating_player, smart_random_player
 if __name__ == '__main__':
     layout = parse_layout(
         """ ##################
-            #0#.  .  # .     #
-            # #####    ##### #
-            #     . #  .  .#1#
+            #a#.  .  # .     #
+            #b#####    #####y#
+            #     . #  .  .#x#
             ################## """)
 
     teams = [smart_eating_player, smart_random_player]
