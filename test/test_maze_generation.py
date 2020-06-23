@@ -303,7 +303,7 @@ def test_get_new_maze(set_seed, iteration):
     maze = mg.str_to_maze(maze_str)
     height, width = maze.shape
     # check that the returned maze has all the pacmen
-    for pacman in (b'0',b'1',b'2',b'3'):
+    for pacman in (b'a',b'x',b'b',b'y'):
         assert np.any(maze == pacman)
         # now that we now we have a pacman, check that we have it only once
         # and remove it by putting an empty space instead
