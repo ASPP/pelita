@@ -729,6 +729,7 @@ def test_play_turn_move():
         "food": parsed_l["food"],
         "walls": parsed_l["walls"],
         "bots": parsed_l["bots"],
+        "shape": parsed_l["shape"],
         "max_rounds": 300,
         "team_names": ("a", "b"),
         "turn": turn,

@@ -113,14 +113,16 @@ def parse_layout(layout_str, food=None, bots=None):
     Return a dict
         {'walls': list_of_wall_coordinates,
          'food' : list_of_food_coordinates,
-         'bots'  : list_of_bot_coordinates in the order (a,x,b,y) }
+         'bots'  : list_of_bot_coordinates in the order (a,x,b,y),
+         'shape': tuple of (height, width) of the layout}
 
     In the example above:
     {'walls': [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
                (2, 4), (3, 0), (3, 2), (3, 4), (4, 0), (4, 2), (4, 4), (5, 0),
                (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)],
      'food': [(3, 3), (4, 1)],
-     'bots': [(1, 1), (6, 2), (1, 2), (6, 3)]}
+     'bots': [(1, 1), (6, 2), (1, 2), (6, 3)],
+     'shape': (8, 4)}
 
     Additional food and bots can be passed:
 
@@ -241,13 +243,14 @@ def parse_layout(layout_str, food=None, bots=None):
     parsed_layout = {
         'walls': sorted(lwalls),
         'food': sorted(lfood),
-        'bots': lbots
+        'bots': lbots,
+        'shape': (width, height)
     }
 
     return parsed_layout
 
 
-def layout_as_str(*, walls, food=None, bots=None):
+def layout_as_str(*, walls, food=None, bots=None, shape=None):
     """Given a dictionary with walls, food and bots coordinates return a string layout representation
 
     Example:
@@ -257,7 +260,8 @@ def layout_as_str(*, walls, food=None, bots=None):
                (2, 4), (3, 0), (3, 2), (3, 4), (4, 0), (4, 2), (4, 4), (5, 0),
                (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)],
      'food': [(3, 3), (4, 1)],
-     'bots': [(1, 1), (6, 2), (1, 2), (6, 3)]}
+     'bots': [(1, 1), (6, 2), (1, 2), (6, 3)],
+     'shape': (8, 4)}
 
     Return:
     ########
@@ -268,10 +272,16 @@ def layout_as_str(*, walls, food=None, bots=None):
 
     Overlapping items are discarded. When overlapping, walls take precedence over
     bots, which take precedence over food.
+
+    The shape is optional. When it does not match the borders of the maze, a ValueError
+    is raised.
     """
     walls = sorted(walls)
     width = max(walls)[0] + 1
     height = max(walls)[1] + 1
+
+    if shape is not None and not (width, height) == shape:
+        raise ValueError(f"Given shape {shape} does not match width and height of layout {(width, height)}.")
 
     # initialized empty containers
     if food is None:

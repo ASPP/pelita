@@ -303,6 +303,9 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         #: Walls. List of (int, int)
         walls=layout_dict['walls'][:],
 
+        #: Shape of the maze. (int, int)
+        shape=layout_dict['shape'],
+
         #: Food per team. List of sets of (int, int)
         food=food,
 
@@ -560,6 +563,7 @@ def prepare_bot_state(game_state, idx=None):
     if bot_initialization:
         bot_state.update({
             'walls': game_state['walls'], # only in initial round
+            'shape': game_state['shape'], # only in initial round
             'seed': seed # only used in set_initial phase
         })
 
