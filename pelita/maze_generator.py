@@ -374,10 +374,10 @@ def add_food(maze, max_food):
 
 def add_pacmen(maze):
     ## starting pacmen positions
-    maze[-2, 1] = b'2'
-    maze[-3, 1] = b'0'
-    maze[1, -2] = b'3'
-    maze[2, -2] = b'1'
+    maze[-2, 1] = b'b'
+    maze[-3, 1] = b'a'
+    maze[1, -2] = b'y'
+    maze[2, -2] = b'x'
 
 def get_new_maze(height, width, nfood, seed=None):
     """Create a new maze in text format.

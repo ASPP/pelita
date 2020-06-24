@@ -18,21 +18,21 @@ def test_maze_bytes_str_conversions():
     # note that the first empty line is needed!
     maze_str = """
                   ##################
-                  #. ... .##.     3#
-                  # # #  .  .### #1#
+                  #. ... .##.     y#
+                  # # #  .  .### #x#
                   # # ##.   .      #
                   #      .   .## # #
-                  #0# ###.  .  # # #
-                  #2     .##. ... .#
+                  #a# ###.  .  # # #
+                  #b     .##. ... .#
                   ##################"""
     maze_bytes = bytes(maze_str, 'ascii')
     maze_clist = [[b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#'],
-                  [b'#',b'.',b' ',b'.',b'.',b'.',b' ',b'.',b'#',b'#',b'.',b' ',b' ',b' ',b' ',b' ',b'3',b'#'],
-                  [b'#',b' ',b'#',b' ',b'#',b' ',b' ',b'.',b' ',b' ',b'.',b'#',b'#',b'#',b' ',b'#',b'1',b'#'],
+                  [b'#',b'.',b' ',b'.',b'.',b'.',b' ',b'.',b'#',b'#',b'.',b' ',b' ',b' ',b' ',b' ',b'y',b'#'],
+                  [b'#',b' ',b'#',b' ',b'#',b' ',b' ',b'.',b' ',b' ',b'.',b'#',b'#',b'#',b' ',b'#',b'x',b'#'],
                   [b'#',b' ',b'#',b' ',b'#',b'#',b'.',b' ',b' ',b' ',b'.',b' ',b' ',b' ',b' ',b' ',b' ',b'#'],
                   [b'#',b' ',b' ',b' ',b' ',b' ',b' ',b'.',b' ',b' ',b' ',b'.',b'#',b'#',b' ',b'#',b' ',b'#'],
-                  [b'#',b'0',b'#',b' ',b'#',b'#',b'#',b'.',b' ',b' ',b'.',b' ',b' ',b'#',b' ',b'#',b' ',b'#'],
-                  [b'#',b'2',b' ',b' ',b' ',b' ',b' ',b'.',b'#',b'#',b'.',b' ',b'.',b'.',b'.',b' ',b'.',b'#'],
+                  [b'#',b'a',b'#',b' ',b'#',b'#',b'#',b'.',b' ',b' ',b'.',b' ',b' ',b'#',b' ',b'#',b' ',b'#'],
+                  [b'#',b'b',b' ',b' ',b' ',b' ',b' ',b'.',b'#',b'#',b'.',b' ',b'.',b'.',b'.',b' ',b'.',b'#'],
                   [b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#',b'#']]
     maze_arr = np.array(maze_clist, dtype=bytes)
     assert np.all(mg.bytes_to_maze(maze_bytes) == maze_arr)
@@ -303,7 +303,7 @@ def test_get_new_maze(set_seed, iteration):
     maze = mg.str_to_maze(maze_str)
     height, width = maze.shape
     # check that the returned maze has all the pacmen
-    for pacman in (b'0',b'1',b'2',b'3'):
+    for pacman in (b'a',b'x',b'b',b'y'):
         assert np.any(maze == pacman)
         # now that we now we have a pacman, check that we have it only once
         # and remove it by putting an empty space instead
