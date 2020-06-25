@@ -510,6 +510,7 @@ def prepare_bot_state(game_state, idx=None):
     enemy_team = 1 - own_team
     enemy_positions = game_state['bots'][enemy_team::2]
     noised_positions = noiser(walls=game_state['walls'],
+                              shape=game_state['shape'],
                               bot_position=bot_position,
                               enemy_positions=enemy_positions,
                               noise_radius=game_state['noise_radius'],
@@ -743,6 +744,7 @@ def apply_move(gamestate, bot_position):
     score = gamestate["score"]
     food = gamestate["food"]
     walls = gamestate["walls"]
+    shape = gamestate["shape"]
     food = gamestate["food"]
     n_round = gamestate["round"]
     kills = gamestate["kills"]
@@ -760,7 +762,7 @@ def apply_move(gamestate, bot_position):
     team_errors = gamestate["errors"][team]
 
     # the allowed moves for the current bot
-    legal_positions = get_legal_positions(walls, gamestate["bots"][gamestate["turn"]])
+    legal_positions = get_legal_positions(walls, shape, gamestate["bots"][gamestate["turn"]])
 
     # unless we have already made an error, check if we made a legal move
     if not (n_round, turn) in team_errors:
@@ -791,12 +793,11 @@ def apply_move(gamestate, bot_position):
     _logger.info(f"Bot {turn} moves to {bot_position}.")
     # then apply rules
     # is bot in home or enemy territory
-    x_walls = [i[0] for i in walls]
-    boundary = max(x_walls) / 2  # float
+    boundary = gamestate['shape'][0] / 2
     if team == 0:
         bot_in_homezone = bot_position[0] < boundary
     elif team == 1:
-        bot_in_homezone = bot_position[0] > boundary
+        bot_in_homezone = bot_position[0] >= boundary
     # update food list
     if not bot_in_homezone:
         if bot_position in food[1 - team]:

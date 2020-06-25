@@ -341,8 +341,7 @@ class TkApplication:
 
 
     def init_mesh(self, game_state):
-        width = max(game_state['walls'])[0] + 1
-        height = max(game_state['walls'])[1] + 1
+        width, height = game_state['shape']
 
         if self.geometry is None:
             screensize = (
@@ -425,8 +424,8 @@ class TkApplication:
         self.size_changed = False
 
     def draw_universe(self, game_state):
-        self.mesh_graph.num_x = max(game_state['walls'])[0] + 1
-        self.mesh_graph.num_y = max(game_state['walls'])[1] + 1
+        self.mesh_graph.num_x = game_state['shape'][0]
+        self.mesh_graph.num_y = game_state['shape'][1]
 
         self.draw_grid()
         self.draw_selected(game_state)
@@ -578,7 +577,7 @@ class TkApplication:
                 has_food = pos in game_state['food']
                 is_wall = pos in game_state['walls']
                 bots = [idx for idx, bot in enumerate(game_state['bots']) if bot==pos]
-                if pos[0] < (max(game_state['walls'])[0] + 1) // 2:
+                if pos[0] <= (game_state['shape'][0] // 2):
                     zone = "blue"
                 else:
                     zone = "red"
@@ -799,6 +798,7 @@ class TkApplication:
         game_state['walls'] = _ensure_tuples(game_state['walls'])
         game_state['food'] = _ensure_tuples(game_state['food'])
         game_state['bots'] = _ensure_tuples(game_state['bots'])
+        game_state['shape'] = tuple(game_state['shape'])
         self.update(game_state)
         if self._stop_after is not None:
             if self._stop_after == 0:

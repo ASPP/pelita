@@ -380,7 +380,7 @@ def initial_positions(walls):
     return [left[0], right[0], left[1], right[1]]
 
 
-def get_legal_positions(walls, bot_position):
+def get_legal_positions(walls, shape, bot_position):
     """ Returns all legal positions that a bot at `bot_position`
     can go to.
 
@@ -401,7 +401,7 @@ def get_legal_positions(walls, bot_position):
     ValueError
         if bot_position invalid or on wall
     """
-    width, height = wall_dimensions(walls)
+    width, height = shape
     if not (0, 0) <= bot_position < (width, height):
         raise ValueError(f"Position {bot_position} not inside maze ({width}x{height}).")
     if bot_position in walls:

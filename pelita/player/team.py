@@ -401,9 +401,8 @@ def make_team(team_spec, team_name=None, zmq_context=None, idx=None, store_outpu
     return team_player, zmq_context
 
 
-def create_homezones(walls):
-    width = max(walls)[0]+1
-    height = max(walls)[1]+1
+def create_homezones(shape):
+    width, height = shape
     return [
         [(x, y) for x in range(0, width // 2)
                 for y in range(0, height)],
@@ -560,8 +559,7 @@ class Bot:
     def _repr_html_(self):
         """ Jupyter-friendly representation. """
         bot = self
-        width = max(bot.walls)[0] + 1
-        height = max(bot.walls)[1] + 1
+        width, height = bot.shape
 
         with StringIO() as out:
             out.write("<table>")
@@ -595,8 +593,6 @@ class Bot:
 
     def __str__(self):
         bot = self
-        width = max(bot.walls)[0] + 1
-        height = max(bot.walls)[1] + 1
 
         if bot.is_blue:
             blue = bot if not bot.turn else bot.other
@@ -636,7 +632,8 @@ class Bot:
 
             layout = layout_as_str(walls=bot.walls[:],
                                    food=bot.food + bot.enemy[0].food,
-                                   bots=bot_positions)
+                                   bots=bot_positions,
+                                   shape=bot.shape)
 
             out.write(str(layout))
             out.write(footer)
@@ -650,7 +647,7 @@ def make_bots(*, walls, shape, team, enemy, round, bot_turn, rng):
     team_index = team['team_index']
     enemy_index = enemy['team_index']
 
-    homezone = create_homezones(walls)
+    homezone = create_homezones(shape)
     initial_positions = layout.initial_positions(walls)
     team_initial_positions = initial_positions[team_index::2]
     enemy_initial_positions = initial_positions[enemy_index::2]
