@@ -200,7 +200,7 @@ class BotSprite(TkSprite):
 
         # ghost head
         canvas.create_arc((box_ll, box_tr), start=0, extent=180, style="pieslice" if not self.shadow else "arc",
-                          width=0, outline=self.outline_col, fill=self.col, tag=self.tag)
+                          width=1, outline=self.outline_col, fill=self.col, tag=self.tag)
 
         # ghost body
         box_ll = box_ll[0], box_ll[1] + (box_tr[1]-box_ll[1])/2.
