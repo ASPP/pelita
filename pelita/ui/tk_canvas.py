@@ -166,6 +166,7 @@ class TkApplication:
 
         self.game_uuid = None
         self.bot_sprites = {}
+        self.shadow_sprites = {}
 
         self._universe = None
         self._game_state = None
@@ -434,6 +435,7 @@ class TkApplication:
         self.draw_food(game_state)
 
         self.draw_title(game_state)
+        self.draw_shadow_bots(game_state)
         self.draw_bots(game_state)
 
         self.draw_status_info(game_state)
@@ -471,9 +473,9 @@ class TkApplication:
 
     def _check_grid_toggle_state(self):
         if self._grid_enabled:
-            self.ui.button_game_toggle_grid.config(text="hide grid")
+            self.ui.button_game_toggle_grid.config(text="debug")
         else:
-            self.ui.button_game_toggle_grid.config(text="show grid")
+            self.ui.button_game_toggle_grid.config(text="debug")
 
     def on_click(self, event):
         raw_x, raw_y = event.x, event.y
@@ -696,12 +698,19 @@ class TkApplication:
             idx: BotSprite(self.mesh_graph, team=idx % 2, bot_id=idx, position=bot)
             for idx, bot in enumerate(bot_positions)
         }
+        for sprite in self.shadow_sprites.values():
+            sprite.delete(self.ui.game_canvas)
+        self.shadow_sprites = {
+            idx: BotSprite(self.mesh_graph, team=idx % 2, bot_id=idx, position=None, shadow=True)
+            for idx, bot in enumerate(bot_positions)
+        }
 
     def draw_bots(self, game_state):
         if game_state:
             for bot_id, was_killed in enumerate(game_state["bot_was_killed"]):
                 if was_killed:
                     self.bot_sprites[bot_id].position = None
+
         for bot_id, bot_sprite in self.bot_sprites.items():
             say = game_state and game_state["say"][bot_id]
             bot_sprite.move_to(game_state["bots"][bot_sprite.bot_id],
@@ -710,6 +719,24 @@ class TkApplication:
                                force=self.size_changed,
                                say=say,
                                show_id=self._grid_enabled)
+
+    def draw_shadow_bots(self, game_state):
+        # Draw the shadowbots when debug mode (grid) is enabled
+        # Otherwise make sure that they are deleted
+        for bot_id, bot_sprite in self.shadow_sprites.items():
+            if self._grid_enabled:
+                shadow_bots = game_state.get('noisy_positions')
+            else:
+                shadow_bots = None
+
+            if shadow_bots is None or shadow_bots[bot_id] is None:
+                bot_sprite.delete(self.ui.game_canvas)
+            else:
+                bot_sprite.move_to(shadow_bots[bot_id],
+                                    self.ui.game_canvas,
+                                    game_state,
+                                    force=self.size_changed,
+                                    show_id=self._grid_enabled)
 
     def toggle_running(self):
         # We change from running to stopping or the other way round

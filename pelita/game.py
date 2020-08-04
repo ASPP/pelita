@@ -367,6 +367,10 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         # List of boolean flags weather bot has been eaten since its last move
         bot_was_killed = [False]*4,
 
+        # The noisy positions that the bot in `turn` has currently been shown.
+        # None, if not noisy
+        noisy_positions = [None] * 4,
+
         #: Messages the bots say. Keeps only the recent one at the respective bot’s index.
         say=[""] * 4,
 
@@ -465,6 +469,7 @@ def request_new_position(game_state):
 
     bot_state = prepare_bot_state(game_state)
 
+
     start_time = time.monotonic()
 
     new_position = move_fun.get_move(bot_state)
@@ -503,6 +508,17 @@ def prepare_bot_state(game_state, idx=None):
                               noise_radius=game_state['noise_radius'],
                               sight_distance=game_state['sight_distance'],
                               rnd=game_state['rnd'])
+
+
+    # Update noisy_positions in the game_state
+    # reset positions
+    game_state['noisy_positions'] = [None] * 4
+    noisy_or_none = [
+        noisy_pos if is_noisy else None
+            for is_noisy, noisy_pos in
+            zip(noised_positions['is_noisy'], noised_positions['enemy_positions'])
+    ]
+    game_state['noisy_positions'][enemy_team::2] = noisy_or_none
 
     team_state = {
         'team_index': own_team,
