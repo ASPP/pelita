@@ -901,8 +901,11 @@ def check_gameover(game_state, detect_final_move=False):
 
     # If any team has reached more than max_team_errors errors, this team loses.
     # If both teams have reached more than max_team_errors errors, it’s a draw.
+    # If max_team_errors is < 0, the game will go on without checking.
     num_errors = [len(f) for f in game_state['errors']]
-    if num_errors[0] <= game_state['max_team_errors'] and num_errors[1] <= game_state['max_team_errors']:
+    if game_state['max_team_errors'] < 0:
+        pass
+    elif num_errors[0] <= game_state['max_team_errors'] and num_errors[1] <= game_state['max_team_errors']:
         # no one has exceeded the max number of errors
         pass
     elif num_errors[0] > game_state['max_team_errors'] and num_errors[1] > game_state['max_team_errors']:
