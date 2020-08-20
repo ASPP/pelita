@@ -79,7 +79,7 @@ def controller_exit(state, await_action='play_step'):
             return False
 
 def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=None,
-             max_team_errors=5, timeout_length=3, viewers=None, viewer_options=None,
+             max_team_errors=4, timeout_length=3, viewers=None, viewer_options=None,
              store_output=False, team_names=(None, None), allow_exceptions=False,
              print_result=True):
     """ Run a pelita match.
@@ -116,7 +116,7 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
                    The maximum number of non fatal errors for a team before the
                    game is over and the team is disqualified. Non fatal errors are
                    timeouts and returning an illegal move. Fatal errors are raising
-                   Exceptions. Default: 5.
+                   Exceptions. Default: 4.
 
     timeout_length : int or float
                   Time in seconds to wait for the move function (or for the remote
@@ -249,7 +249,7 @@ def setup_viewers(viewers=None, options=None, print_result=True):
 
 
 def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=None,
-               max_team_errors=5, timeout_length=3, viewers=None, viewer_options=None,
+               max_team_errors=4, timeout_length=3, viewers=None, viewer_options=None,
                store_output=False, team_names=(None, None), allow_exceptions=False,
                print_result=True):
     """ Generates a game state for the given teams and layout with otherwise default values. """
@@ -703,7 +703,7 @@ def play_turn(game_state, allow_exceptions=False):
 
 def apply_move(gamestate, bot_position):
     """Plays a single step of a bot by applying the game rules to the game state. The rules are:
-    - if the playing team has an error count of >5 or a fatal error they lose
+    - if the playing team has an error count of >4 or a fatal error they lose
     - a legal step must not be on a wall, else the error count is increased by 1 and a random move is chosen for the bot
     - if a bot lands on an enemy food pellet, it eats it. It cannot eat its own teams’ food
     - if a bot lands on an enemy bot in its own homezone, it kills the enemy
