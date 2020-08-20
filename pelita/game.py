@@ -28,9 +28,6 @@ _mswindows = (sys.platform == "win32")
 #: The points a team gets for killing another bot
 KILL_POINTS = 5
 
-#: Maximum number of errors before a team loses
-MAX_ALLOWED_ERRORS = 4
-
 #: The maximum distance between two bots before noise is applied
 SIGHT_DISTANCE = 5
 
@@ -179,7 +176,8 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
     # in background games
 
     # we create the initial game state
-    state = setup_game(team_specs, layout_dict=layout_dict, layout_name=layout_name, max_rounds=max_rounds, timeout_length=timeout_length, seed=seed,
+    state = setup_game(team_specs, layout_dict=layout_dict, layout_name=layout_name, max_rounds=max_rounds,
+                       max_team_errors=max_team_errors, timeout_length=timeout_length, seed=seed,
                        viewers=viewers, viewer_options=viewer_options,
                        store_output=store_output, team_names=team_names, print_result=print_result)
 
@@ -383,6 +381,9 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
 
         #: Timeout length, int, None
         timeout_length=timeout_length,
+
+        #: Maximum number of errors before a team loses, int
+        max_team_errors=max_team_errors,
 
         #: Viewers, list
         viewers=viewer_state['viewers'],
@@ -898,19 +899,19 @@ def check_gameover(game_state, detect_final_move=False):
             if num_fatals[team] > 0:
                 return { 'whowins' : 1 - team, 'gameover' : True}
 
-    # If any team has more than MAX_ALLOWED_ERRORS errors, this team loses.
-    # If both teams have more than MAX_ALLOWED_ERRORS errors, it’s a draw.
+    # If any team has reached more than max_team_errors errors, this team loses.
+    # If both teams have reached more than max_team_errors errors, it’s a draw.
     num_errors = [len(f) for f in game_state['errors']]
-    if num_errors[0] <= MAX_ALLOWED_ERRORS and num_errors[1] <= MAX_ALLOWED_ERRORS:
+    if num_errors[0] <= game_state['max_team_errors'] and num_errors[1] <= game_state['max_team_errors']:
         # no one has exceeded the max number of errors
         pass
-    elif num_errors[0] > MAX_ALLOWED_ERRORS and num_errors[1] > MAX_ALLOWED_ERRORS:
+    elif num_errors[0] > game_state['max_team_errors'] and num_errors[1] > game_state['max_team_errors']:
         # both teams have exceeded the max number of errors
         return { 'whowins' : 2, 'gameover' : True}
     else:
         # some one has exceeded the max number of errors
         for team in (0, 1):
-            if num_errors[team] > MAX_ALLOWED_ERRORS:
+            if num_errors[team] > game_state['max_team_errors']:
                 return { 'whowins' : 1 - team, 'gameover' : True}
 
     if detect_final_move:
