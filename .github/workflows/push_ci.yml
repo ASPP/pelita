@@ -1,0 +1,74 @@
+name: Test Pelita and build docs to gh-pages
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        python -c "import zmq; print('Using pyzmq {} and zmq {}.'.format(zmq.pyzmq_version(), zmq.zmq_version()))"
+    - name: Test with pytest
+      run: |
+        python -m pytest test/
+    - name: Run Pelita CLI as a module
+      run: |
+        python -m pelita.scripts.pelita_main --null
+    - name: Run Pelita CLI as a script
+      run: |
+        pelita --null --rounds 100 --size small
+    - name: Run Pelita tournament
+      run: |
+        pelita-tournament --non-interactive --viewer null
+    - name: Test Pelita template repo
+      run: |
+        # We must clone pelita_template to a location outside of the pelita repo
+        # Otherwise pelita’s own setup.cfg will be used for test configuration
+        (cd .. && git clone https://github.com/ASPP/pelita_template) && ( cd ../pelita_template/ && python -m pytest .)
+
+  deploy_docs:
+    needs: test
+    
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # fetch all history and tags (needed for git describe)
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    - name: Install sphinx and prepare repo
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install sphinx
+        pip install -e .
+    - name: Build docs
+      run: |
+        . ./build-docs.sh
+    - name: Deploy to gh-pages
+      if: github.ref == 'refs/heads/master'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_branch: gh-pages
+        publish_dir: doc/build/html/
+
+        commit_message: ${{ github.event.head_commit.message }}
