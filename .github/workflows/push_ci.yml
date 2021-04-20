@@ -34,6 +34,14 @@ jobs:
       uses: codecov/codecov-action@v1
       with:
         fail_ci_if_error: true
+
+    - name: Upload coverage data to coveralls.io
+      uses: AndreMiras/coveralls-python-action@develop
+      with:
+        github-token: ${{ secrets.github_token }}
+        flag-name: run-${{ matrix.os }}-py-${{ matrix.python-version }}
+        parallel: true
+        
     - name: Run Pelita CLI as a module
       run: |
         python -m pelita.scripts.pelita_main --null
@@ -48,6 +56,16 @@ jobs:
         # We must clone pelita_template to a location outside of the pelita repo
         # Otherwise pelita’s own setup.cfg will be used for test configuration
         (cd .. && git clone https://github.com/ASPP/pelita_template) && ( cd ../pelita_template/ && python -m pytest .)
+
+  coveralls:
+    name: Indicate completion to coveralls.io
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: AndreMiras/coveralls-python-action@develop
+      with:
+        parallel-finished: true
 
   deploy_docs:
     needs: test
