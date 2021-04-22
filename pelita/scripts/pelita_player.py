@@ -88,7 +88,10 @@ def run_player(team_spec, address, color=None):
         pie = '\033[91m' + 'ᗧ' + '\033[0m'
     else:
         pie = 'ᗧ'
-    print(f"{pie} {color} team '{team_spec}' -> '{team.team_name}'")
+    if pelita.game._mswindows:
+        print(f"{color} team '{team_spec}' -> '{team.team_name}'")
+    else:
+        print(f"{pie} {color} team '{team_spec}' -> '{team.team_name}'")
 
     while True:
         cont = player_handle_request(socket, team)
