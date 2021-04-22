@@ -37,6 +37,7 @@ jobs:
 
     - name: Upload coverage data to coveralls.io
       uses: AndreMiras/coveralls-python-action@develop
+      if: runner.os == 'Linux' # Only works on Linux
       with:
         github-token: ${{ secrets.github_token }}
         flag-name: run-${{ matrix.os }}-py-${{ matrix.python-version }}
