@@ -11,6 +11,8 @@ import pelita.game
 from pelita.player import stopping_player
 from pelita.tournament import call_pelita, run_and_terminate_process
 
+_mswindows = (sys.platform == "win32")
+
 
 # Runs the processes for the remote teams
 # and sets up `remote_teams` as a pytest fixture
@@ -60,6 +62,8 @@ def test_remote_run_game(remote_teams):
     assert state['fatal_errors'] == [[], []]
     assert state['errors'] == [{}, {}]
 
+
+@pytest.mark.skipif(_mswindows, reason="NamedTemporaryFiles cannot be used in another process")
 def test_remote_timeout():
     # We have a slow player that also generates a bad move
     # in its second turn.
@@ -100,6 +104,7 @@ def test_remote_timeout():
         (3, 1): {'description': '', 'type': 'PlayerTimeout'}}]
 
 
+@pytest.mark.skipif(_mswindows, reason="NamedTemporaryFiles cannot be used in another process")
 def test_remote_dumps_are_written():
     layout = """
         ##########
@@ -155,6 +160,7 @@ def test_remote_dumps_are_written():
     assert (path / 'red.err').read_text() == 'p2err\np2err\np2err\np2err\n'
 
 
+@pytest.mark.skipif(_mswindows, reason="NamedTemporaryFiles cannot be used in another process")
 @pytest.mark.parametrize("failing_team", [0, 1])
 def test_remote_dumps_with_failure(failing_team):
     layout = """

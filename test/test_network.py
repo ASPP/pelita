@@ -1,12 +1,15 @@
 import pytest
 
 import uuid
+import sys
 
 import zmq
 
 from pelita.network import bind_socket, extract_port_range
 from pelita.player.team import make_team
 from pelita.scripts.pelita_player import player_handle_request
+
+_mswindows = (sys.platform == "win32")
 
 
 @pytest.fixture(scope="module")
@@ -15,6 +18,7 @@ def zmq_context():
     yield context
     context.destroy()
 
+@pytest.mark.skipif(_mswindows, reason="No IPC sockets on Windows.")
 def test_bind_socket_success(zmq_context):
     socket = zmq_context.socket(zmq.PUB)
     address = "ipc:///tmp/pelita-test-bind-socket-%s" % uuid.uuid4()
