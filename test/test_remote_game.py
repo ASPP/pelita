@@ -68,6 +68,7 @@ def test_remote_timeout():
     # We have a slow player that also generates a bad move
     # in its second turn.
     # We need to detect both.
+    # To avoid timing issues, the blue player will also need to be a bit slower
 
     layout = """
         ##########
@@ -76,7 +77,16 @@ def test_remote_timeout():
         ##########
         """
 
-    tp = """
+
+    blue = """
+    import time
+    TEAM_NAME = "150ms timeout"
+    def move(b, s):
+        time.sleep(0.15)
+        return b.position
+    """
+
+    red = """
     import time
     TEAM_NAME = "500ms timeout"
     def move(b, s):
@@ -85,14 +95,20 @@ def test_remote_timeout():
         time.sleep(0.5)
         return b.position
     """
-    with tempfile.NamedTemporaryFile('w+', suffix='.py') as f:
-        print(dedent(tp), file=f, flush=True)
-        timeout_player = f.name
 
-        state = pelita.game.run_game([stopping_player, timeout_player],
-                                     max_rounds=8,
-                                     layout_dict=pelita.layout.parse_layout(layout),
-                                     timeout_length=0.5)
+    with tempfile.NamedTemporaryFile('w+', suffix='.py') as blue_f:
+        with tempfile.NamedTemporaryFile('w+', suffix='.py') as red_f:
+
+            print(dedent(blue), file=blue_f, flush=True)
+            blue_timeout_player = blue_f.name
+
+            print(dedent(red), file=red_f, flush=True)
+            red_timeout_player = red_f.name
+
+            state = pelita.game.run_game([blue_timeout_player, red_timeout_player],
+                                        max_rounds=8,
+                                        layout_dict=pelita.layout.parse_layout(layout),
+                                        timeout_length=0.4)
 
     assert state['whowins'] == 0
     assert state['fatal_errors'] == [[], []]
