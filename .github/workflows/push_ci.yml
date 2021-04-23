@@ -53,7 +53,11 @@ jobs:
       run: |
         # We must clone pelita_template to a location outside of the pelita repo
         # Otherwise pelita’s own setup.cfg will be used for test configuration
-        (cd .. && git clone https://github.com/ASPP/pelita_template) && ( cd ../pelita_template/ && python -m pytest .)
+        cd ..
+        git clone https://github.com/ASPP/pelita_template
+        cd pelita_template
+        python -m pytest .
+
 
   coveralls:
     name: Indicate completion to coveralls.io
