@@ -272,7 +272,7 @@ def layout_as_str(*, walls, food=None, bots=None):
     ########
 
     Overlapping items are discarded. When overlapping, walls take precedence over
-    bots, which take precendence over food.
+    bots, which take precedence over food.
     """
     walls = sorted(walls)
     width = max(walls)[0] + 1
