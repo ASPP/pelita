@@ -3,7 +3,7 @@ import random
 import networkx
 
 
-from .player.team import make_bots
+from .player.team import make_bots, create_homezones
 from .layout import (get_random_layout, get_layout_by_name, get_available_layouts,
                      parse_layout, BOT_N2I)
 
@@ -298,6 +298,7 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
 
     bot = make_bots(walls=layout['walls'][:],
                     shape=layout['shape'],
+                    homezone=create_homezones(layout['shape']),
                     team=team,
                     enemy=enemy,
                     round=round,

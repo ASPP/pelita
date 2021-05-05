@@ -83,6 +83,9 @@ class Team:
         # Store the shape, which is only transmitted once
         self._shape = tuple(game_state['shape'])
 
+        # Cache the homezone so that we don’t have to create it at each step
+        self._homezone = create_homezones(self._shape)
+
         return self.team_name
 
     def get_move(self, game_state):
@@ -102,6 +105,7 @@ class Team:
         """
         me = make_bots(walls=self._walls,
                        shape=self._shape,
+                       homezone=self._homezone,
                        team=game_state['team'],
                        enemy=game_state['enemy'],
                        round=game_state['round'],
@@ -641,13 +645,12 @@ class Bot:
 
 
 # def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_blue):
-def make_bots(*, walls, shape, team, enemy, round, bot_turn, rng):
+def make_bots(*, walls, shape, homezone, team, enemy, round, bot_turn, rng):
     bots = {}
 
     team_index = team['team_index']
     enemy_index = enemy['team_index']
 
-    homezone = create_homezones(shape)
     initial_positions = layout.initial_positions(walls)
     team_initial_positions = initial_positions[team_index::2]
     enemy_initial_positions = initial_positions[enemy_index::2]
