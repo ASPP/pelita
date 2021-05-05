@@ -91,8 +91,8 @@ timeout_opt.add_argument('--timeout', type=float, metavar="SEC",
                          dest='timeout_length', help='Time before timeout is triggered (default: 3 seconds).')
 timeout_opt.add_argument('--no-timeout', const=None, action='store_const',
                          dest='timeout_length', help='Run game without timeouts.')
-game_settings.add_argument('--max-timeouts', type=int, default=5,
-                           dest='max_timeouts', help='Maximum number of timeouts allowed (default: 5).')
+game_settings.add_argument('--max-errors', type=int, default=4,
+                           dest='max_team_errors', help='Maximum number of team errors allowed (default: 4).')
 parser.set_defaults(timeout_length=3)
 game_settings.add_argument('--stop-at', dest='stop_at', type=int, metavar="N",
                            help='Stop before playing round N.')
@@ -276,7 +276,7 @@ def main():
 
     layout_dict = layout.parse_layout(layout_string)
     game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, seed=seed,
-                  timeout_length=args.timeout_length, max_team_errors=args.max_timeouts,
+                  timeout_length=args.timeout_length, max_team_errors=args.max_team_errors,
                   viewers=viewers, viewer_options=viewer_options,
                   store_output=args.store_output)
 

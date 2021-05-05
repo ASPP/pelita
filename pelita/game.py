@@ -28,9 +28,6 @@ _mswindows = (sys.platform == "win32")
 #: The points a team gets for killing another bot
 KILL_POINTS = 5
 
-#: Maximum number of errors before a team loses
-MAX_ALLOWED_ERRORS = 4
-
 #: The maximum distance between two bots before noise is applied
 SIGHT_DISTANCE = 5
 
@@ -82,7 +79,7 @@ def controller_exit(state, await_action='play_step'):
             return False
 
 def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=None,
-             max_team_errors=5, timeout_length=3, viewers=None, viewer_options=None,
+             max_team_errors=4, timeout_length=3, viewers=None, viewer_options=None,
              store_output=False, team_names=(None, None), allow_exceptions=False,
              print_result=True):
     """ Run a pelita match.
@@ -119,7 +116,7 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
                    The maximum number of non fatal errors for a team before the
                    game is over and the team is disqualified. Non fatal errors are
                    timeouts and returning an illegal move. Fatal errors are raising
-                   Exceptions. Default: 5.
+                   Exceptions. Default: 4.
 
     timeout_length : int or float
                   Time in seconds to wait for the move function (or for the remote
@@ -179,7 +176,8 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
     # in background games
 
     # we create the initial game state
-    state = setup_game(team_specs, layout_dict=layout_dict, layout_name=layout_name, max_rounds=max_rounds, timeout_length=timeout_length, seed=seed,
+    state = setup_game(team_specs, layout_dict=layout_dict, layout_name=layout_name, max_rounds=max_rounds,
+                       max_team_errors=max_team_errors, timeout_length=timeout_length, seed=seed,
                        viewers=viewers, viewer_options=viewer_options,
                        store_output=store_output, team_names=team_names, print_result=print_result)
 
@@ -251,7 +249,7 @@ def setup_viewers(viewers=None, options=None, print_result=True):
 
 
 def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=None,
-               max_team_errors=5, timeout_length=3, viewers=None, viewer_options=None,
+               max_team_errors=4, timeout_length=3, viewers=None, viewer_options=None,
                store_output=False, team_names=(None, None), allow_exceptions=False,
                print_result=True):
     """ Generates a game state for the given teams and layout with otherwise default values. """
@@ -383,6 +381,9 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
 
         #: Timeout length, int, None
         timeout_length=timeout_length,
+
+        #: Maximum number of errors before a team loses, int
+        max_team_errors=max_team_errors,
 
         #: Viewers, list
         viewers=viewer_state['viewers'],
@@ -702,7 +703,7 @@ def play_turn(game_state, allow_exceptions=False):
 
 def apply_move(gamestate, bot_position):
     """Plays a single step of a bot by applying the game rules to the game state. The rules are:
-    - if the playing team has an error count of >5 or a fatal error they lose
+    - if the playing team has an error count of >4 or a fatal error they lose
     - a legal step must not be on a wall, else the error count is increased by 1 and a random move is chosen for the bot
     - if a bot lands on an enemy food pellet, it eats it. It cannot eat its own teams’ food
     - if a bot lands on an enemy bot in its own homezone, it kills the enemy
@@ -898,19 +899,22 @@ def check_gameover(game_state, detect_final_move=False):
             if num_fatals[team] > 0:
                 return { 'whowins' : 1 - team, 'gameover' : True}
 
-    # If any team has more than MAX_ALLOWED_ERRORS errors, this team loses.
-    # If both teams have more than MAX_ALLOWED_ERRORS errors, it’s a draw.
+    # If any team has reached more than max_team_errors errors, this team loses.
+    # If both teams have reached more than max_team_errors errors, it’s a draw.
+    # If max_team_errors is < 0, the game will go on without checking.
     num_errors = [len(f) for f in game_state['errors']]
-    if num_errors[0] <= MAX_ALLOWED_ERRORS and num_errors[1] <= MAX_ALLOWED_ERRORS:
+    if game_state['max_team_errors'] < 0:
+        pass
+    elif num_errors[0] <= game_state['max_team_errors'] and num_errors[1] <= game_state['max_team_errors']:
         # no one has exceeded the max number of errors
         pass
-    elif num_errors[0] > MAX_ALLOWED_ERRORS and num_errors[1] > MAX_ALLOWED_ERRORS:
+    elif num_errors[0] > game_state['max_team_errors'] and num_errors[1] > game_state['max_team_errors']:
         # both teams have exceeded the max number of errors
         return { 'whowins' : 2, 'gameover' : True}
     else:
         # some one has exceeded the max number of errors
         for team in (0, 1):
-            if num_errors[team] > MAX_ALLOWED_ERRORS:
+            if num_errors[team] > game_state['max_team_errors']:
                 return { 'whowins' : 1 - team, 'gameover' : True}
 
     if detect_final_move:
