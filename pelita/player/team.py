@@ -78,10 +78,10 @@ class Team:
         self._bot_track = [[], []]
 
         # Store the walls, which are only transmitted once
-        self._walls = game_state['walls']
+        self._walls = _ensure_tuples(game_state['walls'])
 
         # Store the shape, which is only transmitted once
-        self._shape = game_state['shape']
+        self._shape = tuple(game_state['shape'])
 
         return self.team_name
 

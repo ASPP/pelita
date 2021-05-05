@@ -85,10 +85,11 @@ def test_noiser_no_negative_coordinates(bot_id):
     gamestate = make_gamestate()
     old_bots = gamestate["bots"][:]
     walls = gamestate['walls']
+    shape = gamestate['shape']
     bot_position = gamestate['bots'][bot_id]
     enemy_group = 1 - (bot_id // 2)
     enemy_positions = gamestate['bots'][enemy_group::2]
-    noised = gf.noiser(walls, bot_position=bot_position, enemy_positions=enemy_positions,
+    noised = gf.noiser(walls, shape=shape, bot_position=bot_position, enemy_positions=enemy_positions,
                        noise_radius=5, sight_distance=5, rnd=None)
     new_bots = noised["enemy_positions"]
     print(noised)
@@ -291,6 +292,7 @@ def test_noiser_noising_at_noise_radius_extreme(ii):
     team_bots = old_bots[team_id::2]
     enemy_bots = old_bots[1 - team_id::2]
     noised = gf.noiser(walls=gamestate["walls"],
+                       shape=gamestate["shape"],
                        bot_position=gamestate["bots"][gamestate["turn"]],
                        enemy_positions=enemy_bots,
                        noise_radius=50, sight_distance=5, rnd=None)
@@ -326,6 +328,7 @@ def test_uniform_noise_manhattan(noise_radius, expected, test_layout=None):
     position_bucket = collections.defaultdict(int)
     for i in range(200):
         noised = gf.noiser(walls=parsed['walls'],
+                            shape=parsed["shape"],
                             bot_position=parsed['bots'][1],
                             enemy_positions=[parsed['bots'][0]],
                             noise_radius=noise_radius)
@@ -474,6 +477,7 @@ def test_uniform_noise_manhattan_graphical_distance(test_layout, is_noisy):
     NUM_TESTS = 400
     for i in range(NUM_TESTS):
         noised = gf.noiser(walls=parsed['walls'],
+                            shape=parsed['shape'],
                             bot_position=parsed['bots'][1],
                             enemy_positions=[parsed['bots'][0]])
                             # use default values for radius and distance
@@ -511,6 +515,7 @@ def test_uniform_noise_4_bots_manhattan():
 
     for i in range(200):
         noised = gf.noiser(walls=parsed['walls'],
+                           shape=parsed['shape'],
                            bot_position=parsed['bots'][1],
                            enemy_positions=parsed['bots'][0::2])
 
@@ -544,6 +549,7 @@ def test_uniform_noise_4_bots_no_noise_manhattan():
 
     for i in range(200):
         noised = gf.noiser(walls=parsed['walls'],
+                           shape=parsed['shape'],
                            bot_position=parsed['bots'][1],
                            enemy_positions=parsed['bots'][0::2])
 
@@ -575,6 +581,7 @@ def test_noise_manhattan_failure():
     # check a few times
     for i in range(5):
         noised = gf.noiser(walls=parsed['walls'],
+                            shape=parsed['shape'],
                             bot_position=parsed['bots'][1],
                             enemy_positions=parsed['bots'][0::2])
 

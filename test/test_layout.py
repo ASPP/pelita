@@ -335,7 +335,7 @@ def test_legal_positions(pos, legal_positions):
             #xy  #
             ###### """)
     parsed = parse_layout(test_layout)
-    assert set(get_legal_positions(parsed['walls'], pos)) == legal_positions
+    assert set(get_legal_positions(parsed['walls'], parsed['shape'], pos)) == legal_positions
 
 
 @pytest.mark.parametrize('pos', [
@@ -354,7 +354,7 @@ def test_legal_positions_fail(pos):
             ###### """)
     parsed = parse_layout(test_layout)
     with pytest.raises(ValueError):
-        get_legal_positions(parsed['walls'], pos)
+        get_legal_positions(parsed['walls'], parsed['shape'], pos)
 
 
 def test_load():

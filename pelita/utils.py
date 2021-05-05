@@ -297,6 +297,7 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
     }
 
     bot = make_bots(walls=layout['walls'][:],
+                    shape=layout['shape'],
                     team=team,
                     enemy=enemy,
                     round=round,
