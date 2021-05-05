@@ -8,6 +8,8 @@ from pelita.network import ZMQClientError
 from pelita.scripts.pelita_tournament import firstNN
 from pelita.tournament import call_pelita, check_team
 
+_mswindows = (sys.platform == "win32")
+
 
 class TestLibpelitaUtils:
     def test_firstNN(self):
@@ -78,6 +80,7 @@ def test_check_team_internal():
     assert check_team(move) == "local-team (move)"
 
 
+@pytest.mark.skipif(_mswindows, reason="NamedTemporaryFiles cannot be used in another process")
 def test_write_replay_is_idempotent():
     # TODO: The replay functionality could be added to call_pelita
     # so we don’t have to run the subprocess ourselves

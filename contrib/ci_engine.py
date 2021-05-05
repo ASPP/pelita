@@ -477,7 +477,7 @@ def hashpath(pathname):
 def hashdir(pathname):
     """Calculate the SHA1 sum of the contents of a directory.
 
-    It operates by walking trough the directory, collecting all
+    It operates by walking through the directory, collecting all
     filenames, sorting them alphabetically and calculating the SHA1 of
     the contents of the files.
 

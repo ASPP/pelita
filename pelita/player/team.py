@@ -322,6 +322,11 @@ class RemoteTeam:
         if getattr(self, '_sent_exit', False):
             return
         try:
+            # TODO: make zmqconnection stateful. set flag when already disconnected
+            # For now, we simply check the state of the socket so that we do not send
+            # over an already closed socket.
+            if self.zmqconnection.socket.closed:
+                return
             self.zmqconnection.send("exit", {}, timeout=1)
             self._sent_exit = True
         except ZMQUnreachablePeer:
