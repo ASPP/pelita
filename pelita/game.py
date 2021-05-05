@@ -79,7 +79,7 @@ def controller_exit(state, await_action='play_step'):
             return False
 
 def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=None,
-             max_team_errors=4, timeout_length=3, viewers=None, viewer_options=None,
+             error_limit=5, timeout_length=3, viewers=None, viewer_options=None,
              store_output=False, team_names=(None, None), allow_exceptions=False,
              print_result=True):
     """ Run a pelita match.
@@ -112,11 +112,12 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
     seed : int
         seed used to initialize the random number generator.
 
-    max_team_errors : int
-                   The maximum number of non fatal errors for a team before the
+    error_limit : int
+                   The limit of non fatal errors to reach for a team before the
                    game is over and the team is disqualified. Non fatal errors are
                    timeouts and returning an illegal move. Fatal errors are raising
-                   Exceptions. Default: 4.
+                   Exceptions. An error_limit of 0 will disable the limit.
+                   Default: 5.
 
     timeout_length : int or float
                   Time in seconds to wait for the move function (or for the remote
@@ -177,7 +178,7 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
 
     # we create the initial game state
     state = setup_game(team_specs, layout_dict=layout_dict, layout_name=layout_name, max_rounds=max_rounds,
-                       max_team_errors=max_team_errors, timeout_length=timeout_length, seed=seed,
+                       error_limit=error_limit, timeout_length=timeout_length, seed=seed,
                        viewers=viewers, viewer_options=viewer_options,
                        store_output=store_output, team_names=team_names, print_result=print_result)
 
@@ -249,7 +250,7 @@ def setup_viewers(viewers=None, options=None, print_result=True):
 
 
 def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=None,
-               max_team_errors=4, timeout_length=3, viewers=None, viewer_options=None,
+               error_limit=5, timeout_length=3, viewers=None, viewer_options=None,
                store_output=False, team_names=(None, None), allow_exceptions=False,
                print_result=True):
     """ Generates a game state for the given teams and layout with otherwise default values. """
@@ -382,8 +383,8 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         #: Timeout length, int, None
         timeout_length=timeout_length,
 
-        #: Maximum number of errors before a team loses, int
-        max_team_errors=max_team_errors,
+        #: Error limit. A team loses when the limit is reached, int
+        error_limit=error_limit,
 
         #: Viewers, list
         viewers=viewer_state['viewers'],
@@ -899,22 +900,22 @@ def check_gameover(game_state, detect_final_move=False):
             if num_fatals[team] > 0:
                 return { 'whowins' : 1 - team, 'gameover' : True}
 
-    # If any team has reached more than max_team_errors errors, this team loses.
-    # If both teams have reached more than max_team_errors errors, it’s a draw.
-    # If max_team_errors is < 0, the game will go on without checking.
+    # If any team has reached error_limit errors, this team loses.
+    # If both teams have reached error_limit errors, it’s a draw.
+    # If error_limit is 0, the game will go on without checking.
     num_errors = [len(f) for f in game_state['errors']]
-    if game_state['max_team_errors'] < 0:
+    if game_state['error_limit'] == 0:
         pass
-    elif num_errors[0] <= game_state['max_team_errors'] and num_errors[1] <= game_state['max_team_errors']:
-        # no one has exceeded the max number of errors
+    elif num_errors[0] < game_state['error_limit'] and num_errors[1] < game_state['error_limit']:
+        # no one has reached the error limit
         pass
-    elif num_errors[0] > game_state['max_team_errors'] and num_errors[1] > game_state['max_team_errors']:
-        # both teams have exceeded the max number of errors
+    elif num_errors[0] >= game_state['error_limit'] and num_errors[1] >= game_state['error_limit']:
+        # both teams have reached or exeeded the error limit
         return { 'whowins' : 2, 'gameover' : True}
     else:
-        # some one has exceeded the max number of errors
+        # only one team has reached the error limit
         for team in (0, 1):
-            if num_errors[team] > game_state['max_team_errors']:
+            if num_errors[team] >= game_state['error_limit']:
                 return { 'whowins' : 1 - team, 'gameover' : True}
 
     if detect_final_move:

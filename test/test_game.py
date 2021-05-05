@@ -738,7 +738,7 @@ def test_play_turn_move():
         "whowins": None,
         "team_say": "bla",
         "score": 0,
-        "max_team_errors": 4,
+        "error_limit": 5,
         "kills":[0]*4,
         "deaths": [0]*4,
         "bot_was_killed": [False]*4,
@@ -870,7 +870,7 @@ def test_last_round_check():
             'max_rounds': max_rounds,
             'round': current_round,
             'turn': current_turn,
-            'max_team_errors': 4,
+            'error_limit': 5,
             'fatal_errors': [[],[]],
             'errors': [[],[]],
             'gameover': False,
@@ -909,7 +909,7 @@ def test_error_finishes_game(team_errors, team_wins):
     (fatal_0, errors_0), (fatal_1, errors_1) = team_errors
     # just faking a bunch of errors in our game state
     state = {
-        "max_team_errors": 4,
+        "error_limit": 5,
         "fatal_errors": [[None] * fatal_0, [None] * fatal_1],
         "errors": [[None] * errors_0, [None] * errors_1]
     }
