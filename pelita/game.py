@@ -811,7 +811,7 @@ def apply_move(gamestate, bot_position):
         for enemy_idx in killed_enemies:
             _logger.info(f"Bot {turn} eats enemy bot {enemy_idx} at {bot_position}.")
             score[team] = score[team] + KILL_POINTS
-            init_positions = initial_positions(walls)
+            init_positions = initial_positions(walls, shape)
             bots[enemy_idx] = init_positions[enemy_idx]
             kills[turn] += 1
             deaths[enemy_idx] += 1
@@ -823,7 +823,7 @@ def apply_move(gamestate, bot_position):
         if len(enemies_on_target) > 0:
             _logger.info(f"Bot {turn} was eaten by bots {enemies_on_target} at {bot_position}.")
             score[1 - team] = score[1 - team] + KILL_POINTS
-            init_positions = initial_positions(walls)
+            init_positions = initial_positions(walls, shape)
             bots[turn] = init_positions[turn]
             deaths[turn] += 1
             kills[enemies_on_target[0]] += 1

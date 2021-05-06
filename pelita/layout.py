@@ -315,7 +315,7 @@ def wall_dimensions(walls):
     return (width, height)
 
 
-def initial_positions(walls):
+def initial_positions(walls, shape):
     """Calculate initial positions.
 
     Given the list of walls, returns the free positions that are closest to the
@@ -324,8 +324,7 @@ def initial_positions(walls):
     for judging what is closest. On equal distances, a smaller distance in the
     x value is preferred.
     """
-    width = max(walls)[0] + 1
-    height = max(walls)[1] + 1
+    width, height = shape
 
     left_start = (1, height - 2)
     left = []
