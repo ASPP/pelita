@@ -115,7 +115,7 @@ class Team:
         team = me._team
 
         for idx, mybot in enumerate(team):
-            # If a bot has been killed, we reset it’s bot track
+            # If a bot has been killed, we reset its bot track
             if mybot.was_killed:
                 self._bot_track[idx] = []
 
@@ -125,7 +125,7 @@ class Team:
 
         for idx, mybot in enumerate(team):
             # If the track of any bot is empty,
-            # Add its current position
+            # add its current position
             if me._bot_turn != idx:
                 self._bot_track[idx].append(mybot.position)
 
