@@ -137,7 +137,7 @@ def parse_layout(layout_str, food=None, bots=None):
         food = []
 
     # set empty default values
-    lwalls = []
+    lwalls = set()
     lfood = []
     lbots = [None] * 4
 
@@ -192,7 +192,7 @@ def parse_layout(layout_str, food=None, bots=None):
             # assign the char to the corresponding list
             if char == '#':
                 # wall
-                lwalls.append(coord)
+                lwalls.add(coord)
             elif char == '.':
                 # food
                 lfood.append(coord)
@@ -214,7 +214,6 @@ def parse_layout(layout_str, food=None, bots=None):
             missing_bots.append(BOT_I2N[i])
     if missing_bots:
             raise ValueError(f"Missing bot(s): {missing_bots}")
-    lwalls.sort()
     lfood.sort()
 
     # if additional food was supplied, we add it
@@ -241,7 +240,7 @@ def parse_layout(layout_str, food=None, bots=None):
 
     # build parsed layout, ensuring walls and food are sorted
     parsed_layout = {
-        'walls': sorted(lwalls),
+        'walls': lwalls,
         'food': sorted(lfood),
         'bots': lbots,
         'shape': (width, height)

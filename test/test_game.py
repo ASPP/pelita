@@ -136,7 +136,7 @@ def test_play_turn_apply_error(turn):
     # so that the error dictionaries are sane
     game_state["round"] = 3
 
-    illegal_position = game_state["walls"][0]
+    illegal_position = (0, 0) # should always be a wall
     game_state_new = apply_move(game_state, illegal_position)
     assert game_state_new["gameover"]
     assert len(game_state_new["errors"][team]) == 5
@@ -163,7 +163,7 @@ def test_play_turn_illegal_position(turn):
     game_state = setup_random_basic_gamestate()
     game_state["turn"] = turn
     team = turn % 2
-    illegal_position = game_state["walls"][0]
+    illegal_position = (0, 0) # should always be a wall
     game_state_new = apply_move(game_state, illegal_position)
     assert len(game_state_new["errors"][team]) == 1
     assert game_state_new["errors"][team][(1, turn)].keys() == set(["reason", "bot_position"])

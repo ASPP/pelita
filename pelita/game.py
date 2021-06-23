@@ -303,7 +303,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
     game_state = dict(
         ### The layout attributes
         #: Walls. List of (int, int)
-        walls=layout_dict['walls'][:],
+        walls=set(layout_dict['walls']),
 
         #: Shape of the maze. (int, int)
         shape=layout_dict['shape'],

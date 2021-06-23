@@ -56,13 +56,12 @@ def test_legal_layout():
              ######
              """
     parsed_layout = parse_layout(layout)
-    ewalls = []
+    ewalls = set()
     for x in range(6):
         for y in range(6):
             if (x == 0 or x == 5) or (y == 0 or y == 5):
-                ewalls.append((x,y))
-    ewalls.extend([(3, 2),(2, 3)])
-    ewalls.sort()
+                ewalls.add((x,y))
+    ewalls.update([(3, 2),(2, 3)])
     efood = sorted([(2, 1), (1, 2), (4, 3), (3, 4)])
     ebots = [(1, 3), (4, 2), (1, 4), (4, 1)]
     assert parsed_layout['walls'] == ewalls
@@ -81,13 +80,12 @@ def test_legal_layout_with_added_items():
     added_food = [(1,1), (4,4)]
     added_bots = {'b': (1,4)}
     parsed_layout = parse_layout(layout, food=added_food, bots=added_bots)
-    ewalls = []
+    ewalls = set()
     for x in range(6):
         for y in range(6):
             if (x == 0 or x == 5) or (y == 0 or y == 5):
-                ewalls.append((x,y))
-    ewalls.extend([(3, 2),(2, 3)])
-    ewalls.sort()
+                ewalls.add((x,y))
+    ewalls.update([(3, 2),(2, 3)])
     efood = sorted([(2, 1), (1, 2), (4, 3), (3, 4)]+added_food)
     ebots = [(1, 3), (4, 2), (1, 4), (4, 1)]
     assert parsed_layout['walls'] == ewalls
