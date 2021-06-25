@@ -34,8 +34,8 @@ def test_initial_positions_basic():
     #x   y #
     ########
     """
-    walls = layout.parse_layout(simple_layout)['walls']
-    out = initial_positions(walls)
+    parsed = layout.parse_layout(simple_layout)
+    out = initial_positions(parsed['walls'], parsed['shape'])
     exp = [(1, 1), (6, 2), (1, 2), (6, 1)]
     assert len(out) == 4
     assert out == exp
@@ -72,7 +72,7 @@ def test_initial_positions_basic():
     ])
 def test_initial_positions(simple_layout):
     parsed = layout.parse_layout(simple_layout)
-    i_pos = initial_positions(parsed['walls'])
+    i_pos = initial_positions(parsed['walls'], parsed['shape'])
     expected = parsed['bots']
     assert len(i_pos) == 4
     assert i_pos == expected
@@ -85,7 +85,8 @@ def test_initial_positions_same_in_layout_random(layout_t):
     parsed_l = layout.parse_layout(layout_string)
     exp = parsed_l["bots"]
     walls = parsed_l["walls"]
-    out = initial_positions(walls)
+    shape = parsed_l["shape"]
+    out = initial_positions(walls, shape)
     assert out == exp
 
 @pytest.mark.parametrize('layout_name', layout.get_available_layouts())
@@ -95,7 +96,8 @@ def test_initial_positions_same_in_layout(layout_name):
     parsed_l = layout.parse_layout(l)
     exp = parsed_l["bots"]
     walls = parsed_l["walls"]
-    out = initial_positions(walls)
+    shape = parsed_l["shape"]
+    out = initial_positions(walls, shape)
     assert out == exp
 
 def test_get_legal_positions_basic():

@@ -5,7 +5,7 @@ import networkx
 
 from .player.team import make_bots, create_homezones
 from .layout import (get_random_layout, get_layout_by_name, get_available_layouts,
-                     parse_layout, BOT_N2I)
+                     parse_layout, BOT_N2I, initial_positions)
 
 RNG = random.Random()
 
@@ -246,7 +246,7 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
 
     layout, layout_name = _parse_layout_arg(layout=layout, food=food, bots=bots)
 
-    width = max(layout['walls'])[0] + 1
+    width, height = layout['shape']
 
     def split_food(width, food):
         team_food = [set(), set()]
@@ -296,8 +296,9 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
         'name': "red" if is_blue else "blue"
     }
 
-    bot = make_bots(walls=layout['walls'][:],
+    bot = make_bots(walls=layout['walls'].copy(),
                     shape=layout['shape'],
+                    initial_positions=initial_positions(layout['walls'], layout['shape']),
                     homezone=create_homezones(layout['shape']),
                     team=team,
                     enemy=enemy,

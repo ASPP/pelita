@@ -328,7 +328,7 @@ def test_initial_position(_n_test):
     """ Test that out test team receives the correct initial positions."""
     layout_name, layout_string = get_random_layout()
     l = parse_layout(layout_string)
-    initial_pos = initial_positions(l['walls'])
+    initial_pos = initial_positions(l['walls'], l['shape'])
 
     def move(bot, state):
         if bot.is_blue and bot.turn == 0:
