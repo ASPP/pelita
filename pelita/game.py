@@ -268,6 +268,8 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         raise ValueError("Number of bots in layout must be 4.")
 
     width, height = layout.wall_dimensions(layout_dict['walls'])
+    if not (width, height) == layout_dict['shape']:
+        raise ValueError(f"layout_dict['walls'] does not match layout_dict['shape'].")
 
     for idx, pos in enumerate(layout_dict['bots']):
         if pos in layout_dict['walls']:
