@@ -3,6 +3,7 @@
 import argparse
 import cProfile
 import functools
+import subprocess
 import timeit
 
 from pelita.layout import parse_layout
@@ -33,7 +34,7 @@ LAYOUT="""
 layout = parse_layout(LAYOUT)
 
 def run(teams, max_rounds):
-    return run_game(teams, max_rounds=max_rounds, layout_dict=layout, print_result=False, allow_exceptions=True)
+    return run_game(teams, max_rounds=max_rounds, layout_dict=layout, print_result=False, allow_exceptions=True, store_output=subprocess.DEVNULL)
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Benchmark pelita run_game')
