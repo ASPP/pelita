@@ -134,6 +134,8 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
                 if store_output is a string it will be interpreted as a path to a
                 directory where to store stdout and stderr for the client processes.
                 It helps in debugging issues with the clients.
+                In the special case of store_output==subprocess.DEVNULL, stdout of
+                the remote clients will be suppressed.
 
     team_names : tuple(team_name_0, team_name_1)
               a tuple containing the team names. If not given, names will be taken
