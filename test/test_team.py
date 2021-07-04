@@ -400,3 +400,65 @@ def test_bot_attributes():
     # check that all is good
     assert state['fatal_errors'] == [[], []]
 
+def test_bot_str_repr():
+    test_layout = """
+        ##################
+        #.#... .##.     y#
+        # # #  .  .### #x#
+        # ####.   .      #
+        #      .   .#### #
+        #a# ###.  .  # # #
+        #b     .##. ...#.#
+        ##################
+    """
+
+    parsed = parse_layout(test_layout)
+
+    def asserting_team(bot, state):
+        bot_str = str(bot).split('\n')
+        if bot.is_blue and bot.round == 1:
+            assert bot_str[0] == "local-team (asserting_team) (you) vs local-team (asserting_team)."
+            assert bot_str[1] == f"Playing on blue side. Current turn: {bot.turn}. Bot: {bot.char}. Round: 1, score: 0:0. timeouts: 0:0"
+        elif not bot.is_blue and bot.round == 1:
+            assert bot_str[0] == "local-team (asserting_team) vs local-team (asserting_team) (you)."
+            assert bot_str[1] == f"Playing on red side. Current turn: {bot.turn}. Bot: {bot.char}. Round: 1, score: 0:0. timeouts: 0:0"
+        else:
+            assert False, "Should never be here."
+
+        return bot.position
+
+    state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed,
+                     allow_exceptions=True)
+    # assertions might have been caught in run_game
+    # check that all is good
+    assert state['fatal_errors'] == [[], []]
+
+
+def test_bot_html_repr():
+    test_layout = """
+        ##################
+        #.#... .##.     y#
+        # # #  .  .### #x#
+        # ####.   .      #
+        #      .   .#### #
+        #a# ###.  .  # # #
+        #b     .##. ...#.#
+        ##################
+    """
+
+    parsed = parse_layout(test_layout)
+
+    def asserting_team(bot, state):
+        # Not a full-fledged test at this time. We mainly want to catch API changes for now.
+
+        bot_str = bot._repr_html_()
+        assert len(bot_str)
+
+        return bot.position
+
+    state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed,
+                     allow_exceptions=True)
+    # assertions might have been caught in run_game
+    # check that all is good
+    assert state['fatal_errors'] == [[], []]
+

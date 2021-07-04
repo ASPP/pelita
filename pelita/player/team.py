@@ -564,12 +564,16 @@ class Bot:
                     if (x, y) in bot.walls: out.write("#")
                     if (x, y) in bot.food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
                     if (x, y) in bot.enemy[0].food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
-                    for idx in range(4):
-                        if bot._bots[idx].position == (x, y):
-                            if idx == self._bot_index:
+                    for idx in range(2):
+                        if bot._team[idx].position == (x, y):
+                            if idx == bot.turn:
                                 out.write('<b>' + str(idx) + '</b>')
                             else:
                                 out.write(str(idx))
+                    for idx in range(2):
+                        if bot.enemy[idx].position == (x, y):
+                            out.write(str(idx))
+
                     out.write("</td>")
                 out.write("</tr>")
             out.write("</table>")
