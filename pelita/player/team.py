@@ -412,10 +412,10 @@ def make_team(team_spec, team_name=None, zmq_context=None, idx=None, store_outpu
 def create_homezones(shape):
     width, height = shape
     return [
-        [(x, y) for x in range(0, width // 2)
-                for y in range(0, height)],
-        [(x, y) for x in range(width // 2, width)
-                for y in range(0, height)]
+        {(x, y) for x in range(0, width // 2)
+                for y in range(0, height)},
+        {(x, y) for x in range(width // 2, width)
+                for y in range(0, height)}
     ]
 
 def _ensure_tuples(list):
