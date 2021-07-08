@@ -156,9 +156,9 @@ def setup():
     folder = input().strip()
     if folder:
         try:
-            subfolders = [x.as_posix() for x in pathlib.Path(folder).iterdir() if x.is_dir()
-                                                                               and not x.name.startswith('.')
-                                                                               and not x.name.startswith('_')]
+            subfolders = [x.as_posix() for x in Path(folder).iterdir() if x.is_dir()
+                                                                       and not x.name.startswith('.')
+                                                                       and not x.name.startswith('_')]
             config["teams"] = [{ 'spec': folder, 'members': []} for folder in subfolders]
         except FileNotFoundError:
             print("Invalid path: {}".format(folder))

@@ -346,8 +346,8 @@ class TkApplication:
 
         if self.geometry is None:
             screensize = (
-                max(250, app.winfo_screenwidth() - 100),
-                max(250, app.winfo_screenheight() - 100)
+                max(250, self.master.winfo_screenwidth() - 100),
+                max(250, self.master.winfo_screenheight() - 100)
                 )
         else:
             screensize = self.geometry
