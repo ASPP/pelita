@@ -2,7 +2,6 @@ import pytest
 
 from pathlib import Path
 import random
-import subprocess
 import sys
 import tempfile
 from textwrap import dedent

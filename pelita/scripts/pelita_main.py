@@ -7,7 +7,6 @@ import logging
 import os
 from pathlib import Path
 import random
-import subprocess
 import sys
 import time
 
