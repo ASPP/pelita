@@ -174,6 +174,12 @@ class RemoteTeam:
         A zmq_context (if None, a new one will be created)
     idx
         The team index (currently only used to specify the team’s color)
+    store_output
+        If store_output is a string it will be interpreted as a path to a
+        directory where to store stdout and stderr for the client processes.
+        It helps in debugging issues with the clients.
+        In the special case of store_output==subprocess.DEVNULL, stdout of
+        the remote clients will be suppressed.
     """
     def __init__(self, team_spec, *, team_name=None, zmq_context=None, idx=None, store_output=False):
         if zmq_context is None:
@@ -242,7 +248,9 @@ class RemoteTeam:
                          color]
 
         _logger.debug("Executing: %r", external_call)
-        if store_output:
+        if store_output == subprocess.DEVNULL:
+            return (subprocess.Popen(external_call, stdout=store_output), None, None)
+        elif store_output:
             store_path = Path(store_output)
             stdout = (store_path / f"{color or team_spec}.out").open('w')
             stderr = (store_path / f"{color or team_spec}.err").open('w')
