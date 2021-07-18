@@ -67,6 +67,8 @@ def test_legal_layout():
     assert parsed_layout['walls'] == ewalls
     assert parsed_layout['food'] == efood
     assert parsed_layout['bots'] == ebots
+    assert parsed_layout['shape'] == (6, 6)
+    assert wall_dimensions(parsed_layout['walls']) == parsed_layout['shape']
 
 def test_legal_layout_with_added_items():
     layout = """
@@ -91,6 +93,8 @@ def test_legal_layout_with_added_items():
     assert parsed_layout['walls'] == ewalls
     assert parsed_layout['food'] == efood
     assert parsed_layout['bots'] == ebots
+    assert parsed_layout['shape'] == (6, 6)
+    assert wall_dimensions(parsed_layout['walls']) == parsed_layout['shape']
 
 def test_hole_in_horizontal_border():
     layout = """
