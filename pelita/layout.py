@@ -275,9 +275,7 @@ def layout_as_str(*, walls, food=None, bots=None, shape=None):
     The shape is optional. When it does not match the borders of the maze, a ValueError
     is raised.
     """
-    walls = sorted(walls)
-    width = max(walls)[0] + 1
-    height = max(walls)[1] + 1
+    width, height = wall_dimensions(walls)
 
     if shape is not None and not (width, height) == shape:
         raise ValueError(f"Given shape {shape} does not match width and height of layout {(width, height)}.")
@@ -308,9 +306,10 @@ def layout_as_str(*, walls, food=None, bots=None, shape=None):
 
 
 def wall_dimensions(walls):
-    """ Given a list of walls, returns a tuple of (width, height)."""
-    width = max(walls)[0] + 1
-    height = max(walls)[1] + 1
+    """ Given a list of walls, returns the shape of the maze as a tuple of (width, height)"""
+    max_elem = max(walls)
+    width = max_elem[0] + 1
+    height = max_elem[1] + 1
     return (width, height)
 
 

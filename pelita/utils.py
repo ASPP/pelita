@@ -1,11 +1,11 @@
 import random
 
-import networkx
+import networkx as nx
 
 
 from .player.team import make_bots, create_homezones
 from .layout import (get_random_layout, get_layout_by_name, get_available_layouts,
-                     parse_layout, BOT_N2I, initial_positions)
+                     parse_layout, BOT_N2I, initial_positions, wall_dimensions)
 
 RNG = random.Random()
 
@@ -14,8 +14,8 @@ def walls_to_graph(walls):
 
     Parameters
     ----------
-    walls : list[(x0,y0), (x1,y1), ...]
-         a list of wall coordinates
+    walls : set[(x0,y0), (x1,y1), ...]
+         a set of wall coordinates
 
     Returns
     -------
@@ -32,10 +32,9 @@ def walls_to_graph(walls):
     adjacent squares. Adjacent means that you can go from one square to one of
     its adjacent squares by making ore single step (up, down, left, or right).
     """
-    graph = networkx.Graph()
-    extreme = max(walls)
-    width =  extreme[0] + 1
-    height = extreme[1] + 1
+    graph = nx.Graph()
+    width, height = wall_dimensions(walls)
+
     for x in range(width):
         for y in range(height):
             if (x, y) not in walls:
