@@ -115,7 +115,8 @@ def test_track_and_kill_count():
         trackingBot,
         trackingBot
     ]
-    state = setup_game(team, max_rounds=300, layout_dict=parse_layout(layout))
+    # We play 600 rounds as we rely on some randomness in our assertions
+    state = setup_game(team, max_rounds=600, layout_dict=parse_layout(layout))
     while not state['gameover']:
         # Check that our count is consistent with what the game thinks
         # for the current and previous bot, we have to subtract the deaths that have just respawned
