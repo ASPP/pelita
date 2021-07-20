@@ -9,9 +9,8 @@ import tkinter.font
 
 from ..game import next_round_turn
 from ..player.team import _ensure_list_tuples
-from .tk_sprites import BotSprite, Food, Wall, col
+from .tk_sprites import BotSprite, Food, Wall, Arrow, RED, BLUE, YELLOW, GREY, BROWN, LIGHT_BLUE, LIGHT_RED, STRONG_BLUE, STRONG_RED
 from .tk_utils import wm_delete_window_handler
-from .tk_sprites import BotSprite, Food, Wall, RED, BLUE, YELLOW, GREY, BROWN
 from .. import layout
 
 _logger = logging.getLogger(__name__)
@@ -425,6 +424,7 @@ class TkApplication:
         self.mesh_graph.num_y = game_state['shape'][1]
 
         self.draw_grid()
+        self.draw_line_of_sight(game_state)
         self.draw_selected(game_state)
         self.draw_background()
         self.draw_maze(game_state)
@@ -460,6 +460,80 @@ class TkApplication:
 
         for y in range(self.mesh_graph.mesh_height + 1):
             draw_line(-0.5, y - 0.5, self.mesh_graph.mesh_width - 0.5, y - 0.5)
+
+    def draw_line_of_sight(self, game_state):
+        self.ui.game_canvas.delete("line_of_sight")
+        if not self._grid_enabled:
+            return
+
+        scale = self.mesh_graph.half_scale_x * 0.1
+
+        def draw_box(pos):
+            ul = self.mesh_graph.mesh_to_screen(pos, (-1, -1))
+            ur = self.mesh_graph.mesh_to_screen(pos, (1, -1))
+            ll = self.mesh_graph.mesh_to_screen(pos, (-1, 1))
+            lr = self.mesh_graph.mesh_to_screen(pos, (1, 1))
+
+            self.ui.game_canvas.create_rectangle(*ul, *lr, width=2, outline='#111', tag=("line_of_sight",))
+
+        bot = game_state['turn']
+        old_pos = tuple(game_state['requested_moves'][bot]['previous_position'])
+        draw_box(old_pos)
+
+        sight_distance = game_state["sight_distance"]
+        # starting from old_pos, iterate over all positions that are up to sight_distance
+        # steps away and put a border around the fields.
+        border_cells_relative = set(
+            (dx, dy)
+            for dx in range(- sight_distance, sight_distance + 1)
+            for dy in range(- sight_distance, sight_distance + 1)
+            if abs(dx) + abs(dy) == sight_distance
+        )
+        print(border_cells_relative)
+
+
+        def draw_line(pos, color, loc):
+            x0_ = self.mesh_graph.mesh_to_screen_x(pos[0], loc[0])
+            y0_ = self.mesh_graph.mesh_to_screen_y(pos[1], loc[1])
+            x1_ = self.mesh_graph.mesh_to_screen_x(pos[0], loc[2])
+            y1_ = self.mesh_graph.mesh_to_screen_y(pos[1], loc[3])
+            self.ui.game_canvas.create_line(x0_, y0_, x1_, y1_, width=2, fill=color, tag=("line_of_sight"))
+
+        team_col = STRONG_BLUE if bot % 2 == 0 else STRONG_RED
+
+
+        def draw_box(pos, fill):
+            ul = self.mesh_graph.mesh_to_screen(pos, (-1, -1))
+            ur = self.mesh_graph.mesh_to_screen(pos, (1, -1))
+            ll = self.mesh_graph.mesh_to_screen(pos, (-1, 1))
+            lr = self.mesh_graph.mesh_to_screen(pos, (1, 1))
+
+            self.ui.game_canvas.create_rectangle(*ul, *lr, width=0, fill=fill, tag=("line_of_sight", "area_of_sight"))
+
+        for dx in range(- sight_distance, sight_distance + 1):
+            for dy in range(- sight_distance, sight_distance + 1):
+                if abs(dx) + abs(dy) > sight_distance:
+                    continue
+
+                pos = (old_pos[0] + dx, old_pos[1] + dy)
+                draw_box(pos, fill=LIGHT_BLUE if bot % 2 == 0 else LIGHT_RED)
+
+                if (dx, dy) in border_cells_relative:
+                    if dx >= 0:
+                        draw_line(pos, loc=(1, 1, 1, -1), color=team_col)
+                    if dx <= 0:
+                        draw_line(pos, loc=(-1, 1, -1, -1), color=team_col)
+                    if dy >= 0:
+                        draw_line(pos, loc=(1, 1, -1, 1), color=team_col)
+                    if dy <= 0:
+                        draw_line(pos, loc=(1, -1, -1, -1), color=team_col)
+
+
+        self.ui.game_canvas.tag_lower("area_of_sight")
+        self.ui.game_canvas.tag_raise("wall")
+        print(game_state)
+
+
 
     def toggle_grid(self):
         self._grid_enabled = not self._grid_enabled

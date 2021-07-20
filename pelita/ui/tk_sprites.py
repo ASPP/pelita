@@ -9,7 +9,14 @@ def col(red, green, blue):
 
 RED = col(235, 90, 90)
 BLUE = col(94, 158, 217)
+
+LIGHT_BLUE = '#B9D9F6'
+STRONG_BLUE = '#1E6BB1'
+LIGHT_RED = '#FFB0B0'
+STRONG_RED = '#A91919'
+
 YELLOW = col(242, 255, 83)
+YELLOW = '#FFE38B'
 GREY = col(80, 80, 80)
 BROWN = col(48, 26, 22)
 
