@@ -399,7 +399,48 @@ def test_bot_attributes():
     state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed)
     # assertions might have been caught in run_game
     # check that all is good
+    assert state['errors'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
+
+def test_team_names():
+    test_layout = (
+    """ ##################
+        #a#.  .  # .     #
+        #b#####    #####x#
+        #     . #  .  .#y#
+        ################## """)
+
+    def team_pattern(fn):
+        # The pattern for a local team.
+        return f'local-team ({fn})'
+
+    def team_1(bot, state):
+        assert bot.team_name == team_pattern('team_1')
+        assert bot.other.team_name == team_pattern('team_1')
+        assert bot.enemy[0].team_name == team_pattern('team_2')
+        assert bot.enemy[1].team_name == team_pattern('team_2')
+        return bot.position
+
+    def team_2(bot, state):
+        assert bot.team_name == team_pattern('team_2')
+        assert bot.other.team_name == team_pattern('team_2')
+        assert bot.enemy[0].team_name == team_pattern('team_1')
+        assert bot.enemy[1].team_name == team_pattern('team_1')
+        return bot.position
+
+    state = setup_game([team_1, team_2], layout_dict=parse_layout(test_layout), max_rounds=3)
+    assert state['team_names'] == [team_pattern('team_1'), team_pattern('team_2')]
+
+    state = play_turn(state)
+    # check that player did not fail
+    assert state['errors'] == [{}, {}]
+    assert state['fatal_errors'] == [[], []]
+
+    state = play_turn(state)
+    # check that player did not fail
+    assert state['errors'] == [{}, {}]
+    assert state['fatal_errors'] == [[], []]
+
 
 def test_bot_str_repr():
     test_layout = """

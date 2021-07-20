@@ -11,8 +11,9 @@ from textwrap import dedent
 import time
 
 from pelita import game, layout
+from pelita.exceptions import NoFoodWarning
 from pelita.game import initial_positions, get_legal_positions, apply_move, run_game, setup_game, play_turn
-from pelita.player import stepping_player
+from pelita.player import stepping_player, stopping_player
 
 
 @contextmanager
@@ -24,6 +25,49 @@ def temp_wd(path):
         yield
     finally:
         os.chdir(old)
+
+
+def test_too_few_registered_teams():
+    test_layout_4 = (
+    """ ##################
+        #a#.  .  # .     #
+        #b#####    #####x#
+        #     . #  .  .#y#
+        ################## """)
+    team_1 = stopping_player
+    with pytest.raises(ValueError):
+        setup_game([team_1], layout_dict=layout.parse_layout(test_layout_4), max_rounds=300)
+
+
+def test_too_many_registered_teams():
+    test_layout_4 = (
+    """ ##################
+        #a#.  .  # .     #
+        #b#####    #####x#
+        #     . #  .  .#y#
+        ################## """)
+    team_1 = stopping_player
+    with pytest.raises(ValueError):
+        setup_game([team_1] * 3, layout_dict=layout.parse_layout(test_layout_4), max_rounds=300)
+
+
+@pytest.mark.parametrize('layout_str', [
+    """
+    ######
+    #a y #
+    # b x#
+    ######
+    """,
+    """
+    ######
+    #a y.#
+    # b x#
+    ######
+    """])
+def test_no_food(layout_str):
+    with pytest.warns(NoFoodWarning):
+        parsed = layout.parse_layout(layout_str)
+        setup_game([stopping_player, stopping_player], layout_dict=parsed, max_rounds=300)
 
 
 def test_initial_positions_basic():
