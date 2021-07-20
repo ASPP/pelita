@@ -1,11 +1,11 @@
 import random
 
-import networkx
+import networkx as nx
 
 
-from .player.team import make_bots
+from .player.team import make_bots, create_homezones
 from .layout import (get_random_layout, get_layout_by_name, get_available_layouts,
-                     parse_layout, BOT_N2I)
+                     parse_layout, BOT_N2I, initial_positions, wall_dimensions)
 
 RNG = random.Random()
 
@@ -14,8 +14,8 @@ def walls_to_graph(walls):
 
     Parameters
     ----------
-    walls : list[(x0,y0), (x1,y1), ...]
-         a list of wall coordinates
+    walls : set[(x0,y0), (x1,y1), ...]
+         a set of wall coordinates
 
     Returns
     -------
@@ -32,10 +32,9 @@ def walls_to_graph(walls):
     adjacent squares. Adjacent means that you can go from one square to one of
     its adjacent squares by making ore single step (up, down, left, or right).
     """
-    graph = networkx.Graph()
-    extreme = max(walls)
-    width =  extreme[0] + 1
-    height = extreme[1] + 1
+    graph = nx.Graph()
+    width, height = wall_dimensions(walls)
+
     for x in range(width):
         for y in range(height):
             if (x, y) not in walls:
@@ -110,7 +109,7 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
     game_state : dict
               the final game state as a dictionary. Dictionary keys are:
               - 'seed' : the seed used to initialize the random number generator
-              - 'walls' : list of walls coordinates for the layout
+              - 'walls' : set of wall coordinates for the layout
               - 'layout' : the name of the used layout
               - 'round' : the round at which the game was over
               - 'draw' : True if the game ended in a draw
@@ -246,7 +245,7 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
 
     layout, layout_name = _parse_layout_arg(layout=layout, food=food, bots=bots)
 
-    width = max(layout['walls'])[0] + 1
+    width, height = layout['shape']
 
     def split_food(width, food):
         team_food = [set(), set()]
@@ -296,7 +295,10 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
         'name': "red" if is_blue else "blue"
     }
 
-    bot = make_bots(walls=layout['walls'][:],
+    bot = make_bots(walls=layout['walls'].copy(),
+                    shape=layout['shape'],
+                    initial_positions=initial_positions(layout['walls'], layout['shape']),
+                    homezone=create_homezones(layout['shape']),
                     team=team,
                     enemy=enemy,
                     round=round,

@@ -96,6 +96,14 @@ def bind_socket(socket, address, option_hint=None):
                 (option_hint,), file=sys.stderr)
         raise
 
+
+class SetEncoder(json.JSONEncoder):
+   def default(self, obj):
+      if isinstance(obj, set):
+         return list(obj)
+      return json.JSONEncoder.default(self, obj)
+
+
 def json_default_handler(o):
     """ Pythons built-in json handler has problems converting numpy.in64
     to json. By adding this method as a default= to json.dumps, we can
@@ -164,7 +172,7 @@ class ZMQConnection:
             # race condition if a connection was closed between poll and send.
             # NOBLOCK should raise, so we can catch that
             message_obj = {"__uuid__": msg_id, "__action__": action, "__data__": data}
-            json_message = json.dumps(message_obj)
+            json_message = json.dumps(message_obj, cls=SetEncoder)
             try:
                 self.socket.send_unicode(json_message, flags=zmq.NOBLOCK)
             except zmq.ZMQError as e:
@@ -275,7 +283,6 @@ class ZMQConnection:
     def __repr__(self):
         return "ZMQConnection(%r)" % self.socket
 
-
 class ZMQPublisher:
     """ Sets up a simple Publisher which sends all viewed events
     over a zmq connection.
@@ -298,7 +305,7 @@ class ZMQPublisher:
             info['gameover'] = True
         _logger.debug(f"--#> [{action}] %r", info)
         message = {"__action__": action, "__data__": data}
-        as_json = json.dumps(message)
+        as_json = json.dumps(message, cls=SetEncoder)
         self.socket.send_unicode(as_json)
 
     def show_state(self, game_state):

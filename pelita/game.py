@@ -268,6 +268,8 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         raise ValueError("Number of bots in layout must be 4.")
 
     width, height = layout.wall_dimensions(layout_dict['walls'])
+    if not (width, height) == layout_dict['shape']:
+        raise ValueError(f"layout_dict['walls'] does not match layout_dict['shape'].")
 
     for idx, pos in enumerate(layout_dict['bots']):
         if pos in layout_dict['walls']:
@@ -300,8 +302,11 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
 
     game_state = dict(
         ### The layout attributes
-        #: Walls. List of (int, int)
-        walls=layout_dict['walls'][:],
+        #: Walls. Set of (int, int)
+        walls=set(layout_dict['walls']),
+
+        #: Shape of the maze. (int, int)
+        shape=layout_dict['shape'],
 
         #: Food per team. List of sets of (int, int)
         food=food,
@@ -507,6 +512,7 @@ def prepare_bot_state(game_state, idx=None):
     enemy_team = 1 - own_team
     enemy_positions = game_state['bots'][enemy_team::2]
     noised_positions = noiser(walls=game_state['walls'],
+                              shape=game_state['shape'],
                               bot_position=bot_position,
                               enemy_positions=enemy_positions,
                               noise_radius=game_state['noise_radius'],
@@ -560,6 +566,7 @@ def prepare_bot_state(game_state, idx=None):
     if bot_initialization:
         bot_state.update({
             'walls': game_state['walls'], # only in initial round
+            'shape': game_state['shape'], # only in initial round
             'seed': seed # only used in set_initial phase
         })
 
@@ -739,6 +746,7 @@ def apply_move(gamestate, bot_position):
     score = gamestate["score"]
     food = gamestate["food"]
     walls = gamestate["walls"]
+    shape = gamestate["shape"]
     food = gamestate["food"]
     n_round = gamestate["round"]
     kills = gamestate["kills"]
@@ -756,7 +764,7 @@ def apply_move(gamestate, bot_position):
     team_errors = gamestate["errors"][team]
 
     # the allowed moves for the current bot
-    legal_positions = get_legal_positions(walls, gamestate["bots"][gamestate["turn"]])
+    legal_positions = get_legal_positions(walls, shape, gamestate["bots"][gamestate["turn"]])
 
     # unless we have already made an error, check if we made a legal move
     if not (n_round, turn) in team_errors:
@@ -787,12 +795,11 @@ def apply_move(gamestate, bot_position):
     _logger.info(f"Bot {turn} moves to {bot_position}.")
     # then apply rules
     # is bot in home or enemy territory
-    x_walls = [i[0] for i in walls]
-    boundary = max(x_walls) / 2  # float
+    boundary = gamestate['shape'][0] / 2
     if team == 0:
         bot_in_homezone = bot_position[0] < boundary
     elif team == 1:
-        bot_in_homezone = bot_position[0] > boundary
+        bot_in_homezone = bot_position[0] >= boundary
     # update food list
     if not bot_in_homezone:
         if bot_position in food[1 - team]:
@@ -806,7 +813,7 @@ def apply_move(gamestate, bot_position):
         for enemy_idx in killed_enemies:
             _logger.info(f"Bot {turn} eats enemy bot {enemy_idx} at {bot_position}.")
             score[team] = score[team] + KILL_POINTS
-            init_positions = initial_positions(walls)
+            init_positions = initial_positions(walls, shape)
             bots[enemy_idx] = init_positions[enemy_idx]
             kills[turn] += 1
             deaths[enemy_idx] += 1
@@ -818,7 +825,7 @@ def apply_move(gamestate, bot_position):
         if len(enemies_on_target) > 0:
             _logger.info(f"Bot {turn} was eaten by bots {enemies_on_target} at {bot_position}.")
             score[1 - team] = score[1 - team] + KILL_POINTS
-            init_positions = initial_positions(walls)
+            init_positions = initial_positions(walls, shape)
             bots[turn] = init_positions[turn]
             deaths[turn] += 1
             kills[enemies_on_target[0]] += 1

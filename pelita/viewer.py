@@ -6,6 +6,7 @@ import logging
 import zmq
 
 from . import layout
+from .network import SetEncoder
 
 _logger = logging.getLogger(__name__)
 
@@ -128,7 +129,7 @@ class ReplyToViewer:
     def _send(self, message):
         socks = dict(self.pollout.poll(300))
         if socks.get(self.sock) == zmq.POLLOUT:
-            as_json = json.dumps(message)
+            as_json = json.dumps(message, cls=SetEncoder)
             self.sock.send_unicode(as_json, flags=zmq.NOBLOCK)
 
     def show_state(self, game_state):
@@ -142,7 +143,7 @@ class ReplayWriter:
         self.stream = stream
 
     def _send(self, message):
-        as_json = json.dumps(message)
+        as_json = json.dumps(message, cls=SetEncoder)
         self.stream.write(as_json)
         # We use 0x04 (EOT) as a separator between the events.
         # The additional newline is for improved readability

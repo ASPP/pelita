@@ -6,7 +6,6 @@ import random
 import subprocess
 import sys
 import traceback
-from functools import reduce
 from io import StringIO
 from pathlib import Path
 
@@ -14,10 +13,29 @@ import zmq
 
 from .. import layout
 from ..exceptions import PlayerDisconnected, PlayerTimeout
-from ..layout import layout_as_str, parse_layout, wall_dimensions, BOT_I2N
+from ..layout import layout_as_str, BOT_I2N
 from ..network import ZMQClientError, ZMQConnection, ZMQReplyTimeout, ZMQUnreachablePeer
 
 _logger = logging.getLogger(__name__)
+
+
+def _ensure_list_tuples(list):
+    """ Ensures that an iterable is a list of position tuples. """
+    return [tuple(item) for item in list]
+
+def _ensure_set_tuples(set):
+    """ Ensures that an iterable is a set of position tuples. """
+    return {tuple(item) for item in set}
+
+
+def create_homezones(shape):
+    width, height = shape
+    return [
+        {(x, y) for x in range(0, width // 2)
+                for y in range(0, height)},
+        {(x, y) for x in range(width // 2, width)
+                for y in range(0, height)}
+    ]
 
 
 class Team:
@@ -78,7 +96,16 @@ class Team:
         self._bot_track = [[], []]
 
         # Store the walls, which are only transmitted once
-        self._walls = game_state['walls']
+        self._walls = _ensure_set_tuples(game_state['walls'])
+
+        # Store the shape, which is only transmitted once
+        self._shape = tuple(game_state['shape'])
+
+        # Cache the initial positions so that we don’t have to calculate them at each step
+        self._initial_positions = layout.initial_positions(self._walls, self._shape)
+
+        # Cache the homezone so that we don’t have to create it at each step
+        self._homezone = create_homezones(self._shape)
 
         return self.team_name
 
@@ -98,6 +125,9 @@ class Team:
         move : dict
         """
         me = make_bots(walls=self._walls,
+                       shape=self._shape,
+                       initial_positions=self._initial_positions,
+                       homezone=self._homezone,
                        team=game_state['team'],
                        enemy=game_state['enemy'],
                        round=game_state['round'],
@@ -107,7 +137,7 @@ class Team:
         team = me._team
 
         for idx, mybot in enumerate(team):
-            # If a bot has been killed, we reset it’s bot track
+            # If a bot has been killed, we reset its bot track
             if mybot.was_killed:
                 self._bot_track[idx] = []
 
@@ -117,7 +147,7 @@ class Team:
 
         for idx, mybot in enumerate(team):
             # If the track of any bot is empty,
-            # Add its current position
+            # add its current position
             if me._bot_turn != idx:
                 self._bot_track[idx].append(mybot.position)
 
@@ -397,26 +427,13 @@ def make_team(team_spec, team_name=None, zmq_context=None, idx=None, store_outpu
     return team_player, zmq_context
 
 
-def create_homezones(walls):
-    width = max(walls)[0]+1
-    height = max(walls)[1]+1
-    return [
-        [(x, y) for x in range(0, width // 2)
-                for y in range(0, height)],
-        [(x, y) for x in range(width // 2, width)
-                for y in range(0, height)]
-    ]
-
-def _ensure_tuples(list):
-    """ Ensures that an iterable is a list of position tuples. """
-    return [tuple(item) for item in list]
-
 class Bot:
     def __init__(self, *, bot_index,
                           is_on_team,
                           position,
                           initial_position,
                           walls,
+                          shape,
                           homezone,
                           food,
                           score,
@@ -443,10 +460,11 @@ class Bot:
         self.random = random
         self.position = tuple(position)
         self._initial_position = tuple(initial_position)
-        self.walls = _ensure_tuples(walls)
+        self.walls = walls
 
-        self.homezone = _ensure_tuples(homezone)
-        self.food = _ensure_tuples(food)
+        self.homezone = homezone
+        self.food = food
+        self.shape = shape
         self.score  = score
         self.kills = kills
         self.deaths = deaths
@@ -554,8 +572,7 @@ class Bot:
     def _repr_html_(self):
         """ Jupyter-friendly representation. """
         bot = self
-        width = max(bot.walls)[0] + 1
-        height = max(bot.walls)[1] + 1
+        width, height = bot.shape
 
         with StringIO() as out:
             out.write("<table>")
@@ -589,8 +606,6 @@ class Bot:
 
     def __str__(self):
         bot = self
-        width = max(bot.walls)[0] + 1
-        height = max(bot.walls)[1] + 1
 
         if bot.is_blue:
             blue = bot if not bot.turn else bot.other
@@ -628,9 +643,10 @@ class Bot:
         with StringIO() as out:
             out.write(header)
 
-            layout = layout_as_str(walls=bot.walls[:],
+            layout = layout_as_str(walls=bot.walls.copy(),
                                    food=bot.food + bot.enemy[0].food,
-                                   bots=bot_positions)
+                                   bots=bot_positions,
+                                   shape=bot.shape)
 
             out.write(str(layout))
             out.write(footer)
@@ -638,14 +654,12 @@ class Bot:
 
 
 # def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_blue):
-def make_bots(*, walls, team, enemy, round, bot_turn, rng):
+def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, bot_turn, rng):
     bots = {}
 
     team_index = team['team_index']
     enemy_index = enemy['team_index']
 
-    homezone = create_homezones(walls)
-    initial_positions = layout.initial_positions(walls)
     team_initial_positions = initial_positions[team_index::2]
     enemy_initial_positions = initial_positions[enemy_index::2]
 
@@ -659,8 +673,9 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
             was_killed=team['bot_was_killed'][idx],
             is_noisy=False,
             error_count=team['error_count'],
-            food=team['food'],
+            food=_ensure_list_tuples(team['food']),
             walls=walls,
+            shape=shape,
             round=round,
             bot_turn=bot_turn,
             bot_char=BOT_I2N[team_index + idx*2],
@@ -683,8 +698,9 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
             was_killed=enemy['bot_was_killed'][idx],
             is_noisy=enemy['is_noisy'][idx],
             error_count=enemy['error_count'],
-            food=enemy['food'],
+            food=_ensure_list_tuples(enemy['food']),
             walls=walls,
+            shape=shape,
             round=round,
             bot_char = BOT_I2N[team_index + idx*2],
             random=rng,
@@ -699,6 +715,4 @@ def make_bots(*, walls, team, enemy, round, bot_turn, rng):
     bots['team'] = team_bots
     bots['enemy'] = enemy_bots
     return team_bots[bot_turn]
-
-
 

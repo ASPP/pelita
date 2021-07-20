@@ -5,7 +5,7 @@ import copy
 ### The main function
 
 
-def noiser(walls, bot_position, enemy_positions, noise_radius=5, sight_distance=5, rnd=None):
+def noiser(walls, shape, bot_position, enemy_positions, noise_radius=5, sight_distance=5, rnd=None):
     """Function to make bot positions noisy in a game state.
 
     Applies uniform noise in maze space. Noise will only be applied if the
@@ -36,7 +36,7 @@ def noiser(walls, bot_position, enemy_positions, noise_radius=5, sight_distance=
 
     Parameters
     ----------
-    walls : list of (int, int)
+    walls : set of (int, int)
     noise_radius : int, optional, default: 5
         the radius for the uniform noise
     sight_distance : int, optional, default: 5
@@ -67,7 +67,7 @@ def noiser(walls, bot_position, enemy_positions, noise_radius=5, sight_distance=
 
         if cur_distance is None or cur_distance > sight_distance:
             # If so then alter the position of the enemy
-            new_pos, noisy_flag = alter_pos(b, noise_radius, rnd, walls)
+            new_pos, noisy_flag = alter_pos(b, noise_radius, rnd, walls, shape)
             noised_positions[count] = new_pos
             is_noisy[count] = noisy_flag
         else:
@@ -80,26 +80,22 @@ def noiser(walls, bot_position, enemy_positions, noise_radius=5, sight_distance=
 ### The subfunctions
 
 
-def alter_pos(bot_pos, noise_radius, rnd, walls):
+def alter_pos(bot_pos, noise_radius, rnd, walls, shape):
     """ alter the position """
-
-    # extracting from walls the maximum width and height
-    max_walls = max(walls)
-    min_walls = min(walls)
 
     # get a list of possible positions
     x_min, x_max = bot_pos[0] - noise_radius, bot_pos[0] + noise_radius
     y_min, y_max = bot_pos[1] - noise_radius, bot_pos[1] + noise_radius
 
-    # filter them so the we return no positions outsided the maze
+    # filter them so that we return no positions outside the maze
     if x_min < 0:
         x_min = 1
-    if x_max > max_walls[0]:
-        x_max = max_walls[0]
+    if x_max >= shape[0]:
+        x_max = shape[0] - 1
     if y_min < 0:
         y_min = 1
-    if y_max > max_walls[1]:
-        y_max = max_walls[1]
+    if y_max >= shape[1]:
+        y_max = shape[1] - 1
 
     possible_positions = [
         (i, j)

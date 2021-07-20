@@ -111,16 +111,18 @@ def parse_layout(layout_str, food=None, bots=None):
 
 
     Return a dict
-        {'walls': list_of_wall_coordinates,
+        {'walls': set_of_wall_coordinates,
          'food' : list_of_food_coordinates,
-         'bots'  : list_of_bot_coordinates in the order (a,x,b,y) }
+         'bots'  : list_of_bot_coordinates in the order (a,x,b,y),
+         'shape': tuple of (height, width) of the layout}
 
     In the example above:
-    {'walls': [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
+    {'walls': {(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
                (2, 4), (3, 0), (3, 2), (3, 4), (4, 0), (4, 2), (4, 4), (5, 0),
-               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)],
+               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)},
      'food': [(3, 3), (4, 1)],
-     'bots': [(1, 1), (6, 2), (1, 2), (6, 3)]}
+     'bots': [(1, 1), (6, 2), (1, 2), (6, 3)],
+     'shape': (8, 4)}
 
     Additional food and bots can be passed:
 
@@ -135,7 +137,7 @@ def parse_layout(layout_str, food=None, bots=None):
         food = []
 
     # set empty default values
-    lwalls = []
+    lwalls = set()
     lfood = []
     lbots = [None] * 4
 
@@ -190,7 +192,7 @@ def parse_layout(layout_str, food=None, bots=None):
             # assign the char to the corresponding list
             if char == '#':
                 # wall
-                lwalls.append(coord)
+                lwalls.add(coord)
             elif char == '.':
                 # food
                 lfood.append(coord)
@@ -212,7 +214,6 @@ def parse_layout(layout_str, food=None, bots=None):
             missing_bots.append(BOT_I2N[i])
     if missing_bots:
             raise ValueError(f"Missing bot(s): {missing_bots}")
-    lwalls.sort()
     lfood.sort()
 
     # if additional food was supplied, we add it
@@ -239,25 +240,27 @@ def parse_layout(layout_str, food=None, bots=None):
 
     # build parsed layout, ensuring walls and food are sorted
     parsed_layout = {
-        'walls': sorted(lwalls),
+        'walls': lwalls,
         'food': sorted(lfood),
-        'bots': lbots
+        'bots': lbots,
+        'shape': (width, height)
     }
 
     return parsed_layout
 
 
-def layout_as_str(*, walls, food=None, bots=None):
+def layout_as_str(*, walls, food=None, bots=None, shape=None):
     """Given a dictionary with walls, food and bots coordinates return a string layout representation
 
     Example:
 
     Given:
-    {'walls': [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
+    {'walls': {(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
                (2, 4), (3, 0), (3, 2), (3, 4), (4, 0), (4, 2), (4, 4), (5, 0),
-               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)],
+               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)},
      'food': [(3, 3), (4, 1)],
-     'bots': [(1, 1), (6, 2), (1, 2), (6, 3)]}
+     'bots': [(1, 1), (6, 2), (1, 2), (6, 3)],
+     'shape': (8, 4)}
 
     Return:
     ########
@@ -268,10 +271,14 @@ def layout_as_str(*, walls, food=None, bots=None):
 
     Overlapping items are discarded. When overlapping, walls take precedence over
     bots, which take precedence over food.
+
+    The shape is optional. When it does not match the borders of the maze, a ValueError
+    is raised.
     """
-    walls = sorted(walls)
-    width = max(walls)[0] + 1
-    height = max(walls)[1] + 1
+    width, height = wall_dimensions(walls)
+
+    if shape is not None and not (width, height) == shape:
+        raise ValueError(f"Given shape {shape} does not match width and height of layout {(width, height)}.")
 
     # initialized empty containers
     if food is None:
@@ -299,13 +306,14 @@ def layout_as_str(*, walls, food=None, bots=None):
 
 
 def wall_dimensions(walls):
-    """ Given a list of walls, returns a tuple of (width, height)."""
-    width = max(walls)[0] + 1
-    height = max(walls)[1] + 1
+    """ Given a list of walls, returns the shape of the maze as a tuple of (width, height)"""
+    max_elem = max(walls)
+    width = max_elem[0] + 1
+    height = max_elem[1] + 1
     return (width, height)
 
 
-def initial_positions(walls):
+def initial_positions(walls, shape):
     """Calculate initial positions.
 
     Given the list of walls, returns the free positions that are closest to the
@@ -314,8 +322,7 @@ def initial_positions(walls):
     for judging what is closest. On equal distances, a smaller distance in the
     x value is preferred.
     """
-    width = max(walls)[0] + 1
-    height = max(walls)[1] + 1
+    width, height = shape
 
     left_start = (1, height - 2)
     left = []
@@ -370,13 +377,13 @@ def initial_positions(walls):
     return [left[0], right[0], left[1], right[1]]
 
 
-def get_legal_positions(walls, bot_position):
+def get_legal_positions(walls, shape, bot_position):
     """ Returns all legal positions that a bot at `bot_position`
     can go to.
 
      Parameters
     ----------
-    walls : list
+    walls : set of (int, int)
         position of the walls of current layout.
     bot_position: tuple
         position of current bot.
@@ -391,7 +398,7 @@ def get_legal_positions(walls, bot_position):
     ValueError
         if bot_position invalid or on wall
     """
-    width, height = wall_dimensions(walls)
+    width, height = shape
     if not (0, 0) <= bot_position < (width, height):
         raise ValueError(f"Position {bot_position} not inside maze ({width}x{height}).")
     if bot_position in walls:

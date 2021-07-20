@@ -56,18 +56,19 @@ def test_legal_layout():
              ######
              """
     parsed_layout = parse_layout(layout)
-    ewalls = []
+    ewalls = set()
     for x in range(6):
         for y in range(6):
             if (x == 0 or x == 5) or (y == 0 or y == 5):
-                ewalls.append((x,y))
-    ewalls.extend([(3, 2),(2, 3)])
-    ewalls.sort()
+                ewalls.add((x,y))
+    ewalls.update([(3, 2),(2, 3)])
     efood = sorted([(2, 1), (1, 2), (4, 3), (3, 4)])
     ebots = [(1, 3), (4, 2), (1, 4), (4, 1)]
     assert parsed_layout['walls'] == ewalls
     assert parsed_layout['food'] == efood
     assert parsed_layout['bots'] == ebots
+    assert parsed_layout['shape'] == (6, 6)
+    assert wall_dimensions(parsed_layout['walls']) == parsed_layout['shape']
 
 def test_legal_layout_with_added_items():
     layout = """
@@ -81,18 +82,19 @@ def test_legal_layout_with_added_items():
     added_food = [(1,1), (4,4)]
     added_bots = {'b': (1,4)}
     parsed_layout = parse_layout(layout, food=added_food, bots=added_bots)
-    ewalls = []
+    ewalls = set()
     for x in range(6):
         for y in range(6):
             if (x == 0 or x == 5) or (y == 0 or y == 5):
-                ewalls.append((x,y))
-    ewalls.extend([(3, 2),(2, 3)])
-    ewalls.sort()
+                ewalls.add((x,y))
+    ewalls.update([(3, 2),(2, 3)])
     efood = sorted([(2, 1), (1, 2), (4, 3), (3, 4)]+added_food)
     ebots = [(1, 3), (4, 2), (1, 4), (4, 1)]
     assert parsed_layout['walls'] == ewalls
     assert parsed_layout['food'] == efood
     assert parsed_layout['bots'] == ebots
+    assert parsed_layout['shape'] == (6, 6)
+    assert wall_dimensions(parsed_layout['walls']) == parsed_layout['shape']
 
 def test_hole_in_horizontal_border():
     layout = """
@@ -335,7 +337,7 @@ def test_legal_positions(pos, legal_positions):
             #xy  #
             ###### """)
     parsed = parse_layout(test_layout)
-    assert set(get_legal_positions(parsed['walls'], pos)) == legal_positions
+    assert set(get_legal_positions(parsed['walls'], parsed['shape'], pos)) == legal_positions
 
 
 @pytest.mark.parametrize('pos', [
@@ -354,7 +356,7 @@ def test_legal_positions_fail(pos):
             ###### """)
     parsed = parse_layout(test_layout)
     with pytest.raises(ValueError):
-        get_legal_positions(parsed['walls'], pos)
+        get_legal_positions(parsed['walls'], parsed['shape'], pos)
 
 
 def test_load():

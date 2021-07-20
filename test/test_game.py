@@ -34,8 +34,8 @@ def test_initial_positions_basic():
     #x   y #
     ########
     """
-    walls = layout.parse_layout(simple_layout)['walls']
-    out = initial_positions(walls)
+    parsed = layout.parse_layout(simple_layout)
+    out = initial_positions(parsed['walls'], parsed['shape'])
     exp = [(1, 1), (6, 2), (1, 2), (6, 1)]
     assert len(out) == 4
     assert out == exp
@@ -72,7 +72,7 @@ def test_initial_positions_basic():
     ])
 def test_initial_positions(simple_layout):
     parsed = layout.parse_layout(simple_layout)
-    i_pos = initial_positions(parsed['walls'])
+    i_pos = initial_positions(parsed['walls'], parsed['shape'])
     expected = parsed['bots']
     assert len(i_pos) == 4
     assert i_pos == expected
@@ -85,7 +85,8 @@ def test_initial_positions_same_in_layout_random(layout_t):
     parsed_l = layout.parse_layout(layout_string)
     exp = parsed_l["bots"]
     walls = parsed_l["walls"]
-    out = initial_positions(walls)
+    shape = parsed_l["shape"]
+    out = initial_positions(walls, shape)
     assert out == exp
 
 @pytest.mark.parametrize('layout_name', layout.get_available_layouts())
@@ -95,14 +96,15 @@ def test_initial_positions_same_in_layout(layout_name):
     parsed_l = layout.parse_layout(l)
     exp = parsed_l["bots"]
     walls = parsed_l["walls"]
-    out = initial_positions(walls)
+    shape = parsed_l["shape"]
+    out = initial_positions(walls, shape)
     assert out == exp
 
 def test_get_legal_positions_basic():
     """Check that the output of legal moves contains all legal moves for one example layout"""
     l = layout.get_layout_by_name(layout_name="small_100")
     parsed_l = layout.parse_layout(l)
-    legal_positions = get_legal_positions(parsed_l["walls"], parsed_l["bots"][0])
+    legal_positions = get_legal_positions(parsed_l["walls"], parsed_l["shape"], parsed_l["bots"][0])
     exp = [(1, 4), (1, 6), (1, 5)]
     assert legal_positions == exp
 
@@ -113,7 +115,7 @@ def test_get_legal_positions_random(layout_t, bot_idx):
     layout_name, layout_string = layout_t # get_random_layout returns a tuple of name and string
     parsed_l = layout.parse_layout(layout_string)
     bot = parsed_l["bots"][bot_idx]
-    legal_positions = get_legal_positions(parsed_l["walls"], bot)
+    legal_positions = get_legal_positions(parsed_l["walls"], parsed_l["shape"], bot)
     for move in legal_positions:
         assert move not in parsed_l["walls"]
         assert  abs((move[0] - bot[0])+(move[1] - bot[1])) <= 1
@@ -134,7 +136,7 @@ def test_play_turn_apply_error(turn):
     # so that the error dictionaries are sane
     game_state["round"] = 3
 
-    illegal_position = game_state["walls"][0]
+    illegal_position = (0, 0) # should always be a wall
     game_state_new = apply_move(game_state, illegal_position)
     assert game_state_new["gameover"]
     assert len(game_state_new["errors"][team]) == 5
@@ -150,7 +152,7 @@ def test_play_turn_fatal(turn):
     fatal_list = [{}, {}]
     fatal_list[team] = {"error":True}
     game_state["fatal_errors"] = fatal_list
-    move = get_legal_positions(game_state["walls"], game_state["bots"][turn])
+    move = get_legal_positions(game_state["walls"], game_state["shape"], game_state["bots"][turn])
     game_state_new = apply_move(game_state, move[0])
     assert game_state_new["gameover"]
     assert game_state_new["whowins"] == int(not team)
@@ -161,11 +163,11 @@ def test_play_turn_illegal_position(turn):
     game_state = setup_random_basic_gamestate()
     game_state["turn"] = turn
     team = turn % 2
-    illegal_position = game_state["walls"][0]
+    illegal_position = (0, 0) # should always be a wall
     game_state_new = apply_move(game_state, illegal_position)
     assert len(game_state_new["errors"][team]) == 1
     assert game_state_new["errors"][team][(1, turn)].keys() == set(["reason", "bot_position"])
-    assert game_state_new["bots"][turn] in get_legal_positions(game_state["walls"], game_state["bots"][turn])
+    assert game_state_new["bots"][turn] in get_legal_positions(game_state["walls"], game_state["shape"], game_state["bots"][turn])
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
 @pytest.mark.parametrize('which_food', (0, 1))
@@ -729,6 +731,7 @@ def test_play_turn_move():
         "food": parsed_l["food"],
         "walls": parsed_l["walls"],
         "bots": parsed_l["bots"],
+        "shape": parsed_l["shape"],
         "max_rounds": 300,
         "team_names": ("a", "b"),
         "turn": turn,
@@ -746,7 +749,7 @@ def test_play_turn_move():
         "fatal_errors": [{}, {}],
         "rnd": random.Random()
         }
-    legal_positions = get_legal_positions(game_state["walls"], game_state["bots"][turn])
+    legal_positions = get_legal_positions(game_state["walls"], game_state["shape"], game_state["bots"][turn])
     game_state_new = apply_move(game_state, legal_positions[0])
     assert game_state_new["bots"][turn] == legal_positions[0]
 
