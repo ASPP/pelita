@@ -8,16 +8,13 @@ import tkinter
 import tkinter.font
 
 from ..game import next_round_turn
+from ..player.team import _ensure_list_tuples
 from .tk_sprites import BotSprite, Food, Wall, col
 from .tk_utils import wm_delete_window_handler
 from .tk_sprites import BotSprite, Food, Wall, RED, BLUE, YELLOW, GREY, BROWN
 from .. import layout
 
 _logger = logging.getLogger(__name__)
-
-def _ensure_tuples(list):
-    """ Ensures that an iterable is a list of position tuples. """
-    return [tuple(item) for item in list]
 
 
 def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
@@ -795,9 +792,9 @@ class TkApplication:
             skip_request = False
             self._observed_steps.add(step)
         # ensure walls, foods and bots positions are list of tuples
-        game_state['walls'] = _ensure_tuples(game_state['walls'])
-        game_state['food'] = _ensure_tuples(game_state['food'])
-        game_state['bots'] = _ensure_tuples(game_state['bots'])
+        game_state['walls'] = _ensure_list_tuples(game_state['walls'])
+        game_state['food'] = _ensure_list_tuples(game_state['food'])
+        game_state['bots'] = _ensure_list_tuples(game_state['bots'])
         game_state['shape'] = tuple(game_state['shape'])
         self.update(game_state)
         if self._stop_after is not None:

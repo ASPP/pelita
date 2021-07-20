@@ -36,7 +36,7 @@ def noiser(walls, shape, bot_position, enemy_positions, noise_radius=5, sight_di
 
     Parameters
     ----------
-    walls : list of (int, int)
+    walls : set of (int, int)
     noise_radius : int, optional, default: 5
         the radius for the uniform noise
     sight_distance : int, optional, default: 5
@@ -87,7 +87,7 @@ def alter_pos(bot_pos, noise_radius, rnd, walls, shape):
     x_min, x_max = bot_pos[0] - noise_radius, bot_pos[0] + noise_radius
     y_min, y_max = bot_pos[1] - noise_radius, bot_pos[1] + noise_radius
 
-    # filter them so the we return no positions outsided the maze
+    # filter them so that we return no positions outside the maze
     if x_min < 0:
         x_min = 1
     if x_max >= shape[0]:

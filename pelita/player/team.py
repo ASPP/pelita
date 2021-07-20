@@ -19,6 +19,25 @@ from ..network import ZMQClientError, ZMQConnection, ZMQReplyTimeout, ZMQUnreach
 _logger = logging.getLogger(__name__)
 
 
+def _ensure_list_tuples(list):
+    """ Ensures that an iterable is a list of position tuples. """
+    return [tuple(item) for item in list]
+
+def _ensure_set_tuples(set):
+    """ Ensures that an iterable is a set of position tuples. """
+    return {tuple(item) for item in set}
+
+
+def create_homezones(shape):
+    width, height = shape
+    return [
+        {(x, y) for x in range(0, width // 2)
+                for y in range(0, height)},
+        {(x, y) for x in range(width // 2, width)
+                for y in range(0, height)}
+    ]
+
+
 class Team:
     """
     Wraps a move function and forwards it the `set_initial`
@@ -408,24 +427,6 @@ def make_team(team_spec, team_name=None, zmq_context=None, idx=None, store_outpu
     return team_player, zmq_context
 
 
-def create_homezones(shape):
-    width, height = shape
-    return [
-        {(x, y) for x in range(0, width // 2)
-                for y in range(0, height)},
-        {(x, y) for x in range(width // 2, width)
-                for y in range(0, height)}
-    ]
-
-def _ensure_tuples(list):
-    """ Ensures that an iterable is a list of position tuples. """
-    return [tuple(item) for item in list]
-
-def _ensure_set_tuples(set):
-    """ Ensures that an iterable is a list of position tuples. """
-    return {tuple(item) for item in set}
-
-
 class Bot:
     def __init__(self, *, bot_index,
                           is_on_team,
@@ -672,7 +673,7 @@ def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, 
             was_killed=team['bot_was_killed'][idx],
             is_noisy=False,
             error_count=team['error_count'],
-            food=_ensure_tuples(team['food']),
+            food=_ensure_list_tuples(team['food']),
             walls=walls,
             shape=shape,
             round=round,
@@ -697,7 +698,7 @@ def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, 
             was_killed=enemy['bot_was_killed'][idx],
             is_noisy=enemy['is_noisy'][idx],
             error_count=enemy['error_count'],
-            food=_ensure_tuples(enemy['food']),
+            food=_ensure_list_tuples(enemy['food']),
             walls=walls,
             shape=shape,
             round=round,

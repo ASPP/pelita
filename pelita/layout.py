@@ -111,15 +111,15 @@ def parse_layout(layout_str, food=None, bots=None):
 
 
     Return a dict
-        {'walls': list_of_wall_coordinates,
+        {'walls': set_of_wall_coordinates,
          'food' : list_of_food_coordinates,
          'bots'  : list_of_bot_coordinates in the order (a,x,b,y),
          'shape': tuple of (height, width) of the layout}
 
     In the example above:
-    {'walls': [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
+    {'walls': {(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
                (2, 4), (3, 0), (3, 2), (3, 4), (4, 0), (4, 2), (4, 4), (5, 0),
-               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)],
+               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)},
      'food': [(3, 3), (4, 1)],
      'bots': [(1, 1), (6, 2), (1, 2), (6, 3)],
      'shape': (8, 4)}
@@ -255,9 +255,9 @@ def layout_as_str(*, walls, food=None, bots=None, shape=None):
     Example:
 
     Given:
-    {'walls': [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
+    {'walls': {(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
                (2, 4), (3, 0), (3, 2), (3, 4), (4, 0), (4, 2), (4, 4), (5, 0),
-               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)],
+               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)},
      'food': [(3, 3), (4, 1)],
      'bots': [(1, 1), (6, 2), (1, 2), (6, 3)],
      'shape': (8, 4)}
@@ -383,7 +383,7 @@ def get_legal_positions(walls, shape, bot_position):
 
      Parameters
     ----------
-    walls : list
+    walls : set of (int, int)
         position of the walls of current layout.
     bot_position: tuple
         position of current bot.

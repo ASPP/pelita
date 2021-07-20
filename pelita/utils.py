@@ -109,7 +109,7 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
     game_state : dict
               the final game state as a dictionary. Dictionary keys are:
               - 'seed' : the seed used to initialize the random number generator
-              - 'walls' : list of walls coordinates for the layout
+              - 'walls' : set of wall coordinates for the layout
               - 'layout' : the name of the used layout
               - 'round' : the round at which the game was over
               - 'draw' : True if the game ended in a draw
