@@ -434,6 +434,8 @@ class TkApplication:
         self.draw_shadow_bots(game_state)
         self.draw_bots(game_state)
 
+        self.draw_moves(game_state)
+
         self.draw_status_info(game_state)
 
     def draw_grid(self):
@@ -791,6 +793,29 @@ class TkApplication:
             idx: BotSprite(self.mesh_graph, team=idx % 2, bot_id=idx, position=None, shadow=True)
             for idx, bot in enumerate(bot_positions)
         }
+
+    def draw_moves(self, game_state):
+        if game_state['turn'] is None:
+            return
+
+        self.ui.game_canvas.delete("arrow")
+        # we keep all arrow items stored in a list
+        # some versions of Python seem to forget about drawing
+        # them otherwise
+        self.arrow_items = []
+
+        bot = game_state['turn']
+        old_pos = tuple(game_state['requested_moves'][bot]['previous_position'])
+        req_pos = tuple(game_state['requested_moves'][bot]['requested_position'])
+        print(game_state['bots'][bot], game_state['requested_moves'][bot])
+        arrow_item = Arrow(self.mesh_graph,
+                           position=old_pos,
+                           req_pos=game_state['bots'][bot],
+                           success=game_state['requested_moves'][bot]['success'])
+        arrow_item.draw(self.ui.game_canvas)
+        self.arrow_items.append(arrow_item)
+        print(game_state["bots"][bot], old_pos, req_pos)
+
 
     def draw_bots(self, game_state):
         if game_state:
