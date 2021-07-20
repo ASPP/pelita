@@ -424,8 +424,8 @@ class TkApplication:
         self.mesh_graph.num_y = game_state['shape'][1]
 
         self.draw_grid()
-        self.draw_line_of_sight(game_state)
         self.draw_selected(game_state)
+        self.draw_line_of_sight(game_state)
         self.draw_background()
         self.draw_maze(game_state)
         self.draw_food(game_state)
@@ -489,7 +489,12 @@ class TkApplication:
             for dy in range(- sight_distance, sight_distance + 1)
             if abs(dx) + abs(dy) == sight_distance
         )
-        print(border_cells_relative)
+
+        def in_maze(x, y):
+            return 0 <= x < game_state['shape'][0] and  0 <= y < game_state['shape'][1]
+
+        def on_edge(x, y):
+            return x == 0 or x == game_state['shape'][0] - 1 or y == 0 or y == game_state['shape'][1] - 1
 
 
         def draw_line(pos, color, loc):
@@ -516,8 +521,12 @@ class TkApplication:
                     continue
 
                 pos = (old_pos[0] + dx, old_pos[1] + dy)
+                if not in_maze(pos[0], pos[1]):
+                    continue
+
                 draw_box(pos, fill=LIGHT_BLUE if bot % 2 == 0 else LIGHT_RED)
 
+                # add edge around cells at the line of sight max
                 if (dx, dy) in border_cells_relative:
                     if dx >= 0:
                         draw_line(pos, loc=(1, 1, 1, -1), color=team_col)
@@ -528,11 +537,19 @@ class TkApplication:
                     if dy <= 0:
                         draw_line(pos, loc=(1, -1, -1, -1), color=team_col)
 
+                # add edge around cells at the edge of the maze
+                if on_edge(pos[0], pos[1]):
+                    if pos[0] == game_state['shape'][0] - 1:
+                        draw_line(pos, loc=(1, 1, 1, -1), color=team_col)
+                    if pos[0] == 0:
+                        draw_line(pos, loc=(-1, 1, -1, -1), color=team_col)
+                    if pos[1] == game_state['shape'][1] - 1:
+                        draw_line(pos, loc=(1, 1, -1, 1), color=team_col)
+                    if pos[1] == 0:
+                        draw_line(pos, loc=(1, -1, -1, -1), color=team_col)
 
         self.ui.game_canvas.tag_lower("area_of_sight")
         self.ui.game_canvas.tag_raise("wall")
-        print(game_state)
-
 
 
     def toggle_grid(self):
