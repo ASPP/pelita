@@ -1,8 +1,7 @@
 import pytest
 
-from textwrap import dedent
-
 from pelita import utils
+from pelita.player import stopping_player
 
 @pytest.mark.parametrize('is_blue', [True, False])
 def test_setup_test_game(is_blue):
@@ -74,4 +73,28 @@ def test_setup_test_game_incomplete_noisy_dict(is_blue):
     assert test_game.enemy[0].is_noisy is False
     assert test_game.enemy[1].is_noisy is True
 
+
+def test_run_background_game():
+    result = utils.run_background_game(blue_move=stopping_player, red_move=stopping_player)
+    result.pop('seed')
+    result.pop('walls')
+    result.pop('layout')
+    result.pop('blue_food')
+    result.pop('red_food')
+    assert result == {
+        'round': 300,
+        'blue_bots': [(1, 13), (1, 14)],
+        'red_bots': [(30, 2), (30, 1)],
+        'blue_score': 0,
+        'red_score': 0,
+        'blue_errors': {},
+        'red_errors': {},
+        'blue_deaths': [0, 0],
+        'red_deaths': [0, 0],
+        'blue_kills': [0, 0],
+        'red_kills': [0, 0],
+        'blue_wins': False,
+        'red_wins': False,
+        'draw': True
+    }
 

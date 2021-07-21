@@ -251,6 +251,19 @@ def test_wrong_bot_names():
     with pytest.raises(ValueError, match=r"Invalid Bot names in .*"):
         parsed_layout = parse_layout(layout, bots=added_bots)
 
+def test_wrong_bot_names_2():
+    layout = """
+             ######
+             # . e#
+             #. #x#
+             #a# .#
+             #b . #
+             ######
+             """
+    added_bots = {'y': (1,1)}
+    with pytest.raises(ValueError, match=r"Unknown character.*"):
+        parsed_layout = parse_layout(layout, bots=added_bots)
+
 def test_roundtrip():
     input_layout =  """ ########
                         #a  .  #

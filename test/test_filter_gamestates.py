@@ -92,7 +92,6 @@ def test_noiser_no_negative_coordinates(bot_id):
     noised = gf.noiser(walls, shape=shape, bot_position=bot_position, enemy_positions=enemy_positions,
                        noise_radius=5, sight_distance=5, rnd=None)
     new_bots = noised["enemy_positions"]
-    print(noised)
     test_1 = all(item[0] > 0 for item in new_bots)
     test_2 = all(item[1] > 0 for item in new_bots)
 
