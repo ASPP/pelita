@@ -479,7 +479,14 @@ class TkApplication:
             self.ui.game_canvas.create_rectangle(*ul, *lr, width=2, outline='#111', tag=("line_of_sight",))
 
         bot = game_state['turn']
-        old_pos = tuple(game_state['requested_moves'][bot]['previous_position'])
+        if bot is None:
+            # game has not started yet
+            return
+
+        try:
+            old_pos = tuple(game_state['requested_moves'][bot]['previous_position'])
+        except TypeError:
+            old_pos = game_state['bots'][bot]
         draw_box(old_pos)
 
         sight_distance = game_state["sight_distance"]
@@ -804,18 +811,24 @@ class TkApplication:
         # them otherwise
         self.arrow_items = []
 
+        if not self._grid_enabled:
+            return
+
         bot = game_state['turn']
-        old_pos = tuple(game_state['requested_moves'][bot]['previous_position'])
-        req_pos = tuple(game_state['requested_moves'][bot]['requested_position'])
-        print(game_state['bots'][bot], game_state['requested_moves'][bot])
+        try:
+            old_pos = tuple(game_state['requested_moves'][bot]['previous_position'])
+        except TypeError:
+            old_pos = None
+        try:
+            req_pos = tuple(game_state['requested_moves'][bot]['requested_position'])
+        except TypeError:
+            req_pos = None
         arrow_item = Arrow(self.mesh_graph,
                            position=old_pos,
                            req_pos=game_state['bots'][bot],
                            success=game_state['requested_moves'][bot]['success'])
         arrow_item.draw(self.ui.game_canvas)
         self.arrow_items.append(arrow_item)
-        print(game_state["bots"][bot], old_pos, req_pos)
-
 
     def draw_bots(self, game_state):
         if game_state:
@@ -835,6 +848,16 @@ class TkApplication:
     def draw_shadow_bots(self, game_state):
         # Draw the shadowbots when debug mode (grid) is enabled
         # Otherwise make sure that they are deleted
+
+        if game_state['turn'] is None:
+            # We cannot show shadow bots before the first turn has been played,
+            # as we would only see the bots from the set_initial phase, and
+            # only the blue bots (those that were shown to the second, red, player).
+            # Given that this information is not available to the client API,
+            # we must hide the shadow bots here.
+            # TODO: This should be fixed inside game.py
+            return
+
         for bot_id, bot_sprite in self.shadow_sprites.items():
             if self._grid_enabled:
                 shadow_bots = game_state.get('noisy_positions')
