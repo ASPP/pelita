@@ -377,6 +377,9 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         # None, if not noisy
         noisy_positions = [None] * 4,
 
+        #: The moves that the bots returned. Keeps only the recent one at the respective bot’s index.
+        requested_moves=[None] * 4,
+
         #: Messages the bots say. Keeps only the recent one at the respective bot’s index.
         say=[""] * 4,
 
@@ -688,6 +691,14 @@ def play_turn(game_state, allow_exceptions=False):
         position = None
         game_print(turn, f"{type(e).__name__}: {e}")
 
+    # If the returned move looks okay, we add it to the list of requested moves
+    old_position = game_state['bots'][turn]
+    game_state['requested_moves'][turn] = {
+        'previous_position': old_position,
+        'requested_position': position,
+        'success': False # Success is set to true after apply_move
+    }
+
     # Check if a team has exceeded their maximum number of errors
     # (we do not want to apply the move in this case)
     # Note: Since we already updated the move counter, we do not check anymore,
@@ -698,6 +709,10 @@ def play_turn(game_state, allow_exceptions=False):
         # ok. we can apply the move for this team
         # try to execute the move and return the new state
         game_state = apply_move(game_state, position)
+
+        # If there was no error, we claim a success in requested_moves
+        if (round, turn) not in game_state["errors"][team]:
+            game_state['requested_moves'][turn]['success'] = True
 
         # Check again, if we had errors or if this was the last move of the game (final round or food eaten)
         game_state.update(check_gameover(game_state, detect_final_move=True))

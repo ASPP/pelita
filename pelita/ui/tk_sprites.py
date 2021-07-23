@@ -1,6 +1,7 @@
 import cmath
 import math
 from .. import layout
+from ..gamestate_filters import manhattan_dist
 
 
 def col(red, green, blue):
@@ -9,7 +10,14 @@ def col(red, green, blue):
 
 RED = col(235, 90, 90)
 BLUE = col(94, 158, 217)
+
+LIGHT_BLUE = '#B9D9F6'
+STRONG_BLUE = '#1E6BB1'
+LIGHT_RED = '#FFB0B0'
+STRONG_RED = '#A91919'
+
 YELLOW = col(242, 255, 83)
+YELLOW = '#FFE38B'
 GREY = col(80, 80, 80)
 BROWN = col(48, 26, 22)
 
@@ -200,7 +208,7 @@ class BotSprite(TkSprite):
 
         # ghost head
         canvas.create_arc((box_ll, box_tr), start=0, extent=180, style="pieslice" if not self.shadow else "arc",
-                          width=0, outline=self.outline_col, fill=self.col, tag=self.tag)
+                          width=1, outline=self.outline_col, fill=self.col, tag=self.tag)
 
         # ghost body
         box_ll = box_ll[0], box_ll[1] + (box_tr[1]-box_ll[1])/2.
@@ -296,3 +304,75 @@ class Food(TkSprite):
         else:
             fill = RED
         canvas.create_oval(self.bounding_box(0.4), fill=fill, width=0, tag=(self.tag, self.food_pos_tag(self.position), "food"))
+
+
+class Arrow(TkSprite):
+    def __init__(self, mesh, req_pos, success, **kwargs):
+        self.req_pos = req_pos
+        self.success = success
+
+        super(Arrow, self).__init__(mesh, **kwargs)
+
+    def draw(self, canvas, game_state=None):
+        scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.07
+
+        if not self.success:
+            points = [
+                self.screen((-0.3, 0.3)),
+                self.screen((0.3, -0.3))
+            ]
+            canvas.create_line(points,
+                            fill=BROWN, width=scale, tag=(self.tag, "arrow"), capstyle="round")
+
+            points = [
+                self.screen((-0.3, -0.3)),
+                self.screen(( 0.3, 0.3))
+            ]
+            canvas.create_line(points,
+                            fill=BROWN, width=scale, tag=(self.tag, "arrow"), capstyle="round")
+
+        dist = manhattan_dist(self.req_pos, self.position)
+        if dist == 0:
+            canvas.create_arc(self.bounding_box(0.6), start=110, extent=320, style="arc", outline=BROWN,
+                                                width=scale, tag=(self.tag, "arrow"))
+            # arrow head
+            head = cmath.rect(0.6, -110 * cmath.pi / 180)
+            head_rotation = (-110 + 90) * cmath.pi / 180
+            head_left = head - cmath.rect(0.3, head_rotation - cmath.pi/4)
+            head_right = head - cmath.rect(0.3, head_rotation + cmath.pi/4)
+            #vector = dx + dy * 1j
+            #phase = cmath.phase(vector)
+            #head = vector + cmath.rect(0.1, phase)
+            #head_left = vector - cmath.rect(1, phase) + cmath.rect(0.9, phase - cmath.pi/4)
+            #head_right = vector - cmath.rect(1, phase) + cmath.rect(0.9, phase + cmath.pi/4)
+
+            points = [
+                self.screen((head_left.real, head_left.imag)),
+                self.screen((head.real, head.imag)),
+                self.screen((head_right.real, head_right.imag))
+            ]
+            canvas.create_line(points,
+                            fill=BROWN, width=scale, tag=(self.tag, "arrow"), capstyle="round")
+
+        else:
+            # dx, dy has to be duplicated because the self.screen coordinates go from -1 to 1
+            # for the current cell
+            dx = (self.req_pos[0] - self.position[0]) * 2
+            dy = (self.req_pos[1] - self.position[1]) * 2
+            canvas.create_line(self.screen((0, 0)), self.screen((dx, dy)), fill=BROWN,
+                                                width=scale, tag=(self.tag, "arrow"), capstyle="round")
+            # arrow head
+            vector = dx + dy * 1j
+            phase = cmath.phase(vector)
+            head = vector + cmath.rect(0.1, phase)
+            head_left = vector - cmath.rect(1, phase) + cmath.rect(0.9, phase - cmath.pi/4)
+            head_right = vector - cmath.rect(1, phase) + cmath.rect(0.9, phase + cmath.pi/4)
+
+            points = [
+                self.screen((head_left.real, head_left.imag)),
+                self.screen((head.real, head.imag)),
+                self.screen((head_right.real, head_right.imag))
+            ]
+            canvas.create_line(points,
+                            fill=BROWN, width=scale, tag=(self.tag, "arrow"), capstyle="round")
+

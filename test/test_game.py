@@ -1326,3 +1326,40 @@ def test_invalid_setup_game_closes_players():
     assert state["teams"][0].proc[0].wait(timeout=3) == 0
     assert state["teams"][1].proc[0].wait(timeout=3) == 0
 
+
+@pytest.mark.parametrize('move_request, expected_prev, expected_req, expected_success', [
+    # invalid moves (wrong types)
+    # invalid moves end the game immediately, but the viewer will still interpret
+    # the outcome of requested_moves, which is the reason we should test this
+    (None,          (1, 1), None, False),
+    (-1,            (1, 1), None, False),
+    ((-1,),         (1, 1), None, False),
+    ((-1, 1, 2),    (1, 1), None, False),
+    ("a" ,          (1, 1), None, False),
+    # not in maze
+    ((-1, 2),       (1, 1), (-1, 2), False),
+    # on wall
+    ((2, 1),        (1, 1), (2, 1), False),
+    # good move
+    ((1, 2),        (1, 1), (1, 2), True),
+    ]
+)
+def test_requested_moves(move_request, expected_prev, expected_req, expected_success):
+    # test the possible return values of gamestate['requested_moves']
+    test_layout = """
+        ######
+        #a#.y#
+        #.bx #
+        ######
+    """
+    def move(bot, state):
+        return move_request
+    teams = [
+        move,
+        stopping_player
+    ]
+    state = setup_game(teams, layout_dict=layout.parse_layout(test_layout), max_rounds=2)
+    assert state['requested_moves'] == [None, None, None, None]
+    state = play_turn(state)
+    assert state['requested_moves'][1:] == [None, None, None]
+    assert state['requested_moves'][0] == {'previous_position': (1, 1), 'requested_position': expected_req, 'success': expected_success}
