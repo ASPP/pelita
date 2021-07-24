@@ -122,3 +122,4 @@ jobs:
         publish_dir: doc/build/html/
 
         commit_message: ${{ github.event.head_commit.message }}
+
