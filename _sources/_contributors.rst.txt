@@ -1,2 +1,2 @@
-As of ``v2.0.0-141-gede65347`` the developers and contributors are::
+As of ``v2.0.0-143-g194e6b91`` the developers and contributors are::
 
