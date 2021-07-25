@@ -27,8 +27,11 @@ jobs:
       run: python -m build --sdist --wheel --outdir dist/
 
     - name: Publish distribution to Test PyPI
-      # We *always* publish to Test PyPI which helps us to spot errors with the
-      # publish step
+      # We’d like to always publish to Test PyPI in order to spot errors with
+      # the publish step, however, this would require a new version each time
+      # we make a (test) release. For now, use the same logic for test as for
+      # the real release.
+      if: startsWith(github.ref, 'refs/tags') || github.event_name == 'release'
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         user: __token__
