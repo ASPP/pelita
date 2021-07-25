@@ -2,9 +2,9 @@ name: Test Pelita and build docs to gh-pages
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   test:
@@ -114,7 +114,7 @@ jobs:
       run: |
         . ./build-docs.sh
     - name: Deploy to gh-pages
-      if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/main'
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
