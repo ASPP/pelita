@@ -236,6 +236,7 @@ class RemoteTeam:
             self.bound_to_address = address
 
             socket = zmq_context.socket(zmq.DEALER)
+            socket.setsockopt(zmq.LINGER, 0)
             socket.connect(send_addr)
             _logger.info("Connecting zmq.DEALER to remote player at {}.".format(send_addr))
             socket.send_json({"REQUEST": address})
