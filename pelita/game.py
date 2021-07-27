@@ -11,7 +11,7 @@ import typing
 from warnings import warn
 
 from . import layout
-from .exceptions import FatalException, NonFatalException, NoFoodWarning
+from .exceptions import FatalException, NonFatalException, NoFoodWarning, PlayerTimeout
 from .gamestate_filters import noiser
 from .layout import initial_positions, get_legal_positions
 from .network import bind_socket, setup_controller, ZMQPublisher
@@ -450,7 +450,9 @@ def setup_teams(team_specs, game_state, store_output=False, allow_exceptions=Fal
     for idx, team in enumerate(teams):
         try:
             team_name = team.set_initial(idx, prepare_bot_state(game_state, idx))
-        except FatalException as e:
+        except (FatalException, PlayerTimeout) as e:
+            # TODO: Not sure if PlayerTimeout should let the other payer win.
+            # It could simply be a network problem.
             if allow_exceptions: raise
             exception_event = {
                 'type': e.__class__.__name__,
