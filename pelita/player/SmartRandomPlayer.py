@@ -1,9 +1,9 @@
 
 def smart_random_player(bot, state):
     dangerous_enemy_pos = [enemy.position
-        for enemy in bot.enemy if enemy in enemy.homezone]
+        for enemy in bot.enemy if enemy.position in enemy.homezone]
     killable_enemy_pos = [enemy.position
-        for enemy in bot.enemy if enemy not in enemy.homezone]
+        for enemy in bot.enemy if enemy.position not in enemy.homezone]
 
     smart_positions = []
     for new_pos in bot.legal_positions[:]:

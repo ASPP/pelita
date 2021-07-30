@@ -2,7 +2,8 @@ import pytest
 
 from pelita.game import run_game
 from pelita.layout import parse_layout
-from pelita.player import nq_random_player, SANE_PLAYERS
+from pelita.player import nq_random_player, SANE_PLAYERS, smart_random_player
+from pelita.utils import setup_test_game
 
 
 class TestNQRandom_Player:
@@ -37,6 +38,59 @@ class TestNQRandom_Player:
         state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=7)
         assert state['bots'][0] == (4, 3)
         assert state['bots'][1] == (10, 3)
+
+
+class TestSmartRandomPlayer():
+    def test_legalmoves(self):
+        # check that the only two valid moves are always returned
+        # we try ten times, to test 10 different random streams
+        layout="""
+        ########
+        #a######
+        #b. .xy#
+        ########
+        """
+        for i in range(10):
+            bot = setup_test_game(layout=layout, is_blue=True)
+            next_pos = smart_random_player(bot, {})
+            assert next_pos in ((1,2), (1,1))
+
+    def test_kill_enemy(self):
+        # check that we indeed kill an enemy when possible
+        layout="""
+        ########
+        #x###.##
+        #a.  by#
+        ########
+        """
+        bot = setup_test_game(layout=layout, is_blue=True)
+        next_pos = smart_random_player(bot, {})
+        assert next_pos == (1,1)
+
+    def test_eat_food(self):
+        # check that we indeed collect food when possible
+        layout="""
+        ########
+        #y # .##
+        #b.x a #
+        ########
+        """
+        bot = setup_test_game(layout=layout, is_blue=True)
+        next_pos = smart_random_player(bot, {})
+        assert next_pos == (5,1)
+
+    def test_no_kamikaze_stop(self):
+        # Check that we stop if escaping would kill us
+        layout="""
+        ########
+        #  ###.#
+        #b. xay#
+        ########
+        """
+        bot = setup_test_game(layout=layout, is_blue=True)
+        next_pos = smart_random_player(bot, {})
+        assert next_pos == (5, 2)
+
 
 
 @pytest.mark.parametrize('player', SANE_PLAYERS)
