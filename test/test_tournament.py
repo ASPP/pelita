@@ -9,6 +9,27 @@ from pelita.tournament import knockout_mode, roundrobin
 from pelita.tournament.knockout_mode import Team, Match, Bye
 
 
+def test_match_id():
+    assert str(tournament.MatchID()) == 'round1-match01'
+    assert str(tournament.MatchID(round=1)) == 'round1-match01'
+    assert str(tournament.MatchID(round=2)) == 'round2-match01'
+    assert str(tournament.MatchID(round=1, match=1)) == 'round1-match01'
+    assert str(tournament.MatchID(round=1, match=2, match_repeat=1)) == 'round1-match02'
+    assert str(tournament.MatchID(round=1, match=2, match_repeat=2)) == 'round1-match02-repeat2'
+
+    match_id = tournament.MatchID(round=1, match=2, match_repeat=2)
+    match_id.next_round()
+    assert match_id == tournament.MatchID(round=2, match=1, match_repeat=1)
+
+    match_id = tournament.MatchID(round=1, match=2, match_repeat=2)
+    match_id.next_match()
+    assert match_id == tournament.MatchID(round=1, match=3, match_repeat=1)
+
+    match_id = tournament.MatchID(round=1, match=2, match_repeat=2)
+    match_id.next_repeat()
+    assert match_id == tournament.MatchID(round=1, match=2, match_repeat=3)
+
+
 class TestKoMode:
     def test_sort_ranks(self):
         sort_ranks = knockout_mode.sort_ranks
