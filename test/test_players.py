@@ -1,8 +1,11 @@
+from random import random
 import pytest
 
 from pelita.game import run_game
 from pelita.layout import parse_layout
-from pelita.player import nq_random_player, SANE_PLAYERS, smart_random_player, food_eating_player, smart_eating_player
+from pelita.player import (SANE_PLAYERS, food_eating_player, nq_random_player,
+                           random_explorer_player, smart_eating_player,
+                           smart_random_player)
 from pelita.utils import setup_test_game
 
 
@@ -39,8 +42,66 @@ class TestNQRandom_Player:
         assert state['bots'][0] == (4, 3)
         assert state['bots'][1] == (10, 3)
 
+    def test_only_move_forward(self):
+        # test that the bot only moves forward
+        layout="""
+        ########
+        #y #.###
+        #b.x a #
+        ########
+        """
+        bot = setup_test_game(layout=layout, is_blue=True)
+        bot.track = [(6, 2), (5, 2)]
+        assert bot.position == (5, 2)
+        next_pos = nq_random_player(bot, {})
+        assert next_pos == (4, 2)
 
-class TestSmartRandomPlayer():
+    def test_only_move_unless_blocked(self):
+        # test that the bot only moves forward
+        layout="""
+        ########
+        #y #.###
+        #b.x#a #
+        ########
+        """
+        bot = setup_test_game(layout=layout, is_blue=True)
+        bot.track = [(6, 2), (5, 2)]
+        assert bot.position == (5, 2)
+        next_pos = nq_random_player(bot, {})
+        assert next_pos == (6, 2)
+
+
+class TestRandomExplorerPlayers:
+    def test_goes_to_unvisited(self):
+        layout="""
+        ########
+        #y # .##
+        #b.x a #
+        ########
+        """
+        bot = setup_test_game(layout=layout, is_blue=True)
+        state = {0: {'visited': [(5, 1), (4, 1), (4, 2), (3, 2), (2, 2), (1, 2)]}}
+        assert bot.position == (5, 2)
+        next_pos = random_explorer_player(bot, state)
+        assert next_pos == (6, 2)
+
+    def test_goes_to_least_recently_visited(self):
+        layout="""
+        ########
+        #y # .##
+        #b.x a #
+        ########
+        """
+        bot = setup_test_game(layout=layout, is_blue=True)
+        state = {0: {'visited': [(6, 2), (5, 2), (5, 1), (4, 1), (4, 2), (3, 2), (2, 2), (1, 2)]}}
+        assert bot.position == (5, 2)
+        # check that we have already visited all legal positions
+        assert all(pos in state[0]['visited'] for pos in bot.legal_positions)
+        next_pos = random_explorer_player(bot, state)
+        assert next_pos == (4, 2)
+
+
+class TestSmartRandomPlayer:
     def test_legalmoves(self):
         # check that the only two valid moves are always returned
         # we try ten times, to test 10 different random streams
@@ -92,7 +153,7 @@ class TestSmartRandomPlayer():
         assert next_pos == (5, 2)
 
 
-class TestFoodEatingPlayer():
+class TestFoodEatingPlayer:
     def test_legalmoves(self):
         # check that the only two valid moves are returned
         layout="""
@@ -157,7 +218,7 @@ class TestFoodEatingPlayer():
         next_pos = food_eating_player(bot, {})
         assert next_pos == (5,1)
 
-class TestSmartEatingPlayer():
+class TestSmartEatingPlayer:
     def test_legalmoves(self):
         # check that the only two valid moves are returned
         layout="""
