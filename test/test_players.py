@@ -2,7 +2,7 @@ import pytest
 
 from pelita.game import run_game
 from pelita.layout import parse_layout
-from pelita.player import nq_random_player, SANE_PLAYERS, smart_random_player, food_eating_player
+from pelita.player import nq_random_player, SANE_PLAYERS, smart_random_player, food_eating_player, smart_eating_player
 from pelita.utils import setup_test_game
 
 
@@ -145,6 +145,82 @@ class TestFoodEatingPlayer():
         next_pos = food_eating_player(bot, {0: {'next_food': (5, 1)}})
         assert next_pos == (5, 2)
 
+    def test_will_do_kamikaze(self):
+        # check that we eat the last food when adjacent
+        layout="""
+        ########
+        #x  a.##
+        # .  b #
+        ########
+        """
+        bot = setup_test_game(layout=layout, is_blue=True, bots={'y': (5, 1)})
+        next_pos = food_eating_player(bot, {})
+        assert next_pos == (5,1)
+
+class TestSmartEatingPlayer():
+    def test_legalmoves(self):
+        # check that the only two valid moves are returned
+        layout="""
+        ########
+        #a######
+        #b. .xy#
+        ########
+        """
+        bot = setup_test_game(layout=layout, is_blue=True)
+        next_pos = smart_eating_player(bot, {})
+        assert next_pos in ((1,2), (1,1))
+
+    def test_eat_food(self):
+        # check that we eat the last food when adjacent
+        layout="""
+        ########
+        #x  a.##
+        # .  by#
+        ########
+        """
+        bot = setup_test_game(layout=layout, is_blue=True)
+        next_pos = smart_eating_player(bot, {})
+        assert next_pos == (5,1)
+
+    def test_move_towards_food(self):
+        # check that we move closer to the food
+        layout="""
+        ########
+        #y a .##
+        #b.x   #
+        ########
+        """
+        bot = setup_test_game(layout=layout, is_blue=True)
+        next_pos = smart_eating_player(bot, {})
+        assert next_pos == (4,1)
+
+    def test_move_towards_next_food(self):
+        # check that we move closer to the food in the next_food key,
+        # even though another food is closer
+        layout="""
+        ########
+        #y   .##
+        #      #
+        # .. a #
+        #x   . #
+        # .b   #
+        ########
+        """
+        bot = setup_test_game(layout=layout, is_blue=True)
+        next_pos = smart_eating_player(bot, {0: {'next_food': (5, 1)}})
+        assert next_pos == (5, 2)
+
+    def test_will_not_do_kamikaze(self):
+        # check that we eat the last food when adjacent
+        layout="""
+        ########
+        #x  a.##
+        # .  b #
+        ########
+        """
+        bot = setup_test_game(layout=layout, is_blue=True, bots={'y': (5, 1)})
+        next_pos = smart_eating_player(bot, {})
+        assert next_pos == (4,1)
 
 @pytest.mark.parametrize('player', SANE_PLAYERS)
 def test_players(player):

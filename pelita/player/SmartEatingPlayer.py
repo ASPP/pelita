@@ -1,28 +1,14 @@
 import networkx
 
 from pelita.utils import walls_to_graph
-
+from . import food_eating_player
 
 def smart_eating_player(bot, state):
-    if 'graph' not in state:
-        # first turn, first round
-        state['graph'] = walls_to_graph(bot.walls)
-
-    if bot.turn not in state:
-        state[bot.turn] = { 'next_food': None }
-
-    # check, if food is still present
-    if (state[bot.turn]['next_food'] is None
-            or state[bot.turn]['next_food'] not in bot.enemy[0].food):
-        if not bot.enemy[0].food:
-            # all food has been eaten? ok. i’ll stop
-            return bot.position, state
-        state[bot.turn]['next_food'] = bot.random.choice(bot.enemy[0].food)
+    # food eating player but won’t do kamikaze (although a sufficently smart
+    # enemy will be able to kill the bot in its next turn as it doesn’t flee)
+    next_pos = food_eating_player(bot, state)
 
     dangerous_enemy_pos = [enemy.position for enemy in bot.enemy if enemy.position in enemy.homezone]
-
-    # the first position in the shortest path is always bot.position
-    next_pos = networkx.shortest_path(state['graph'], bot.position, state[bot.turn]['next_food'])[1]
 
     # check, if the next_pos has an enemy on it
     if next_pos in dangerous_enemy_pos:
