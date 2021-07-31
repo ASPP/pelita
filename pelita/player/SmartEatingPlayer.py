@@ -1,7 +1,6 @@
 import networkx
 
-from pelita.utils import walls_to_graph
-from . import food_eating_player
+from pelita.player import food_eating_player
 
 def smart_eating_player(bot, state):
     # food eating player but won’t do kamikaze (although a sufficently smart
