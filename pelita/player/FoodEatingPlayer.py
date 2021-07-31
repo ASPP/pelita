@@ -16,8 +16,9 @@ def food_eating_player(bot, state):
         or state[bot.turn]['next_food'] not in bot.enemy[0].food):
         if not bot.enemy[0].food:
             # all food has been eaten? ok. I’ll stop
+            # NB: We should never land here; the game will be over instead
             next_pos = bot.position
-            return next_pos, state
+            return next_pos
 
         state[bot.turn]['next_food'] = bot.random.choice(bot.enemy[0].food)
 
