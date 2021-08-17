@@ -460,6 +460,9 @@ class TkApplication:
                 self.master.after_idle(self.update)
                 return
 
+            if game_state['team_names'][0] is None and game_state['team_names'][1] is None:
+                return
+
             header = self.snapshot_folder / 'snap-{:04}.header.ps'.format(self.snapshot_count)
             canvas = self.snapshot_folder / 'snap-{:04}.canvas.ps'.format(self.snapshot_count)
             state = self.snapshot_folder / 'snap-{:04}.state.json'.format(self.snapshot_count)
