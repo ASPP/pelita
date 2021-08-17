@@ -1,6 +1,6 @@
 # Pelita
 
-[![Build Status](https://travis-ci.org/ASPP/pelita.svg?branch=main)](https://travis-ci.org/ASPP/pelita)
+[![Build Status](https://github.com/ASPP/pelita/actions/workflows/push_ci.yml/badge.svg?branch=main)](https://github.com/ASPP/pelita/actions)
 
 ## Description
 
