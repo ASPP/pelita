@@ -1,6 +1,6 @@
 # Pelita changelog
 
-  * v2.1.0 (???)
+  * v2.1.0 (25. Sep 2021)
 
     - Bot API uses a fixed state dict instead of returning `(position, state)`
     - Layout unification: Use a,b,x,y as Bot characters instead of indexes
