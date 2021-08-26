@@ -35,6 +35,8 @@ parser.add_argument('--delay', type=int,
                     help='delay')
 parser.add_argument('--stop-after', type=int, metavar="N",
                     help='Stop after N rounds.')
+parser.add_argument('--snapshot-folder', help='Store thw replay in this folder',
+                    metavar='FOLDER', dest='snapshot_folder')
 parser._optionals = parser.add_argument_group('Options')
 parser.add_argument('--version', help='show the version number and exit',
                     action='store_const', const=True)
@@ -56,7 +58,8 @@ def main():
         'controller_address': args.controller_address,
         'geometry': args.geometry,
         'delay': args.delay,
-        'stop_after': args.stop_after
+        'stop_after': args.stop_after,
+        'snapshot_folder': args.snapshot_folder
     }
     v = TkViewer(**{k: v for k, v in list(tkargs.items()) if v is not None})
     v.run()
