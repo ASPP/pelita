@@ -107,7 +107,7 @@ class TkViewer:
         # put the root window in some sensible position
         self.root.geometry(root_geometry+'+40+40')
 
-        self.app = TkApplication(master=self.root,
+        self.app = TkApplication(window=self.root,
                                  controller_address=self.controller_address,
                                  geometry=self.geometry,
                                  delay=self.delay,
