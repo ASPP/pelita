@@ -129,10 +129,10 @@ class UI:
     pass
 
 class TkApplication:
-    def __init__(self, master, controller_address=None,
+    def __init__(self, window, controller_address=None,
                  geometry=None, delay=1, stop_after=None):
-        self.master = master
-        self.master.configure(background="white")
+        self.window = window
+        self.window.configure(background="white")
 
         self.context = zmq.Context()
 
@@ -142,7 +142,7 @@ class TkApplication:
         else:
             self.controller_socket = None
 
-        self.master.title("Pelita")
+        self.window.title("Pelita")
 
         self.game_finish_overlay = lambda: None
 
@@ -169,18 +169,18 @@ class TkApplication:
 
         self.ui = UI()
 
-        self.ui.header_canvas = tkinter.Canvas(master, height=50)
+        self.ui.header_canvas = tkinter.Canvas(window, height=50)
         self.ui.header_canvas.config(background="white", bd=0, highlightthickness=0, relief='ridge')
 
-        self.ui.sub_header = tkinter.Frame(master, height=25)
+        self.ui.sub_header = tkinter.Frame(window, height=25)
         self.ui.sub_header.config(background="white")
 
-        self.ui.status_canvas = tkinter.Frame(master, height=25)
+        self.ui.status_canvas = tkinter.Frame(window, height=25)
         self.ui.status_canvas.config(background="white")
 
-        self.ui.game_canvas = tkinter.Canvas(master)
+        self.ui.game_canvas = tkinter.Canvas(window)
         self.ui.game_canvas.config(background="white", bd=0, highlightthickness=0, relief='ridge')
-        self.ui.game_canvas.bind('<Configure>', lambda e: master.after_idle(self.update))
+        self.ui.game_canvas.bind('<Configure>', lambda e: window.after_idle(self.update))
         self.ui.game_canvas.bind('<Button-1>', self.on_click)
 
         self.ui.status_00 = tkinter.Frame(self.ui.status_canvas, background="white", padx=5, pady=0)
@@ -322,18 +322,18 @@ class TkApplication:
 
         self.running = True
 
-        self.master.bind('q', lambda event: self.quit())
-        self.master.bind('<numbersign>', lambda event: self.toggle_grid())
-        self.master.bind('<greater>', lambda event: self.delay_dec())
-        self.master.bind('<less>', lambda event: self.delay_inc())
-        self.master.bind('<space>', lambda event: self.toggle_running())
-        self.master.bind('<Return>', lambda event: self.request_step())
-        self.master.bind('<Shift-Return>', lambda event: self.request_round())
-        self.master.createcommand('exit', self.quit)
-        self.master.protocol("WM_DELETE_WINDOW", self.quit)
+        self.window.bind('q', lambda event: self.quit())
+        self.window.bind('<numbersign>', lambda event: self.toggle_grid())
+        self.window.bind('<greater>', lambda event: self.delay_dec())
+        self.window.bind('<less>', lambda event: self.delay_inc())
+        self.window.bind('<space>', lambda event: self.toggle_running())
+        self.window.bind('<Return>', lambda event: self.request_step())
+        self.window.bind('<Shift-Return>', lambda event: self.request_round())
+        self.window.createcommand('exit', self.quit)
+        self.window.protocol("WM_DELETE_WINDOW", self.quit)
 
         if self.controller_socket:
-            self.master.after_idle(self.request_initial)
+            self.window.after_idle(self.request_initial)
 
 
     def init_mesh(self, game_state):
@@ -341,8 +341,8 @@ class TkApplication:
 
         if self.geometry is None:
             screensize = (
-                max(250, self.master.winfo_screenwidth() - 100),
-                max(250, self.master.winfo_screenheight() - 100)
+                max(250, self.window.winfo_screenwidth() - 100),
+                max(250, self.window.winfo_screenheight() - 100)
                 )
         else:
             screensize = self.geometry
@@ -945,12 +945,12 @@ class TkApplication:
                 if skip_request:
                     _logger.debug("Skipping next request.")
                 else:
-                    self.master.after(self._delay, self.request_step)
+                    self.window.after(self._delay, self.request_step)
         elif self.running:
             if skip_request:
                 _logger.debug("Skipping next request.")
             else:
-                self.master.after(self._delay, self.request_step)
+                self.window.after(self._delay, self.request_step)
 
 
     def on_quit(self):
@@ -966,7 +966,7 @@ class TkApplication:
 
     def quit(self):
         self.on_quit()
-        self.master.quit()
+        self.window.quit()
 
     def delay_inc(self):
         self._delay += 5
