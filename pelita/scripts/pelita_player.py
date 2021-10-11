@@ -14,7 +14,7 @@ import json
 import zmq
 
 import pelita
-from ..player.team import make_team
+from ..team import make_team
 from ..network import json_default_handler
 from .script_utils import start_logging
 

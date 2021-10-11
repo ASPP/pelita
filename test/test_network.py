@@ -6,7 +6,7 @@ import sys
 import zmq
 
 from pelita.network import bind_socket, extract_port_range
-from pelita.player.team import make_team
+from pelita.team import make_team
 from pelita.scripts.pelita_player import player_handle_request
 
 _mswindows = (sys.platform == "win32")

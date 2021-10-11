@@ -1,8 +1,7 @@
 import pytest
 
-from pelita.layout import parse_layout, get_random_layout, initial_positions, layout_as_str
+from pelita.layout import parse_layout, get_random_layout, initial_positions
 from pelita.game import run_game, setup_game, play_turn
-from pelita.player.team import Team
 
 def stopping(bot, state):
     return bot.position

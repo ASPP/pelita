@@ -8,7 +8,7 @@ import tkinter
 import tkinter.font
 
 from ..game import next_round_turn
-from ..player.team import _ensure_list_tuples
+from ..team import _ensure_list_tuples
 from .tk_sprites import BotSprite, Food, Wall, Arrow, RED, BLUE, YELLOW, GREY, BROWN, LIGHT_BLUE, LIGHT_RED, STRONG_BLUE, STRONG_RED
 from .tk_utils import wm_delete_window_handler
 from .. import layout

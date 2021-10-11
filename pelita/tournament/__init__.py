@@ -16,7 +16,7 @@ import time
 import yaml
 import zmq
 
-from ..player.team import make_team
+from ..team import make_team
 from . import knockout_mode, roundrobin
 
 _logger = logging.getLogger(__name__)

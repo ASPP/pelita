@@ -3,7 +3,6 @@ from .base import (stepping_player, speaking_player,
                    round_based_player, move_exception_player,
                    debuggable_player)
 
-from .team import Team
 
 from .RandomPlayers import random_player, nq_random_player
 from .FoodEatingPlayer import food_eating_player

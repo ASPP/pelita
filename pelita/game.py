@@ -15,7 +15,7 @@ from .exceptions import FatalException, NonFatalException, NoFoodWarning, Player
 from .gamestate_filters import noiser
 from .layout import initial_positions, get_legal_positions
 from .network import bind_socket, setup_controller, ZMQPublisher
-from .player.team import make_team
+from .team import make_team
 from .viewer import ProgressViewer, AsciiViewer, ReplyToViewer, ReplayWriter, ResultPrinter
 
 _logger = logging.getLogger(__name__)
