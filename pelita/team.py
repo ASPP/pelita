@@ -1,5 +1,4 @@
 
-import collections
 import logging
 import os
 import random
@@ -11,10 +10,10 @@ from pathlib import Path
 
 import zmq
 
-from .. import layout
-from ..exceptions import PlayerDisconnected, PlayerTimeout
-from ..layout import layout_as_str, BOT_I2N
-from ..network import ZMQClientError, ZMQConnection, ZMQReplyTimeout, ZMQUnreachablePeer
+from . import layout
+from .exceptions import PlayerDisconnected, PlayerTimeout
+from .layout import layout_as_str, BOT_I2N
+from .network import ZMQClientError, ZMQConnection, ZMQReplyTimeout, ZMQUnreachablePeer
 
 _logger = logging.getLogger(__name__)
 

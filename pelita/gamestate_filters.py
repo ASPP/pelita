@@ -1,6 +1,5 @@
 """ collecting the game state filter functions """
 import random
-import copy
 
 ### The main function
 

@@ -1,8 +1,5 @@
 """ Base classes for player implementations. """
 
-import pdb
-import random
-
 
 def speaking_player(bot, state):
     """ A player that makes moves at random and tells us about it. """
@@ -77,11 +74,11 @@ def move_exception_player(bot, state):
 
 
 def debuggable_player(bot, state):
-    """ Player which invokes pdb on each move. 
+    """ Player which invokes pdb on each move.
 
     Setting ``positions`` inside the debugger will change
     its behaviour.
     """
     position = bot.position
-    pdb.set_trace()
+    breakpoint()
     return position

@@ -1,21 +1,19 @@
 """This is the game module. Written in 2019 in Born by Carlos and Lisa."""
 
-import itertools
 import logging
 import os
 from random import Random
 import subprocess
 import sys
 import time
-import typing
 from warnings import warn
 
 from . import layout
 from .exceptions import FatalException, NonFatalException, NoFoodWarning, PlayerTimeout
 from .gamestate_filters import noiser
 from .layout import initial_positions, get_legal_positions
-from .network import bind_socket, setup_controller, ZMQPublisher
-from .player.team import make_team
+from .network import setup_controller, ZMQPublisher
+from .team import make_team
 from .viewer import ProgressViewer, AsciiViewer, ReplyToViewer, ReplayWriter, ResultPrinter
 
 _logger = logging.getLogger(__name__)

@@ -3,7 +3,7 @@ import random
 import networkx as nx
 
 
-from .player.team import make_bots, create_homezones
+from .team import make_bots, create_homezones
 from .layout import (get_random_layout, get_layout_by_name, get_available_layouts,
                      parse_layout, BOT_N2I, initial_positions, wall_dimensions)
 

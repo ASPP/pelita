@@ -3,18 +3,17 @@
 import argparse
 import contextlib
 import importlib
+import json
 import logging
-import os
 from pathlib import Path
 import signal
 import subprocess
 import sys
 
-import json
 import zmq
 
 import pelita
-from ..player.team import make_team
+from ..team import make_team
 from ..network import json_default_handler
 from .script_utils import start_logging
 
@@ -366,11 +365,9 @@ def with_zmq_router(team, address):
 
 
 def play_remote(team, pair_addr):
-    player_path = os.environ.get("PELITA_PATH") or os.path.dirname(sys.argv[0])
-    player = 'pelita.scripts.pelita_player'
     external_call = [sys.executable,
                     '-m',
-                    player,
+                    'pelita.scripts.pelita_player',
                     team,
                     pair_addr]
     _logger.debug("Executing: %r", external_call)

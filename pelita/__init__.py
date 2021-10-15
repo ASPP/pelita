@@ -1,8 +1,6 @@
 from . import (game,
                layout,
                network,
-               player,
-               viewer,
-               utils)
+               viewer)
 
 __version__ = '2.1.0'

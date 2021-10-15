@@ -5,7 +5,6 @@ import logging
 import os
 import platform
 import signal
-import sys
 
 _logger = logging.getLogger(__name__)
 

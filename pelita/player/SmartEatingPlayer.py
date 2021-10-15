@@ -1,4 +1,3 @@
-import networkx
 
 from pelita.player import food_eating_player
 
