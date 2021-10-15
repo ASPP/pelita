@@ -228,7 +228,7 @@ def main():
 
     try:
         with open(args.config) as f:
-            config_data = yaml.load(f)
+            config_data = yaml.load(f, Loader=yaml.FullLoader)
             config_data['viewer'] = args.viewer or config_data.get('viewer', 'tk')
             config_data['interactive'] = firstNN(args.interactive, config_data.get('interactive'), True)
             config_data['statefile'] = args.state
