@@ -20,9 +20,8 @@ Completely rewritten by Pietro Berkes
 Rewritten again (but not completely) by Tiziano Zito
 """
 import random
-import sys
 
-import numpy
+import numpy as np
 import networkx as nx
 
 
@@ -45,7 +44,7 @@ def empty_maze(height, width):
     An empty maze is made of empty tiles, except for the external walls.
     """
 
-    maze = numpy.empty((height, width), dtype='c')
+    maze = np.empty((height, width), dtype='c')
     maze.fill(E)
 
     # add external walls
@@ -84,7 +83,7 @@ def bytes_to_maze(bytes_):
             cols.append(line[idx:idx+1])
         rows.append(cols)
 
-    maze = numpy.array(rows, dtype=bytes)
+    maze = np.array(rows, dtype=bytes)
     return maze
 
 def str_to_maze(str_):
@@ -351,7 +350,7 @@ def add_food(maze, max_food):
     h, w = maze.shape
     pacmen = [(1,h-2), (1,h-3)]
     # get all free slots on the left side, excluding the dividing border
-    free_y, free_x = numpy.where(maze[:,:w//2-1] == E)
+    free_y, free_x = np.where(maze[:,:w//2-1] == E)
     # convert it to a list of coordinate tuples
     free = list(zip(free_x, free_y))
     # remove the pacmen starting coordinates (we have to check that they are
@@ -417,7 +416,7 @@ def get_new_maze(height, width, nfood, seed=None):
     add_food(maze, nfood)
 
     # complete right part of maze with mirror copy
-    maze[:, width // 2:] = numpy.flipud(numpy.fliplr(maze[:, :width // 2]))
+    maze[:, width // 2:] = np.flipud(np.fliplr(maze[:, :width // 2]))
 
     # add pacman
     add_pacmen(maze)

@@ -3,7 +3,6 @@
 import argparse
 import datetime
 import itertools
-import logging
 from pathlib import Path
 import random
 import re

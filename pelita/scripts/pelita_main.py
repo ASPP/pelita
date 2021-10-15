@@ -1,18 +1,13 @@
 #!/usr/bin/env python3
 
 import argparse
-import contextlib
 import json
 import logging
-import os
 from pathlib import Path
 import random
 import sys
-import time
 
 import pelita
-from pelita import game, layout
-
 from .script_utils import start_logging
 
 # TODO: The check_team option
@@ -216,8 +211,8 @@ def main():
         viewers.append(('write-replay-to', args.write_replay))
 
     if args.replayfile:
-        viewer_state = game.setup_viewers(viewers, options=viewer_options)
-        if game.controller_exit(viewer_state, await_action='set_initial'):
+        viewer_state = pelita.game.setup_viewers(viewers, options=viewer_options)
+        if pelita.game.controller_exit(viewer_state, await_action='set_initial'):
             sys.exit(0)
 
         old_game = Path(args.replayfile).read_text().split("\x04")
@@ -231,7 +226,7 @@ def main():
             state['food'] = list(map(tuple, state['food']))
             for viewer in viewer_state['viewers']:
                 viewer.show_state(state)
-            if game.controller_exit(viewer_state):
+            if pelita.game.controller_exit(viewer_state):
                 break
 
         sys.exit(0)
@@ -273,11 +268,11 @@ def main():
 
     print("Using layout '%s'" % layout_name)
 
-    layout_dict = layout.parse_layout(layout_string)
-    game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, seed=seed,
-                  timeout_length=args.timeout_length, error_limit=args.error_limit,
-                  viewers=viewers, viewer_options=viewer_options,
-                  store_output=args.store_output)
+    layout_dict = pelita.layout.parse_layout(layout_string)
+    pelita.game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, seed=seed,
+                         timeout_length=args.timeout_length, error_limit=args.error_limit,
+                         viewers=viewers, viewer_options=viewer_options,
+                         store_output=args.store_output)
 
 if __name__ == '__main__':
     main()

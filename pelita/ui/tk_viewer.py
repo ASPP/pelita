@@ -7,8 +7,6 @@ import sys
 import tkinter
 import zmq
 
-import zmq
-
 from .tk_canvas import TkApplication
 
 _logger = logging.getLogger(__name__)
