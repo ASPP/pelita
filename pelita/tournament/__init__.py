@@ -400,7 +400,7 @@ class State:
     def load(cls, config, filename):
         if filename:
             with open(filename) as f:
-                return cls(config=config, state=yaml.load(f))
+                return cls(config=config, state=yaml.load(f, Loader=yaml.FullLoader))
 
 
 def present_teams(config):
