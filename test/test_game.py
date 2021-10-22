@@ -1074,8 +1074,9 @@ def test_remote_errors(tmp_path):
         i_py.write_text(import_error)
 
         res = run_game([str(s_py), str(i_py)], layout_dict=l, max_rounds=20)
+        # Error messages have changed in Python 3.10. We can only do approximate maching
+        assert "SyntaxError" in res['fatal_errors'][0][0].pop('description')
         assert res['fatal_errors'][0][0] == {
-            'description': "('Could not load s.py: invalid syntax (s.py, line 2)', 'SyntaxError')",
             'round': None,
             'turn': 0,
             'type': 'PlayerDisconnected'
@@ -1083,16 +1084,18 @@ def test_remote_errors(tmp_path):
         # Both teams fail during setup: DRAW
         assert res['whowins'] == 2
         res = run_game(["0", str(i_py)], layout_dict=l, max_rounds=20)
+        # Error messages have changed in Python 3.10. We can only do approximate maching
+        assert "ModuleNotFoundError" in res['fatal_errors'][1][0].pop('description')
         assert res['fatal_errors'][1][0] == {
-            'description': '("Could not load i.py: No module named \'does_not_exist\'", \'ModuleNotFoundError\')',
             'round': None,
             'turn': 1,
             'type': 'PlayerDisconnected'
         }
         assert res['whowins'] == 0
         res = run_game([str(i_py), "1"], layout_dict=l, max_rounds=20)
+        # Error messages have changed in Python 3.10. We can only do approximate maching
+        assert "ModuleNotFoundError" in res['fatal_errors'][0][0].pop('description')
         assert res['fatal_errors'][0][0] == {
-            'description': '("Could not load i.py: No module named \'does_not_exist\'", \'ModuleNotFoundError\')',
             'round': None,
             'turn': 0,
             'type': 'PlayerDisconnected'
@@ -1151,7 +1154,7 @@ def test_bad_move_function(team_to_test):
     assert res['gameover']
     assert res['whowins'] == other
     assert res['fatal_errors'][team_to_test][0]['type'] == 'FatalException'
-    assert res['fatal_errors'][team_to_test][0]['description'] == 'Exception in client (TypeError): move4() takes 1 positional argument but 2 were given'
+    assert "takes 1 positional argument but 2 were given" in res['fatal_errors'][team_to_test][0]['description']
 
 
 def test_setup_game_run_game_have_same_args():
