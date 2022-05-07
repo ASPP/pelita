@@ -376,7 +376,7 @@ class State:
             self.state = {
                 "round1": {
                     "played": [],
-                    "unplayed": roundrobin.initial_state(config.team_ids)
+                    "unplayed": roundrobin.create_matchplan(config.team_ids)
                 },
                 "round2": {}
             }
