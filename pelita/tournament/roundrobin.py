@@ -1,8 +1,9 @@
 from collections import Counter
 import itertools
 import random
+from typing import List, Tuple
 
-def create_matchplan(teams: list[str]) -> list[tuple[str, str]]:
+def create_matchplan(teams: List[str]) -> List[Tuple[str, str]]:
     """ Takes a list of team ids and returns a list of tuples of team ids with
     the matchplan."""
 
@@ -144,7 +145,7 @@ def circle_method_gen(num_teams):
                 continue
             yield match
 
-def rotate_with_fixed(lst: list, index: int) -> list:
+def rotate_with_fixed(lst: List, index: int) -> List:
     lst = list(lst)
 
     # remove index
