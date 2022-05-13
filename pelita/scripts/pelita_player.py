@@ -9,7 +9,9 @@ from pathlib import Path
 import signal
 import subprocess
 import sys
+from urllib.parse import urlparse
 
+import zeroconf
 import zmq
 
 import pelita
@@ -19,8 +21,6 @@ from .script_utils import start_logging
 
 _logger = logging.getLogger(__name__)
 
-
-DEFAULT_FACTORY = 'team'
 
 @contextlib.contextmanager
 def with_sys_path(dirname):
@@ -301,7 +301,40 @@ def team_from_module(module):
     return team
 
 
-def with_zmq_router(team, address):
+def zeroconf_advertise(address, team_spec):
+    parsed_url = urlparse(address)
+    if parsed_url.scheme != "tcp":
+        _logger.warning("Can only advertise to tcp addresses.")
+        return
+    if parsed_url.hostname == "0.0.0.0":
+        _logger.warning("Can only advertise to a specific interface.")
+        return
+
+    # TODO: This should only be done once
+    team = load_team(team_spec)
+    name = team.team_name
+
+    desc = {
+        'spec': team_spec,
+        'team_name': name,
+        'proto_version': 0.1
+        }
+    info = zeroconf.ServiceInfo(
+        "_pelita-player._tcp.local.",
+        f"{name}._pelita-player._tcp.local.",
+        parsed_addresses=[parsed_url.hostname],
+        port=parsed_url.port,
+        properties=desc,
+    )
+
+    # protocol versoin ...
+    zc = zeroconf.Zeroconf()
+    zc.engine._listen_socket
+    print("Registration of a service, press Ctrl-C to exit...")
+    zc.register_service(info)
+
+
+def with_zmq_router(team_spec, address, *, advertise: bool):
     dealer_pair_mapping = {}
     pair_dealer_mapping = {}
     proc_dealer_mapping = {}
@@ -316,6 +349,9 @@ def with_zmq_router(team, address):
     ctx = zmq.Context()
     sock = ctx.socket(zmq.ROUTER)
     sock.bind(address)
+
+    if advertise:
+        zeroconf_advertise(address, team_spec)
 
     poll = zmq.Poller()
     poll.register(sock, zmq.POLLIN)
@@ -332,8 +368,8 @@ def with_zmq_router(team, address):
 
                 poll.register(pair_sock, zmq.POLLIN)
 
-                _logger.info("Starting match for team {}. ({} already running.)".format(team, len(proc_dealer_mapping)))
-                sub = play_remote(team, pair_addr)
+                _logger.info("Starting match for team {}. ({} already running.)".format(team_spec, len(proc_dealer_mapping)))
+                sub = play_remote(team_spec, pair_addr)
 
                 dealer_pair_mapping[id_] = pair_sock
                 pair_dealer_mapping[pair_sock] = id_
@@ -364,11 +400,11 @@ def with_zmq_router(team, address):
             _logger.debug("Cleaned up {} process(es). ({} still running.)".format(count, len(proc_dealer_mapping)))
 
 
-def play_remote(team, pair_addr):
+def play_remote(team_spec, pair_addr):
     external_call = [sys.executable,
                     '-m',
                     'pelita.scripts.pelita_player',
-                    team,
+                    team_spec,
                     pair_addr]
     _logger.debug("Executing: %r", external_call)
     sub = subprocess.Popen(external_call)
@@ -380,6 +416,8 @@ def main():
     parser.add_argument('--log', help='print debugging log information to LOGFILE (default \'stderr\')',
                         metavar='LOGFILE', default=argparse.SUPPRESS, nargs='?')
     parser.add_argument('--remote', help='bind to a zmq.ROUTER socket at the given address which forks subprocesses on demand',
+                        action='store_const', const=True)
+    parser.add_argument('--advertise', help='advertize player on zeroconf',
                         action='store_const', const=True)
     parser.add_argument('--color', help='which color your team will have in the game', default=None)
     parser.add_argument('team')
@@ -393,7 +431,7 @@ def main():
         pass
 
     if args.remote:
-        with_zmq_router(args.team, args.address)
+        with_zmq_router(args.team, args.address, advertise=args.advertise)
     else:
         run_player(args.team, args.address, args.color)
 

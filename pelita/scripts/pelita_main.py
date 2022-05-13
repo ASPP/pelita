@@ -7,6 +7,9 @@ from pathlib import Path
 import random
 import sys
 
+from rich.console import Console
+from rich.prompt import Prompt
+
 import pelita
 from .script_utils import start_logging
 
@@ -16,6 +19,76 @@ from pelita.tournament import check_team
 # silence stupid warnings from logging module
 logging.root.manager.emittedNoHandlerWarning = 1
 _logger = logging.getLogger(__name__)
+
+
+def scan(team_spec):
+    if team_spec != "SCAN":
+        return team_spec
+    from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf
+    from queue import Queue, Empty
+
+    SCAN_TIME = 5 # seconds
+
+    q = Queue(maxsize=5)
+
+    def on_service_state_change(
+        zeroconf: Zeroconf, service_type: str, name: str, state_change: ServiceStateChange
+    ) -> None:
+
+        if state_change is ServiceStateChange.Added:
+            info = zeroconf.get_service_info(service_type, name)
+
+            if info:
+                addresses = ["%s:%d" % (addr, info.port) for addr in info.parsed_scoped_addresses()]
+
+                addr = f"remote:tcp://{addresses[0]}"
+                team_name = info.properties[b"team_name"].decode()
+                q.put((addr, team_name), timeout=5)
+
+    zeroconf = Zeroconf()
+    services = ["_pelita-player._tcp.local."]
+    console = Console()
+
+    console.print(f"[bold]Remote player requested. Scanning network for players ({SCAN_TIME}s).")
+    with console.status("[red bold]Searching for players …") as status:
+        try:
+            browser = ServiceBrowser(zeroconf, services, handlers=[on_service_state_change])
+            players = []
+            import time
+            start = time.time()
+            while start + 5 > time.time():
+                time.sleep(0.2)
+                (addr, team_name) = q.get(timeout=5)
+                #  if not players:
+                    #console.print("[bold]Found players:")
+                console.print(f"  [blue]{len(players)})[/] {team_name} \[{addr}]")
+                players.append(addr)
+        except Empty:
+            pass
+        except KeyboardInterrupt:
+            return None
+        finally:
+            zeroconf.close()
+    if players:
+        console.print(f"  [blue]0)[/] Random team")
+        console.print(f"  [blue]x)[/] Exit")
+        console.print()
+        console.print(f"Found {len(players)} player{'s' if len(players) == 1 else ''}s.")
+
+        choices = {str(i): player for i, player in enumerate(players)}
+
+        answer = Prompt.ask("[bold]Select player to play against (r for random, x to exit)",
+                            choices=list(choices) + ["r", "x"],
+                            default="r")
+
+        if answer == "r":
+            console.print("Choosing random player.")
+            return random.choice(players)
+        elif answer in choices.keys():
+            console.print(f"Choosing {choices[answer]}")
+            return choices[answer]
+        else:
+            return None
 
 
 def geometry_string(s):
@@ -240,6 +313,15 @@ def main():
         raise RuntimeError("Not enough teams given. Must be {}".format(num_teams))
     if len(team_specs) > num_teams:
         raise RuntimeError("Too many teams given. Must be < {}.".format(num_teams))
+
+    for idx, team_spec in enumerate(team_specs):
+        if team_spec == "SCAN":
+            scanned_spec = scan(team_spec)
+            if scanned_spec:
+                team_specs[idx] = scanned_spec
+            else:
+                print("No remote team found. Exiting.")
+                return
 
     if args.seed is None:
         seed = random.randint(0, sys.maxsize)
