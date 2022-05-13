@@ -33,7 +33,7 @@ class ProgressViewer:
                     bot_sign, percentage,
                     round_index, game_time,
                     ":".join(str(s) for s in score)))
-        print(string + ("\b" * len(string)), flush=True)
+        print(string + ("\b" * len(string)), flush=True, end='')
 
         if game_state["gameover"]:
             state = {}
