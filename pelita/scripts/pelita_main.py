@@ -41,7 +41,7 @@ def scan(team_spec):
             if info:
                 addresses = ["%s:%d" % (addr, info.port) for addr in info.parsed_scoped_addresses()]
 
-                addr = f"remote:tcp://{addresses[0]}"
+                addr = f"tcp://{addresses[0]}"
                 team_name = info.properties[b"team_name"].decode()
                 q.put((addr, team_name), timeout=5)
 
@@ -61,8 +61,8 @@ def scan(team_spec):
                 (addr, team_name) = q.get(timeout=5)
                 #  if not players:
                     #console.print("[bold]Found players:")
-                console.print(f"  [blue]{len(players)})[/] {team_name} \[{addr}]")
-                players.append(addr)
+                console.print(f"  [blue]{len(players)})[/] {team_name} \[[blue]{addr}[/]]", highlight=False)
+                players.append(f"remote:{addr}")
         except Empty:
             pass
         except KeyboardInterrupt:
@@ -70,7 +70,7 @@ def scan(team_spec):
         finally:
             zeroconf.close()
     if players:
-        console.print(f"  [blue]0)[/] Random team")
+        console.print(f"  [blue]r)[/] Random team")
         console.print(f"  [blue]x)[/] Exit")
         console.print()
         console.print(f"Found {len(players)} player{'s' if len(players) == 1 else ''}s.")
@@ -85,7 +85,7 @@ def scan(team_spec):
             console.print("Choosing random player.")
             return random.choice(players)
         elif answer in choices.keys():
-            console.print(f"Choosing {choices[answer]}")
+            console.print(f"Choosing [blue]{choices[answer]}[/]", highlight=False)
             return choices[answer]
         else:
             return None
