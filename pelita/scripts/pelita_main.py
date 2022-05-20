@@ -73,7 +73,7 @@ def scan(team_spec):
         console.print(f"  [blue]r)[/] Random team")
         console.print(f"  [blue]x)[/] Exit")
         console.print()
-        console.print(f"Found {len(players)} player{'s' if len(players) == 1 else ''}s.")
+        console.print(f"Found {len(players)} player{'s' if len(players) != 1 else ''}.")
 
         choices = {str(i): player for i, player in enumerate(players)}
 
