@@ -22,6 +22,9 @@ from .script_utils import start_logging
 _logger = logging.getLogger(__name__)
 
 
+zeroconf.log.setLevel(logging.DEBUG)
+zeroconf.log.addHandler(_logger)
+
 @contextlib.contextmanager
 def with_sys_path(dirname):
     sys.path.insert(0, dirname)
@@ -323,6 +326,7 @@ def zeroconf_advertise(address, team_spec):
         "_pelita-player._tcp.local.",
         f"{name}._pelita-player._tcp.local.",
         parsed_addresses=[parsed_url.hostname],
+        server='mynewserver.local',
         port=parsed_url.port,
         properties=desc,
     )

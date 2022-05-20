@@ -55,6 +55,8 @@ def scan(team_spec):
             browser = ServiceBrowser(zeroconf, services, handlers=[on_service_state_change])
             players = []
             import time
+            import select
+            import sys
             start = time.time()
             while start + 5 > time.time():
                 time.sleep(0.2)
