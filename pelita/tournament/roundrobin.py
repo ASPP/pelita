@@ -64,10 +64,10 @@ def matchplan_five_teams():
     # [{0, 1}, {2, 3}, {0, 4}, {1, 2}, {3, 4}, {0, 2}, {1, 3}, {2, 4}, {0, 3}, {1, 4}]
     # [{0, 1}, {2, 3}, {0, 4}, {1, 2}, {3, 4}, {0, 2}, {1, 4}, {0, 3}, {2, 4}, {1, 3}]
 
-    if random.randrange(2):
-        matchplan = [(0, 1), (2, 3), (0, 4), (1, 2), (3, 4), (0, 2), (1, 3), (2, 4), (0, 3), (1, 4)]
-    else:
-        matchplan = [(0, 1), (2, 3), (0, 4), (1, 2), (3, 4), (0, 2), (1, 4), (0, 3), (2, 4), (1, 3)]
+    matchplan = random.choice([
+        [(0, 1), (2, 3), (0, 4), (1, 2), (3, 4), (0, 2), (1, 3), (2, 4), (0, 3), (1, 4)],
+        [(0, 1), (2, 3), (0, 4), (1, 2), (3, 4), (0, 2), (1, 4), (0, 3), (2, 4), (1, 3)]
+    ])
 
     # collect all matchplans that have an equal distribution of blue/red matches
     # TODO: It should be possible to reduce the possible combinations for this in advance.
