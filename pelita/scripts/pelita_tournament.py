@@ -282,7 +282,9 @@ def main():
     winner = tournament.play_round2(config, rr_ranking, state)
 
     config.print('The winner of the %s Pelita tournament is...' % config.location, wait=2, end=" ")
-    config.print('{team_name}. Congratulations'.format(team_name=config.team_name(winner)), wait=2)
+    config.print('{team_group}: {team_name}. Congratulations'.format(
+        team_group=config.team_group(winner),
+        team_name=config.team_name(winner)), wait=2)
     config.print('Good evening main. It was a pleasure to run the tournament.', wait=2)
 
     config.print('*** Please remember to copy the log files from {}. ***'.format(config.tournament_log_folder), speak=False)
