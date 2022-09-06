@@ -252,7 +252,6 @@ class Config:
                 "members": team["members"]
             }
 
-
         self.location = config["location"]
         self.date = config["date"]
 
@@ -282,6 +281,12 @@ class Config:
 
     def team_name(self, team):
         return self.teams[team]["name"]
+
+    def team_group(self, team):
+        return f"group {team}"
+
+    def team_name_group(self, team):
+        return f"{self.team_name(team)} ({self.team_group(team)})"
 
     def team_spec(self, team):
         return self.teams[team]["spec"]
@@ -479,7 +484,7 @@ def start_match(config, teams, *, shuffle=False, match_id=None):
     team1, team2 = teams
 
     config.print()
-    config.print('Starting match: '+ config.team_name(team1)+' vs ' + config.team_name(team2))
+    config.print('Starting match: '+ config.team_name_group(team1)+' vs ' + config.team_name_group(team2))
     config.print()
     config.wait_for_keypress()
 
@@ -613,11 +618,11 @@ def play_round1(config, state):
         t1_id, t2_id = played_match["match"]
         winner = played_match["winner"]
         if winner is False or winner is None:
-            config.print("Already played match between {t1} and {t2}. (Draw.) Skipping.".format(t1=config.team_name(t1_id),
-                                                                                                t2=config.team_name(t2_id)))
+            config.print("Already played match between {t1} and {t2}. (Draw.) Skipping.".format(t1=config.team_name_group(t1_id),
+                                                                                                t2=config.team_name_group(t2_id)))
         else:
-            config.print("Already played match between {t1} and {t2}. ({winner} won.) Skipping.".format(t1=config.team_name(t1_id),
-                                                                                                        t2=config.team_name(t2_id),
+            config.print("Already played match between {t1} and {t2}. ({winner} won.) Skipping.".format(t1=config.team_name_group(t1_id),
+                                                                                                        t2=config.team_name_group(t2_id),
                                                                                                         winner=config.team_name(winner)))
 
     if not rr_unplayed:
@@ -709,8 +714,8 @@ def play_round2(config, teams, state):
                     state.save(config.statefile)
                 else:
                     _logger.debug("Skipping match {}.".format(match))
-                    config.print("Already played match between {t1} and {t2}. ({winner} won.) Skipping.".format(t1=config.team_name(t1_id),
-                                                                                                                t2=config.team_name(t2_id),
+                    config.print("Already played match between {t1} and {t2}. ({winner} won.) Skipping.".format(t1=config.team_name_group(t1_id),
+                                                                                                                t2=config.team_name_group(t2_id),
                                                                                                                 winner=config.team_name(match.winner)))
                 match_id.next_match()
 
