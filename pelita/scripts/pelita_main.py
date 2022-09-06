@@ -63,6 +63,10 @@ parser.add_argument('--list-layouts', action='store_true',
                     help='List all available built-in layouts.')
 parser.add_argument('--check-team', action="store_true",
                     help=long_help('Check that the team is valid (on first sight) and print its name.'))
+parser.add_argument('--append-blue', type=str, metavar='INFO', default=None,
+                    help=long_help('Append info about the blue team (such as group id).'))
+parser.add_argument('--append-red', type=str, metavar='INFO', default=None,
+                    help=long_help('Append info about the red team (such as group id).'))
 
 game_settings = parser.add_argument_group('Game settings')
 game_settings.add_argument('--rounds', type=int, default=300,
@@ -272,7 +276,8 @@ def main():
     pelita.game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, seed=seed,
                          timeout_length=args.timeout_length, error_limit=args.error_limit,
                          viewers=viewers, viewer_options=viewer_options,
-                         store_output=args.store_output)
+                         store_output=args.store_output,
+                         team_infos=(args.append_blue, args.append_red))
 
 if __name__ == '__main__':
     main()
