@@ -143,26 +143,74 @@ def test_knockout_output(teams, bonusmatch, check_output):
 
 
 class TestRoundRobin:
-    def test_shuffle(self):
+    def test_all_matches_included(self):
         data = [
             ([], []),
             ([1], []),
             ([1, 2], [(1, 2)]),
             ([1, 2, 3], [(1, 2), (1, 3), (2, 3)]),
-            ([1, 2, 3, 4], [(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)])
+            ([1, 2, 3, 4], [(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)]),
+            ([0, 1, 2, 3, 4], [(0, 1), (0, 2), (0, 3), (0, 4), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)])
         ]
 
         def tuple_sort(t):
+            # sort a tuple
             return tuple(sorted(list(t)))
 
         for input, output in data:
-            d = roundrobin.initial_state(input)
-            d = [tuple_sort(x) for x in d]
-            output = [tuple_sort(x) for x in output]
-            assert len(d) == len(output)
-            assert set(d) == set(output)
+            matchplan = roundrobin.create_matchplan(input)
+            matchplan_sorted = sorted([tuple_sort(x) for x in matchplan])
+            output = sorted([tuple_sort(x) for x in output])
+            assert matchplan_sorted == output
 
-        # TODO: Test that order is actually shuffled
+    @pytest.mark.parametrize('teams',  [
+            [0, 1, 2, 3, 4],
+            [0, 1, 2, 3, 4, 5],
+            [0, 1, 2, 3, 4, 5, 6],
+            [0, 1, 2, 3, 4, 5, 6, 7]
+        ])
+    def test_no_team_plays_two_games_in_a_row(self, teams):
+        matches = roundrobin.create_matchplan(teams)
+        prev = {}
+        for match in matches:
+            current = set(match)
+            assert current.isdisjoint(prev)
+            prev = current
+
+    @pytest.mark.parametrize('teams',  [
+            [0, 1],
+            [0, 1, 2],
+            [0, 1, 2, 3],
+            [0, 1, 2, 3, 4],
+            [0, 1, 2, 3, 4, 5],
+            [0, 1, 2, 3, 4, 5, 6],
+            [0, 1, 2, 3, 4, 5, 6, 7],
+        ])
+    def test_team_blue_red_are_similar(self, teams):
+        # test that each team plays a similar amount as blue and red
+        matchplan = roundrobin.create_matchplan(teams)
+        from collections import Counter
+        blue_count = Counter()
+        red_count = Counter()
+        for blue, red in matchplan:
+            blue_count[blue] += 1
+            red_count[red] += 1
+        for team in teams:
+            assert -1 <= blue_count[team] - red_count[team] <= 1, matchplan
+
+    @pytest.mark.parametrize('list, fixed, outcome',  [
+            ([0], 0, [0]),
+            ([0, 1], 0, [0, 1]),
+            ([0, 1], 1, [0, 1]),
+            ([0, 1, 2], 0, [0, 2, 1]),
+            ([0, 1, 2], 1, [2, 1, 0]),
+            ([0, 1, 2], 2, [1, 0, 2]),
+            ([0, 1, 2, 3], 2, [1, 3, 2, 0]),
+            ([0, 1, 2, 3, 4], 3, [1, 2, 4, 3, 0]),
+            ([0, 1, 2, 3, 4, 5], 2, [1, 3, 2, 4, 5, 0])
+        ])
+    def test_rotate_with_fixed(self, list, fixed, outcome):
+        assert roundrobin.rotate_with_fixed(list, fixed) == outcome
 
 
 ### ASSERTIONS:
