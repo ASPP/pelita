@@ -421,7 +421,7 @@ def main():
                         metavar='LOGFILE', default=argparse.SUPPRESS, nargs='?')
     parser.add_argument('--remote', help='bind to a zmq.ROUTER socket at the given address which forks subprocesses on demand',
                         action='store_const', const=True)
-    parser.add_argument('--advertise', help='advertize player on zeroconf',
+    parser.add_argument('--advertise', help='advertise player on zeroconf',
                         action='store_const', const=True)
     parser.add_argument('--color', help='which color your team will have in the game', default=None)
     parser.add_argument('team')
