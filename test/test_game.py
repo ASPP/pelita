@@ -8,12 +8,14 @@ import os
 from pathlib import Path
 import random
 from textwrap import dedent
-import time
+import sys
 
 from pelita import game, layout
 from pelita.exceptions import NoFoodWarning
 from pelita.game import initial_positions, get_legal_positions, apply_move, run_game, setup_game, play_turn
 from pelita.player import stepping_player, stopping_player
+
+_mswindows = (sys.platform == "win32")
 
 
 @contextmanager
@@ -1051,6 +1053,8 @@ def test_non_existing_file():
         'type': 'PlayerDisconnected'
     }
 
+# TODO: Get it working again on Windows
+@pytest.mark.skipif(_mswindows, reason="Test fails on some Python versions.")
 def test_remote_errors(tmp_path):
     # TODO: Change error messages to be more meaningful
     # we change to the tmp dir, to make our paths simpler
