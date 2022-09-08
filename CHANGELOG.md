@@ -1,5 +1,11 @@
 # Pelita changelog
 
+  * v2.2.0 (???)
+
+    - Do not have a team play two matches in a row during round-robin mode
+    - Show the tournament group names in the UI and on the CLI
+    - Automatic detection of network players via zeroconf
+
   * v2.1.0 (25. Sep 2021)
 
     - Bot API uses a fixed state dict instead of returning `(position, state)`
