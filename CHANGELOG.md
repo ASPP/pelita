@@ -1,6 +1,6 @@
 # Pelita changelog
 
-  * v2.2.0 (???)
+  * v2.2.0 (08. Sep 2022)
 
     - Do not have a team play two matches in a row during round-robin mode
     - Show the tournament group names in the UI and on the CLI
