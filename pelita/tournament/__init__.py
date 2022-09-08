@@ -94,7 +94,7 @@ def run_and_terminate_process(args, **kwargs):
                     p.kill()
 
 
-def call_pelita(team_specs, *, rounds, size, viewer, seed, write_replay=False, store_output=False):
+def call_pelita(team_specs, *, rounds, size, viewer, seed, team_infos=None, write_replay=False, store_output=False):
     """ Starts a new process with the given command line arguments and waits until finished.
 
     Returns
@@ -102,6 +102,9 @@ def call_pelita(team_specs, *, rounds, size, viewer, seed, write_replay=False, s
     tuple of (game_state, stdout, stderr)
     """
     team1, team2 = team_specs
+
+    if team_infos is None:
+        team_infos = [None, None]
 
     if seed is not None:
         if isinstance(seed, int):
@@ -129,10 +132,14 @@ def call_pelita(team_specs, *, rounds, size, viewer, seed, write_replay=False, s
     seed = ['--seed', seed] if seed else []
     write_replay = ['--write-replay', write_replay] if write_replay else []
     store_output = ['--store-output', store_output] if store_output else []
+    append_blue = ['--append-blue', team_infos[0]] if team_infos[0] else []
+    append_red = ['--append-red', team_infos[1]] if team_infos[1] else []
 
     cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
            team1, team2,
            '--reply-to', reply_addr,
+           *append_blue,
+           *append_red,
            *rounds,
            *size,
            *viewer,
@@ -454,11 +461,13 @@ def play_game_with_config(config, teams, *, match_id=None):
         log_kwargs = {}
 
     seed = str(random.randint(0, sys.maxsize))
+    team_infos = [config.team_group(team1), config.team_group(team2)]
 
     res = call_pelita([config.team_spec(team1), config.team_spec(team2)],
                                 rounds=config.rounds,
                                 size=config.size,
                                 viewer=config.viewer,
+                                team_infos=team_infos,
                                 seed=seed,
                                 **log_kwargs)
 

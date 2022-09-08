@@ -78,8 +78,8 @@ def controller_exit(state, await_action='play_step'):
 
 def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=None,
              error_limit=5, timeout_length=3, viewers=None, viewer_options=None,
-             store_output=False, team_names=(None, None), allow_exceptions=False,
-             print_result=True):
+             store_output=False, team_names=(None, None), team_infos=(None, None),
+             allow_exceptions=False, print_result=True):
     """ Run a pelita match.
 
     Parameters
@@ -139,6 +139,9 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
               a tuple containing the team names. If not given, names will be taken
               from the team module TEAM_NAME variable or from the function name.
 
+    team_info : tuple(team_info_0, team_info_1)
+              a tuple containing additional team info.
+
     allow_exceptions : bool
                     when True, allow teams to raise Exceptions. This is especially
                     useful when running local games, where you typically want to
@@ -180,7 +183,8 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
     state = setup_game(team_specs, layout_dict=layout_dict, layout_name=layout_name, max_rounds=max_rounds,
                        error_limit=error_limit, timeout_length=timeout_length, seed=seed,
                        viewers=viewers, viewer_options=viewer_options,
-                       store_output=store_output, team_names=team_names, print_result=print_result)
+                       store_output=store_output, team_names=team_names, team_infos=team_infos,
+                       print_result=print_result)
 
     # Play the game until it is gameover.
     while not state.get('gameover'):
@@ -251,8 +255,8 @@ def setup_viewers(viewers=None, options=None, print_result=True):
 
 def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=None,
                error_limit=5, timeout_length=3, viewers=None, viewer_options=None,
-               store_output=False, team_names=(None, None), allow_exceptions=False,
-               print_result=True):
+               store_output=False, team_names=(None, None), team_infos=(None, None),
+               allow_exceptions=False, print_result=True):
     """ Generates a game state for the given teams and layout with otherwise default values. """
 
     # check that two teams have been given
@@ -354,6 +358,9 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
 
         #: Name of the teams. Tuple of str
         team_names=team_names,
+
+        #: Additional team info. Tuple of str|None
+        team_infos=team_infos,
 
         #: Time each team needed, list of float
         team_time=[0, 0],

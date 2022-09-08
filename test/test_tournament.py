@@ -221,6 +221,7 @@ class TestSingleMatch:
         config = MagicMock()
         config.rounds = 200
         config.team_spec = lambda x: x
+        config.team_group = lambda x: x
         config.viewer = 'ascii'
         config.size = 'small'
         config.tournament_log_folder = None
@@ -260,6 +261,7 @@ class TestSingleMatch:
         config.rounds = 300
         config.team_spec = lambda x: teams[x]
         config.team_name = lambda x: teams[x]
+        config.team_group = lambda x: x
         config.viewer = 'ascii'
         config.size = 'small'
         config.print = mock_print
@@ -297,6 +299,7 @@ class TestSingleMatch:
         config.teams = teams
         config.team_spec = lambda x: teams[x]
         config.team_name = lambda x: teams[x]
+        config.team_group = lambda x: x
         config.viewer = 'ascii'
         config.size = 'small'
         config.print = mock_print

@@ -608,8 +608,21 @@ class TkApplication:
         except (KeyError, TypeError):
             team_time = [0, 0]
 
-        left_team = "%s %d " % (game_state["team_names"][0], game_state["score"][0])
-        right_team = " %d %s" % (game_state["score"][1], game_state["team_names"][1])
+        left_name = game_state["team_names"][0]
+        right_name = game_state["team_names"][1]
+
+        left_score = game_state["score"][0]
+        right_score = game_state["score"][1]
+
+        left_info = game_state["team_infos"][0]
+        right_info = game_state["team_infos"][1]
+
+        left_info = f"({left_info})" if left_info else ""
+        right_info = f"({right_info})" if right_info else ""
+
+        left_team = f"{left_info} {left_name} {left_score} "
+        right_team = f" {right_score} {right_name} {right_info}"
+
         font_size = guess_size(left_team + ' : ' + right_team,
                                self.ui.header_canvas.winfo_width(),
                                30,
