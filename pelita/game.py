@@ -90,7 +90,7 @@ class TkViewer:
         if stop_after_kill:
             viewer_args += ["--stop-after-kill"]
 
-        tkviewer = 'pelita.scripts.pelita_tkviewer'
+        tkviewer = 'pelita.scripts.pelita_qtviewer'
         external_call = [sys.executable,
                         '-m',
                         tkviewer] + viewer_args
