@@ -67,7 +67,7 @@ def get_available_layouts(size='normal'):
 
     for resource in importlib_resources.files('pelita._layouts').iterdir():
         if resource.is_file() and resource.name.endswith('.layout') and size in resource.name:
-            layout_name = resource.name.rstrip('.layout')
+            layout_name = resource.name.removesuffix('.layout')
             av_layouts.append(layout_name)
 
     return sorted(av_layouts)
