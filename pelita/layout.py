@@ -62,10 +62,13 @@ def get_available_layouts(size='normal'):
         raise ValueError(f"Invalid layout size ('{size}' given). Valid: {valid}")
     if size == 'all':
         size = ''
+
     av_layouts = []
-    for item in importlib_resources.contents('pelita._layouts'):
-        if item.endswith('.layout') and size in item:
-            av_layouts.append(item[:-(len('.layout'))])
+
+    for resource in importlib_resources.files('pelita._layouts').iterdir():
+        if resource.is_file() and resource.name.endswith('.layout') and size in resource.name:
+            layout_name = resource.name.removesuffix('.layout')
+            av_layouts.append(layout_name)
 
     return sorted(av_layouts)
 
@@ -92,7 +95,7 @@ def get_layout_by_name(layout_name):
     get_available_layouts
     """
     try:
-        return importlib_resources.read_text('pelita._layouts', layout_name + '.layout')
+        return importlib_resources.files('pelita._layouts').joinpath(layout_name + '.layout').read_text()
     except FileNotFoundError:
         # This happens if layout_name is not found in the layouts directory
         # reraise as ValueError with appropriate error message.

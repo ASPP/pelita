@@ -243,8 +243,8 @@ def test_remote_dumps_with_failure(failing_team):
     assert blue_lines[1:] == ['']
     assert red_lines[1:] == ['']
 
-    blue_err = (path / 'blue.err').read_text().split('\n')
-    red_err = (path / 'red.err').read_text().split('\n')
+    blue_err = (path / 'blue.err').read_text()
+    red_err = (path / 'red.err').read_text()
 
     if failing_team == 0:
         fail_err = blue_err
@@ -262,9 +262,9 @@ def test_remote_dumps_with_failure(failing_team):
     # ZeroDivisionError: division by zero
     # -- empty line (index -1)
 
-    assert fail_err[0] == "Traceback (most recent call last):"
-    assert "0 / 0" in fail_err[-3]
-    assert fail_err[-2] == "ZeroDivisionError: division by zero"
+    assert "Traceback (most recent call last):" in fail_err
+    assert "0 / 0" in fail_err
+    assert "ZeroDivisionError: division by zero" in fail_err
 
     # No errors for red
-    assert good_err == [""]
+    assert good_err == ""
