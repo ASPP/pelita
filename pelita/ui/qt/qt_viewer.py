@@ -96,12 +96,20 @@ class QtViewer(QMainWindow):
         self.step_button.clicked.connect(self.request_step)
         self.step_button.setShortcut("Return")
 
+        self.debug_button.clicked.connect(self.toggle_debug)
+        self.debug_button.setShortcut("#")
+
         # .activated is faster than .clicked which makes sense here
         QShortcut(" ", self).activated.connect(self.pause_button.click)
         #QShortcut("q", self).activated.connect(self.button.click)
         #QShortcut(QKeySequence("Return"), self).activated.connect(self.request_step)
         QShortcut(QKeySequence("Shift+Return"), self).activated.connect(self.request_round)
 
+
+    @QtCore.pyqtSlot()
+    def toggle_debug(self):
+        self.scene.grid = not self.scene.grid
+        self.view.resetCachedContent()
 
     @QtCore.pyqtSlot()
     def pause(self):
@@ -173,6 +181,7 @@ class QtViewer(QMainWindow):
         bottom_info_layout.addWidget(self.pause_button)
         bottom_info_layout.addWidget(self.step_button)
         bottom_info_layout.addWidget(self.round_button)
+        bottom_info_layout.addWidget(self.debug_button)
 
         grid_layout.addWidget(blue_info, 0, 0)
         grid_layout.addWidget(red_info, 0, 1)

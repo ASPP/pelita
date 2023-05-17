@@ -34,21 +34,21 @@ class PelitaScene(QGraphicsScene):
         if not self.shape:
             return
 
-        # not the best heuristic but might just do
-        dark_mode = self.palette().window().color().lightness() < 100
-
-        generate_wall(painter, self.shape, self.walls, dark_mode=dark_mode)
-
         if self.grid:
 
             pen = QPen(black)
-            pen.setWidth(0.01)
+            pen.setWidth(0) # always 1 pixel regardless of scale
             painter.setPen(pen)
             w, h = self.shape
             for x in range(w + 1):
                 painter.drawLine(x, 0, x, h + 1)
             for y in range(h + 1):
                 painter.drawLine(0, y, w + 1, y)
+
+        # not the best heuristic but might just do
+        dark_mode = self.palette().window().color().lightness() < 100
+
+        generate_wall(painter, self.shape, self.walls, dark_mode=dark_mode)
 
     def drawForeground(self, painter: QPainter, rect: QRectF):
         super().drawForeground(painter, rect)

@@ -30,6 +30,7 @@ def generate_wall(painter: QPainter, shape, walls, dark_mode=True):
 
         for position in maze:
             painter.save()
+            # Translate to the centre of a cell
             painter.translate(position[0] + 0.5, position[1] + 0.5)
 
             x, y = position
@@ -46,7 +47,8 @@ def generate_wall(painter: QPainter, shape, walls, dark_mode=True):
                 # draw only a small dot.
                 # TODO add diagonal lines
 
-                painter.drawLine(QPointF(-0.3, 0), QPointF(0.3, 0))
+                # PenCapStype.RoundCap means that the stroke will extend by pen_size/2 to each end
+                painter.drawLine(QPointF(-0.25, 0), QPointF(0.25, 0))
 
             else:
                 neighbors_check = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
