@@ -152,30 +152,33 @@ def paint_destroyer(painter: QPainter, color, direction):
 
 def paint_harvester(painter: QPainter, color, direction):
     rotation = math.degrees(cmath.phase(direction[0] - direction[1]*1j))
+    # ensure that the eye is never at the bottom
+    if 179 < rotation < 181:
+        flip_eye = True
+    else:
+        flip_eye = False
 
     bounding_rect = QRectF(0, 0, 1, 1)
     # bot body
     path = QPainterPath(QPointF(0.5, 0.5))
-    path.arcTo(bounding_rect, 20 + rotation, 320)
+    path.arcTo(bounding_rect, 20, 320)
     path.closeSubpath()
 
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
     painter.setBrush(color)
     painter.setPen(QPen(black, 0.02))
 
-    painter.drawPath(path)
+    # rotate around the 0.5, 0.5 centre point
+    painter.translate(0.5, 0.5)
+    painter.rotate(-rotation)
+    painter.translate(-0.5, -0.5)
 
-    if direction == (0, 1): # down
-        draw_eye(painter, 0.3, 0.4)
-    elif direction == (1, 0): # right
-        draw_eye(painter, 0.4, 0.3)
-    elif direction == (0, -1): # up
-        draw_eye(painter, 0.3, 0.6)
-    elif direction == (-1, 0): # left
-        draw_eye(painter, 0.6, 0.3)
+    painter.drawPath(path)
+    if not flip_eye:
+        draw_eye(painter, 0.7, 0.2)
     else:
-        # right
-        draw_eye(painter, 0.4, 0.3)
+        draw_eye(painter, 0.7, 0.8)
+
 
 
 def draw_eye(painter, x, y):
