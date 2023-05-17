@@ -88,16 +88,16 @@ class QtViewer(QMainWindow):
 
         self.setupUi()
 
-        self.running = True
+        self.running = False
 
         self.pause_button.clicked.connect(self.pause)
-        self.pause_button.setShortcut(" ")
         self.button.clicked.connect(self.close)
         self.button.setShortcut("q")
         self.step_button.clicked.connect(self.request_step)
         self.step_button.setShortcut("Return")
 
-        #QShortcut(" ", self).activated.connect(self.pause_button.click)
+        # .activated is faster than .clicked which makes sense here
+        QShortcut(" ", self).activated.connect(self.pause_button.click)
         #QShortcut("q", self).activated.connect(self.button.click)
         #QShortcut(QKeySequence("Return"), self).activated.connect(self.request_step)
         QShortcut(QKeySequence("Shift+Return"), self).activated.connect(self.request_round)
@@ -199,6 +199,8 @@ class QtViewer(QMainWindow):
                 self.controller_socket.send_json({"__action__": "set_initial"})
             except zmq.ZMQError:
                 print("Socket already closed. Ignoring.")
+
+            self.running = True
 
     def request_next(self):
         if self.running:
