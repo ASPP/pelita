@@ -10,7 +10,7 @@ from PyQt6.QtCore import (QCoreApplication, QObject, QPointF, QRectF,
                           QSocketNotifier, pyqtSignal, pyqtSlot)
 from PyQt6.QtGui import QKeySequence, QShortcut
 from PyQt6.QtWidgets import (QApplication, QGraphicsView, QGridLayout,
-                             QHBoxLayout, QMainWindow, QPushButton, QWidget)
+                             QHBoxLayout, QVBoxLayout, QMainWindow, QPushButton, QWidget)
 
 from .qt_items import EndTextOverlay
 from .qt_scene import PelitaScene, blue_col, red_col
@@ -175,6 +175,11 @@ class QtViewer(QMainWindow):
         self.view = GameView(self.scene)
         self.view.setCacheMode(QGraphicsView.CacheModeFlag.CacheBackground)
 
+        game_layout_w = QWidget(self)
+        game_layout = QVBoxLayout(game_layout_w)
+        game_layout.addWidget(self.view)
+        game_layout.addStretch()
+
         bottom_info = QWidget(self)
         bottom_info_layout = QHBoxLayout(bottom_info)
 
@@ -189,7 +194,7 @@ class QtViewer(QMainWindow):
         grid_layout.addWidget(self.stats_blue, 1, 0)
         grid_layout.addWidget(self.stats_red, 1, 1)
 
-        grid_layout.addWidget(self.view, 2, 0, 1, 2)
+        grid_layout.addWidget(game_layout_w, 2, 0, 1, 2)
         grid_layout.addWidget(bottom_info, 3, 0, 1, 2)
         grid_layout.addWidget(self.button, 4, 0, 1, 2)
 
@@ -339,6 +344,15 @@ class QtViewer(QMainWindow):
 class GameView(QGraphicsView):
     def __init__(self, scene, parent=None):
         super().__init__(scene, parent)
+
+    def minimumHeight(self) -> int:
+        return super().minimumHeight()
+
+    def hasHeightForWidth(self) -> bool:
+        return True
+
+    def heightForWidth(self, a0: int) -> int:
+        return a0 // 2
 
     def resizeEvent(self, event) -> None:
         if self.scene().shape:
