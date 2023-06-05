@@ -12,6 +12,7 @@ from PyQt6.QtGui import QKeySequence, QShortcut
 from PyQt6.QtWidgets import (QApplication, QGraphicsView, QGridLayout,
                              QHBoxLayout, QVBoxLayout, QMainWindow, QPushButton, QWidget)
 
+from ...game import next_round_turn
 from .qt_items import EndTextOverlay
 from .qt_scene import PelitaScene, blue_col, red_col
 
@@ -48,7 +49,7 @@ class ZMQListener(QObject):
 
 class QtViewer(QMainWindow):
     def __init__(self, address, controller_address=None,
-                       geometry=None, delay=None, export=None,
+                       geometry=None, delay=None, export=None, stop_after=None,
                        *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setWindowTitle("Pelita")
@@ -89,12 +90,23 @@ class QtViewer(QMainWindow):
         self.setupUi()
 
         self.running = False
+        self._observed_steps = set()
+
+        self._min_delay = 1
+        self._delay = delay
+        self._stop_after = stop_after
+        self._stop_after_delay = delay
+        if self._stop_after is not None:
+            self._delay = self._min_delay
 
         self.pause_button.clicked.connect(self.pause)
         self.button.clicked.connect(self.close)
         self.button.setShortcut("q")
         self.step_button.clicked.connect(self.request_step)
         self.step_button.setShortcut("Return")
+
+        self.round_button.clicked.connect(self.request_round)
+        self.round_button.setShortcut("Shift+Return")
 
         self.debug_button.clicked.connect(self.toggle_debug)
         self.debug_button.setShortcut("#")
@@ -103,13 +115,15 @@ class QtViewer(QMainWindow):
         QShortcut(" ", self).activated.connect(self.pause_button.click)
         #QShortcut("q", self).activated.connect(self.button.click)
         #QShortcut(QKeySequence("Return"), self).activated.connect(self.request_step)
-        QShortcut(QKeySequence("Shift+Return"), self).activated.connect(self.request_round)
+        #QShortcut(QKeySequence("Shift+Return"), self).activated.connect(self.request_round)
 
 
     @QtCore.pyqtSlot()
     def toggle_debug(self):
         self.scene.grid = not self.scene.grid
+        self.scene.show_grid()
         self.view.resetCachedContent()
+        self.view.update()
 
     @QtCore.pyqtSlot()
     def pause(self):
@@ -221,19 +235,42 @@ class QtViewer(QMainWindow):
             self.request_step()
 
     def request_step(self):
-        if self.controller_socket:
-            try:
-                self.controller_socket.send_json({"__action__": "play_step"})
-            except zmq.ZMQError:
-                print("Socket already closed. Ignoring.")
+        if not self.controller_socket:
+            return
+
+        if self._game_state['gameover']:
+            return
+
+        if self._stop_after is not None:
+            next_step = next_round_turn(self._game_state)
+            if (next_step['round'] < self._stop_after):
+                _logger.debug('---> play_step')
+                try:
+                    self.controller_socket.send_json({"__action__": "play_step"})
+                except zmq.ZMQError:
+                    print("Socket already closed. Ignoring.")
+            else:
+                self._stop_after = None
+                self.running = False
+                self._delay = self._stop_after_delay
+        else:
+            _logger.debug('---> play_step')
+            self.controller_socket.send_json({"__action__": "play_step"})
 
     def request_round(self):
-        # TODO: needs to be implemented in frontend
-        if self.controller_socket:
-            try:
-                self.controller_socket.send_json({"__action__": "play_round"})
-            except zmq.ZMQError:
-                print("Socket already closed. Ignoring.")
+        if not self.controller_socket:
+            return
+
+        if self._game_state['gameover']:
+            return
+
+        if self._game_state['round'] is not None:
+            next_step = next_round_turn(self._game_state)
+            self._stop_after = next_step['round'] + 1
+        else:
+            self._stop_after = 1
+            self._delay = self._min_delay
+        self.request_step()
 
 
     def signal_received(self, message):
@@ -242,20 +279,29 @@ class QtViewer(QMainWindow):
         if observed:
             self.observe(observed)
 
-    def observe(self, observed):
+    def observe(self, game_state):
+        step = (game_state['round'], game_state['turn'])
+        if step in self._observed_steps:
+            skip_request = True
+        else:
+            skip_request = False
+            self._observed_steps.add(step)
 
         # We do this the first time we know what our shape is
         # fitInView invalidates the caching of the background
-        if observed['shape'] and not self.scene.shape:
-            self.scene.shape = observed['shape']
+        if game_state['shape'] and not self.scene.shape:
+            self.scene.shape = game_state['shape']
             w, h = self.scene.shape
             self.scene.setSceneRect(0, 0, w, h)
             self.view.fitInView(0, 0, w, h)
 
-        self.scene.walls = observed['walls']
-        self.scene.food = [tuple(food) for food in observed['food']]
-        self.scene.bots = observed['bots']
-        self.scene.requested_moves = observed['requested_moves']
+        self._game_state = game_state
+        self.scene.game_state = game_state
+
+        self.scene.walls = game_state['walls']
+        self.scene.food = [tuple(food) for food in game_state['food']]
+        self.scene.bots = game_state['bots']
+        self.scene.requested_moves = game_state['requested_moves']
 
         self.scene.init_scene()
 
@@ -266,18 +312,20 @@ class QtViewer(QMainWindow):
         for idx, pos in enumerate(self.scene.bots):
             self.scene.move_bot(idx, pos)
 
-        self.team_blue.setText(f"{observed['team_names'][0]}")
-        self.team_red.setText(f"{observed['team_names'][1]}")
-        self.score_blue.setText(str(observed['score'][0]))
-        self.score_red.setText(str(observed['score'][1]))
+        self.scene.update_arrow()
+
+        self.team_blue.setText(f"{game_state['team_names'][0]}")
+        self.team_red.setText(f"{game_state['team_names'][1]}")
+        self.score_blue.setText(str(game_state['score'][0]))
+        self.score_red.setText(str(game_state['score'][1]))
 
 
         def status(team_idx):
             try:
                 # sum the deaths of both bots in this team
-                deaths = observed['deaths'][team_idx] + observed['deaths'][team_idx+2]
-                kills = observed['kills'][team_idx] + observed['kills'][team_idx+2]
-                ret = "Errors: %d, Kills: %d, Deaths: %d, Time: %.2f" % (observed["num_errors"][team_idx], kills, deaths, observed["team_time"][team_idx])
+                deaths = game_state['deaths'][team_idx] + game_state['deaths'][team_idx+2]
+                kills = game_state['kills'][team_idx] + game_state['kills'][team_idx+2]
+                ret = "Errors: %d, Kills: %d, Deaths: %d, Time: %.2f" % (game_state["num_errors"][team_idx], kills, deaths, game_state["team_time"][team_idx])
                 return ret
             except TypeError:
                 return ""
@@ -285,13 +333,13 @@ class QtViewer(QMainWindow):
         self.stats_blue.setText(status(0))
         self.stats_red.setText(status(1))
 
-        if observed['gameover']:
-            winning_team_idx = observed.get("whowins")
+        if game_state['gameover']:
+            winning_team_idx = game_state.get("whowins")
             if winning_team_idx is None:
                 gameover = EndTextOverlay("GAME OVER")
 
             elif winning_team_idx in (0, 1):
-                win_name = observed["team_names"][winning_team_idx]
+                win_name = game_state["team_names"][winning_team_idx]
 
                 # shorten the winning name
                 plural = '' if win_name.endswith('s') else 's'
@@ -323,9 +371,21 @@ class QtViewer(QMainWindow):
             except TypeError as e:
                 print(e)
 
-        if self.running:
-            QtCore.QTimer.singleShot(0, self.request_next)
-
+        if self._stop_after is not None:
+            if self._stop_after == 0:
+                self._stop_after = None
+                self.running = False
+                self._delay = self._stop_after_delay
+            else:
+                if skip_request:
+                    _logger.debug("Skipping next request.")
+                else:
+                    QtCore.QTimer.singleShot(self._delay, self.request_step)
+        elif self.running:
+            if skip_request:
+                _logger.debug("Skipping next request.")
+            else:
+                QtCore.QTimer.singleShot(self._delay, self.request_step)
 
     def closeEvent(self, event):
         self.exit_socket.send(b'')

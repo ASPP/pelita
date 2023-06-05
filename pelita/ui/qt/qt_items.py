@@ -9,6 +9,8 @@ from PyQt6.QtGui import (QColor, QColorConstants, QFont, QPainter,
                          QPainterPath, QPen)
 from PyQt6.QtWidgets import QGraphicsItem
 
+from ...gamestate_filters import manhattan_dist
+
 black = QColorConstants.Black
 
 @contextmanager
@@ -49,6 +51,88 @@ def de_casteljau_2d_reversed(t, coefs):
     # return coefficients for a bezier curve [0, t]
     return pairwise_reverse(de_casteljau_2d(t, pairwise_reverse(coefs)))
 
+class ArrowItem(QGraphicsItem):
+    def __init__(self, pos, color, req_pos, old_pos, success, parent=None):
+        super().__init__(parent)
+        self.setPos(pos[0] + 0.5, pos[1] + 0.5)
+        self.color = color
+        self.req_pos = req_pos
+        self.old_pos = old_pos
+        self.success = success
+
+    def move(self, pos, color, req_pos, old_pos, success):
+        self.setPos(pos[0] + 0.5, pos[1] + 0.5)
+        self.color = color
+        self.req_pos = req_pos
+        self.old_pos = old_pos
+        self.success = success
+
+    def paint(self, painter: QPainter, option, widget):
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        pen = QPen(self.color)
+        pen.setWidthF(0.05)
+        painter.setPen(pen)
+
+        if not self.success:
+            # draw a cross on the previous position
+            painter.drawLine(QPointF(- 0.3, + 0.3), QPointF(+ 0.3, - 0.3))
+            painter.drawLine(QPointF(- 0.3, - 0.3), QPointF(+ 0.3, + 0.3))
+
+        dist = manhattan_dist(self.req_pos, self.old_pos)
+        if dist == 0:
+            # we draw a circle with an arrow head
+            path = QPainterPath()
+            path.arcMoveTo(QRectF(- 0.3, - 0.3, 0.6, 0.6), 0)
+            path.arcTo(QRectF(- 0.3, - 0.3, 0.6, 0.6), 0, -320)
+
+            rotation = 12
+            line_pos_1 = (0.3 - 0.1, 0.15)
+            line_pos_2 = (0.3 + 0.1, 0.15)
+
+            def rotate_around(pos, origin, rotation):
+                # we need to rotate the angle of the arrow slightly so that it looks nicer
+                angle = math.pi * rotation / 180
+
+                ox, oy = origin
+                px, py = pos
+
+                qx = ox + math.cos(angle) * (px - ox) - math.sin(angle) * (py - oy)
+                qy = oy + math.sin(angle) * (px - ox) + math.cos(angle) * (py - oy)
+
+                return qx, qy
+
+            path.moveTo(*rotate_around(line_pos_1, (0.3, 0), rotation))
+            path.lineTo(QPointF(0.3, 0))
+            path.moveTo(*rotate_around(line_pos_2, (0.3, 0), rotation))
+            path.lineTo(QPointF(0.3, 0))
+
+            pen = painter.pen()
+            pen.setCapStyle(QtCore.Qt.PenCapStyle.RoundCap)
+            painter.setPen(pen)
+            painter.rotate(- 78)
+            painter.drawPath(path)
+        else:
+            # TODO: Arrows should match the circle design
+
+            dx = (self.req_pos[0] - self.old_pos[0])
+            sgn_dx = abs(dx) / dx if dx else 1
+            dy = (self.req_pos[1] - self.old_pos[1])
+            sgn_dy = abs(dy) / dy if dy else 1
+            rotation = math.degrees(cmath.phase(dx - dy*1j))
+
+            painter.drawLine(QPointF(dx, dy), QPointF(0, 0))
+            if dx != 0:
+                painter.drawLine(QPointF(dx, dy), QPointF(sgn_dx * (abs(dx) - 0.3), sgn_dy * (abs(dy) + 0.3)))
+                painter.drawLine(QPointF(dx, dy), QPointF(sgn_dx * (abs(dx) - 0.3), sgn_dy * (abs(dy) - 0.3)))
+            if dy != 0:
+                painter.drawLine(QPointF(dx, dy), QPointF(sgn_dx * (abs(dx) + 0.3), sgn_dy * (abs(dy) - 0.3)))
+                painter.drawLine(QPointF(dx, dy), QPointF(sgn_dx * (abs(dx) - 0.3), sgn_dy * (abs(dy) - 0.3)))
+
+    def boundingRect(self) -> QRectF:
+        # TODO: This could be more exact, depending on the actual direction of the arrow
+        return QRectF(-1, -1, 3, 3)
+
 
 class FoodItem(QGraphicsItem):
     def __init__(self, pos, color, parent=None):
@@ -64,7 +148,8 @@ class FoodItem(QGraphicsItem):
         painter.drawEllipse(QRectF(-0.2, -0.2, 0.4, 0.4))
 
     def boundingRect(self) -> QRectF:
-        return QRectF(0, 0, 1, 1)
+        # a little wider than the food
+        return QRectF(-0.3, -0.3, 0.6, 0.6)
 
 
 class BotItem(QGraphicsItem):
