@@ -238,7 +238,8 @@ class PelitaScene(QGraphicsScene):
             else:
                 item.bot_type = "D"
 
-        item.setPos(pos[0], pos[1])
+        item.move_to(prev_pos, pos, animate=bot_idx==self.game_state['turn'])
+
 
     def update_arrow(self):
         bot = self.game_state['turn']

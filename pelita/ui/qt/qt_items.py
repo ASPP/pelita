@@ -151,12 +151,42 @@ class FoodItem(QGraphicsItem):
         # a little wider than the food
         return QRectF(-0.3, -0.3, 0.6, 0.6)
 
+def step_function(i: float) -> float:
+    # TODO: This might be used, in case we want to simulate a non-smooth animation
+    if i < 1/3: return 0.0
+    if i < 2/3: return 0.5
+    return 1
 
 class BotItem(QGraphicsItem):
     def __init__(self, color, parent=None):
         super().__init__(parent)
         self.color = color
         self.bot_type = "D"
+
+        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable, True)
+        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemSendsGeometryChanges, True)
+
+        # TODO: Animation time should depend on the fps (or only be active in single-step mode)
+        self._pos_animation = QtCore.QVariantAnimation()
+        #easing_curve = QtCore.QEasingCurve(QtCore.QEasingCurve.Type.Custom)
+        #easing_curve.setCustomType(step_function)
+        #self._pos_animation.setEasingCurve(easing_curve)
+        self._pos_animation.valueChanged.connect(self.setPos)
+
+    def move_smooth(self, start, end, duration=50):
+        if self._pos_animation.state() == QtCore.QAbstractAnimation.State.Running:
+            self._pos_animation.stop()
+        self._pos_animation.setDuration(duration)
+        self._pos_animation.setStartValue(start)
+        self._pos_animation.setEndValue(end)
+        self._pos_animation.start()
+
+    def move_to(self, start, pos, animate=False):
+        if not animate or start is None or pos is None:
+            self.setPos(pos[0], pos[1])
+        else:
+            # must be a QPointF for the QVariantAnimation
+            self.move_smooth(QPointF(*start), QPointF(*pos))
 
     def boundingRect(self):
         # Bounding rect must be a little bigger for the outline
