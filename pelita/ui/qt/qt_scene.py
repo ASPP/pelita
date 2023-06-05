@@ -259,8 +259,10 @@ class PelitaScene(QGraphicsScene):
             self.arrow.move(old_pos, BROWN, self.game_state['bots'][bot], old_pos, success=self.game_state['requested_moves'][bot]['success'])
         self.show_grid()
 
-
     def show_grid(self):
+        if not self.arrow:
+            return
+
         if self.grid:
             self.arrow.show()
         else:
