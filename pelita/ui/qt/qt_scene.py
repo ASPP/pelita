@@ -28,6 +28,7 @@ class PelitaScene(QGraphicsScene):
         self.previous_positions = {}
         self.directions = {}
         self.bot_items = []
+        self.shadow_bot_items = []
         self.game_state = {}
 
         self.grid = False
@@ -209,6 +210,12 @@ class PelitaScene(QGraphicsScene):
             if self.bots:
                 self.bot_items = [BotItem(bot_cols[idx]) for idx, pos in enumerate(self.bots)]
                 for item in self.bot_items:
+                    item.bot_type = "D"
+                    item.direction = (0, 0)
+                    item.setPos(30, 20)
+                    self.addItem(item)
+                self.shadow_bot_items = [BotItem(bot_cols[idx], shadow=True) for idx, pos in enumerate(self.bots)]
+                for item in self.shadow_bot_items:
                     item.bot_type = "D"
                     item.direction = (0, 0)
                     item.setPos(30, 20)

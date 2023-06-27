@@ -57,7 +57,7 @@ class QtViewer(QMainWindow):
         if export:
             png_export_path = Path(export)
             if not png_export_path.is_dir():
-                raise RuntimeError("Not a directory: {png_export_path}")
+                raise RuntimeError(f"Not a directory: {png_export_path}")
             self.png_export_path = png_export_path
         else:
             self.png_export_path = None
@@ -312,6 +312,22 @@ class QtViewer(QMainWindow):
         for idx, pos in enumerate(self.scene.bots):
             self.scene.move_bot(idx, pos)
 
+
+        # for bot_id, bot_sprite in self.scene.shadow_bot_items.items():
+        #     if self._grid_enabled:
+        #         shadow_bots = game_state.get('noisy_positions')
+        #     else:
+        #         shadow_bots = None
+
+        #     if shadow_bots is None or shadow_bots[bot_id] is None:
+        #         bot_sprite.delete(self.ui.game_canvas)
+        #     else:
+        #         bot_sprite.move_to(shadow_bots[bot_id],
+        #                             self.ui.game_canvas,
+        #                             game_state,
+        #                             force=self.size_changed,
+        #                             show_id=self._grid_enabled)
+
         self.scene.update_arrow()
 
         self.team_blue.setText(f"{game_state['team_names'][0]}")
@@ -363,8 +379,8 @@ class QtViewer(QMainWindow):
 
         if self.png_export_path:
             try:
-                round_index = game_state['round_index']
-                bot_id = game_state['bot_id']
+                round_index = game_state['round']
+                bot_id = game_state['turn']
                 file_name = 'pelita-{}-{}.png'.format(round_index, bot_id)
 
                 self.grab().save(str(self.png_export_path / file_name))

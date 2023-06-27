@@ -158,8 +158,9 @@ def step_function(i: float) -> float:
     return 1
 
 class BotItem(QGraphicsItem):
-    def __init__(self, color, parent=None):
+    def __init__(self, color, shadow=False, parent=None):
         super().__init__(parent)
+        self.shadow = shadow
         self.color = color
         self.bot_type = "D"
 
@@ -194,12 +195,12 @@ class BotItem(QGraphicsItem):
 
     def paint(self, painter: QPainter, option, widget):
         if self.bot_type == "D":
-            paint_destroyer(painter, self.color, self.direction)
+            paint_destroyer(painter, self.color, self.direction, self.shadow)
         else:
-            paint_harvester(painter, self.color, self.direction)
+            paint_harvester(painter, self.color, self.direction, self.shadow)
 
 
-def paint_destroyer(painter: QPainter, color, direction):
+def paint_destroyer(painter: QPainter, color, direction, shadow):
 
     h = 0.3 # the amplitude of the ‘feet’. higher -> more kraken-like
     knee_y = 7/8 # y-position of the knees
@@ -255,7 +256,8 @@ def paint_destroyer(painter: QPainter, color, direction):
     path.closeSubpath()
 
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-    painter.setBrush(color)
+    if not shadow:
+        painter.setBrush(color)
     painter.setOpacity(0.9) # Ghosts are a little transparent
     painter.setPen(QPen(black, 0.02))
 
@@ -265,7 +267,7 @@ def paint_destroyer(painter: QPainter, color, direction):
     draw_eye(painter, 0.7, 0.3)
 
 
-def paint_harvester(painter: QPainter, color, direction):
+def paint_harvester(painter: QPainter, color, direction, shadow):
     rotation = math.degrees(cmath.phase(direction[0] - direction[1]*1j))
     # ensure that the eye is never at the bottom
     if 179 < rotation < 181:
@@ -280,7 +282,8 @@ def paint_harvester(painter: QPainter, color, direction):
     path.closeSubpath()
 
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-    painter.setBrush(color)
+    if not shadow:
+        painter.setBrush(color)
     painter.setPen(QPen(black, 0.02))
 
     # rotate around the 0.5, 0.5 centre point
