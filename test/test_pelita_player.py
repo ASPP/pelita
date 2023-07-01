@@ -21,6 +21,15 @@ def noteam():
     return None
 """
 
+MODULE_IMPORT_ERROR = """
+import broken
+
+TEAM_NAME = "noteam"
+
+def move(bot, state):
+    return bot.position
+"""
+
 # TODO: The modules should be unloaded after use
 
 class TestLoadFactory:
@@ -59,6 +68,22 @@ class TestLoadFactory:
 
             spec = str(module)
             with pytest.raises(AttributeError):
+                load_team_from_module(spec)
+
+    def test_failing_import_importerror(self):
+        modules_before = list(sys.modules.keys())
+        with tempfile.TemporaryDirectory() as d:
+            module = Path(d) / "teamy"
+            module.mkdir()
+            initfile = module / "__init__.py"
+            with initfile.open(mode='w') as f:
+                f.write(SIMPLE_FAILING_MODULE)
+            broken_module = module / "broken.py"
+            with broken_module.open(mode='w') as f:
+                f.write('this is a syntax error\n')
+
+            spec = str(module)
+            with pytest.raises(SyntaxError):
                 load_team_from_module(spec)
 
     def test_import_of_pyc(self):
