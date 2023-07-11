@@ -243,7 +243,7 @@ def parse_layout(layout_str, food=None, bots=None):
 
     # build parsed layout, ensuring walls and food are sorted
     parsed_layout = {
-        'walls': lwalls,
+        'walls': tuple(sorted(lwalls)),
         'food': sorted(lfood),
         'bots': lbots,
         'shape': (width, height)

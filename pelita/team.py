@@ -26,6 +26,10 @@ def _ensure_set_tuples(set):
     """ Ensures that an iterable is a set of position tuples. """
     return {tuple(item) for item in set}
 
+def _ensure_tuple_tuples(set):
+    """ Ensures that an iterable is a tuple of position tuples. """
+    return tuple(sorted(tuple(item) for item in set))
+
 
 def create_homezones(shape):
     width, height = shape
@@ -95,7 +99,7 @@ class Team:
         self._bot_track = [[], []]
 
         # Store the walls, which are only transmitted once
-        self._walls = _ensure_set_tuples(game_state['walls'])
+        self._walls = _ensure_tuple_tuples(game_state['walls'])
 
         # Store the shape, which is only transmitted once
         self._shape = tuple(game_state['shape'])
@@ -643,7 +647,7 @@ class Bot:
         with StringIO() as out:
             out.write(header)
 
-            layout = layout_as_str(walls=bot.walls.copy(),
+            layout = layout_as_str(walls=bot.walls,
                                    food=bot.food + bot.enemy[0].food,
                                    bots=bot_positions,
                                    shape=bot.shape)
