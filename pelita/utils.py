@@ -295,7 +295,7 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
         'name': "red" if is_blue else "blue"
     }
 
-    bot = make_bots(walls=layout['walls'].copy(),
+    bot = make_bots(walls=layout['walls'],
                     shape=layout['shape'],
                     initial_positions=initial_positions(layout['walls'], layout['shape']),
                     homezone=create_homezones(layout['shape'], layout['walls']),
