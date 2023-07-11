@@ -377,10 +377,12 @@ def test_bot_attributes():
     homezones = [[], []]
     homezones[0] = [(x, y)
                     for x in range(0, width // 2)
-                    for y in range(0, height)]
+                    for y in range(0, height)
+                    if (x, y) not in parsed['walls']]
     homezones[1] = [(x, y)
                     for x in range(width // 2, width)
-                    for y in range(0, height)]
+                    for y in range(0, height)
+                    if (x, y) not in parsed['walls']]
 
     assert set(homezones[0]) & set(homezones[1]) == set()
 
