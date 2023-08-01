@@ -1,9 +1,9 @@
 [build-system]
 requires = [
-    "setuptools>=61.2",
+    "flit_core >=3.2,<4",
     "pytest-runner",
 ]
-build-backend = "setuptools.build_meta"
+build-backend = "flit_core.buildapi"
 
 [project]
 name = "pelita"
@@ -42,18 +42,6 @@ pelita-tournament = "pelita.scripts.pelita_tournament:main"
 pelita-tkviewer = "pelita.scripts.pelita_tkviewer:main"
 pelita-player = "pelita.scripts.pelita_player:main"
 pelita-createlayout = "pelita.scripts.pelita_createlayout:main"
-
-[tool.setuptools]
-zip-safe = true
-include-package-data = true
-license-files = ["COPYING"]
-
-[tool.setuptools.package-data]
-pelita = ["_layouts/*.layout"]
-
-[tool.setuptools.packages.find]
-exclude = ["test"]
-namespaces = false
 
 [tool.aliases]
 test = "pytest"
