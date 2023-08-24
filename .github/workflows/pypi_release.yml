@@ -15,16 +15,16 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up Python 3.9
+    - name: Set up Python 3.1
       uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: '3.11'
 
-    - name: Install pypa/build
-      run: python -m pip install build --user
+    - name: Install flit
+      run: python -m pip install flit
 
     - name: Build a binary wheel and a source tarball
-      run: python -m build --sdist --wheel --outdir dist/
+      run: flit build
 
     - name: Publish distribution to Test PyPI
       # We’d like to always publish to Test PyPI in order to spot errors with
@@ -32,17 +32,17 @@ jobs:
       # we make a (test) release. For now, use the same logic for test as for
       # the real release.
       if: startsWith(github.ref, 'refs/tags') || github.event_name == 'release'
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        repository_url: https://test.pypi.org/legacy/
+      run: flit publish
+      env:
+        FLIT_USERNAME: __token__
+        FLIT_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        FLIT_INDEX_URL: https://test.pypi.org/legacy/
 
     - name: Publish distribution to PyPI
       # Only publish to main PyPI when it is a tagged release
       if: startsWith(github.ref, 'refs/tags') || github.event_name == 'release'
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
-
+      run: flit publish
+      env:
+        FLIT_USERNAME: __token__
+        FLIT_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        FLIT_INDEX_URL: https://upload.pypi.org/legacy/
