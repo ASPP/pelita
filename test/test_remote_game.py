@@ -1,5 +1,6 @@
 import pytest
 
+import os
 from pathlib import Path
 import random
 import sys
@@ -11,6 +12,8 @@ from pelita.player import stopping_player
 from pelita.tournament import call_pelita, run_and_terminate_process
 
 _mswindows = (sys.platform == "win32")
+
+FIXTURE_DIR = Path(__file__).parent.resolve() / 'testplayers'
 
 
 # Runs the processes for the remote teams
@@ -77,38 +80,13 @@ def test_remote_timeout():
         ##########
         """
 
+    blue = FIXTURE_DIR / 'remote_timeout_blue.py'
+    red = FIXTURE_DIR / 'remote_timeout_red.py'
 
-    blue = """
-    import time
-    TEAM_NAME = "150ms timeout"
-    def move(b, s):
-        time.sleep(0.15)
-        return b.position
-    """
-
-    red = """
-    import time
-    TEAM_NAME = "500ms timeout"
-    def move(b, s):
-        if b.round == 1 and b.turn == 1:
-            return (-2, 0)
-        time.sleep(0.5)
-        return b.position
-    """
-
-    with tempfile.NamedTemporaryFile('w+', suffix='.py') as blue_f:
-        with tempfile.NamedTemporaryFile('w+', suffix='.py') as red_f:
-
-            print(dedent(blue), file=blue_f, flush=True)
-            blue_timeout_player = blue_f.name
-
-            print(dedent(red), file=red_f, flush=True)
-            red_timeout_player = red_f.name
-
-            state = pelita.game.run_game([blue_timeout_player, red_timeout_player],
-                                        max_rounds=8,
-                                        layout_dict=pelita.layout.parse_layout(layout),
-                                        timeout_length=0.4)
+    state = pelita.game.run_game([str(blue), str(red)],
+                                 max_rounds=8,
+                                 layout_dict=pelita.layout.parse_layout(layout),
+                                 timeout_length=0.4)
 
     assert state['whowins'] == 0
     assert state['fatal_errors'] == [[], []]
@@ -129,34 +107,16 @@ def test_remote_dumps_are_written():
         ##########
         """
 
-    p1 = dedent("""
-    import sys
-    TEAM_NAME="p1"
-    def move(b, s):
-        print(f"{b.round} {b.turn} p1", file=sys.stdout)
-        print(f"p1err", file=sys.stderr)
-        return b.position
-    """)
 
-    p2 = dedent("""
-    import sys
-    TEAM_NAME="p2"
-    def move(b, s):
-        print(f"{b.round} {b.turn} p2", file=sys.stdout)
-        print("p2err", file=sys.stderr)
-        return b.position
-    """)
+    blue = FIXTURE_DIR / 'remote_dumps_are_written_blue.py'
+    red = FIXTURE_DIR / 'remote_dumps_are_written_red.py'
+
     out_folder = tempfile.TemporaryDirectory()
 
-    with tempfile.NamedTemporaryFile('w+', suffix='.py') as f:
-        with tempfile.NamedTemporaryFile('w+', suffix='.py') as g:
-            print(p1, file=f, flush=True)
-            print(p2, file=g, flush=True)
-
-            state = pelita.game.run_game([f.name, g.name],
-                                         max_rounds=2,
-                                         layout_dict=pelita.layout.parse_layout(layout),
-                                         store_output=out_folder.name)
+    state = pelita.game.run_game([str(blue), str(red)],
+                                 max_rounds=2,
+                                 layout_dict=pelita.layout.parse_layout(layout),
+                                 store_output=out_folder.name)
 
     assert state['whowins'] == 2
     assert state['fatal_errors'] == [[], []]
@@ -186,36 +146,20 @@ def test_remote_dumps_with_failure(failing_team):
         ##########
         """
 
-    failing_player = dedent("""
-    TEAM_NAME="failing"
-    def move(b, s):
-        if b.round == 2 and b.turn == 0:
-            # introduce an error
-            0 / 0
-        return b.position
-    """)
+    failing_player = FIXTURE_DIR / 'remote_dumps_with_failure_bad.py'
+    good_player = FIXTURE_DIR / 'remote_dumps_with_failure_good.py'
 
-    good_player = dedent("""
-    TEAM_NAME="good"
-    def move(b, s):
-        return b.position
-    """)
     out_folder = tempfile.TemporaryDirectory()
 
-    with tempfile.NamedTemporaryFile('w+', suffix='.py') as f:
-        with tempfile.NamedTemporaryFile('w+', suffix='.py') as g:
-            print(failing_player, file=f, flush=True)
-            print(good_player, file=g, flush=True)
+    if failing_team == 0:
+        teams = [str(failing_player), str(good_player)]
+    elif failing_team == 1:
+        teams = [str(good_player), str(failing_player)]
 
-            if failing_team == 0:
-                teams = [f.name, g.name]
-            elif failing_team == 1:
-                teams = [g.name, f.name]
-
-            state = pelita.game.run_game(teams,
-                                         max_rounds=2,
-                                         layout_dict=pelita.layout.parse_layout(layout),
-                                         store_output=out_folder.name)
+    state = pelita.game.run_game(teams,
+                                 max_rounds=2,
+                                 layout_dict=pelita.layout.parse_layout(layout),
+                                 store_output=out_folder.name)
 
     assert state['whowins'] == 1 - failing_team
     # when team 1 fails, it’s turn will be 1
