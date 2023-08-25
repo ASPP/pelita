@@ -13,7 +13,7 @@ from pelita.tournament import call_pelita, run_and_terminate_process
 
 _mswindows = (sys.platform == "win32")
 
-FIXTURE_DIR = Path(__file__).parent.resolve() / 'testplayers'
+FIXTURE_DIR = Path(__file__).parent.resolve() / 'fixtures'
 
 
 # Runs the processes for the remote teams
