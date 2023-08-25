@@ -212,3 +212,58 @@ def test_remote_dumps_with_failure(failing_team):
 
     # No errors for red
     assert good_err == ""
+
+
+@pytest.mark.parametrize("player_name,is_setup_error,error_type", [
+    ['player_move_bad_type', False, 'ValueError'],
+    ['player_move_bad_value', False, 'ValueError'],
+    ['player_move_division_by_zero', False, 'ZeroDivisionError'],
+    ['player_move_import_error', False, 'ModuleNotFoundError'],
+    ['player_move_type_error', False, 'TypeError'],
+    ['player_move_value_error', False, 'ValueError'],
+    ['player_import_error', True, 'ModuleNotFoundError'],
+    ['player_move_bad_args', False, 'TypeError'],
+    ['player_move_bad_args_too_many', False, 'TypeError'],
+    ['player_no_move', True, 'AttributeError'],
+    ['player_no_name', True, 'AttributeError'],
+    ['player_syntax_error', True, 'SyntaxError'],
+])
+def test_remote_move_failures(player_name, is_setup_error, error_type):
+    layout = """
+        ##########
+        #  b  y  #
+        #a  ..  x#
+        ##########
+        """
+
+    failing_player = FIXTURE_DIR / player_name
+    good_player = FIXTURE_DIR / 'remote_dumps_with_failure_good.py'
+
+    if is_setup_error:
+        state = pelita.game.run_game([str(failing_player), str(good_player)],
+                                      max_rounds=2,
+                                      layout_dict=pelita.layout.parse_layout(layout))
+
+        assert state['whowins'] == 1
+
+        assert state['fatal_errors'][0][0]['type'] == 'PlayerDisconnected'
+        assert 'Could not load' in state['fatal_errors'][0][0]['description']
+        assert error_type in state['fatal_errors'][0][0]['description']
+        assert state['fatal_errors'][0][0]['turn'] == 0
+        assert state['fatal_errors'][0][0]['round'] == None
+        assert state['fatal_errors'][1] == []
+        assert state['errors'] == [{}, {}]
+
+    else:
+        state = pelita.game.run_game([str(failing_player), str(good_player)],
+                                      max_rounds=2,
+                                      layout_dict=pelita.layout.parse_layout(layout))
+
+        assert state['whowins'] == 1
+
+        assert state['fatal_errors'][0][0]['type'] == 'FatalException'
+        assert f'Exception in client ({error_type})' in state['fatal_errors'][0][0]['description']
+        assert state['fatal_errors'][0][0]['turn'] == 0
+        assert state['fatal_errors'][0][0]['round'] == 1
+        assert state['fatal_errors'][1] == []
+        assert state['errors'] == [{}, {}]
