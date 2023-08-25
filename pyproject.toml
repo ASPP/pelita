@@ -55,4 +55,5 @@ relative_files = true
 omit = [
     "pelita/scripts/*",
     "pelita/ui/*",
+    "test/testplayers/*",
 ]
