@@ -21,7 +21,15 @@ def noteam():
     return None
 """
 
+MODULE_IMPORT_ERROR = """
+import .broken
+TEAM_NAME = "noteam"
+def move(bot, state):
+    return bot.position
+"""
+
 # TODO: The modules should be unloaded after use
+# If we import modules with the same name again, the results will be very unexpected
 
 class TestLoadFactory:
     def test_simple_module_import(self):
@@ -74,6 +82,22 @@ class TestLoadFactory:
 
             spec = str(pycfile)
             load_team_from_module(spec)
+
+    def test_failing_import_importerror(self):
+        with tempfile.TemporaryDirectory() as d:
+            module = Path(d) / "teamzab"
+            module.mkdir()
+            initfile = module / "__init__.py"
+            with initfile.open(mode='w') as f:
+                f.write(MODULE_IMPORT_ERROR)
+            broken_module = module / "broken.py"
+            with broken_module.open(mode='w') as f:
+                f.write('this is a syntax error\n')
+
+            spec = str(module)
+
+            with pytest.raises(SyntaxError):
+                load_team_from_module(spec)
 
 class TestLoadTeam:
     def test_simple_module_import_forbidden_names(self):
