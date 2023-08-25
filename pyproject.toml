@@ -1,0 +1,58 @@
+[build-system]
+requires = [
+    "flit_core >=3.2,<4",
+    "pytest-runner",
+]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "pelita"
+description = "Pelita"
+keywords = ["education"]
+license = {text = "BSD-2"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Education",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+urls = {Homepage = "https://github.com/ASPP/pelita"}
+requires-python = ">= 3.9"
+dependencies = [
+    "pyzmq",
+    "PyYAML",
+    "numpy",
+    "networkx",
+    "pytest>=4",
+    "zeroconf",
+    "rich",
+]
+dynamic = ["version"]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.scripts]
+pelita = "pelita.scripts.pelita_main:main"
+pelita-tournament = "pelita.scripts.pelita_tournament:main"
+pelita-tkviewer = "pelita.scripts.pelita_tkviewer:main"
+pelita-player = "pelita.scripts.pelita_player:main"
+pelita-createlayout = "pelita.scripts.pelita_createlayout:main"
+
+[tool.aliases]
+test = "pytest"
+
+[tool.pytest.ini_options]
+# addopts = --verbose
+python_files = ["test/*.py"]
+
+[tool.coverage.run]
+relative_files = true
+omit = [
+    "pelita/scripts/*",
+    "pelita/ui/*",
+]
