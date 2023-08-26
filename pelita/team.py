@@ -161,7 +161,8 @@ class Team:
                 if len(move) != 2:
                     raise ValueError(f"Function move did not return a valid position: got {move} instead.")
             except TypeError:
-                raise ValueError(f"Function move did not return a valid position: got {move} instead.")
+                # Convert to ValueError
+                raise ValueError(f"Function move did not return a valid position: got {move} instead.") from None
         except Exception as e:
             # Our client had an exception. We print a traceback and
             # return the type of the exception to the server.
