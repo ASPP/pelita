@@ -14,6 +14,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: [3.9, "3.10", "3.11"]
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v3
@@ -30,6 +31,7 @@ jobs:
     - name: Test with pytest
       run: |
         python -m pytest -v -s --cov=./pelita/ test/
+      timeout-minutes: 8
     - name: "Upload coverage to Codecov"
       uses: codecov/codecov-action@v3
       with:
@@ -77,6 +79,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
         python-version: ["3.10", "3.11"]
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v3
@@ -92,6 +95,7 @@ jobs:
     - name: Run Pelita tournament
       run: |
         pelita-tournament --non-interactive --viewer null
+      timeout-minutes: 10
 
   deploy_docs:
     needs: [test, test-tournament]
