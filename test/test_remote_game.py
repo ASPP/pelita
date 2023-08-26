@@ -65,7 +65,6 @@ def test_remote_run_game(remote_teams):
     assert state['errors'] == [{}, {}]
 
 
-@pytest.mark.skipif(_mswindows, reason="NamedTemporaryFiles cannot be used in another process")
 @pytest.mark.xfail(reason="TODO: Fails in CI for macOS. Unclear why.")
 def test_remote_timeout():
     # We have a slow player that also generates a bad move
@@ -98,7 +97,6 @@ def test_remote_timeout():
         (3, 1): {'description': '', 'type': 'PlayerTimeout'}}]
 
 
-@pytest.mark.skipif(_mswindows, reason="NamedTemporaryFiles cannot be used in another process")
 def test_remote_dumps_are_written():
     layout = """
         ##########
@@ -112,6 +110,7 @@ def test_remote_dumps_are_written():
     red = FIXTURE_DIR / 'remote_dumps_are_written_red.py'
 
     out_folder = tempfile.TemporaryDirectory()
+    print(f"Using temporary folder to store the output: {out_folder}")
 
     state = pelita.game.run_game([str(blue), str(red)],
                                  max_rounds=2,
@@ -136,7 +135,6 @@ def test_remote_dumps_are_written():
     assert (path / 'red.err').read_text() == 'p2err\np2err\np2err\np2err\n'
 
 
-@pytest.mark.skipif(_mswindows, reason="NamedTemporaryFiles cannot be used in another process")
 @pytest.mark.parametrize("failing_team", [0, 1])
 def test_remote_dumps_with_failure(failing_team):
     layout = """
@@ -150,6 +148,7 @@ def test_remote_dumps_with_failure(failing_team):
     good_player = FIXTURE_DIR / 'remote_dumps_with_failure_good.py'
 
     out_folder = tempfile.TemporaryDirectory()
+    print(f"Using temporary folder to store the output: {out_folder}")
 
     if failing_team == 0:
         teams = [str(failing_player), str(good_player)]
