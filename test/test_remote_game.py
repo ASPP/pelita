@@ -1,14 +1,11 @@
 import pytest
 
-import os
 from pathlib import Path
 import random
 import sys
 import tempfile
-from textwrap import dedent
 
 import pelita.game
-from pelita.player import stopping_player
 from pelita.tournament import call_pelita, run_and_terminate_process
 
 _mswindows = (sys.platform == "win32")
