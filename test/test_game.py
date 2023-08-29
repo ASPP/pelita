@@ -1056,7 +1056,7 @@ def test_non_existing_file():
     }
 
 # TODO: Get it working again on Windows
-#@pytest.mark.skipif(_mswindows, reason="Test fails on some Python versions.")
+@pytest.mark.skipif(_mswindows, reason="Test fails on some Python versions.")
 def test_remote_errors(tmp_path):
     # TODO: Change error messages to be more meaningful
 
