@@ -265,8 +265,15 @@ def main():
         if not args.team_specs:
             raise ValueError("No teams specified.")
         for team_spec in args.team_specs:
-            team_name = check_team(team_spec)
-            print("NAME:", team_name)
+            try:
+                team_name = check_team(team_spec)
+                print("NAME:", team_name)
+            except pelita.network.ZMQClientError as e:
+                if e.error_type == 'ModuleNotFoundError':
+                    #print(f"{e.message}")
+                    pass
+                else:
+                    raise
         sys.exit(0)
 
     if args.viewer == 'null':
