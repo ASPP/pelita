@@ -50,7 +50,7 @@ def scan(team_spec):
     console = Console()
 
     console.print(f"[bold]Remote player requested. Scanning network for players ({SCAN_TIME}s).")
-    with console.status("[red bold]Searching for players …") as status:
+    with console.status("[red bold]Searching for other players …") as status:
         try:
             browser = ServiceBrowser(zeroconf, services, handlers=[on_service_state_change])
             players = []
