@@ -22,10 +22,6 @@ def _ensure_list_tuples(list):
     """ Ensures that an iterable is a list of position tuples. """
     return [tuple(item) for item in list]
 
-def _ensure_set_tuples(set):
-    """ Ensures that an iterable is a set of position tuples. """
-    return {tuple(item) for item in set}
-
 def _ensure_tuple_tuples(set):
     """ Ensures that an iterable is a tuple of position tuples. """
     return tuple(sorted(tuple(item) for item in set))
