@@ -17,6 +17,8 @@ from pelita.player import stepping_player, stopping_player
 
 _mswindows = (sys.platform == "win32")
 
+FIXTURE_DIR = Path(__file__).parent.resolve() / 'fixtures'
+
 
 @contextmanager
 def temp_wd(path):
@@ -1054,57 +1056,44 @@ def test_non_existing_file():
     }
 
 # TODO: Get it working again on Windows
-@pytest.mark.skipif(_mswindows, reason="Test fails on some Python versions.")
+#@pytest.mark.skipif(_mswindows, reason="Test fails on some Python versions.")
 def test_remote_errors(tmp_path):
     # TODO: Change error messages to be more meaningful
-    # we change to the tmp dir, to make our paths simpler
-    syntax_error = dedent("""
-    def move(b, state)
-        return b.position
-    """)
-    import_error = dedent("""
-    import does_not_exist
-    def move(b, state):
-        return b.position
-    """)
+
+    syntax_error = FIXTURE_DIR / 'player_syntax_error'
+    import_error = FIXTURE_DIR / 'player_import_error'
 
     layout_name, layout_string = layout.get_random_layout()
     l = layout.parse_layout(layout_string)
 
-    with temp_wd(tmp_path):
-        s_py = Path("s.py")
-        s_py.write_text(syntax_error)
-        i_py = Path("i.py")
-        i_py.write_text(import_error)
-
-        res = run_game([str(s_py), str(i_py)], layout_dict=l, max_rounds=20)
-        # Error messages have changed in Python 3.10. We can only do approximate maching
-        assert "SyntaxError" in res['fatal_errors'][0][0].pop('description')
-        assert res['fatal_errors'][0][0] == {
-            'round': None,
-            'turn': 0,
-            'type': 'PlayerDisconnected'
-        }
-        # Both teams fail during setup: DRAW
-        assert res['whowins'] == 2
-        res = run_game(["0", str(i_py)], layout_dict=l, max_rounds=20)
-        # Error messages have changed in Python 3.10. We can only do approximate maching
-        assert "ModuleNotFoundError" in res['fatal_errors'][1][0].pop('description')
-        assert res['fatal_errors'][1][0] == {
-            'round': None,
-            'turn': 1,
-            'type': 'PlayerDisconnected'
-        }
-        assert res['whowins'] == 0
-        res = run_game([str(i_py), "1"], layout_dict=l, max_rounds=20)
-        # Error messages have changed in Python 3.10. We can only do approximate maching
-        assert "ModuleNotFoundError" in res['fatal_errors'][0][0].pop('description')
-        assert res['fatal_errors'][0][0] == {
-            'round': None,
-            'turn': 0,
-            'type': 'PlayerDisconnected'
-        }
-        assert res['whowins'] == 1
+    res = run_game([str(syntax_error), str(import_error)], layout_dict=l, max_rounds=20)
+    # Error messages have changed in Python 3.10. We can only do approximate maching
+    assert "SyntaxError" in res['fatal_errors'][0][0].pop('description')
+    assert res['fatal_errors'][0][0] == {
+        'round': None,
+        'turn': 0,
+        'type': 'PlayerDisconnected'
+    }
+    # Both teams fail during setup: DRAW
+    assert res['whowins'] == 2
+    res = run_game(["0", str(import_error)], layout_dict=l, max_rounds=20)
+    # Error messages have changed in Python 3.10. We can only do approximate maching
+    assert "ModuleNotFoundError" in res['fatal_errors'][1][0].pop('description')
+    assert res['fatal_errors'][1][0] == {
+        'round': None,
+        'turn': 1,
+        'type': 'PlayerDisconnected'
+    }
+    assert res['whowins'] == 0
+    res = run_game([str(import_error), "1"], layout_dict=l, max_rounds=20)
+    # Error messages have changed in Python 3.10. We can only do approximate maching
+    assert "ModuleNotFoundError" in res['fatal_errors'][0][0].pop('description')
+    assert res['fatal_errors'][0][0] == {
+        'round': None,
+        'turn': 0,
+        'type': 'PlayerDisconnected'
+    }
+    assert res['whowins'] == 1
 
 
 @pytest.mark.parametrize('team_to_test', [0, 1])

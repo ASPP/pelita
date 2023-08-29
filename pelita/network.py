@@ -145,6 +145,11 @@ class ZMQConnection:
     """
     def __init__(self, socket):
         self.socket = socket
+
+        self.socket.setsockopt(zmq.LINGER, 0)
+        self.socket.setsockopt(zmq.AFFINITY, 1)
+        #self.setsockopt(zmq.RCVTIMEO, 2000)
+
         self.pollin = zmq.Poller()
         self.pollin.register(socket, zmq.POLLIN)
         self.pollout = zmq.Poller()

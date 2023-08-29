@@ -984,10 +984,11 @@ def check_exit_remote_teams(game_state):
 
 
 def game_print(turn, msg):
+    allow_unicode = not _mswindows
     if turn % 2 == 0:
-        pie = '\033[94m' + 'ᗧ' + '\033[0m' + ' ' if _mswindows else ''
+        pie = ('\033[94m' + 'ᗧ' + '\033[0m' + ' ') if allow_unicode else ''
         pie += f'blue team, bot {turn // 2}'
     elif turn % 2 == 1:
-        pie = '\033[91m' + 'ᗧ' + '\033[0m' + ' ' if _mswindows else ''
+        pie = ('\033[91m' + 'ᗧ' + '\033[0m' + ' ') if allow_unicode else ''
         pie += f'red team, bot {turn // 2}'
     print(f'{pie}: {msg}')

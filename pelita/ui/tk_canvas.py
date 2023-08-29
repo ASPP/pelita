@@ -630,10 +630,17 @@ class TkApplication:
 
         def status(team_idx):
             try:
-                # sum the deaths of both bots in this team
-                deaths = game_state['deaths'][team_idx] + game_state['deaths'][team_idx+2]
-                kills = game_state['kills'][team_idx] + game_state['kills'][team_idx+2]
-                ret = "Errors: %d, Kills: %d, Deaths: %d, Time: %.2f" % (game_state["num_errors"][team_idx], kills, deaths, game_state["team_time"][team_idx])
+                # in case we had a fatal error, do not print the regular status
+                if len(game_state['fatal_errors'][team_idx]) > 0:
+                    # TODO: We only print the first fatal error (it is a list of errors) for now
+                    err_type = game_state['fatal_errors'][team_idx][0]['type']
+                    err_desc = game_state['fatal_errors'][team_idx][0]['description']
+                    ret = f"FATAL: {err_type} {err_desc}"
+                else:
+                    # sum the deaths of both bots in this team
+                    deaths = game_state['deaths'][team_idx] + game_state['deaths'][team_idx+2]
+                    kills = game_state['kills'][team_idx] + game_state['kills'][team_idx+2]
+                    ret = "Errors: %d, Kills: %d, Deaths: %d, Time: %.2f" % (game_state["num_errors"][team_idx], kills, deaths, game_state["team_time"][team_idx])
                 return ret
             except TypeError:
                 return ""
