@@ -64,7 +64,7 @@ def test_legal_layout():
     ewalls.update([(3, 2),(2, 3)])
     efood = sorted([(2, 1), (1, 2), (4, 3), (3, 4)])
     ebots = [(1, 3), (4, 2), (1, 4), (4, 1)]
-    assert parsed_layout['walls'] == ewalls
+    assert parsed_layout['walls'] == tuple(sorted(ewalls))
     assert parsed_layout['food'] == efood
     assert parsed_layout['bots'] == ebots
     assert parsed_layout['shape'] == (6, 6)
@@ -90,7 +90,7 @@ def test_legal_layout_with_added_items():
     ewalls.update([(3, 2),(2, 3)])
     efood = sorted([(2, 1), (1, 2), (4, 3), (3, 4)]+added_food)
     ebots = [(1, 3), (4, 2), (1, 4), (4, 1)]
-    assert parsed_layout['walls'] == ewalls
+    assert parsed_layout['walls'] == tuple(sorted(ewalls))
     assert parsed_layout['food'] == efood
     assert parsed_layout['bots'] == ebots
     assert parsed_layout['shape'] == (6, 6)
