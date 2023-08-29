@@ -34,10 +34,10 @@ def _ensure_tuple_tuples(set):
 def create_homezones(shape, walls):
     width, height = shape
     return [
-        {(x, y) for x in range(0, width // 2)
-                for y in range(0, height) if (x, y) not in walls},
-        {(x, y) for x in range(width // 2, width)
-                for y in range(0, height) if (x, y) not in walls}
+        tuple((x, y) for x in range(0, width // 2)
+                     for y in range(0, height) if (x, y) not in walls),
+        tuple((x, y) for x in range(width // 2, width)
+                     for y in range(0, height) if (x, y) not in walls)
     ]
 
 
