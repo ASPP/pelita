@@ -389,6 +389,10 @@ def test_bot_attributes():
     def asserting_team(bot, state):
         assert bot.homezone == bot.other.homezone
         assert bot.walls == parsed['walls']
+
+        assert bot.walls == tuple(sorted(bot.walls))
+        assert bot.homezone == tuple(sorted(bot.homezone))
+
         if bot.is_blue:
             assert set(bot.homezone) == set(homezones[0])
             assert set(bot.enemy[0].homezone) == set(homezones[1])
