@@ -1,5 +1,10 @@
 # Pelita changelog
 
+  * v2.3.0 (???)
+
+     - Switching to pyproject.toml
+     - Bot.walls and Bot.homezone are tuples of tuples for reproducibility
+
   * v2.2.0 (08. Sep 2022)
 
     - Do not have a team play two matches in a row during round-robin mode
