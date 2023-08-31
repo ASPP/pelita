@@ -1,6 +1,6 @@
 # Pelita changelog
 
-  * v2.3.0 (???)
+  * v2.3.0 (31. Aug 2023)
 
      - Switching to pyproject.toml
      - Bot.walls and Bot.homezone are tuples of tuples for reproducibility
