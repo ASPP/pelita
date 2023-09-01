@@ -285,7 +285,7 @@ def main():
     config.print('{team_group}: {team_name}. Congratulations'.format(
         team_group=config.team_group(winner),
         team_name=config.team_name(winner)), wait=2)
-    config.print('Good evening main. It was a pleasure to run the tournament.', wait=2)
+    config.print('Kalispera Rike. It was a pleasure to serve you.', wait=2)
 
     config.print('*** Please remember to copy the log files from {}. ***'.format(config.tournament_log_folder), speak=False)
 
