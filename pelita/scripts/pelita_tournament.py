@@ -97,6 +97,12 @@ def setup():
     config['location'] = input()
     print("When should the next tournament be? (ex. {year})".format(year=datetime.datetime.now().year))
     config['date'] = input()
+    print("What is the name of the tournament host?")
+    config['host'] = input()
+    print("What is the local greeting?")
+    config['greeting'] = input()
+    print("What is the local farewell?")
+    config['farewell'] = input()
 
     while True:
         sound = autoconf_sound()
@@ -144,7 +150,12 @@ def setup():
         # must set a few dummy variables
         config['teams'] = []
         config['bonusmatch'] = []
-        tournament.Config(config).say("Hello my main.")
+
+        greeting = config.get("greeting", "Hello")
+        farewell = config.get("farewell", "Good evening")
+        host = config.get("host", "host")
+
+        tournament.Config(config).say(f"{greeting} {host}. {farewell} {host}.")
         success = input_choice("Did you hear any sound? (y/n)", [], "yn")
         if success == "y":
             del config["teams"]
@@ -285,7 +296,11 @@ def main():
     config.print('{team_group}: {team_name}. Congratulations'.format(
         team_group=config.team_group(winner),
         team_name=config.team_name(winner)), wait=2)
-    config.print('Kalispera Rike. It was a pleasure to serve you.', wait=2)
+
+    farewell = config.farewell
+    host = config.host
+
+    config.print(f'{farewell} {host}. It was a pleasure to serve you.', wait=2)
 
     config.print('*** Please remember to copy the log files from {}. ***'.format(config.tournament_log_folder), speak=False)
 

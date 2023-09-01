@@ -269,6 +269,10 @@ class Config:
         self.interactive = config.get("interactive")
         self.statefile = config.get("statefile")
 
+        self.greeting = config.get("greeting", "Hello")
+        self.farewell = config.get("farewell", "Good evening")
+        self.host = config.get("host", "host")
+
         #: Global random seed.
         #: Keep it fixed or it may be impossible to replicate a tournament.
         #: Individual matches will get a random seed derived from this.
@@ -418,7 +422,11 @@ class State:
 def present_teams(config):
     config.wait_for_keypress()
     print("\33[H\33[2J")  # clear the screen
-    config.print('Yassas Rike, I am the Python drone. I am here to serve you.', wait=1.5)
+
+    greeting = config.greeting
+    host = config.host
+
+    config.print(f'{greeting} {host}, I am the Python drone. I am here to serve you.', wait=1.5)
     config.print('Welcome to the %s Pelita tournament %s' % (config.location, config.date), wait=1.5)
     config.print('This evening the teams are:', wait=1.5)
     for team_id, team in config.teams.items():
