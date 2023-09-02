@@ -1,5 +1,9 @@
 # Pelita changelog
 
+  * v2.3.1 (2. Sep 2023)
+
+     - Tournament can be configured to include name of host and local salutation
+
   * v2.3.0 (31. Aug 2023)
 
      - Switching to pyproject.toml
