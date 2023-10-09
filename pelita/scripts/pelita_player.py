@@ -350,7 +350,7 @@ def zeroconf_advertise(address, port, team_specs):
             'spec': team,
             'team_name': name,
             'proto_version': 0.2,
-            'path': path,
+            'path': '/' + path,
         }
         full_name = f"{name}._pelita-player._tcp.local."
         info = zeroconf.ServiceInfo(

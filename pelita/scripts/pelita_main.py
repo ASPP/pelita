@@ -8,11 +8,13 @@ import random
 import sys
 
 from rich.console import Console
+from rich.markup import escape
 from rich.prompt import Prompt
 
 import pelita
 from .script_utils import start_logging
 
+from pelita.network import PELITA_PORT
 # TODO: The check_team option
 from pelita.tournament import check_team
 
@@ -29,7 +31,7 @@ def scan(team_spec):
 
     SCAN_TIME = 5 # seconds
 
-    q = Queue(maxsize=5)
+    q = Queue(maxsize=20)
 
     def on_service_state_change(
         zeroconf: Zeroconf, service_type: str, name: str, state_change: ServiceStateChange
@@ -38,12 +40,18 @@ def scan(team_spec):
         if state_change is ServiceStateChange.Added:
             info = zeroconf.get_service_info(service_type, name)
 
-            if info:
-                addresses = ["%s:%d" % (addr, info.port) for addr in info.parsed_scoped_addresses()]
+            def make_url(addr, port):
+                if port == PELITA_PORT:
+                    return f"pelita://{addr}"
+                else:
+                    return f"pelita://{addr}:{port}"
 
-                addr = f"tcp://{addresses[0]}"
+            if info:
+                addresses = [make_url(addr, info.port) for addr in info.parsed_scoped_addresses()]
+
                 team_name = info.properties[b"team_name"].decode()
-                q.put((addr, team_name), timeout=5)
+                path = info.properties[b"path"].decode()
+                q.put((addresses[0] + path, team_name), timeout=5)
 
     zeroconf = Zeroconf()
     services = ["_pelita-player._tcp.local."]
