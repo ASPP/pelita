@@ -570,7 +570,8 @@ def prepare_bot_state(game_state, idx=None):
         'enemy': enemy_state,
         'round': game_state['round'],
         'bot_turn': bot_turn,
-        'timeout_length': game_state['timeout_length']
+        'timeout_length': game_state['timeout_length'],
+        'max_rounds': game_state['max_rounds'],
     }
 
     if bot_initialization:
