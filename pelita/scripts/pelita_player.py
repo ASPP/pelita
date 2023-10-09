@@ -366,7 +366,7 @@ def zeroconf_advertise(address, port, team_specs):
         zc.register_service(info)
 
 
-def with_zmq_router(team_specs, address, port, *, advertise: bool, session_key: str, show_progress: bool = True):
+def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: str, show_progress: bool = True):
     # TODO: Explain how ROUTER-DEALER works with ZMQ
 
     # maps zmq dealer id to pair socket
@@ -390,7 +390,7 @@ def with_zmq_router(team_specs, address, port, *, advertise: bool, session_key: 
     router_sock.bind(f"tcp://{address}:{port}")
 
     if advertise:
-        zeroconf_advertise(address, port, team_specs)
+        zeroconf_advertise(advertise, port, team_specs)
 
     poll = zmq.Poller()
     poll.register(router_sock, zmq.POLLIN)
@@ -561,8 +561,7 @@ def main(log):
 @click.option('--address', default="0.0.0.0")
 @click.option('--port', default=PELITA_PORT)
 @click.option('--team', '-t', 'teams', type=(str, str), multiple=True, required=True, help="Team path")
-@click.option('--advertise',
-              is_flag=True, default=False,
+@click.option('--advertise', default=None, type=str,
               help='advertise player on zeroconf')
 @click.option('--show-progress', is_flag=True, default=True)
 def remote_server(address, port, teams, advertise, show_progress):
