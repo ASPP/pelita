@@ -30,6 +30,7 @@ dependencies = [
     "pytest>=4",
     "zeroconf",
     "rich",
+    "click",
 ]
 dynamic = ["version"]
 
