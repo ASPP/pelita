@@ -6,6 +6,7 @@ import random
 import signal
 import subprocess
 import sys
+from typing import Optional
 from urllib.parse import urlparse
 
 import click
@@ -26,7 +27,7 @@ MAX_CONNECTIONS = 100
 
 @dataclass
 class GameInfo:
-    round: int|None
+    round: Optional[int]
     max_rounds: int
     my_index: int
     my_name: str
