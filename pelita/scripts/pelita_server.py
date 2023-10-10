@@ -12,7 +12,7 @@ from urllib.parse import urlparse
 
 import click
 from rich import print as pprint
-from rich.progress import Progress
+from rich.progress import Progress, SpinnerColumn, TaskProgressColumn, BarColumn, TextColumn, TimeElapsedColumn
 import zeroconf
 import zmq
 
@@ -45,8 +45,7 @@ class GameInfo:
         else:
             return f"{finished}{self.enemy_name} ({self.enemy_score}) vs [u]{self.my_name} ({self.my_score})[/u]"
 
-
-def zeroconf_advertise(address, port, team_specs):
+def zeroconf_register(zc, address, port, team_spec, path, print=print):
     parsed_url = urlparse("tcp://" + address + ":" + str(port))
     if parsed_url.scheme != "tcp":
         _logger.warning("Can only advertise to tcp addresses.")
@@ -55,18 +54,21 @@ def zeroconf_advertise(address, port, team_specs):
         _logger.warning("Can only advertise to a specific interface.")
         return
 
-    zc = zeroconf.Zeroconf()
+    name = _check_team(team_spec)
 
-    for team, path in team_specs:
-        name = _check_team(team)
+    desc = {
+        'spec': team_spec,
+        'team_name': name,
+        'proto_version': 0.2,
+        'path': '/' + path,
+    }
 
-        desc = {
-            'spec': team,
-            'team_name': name,
-            'proto_version': 0.2,
-            'path': '/' + path,
-        }
-        full_name = f"{name}._pelita-player._tcp.local."
+    # there is a chance that our name is already taken.
+    # We try for a few times with different names before we give up
+    suffixes = ["", "-1", "-2", "-3", "-4"]
+
+    for suffix in suffixes:
+        full_name = f"{name}{suffix}._pelita-player._tcp.local."
         info = zeroconf.ServiceInfo(
             "_pelita-player._tcp.local.",
             full_name,
@@ -76,9 +78,19 @@ def zeroconf_advertise(address, port, team_specs):
             properties=desc,
         )
 
-        print(f"Registration of service {full_name}, press Ctrl-C to exit...")
-        zc.register_service(info)
+        print(f"Registration of service {full_name}")
+        try:
+            zc.register_service(info)
+            return info
+        except zeroconf.NonUniqueNameException as e:
+            print(f"Name {full_name} already taken. Trying alternative")
+            continue
 
+    print(f"No alternative found after {len(suffixes)} tries. Not advertising the player.")
+    return None
+
+def zeroconf_deregister(zc: zeroconf.Zeroconf, info: zeroconf.ServiceInfo):
+    zc.unregister_service(info)
 
 def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: str, show_progress: bool = True):
     # TODO: Explain how ROUTER-DEALER works with ZMQ
@@ -91,6 +103,8 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
     pair_dealer_mapping = {}
     # maps subprocess to (dealer id, pair socket)
     proc_dealer_mapping = {}
+    # maps team_spec, path to zc.ServiceInfo
+    team_serviceinfo_mapping = {}
 
     def cleanup(signum, frame):
         for proc in proc_dealer_mapping:
@@ -117,120 +131,149 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
     router_sock = ctx.socket(zmq.ROUTER)
     router_sock.bind(f"tcp://{address}:{port}")
 
-    if advertise:
-        zeroconf_advertise(advertise, port, team_specs)
-
     poll = zmq.Poller()
     poll.register(router_sock, zmq.POLLIN)
-
-    from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 
     # TODO handle show_progress
 
     with Progress(
         SpinnerColumn(),
-        *Progress.get_default_columns(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
         TimeElapsedColumn(),
     ) as progress:
+
+        if advertise:
+            zc = zeroconf.Zeroconf()
+            for team_spec, path in team_specs:
+                info = zeroconf_register(zc, advertise, port, team_spec, path, print=progress.console.print)
+                if info:
+                    team_serviceinfo_mapping[(team_spec, path)] = info
 
 
         while True:
             incoming_evts = dict(poll.poll(1000))
             if router_sock in incoming_evts:
+
                 dealer_id = router_sock.recv()
-                # TODO: This should recover from failure
-                msg = router_sock.recv_json()
-                if "QUERY-SERVER" in msg:
-                    pass
 
-                elif "ADD-HOST" in msg:
-                    # check key
-                    if not msg.get('key', None) == session_key:
-                        continue
+                try:
+                    msg = router_sock.recv_json()
+                except ValueError as e:
+                    _logger.warn(f"Error {e!r} when parsing incoming message. Ignoring.")
+                    continue
 
-                elif "RELOAD" in msg:
-                    # check key
-                    if not msg.get('key', None) == session_key:
-                        continue
+                try:
+                    # TODO actions
+                    # stop server - do not accept new requests
+                    # purge server - drop all running connections
 
-                elif "REQUEST" in msg:
-                    if len(proc_dealer_mapping) >= MAX_CONNECTIONS:
-                        _logger.warn("Exceeding maximum number of connections. Ignoring")
-                        continue
+                    if "STATUS" in msg:
+                        # check key
+                        if not msg.get('key', None) == session_key:
+                            continue
 
-                    requested_url = urlparse(msg['REQUEST'])
-                    progress.console.print(f"Match requested: {requested_url.path}")
+                        progress.console.print("TODO: Status information")
 
-                    team_spec = team_specs[0][0]
-                    for spec, path in team_specs:
-                        if requested_url.path == '/' + path:
-                            team_spec = spec
-                            break
+                    elif "TEAM" in msg:
+                        # check key
+                        if not msg.get('key', None) == session_key:
+                            continue
+
+                        team_spec = msg.get('team')
+                        path = msg.get('path')
+
+                        if msg.get('TEAM') == 'ADD':
+                            info = zeroconf_register(zc, advertise, port, team_spec, path, print=progress.console.print)
+                            if info:
+                                team_serviceinfo_mapping[(team_spec, path)] = info
+
+                        if msg.get('TEAM') == 'REMOVE':
+                            info = team_serviceinfo_mapping[(team_spec, path)]
+                            zeroconf_deregister(zc, info)
+
+                    elif "REQUEST" in msg:
+                        if len(proc_dealer_mapping) >= MAX_CONNECTIONS:
+                            _logger.warn("Exceeding maximum number of connections. Ignoring")
+                            continue
+
+                        requested_url = urlparse(msg['REQUEST'])
+                        progress.console.print(f"Match requested: {requested_url.path}")
+
+                        team_spec = team_specs[0][0]
+                        for spec, path in team_specs:
+                            if requested_url.path == '/' + path:
+                                team_spec = spec
+                                break
+                        else:
+                            # not found. use default but warn
+                            progress.console.print(f"Player for path {requested_url.path} not found. Using default.")
+
+                        info = GameInfo(round=None, max_rounds=None, my_index=0,
+                                        my_name="waiting", my_score=0,
+                                        enemy_name="waiting", enemy_score=0)
+                        task = progress.add_task(info.status(), total=info.max_rounds)
+                        dealer_progress_mapping[dealer_id] = (task, info)
+
+                        # incoming message is a new request
+                        pair_sock = ctx.socket(zmq.PAIR)
+                        port = pair_sock.bind_to_random_port('tcp://127.0.0.1')
+                        pair_addr = 'tcp://127.0.0.1:{}'.format(port)
+
+                        poll.register(pair_sock, zmq.POLLIN)
+
+                        num_running = len(proc_dealer_mapping)
+                        _logger.info(f"Starting match for team {team_specs}. ({num_running} already running.)")
+                        subproc = play_remote(team_spec, pair_addr, silent=show_progress)
+
+                        dealer_pair_mapping[dealer_id] = pair_sock
+                        pair_dealer_mapping[pair_sock] = dealer_id
+                        proc_dealer_mapping[subproc] = (dealer_id, pair_sock)
+
+                        assert len(dealer_pair_mapping) == len(pair_dealer_mapping)
+                    elif dealer_id in dealer_pair_mapping:
+                        # incoming message refers to an existing connection
+
+                        task, info = dealer_progress_mapping[dealer_id]
+
+                        try:
+                            is_exit = msg['__action__'] == 'exit'
+                        except KeyError:
+                            is_exit = False
+
+                        if is_exit:
+                            progress.stop_task(task)
+                            progress.update(task, visible=False)
+                            info.finished = True
+                            progress.console.print(info.status())
+
+                        try:
+                            info.round = msg['__data__']['game_state']['round']
+                            info.max_rounds = msg['__data__']['game_state']['max_rounds']
+                        except KeyError:
+                            info.round = None
+
+                        if round is not None:
+                            progress.update(task, completed=info.round, total=info.max_rounds)
+
+                        try:
+                            info.my_index = msg['__data__']['game_state']['team']['team_index']
+                            info.my_name = msg['__data__']['game_state']['team']['name']
+                            info.my_score = msg['__data__']['game_state']['team']['score']
+                            info.enemy_name = msg['__data__']['game_state']['enemy']['name']
+                            info.enemy_score = msg['__data__']['game_state']['enemy']['score']
+
+                            progress.update(task, description=info.status())
+                        except KeyError:
+                            pass
+
+                        dealer_pair_mapping[dealer_id].send_json(msg)
                     else:
-                        # not found. use default but warn
-                        progress.console.print(f"Player for path {requested_url.path} not found. Using default.")
+                        _logger.info("Unknown incoming DEALER and not a request.")
 
-                    info = GameInfo(round=None, max_rounds=None, my_index=0,
-                                    my_name="waiting", my_score=0,
-                                    enemy_name="waiting", enemy_score=0)
-                    task = progress.add_task(info.status(), total=info.max_rounds)
-                    dealer_progress_mapping[dealer_id] = (task, info)
-
-                    # incoming message is a new request
-                    pair_sock = ctx.socket(zmq.PAIR)
-                    port = pair_sock.bind_to_random_port('tcp://127.0.0.1')
-                    pair_addr = 'tcp://127.0.0.1:{}'.format(port)
-
-                    poll.register(pair_sock, zmq.POLLIN)
-
-                    num_running = len(proc_dealer_mapping)
-                    _logger.info(f"Starting match for team {team_specs}. ({num_running} already running.)")
-                    subproc = play_remote(team_spec, pair_addr, silent=show_progress)
-
-                    dealer_pair_mapping[dealer_id] = pair_sock
-                    pair_dealer_mapping[pair_sock] = dealer_id
-                    proc_dealer_mapping[subproc] = (dealer_id, pair_sock)
-
-                    assert len(dealer_pair_mapping) == len(pair_dealer_mapping)
-                elif dealer_id in dealer_pair_mapping:
-                    # incoming message refers to an existing connection
-
-                    task, info = dealer_progress_mapping[dealer_id]
-
-                    try:
-                        is_exit = msg['__action__'] == 'exit'
-                    except KeyError:
-                        is_exit = False
-
-                    if is_exit:
-                        progress.stop_task(task)
-                        progress.update(task, visible=False)
-                        info.finished = True
-                        progress.console.print(info.status())
-
-                    try:
-                        info.round = msg['__data__']['game_state']['round']
-                        info.max_rounds = msg['__data__']['game_state']['max_rounds']
-                    except KeyError:
-                        info.round = None
-
-                    if round is not None:
-                        progress.update(task, completed=info.round, total=info.max_rounds)
-
-                    try:
-                        info.my_index = msg['__data__']['game_state']['team']['team_index']
-                        info.my_name = msg['__data__']['game_state']['team']['name']
-                        info.my_score = msg['__data__']['game_state']['team']['score']
-                        info.enemy_name = msg['__data__']['game_state']['enemy']['name']
-                        info.enemy_score = msg['__data__']['game_state']['enemy']['score']
-
-                        progress.update(task, description=info.status())
-                    except KeyError:
-                        pass
-
-                    dealer_pair_mapping[dealer_id].send_json(msg)
-                else:
-                    _logger.info("Unknown incoming DEALER and not a request.")
+                except Exception as e:
+                    _logger.warn(f"Error {e!r} when handling incoming message {msg}. Ignoring.")
 
             elif len(incoming_evts):
                 # One or more of our spawned players has replied
@@ -246,6 +289,7 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
                 if proc.poll() is not None:
                     dealer_id, pair_sock = proc_dealer_mapping[proc]
                     del dealer_pair_mapping[dealer_id]
+                    del dealer_progress_mapping[dealer_id]
                     del pair_dealer_mapping[pair_sock]
                     del proc_dealer_mapping[proc]
                     count += 1
@@ -299,6 +343,7 @@ def remote_server(address, port, teams, advertise, show_progress):
 
     session_key = "".join(str(random.randint(0, 9)) for _ in range(12))
     pprint(f"Use --session-key {session_key} to for the admin API.")
+
     with_zmq_router(teams, address, port, advertise=advertise, session_key=session_key, show_progress=show_progress)
 
     # asyncio repl …
