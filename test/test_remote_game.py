@@ -26,14 +26,14 @@ def remote_teams():
     port_stopping = RNG.randint(49153,65534)
     port_food_eater = port_stopping+1
 
-    addr_stopping = f'tcp://127.0.0.1:{port_stopping}'
-    addr_food_eater = f'tcp://127.0.0.1:{port_food_eater}'
-    remote = [sys.executable, '-m', 'pelita.scripts.pelita_player', '--remote']
+    addr_stopping = "127.0.0.1"
+    addr_food_eater = "127.0.0.1"
+    remote = [sys.executable, '-m', 'pelita.scripts.pelita_server', 'remote-server', '--address', '127.0.0.1']
 
-    remote_stopping = remote + ['pelita/player/StoppingPlayer', addr_stopping ]
-    remote_food_eater = remote + ['pelita/player/FoodEatingPlayer', addr_food_eater]
+    remote_stopping = remote + ['--port', str(port_stopping), '--team', 'pelita/player/StoppingPlayer', 'stopper']
+    remote_food_eater = remote + ['--port', str(port_food_eater), '--team', 'pelita/player/FoodEatingPlayer', 'fooder']
 
-    teams = [f'remote:{addr_stopping}', f'remote:{addr_food_eater}']
+    teams = [f'pelita://127.0.0.1:{port_stopping}/stopper', f'pelita://127.0.0.1:{port_food_eater}/fooder']
     with run_and_terminate_process(remote_stopping):
         with run_and_terminate_process(remote_food_eater):
             yield teams
