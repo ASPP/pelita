@@ -349,5 +349,39 @@ def remote_server(address, port, teams, advertise, show_progress):
     # asyncio repl …
     # reload via zqm key
 
+def send_api_message(url, session_key, type, subtype, **payload):
+    ctx = zmq.Context()
+    sock = ctx.socket(zmq.DEALER)
+    parsed_url = urlparse(url)
+
+    if parsed_url.scheme not in ['pelita', 'tcp'] :
+        raise ValueError('Scheme must be pelita or tcp')
+
+    address = parsed_url.hostname
+    port = parsed_url.port or PELITA_PORT
+
+    sock.connect(f"tcp://{address}:{port}")
+    sock.send_json({
+        type: subtype,
+        'key': session_key,
+        **payload
+    })
+
+
+@main.command(help="Show server statistics")
+@click.option('--url', default="pelita://localhost/")
+@click.option('--session-key', type=str, required=True)
+def show_statistics(url, session_key):
+    send_api_message(url, session_key, "STATUS", "show-stats")
+
+@main.command(help="Add team")
+@click.option('--url', default="pelita://localhost/")
+@click.option('--session-key', type=str, required=True)
+@click.option('--team', '-t', 'team', type=(str, str), required=True, help="Team path")
+def add_team(url, session_key, team):
+    team_spec, path = team
+    send_api_message(url, session_key, "TEAM", "ADD", team=team_spec, path=path)
+
+
 if __name__ == '__main__':
     main()
