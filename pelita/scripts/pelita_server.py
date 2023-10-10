@@ -285,7 +285,7 @@ def main(log):
         start_logging(log)
 
 
-@main.command(help="bind a zmq.ROUTER socket at the given address which forks subprocesses on demand")
+@main.command(help="Run pelita server with given players")
 @click.option('--address', default="0.0.0.0")
 @click.option('--port', default=PELITA_PORT)
 @click.option('--team', '-t', 'teams', type=(str, str), multiple=True, required=True, help="Team path")

@@ -306,7 +306,7 @@ def main(log):
         start_logging(log)
 
 
-@main.command()
+@main.command(help="Load team and connect to the specified address.")
 @click.argument('team')
 @click.argument('address')
 @click.option('--color',
@@ -317,7 +317,7 @@ def remote_game(team, address, color, silent):
     run_player(team, address, color, silent=silent)
 
 
-@main.command("check-team")
+@main.command("check-team", help="Load team and print its name.")
 @click.argument('team')
 def cli_check_team(team):
     return check_team(team)
