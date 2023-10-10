@@ -6,6 +6,7 @@ import random
 import signal
 import subprocess
 import sys
+import time
 from typing import Optional
 from urllib.parse import urlparse
 
@@ -93,10 +94,24 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
 
     def cleanup(signum, frame):
         for proc in proc_dealer_mapping:
+            _logger.warn(f"Cleaning up unfinished process: {proc}.")
             proc.terminate()
+        finish_time = time.monotonic() + 3
+        for proc in proc_dealer_mapping:
+            # We need to wait for all processes to finish
+            # Otherwise we might exit before the signal has been sent
+            _logger.debug(f"Waiting for process {proc} to terminate")
+            remainder = finish_time - time.monotonic()
+            if remainder > 0:
+                try:
+                    proc.wait(remainder)
+                except subprocess.TimeoutExpired:
+                    _logger.warn(f"Process {proc} has not finished.")
+
         sys.exit()
 
     signal.signal(signal.SIGTERM, cleanup)
+    signal.signal(signal.SIGINT, cleanup)
 
     ctx = zmq.Context()
     router_sock = ctx.socket(zmq.ROUTER)
