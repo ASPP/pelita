@@ -38,12 +38,14 @@ class GameInfo:
     finished: bool = False
 
     def status(self):
-        plural = "s" if (self.round is not None and self.round > 1) else ""
-        finished = f"[b]Finished[/b] ({self.round} round{plural}): " if self.finished else ""
+        plural = "" if self.round == 1 else "s"
+        finished = f"[b]Finished[/b] ({self.round if self.round is not None else '-'} round{plural}): " if self.finished else ""
+        my_name = self.my_name or "[dim]unknown[/dim]"
+        enemy_name = self.enemy_name or "[dim]unknown[/dim]"
         if self.my_index == 0:
-            return f"{finished}[u]{self.my_name} ({self.my_score})[/u] vs {self.enemy_name} ({self.enemy_score})"
+            return f"{finished}[u]{my_name}[/u] ({self.my_score}) vs {enemy_name} ({self.enemy_score})"
         else:
-            return f"{finished}{self.enemy_name} ({self.enemy_score}) vs [u]{self.my_name} ({self.my_score})[/u]"
+            return f"{finished}{enemy_name} ({self.enemy_score}) vs [u]{my_name}[/u] ({self.my_score})"
 
 def zeroconf_register(zc, address, port, team_spec, path, print=print):
     parsed_url = urlparse("tcp://" + address + ":" + str(port))
