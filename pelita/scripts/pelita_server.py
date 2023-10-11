@@ -297,7 +297,7 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
 
                         msg = process_info.pair_socket.recv()
                         # route message back
-                        router_sock.send_multipart([dealer_id, msg])
+                        router_sock.send_multipart([process_info.dealer_id, msg])
 
             count = 0
             for process_info in list(connection_map.values()):
