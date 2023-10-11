@@ -7,12 +7,13 @@ import signal
 import subprocess
 import sys
 import time
-from typing import Optional
+from typing import Optional, Dict
 from urllib.parse import urlparse
+from weakref import WeakValueDictionary
 
 import click
 from rich import print as pprint
-from rich.progress import Progress, SpinnerColumn, TaskProgressColumn, BarColumn, TextColumn, TimeElapsedColumn
+from rich.progress import Progress, SpinnerColumn, TaskProgressColumn, BarColumn, TextColumn, TimeElapsedColumn, Task
 import zeroconf
 import zmq
 
@@ -46,6 +47,15 @@ class GameInfo:
             return f"{finished}[u]{my_name}[/u] ({self.my_score}) vs {enemy_name} ({self.enemy_score})"
         else:
             return f"{finished}{enemy_name} ({self.enemy_score}) vs [u]{my_name}[/u] ({self.my_score})"
+
+@dataclass(frozen=True)
+class ProcessInfo:
+    proc: subprocess.Popen
+    task: Task
+    info: GameInfo
+    dealer_id: bytes
+    pair_socket: zmq.Socket
+
 
 def zeroconf_register(zc, address, port, team_spec, path, print=print):
     parsed_url = urlparse("tcp://" + address + ":" + str(port))
@@ -97,32 +107,28 @@ def zeroconf_deregister(zc: zeroconf.Zeroconf, info: zeroconf.ServiceInfo):
 def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: str, show_progress: bool = True):
     # TODO: Explain how ROUTER-DEALER works with ZMQ
 
-    # maps zmq dealer id to pair socket
-    dealer_pair_mapping = {}
-    # maps zmq dealer to progress bar
-    dealer_progress_mapping = {}
-    # maps pair socket to zmq dealer id
-    pair_dealer_mapping = {}
-    # maps subprocess to (dealer id, pair socket)
-    proc_dealer_mapping = {}
+    # maps socket/process/game data
+    connection_map: Dict[bytes, ProcessInfo] = {}
+    connections_by_pair_socket = WeakValueDictionary() # automatic cache
+
     # maps team_spec, path to zc.ServiceInfo
     team_serviceinfo_mapping = {}
 
     def cleanup(signum, frame):
-        for proc in proc_dealer_mapping:
-            _logger.warn(f"Cleaning up unfinished process: {proc}.")
-            proc.terminate()
+        for process_info in connection_map.values():
+            _logger.warn(f"Cleaning up unfinished process: {process_info.proc}.")
+            process_info.proc.terminate()
         finish_time = time.monotonic() + 3
-        for proc in proc_dealer_mapping:
+        for process_info in connection_map.values():
             # We need to wait for all processes to finish
             # Otherwise we might exit before the signal has been sent
-            _logger.debug(f"Waiting for process {proc} to terminate")
+            _logger.debug(f"Waiting for process {process_info.proc} to terminate")
             remainder = finish_time - time.monotonic()
             if remainder > 0:
                 try:
-                    proc.wait(remainder)
+                    process_info.proc.wait(remainder)
                 except subprocess.TimeoutExpired:
-                    _logger.warn(f"Process {proc} has not finished.")
+                    _logger.warn(f"Process {process_info.proc} has not finished.")
 
         sys.exit()
 
@@ -153,11 +159,9 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
                 if info:
                     team_serviceinfo_mapping[(team_spec, path)] = info
 
-
         while True:
             incoming_evts = dict(poll.poll(1000))
             if router_sock in incoming_evts:
-
                 dealer_id = router_sock.recv()
 
                 try:
@@ -196,12 +200,12 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
                             zeroconf_deregister(zc, info)
 
                     elif "REQUEST" in msg:
-                        if len(proc_dealer_mapping) >= MAX_CONNECTIONS:
+                        if len(connection_map) >= MAX_CONNECTIONS:
                             _logger.warn("Exceeding maximum number of connections. Ignoring")
                             continue
 
                         requested_url = urlparse(msg['REQUEST'])
-                        progress.console.print(f"Match requested: {requested_url.path}")
+                        progress.console.log(f"Request {requested_url.path} for dealer {dealer_id}")
 
                         team_spec = team_specs[0][0]
                         for spec, path in team_specs:
@@ -216,7 +220,6 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
                                         my_name="waiting", my_score=0,
                                         enemy_name="waiting", enemy_score=0)
                         task = progress.add_task(info.status(), total=info.max_rounds)
-                        dealer_progress_mapping[dealer_id] = (task, info)
 
                         # incoming message is a new request
                         pair_sock = ctx.socket(zmq.PAIR)
@@ -225,19 +228,26 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
 
                         poll.register(pair_sock, zmq.POLLIN)
 
-                        num_running = len(proc_dealer_mapping)
+                        num_running = len(connection_map)
                         _logger.info(f"Starting match for team {team_specs}. ({num_running} already running.)")
                         subproc = play_remote(team_spec, pair_addr, silent=show_progress)
 
-                        dealer_pair_mapping[dealer_id] = pair_sock
-                        pair_dealer_mapping[pair_sock] = dealer_id
-                        proc_dealer_mapping[subproc] = (dealer_id, pair_sock)
+                        process_info = ProcessInfo(proc=subproc, task=task, info=info, dealer_id=dealer_id, pair_socket=pair_sock)
+                        connection_map[process_info.dealer_id] = process_info
+                        connections_by_pair_socket[process_info.pair_socket] = process_info
 
-                        assert len(dealer_pair_mapping) == len(pair_dealer_mapping)
-                    elif dealer_id in dealer_pair_mapping:
+                    elif dealer_id in connection_map.keys():
                         # incoming message refers to an existing connection
 
-                        task, info = dealer_progress_mapping[dealer_id]
+                        # We must check for existence of the value, because it could have been
+                        # garbage-collected after the elif check
+                        process_info = connection_map.get(dealer_id)
+                        if process_info is None:
+                            continue
+
+                        task = process_info.task
+                        info = process_info.info
+                        pair_socket = process_info.pair_socket
 
                         try:
                             is_exit = msg['__action__'] == 'exit'
@@ -270,7 +280,7 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
                         except KeyError:
                             pass
 
-                        dealer_pair_mapping[dealer_id].send_json(msg)
+                        pair_socket.send_json(msg)
                     else:
                         _logger.info("Unknown incoming DEALER and not a request.")
 
@@ -279,24 +289,24 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
 
             elif len(incoming_evts):
                 # One or more of our spawned players has replied
-                for pair_sock, dealer_id in pair_dealer_mapping.items():
-                    if pair_sock in incoming_evts:
-                        msg = pair_sock.recv()
+                # try to find the according process info
+                for socket in incoming_evts:
+                    process_info = connections_by_pair_socket.get(socket)
+                    if process_info:
+                        # success
+
+                        msg = process_info.pair_socket.recv()
                         # route message back
                         router_sock.send_multipart([dealer_id, msg])
 
-            old_procs = list(proc_dealer_mapping.keys())
             count = 0
-            for proc in old_procs:
-                if proc.poll() is not None:
-                    dealer_id, pair_sock = proc_dealer_mapping[proc]
-                    del dealer_pair_mapping[dealer_id]
-                    del dealer_progress_mapping[dealer_id]
-                    del pair_dealer_mapping[pair_sock]
-                    del proc_dealer_mapping[proc]
+            for process_info in list(connection_map.values()):
+                # check if the process has terminated
+                if process_info.proc.poll() is not None:
+                    del connection_map[process_info.dealer_id]
                     count += 1
             if count:
-                _logger.debug("Cleaned up {} process(es). ({} still running.)".format(count, len(proc_dealer_mapping)))
+                progress.console.log("Cleaned up {} process(es). ({} still running.)".format(count, len(connection_map)))
 
 
 def play_remote(team_spec, pair_addr, silent=False):
