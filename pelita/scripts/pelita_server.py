@@ -337,7 +337,8 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
                     del connection_map[process_info.dealer_id]
                     count += 1
             if count:
-                progress.console.log("Cleaned up {} process(es). ({} still running.)".format(count, len(connection_map)))
+                plural = "" if count == 1 else "es"
+                progress.console.log(f"Cleaned up {count} process{plural}. ({len(connection_map)} still running.)")
 
 
 def play_remote(team_spec, pair_addr, silent=False):
