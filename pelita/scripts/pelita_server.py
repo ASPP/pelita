@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from dataclasses import dataclass
+import json
 import logging
 import random
 import signal
@@ -161,83 +162,16 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
 
         while True:
             incoming_evts = dict(poll.poll(1000))
-            if router_sock in incoming_evts:
-                dealer_id = router_sock.recv()
+            has_router_sock = incoming_evts.pop(router_sock, None)
+
+            if has_router_sock:
+                dealer_id, msg = router_sock.recv_multipart()
 
                 try:
-                    msg = router_sock.recv_json()
-                except ValueError as e:
-                    _logger.warn(f"Error {e!r} when parsing incoming message. Ignoring.")
-                    continue
-
-                try:
-                    # TODO actions
-                    # stop server - do not accept new requests
-                    # purge server - drop all running connections
-
-                    if "STATUS" in msg:
-                        # check key
-                        if not msg.get('key', None) == session_key:
-                            continue
-
-                        progress.console.print("TODO: Status information")
-
-                    elif "TEAM" in msg:
-                        # check key
-                        if not msg.get('key', None) == session_key:
-                            continue
-
-                        team_spec = msg.get('team')
-                        path = msg.get('path')
-
-                        if msg.get('TEAM') == 'ADD':
-                            info = zeroconf_register(zc, advertise, port, team_spec, path, print=progress.console.print)
-                            if info:
-                                team_serviceinfo_mapping[(team_spec, path)] = info
-
-                        if msg.get('TEAM') == 'REMOVE':
-                            info = team_serviceinfo_mapping[(team_spec, path)]
-                            zeroconf_deregister(zc, info)
-
-                    elif "REQUEST" in msg:
-                        if len(connection_map) >= MAX_CONNECTIONS:
-                            _logger.warn("Exceeding maximum number of connections. Ignoring")
-                            continue
-
-                        requested_url = urlparse(msg['REQUEST'])
-                        progress.console.log(f"Request {requested_url.path} for dealer {dealer_id}")
-
-                        team_spec = team_specs[0][0]
-                        for spec, path in team_specs:
-                            if requested_url.path == '/' + path:
-                                team_spec = spec
-                                break
-                        else:
-                            # not found. use default but warn
-                            progress.console.print(f"Player for path {requested_url.path} not found. Using default.")
-
-                        info = GameInfo(round=None, max_rounds=None, my_index=0,
-                                        my_name="waiting", my_score=0,
-                                        enemy_name="waiting", enemy_score=0)
-                        task = progress.add_task(info.status(), total=info.max_rounds)
-
-                        # incoming message is a new request
-                        pair_sock = ctx.socket(zmq.PAIR)
-                        port = pair_sock.bind_to_random_port('tcp://127.0.0.1')
-                        pair_addr = 'tcp://127.0.0.1:{}'.format(port)
-
-                        poll.register(pair_sock, zmq.POLLIN)
-
-                        num_running = len(connection_map)
-                        _logger.info(f"Starting match for team {team_specs}. ({num_running} already running.)")
-                        subproc = play_remote(team_spec, pair_addr, silent=show_progress)
-
-                        process_info = ProcessInfo(proc=subproc, task=task, info=info, dealer_id=dealer_id, pair_socket=pair_sock)
-                        connection_map[process_info.dealer_id] = process_info
-                        connections_by_pair_socket[process_info.pair_socket] = process_info
-
-                    elif dealer_id in connection_map.keys():
+                    # check if we know the dealer already
+                    if dealer_id in connection_map.keys():
                         # incoming message refers to an existing connection
+
 
                         # We must check for existence of the value, because it could have been
                         # garbage-collected after the elif check
@@ -249,8 +183,18 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
                         info = process_info.info
                         pair_socket = process_info.pair_socket
 
+                        # TODO: we do not want to do this every millisecond
+
                         try:
-                            is_exit = msg['__action__'] == 'exit'
+                            msg_obj = json.loads(msg)
+                        except ValueError as e:
+                            # TODO should not continue
+                            progress.console.log(f"Error {e!r} when parsing incoming message. Ignoring.")
+                            _logger.warn(f"Error {e!r} when parsing incoming message. Ignoring.")
+                            continue
+
+                        try:
+                            is_exit = msg_obj['__action__'] == 'exit'
                         except KeyError:
                             is_exit = False
 
@@ -261,8 +205,8 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
                             progress.console.print(info.status())
 
                         try:
-                            info.round = msg['__data__']['game_state']['round']
-                            info.max_rounds = msg['__data__']['game_state']['max_rounds']
+                            info.round = msg_obj['__data__']['game_state']['round']
+                            info.max_rounds = msg_obj['__data__']['game_state']['max_rounds']
                         except KeyError:
                             info.round = None
 
@@ -270,24 +214,107 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
                             progress.update(task, completed=info.round, total=info.max_rounds)
 
                         try:
-                            info.my_index = msg['__data__']['game_state']['team']['team_index']
-                            info.my_name = msg['__data__']['game_state']['team']['name']
-                            info.my_score = msg['__data__']['game_state']['team']['score']
-                            info.enemy_name = msg['__data__']['game_state']['enemy']['name']
-                            info.enemy_score = msg['__data__']['game_state']['enemy']['score']
+                            info.my_index = msg_obj['__data__']['game_state']['team']['team_index']
+                            info.my_name = msg_obj['__data__']['game_state']['team']['name']
+                            info.my_score = msg_obj['__data__']['game_state']['team']['score']
+                            info.enemy_name = msg_obj['__data__']['game_state']['enemy']['name']
+                            info.enemy_score = msg_obj['__data__']['game_state']['enemy']['score']
 
                             progress.update(task, description=info.status())
                         except KeyError:
                             pass
 
-                        pair_socket.send_json(msg)
+                        pair_socket.send(msg)
+
                     else:
-                        _logger.info("Unknown incoming DEALER and not a request.")
+                        # a new connection. we parse the message and check what we need to do
+
+                        try:
+                            msg_obj = json.loads(msg)
+                        except ValueError as e:
+                            # TODO should not continue
+                            progress.console.log(f"Error {e!r} when parsing incoming message. Ignoring.")
+                            _logger.warn(f"Error {e!r} when parsing incoming message. Ignoring.")
+                            continue
+
+                        # TODO actions
+                        # stop server - do not accept new requests
+                        # purge server - drop all running connections
+
+                        if "STATUS" in msg_obj:
+                            # check key
+                            if not msg_obj.get('key', None) == session_key:
+                                continue
+
+                            progress.console.print("TODO: Status information")
+
+                        elif "TEAM" in msg_obj:
+                            # check key
+                            if not msg_obj.get('key', None) == session_key:
+                                continue
+
+                            team_spec = msg_obj.get('team')
+                            path = msg_obj.get('path')
+
+                            if msg_obj.get('TEAM') == 'ADD':
+                                info = zeroconf_register(zc, advertise, port, team_spec, path, print=progress.console.print)
+                                if info:
+                                    team_serviceinfo_mapping[(team_spec, path)] = info
+
+                            if msg_obj.get('TEAM') == 'REMOVE':
+                                info = team_serviceinfo_mapping[(team_spec, path)]
+                                zeroconf_deregister(zc, info)
+
+                        elif "REQUEST" in msg_obj:
+                            if len(connection_map) >= MAX_CONNECTIONS:
+                                _logger.warn("Exceeding maximum number of connections. Ignoring")
+                                continue
+
+                            # TODO: Send a reply to the requester (when the process has started?).
+                            # Otherwise they might already start querying for the team name
+
+                            # TODO: Do not update status with every message
+
+                            requested_url = urlparse(msg_obj['REQUEST'])
+                            progress.console.log(f"Request {requested_url.path} for dealer {dealer_id}")
+
+                            team_spec = team_specs[0][0]
+                            for spec, path in team_specs:
+                                if requested_url.path == '/' + path:
+                                    team_spec = spec
+                                    break
+                            else:
+                                # not found. use default but warn
+                                progress.console.print(f"Player for path {requested_url.path} not found. Using default.")
+
+                            info = GameInfo(round=None, max_rounds=None, my_index=0,
+                                            my_name="waiting", my_score=0,
+                                            enemy_name="waiting", enemy_score=0)
+                            task = progress.add_task(info.status(), total=info.max_rounds)
+
+                            # incoming message is a new request
+                            pair_sock = ctx.socket(zmq.PAIR)
+                            port = pair_sock.bind_to_random_port('tcp://127.0.0.1')
+                            pair_addr = 'tcp://127.0.0.1:{}'.format(port)
+
+                            poll.register(pair_sock, zmq.POLLIN)
+
+                            num_running = len(connection_map)
+                            _logger.info(f"Starting match for team {team_specs}. ({num_running} already running.)")
+                            subproc = play_remote(team_spec, pair_addr, silent=show_progress)
+
+                            process_info = ProcessInfo(proc=subproc, task=task, info=info, dealer_id=dealer_id, pair_socket=pair_sock)
+                            connection_map[process_info.dealer_id] = process_info
+                            connections_by_pair_socket[process_info.pair_socket] = process_info
+
+                        else:
+                            _logger.info("Unknown incoming DEALER and not a request.")
 
                 except Exception as e:
                     _logger.warn(f"Error {e!r} when handling incoming message {msg}. Ignoring.")
 
-            elif len(incoming_evts):
+            # Are there any non-router messages waiting for us?
+            if len(incoming_evts):
                 # One or more of our spawned players has replied
                 # try to find the according process info
                 for socket in incoming_evts:
@@ -299,6 +326,7 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
                         # route message back
                         router_sock.send_multipart([process_info.dealer_id, msg])
 
+            # TODO: Only do this every few seconds
             count = 0
             for process_info in list(connection_map.values()):
                 # check if the process has terminated
