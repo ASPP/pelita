@@ -26,7 +26,7 @@ _logger = logging.getLogger(__name__)
 zeroconf.log.setLevel(logging.INFO)
 zeroconf.log.addHandler(_logger)
 
-MAX_CONNECTIONS = 100
+DEFAULT_MAX_CONNECTIONS = 50
 
 @dataclass
 class GameInfo:
@@ -105,7 +105,8 @@ def zeroconf_register(zc, address, port, team_spec, path, print=print):
 def zeroconf_deregister(zc: zeroconf.Zeroconf, info: zeroconf.ServiceInfo):
     zc.unregister_service(info)
 
-def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: str, show_progress: bool = True):
+def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: str,
+                    max_connections: int, show_progress: bool = True):
     # TODO: Explain how ROUTER-DEALER works with ZMQ
 
     # maps socket/process/game data
@@ -266,7 +267,7 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
                                 zeroconf_deregister(zc, info)
 
                         elif "REQUEST" in msg_obj:
-                            if len(connection_map) >= MAX_CONNECTIONS:
+                            if len(connection_map) >= max_connections:
                                 _logger.warn("Exceeding maximum number of connections. Ignoring")
                                 continue
 
@@ -378,7 +379,9 @@ def main(log):
 @click.option('--advertise', default=None, type=str,
               help='advertise player on zeroconf')
 @click.option('--show-progress', is_flag=True, default=True)
-def remote_server(address, port, teams, advertise, show_progress):
+@click.option('--max-connections', default=DEFAULT_MAX_CONNECTIONS, show_default=True,
+              help='Maximum number of connections that we want to handle')
+def remote_server(address, port, teams, advertise, show_progress, max_connections):
     for team, path in teams:
         team_name = _check_team(team)
         _logger.info(f"Mapping team {team} ({team_name}) to path {path}")
@@ -386,7 +389,8 @@ def remote_server(address, port, teams, advertise, show_progress):
     session_key = "".join(str(random.randint(0, 9)) for _ in range(12))
     pprint(f"Use --session-key {session_key} to for the admin API.")
 
-    with_zmq_router(teams, address, port, advertise=advertise, session_key=session_key, show_progress=show_progress)
+    with_zmq_router(teams, address, port, advertise=advertise, session_key=session_key,
+                    max_connections=max_connections, show_progress=show_progress)
 
     # asyncio repl …
     # reload via zqm key
