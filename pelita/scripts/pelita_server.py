@@ -303,6 +303,8 @@ def with_zmq_router(team_specs, address, port, *, advertise: str, session_key: s
             for process_info in list(connection_map.values()):
                 # check if the process has terminated
                 if process_info.proc.poll() is not None:
+                    # We need to unregister the socket or else the polling will take longer and longer
+                    poll.unregister(process_info.pair_socket)
                     del connection_map[process_info.dealer_id]
                     count += 1
             if count:
