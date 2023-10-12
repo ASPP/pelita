@@ -14,7 +14,7 @@ from weakref import WeakValueDictionary
 
 import click
 from rich import print as pprint
-from rich.progress import Progress, SpinnerColumn, TaskProgressColumn, BarColumn, TextColumn, TimeElapsedColumn, Task
+from rich.progress import Progress, SpinnerColumn, MofNCompleteColumn, BarColumn, TextColumn, TimeElapsedColumn, Task
 import zeroconf
 import zmq
 
@@ -289,7 +289,7 @@ class PelitaServer:
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
             BarColumn(),
-            TaskProgressColumn(),
+            MofNCompleteColumn(),
             TimeElapsedColumn(),
         ) as progress:
 
