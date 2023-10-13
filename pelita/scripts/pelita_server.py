@@ -38,6 +38,7 @@ class GameInfo:
     enemy_name: str
     enemy_score: int
     finished: bool = False
+    last_msg: Optional[bytes] = None
 
     def status(self):
         plural = "" if self.round == 1 else "s"
@@ -157,50 +158,10 @@ class PelitaServer:
 
     def handle_known_client(self, dealer_id, message, progress):
         process_info = self.connection_map[dealer_id]
-
-        try:
-            # TODO: we do not want to do this every millisecond
-            msg_obj = json.loads(message)
-        except ValueError as e:
-            progress.console.log(f"Error {e!r} when parsing incoming message. Ignoring.")
-            _logger.warn(f"Error {e!r} when parsing incoming message. Ignoring.")
-            return
-
-        try:
-            is_exit = msg_obj['__action__'] == 'exit'
-        except KeyError:
-            is_exit = False
-
-        if is_exit:
-            progress.stop_task(process_info.task)
-            progress.update(process_info.task, visible=False)
-            process_info.info.finished = True
-            progress.console.print(process_info.info.status())
-
-        try:
-            process_info.info.round = msg_obj['__data__']['game_state']['round']
-            process_info.info.max_rounds = msg_obj['__data__']['game_state']['max_rounds']
-        except KeyError:
-            process_info.info.round = None
-
-        if round is not None:
-            progress.update(process_info.task, completed=process_info.info.round, total=process_info.info.max_rounds)
-
-        try:
-            process_info.info.my_index = msg_obj['__data__']['game_state']['team']['team_index']
-            process_info.info.my_name = msg_obj['__data__']['game_state']['team']['name']
-            process_info.info.my_score = msg_obj['__data__']['game_state']['team']['score']
-            process_info.info.enemy_name = msg_obj['__data__']['game_state']['enemy']['name']
-            process_info.info.enemy_score = msg_obj['__data__']['game_state']['enemy']['score']
-
-            progress.update(process_info.task, description=process_info.info.status())
-        except KeyError:
-            pass
-
+        process_info.info.last_msg = message
         process_info.pair_socket.send(message)
 
     def handle_new_connection(self, dealer_id, message, progress):
-
         try:
             msg_obj = json.loads(message)
         except ValueError as e:
@@ -238,6 +199,7 @@ class PelitaServer:
                 zeroconf_deregister(self.zc, info)
 
         elif "REQUEST" in msg_obj:
+            # incoming message is a new request
             if len(self.connection_map) >= self.max_connections:
                 _logger.warn("Exceeding maximum number of connections. Ignoring")
                 return
@@ -264,16 +226,12 @@ class PelitaServer:
                             enemy_name="waiting", enemy_score=0)
             task = progress.add_task(info.status(), total=info.max_rounds)
 
-            # incoming message is a new request
-            pair_sock = self.ctx.socket(zmq.PAIR)
-            port = pair_sock.bind_to_random_port('tcp://127.0.0.1')
-            pair_addr = 'tcp://127.0.0.1:{}'.format(port)
-
-            self.poll.register(pair_sock, zmq.POLLIN)
 
             num_running = len(self.connection_map)
-            _logger.info(f"Starting match for team {self.team_specs}. ({num_running} already running.)")
-            subproc = play_remote(team_spec, pair_addr, silent=True)
+            _logger.info(f"Starting match for team {team_spec}. ({num_running} already running.)")
+            subproc, pair_sock = run_team_in_subprocess(self.ctx, team_spec)
+
+            self.poll.register(pair_sock, zmq.POLLIN)
 
             process_info = ProcessInfo(proc=subproc, task=task, info=info, dealer_id=dealer_id, pair_socket=pair_sock)
             self.connection_map[process_info.dealer_id] = process_info
@@ -281,6 +239,53 @@ class PelitaServer:
 
         else:
             _logger.info("Unknown incoming DEALER and not a request.")
+
+
+    def update_progress_bar(self, progress, process_info: ProcessInfo):
+        if not process_info.info.last_msg:
+            return
+
+        if process_info.info.finished:
+            return
+
+        try:
+            msg_obj = json.loads(process_info.info.last_msg)
+        except ValueError as e:
+            progress.console.log(f"Error {e!r} when parsing incoming message. Ignoring.")
+            _logger.warn(f"Error {e!r} when parsing incoming message. Ignoring.")
+            return
+
+        try:
+            process_info.info.round = msg_obj['__data__']['game_state']['round']
+            process_info.info.max_rounds = msg_obj['__data__']['game_state']['max_rounds']
+        except KeyError:
+            process_info.info.round = None
+
+        if round is not None:
+            progress.update(process_info.task, completed=process_info.info.round, total=process_info.info.max_rounds)
+
+        try:
+            process_info.info.my_index = msg_obj['__data__']['game_state']['team']['team_index']
+            process_info.info.my_name = msg_obj['__data__']['game_state']['team']['name']
+            process_info.info.my_score = msg_obj['__data__']['game_state']['team']['score']
+            process_info.info.enemy_name = msg_obj['__data__']['game_state']['enemy']['name']
+            process_info.info.enemy_score = msg_obj['__data__']['game_state']['enemy']['score']
+
+            progress.update(process_info.task, description=process_info.info.status())
+        except KeyError:
+            pass
+
+        try:
+            is_exit = msg_obj['__action__'] == 'exit'
+        except KeyError:
+            is_exit = False
+
+        if is_exit:
+            progress.stop_task(process_info.task)
+            progress.update(process_info.task, visible=False)
+            process_info.info.finished = True
+            progress.console.print(process_info.info.status())
+
 
     def start(self):
         zc = zeroconf.Zeroconf()
@@ -333,13 +338,16 @@ class PelitaServer:
                             # route message back
                             self.router_sock.send_multipart([process_info.dealer_id, message])
 
+                # TODO: Do this less often
+                for process_info in list(self.connection_map.values()):
+                    self.update_progress_bar(progress, process_info)
+
                 # TODO: Only do this every few seconds
                 count = 0
                 for process_info in list(self.connection_map.values()):
                     # check if the process has terminated
                     if process_info.proc.poll() is not None:
-                        progress.stop_task(process_info.task)
-                        progress.update(process_info.task, visible=False)
+                        self.update_progress_bar(progress, process_info)
                         # We need to unregister the socket or else the polling will take longer and longer
                         self.poll.unregister(process_info.pair_socket)
                         del self.connection_map[process_info.dealer_id]
@@ -348,6 +356,15 @@ class PelitaServer:
                     plural = "" if count == 1 else "es"
                     progress.console.log(f"Cleaned up {count} process{plural}. ({len(self.connection_map)} still running.)")
 
+
+def run_team_in_subprocess(ctx, team_spec):
+    pair_sock = ctx.socket(zmq.PAIR)
+    port = pair_sock.bind_to_random_port('tcp://127.0.0.1')
+    pair_addr = 'tcp://127.0.0.1:{}'.format(port)
+
+    subproc = play_remote(team_spec, pair_addr, silent=True)
+
+    return subproc, pair_sock
 
 def play_remote(team_spec, pair_addr, silent=False):
     external_call = [sys.executable,
