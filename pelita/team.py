@@ -233,7 +233,7 @@ class Team:
             "say": me._say
         }
 
-    def _exit(self):
+    def _exit(self, game_state=None):
         """ Dummy function. Only needed for `RemoteTeam`. """
         pass
 
@@ -418,10 +418,16 @@ class RemoteTeam:
         except ZMQClientError:
             raise
 
-    def _exit(self):
+    def _exit(self, game_state=None):
         # We only want to exit once.
         if getattr(self, '_sent_exit', False):
             return
+
+        if game_state:
+            payload = {'game_state': game_state}
+        else:
+            payload = {}
+
         try:
             # TODO: make zmqconnection stateful. set flag when already disconnected
             # For now, we simply check the state of the socket so that we do not send
@@ -429,7 +435,7 @@ class RemoteTeam:
             if self.zmqconnection.socket.closed:
                 return
             # TODO: Include final state with exit message
-            self.zmqconnection.send("exit", {}, timeout=1)
+            self.zmqconnection.send("exit", payload, timeout=1)
             self._sent_exit = True
         except ZMQUnreachablePeer:
             _logger.info("Remote Player %r is already dead during exit. Ignoring.", self)
