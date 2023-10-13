@@ -4,36 +4,52 @@ import json
 import logging
 
 import zmq
+from rich.console import Console
+from rich.progress import (BarColumn, MofNCompleteColumn, Progress,
+                           SpinnerColumn, TextColumn, TimeElapsedColumn)
 
 from . import layout
 from .network import SetEncoder
 
 _logger = logging.getLogger(__name__)
 
-
+# Only highlight explicit markup
+pprint = Console(highlight=False).print
 
 class ProgressViewer:
+    def __init__(self) -> None:
+        self.progress = Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            MofNCompleteColumn(),
+            TimeElapsedColumn(),
+        )
+        self.task = self.progress.add_task('[Pelita]', total=None)
+
     def show_state(self, game_state):
         score = game_state["score"]
         round_index = game_state["round"]
         if round_index is None:
             return
         game_time = game_state["max_rounds"]
-        percentage = int(100.0 * round_index / game_time)
+
         turn = game_state["turn"]
         if turn is not None:
             bot_idx = turn // 2
             if turn % 2 == 0:
-                bot_sign = f'\033[94mBlue Team, Bot {bot_idx}\033[0m'
+                bot_sign = f'[blue]Blue Team, Bot {bot_idx}[/]'
             elif turn % 2 == 1:
-                bot_sign = f'\033[91mRed Team, Bot {bot_idx}\033[0m'
+                bot_sign = f'[red]Red Team,  Bot {bot_idx}[/]'
         else:
             bot_sign = ' '
-        string = ("[%s] %3i%% (%i / %i) [%s]" % (
-                    bot_sign, percentage,
-                    round_index, game_time,
-                    ":".join(str(s) for s in score)))
-        print(string + ("\b" * len(string)), flush=True, end='')
+
+        score = ":".join(str(s) for s in score)
+        status = f"[{bot_sign}] [{score}]"
+
+        self.progress.update(self.task, description=status, total=game_time,
+                             completed=round_index, refresh=True)
+        self.progress.start()
 
         if game_state["gameover"]:
             state = {}
@@ -41,18 +57,26 @@ class ProgressViewer:
             del state['walls']
             del state['food']
 
+            self.progress.stop()
+            self.progress.console.clear_live()
+
             print()
-            print("Final state:", state)
+            print(f"Final state: {state}")
+
 
 class AsciiViewer:
     """ A viewer that dumps ASCII charts on stdout. """
 
     def color_bots(self, layout_str):
         out_str = layout_str
+        # we have to do the replace in two steps to avoid
+        # that the ‘b’ in ‘[blue]’ gets replaced with itself
         for turn, char in layout.BOT_I2N.items():
             team = turn % 2
-            col = '\033[94m' if team == 0 else '\033[91m'
-            out_str = out_str.replace(char, f'{col}{char}\033[0m')
+            col = '[B]' if team == 0 else '[R]'
+            out_str = out_str.replace(char, f'{col}{char}[/]')
+
+        out_str = out_str.replace('B', 'blue').replace('R', 'red')
 
         return out_str
 
@@ -95,18 +119,20 @@ class AsciiViewer:
         universe=uni_str
         length = len(universe.splitlines()[0])
         info = (
-                f"Round: {round!r} | Team: {team} | Bot: {bot_name} | Score {s0}:{s1}\n"
+            f"Round: {round!r} | Team: {team} | Bot: {bot_name} | Score {s0}:{s1}\n"
             f"Game State: {state!r}\n"
             f"\n"
-            f"{universe}\n")
+        )
 
-        print(info+"–"*length)
+        print(info)
+        pprint(universe)
+        print("–"*length)
         if state.get("gameover"):
             if state["whowins"] == 2:
-                print("Game Over: Draw.")
+                pprint("Game Over: Draw.")
             else:
                 winner = game_state["team_names"][state["whowins"]]
-                print(f"Game Over: Team: '{winner}' wins!")
+                pprint(f"Game Over: Team: '{winner}' wins!")
 
 
 class ReplyToViewer:
