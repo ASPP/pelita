@@ -506,12 +506,18 @@ def prepare_bot_state(game_state, idx=None):
     """
 
     bot_initialization = game_state.get('turn') is None and idx is not None
+    bot_finalization = game_state.get('turn') is not None and idx is not None
 
     if bot_initialization:
         # We assume that we are in get_initial phase
         turn = idx
         bot_turn = None
         seed = game_state['rnd'].randint(0, sys.maxsize)
+    elif bot_finalization:
+        # Called for remote players in _exit
+        turn = idx
+        bot_turn = None
+        seed = None
     else:
         turn = game_state['turn']
         bot_turn = game_state['turn'] // 2
@@ -977,9 +983,10 @@ def check_exit_remote_teams(game_state):
     """ If the we are gameover, we want the remote teams to shut down. """
     if game_state['gameover']:
         _logger.info("Gameover. Telling teams to exit.")
-        for team in game_state['teams']:
+        for idx, team in enumerate(game_state['teams']):
             try:
-                team._exit()
+                team_game_state = prepare_bot_state(game_state, idx=idx)
+                team._exit(team_game_state)
             except AttributeError:
                 pass
 
