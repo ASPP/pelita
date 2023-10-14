@@ -155,6 +155,9 @@ class PelitaServer:
         self.poll = zmq.Poller()
         self.poll.register(self.router_sock, zmq.POLLIN)
 
+        self.ticks_progressbar = 0.0
+        self.ticks_process_cleanup = 0.0
+
 
     def handle_known_client(self, dealer_id, message, progress):
         process_info = self.connection_map[dealer_id]
@@ -338,23 +341,26 @@ class PelitaServer:
                             # route message back
                             self.router_sock.send_multipart([process_info.dealer_id, message])
 
-                # TODO: Do this less often
-                for process_info in list(self.connection_map.values()):
-                    self.update_progress_bar(progress, process_info)
-
-                # TODO: Only do this every few seconds
-                count = 0
-                for process_info in list(self.connection_map.values()):
-                    # check if the process has terminated
-                    if process_info.proc.poll() is not None:
+                # not every event needs to update the progress bars
+                if (now := time.monotonic()) - self.ticks_progressbar > 0.01:
+                    self.ticks_progressbar = now
+                    for process_info in list(self.connection_map.values()):
                         self.update_progress_bar(progress, process_info)
-                        # We need to unregister the socket or else the polling will take longer and longer
-                        self.poll.unregister(process_info.pair_socket)
-                        del self.connection_map[process_info.dealer_id]
-                        count += 1
-                if count:
-                    plural = "" if count == 1 else "es"
-                    progress.console.log(f"Cleaned up {count} process{plural}. ({len(self.connection_map)} still running.)")
+
+                if (now := time.monotonic()) - self.ticks_process_cleanup > 3:
+                    self.ticks_process_cleanup = now
+                    count = 0
+                    for process_info in list(self.connection_map.values()):
+                        # check if the process has terminated
+                        if process_info.proc.poll() is not None:
+                            self.update_progress_bar(progress, process_info)
+                            # We need to unregister the socket or else the polling will take longer and longer
+                            self.poll.unregister(process_info.pair_socket)
+                            del self.connection_map[process_info.dealer_id]
+                            count += 1
+                    if count:
+                        plural = "" if count == 1 else "es"
+                        progress.console.log(f"Cleaned up {count} process{plural}. ({len(self.connection_map)} still running.)")
 
 
 def run_team_in_subprocess(ctx, team_spec):
