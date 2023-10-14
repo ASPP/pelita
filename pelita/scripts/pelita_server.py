@@ -129,19 +129,19 @@ class PelitaServer:
 
         def cleanup(signum, frame):
             for process_info in self.connection_map.values():
-                _logger.warn(f"Cleaning up unfinished process: {process_info.proc}.")
+                _logger.warn(f"Terminating unfinished process: {process_info.proc.args!r}.")
                 process_info.proc.terminate()
             finish_time = time.monotonic() + 3
             for process_info in self.connection_map.values():
                 # We need to wait for all processes to finish
                 # Otherwise we might exit before the signal has been sent
-                _logger.debug(f"Waiting for process {process_info.proc} to terminate")
+                _logger.debug(f"Waiting for process {process_info.proc.args!r} to terminate")
                 remainder = finish_time - time.monotonic()
                 if remainder > 0:
                     try:
                         process_info.proc.wait(remainder)
                     except subprocess.TimeoutExpired:
-                        _logger.warn(f"Process {process_info.proc} has not finished.")
+                        _logger.warn(f"Process {process_info.proc.args!r} has not finished.")
 
             sys.exit()
 
@@ -213,7 +213,7 @@ class PelitaServer:
             # TODO: Do not update status with every message
 
             requested_url = urlparse(msg_obj['REQUEST'])
-            progress.console.log(f"Request {requested_url.path} for dealer {dealer_id}")
+            progress.console.log(f"Request from id {dealer_id.hex()}: {requested_url.scheme}://{requested_url.hostname}{requested_url.path}")
 
             team_spec = self.team_specs[0][0]
             for spec, path in self.team_specs:
