@@ -63,7 +63,7 @@ def scan(team_spec):
                 (addr, team_name) = q.get(timeout=5)
                 #  if not players:
                     #console.print("[bold]Found players:")
-                console.print(f"  [blue]{len(players)})[/] {team_name} \[[blue]{addr}[/]]", highlight=False)
+                console.print(f"  [blue]{len(players)})[/] {team_name} \\[[blue]{addr}[/]]", highlight=False)
                 players.append(f"remote:{addr}")
         except Empty:
             pass
