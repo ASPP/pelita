@@ -13,7 +13,7 @@ CONTRIBUTORS=doc/source/_contributors.rst
 
 echo "As of \`\`${git_describe}\`\` the developers and contributors are::" > $CONTRIBUTORS
 echo "" >> $CONTRIBUTORS
-git shortlog -sn | awk '{first = $1; $1 = "   "; print $0; }' >> $CONTRIBUTORS
+git shortlog -sn HEAD | awk '{first = $1; $1 = "   "; print $0; }' >> $CONTRIBUTORS
 
 (cd doc && make clean)
 if ! (cd doc && make html) ; then
@@ -26,4 +26,3 @@ docdirectory=doc/build/html/
 # Add a .nojekyll file
 # This prevents the GitHub jekyll website generator from running
 touch $docdirectory".nojekyll"
-
