@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+set -Eeuo pipefail
 
 # get the 'git describe' output
 git_describe=$(git describe)
@@ -13,8 +15,8 @@ echo "As of \`\`${git_describe}\`\` the developers and contributors are::" > $CO
 echo "" >> $CONTRIBUTORS
 git shortlog -sn | awk '{first = $1; $1 = "   "; print $0; }' >> $CONTRIBUTORS
 
-(cd doc; make clean)
-if ! (cd doc; make html) ; then
+(cd doc && make clean)
+if ! (cd doc && make html) ; then
   echo "Fatal: 'make'ing the docs failed cannot commit!"
   exit 2
 fi
