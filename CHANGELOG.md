@@ -1,5 +1,11 @@
 # Pelita changelog
 
+  * v2.3.2 (16. Oct 2023)
+
+     - Give advice when tkinter is not available
+     - Fix colours in --ascii mode on Windows
+     - Improved --progress bar
+
   * v2.3.1 (2. Sep 2023)
 
      - Tournament can be configured to include name of host and local salutation
