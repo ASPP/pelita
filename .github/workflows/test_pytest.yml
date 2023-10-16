@@ -1,4 +1,4 @@
-name: Test Pelita and build docs to gh-pages
+name: Run tests
 
 on:
   push:
@@ -7,8 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
-
+  pytest:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -61,10 +60,9 @@ jobs:
         cd pelita_template
         python -m pytest -v -s .
 
-
   coveralls:
     name: Indicate completion to coveralls.io
-    needs: test
+    needs: pytest
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished
@@ -72,7 +70,7 @@ jobs:
       with:
         parallel-finished: true
 
-  test-tournament:
+  tournament:
     # The tournament does not need to run everywhere.
     # Only test on the latest ubuntu/macos for recent versions of Python.
     runs-on: ${{ matrix.os }}
@@ -97,34 +95,3 @@ jobs:
       run: |
         pelita-tournament --non-interactive --viewer null
       timeout-minutes: 10
-
-  deploy_docs:
-    needs: [test, test-tournament]
-
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0 # fetch all history and tags (needed for git describe)
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.12'
-    - name: Install sphinx and prepare repo
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install sphinx
-        pip install -e .
-    - name: Build docs
-      run: |
-        . ./build-docs.sh
-    - name: Deploy to gh-pages
-      if: github.ref == 'refs/heads/main'
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_branch: gh-pages
-        publish_dir: doc/build/html/
-
-        commit_message: ${{ github.event.head_commit.message }}
-
