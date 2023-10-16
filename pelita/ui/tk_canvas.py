@@ -3,7 +3,19 @@ import time
 
 import zmq
 
-import tkinter
+try:
+    import tkinter
+except ImportError:
+    # if we are on linux, we suggest to install the python3-tk package
+    import platform
+    if 'Linux' in platform.platform():
+        message = '\nYour Python installation is missing tkinter\n\n'
+        if platform.freedesktop_os_release()['ID'] == 'debian':
+            message += 'Please install the python3-tk package'
+        else:
+            message += 'Please install the python3-tkinter package'
+        raise Exception(message)
+
 import tkinter.font
 
 from ..game import next_round_turn
