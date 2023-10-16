@@ -1,2 +1,27 @@
-As of ``v2.0.0-253-gd0d0e9fe`` the developers and contributors are::
+As of ``v2.0.0-256-gf0524d75`` the developers and contributors are::
 
+    Rike-Benjamin Schuppner
+    Valentin Haenel
+    Tiziano Zito
+    Zbigniew Jędrzejewski-Szmek
+    Lisa Schwetlick
+    Bastian Venthur
+    Pietro Berkes
+    pransito
+    Jakob Jordan
+    Carlos Echeverria
+    Nicola Chiapolini
+    Pauli Virtanen
+    Anastasis Georgoulas
+    DoriekeG
+    Stefan Appelhoff
+    abject
+    Anna Chabuda
+    Bartosz Telenczuk
+    Christian Steigies
+    Daniel Hähnke
+    Fabien Maussion
+    Francesc Alted
+    Ola Pidde
+    Sasza Kijek
+    Zbigniew Jędrzejewski-Szmek
