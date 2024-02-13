@@ -478,38 +478,20 @@ class Bot:
         self.error_count = error_count
         self.is_noisy = is_noisy
 
+        # The legal positions that the bot can reach from its current position,
+        # including the current position.
+        self.legal_positions = []
+
+        for direction in [(0, 0), (-1, 0), (1, 0), (0, 1), (0, -1)]:
+            new_pos = (position[0] + direction[0],
+                       position[1] + direction[1])
+            if not new_pos in self.walls:
+                self.legal_positions.append(new_pos)
+
         # Attributes for Bot
         if self._is_on_team:
             assert bot_turn is not None
             self._bot_turn = bot_turn
-
-    # @property
-    # def legal_directions(self):
-        # """ The legal moves that the bot can make from its current position,
-        # including no move at all.
-        # """
-        # legal_directions = [(0, 0)]
-
-        # for move in [(-1, 0), (1, 0), (0, 1), (0, -1)]:
-            # new_pos = (self.position[0] + move[0], self.position[1] + move[1])
-            # if not new_pos in self.walls:
-                # legal_directions.append(move)
-
-        # return legal_directions
-
-    @property
-    def legal_positions(self):
-        """ The legal positions that the bot can reach from its current position,
-        including the current position.
-        """
-        legal_positions = []
-
-        for direction in [(0, 0), (-1, 0), (1, 0), (0, 1), (0, -1)]:
-            new_pos = (self.position[0] + direction[0], self.position[1] + direction[1])
-            if not new_pos in self.walls:
-                legal_positions.append(new_pos)
-
-        return legal_positions
 
     @property
     def _team(self):
