@@ -407,7 +407,7 @@ def main(log):
 @main.command(help="Run pelita server with given players")
 @click.option('--address', default="0.0.0.0")
 @click.option('--port', default=PELITA_PORT)
-@click.option('--team', '-t', 'teams', type=(str, str), multiple=True, required=True, help="Team path")
+@click.option('--team', 'teams', type=(str, str), multiple=True, required=True, help="Team path")
 @click.option('--advertise', default=None, type=str,
               help='advertise player on zeroconf')
 @click.option('--max-connections', default=DEFAULT_MAX_CONNECTIONS, show_default=True,
@@ -455,7 +455,7 @@ def show_statistics(url, session_key):
 @main.command(help="Add team")
 @click.option('--url', default="pelita://localhost/")
 @click.option('--session-key', type=str, required=True)
-@click.option('--team', '-t', 'team', type=(str, str), required=True, help="Team path")
+@click.option('--team', 'team', type=(str, str), required=True, help="Team path")
 def add_team(url, session_key, team):
     team_spec, path = team
     send_api_message(url, session_key, "TEAM", "ADD", team=team_spec, path=path)
