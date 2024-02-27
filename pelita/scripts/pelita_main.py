@@ -187,7 +187,9 @@ viewer_opt.add_argument('--tk', action='store_const', const='tk',
                         dest='viewer', help='Use the tk viewer (default).')
 viewer_opt.add_argument('--tk-no-sync', action='store_const', const='tk-no-sync',
                         dest='viewer', help=long_help('Uses the tk viewer in an unsynchronized mode.'))
-parser.set_defaults(viewer='tk')
+viewer_opt.add_argument('--qt', action='store_const', const='qt',
+                        dest='viewer', help='Use the qt viewer (default).')
+parser.set_defaults(viewer='qt')
 
 advanced_settings = parser.add_argument_group('Advanced settings')
 advanced_settings.add_argument('--reply-to', type=str, metavar='URL', dest='reply_to',

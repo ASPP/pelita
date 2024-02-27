@@ -30,6 +30,7 @@ dependencies = [
     "pytest>=4",
     "zeroconf",
     "rich",
+    "pyqt6",
 ]
 dynamic = ["version"]
 
@@ -41,6 +42,7 @@ content-type = "text/markdown"
 pelita = "pelita.scripts.pelita_main:main"
 pelita-tournament = "pelita.scripts.pelita_tournament:main"
 pelita-tkviewer = "pelita.scripts.pelita_tkviewer:main"
+pelita-qtviewer = "pelita.scripts.pelita_qtviewer:main"
 pelita-player = "pelita.scripts.pelita_player:main"
 pelita-createlayout = "pelita.scripts.pelita_createlayout:main"
 

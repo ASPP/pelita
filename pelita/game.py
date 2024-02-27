@@ -33,6 +33,35 @@ SIGHT_DISTANCE = 5
 NOISE_RADIUS = 5
 
 
+class QtViewer:
+    def __init__(self, *, address, controller, geometry=None, delay=None, stop_after=None):
+        self.proc = self._run_external_viewer(address, controller, geometry=geometry, delay=delay, stop_after=stop_after)
+
+    def _run_external_viewer(self, subscribe_sock, controller, geometry, delay, stop_after):
+        viewer_args = [ str(subscribe_sock) ]
+        if controller:
+            viewer_args += ["--controller-address", str(controller)]
+        if geometry:
+            viewer_args += ["--geometry", "{0}x{1}".format(*geometry)]
+        if delay:
+            viewer_args += ["--delay", str(delay)]
+        if stop_after is not None:
+            viewer_args += ["--stop-after", str(stop_after)]
+
+        qtviewer = 'pelita.scripts.pelita_qtviewer'
+        external_call = [sys.executable,
+                        '-m',
+                        qtviewer] + viewer_args
+        _logger.debug("Executing: %r", external_call)
+        # os.setsid will keep the viewer from closing when the main process exits
+        # a better solution might be to decouple the viewer from the main process
+        if _mswindows:
+            p = subprocess.Popen(external_call, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+        else:
+            p = subprocess.Popen(external_call, preexec_fn=os.setsid)
+        return p
+
+
 class TkViewer:
     def __init__(self, *, address, controller, geometry=None, delay=None, stop_after=None):
         self.proc = self._run_external_viewer(address, controller, geometry=geometry, delay=delay, stop_after=stop_after)
@@ -226,14 +255,18 @@ def setup_viewers(viewers=None, options=None, print_result=True):
             viewer_state['viewers'].append(ReplyToViewer(viewer[1]))
         elif len(viewer) == 2 and viewer[0] == 'write-replay-to':
             viewer_state['viewers'].append(ReplayWriter(open(viewer[1], 'w')))
-        elif viewer in ('tk', 'tk-no-sync'):
+        elif viewer in ('tk', 'tk-no-sync', 'qt'):
             if not zmq_publisher:
                 zmq_publisher = ZMQPublisher(address='tcp://127.0.0.1:*')
                 viewer_state['viewers'].append(zmq_publisher)
             if viewer == 'tk':
                 viewer_state['controller'] = setup_controller()
+                cls = TkViewer
+            if viewer == 'qt':
+                viewer_state['controller'] = setup_controller()
+                cls = QtViewer
             if viewer_state['controller']:
-                proc = TkViewer(address=zmq_publisher.socket_addr, controller=viewer_state['controller'].socket_addr,
+                proc = cls(address=zmq_publisher.socket_addr, controller=viewer_state['controller'].socket_addr,
                                 stop_after=options.get('stop_at'),
                                 geometry=options.get('geometry'),
                                 delay=options.get('delay'))
