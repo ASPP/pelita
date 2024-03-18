@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
 
-import argparse
 import contextlib
 import importlib
 import json
 import logging
 from pathlib import Path
-import signal
-import subprocess
 import sys
-from urllib.parse import urlparse
 
-import zeroconf
+import click
 import zmq
 
 import pelita
@@ -22,9 +18,6 @@ from .script_utils import start_logging
 _logger = logging.getLogger(__name__)
 
 
-zeroconf.log.setLevel(logging.DEBUG)
-zeroconf.log.addHandler(_logger)
-
 @contextlib.contextmanager
 def with_sys_path(dirname):
     sys.path.insert(0, dirname)
@@ -33,8 +26,7 @@ def with_sys_path(dirname):
     finally:
         sys.path.remove(dirname)
 
-
-def run_player(team_spec, address, color=None):
+def run_player(team_spec, address, color=None, silent=False):
     """ Creates a team from `team_spec` and runs
     a game through the zmq PAIR socket on `address`.
 
@@ -84,16 +76,17 @@ def run_player(team_spec, address, color=None):
         # and general zmq disconnects
         raise
 
-    if color == 'blue':
-        pie = '\033[94m' + 'ᗧ' + '\033[0m'
-    elif color == 'red':
-        pie = '\033[91m' + 'ᗧ' + '\033[0m'
-    else:
-        pie = 'ᗧ'
-    if pelita.game._mswindows:
-        print(f"{color} team '{team_spec}' -> '{team.team_name}'")
-    else:
-        print(f"{pie} {color} team '{team_spec}' -> '{team.team_name}'")
+    if not silent:
+        if color == 'blue':
+            pie = '\033[94m' + 'ᗧ' + '\033[0m'
+        elif color == 'red':
+            pie = '\033[91m' + 'ᗧ' + '\033[0m'
+        else:
+            pie = 'ᗧ'
+        if pelita.game._mswindows:
+            print(f"{color} team '{team_spec}' -> '{team.team_name}'")
+        else:
+            print(f"{pie} {color} team '{team_spec}' -> '{team.team_name}'")
 
     while True:
         cont = player_handle_request(socket, team)
@@ -294,150 +287,43 @@ def team_from_module(module):
     `module` and returns a team.
     """
     # look for a new-style team
-    move = getattr(module, "move")
-    name = getattr(module, "TEAM_NAME")
+    move = module.move
+    name = module.TEAM_NAME
     if not callable(move):
         raise TypeError("move is not a function")
-    if type(name) is not str:
+    if not isinstance(name, str):
         raise TypeError("TEAM_NAME is not a string")
     team, _ = make_team(move, team_name=name)
     return team
 
 
-def zeroconf_advertise(address, team_spec):
-    parsed_url = urlparse(address)
-    if parsed_url.scheme != "tcp":
-        _logger.warning("Can only advertise to tcp addresses.")
-        return
-    if parsed_url.hostname == "0.0.0.0":
-        _logger.warning("Can only advertise to a specific interface.")
-        return
-
-    # TODO: This should only be done once
-    team = load_team(team_spec)
-    name = team.team_name
-
-    desc = {
-        'spec': team_spec,
-        'team_name': name,
-        'proto_version': 0.1
-        }
-    info = zeroconf.ServiceInfo(
-        "_pelita-player._tcp.local.",
-        f"{name}._pelita-player._tcp.local.",
-        parsed_addresses=[parsed_url.hostname],
-        server='mynewserver.local',
-        port=parsed_url.port,
-        properties=desc,
-    )
-
-    # protocol versoin ...
-    zc = zeroconf.Zeroconf()
-    zc.engine._listen_socket
-    print("Registration of a service, press Ctrl-C to exit...")
-    zc.register_service(info)
+@click.group()
+@click.option('--log',
+              is_flag=False, flag_value="-", default=None, metavar='LOGFILE',
+              help="print debugging log information to LOGFILE (default 'stderr')")
+def main(log):
+    if log is not None:
+        start_logging(log)
 
 
-def with_zmq_router(team_spec, address, *, advertise: bool):
-    dealer_pair_mapping = {}
-    pair_dealer_mapping = {}
-    proc_dealer_mapping = {}
-
-    def cleanup(signum, frame):
-        for proc in proc_dealer_mapping:
-            proc.terminate()
-        sys.exit()
-
-    signal.signal(signal.SIGTERM, cleanup)
-
-    ctx = zmq.Context()
-    sock = ctx.socket(zmq.ROUTER)
-    sock.bind(address)
-
-    if advertise:
-        zeroconf_advertise(address, team_spec)
-
-    poll = zmq.Poller()
-    poll.register(sock, zmq.POLLIN)
-
-    while True:
-        evts = dict(poll.poll(1000))
-        if sock in evts:
-            id_ = sock.recv()
-            msg = sock.recv_json()
-            if "REQUEST" in msg:
-                pair_sock = ctx.socket(zmq.PAIR)
-                port = pair_sock.bind_to_random_port('tcp://127.0.0.1')
-                pair_addr = 'tcp://127.0.0.1:{}'.format(port)
-
-                poll.register(pair_sock, zmq.POLLIN)
-
-                _logger.info("Starting match for team {}. ({} already running.)".format(team_spec, len(proc_dealer_mapping)))
-                sub = play_remote(team_spec, pair_addr)
-
-                dealer_pair_mapping[id_] = pair_sock
-                pair_dealer_mapping[pair_sock] = id_
-                proc_dealer_mapping[sub] = (id_, pair_sock)
-
-                assert len(dealer_pair_mapping) == len(pair_dealer_mapping)
-            elif id_ in dealer_pair_mapping:
-                dealer_pair_mapping[id_].send_json(msg)
-            else:
-                _logger.info("Unknown incoming DEALER and not a request.")
-
-        elif len(evts):
-            for pair_sock, id_ in pair_dealer_mapping.items():
-                if pair_sock in evts:
-                    msg = pair_sock.recv()
-                    sock.send_multipart([id_, msg])
-
-        old_procs = list(proc_dealer_mapping.keys())
-        count = 0
-        for proc in old_procs:
-            if proc.poll() is not None:
-                id_, pair_sock = proc_dealer_mapping[proc]
-                del dealer_pair_mapping[id_]
-                del pair_dealer_mapping[pair_sock]
-                del proc_dealer_mapping[proc]
-                count += 1
-        if count:
-            _logger.debug("Cleaned up {} process(es). ({} still running.)".format(count, len(proc_dealer_mapping)))
+@main.command(help="Load team and connect to the specified address.")
+@click.argument('team')
+@click.argument('address')
+@click.option('--color',
+              default=None,
+              help='which color your team will have in the game')
+@click.option('--silent', is_flag=True, default=False)
+def remote_game(team, address, color, silent):
+    run_player(team, address, color, silent=silent)
 
 
-def play_remote(team_spec, pair_addr):
-    external_call = [sys.executable,
-                    '-m',
-                    'pelita.scripts.pelita_player',
-                    team_spec,
-                    pair_addr]
-    _logger.debug("Executing: %r", external_call)
-    sub = subprocess.Popen(external_call)
-    return sub
+@main.command("check-team", help="Load team and print its name.")
+@click.argument('team')
+def cli_check_team(team):
+    return check_team(team)
 
-
-def main():
-    parser = argparse.ArgumentParser(description="Runs a Python pelita module.")
-    parser.add_argument('--log', help='print debugging log information to LOGFILE (default \'stderr\')',
-                        metavar='LOGFILE', default=argparse.SUPPRESS, nargs='?')
-    parser.add_argument('--remote', help='bind to a zmq.ROUTER socket at the given address which forks subprocesses on demand',
-                        action='store_const', const=True)
-    parser.add_argument('--advertise', help='advertise player on zeroconf',
-                        action='store_const', const=True)
-    parser.add_argument('--color', help='which color your team will have in the game', default=None)
-    parser.add_argument('team')
-    parser.add_argument('address')
-
-    args = parser.parse_args()
-
-    try:
-        start_logging(args.log)
-    except AttributeError:
-        pass
-
-    if args.remote:
-        with_zmq_router(args.team, args.address, advertise=args.advertise)
-    else:
-        run_player(args.team, args.address, args.color)
+def check_team(team):
+    print(load_team(team).team_name)
 
 
 if __name__ == '__main__':

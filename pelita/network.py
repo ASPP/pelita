@@ -10,6 +10,10 @@ import zmq
 
 _logger = logging.getLogger(__name__)
 
+# 41736 is the word PELI(T)A when read upside down in reverse without glasses
+# The missing T stands for tcp
+PELITA_PORT = 41736
+
 ## Pelita network data structures
 
 # ControlRequest
