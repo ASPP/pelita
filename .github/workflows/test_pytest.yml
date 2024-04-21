@@ -33,13 +33,6 @@ jobs:
         python -m pytest -v -s --cov=./pelita/ test/
       timeout-minutes: 8
 
-    - name: "Upload coverage to Codecov"
-      uses: codecov/codecov-action@v4
-      with:
-        fail_ci_if_error: true
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
     - name: Upload coverage data to coveralls.io
       uses: AndreMiras/coveralls-python-action@develop
       if: runner.os == 'Linux' # Only works on Linux
