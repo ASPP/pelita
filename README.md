@@ -1,6 +1,6 @@
 # Pelita
 
-[![Build Status](https://github.com/ASPP/pelita/actions/workflows/push_ci.yml/badge.svg?branch=main)](https://github.com/ASPP/pelita/actions)
+[![Build Status](https://github.com/ASPP/pelita/actions/workflows/test_pytest.yml/badge.svg?branch=main)](https://github.com/ASPP/pelita/actions)
 
 ## Description
 
