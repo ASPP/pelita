@@ -26,7 +26,7 @@ def with_sys_path(dirname):
     finally:
         sys.path.remove(dirname)
 
-def run_player(team_spec, address, color=None, silent=False):
+def run_player(team_spec, address, color=None, quiet=False, team_name_override=False, silent_bots=False):
     """ Creates a team from `team_spec` and runs
     a game through the zmq PAIR socket on `address`.
 
@@ -76,7 +76,7 @@ def run_player(team_spec, address, color=None, silent=False):
         # and general zmq disconnects
         raise
 
-    if not silent:
+    if not quiet:
         if color == 'blue':
             pie = '\033[94m' + 'ᗧ' + '\033[0m'
         elif color == 'red':
@@ -89,12 +89,12 @@ def run_player(team_spec, address, color=None, silent=False):
             print(f"{pie} {color} team '{team_spec}' -> '{team.team_name}'")
 
     while True:
-        cont = player_handle_request(socket, team)
+        cont = player_handle_request(socket, team, team_name_override=team_name_override, silent_bots=silent_bots)
         if not cont:
             return
 
 
-def player_handle_request(socket, team):
+def player_handle_request(socket, team, team_name_override=False, silent_bots=False):
     """ Awaits a new request on `socket` and dispatches it
     to `team`.
 
@@ -128,8 +128,20 @@ def player_handle_request(socket, team):
             retval = team.set_initial(**data)
         elif action == "get_move":
             retval = team.get_move(**data)
+            if silent_bots:
+                # We want to remove a speak attribute
+                # but we don’t care if it fails at all
+                try:
+                    retval.pop('say')
+                except:
+                    pass
+
         elif action == "team_name":
-            retval = team.team_name
+            if isinstance(team_name_override, str):
+                retval = team_name_override
+            else:
+                retval = team.team_name
+            # TODO: Log team name override
         elif action == "exit":
             # quit and don’t return anything
             message_obj = {
@@ -312,9 +324,19 @@ def main(log):
 @click.option('--color',
               default=None,
               help='which color your team will have in the game')
-@click.option('--silent', is_flag=True, default=False)
-def remote_game(team, address, color, silent):
-    run_player(team, address, color, silent=silent)
+@click.option('--quiet',
+              is_flag=True,
+              default=False,
+              help='Do not log to command line')
+@click.option('--team-name-override',
+              default=None,
+              help='Override the team name')
+@click.option('--silent-bots',
+              is_flag=True,
+              default=False,
+              help='Filter bot speak')
+def remote_game(team, address, color, quiet, team_name_override, silent_bots):
+    run_player(team, address, color, quiet=quiet, team_name_override=team_name_override, silent_bots=silent_bots)
 
 
 @main.command("check-team", help="Load team and print its name.")
