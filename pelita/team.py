@@ -300,7 +300,9 @@ class RemoteTeam:
             socket.setsockopt(zmq.LINGER, 0)
             socket.connect(send_addr)
             _logger.info("Connecting zmq.DEALER to remote player at {}.".format(send_addr))
+
             socket.send_json({"REQUEST": team_spec})
+            ok = socket.recv()
             self.proc = None
 
         else:

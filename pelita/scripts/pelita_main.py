@@ -6,10 +6,12 @@ import logging
 from pathlib import Path
 import random
 import sys
+from urllib.parse import urlparse
 
 from rich.console import Console
 from rich.markup import escape
 from rich.prompt import Prompt
+import zmq
 
 import pelita
 from .script_utils import start_logging
@@ -101,6 +103,64 @@ def scan(team_spec):
             return None
 
 
+def scan_server(team_spec):
+    parsed_url = urlparse(team_spec)
+    if parsed_url.port:
+        port = parsed_url.port
+    else:
+        port = PELITA_PORT
+
+    send_addr = f"tcp://{parsed_url.hostname}:{port}"
+
+    zmq_context = zmq.Context()
+    socket = zmq_context.socket(zmq.DEALER)
+    socket.setsockopt(zmq.LINGER, 0)
+    socket.connect(send_addr)
+    socket.send_json({"SCAN": team_spec})
+
+    console = Console()
+
+    console.print(f"[bold]Remote player requested. Scanning server for players.")
+
+    import json
+    teams = json.loads(socket.recv().decode('utf8'))
+    if not teams:
+        console.print("No teams found on the server :(")
+
+    else:
+        print("Server has the following teams available")
+
+    players = []
+    for addr, team_name in teams.items():
+        console.print(f"  [blue]{len(players)})[/] {team_name} \\[[blue]{addr}[/]]", highlight=False)
+        players.append(addr)
+
+    if players:
+        console.print(f"  [blue]r)[/] Random team")
+        console.print(f"  [blue]s)[/] Server default")
+        console.print(f"  [blue]x)[/] Exit")
+        console.print()
+        console.print(f"Found {len(players)} player{'s' if len(players) != 1 else ''}.")
+
+        choices = {str(i): player for i, player in enumerate(players)}
+
+        answer = Prompt.ask("[bold]Select player to play against (r for random, s server’s choice, x to exit)",
+                            choices=list(choices) + ["r", "s", "x"],
+                            default="r")
+
+        if answer == "r":
+            console.print("Choosing random player.")
+            return random.choice(players)
+        if answer == "s":
+            console.print("Letting the server choose.")
+            return team_spec
+        elif answer in choices.keys():
+            console.print(f"Choosing [blue]{choices[answer]}[/]", highlight=False)
+            return choices[answer]
+        else:
+            return None
+
+
 def geometry_string(s):
     """Get a X-style geometry definition and return a tuple.
 
@@ -111,7 +171,7 @@ def geometry_string(s):
         geometry = (int(x_string), int(y_string))
     except ValueError:
         msg = "%s is not a valid geometry specification" %s
-        raise argparse.ArgumentTypeError(msg)
+        raise argparse.ArgumentTypeError(msg) from None
     return geometry
 
 
@@ -343,6 +403,16 @@ def main():
             else:
                 print("No remote team found. Exiting.")
                 return
+        elif team_spec.startswith("pelita://"):
+            # check if we need to send a server scan request
+            parsed_url = urlparse(team_spec)
+            if parsed_url.path == '/':
+                scanned_spec = scan_server(team_spec)
+                if scanned_spec:
+                    team_specs[idx] = scanned_spec
+                else:
+                    print("No remote team selected. Exiting.")
+                    return
 
     if args.seed is None:
         seed = random.randint(0, sys.maxsize)

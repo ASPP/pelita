@@ -4,17 +4,21 @@ from dataclasses import dataclass
 import json
 import logging
 import random
+import shlex
 import signal
 import subprocess
 import sys
 import time
-from typing import Optional, Dict
+from typing import Optional, Dict, List
+import urllib
 from urllib.parse import urlparse
+import urllib.parse
 from weakref import WeakValueDictionary
 
 import click
 from rich import print as pprint
 from rich.progress import Progress, SpinnerColumn, MofNCompleteColumn, BarColumn, TextColumn, TimeElapsedColumn, Task
+import yaml
 import zeroconf
 import zmq
 
@@ -57,6 +61,15 @@ class ProcessInfo:
     info: GameInfo
     dealer_id: bytes
     pair_socket: zmq.Socket
+
+@dataclass
+class TeamInfo:
+    spec: str
+    team_name: str
+    zeroconf_name: str = None
+    server_path: str = None
+    team_name_override: str = None
+    silent_bots: bool = False
 
 
 def zeroconf_register(zc, address, port, team_spec, path, print=print):
@@ -109,10 +122,10 @@ def zeroconf_deregister(zc: zeroconf.Zeroconf, info: zeroconf.ServiceInfo):
 class PelitaServer:
     # TODO: Explain how ROUTER-DEALER works with ZMQ
 
-    def __init__(self, team_specs, address, port, *, advertise: str, session_key: str,
+    def __init__(self, team_infos: List[TeamInfo], address, port, *, advertise: str, session_key: str,
                  max_connections: int):
 
-        self.team_specs = team_specs
+        self.team_infos = team_infos
 
         self.address = address
         self.port = port
@@ -127,21 +140,21 @@ class PelitaServer:
         # maps team_spec, path to zc.ServiceInfo
         self.team_serviceinfo_mapping = {}
 
-        def cleanup(signum, frame):
+        def cleanup(_signum, _frame):
             for process_info in self.connection_map.values():
-                _logger.warn(f"Terminating unfinished process: {process_info.proc.args!r}.")
+                _logger.warn(f"Terminating unfinished process: ‘{shlex.join(process_info.proc.args)}’.")
                 process_info.proc.terminate()
             finish_time = time.monotonic() + 3
             for process_info in self.connection_map.values():
                 # We need to wait for all processes to finish
                 # Otherwise we might exit before the signal has been sent
-                _logger.debug(f"Waiting for process {process_info.proc.args!r} to terminate")
+                _logger.debug(f"Waiting for process ‘{shlex.join(process_info.proc.args)}’ to terminate.")
                 remainder = finish_time - time.monotonic()
                 if remainder > 0:
                     try:
                         process_info.proc.wait(remainder)
                     except subprocess.TimeoutExpired:
-                        _logger.warn(f"Process {process_info.proc.args!r} has not finished.")
+                        _logger.warn(f"Process ‘{shlex.join(process_info.proc.args)}’ has not finished.")
 
             sys.exit()
 
@@ -193,32 +206,58 @@ class PelitaServer:
             path = msg_obj.get('path')
 
             if msg_obj.get('TEAM') == 'ADD':
+                team_info = load_team_info(team_spec, path=path)
+                self.team_infos.append(team_info)
                 info = zeroconf_register(self.zc, self.advertise, self.port, team_spec, path, print=progress.console.print)
                 if info:
                     self.team_serviceinfo_mapping[(team_spec, path)] = info
 
             if msg_obj.get('TEAM') == 'REMOVE':
+                # TODO: cannot remove from self.team_infos yet
                 info = self.team_serviceinfo_mapping[(team_spec, path)]
                 zeroconf_deregister(self.zc, info)
+
+        elif "SCAN" in msg_obj:
+            # return list of available bots
+            if len(self.connection_map) >= self.max_connections:
+                _logger.warn("Exceeding maximum number of connections. Ignoring")
+                self.router_sock.send_multipart([dealer_id, b"NOCONN"])
+                return
+
+            requested_url = urlparse(msg_obj['SCAN'])
+            progress.console.log(f"SCAN from id {dealer_id.hex()}: {requested_url.scheme}://{requested_url.hostname}{requested_url.path}")
+
+            avaliable_teams = {}
+            for team_info in self.team_infos:
+                # we construct the url from the url that reached us
+                full_url = f"{requested_url.scheme}://{requested_url.hostname}/{team_info.server_path}"
+                avaliable_teams[full_url] = team_info.team_name
+
+            avaliable_teams_json = json.dumps(avaliable_teams).encode("utf8")
+
+            self.router_sock.send_multipart([dealer_id, avaliable_teams_json])
 
         elif "REQUEST" in msg_obj:
             # incoming message is a new request
             if len(self.connection_map) >= self.max_connections:
                 _logger.warn("Exceeding maximum number of connections. Ignoring")
+                self.router_sock.send_multipart([dealer_id, b"NOCONN"])
                 return
-
-            # TODO: Send a reply to the requester (when the process has started?).
-            # Otherwise they might already start querying for the team name
 
             # TODO: Do not update status with every message
 
             requested_url = urlparse(msg_obj['REQUEST'])
             progress.console.log(f"Request from id {dealer_id.hex()}: {requested_url.scheme}://{requested_url.hostname}{requested_url.path}")
 
-            team_spec = self.team_specs[0][0]
-            for spec, path in self.team_specs:
-                if requested_url.path == '/' + path:
-                    team_spec = spec
+            if len(self.team_infos) == 0:
+                self.router_sock.send_multipart([dealer_id, b"NOTEAM"])
+                return
+
+            # Select default team in case we don’t find any
+            team = self.team_infos[0]
+            for team_info in self.team_infos:
+                if requested_url.path == '/' + team_info.server_path:
+                    team = team_info
                     break
             else:
                 # not found. use default but warn
@@ -231,14 +270,19 @@ class PelitaServer:
 
 
             num_running = len(self.connection_map)
-            _logger.info(f"Starting match for team {team_spec}. ({num_running} already running.)")
-            subproc, pair_sock = run_team_in_subprocess(self.ctx, team_spec)
+            _logger.info(f"Starting match for team {team.spec}. ({num_running} already running.)")
+            subproc, pair_sock = run_team_in_subprocess(self.ctx, team.spec, silent_bots=team.silent_bots)
 
             self.poll.register(pair_sock, zmq.POLLIN)
 
             process_info = ProcessInfo(proc=subproc, task=task, info=info, dealer_id=dealer_id, pair_socket=pair_sock)
             self.connection_map[process_info.dealer_id] = process_info
             self.connections_by_pair_socket[process_info.pair_socket] = process_info
+
+
+            # Send a reply to the requester (that the process has started)
+            # Otherwise they might already start querying for the team name
+            self.router_sock.send_multipart([dealer_id, b"OK"])
 
         else:
             _logger.info("Unknown incoming DEALER and not a request.")
@@ -303,16 +347,21 @@ class PelitaServer:
 
             if self.advertise:
 
-                for team_spec, path in self.team_specs:
-                    info = zeroconf_register(zc, self.advertise, self.port, team_spec, path, print=progress.console.print)
+                for team in self.team_infos:
+                    info = zeroconf_register(zc, self.advertise, self.port, team.spec, team.server_path, print=progress.console.print)
                     if info:
-                        self.team_serviceinfo_mapping[(team_spec, path)] = info
+                        self.team_serviceinfo_mapping[(team.spec, team.server_path)] = info
 
             while True:
-                incoming_evts = dict(self.poll.poll(1000))
+                # If we have active connections, we break out every second
+                # to update the status bar
+                # Otherwise, we’ll just sleep
+                poll_timeout = 1000 if len(self.connection_map) else None
+
+                incoming_evts = dict(self.poll.poll(poll_timeout))
                 has_router_sock = incoming_evts.pop(self.router_sock, None)
 
-                if has_router_sock:
+                if has_router_sock == zmq.POLLIN:
                     dealer_id, message = self.router_sock.recv_multipart()
 
                     try:
@@ -336,7 +385,6 @@ class PelitaServer:
                         process_info = self.connections_by_pair_socket.get(socket)
                         if process_info:
                             # success
-
                             message = process_info.pair_socket.recv()
                             # route message back
                             self.router_sock.send_multipart([process_info.dealer_id, message])
@@ -362,16 +410,35 @@ class PelitaServer:
                         plural = "" if count == 1 else "es"
                         progress.console.log(f"Cleaned up {count} process{plural}. ({len(self.connection_map)} still running.)")
 
+def load_team_info(team_spec: str) -> Optional[TeamInfo]:
+    # Takes a team_spec, tries to run it and returns a team info object
 
-def run_team_in_subprocess(ctx, team_spec):
+    # TODO: Improve path handling for manual override and duplicate detection
+
+    team_name = _check_team(team_spec)
+    if not team_name:
+        pprint(f"Team {team_spec} did not return a filename. Skipping.")
+        return
+
+    team_info = TeamInfo(team_spec, team_name)
+
+    team_path = team_name.replace(" ", "_")
+    team_path = urllib.parse.quote(team_path)
+
+    team_info.server_path = team_path
+    pprint(f"Mapping team {team_info.spec} ({team_info.team_name}) to path {team_info.server_path}")
+    return team_info
+
+def run_team_in_subprocess(ctx, team_spec, silent_bots=False):
     pair_sock = ctx.socket(zmq.PAIR)
     port = pair_sock.bind_to_random_port('tcp://127.0.0.1')
     pair_addr = 'tcp://127.0.0.1:{}'.format(port)
 
-    subproc = play_remote(team_spec, pair_addr, quiet=True, silent_bots=True)
+    subproc = play_remote(team_spec, pair_addr, quiet=True, silent_bots=silent_bots)
 
     return subproc, pair_sock
 
+# TODO: This could optionally run in a sandbox (systemd-run)
 def play_remote(team_spec, pair_addr, quiet=False, silent_bots=False):
     external_call = [sys.executable,
                     '-m',
@@ -386,6 +453,7 @@ def play_remote(team_spec, pair_addr, quiet=False, silent_bots=False):
     sub = subprocess.Popen(external_call)
     return sub
 
+# TODO: This could optionally run in a sandbox (systemd-run)
 def _check_team(team_spec):
     external_call = [sys.executable,
                     '-m',
@@ -404,24 +472,42 @@ def main(log):
     if log is not None:
         start_logging(log)
 
+def configure(ctx, param, filename):
+    if not filename:
+        return
+    settings = yaml.load(filename, Loader=yaml.SafeLoader)
+    if 'teams' in settings:
+        settings['teams'] = [team['spec'] for team in settings['teams'] if team.get('spec')]
+
+    ctx.default_map = settings
 
 @main.command(help="Run pelita server with given players")
+@click.option('--config',
+              default=None,
+              type=click.File('r'),
+              help='Configuration file',
+              callback=configure,
+              is_eager=True,
+              expose_value=False,
+              show_default=True)
 @click.option('--address', default="0.0.0.0")
 @click.option('--port', default=PELITA_PORT)
-@click.option('--team', 'teams', type=(str, str), multiple=True, required=True, help="Team path")
+@click.option('--team', 'teams', type=str, multiple=True, help="Team path")
 @click.option('--advertise', default=None, type=str,
               help='advertise player on zeroconf')
 @click.option('--max-connections', default=DEFAULT_MAX_CONNECTIONS, show_default=True,
               help='Maximum number of connections that we want to handle')
 def remote_server(address, port, teams, advertise, max_connections):
-    for team, path in teams:
-        team_name = _check_team(team)
-        _logger.info(f"Mapping team {team} ({team_name}) to path {path}")
-
     session_key = "".join(str(random.randint(0, 9)) for _ in range(12))
     pprint(f"Use --session-key {session_key} to for the admin API.")
 
-    server = PelitaServer(teams, address, port, advertise=advertise, session_key=session_key,
+    team_infos = []
+    for team_spec in teams:
+        team_info = load_team_info(team_spec)
+        if team_info:
+            team_infos.append(team_info)
+
+    server = PelitaServer(team_infos, address, port, advertise=advertise, session_key=session_key,
                           max_connections=max_connections)
     server.start()
 
