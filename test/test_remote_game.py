@@ -30,10 +30,10 @@ def remote_teams():
     addr_food_eater = "127.0.0.1"
     remote = [sys.executable, '-m', 'pelita.scripts.pelita_server', 'remote-server', '--address', '127.0.0.1']
 
-    remote_stopping = remote + ['--port', str(port_stopping), '--team', 'pelita/player/StoppingPlayer', 'stopper']
-    remote_food_eater = remote + ['--port', str(port_food_eater), '--team', 'pelita/player/FoodEatingPlayer', 'fooder']
+    remote_stopping = remote + ['--port', str(port_stopping), '--team', 'pelita/player/StoppingPlayer']
+    remote_food_eater = remote + ['--port', str(port_food_eater), '--team', 'pelita/player/FoodEatingPlayer']
 
-    teams = [f'pelita://127.0.0.1:{port_stopping}/stopper', f'pelita://127.0.0.1:{port_food_eater}/fooder']
+    teams = [f'pelita://127.0.0.1:{port_stopping}/Stopping_Players', f'pelita://127.0.0.1:{port_food_eater}/Food_Eating_Players']
     with run_and_terminate_process(remote_stopping):
         with run_and_terminate_process(remote_food_eater):
             yield teams
