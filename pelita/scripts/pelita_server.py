@@ -181,9 +181,7 @@ class PelitaServer:
         try:
             msg_obj = json.loads(message)
         except ValueError as e:
-            # TODO should not continue
-            progress.console.log(f"Error {e!r} when parsing incoming message. Ignoring.")
-            _logger.warn(f"Error {e!r} when parsing incoming message. Ignoring.")
+            _logger.debug(f"Error {e!r} when parsing incoming message. Ignoring.")
             return
 
         # TODO actions
@@ -362,9 +360,9 @@ class PelitaServer:
                 has_router_sock = incoming_evts.pop(self.router_sock, None)
 
                 if has_router_sock == zmq.POLLIN:
-                    dealer_id, message = self.router_sock.recv_multipart()
-
                     try:
+                        dealer_id, message = self.router_sock.recv_multipart()
+
                         # check if we know the dealer already
                         if dealer_id in self.connection_map.keys():
                             # incoming message refers to an existing connection
@@ -375,7 +373,7 @@ class PelitaServer:
                             self.handle_new_connection(dealer_id, message, progress)
 
                     except Exception as e:
-                        _logger.warn(f"Error {e!r} when handling incoming message {message}. Ignoring.")
+                        _logger.debug(f"Error {e!r} when handling incoming message {message}. Ignoring.")
 
                 # Are there any non-router messages waiting for us?
                 if len(incoming_evts):
