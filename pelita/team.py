@@ -302,7 +302,13 @@ class RemoteTeam:
             _logger.info("Connecting zmq.DEALER to remote player at {}.".format(send_addr))
 
             socket.send_json({"REQUEST": team_spec})
-            ok = socket.recv()
+            WAIT_TIMEOUT = 5000
+            incoming = socket.poll(timeout=WAIT_TIMEOUT)
+            if incoming == zmq.POLLIN:
+                ok = socket.recv()
+            else:
+                # Server did not respond
+                raise PlayerTimeout()
             self.proc = None
 
         else:
