@@ -121,12 +121,9 @@ def test_remote_dumps_are_written():
     path = Path(out_folder.name)
     blue_lines = (path / 'blue.out').read_text().split('\n')
     red_lines = (path / 'red.out').read_text().split('\n')
-    # The first line contains the welcome message 'blue team 'path' -> 'name''
-    assert 'blue team' in blue_lines[0]
-    assert 'red team' in red_lines[0]
     # now check what has been printed
-    assert blue_lines[1:] == ['1 0 p1', '1 1 p1', '2 0 p1', '2 1 p1', '']
-    assert red_lines[1:] == ['1 0 p2', '1 1 p2', '2 0 p2', '2 1 p2', '']
+    assert blue_lines == ['1 0 p1', '1 1 p1', '2 0 p1', '2 1 p1', '']
+    assert red_lines == ['1 0 p2', '1 1 p2', '2 0 p2', '2 1 p2', '']
 
     assert (path / 'blue.err').read_text() == 'p1err\np1err\np1err\np1err\n'
     assert (path / 'red.err').read_text() == 'p2err\np2err\np2err\np2err\n'
@@ -176,12 +173,8 @@ def test_remote_dumps_with_failure(failing_team):
 
     blue_lines = (path / 'blue.out').read_text().split('\n')
     red_lines = (path / 'red.out').read_text().split('\n')
-    # The first line contains the welcome message 'blue team 'path' -> 'name''
-    assert 'blue team' in blue_lines[0]
-    assert 'red team' in red_lines[0]
-    # now check what has been printed
-    assert blue_lines[1:] == ['']
-    assert red_lines[1:] == ['']
+    assert blue_lines == ['']
+    assert red_lines == ['']
 
     blue_err = (path / 'blue.err').read_text()
     red_err = (path / 'red.err').read_text()

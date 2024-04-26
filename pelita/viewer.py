@@ -2,6 +2,7 @@
 
 import json
 import logging
+import sys
 
 import zmq
 from rich.console import Console
@@ -12,6 +13,7 @@ from . import layout
 from .network import SetEncoder
 
 _logger = logging.getLogger(__name__)
+_mswindows = (sys.platform == "win32")
 
 # Only highlight explicit markup
 pprint = Console(highlight=False).print
@@ -183,8 +185,22 @@ class ReplayWriter:
 
 class ResultPrinter:
     def show_state(self, state):
+        if (state['turn'] is None and
+            state['round'] is None):
+            # TODO: We must ensure that this is only printed once
+            self.print_team_names(state['team_names'])
+
         if state["gameover"]:
             self.print_possible_winner(state)
+
+    def print_team_names(self, team_names):
+        # TODO: The team_spec is missing in the state.
+        # Should we print it here?
+        pie = '' if _mswindows else 'ᗧ'
+
+        for col, team_name in zip(['blue', 'red'], team_names):
+            if team_name is not None:
+                pprint(f"[{col}]{pie}[/{col}] {col} team: '{team_name}'")
 
     def print_possible_winner(self, state):
         """ Checks the game state for a winner.

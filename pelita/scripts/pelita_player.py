@@ -26,7 +26,7 @@ def with_sys_path(dirname):
     finally:
         sys.path.remove(dirname)
 
-def run_player(team_spec, address, color=None, quiet=False, team_name_override=False, silent_bots=False):
+def run_player(team_spec, address, team_name_override=False, silent_bots=False):
     """ Creates a team from `team_spec` and runs
     a game through the zmq PAIR socket on `address`.
 
@@ -36,8 +36,6 @@ def run_player(team_spec, address, color=None, quiet=False, team_name_override=F
         path to the module that declares the team
     address : address to zmq PAIR socket
         the address of the remote team socket
-    color : string, optional
-        the color of the team (for nicer output)
 
     """
 
@@ -76,17 +74,7 @@ def run_player(team_spec, address, color=None, quiet=False, team_name_override=F
         # and general zmq disconnects
         raise
 
-    if not quiet:
-        if color == 'blue':
-            pie = '\033[94m' + 'ᗧ' + '\033[0m'
-        elif color == 'red':
-            pie = '\033[91m' + 'ᗧ' + '\033[0m'
-        else:
-            pie = 'ᗧ'
-        if pelita.game._mswindows:
-            print(f"{color} team '{team_spec}' -> '{team.team_name}'")
-        else:
-            print(f"{pie} {color} team '{team_spec}' -> '{team.team_name}'")
+    _logger.info(f"Running player '{team_spec}' ({team.team_name})")
 
     while True:
         cont = player_handle_request(socket, team, team_name_override=team_name_override, silent_bots=silent_bots)
@@ -321,13 +309,6 @@ def main(log):
 @main.command(help="Load team and connect to the specified address.")
 @click.argument('team')
 @click.argument('address')
-@click.option('--color',
-              default=None,
-              help='which color your team will have in the game')
-@click.option('--quiet',
-              is_flag=True,
-              default=False,
-              help='Do not log to command line')
 @click.option('--team-name-override',
               default=None,
               help='Override the team name')
@@ -335,8 +316,8 @@ def main(log):
               is_flag=True,
               default=False,
               help='Filter bot speak')
-def remote_game(team, address, color, quiet, team_name_override, silent_bots):
-    run_player(team, address, color, quiet=quiet, team_name_override=team_name_override, silent_bots=silent_bots)
+def remote_game(team, address, team_name_override, silent_bots):
+    run_player(team, address, team_name_override=team_name_override, silent_bots=silent_bots)
 
 
 @main.command("check-team", help="Load team and print its name.")

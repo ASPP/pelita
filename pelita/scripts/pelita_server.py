@@ -432,19 +432,18 @@ def run_team_in_subprocess(ctx, team_spec, silent_bots=False):
     port = pair_sock.bind_to_random_port('tcp://127.0.0.1')
     pair_addr = 'tcp://127.0.0.1:{}'.format(port)
 
-    subproc = play_remote(team_spec, pair_addr, quiet=True, silent_bots=silent_bots)
+    subproc = play_remote(team_spec, pair_addr, silent_bots=silent_bots)
 
     return subproc, pair_sock
 
 # TODO: This could optionally run in a sandbox (systemd-run)
-def play_remote(team_spec, pair_addr, quiet=False, silent_bots=False):
+def play_remote(team_spec, pair_addr, silent_bots=False):
     external_call = [sys.executable,
                     '-m',
                     'pelita.scripts.pelita_player',
                     'remote-game',
                     team_spec,
                     pair_addr,
-                    *(['--quiet'] if quiet else []),
                     *(['--silent-bots'] if silent_bots else []),
                     ]
     _logger.debug("Executing: %r", external_call)

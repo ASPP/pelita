@@ -344,9 +344,7 @@ class RemoteTeam:
                          player,
                          'remote-game',
                          team_spec,
-                         address,
-                         '--color',
-                         color]
+                         address]
 
         _logger.debug("Executing: %r", external_call)
         if store_output == subprocess.DEVNULL:
