@@ -406,7 +406,7 @@ def main():
         elif team_spec.startswith("pelita://"):
             # check if we need to send a server scan request
             parsed_url = urlparse(team_spec)
-            if parsed_url.path == '/':
+            if parsed_url.path in ('', '/'):
                 scanned_spec = scan_server(team_spec)
                 if scanned_spec:
                     team_specs[idx] = scanned_spec
