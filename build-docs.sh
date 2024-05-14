@@ -3,7 +3,7 @@
 set -Eeuo pipefail
 
 # get the 'git describe' output
-git_describe=$(git describe)
+git_describe=$(git describe --tags)
 
 # make the documentation, hope it doesn't fail
 echo "Generating doc from $git_describe"
