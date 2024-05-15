@@ -1,4 +1,5 @@
 import pytest
+import networkx
 
 from pelita.layout import parse_layout, get_random_layout, initial_positions
 from pelita.game import run_game, setup_game, play_turn
@@ -402,6 +403,36 @@ def test_bot_attributes():
         return bot.position
 
     state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed)
+    # assertions might have been caught in run_game
+    # check that all is good
+    assert state['errors'] == [{}, {}]
+    assert state['fatal_errors'] == [[], []]
+
+def test_bot_graph():
+    layout = """
+    ########
+    #  ax  #
+    #  by  #
+    #......#
+    ########
+    """
+    def rough_bot(bot, state):
+        # check that we have this node in the graph at the beginning
+        assert (1, 1) in bot.graph
+        # check that we can't remove a node
+        with pytest.raises(networkx.NetworkXError):
+            bot.graph.remove_node((1, 1))
+        # check that we can't add a node
+        with pytest.raises(networkx.NetworkXError):
+            bot.graph.add_node((100, 100))
+        # check that I can create my own copy of the graph and that this copy is
+        # writable
+        my_graph = bot.graph.copy()
+        my_graph.remove_node((1, 1))
+        assert (1, 1) not in my_graph
+        return bot.position
+
+    state  = run_game([rough_bot, stopping], max_rounds=1, layout_dict=parse_layout(layout))
     # assertions might have been caught in run_game
     # check that all is good
     assert state['errors'] == [{}, {}]

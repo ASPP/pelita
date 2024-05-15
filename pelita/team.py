@@ -154,8 +154,10 @@ class Team:
         # Cache the homezone so that we don’t have to create it at each step
         self._homezone = create_homezones(self._shape, self._walls)
 
-        # Cache the graph representation of the maze
-        self._graph = walls_to_graph(self._walls)
+        # Cache the graph representation of the maze -> stores a read-only view of the
+        # graph, so that local modifications in the move function are not carried
+        # over
+        self._graph = walls_to_graph(self._walls).copy(as_view=True)
 
         return self.team_name
 
