@@ -3,9 +3,13 @@ import random
 import networkx as nx
 
 
-from .team import make_bots, create_homezones, walls_to_graph
+from .team import make_bots, create_homezones
 from .layout import (get_random_layout, get_layout_by_name, get_available_layouts,
                      parse_layout, BOT_N2I, initial_positions)
+
+# this import is needed for backward compatibility, do not remove or you'll break
+# older clients!
+from .team import walls_to_graph
 
 RNG = random.Random()
 
