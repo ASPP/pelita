@@ -9,10 +9,11 @@ from io import StringIO
 from pathlib import Path
 
 import zmq
+import networkx as nx
 
 from . import layout
 from .exceptions import PlayerDisconnected, PlayerTimeout
-from .layout import layout_as_str, BOT_I2N
+from .layout import layout_as_str, BOT_I2N, wall_dimensions
 from .network import ZMQClientError, ZMQConnection, ZMQReplyTimeout, ZMQUnreachablePeer
 
 _logger = logging.getLogger(__name__)
@@ -36,6 +37,47 @@ def create_homezones(shape, walls):
                      for y in range(0, height) if (x, y) not in walls)
     ]
 
+def walls_to_graph(walls):
+    """Return a networkx Graph object given the walls of a maze.
+
+    Parameters
+    ----------
+    walls : set[(x0,y0), (x1,y1), ...]
+         a set of wall coordinates
+
+    Returns
+    -------
+    graph : networkx.Graph
+         a networkx Graph representing the free squares in the maze and their
+         connections. Note that 'free' in this context means that the corresponding
+         square in the maze is not a wall (but can contain food or bots).
+
+    Notes
+    -----
+    Nodes in the graph are (x,y) coordinates representing squares in the maze
+    which are not walls.
+    Edges in the graph are ((x1,y1), (x2,y2)) tuples of coordinates of two
+    adjacent squares. Adjacent means that you can go from one square to one of
+    its adjacent squares by making ore single step (up, down, left, or right).
+    """
+    graph = nx.Graph()
+    width, height = wall_dimensions(walls)
+
+    for x in range(width):
+        for y in range(height):
+            if (x, y) not in walls:
+                # this is a free position, get its neighbors
+                for delta_x, delta_y in ((1,0), (-1,0), (0,1), (0,-1)):
+                    neighbor = (x + delta_x, y + delta_y)
+                    # we don't need to check for getting neighbors out of the maze
+                    # because our mazes are all surrounded by walls, i.e. our
+                    # deltas will not put us out of the maze
+                    if neighbor not in walls:
+                        # this is a genuine neighbor, add an edge in the graph
+                        graph.add_edge((x, y), neighbor)
+    return graph
+
+
 
 class Team:
     """
@@ -44,7 +86,13 @@ class Team:
 
     The Team class holds the team’s state between turns, the team’s
     random number generator and the bot track (resets every time a bot
-    is killed).
+    is killed). This class is also caching bot attributes that do not
+    change during the game. Currently cached attributes:
+        - bot.walls
+        - bot.shape
+        - bot._initial_position
+        - bot.homezone
+        - bot.graph
 
     Parameters
     ----------
