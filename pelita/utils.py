@@ -264,6 +264,7 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
                     enemy=enemy,
                     round=round,
                     bot_turn=0,
-                    rng=rng)
+                    rng=rng,
+                    graph=walls_to_graph(layout['walls']))
     return bot
 

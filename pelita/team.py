@@ -154,6 +154,9 @@ class Team:
         # Cache the homezone so that we don’t have to create it at each step
         self._homezone = create_homezones(self._shape, self._walls)
 
+        # Cache the graph representation of the maze
+        self._graph = walls_to_graph(self._walls)
+
         return self.team_name
 
     def get_move(self, game_state):
@@ -179,7 +182,8 @@ class Team:
                        enemy=game_state['enemy'],
                        round=game_state['round'],
                        bot_turn=game_state['bot_turn'],
-                       rng=self._random)
+                       rng=self._random,
+                       graph=self._graph)
 
         team = me._team
 
@@ -490,6 +494,7 @@ class Bot:
                           deaths,
                           was_killed,
                           random,
+                          graph,
                           round,
                           bot_char,
                           is_blue,
@@ -525,6 +530,7 @@ class Bot:
         self.team_name = team_name
         self.error_count = error_count
         self.is_noisy = is_noisy
+        self.graph = graph
 
         # The legal positions that the bot can reach from its current position,
         # including the current position.
@@ -685,7 +691,7 @@ class Bot:
 
 
 # def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_blue):
-def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, bot_turn, rng):
+def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, bot_turn, rng, graph):
     bots = {}
 
     team_index = team['team_index']
@@ -711,6 +717,7 @@ def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, 
             bot_turn=bot_turn,
             bot_char=BOT_I2N[team_index + idx*2],
             random=rng,
+            graph=graph,
             position=team['bot_positions'][idx],
             initial_position=team_initial_positions[idx],
             is_blue=team_index % 2 == 0,
@@ -735,6 +742,7 @@ def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, 
             round=round,
             bot_char = BOT_I2N[team_index + idx*2],
             random=rng,
+            graph=graph,
             position=enemy['bot_positions'][idx],
             initial_position=enemy_initial_positions[idx],
             is_blue=enemy_index % 2 == 0,
