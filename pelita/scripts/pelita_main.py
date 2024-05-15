@@ -122,13 +122,18 @@ def scan_server(team_spec):
 
     console.print(f"[bold]Remote player requested. Scanning server for players.")
 
-    import json
-    teams = json.loads(socket.recv().decode('utf8'))
-    if not teams:
-        console.print("No teams found on the server :(")
-
+    WAIT_TIMEOUT = 5000
+    incoming = socket.poll(timeout=WAIT_TIMEOUT)
+    if incoming == zmq.POLLIN:
+        teams = json.loads(socket.recv().decode('utf8'))
+        if not teams:
+            console.print("No teams found on the server :(")
+            return None
+        else:
+            print("Server has the following teams available")
     else:
-        print("Server has the following teams available")
+        console.print(f"Server did not reply in {WAIT_TIMEOUT} ms.")
+        return None
 
     players = []
     for addr, team_name in teams.items():
