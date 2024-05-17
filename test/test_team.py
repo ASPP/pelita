@@ -441,7 +441,8 @@ def test_bot_graph():
 def test_bot_graph_is_half_mutable():
     # Test that a bot can change the weights of the graph
     # Changing the weights affects the future self of the bot
-    # Changing the weights does not affect the other bot
+    # Changing the weights does affect the other bot in the team
+    # Changing the weights does not affect the other team
     layout = """
     ########
     #  ax  #
@@ -449,12 +450,17 @@ def test_bot_graph_is_half_mutable():
     #......#
     ########
     """
+
+    observer = []
+    
     def blue(bot, state):
         if bot.turn == 0 and bot.round == 1:
             assert bot.graph[1, 1][1, 2].get('weight') is None
             bot.graph[1, 1][1, 2]['weight'] = 1
+            observer.append('B')
         else:
             assert bot.graph[1, 1][1, 2].get('weight') == 1
+            observer.append('b')
 
         return bot.position
 
@@ -462,8 +468,10 @@ def test_bot_graph_is_half_mutable():
         if bot.turn == 0 and bot.round == 1:
             assert bot.graph[1, 1][1, 2].get('weight') is None
             bot.graph[1, 1][1, 2]['weight'] = 1
+            observer.append('R')
         else:
             assert bot.graph[1, 1][1, 2].get('weight') == 1
+            observer.append('r')
 
         return bot.position
 
@@ -472,6 +480,7 @@ def test_bot_graph_is_half_mutable():
     # check that all is good
     assert state['errors'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
+    assert "".join(observer) == 'BRbrbrbr'
 
 
 def test_team_names():
