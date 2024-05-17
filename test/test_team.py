@@ -438,6 +438,42 @@ def test_bot_graph():
     assert state['errors'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
 
+def test_bot_graph_is_half_mutable():
+    # Test that a bot can change the weights of the graph
+    # Changing the weights affects the future self of the bot
+    # Changing the weights does not affect the other bot
+    layout = """
+    ########
+    #  ax  #
+    #  by  #
+    #......#
+    ########
+    """
+    def blue(bot, state):
+        if bot.turn == 0 and bot.round == 1:
+            assert bot.graph[1, 1][1, 2].get('weight') is None
+            bot.graph[1, 1][1, 2]['weight'] = 1
+        else:
+            assert bot.graph[1, 1][1, 2].get('weight') == 1
+
+        return bot.position
+
+    def red(bot, state):
+        if bot.turn == 0 and bot.round == 1:
+            assert bot.graph[1, 1][1, 2].get('weight') is None
+            bot.graph[1, 1][1, 2]['weight'] = 1
+        else:
+            assert bot.graph[1, 1][1, 2].get('weight') == 1
+
+        return bot.position
+
+    state  = run_game([blue, red], max_rounds=2, layout_dict=parse_layout(layout))
+    # assertions might have been caught in run_game
+    # check that all is good
+    assert state['errors'] == [{}, {}]
+    assert state['fatal_errors'] == [[], []]
+
+
 def test_team_names():
     test_layout = (
     """ ##################
