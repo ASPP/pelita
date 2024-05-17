@@ -5,49 +5,14 @@ import networkx as nx
 
 from .team import make_bots, create_homezones
 from .layout import (get_random_layout, get_layout_by_name, get_available_layouts,
-                     parse_layout, BOT_N2I, initial_positions, wall_dimensions)
+                     parse_layout, BOT_N2I, initial_positions)
+
+# this import is needed for backward compatibility, do not remove or you'll break
+# older clients!
+from .team import walls_to_graph
 
 RNG = random.Random()
 
-def walls_to_graph(walls):
-    """Return a networkx Graph object given the walls of a maze.
-
-    Parameters
-    ----------
-    walls : set[(x0,y0), (x1,y1), ...]
-         a set of wall coordinates
-
-    Returns
-    -------
-    graph : networkx.Graph
-         a networkx Graph representing the free squares in the maze and their
-         connections. Note that 'free' in this context means that the corresponding
-         square in the maze is not a wall (but can contain food or bots).
-
-    Notes
-    -----
-    Nodes in the graph are (x,y) coordinates representing squares in the maze
-    which are not walls.
-    Edges in the graph are ((x1,y1), (x2,y2)) tuples of coordinates of two
-    adjacent squares. Adjacent means that you can go from one square to one of
-    its adjacent squares by making ore single step (up, down, left, or right).
-    """
-    graph = nx.Graph()
-    width, height = wall_dimensions(walls)
-
-    for x in range(width):
-        for y in range(height):
-            if (x, y) not in walls:
-                # this is a free position, get its neighbors
-                for delta_x, delta_y in ((1,0), (-1,0), (0,1), (0,-1)):
-                    neighbor = (x + delta_x, y + delta_y)
-                    # we don't need to check for getting neighbors out of the maze
-                    # because our mazes are all surrounded by walls, i.e. our
-                    # deltas will not put us out of the maze
-                    if neighbor not in walls:
-                        # this is a genuine neighbor, add an edge in the graph
-                        graph.add_edge((x, y), neighbor)
-    return graph
 
 def _parse_layout_arg(*, layout=None, food=None, bots=None, seed=None):
 
@@ -303,6 +268,7 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
                     enemy=enemy,
                     round=round,
                     bot_turn=0,
-                    rng=rng)
+                    rng=rng,
+                    graph=walls_to_graph(layout['walls']))
     return bot
 

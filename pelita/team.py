@@ -9,10 +9,11 @@ from io import StringIO
 from pathlib import Path
 
 import zmq
+import networkx as nx
 
 from . import layout
 from .exceptions import PlayerDisconnected, PlayerTimeout
-from .layout import layout_as_str, BOT_I2N
+from .layout import layout_as_str, BOT_I2N, wall_dimensions
 from .network import ZMQClientError, ZMQConnection, ZMQReplyTimeout, ZMQUnreachablePeer
 
 _logger = logging.getLogger(__name__)
@@ -36,6 +37,47 @@ def create_homezones(shape, walls):
                      for y in range(0, height) if (x, y) not in walls)
     ]
 
+def walls_to_graph(walls):
+    """Return a networkx Graph object given the walls of a maze.
+
+    Parameters
+    ----------
+    walls : set[(x0,y0), (x1,y1), ...]
+         a set of wall coordinates
+
+    Returns
+    -------
+    graph : networkx.Graph
+         a networkx Graph representing the free squares in the maze and their
+         connections. Note that 'free' in this context means that the corresponding
+         square in the maze is not a wall (but can contain food or bots).
+
+    Notes
+    -----
+    Nodes in the graph are (x,y) coordinates representing squares in the maze
+    which are not walls.
+    Edges in the graph are ((x1,y1), (x2,y2)) tuples of coordinates of two
+    adjacent squares. Adjacent means that you can go from one square to one of
+    its adjacent squares by making ore single step (up, down, left, or right).
+    """
+    graph = nx.Graph()
+    width, height = wall_dimensions(walls)
+
+    for x in range(width):
+        for y in range(height):
+            if (x, y) not in walls:
+                # this is a free position, get its neighbors
+                for delta_x, delta_y in ((1,0), (-1,0), (0,1), (0,-1)):
+                    neighbor = (x + delta_x, y + delta_y)
+                    # we don't need to check for getting neighbors out of the maze
+                    # because our mazes are all surrounded by walls, i.e. our
+                    # deltas will not put us out of the maze
+                    if neighbor not in walls:
+                        # this is a genuine neighbor, add an edge in the graph
+                        graph.add_edge((x, y), neighbor)
+    return graph
+
+
 
 class Team:
     """
@@ -44,7 +86,13 @@ class Team:
 
     The Team class holds the team’s state between turns, the team’s
     random number generator and the bot track (resets every time a bot
-    is killed).
+    is killed). This class is also caching bot attributes that do not
+    change during the game. Currently cached attributes:
+        - bot.walls
+        - bot.shape
+        - bot._initial_position
+        - bot.homezone
+        - bot.graph
 
     Parameters
     ----------
@@ -106,6 +154,11 @@ class Team:
         # Cache the homezone so that we don’t have to create it at each step
         self._homezone = create_homezones(self._shape, self._walls)
 
+        # Cache the graph representation of the maze -> stores a read-only view of the
+        # graph, so that local modifications in the move function are not carried
+        # over
+        self._graph = walls_to_graph(self._walls).copy(as_view=True)
+
         return self.team_name
 
     def get_move(self, game_state):
@@ -131,7 +184,8 @@ class Team:
                        enemy=game_state['enemy'],
                        round=game_state['round'],
                        bot_turn=game_state['bot_turn'],
-                       rng=self._random)
+                       rng=self._random,
+                       graph=self._graph)
 
         team = me._team
 
@@ -442,6 +496,7 @@ class Bot:
                           deaths,
                           was_killed,
                           random,
+                          graph,
                           round,
                           bot_char,
                           is_blue,
@@ -477,6 +532,7 @@ class Bot:
         self.team_name = team_name
         self.error_count = error_count
         self.is_noisy = is_noisy
+        self.graph = graph
 
         # The legal positions that the bot can reach from its current position,
         # including the current position.
@@ -637,7 +693,7 @@ class Bot:
 
 
 # def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_blue):
-def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, bot_turn, rng):
+def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, bot_turn, rng, graph):
     bots = {}
 
     team_index = team['team_index']
@@ -663,6 +719,7 @@ def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, 
             bot_turn=bot_turn,
             bot_char=BOT_I2N[team_index + idx*2],
             random=rng,
+            graph=graph,
             position=team['bot_positions'][idx],
             initial_position=team_initial_positions[idx],
             is_blue=team_index % 2 == 0,
@@ -687,6 +744,7 @@ def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, 
             round=round,
             bot_char = BOT_I2N[team_index + idx*2],
             random=rng,
+            graph=graph,
             position=enemy['bot_positions'][idx],
             initial_position=enemy_initial_positions[idx],
             is_blue=enemy_index % 2 == 0,
