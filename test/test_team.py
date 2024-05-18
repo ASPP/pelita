@@ -467,10 +467,10 @@ def test_bot_graph_is_half_mutable():
     def red(bot, state):
         if bot.turn == 0 and bot.round == 1:
             assert bot.graph[1, 1][1, 2].get('weight') is None
-            bot.graph[1, 1][1, 2]['weight'] = 1
+            bot.graph[1, 1][1, 2]['weight'] = 2
             observer.append('R')
         else:
-            assert bot.graph[1, 1][1, 2].get('weight') == 1
+            assert bot.graph[1, 1][1, 2].get('weight') == 2
             observer.append('r')
 
         return bot.position
