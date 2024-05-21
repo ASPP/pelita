@@ -193,26 +193,27 @@ class PelitaServer:
             if not msg_obj.get('key', None) == self.session_key:
                 return
 
-            progress.console.print("TODO: Status information")
+            progress.console.print("List of teams:")
+            for team in self.team_infos:
+                progress.console.print(team)
 
         elif "TEAM" in msg_obj:
             # check key
             if not msg_obj.get('key', None) == self.session_key:
                 return
 
-            team_spec = msg_obj.get('team')
-            path = msg_obj.get('path')
+            team_spec = msg_obj.get('team_spec')
 
             if msg_obj.get('TEAM') == 'ADD':
-                team_info = load_team_info(team_spec, path=path)
+                team_info = load_team_info(team_spec)
                 self.team_infos.append(team_info)
-                info = zeroconf_register(self.zc, self.advertise, self.port, team_spec, path, print=progress.console.print)
+                info = zeroconf_register(self.zc, self.advertise, self.port, team.spec, team.server_path, print=progress.console.print)
                 if info:
-                    self.team_serviceinfo_mapping[(team_spec, path)] = info
+                    self.team_serviceinfo_mapping[(team.spec, team.server_path)] = info
 
             if msg_obj.get('TEAM') == 'REMOVE':
                 # TODO: cannot remove from self.team_infos yet
-                info = self.team_serviceinfo_mapping[(team_spec, path)]
+                info = self.team_serviceinfo_mapping[(team.spec, team.server_path)]
                 zeroconf_deregister(self.zc, info)
 
         elif "SCAN" in msg_obj:
@@ -537,12 +538,11 @@ def show_statistics(url, session_key):
     send_api_message(url, session_key, "STATUS", "show-stats")
 
 @main.command(help="Add team")
+@click.argument('team_spec')
 @click.option('--url', default="pelita://localhost/")
 @click.option('--session-key', type=str, required=True)
-@click.option('--team', 'team', type=(str, str), required=True, help="Team path")
-def add_team(url, session_key, team):
-    team_spec, path = team
-    send_api_message(url, session_key, "TEAM", "ADD", team=team_spec, path=path)
+def add_team(url, session_key, team_spec):
+    send_api_message(url, session_key, "TEAM", "ADD", team_spec=team_spec)
 
 
 if __name__ == '__main__':
