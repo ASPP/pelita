@@ -200,7 +200,7 @@ class ResultPrinter:
 
         for col, team_name in zip(['blue', 'red'], team_names):
             if team_name is not None:
-                pprint(f"[{col}]{pie}[/{col}] {col} team: '{team_name}'")
+                pprint(f"[bright_{col}]{pie}[/bright_{col}] {col} team: '{team_name}'")
 
     def print_possible_winner(self, state):
         """ Checks the game state for a winner.
