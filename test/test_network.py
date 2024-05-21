@@ -5,7 +5,7 @@ import sys
 
 import zmq
 
-from pelita.network import bind_socket, extract_port_range
+from pelita.network import bind_socket
 from pelita.team import make_team
 from pelita.scripts.pelita_player import player_handle_request
 
@@ -29,22 +29,6 @@ def test_bind_socket_fail(zmq_context):
     with pytest.raises(zmq.ZMQError):
         bind_socket(socket, "bad-address", '--publish')
     socket.close()
-
-def test_extract_port_range():
-    test_cases = [
-        ("tcp://*",                     dict(addr="tcp://*")),
-        ("tcp://*:",                    dict(addr="tcp://*:")),
-        ("tcp://*:*",                   dict(addr="tcp://*", port_min=None, port_max=None)),
-        ("tcp://*:123",                 dict(addr="tcp://*:123")),
-        ("tcp://*:[123:124]",           dict(addr="tcp://*", port_min=123, port_max=124)),
-        ("tcp://*:123:[124:125]]",      dict(addr="tcp://*:123", port_min=124, port_max=125)),
-        ("tcp://*:123[124:125]]",       dict(addr="tcp://*:123[124:125]]")),
-        ("ipc:///tmp/pelita-publisher", dict(addr="ipc:///tmp/pelita-publisher"))
-    ]
-
-    for test in test_cases:
-        extracted = extract_port_range(test[0])
-        assert extracted == test[1]
 
 
 def test_simpleclient(zmq_context):

@@ -228,7 +228,7 @@ def setup_viewers(viewers=None, options=None, print_result=True):
             viewer_state['viewers'].append(ReplayWriter(open(viewer[1], 'w')))
         elif viewer in ('tk', 'tk-no-sync'):
             if not zmq_publisher:
-                zmq_publisher = ZMQPublisher(address='tcp://127.0.0.1:*')
+                zmq_publisher = ZMQPublisher(address='tcp://127.0.0.1')
                 viewer_state['viewers'].append(zmq_publisher)
             if viewer == 'tk':
                 viewer_state['controller'] = setup_controller()

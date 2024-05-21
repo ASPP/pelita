@@ -271,9 +271,9 @@ publisher_opt.add_argument('--publish', type=str, metavar='URL', dest='publish_t
                            help=long_help('Publish the game to this zmq socket.'))
 publisher_opt.add_argument('--no-publish', const=False, action='store_const', dest='publish_to',
                            help=long_help('Do not publish.'))
-parser.set_defaults(publish_to="tcp://127.0.0.1:*")
+parser.set_defaults(publish_to="tcp://127.0.0.1")
 
-advanced_settings.add_argument('--controller', type=str, metavar='URL', default="tcp://127.0.0.1:*",
+advanced_settings.add_argument('--controller', type=str, metavar='URL', default="tcp://127.0.0.1",
                                help=long_help('Channel for controlling the game.'))
 advanced_settings.add_argument('--external-controller', const=True, action='store_const',
                                help=long_help('Force control by an external controller.'))

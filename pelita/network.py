@@ -1,9 +1,9 @@
 
 import json
 import logging
-import re
 import sys
 import time
+from urllib.parse import urlparse
 import uuid
 
 import zmq
@@ -53,42 +53,20 @@ class ZMQClientError(Exception):
 DEAD_CONNECTION_TIMEOUT = 3.0
 
 
-def extract_port_range(address):
-    """ We additionally allow for setting a port range in rectangular brackets:
-        tcp://127.0.0.1:[50100:50120]
-    """
-    range_pattern = re.compile(r"(?P<addr>.*?):\[(?P<port_min>\d+):(?P<port_max>\d+)\]")
-    random_pattern = re.compile(r"(?P<addr>.*?):\*")
-    port_pattern = re.compile(r"(?P<addr>.*?):(?P<port>\d+)")
+def bind_socket(socket: zmq.Socket, address, option_hint=None):
+    parsed_address = urlparse(address)
 
-    m = range_pattern.match(address)
-    if m:
-        return {"addr": m.group(1), "port_min": int(m.group(2)), "port_max": int(m.group(3))}
-    m = random_pattern.match(address)
-    if m:
-        return {"addr": m.group(1), "port_min": None, "port_max": None}
-    m = port_pattern.match(address)
-    if m:
-        return {"addr": address}
-    return {"addr": address}
+    # NB: We cannot use parsed_address.geturl() to generate a nice url for zmq
+    # as this will eat the empty hostname in a file path and zmq does not like that.
+    # file:///tmp/a -> file:/tmp/a
 
-def bind_socket(socket, address, option_hint=None):
     try:
-        address_range = extract_port_range(address)
-        addr = address_range["addr"]
-        try:
-            port_min = address_range["port_min"]
-            port_max = address_range["port_max"]
-            if port_min and port_max:
-                port = socket.bind_to_random_port(addr, port_min, port_max)
-            else:
-                port = socket.bind_to_random_port(addr)
-            bind_addr = "{0}:{1}".format(addr, port)
-            return bind_addr
-
-        except KeyError:
-            socket.bind(addr)
-            return addr
+        if parsed_address.scheme == 'tcp' and parsed_address.port is None:
+            port = socket.bind_to_random_port(address)
+            return f'tcp://{parsed_address.hostname}:{port}'
+        else:
+            socket.bind(address)
+            return address
 
     except (zmq.ZMQError, zmq.ZMQBindError) as e:
         print('error binding to address %s: %s' % (address, e), file=sys.stderr)
@@ -319,7 +297,7 @@ class ZMQPublisher:
 
 
 class Controller:
-    def __init__(self, address='tcp://127.0.0.1:*', zmq_context=None):
+    def __init__(self, address='tcp://127.0.0.1', zmq_context=None):
         self.address = address
         if zmq_context:
             self.context = zmq_context
