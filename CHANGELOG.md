@@ -1,5 +1,12 @@
 # Pelita changelog
 
+  * v2.4.0 (xx. May 2024)
+
+     - Greatly improved server mode
+     - Bot.legal_positions becomes a static attribute
+     - Bot has a new cached attribute graph
+     - Small timeout improvements
+
   * v2.3.2 (16. Oct 2023)
 
      - Give advice when tkinter is not available
