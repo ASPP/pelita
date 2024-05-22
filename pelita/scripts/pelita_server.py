@@ -479,7 +479,7 @@ def configure(ctx, param, filename):
 
     ctx.default_map = settings
 
-@main.command(help="Run pelita server with given players")
+@main.command(help="Start a pelita server with given players")
 @click.option('--config',
               default=None,
               type=click.File('r'),
@@ -496,6 +496,16 @@ def configure(ctx, param, filename):
 @click.option('--max-connections', default=DEFAULT_MAX_CONNECTIONS, show_default=True,
               help='Maximum number of connections that we want to handle')
 def remote_server(address, port, teams, advertise, max_connections):
+    # When used with --config the following yaml format is expected:
+    #
+    #    address: 0.0.0.0
+    #    port: 41736
+    #    teams:
+    #    - name: abc
+    #      spec: pelita/player/StoppingPlayer
+    #    - name: def
+    #      spec: path/to/module
+
     session_key = "".join(str(random.randint(0, 9)) for _ in range(12))
     pprint(f"Use --session-key {session_key} to for the admin API.")
 
