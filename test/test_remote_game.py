@@ -26,14 +26,14 @@ def remote_teams():
     port_stopping = RNG.randint(49153,65534)
     port_food_eater = port_stopping+1
 
-    addr_stopping = f'tcp://127.0.0.1:{port_stopping}'
-    addr_food_eater = f'tcp://127.0.0.1:{port_food_eater}'
-    remote = [sys.executable, '-m', 'pelita.scripts.pelita_player', '--remote']
+    addr_stopping = "127.0.0.1"
+    addr_food_eater = "127.0.0.1"
+    remote = [sys.executable, '-m', 'pelita.scripts.pelita_server', 'remote-server', '--address', '127.0.0.1']
 
-    remote_stopping = remote + ['pelita/player/StoppingPlayer', addr_stopping ]
-    remote_food_eater = remote + ['pelita/player/FoodEatingPlayer', addr_food_eater]
+    remote_stopping = remote + ['--port', str(port_stopping), '--team', 'pelita/player/StoppingPlayer']
+    remote_food_eater = remote + ['--port', str(port_food_eater), '--team', 'pelita/player/FoodEatingPlayer']
 
-    teams = [f'remote:{addr_stopping}', f'remote:{addr_food_eater}']
+    teams = [f'pelita://127.0.0.1:{port_stopping}/Stopping_Players', f'pelita://127.0.0.1:{port_food_eater}/Food_Eating_Players']
     with run_and_terminate_process(remote_stopping):
         with run_and_terminate_process(remote_food_eater):
             yield teams
@@ -121,12 +121,9 @@ def test_remote_dumps_are_written():
     path = Path(out_folder.name)
     blue_lines = (path / 'blue.out').read_text().split('\n')
     red_lines = (path / 'red.out').read_text().split('\n')
-    # The first line contains the welcome message 'blue team 'path' -> 'name''
-    assert 'blue team' in blue_lines[0]
-    assert 'red team' in red_lines[0]
     # now check what has been printed
-    assert blue_lines[1:] == ['1 0 p1', '1 1 p1', '2 0 p1', '2 1 p1', '']
-    assert red_lines[1:] == ['1 0 p2', '1 1 p2', '2 0 p2', '2 1 p2', '']
+    assert blue_lines == ['1 0 p1', '1 1 p1', '2 0 p1', '2 1 p1', '']
+    assert red_lines == ['1 0 p2', '1 1 p2', '2 0 p2', '2 1 p2', '']
 
     assert (path / 'blue.err').read_text() == 'p1err\np1err\np1err\np1err\n'
     assert (path / 'red.err').read_text() == 'p2err\np2err\np2err\np2err\n'
@@ -176,12 +173,8 @@ def test_remote_dumps_with_failure(failing_team):
 
     blue_lines = (path / 'blue.out').read_text().split('\n')
     red_lines = (path / 'red.out').read_text().split('\n')
-    # The first line contains the welcome message 'blue team 'path' -> 'name''
-    assert 'blue team' in blue_lines[0]
-    assert 'red team' in red_lines[0]
-    # now check what has been printed
-    assert blue_lines[1:] == ['']
-    assert red_lines[1:] == ['']
+    assert blue_lines == ['']
+    assert red_lines == ['']
 
     blue_err = (path / 'blue.err').read_text()
     red_err = (path / 'red.err').read_text()

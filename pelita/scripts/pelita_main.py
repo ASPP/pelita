@@ -6,13 +6,17 @@ import logging
 from pathlib import Path
 import random
 import sys
+from urllib.parse import urlparse
 
 from rich.console import Console
+from rich.markup import escape
 from rich.prompt import Prompt
+import zmq
 
 import pelita
 from .script_utils import start_logging
 
+from pelita.network import PELITA_PORT
 # TODO: The check_team option
 from pelita.tournament import check_team
 
@@ -29,7 +33,7 @@ def scan(team_spec):
 
     SCAN_TIME = 5 # seconds
 
-    q = Queue(maxsize=5)
+    q = Queue(maxsize=20)
 
     def on_service_state_change(
         zeroconf: Zeroconf, service_type: str, name: str, state_change: ServiceStateChange
@@ -38,12 +42,18 @@ def scan(team_spec):
         if state_change is ServiceStateChange.Added:
             info = zeroconf.get_service_info(service_type, name)
 
-            if info:
-                addresses = ["%s:%d" % (addr, info.port) for addr in info.parsed_scoped_addresses()]
+            def make_url(addr, port):
+                if port == PELITA_PORT:
+                    return f"pelita://{addr}"
+                else:
+                    return f"pelita://{addr}:{port}"
 
-                addr = f"tcp://{addresses[0]}"
+            if info:
+                addresses = [make_url(addr, info.port) for addr in info.parsed_scoped_addresses()]
+
                 team_name = info.properties[b"team_name"].decode()
-                q.put((addr, team_name), timeout=5)
+                path = info.properties[b"path"].decode()
+                q.put((addresses[0] + path, team_name), timeout=5)
 
     zeroconf = Zeroconf()
     services = ["_pelita-player._tcp.local."]
@@ -93,6 +103,69 @@ def scan(team_spec):
             return None
 
 
+def scan_server(team_spec):
+    parsed_url = urlparse(team_spec)
+    if parsed_url.port:
+        port = parsed_url.port
+    else:
+        port = PELITA_PORT
+
+    send_addr = f"tcp://{parsed_url.hostname}:{port}"
+
+    zmq_context = zmq.Context()
+    socket = zmq_context.socket(zmq.DEALER)
+    socket.setsockopt(zmq.LINGER, 0)
+    socket.connect(send_addr)
+    socket.send_json({"SCAN": team_spec})
+
+    console = Console()
+
+    console.print(f"[bold]Remote player requested. Scanning server for players.")
+
+    WAIT_TIMEOUT = 5000
+    incoming = socket.poll(timeout=WAIT_TIMEOUT)
+    if incoming == zmq.POLLIN:
+        teams = json.loads(socket.recv().decode('utf8'))
+        if not teams:
+            console.print("No teams found on the server :(")
+            return None
+        else:
+            print("Server has the following teams available")
+    else:
+        console.print(f"Server did not reply in {WAIT_TIMEOUT} ms.")
+        return None
+
+    players = []
+    for addr, team_name in teams.items():
+        console.print(f"  [blue]{len(players)})[/] {team_name} \\[[blue]{addr}[/]]", highlight=False)
+        players.append(addr)
+
+    if players:
+        console.print(f"  [blue]r)[/] Random team")
+        console.print(f"  [blue]s)[/] Server default")
+        console.print(f"  [blue]x)[/] Exit")
+        console.print()
+        console.print(f"Found {len(players)} player{'s' if len(players) != 1 else ''}.")
+
+        choices = {str(i): player for i, player in enumerate(players)}
+
+        answer = Prompt.ask("[bold]Select player to play against (r for random, s server’s choice, x to exit)",
+                            choices=list(choices) + ["r", "s", "x"],
+                            default="r")
+
+        if answer == "r":
+            console.print("Choosing random player.")
+            return random.choice(players)
+        if answer == "s":
+            console.print("Letting the server choose.")
+            return team_spec
+        elif answer in choices.keys():
+            console.print(f"Choosing [blue]{choices[answer]}[/]", highlight=False)
+            return choices[answer]
+        else:
+            return None
+
+
 def geometry_string(s):
     """Get a X-style geometry definition and return a tuple.
 
@@ -103,7 +176,7 @@ def geometry_string(s):
         geometry = (int(x_string), int(y_string))
     except ValueError:
         msg = "%s is not a valid geometry specification" %s
-        raise argparse.ArgumentTypeError(msg)
+        raise argparse.ArgumentTypeError(msg) from None
     return geometry
 
 
@@ -198,9 +271,9 @@ publisher_opt.add_argument('--publish', type=str, metavar='URL', dest='publish_t
                            help=long_help('Publish the game to this zmq socket.'))
 publisher_opt.add_argument('--no-publish', const=False, action='store_const', dest='publish_to',
                            help=long_help('Do not publish.'))
-parser.set_defaults(publish_to="tcp://127.0.0.1:*")
+parser.set_defaults(publish_to="tcp://127.0.0.1")
 
-advanced_settings.add_argument('--controller', type=str, metavar='URL', default="tcp://127.0.0.1:*",
+advanced_settings.add_argument('--controller', type=str, metavar='URL', default="tcp://127.0.0.1",
                                help=long_help('Channel for controlling the game.'))
 advanced_settings.add_argument('--external-controller', const=True, action='store_const',
                                help=long_help('Force control by an external controller.'))
@@ -335,6 +408,16 @@ def main():
             else:
                 print("No remote team found. Exiting.")
                 return
+        elif team_spec.startswith("pelita://"):
+            # check if we need to send a server scan request
+            parsed_url = urlparse(team_spec)
+            if parsed_url.path in ('', '/'):
+                scanned_spec = scan_server(team_spec)
+                if scanned_spec:
+                    team_specs[idx] = scanned_spec
+                else:
+                    print("No remote team selected. Exiting.")
+                    return
 
     if args.seed is None:
         seed = random.randint(0, sys.maxsize)

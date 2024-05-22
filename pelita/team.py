@@ -7,6 +7,7 @@ import sys
 import traceback
 from io import StringIO
 from pathlib import Path
+from urllib.parse import urlparse
 
 import zmq
 import networkx as nx
@@ -14,7 +15,7 @@ import networkx as nx
 from . import layout
 from .exceptions import PlayerDisconnected, PlayerTimeout
 from .layout import layout_as_str, BOT_I2N, wall_dimensions
-from .network import ZMQClientError, ZMQConnection, ZMQReplyTimeout, ZMQUnreachablePeer
+from .network import ZMQClientError, ZMQConnection, ZMQReplyTimeout, ZMQUnreachablePeer, PELITA_PORT
 
 _logger = logging.getLogger(__name__)
 
@@ -232,7 +233,7 @@ class Team:
             "say": me._say
         }
 
-    def _exit(self):
+    def _exit(self, game_state=None):
         """ Dummy function. Only needed for `RemoteTeam`. """
         pass
 
@@ -275,7 +276,7 @@ class RemoteTeam:
         #: Default timeout for a request, unless specified in the game_state
         self._request_timeout = 3
 
-        if team_spec.startswith('remote:tcp://'):
+        if team_spec.startswith('pelita://'):
             # We connect to a remote player that is listening
             # on the given team_spec address.
             # We create a new DEALER socket and send a single
@@ -284,8 +285,14 @@ class RemoteTeam:
             # of a player and forward all of our zmq traffic
             # to that player.
 
-            # remove the "remote:" part from the address
-            send_addr = team_spec[len("remote:"):]
+            # given a url pelita://hostname:port/path we extract hostname and port and
+            # convert it to tcp://hostname:port that we use for the zmq connection
+            parsed_url = urlparse(team_spec)
+            if parsed_url.port:
+                port = parsed_url.port
+            else:
+                port = PELITA_PORT
+            send_addr = f"tcp://{parsed_url.hostname}:{port}"
             address = "tcp://*"
             self.bound_to_address = address
 
@@ -293,7 +300,15 @@ class RemoteTeam:
             socket.setsockopt(zmq.LINGER, 0)
             socket.connect(send_addr)
             _logger.info("Connecting zmq.DEALER to remote player at {}.".format(send_addr))
-            socket.send_json({"REQUEST": address})
+
+            socket.send_json({"REQUEST": team_spec})
+            WAIT_TIMEOUT = 5000
+            incoming = socket.poll(timeout=WAIT_TIMEOUT)
+            if incoming == zmq.POLLIN:
+                ok = socket.recv()
+            else:
+                # Server did not respond
+                raise PlayerTimeout()
             self.proc = None
 
         else:
@@ -327,10 +342,9 @@ class RemoteTeam:
         external_call = [sys.executable,
                          '-m',
                          player,
+                         'remote-game',
                          team_spec,
-                         address,
-                         '--color',
-                         color]
+                         address]
 
         _logger.debug("Executing: %r", external_call)
         if store_output == subprocess.DEVNULL:
@@ -410,17 +424,24 @@ class RemoteTeam:
         except ZMQClientError:
             raise
 
-    def _exit(self):
+    def _exit(self, game_state=None):
         # We only want to exit once.
         if getattr(self, '_sent_exit', False):
             return
+
+        if game_state:
+            payload = {'game_state': game_state}
+        else:
+            payload = {}
+
         try:
             # TODO: make zmqconnection stateful. set flag when already disconnected
             # For now, we simply check the state of the socket so that we do not send
             # over an already closed socket.
             if self.zmqconnection.socket.closed:
                 return
-            self.zmqconnection.send("exit", {}, timeout=1)
+            # TODO: Include final state with exit message
+            self.zmqconnection.send("exit", payload, timeout=1)
             self._sent_exit = True
         except ZMQUnreachablePeer:
             _logger.info("Remote Player %r is already dead during exit. Ignoring.", self)
