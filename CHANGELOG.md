@@ -1,6 +1,6 @@
 # Pelita changelog
 
-  * v2.4.0 (xx. May 2024)
+  * v2.4.0 (23. May 2024)
 
      - Greatly improved server mode
      - Bot.legal_positions becomes a static attribute
