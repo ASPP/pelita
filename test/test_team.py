@@ -1,3 +1,5 @@
+import time
+
 import pytest
 import networkx
 
@@ -518,6 +520,69 @@ def test_team_names():
     assert state['fatal_errors'] == [[], []]
 
     state = play_turn(state)
+    # check that player did not fail
+    assert state['errors'] == [{}, {}]
+    assert state['fatal_errors'] == [[], []]
+
+
+def test_team_time():
+    test_layout = (
+    """ ##################
+        #a#.  .  # .     #
+        #b#####    #####x#
+        #     . #  .  .#y#
+        ################## """)
+
+    def team_pattern(fn):
+        # The pattern for a local team.
+        return f'local-team ({fn})'
+
+    def team_1(bot, state):
+        if bot.round == 1 and bot.turn == 0:
+            assert bot.team_time == 0
+        else:
+            assert bot.team_time > 0
+
+        if bot.round == 2 and bot.turn == 0:
+            time.sleep(0.2)
+
+        if bot.round == 2 and bot.turn == 1:
+            assert bot.team_time > 0.2
+
+        return bot.position
+
+    def team_2(bot, state):
+        if bot.round == 1 and bot.turn == 0:
+            assert bot.team_time == 0
+        else:
+            assert bot.team_time > 0
+
+        if bot.round == 2 and bot.turn == 0:
+            time.sleep(0.2)
+
+        if bot.round == 2 and bot.turn == 1:
+            assert bot.team_time > 0.2
+
+        return bot.position
+
+    state = setup_game([team_1, team_2], layout_dict=parse_layout(test_layout), max_rounds=3)
+
+    state = play_turn(state)
+    assert state['team_time'][0] > 0
+    assert state['team_time'][1] == 0
+
+    state = play_turn(state)
+    assert state['team_time'][0] > 0
+    assert state['team_time'][1] > 0
+
+    state = play_turn(state)
+    state = play_turn(state)
+
+    state = play_turn(state)
+    state = play_turn(state)
+    state = play_turn(state)
+    state = play_turn(state)
+
     # check that player did not fail
     assert state['errors'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
