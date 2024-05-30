@@ -543,11 +543,12 @@ def test_team_time():
         else:
             assert bot.team_time > 0
 
+        # we fake the time in round 2!!
         if bot.round == 2 and bot.turn == 0:
-            time.sleep(0.2)
+            assert bot.team_time == 1
 
         if bot.round == 2 and bot.turn == 1:
-            assert bot.team_time > 0.2
+            assert bot.team_time > 1
 
         return bot.position
 
@@ -557,11 +558,12 @@ def test_team_time():
         else:
             assert bot.team_time > 0
 
+        # we fake the time in round 2!!
         if bot.round == 2 and bot.turn == 0:
-            time.sleep(0.2)
+            assert bot.team_time == 2
 
         if bot.round == 2 and bot.turn == 1:
-            assert bot.team_time > 0.2
+            assert bot.team_time > 2
 
         return bot.position
 
@@ -578,6 +580,9 @@ def test_team_time():
     state = play_turn(state)
     state = play_turn(state)
 
+    # Round 2. We fake the time so we do not have to sleep!
+    state['team_time'] = [1.0, 2.0]
+
     state = play_turn(state)
     state = play_turn(state)
     state = play_turn(state)
@@ -586,6 +591,8 @@ def test_team_time():
     # check that player did not fail
     assert state['errors'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
+    assert state['team_time'][0] > 1.0
+    assert state['team_time'][1] > 2.0
 
 
 def test_bot_str_repr():
