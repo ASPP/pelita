@@ -537,62 +537,89 @@ def test_team_time():
         # The pattern for a local team.
         return f'local-team ({fn})'
 
+    # NB: time.monotonic() makes huge leaps on windows,
+    # we must therefore test with >= instead of just >
+    # although this is a little stupid
+
+    check = [None, None]
+
     def team_1(bot, state):
         if bot.round == 1 and bot.turn == 0:
             assert bot.team_time == 0
+            assert bot.enemy[0].team_time == 0
         else:
-            assert bot.team_time > 0
+            assert bot.team_time >= 0
 
         # we fake the time in round 2!!
         if bot.round == 2 and bot.turn == 0:
-            assert bot.team_time == 1
+            assert bot.team_time == 1.0
+            assert bot.enemy[0].team_time == 2.0
 
         if bot.round == 2 and bot.turn == 1:
-            assert bot.team_time > 1
+            assert bot.team_time >= 1.0
+            assert bot.enemy[0].team_time >= 2.0
+
+        check[0] = bot.team_time
 
         return bot.position
 
     def team_2(bot, state):
         if bot.round == 1 and bot.turn == 0:
             assert bot.team_time == 0
+            assert bot.enemy[0].team_time >= 0
         else:
-            assert bot.team_time > 0
+            assert bot.team_time >= 0
 
         # we fake the time in round 2!!
         if bot.round == 2 and bot.turn == 0:
-            assert bot.team_time == 2
+            assert bot.team_time == 2.0
+            assert bot.enemy[0].team_time >= 1.0
 
         if bot.round == 2 and bot.turn == 1:
-            assert bot.team_time > 2
+            assert bot.team_time >= 2.0
+            assert bot.enemy[0].team_time >= 1.0
+
+        check[1] = bot.team_time
 
         return bot.position
 
-    state = setup_game([team_1, team_2], layout_dict=parse_layout(test_layout), max_rounds=3)
+    state = setup_game([team_1, team_2], layout_dict=parse_layout(test_layout), max_rounds=3, allow_exceptions=True)
 
     state = play_turn(state)
-    assert state['team_time'][0] > 0
+    assert state['team_time'][0] >= 0
     assert state['team_time'][1] == 0
 
     state = play_turn(state)
-    assert state['team_time'][0] > 0
-    assert state['team_time'][1] > 0
+    assert state['team_time'][0] >= 0
+    assert state['team_time'][1] >= 0
+
+    # time before bots get updated
+    old_time = list(state['team_time'])
 
     state = play_turn(state)
     state = play_turn(state)
+
+    assert check == old_time
 
     # Round 2. We fake the time so we do not have to sleep!
     state['team_time'] = [1.0, 2.0]
 
     state = play_turn(state)
     state = play_turn(state)
+
+    # time before bots get updated
+    old_time = list(state['team_time'])
+
     state = play_turn(state)
     state = play_turn(state)
+
+    assert check == old_time
 
     # check that player did not fail
     assert state['errors'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
-    assert state['team_time'][0] > 1.0
-    assert state['team_time'][1] > 2.0
+    assert state['team_time'][0] >= 1.0
+    assert state['team_time'][1] >= 2.0
 
 
 def test_bot_str_repr():
