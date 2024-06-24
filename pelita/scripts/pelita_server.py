@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import json
 import logging
 import random
+import queue
 import shlex
 import signal
 import subprocess
@@ -171,11 +172,40 @@ class PelitaServer:
         self.ticks_progressbar = 0.0
         self.ticks_process_cleanup = 0.0
 
+        self.send_queue = queue.SimpleQueue()
+
+    def handle_send_queue(self):
+        unsent = set()
+        try:
+            while True:
+                data = self.send_queue.get(block=False)
+                time_monotonic, dealer_id, message = data
+                if time.monotonic() - time_monotonic > 1:
+                    # discard
+                    _logger.warn(f"Could not send to dealer id {dealer_id.hex()}.")
+                    continue
+
+                if dealer_id not in self.connection_map:
+                    _logger.warn(f"Could not send to dealer id {dealer_id.hex()}.")
+                    continue
+
+                process_info = self.connection_map[dealer_id]
+                process_info.info.last_msg = message
+
+                # Problem: When the receiving end of the pair socket has crashed, then
+                # a simple send will halt forever.
+                if process_info.pair_socket.poll(0, flags=zmq.POLLOUT) == zmq.POLLOUT:
+                    process_info.pair_socket.send(message)
+                else:
+                    unsent.add(data)
+
+        except queue.Empty:
+            for data in unsent:
+                self.send_queue.put(data)
 
     def handle_known_client(self, dealer_id, message, progress):
-        process_info = self.connection_map[dealer_id]
-        process_info.info.last_msg = message
-        process_info.pair_socket.send(message)
+        data = time.monotonic(), dealer_id, message
+        self.send_queue.put(data)
 
     def handle_new_connection(self, dealer_id, message, progress):
         try:
@@ -287,7 +317,7 @@ class PelitaServer:
             _logger.info("Unknown incoming DEALER and not a request.")
 
 
-    def update_progress_bar(self, progress, process_info: ProcessInfo):
+    def update_progress_bar(self, progress, process_info: ProcessInfo, force_exit=False):
         if not process_info.info.last_msg:
             return
 
@@ -326,7 +356,7 @@ class PelitaServer:
         except KeyError:
             is_exit = False
 
-        if is_exit:
+        if is_exit or force_exit:
             progress.stop_task(process_info.task)
             progress.update(process_info.task, visible=False)
             process_info.info.finished = True
@@ -388,6 +418,8 @@ class PelitaServer:
                             # route message back
                             self.router_sock.send_multipart([process_info.dealer_id, message])
 
+                self.handle_send_queue()
+
                 # not every event needs to update the progress bars
                 if (now := time.monotonic()) - self.ticks_progressbar > 0.01:
                     self.ticks_progressbar = now
@@ -400,7 +432,7 @@ class PelitaServer:
                     for process_info in list(self.connection_map.values()):
                         # check if the process has terminated
                         if process_info.proc.poll() is not None:
-                            self.update_progress_bar(progress, process_info)
+                            self.update_progress_bar(progress, process_info, force_exit=True)
                             # We need to unregister the socket or else the polling will take longer and longer
                             self.poll.unregister(process_info.pair_socket)
                             del self.connection_map[process_info.dealer_id]
