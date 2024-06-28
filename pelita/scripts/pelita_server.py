@@ -175,6 +175,7 @@ class PelitaServer:
         self.send_queue = queue.SimpleQueue()
 
     def handle_send_queue(self):
+        # Handle all unsent messages to pair sockets
         unsent = set()
         try:
             while True:
@@ -204,8 +205,19 @@ class PelitaServer:
                 self.send_queue.put(data)
 
     def handle_known_client(self, dealer_id, message, progress):
-        data = time.monotonic(), dealer_id, message
-        self.send_queue.put(data)
+        # We try to send to the pair socket immediately
+        # If this fails, we enqueue the message and send it again later
+
+        process_info = self.connection_map[dealer_id]
+        process_info.info.last_msg = message
+
+        try:
+            process_info.pair_socket.send(message, flags=zmq.NOBLOCK)
+        except zmq.ZMQError:
+            data = time.monotonic(), dealer_id, message
+            self.send_queue.put(data)
+        return
+
 
     def handle_new_connection(self, dealer_id, message, progress):
         try:
