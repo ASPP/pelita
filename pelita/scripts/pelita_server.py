@@ -175,6 +175,11 @@ class PelitaServer:
         self.send_queue = queue.SimpleQueue()
 
     def handle_send_queue(self):
+        if self.send_queue.qsize() == 0:
+            # The check for the qsize is not reliable and we only
+            # use it as an optimisation to skip early
+            return
+
         # Handle all unsent messages to pair sockets
         unsent = set()
         try:
