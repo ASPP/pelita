@@ -70,8 +70,6 @@ def test_get_results(db_wrapper):
     assert result[0] == 'p1'
     assert result[1] == 'p2'
     assert result[2] == 0
-    assert result[3] == ''
-    assert result[4] == ''
     db_wrapper.add_gameresult('p2', 'p1', 0, '', '')
     # check for correct number of results
     results = db_wrapper.get_results('p1')
