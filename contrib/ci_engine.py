@@ -257,6 +257,31 @@ class CI_Engine:
                 elif r == -1: draw += 1
         return win, loss, draw
 
+    def gen_elo(self):
+        k = 32
+
+        def elo_change(a, b, outcome):
+            expected = 1 / ( 10**((b - a) / 400) + 1 )
+            return k * (outcome - expected)
+
+        from collections import defaultdict
+        elo = defaultdict(lambda: 1500)
+
+        g = self.dbwrapper.cursor.execute("""
+        SELECT player1, player2, result
+        FROM games
+        """).fetchall()
+        for p1, p2, result in g:
+            if result == 0:
+                change = elo_change(elo[p1], elo[p2], 1)
+            if result == 1:
+                change = elo_change(elo[p1], elo[p2], 0)
+            if result == -1:
+                change = elo_change(elo[p1], elo[p2], 0.5)
+            elo[p1] += change
+            elo[p2] -= change
+
+        return elo
 
     def pretty_print_results(self):
         """Pretty print the current results.
@@ -293,9 +318,12 @@ class CI_Engine:
         table.add_column("# Draws")
         table.add_column("# Losses")
         table.add_column("Score")
+        table.add_column("ELO")
+
+        elo = self.gen_elo()
 
         for [score, win, draw, loss, name] in result:
-            table.add_row(name, f"{win+draw+loss}", f"{win}", f"{draw}", f"{loss}", f"{score:6.3f}")
+            table.add_row(name, f"{win+draw+loss}", f"{win}", f"{draw}", f"{loss}", f"{score:6.3f}", f"{elo[name]: >4.0f}")
 
 
         console = Console()
