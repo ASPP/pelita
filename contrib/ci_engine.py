@@ -665,7 +665,9 @@ def hashmodule(pathname):
 
     """
     _logger.debug(f"Hashing module {pathname}")
-    finder = ModuleFinder()
+    # Exclude numpy and matplotlib from hashing such as to avoid
+    # a bug in modulefinder https://github.com/python/cpython/issues/84530
+    finder = ModuleFinder(excludes=['numpy', 'matplotlib'])
     finder.run_script(pathname)
     # finder.modules is a dict modulename:module
     # only keep relative modules
