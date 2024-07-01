@@ -46,6 +46,7 @@ stabilized.
 
 import configparser
 import hashlib
+import itertools
 import logging
 import os
 from pathlib import Path
@@ -54,6 +55,8 @@ import random
 import sqlite3
 
 import click
+from rich.console import Console
+from rich.table import Table
 
 from pelita.network import ZMQClientError
 from pelita.tournament import check_team, call_pelita
@@ -259,6 +262,9 @@ class CI_Engine:
         """Pretty print the current results.
 
         """
+        res = self.dbwrapper.get_wins_losses()
+        rows = { k: list(v) for k, v in itertools.groupby(res, key=lambda x:x[0]) }
+
         good_players = [p for p in self.players if not p.get('error')]
         bad_players = [p for p in self.players if p.get('error')]
         print(' ' * 41 + ''.join("            % 2i" % idx for idx, p in enumerate(good_players)))
@@ -266,16 +272,35 @@ class CI_Engine:
         for idx, p in enumerate(good_players):
             win, loss, draw = self.get_results(idx)
             score = 0 if (win+loss+draw) == 0 else (win-loss) / (win+loss+draw)
-            result.append([score, p['name']])
-            print('% 2i: %17s (%6.2f): %3d,%3d,%3d  ' % (idx, p['name'][0:17], score, win, loss, draw), end=' ')
+            result.append([score, win, draw, loss, p['name']])
+            print('% 2i: %17s (%6.2f): %3d,%3d,%3d  ' % (idx, p['name'][0:17], score, win, loss, draw), end=' ', flush=False)
+
+            row = rows[p['name']]
+            vals = { k: (w,l,d) for _p1, k, w, l, d in row }
+
             for idx2, p2 in enumerate(good_players):
-                win, loss, draw = self.get_results(idx, idx2)
-                print('  %3d,%3d,%3d' % (win, loss, draw), end=' ')
-            print()
+                win, loss, draw = vals.get(p2['name'], (0, 0, 0))
+                print('%2d,%2d,%2d' % (win, loss, draw), end=' ', flush=False)
+            print(flush=False)
         print()
         result.sort(reverse=True)
-        for [score, name] in result:
-            print("% 30s %6.2f" % (name, score))
+
+        table = Table()
+
+        table.add_column("Name")
+        table.add_column("# Matches")
+        table.add_column("# Wins")
+        table.add_column("# Draws")
+        table.add_column("# Losses")
+        table.add_column("Score")
+
+        for [score, win, draw, loss, name] in result:
+            table.add_row(name, f"{win+draw+loss}", f"{win}", f"{draw}", f"{loss}", f"{score:6.3f}")
+
+
+        console = Console()
+        console.print(table)
+
         for p in bad_players:
             print("% 30s ***%30s***" % (p['name'], p['error']))
 
@@ -438,6 +463,76 @@ class DB_Wrapper:
             dict(p1=p1_name, p2=p2_name))
             relevant_results = self.cursor.fetchall()
         return relevant_results
+
+
+    def get_wins_losses(self):
+        """ Get all wins and losses combined in a table of
+        team | opponent | wins | losses | draws
+        """
+
+        query = """
+
+        SELECT
+            team, opponent, SUM(wins) AS wins, SUM(losses) AS losses, SUM(draws) AS draws
+        FROM (
+            -- Count wins for player1
+            SELECT
+                player1 AS team, player2 AS opponent, COUNT(*) AS wins, 0 AS losses, 0 AS draws
+            FROM games
+            WHERE result = 0
+            GROUP BY player1, player2
+
+            UNION ALL
+
+            -- Count wins for player2
+            SELECT
+                player2 AS team, player1 AS opponent, 0 AS wins, COUNT(*) AS losses, 0 AS draws
+            FROM games
+            WHERE result = 0
+            GROUP BY player2, player1
+
+            UNION ALL
+
+            -- Count losses for player1
+            SELECT
+                player1 AS team, player2 AS opponent, 0 AS wins, COUNT(*) AS losses, 0 AS draws
+            FROM games
+            WHERE result = 1
+            GROUP BY player1, player2
+
+            UNION ALL
+
+            -- Count losses for player2
+            SELECT
+                player2 AS team, player1 AS opponent, COUNT(*) AS wins, 0 AS losses, 0 AS draws
+            FROM games
+            WHERE result = 1
+            GROUP BY player2, player1
+
+            UNION ALL
+
+            -- Count draws for both teams
+            SELECT
+                player1 AS team, player2 AS opponent, 0 AS wins, 0 AS losses, COUNT(*) AS draws
+            FROM games
+            WHERE result = -1
+            GROUP BY player1, player2
+
+            UNION ALL
+
+            SELECT
+                player2 AS team, player1 AS opponent, 0 AS wins, 0 AS losses, COUNT(*) AS draws
+            FROM games
+            WHERE result = -1
+            GROUP BY player2, player1
+        ) AS results
+        GROUP BY
+            team, opponent
+        ORDER BY
+            team, opponent;
+        """
+        return self.cursor.execute(query).fetchall()
+
 
 
 def hashpath(pathname):
