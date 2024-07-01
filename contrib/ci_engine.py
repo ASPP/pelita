@@ -197,7 +197,7 @@ class CI_Engine:
             players = [a, b]
             random.shuffle(players)
             self.run_game(players[0], players[1])
-            self.pretty_print_results()
+            self.pretty_print_results(highlight=[self.players[players[0]]['name'], self.players[players[1]]['name']])
             print('------------------------------')
 
 
@@ -283,10 +283,13 @@ class CI_Engine:
 
         return elo
 
-    def pretty_print_results(self):
+    def pretty_print_results(self, highlight=None):
         """Pretty print the current results.
 
         """
+        if highlight is None:
+            highlight = []
+
         res = self.dbwrapper.get_wins_losses()
         rows = { k: list(v) for k, v in itertools.groupby(res, key=lambda x:x[0]) }
 
@@ -327,7 +330,8 @@ class CI_Engine:
         elo = self.gen_elo()
 
         for [score, win, draw, loss, name] in result:
-            table.add_row(name, f"{win+draw+loss}", f"{win}", f"{draw}", f"{loss}", f"{score:6.3f}", f"{elo[name]: >4.0f}")
+            style = 'bold' if name in highlight else None
+            table.add_row(name, f"{win+draw+loss}", f"{win}", f"{draw}", f"{loss}", f"{score:6.3f}", f"{elo[name]: >4.0f}", style=style)
 
 
         console = Console()
