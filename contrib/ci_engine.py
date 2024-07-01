@@ -104,23 +104,23 @@ class CI_Engine:
         # remove players from db which are not in the config anymore
         for pname in self.dbwrapper.get_players():
             if pname not in [p['name'] for p in self.players]:
-                _logger.debug('Removing %s from data base, because he is not among the current players.' % (pname))
+                _logger.debug('Removing %s from database, because it is not among the current players.' % (pname))
                 self.dbwrapper.remove_player(pname)
         # add new players into db
         for player in self.players:
             pname, path = player['name'], player['path']
             if pname not in self.dbwrapper.get_players():
-                _logger.debug('Adding %s to data base.' % pname)
+                _logger.debug('Adding %s to database.' % pname)
                 self.dbwrapper.add_player(pname, hashpath(path))
 
         # reset players where the directory hash changed
         for player in self.players:
             path = player['path']
-            name = player['name']
+            pname = player['name']
             new_hash = hashpath(path)
-            if new_hash != self.dbwrapper.get_player_hash(name):
-                _logger.debug('Resetting %s because its module hash changed.' % name)
-                self.dbwrapper.remove_player(name)
+            if new_hash != self.dbwrapper.get_player_hash(pname):
+                _logger.debug('Resetting %s because its module hash changed.' % pname)
+                self.dbwrapper.remove_player(pname)
                 self.dbwrapper.add_player(pname, hashpath(path))
 
         for player in self.players:
@@ -334,7 +334,7 @@ class CI_Engine:
 
 
 class DB_Wrapper:
-    """Wrapper around the games data base."""
+    """Wrapper around the games database."""
 
     def __init__(self, dbfile):
         """Initialize the connection to the db ``dbfile``.
@@ -385,11 +385,11 @@ class DB_Wrapper:
         return players
 
     def get_player_hash(self, name):
-        """Get the hash stored in the data base for the player.
+        """Get the hash stored in the database for the player.
 
         Raises
         ------
-        ValueError : if the player does not exist in the data base
+        ValueError : if the player does not exist in the database
 
         """
         h = self.cursor.execute("""
@@ -398,11 +398,11 @@ class DB_Wrapper:
         WHERE name = ?
         """, (name,)).fetchone()
         if h is None:
-            raise ValueError('Player %s does not exist in data base.' % name)
+            raise ValueError('Player %s does not exist in database.' % name)
         return h[0]
 
     def add_player(self, name, h):
-        """Add player to data base
+        """Add player to database
 
         Parameters
         ----------
@@ -412,7 +412,7 @@ class DB_Wrapper:
 
         Raises
         ------
-        ValueError : if player already exists in data base
+        ValueError : if player already exists in database
 
         """
         try:
@@ -422,7 +422,7 @@ class DB_Wrapper:
             """, [name, h])
             self.connection.commit()
         except sqlite3.IntegrityError:
-            raise ValueError('Player %s already exists in data base' % name)
+            raise ValueError('Player %s already exists in database' % name)
 
     def remove_player(self, pname):
         """Remove a player from the database.
