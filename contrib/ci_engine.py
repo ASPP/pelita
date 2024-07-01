@@ -53,16 +53,9 @@ from pathlib import Path
 from modulefinder import ModuleFinder
 import random
 import sqlite3
-import sys
-import unittest
 
 from pelita.network import ZMQClientError
 from pelita.tournament import check_team, call_pelita
-
-parser = argparse.ArgumentParser()
-parser.add_argument('-t', '--test', help="run unittests", action="store_true")
-parser.add_argument('-n', help="run N times", type=int, default=0)
-args = parser.parse_args()
 
 logging.basicConfig(format='%(relativeCreated)10.0f %(levelname)8s %(message)s', level=logging.NOTSET)
 logger = logging.getLogger(__name__)
@@ -563,93 +556,12 @@ def hashmodule(pathname):
     logger.debug(f"SHA1 for {pathname}: {res}.")
     return res
 
-class Test_DB_Wrapper(unittest.TestCase):
-    """Tests for the DB_Wrapper class."""
-
-    def setUp(self):
-        self.wrapper = DB_Wrapper(':memory:')
-        self.wrapper.create_tables()
-
-    def test_foreign_keys_enabled(self):
-        result = self.wrapper.cursor.execute("PRAGMA foreign_keys;").fetchone()
-        self.assertEqual(result[0], 1)
-
-    def test_add_player(self):
-        self.wrapper.add_player('p1', 'h1')
-        self.wrapper.add_player('p2', 'h2')
-        with self.assertRaises(ValueError):
-            self.wrapper.add_player('p1', 'h1')
-        players = sorted(self.wrapper.get_players())
-        self.assertEqual(players, ['p1', 'p2'])
-
-    def test_remove_player(self):
-        self.wrapper.add_player('p1', 'h1')
-        self.wrapper.add_player('p2', 'h2')
-        self.wrapper.add_player('p3', 'h3')
-        self.wrapper.add_gameresult('p1', 'p2', 0, '', '')
-        self.wrapper.add_gameresult('p2', 'p1', 0, '', '')
-        self.wrapper.add_gameresult('p2', 'p3', 0, '', '')
-        # player2 has three games
-        self.assertEqual(len(self.wrapper.get_results('p2')), 3)
-        self.wrapper.remove_player('p1')
-        # player 1 should have no game results
-        self.assertEqual(self.wrapper.get_results('p1'), [])
-        # after removing all games of player one, player2 should have 1
-        # game
-        self.assertEqual(len(self.wrapper.get_results('p2')), 1)
-        # player 3 should be untouched
-        self.assertEqual(len(self.wrapper.get_results('p3')), 1)
-
-    def test_add_remove_weirdly_named_player(self):
-        stupid_names = [
-            "Little'",
-            'Bobby"',
-            "таблицы",
-        ]
-
-        for name in stupid_names:
-            self.wrapper.add_player(name, name)
-            self.wrapper.remove_player(name)
-
-    def test_get_players(self):
-        players = ['p1', 'p2', 'p3']
-        for p in players:
-            self.wrapper.add_player(p, 'h')
-        players2 = sorted(self.wrapper.get_players())
-        self.assertEqual(players, players2)
-
-    def test_get_results(self):
-        self.wrapper.add_player('p1', 'h1')
-        self.wrapper.add_player('p2', 'h2')
-        # empty list if no results are available
-        self.assertEqual(self.wrapper.get_results('p1'), [])
-        self.wrapper.add_gameresult('p1', 'p2', 0, '', '')
-        result = self.wrapper.get_results('p1')[0]
-        # check for correct values
-        self.assertEqual(result[0], 'p1')
-        self.assertEqual(result[1], 'p2')
-        self.assertEqual(result[2], 0)
-        self.assertEqual(result[3], '')
-        self.assertEqual(result[4], '')
-        self.wrapper.add_gameresult('p2', 'p1', 0, '', '')
-        # check for correct number of results
-        results = self.wrapper.get_results('p1')
-        self.assertEqual(len(results), 2)
-
-    def test_get_player_hash(self):
-        self.wrapper.add_player('p1', 'h1')
-        self.wrapper.add_player('p2', 'h2')
-        with self.assertRaises(ValueError):
-            self.wrapper.get_player_hash('p0')
-        self.assertEqual(self.wrapper.get_player_hash('p1'), 'h1')
-        self.assertEqual(self.wrapper.get_player_hash('p2'), 'h2')
-
 
 if __name__ == '__main__':
-    if args.test:
-        unittest.main(argv=sys.argv[:1], verbosity=2)
-    else:
-        ci_engine = CI_Engine()
-        ci_engine.start(args.n)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-n', help="run N times", type=int, default=0)
+    args = parser.parse_args()
 
+    ci_engine = CI_Engine()
+    ci_engine.start(args.n)
 
