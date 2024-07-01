@@ -96,6 +96,8 @@ class CI_Engine:
 
         self.db_file = config.get('general', 'db_file')
         self.dbwrapper = DB_Wrapper(self.db_file)
+
+    def load_players(self):
         # remove players from db which are not in the config anymore
         for pname in self.dbwrapper.get_players():
             if pname not in [p['name'] for p in self.players]:
@@ -568,6 +570,7 @@ def main(log, config, n):
         start_logging(log, __name__)
 
     ci_engine = CI_Engine(config)
+    ci_engine.load_players()
     ci_engine.start(n)
 
 
