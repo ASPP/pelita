@@ -300,7 +300,11 @@ class CI_Engine:
             result.append([score, win, draw, loss, p['name']])
             print('% 2i: %17s (%6.2f): %3d,%3d,%3d  ' % (idx, p['name'][0:17], score, win, loss, draw), end=' ', flush=False)
 
-            row = rows[p['name']]
+            try:
+                row = rows[p['name']]
+            except KeyError:
+                print(flush=False)
+                continue
             vals = { k: (w,l,d) for _p1, k, w, l, d in row }
 
             for idx2, p2 in enumerate(good_players):
