@@ -143,7 +143,7 @@ class PelitaServer:
 
         def cleanup(_signum, _frame):
             for process_info in self.connection_map.values():
-                _logger.warn(f"Terminating unfinished process: ‘{shlex.join(process_info.proc.args)}’.")
+                _logger.warning(f"Terminating unfinished process: ‘{shlex.join(process_info.proc.args)}’.")
                 process_info.proc.terminate()
             finish_time = time.monotonic() + 3
             for process_info in self.connection_map.values():
@@ -155,7 +155,7 @@ class PelitaServer:
                     try:
                         process_info.proc.wait(remainder)
                     except subprocess.TimeoutExpired:
-                        _logger.warn(f"Process ‘{shlex.join(process_info.proc.args)}’ has not finished.")
+                        _logger.warning(f"Process ‘{shlex.join(process_info.proc.args)}’ has not finished.")
 
             sys.exit()
 
@@ -188,11 +188,11 @@ class PelitaServer:
                 time_monotonic, dealer_id, message = data
                 if time.monotonic() - time_monotonic > 1:
                     # discard
-                    _logger.warn(f"Could not send to dealer id {dealer_id.hex()}.")
+                    _logger.warning(f"Could not send to dealer id {dealer_id.hex()}.")
                     continue
 
                 if dealer_id not in self.connection_map:
-                    _logger.warn(f"Could not send to dealer id {dealer_id.hex()}.")
+                    _logger.warning(f"Could not send to dealer id {dealer_id.hex()}.")
                     continue
 
                 process_info = self.connection_map[dealer_id]
@@ -266,7 +266,7 @@ class PelitaServer:
         elif "SCAN" in msg_obj:
             # return list of available bots
             if len(self.connection_map) >= self.max_connections:
-                _logger.warn("Exceeding maximum number of connections. Ignoring")
+                _logger.warning("Exceeding maximum number of connections. Ignoring")
                 self.router_sock.send_multipart([dealer_id, b"NOCONN"])
                 return
 
@@ -286,7 +286,7 @@ class PelitaServer:
         elif "REQUEST" in msg_obj:
             # incoming message is a new request
             if len(self.connection_map) >= self.max_connections:
-                _logger.warn("Exceeding maximum number of connections. Ignoring")
+                _logger.warning("Exceeding maximum number of connections. Ignoring")
                 self.router_sock.send_multipart([dealer_id, b"NOCONN"])
                 return
 
@@ -345,7 +345,7 @@ class PelitaServer:
             msg_obj = json.loads(process_info.info.last_msg)
         except ValueError as e:
             progress.console.log(f"Error {e!r} when parsing incoming message. Ignoring.")
-            _logger.warn(f"Error {e!r} when parsing incoming message. Ignoring.")
+            _logger.warning(f"Error {e!r} when parsing incoming message. Ignoring.")
             return
 
         try:
