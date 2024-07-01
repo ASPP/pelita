@@ -153,6 +153,9 @@ class CI_Engine:
         else:
             result = final_state['whowins']
 
+        del final_state['walls']
+        del final_state['food']
+
         _logger.info('Final state: %r', final_state)
         _logger.debug('Stdout: %r', stdout)
         if stderr:
@@ -240,7 +243,7 @@ class CI_Engine:
         p1_name = self.players[idx]['name']
         p2_name = None if idx2 == None else self.players[idx2]['name']
         relevant_results = self.dbwrapper.get_results(p1_name, p2_name)
-        for p1, p2, r, std_out, std_err in relevant_results:
+        for p1, p2, r in relevant_results:
             if (idx2 is None and p1_name == p1) or (idx2 is not None and p1_name == p1 and p2_name == p2):
                 if r == 0: win += 1
                 elif r == 1: loss += 1
@@ -425,12 +428,12 @@ class DB_Wrapper:
         """
         if p2_name is None:
             self.cursor.execute("""
-            SELECT * FROM games
+            SELECT player1, player2, result FROM games
             WHERE player1 = ? or player2 = ?""", (p1_name, p1_name))
             relevant_results = self.cursor.fetchall()
         else:
             self.cursor.execute("""
-            SELECT * FROM games
+            SELECT player1, player2, result FROM games
             WHERE (player1 = :p1 and player2 = :p2) or (player1 = :p2 and player2 = :p1)""",
             dict(p1=p1_name, p2=p2_name))
             relevant_results = self.cursor.fetchall()
