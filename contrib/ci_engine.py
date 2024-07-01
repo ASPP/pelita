@@ -565,14 +565,18 @@ def hashmodule(pathname):
               type=click.File('r'),
               help='Configuration file')
 @click.option('-n', help='run N times', type=int, default=0)
-def main(log, config, n):
+@click.option('--print', is_flag=True, default=False,
+              help='Print scores and exit.')
+def main(log, config, n, print):
     if log is not None:
         start_logging(log, __name__)
 
     ci_engine = CI_Engine(config)
-    ci_engine.load_players()
-    ci_engine.start(n)
-
+    if print:
+        ci_engine.pretty_print_results()
+    else:
+        ci_engine.load_players()
+        ci_engine.start(n)
 
 if __name__ == '__main__':
     main()
