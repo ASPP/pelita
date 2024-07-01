@@ -45,7 +45,6 @@ stabilized.
 
 
 import configparser
-import argparse
 import hashlib
 import logging
 import os
@@ -54,27 +53,25 @@ from modulefinder import ModuleFinder
 import random
 import sqlite3
 
+import click
+
 from pelita.network import ZMQClientError
 from pelita.tournament import check_team, call_pelita
+from pelita.scripts.script_utils import start_logging
 
-logging.basicConfig(format='%(relativeCreated)10.0f %(levelname)8s %(message)s', level=logging.NOTSET)
-logger = logging.getLogger(__name__)
-logger.info('Logger started')
+_logger = logging.getLogger(__name__)
 
 # the path of the configuration file
 CFG_FILE = './ci.cfg'
 
 
 class CI_Engine:
-    """Continuous Integration Engine.
+    """Continuous Integration Engine."""
 
-
-    """
-
-    def __init__(self, cfgfile=CFG_FILE):
+    def __init__(self, cfgfile):
         self.players = []
         config = configparser.ConfigParser()
-        config.read(os.path.abspath(cfgfile))
+        config.read_file(cfgfile)
         for name, path in  config.items('agents'):
             if name == '*':
                 import glob
@@ -102,13 +99,13 @@ class CI_Engine:
         # remove players from db which are not in the config anymore
         for pname in self.dbwrapper.get_players():
             if pname not in [p['name'] for p in self.players]:
-                logger.debug('Removing %s from data base, because he is not among the current players.' % (pname))
+                _logger.debug('Removing %s from data base, because he is not among the current players.' % (pname))
                 self.dbwrapper.remove_player(pname)
         # add new players into db
         for player in self.players:
             pname, path = player['name'], player['path']
             if pname not in self.dbwrapper.get_players():
-                logger.debug('Adding %s to data base.' % pname)
+                _logger.debug('Adding %s to data base.' % pname)
                 self.dbwrapper.add_player(pname, hashpath(path))
 
         # reset players where the directory hash changed
@@ -117,7 +114,7 @@ class CI_Engine:
             name = player['name']
             new_hash = hashpath(path)
             if new_hash != self.dbwrapper.get_player_hash(name):
-                logger.debug('Resetting %s because its module hash changed.' % name)
+                _logger.debug('Resetting %s because its module hash changed.' % name)
                 self.dbwrapper.remove_player(name)
                 self.dbwrapper.add_player(pname, hashpath(path))
 
@@ -126,7 +123,7 @@ class CI_Engine:
                 check_team(player['path'])
             except ZMQClientError as e:
                 e_type, e_msg = e.args
-                logger.debug(f'Could not import {pname} ({e_type}): {e_msg}')
+                _logger.debug(f'Could not import {pname} ({e_type}): {e_msg}')
                 player['error'] = e.args
 
     def run_game(self, p1, p2):
@@ -154,10 +151,10 @@ class CI_Engine:
         else:
             result = final_state['whowins']
 
-        logger.info('Final state: %r', final_state)
-        logger.debug('Stdout: %r', stdout)
+        _logger.info('Final state: %r', final_state)
+        _logger.debug('Stdout: %r', stdout)
         if stderr:
-            logger.warning('Stderr: %r', stderr)
+            _logger.warning('Stderr: %r', stderr)
         p1_name, p2_name = self.players[p1]['name'], self.players[p2]['name']
         self.dbwrapper.add_gameresult(p1_name, p2_name, result, stdout, stderr)
 
@@ -507,7 +504,7 @@ def hashdir(pathname):
                         break
                     sha1.update(buf)
         except IOError:
-            logger.debug('could not open %s' % filename)
+            _logger.debug('could not open %s' % filename)
             pass
     return sha1.hexdigest()
 
@@ -535,7 +532,7 @@ def hashmodule(pathname):
     'd2c07aafb6fbf2474f3b38e3baf4bb931994d844'
 
     """
-    logger.debug(f"Hashing module {pathname}")
+    _logger.debug(f"Hashing module {pathname}")
     finder = ModuleFinder()
     finder.run_script(pathname)
     # finder.modules is a dict modulename:module
@@ -550,18 +547,29 @@ def hashmodule(pathname):
     # sort relative paths by module name and generate our sha
     sha1 = hashlib.sha1()
     for name, path in sorted(relative_paths):
-        logger.debug(f"Hashing {pathname}: Adding {name}")
+        _logger.debug(f"Hashing {pathname}: Adding {name}")
         sha1.update(path.read_bytes())
     res = sha1.hexdigest()
-    logger.debug(f"SHA1 for {pathname}: {res}.")
+    _logger.debug(f"SHA1 for {pathname}: {res}.")
     return res
 
 
+@click.command()
+@click.option('--log',
+              is_flag=False, flag_value="-", default=None, metavar='LOGFILE',
+              help="print debugging log information to LOGFILE (default 'stderr')")
+@click.option('--config',
+              default=CFG_FILE,
+              type=click.File('r'),
+              help='Configuration file')
+@click.option('-n', help='run N times', type=int, default=0)
+def main(log, config, n):
+    if log is not None:
+        start_logging(log, __name__)
+
+    ci_engine = CI_Engine(config)
+    ci_engine.start(n)
+
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-n', help="run N times", type=int, default=0)
-    args = parser.parse_args()
-
-    ci_engine = CI_Engine()
-    ci_engine.start(args.n)
-
+    main()
