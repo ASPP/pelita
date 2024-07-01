@@ -699,7 +699,9 @@ def hashmodule(pathname):
 @click.option('-n', help='run N times', type=int, default=0)
 @click.option('--print', is_flag=True, default=False,
               help='Print scores and exit.')
-def main(log, config, n, print):
+@click.option('--nohash', is_flag=True, default=False,
+              help='Do not hash the players')
+def main(log, config, n, print, nohash):
     if log is not None:
         start_logging(log, __name__)
 
@@ -707,7 +709,8 @@ def main(log, config, n, print):
     if print:
         ci_engine.pretty_print_results()
     else:
-        ci_engine.load_players()
+        if not nohash:
+            ci_engine.load_players()
         ci_engine.start(n)
 
 if __name__ == '__main__':
