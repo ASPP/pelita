@@ -245,7 +245,8 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
         'bot_was_killed' : [False]*2,
         'error_count': 0,
         'food': food[team_index],
-        'name': "blue" if is_blue else "red"
+        'name': "blue" if is_blue else "red",
+        'team_time': 0.0,
     }
     enemy = {
         'bot_positions': enemy_positions,
@@ -257,7 +258,8 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
         'error_count': 0,
         'food': food[enemy_index],
         'is_noisy': is_noisy_enemy,
-        'name': "red" if is_blue else "blue"
+        'name': "red" if is_blue else "blue",
+        'team_time': 0.0,
     }
 
     bot = make_bots(walls=layout['walls'],

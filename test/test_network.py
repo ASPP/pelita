@@ -88,6 +88,7 @@ def test_simpleclient(zmq_context):
                     'error_count': 0,
                     'food': [(1, 1)],
                     'name': 'dummy',
+                    'team_time': 0,
                 },
                 'enemy': {
                     'team_index': 1,
@@ -98,6 +99,7 @@ def test_simpleclient(zmq_context):
                     'bot_was_killed': [False]*2,
                     'food': [(2, 2)],
                     'name': 'other dummy',
+                    'team_time': 0,
                     'is_noisy': [False, False],
                     'error_count': 0
                 },

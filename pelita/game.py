@@ -555,7 +555,8 @@ def prepare_bot_state(game_state, idx=None):
         'bot_was_killed': game_state['bot_was_killed'][own_team::2],
         'error_count': len(game_state['errors'][own_team]),
         'food': list(game_state['food'][own_team]),
-        'name': game_state['team_names'][own_team]
+        'name': game_state['team_names'][own_team],
+        'team_time': game_state['team_time'][own_team]
     }
 
     enemy_state = {
@@ -568,7 +569,8 @@ def prepare_bot_state(game_state, idx=None):
         'bot_was_killed': game_state['bot_was_killed'][enemy_team::2],
         'error_count': 0, # TODO. Could be left out for the enemy
         'food': list(game_state['food'][enemy_team]),
-        'name': game_state['team_names'][enemy_team]
+        'name': game_state['team_names'][enemy_team],
+        'team_time': game_state['team_time'][enemy_team]
     }
 
     bot_state = {

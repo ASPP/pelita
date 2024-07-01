@@ -522,6 +522,7 @@ class Bot:
                           bot_char,
                           is_blue,
                           team_name,
+                          team_time,
                           error_count,
                           is_noisy,
                           bot_turn=None):
@@ -551,6 +552,7 @@ class Bot:
         self.char = bot_char
         self.is_blue = is_blue
         self.team_name = team_name
+        self.team_time = team_time
         self.error_count = error_count
         self.is_noisy = is_noisy
         self.graph = graph
@@ -745,7 +747,8 @@ def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, 
             initial_position=team_initial_positions[idx],
             is_blue=team_index % 2 == 0,
             homezone=homezone[team_index],
-            team_name=team['name'])
+            team_name=team['name'],
+            team_time=team['team_time'])
         b._bots = bots
         team_bots.append(b)
 
@@ -770,7 +773,8 @@ def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, 
             initial_position=enemy_initial_positions[idx],
             is_blue=enemy_index % 2 == 0,
             homezone=homezone[enemy_index],
-            team_name=enemy['name'])
+            team_name=enemy['name'],
+            team_time=enemy['team_time'])
         b._bots = bots
         enemy_bots.append(b)
 
