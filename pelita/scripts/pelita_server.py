@@ -33,6 +33,10 @@ zeroconf.log.addHandler(_logger)
 
 DEFAULT_MAX_CONNECTIONS = 50
 
+# TODO: This timeout should be shorter
+# once a connection has been established
+SEND_QUEUE_TIMEOUT = 5. # seconds
+
 @dataclass
 class GameInfo:
     round: Optional[int]
@@ -186,7 +190,7 @@ class PelitaServer:
             while True:
                 data = self.send_queue.get(block=False)
                 time_monotonic, dealer_id, message = data
-                if time.monotonic() - time_monotonic > 1:
+                if time.monotonic() - time_monotonic > SEND_QUEUE_TIMEOUT:
                     # discard
                     _logger.warning(f"Could not send to dealer id {dealer_id.hex()}.")
                     continue
