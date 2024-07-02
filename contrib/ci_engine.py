@@ -42,17 +42,14 @@ stabilized.
 """
 
 
-
-
 import configparser
-import hashlib
 import itertools
 import logging
 import os
-from pathlib import Path
-from modulefinder import ModuleFinder
 import random
 import sqlite3
+import subprocess
+import sys
 
 import click
 from rich.console import Console
@@ -67,6 +64,15 @@ _logger = logging.getLogger(__name__)
 # the path of the configuration file
 CFG_FILE = './ci.cfg'
 
+def hash_team(team_spec):
+    external_call = [sys.executable,
+                    '-m',
+                    'pelita.scripts.pelita_player',
+                    'hash-team',
+                    team_spec]
+    _logger.debug("Executing: %r", external_call)
+    res = subprocess.run(external_call, capture_output=True, text=True)
+    return res.stdout.strip()
 
 class CI_Engine:
     """Continuous Integration Engine."""
@@ -111,17 +117,17 @@ class CI_Engine:
             pname, path = player['name'], player['path']
             if pname not in self.dbwrapper.get_players():
                 _logger.debug('Adding %s to database.' % pname)
-                self.dbwrapper.add_player(pname, hashpath(path))
+                self.dbwrapper.add_player(pname, hash_team(path))
 
         # reset players where the directory hash changed
         for player in self.players:
             path = player['path']
             pname = player['name']
-            new_hash = hashpath(path)
+            new_hash = hash_team(path)
             if new_hash != self.dbwrapper.get_player_hash(pname):
                 _logger.debug('Resetting %s because its module hash changed.' % pname)
                 self.dbwrapper.remove_player(pname)
-                self.dbwrapper.add_player(pname, hashpath(path))
+                self.dbwrapper.add_player(pname, new_hash)
 
         for player in self.players:
             try:
@@ -609,128 +615,6 @@ class DB_Wrapper:
             team, opponent;
         """
         return self.cursor.execute(query).fetchall()
-
-
-
-def hashpath(pathname):
-    """If given a directory, calculate the SHA1 sum of its contents.
-    If given a Python script, calculate the SHA1 sum of all of its (relative)
-    module imports.
-
-    Parameters
-    ----------
-    pathname : str
-        the path of the directory or the Python script to check
-
-    Returns
-    -------
-    hexdigest : str
-        the SHA1
-
-    Examples
-    --------
-
-    >>> hashpath('/tmp')
-    'cac36aaf1c64d7f93c9d874471f23de1cbfd5249'
-    >>> hashpath('demo01_stopping.py')
-    'd2c07aafb6fbf2474f3b38e3baf4bb931994d844'
-    """
-    if Path(pathname).is_dir():
-        return hashdir(pathname)
-    else:
-        return hashmodule(pathname)
-
-def hashdir(pathname):
-    """Calculate the SHA1 sum of the contents of a directory.
-
-    It operates by walking through the directory, collecting all
-    filenames, sorting them alphabetically and calculating the SHA1 of
-    the contents of the files.
-
-    Parameters
-    ----------
-    pathname : str
-        the path of the directory to check
-
-    Returns
-    -------
-    hexdigest : str
-        the SHA1
-
-    Examples
-    --------
-
-    >>> hashdir('/tmp')
-    'cac36aaf1c64d7f93c9d874471f23de1cbfd5249'
-
-    """
-    files = []
-    for path, root, filenames in os.walk(pathname):
-        for filename in filenames:
-            files.append(os.sep.join([path, filename]))
-    files.sort()
-    sha1 = hashlib.sha1()
-    for filename in files:
-        if filename.endswith('.pyc'):
-            continue
-        try:
-            with open(filename, 'rb') as fh:
-                while 1:
-                    buf = fh.read(1024*4)
-                    if not buf:
-                        break
-                    sha1.update(buf)
-        except IOError:
-            _logger.debug('could not open %s' % filename)
-            pass
-    return sha1.hexdigest()
-
-def hashmodule(pathname):
-    """Calculate the SHA1 sum of all relative imports in a script.
-
-    It operates by going through all modules that ModuleFinder.run_script
-    finds, sorting them alphabetically and calculating the SHA1 of
-    the contents of the files.
-
-    Parameters
-    ----------
-    pathname : str
-        the path of the script to check
-
-    Returns
-    -------
-    hexdigest : str
-        the SHA1
-
-    Examples
-    --------
-
-    >>> hashmodule('demo01_stopping.py')
-    'd2c07aafb6fbf2474f3b38e3baf4bb931994d844'
-
-    """
-    _logger.debug(f"Hashing module {pathname}")
-    # Exclude numpy and matplotlib from hashing such as to avoid
-    # a bug in modulefinder https://github.com/python/cpython/issues/84530
-    finder = ModuleFinder(excludes=['numpy', 'matplotlib'])
-    finder.run_script(pathname)
-    # finder.modules is a dict modulename:module
-    # only keep relative modules
-    paths = {name:Path(mod.__file__)
-            for name, mod in finder.modules.items()
-            if mod.__file__}
-    relative_paths = [
-        (name, p) for name, p in paths.items()
-        if not p.is_absolute()
-    ]
-    # sort relative paths by module name and generate our sha
-    sha1 = hashlib.sha1()
-    for name, path in sorted(relative_paths):
-        _logger.debug(f"Hashing {pathname}: Adding {name}")
-        sha1.update(path.read_bytes())
-    res = sha1.hexdigest()
-    _logger.debug(f"SHA1 for {pathname}: {res}.")
-    return res
 
 
 @click.command()

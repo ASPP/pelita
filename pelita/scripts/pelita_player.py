@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import contextlib
+import hashlib
 import importlib
 import json
 import logging
@@ -10,7 +11,6 @@ import sys
 import click
 import zmq
 
-import pelita
 from ..team import make_team
 from ..network import json_default_handler
 from .script_utils import start_logging
@@ -325,8 +325,36 @@ def remote_game(team, address, team_name_override, silent_bots):
 def cli_check_team(team):
     return check_team(team)
 
+@main.command("hash-team", help="Load team and print its hash.")
+@click.argument('team')
+def cli_hash_team(team):
+    print(hash_team(team))
+
 def check_team(team):
     print(load_team(team).team_name)
+
+def hash_team(team):
+    # Load the team so that we have the modules ready
+    load_team(team)
+
+    folder = Path(team).parent.resolve()
+    modules = []
+    for name, module in sys.modules.items():
+        if hasattr(module, '__file__') and module.__file__:
+            path = Path(module.__file__)
+            if path.is_relative_to(folder):
+                modules.append([name, path])
+
+    _logger.debug(f"Hashing module {team}")
+
+    # sort relative paths by module name and generate our sha
+    sha1 = hashlib.sha1()
+    for module, path in sorted(modules):
+        _logger.debug(f"Hashing {team}: Adding {module}")
+        sha1.update(path.read_bytes())
+    res = sha1.hexdigest()
+    _logger.debug(f"SHA1 for {team}: {res}.")
+    return res
 
 
 if __name__ == '__main__':
