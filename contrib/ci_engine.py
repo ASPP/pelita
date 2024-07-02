@@ -46,7 +46,6 @@ import configparser
 import itertools
 import json
 import logging
-import os
 import random
 import sqlite3
 import subprocess
@@ -83,21 +82,7 @@ class CI_Engine:
         config = configparser.ConfigParser()
         config.read_file(cfgfile)
         for name, path in  config.items('agents'):
-            if name == '*':
-                import glob
-                paths = glob.glob(path)
-                for p in paths:
-                    if os.path.basename(p).startswith('_') or os.path.basename(p).startswith('.'):
-                        continue
-                    self.players.append({'name': os.path.basename(p),
-                                         'path': p
-                    })
-            else:
-                self.players.append({'name' : name,
-                                     'path' : path
-                                     })
-#            else:
-#                logger.warning('%s seems not to be an existing directory, ignoring %s' % (path, name))
+            self.players.append({'name': name, 'path': path})
 
         self.rounds = config['general'].getint('rounds', None)
         self.size = config['general'].get('size', None)
