@@ -42,46 +42,40 @@ stabilized.
 """
 
 
-
-
+import ast
 import configparser
-import argparse
 import hashlib
+import importlib.util
+import itertools
 import logging
 import os
 from pathlib import Path
-from modulefinder import ModuleFinder
 import random
 import sqlite3
-import sys
-import unittest
+from typing import Dict, Set
+
+import click
+from rich.console import Console
+from rich.table import Table
 
 from pelita.network import ZMQClientError
 from pelita.tournament import check_team, call_pelita
+from pelita.scripts.pelita_player import with_sys_path
+from pelita.scripts.script_utils import start_logging
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-t', '--test', help="run unittests", action="store_true")
-parser.add_argument('-n', help="run N times", type=int, default=0)
-args = parser.parse_args()
-
-logging.basicConfig(format='%(relativeCreated)10.0f %(levelname)8s %(message)s', level=logging.NOTSET)
-logger = logging.getLogger(__name__)
-logger.info('Logger started')
+_logger = logging.getLogger(__name__)
 
 # the path of the configuration file
 CFG_FILE = './ci.cfg'
 
 
 class CI_Engine:
-    """Continuous Integration Engine.
+    """Continuous Integration Engine."""
 
-
-    """
-
-    def __init__(self, cfgfile=CFG_FILE):
+    def __init__(self, cfgfile):
         self.players = []
         config = configparser.ConfigParser()
-        config.read(os.path.abspath(cfgfile))
+        config.read_file(cfgfile)
         for name, path in  config.items('agents'):
             if name == '*':
                 import glob
@@ -106,26 +100,28 @@ class CI_Engine:
 
         self.db_file = config.get('general', 'db_file')
         self.dbwrapper = DB_Wrapper(self.db_file)
+
+    def load_players(self):
         # remove players from db which are not in the config anymore
         for pname in self.dbwrapper.get_players():
             if pname not in [p['name'] for p in self.players]:
-                logger.debug('Removing %s from data base, because he is not among the current players.' % (pname))
+                _logger.debug('Removing %s from database, because it is not among the current players.' % (pname))
                 self.dbwrapper.remove_player(pname)
         # add new players into db
         for player in self.players:
             pname, path = player['name'], player['path']
             if pname not in self.dbwrapper.get_players():
-                logger.debug('Adding %s to data base.' % pname)
+                _logger.debug('Adding %s to database.' % pname)
                 self.dbwrapper.add_player(pname, hashpath(path))
 
         # reset players where the directory hash changed
         for player in self.players:
             path = player['path']
-            name = player['name']
+            pname = player['name']
             new_hash = hashpath(path)
-            if new_hash != self.dbwrapper.get_player_hash(name):
-                logger.debug('Resetting %s because its module hash changed.' % name)
-                self.dbwrapper.remove_player(name)
+            if new_hash != self.dbwrapper.get_player_hash(pname):
+                _logger.debug('Resetting %s because its module hash changed.' % pname)
+                self.dbwrapper.remove_player(pname)
                 self.dbwrapper.add_player(pname, hashpath(path))
 
         for player in self.players:
@@ -133,7 +129,7 @@ class CI_Engine:
                 check_team(player['path'])
             except ZMQClientError as e:
                 e_type, e_msg = e.args
-                logger.debug(f'Could not import {pname} ({e_type}): {e_msg}')
+                _logger.debug(f'Could not import {pname} ({e_type}): {e_msg}')
                 player['error'] = e.args
 
     def run_game(self, p1, p2):
@@ -161,10 +157,13 @@ class CI_Engine:
         else:
             result = final_state['whowins']
 
-        logger.info('Final state: %r', final_state)
-        logger.debug('Stdout: %r', stdout)
+        del final_state['walls']
+        del final_state['food']
+
+        _logger.info('Final state: %r', final_state)
+        _logger.debug('Stdout: %r', stdout)
         if stderr:
-            logger.warning('Stderr: %r', stderr)
+            _logger.warning('Stderr: %r', stderr)
         p1_name, p2_name = self.players[p1]['name'], self.players[p2]['name']
         self.dbwrapper.add_gameresult(p1_name, p2_name, result, stdout, stderr)
 
@@ -199,7 +198,7 @@ class CI_Engine:
             players = [a, b]
             random.shuffle(players)
             self.run_game(players[0], players[1])
-            self.pretty_print_results()
+            self.pretty_print_results(highlight=[self.players[players[0]]['name'], self.players[players[1]]['name']])
             print('------------------------------')
 
 
@@ -248,7 +247,7 @@ class CI_Engine:
         p1_name = self.players[idx]['name']
         p2_name = None if idx2 == None else self.players[idx2]['name']
         relevant_results = self.dbwrapper.get_results(p1_name, p2_name)
-        for p1, p2, r, std_out, std_err in relevant_results:
+        for p1, p2, r in relevant_results:
             if (idx2 is None and p1_name == p1) or (idx2 is not None and p1_name == p1 and p2_name == p2):
                 if r == 0: win += 1
                 elif r == 1: loss += 1
@@ -259,34 +258,133 @@ class CI_Engine:
                 elif r == -1: draw += 1
         return win, loss, draw
 
+    def gen_elo(self):
+        k = 32
 
-    def pretty_print_results(self):
+        def elo_change(a, b, outcome):
+            expected = 1 / ( 10**((b - a) / 400) + 1 )
+            return k * (outcome - expected)
+
+        from collections import defaultdict
+        elo = defaultdict(lambda: 1500)
+
+        g = self.dbwrapper.cursor.execute("""
+        SELECT player1, player2, result
+        FROM games
+        """).fetchall()
+        for p1, p2, result in g:
+            if result == 0:
+                change = elo_change(elo[p1], elo[p2], 1)
+            if result == 1:
+                change = elo_change(elo[p1], elo[p2], 0)
+            if result == -1:
+                change = elo_change(elo[p1], elo[p2], 0.5)
+            elo[p1] += change
+            elo[p2] -= change
+
+        return elo
+
+    def pretty_print_results(self, highlight=None):
         """Pretty print the current results.
 
         """
+        if highlight is None:
+            highlight = []
+
+        console = Console()
+        # Some guesswork in here
+        MAX_COLUMNS = (console.width - 40) // 12
+        if MAX_COLUMNS < 4:
+            # Let’s be honest: You should enlarge your terminal window even before that
+            MAX_COLUMNS = 4
+
+        res = self.dbwrapper.get_wins_losses()
+        rows = { k: list(v) for k, v in itertools.groupby(res, key=lambda x:x[0]) }
+
         good_players = [p for p in self.players if not p.get('error')]
         bad_players = [p for p in self.players if p.get('error')]
-        print(' ' * 41 + ''.join("            % 2i" % idx for idx, p in enumerate(good_players)))
+
+        num_rows_per_player = (len(good_players) // MAX_COLUMNS) + 1
+        row_style = [*([""] * num_rows_per_player), *(["dim"] * num_rows_per_player)]
+
+        table = Table(row_styles=row_style, title="Cross results")
+        table.add_column("")
+        table.add_column("Name")
+        table.add_column("Score", justify="right")
+        table.add_column("W/D/L")
+
+        column_players = [[] for _idx in range(min(MAX_COLUMNS, len(good_players)))]
+        # if we have more good_players than allowed columns, we must wrap around
+        for idx, _p in enumerate(good_players):
+            column_players[idx % MAX_COLUMNS].append(idx)
+
+        for midx in column_players:
+            table.add_column('\n'.join(map(str, midx)))
+
+
+        def batched(iterable, n):
+            # Backport from Python 3.12
+            # batched('ABCDEFG', 3) → ABC DEF G
+            if n < 1:
+                raise ValueError('n must be at least one')
+            iterator = iter(iterable)
+            while batch := tuple(itertools.islice(iterator, n)):
+                yield batch
+
         result = []
         for idx, p in enumerate(good_players):
             win, loss, draw = self.get_results(idx)
             score = 0 if (win+loss+draw) == 0 else (win-loss) / (win+loss+draw)
-            result.append([score, p['name']])
-            print('% 2i: %17s (%6.2f): %3d,%3d,%3d  ' % (idx, p['name'][0:17], score, win, loss, draw), end=' ')
+            result.append([score, win, draw, loss, p['name']])
+            wdl = f"{win:3d},{draw:3d},{loss:3d}"
+
+            try:
+                row = rows[p['name']]
+            except KeyError:
+                continue
+            vals = { k: (w,l,d) for _p1, k, w, l, d in row }
+
+            cross_results = []
             for idx2, p2 in enumerate(good_players):
-                win, loss, draw = self.get_results(idx, idx2)
-                print('  %3d,%3d,%3d' % (win, loss, draw), end=' ')
-            print()
-        print()
+                win, loss, draw = vals.get(p2['name'], (0, 0, 0))
+                if idx == idx2:
+                    cross_results.append("  - - - ")
+                else:
+                    cross_results.append(f"{win:2d},{draw:2d},{loss:2d}")
+
+            for c, r in enumerate(batched(cross_results, MAX_COLUMNS)):
+                if c == 0:
+                    table.add_row(f"{idx}", p['name'], f"{score:.2f}", wdl, *r)
+                else:
+                    table.add_row("", "", "", "", *r)
+
+        console.print(table)
+
+        table = Table(title="Bot ranking")
+
+        table.add_column("Name")
+        table.add_column("# Matches")
+        table.add_column("# Wins")
+        table.add_column("# Draws")
+        table.add_column("# Losses")
+        table.add_column("Score")
+        table.add_column("ELO")
+
+        elo = self.gen_elo()
+
         result.sort(reverse=True)
-        for [score, name] in result:
-            print("% 30s %6.2f" % (name, score))
+        for [score, win, draw, loss, name] in result:
+            style = 'bold' if name in highlight else None
+            table.add_row(name, f"{win+draw+loss}", f"{win}", f"{draw}", f"{loss}", f"{score:6.3f}", f"{elo[name]: >4.0f}", style=style)
+
+        console.print(table)
+
         for p in bad_players:
             print("% 30s ***%30s***" % (p['name'], p['error']))
 
 
 class DB_Wrapper:
-    """Wrapper around the games data base."""
+    """Wrapper around the games database."""
 
     def __init__(self, dbfile):
         """Initialize the connection to the db ``dbfile``.
@@ -337,11 +435,11 @@ class DB_Wrapper:
         return players
 
     def get_player_hash(self, name):
-        """Get the hash stored in the data base for the player.
+        """Get the hash stored in the database for the player.
 
         Raises
         ------
-        ValueError : if the player does not exist in the data base
+        ValueError : if the player does not exist in the database
 
         """
         h = self.cursor.execute("""
@@ -350,11 +448,11 @@ class DB_Wrapper:
         WHERE name = ?
         """, (name,)).fetchone()
         if h is None:
-            raise ValueError('Player %s does not exist in data base.' % name)
+            raise ValueError('Player %s does not exist in database.' % name)
         return h[0]
 
     def add_player(self, name, h):
-        """Add player to data base
+        """Add player to database
 
         Parameters
         ----------
@@ -364,7 +462,7 @@ class DB_Wrapper:
 
         Raises
         ------
-        ValueError : if player already exists in data base
+        ValueError : if player already exists in database
 
         """
         try:
@@ -374,7 +472,7 @@ class DB_Wrapper:
             """, [name, h])
             self.connection.commit()
         except sqlite3.IntegrityError:
-            raise ValueError('Player %s already exists in data base' % name)
+            raise ValueError('Player %s already exists in database' % name)
 
     def remove_player(self, pname):
         """Remove a player from the database.
@@ -433,17 +531,90 @@ class DB_Wrapper:
         """
         if p2_name is None:
             self.cursor.execute("""
-            SELECT * FROM games
+            SELECT player1, player2, result FROM games
             WHERE player1 = ? or player2 = ?""", (p1_name, p1_name))
             relevant_results = self.cursor.fetchall()
         else:
             self.cursor.execute("""
-            SELECT * FROM games
+            SELECT player1, player2, result FROM games
             WHERE (player1 = :p1 and player2 = :p2) or (player1 = :p2 and player2 = :p1)""",
             dict(p1=p1_name, p2=p2_name))
             relevant_results = self.cursor.fetchall()
         return relevant_results
 
+
+    def get_wins_losses(self):
+        """ Get all wins and losses combined in a table of
+        team | opponent | wins | losses | draws
+        """
+
+        query = """
+
+        SELECT
+            team, opponent, SUM(wins) AS wins, SUM(losses) AS losses, SUM(draws) AS draws
+        FROM (
+            -- Count wins for player1
+            SELECT
+                player1 AS team, player2 AS opponent, COUNT(*) AS wins, 0 AS losses, 0 AS draws
+            FROM games
+            WHERE result = 0
+            GROUP BY player1, player2
+
+            UNION ALL
+
+            -- Count wins for player2
+            SELECT
+                player2 AS team, player1 AS opponent, 0 AS wins, COUNT(*) AS losses, 0 AS draws
+            FROM games
+            WHERE result = 0
+            GROUP BY player2, player1
+
+            UNION ALL
+
+            -- Count losses for player1
+            SELECT
+                player1 AS team, player2 AS opponent, 0 AS wins, COUNT(*) AS losses, 0 AS draws
+            FROM games
+            WHERE result = 1
+            GROUP BY player1, player2
+
+            UNION ALL
+
+            -- Count losses for player2
+            SELECT
+                player2 AS team, player1 AS opponent, COUNT(*) AS wins, 0 AS losses, 0 AS draws
+            FROM games
+            WHERE result = 1
+            GROUP BY player2, player1
+
+            UNION ALL
+
+            -- Count draws for both teams
+            SELECT
+                player1 AS team, player2 AS opponent, 0 AS wins, 0 AS losses, COUNT(*) AS draws
+            FROM games
+            WHERE result = -1
+            GROUP BY player1, player2
+
+            UNION ALL
+
+            SELECT
+                player2 AS team, player1 AS opponent, 0 AS wins, 0 AS losses, COUNT(*) AS draws
+            FROM games
+            WHERE result = -1
+            GROUP BY player2, player1
+        ) AS results
+        GROUP BY
+            team, opponent
+        ORDER BY
+            team, opponent;
+        """
+        return self.cursor.execute(query).fetchall()
+
+def hashfile(pathname: Path):
+    if pathname.is_file():
+        with pathname.open('rb') as f:
+            return hashlib.file_digest(f, 'sha1').hexdigest()
 
 def hashpath(pathname):
     """If given a directory, calculate the SHA1 sum of its contents.
@@ -514,14 +685,88 @@ def hashdir(pathname):
                         break
                     sha1.update(buf)
         except IOError:
-            logger.debug('could not open %s' % filename)
+            _logger.debug('could not open %s' % filename)
             pass
     return sha1.hexdigest()
 
-def hashmodule(pathname):
-    """Calculate the SHA1 sum of all relative imports in a script.
 
-    It operates by going through all modules that ModuleFinder.run_script
+def find_imports(filename: str) -> Set[str]:
+    """Find all imports in a given Python file."""
+
+    with open(filename, 'r') as file:
+        tree = ast.parse(file.read(), filename)
+    imports = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                imports.add(alias.name)
+        elif isinstance(node, ast.ImportFrom):
+            if node.module:
+                # In a situation
+                #
+                #   from .ab import de
+                #
+                # either we have a file ab.py
+                # or a file ab/de.py
+                # We return both cases
+
+                imports.add(node.module)
+                for n in node.names:
+                    imports.add(f"{node.module}.{n.name}")
+            elif node.names:
+                for n in node.names:
+                    imports.add(n.name)
+    return imports
+
+def find_module_path(module_name: str) -> Path:
+    """Find the file path of a module given its name."""
+    try:
+        spec = importlib.util.find_spec(module_name)
+        if spec and spec.origin:
+            return Path(spec.origin)
+    except ImportError:
+        return None
+    except ValueError:
+        return None
+
+def get_recursive_imports(filename: str, seen_modules: Set[str] = None, relative_to: Path = None) -> Dict[str, str]:
+    """Recursively find all imports from a given file.
+
+    NB: This function likely has problems with relative imports and surely a dozen other pathological cases
+    """
+
+    if seen_modules is None:
+        seen_modules = set()
+        all_imports = {"__main__": Path(filename).resolve()}
+    else:
+        all_imports = {}
+
+    if relative_to is None:
+        relative_to = Path(filename).parent.resolve()
+
+    new_imports = find_imports(filename)
+
+    with with_sys_path(str(Path(filename).parent.resolve())):
+        for module in new_imports:
+            module_path = find_module_path(module)
+            if module_path and module_path.suffix == '.py' and module_path.is_relative_to(relative_to):
+                all_imports[module] = module_path
+
+    for module in new_imports:
+        if module in seen_modules:
+            continue
+        seen_modules.add(module)
+        if module in all_imports:
+            module_path = all_imports[module]
+            all_imports.update(get_recursive_imports(module_path, seen_modules, relative_to))
+
+    return all_imports
+
+
+def hashmodule(pathname):
+    """Calculate the SHA1 sum of all imports in the same folder in a script.
+
+    It operates by going through all modules that `get_recursive_imports`
     finds, sorting them alphabetically and calculating the SHA1 of
     the contents of the files.
 
@@ -542,114 +787,45 @@ def hashmodule(pathname):
     'd2c07aafb6fbf2474f3b38e3baf4bb931994d844'
 
     """
-    logger.debug(f"Hashing module {pathname}")
-    finder = ModuleFinder()
-    finder.run_script(pathname)
-    # finder.modules is a dict modulename:module
-    # only keep relative modules
-    paths = {name:Path(mod.__file__)
-            for name, mod in finder.modules.items()
-            if mod.__file__}
-    relative_paths = [
-        (name, p) for name, p in paths.items()
-        if not p.is_absolute()
-    ]
+    _logger.debug(f"Hashing module {pathname}")
+    # Exclude numpy and matplotlib from hashing such as to avoid
+    # a bug in modulefinder https://github.com/python/cpython/issues/84530
+    imports = list(get_recursive_imports(pathname).items())
+
     # sort relative paths by module name and generate our sha
     sha1 = hashlib.sha1()
-    for name, path in sorted(relative_paths):
-        logger.debug(f"Hashing {pathname}: Adding {name}")
+    for module, path in sorted(imports):
+        _logger.debug(f"Hashing {pathname}: Adding {module}")
         sha1.update(path.read_bytes())
     res = sha1.hexdigest()
-    logger.debug(f"SHA1 for {pathname}: {res}.")
+    _logger.debug(f"SHA1 for {pathname}: {res}.")
     return res
 
-class Test_DB_Wrapper(unittest.TestCase):
-    """Tests for the DB_Wrapper class."""
 
-    def setUp(self):
-        self.wrapper = DB_Wrapper(':memory:')
-        self.wrapper.create_tables()
+@click.command()
+@click.option('--log',
+              is_flag=False, flag_value="-", default=None, metavar='LOGFILE',
+              help="print debugging log information to LOGFILE (default 'stderr')")
+@click.option('--config',
+              default=CFG_FILE,
+              type=click.File('r'),
+              help='Configuration file')
+@click.option('-n', help='run N times', type=int, default=0)
+@click.option('--print', is_flag=True, default=False,
+              help='Print scores and exit.')
+@click.option('--nohash', is_flag=True, default=False,
+              help='Do not hash the players')
+def main(log, config, n, print, nohash):
+    if log is not None:
+        start_logging(log, __name__)
 
-    def test_foreign_keys_enabled(self):
-        result = self.wrapper.cursor.execute("PRAGMA foreign_keys;").fetchone()
-        self.assertEqual(result[0], 1)
-
-    def test_add_player(self):
-        self.wrapper.add_player('p1', 'h1')
-        self.wrapper.add_player('p2', 'h2')
-        with self.assertRaises(ValueError):
-            self.wrapper.add_player('p1', 'h1')
-        players = sorted(self.wrapper.get_players())
-        self.assertEqual(players, ['p1', 'p2'])
-
-    def test_remove_player(self):
-        self.wrapper.add_player('p1', 'h1')
-        self.wrapper.add_player('p2', 'h2')
-        self.wrapper.add_player('p3', 'h3')
-        self.wrapper.add_gameresult('p1', 'p2', 0, '', '')
-        self.wrapper.add_gameresult('p2', 'p1', 0, '', '')
-        self.wrapper.add_gameresult('p2', 'p3', 0, '', '')
-        # player2 has three games
-        self.assertEqual(len(self.wrapper.get_results('p2')), 3)
-        self.wrapper.remove_player('p1')
-        # player 1 should have no game results
-        self.assertEqual(self.wrapper.get_results('p1'), [])
-        # after removing all games of player one, player2 should have 1
-        # game
-        self.assertEqual(len(self.wrapper.get_results('p2')), 1)
-        # player 3 should be untouched
-        self.assertEqual(len(self.wrapper.get_results('p3')), 1)
-
-    def test_add_remove_weirdly_named_player(self):
-        stupid_names = [
-            "Little'",
-            'Bobby"',
-            "таблицы",
-        ]
-
-        for name in stupid_names:
-            self.wrapper.add_player(name, name)
-            self.wrapper.remove_player(name)
-
-    def test_get_players(self):
-        players = ['p1', 'p2', 'p3']
-        for p in players:
-            self.wrapper.add_player(p, 'h')
-        players2 = sorted(self.wrapper.get_players())
-        self.assertEqual(players, players2)
-
-    def test_get_results(self):
-        self.wrapper.add_player('p1', 'h1')
-        self.wrapper.add_player('p2', 'h2')
-        # empty list if no results are available
-        self.assertEqual(self.wrapper.get_results('p1'), [])
-        self.wrapper.add_gameresult('p1', 'p2', 0, '', '')
-        result = self.wrapper.get_results('p1')[0]
-        # check for correct values
-        self.assertEqual(result[0], 'p1')
-        self.assertEqual(result[1], 'p2')
-        self.assertEqual(result[2], 0)
-        self.assertEqual(result[3], '')
-        self.assertEqual(result[4], '')
-        self.wrapper.add_gameresult('p2', 'p1', 0, '', '')
-        # check for correct number of results
-        results = self.wrapper.get_results('p1')
-        self.assertEqual(len(results), 2)
-
-    def test_get_player_hash(self):
-        self.wrapper.add_player('p1', 'h1')
-        self.wrapper.add_player('p2', 'h2')
-        with self.assertRaises(ValueError):
-            self.wrapper.get_player_hash('p0')
-        self.assertEqual(self.wrapper.get_player_hash('p1'), 'h1')
-        self.assertEqual(self.wrapper.get_player_hash('p2'), 'h2')
-
+    ci_engine = CI_Engine(config)
+    if print:
+        ci_engine.pretty_print_results()
+    else:
+        if not nohash:
+            ci_engine.load_players()
+        ci_engine.start(n)
 
 if __name__ == '__main__':
-    if args.test:
-        unittest.main(argv=sys.argv[:1], verbosity=2)
-    else:
-        ci_engine = CI_Engine()
-        ci_engine.start(args.n)
-
-
+    main()
