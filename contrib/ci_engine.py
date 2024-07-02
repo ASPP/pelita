@@ -290,34 +290,76 @@ class CI_Engine:
         if highlight is None:
             highlight = []
 
+        console = Console()
+        # Some guesswork in here
+        MAX_COLUMNS = (console.width - 40) // 12
+        if MAX_COLUMNS < 4:
+            # Let’s be honest: You should enlarge your terminal window even before that
+            MAX_COLUMNS = 4
+
         res = self.dbwrapper.get_wins_losses()
         rows = { k: list(v) for k, v in itertools.groupby(res, key=lambda x:x[0]) }
 
         good_players = [p for p in self.players if not p.get('error')]
         bad_players = [p for p in self.players if p.get('error')]
-        print(' ' * 41 + ''.join("            % 2i" % idx for idx, p in enumerate(good_players)))
+
+        num_rows_per_player = (len(good_players) // MAX_COLUMNS) + 1
+        row_style = [*([""] * num_rows_per_player), *(["dim"] * num_rows_per_player)]
+
+        table = Table(row_styles=row_style, title="Cross results")
+        table.add_column("")
+        table.add_column("Name")
+        table.add_column("Score", justify="right")
+        table.add_column("W/D/L")
+
+        column_players = [[] for _idx in range(min(MAX_COLUMNS, len(good_players)))]
+        # if we have more good_players than allowed columns, we must wrap around
+        for idx, _p in enumerate(good_players):
+            column_players[idx % MAX_COLUMNS].append(idx)
+
+        for midx in column_players:
+            table.add_column('\n'.join(map(str, midx)))
+
+
+        def batched(iterable, n):
+            # Backport from Python 3.12
+            # batched('ABCDEFG', 3) → ABC DEF G
+            if n < 1:
+                raise ValueError('n must be at least one')
+            iterator = iter(iterable)
+            while batch := tuple(itertools.islice(iterator, n)):
+                yield batch
+
         result = []
         for idx, p in enumerate(good_players):
             win, loss, draw = self.get_results(idx)
             score = 0 if (win+loss+draw) == 0 else (win-loss) / (win+loss+draw)
             result.append([score, win, draw, loss, p['name']])
-            print('% 2i: %17s (%6.2f): %3d,%3d,%3d  ' % (idx, p['name'][0:17], score, win, loss, draw), end=' ', flush=False)
+            wdl = f"{win:3d},{draw:3d},{loss:3d}"
 
             try:
                 row = rows[p['name']]
             except KeyError:
-                print(flush=False)
                 continue
             vals = { k: (w,l,d) for _p1, k, w, l, d in row }
 
+            cross_results = []
             for idx2, p2 in enumerate(good_players):
                 win, loss, draw = vals.get(p2['name'], (0, 0, 0))
-                print('%2d,%2d,%2d' % (win, loss, draw), end=' ', flush=False)
-            print(flush=False)
-        print()
-        result.sort(reverse=True)
+                if idx == idx2:
+                    cross_results.append("  - - - ")
+                else:
+                    cross_results.append(f"{win:2d},{draw:2d},{loss:2d}")
 
-        table = Table()
+            for c, r in enumerate(batched(cross_results, MAX_COLUMNS)):
+                if c == 0:
+                    table.add_row(f"{idx}", p['name'], f"{score:.2f}", wdl, *r)
+                else:
+                    table.add_row("", "", "", "", *r)
+
+        console.print(table)
+
+        table = Table(title="Bot ranking")
 
         table.add_column("Name")
         table.add_column("# Matches")
@@ -329,12 +371,11 @@ class CI_Engine:
 
         elo = self.gen_elo()
 
+        result.sort(reverse=True)
         for [score, win, draw, loss, name] in result:
             style = 'bold' if name in highlight else None
             table.add_row(name, f"{win+draw+loss}", f"{win}", f"{draw}", f"{loss}", f"{score:6.3f}", f"{elo[name]: >4.0f}", style=style)
 
-
-        console = Console()
         console.print(table)
 
         for p in bad_players:
