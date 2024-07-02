@@ -42,17 +42,17 @@ stabilized.
 """
 
 
-
-
+import ast
 import configparser
 import hashlib
+import importlib.util
 import itertools
 import logging
 import os
 from pathlib import Path
-from modulefinder import ModuleFinder
 import random
 import sqlite3
+from typing import Dict, Set
 
 import click
 from rich.console import Console
@@ -60,6 +60,7 @@ from rich.table import Table
 
 from pelita.network import ZMQClientError
 from pelita.tournament import check_team, call_pelita
+from pelita.scripts.pelita_player import with_sys_path
 from pelita.scripts.script_utils import start_logging
 
 _logger = logging.getLogger(__name__)
@@ -610,7 +611,10 @@ class DB_Wrapper:
         """
         return self.cursor.execute(query).fetchall()
 
-
+def hashfile(pathname: Path):
+    if pathname.is_file():
+        with pathname.open('rb') as f:
+            return hashlib.file_digest(f, 'sha1').hexdigest()
 
 def hashpath(pathname):
     """If given a directory, calculate the SHA1 sum of its contents.
@@ -685,10 +689,84 @@ def hashdir(pathname):
             pass
     return sha1.hexdigest()
 
-def hashmodule(pathname):
-    """Calculate the SHA1 sum of all relative imports in a script.
 
-    It operates by going through all modules that ModuleFinder.run_script
+def find_imports(filename: str) -> Set[str]:
+    """Find all imports in a given Python file."""
+
+    with open(filename, 'r') as file:
+        tree = ast.parse(file.read(), filename)
+    imports = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                imports.add(alias.name)
+        elif isinstance(node, ast.ImportFrom):
+            if node.module:
+                # In a situation
+                #
+                #   from .ab import de
+                #
+                # either we have a file ab.py
+                # or a file ab/de.py
+                # We return both cases
+
+                imports.add(node.module)
+                for n in node.names:
+                    imports.add(f"{node.module}.{n.name}")
+            elif node.names:
+                for n in node.names:
+                    imports.add(n.name)
+    return imports
+
+def find_module_path(module_name: str) -> Path:
+    """Find the file path of a module given its name."""
+    try:
+        spec = importlib.util.find_spec(module_name)
+        if spec and spec.origin:
+            return Path(spec.origin)
+    except ImportError:
+        return None
+    except ValueError:
+        return None
+
+def get_recursive_imports(filename: str, seen_modules: Set[str] = None, relative_to: Path = None) -> Dict[str, str]:
+    """Recursively find all imports from a given file.
+
+    NB: This function likely has problems with relative imports and surely a dozen other pathological cases
+    """
+
+    if seen_modules is None:
+        seen_modules = set()
+        all_imports = {"__main__": Path(filename).resolve()}
+    else:
+        all_imports = {}
+
+    if relative_to is None:
+        relative_to = Path(filename).parent.resolve()
+
+    new_imports = find_imports(filename)
+
+    with with_sys_path(str(Path(filename).parent.resolve())):
+        for module in new_imports:
+            module_path = find_module_path(module)
+            if module_path and module_path.suffix == '.py' and module_path.is_relative_to(relative_to):
+                all_imports[module] = module_path
+
+    for module in new_imports:
+        if module in seen_modules:
+            continue
+        seen_modules.add(module)
+        if module in all_imports:
+            module_path = all_imports[module]
+            all_imports.update(get_recursive_imports(module_path, seen_modules, relative_to))
+
+    return all_imports
+
+
+def hashmodule(pathname):
+    """Calculate the SHA1 sum of all imports in the same folder in a script.
+
+    It operates by going through all modules that `get_recursive_imports`
     finds, sorting them alphabetically and calculating the SHA1 of
     the contents of the files.
 
@@ -712,21 +790,12 @@ def hashmodule(pathname):
     _logger.debug(f"Hashing module {pathname}")
     # Exclude numpy and matplotlib from hashing such as to avoid
     # a bug in modulefinder https://github.com/python/cpython/issues/84530
-    finder = ModuleFinder(excludes=['numpy', 'matplotlib'])
-    finder.run_script(pathname)
-    # finder.modules is a dict modulename:module
-    # only keep relative modules
-    paths = {name:Path(mod.__file__)
-            for name, mod in finder.modules.items()
-            if mod.__file__}
-    relative_paths = [
-        (name, p) for name, p in paths.items()
-        if not p.is_absolute()
-    ]
+    imports = list(get_recursive_imports(pathname).items())
+
     # sort relative paths by module name and generate our sha
     sha1 = hashlib.sha1()
-    for name, path in sorted(relative_paths):
-        _logger.debug(f"Hashing {pathname}: Adding {name}")
+    for module, path in sorted(imports):
+        _logger.debug(f"Hashing {pathname}: Adding {module}")
         sha1.update(path.read_bytes())
     res = sha1.hexdigest()
     _logger.debug(f"SHA1 for {pathname}: {res}.")
