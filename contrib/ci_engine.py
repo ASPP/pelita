@@ -633,6 +633,7 @@ class DB_Wrapper:
 def main(log, config, n, print, nohash):
     if log is not None:
         start_logging(log, __name__)
+        start_logging(log, 'pelita')
 
     ci_engine = CI_Engine(config)
     if print:
