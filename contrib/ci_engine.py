@@ -44,6 +44,7 @@ stabilized.
 
 import configparser
 import itertools
+import json
 import logging
 import os
 import random
@@ -170,7 +171,7 @@ class CI_Engine:
         if stderr:
             _logger.warning('Stderr: %r', stderr)
         p1_name, p2_name = self.players[p1]['name'], self.players[p2]['name']
-        self.dbwrapper.add_gameresult(p1_name, p2_name, result, stdout, stderr)
+        self.dbwrapper.add_gameresult(p1_name, p2_name, result, final_state, stdout, stderr)
 
 
     def start(self, n):
@@ -416,7 +417,7 @@ class DB_Wrapper:
         """
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS games
-        (player1 text, player2 text, result int, stdout text, stderr text,
+        (player1 text, player2 text, result int, final_state text, stdout text, stderr text,
         FOREIGN KEY(player1) REFERENCES players(name) ON DELETE CASCADE,
         FOREIGN KEY(player2) REFERENCES players(name) ON DELETE CASCADE)
         """)
@@ -496,7 +497,7 @@ class DB_Wrapper:
         WHERE name = ?""", (pname,))
         self.connection.commit()
 
-    def add_gameresult(self, p1_name, p2_name, result, std_out, std_err):
+    def add_gameresult(self, p1_name, p2_name, result, final_state, std_out, std_err):
         """Add a new game result to the database.
 
         Parameters
@@ -513,8 +514,8 @@ class DB_Wrapper:
         """
         self.cursor.execute("""
         INSERT INTO games
-        VALUES (?, ?, ?, ?, ?)
-        """, [p1_name, p2_name, result, std_out, std_err])
+        VALUES (?, ?, ?, ?, ?, ?)
+        """, [p1_name, p2_name, result, json.dumps(final_state), std_out, std_err])
         self.connection.commit()
 
     def get_results(self, p1_name, p2_name=None):
