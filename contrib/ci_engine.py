@@ -93,23 +93,27 @@ class CI_Engine:
         self.dbwrapper = DB_Wrapper(self.db_file)
 
     def load_players(self):
+        hash_cache = {}
+
         # remove players from db which are not in the config anymore
         for pname in self.dbwrapper.get_players():
             if pname not in [p['name'] for p in self.players]:
                 _logger.debug('Removing %s from database, because it is not among the current players.' % (pname))
                 self.dbwrapper.remove_player(pname)
+
         # add new players into db
         for player in self.players:
             pname, path = player['name'], player['path']
             if pname not in self.dbwrapper.get_players():
                 _logger.debug('Adding %s to database.' % pname)
-                self.dbwrapper.add_player(pname, hash_team(path))
+                hash_cache[path] = hash_team(path)
+                self.dbwrapper.add_player(pname, hash_cache[path])
 
         # reset players where the directory hash changed
         for player in self.players:
             path = player['path']
             pname = player['name']
-            new_hash = hash_team(path)
+            new_hash = hash_cache.get(path, hash_team(path))
             if new_hash != self.dbwrapper.get_player_hash(pname):
                 _logger.debug('Resetting %s because its module hash changed.' % pname)
                 self.dbwrapper.remove_player(pname)
@@ -136,6 +140,7 @@ class CI_Engine:
 
         """
         team_specs = [self.players[i]['path'] for i in (p1, p2)]
+        print(f"Playing {self.players[p1]['name']} against {self.players[p2]['name']}.")
 
         final_state, stdout, stderr = call_pelita(team_specs,
                                                             rounds=self.rounds,
@@ -174,7 +179,6 @@ class CI_Engine:
         >>> ci.start()
 
         """
-        import itertools
         loop = itertools.repeat(None) if n == 0 else itertools.repeat(None, n)
 
         for _ in  loop:
@@ -188,6 +192,7 @@ class CI_Engine:
             b = random.choice(rest)
             players = [a, b]
             random.shuffle(players)
+
             self.run_game(players[0], players[1])
             self.pretty_print_results(highlight=[self.players[players[0]]['name'], self.players[players[1]]['name']])
             print('------------------------------')
