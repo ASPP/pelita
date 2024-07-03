@@ -539,12 +539,17 @@ class DB_Wrapper:
         return relevant_results
 
 
-    def get_wins_losses(self):
+    def get_wins_losses(self, team=None):
         """ Get all wins and losses combined in a table of
         team | opponent | wins | losses | draws
         """
 
-        query = """
+        if team is not None:
+            where_clause = "WHERE team = ?"
+        else:
+            where_clause = ""
+
+        query = f"""
 
         SELECT
             team, opponent, SUM(wins) AS wins, SUM(losses) AS losses, SUM(draws) AS draws
@@ -600,12 +605,17 @@ class DB_Wrapper:
             WHERE result = -1
             GROUP BY player2, player1
         ) AS results
+        {where_clause}
         GROUP BY
             team, opponent
         ORDER BY
-            team, opponent;
+            team, opponent
+        ;
         """
-        return self.cursor.execute(query).fetchall()
+        if team is not None:
+            return self.cursor.execute(query, [team]).fetchall()
+        else:
+            return self.cursor.execute(query).fetchall()
 
 
 @click.command()
