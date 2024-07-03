@@ -100,3 +100,34 @@ jobs:
       run: |
         pelita-tournament --non-interactive --viewer null
       timeout-minutes: 10
+
+  contrib:
+    # The tournament does not need to run everywhere.
+    # Only test on the latest ubuntu/macos for recent versions of Python.
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.12"]
+    timeout-minutes: 5
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -e .
+        python -c "import zmq; print('Using pyzmq {} and zmq {}.'.format(zmq.pyzmq_version(), zmq.zmq_version()))"
+    - name: Test with pytest
+      run: |
+        python -m pytest -v -s contrib/
+      timeout-minutes: 3
+    - name: Run ci_engine session
+      run: |
+        cd contrib
+        python ci_engine.py -n 5
+      timeout-minutes: 5

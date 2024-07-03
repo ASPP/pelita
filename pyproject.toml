@@ -51,7 +51,7 @@ test = "pytest"
 
 [tool.pytest.ini_options]
 # addopts = --verbose
-python_files = ["test/test_*.py"]
+python_files = ["test/test_*.py", "contrib/test_*.py"]
 
 [tool.coverage.run]
 relative_files = true

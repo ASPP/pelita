@@ -53,7 +53,7 @@ def run_and_terminate_process(args, **kwargs):
     hope for the best. :)
     """
 
-    _logger.debug(f"Executing: {''.join(args)}")
+    _logger.debug(f"Executing: {shlex.join(args)}")
 
     try:
         if _mswindows:
@@ -347,8 +347,8 @@ class Config:
                 print("Could not find executable in call {!r}".format(full_cmd))
                 print("Disabling speech synthesis.")
 
-                _logger.warning("Could not find executable in call {!r}".format(full_cmd))
-                _logger.warning("Disabling speech synthesis.")
+                _logger.warn("Could not find executable in call {!r}".format(full_cmd))
+                _logger.warn("Disabling speech synthesis.")
 
                 self.speak = False
                 self.wait_for_keypress()
@@ -364,7 +364,7 @@ class Config:
                     self._say_process_error = True
                     self.wait_for_keypress()
                 else:
-                    _logger.warning(err)
+                    _logger.warn(err)
 
 
     def input(self, str, values=None):
