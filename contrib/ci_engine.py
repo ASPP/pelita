@@ -186,7 +186,7 @@ class CI_Engine:
             # mix him with another random player
             # mis the sides and let them play
             broken_players = {idx for idx, player in enumerate(self.players) if player.get('error')}
-            game_count = [[sum(self.get_results(i)), i] for i in range(len(self.players))]
+            game_count = [(self.dbwrapper.get_game_count(p['name']), idx) for idx, p in enumerate(self.players)]
             players_sorted = [idx for count, idx in sorted(game_count) if not idx in broken_players]
             a, rest = players_sorted[0], players_sorted[1:]
             b = random.choice(rest)
@@ -537,6 +537,37 @@ class DB_Wrapper:
             dict(p1=p1_name, p2=p2_name))
             relevant_results = self.cursor.fetchall()
         return relevant_results
+
+
+    def get_game_count(self, p1_name, p2_name=None):
+        """Get number of games involving player1 (AND player2 if specified).
+
+        Parameters
+        ----------
+        p1_name : str
+            the  name of player 1
+        p2_name : str, optional
+            the name of player 2, if not specified ``get_results`` will
+            return all games involving player 1 otherwise it will return
+            all games of player1 AND player2
+
+        Returns
+        -------
+        relevant_results : list of gameresults
+
+        """
+        if p2_name is None:
+            self.cursor.execute("""
+            SELECT count(*) FROM games
+            WHERE player1 = ? or player2 = ?""", (p1_name, p1_name))
+            count, = self.cursor.fetchone()
+        else:
+            self.cursor.execute("""
+            SELECT count(*) FROM games
+            WHERE (player1 = :p1 and player2 = :p2) or (player1 = :p2 and player2 = :p1)""",
+            dict(p1=p1_name, p2=p2_name))
+            count, = self.cursor.fetchone()
+        return count
 
 
     def get_wins_losses(self, team=None):
