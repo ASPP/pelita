@@ -705,7 +705,7 @@ class TkApplication:
                 has_food = pos in game_state['food']
                 is_wall = pos in game_state['walls']
                 bots = [idx for idx, bot in enumerate(game_state['bots']) if bot==pos]
-                if pos[0] <= (game_state['shape'][0] // 2):
+                if pos[0] < (game_state['shape'][0] // 2):
                     zone = "blue"
                 else:
                     zone = "red"
