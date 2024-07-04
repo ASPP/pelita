@@ -988,6 +988,9 @@ def check_exit_remote_teams(game_state):
         for idx, team in enumerate(game_state['teams']):
             if len(game_state['fatal_errors'][idx]) > 0:
                 _logger.info(f"Not sending exit to team {idx} which had a fatal error.")
+                # We pretend we already send the exit message, otherwise
+                # the team’s __del__ method will do it once more.
+                team._sent_exit = True
                 continue
             try:
                 team_game_state = prepare_bot_state(game_state, idx=idx)
