@@ -280,7 +280,8 @@ class PelitaServer:
             avaliable_teams = {}
             for team_info in self.team_infos:
                 # we construct the url from the url that reached us
-                full_url = f"{requested_url.scheme}://{requested_url.hostname}/{team_info.server_path}"
+                port = "" if requested_url.port == PELITA_PORT or requested_url.port is None else f":{requested_url.port}"
+                full_url = f"{requested_url.scheme}://{requested_url.hostname}{port}/{team_info.server_path}"
                 avaliable_teams[full_url] = team_info.team_name
 
             avaliable_teams_json = json.dumps(avaliable_teams).encode("utf8")
