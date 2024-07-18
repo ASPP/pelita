@@ -98,7 +98,7 @@ def run_and_terminate_process(args, **kwargs):
                     p.kill()
 
 
-def call_pelita(team_specs, *, rounds, size, viewer, seed, timeout=3, initial_timeout=6,
+def call_pelita(team_specs, *, rounds, size, viewer, seed, timeout=3, initial_timeout=6, publish=None,
                 team_infos=None, write_replay=False, store_output=False, exit_flag=None):
     """ Starts a new process with the given command line arguments and waits until finished.
 
@@ -137,6 +137,7 @@ def call_pelita(team_specs, *, rounds, size, viewer, seed, timeout=3, initial_ti
     seed = ['--seed', seed] if seed else []
     timeout = ['--timeout', str(timeout)]
     initial_timeout = ['--initial-timeout', str(initial_timeout)]
+    publish = ['--publish', publish] if publish else []
     write_replay = ['--write-replay', write_replay] if write_replay else []
     store_output = ['--store-output', store_output] if store_output else []
     append_blue = ['--append-blue', team_infos[0]] if team_infos[0] else []
@@ -145,6 +146,8 @@ def call_pelita(team_specs, *, rounds, size, viewer, seed, timeout=3, initial_ti
     cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
            team1, team2,
            '--reply-to', reply_addr,
+           '--stop-at', '0',
+           *publish,
            *append_blue,
            *append_red,
            *rounds,
@@ -280,6 +283,7 @@ class Config:
         self.size = config.get("size")
 
         self.viewer = config.get("viewer")
+        self.publish = config.get("publish")
         self.interactive = config.get("interactive")
         self.statefile = config.get("statefile")
 
@@ -300,6 +304,13 @@ class Config:
         self.tournament_log_folder = None
         self.tournament_log_file = None
 
+        if self.publish:
+            ctx = zmq.Context()
+            self.socket = ctx.socket(zmq.PUB)
+            self.socket.connect(self.publish)
+        else:
+            self.socket = None
+
     @property
     def team_ids(self):
         return self.teams.keys()
@@ -316,6 +327,15 @@ class Config:
     def team_spec(self, team):
         return self.teams[team]["spec"]
 
+    def send_remote(self, action, data=None):
+        if not self.socket:
+            return
+        if data is None:
+            publish_string = {"__action__": action}
+        else:
+            publish_string = {"__action__": action, "__data__": data}
+        self.socket.send_json(publish_string)
+
     def _print(self, *args, **kwargs):
         print(*args, **kwargs)
         if self.tournament_log_file:
@@ -327,12 +347,15 @@ class Config:
         """Speak while you print. To disable set speak=False.
         You need the program %s to be able to speak.
         Set wait=X to wait X seconds after speaking."""
+
         if len(args) == 0:
+            self.send_remote("SPEAK", " ".join(args))
             self._print()
             return
         stream = io.StringIO()
         wait = kwargs.pop('wait', 0.5)
         want_speak = kwargs.pop('speak', None)
+        self.send_remote("SPEAK", " ".join(args))
         if (want_speak is False) or not self.speak:
             self._print(*args, **kwargs)
         else:
@@ -392,6 +415,11 @@ class Config:
             except IndexError:
                 pass
 
+    def init_tournament(self):
+        self.send_remote("INIT")
+
+    def clear_page(self):
+        self.send_remote("CLEAR")
 
     def wait_for_keypress(self):
         if self.interactive:
@@ -434,7 +462,9 @@ class State:
 
 
 def present_teams(config):
+    config.init_tournament()
     config.wait_for_keypress()
+    config.clear_page()
     print("\33[H\33[2J")  # clear the screen
 
     greeting = config.greeting
@@ -463,8 +493,9 @@ def set_name(team):
         print(sys.stderr)
         raise
 
-
-def play_game_with_config(config, teams, rng, *, match_id=None):
+# TODO: Log tournament match cmdline
+def play_game_with_config(config: Config, teams, rng, *, match_id=None):
+    config.clear_page()
     team1, team2 = teams
 
     if config.tournament_log_folder:
@@ -489,6 +520,7 @@ def play_game_with_config(config, teams, rng, *, match_id=None):
                                 rounds=config.rounds,
                                 size=config.size,
                                 viewer=config.viewer,
+                                publish=config.publish,
                                 team_infos=team_infos,
                                 seed=seed,
                                 **log_kwargs)
@@ -518,6 +550,7 @@ def start_match(config, teams, rng, *, shuffle=False, match_id=None):
     config.print('Starting match: '+ config.team_name_group(team1)+' vs ' + config.team_name_group(team2))
     config.print()
     config.wait_for_keypress()
+    config.clear_page()
 
     (final_state, stdout, stderr) = play_game_with_config(config, teams, rng=rng, match_id=match_id)
     try:
@@ -636,6 +669,7 @@ def play_round1(config, state, rng):
     rr_played = state.round1["played"]
 
     config.wait_for_keypress()
+    config.clear_page()
     config.print()
     config.print("ROUND 1 (Everybody vs Everybody)")
     config.print('================================', speak=False)
@@ -665,6 +699,7 @@ def play_round1(config, state, rng):
         winner = start_match_with_replay(config, match, rng=rng, match_id=match_id)
         match_id.next_match()
         config.wait_for_keypress()
+        config.clear_page()
 
         if winner is False or winner is None:
             rr_played.append({ "match": match, "winner": False })
@@ -707,9 +742,11 @@ def recur_match_winner(match):
 def play_round2(config, teams, state, rng):
     """Run the second round and return the name of the winning team.
 
-    teams is the list [group0, group1, ...] not the names of the agens, sorted
+    teams is the list [group0, group1, ...] not the names of the agents, sorted
     by the result of the first round.
     """
+    config.wait_for_keypress()
+    config.clear_page()
     config.print()
     config.print('ROUND 2 (K.O.)')
     config.print('==============', speak=False)
@@ -739,6 +776,7 @@ def play_round2(config, teams, state, rng):
                     winner = start_deathmatch(config, t1_id, t2_id, rng=rng, match_id=match_id)
                     match.winner = winner
 
+                    config.clear_page()
                     config.print(knockout_mode.print_knockout(last_match, config.team_name, highlight=[match]), speak=False)
 
                     state.round2["tournament"] = tournament
@@ -751,5 +789,6 @@ def play_round2(config, teams, state, rng):
                 match_id.next_match()
 
     config.wait_for_keypress()
+    config.clear_page()
 
     return last_match.winner
