@@ -788,8 +788,8 @@ class TkApplication:
         self.ui.game_canvas.delete(tkinter.ALL)
 
     def draw_food(self, game_state):
-        if not self.size_changed:
-            return
+        #if not self.size_changed:
+        #    return
         self.ui.game_canvas.delete("food")
         self.food_items = {}
         for position in game_state['food']:

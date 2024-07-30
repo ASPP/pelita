@@ -10,7 +10,7 @@ from warnings import warn
 
 from . import layout
 from .exceptions import FatalException, NonFatalException, NoFoodWarning, PlayerTimeout
-from .gamestate_filters import noiser
+from .gamestate_filters import noiser, manhattan_dist
 from .layout import initial_positions, get_legal_positions
 from .network import setup_controller, ZMQPublisher
 from .team import make_team
@@ -32,6 +32,8 @@ SIGHT_DISTANCE = 5
 #: The radius for the uniform noise
 NOISE_RADIUS = 5
 
+#: Food pellet lifetime
+FOOD_LIFETIME = 15
 
 class TkViewer:
     def __init__(self, *, address, controller, geometry=None, delay=None, stop_after=None):
@@ -312,6 +314,10 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
 
         #: Food per team. List of sets of (int, int)
         food=food,
+
+        #: food lifetime dict
+        food_lifetime=[ {coord : FOOD_LIFETIME for coord in food[0]},
+                        {coord : FOOD_LIFETIME for coord in food[1]} ],
 
         ### Round/turn information
         #: Current bot, int, None
@@ -614,6 +620,7 @@ def prepare_viewer_state(game_state):
     """
     viewer_state = {}
     viewer_state.update(game_state)
+    del viewer_state['food_lifetime']
     viewer_state['food'] = list((viewer_state['food'][0] | viewer_state['food'][1]))
 
     # game_state["errors"] has a tuple as a dict key
@@ -667,6 +674,44 @@ def play_turn(game_state, allow_exceptions=False):
     turn = game_state['turn']
     round = game_state['round']
     team = turn % 2
+    # update food_lifetime only once per round
+    if turn == 0 and team == 0:
+        for current_team in (0, 1):
+            bot0, bot1 = game_state['bots'][current_team], game_state['bots'][current_team+2]
+            food_to_relocate = []
+            food_lifetime = game_state['food_lifetime'][current_team]
+            # remove eaten pellets
+            for pellet in list(food_lifetime.keys()):
+                if pellet not in game_state['food'][current_team]:
+                    del food_lifetime[pellet]
+            for pellet, lifetime in food_lifetime.items():
+                if ( manhattan_dist(bot0, pellet) <= game_state['sight_distance'] or
+                     manhattan_dist(bot1, pellet) <= game_state['sight_distance'] ):
+                    food_lifetime[pellet] -= 1
+                else:
+                    food_lifetime[pellet] = FOOD_LIFETIME
+                if food_lifetime[pellet] == 0:
+                    food_to_relocate.append(pellet)
+
+            width = game_state['shape'][0] // 2
+            left_most = width * current_team
+            eligible_positions = { (x, y) for x in range(left_most, left_most+width)
+                                          for y in range(game_state['shape'][1]) if x not in (width-1, width)}
+            eligible_positions = eligible_positions.difference(game_state['walls'])
+            eligible_positions = eligible_positions.difference(game_state['food'][current_team])
+            eligible_positions = eligible_positions.difference(game_state['bots'])
+            eligible_positions = list(eligible_positions)
+            # should we remove the initial positions of the bots too?
+            for pellet in food_to_relocate:
+                new_pos = game_state['rnd'].choice(eligible_positions)
+                print(round, turn, pellet, new_pos)
+                eligible_positions.remove(new_pos)
+                food_lifetime[new_pos] = FOOD_LIFETIME
+                del food_lifetime[pellet]
+                game_state['food'][current_team].add(new_pos)
+                game_state['food'][current_team].remove(pellet)
+
+
     # request a new move from the current team
     try:
         position_dict = request_new_position(game_state)
