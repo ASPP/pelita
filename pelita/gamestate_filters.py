@@ -1,8 +1,6 @@
 """ collecting the game state filter functions """
 import random
 
-### The main function
-
 
 def noiser(walls, shape, bot_position, enemy_positions, noise_radius=5, sight_distance=5, rnd=None):
     """Function to make bot positions noisy in a game state.
@@ -76,9 +74,6 @@ def noiser(walls, shape, bot_position, enemy_positions, noise_radius=5, sight_di
     return { "enemy_positions": noised_positions, "is_noisy": is_noisy }
 
 
-### The subfunctions
-
-
 def alter_pos(bot_pos, noise_radius, rnd, walls, shape):
     """ alter the position """
 
@@ -121,6 +116,77 @@ def alter_pos(bot_pos, noise_radius, rnd, walls, shape):
     # return the final_pos and a flag if it is noisy or not
     return (final_pos, noisy)
 
+def in_homezone(position, team_id, shape):
+    boundary = shape[0] / 2
+    if team_id == 0:
+        return position[0] < boundary
+    elif team_id == 1:
+        return position[0] >= boundary
+
+
+def update_food_lifetimes(game_state, radius):
+    shape = game_state['shape']
+    bots = game_state['bots']
+    team_food = game_state['food']
+    food_lifetime = dict(game_state['food_lifetime'])
+
+    for team_idx in [0, 1]:
+        team_bot_pos = bots[team_idx::2]
+        for food_pos in team_food[team_idx]:
+            if any(manhattan_dist(food_pos, bot_pos) < radius and in_homezone(bot_pos, team_idx, shape)
+                    for bot_pos in team_bot_pos):
+                food_lifetime[food_pos] -= 1
+            else:
+                food_lifetime[food_pos] = 60
+
+    return {'food_lifetime': food_lifetime}
+
+def find_free_pos(shape, walls, food_to_keep, team_id):
+    # Finds a position in the homezone on team_id that has no walls and no food
+    if team_id == 0:
+        range_x = [0, shape[0] // 2]
+    else:
+        range_x = [shape[0] // 2, shape[0]]
+    range_y = [0, shape[1]]
+    while True:
+        x = random.randrange(*range_x)
+        y = random.randrange(*range_y)
+        pos = (x, y)
+        if pos not in walls and pos not in food_to_keep:
+            return pos
+
+
+def relocate_expired_food(game_state):
+    team_food = game_state['food']
+    food_lifetime = dict(game_state['food_lifetime'])
+    shape = game_state['shape']
+    walls = game_state['walls']
+
+    res_food = []
+
+    for team_idx in [0, 1]:
+        food_to_relocate = set()
+        food_to_keep = set()
+        for food_pos in team_food[team_idx]:
+            if food_lifetime[food_pos] == 0:
+                food_to_relocate.add(food_pos)
+                del food_lifetime[food_pos]
+            else:
+                food_to_keep.add(food_pos)
+
+        for relocate in food_to_relocate:
+            new_pos = find_free_pos(shape, walls, food_to_keep, team_idx)
+            food_to_keep.add(new_pos)
+            food_lifetime[new_pos] = 60
+
+        res_food.append(food_to_keep)
+
+    res = {
+        "food": res_food,
+        "food_lifetime": food_lifetime
+    }
+
+    return res
 
 def manhattan_dist(pos1, pos2):
     """ Manhattan distance between two points.

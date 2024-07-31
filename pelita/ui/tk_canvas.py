@@ -413,11 +413,13 @@ class TkApplication:
 
         eaten_food = []
         for food_pos, food_item in self.food_items.items():
+            food_item.food_lifetime = game_state['food_lifetime'][food_pos]
             if not food_pos in game_state["food"]:
                 self.ui.game_canvas.delete(food_item.tag)
                 eaten_food.append(food_pos)
         for food_pos in eaten_food:
             del self.food_items[food_pos]
+
 
         winning_team_idx = game_state.get("whowins")
         if winning_team_idx is None:
@@ -788,13 +790,14 @@ class TkApplication:
         self.ui.game_canvas.delete(tkinter.ALL)
 
     def draw_food(self, game_state):
-        if not self.size_changed:
-            return
+#        if not self.size_changed:
+#            return
         self.ui.game_canvas.delete("food")
         self.food_items = {}
         for position in game_state['food']:
             model_x, model_y = position
-            food_item = Food(self.mesh_graph, position=(model_x, model_y))
+            lifetime = game_state['food_lifetime'][position]
+            food_item = Food(self.mesh_graph, position=(model_x, model_y), food_lifetime=lifetime)
             food_item.draw(self.ui.game_canvas)
             self.food_items[position] = food_item
 
@@ -966,6 +969,7 @@ class TkApplication:
         game_state['food'] = _ensure_list_tuples(game_state['food'])
         game_state['bots'] = _ensure_list_tuples(game_state['bots'])
         game_state['shape'] = tuple(game_state['shape'])
+        game_state['food_lifetime'] = {tuple(pos): lifetime for pos, lifetime in game_state['food_lifetime']}
         self.update(game_state)
         if self._stop_after is not None:
             if self._stop_after == 0:

@@ -5,7 +5,7 @@ import collections
 import random
 
 from pelita import gamestate_filters as gf
-from pelita.game import setup_game, prepare_bot_state
+from pelita.game import setup_game, prepare_bot_state, split_food
 from pelita.layout import parse_layout
 
 
@@ -587,3 +587,26 @@ def test_noise_manhattan_failure():
         assert noised['is_noisy'] == [False, False]
         noised_pos = noised['enemy_positions']
         assert noised_pos == parsed['bots'][0::2]
+
+def test_update_food_lifetimes():
+    test_layout = (
+    """ ##################
+        # #.  .  # . b   #
+        # #####    #####y#
+        #  a  . #  .  .#x#
+        ################## """)
+    parsed = parse_layout(test_layout)
+    food_lifetime = {pos: 60 for pos in parsed['food']}
+    food = split_food(parsed['shape'], parsed['food'])
+
+    parsed.update({
+        "food": food,
+        "food_lifetime": food_lifetime,
+    })
+
+    assert gf.update_food_lifetimes(parsed, 2)['food_lifetime'] ==  {(3, 1): 60, (6, 1): 60, (6, 3): 60, (11, 1): 60, (11, 3): 60, (14, 3): 60}
+    assert gf.update_food_lifetimes(parsed, 3)['food_lifetime'] ==  {(3, 1): 59, (6, 1): 60, (6, 3): 60, (11, 1): 60, (11, 3): 60, (14, 3): 59}
+    assert gf.update_food_lifetimes(parsed, 5)['food_lifetime'] ==  {(3, 1): 59, (6, 1): 60, (6, 3): 59, (11, 1): 60, (11, 3): 60, (14, 3): 59}
+
+def test_relocate_expired_food():
+    pass

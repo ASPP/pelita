@@ -10,7 +10,7 @@ from warnings import warn
 
 from . import layout
 from .exceptions import FatalException, NonFatalException, NoFoodWarning, PlayerTimeout
-from .gamestate_filters import noiser
+from .gamestate_filters import noiser, update_food_lifetimes, relocate_expired_food
 from .layout import initial_positions, get_legal_positions
 from .network import setup_controller, ZMQPublisher
 from .team import make_team
@@ -31,6 +31,9 @@ SIGHT_DISTANCE = 5
 
 #: The radius for the uniform noise
 NOISE_RADIUS = 5
+
+#: The lifetime of food pellets in a shadow in turns
+MAX_FOOD_LIFETIME = 15 * 4
 
 
 class TkViewer:
@@ -76,9 +79,10 @@ def controller_exit(state, await_action='play_step'):
         elif todo in ('play_step', 'set_initial'):
             return False
 
-def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=None,
-             error_limit=5, timeout_length=3, viewers=None, viewer_options=None,
-             store_output=False, team_names=(None, None), team_infos=(None, None),
+def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300,
+             seed=None, allow_squatting=False, error_limit=5, timeout_length=3,
+             viewers=None, viewer_options=None, store_output=False,
+             team_names=(None, None), team_infos=(None, None),
              allow_exceptions=False, print_result=True):
     """ Run a pelita match.
 
@@ -180,10 +184,14 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300, seed=No
     # in background games
 
     # we create the initial game state
-    state = setup_game(team_specs, layout_dict=layout_dict, layout_name=layout_name, max_rounds=max_rounds,
-                       error_limit=error_limit, timeout_length=timeout_length, seed=seed,
-                       viewers=viewers, viewer_options=viewer_options,
-                       store_output=store_output, team_names=team_names, team_infos=team_infos,
+    state = setup_game(team_specs, layout_dict=layout_dict,
+                       layout_name=layout_name, max_rounds=max_rounds,
+                       allow_squatting=allow_squatting,
+                       error_limit=error_limit, timeout_length=timeout_length,
+                       seed=seed, viewers=viewers,
+                       viewer_options=viewer_options,
+                       store_output=store_output, team_names=team_names,
+                       team_infos=team_infos,
                        print_result=print_result)
 
     # Play the game until it is gameover.
@@ -254,8 +262,9 @@ def setup_viewers(viewers=None, options=None, print_result=True):
 
 
 def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=None,
-               error_limit=5, timeout_length=3, viewers=None, viewer_options=None,
-               store_output=False, team_names=(None, None), team_infos=(None, None),
+               allow_squatting=False, error_limit=5, timeout_length=3,
+               viewers=None, viewer_options=None, store_output=False,
+               team_names=(None, None), team_infos=(None, None),
                allow_exceptions=False, print_result=True):
     """ Generates a game state for the given teams and layout with otherwise default values. """
 
@@ -292,6 +301,10 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         return team_food
 
     food = split_food(width, layout_dict['food'])
+    food_lifetime = {}
+    for f_team in food:
+        for food_item in f_team:
+            food_lifetime[food_item] = MAX_FOOD_LIFETIME
 
     # warn if one of the food lists is already empty
     side_no_food = [idx for idx, f in enumerate(food) if len(f) == 0]
@@ -312,6 +325,9 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
 
         #: Food per team. List of sets of (int, int)
         food=food,
+
+        #: Food lifetimes
+        food_lifetime=food_lifetime, ## allow_squatting=False,
 
         ### Round/turn information
         #: Current bot, int, None
@@ -641,6 +657,9 @@ def prepare_viewer_state(game_state):
     del viewer_state['rnd']
     del viewer_state['viewers']
     del viewer_state['controller']
+
+    # We must transform the food lifetime dict to a list or we cannot serialise it
+    viewer_state['food_lifetime'] = list(viewer_state['food_lifetime'].items())
     return viewer_state
 
 
@@ -661,12 +680,16 @@ def play_turn(game_state, allow_exceptions=False):
     if game_state['gameover']:
         raise ValueError("Game is already over!")
 
+    game_state.update(update_food_lifetimes(game_state, NOISE_RADIUS))
+    game_state.update(relocate_expired_food(game_state))
+
     # Now update the round counter
     game_state.update(next_round_turn(game_state))
 
     turn = game_state['turn']
     round = game_state['round']
     team = turn % 2
+
     # request a new move from the current team
     try:
         position_dict = request_new_position(game_state)
@@ -842,7 +865,7 @@ def apply_move(gamestate, bot_position):
     if bot_in_homezone:
         killed_enemies = [idx for idx in enemy_idx if bot_position == bots[idx]]
         for enemy_idx in killed_enemies:
-            _logger.info(f"Bot {turn} eats enemy bot {enemy_idx} at {bot_position}.")
+            _logger.info(f"Bot {turn} eats enemy bot {enemy_idx} at {bot_position}.")
             score[team] = score[team] + KILL_POINTS
             init_positions = initial_positions(walls, shape)
             bots[enemy_idx] = init_positions[enemy_idx]
@@ -854,7 +877,7 @@ def apply_move(gamestate, bot_position):
         # check if we have been eaten
         enemies_on_target = [idx for idx in enemy_idx if bots[idx] == bot_position]
         if len(enemies_on_target) > 0:
-            _logger.info(f"Bot {turn} was eaten by bots {enemies_on_target} at {bot_position}.")
+            _logger.info(f"Bot {turn} was eaten by bots {enemies_on_target} at {bot_position}.")
             score[1 - team] = score[1 - team] + KILL_POINTS
             init_positions = initial_positions(walls, shape)
             bots[turn] = init_positions[turn]
@@ -997,6 +1020,15 @@ def check_exit_remote_teams(game_state):
                 team._exit(team_game_state)
             except AttributeError:
                 pass
+
+
+def split_food(shape, food):
+    width = shape[0]
+    team_food = [set(), set()]
+    for pos in food:
+        idx = pos[0] // (width // 2)
+        team_food[idx].add(pos)
+    return team_food
 
 
 def game_print(turn, msg):

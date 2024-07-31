@@ -221,6 +221,8 @@ game_settings.add_argument('--rounds', type=int, default=300,
                            help='Maximum number of rounds to play.')
 game_settings.add_argument('--seed', type=int, metavar='SEED', default=None,
                            help='Initialize the random number generator with SEED.')
+game_settings.add_argument('--allow-squatting', type=bool, default=False,
+                           help='do not set a food lifetime')
 
 layout_opt = game_settings.add_mutually_exclusive_group()
 layout_opt.add_argument('--layout', metavar='LAYOUT',
