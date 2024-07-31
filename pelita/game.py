@@ -35,6 +35,9 @@ NOISE_RADIUS = 5
 #: Food pellet lifetime
 FOOD_LIFETIME = 15
 
+#: Food pellet lifetime distance
+LIFETIME_DISTANCE = 3
+
 class TkViewer:
     def __init__(self, *, address, controller, geometry=None, delay=None, stop_after=None):
         self.proc = self._run_external_viewer(address, controller, geometry=geometry, delay=delay, stop_after=stop_after)
@@ -357,6 +360,9 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
 
         #: Sight distance, int
         sight_distance=SIGHT_DISTANCE,
+
+        #: Sight distance, int
+        lifetime_distance=LIFETIME_DISTANCE,
 
         ### Informative
         #: Name of the layout, str
@@ -685,8 +691,8 @@ def play_turn(game_state, allow_exceptions=False):
                 if pellet not in game_state['food'][current_team]:
                     del food_lifetime[pellet]
             for pellet, lifetime in food_lifetime.items():
-                if ( manhattan_dist(bot0, pellet) <= game_state['sight_distance'] or
-                     manhattan_dist(bot1, pellet) <= game_state['sight_distance'] ):
+                if ( manhattan_dist(bot0, pellet) <= game_state['lifetime_distance'] or
+                     manhattan_dist(bot1, pellet) <= game_state['lifetime_distance'] ):
                     food_lifetime[pellet] -= 1
                 else:
                     food_lifetime[pellet] = FOOD_LIFETIME
@@ -695,8 +701,15 @@ def play_turn(game_state, allow_exceptions=False):
 
             width = game_state['shape'][0] // 2
             left_most = width * current_team
-            eligible_positions = { (x, y) for x in range(left_most, left_most+width)
-                                          for y in range(game_state['shape'][1]) if x not in (width-1, width)}
+            eligible_positions = {
+                (x, y)
+                for x in range(left_most, left_most+width)
+                for y in range(game_state['shape'][1])
+                if (x not in (width-1, width)
+                    and manhattan_dist(bot0, (x, y)) > game_state['lifetime_distance']
+                    and manhattan_dist(bot1, (x, y)) > game_state['lifetime_distance']
+                    )
+            }
             eligible_positions = eligible_positions.difference(game_state['walls'])
             eligible_positions = eligible_positions.difference(game_state['food'][current_team])
             eligible_positions = eligible_positions.difference(game_state['bots'])
