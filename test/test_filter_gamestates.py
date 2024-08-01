@@ -595,8 +595,9 @@ def test_update_food_lifetimes():
         # #####    #####y#
         #  a  . #  .  .#x#
         ################## """)
+    mx = 60
     parsed = parse_layout(test_layout)
-    food_lifetime = {pos: 60 for pos in parsed['food']}
+    food_lifetime = {pos: mx for pos in parsed['food']}
     food = split_food(parsed['shape'][0], parsed['food'])
 
     parsed.update({
@@ -604,9 +605,29 @@ def test_update_food_lifetimes():
         "food_lifetime": food_lifetime,
     })
 
-    assert gf.update_food_lifetimes(parsed, 2, 60)['food_lifetime'] ==  {(3, 1): 60, (6, 1): 60, (6, 3): 60, (11, 1): 60, (11, 3): 60, (14, 3): 60}
-    assert gf.update_food_lifetimes(parsed, 3, 60)['food_lifetime'] ==  {(3, 1): 59, (6, 1): 60, (6, 3): 60, (11, 1): 60, (11, 3): 60, (14, 3): 59}
-    assert gf.update_food_lifetimes(parsed, 5, 60)['food_lifetime'] ==  {(3, 1): 59, (6, 1): 60, (6, 3): 59, (11, 1): 60, (11, 3): 60, (14, 3): 59}
+    radius = 1
+    expected = {(3, 1): mx, (6, 1): mx, (6, 3): mx,    # team0
+                (11, 1): mx, (11, 3): mx, (14, 3): mx} # team1
+    # nothing should change for either team, the radius is too small
+    assert gf.update_food_lifetimes(parsed, 0, radius, mx)['food_lifetime'] == expected
+    assert gf.update_food_lifetimes(parsed, 1, radius, mx)['food_lifetime'] == expected
+
+    radius = 2
+    expected_team0 = {(3, 1): mx-1, (6, 1): mx, (6, 3): mx,  # team0
+                      (11, 1): mx, (11, 3): mx, (14, 3): mx} # team1
+    expected_team1 = {(3, 1): mx, (6, 1): mx, (6, 3): mx,      # team0
+                      (11, 1): mx, (11, 3): mx, (14, 3): mx-1} # team1
+    # the two teams should get exactly one pellet updated
+    assert gf.update_food_lifetimes(parsed, 0, radius, mx)['food_lifetime'] == expected_team0
+    assert gf.update_food_lifetimes(parsed, 1, radius, mx)['food_lifetime'] == expected_team1
+
+    radius = 4
+    expected_team0 = {(3, 1): mx-1, (6, 1): mx, (6, 3): mx-1, # team0
+                      (11, 1): mx, (11, 3): mx, (14, 3): mx}  # team1
+    expected_team1 = {(3, 1): mx, (6, 1): mx, (6, 3): mx,      # team0
+                      (11, 1): mx, (11, 3): mx, (14, 3): mx-1} # team1
+    assert gf.update_food_lifetimes(parsed, 0, radius, mx)['food_lifetime'] == expected_team0
+    assert gf.update_food_lifetimes(parsed, 1, radius, mx)['food_lifetime'] == expected_team1
 
 def test_relocate_expired_food():
     pass
