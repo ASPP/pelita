@@ -692,7 +692,7 @@ def play_turn(game_state, allow_exceptions=False):
         # otherwise pellets that are in the shadow of two bots
         # would get the lifetime reduced by 2 within a round
         game_state.update(update_food_lifetimes(game_state, team, LIFETIME_DISTANCE))
-        game_state.update(relocate_expired_food(game_state))
+        game_state.update(relocate_expired_food(game_state, team, LIFETIME_DISTANCE))
 
     # request a new move from the current team
     try:

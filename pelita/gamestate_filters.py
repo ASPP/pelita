@@ -140,52 +140,63 @@ def update_food_lifetimes(game_state, team, radius, max_food_lifetime=None):
 
     return {'food_lifetime': food_lifetime}
 
-def find_free_pos(shape, walls, food_to_keep, team_id):
-    # Finds a position in the homezone on team_id that has no walls and no food
-    if team_id == 0:
-        range_x = [0, shape[0] // 2]
-    else:
-        range_x = [shape[0] // 2, shape[0]]
-    range_y = [0, shape[1]]
-    while True:
-        x = random.randrange(*range_x)
-        y = random.randrange(*range_y)
-        pos = (x, y)
-        if pos not in walls and pos not in food_to_keep:
-            return pos
 
-
-def relocate_expired_food(game_state):
-    team_food = game_state['food']
+def relocate_expired_food(game_state, team, radius, max_food_lifetime=None):
+    bots = game_state['bots'][team::2]
+    enemy_bots = game_state['bots'][1-team::2]
+    food = [set(team_food) for team_food in game_state['food']]
     food_lifetime = dict(game_state['food_lifetime'])
-    shape = game_state['shape']
+    width, height = game_state['shape']
     walls = game_state['walls']
+    rnd = game_state['rnd']
+    if max_food_lifetime is None:
+        max_food_lifetime = game_state['max_food_lifetime']
 
-    res_food = []
+    # generate a set of possible positions to relocate food:
+    #  - in the bot's homezone
+    #  - not a wall
+    #  - not on a already present food pellet
+    #  - not on a bot
+    #  - not on the border
+    #  - not within the shadow of a bot
+    home_width = width // 2
+    left_most_x = home_width * team
+    targets = { (x, y) for x in range(left_most_x, left_most_x+home_width) # this line and the next define the homezone
+                       for y in range(height)
+                       if (x not in (home_width, home_width - 1) # this excludes the border
+                           and manhattan_dist(bots[0], (x, y)) > radius # this line and the next excludes the team's bots and their shadows
+                           and manhattan_dist(bots[1], (x, y)) > radius )
+              }
+    targets = targets.difference(walls) # remove the walls
+    targets = targets.difference(food[team]) # remove the team's food
+    targets = targets.difference(enemy_bots) # remove the enemy bots
+    # now convert to a list and sort, so that we have reproducibility (sets are unordered)
+    targets = sorted(list(targets))
+    for pellet in sorted(list(food[team])):
+        if food_lifetime[pellet] > 0:
+            # the current pellet is fine, keep it!
+            continue
+        if not targets:
+            # we have no free positions anymore, just let the food stay where it is
+            # we do not update the lifetime, so this pellet will get a chance to be
+            # relocated at the next round
+            continue
+        # choose a new position at random
+        new_pos = rnd.choice(targets)
 
-    for team_idx in [0, 1]:
-        food_to_relocate = set()
-        food_to_keep = set()
-        for food_pos in team_food[team_idx]:
-            if food_lifetime[food_pos] == 0:
-                food_to_relocate.add(food_pos)
-                del food_lifetime[food_pos]
-            else:
-                food_to_keep.add(food_pos)
+        # remove the new pellet position from the list of possible targets for new pellets
+        targets.remove(new_pos)
 
-        for relocate in food_to_relocate:
-            new_pos = find_free_pos(shape, walls, food_to_keep, team_idx)
-            food_to_keep.add(new_pos)
-            food_lifetime[new_pos] = 60
+        # get rid of the old pellet
+        food[team].remove(pellet)
+        del food_lifetime[pellet]
 
-        res_food.append(food_to_keep)
+        # track the new pellet
+        food_lifetime[new_pos] = max_food_lifetime
+        food[team].add(new_pos)
 
-    res = {
-        "food": res_food,
-        "food_lifetime": food_lifetime
-    }
+    return {'food' : food, 'food_lifetime' : food_lifetime}
 
-    return res
 
 def manhattan_dist(pos1, pos2):
     """ Manhattan distance between two points.
