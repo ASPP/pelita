@@ -34,7 +34,7 @@ SIGHT_DISTANCE = 5
 NOISE_RADIUS = 5
 
 #: The lifetime of food pellets in a shadow in turns
-MAX_FOOD_LIFETIME = 30 * 2
+MAX_FOOD_LIFETIME = 30
 
 #: Food pellet lifetime distance
 LIFETIME_DISTANCE = 3
