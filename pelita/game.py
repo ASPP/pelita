@@ -293,13 +293,6 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         if not (0, 0) <= pos < (width, height):
             raise ValueError(f"Bot {idx} is not inside the layout: {pos}.")
 
-    def split_food(width, food):
-        team_food = [set(), set()]
-        for pos in food:
-            idx = pos[0] // (width // 2)
-            team_food[idx].add(pos)
-        return team_food
-
     food = split_food(width, layout_dict['food'])
     food_lifetime = {}
     for f_team in food:
@@ -1022,8 +1015,7 @@ def check_exit_remote_teams(game_state):
                 pass
 
 
-def split_food(shape, food):
-    width = shape[0]
+def split_food(width, food):
     team_food = [set(), set()]
     for pos in food:
         idx = pos[0] // (width // 2)

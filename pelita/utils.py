@@ -4,6 +4,7 @@ import networkx as nx
 
 
 from .team import make_bots, create_homezones
+from .game import split_food
 from .layout import (get_random_layout, get_layout_by_name, get_available_layouts,
                      parse_layout, BOT_N2I, initial_positions)
 
@@ -211,13 +212,6 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
     layout, layout_name = _parse_layout_arg(layout=layout, food=food, bots=bots)
 
     width, height = layout['shape']
-
-    def split_food(width, food):
-        team_food = [set(), set()]
-        for pos in food:
-            idx = pos[0] // (width // 2)
-            team_food[idx].add(pos)
-        return team_food
 
     food = split_food(width, layout['food'])
 

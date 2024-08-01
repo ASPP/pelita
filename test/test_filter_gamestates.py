@@ -597,7 +597,7 @@ def test_update_food_lifetimes():
         ################## """)
     parsed = parse_layout(test_layout)
     food_lifetime = {pos: 60 for pos in parsed['food']}
-    food = split_food(parsed['shape'], parsed['food'])
+    food = split_food(parsed['shape'][0], parsed['food'])
 
     parsed.update({
         "food": food,
