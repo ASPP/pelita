@@ -680,3 +680,43 @@ def test_relocate_expired_food(dummy):
             assert border[1] < new[0]
             assert new[0] < border[0]*2
 
+def test_relocate_expired_food_nospaceleft():
+    test_layout = (
+    """ ##################
+        ###..... # . b   #
+        #######y    ######
+        ###a##..#  .  .#x#
+        ################## """)
+    to_relocate = (3, 1)
+    mx = 1
+    parsed = parse_layout(test_layout)
+    food_lifetime = {pos: mx for pos in parsed['food']}
+    food_lifetime[to_relocate] = 0 # set to zero so that we also test that we support negative lifetimes
+    food = split_food(parsed['shape'][0], parsed['food'])
+
+    parsed.update({
+        "food": food,
+        "food_lifetime": food_lifetime,
+        "rnd" : random.Random(),
+    })
+
+    radius = 2
+
+    parsed.update(gf.update_food_lifetimes(parsed, 0, radius, mx))
+    out = gf.relocate_expired_food(parsed, 0, radius, mx)
+    # check that the food pellet did not move: there is no space to move it
+    # anywhere
+    assert to_relocate in out['food'][0]
+    assert len(out['food'][0]) == 7
+    assert out['food_lifetime'][to_relocate] == -1
+
+    # now make space for the food and check that it gets located in the free spot
+    parsed.update(out)
+    parsed['food'][0].remove((7,1))
+    del parsed['food_lifetime'][(7,1)]
+    out = gf.relocate_expired_food(parsed, 0, radius, mx)
+    assert to_relocate not in out['food'][0]
+    assert (7, 1) in out['food'][0]
+    assert to_relocate not in out['food_lifetime']
+    assert out['food_lifetime'][(7, 1)] == mx
+
