@@ -604,9 +604,9 @@ def test_update_food_lifetimes():
         "food_lifetime": food_lifetime,
     })
 
-    assert gf.update_food_lifetimes(parsed, 2)['food_lifetime'] ==  {(3, 1): 60, (6, 1): 60, (6, 3): 60, (11, 1): 60, (11, 3): 60, (14, 3): 60}
-    assert gf.update_food_lifetimes(parsed, 3)['food_lifetime'] ==  {(3, 1): 59, (6, 1): 60, (6, 3): 60, (11, 1): 60, (11, 3): 60, (14, 3): 59}
-    assert gf.update_food_lifetimes(parsed, 5)['food_lifetime'] ==  {(3, 1): 59, (6, 1): 60, (6, 3): 59, (11, 1): 60, (11, 3): 60, (14, 3): 59}
+    assert gf.update_food_lifetimes(parsed, 2, 60)['food_lifetime'] ==  {(3, 1): 60, (6, 1): 60, (6, 3): 60, (11, 1): 60, (11, 3): 60, (14, 3): 60}
+    assert gf.update_food_lifetimes(parsed, 3, 60)['food_lifetime'] ==  {(3, 1): 59, (6, 1): 60, (6, 3): 60, (11, 1): 60, (11, 3): 60, (14, 3): 59}
+    assert gf.update_food_lifetimes(parsed, 5, 60)['food_lifetime'] ==  {(3, 1): 59, (6, 1): 60, (6, 3): 59, (11, 1): 60, (11, 3): 60, (14, 3): 59}
 
 def test_relocate_expired_food():
     pass

@@ -124,11 +124,13 @@ def in_homezone(position, team_id, shape):
         return position[0] >= boundary
 
 
-def update_food_lifetimes(game_state, radius):
+def update_food_lifetimes(game_state, radius, max_food_lifetime=None):
     shape = game_state['shape']
     bots = game_state['bots']
     team_food = game_state['food']
     food_lifetime = dict(game_state['food_lifetime'])
+    if max_food_lifetime is None:
+        max_food_lifetime = game_state['max_food_lifetime']
 
     for team_idx in [0, 1]:
         team_bot_pos = bots[team_idx::2]
@@ -137,7 +139,7 @@ def update_food_lifetimes(game_state, radius):
                     for bot_pos in team_bot_pos):
                 food_lifetime[food_pos] -= 1
             else:
-                food_lifetime[food_pos] = 60
+                food_lifetime[food_pos] = max_food_lifetime
 
     return {'food_lifetime': food_lifetime}
 
