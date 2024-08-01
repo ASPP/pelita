@@ -80,7 +80,7 @@ def controller_exit(state, await_action='play_step'):
             return False
 
 def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300,
-             seed=None, allow_squatting=False, error_limit=5, timeout_length=3,
+             seed=None, allow_camping=False, error_limit=5, timeout_length=3,
              viewers=None, viewer_options=None, store_output=False,
              team_names=(None, None), team_infos=(None, None),
              allow_exceptions=False, print_result=True):
@@ -186,7 +186,7 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300,
     # we create the initial game state
     state = setup_game(team_specs, layout_dict=layout_dict,
                        layout_name=layout_name, max_rounds=max_rounds,
-                       allow_squatting=allow_squatting,
+                       allow_camping=allow_camping,
                        error_limit=error_limit, timeout_length=timeout_length,
                        seed=seed, viewers=viewers,
                        viewer_options=viewer_options,
@@ -262,7 +262,7 @@ def setup_viewers(viewers=None, options=None, print_result=True):
 
 
 def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=None,
-               allow_squatting=False, error_limit=5, timeout_length=3,
+               allow_camping=False, error_limit=5, timeout_length=3,
                viewers=None, viewer_options=None, store_output=False,
                team_names=(None, None), team_infos=(None, None),
                allow_exceptions=False, print_result=True):
@@ -327,7 +327,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         food=food,
 
         #: Food lifetimes
-        food_lifetime=food_lifetime, ## allow_squatting=False,
+        food_lifetime=food_lifetime, ## allow_camping=False,
 
         ### Round/turn information
         #: Current bot, int, None
