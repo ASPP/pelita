@@ -118,7 +118,7 @@ def test_track_and_kill_count():
         trackingBot
     ]
     # We play 600 rounds as we rely on some randomness in our assertions
-    state = setup_game(team, max_rounds=600, layout_dict=parse_layout(layout))
+    state = setup_game(team, max_rounds=600, allow_camping=True, layout_dict=parse_layout(layout))
     while not state['gameover']:
         # Check that our count is consistent with what the game thinks
         # for the current and previous bot, we have to subtract the deaths that have just respawned
@@ -454,7 +454,7 @@ def test_bot_graph_is_half_mutable():
     """
 
     observer = []
-    
+
     def blue(bot, state):
         if bot.turn == 0 and bot.round == 1:
             assert bot.graph[1, 1][1, 2].get('weight') is None
