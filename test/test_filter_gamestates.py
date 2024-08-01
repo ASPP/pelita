@@ -629,5 +629,54 @@ def test_update_food_lifetimes():
     assert gf.update_food_lifetimes(parsed, 0, radius, mx)['food_lifetime'] == expected_team0
     assert gf.update_food_lifetimes(parsed, 1, radius, mx)['food_lifetime'] == expected_team1
 
-def test_relocate_expired_food():
-    pass
+# repeat the test 20 times to exercise the randomness of the relocation algorithm
+@pytest.mark.parametrize('dummy', range(20))
+def test_relocate_expired_food(dummy):
+    test_layout = (
+    """ ##################
+        # #.  .  # . b   #
+        # #####    #####y#
+        #  a  . #  .  .#x#
+        ################## """)
+    team_exp_relocate = ( (3, 1), (14, 3) )
+    border = (8, 9)
+    for team in (0, 1):
+        mx = 1
+        parsed = parse_layout(test_layout)
+        food_lifetime = {pos: mx for pos in parsed['food']}
+        food = split_food(parsed['shape'][0], parsed['food'])
+
+        parsed.update({
+            "food": food,
+            "food_lifetime": food_lifetime,
+            "rnd" : random.Random(),
+        })
+
+        radius = 2
+
+        parsed.update(gf.update_food_lifetimes(parsed, team, radius, mx))
+        out = gf.relocate_expired_food(parsed, team, radius, mx)
+
+        # check that the expired pellet is gone, bot only when it's our team turn
+        assert team_exp_relocate[team] not in out['food'][team]
+        assert team_exp_relocate[1-team] in out['food'][1-team]
+
+        # check that the relocation was done properly
+        assert len(parsed['food'][team].intersection(out['food'][team])) == 2
+        new = out['food'][team].difference(parsed['food'][team])
+        assert len(new) == 1 # there is only one new pellet
+        new = new.pop()
+        assert new not in parsed['walls'] # it was not located on a wall
+        assert new[0] not in border # it was not located on the border
+        assert new not in parsed['bots'] # it was not located on a bot
+        for team_bot in parsed['bots'][team::2]:
+            # it was not located within the shadow of a team bot
+            assert gf.manhattan_dist(new, team_bot) > radius
+        # check that the new pellet is in the right homezone
+        if team == 0:
+            assert 0 < new[0]
+            assert new[0] < border[0]
+        else:
+            assert border[1] < new[0]
+            assert new[0] < border[0]*2
+
