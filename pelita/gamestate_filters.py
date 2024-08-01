@@ -124,22 +124,19 @@ def in_homezone(position, team_id, shape):
         return position[0] >= boundary
 
 
-def update_food_lifetimes(game_state, radius, max_food_lifetime=None):
-    shape = game_state['shape']
-    bots = game_state['bots']
-    team_food = game_state['food']
+def update_food_lifetimes(game_state, team, radius, max_food_lifetime=None):
+    bots = game_state['bots'][team::2]
+    food = game_state['food'][team]
     food_lifetime = dict(game_state['food_lifetime'])
     if max_food_lifetime is None:
         max_food_lifetime = game_state['max_food_lifetime']
 
-    for team_idx in [0, 1]:
-        team_bot_pos = bots[team_idx::2]
-        for food_pos in team_food[team_idx]:
-            if any(manhattan_dist(food_pos, bot_pos) < radius and in_homezone(bot_pos, team_idx, shape)
-                    for bot_pos in team_bot_pos):
-                food_lifetime[food_pos] -= 1
-            else:
-                food_lifetime[food_pos] = max_food_lifetime
+    for pellet in food:
+        if (manhattan_dist(bots[0], pellet) <= radius or
+            manhattan_dist(bots[1], pellet) <= radius ):
+            food_lifetime[pellet] -= 1
+        else:
+            food_lifetime[pellet] = max_food_lifetime
 
     return {'food_lifetime': food_lifetime}
 
