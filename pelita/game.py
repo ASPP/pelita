@@ -33,8 +33,8 @@ SIGHT_DISTANCE = 5
 #: The radius for the uniform noise
 NOISE_RADIUS = 5
 
-#: The lifetime of food pellets in a shadow in turns
-MAX_FOOD_LIFETIME = 15 * 4
+#: The lifetime of food pellets in a shadow in rounds
+MAX_FOOD_LIFETIME = 15
 
 
 class TkViewer:
@@ -678,15 +678,19 @@ def play_turn(game_state, allow_exceptions=False):
     if game_state['gameover']:
         raise ValueError("Game is already over!")
 
-    game_state.update(update_food_lifetimes(game_state, NOISE_RADIUS))
-    game_state.update(relocate_expired_food(game_state))
-
     # Now update the round counter
     game_state.update(next_round_turn(game_state))
 
     turn = game_state['turn']
     round = game_state['round']
     team = turn % 2
+
+    if turn >= 2:
+        # update food_lifetimes only one time per round per team
+        # otherwise pellets that are in the shadow of two bots
+        # would get the lifetime reduced by 2 within a round
+        game_state.update(update_food_lifetimes(game_state, NOISE_RADIUS))
+        game_state.update(relocate_expired_food(game_state))
 
     # request a new move from the current team
     try:
