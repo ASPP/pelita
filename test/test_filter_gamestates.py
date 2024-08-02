@@ -726,29 +726,34 @@ def test_pacman_resets_lifetime():
     # Once it becomes a bot, the food_lifetime should reset
     test_layout = (
     """ ##################
-        #       ..     xy#
-        #      a         #
-        #b               #
+        #         x     y#
+        #       ..       #
+        #b     a         #
         ################## """)
     team1 = stepping_player('>>-', '---')
-    team2 = stepping_player('---', '---')
+    team2 = stepping_player('<<-', '---')
 
     parsed = parse_layout(test_layout)
     state = setup_game([team1, team2], layout_dict=parsed, max_rounds=8)
-    assert state['food_lifetime'] == {(8, 1): 30, (9, 1): 30}
+    assert state['food_lifetime'] == {(8, 2): 30, (9, 2): 30}
     state = play_turn(state)
     assert state['turn'] == 0
-    assert state['food_lifetime'] == {(8, 1): 29, (9, 1): 30}
+    assert state['food_lifetime'] == {(8, 2): 29, (9, 2): 30}
     state = play_turn(state)
+    assert state['turn'] == 1
+    assert state['food_lifetime'] == {(8, 2): 29, (9, 2): 29}
     state = play_turn(state)
     state = play_turn(state)
     state = play_turn(state)
     # NOTE: food_lifetimes are calculated *before* the move
     # Therefore this will only be updated once it is team1’s turn again
     assert state['turn'] == 0
-    assert state['food_lifetime'] == {(8, 1): 27, (9, 1): 30}
+    assert state['food_lifetime'] == {(8, 2): 27, (9, 2): 28}
     state = play_turn(state)
-    assert state['food_lifetime'] == {(8, 1): 27, (9, 1): 30}
+    assert state['food_lifetime'] == {(8, 2): 27, (9, 2): 27}
     state = play_turn(state)
     assert state['turn'] == 2
-    assert state['food_lifetime'] == {(8, 1): 30, (9, 1): 30}
+    assert state['food_lifetime'] == {(8, 2): 30, (9, 2): 27}
+    state = play_turn(state)
+    assert state['turn'] == 3
+    assert state['food_lifetime'] == {(8, 2): 30, (9, 2): 30}
