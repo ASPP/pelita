@@ -9,10 +9,10 @@ from pelita.layout import *
 
 def test_get_available_layouts():
     available = get_available_layouts(size='all')
-    assert 300 == len(available)
+    assert 1200 == len(available)
     # now also test the filter
     available = get_available_layouts(size='normal')
-    assert 100 == len(available)
+    assert 1000 == len(available)
 
 def test_get_layout_by_name():
     target_layout = """
