@@ -5,8 +5,9 @@ import collections
 import random
 
 from pelita import gamestate_filters as gf
-from pelita.game import setup_game, prepare_bot_state, split_food
+from pelita.game import setup_game, play_turn, prepare_bot_state, split_food
 from pelita.layout import parse_layout
+from pelita.player import stepping_player
 
 
 def make_gamestate():
@@ -720,3 +721,34 @@ def test_relocate_expired_food_nospaceleft():
     assert to_relocate not in out['food_lifetime']
     assert out['food_lifetime'][(7, 1)] == mx
 
+def test_pacman_resets_lifetime():
+    # We move bot a across the border
+    # Once it becomes a bot, the food_lifetime should reset
+    test_layout = (
+    """ ##################
+        #       ..     xy#
+        #      a         #
+        #b               #
+        ################## """)
+    team1 = stepping_player('>>-', '---')
+    team2 = stepping_player('---', '---')
+
+    parsed = parse_layout(test_layout)
+    state = setup_game([team1, team2], layout_dict=parsed, max_rounds=8)
+    assert state['food_lifetime'] == {(8, 1): 30, (9, 1): 30}
+    state = play_turn(state)
+    assert state['turn'] == 0
+    assert state['food_lifetime'] == {(8, 1): 29, (9, 1): 30}
+    state = play_turn(state)
+    state = play_turn(state)
+    state = play_turn(state)
+    state = play_turn(state)
+    # NOTE: food_lifetimes are calculated *before* the move
+    # Therefore this will only be updated once it is team1’s turn again
+    assert state['turn'] == 0
+    assert state['food_lifetime'] == {(8, 1): 27, (9, 1): 30}
+    state = play_turn(state)
+    assert state['food_lifetime'] == {(8, 1): 27, (9, 1): 30}
+    state = play_turn(state)
+    assert state['turn'] == 2
+    assert state['food_lifetime'] == {(8, 1): 30, (9, 1): 30}

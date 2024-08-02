@@ -125,15 +125,18 @@ def in_homezone(position, team_id, shape):
 
 
 def update_food_lifetimes(game_state, team, radius, max_food_lifetime=None):
-    bots = game_state['bots'][team::2]
+    # Only ghosts can cast a shadow
+    ghosts = [
+        bot for bot in game_state['bots'][team::2]
+        if in_homezone(bot, team, game_state['shape'])
+    ]
     food = game_state['food'][team]
     food_lifetime = dict(game_state['food_lifetime'])
     if max_food_lifetime is None:
         max_food_lifetime = game_state['max_food_lifetime']
 
     for pellet in food:
-        if (manhattan_dist(bots[0], pellet) <= radius or
-            manhattan_dist(bots[1], pellet) <= radius ):
+        if any(manhattan_dist(ghost, pellet) <= radius for ghost in ghosts):
             food_lifetime[pellet] -= 1
         else:
             food_lifetime[pellet] = max_food_lifetime
