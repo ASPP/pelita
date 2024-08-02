@@ -19,6 +19,16 @@ _mswindows = (sys.platform == "win32")
 
 FIXTURE_DIR = Path(__file__).parent.resolve() / 'fixtures'
 
+small_layout = """
+################
+#    . ##. . .y#
+#  #       #.#x#
+#. #.     .  ..#
+#..  .     .# .#
+#a#.#       #  #
+#b. . .## .    #
+################
+"""
 
 @contextmanager
 def temp_wd(path):
@@ -150,8 +160,7 @@ def test_initial_positions_same_in_layout(layout_name):
 
 def test_get_legal_positions_basic():
     """Check that the output of legal moves contains all legal moves for one example layout"""
-    l = layout.get_layout_by_name(layout_name="small_100")
-    parsed_l = layout.parse_layout(l)
+    parsed_l = layout.parse_layout(small_layout)
     legal_positions = get_legal_positions(parsed_l["walls"], parsed_l["shape"], parsed_l["bots"][0])
     exp = [(1, 4), (1, 6), (1, 5)]
     assert legal_positions == exp
@@ -773,8 +782,7 @@ def test_play_turn_maxrounds(score):
 def test_play_turn_move():
     """Checks that bot is moved to intended space"""
     turn = 0
-    l = layout.get_layout_by_name("small_100")
-    parsed_l = layout.parse_layout(l)
+    parsed_l = layout.parse_layout(small_layout)
     game_state = {
         "food": parsed_l["food"],
         "walls": parsed_l["walls"],
@@ -805,8 +813,7 @@ def test_play_turn_move():
 
 def setup_random_basic_gamestate(*, round=1, turn=0):
     """helper function for testing play turn"""
-    l = layout.get_layout_by_name("small_100")
-    parsed_l = layout.parse_layout(l)
+    parsed_l = layout.parse_layout(small_layout)
 
     stopping = lambda bot, s: (bot.position, s)
 
