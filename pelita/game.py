@@ -319,8 +319,8 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         #: Food per team. List of sets of (int, int)
         food=food,
 
-        #: Food lifetimes
-        food_lifetime={},
+        #: Food lifetimes per team. Dict of (int, int) to int
+        food_lifetime=[{}, {}],
 
         #: Max food lifetime
         max_food_lifetime=max_food_lifetime,
@@ -626,7 +626,12 @@ def prepare_viewer_state(game_state):
     """
     viewer_state = {}
     viewer_state.update(game_state)
+
+    # Flatten food and food_lifetime
     viewer_state['food'] = list((viewer_state['food'][0] | viewer_state['food'][1]))
+    # We must transform the food lifetime dict to a list or we cannot serialise it
+    viewer_state['food_lifetime'] = [item for team_lifetime in viewer_state['food_lifetime']
+                                          for item in team_lifetime.items()]
 
     # game_state["errors"] has a tuple as a dict key
     # that cannot be serialized in json.
@@ -654,8 +659,6 @@ def prepare_viewer_state(game_state):
     del viewer_state['viewers']
     del viewer_state['controller']
 
-    # We must transform the food lifetime dict to a list or we cannot serialise it
-    viewer_state['food_lifetime'] = list(viewer_state['food_lifetime'].items())
     return viewer_state
 
 

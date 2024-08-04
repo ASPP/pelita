@@ -131,19 +131,19 @@ def update_food_lifetimes(game_state, team, radius, max_food_lifetime=None):
         if in_homezone(bot, team, game_state['shape'])
     ]
     food = game_state['food'][team]
-    food_lifetime = dict(game_state['food_lifetime'])
+    food_lifetime = [dict(team_lifetime) for team_lifetime in game_state['food_lifetime']]
     if max_food_lifetime is None:
         max_food_lifetime = game_state['max_food_lifetime']
 
     for pellet in food:
         if any(manhattan_dist(ghost, pellet) <= radius for ghost in ghosts):
-            if pellet in food_lifetime:
-                food_lifetime[pellet] -= 1
+            if pellet in food_lifetime[team]:
+                food_lifetime[team][pellet] -= 1
             else:
-                food_lifetime[pellet] = max_food_lifetime - 1
+                food_lifetime[team][pellet] = max_food_lifetime - 1
         else:
-            if pellet in food_lifetime:
-                del food_lifetime[pellet]
+            if pellet in food_lifetime[team]:
+                del food_lifetime[team][pellet]
 
     return {'food_lifetime': food_lifetime}
 
@@ -152,7 +152,7 @@ def relocate_expired_food(game_state, team, radius, max_food_lifetime=None):
     bots = game_state['bots'][team::2]
     enemy_bots = game_state['bots'][1-team::2]
     food = [set(team_food) for team_food in game_state['food']]
-    food_lifetime = dict(game_state['food_lifetime'])
+    food_lifetime = [dict(team_lifetime) for team_lifetime in game_state['food_lifetime']]
     width, height = game_state['shape']
     walls = game_state['walls']
     rnd = game_state['rnd']
@@ -180,7 +180,7 @@ def relocate_expired_food(game_state, team, radius, max_food_lifetime=None):
     # now convert to a list and sort, so that we have reproducibility (sets are unordered)
     targets = sorted(list(targets))
     for pellet in sorted(list(food[team])):
-        if pellet not in food_lifetime or food_lifetime[pellet] > 0:
+        if pellet not in food_lifetime[team] or food_lifetime[team][pellet] > 0:
             # the current pellet is fine, keep it!
             continue
         if not targets:
@@ -196,10 +196,10 @@ def relocate_expired_food(game_state, team, radius, max_food_lifetime=None):
 
         # get rid of the old pellet
         food[team].remove(pellet)
-        del food_lifetime[pellet]
+        del food_lifetime[team][pellet]
 
         # track the new pellet
-        food_lifetime[new_pos] = max_food_lifetime
+        food_lifetime[team][new_pos] = max_food_lifetime
         food[team].add(new_pos)
 
     return {'food' : food, 'food_lifetime' : food_lifetime}
