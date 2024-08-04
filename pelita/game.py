@@ -297,11 +297,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
             raise ValueError(f"Bot {idx} is not inside the layout: {pos}.")
 
     food = split_food(width, layout_dict['food'])
-    food_lifetime = {}
     max_food_lifetime = math.inf if allow_camping else MAX_FOOD_LIFETIME
-    for f_team in food:
-        for food_item in f_team:
-            food_lifetime[food_item] = max_food_lifetime
 
     # warn if one of the food lists is already empty
     side_no_food = [idx for idx, f in enumerate(food) if len(f) == 0]
@@ -324,7 +320,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         food=food,
 
         #: Food lifetimes
-        food_lifetime=food_lifetime,
+        food_lifetime={},
 
         #: Max food lifetime
         max_food_lifetime=max_food_lifetime,
