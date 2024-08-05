@@ -589,43 +589,42 @@ def test_noise_manhattan_failure():
         noised_pos = noised['enemy_positions']
         assert noised_pos == parsed['bots'][0::2]
 
-def test_update_food_lifetimes():
+def test_update_food_ages():
     test_layout = (
     """ ##################
         # #.  .  # . b   #
         # #####    #####y#
         #  a  . #  .  .#x#
         ################## """)
-    mx = 60
     parsed = parse_layout(test_layout)
     food = split_food(parsed['shape'][0], parsed['food'])
-    food_lifetime = [{}, {}]
+    food_age = [{}, {}]
 
     parsed.update({
         "food": food,
-        "food_lifetime": food_lifetime,
+        "food_age": food_age,
     })
 
     radius = 1
     expected = [{}, {}]
     # nothing should change for either team, the radius is too small
-    assert gf.update_food_lifetimes(parsed, 0, radius, mx)['food_lifetime'] == expected
-    assert gf.update_food_lifetimes(parsed, 1, radius, mx)['food_lifetime'] == expected
+    assert gf.update_food_age(parsed, 0, radius)['food_age'] == expected
+    assert gf.update_food_age(parsed, 1, radius)['food_age'] == expected
 
     radius = 2
-    expected_team0 = [{(3, 1): mx-1},      # team0
-                      {}]                  # team1
-    expected_team1 = [{},                  # team0
-                      {(14, 3): mx-1}]     # team1
+    expected_team0 = [{(3, 1): 1},      # team0
+                      {}]               # team1
+    expected_team1 = [{},               # team0
+                      {(14, 3): 1}]     # team1
     # the two teams should get exactly one pellet updated
-    assert gf.update_food_lifetimes(parsed, 0, radius, mx)['food_lifetime'] == expected_team0
-    assert gf.update_food_lifetimes(parsed, 1, radius, mx)['food_lifetime'] == expected_team1
+    assert gf.update_food_age(parsed, 0, radius)['food_age'] == expected_team0
+    assert gf.update_food_age(parsed, 1, radius)['food_age'] == expected_team1
 
     radius = 4
-    expected_team0 = [{(3, 1): mx-1, (6, 3): mx-1}, {}] # team0
-    expected_team1 = [{}, {(14, 3): mx-1}] # team1
-    assert gf.update_food_lifetimes(parsed, 0, radius, mx)['food_lifetime'] == expected_team0
-    assert gf.update_food_lifetimes(parsed, 1, radius, mx)['food_lifetime'] == expected_team1
+    expected_team0 = [{(3, 1): 1, (6, 3): 1}, {}] # team0
+    expected_team1 = [{}, {(14, 3): 1}] # team1
+    assert gf.update_food_age(parsed, 0, radius)['food_age'] == expected_team0
+    assert gf.update_food_age(parsed, 1, radius)['food_age'] == expected_team1
 
 # repeat the test 20 times to exercise the randomness of the relocation algorithm
 @pytest.mark.parametrize('dummy', range(20))
@@ -642,17 +641,17 @@ def test_relocate_expired_food(dummy):
         mx = 1
         parsed = parse_layout(test_layout)
         food = split_food(parsed['shape'][0], parsed['food'])
-        food_lifetime = [{pos: mx for pos in team_food} for team_food in food]
+        food_age = [{pos: mx for pos in team_food} for team_food in food]
 
         parsed.update({
             "food": food,
-            "food_lifetime": food_lifetime,
+            "food_age": food_age,
             "rnd" : random.Random(),
         })
 
         radius = 2
 
-        parsed.update(gf.update_food_lifetimes(parsed, team, radius, mx))
+        parsed.update(gf.update_food_age(parsed, team, radius))
         out = gf.relocate_expired_food(parsed, team, radius, mx)
 
         # check that the expired pellet is gone, bot only when it's our team turn
@@ -685,41 +684,48 @@ def test_relocate_expired_food_nospaceleft():
         #######y    ######
         ###a##..#  .  .#x#
         ################## """)
+
+    # location of the food pellet that will be relocated
     to_relocate = (3, 1)
-    mx = 1
+    # location of the pellet that will be removed
+    to_remove = (7, 1)
+    max_age = 2
+
     parsed = parse_layout(test_layout)
     food = split_food(parsed['shape'][0], parsed['food'])
-    food_lifetime = [{pos: mx for pos in team_food} for team_food in food]
-    food_lifetime[0][to_relocate] = 0 # set to zero so that we also test that we support negative lifetimes
+    food_age = [{}, {}]
+    food_age[0][to_relocate] = 1
 
     parsed.update({
         "food": food,
-        "food_lifetime": food_lifetime,
+        "food_age": food_age,
         "rnd" : random.Random(),
     })
 
     radius = 2
 
-    parsed.update(gf.update_food_lifetimes(parsed, 0, radius, mx))
-    out = gf.relocate_expired_food(parsed, 0, radius, mx)
+    parsed.update(gf.update_food_age(parsed, 0, radius))
+    out = gf.relocate_expired_food(parsed, 0, radius, max_age)
     # check that the food pellet did not move: there is no space to move it
     # anywhere
     assert to_relocate in out['food'][0]
     assert len(out['food'][0]) == 7
-    assert out['food_lifetime'][0][to_relocate] == -1
+    # check that food age has increased
+    assert out['food_age'][0] == {to_relocate: 2}
 
     # now make space for the food and check that it gets located in the free spot
     parsed.update(out)
-    parsed['food'][0].remove((7,1))
-    out = gf.relocate_expired_food(parsed, 0, radius, mx)
+    parsed['food'][0].remove(to_remove)
+    out = gf.relocate_expired_food(parsed, 0, radius, max_age)
     assert to_relocate not in out['food'][0]
-    assert (7, 1) in out['food'][0]
-    assert to_relocate not in out['food_lifetime'][0]
-    assert out['food_lifetime'][0][(7, 1)] == mx
+    assert to_remove in out['food'][0]
+    # Both the relocated and the moved to position should have their ages reset
+    assert to_relocate not in out['food_age'][0]
+    assert to_remove not in out['food_age'][0]
 
-def test_pacman_resets_lifetime():
+def test_pacman_resets_age():
     # We move bot a across the border
-    # Once it becomes a bot, the food_lifetime should reset
+    # Once it becomes a bot, the food_age should reset
     test_layout = (
     """ ##################
         #         x     y#
@@ -731,25 +737,25 @@ def test_pacman_resets_lifetime():
 
     parsed = parse_layout(test_layout)
     state = setup_game([team1, team2], layout_dict=parsed, max_rounds=8)
-    assert state['food_lifetime'] == [{}, {}]
+    assert state['food_age'] == [{}, {}]
     state = play_turn(state)
     assert state['turn'] == 0
-    assert state['food_lifetime'] == [{(8, 2): 29}, {}]
+    assert state['food_age'] == [{(8, 2): 1}, {}]
     state = play_turn(state)
     assert state['turn'] == 1
-    assert state['food_lifetime'] == [{(8, 2): 29}, {(9, 2): 29}]
+    assert state['food_age'] == [{(8, 2): 1}, {(9, 2): 1}]
     state = play_turn(state)
     state = play_turn(state)
     state = play_turn(state)
-    # NOTE: food_lifetimes are calculated *before* the move
+    # NOTE: food_ages are calculated *before* the move
     # Therefore this will only be updated once it is team1’s turn again
     assert state['turn'] == 0
-    assert state['food_lifetime'] == [{(8, 2): 27}, {(9, 2): 28}]
+    assert state['food_age'] == [{(8, 2): 3}, {(9, 2): 2}]
     state = play_turn(state)
-    assert state['food_lifetime'] == [{(8, 2): 27}, {(9, 2): 27}]
+    assert state['food_age'] == [{(8, 2): 3}, {(9, 2): 3}]
     state = play_turn(state)
     assert state['turn'] == 2
-    assert state['food_lifetime'] == [{}, {(9, 2): 27}]
+    assert state['food_age'] == [{}, {(9, 2): 3}]
     state = play_turn(state)
     assert state['turn'] == 3
-    assert state['food_lifetime'] == [{}, {}]
+    assert state['food_age'] == [{}, {}]

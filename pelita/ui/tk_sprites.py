@@ -294,8 +294,8 @@ class Wall(TkSprite):
 
 
 class Food(TkSprite):
-    def __init__(self, mesh, food_lifetime=None, **kwargs):
-        self.food_lifetime = food_lifetime
+    def __init__(self, mesh, food_age=None, **kwargs):
+        self.food_age = food_age
         super().__init__(mesh, **kwargs)
 
     @classmethod
@@ -309,18 +309,20 @@ class Food(TkSprite):
             fill = RED
         canvas.create_oval(self.bounding_box(0.4), fill=fill, width=0, tag=(self.tag, self.food_pos_tag(self.position), "food"))
 
-        canvas.delete("show_lifetime" + str(self.position))
-        lifetime = self.food_lifetime
+        food_age = self.food_age
+
+        canvas.delete("show_food_age" + str(self.position))
+
         # we print the bot_id in the lower left corner
-        if self.food_lifetime:
+        if self.food_age:
             shift_x = 32
             shift_y = 16
-            tag=(self.tag, "show_lifetime" + str(self.position), "food")
-            canvas.create_text(self.bounding_box()[0][0]-1 + shift_x, self.bounding_box()[1][1] - shift_y, text=lifetime, font=(None, 12), fill="white", tag=tag)
-            canvas.create_text(self.bounding_box()[0][0]+1 + shift_x, self.bounding_box()[1][1] - shift_y, text=lifetime, font=(None, 12), fill="white", tag=tag)
-            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1]-1 - shift_y, text=lifetime, font=(None, 12), fill="white", tag=tag)
-            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1]+1 - shift_y, text=lifetime, font=(None, 12), fill="white", tag=tag)
-            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1] - shift_y, text=lifetime, font=(None, 12), fill="black", tag=tag)
+            tag=(self.tag, "show_food_age" + str(self.position), "food")
+            canvas.create_text(self.bounding_box()[0][0]-1 + shift_x, self.bounding_box()[1][1] - shift_y, text=food_age, font=(None, 12), fill="white", tag=tag)
+            canvas.create_text(self.bounding_box()[0][0]+1 + shift_x, self.bounding_box()[1][1] - shift_y, text=food_age, font=(None, 12), fill="white", tag=tag)
+            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1]-1 - shift_y, text=food_age, font=(None, 12), fill="white", tag=tag)
+            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1]+1 - shift_y, text=food_age, font=(None, 12), fill="white", tag=tag)
+            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1] - shift_y, text=food_age, font=(None, 12), fill="black", tag=tag)
 
 
 class Arrow(TkSprite):

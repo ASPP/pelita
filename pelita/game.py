@@ -11,7 +11,7 @@ from warnings import warn
 
 from . import layout
 from .exceptions import FatalException, NonFatalException, NoFoodWarning, PlayerTimeout
-from .gamestate_filters import noiser, update_food_lifetimes, relocate_expired_food
+from .gamestate_filters import noiser, update_food_age, relocate_expired_food
 from .layout import initial_positions, get_legal_positions
 from .network import setup_controller, ZMQPublisher
 from .team import make_team
@@ -34,10 +34,10 @@ SIGHT_DISTANCE = 5
 NOISE_RADIUS = 5
 
 #: The lifetime of food pellets in a shadow in turns
-MAX_FOOD_LIFETIME = 30
+MAX_FOOD_AGE = 30
 
-#: Food pellet lifetime distance
-LIFETIME_DISTANCE = 3
+#: Food pellet shadow distance
+SHADOW_DISTANCE = 3
 
 class TkViewer:
     def __init__(self, *, address, controller, geometry=None, delay=None, stop_after=None):
@@ -282,7 +282,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         raise ValueError("Number of bots in layout must be 4.")
 
     width, height = layout.wall_dimensions(layout_dict['walls'])
-    if not (width, height) == layout_dict['shape']:
+    if not (width, height) == layout_dict["shape"]:
         raise ValueError(f"layout_dict['walls'] does not match layout_dict['shape'].")
 
     for idx, pos in enumerate(layout_dict['bots']):
@@ -297,7 +297,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
             raise ValueError(f"Bot {idx} is not inside the layout: {pos}.")
 
     food = split_food(width, layout_dict['food'])
-    max_food_lifetime = math.inf if allow_camping else MAX_FOOD_LIFETIME
+    max_food_age = math.inf if allow_camping else MAX_FOOD_AGE
 
     # warn if one of the food lists is already empty
     side_no_food = [idx for idx, f in enumerate(food) if len(f) == 0]
@@ -319,11 +319,11 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         #: Food per team. List of sets of (int, int)
         food=food,
 
-        #: Food lifetimes per team. Dict of (int, int) to int
-        food_lifetime=[{}, {}],
+        #: Food ages per team. Dict of (int, int) to int
+        food_age=[{}, {}],
 
-        #: Max food lifetime
-        max_food_lifetime=max_food_lifetime,
+        #: Max food age
+        max_food_age=max_food_age,
 
         ### Round/turn information
         #: Current bot, int, None
@@ -627,11 +627,11 @@ def prepare_viewer_state(game_state):
     viewer_state = {}
     viewer_state.update(game_state)
 
-    # Flatten food and food_lifetime
+    # Flatten food and food_age
     viewer_state['food'] = list((viewer_state['food'][0] | viewer_state['food'][1]))
-    # We must transform the food lifetime dict to a list or we cannot serialise it
-    viewer_state['food_lifetime'] = [item for team_lifetime in viewer_state['food_lifetime']
-                                          for item in team_lifetime.items()]
+    # We must transform the food age dict to a list or we cannot serialise it
+    viewer_state['food_age'] = [item for team_food_age in viewer_state['food_age']
+                                          for item in team_food_age.items()]
 
     # game_state["errors"] has a tuple as a dict key
     # that cannot be serialized in json.
@@ -686,9 +686,9 @@ def play_turn(game_state, allow_exceptions=False):
     round = game_state['round']
     team = turn % 2
 
-    # update food lifetimes and relocate expired food for the current team
-    game_state.update(update_food_lifetimes(game_state, team, LIFETIME_DISTANCE))
-    game_state.update(relocate_expired_food(game_state, team, LIFETIME_DISTANCE))
+    # update food age and relocate expired food for the current team
+    game_state.update(update_food_age(game_state, team, SHADOW_DISTANCE))
+    game_state.update(relocate_expired_food(game_state, team, SHADOW_DISTANCE))
 
     # request a new move from the current team
     try:

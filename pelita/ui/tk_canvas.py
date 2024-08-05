@@ -413,8 +413,8 @@ class TkApplication:
 
         eaten_food = []
         for food_pos, food_item in self.food_items.items():
-            food_item.food_lifetime = game_state['food_lifetime'][food_pos]
-            if not food_pos in game_state["food"]:
+            food_item.food_age = game_state['food_age'].get(food_pos, 0)
+            if food_pos not in game_state["food"]:
                 self.ui.game_canvas.delete(food_item.tag)
                 eaten_food.append(food_pos)
         for food_pos in eaten_food:
@@ -796,8 +796,8 @@ class TkApplication:
         self.food_items = {}
         for position in game_state['food']:
             model_x, model_y = position
-            lifetime = game_state['food_lifetime'][position]
-            food_item = Food(self.mesh_graph, position=(model_x, model_y), food_lifetime=lifetime)
+            food_age = game_state['food_age'].get(position, 0)
+            food_item = Food(self.mesh_graph, position=(model_x, model_y), food_age=food_age)
             food_item.draw(self.ui.game_canvas)
             self.food_items[position] = food_item
 
@@ -969,7 +969,7 @@ class TkApplication:
         game_state['food'] = _ensure_list_tuples(game_state['food'])
         game_state['bots'] = _ensure_list_tuples(game_state['bots'])
         game_state['shape'] = tuple(game_state['shape'])
-        game_state['food_lifetime'] = {tuple(pos): lifetime for pos, lifetime in game_state['food_lifetime']}
+        game_state['food_age'] = {tuple(pos): food_age for pos, food_age in game_state['food_age']}
         self.update(game_state)
         if self._stop_after is not None:
             if self._stop_after == 0:
