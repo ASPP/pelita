@@ -557,6 +557,8 @@ def prepare_bot_state(game_state, idx=None):
             zip(noised_positions['is_noisy'], noised_positions['enemy_positions'])
     ]
     game_state['noisy_positions'][enemy_team::2] = noisy_or_none
+    shaded_food = list(pos for pos, age in game_state['food_age'][own_team].items()
+                       if age > 0)
 
     team_state = {
         'team_index': own_team,
@@ -567,6 +569,7 @@ def prepare_bot_state(game_state, idx=None):
         'bot_was_killed': game_state['bot_was_killed'][own_team::2],
         'error_count': len(game_state['errors'][own_team]),
         'food': list(game_state['food'][own_team]),
+        'shaded_food': shaded_food,
         'name': game_state['team_names'][own_team],
         'team_time': game_state['team_time'][own_team]
     }
@@ -581,6 +584,7 @@ def prepare_bot_state(game_state, idx=None):
         'bot_was_killed': game_state['bot_was_killed'][enemy_team::2],
         'error_count': 0, # TODO. Could be left out for the enemy
         'food': list(game_state['food'][enemy_team]),
+        'shaded_food': [],
         'name': game_state['team_names'][enemy_team],
         'team_time': game_state['team_time'][enemy_team]
     }

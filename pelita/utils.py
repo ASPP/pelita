@@ -4,9 +4,10 @@ import networkx as nx
 
 
 from .team import make_bots, create_homezones
-from .game import split_food
+from .game import split_food, SHADOW_DISTANCE
 from .layout import (get_random_layout, get_layout_by_name, get_available_layouts,
                      parse_layout, BOT_N2I, initial_positions)
+from .gamestate_filters import manhattan_dist
 
 # this import is needed for backward compatibility, do not remove or you'll break
 # older clients!
@@ -153,6 +154,14 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
     return out
 
 
+def shaded_food(pos, food, radius):
+    # Get all food that is in a radius around any of pos
+    # TODO: This duplicates code in update_food_age
+    for pellet in food:
+        if any(manhattan_dist(ghost, pellet) <= radius for ghost in pos):
+            yield pellet
+
+
 def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
                     food=None, bots=None, is_noisy=None):
     """Setup a test game environment useful for testing move functions.
@@ -239,6 +248,7 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
         'bot_was_killed' : [False]*2,
         'error_count': 0,
         'food': food[team_index],
+        'shaded_food': shaded_food(bot_positions, food[team_index], radius=SHADOW_DISTANCE),
         'name': "blue" if is_blue else "red",
         'team_time': 0.0,
     }
@@ -251,6 +261,7 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
         'bot_was_killed': [False]*2,
         'error_count': 0,
         'food': food[enemy_index],
+        'shaded_food': [],
         'is_noisy': is_noisy_enemy,
         'name': "red" if is_blue else "blue",
         'team_time': 0.0,

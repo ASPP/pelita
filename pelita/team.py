@@ -512,6 +512,7 @@ class Bot:
                           shape,
                           homezone,
                           food,
+                          shaded_food,
                           score,
                           kills,
                           deaths,
@@ -542,6 +543,7 @@ class Bot:
 
         self.homezone = homezone
         self.food = food
+        self.shaded_food = shaded_food
         self.shape = shape
         self.score  = score
         self.kills = kills
@@ -736,6 +738,7 @@ def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, 
             is_noisy=False,
             error_count=team['error_count'],
             food=_ensure_list_tuples(team['food']),
+            shaded_food=_ensure_list_tuples(team['shaded_food']),
             walls=walls,
             shape=shape,
             round=round,
@@ -763,6 +766,7 @@ def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, 
             is_noisy=enemy['is_noisy'][idx],
             error_count=enemy['error_count'],
             food=_ensure_list_tuples(enemy['food']),
+            shaded_food=_ensure_list_tuples(team['shaded_food']),
             walls=walls,
             shape=shape,
             round=round,
