@@ -248,7 +248,7 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
         'bot_was_killed' : [False]*2,
         'error_count': 0,
         'food': food[team_index],
-        'shaded_food': shaded_food(bot_positions, food[team_index], radius=SHADOW_DISTANCE),
+        'shaded_food': list(shaded_food(bot_positions, food[team_index], radius=SHADOW_DISTANCE)),
         'name': "blue" if is_blue else "red",
         'team_time': 0.0,
     }
