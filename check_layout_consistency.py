@@ -20,7 +20,7 @@ if __name__ == '__main__':
     # first of all, check for symmetry
     # if something is found on the left, it should be found center-mirrored on the right
     width, height = layout['shape']
-    known = layout['walls'] | set(layout['food'])
+    known = set(layout['walls']) | set(layout['food'])
     layout['empty'] = [(x,y) for x in range(width) for y in range(height) if (x,y) not in known]
     for x in range(width // 2):
         for y in range(height):

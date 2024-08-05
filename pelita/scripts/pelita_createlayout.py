@@ -25,22 +25,36 @@ following shell script:
 # a different, but replicable random number
 RANDOM=39285
 
-# numbers of layouts to generate per size
-N=100
+# keep track of the seeds
+SEEDF="_seeds"
+echo > $SEEDF
+echo "## pelita-createlayout -y {HEIGHT} -x {WIDTH} -f {FOOD} -s SEED > normal_XXX.layout" >> $SEEDF
+echo "## pelita-createlayout -y {HEIGHT//2} -x {WIDTH//2} -f {FOOD//3} -s SEED > small_XXX.layout" >> $SEEDF
+echo "## pelita-createlayout -y {HEIGHT*2} -x {WIDTH*2} -f {FOOD*2} -s SEED > big_XXX.layout" >> $SEEDF
 
-for COUNT in $(seq -w 1 $N); do
+# generate 1000 normal layouts
+for COUNT in $(seq -w 0 999); do
     echo "Generating normal_$COUNT..."
-    pelita-createlayout -y {HEIGHT} -x {WIDTH} -f {FOOD} -s $RANDOM > normal_${{COUNT}}.layout
-done
-for COUNT in $(seq -w 1 $N); do
-    echo "Generating small_$COUNT..."
-    pelita-createlayout -y {HEIGHT//2} -x {WIDTH//2} -f {FOOD//3} -s $RANDOM > small_${{COUNT}}.layout
-done
-for COUNT in $(seq -w 1 $N); do
-    echo "Generating big_$COUNT..."
-    pelita-createlayout -y {HEIGHT*2} -x {WIDTH*2} -f {FOOD*2} -s $RANDOM > big_${{COUNT}}.layout
+    SEED=$RANDOM$RANDOM$RANDOM
+    pelita-createlayout -y {HEIGHT} -x {WIDTH} -f {FOOD} -s $SEED > normal_${{COUNT}}.layout
+    echo "normal_${{COUNT}} = $SEED" >> $SEEDF
 done
 
+# generate 100 small layouts
+for COUNT in $(seq -w 0 99); do
+    echo "Generating small_0$COUNT..."
+    SEED=$RANDOM$RANDOM$RANDOM
+    pelita-createlayout -y {HEIGHT//2} -x {WIDTH//2} -f {FOOD//3} -s $SEED > small_0${{COUNT}}.layout
+    echo "small_0${{COUNT}} = $SEED" >> $SEEDF
+done
+
+# generate 100 big layouts
+for COUNT in $(seq -w 0 99); do
+    echo "Generating big_0$COUNT..."
+    SEED=$RANDOM$RANDOM$RANDOM
+    pelita-createlayout -y {HEIGHT*2} -x {WIDTH*2} -f {FOOD*2} -s $SEED > big_0${{COUNT}}.layout
+    echo "big_0${{COUNT}} = $SEED" >> $SEEDF
+done
 """
 
 def default(text, default):

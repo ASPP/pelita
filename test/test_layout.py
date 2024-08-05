@@ -9,23 +9,23 @@ from pelita.layout import *
 
 def test_get_available_layouts():
     available = get_available_layouts(size='all')
-    assert 300 == len(available)
+    assert 1200 == len(available)
     # now also test the filter
     available = get_available_layouts(size='normal')
-    assert 100 == len(available)
+    assert 1000 == len(available)
 
 def test_get_layout_by_name():
     target_layout = """
 ################
-# ..       .. y#
-#. ######..  #x#
-#  .  .   .  # #
-# #  .   .  .  #
-#a#  ..###### .#
-#b ..       .. #
+# .. #   .  # y#
+# ..   ##.. # x#
+#  ###   ..  . #
+# .  ..   ###  #
+#a # ..##   .. #
+#b #  .   # .. #
 ################
 """
-    loaded = get_layout_by_name('small_001')
+    loaded = get_layout_by_name('small_000')
     assert target_layout.strip() == loaded.strip()
 
 def test_get_random_layout():
@@ -44,7 +44,7 @@ def test_get_random_layout_returns_correct_layout():
 
 def test_get_random_layout_random_seed():
     name, layout = get_random_layout(size='small', seed=1)
-    assert name == 'small_018'
+    assert name == 'small_017'
 
 def test_legal_layout():
     layout = """
