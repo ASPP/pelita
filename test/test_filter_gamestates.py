@@ -8,6 +8,7 @@ from pelita import gamestate_filters as gf
 from pelita.game import setup_game, play_turn, prepare_bot_state, split_food
 from pelita.layout import parse_layout
 from pelita.player import stepping_player
+import pelita.utils
 
 
 def make_gamestate():
@@ -625,6 +626,53 @@ def test_update_food_ages():
     expected_team1 = [{}, {(14, 3): 1}] # team1
     assert gf.update_food_age(parsed, 0, radius)['food_age'] == expected_team0
     assert gf.update_food_age(parsed, 1, radius)['food_age'] == expected_team1
+
+@pytest.mark.parametrize('radius, team', [
+    [0, 0],
+    [0, 1],
+    [1, 0],
+    [1, 1],
+    [2, 0],
+    [2, 1]
+])
+def test_shadow_radius(team, radius):
+    test_layout = (
+    """ ##################
+        #................#
+        #............y...#
+        #....a..........x#
+        #..b.............#
+        #................#
+        ################## """)
+    parsed = parse_layout(test_layout)
+    # We want to have food below each bot
+    parsed['food'].extend(parsed['bots'])
+    food = split_food(parsed['shape'][0], parsed['food'])
+    food_age = [{}, {}]
+
+    parsed.update({
+        "food": food,
+        "food_age": food_age,
+    })
+
+    check_food = [[
+        {(3, 4), (5, 3)}, # radius 0
+        {(4, 4), (2, 4), (4, 3), (5, 4), (3, 3), (6, 3), (3, 5), (5, 2)}, # radius 1
+        {(6, 2), (5, 5), (5, 1), (4, 2), (6, 4), (1, 4), (7, 3), (2, 3), (4, 5), (3, 2), (2, 5)}, # radius 2
+    ],[
+        {(13, 2), (16, 3)}, # radius 0
+        {(13, 1), (13, 3), (16, 2), (12, 2), (15, 3), (14, 2), (16, 4)}, # radius 1
+        {(12, 1), (13, 4), (14, 1), (15, 4), (12, 3), (11, 2), (16, 5), (14, 3), (15, 2), (16, 1)}, # radius 3
+    ]]
+
+    # for each team we sum all foods for all radii below the given radius
+    shaded_food = set().union(*check_food[team][0:radius + 1])
+
+    # nothing should change for either team, the radius is too small
+    assert set(gf.update_food_age(parsed, team, radius)['food_age'][team].keys()) == shaded_food
+    # testing pelita.utils.shaded_food as well here
+    assert set(pelita.utils.shaded_food(parsed['bots'][team::2], parsed['food'][team], radius)) == shaded_food
+
 
 # repeat the test 20 times to exercise the randomness of the relocation algorithm
 @pytest.mark.parametrize('dummy', range(20))

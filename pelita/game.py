@@ -322,9 +322,6 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         #: Food ages per team. Dict of (int, int) to int
         food_age=[{}, {}],
 
-        #: Max food age
-        max_food_age=max_food_age,
-
         ### Round/turn information
         #: Current bot, int, None
         turn=None,
@@ -363,6 +360,12 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
 
         #: Sight distance, int
         sight_distance=SIGHT_DISTANCE,
+
+        #: Max food age
+        max_food_age=max_food_age,
+
+        #: Shadow distance, int
+        shadow_distance=SHADOW_DISTANCE,
 
         ### Informative
         #: Name of the layout, str
