@@ -254,6 +254,26 @@ class CI_Engine:
                 elif r == -1: draw += 1
         return win, loss, draw
 
+
+    def get_errorcount(self, idx):
+        """Gets the error count for team idx
+
+        Parameters
+        ----------
+        idx : int
+            the index of the player
+
+        Returns
+        -------
+        error_count, fatalerror_count : int
+            the number of errors for this player
+
+        """
+        p_name = self.players[idx]['name']
+        error_count, fatalerror_count = self.dbwrapper.get_errorcount(p_name)
+        return error_count, fatalerror_count
+
+
     def gen_elo(self):
         k = 32
 
@@ -330,8 +350,9 @@ class CI_Engine:
         result = []
         for idx, p in enumerate(good_players):
             win, loss, draw = self.get_results(idx)
+            error_count, fatalerror_count = self.get_errorcount(idx)
             score = 0 if (win+loss+draw) == 0 else (win-loss) / (win+loss+draw)
-            result.append([score, win, draw, loss, p['name']])
+            result.append([score, win, draw, loss, p['name'], error_count, fatalerror_count])
             wdl = f"{win:3d},{draw:3d},{loss:3d}"
 
             try:
@@ -365,13 +386,26 @@ class CI_Engine:
         table.add_column("# Losses")
         table.add_column("Score")
         table.add_column("ELO")
+        table.add_column("Error count")
+        table.add_column("# Fatal Errors")
 
         elo = self.gen_elo()
 
         result.sort(reverse=True)
-        for [score, win, draw, loss, name] in result:
-            style = 'bold' if name in highlight else None
-            table.add_row(name, f"{win+draw+loss}", f"{win}", f"{draw}", f"{loss}", f"{score:6.3f}", f"{elo[name]: >4.0f}", style=style)
+        for [score, win, draw, loss, name, error_count, fatalerror_count] in result:
+            style = "bold" if name in highlight else None
+            table.add_row(
+                name,
+                f"{win+draw+loss}",
+                f"{win}",
+                f"{draw}",
+                f"{loss}",
+                f"{score:6.3f}",
+                f"{elo[name]: >4.0f}",
+                f"{error_count}",
+                f"{fatalerror_count}",
+                style=style,
+            )
 
         console.print(table)
 
@@ -569,6 +603,56 @@ class DB_Wrapper:
             count, = self.cursor.fetchone()
         return count
 
+    def get_errorcount(self, p1_name):
+        """Get errorcount of player1
+
+        Parameters
+        ----------
+        p1_name : str
+            the  name of player 1
+
+        Returns
+        -------
+        error_count, fatalerror_count : errorcount
+
+        """
+        self.cursor.execute("""
+        SELECT sum(c) FROM
+            (
+                SELECT sum(json_extract(final_state, '$.num_errors[0]')) AS c
+                FROM games
+                WHERE player1 = :p1
+
+                UNION ALL
+
+                SELECT sum(json_extract(final_state, '$.num_errors[1]')) AS c
+                FROM games
+                WHERE player2 = :p1
+            )
+        """,
+        dict(p1=p1_name))
+        error_count, = self.cursor.fetchone()
+
+        self.cursor.execute("""
+        SELECT sum(c) FROM
+            (
+                SELECT count(*) AS c
+                FROM games
+                WHERE player1 = :p1 AND
+                      json_extract(final_state, '$.fatal_errors[0]') != '[]'
+
+                UNION ALL
+
+                SELECT count(*) AS c
+                FROM games
+                WHERE player2 = :p1 AND
+                      json_extract(final_state, '$.fatal_errors[1]') != '[]'
+            )
+        """,
+        dict(p1=p1_name))
+        fatal_errorcount, = self.cursor.fetchone()
+
+        return error_count, fatal_errorcount
 
     def get_wins_losses(self, team=None):
         """ Get all wins and losses combined in a table of
