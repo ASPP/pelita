@@ -409,9 +409,9 @@ class CI_Engine:
         result.sort(reverse=True)
         for [score, win, draw, loss, name, team_name, error_count, fatalerror_count] in result:
             style = "bold" if name in highlight else None
-            name = f"{name} ({team_name})" if team_name else f"{name}"
+            display_name = f"{name} ({team_name})" if team_name else f"{name}"
             table.add_row(
-                name,
+                display_name,
                 f"{win+draw+loss}",
                 f"{win}",
                 f"{draw}",
