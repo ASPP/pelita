@@ -83,6 +83,17 @@ def test_get_player_hash(db_wrapper):
     assert db_wrapper.get_player_hash('p1') == 'h1'
     assert db_wrapper.get_player_hash('p2') == 'h2'
 
+def test_get_team_name(db_wrapper):
+    db_wrapper.add_player('p1', 'h1')
+    db_wrapper.add_player('p2', 'h2')
+    db_wrapper.add_team_name('p1', 'tn1')
+    db_wrapper.add_team_name('p2', 'tn2')
+    db_wrapper.add_team_name('p2', 'tn3') # check that override works
+    with pytest.raises(ValueError):
+        db_wrapper.get_team_name('p0')
+    assert db_wrapper.get_team_name('p1') == 'tn1'
+    assert db_wrapper.get_team_name('p2') == 'tn3'
+
 def test_wins_losses(db_wrapper):
     db_wrapper.add_player('p1', 'h1')
     db_wrapper.add_player('p2', 'h2')
