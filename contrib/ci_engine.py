@@ -120,11 +120,15 @@ class CI_Engine:
                 self.dbwrapper.add_player(pname, new_hash)
 
         for player in self.players:
+            path = player['path']
+            pname = player['name']
             try:
-                check_team(player['path'])
+                _logger.debug('Querying team name for %s.' % pname)
+                team_name = check_team(player['path'])
+                self.dbwrapper.add_team_name(pname, team_name)
             except ZMQClientError as e:
                 e_type, e_msg = e.args
-                _logger.debug(f'Could not import {pname} ({e_type}): {e_msg}')
+                _logger.debug(f'Could not import {player} at path {path} ({e_type}): {e_msg}')
                 player['error'] = e.args
 
     def run_game(self, p1, p2):
@@ -254,7 +258,6 @@ class CI_Engine:
                 elif r == -1: draw += 1
         return win, loss, draw
 
-
     def get_errorcount(self, idx):
         """Gets the error count for team idx
 
@@ -273,6 +276,14 @@ class CI_Engine:
         error_count, fatalerror_count = self.dbwrapper.get_errorcount(p_name)
         return error_count, fatalerror_count
 
+    def get_team_name(self, idx):
+        """Get last registered team name.
+
+        team_name : string
+        """
+
+        p_name = self.players[idx]['name']
+        return self.dbwrapper.get_team_name(p_name)
 
     def gen_elo(self):
         k = 32
@@ -351,8 +362,12 @@ class CI_Engine:
         for idx, p in enumerate(good_players):
             win, loss, draw = self.get_results(idx)
             error_count, fatalerror_count = self.get_errorcount(idx)
+            try:
+                team_name = self.get_team_name(idx)
+            except ValueError:
+                team_name = None
             score = 0 if (win+loss+draw) == 0 else (win-loss) / (win+loss+draw)
-            result.append([score, win, draw, loss, p['name'], error_count, fatalerror_count])
+            result.append([score, win, draw, loss, p['name'], team_name, error_count, fatalerror_count])
             wdl = f"{win:3d},{draw:3d},{loss:3d}"
 
             try:
@@ -392,8 +407,9 @@ class CI_Engine:
         elo = self.gen_elo()
 
         result.sort(reverse=True)
-        for [score, win, draw, loss, name, error_count, fatalerror_count] in result:
+        for [score, win, draw, loss, name, team_name, error_count, fatalerror_count] in result:
             style = "bold" if name in highlight else None
+            name = f"{name} ({team_name})" if team_name else f"{name}"
             table.add_row(
                 name,
                 f"{win+draw+loss}",
@@ -440,14 +456,19 @@ class DB_Wrapper:
 
         """
         self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS players
+        (name text PRIMARY KEY, hash text)
+        """)
+        self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS team_names
+        (name text PRIMARY KEY, team_name text,
+        FOREIGN KEY(name) REFERENCES players(name) ON DELETE CASCADE)
+        """)
+        self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS games
         (player1 text, player2 text, result int, final_state text, stdout text, stderr text,
         FOREIGN KEY(player1) REFERENCES players(name) ON DELETE CASCADE,
         FOREIGN KEY(player2) REFERENCES players(name) ON DELETE CASCADE)
-        """)
-        self.cursor.execute("""
-        CREATE TABLE IF NOT EXISTS players
-        (name text PRIMARY KEY, hash text)
         """)
         self.connection.commit()
 
@@ -503,6 +524,24 @@ class DB_Wrapper:
             self.connection.commit()
         except sqlite3.IntegrityError:
             raise ValueError('Player %s already exists in database' % name)
+
+    def add_team_name(self, name, team_name):
+        """Adds or updates team name to database
+
+        Parameters
+        ----------
+        name : str
+        team_name : str
+
+        """
+        try:
+            self.cursor.execute("""
+            INSERT OR REPLACE INTO team_names
+            VALUES (?, ?)
+            """, [name, team_name])
+            self.connection.commit()
+        except sqlite3.IntegrityError:
+            raise ValueError('Cannot add team name for %s' % name)
 
     def remove_player(self, pname):
         """Remove a player from the database.
@@ -572,6 +611,27 @@ class DB_Wrapper:
             relevant_results = self.cursor.fetchall()
         return relevant_results
 
+
+    def get_team_name(self, p_name):
+        """Gets the last registered team name of p_name.
+
+        Parameters
+        ----------
+        p_name : str
+            the name of the player
+
+        Returns
+        -------
+        team_name : str
+
+        """
+        self.cursor.execute("""
+        SELECT team_name FROM team_names
+        WHERE name = ?""", (p_name,))
+        res = self.cursor.fetchone()
+        if res is None:
+            raise ValueError('Player %s does not exist in database.' % p_name)
+        return res[0]
 
     def get_game_count(self, p1_name, p2_name=None):
         """Get number of games involving player1 (AND player2 if specified).
