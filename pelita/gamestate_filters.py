@@ -179,7 +179,7 @@ def relocate_expired_food(game_state, team, radius, max_food_age=None):
     targets = sorted(list(targets))
     for pellet in sorted(list(food[team])):
         # We move the pellet if it is in the food_age dict and exceeds the max_food_age
-        if food_age[team].get(pellet, 0) >= max_food_age:
+        if food_age[team].get(pellet, 0) > max_food_age:
             if not targets:
                 # we have no free positions anymore, just let the food stay where it is
                 # we do not update the age, so this pellet will get a chance to be

@@ -742,7 +742,7 @@ def test_relocate_expired_food_nospaceleft():
     parsed = parse_layout(test_layout)
     food = split_food(parsed['shape'][0], parsed['food'])
     food_age = [{}, {}]
-    food_age[0][to_relocate] = 1
+    food_age[0][to_relocate] = max_age
 
     parsed.update({
         "food": food,
@@ -758,8 +758,8 @@ def test_relocate_expired_food_nospaceleft():
     # anywhere
     assert to_relocate in out['food'][0]
     assert len(out['food'][0]) == 7
-    # check that food age has increased
-    assert out['food_age'][0] == {to_relocate: 2}
+    # check that food age has increased over the allowed maximum
+    assert out['food_age'][0] == {to_relocate: max_age + 1}
 
     # now make space for the food and check that it gets located in the free spot
     parsed.update(out)
