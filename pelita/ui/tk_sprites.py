@@ -26,7 +26,7 @@ BROWN = col(48, 26, 22)
 SHADOW_RED = '#B37373'
 SHADOW_BLUE = '#6D92B3'
 
-FOOD_WARNING_TIME = 5
+FOOD_WARNING_TIME = 6
 
 def rotate(arc, rotation):
     """Helper for rotation normalisation."""

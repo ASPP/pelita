@@ -924,7 +924,7 @@ class TkApplication:
                 food_age=food_age,
                 max_food_age=max_food_age,
             )
-            food_item.draw(self.ui.game_canvas, show_lifetime=self._grid_enabled)
+            food_item.draw(self.ui.game_canvas, show_lifetime=False)
             self.food_items[position] = food_item
 
     def draw_maze(self, game_state):
