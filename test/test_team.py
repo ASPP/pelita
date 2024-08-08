@@ -400,10 +400,16 @@ def test_bot_attributes():
             assert set(bot.homezone) == set(homezones[0])
             assert set(bot.enemy[0].homezone) == set(homezones[1])
             assert set(bot.shaded_food) == set([(1, 1), (3, 1), (4, 1), (5, 1)])
+            assert set(bot.other.shaded_food) == set([(1, 1), (3, 1), (4, 1), (5, 1)])
+            assert set(bot.enemy[0].shaded_food) == set()
+            assert set(bot.enemy[1].shaded_food) == set()
         else:
             assert set(bot.homezone) == set(homezones[1])
             assert set(bot.enemy[0].homezone) == set(homezones[0])
             assert set(bot.shaded_food) == set()
+            assert set(bot.other.shaded_food) == set()
+            assert set(bot.enemy[0].shaded_food) == set()
+            assert set(bot.enemy[1].shaded_food) == set()
         return bot.position
 
     state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed)
