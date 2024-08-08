@@ -71,11 +71,12 @@ class TkViewer:
     app : The TkApplication class
 
     """
-    def __init__(self, address, controller_address=None, geometry=None, delay=1, stop_after=None):
+    def __init__(self, address, controller_address=None, geometry=None, delay=1, stop_after=None, fullscreen=False):
         self.address = address
         self.controller_address = controller_address
         self.delay = delay
         self.geometry = geometry if geometry else (900, 580)
+        self.fullscreen = fullscreen
         self.stop_after = stop_after
 
         self.context = zmq.Context()
@@ -101,15 +102,18 @@ class TkViewer:
                 controller_socket.connect(self.controller_address)
                 controller_socket.send_json({"__action__": "exit"})
             sys.exit(-1)
-        root_geometry = str(self.geometry[0])+'x'+str(self.geometry[1])
-        # put the root window in some sensible position
-        self.root.geometry(root_geometry+'+40+40')
+        if self.fullscreen:
+            self.root.attributes('-fullscreen',True)
+        else:
+            root_geometry = str(self.geometry[0])+'x'+str(self.geometry[1])
+            # put the root window in some sensible position
+            self.root.geometry(root_geometry+'+40+40')
 
         self.app = TkApplication(window=self.root,
                                  controller_address=self.controller_address,
                                  geometry=self.geometry,
                                  delay=self.delay,
-                                 stop_after=self.stop_after)
+                                 stop_after=self.stop_after, fullscreen=self.fullscreen)
         # schedule next read
         self.root.after_idle(self.read_queue)
         try:

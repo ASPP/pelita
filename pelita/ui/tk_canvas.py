@@ -141,7 +141,7 @@ class UI:
 
 class TkApplication:
     def __init__(self, window, controller_address=None,
-                 geometry=None, delay=1, stop_after=None):
+                 geometry=None, delay=1, stop_after=None, fullscreen=False):
         self.window = window
         self.window.configure(background="white")
 
@@ -159,6 +159,8 @@ class TkApplication:
 
         self.mesh_graph = None
         self.geometry = geometry
+        self.fullscreen = fullscreen
+        self._fullscreen_enabled = fullscreen
 
         self._default_font = tkinter.font.nametofont("TkDefaultFont")
         self._default_font_size = self._default_font.cget('size')
@@ -333,6 +335,7 @@ class TkApplication:
 
         self.running = True
 
+        self.window.bind('f', lambda event: self.toggle_fullscreen())
         self.window.bind('q', lambda event: self.quit())
         self.window.bind('<numbersign>', lambda event: self.toggle_grid())
         self.window.bind('<greater>', lambda event: self.delay_dec())
@@ -576,6 +579,15 @@ class TkApplication:
         self._grid_enabled = not self._grid_enabled
         self.size_changed = True
         self._check_grid_toggle_state()
+        self.update()
+
+    def toggle_fullscreen(self):
+        self._fullscreen_enabled = not self._fullscreen_enabled
+        self.size_changed = True
+        if self._fullscreen_enabled:
+            self.window.attributes('-fullscreen',True)
+        else:
+            self.window.attributes('-fullscreen',False)
         self.update()
 
     def _check_grid_toggle_state(self):
