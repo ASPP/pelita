@@ -1,5 +1,16 @@
 # Pelita changelog
 
+  * v2.5.0 (08. Aug 2024)
+
+     - Food ageing and relocation to discourage camping strategies
+     - New attribute bot.shaded_food
+     - Fullscreen mode added to UI
+     - Enhanced CI engine
+     - New and enlarged collection of layouts
+     - New attribute bot.team_time in bot
+     - Add send queue to server to avoid stalling
+     - Fewer failures in Github CI
+
   * v2.4.0 (23. May 2024)
 
      - Greatly improved server mode
