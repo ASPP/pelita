@@ -619,6 +619,17 @@ class TkApplication:
             old_pos = tuple(game_state['requested_moves'][bot]['previous_position'])
         except TypeError:
             old_pos = game_state['bots'][bot]
+
+        boundary = game_state['shape'][0] / 2
+        if bot % 2 == 0:
+            in_homezone = old_pos[0] < boundary
+        else:
+            in_homezone = old_pos[0] >= boundary
+
+        if not in_homezone:
+            # We are a pacman. No shadow
+            return
+
         draw_box(old_pos)
 
         sight_distance = game_state["shadow_distance"]
