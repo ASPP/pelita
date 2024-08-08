@@ -246,6 +246,8 @@ game_settings.add_argument('--stop-at', dest='stop_at', type=int, metavar="N",
 viewer_settings = parser.add_argument_group('Viewer settings')
 viewer_settings.add_argument('--geometry', type=geometry_string, metavar='NxM',
                     help='Set initial size of the game window.')
+viewer_settings.add_argument('--fullscreen', const=True, action='store_const',
+                    help='Make the game window run fullscreen')
 viewer_settings.add_argument('--fps', type=float, default=40,
                     help='Set (approximate) number of frames per second in a graphical viewer.')
 
@@ -359,6 +361,7 @@ def main():
     stop_at = args.stop_at
 
     viewer_options = {
+        "fullscreen" : args.fullscreen,
         "geometry": geometry,
         "delay": delay,
         "stop_at": stop_at

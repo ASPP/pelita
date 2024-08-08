@@ -31,6 +31,8 @@ parser.add_argument('--controller-address', metavar="URL", type=str,
                     help='controller address')
 parser.add_argument('--geometry', type=geometry_string,
                     help='geometry')
+parser.add_argument('--fullscreen', const=True, action='store_const',
+                     help='fullscreen')
 parser.add_argument('--delay', type=int,
                     help='delay')
 parser.add_argument('--stop-after', type=int, metavar="N",
@@ -55,6 +57,7 @@ def main():
         'address': args.subscribe_sock,
         'controller_address': args.controller_address,
         'geometry': args.geometry,
+        'fullscreen' : args.fullscreen,
         'delay': args.delay,
         'stop_after': args.stop_after
     }
