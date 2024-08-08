@@ -854,12 +854,32 @@ class TkApplication:
             req_pos = tuple(game_state['requested_moves'][bot]['requested_position'])
         except TypeError:
             req_pos = None
-        arrow_item = Arrow(self.mesh_graph,
-                           position=old_pos,
-                           req_pos=game_state['bots'][bot],
-                           success=game_state['requested_moves'][bot]['success'])
-        arrow_item.draw(self.ui.game_canvas)
-        self.arrow_items.append(arrow_item)
+
+        if game_state['requested_moves'][bot]['success'] and tuple(game_state['bots'][bot]) != tuple(game_state['requested_moves'][bot]['requested_position']):
+            # Bot has committed suicide. Show two arrows.
+            arrow_item1 = Arrow(self.mesh_graph,
+                            position=old_pos,
+                            req_pos=game_state['requested_moves'][bot]['requested_position'],
+                            success=True,
+                            head=False)
+            arrow_item1.draw(self.ui.game_canvas)
+
+            arrow_item2 = Arrow(self.mesh_graph,
+                            position=game_state['requested_moves'][bot]['requested_position'],
+                            req_pos=game_state['bots'][bot],
+                            success=True)
+            arrow_item2.draw(self.ui.game_canvas)
+
+            self.arrow_items.append(arrow_item1)
+            self.arrow_items.append(arrow_item2)
+        else:
+            arrow_item = Arrow(self.mesh_graph,
+                            position=old_pos,
+                            req_pos=game_state['bots'][bot],
+                            success=game_state['requested_moves'][bot]['success'])
+            arrow_item.draw(self.ui.game_canvas)
+            self.arrow_items.append(arrow_item)
+
 
     def draw_bots(self, game_state):
         if game_state:

@@ -307,9 +307,10 @@ class Food(TkSprite):
 
 
 class Arrow(TkSprite):
-    def __init__(self, mesh, req_pos, success, **kwargs):
+    def __init__(self, mesh, req_pos, success, head=True, **kwargs):
         self.req_pos = req_pos
         self.success = success
+        self.head = head
 
         super(Arrow, self).__init__(mesh, **kwargs)
 
@@ -373,6 +374,7 @@ class Arrow(TkSprite):
                 self.screen((head.real, head.imag)),
                 self.screen((head_right.real, head_right.imag))
             ]
-            canvas.create_line(points,
-                            fill=BROWN, width=scale, tag=(self.tag, "arrow"), capstyle="round")
+            if self.head:
+                canvas.create_line(points,
+                                fill=BROWN, width=scale, tag=(self.tag, "arrow"), capstyle="round")
 
