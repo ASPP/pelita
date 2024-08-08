@@ -118,7 +118,7 @@ def test_track_and_kill_count():
         trackingBot
     ]
     # We play 600 rounds as we rely on some randomness in our assertions
-    state = setup_game(team, max_rounds=600, layout_dict=parse_layout(layout))
+    state = setup_game(team, max_rounds=600, allow_camping=True, layout_dict=parse_layout(layout))
     while not state['gameover']:
         # Check that our count is consistent with what the game thinks
         # for the current and previous bot, we have to subtract the deaths that have just respawned
@@ -366,10 +366,10 @@ def test_bot_attributes():
     test_layout = """
         ##################
         #.#... .##.     y#
-        # # #  .  .### #x#
+        # #a#  .  .### #x#
         # ####.   .      #
         #      .   .#### #
-        #a# ###.  .  # # #
+        # # ###.  .  # # #
         #b     .##. ...#.#
         ##################
     """
@@ -399,9 +399,17 @@ def test_bot_attributes():
         if bot.is_blue:
             assert set(bot.homezone) == set(homezones[0])
             assert set(bot.enemy[0].homezone) == set(homezones[1])
+            assert set(bot.shaded_food) == set([(1, 1), (3, 1), (4, 1), (5, 1)])
+            assert set(bot.other.shaded_food) == set([(1, 1), (3, 1), (4, 1), (5, 1)])
+            assert set(bot.enemy[0].shaded_food) == set()
+            assert set(bot.enemy[1].shaded_food) == set()
         else:
             assert set(bot.homezone) == set(homezones[1])
             assert set(bot.enemy[0].homezone) == set(homezones[0])
+            assert set(bot.shaded_food) == set()
+            assert set(bot.other.shaded_food) == set()
+            assert set(bot.enemy[0].shaded_food) == set()
+            assert set(bot.enemy[1].shaded_food) == set()
         return bot.position
 
     state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed)
@@ -454,7 +462,7 @@ def test_bot_graph_is_half_mutable():
     """
 
     observer = []
-    
+
     def blue(bot, state):
         if bot.turn == 0 and bot.round == 1:
             assert bot.graph[1, 1][1, 2].get('weight') is None

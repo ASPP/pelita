@@ -221,6 +221,8 @@ game_settings.add_argument('--rounds', type=int, default=300,
                            help='Maximum number of rounds to play.')
 game_settings.add_argument('--seed', type=int, metavar='SEED', default=None,
                            help='Initialize the random number generator with SEED.')
+game_settings.add_argument('--allow-camping', const=True, action='store_const',
+                           help='Food does not age when in a bot’s shadow')
 
 layout_opt = game_settings.add_mutually_exclusive_group()
 layout_opt.add_argument('--layout', metavar='LAYOUT',
@@ -451,7 +453,7 @@ def main():
 
     layout_dict = pelita.layout.parse_layout(layout_string)
     pelita.game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, seed=seed,
-                         timeout_length=args.timeout_length, error_limit=args.error_limit,
+                         allow_camping=args.allow_camping, timeout_length=args.timeout_length, error_limit=args.error_limit,
                          viewers=viewers, viewer_options=viewer_options,
                          store_output=args.store_output,
                          team_infos=(args.append_blue, args.append_red))

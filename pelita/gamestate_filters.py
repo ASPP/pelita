@@ -1,8 +1,6 @@
 """ collecting the game state filter functions """
 import random
 
-### The main function
-
 
 def noiser(walls, shape, bot_position, enemy_positions, noise_radius=5, sight_distance=5, rnd=None):
     """Function to make bot positions noisy in a game state.
@@ -76,9 +74,6 @@ def noiser(walls, shape, bot_position, enemy_positions, noise_radius=5, sight_di
     return { "enemy_positions": noised_positions, "is_noisy": is_noisy }
 
 
-### The subfunctions
-
-
 def alter_pos(bot_pos, noise_radius, rnd, walls, shape):
     """ alter the position """
 
@@ -120,6 +115,91 @@ def alter_pos(bot_pos, noise_radius, rnd, walls, shape):
 
     # return the final_pos and a flag if it is noisy or not
     return (final_pos, noisy)
+
+def in_homezone(position, team_id, shape):
+    boundary = shape[0] / 2
+    if team_id == 0:
+        return position[0] < boundary
+    elif team_id == 1:
+        return position[0] >= boundary
+
+
+def update_food_age(game_state, team, radius):
+    # Only ghosts can cast a shadow
+    ghosts = [
+        bot for bot in game_state['bots'][team::2]
+        if in_homezone(bot, team, game_state['shape'])
+    ]
+    food = game_state['food'][team]
+    food_age = [dict(team_food_age) for team_food_age in game_state['food_age']]
+
+    for pellet in food:
+        if any(manhattan_dist(ghost, pellet) <= radius for ghost in ghosts):
+            if pellet in food_age[team]:
+                food_age[team][pellet] += 1
+            else:
+                food_age[team][pellet] = 1
+        else:
+            if pellet in food_age[team]:
+                del food_age[team][pellet]
+
+    return {'food_age': food_age}
+
+
+def relocate_expired_food(game_state, team, radius, max_food_age=None):
+    bots = game_state['bots'][team::2]
+    enemy_bots = game_state['bots'][1-team::2]
+    food = [set(team_food) for team_food in game_state['food']]
+    food_age = [dict(team_food_age) for team_food_age in game_state['food_age']]
+    width, height = game_state['shape']
+    walls = game_state['walls']
+    rnd = game_state['rnd']
+    if max_food_age is None:
+        max_food_age = game_state['max_food_age']
+
+    # generate a set of possible positions to relocate food:
+    #  - in the bot's homezone
+    #  - not a wall
+    #  - not on a already present food pellet
+    #  - not on a bot
+    #  - not on the border
+    #  - not within the shadow of a bot
+    home_width = width // 2
+    left_most_x = home_width * team
+    targets = { (x, y) for x in range(left_most_x, left_most_x+home_width) # this line and the next define the homezone
+                       for y in range(height)
+                       if (x not in (home_width, home_width - 1) # this excludes the border
+                           and manhattan_dist(bots[0], (x, y)) > radius # this line and the next excludes the team's bots and their shadows
+                           and manhattan_dist(bots[1], (x, y)) > radius )
+              }
+    targets = targets.difference(walls) # remove the walls
+    targets = targets.difference(food[team]) # remove the team's food
+    targets = targets.difference(enemy_bots) # remove the enemy bots
+    # now convert to a list and sort, so that we have reproducibility (sets are unordered)
+    targets = sorted(list(targets))
+    for pellet in sorted(list(food[team])):
+        # We move the pellet if it is in the food_age dict and exceeds the max_food_age
+        if food_age[team].get(pellet, 0) > max_food_age:
+            if not targets:
+                # we have no free positions anymore, just let the food stay where it is
+                # we do not update the age, so this pellet will get a chance to be
+                # relocated at the next round
+                continue
+            # choose a new position at random
+            new_pos = rnd.choice(targets)
+
+            # remove the new pellet position from the list of possible targets for new pellets
+            targets.remove(new_pos)
+
+            # get rid of the old pellet
+            food[team].remove(pellet)
+            del food_age[team][pellet]
+
+            # add the new pellet to food again
+            # (starts with 0 food age, so we do not need to add it to the food_age dict)
+            food[team].add(new_pos)
+
+    return {'food' : food, 'food_age' : food_age}
 
 
 def manhattan_dist(pos1, pos2):

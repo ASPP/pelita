@@ -19,10 +19,14 @@ STRONG_RED = '#A91919'
 YELLOW = col(242, 255, 83)
 YELLOW = '#FFE38B'
 GREY = col(80, 80, 80)
+LIGHT_GREY = col(230, 230, 230)
+SELECTED = col(200, 200, 200)
 BROWN = col(48, 26, 22)
 
 SHADOW_RED = '#B37373'
 SHADOW_BLUE = '#6D92B3'
+
+FOOD_WARNING_TIME = 6
 
 def rotate(arc, rotation):
     """Helper for rotation normalisation."""
@@ -294,17 +298,40 @@ class Wall(TkSprite):
 
 
 class Food(TkSprite):
+    def __init__(self, mesh, food_age=None, max_food_age=None, **kwargs):
+        self.food_age = food_age
+        if max_food_age is None:
+            self.max_food_age = math.inf
+        else:
+            self.max_food_age = max_food_age
+        super().__init__(mesh, **kwargs)
+
     @classmethod
     def food_pos_tag(cls, position):
         return "Food" + str(position)
 
-    def draw(self, canvas, game_state=None):
+    def draw(self, canvas, game_state=None, show_lifetime=False):
         if self.position[0] < self.mesh.num_x/2:
-            fill = BLUE
+            fill_col = BLUE
         else:
-            fill = RED
-        canvas.create_oval(self.bounding_box(0.4), fill=fill, width=0, tag=(self.tag, self.food_pos_tag(self.position), "food"))
+            fill_col = RED
+        text_col = "#000"
 
+        food_age = self.food_age
+
+        if food_age and food_age + FOOD_WARNING_TIME > self.max_food_age:
+            fill_col = GREY
+            text_col = YELLOW
+        canvas.create_oval(self.bounding_box(0.4), fill=fill_col, width=0, tag=(self.tag, self.food_pos_tag(self.position), "food"))
+
+        canvas.delete("show_food_age" + str(self.position))
+
+        # we print the bot_id in the lower left corner
+        if food_age and show_lifetime:
+            tag=(self.tag, "show_food_age" + str(self.position), "food")
+
+            center = self.screen()
+            canvas.create_text(*center, text=food_age, font=(None, 10), fill=text_col, tag=tag)
 
 class Arrow(TkSprite):
     def __init__(self, mesh, req_pos, success, **kwargs):

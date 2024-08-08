@@ -20,7 +20,23 @@ import tkinter.font
 
 from ..game import next_round_turn
 from ..team import _ensure_list_tuples
-from .tk_sprites import BotSprite, Food, Wall, Arrow, RED, BLUE, YELLOW, GREY, BROWN, LIGHT_BLUE, LIGHT_RED, STRONG_BLUE, STRONG_RED
+from .tk_sprites import (
+    BotSprite,
+    Food,
+    Wall,
+    Arrow,
+    RED,
+    BLUE,
+    YELLOW,
+    GREY,
+    LIGHT_GREY,
+    SELECTED,
+    BROWN,
+    LIGHT_BLUE,
+    LIGHT_RED,
+    STRONG_BLUE,
+    STRONG_RED,
+)
 from .tk_utils import wm_delete_window_handler
 from .. import layout
 
@@ -416,11 +432,13 @@ class TkApplication:
 
         eaten_food = []
         for food_pos, food_item in self.food_items.items():
-            if not food_pos in game_state["food"]:
+            food_item.food_age = game_state['food_age'].get(food_pos, 0)
+            if food_pos not in game_state["food"]:
                 self.ui.game_canvas.delete(food_item.tag)
                 eaten_food.append(food_pos)
         for food_pos in eaten_food:
             del self.food_items[food_pos]
+
 
         winning_team_idx = game_state.get("whowins")
         if winning_team_idx is None:
@@ -440,6 +458,7 @@ class TkApplication:
         self.draw_grid()
         self.draw_selected(game_state)
         self.draw_line_of_sight(game_state)
+        self.draw_bot_shadow(game_state)
         self.draw_background()
         self.draw_maze(game_state)
         self.draw_food(game_state)
@@ -497,6 +516,9 @@ class TkApplication:
             # game has not started yet
             return
 
+        line_col = STRONG_BLUE if bot % 2 == 0 else STRONG_RED
+        fill_col = LIGHT_BLUE if bot % 2 == 0 else LIGHT_RED
+
         try:
             old_pos = tuple(game_state['requested_moves'][bot]['previous_position'])
         except TypeError:
@@ -520,23 +542,20 @@ class TkApplication:
             return x == 0 or x == game_state['shape'][0] - 1 or y == 0 or y == game_state['shape'][1] - 1
 
 
-        def draw_line(pos, color, loc):
+        def draw_line(pos, line_col, loc):
             x0_ = self.mesh_graph.mesh_to_screen_x(pos[0], loc[0])
             y0_ = self.mesh_graph.mesh_to_screen_y(pos[1], loc[1])
             x1_ = self.mesh_graph.mesh_to_screen_x(pos[0], loc[2])
             y1_ = self.mesh_graph.mesh_to_screen_y(pos[1], loc[3])
-            self.ui.game_canvas.create_line(x0_, y0_, x1_, y1_, width=2, fill=color, tag=("line_of_sight"))
+            self.ui.game_canvas.create_line(x0_, y0_, x1_, y1_, width=3, fill=line_col, tag=("line_of_sight"))
 
-        team_col = STRONG_BLUE if bot % 2 == 0 else STRONG_RED
-
-
-        def draw_box(pos, fill):
+        def draw_box(pos, fill_col):
             ul = self.mesh_graph.mesh_to_screen(pos, (-1, -1))
             ur = self.mesh_graph.mesh_to_screen(pos, (1, -1))
             ll = self.mesh_graph.mesh_to_screen(pos, (-1, 1))
             lr = self.mesh_graph.mesh_to_screen(pos, (1, 1))
 
-            self.ui.game_canvas.create_rectangle(*ul, *lr, width=0, fill=fill, tag=("line_of_sight", "area_of_sight"))
+            self.ui.game_canvas.create_rectangle(*ul, *lr, width=0, fill=fill_col, tag=("line_of_sight", "area_of_sight"))
 
         for dx in range(- sight_distance, sight_distance + 1):
             for dy in range(- sight_distance, sight_distance + 1):
@@ -547,30 +566,144 @@ class TkApplication:
                 if not in_maze(pos[0], pos[1]):
                     continue
 
-                draw_box(pos, fill=LIGHT_BLUE if bot % 2 == 0 else LIGHT_RED)
+                # Currently not used
+                # draw_box(pos, fill_col=fill_col)
 
                 # add edge around cells at the line of sight max
                 if (dx, dy) in border_cells_relative:
                     if dx >= 0:
-                        draw_line(pos, loc=(1, 1, 1, -1), color=team_col)
+                        draw_line(pos, loc=(1, 1, 1, -1), line_col=line_col)
                     if dx <= 0:
-                        draw_line(pos, loc=(-1, 1, -1, -1), color=team_col)
+                        draw_line(pos, loc=(-1, 1, -1, -1), line_col=line_col)
                     if dy >= 0:
-                        draw_line(pos, loc=(1, 1, -1, 1), color=team_col)
+                        draw_line(pos, loc=(1, 1, -1, 1), line_col=line_col)
                     if dy <= 0:
-                        draw_line(pos, loc=(1, -1, -1, -1), color=team_col)
+                        draw_line(pos, loc=(1, -1, -1, -1), line_col=line_col)
 
                 # add edge around cells at the edge of the maze
                 if on_edge(pos[0], pos[1]):
                     if pos[0] == game_state['shape'][0] - 1:
-                        draw_line(pos, loc=(1, 1, 1, -1), color=team_col)
+                        draw_line(pos, loc=(1, 1, 1, -1), line_col=line_col)
                     if pos[0] == 0:
-                        draw_line(pos, loc=(-1, 1, -1, -1), color=team_col)
+                        draw_line(pos, loc=(-1, 1, -1, -1), line_col=line_col)
                     if pos[1] == game_state['shape'][1] - 1:
-                        draw_line(pos, loc=(1, 1, -1, 1), color=team_col)
+                        draw_line(pos, loc=(1, 1, -1, 1), line_col=line_col)
                     if pos[1] == 0:
-                        draw_line(pos, loc=(1, -1, -1, -1), color=team_col)
+                        draw_line(pos, loc=(1, -1, -1, -1), line_col=line_col)
 
+        self.ui.game_canvas.tag_lower("area_of_sight")
+        self.ui.game_canvas.tag_raise("wall")
+
+
+    def draw_bot_shadow(self, game_state):
+        self.ui.game_canvas.delete("bot_shadow")
+        if not self._grid_enabled:
+            return
+
+        border_col = "#000"
+        fill_col = LIGHT_GREY
+
+        scale = self.mesh_graph.half_scale_x * 0.1
+
+        def draw_box(pos):
+            ul = self.mesh_graph.mesh_to_screen(pos, (-1, -1))
+            ur = self.mesh_graph.mesh_to_screen(pos, (1, -1))
+            ll = self.mesh_graph.mesh_to_screen(pos, (-1, 1))
+            lr = self.mesh_graph.mesh_to_screen(pos, (1, 1))
+
+            self.ui.game_canvas.create_rectangle(*ul, *lr, width=2, outline='#111', tag=("bot_shadow",))
+
+        bot = game_state['turn']
+        if bot is None:
+            # game has not started yet
+            return
+
+        try:
+            old_pos = tuple(game_state['requested_moves'][bot]['previous_position'])
+        except TypeError:
+            old_pos = game_state['bots'][bot]
+
+        boundary = game_state['shape'][0] / 2
+        if bot % 2 == 0:
+            in_homezone = old_pos[0] < boundary
+        else:
+            in_homezone = old_pos[0] >= boundary
+
+        if not in_homezone:
+            # We are a pacman. No shadow
+            return
+
+        draw_box(old_pos)
+
+        sight_distance = game_state["shadow_distance"]
+        # starting from old_pos, iterate over all positions that are up to sight_distance
+        # steps away and put a border around the fields.
+        border_cells_relative = set(
+            (dx, dy)
+            for dx in range(- sight_distance, sight_distance + 1)
+            for dy in range(- sight_distance, sight_distance + 1)
+            if abs(dx) + abs(dy) == sight_distance
+        )
+
+        def in_maze(x, y):
+            return 0 <= x < game_state['shape'][0] and  0 <= y < game_state['shape'][1]
+
+        def on_edge(x, y):
+            return x == 0 or x == game_state['shape'][0] - 1 or y == 0 or y == game_state['shape'][1] - 1
+
+
+        def draw_line(pos, line_col, loc):
+            x0_ = self.mesh_graph.mesh_to_screen_x(pos[0], loc[0])
+            y0_ = self.mesh_graph.mesh_to_screen_y(pos[1], loc[1])
+            x1_ = self.mesh_graph.mesh_to_screen_x(pos[0], loc[2])
+            y1_ = self.mesh_graph.mesh_to_screen_y(pos[1], loc[3])
+            self.ui.game_canvas.create_line(x0_, y0_, x1_, y1_, width=2, fill=line_col, tag=("bot_shadow"))
+
+
+        def draw_box(pos, fill_col):
+            ul = self.mesh_graph.mesh_to_screen(pos, (-1, -1))
+            ur = self.mesh_graph.mesh_to_screen(pos, (1, -1))
+            ll = self.mesh_graph.mesh_to_screen(pos, (-1, 1))
+            lr = self.mesh_graph.mesh_to_screen(pos, (1, 1))
+
+            self.ui.game_canvas.create_rectangle(*ul, *lr, width=0, fill=fill_col, tag=("bot_shadow", "bot_shadow_area"))
+
+        for dx in range(- sight_distance, sight_distance + 1):
+            for dy in range(- sight_distance, sight_distance + 1):
+                if abs(dx) + abs(dy) > sight_distance:
+                    continue
+
+                pos = (old_pos[0] + dx, old_pos[1] + dy)
+                if not in_maze(pos[0], pos[1]):
+                    continue
+
+                draw_box(pos, fill_col=fill_col)
+
+                # Border around the shadow removed for now
+                #
+                # # add edge around cells at the line of sight max
+                # if (dx, dy) in border_cells_relative:
+                #     if dx >= 0:
+                #         draw_line(pos, loc=(1, 1, 1, -1), line_col=border_col)
+                #     if dx <= 0:
+                #         draw_line(pos, loc=(-1, 1, -1, -1), line_col=border_col)
+                #     if dy >= 0:
+                #         draw_line(pos, loc=(1, 1, -1, 1), line_col=border_col)
+                #     if dy <= 0:
+                #         draw_line(pos, loc=(1, -1, -1, -1), line_col=border_col)
+
+                # # add edge around cells at the edge of the maze
+                # if on_edge(pos[0], pos[1]):
+                #     if pos[0] == game_state['shape'][0] - 1:
+                #         draw_line(pos, loc=(1, 1, 1, -1), line_col=border_col)
+                #     if pos[0] == 0:
+                #         draw_line(pos, loc=(-1, 1, -1, -1), line_col=border_col)
+                #     if pos[1] == game_state['shape'][1] - 1:
+                #         draw_line(pos, loc=(1, 1, -1, 1), line_col=border_col)
+                #     if pos[1] == 0:
+                #         draw_line(pos, loc=(1, -1, -1, -1), line_col=border_col)
+
+        self.ui.game_canvas.tag_lower("bot_shadow_area")
         self.ui.game_canvas.tag_lower("area_of_sight")
         self.ui.game_canvas.tag_raise("wall")
 
@@ -748,7 +881,7 @@ class TkApplication:
             ll = self.mesh_graph.mesh_to_screen(self.selected, (-1, 1))
             lr = self.mesh_graph.mesh_to_screen(self.selected, (1, 1))
 
-            self.ui.game_canvas.create_rectangle(*ul, *lr, fill='#dddddd', tag=("selected",))
+            self.ui.game_canvas.create_rectangle(*ul, *lr, fill=SELECTED, tag=("selected",))
             self.ui.game_canvas.tag_lower("selected")
         else:
             self.ui.status_selected.config(text="nothing selected")
@@ -800,14 +933,21 @@ class TkApplication:
         self.ui.game_canvas.delete(tkinter.ALL)
 
     def draw_food(self, game_state):
-        if not self.size_changed:
-            return
+#        if not self.size_changed:
+#            return
         self.ui.game_canvas.delete("food")
         self.food_items = {}
+        max_food_age = game_state["max_food_age"]
         for position in game_state['food']:
             model_x, model_y = position
-            food_item = Food(self.mesh_graph, position=(model_x, model_y))
-            food_item.draw(self.ui.game_canvas)
+            food_age = game_state['food_age'].get(position, 0)
+            food_item = Food(
+                self.mesh_graph,
+                position=(model_x, model_y),
+                food_age=food_age,
+                max_food_age=max_food_age,
+            )
+            food_item.draw(self.ui.game_canvas, show_lifetime=False)
             self.food_items[position] = food_item
 
     def draw_maze(self, game_state):
@@ -978,6 +1118,7 @@ class TkApplication:
         game_state['food'] = _ensure_list_tuples(game_state['food'])
         game_state['bots'] = _ensure_list_tuples(game_state['bots'])
         game_state['shape'] = tuple(game_state['shape'])
+        game_state['food_age'] = {tuple(pos): food_age for pos, food_age in game_state['food_age']}
         self.update(game_state)
         if self._stop_after is not None:
             if self._stop_after == 0:
