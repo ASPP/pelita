@@ -24,6 +24,8 @@ BROWN = col(48, 26, 22)
 SHADOW_RED = '#B37373'
 SHADOW_BLUE = '#6D92B3'
 
+FOOD_WARNING_TIME = 5
+
 def rotate(arc, rotation):
     """Helper for rotation normalisation."""
     return (arc + rotation) % 360
@@ -294,8 +296,12 @@ class Wall(TkSprite):
 
 
 class Food(TkSprite):
-    def __init__(self, mesh, food_age=None, **kwargs):
+    def __init__(self, mesh, food_age=None, max_food_age=None, **kwargs):
         self.food_age = food_age
+        if max_food_age is None:
+            self.max_food_age = math.inf
+        else:
+            self.max_food_age = max_food_age
         super().__init__(mesh, **kwargs)
 
     @classmethod
@@ -304,17 +310,20 @@ class Food(TkSprite):
 
     def draw(self, canvas, game_state=None):
         if self.position[0] < self.mesh.num_x/2:
-            fill = BLUE
+            fill_col = BLUE
         else:
-            fill = RED
-        canvas.create_oval(self.bounding_box(0.4), fill=fill, width=0, tag=(self.tag, self.food_pos_tag(self.position), "food"))
+            fill_col = RED
 
         food_age = self.food_age
+
+        if food_age and food_age + FOOD_WARNING_TIME > self.max_food_age:
+            fill_col = GREY
+        canvas.create_oval(self.bounding_box(0.4), fill=fill_col, width=0, tag=(self.tag, self.food_pos_tag(self.position), "food"))
 
         canvas.delete("show_food_age" + str(self.position))
 
         # we print the bot_id in the lower left corner
-        if self.food_age:
+        if food_age:
             shift_x = 32
             shift_y = 16
             tag=(self.tag, "show_food_age" + str(self.position), "food")

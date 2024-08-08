@@ -794,10 +794,16 @@ class TkApplication:
 #            return
         self.ui.game_canvas.delete("food")
         self.food_items = {}
+        max_food_age = game_state["max_food_age"]
         for position in game_state['food']:
             model_x, model_y = position
             food_age = game_state['food_age'].get(position, 0)
-            food_item = Food(self.mesh_graph, position=(model_x, model_y), food_age=food_age)
+            food_item = Food(
+                self.mesh_graph,
+                position=(model_x, model_y),
+                food_age=food_age,
+                max_food_age=max_food_age,
+            )
             food_item.draw(self.ui.game_canvas)
             self.food_items[position] = food_item
 
