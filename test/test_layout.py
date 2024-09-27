@@ -54,6 +54,12 @@ def test_get_random_layout():
             fails += 1
     assert fails < 10, "Can't get random layouts!"
 
+def test_get_correct_dead_ends():
+    l1 = get_available_layouts()
+    assert 'dead_ends' not in ''.join(l1)
+    l2 = get_available_layouts(dead_ends=True)
+    assert all('dead_ends' in l for l in l2)
+
 def test_get_random_layout_returns_correct_layout():
     name, layout = get_random_layout()
     layout2 = get_layout_by_name(name)
