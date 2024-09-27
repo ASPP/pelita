@@ -13,6 +13,8 @@ HEIGHT = 16
 WIDTH = 32
 FOOD = 30
 SEED = None
+DEAD_ENDS = False
+CHAMBERS = False
 
 description="""
 Return a new random layout to be used by pelita
@@ -75,11 +77,14 @@ def main():
                         help=default('food pellets for each team', FOOD))
     parser.add_argument('--seed', '-s', default=SEED, type=int, metavar='S',
                         help=default('random seed', SEED))
+    parser.add_argument('--dead-ends', '-d', const=True, action='store_const',
+                        help=default('allow for dead ends and chambers in the maze',
+                                     DEAD_ENDS))
 
     args = parser.parse_args()
 
     maze_str = get_new_maze(args.height, args.width, nfood=args.food,
-                            seed=args.seed)
+                            seed=args.seed, dead_ends=args.dead_ends)
 
     sys.stdout.write(maze_str+'\n')
     sys.stdout.close()
