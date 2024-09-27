@@ -10,8 +10,12 @@ from pelita.layout import *
 def test_get_available_layouts():
     available = get_available_layouts(size='all')
     assert 1200 == len(available)
+    available = get_available_layouts(size='all', dead_ends=True)
+    assert 1200 == len(available)
     # now also test the filter
     available = get_available_layouts(size='normal')
+    assert 1000 == len(available)
+    available = get_available_layouts(size='normal', dead_ends=True)
     assert 1000 == len(available)
 
 def test_get_layout_by_name():
@@ -27,6 +31,19 @@ def test_get_layout_by_name():
 """
     loaded = get_layout_by_name('small_000')
     assert target_layout.strip() == loaded.strip()
+    dead_end_target = """
+################
+# # .  ##     y#
+#.... .    ..#x#
+# #       ##.#.#
+#.#.##       # #
+#a#..    . ....#
+#b     ##  . # #
+################
+"""
+    loaded = get_layout_by_name('dead_ends_small_000')
+    assert dead_end_target.strip() == loaded.strip()
+
 
 def test_get_random_layout():
     fails = 0
