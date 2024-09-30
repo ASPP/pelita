@@ -39,6 +39,9 @@ MAX_FOOD_AGE = 30
 #: Food pellet shadow distance
 SHADOW_DISTANCE = 1
 
+#: Proportion of layouts with dead ends
+DEAD_ENDS = 0.25
+
 class TkViewer:
     def __init__(self, *, address, controller, geometry=None, delay=None, stop_after=None, fullscreen=False):
         self.proc = self._run_external_viewer(address, controller, geometry=geometry, delay=delay, stop_after=stop_after, fullscreen=fullscreen)
