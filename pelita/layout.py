@@ -1,5 +1,6 @@
 import importlib.resources as importlib_resources
 import io
+import os
 import random
 
 # bot to index conversion
@@ -74,13 +75,13 @@ def get_available_layouts(size='normal', dead_ends=False):
         size = ''
 
     av_layouts = []
-    for resource in importlib_resources.files('pelita._layouts').iterdir():
-        if resource.is_file() and resource.name.endswith('.layout') and size in resource.name:
-            layout_name = resource.name.removesuffix('.layout')
-            if dead_ends and 'dead_ends' in resource.name:
-                av_layouts.append(layout_name)
-            if not dead_ends and 'dead_ends' not in resource.name:
-                av_layouts.append(layout_name)
+    for file in os.listdir(importlib_resources.files('pelita._layouts')):
+        if dead_ends:
+            cond = file.endswith('.layout') and size in file and 'dead_ends' in file
+        else:
+            cond = file.endswith('.layout') and size in file and 'dead_ends' not in file
+        if cond:
+            av_layouts.append(file.removesuffix('.layout'))
 
     return sorted(av_layouts)
 
