@@ -1,6 +1,7 @@
 import pytest
 
 import itertools
+import math
 from pathlib import Path
 from textwrap import dedent
 
@@ -68,6 +69,15 @@ def test_get_random_layout_returns_correct_layout():
 def test_get_random_layout_random_seed():
     name, layout = get_random_layout(size='small', seed=1)
     assert name == 'small_017'
+
+def test_get_random_layout_proportion_dead_ends():
+    N = 1000
+    prop = 0.25
+    expected = int(prop*N)
+    assert not any('dead_ends' in get_random_layout()[0] for i in range(N))
+    dead_ends = sum('dead_ends' in get_random_layout(dead_ends=prop)[0] for i in range(N))
+    assert math.isclose(dead_ends, expected, rel_tol=0.1)
+
 
 def test_legal_layout():
     layout = """
