@@ -2,6 +2,7 @@ import pytest
 
 import itertools
 import math
+import random
 from pathlib import Path
 from textwrap import dedent
 
@@ -74,8 +75,14 @@ def test_get_random_layout_proportion_dead_ends():
     N = 1000
     prop = 0.25
     expected = int(prop*N)
-    assert not any('dead_ends' in get_random_layout()[0] for i in range(N))
-    dead_ends = sum('dead_ends' in get_random_layout(dead_ends=prop)[0] for i in range(N))
+    # get a fix sequence of seeds, so that the test is reproducible
+    RNG = random.Random()
+    RNG.seed(176399)
+    seeds = [RNG.random() for i in range(N)]
+    # check that we don't get any layout with dead ends if we don't ask for it
+    assert not any('dead_ends' in get_random_layout(seed=s)[0] for s in seeds)
+    # check that we get more or less the right proportion of layouts with dead ends
+    dead_ends = sum('dead_ends' in get_random_layout(seed=s, dead_ends=prop)[0] for s in seeds)
     assert math.isclose(dead_ends, expected, rel_tol=0.1)
 
 
