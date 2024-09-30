@@ -4,7 +4,7 @@ import networkx as nx
 
 
 from .team import make_bots, create_homezones
-from .game import split_food, SHADOW_DISTANCE
+from .game import split_food, SHADOW_DISTANCE, DEAD_ENDS
 from .layout import (get_random_layout, get_layout_by_name, get_available_layouts,
                      parse_layout, BOT_N2I, initial_positions)
 from .gamestate_filters import manhattan_dist
@@ -20,7 +20,7 @@ def _parse_layout_arg(*, layout=None, food=None, bots=None, seed=None):
 
     # prepare layout argument to be passed to pelita.game.run_game
     if layout is None:
-        layout_name, layout_str = get_random_layout(size='normal', seed=seed)
+        layout_name, layout_str = get_random_layout(size='normal', seed=seed, dead_ends=DEAD_ENDS)
         layout_dict = parse_layout(layout_str)
     elif layout in get_available_layouts(size='all'):
         # check if this is a built-in layout
