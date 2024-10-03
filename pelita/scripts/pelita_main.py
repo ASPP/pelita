@@ -14,6 +14,7 @@ from rich.prompt import Prompt
 import zmq
 
 import pelita
+from pelita.game import DEAD_ENDS
 from .script_utils import start_logging
 
 from pelita.network import PELITA_PORT
@@ -324,7 +325,8 @@ def main():
         sys.exit(0)
 
     if args.list_layouts:
-        layouts = pelita.layout.get_available_layouts(size='all')
+        layouts = pelita.layout.get_available_layouts(size='all', dead_ends=False)
+        layouts += pelita.layout.get_available_layouts(size='all', dead_ends=True)
         layouts.sort()
         print('\n'.join(layouts))
         sys.exit(0)
@@ -447,7 +449,7 @@ def main():
             layout_name = args.layout
             layout_string = pelita.layout.get_layout_by_name(args.layout)
     else:
-        layout_name, layout_string = pelita.layout.get_random_layout(args.size, seed=seed)
+        layout_name, layout_string = pelita.layout.get_random_layout(args.size, seed=seed, dead_ends=DEAD_ENDS)
 
     print("Using layout '%s'" % layout_name)
 
