@@ -378,7 +378,7 @@ def add_pacmen(maze):
     maze[1, -2] = b'y'
     maze[2, -2] = b'x'
 
-def get_new_maze(height, width, nfood, seed=None):
+def get_new_maze(height, width, nfood, seed=None, dead_ends=False):
     """Create a new maze in text format.
 
     The maze is created with a recursive creation algorithm. The maze part of
@@ -391,6 +391,12 @@ def get_new_maze(height, width, nfood, seed=None):
     height, width -- the size of the maze, including the outer walls
     nfood -- number of food dots for each team
     seed -- if not None, the random seed used to generate the maze
+    dead_ends -- if True allow for dead ends and chambers in the maze
+
+    A dead-end is a node with connectivity one.
+    A chamber is a sub-graph such that there is a node in the sub-graph, the
+    entrance to the chamber, that when removed from the graph will result in the
+    graph to be split into two disconnected graphs.
     """
     if width%2 != 0:
         raise ValueError(f'Width must be even ({width} given)')
@@ -407,10 +413,9 @@ def get_new_maze(height, width, nfood, seed=None):
     maze[-3, 1] = E
 
     # remove dead ends
-    remove_all_dead_ends(maze)
-
-    # remove chambers
-    remove_all_chambers(maze)
+    if not dead_ends:
+        remove_all_dead_ends(maze)
+        remove_all_chambers(maze)
 
     # add food
     add_food(maze, nfood)
