@@ -10,8 +10,12 @@ from pelita.layout import *
 def test_get_available_layouts():
     available = get_available_layouts(size='all')
     assert 1200 == len(available)
+    available = get_available_layouts(size='all', dead_ends=True)
+    assert 1200 == len(available)
     # now also test the filter
     available = get_available_layouts(size='normal')
+    assert 1000 == len(available)
+    available = get_available_layouts(size='normal', dead_ends=True)
     assert 1000 == len(available)
 
 def test_get_layout_by_name():
@@ -27,6 +31,19 @@ def test_get_layout_by_name():
 """
     loaded = get_layout_by_name('small_000')
     assert target_layout.strip() == loaded.strip()
+    dead_end_target = """
+################
+# # .  ##     y#
+#.... .    ..#x#
+# #       ##.#.#
+#.#.##       # #
+#a#..    . ....#
+#b     ##  . # #
+################
+"""
+    loaded = get_layout_by_name('dead_ends_small_000')
+    assert dead_end_target.strip() == loaded.strip()
+
 
 def test_get_random_layout():
     fails = 0
@@ -36,6 +53,12 @@ def test_get_random_layout():
         if l1 == l2:
             fails += 1
     assert fails < 10, "Can't get random layouts!"
+
+def test_get_correct_dead_ends():
+    l1 = get_available_layouts()
+    assert 'dead_ends' not in ''.join(l1)
+    l2 = get_available_layouts(dead_ends=True)
+    assert all('dead_ends' in l for l in l2)
 
 def test_get_random_layout_returns_correct_layout():
     name, layout = get_random_layout()

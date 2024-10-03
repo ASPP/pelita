@@ -9,7 +9,7 @@ BOT_I2N = {0: 'a', 2: 'b', 1: 'x', 3: 'y'}
 
 RNG = random.Random()
 
-def get_random_layout(size='normal', seed=None):
+def get_random_layout(size='normal', seed=None, dead_ends=False):
     """ Return a random layout string from the available ones.
 
     Parameters
@@ -23,6 +23,10 @@ def get_random_layout(size='normal', seed=None):
         'big'    -> width=64, height=32, food=60
         'all'    -> all of the above
 
+    dead_ends: bool
+        if set, return a layout from the collection with dead_ends, otherwise
+        return a layout without dead_ends
+
     Returns
     -------
     layout : tuple(str, str)
@@ -31,11 +35,11 @@ def get_random_layout(size='normal', seed=None):
     """
     if seed is not None:
         RNG.seed(seed)
-    layouts_names = get_available_layouts(size=size)
+    layouts_names = get_available_layouts(size=size, dead_ends=dead_ends)
     layout_choice = RNG.choice(layouts_names)
     return layout_choice, get_layout_by_name(layout_choice)
 
-def get_available_layouts(size='normal'):
+def get_available_layouts(size='normal', dead_ends=False):
     """Return the names of the built-in layouts.
 
     Parameters
@@ -49,6 +53,9 @@ def get_available_layouts(size='normal'):
         'big'    -> width=64, height=32, food=60
         'all'    -> all of the above
 
+    dead_ends: bool
+        if set, only return layouts from the collection with dead_ends, otherwise
+        only return layouts without dead_ends
 
     Returns
     -------
@@ -64,11 +71,13 @@ def get_available_layouts(size='normal'):
         size = ''
 
     av_layouts = []
-
     for resource in importlib_resources.files('pelita._layouts').iterdir():
         if resource.is_file() and resource.name.endswith('.layout') and size in resource.name:
             layout_name = resource.name.removesuffix('.layout')
-            av_layouts.append(layout_name)
+            if dead_ends and 'dead_ends' in resource.name:
+                av_layouts.append(layout_name)
+            if not dead_ends and 'dead_ends' not in resource.name:
+                av_layouts.append(layout_name)
 
     return sorted(av_layouts)
 
