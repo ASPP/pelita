@@ -9,7 +9,7 @@ from pelita.game import setup_game, play_turn, prepare_bot_state, split_food
 from pelita.layout import parse_layout
 from pelita.player import stepping_player
 import pelita.utils
-
+import pelita.game
 
 def make_gamestate():
     def dummy_team(bot, state):
@@ -774,6 +774,10 @@ def test_relocate_expired_food_nospaceleft():
 def test_pacman_resets_age():
     # We move bot a across the border
     # Once it becomes a bot, the food_age should reset
+    # XXX: BAD TRICK to make this test work independent of the
+    #      actually configured SHADOW_DISTANCE
+    old_SHADOW_DISTANCE = pelita.game.SHADOW_DISTANCE
+    pelita.game.SHADOW_DISTANCE = 3
     test_layout = (
     """ ##################
         #         x     y#
@@ -807,3 +811,4 @@ def test_pacman_resets_age():
     state = play_turn(state)
     assert state['turn'] == 3
     assert state['food_age'] == [{}, {}]
+    pelita.game.SHADOW_DISTANCE = old_SHADOW_DISTANCE

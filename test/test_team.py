@@ -4,7 +4,8 @@ import pytest
 import networkx
 
 from pelita.layout import parse_layout, get_random_layout, initial_positions
-from pelita.game import run_game, setup_game, play_turn
+from pelita.game import run_game, setup_game, play_turn, SHADOW_DISTANCE
+from pelita.gamestate_filters import manhattan_dist
 
 def stopping(bot, state):
     return bot.position
@@ -395,12 +396,14 @@ def test_bot_attributes():
 
         assert bot.walls == tuple(sorted(bot.walls))
         assert bot.homezone == tuple(sorted(bot.homezone))
-
         if bot.is_blue:
             assert set(bot.homezone) == set(homezones[0])
             assert set(bot.enemy[0].homezone) == set(homezones[1])
-            assert set(bot.shaded_food) == set([(1, 1), (3, 1), (4, 1), (5, 1)])
-            assert set(bot.other.shaded_food) == set([(1, 1), (3, 1), (4, 1), (5, 1)])
+            shaded_food = set(food for food in bot.food if
+                              manhattan_dist(bot.position, food) <= SHADOW_DISTANCE or
+                              manhattan_dist(bot.other.position, food) <= SHADOW_DISTANCE)
+            assert set(bot.shaded_food) == shaded_food
+            assert set(bot.other.shaded_food) == shaded_food
             assert set(bot.enemy[0].shaded_food) == set()
             assert set(bot.enemy[1].shaded_food) == set()
         else:
