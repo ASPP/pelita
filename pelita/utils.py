@@ -13,14 +13,12 @@ from .gamestate_filters import manhattan_dist
 # older clients!
 from .team import walls_to_graph
 
-RNG = random.Random()
 
-
-def _parse_layout_arg(*, layout=None, food=None, bots=None, seed=None):
+def _parse_layout_arg(*, layout=None, food=None, bots=None, rng=None):
 
     # prepare layout argument to be passed to pelita.game.run_game
     if layout is None:
-        layout_name, layout_str = get_random_layout(size='normal', seed=seed, dead_ends=DEAD_ENDS)
+        layout_name, layout_str = get_random_layout(size='normal', rng=rng, dead_ends=DEAD_ENDS)
         layout_dict = parse_layout(layout_str)
     elif layout in get_available_layouts(size='all'):
         # check if this is a built-in layout
@@ -118,10 +116,12 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
 
     # if the seed is not set explicitly, set it here
     if seed is None:
-        seed = RNG.randint(1, 2**31)
-        RNG.seed(seed)
+        rng = random.Random()
+        seed = rng.randint(1, 2**31)
+    else:
+        rng = random.Random(seed)
 
-    layout_dict, layout_name = _parse_layout_arg(layout=layout, seed=seed)
+    layout_dict, layout_name = _parse_layout_arg(layout=layout, rng=rng)
 
     game_state = run_game((blue_move, red_move), layout_dict=layout_dict,
                           layout_name=layout_name, max_rounds=max_rounds, seed=seed,

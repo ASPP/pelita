@@ -2,7 +2,7 @@
 import random
 
 
-def noiser(walls, shape, bot_position, enemy_positions, noise_radius=5, sight_distance=5, rnd=None):
+def noiser(walls, shape, bot_position, enemy_positions, noise_radius=5, sight_distance=5, rng=None):
     """Function to make bot positions noisy in a game state.
 
     Applies uniform noise in maze space. Noise will only be applied if the
@@ -38,7 +38,7 @@ def noiser(walls, shape, bot_position, enemy_positions, noise_radius=5, sight_di
         the radius for the uniform noise
     sight_distance : int, optional, default: 5
         the distance at which noise is no longer applied.
-    rnd : Random, optional
+    rng : Random, optional
         the game’s random number generator (or None for an independent one)
 
     Returns
@@ -48,8 +48,8 @@ def noiser(walls, shape, bot_position, enemy_positions, noise_radius=5, sight_di
     """
 
     # set the random state
-    if rnd is None:
-        rnd = random.Random()
+    if rng is None:
+        rng = random.Random()
 
     # store the noised positions
     noised_positions = [None] * len(enemy_positions)
@@ -64,7 +64,7 @@ def noiser(walls, shape, bot_position, enemy_positions, noise_radius=5, sight_di
 
         if cur_distance is None or cur_distance > sight_distance:
             # If so then alter the position of the enemy
-            new_pos, noisy_flag = alter_pos(b, noise_radius, rnd, walls, shape)
+            new_pos, noisy_flag = alter_pos(b, noise_radius, rng, walls, shape)
             noised_positions[count] = new_pos
             is_noisy[count] = noisy_flag
         else:
@@ -74,7 +74,7 @@ def noiser(walls, shape, bot_position, enemy_positions, noise_radius=5, sight_di
     return { "enemy_positions": noised_positions, "is_noisy": is_noisy }
 
 
-def alter_pos(bot_pos, noise_radius, rnd, walls, shape):
+def alter_pos(bot_pos, noise_radius, rng, walls, shape):
     """ alter the position """
 
     # get a list of possible positions
@@ -110,7 +110,7 @@ def alter_pos(bot_pos, noise_radius, rnd, walls, shape):
         noisy = False
     else:
         # select a random position
-        final_pos = rnd.choice(possible_positions)
+        final_pos = rng.choice(possible_positions)
         noisy = True
 
     # return the final_pos and a flag if it is noisy or not
@@ -153,7 +153,7 @@ def relocate_expired_food(game_state, team, radius, max_food_age=None):
     food_age = [dict(team_food_age) for team_food_age in game_state['food_age']]
     width, height = game_state['shape']
     walls = game_state['walls']
-    rnd = game_state['rnd']
+    rng = game_state['rng']
     if max_food_age is None:
         max_food_age = game_state['max_food_age']
 
@@ -186,7 +186,7 @@ def relocate_expired_food(game_state, team, radius, max_food_age=None):
                 # relocated at the next round
                 continue
             # choose a new position at random
-            new_pos = rnd.choice(targets)
+            new_pos = rng.choice(targets)
 
             # remove the new pellet position from the list of possible targets for new pellets
             targets.remove(new_pos)

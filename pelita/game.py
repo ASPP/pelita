@@ -415,7 +415,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         teams=[None] * 2,
 
         #: Random number generator
-        rnd=Random(seed),
+        rng=Random(seed),
 
         #: Timeout length, int, None
         timeout_length=timeout_length,
@@ -534,7 +534,7 @@ def prepare_bot_state(game_state, idx=None):
         # We assume that we are in get_initial phase
         turn = idx
         bot_turn = None
-        seed = game_state['rnd'].randint(0, sys.maxsize)
+        seed = game_state['rng'].randint(0, sys.maxsize)
     elif bot_finalization:
         # Called for remote players in _exit
         turn = idx
@@ -555,7 +555,7 @@ def prepare_bot_state(game_state, idx=None):
                               enemy_positions=enemy_positions,
                               noise_radius=game_state['noise_radius'],
                               sight_distance=game_state['sight_distance'],
-                              rnd=game_state['rnd'])
+                              rng=game_state['rng'])
 
 
     # Update noisy_positions in the game_state
@@ -669,7 +669,7 @@ def prepare_viewer_state(game_state):
 
     # remove unserializable values
     del viewer_state['teams']
-    del viewer_state['rnd']
+    del viewer_state['rng']
     del viewer_state['viewers']
     del viewer_state['controller']
 
@@ -855,7 +855,7 @@ def apply_move(gamestate, bot_position):
         # There was an error for this round and turn
         # but the game is not over.
         # We execute a random move
-        bot_position = gamestate['rnd'].choice(legal_positions)
+        bot_position = gamestate['rng'].choice(legal_positions)
         game_print(turn, f"Setting a legal position at random: {bot_position}")
 
     # take step

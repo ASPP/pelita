@@ -92,7 +92,7 @@ def test_noiser_no_negative_coordinates(bot_id):
     enemy_group = 1 - (bot_id // 2)
     enemy_positions = gamestate['bots'][enemy_group::2]
     noised = gf.noiser(walls, shape=shape, bot_position=bot_position, enemy_positions=enemy_positions,
-                       noise_radius=5, sight_distance=5, rnd=None)
+                       noise_radius=5, sight_distance=5, rng=None)
     new_bots = noised["enemy_positions"]
     test_1 = all(item[0] > 0 for item in new_bots)
     test_2 = all(item[1] > 0 for item in new_bots)
@@ -296,7 +296,7 @@ def test_noiser_noising_at_noise_radius_extreme(ii):
                        shape=gamestate["shape"],
                        bot_position=gamestate["bots"][gamestate["turn"]],
                        enemy_positions=enemy_bots,
-                       noise_radius=50, sight_distance=5, rnd=None)
+                       noise_radius=50, sight_distance=5, rng=None)
 
     assert all(noised["is_noisy"])
 
@@ -694,7 +694,7 @@ def test_relocate_expired_food(dummy):
         parsed.update({
             "food": food,
             "food_age": food_age,
-            "rnd" : random.Random(),
+            "rng" : random.Random(),
         })
 
         radius = 2
@@ -747,7 +747,7 @@ def test_relocate_expired_food_nospaceleft():
     parsed.update({
         "food": food,
         "food_age": food_age,
-        "rnd" : random.Random(),
+        "rng" : random.Random(),
     })
 
     radius = 2

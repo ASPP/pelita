@@ -803,7 +803,7 @@ def test_play_turn_move():
         "bot_was_killed": [False]*4,
         "errors": [[], []],
         "fatal_errors": [{}, {}],
-        "rnd": random.Random()
+        "rng": random.Random()
         }
     legal_positions = get_legal_positions(game_state["walls"], game_state["shape"], game_state["bots"][turn])
     game_state_new = apply_move(game_state, legal_positions[0])

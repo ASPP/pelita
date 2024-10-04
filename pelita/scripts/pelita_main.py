@@ -432,7 +432,7 @@ def main():
     else:
         seed = args.seed
 
-    random.seed(seed)
+    rng = random.Random(seed)
 
     if args.layout:
         # first check if the given layout is a file
@@ -449,7 +449,7 @@ def main():
             layout_name = args.layout
             layout_string = pelita.layout.get_layout_by_name(args.layout)
     else:
-        layout_name, layout_string = pelita.layout.get_random_layout(args.size, seed=seed, dead_ends=DEAD_ENDS)
+        layout_name, layout_string = pelita.layout.get_random_layout(args.size, rng=rng, dead_ends=DEAD_ENDS)
 
     print("Using layout '%s'" % layout_name)
 
