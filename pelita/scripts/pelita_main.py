@@ -454,7 +454,7 @@ def main():
     print("Using layout '%s'" % layout_name)
 
     layout_dict = pelita.layout.parse_layout(layout_string)
-    pelita.game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, seed=seed,
+    pelita.game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, rng=rng,
                          allow_camping=args.allow_camping, timeout_length=args.timeout_length, error_limit=args.error_limit,
                          viewers=viewers, viewer_options=viewer_options,
                          store_output=args.store_output,

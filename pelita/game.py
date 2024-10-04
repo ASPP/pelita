@@ -2,7 +2,7 @@
 
 import logging
 import os
-from random import Random
+import random
 import subprocess
 import sys
 import time
@@ -88,7 +88,7 @@ def controller_exit(state, await_action='play_step'):
             return False
 
 def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300,
-             seed=None, allow_camping=False, error_limit=5, timeout_length=3,
+             rng=None, allow_camping=False, error_limit=5, timeout_length=3,
              viewers=None, viewer_options=None, store_output=False,
              team_names=(None, None), team_infos=(None, None),
              allow_exceptions=False, print_result=True):
@@ -119,8 +119,8 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300,
     max_rounds : int
               The maximum number of rounds to play before the game is over. Default: 300.
 
-    seed : int
-        seed used to initialize the random number generator.
+    rng : random.Random | int | None
+        random number generator or a seed used to initialize a new one.
 
     error_limit : int
                    The limit of non fatal errors to reach for a team before the
@@ -196,7 +196,7 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300,
                        layout_name=layout_name, max_rounds=max_rounds,
                        allow_camping=allow_camping,
                        error_limit=error_limit, timeout_length=timeout_length,
-                       seed=seed, viewers=viewers,
+                       rng=rng, viewers=viewers,
                        viewer_options=viewer_options,
                        store_output=store_output, team_names=team_names,
                        team_infos=team_infos,
@@ -271,7 +271,7 @@ def setup_viewers(viewers=None, options=None, print_result=True):
     return viewer_state
 
 
-def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=None,
+def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", rng=None,
                allow_camping=False, error_limit=5, timeout_length=3,
                viewers=None, viewer_options=None, store_output=False,
                team_names=(None, None), team_infos=(None, None),
@@ -312,6 +312,9 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         warn(f"Layout has no food for team {side_no_food}.", NoFoodWarning)
 
     viewer_state = setup_viewers(viewers, options=viewer_options, print_result=print_result)
+
+    if not isinstance(rng, random.Random):
+        rng = random.Random(rng)
 
     # Initialize the game state.
 
@@ -415,7 +418,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", seed=
         teams=[None] * 2,
 
         #: Random number generator
-        rng=Random(seed),
+        rng=rng,
 
         #: Timeout length, int, None
         timeout_length=timeout_length,

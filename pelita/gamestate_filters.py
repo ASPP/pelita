@@ -48,8 +48,8 @@ def noiser(walls, shape, bot_position, enemy_positions, noise_radius=5, sight_di
     """
 
     # set the random state
-    if rng is None:
-        rng = random.Random()
+    if not isinstance(rng, random.Random):
+        rng = random.Random(rng)
 
     # store the noised positions
     noised_positions = [None] * len(enemy_positions)

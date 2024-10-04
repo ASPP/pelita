@@ -8,7 +8,7 @@ BOT_N2I = {'a': 0, 'b': 2, 'x': 1, 'y': 3}
 BOT_I2N = {0: 'a', 2: 'b', 1: 'x', 3: 'y'}
 
 
-def get_random_layout(size='normal', rng=None, dead_ends=0):
+def get_random_layout(size='normal', dead_ends=0, rng=None):
     """ Return a random layout string from the available ones.
 
     Parameters
@@ -32,10 +32,10 @@ def get_random_layout(size='normal', rng=None, dead_ends=0):
         the name of the layout, a random layout string
 
     """
-    
+
     # set the random state
-    if rng is None:
-        rng = random.Random()
+    if not isinstance(rng, random.Random):
+        rng = random.Random(rng)
 
     if dead_ends and rng.random() < dead_ends:
         layouts_names = get_available_layouts(size=size, dead_ends=True)

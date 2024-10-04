@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import MagicMock
 
+import random
 import re
 from textwrap import dedent
 
@@ -8,6 +9,7 @@ from pelita import tournament
 from pelita.tournament import knockout_mode, roundrobin
 from pelita.tournament.knockout_mode import Team, Match, Bye
 
+RNG = random.Random()
 
 def test_match_id():
     assert str(tournament.MatchID()) == 'round1-match01'
@@ -158,7 +160,7 @@ class TestRoundRobin:
             return tuple(sorted(list(t)))
 
         for input, output in data:
-            matchplan = roundrobin.create_matchplan(input)
+            matchplan = roundrobin.create_matchplan(input, rng=RNG)
             matchplan_sorted = sorted([tuple_sort(x) for x in matchplan])
             output = sorted([tuple_sort(x) for x in output])
             assert matchplan_sorted == output
@@ -170,7 +172,7 @@ class TestRoundRobin:
             [0, 1, 2, 3, 4, 5, 6, 7]
         ])
     def test_no_team_plays_two_games_in_a_row(self, teams):
-        matches = roundrobin.create_matchplan(teams)
+        matches = roundrobin.create_matchplan(teams, rng=RNG)
         prev = {}
         for match in matches:
             current = set(match)
@@ -188,7 +190,7 @@ class TestRoundRobin:
         ])
     def test_team_blue_red_are_similar(self, teams):
         # test that each team plays a similar amount as blue and red
-        matchplan = roundrobin.create_matchplan(teams)
+        matchplan = roundrobin.create_matchplan(teams, rng=RNG)
         from collections import Counter
         blue_count = Counter()
         red_count = Counter()
@@ -227,14 +229,14 @@ class TestSingleMatch:
         config.tournament_log_folder = None
 
         teams = ["pelita/player/StoppingPlayer", "pelita/player/StoppingPlayer"]
-        (state, stdout, stderr) = tournament.play_game_with_config(config, teams)
+        (state, stdout, stderr) = tournament.play_game_with_config(config, teams, rng=RNG)
         assert state['whowins'] == 2
 
         config.rounds = 200
         config.team_spec = lambda x: x
         config.viewer = 'ascii'
         teams = ["pelita/player/SmartEatingPlayer", "pelita/player/StoppingPlayer"]
-        (state, stdout, stderr) = tournament.play_game_with_config(config, teams)
+        (state, stdout, stderr) = tournament.play_game_with_config(config, teams, rng=RNG)
         print(state)
         assert state['whowins'] == 0
 
@@ -242,7 +244,7 @@ class TestSingleMatch:
         config.team_spec = lambda x: x
         config.viewer = 'ascii'
         teams = ["pelita/player/StoppingPlayer", "pelita/player/SmartEatingPlayer"]
-        (state, stdout, stderr) = tournament.play_game_with_config(config, teams)
+        (state, stdout, stderr) = tournament.play_game_with_config(config, teams, rng=RNG)
         assert state['whowins'] == 1
 
     def test_start_match(self):
@@ -268,17 +270,17 @@ class TestSingleMatch:
         config.tournament_log_folder = None
 
         team_ids = ["first_id", "first_id"]
-        result = tournament.start_match(config, team_ids)
+        result = tournament.start_match(config, team_ids, rng=RNG)
         assert result == False
         assert stdout[-1] == '‘pelita/player/StoppingPlayer’ and ‘pelita/player/StoppingPlayer’ had a draw.'
 
         team_ids = ["second_id", "first_id"]
-        result = tournament.start_match(config, team_ids)
+        result = tournament.start_match(config, team_ids, rng=RNG)
         assert result == "second_id"
         assert stdout[-1] == '‘pelita/player/SmartEatingPlayer’ wins'
 
         team_ids = ["first_id", "second_id"]
-        result = tournament.start_match(config, team_ids)
+        result = tournament.start_match(config, team_ids, rng=RNG)
         assert result == "second_id"
         assert stdout[-1] == '‘pelita/player/SmartEatingPlayer’ wins'
 
@@ -305,7 +307,7 @@ class TestSingleMatch:
         config.print = mock_print
         config.tournament_log_folder = None
 
-        result = tournament.start_deathmatch(config, *teams.keys())
+        result = tournament.start_deathmatch(config, *teams.keys(), rng=RNG)
         assert result is not None
         assert result in ["first_id", "second_id"]
 
@@ -347,20 +349,20 @@ class TestTournament:
         config.tournament_log_folder = None
 
         # group1 should win
-        assert "group1" == tournament.start_match(config, ["group0", "group1"])
-        assert "group1" == tournament.start_match(config, ["group1", "group0"])
-        assert False == tournament.start_match(config, ["group0", "group0"])
+        assert "group1" == tournament.start_match(config, ["group0", "group1"], rng=RNG)
+        assert "group1" == tournament.start_match(config, ["group1", "group0"], rng=RNG)
+        assert False == tournament.start_match(config, ["group0", "group0"], rng=RNG)
 
         tournament.present_teams(config)
 
-        state = tournament.State(config)
-        rr_ranking = tournament.play_round1(config, state)
+        state = tournament.State(config, rng=RNG)
+        rr_ranking = tournament.play_round1(config, state, rng=RNG)
 
         if config.bonusmatch:
             sorted_ranking = knockout_mode.sort_ranks(rr_ranking[:-1]) + [rr_ranking[-1]]
         else:
             sorted_ranking = knockout_mode.sort_ranks(rr_ranking)
 
-        winner = tournament.play_round2(config, sorted_ranking, state)
+        winner = tournament.play_round2(config, sorted_ranking, state, rng=RNG)
         assert winner == 'group1'
 
