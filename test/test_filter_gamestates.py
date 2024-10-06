@@ -2,7 +2,7 @@
 import pytest
 
 import collections
-import random
+from random import Random
 
 from pelita import gamestate_filters as gf
 from pelita.game import setup_game, play_turn, prepare_bot_state, split_food
@@ -10,6 +10,8 @@ from pelita.layout import parse_layout
 from pelita.player import stepping_player
 import pelita.utils
 import pelita.game
+
+RNG = Random()
 
 def make_gamestate():
     def dummy_team(bot, state):
@@ -287,7 +289,7 @@ def test_noiser_noising_at_noise_radius_extreme(ii):
     still noise within confines of maze, despite extreme radius """
 
     gamestate = make_gamestate()
-    gamestate["turn"] = random.randint(0, 3)
+    gamestate["turn"] = RNG.randint(0, 3)
     team_id = gamestate["turn"] % 2
     old_bots = gamestate["bots"]
     team_bots = old_bots[team_id::2]
@@ -694,7 +696,7 @@ def test_relocate_expired_food(dummy):
         parsed.update({
             "food": food,
             "food_age": food_age,
-            "rng" : random.Random(),
+            "rng" : Random(),
         })
 
         radius = 2
@@ -747,7 +749,7 @@ def test_relocate_expired_food_nospaceleft():
     parsed.update({
         "food": food,
         "food_age": food_age,
-        "rng" : random.Random(),
+        "rng" : Random(),
     })
 
     radius = 2

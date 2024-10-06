@@ -1,12 +1,12 @@
 
 import logging
 import os
-import random
 import subprocess
 import sys
 import traceback
 from io import StringIO
 from pathlib import Path
+from random import Random
 from urllib.parse import urlparse
 
 import zmq
@@ -138,7 +138,7 @@ class Team:
 
         # Initialize the random number generator
         # with the seed that we received from game
-        self._rng = random.Random(game_state['seed'])
+        self._rng = Random(game_state['seed'])
 
         # Reset the bot tracks
         self._bot_track = [[], []]

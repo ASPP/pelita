@@ -3,9 +3,9 @@
 import argparse
 import json
 import logging
-from pathlib import Path
 import random
 import sys
+from pathlib import Path
 from urllib.parse import urlparse
 
 from rich.console import Console

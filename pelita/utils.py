@@ -1,4 +1,4 @@
-import random
+from random import Random
 
 import networkx as nx
 
@@ -116,10 +116,10 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
 
     # if the seed is not set explicitly, set it here
     if seed is None:
-        rng = random.Random()
+        rng = Random()
         seed = rng.randint(1, 2**31)
     else:
-        rng = random.Random(seed)
+        rng = Random(seed)
 
     layout_dict, layout_name = _parse_layout_arg(layout=layout, rng=rng)
 
@@ -237,7 +237,7 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
         enemy_positions = [layout['bots'][0], layout['bots'][2]]
         is_noisy_enemy = [is_noisy["a"], is_noisy["b"]]
 
-    rng = random.Random(seed)
+    rng = Random(seed)
 
     team = {
         'bot_positions': bot_positions,

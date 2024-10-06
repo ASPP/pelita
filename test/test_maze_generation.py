@@ -1,5 +1,5 @@
-import random
 import textwrap
+from random import Random
 
 import networkx as nx
 import numpy as np

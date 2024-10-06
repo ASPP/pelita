@@ -3,11 +3,11 @@
 import argparse
 import datetime
 import itertools
-from pathlib import Path
-import random
 import re
 import shlex
 import sys
+from pathlib import Path
+from random import Random
 
 import shutil
 import yaml
@@ -266,7 +266,7 @@ def main():
     if args.rounds:
         config.rounds = args.rounds
 
-    rng = random.Random(config.seed)
+    rng = Random(config.seed)
 
     if Path(args.state).is_file():
         if not args.load_state:

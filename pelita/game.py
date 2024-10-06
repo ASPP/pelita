@@ -2,11 +2,11 @@
 
 import logging
 import os
-import random
 import subprocess
 import sys
 import time
 import math
+from random import Random
 from warnings import warn
 
 from . import layout
@@ -313,8 +313,8 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", rng=N
 
     viewer_state = setup_viewers(viewers, options=viewer_options, print_result=print_result)
 
-    if not isinstance(rng, random.Random):
-        rng = random.Random(rng)
+    if not isinstance(rng, Random):
+        rng = Random(rng)
 
     # Initialize the game state.
 

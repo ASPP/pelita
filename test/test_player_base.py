@@ -1,8 +1,5 @@
-import pytest
-import unittest
 
-import random
-import time
+from random import Random
 
 from pelita.game import setup_game, run_game, play_turn
 from pelita.layout import parse_layout

@@ -1,15 +1,15 @@
 import pytest
 from unittest.mock import MagicMock
 
-import random
 import re
+from random import Random
 from textwrap import dedent
 
 from pelita import tournament
 from pelita.tournament import knockout_mode, roundrobin
 from pelita.tournament.knockout_mode import Team, Match, Bye
 
-RNG = random.Random()
+RNG = Random()
 
 def test_match_id():
     assert str(tournament.MatchID()) == 'round1-match01'

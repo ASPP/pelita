@@ -1,5 +1,5 @@
 """ collecting the game state filter functions """
-import random
+from random import Random
 
 
 def noiser(walls, shape, bot_position, enemy_positions, noise_radius=5, sight_distance=5, rng=None):
@@ -48,8 +48,8 @@ def noiser(walls, shape, bot_position, enemy_positions, noise_radius=5, sight_di
     """
 
     # set the random state
-    if not isinstance(rng, random.Random):
-        rng = random.Random(rng)
+    if not isinstance(rng, Random):
+        rng = Random(rng)
 
     # store the noised positions
     noised_positions = [None] * len(enemy_positions)

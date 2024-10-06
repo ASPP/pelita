@@ -19,10 +19,10 @@ Inspired by code by Dan Gillick
 Completely rewritten by Pietro Berkes
 Rewritten again (but not completely) by Tiziano Zito
 """
-import random
 
 import numpy as np
 import networkx as nx
+from random import Random
 
 
 north = (0, -1)
@@ -97,8 +97,8 @@ def create_half_maze(maze, ngaps_center, rng=None):
     The second half can be created by mirroring the left part using
     the 'complete_maze' function.
     """
-    if not isinstance(rng, random.Random):
-        rng = random.Random(rng)
+    if not isinstance(rng, Random):
+        rng = Random(rng)
 
     # first, we need a wall in the middle
 
@@ -321,8 +321,8 @@ def get_neighboring_walls(maze, locs):
     return walls
 
 def remove_all_chambers(maze, rng=None):
-    if not isinstance(rng, random.Random):
-        rng = random.Random(rng)
+    if not isinstance(rng, Random):
+        rng = Random(rng)
 
     maze_graph = walls_to_graph(maze)
     # this will find one of the chambers, if there is any
@@ -349,8 +349,8 @@ def add_food(maze, max_food, rng=None):
 
     We exclude the pacmen's starting positions and the central dividing border
     """
-    if not isinstance(rng, random.Random):
-        rng = random.Random(rng)
+    if not isinstance(rng, Random):
+        rng = Random(rng)
 
     if max_food == 0:
         # no food needs to be added, return here
@@ -409,8 +409,8 @@ def get_new_maze(height, width, nfood, dead_ends=False, rng=None):
     if width%2 != 0:
         raise ValueError(f'Width must be even ({width} given)')
 
-    if not isinstance(rng, random.Random):
-        rng = random.Random(rng)
+    if not isinstance(rng, Random):
+        rng = Random(rng)
 
     maze = empty_maze(height, width)
     create_half_maze(maze, height // 2, rng=rng)
