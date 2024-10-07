@@ -72,7 +72,7 @@ def hash_team(team_spec):
                     team_spec]
     _logger.debug("Executing: %r", external_call)
     res = subprocess.run(external_call, capture_output=True, text=True)
-    return res.stdout.strip()
+    return res.stdout.strip().split("\n")[-1].strip()
 
 class CI_Engine:
     """Continuous Integration Engine."""
