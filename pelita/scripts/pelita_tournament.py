@@ -3,11 +3,11 @@
 import argparse
 import datetime
 import itertools
-from pathlib import Path
-import random
 import re
 import shlex
 import sys
+from pathlib import Path
+from random import Random
 
 import shutil
 import yaml
@@ -266,6 +266,8 @@ def main():
     if args.rounds:
         config.rounds = args.rounds
 
+    rng = Random(config.seed)
+
     if Path(args.state).is_file():
         if not args.load_state:
             config.print(f"Found state file in {args.state}. Restore with --load-state. Aborting.")
@@ -273,9 +275,7 @@ def main():
         else:
             state = tournament.State.load(config, args.state)
     else:
-        state = tournament.State(config)
-
-    random.seed(config.seed)
+        state = tournament.State(config, rng=rng)
 
     if state.round1['played']:
         # We have already played one match. Do not speak the introduction.
@@ -286,11 +286,11 @@ def main():
     else:
         tournament.present_teams(config)
 
-    rr_ranking = tournament.play_round1(config, state)
+    rr_ranking = tournament.play_round1(config, state, rng)
     state.round2["round_robin_ranking"] = rr_ranking
     state.save(args.state)
 
-    winner = tournament.play_round2(config, rr_ranking, state)
+    winner = tournament.play_round2(config, rr_ranking, state, rng)
 
     config.print('The winner of the %s Pelita tournament is...' % config.location, wait=2, end=" ")
     config.print('{team_group}: {team_name}. Congratulations'.format(

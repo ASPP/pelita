@@ -3,17 +3,18 @@
 from dataclasses import dataclass
 import json
 import logging
-import random
+
 import queue
 import shlex
 import signal
 import subprocess
 import sys
 import time
-from typing import Optional, Dict, List
 import urllib
-from urllib.parse import urlparse
 import urllib.parse
+from typing import Optional, Dict, List
+from urllib.parse import urlparse
+from random import Random
 from weakref import WeakValueDictionary
 
 import click
@@ -560,7 +561,9 @@ def remote_server(address, port, teams, advertise, max_connections):
     #    - name: def
     #      spec: path/to/module
 
-    session_key = "".join(str(random.randint(0, 9)) for _ in range(12))
+    rng = Random()
+
+    session_key = "".join(str(rng.randint(0, 9)) for _ in range(12))
     pprint(f"Use --session-key {session_key} to for the admin API.")
 
     team_infos = []

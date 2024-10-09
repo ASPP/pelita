@@ -1,5 +1,5 @@
-import random
 import textwrap
+from random import Random
 
 import networkx as nx
 import numpy as np
@@ -9,10 +9,6 @@ import pelita.maze_generator as mg
 
 SEED = 103525239
 
-
-@pytest.fixture()
-def set_seed():
-    random.seed(SEED)
 
 def test_maze_bytes_str_conversions():
     # note that the first empty line is needed!
@@ -46,7 +42,7 @@ def test_maze_bytes_str_conversions():
     assert mg.maze_to_str(maze_arr) == maze_str
 
 
-def test_create_half_maze(set_seed):
+def test_create_half_maze():
     # this test is not really testing that create_half_maze does a good job
     # we only test that we keep in returning the same maze when the random
     # seed is fixed, in case something changes during future porting/refactoring
@@ -68,8 +64,9 @@ def test_create_half_maze(set_seed):
                   ################################"""
 
     maze = mg.empty_maze(16,32)
-    mg.create_half_maze(maze, 8)
+    mg.create_half_maze(maze, 8, rng=SEED)
     expected = mg.str_to_maze(maze_str)
+    print(mg.maze_to_str(maze))
     assert np.all(maze == expected)
 
 def test_conversion_to_nx_graph():
@@ -108,7 +105,7 @@ def test_find_one_dead_end():
     assert len(dead_ends) == 1
     assert dead_ends[0] == (1,1)
 
-def test_find_multiple_dead_ends(set_seed):
+def test_find_multiple_dead_ends():
     # this maze has exactly three dead ends at coordinates (1,1), (1,5), (3,5)
     maze_dead = """############
                    # #        #
@@ -128,7 +125,7 @@ def test_find_multiple_dead_ends(set_seed):
     assert dead_ends[1] == (1,5)
     assert dead_ends[2] == (3,5)
 
-def test_find_multiple_dead_ends_on_the_right(set_seed):
+def test_find_multiple_dead_ends_on_the_right():
     # this maze has exactly three dead ends at coordinates (10,1), (10,5), (8,5)
     maze_dead = """############
                    #        # #
@@ -160,7 +157,7 @@ def test_remove_one_dead_end():
     mg.remove_dead_end((1,1), maze)
     assert maze[1,1] == mg.E
 
-def test_remove_multiple_dead_ends(set_seed):
+def test_remove_multiple_dead_ends():
     # this maze has exactly three dead ends at coordinates (1,1), (1,5), (3,5)
     maze_dead = """############
                    # #        #
@@ -285,7 +282,7 @@ maze_chamber_bonanza = """################################
                                           maze_neighbor_chambers,
                                           maze_chamber_in_chamber,
                                           maze_chamber_bonanza,))
-def test_remove_all_chambers(set_seed, maze_chamber):
+def test_remove_all_chambers(maze_chamber):
     maze = mg.str_to_maze(maze_chamber)
     mg.remove_all_chambers(maze)
     # there are no more chambers if the connectivity of the graph is larger than 1
@@ -296,10 +293,10 @@ def test_remove_all_chambers(set_seed, maze_chamber):
     # we are removing just a few walls?
 
 @pytest.mark.parametrize('iteration', range(1,11))
-def test_get_new_maze(set_seed, iteration):
+def test_get_new_maze(iteration):
     # generate a few mazes and check them for consistency
-    local_seed = random.randint(1,2**31-1)*iteration
-    maze_str = mg.get_new_maze(8,16,nfood=15,seed=local_seed)
+    local_seed = 12345 * iteration
+    maze_str = mg.get_new_maze(8,16,nfood=15,rng=local_seed)
     maze = mg.str_to_maze(maze_str)
     height, width = maze.shape
     # check that the returned maze has all the pacmen

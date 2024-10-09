@@ -4,7 +4,6 @@ import io
 import json
 import logging
 import os
-import random
 import re
 import shlex
 import signal
@@ -387,12 +386,12 @@ class Config:
 
 
 class State:
-    def __init__(self, config, state=None):
+    def __init__(self, config, rng, state=None):
         if state is None:
             self.state = {
                 "round1": {
                     "played": [],
-                    "unplayed": roundrobin.create_matchplan(config.team_ids)
+                    "unplayed": roundrobin.create_matchplan(config.team_ids, rng=rng)
                 },
                 "round2": {}
             }
@@ -450,7 +449,7 @@ def set_name(team):
         raise
 
 
-def play_game_with_config(config, teams, *, match_id=None):
+def play_game_with_config(config, teams, rng, *, match_id=None):
     team1, team2 = teams
 
     if config.tournament_log_folder:
@@ -468,7 +467,7 @@ def play_game_with_config(config, teams, *, match_id=None):
         log_folder = None
         log_kwargs = {}
 
-    seed = str(random.randint(0, sys.maxsize))
+    seed = str(rng.randint(0, sys.maxsize))
     team_infos = [config.team_group(team1), config.team_group(team2)]
 
     res = call_pelita([config.team_spec(team1), config.team_spec(team2)],
@@ -487,7 +486,7 @@ def play_game_with_config(config, teams, *, match_id=None):
     return res
 
 
-def start_match(config, teams, *, shuffle=False, match_id=None):
+def start_match(config, teams, rng, *, shuffle=False, match_id=None):
     """Start a match between a list of teams. Return the index of the team that won
     False if there was a draw.
     """
@@ -496,7 +495,7 @@ def start_match(config, teams, *, shuffle=False, match_id=None):
     # assert len(teams) == len(set(teams))
 
     if shuffle:
-        random.shuffle(teams)
+        rng.shuffle(teams)
 
     team1, team2 = teams
 
@@ -505,7 +504,7 @@ def start_match(config, teams, *, shuffle=False, match_id=None):
     config.print()
     config.wait_for_keypress()
 
-    (final_state, stdout, stderr) = play_game_with_config(config, teams, match_id=match_id)
+    (final_state, stdout, stderr) = play_game_with_config(config, teams, rng=rng, match_id=match_id)
     try:
         whowins = final_state['whowins']
 
@@ -530,10 +529,10 @@ def start_match(config, teams, *, shuffle=False, match_id=None):
         return None
 
 
-def start_match_with_replay(config, match, *, shuffle=False, match_id=None):
+def start_match_with_replay(config, match, rng, *, shuffle=False, match_id=None):
     """ Runs start_match until it returns a proper output or manual intervention. """
 
-    winner = start_match(config, match, shuffle=shuffle, match_id=match_id)
+    winner = start_match(config, match, rng=rng, shuffle=shuffle, match_id=match_id)
     while winner is None:
         config.print("Do you want to re-play the game or enter a winner manually?")
         res = config.input("(r)e-play/(0){}/(1){}/(d)raw > ".format(config.team_name(match[0]),
@@ -542,7 +541,7 @@ def start_match_with_replay(config, match, *, shuffle=False, match_id=None):
             if match_id:
                 # increase the repeat count
                 match_id.next_repeat()
-            winner = start_match(config, match, shuffle=shuffle, match_id=match_id)
+            winner = start_match(config, match, rng=rng, shuffle=shuffle, match_id=match_id)
         elif res == '0':
             winner = match[0]
         elif res == '1':
@@ -552,7 +551,7 @@ def start_match_with_replay(config, match, *, shuffle=False, match_id=None):
     return winner
 
 
-def start_deathmatch(config, team1, team2, *, match_id=None):
+def start_deathmatch(config, team1, team2, rng, *, match_id=None):
     """Start a match between team1 and team2 until one of them wins (ie no
     draw.)
     """
@@ -560,7 +559,7 @@ def start_deathmatch(config, team1, team2, *, match_id=None):
     config.print()
     config.print("{} v {}".format(config.team_name(team1), config.team_name(team2)))
     for i in range(3):
-        winner = start_match_with_replay(config, [team1, team2], shuffle=True, match_id=match_id)
+        winner = start_match_with_replay(config, [team1, team2], rng=rng, shuffle=True, match_id=match_id)
         config.wait_for_keypress()
 
         if winner is False or winner is None:
@@ -572,7 +571,7 @@ def start_deathmatch(config, team1, team2, *, match_id=None):
     # if we are here, we have no winner after 3 death matches
     # just assign a random winner
     config.print('No winner after 3 Death Matches. Choose a winner at random:', wait=2)
-    winner = random.choice((team1, team2))
+    winner = rng.choice((team1, team2))
     config.print('And the winner is', config.team_name(winner))
     return winner
 
@@ -612,7 +611,7 @@ def pp_round1_results(config, rr_played, rr_unplayed, highlight=None):
     config.print()
 
 
-def play_round1(config, state):
+def play_round1(config, state, rng):
     """Run the first round and return a sorted list of team names.
 
     teams is the sorted list [group0, group1, ...] and not the actual names of
@@ -648,7 +647,7 @@ def play_round1(config, state):
     while rr_unplayed:
         match = rr_unplayed.pop()
 
-        winner = start_match_with_replay(config, match, match_id=match_id)
+        winner = start_match_with_replay(config, match, rng=rng, match_id=match_id)
         match_id.next_match()
         config.wait_for_keypress()
 
@@ -690,7 +689,7 @@ def recur_match_winner(match):
     return None
 
 
-def play_round2(config, teams, state):
+def play_round2(config, teams, state, rng):
     """Run the second round and return the name of the winning team.
 
     teams is the list [group0, group1, ...] not the names of the agens, sorted
@@ -722,7 +721,7 @@ def play_round2(config, teams, state):
                 t1_id = recur_match_winner(match.t1)
                 t2_id = recur_match_winner(match.t2)
                 if not match.winner:
-                    winner = start_deathmatch(config, t1_id, t2_id, match_id=match_id)
+                    winner = start_deathmatch(config, t1_id, t2_id, rng=rng, match_id=match_id)
                     match.winner = winner
 
                     config.print(knockout_mode.print_knockout(last_match, config.team_name, highlight=[match]), speak=False)

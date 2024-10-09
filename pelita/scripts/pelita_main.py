@@ -3,9 +3,9 @@
 import argparse
 import json
 import logging
-from pathlib import Path
 import random
 import sys
+from pathlib import Path
 from urllib.parse import urlparse
 
 from rich.console import Console
@@ -432,7 +432,7 @@ def main():
     else:
         seed = args.seed
 
-    random.seed(seed)
+    rng = random.Random(seed)
 
     if args.layout:
         # first check if the given layout is a file
@@ -449,12 +449,12 @@ def main():
             layout_name = args.layout
             layout_string = pelita.layout.get_layout_by_name(args.layout)
     else:
-        layout_name, layout_string = pelita.layout.get_random_layout(args.size, seed=seed, dead_ends=DEAD_ENDS)
+        layout_name, layout_string = pelita.layout.get_random_layout(args.size, rng=rng, dead_ends=DEAD_ENDS)
 
     print("Using layout '%s'" % layout_name)
 
     layout_dict = pelita.layout.parse_layout(layout_string)
-    pelita.game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, seed=seed,
+    pelita.game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, rng=rng,
                          allow_camping=args.allow_camping, timeout_length=args.timeout_length, error_limit=args.error_limit,
                          viewers=viewers, viewer_options=viewer_options,
                          store_output=args.store_output,

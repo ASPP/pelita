@@ -1,8 +1,5 @@
-import pytest
-import unittest
 
-import random
-import time
+from random import Random
 
 from pelita.game import setup_game, run_game, play_turn
 from pelita.layout import parse_layout
@@ -122,21 +119,21 @@ class TestRandomPlayerSeeds:
             random_player,
             random_player
         ]
-        state = setup_game(teams, layout_dict=parse_layout(test_layout), max_rounds=20, seed=20)
+        state = setup_game(teams, layout_dict=parse_layout(test_layout), max_rounds=20, rng=20)
         assert state['bots'][0] == (4, 4)
         assert state['bots'][1] == (4 + 7, 4)
 
-        state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=20, seed=20)
+        state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=20, rng=20)
         pos_left_bot = state['bots'][0]
         pos_right_bot = state['bots'][1]
 
         # running again to test seed:
-        state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=20, seed=20)
+        state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=20, rng=20)
         assert state['bots'][0] == pos_left_bot
         assert state['bots'][1] == pos_right_bot
 
         # running again with other seed:
-        state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=20, seed=200)
+        state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=20, rng=200)
         # most probably, either the left bot or the right bot or both are at
         # a different position
         assert not (state['bots'][0] == pos_left_bot and state['bots'][1] == pos_right_bot)
@@ -165,7 +162,7 @@ class TestRandomPlayerSeeds:
             return team, player_rngs
 
         team0, player_rngs0 = init_rng_players()
-        state = setup_game(team0, layout_dict=parse_layout(test_layout), max_rounds=5, seed=20)
+        state = setup_game(team0, layout_dict=parse_layout(test_layout), max_rounds=5, rng=20)
         # play two steps
         play_turn(play_turn(state))
         assert len(player_rngs0) == 2
@@ -175,7 +172,7 @@ class TestRandomPlayerSeeds:
         assert random_numbers0[0] != random_numbers0[1]
 
         team1, player_rngs1 = init_rng_players()
-        state = setup_game(team1, layout_dict=parse_layout(test_layout), max_rounds=5, seed=20)
+        state = setup_game(team1, layout_dict=parse_layout(test_layout), max_rounds=5, rng=20)
         # play two steps
         play_turn(play_turn(state))
         assert len(player_rngs1) == 2
@@ -186,7 +183,7 @@ class TestRandomPlayerSeeds:
 
         # now, use a different seed
         team2, player_rngs2 = init_rng_players()
-        state = setup_game(team2, layout_dict=parse_layout(test_layout), max_rounds=5, seed=200)
+        state = setup_game(team2, layout_dict=parse_layout(test_layout), max_rounds=5, rng=200)
         # play two steps
         play_turn(play_turn(state))
         assert len(player_rngs2) == 2

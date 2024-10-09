@@ -1,4 +1,5 @@
-from random import random
+from random import Random
+
 import pytest
 
 from pelita.game import run_game

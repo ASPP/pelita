@@ -46,10 +46,10 @@ import configparser
 import itertools
 import json
 import logging
-import random
 import sqlite3
 import subprocess
 import sys
+from random import Random
 
 import click
 from rich.console import Console
@@ -184,6 +184,7 @@ class CI_Engine:
 
         """
         loop = itertools.repeat(None) if n == 0 else itertools.repeat(None, n)
+        rng = Random()
 
         for _ in  loop:
             # choose the player with the least number of played game,
@@ -193,9 +194,9 @@ class CI_Engine:
             game_count = [(self.dbwrapper.get_game_count(p['name']), idx) for idx, p in enumerate(self.players)]
             players_sorted = [idx for count, idx in sorted(game_count) if not idx in broken_players]
             a, rest = players_sorted[0], players_sorted[1:]
-            b = random.choice(rest)
+            b = rng.choice(rest)
             players = [a, b]
-            random.shuffle(players)
+            rng.shuffle(players)
 
             self.run_game(players[0], players[1])
             self.pretty_print_results(highlight=[self.players[players[0]]['name'], self.players[players[1]]['name']])

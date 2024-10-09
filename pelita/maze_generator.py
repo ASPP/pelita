@@ -19,10 +19,11 @@ Inspired by code by Dan Gillick
 Completely rewritten by Pietro Berkes
 Rewritten again (but not completely) by Tiziano Zito
 """
-import random
 
 import numpy as np
 import networkx as nx
+
+from .base_utils import default_rng
 
 
 north = (0, -1)
@@ -91,12 +92,13 @@ def str_to_maze(str_):
     bytes_maze = str_.encode('ascii')
     return bytes_to_maze(bytes_maze)
 
-def create_half_maze(maze, ngaps_center):
+def create_half_maze(maze, ngaps_center, rng=None):
     """Fill the left half of the maze with random walls.
 
     The second half can be created by mirroring the left part using
     the 'complete_maze' function.
     """
+    rng = default_rng(rng)
 
     # first, we need a wall in the middle
 
@@ -104,7 +106,7 @@ def create_half_maze(maze, ngaps_center):
     # be mirrored
     ch = maze.shape[0] - 2
     candidates = list(range(ch//2))
-    random.shuffle(candidates)
+    rng.shuffle(candidates)
     half_gaps_pos = candidates[:ngaps_center // 2]
     gaps_pos = []
     for pos in half_gaps_pos:
@@ -113,12 +115,12 @@ def create_half_maze(maze, ngaps_center):
 
     # make wall
     _add_wall_at(maze, (maze.shape[1] - 2) // 2 - 1, ngaps_center,
-                 vertical=True, gaps_pos=gaps_pos)
+                 vertical=True, rng=rng, gaps_pos=gaps_pos)
 
     # then, fill the left half with walls
-    _add_wall(maze[:, :maze.shape[1] // 2], ngaps_center // 2, vertical=False)
+    _add_wall(maze[:, :maze.shape[1] // 2], ngaps_center // 2, vertical=False, rng=rng)
 
-def _add_wall_at(maze, pos, ngaps, vertical, gaps_pos=None):
+def _add_wall_at(maze, pos, ngaps, vertical, rng, gaps_pos=None):
     """
     add a wall with gaps
 
@@ -142,7 +144,7 @@ def _add_wall_at(maze, pos, ngaps, vertical, gaps_pos=None):
     if gaps_pos is None:
         # choose aandom positions
         gaps_pos = list(range(ch))
-        random.shuffle(gaps_pos)
+        rng.shuffle(gaps_pos)
         gaps_pos = gaps_pos[:ngaps]
         # do not block entrances
         if maze[0][pos + 1] == E:
@@ -159,7 +161,7 @@ def _add_wall_at(maze, pos, ngaps, vertical, gaps_pos=None):
 
     return sub_mazes
 
-def _add_wall(maze, ngaps, vertical):
+def _add_wall(maze, ngaps, vertical, rng):
     """Recursively build the walls of the maze.
 
     grid -- 2D array of characters representing the maze
@@ -177,15 +179,15 @@ def _add_wall(maze, ngaps, vertical):
 
     size = cw if vertical else ch
     # create a wall only if there is some space in this direction
-    min_size = random.randint(3, 5)
+    min_size = rng.randint(3, 5)
     if size >= min_size:
         # place the wall at random spot
-        pos = random.randint(1, size-2)
-        sub_mazes = _add_wall_at(maze, pos, ngaps, vertical)
+        pos = rng.randint(1, size-2)
+        sub_mazes = _add_wall_at(maze, pos, ngaps, vertical, rng=rng)
 
         # recursively add walls
         for sub_maze in sub_mazes:
-            _add_wall(sub_maze, max(1, ngaps // 2), not vertical)
+            _add_wall(sub_maze, max(1, ngaps // 2), not vertical, rng=rng)
 
 
 def walls_to_graph(maze):
@@ -318,7 +320,9 @@ def get_neighboring_walls(maze, locs):
                 walls.append((adjx, adjy))
     return walls
 
-def remove_all_chambers(maze):
+def remove_all_chambers(maze, rng=None):
+    rng = default_rng(rng)
+
     maze_graph = walls_to_graph(maze)
     # this will find one of the chambers, if there is any
     entrance, chamber = find_chamber(maze_graph)
@@ -326,7 +330,7 @@ def remove_all_chambers(maze):
         # get all the walls around the chamber
         walls = get_neighboring_walls(maze, chamber)
         # choose a wall at random among the neighboring one and get rid of it
-        bad_wall = random.choice(walls)
+        bad_wall = rng.choice(walls)
         maze[bad_wall[1], bad_wall[0]] = E
         # we may have opened a door into this chamber, but there may be more
         # chambers to get rid of. Or, the wall we picked wasn't good enough and
@@ -339,11 +343,13 @@ def remove_all_chambers(maze):
         entrance, chamber = find_chamber(maze_graph)
 
 
-def add_food(maze, max_food):
+def add_food(maze, max_food, rng=None):
     """Add max_food pellets on the left side of the maze.
 
     We exclude the pacmen's starting positions and the central dividing border
     """
+    rng = default_rng(rng)
+
     if max_food == 0:
         # no food needs to be added, return here
         return
@@ -366,7 +372,7 @@ def add_food(maze, max_food):
         raise ValueError(f'Can not add negative number of food ({max_food} given)')
 
     # now take max_food random positions out of this list
-    food = random.sample(free, max_food)
+    food = rng.sample(free, max_food)
     # fit it in the maze
     for col, row in food:
         maze[row, col] = F
@@ -378,7 +384,7 @@ def add_pacmen(maze):
     maze[1, -2] = b'y'
     maze[2, -2] = b'x'
 
-def get_new_maze(height, width, nfood, seed=None, dead_ends=False):
+def get_new_maze(height, width, nfood, dead_ends=False, rng=None):
     """Create a new maze in text format.
 
     The maze is created with a recursive creation algorithm. The maze part of
@@ -401,12 +407,10 @@ def get_new_maze(height, width, nfood, seed=None, dead_ends=False):
     if width%2 != 0:
         raise ValueError(f'Width must be even ({width} given)')
 
-    if seed is None:
-        seed = random.randint(1, 2 ** 31 - 1)
-    random.seed(seed)
+    rng = default_rng(rng)
 
     maze = empty_maze(height, width)
-    create_half_maze(maze, height // 2)
+    create_half_maze(maze, height // 2, rng=rng)
 
     # make space for pacman (2 pacman each)
     maze[-2, 1] = E
@@ -415,10 +419,10 @@ def get_new_maze(height, width, nfood, seed=None, dead_ends=False):
     # remove dead ends
     if not dead_ends:
         remove_all_dead_ends(maze)
-        remove_all_chambers(maze)
+        remove_all_chambers(maze, rng=rng)
 
     # add food
-    add_food(maze, nfood)
+    add_food(maze, nfood, rng=rng)
 
     # complete right part of maze with mirror copy
     maze[:, width // 2:] = np.flipud(np.fliplr(maze[:, :width // 2]))

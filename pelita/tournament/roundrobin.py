@@ -1,9 +1,8 @@
 from collections import Counter
 import itertools
-import random
 from typing import List, Tuple
 
-def create_matchplan(teams: List[str]) -> List[Tuple[str, str]]:
+def create_matchplan(teams: List[str], rng) -> List[Tuple[str, str]]:
     """ Takes a list of team ids and returns a list of tuples of team ids with
     the matchplan."""
 
@@ -30,14 +29,14 @@ def create_matchplan(teams: List[str]) -> List[Tuple[str, str]]:
 
 
     if len(teams) == 3:
-        matchplan_indexes = matchplan_three_teams()
+        matchplan_indexes = matchplan_three_teams(rng)
     elif len(teams) == 5:
-        matchplan_indexes = matchplan_five_teams()
+        matchplan_indexes = matchplan_five_teams(rng)
     else:
-        matchplan_indexes = circle_method(len(teams))
+        matchplan_indexes = circle_method(len(teams), rng)
 
     shuffled_teams = list(teams)
-    random.shuffle(shuffled_teams)
+    rng.shuffle(shuffled_teams)
 
     matchplan = []
     for match in matchplan_indexes:
@@ -48,15 +47,15 @@ def create_matchplan(teams: List[str]) -> List[Tuple[str, str]]:
 
     return matchplan
 
-def matchplan_three_teams():
+def matchplan_three_teams(rng):
     # Without loss of generality, there should be exactly two possible matchplans with evenly distributed blue/red
     matchplans = [
         [(0, 1), (1, 2), (2, 0)],
         [(0, 1), (2, 0), (1, 2)]
     ]
-    return random.choice(matchplans)
+    return rng.choice(matchplans)
 
-def matchplan_five_teams():
+def matchplan_five_teams(rng):
     # Without loss of generality, there are two possible matchplans for five teams (with the starting order undefined)
     # that don’t have the same team play two consecutive matches. (Assuming the teams are assigned randomly.)
     # (Source: pen&paper + brute force analysis)
@@ -64,7 +63,7 @@ def matchplan_five_teams():
     # [{0, 1}, {2, 3}, {0, 4}, {1, 2}, {3, 4}, {0, 2}, {1, 3}, {2, 4}, {0, 3}, {1, 4}]
     # [{0, 1}, {2, 3}, {0, 4}, {1, 2}, {3, 4}, {0, 2}, {1, 4}, {0, 3}, {2, 4}, {1, 3}]
 
-    matchplan = random.choice([
+    matchplan = rng.choice([
         [(0, 1), (2, 3), (0, 4), (1, 2), (3, 4), (0, 2), (1, 3), (2, 4), (0, 3), (1, 4)],
         [(0, 1), (2, 3), (0, 4), (1, 2), (3, 4), (0, 2), (1, 4), (0, 3), (2, 4), (1, 3)]
     ])
@@ -79,12 +78,12 @@ def matchplan_five_teams():
             valid_mp = [(match[idx], match[1 - idx]) for match, idx in zip(matchplan, shuffle)]
             valid_matchplans.append(valid_mp)
 
-    return random.choice(valid_matchplans)
+    return rng.choice(valid_matchplans)
 
-def circle_method(num_teams):
-    return list(circle_method_gen(num_teams))
+def circle_method(num_teams, rng):
+    return list(circle_method_gen(num_teams, rng))
 
-def circle_method_gen(num_teams):
+def circle_method_gen(num_teams, rng):
     """ For the given number of teams, create a matchplan for a round-robin tournament using the circle method. """
 
     FILLER_TEAM = object()
@@ -119,10 +118,10 @@ def circle_method_gen(num_teams):
 
     # corner indexes
     if num_teams % 2 == 0:
-        fixed_index = random.choice([0, len(teams) // 2 - 1, len(teams) // 2, len(teams) - 1])
+        fixed_index = rng.choice([0, len(teams) // 2 - 1, len(teams) // 2, len(teams) - 1])
     else:
         # for an odd number of teams, only select the column with the filler team
-        fixed_index = random.choice([0, len(teams) - 1])
+        fixed_index = rng.choice([0, len(teams) - 1])
 
     flip_fixed = False
     for _iter in range(len(teams) - 1):

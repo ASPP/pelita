@@ -1,8 +1,40 @@
 import pytest
 
+from pelita import base_utils
 from pelita import utils
 from pelita.player import stopping_player
 
+
+def test_default_rng():
+    # test that we get the same rng when using the same seed
+    rng1 = base_utils.default_rng(100)
+    rng2 = base_utils.default_rng(100)
+    rng1_0, rng2_0 = rng1.random(), rng2.random()
+    rng1_1, rng2_1= rng1.random(), rng2.random()
+    assert rng1_0 == rng2_0
+    assert rng1_1 == rng2_1
+    assert rng1_0 != rng1_1
+    assert rng2_0 != rng2_1
+
+def test_default_rng_init_self():
+    # test that we can initialise the rng with itself
+    rng1 = base_utils.default_rng(200)
+    rng2 = base_utils.default_rng(rng1)
+    assert rng1 is rng2
+
+def test_default_rng_init_none():
+    # NB: Test relies on randomness. It should be EXTREMELY unlikely that this test fails
+
+    # test that we can initialise the rng with None
+    rng1 = base_utils.default_rng(None)
+    rng2 = base_utils.default_rng(None)
+    assert rng1 is not rng2
+    rng1_0, rng2_0 = rng1.random(), rng2.random()
+    rng1_1, rng2_1= rng1.random(), rng2.random()
+    assert rng1_0 != rng2_0
+    assert rng1_1 != rng2_1
+    assert rng1_0 != rng1_1
+    assert rng2_0 != rng2_1
 
 @pytest.mark.parametrize('is_blue', [True, False])
 def test_setup_test_game(is_blue):

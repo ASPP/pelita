@@ -1,14 +1,14 @@
 """Tests for Pelita game module"""
 import pytest
 
-from contextlib import contextmanager
+
 import inspect
 import itertools
 import os
-from pathlib import Path
-import random
-from textwrap import dedent
 import sys
+from contextlib import contextmanager
+from pathlib import Path
+from random import Random
 
 from pelita import game, layout
 from pelita.exceptions import NoFoodWarning
@@ -803,7 +803,7 @@ def test_play_turn_move():
         "bot_was_killed": [False]*4,
         "errors": [[], []],
         "fatal_errors": [{}, {}],
-        "rnd": random.Random()
+        "rng": Random()
         }
     legal_positions = get_legal_positions(game_state["walls"], game_state["shape"], game_state["bots"][turn])
     game_state_new = apply_move(game_state, legal_positions[0])

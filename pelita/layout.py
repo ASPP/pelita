@@ -1,16 +1,16 @@
-import importlib.resources as importlib_resources
+
 import io
 import os
-import random
+import importlib.resources as importlib_resources
+
+from .base_utils import default_rng
 
 # bot to index conversion
 BOT_N2I = {'a': 0, 'b': 2, 'x': 1, 'y': 3}
 BOT_I2N = {0: 'a', 2: 'b', 1: 'x', 3: 'y'}
 
 
-RNG = random.Random()
-
-def get_random_layout(size='normal', seed=None, dead_ends=0):
+def get_random_layout(size='normal', dead_ends=0, rng=None):
     """ Return a random layout string from the available ones.
 
     Parameters
@@ -34,13 +34,15 @@ def get_random_layout(size='normal', seed=None, dead_ends=0):
         the name of the layout, a random layout string
 
     """
-    if seed is not None:
-        RNG.seed(seed)
-    if dead_ends and RNG.random() < dead_ends:
+
+    # set the random state
+    rng = default_rng(rng)
+
+    if dead_ends and rng.random() < dead_ends:
         layouts_names = get_available_layouts(size=size, dead_ends=True)
     else:
         layouts_names = get_available_layouts(size=size, dead_ends=False)
-    layout_choice = RNG.choice(layouts_names)
+    layout_choice = rng.choice(layouts_names)
     return layout_choice, get_layout_by_name(layout_choice)
 
 def get_available_layouts(size='normal', dead_ends=False):

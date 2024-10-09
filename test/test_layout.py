@@ -2,8 +2,7 @@ import pytest
 
 import itertools
 import math
-import random
-from pathlib import Path
+from random import Random
 from textwrap import dedent
 
 from pelita.layout import *
@@ -67,22 +66,21 @@ def test_get_random_layout_returns_correct_layout():
     layout2 = get_layout_by_name(name)
     assert layout == layout2
 
-def test_get_random_layout_random_seed():
-    name, layout = get_random_layout(size='small', seed=1)
+def test_get_random_layout_random_rng():
+    rng = Random(1)
+    name, layout = get_random_layout(size='small', rng=rng)
     assert name == 'small_017'
 
 def test_get_random_layout_proportion_dead_ends():
     N = 1000
     prop = 0.25
     expected = int(prop*N)
-    # get a fix sequence of seeds, so that the test is reproducible
-    RNG = random.Random()
-    RNG.seed(176399)
-    seeds = [RNG.random() for i in range(N)]
+    # get a fixed rng, so that the test is reproducible
+    rng = Random(176399)
     # check that we don't get any layout with dead ends if we don't ask for it
-    assert not any('dead_ends' in get_random_layout(seed=s)[0] for s in seeds)
+    assert not any('dead_ends' in get_random_layout(rng=rng)[0] for _ in range(N))
     # check that we get more or less the right proportion of layouts with dead ends
-    dead_ends = sum('dead_ends' in get_random_layout(seed=s, dead_ends=prop)[0] for s in seeds)
+    dead_ends = sum('dead_ends' in get_random_layout(rng=rng, dead_ends=prop)[0] for _ in range(N))
     assert math.isclose(dead_ends, expected, rel_tol=0.1)
 
 

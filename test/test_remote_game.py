@@ -1,9 +1,10 @@
 import pytest
 
-from pathlib import Path
-import random
 import sys
 import tempfile
+from pathlib import Path
+from random import Random
+
 
 import pelita.game
 from pelita.tournament import call_pelita, run_and_terminate_process
@@ -18,7 +19,7 @@ FIXTURE_DIR = Path(__file__).parent.resolve() / 'fixtures'
 # The processes should automatically terminate then
 # also, listens on different ports each time, to avoid collisions and dead
 # locks
-RNG = random.Random()
+RNG = Random()
 
 @pytest.fixture(scope="module")
 def remote_teams():
