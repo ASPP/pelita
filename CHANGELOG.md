@@ -1,5 +1,12 @@
 # Pelita changelog
 
+  * v2.5.1 (09. Oct 2024)
+
+    - 1000 new layouts with dead ends
+    - Matches will be played on a maze with dead ends/chambers with 25% chance
+    - Reduced the radius of the food shadow
+    - Streamlined handling of random numbers and seeding
+
   * v2.5.0 (08. Aug 2024)
 
      - Food ageing and relocation to discourage camping strategies
