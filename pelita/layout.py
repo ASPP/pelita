@@ -2,7 +2,8 @@
 import io
 import os
 import importlib.resources as importlib_resources
-from random import Random
+
+from .base_utils import default_rng
 
 # bot to index conversion
 BOT_N2I = {'a': 0, 'b': 2, 'x': 1, 'y': 3}
@@ -35,8 +36,7 @@ def get_random_layout(size='normal', dead_ends=0, rng=None):
     """
 
     # set the random state
-    if not isinstance(rng, Random):
-        rng = Random(rng)
+    rng = default_rng(rng)
 
     if dead_ends and rng.random() < dead_ends:
         layouts_names = get_available_layouts(size=size, dead_ends=True)

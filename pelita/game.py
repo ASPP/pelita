@@ -6,7 +6,6 @@ import subprocess
 import sys
 import time
 import math
-from random import Random
 from warnings import warn
 
 from . import layout
@@ -14,6 +13,7 @@ from .exceptions import FatalException, NonFatalException, NoFoodWarning, Player
 from .gamestate_filters import noiser, update_food_age, relocate_expired_food
 from .layout import initial_positions, get_legal_positions
 from .network import setup_controller, ZMQPublisher
+from .base_utils import default_rng
 from .team import make_team
 from .viewer import ProgressViewer, AsciiViewer, ReplyToViewer, ReplayWriter, ResultPrinter
 
@@ -313,8 +313,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", rng=N
 
     viewer_state = setup_viewers(viewers, options=viewer_options, print_result=print_result)
 
-    if not isinstance(rng, Random):
-        rng = Random(rng)
+    rng = default_rng(rng)
 
     # Initialize the game state.
 
