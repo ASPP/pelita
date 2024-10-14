@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest, macos-13]
-        python-version: ['3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
         exclude:
           - os: macos-latest
             python-version: '3.9'
@@ -22,6 +22,8 @@ jobs:
             python-version: '3.11'
           - os: macos-13
             python-version: '3.12'
+          - os: macos-13
+            python-version: '3.13'
     timeout-minutes: 15
 
     steps:
@@ -82,7 +84,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.11", "3.12", "3.13"]
     timeout-minutes: 15
 
     steps:
@@ -102,13 +104,13 @@ jobs:
       timeout-minutes: 10
 
   contrib:
-    # The tournament does not need to run everywhere.
+    # The contrib stuff does not need to run everywhere.
     # Only test on the latest ubuntu/macos for recent versions of Python.
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: ["3.12"]
+        python-version: ["3.12", "3.13"]
     timeout-minutes: 5
 
     steps:
