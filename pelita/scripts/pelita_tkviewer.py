@@ -37,6 +37,8 @@ parser.add_argument('--delay', type=int,
                     help='delay')
 parser.add_argument('--stop-after', type=int, metavar="N",
                     help='Stop after N rounds.')
+parser.add_argument('--stop-after-kill', action='store_true',
+                    help='Stop after a bot has been killed.')
 parser._optionals = parser.add_argument_group('Options')
 parser.add_argument('--version', help='show the version number and exit',
                     action='store_const', const=True)
@@ -59,7 +61,8 @@ def main():
         'geometry': args.geometry,
         'fullscreen' : args.fullscreen,
         'delay': args.delay,
-        'stop_after': args.stop_after
+        'stop_after': args.stop_after,
+        'stop_after_kill': args.stop_after_kill
     }
     v = TkViewer(**{k: v for k, v in list(tkargs.items()) if v is not None})
     v.run()

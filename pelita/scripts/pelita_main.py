@@ -245,6 +245,8 @@ game_settings.add_argument('--error-limit', type=int, default=5,
 parser.set_defaults(timeout_length=3)
 game_settings.add_argument('--stop-at', dest='stop_at', type=int, metavar="N",
                            help='Stop before playing round N.')
+game_settings.add_argument('--stop-after-kill', dest='stop_after_kill', action='store_true',
+                           help='Stop when a bot has been killed.')
 
 viewer_settings = parser.add_argument_group('Viewer settings')
 viewer_settings.add_argument('--geometry', type=geometry_string, metavar='NxM',
@@ -363,12 +365,14 @@ def main():
     geometry = args.geometry
     delay = int(1000./args.fps)
     stop_at = args.stop_at
+    stop_after_kill = args.stop_after_kill
 
     viewer_options = {
         "fullscreen" : args.fullscreen,
         "geometry": geometry,
         "delay": delay,
-        "stop_at": stop_at
+        "stop_at": stop_at,
+        "stop_after_kill": stop_after_kill
     }
 
     if args.reply_to:

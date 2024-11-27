@@ -157,7 +157,7 @@ class UI:
 
 class TkApplication:
     def __init__(self, window, controller_address=None,
-                 geometry=None, delay=1, stop_after=None, fullscreen=False):
+                 geometry=None, delay=1, stop_after=None, stop_after_kill=False, fullscreen=False):
         self.window = window
         self.window.configure(background="white")
 
@@ -344,6 +344,9 @@ class TkApplication:
         self._stop_after_delay = delay
         if self._stop_after is not None:
             self._delay = self._min_delay
+        self._stop_after_kill = stop_after_kill
+        # This will be set once we get data
+        self._last_bot_was_killed = []
 
         self._check_speed_button_state()
 
@@ -1139,6 +1142,19 @@ class TkApplication:
         game_state['bots'] = _ensure_list_tuples(game_state['bots'])
         game_state['shape'] = tuple(game_state['shape'])
         game_state['food_age'] = {tuple(pos): food_age for pos, food_age in game_state['food_age']}
+
+        # check if a bot has been killed in the last round
+        # gs.bot_was_killed does not reset the True state for a killed bot
+        # until a whole round is over, so we have to cache previous values
+        bot_was_killed = False
+        for last, now in zip(self._last_bot_was_killed, game_state['bot_was_killed']):
+            if now and not last:
+                bot_was_killed = True
+        self._last_bot_was_killed = game_state['bot_was_killed']
+
+        if self._stop_after_kill and bot_was_killed:
+            self.running = False
+
         self.update(game_state)
         if self._stop_after is not None:
             if self._stop_after == 0:

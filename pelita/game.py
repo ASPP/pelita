@@ -43,10 +43,12 @@ SHADOW_DISTANCE = 1
 DEAD_ENDS = 0.25
 
 class TkViewer:
-    def __init__(self, *, address, controller, geometry=None, delay=None, stop_after=None, fullscreen=False):
-        self.proc = self._run_external_viewer(address, controller, geometry=geometry, delay=delay, stop_after=stop_after, fullscreen=fullscreen)
+    def __init__(self, *, address, controller, geometry=None, delay=None,
+                stop_after=None, stop_after_kill=False, fullscreen=False):
+        self.proc = self._run_external_viewer(address, controller, geometry=geometry, delay=delay,
+                                              stop_after=stop_after, stop_after_kill=stop_after_kill, fullscreen=fullscreen)
 
-    def _run_external_viewer(self, subscribe_sock, controller, geometry, delay, stop_after, fullscreen):
+    def _run_external_viewer(self, subscribe_sock, controller, geometry, delay, stop_after, stop_after_kill, fullscreen):
         # Something on OS X prevents Tk from running in a forked process.
         # Therefore we cannot use multiprocessing here. subprocess works, though.
         viewer_args = [ str(subscribe_sock) ]
@@ -60,6 +62,8 @@ class TkViewer:
             viewer_args += ["--delay", str(delay)]
         if stop_after is not None:
             viewer_args += ["--stop-after", str(stop_after)]
+        if stop_after_kill:
+            viewer_args += ["--stop-after-kill"]
 
         tkviewer = 'pelita.scripts.pelita_tkviewer'
         external_call = [sys.executable,
@@ -251,12 +255,14 @@ def setup_viewers(viewers=None, options=None, print_result=True):
             if viewer_state['controller']:
                 proc = TkViewer(address=zmq_publisher.socket_addr, controller=viewer_state['controller'].socket_addr,
                                 stop_after=options.get('stop_at'),
+                                stop_after_kill=options.get('stop_after_kill'),
                                 geometry=options.get('geometry'),
                                 delay=options.get('delay'),
                                 fullscreen=options.get('fullscreen'))
             else:
                 proc = TkViewer(address=zmq_publisher.socket_addr, controller=None,
                                 stop_after=options.get('stop_at'),
+                                stop_after_kill=options.get('stop_after_kill'),
                                 geometry=options.get('geometry'),
                                 delay=options.get('delay'),
                                 fullscreen=options.get('fullscreen'))
