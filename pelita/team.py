@@ -13,6 +13,7 @@ import networkx as nx
 import zmq
 
 from . import layout
+from .base_utils import default_zmq_context
 from .exceptions import PlayerDisconnected, PlayerTimeout
 from .layout import BOT_I2N, layout_as_str, wall_dimensions
 from .network import (PELITA_PORT, ZMQClientError, ZMQConnection,
@@ -308,8 +309,7 @@ class RemoteTeam:
         the remote clients will be suppressed.
     """
     def __init__(self, team_spec, *, team_name=None, zmq_context=None, idx=None, store_output=False):
-        if zmq_context is None:
-            zmq_context = zmq.Context()
+        zmq_context = default_zmq_context(zmq_context)
 
         self._team_spec = team_spec
         self._team_name = team_name
@@ -535,8 +535,7 @@ def make_team(team_spec, team_name=None, zmq_context=None, idx=None, store_outpu
     elif isinstance(team_spec, str):
         _logger.info("Making a remote team for %s", team_spec)
         # set up the zmq connections and build a RemoteTeam
-        if not zmq_context:
-            zmq_context = zmq.Context()
+        zmq_context = default_zmq_context(zmq_context)
         team_player = RemoteTeam(team_spec=team_spec, zmq_context=zmq_context, idx=idx, store_output=store_output)
     else:
         raise TypeError(f"Not possible to create team from {team_spec} (wrong type).")
