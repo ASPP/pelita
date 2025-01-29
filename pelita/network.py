@@ -8,6 +8,8 @@ from urllib.parse import urlparse
 
 import zmq
 
+from .base_utils import default_zmq_context
+
 _logger = logging.getLogger(__name__)
 
 # 41736 is the word PELI(T)A when read upside down in reverse without glasses
@@ -305,10 +307,8 @@ class ZMQPublisher:
 class Controller:
     def __init__(self, address='tcp://127.0.0.1', zmq_context=None):
         self.address = address
-        if zmq_context:
-            self.context = zmq_context
-        else:
-            self.context = zmq.Context()
+        self.context = default_zmq_context(zmq_context)
+
         # We use a ROUTER which we bind.
         # This means other DEALERs can connect and
         # each one can take over control.
@@ -363,8 +363,6 @@ class Controller:
 
 
 def setup_controller(zmq_context=None):
-    if not zmq_context:
-        import zmq
-        zmq_context = zmq.Context()
+    zmq_context = default_zmq_context(zmq_context)
     controller = Controller(zmq_context=zmq_context)
     return controller

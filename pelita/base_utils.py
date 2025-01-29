@@ -1,5 +1,6 @@
 from random import Random
 
+import zmq
 
 def default_rng(seed=None):
     """Construct a new RNG from a given seed or return the same RNG.
@@ -12,3 +13,6 @@ def default_rng(seed=None):
     if isinstance(seed, Random):
         return seed
     return Random(seed)
+
+def default_zmq_context(zmq_context=None):
+    return zmq.Context()
