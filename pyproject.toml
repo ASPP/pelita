@@ -11,7 +11,7 @@ description = "Pelita"
 keywords = ["education"]
 license = {text = "BSD-2"}
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Education",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "License :: OSI Approved :: BSD License",
