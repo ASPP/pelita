@@ -99,6 +99,26 @@ def find_chambers(graph, cuts, deadends, shape):
     return chambers
 
 
+def paint_chambers(graph, cuts, shape):
+    w, h = shape
+    chamber_tiles = set()
+    for cut in cuts:
+        G = graph.copy()
+        G.remove_node(cut)
+
+        # remove main chamber
+        for chamber in nx.connected_components(G):
+            max_x = max(chamber, key=lambda n: n[0])[0]
+            min_x = min(chamber, key=lambda n: n[0])[0]
+            if not (min_x < w // 2 and max_x >= w // 2):
+                chamber_tiles.update(set(chamber))
+
+    subgraph = graph.subgraph(chamber_tiles)
+    chambers = list(nx.connected_components(subgraph))
+
+    return chambers, chamber_tiles
+
+
 def chambers_to_food(
     layout: str,
     chambers: list[tuple[int, int]],
@@ -159,8 +179,8 @@ custom_layout = """################################
 # names = ["custom_layout"]
 # layouts = [parse_layout(custom_layout)]
 
-names = ["dead_ends_normal_723"]
-layouts = [parse_layout(get_layout_by_name("dead_ends_normal_723"))]
+# names = ["normal_079"]
+# layouts = [parse_layout(get_layout_by_name("normal_079"))]
 
 for name, layout in track(zip(names, layouts), description="Processing..."):
     obj = dict()
@@ -178,13 +198,10 @@ for name, layout in track(zip(names, layouts), description="Processing..."):
     obj["deadends"] = n_deadends = len(deadends) // 2
 
     cuts = find_cuts_faster(graph)
-    chambers = find_chambers(graph, cuts, deadends, shape)
-    obj["chambers"] = n_chambers = len(chambers) // 2
+    pprint(cuts)
+    chambers, chamber_tiles = paint_chambers(graph, cuts, shape)
     pprint(chambers)
-
-    chamber_tiles = []
-    for chamber in chambers:
-        chamber_tiles.extend(chamber)
+    obj["chambers"] = n_chambers = len(chambers) // 2
 
     obj["chamber_size"] = len(chamber_tiles) // 2
     chambers_to_food(get_layout_by_name(name), chamber_tiles, f"/tmp/{name}.layout")
