@@ -221,6 +221,8 @@ class Team:
         -------
         move : dict
         """
+        game_state = prepare_bot_state(game_state)
+
         me = make_bots(walls=self._walls,
                        shape=self._shape,
                        initial_positions=self._initial_positions,
@@ -801,6 +803,58 @@ class Bot:
 
     def __repr__(self):
         return f'<Bot: {self.char} (team {"blue" if self.is_blue else "red"}), pos: {self.position}, turn: {self.turn}, round: {self.round}>'
+
+
+def prepare_bot_state(game_state):
+    """ Prepares the bot’s game state for the current bot.
+
+    """
+    turn = game_state['turn']
+    bot_position = game_state['bots'][turn]
+    bot_turn = turn // 2
+    own_team = turn % 2
+    enemy_team = 1 - own_team
+    enemy_positions = game_state['bots'][enemy_team::2]
+
+    team_state = {
+        'team_index': own_team,
+        'bot_positions': game_state['bots'][own_team::2],
+        'score': game_state['score'][own_team],
+        'kills': game_state['kills'][own_team::2],
+        'deaths': game_state['deaths'][own_team::2],
+        'bot_was_killed': game_state['bot_was_killed'][own_team::2],
+        'error_count': game_state['error_count'][own_team],
+        'food': list(game_state['food'][own_team]),
+        'shaded_food': game_state['shaded_food'][own_team],
+        'name': game_state['team_names'][own_team],
+        'team_time': game_state['team_time'][own_team]
+    }
+
+    enemy_state = {
+        'team_index': enemy_team,
+        'bot_positions': game_state['bots'][enemy_team::2],
+        'is_noisy': game_state['is_noisy'][enemy_team::2],
+        'score': game_state['score'][enemy_team],
+        'kills': game_state['kills'][enemy_team::2],
+        'deaths': game_state['deaths'][enemy_team::2],
+        'bot_was_killed': game_state['bot_was_killed'][enemy_team::2],
+        'error_count': game_state['error_count'][enemy_team],
+        'food': list(game_state['food'][enemy_team]),
+        'shaded_food': game_state['shaded_food'][enemy_team],
+        'name': game_state['team_names'][enemy_team],
+        'team_time': game_state['team_time'][enemy_team]
+    }
+
+    bot_state = {
+        'team': team_state,
+        'enemy': enemy_state,
+        'round': game_state['round'],
+        'bot_turn': bot_turn,
+        'timeout_length': game_state['timeout_length'],
+        'max_rounds': game_state['max_rounds'],
+    }
+
+    return bot_state
 
 
 # def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_blue):
