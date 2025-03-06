@@ -1,9 +1,8 @@
 import json
+from itertools import product
 
 import jsbeautifier
 import networkx as nx
-from rich.pretty import pprint
-from rich.progress import track
 
 from pelita.layout import get_available_layouts, get_layout_by_name, parse_layout
 from pelita.maze_generator import find_chamber
@@ -18,22 +17,27 @@ def position_in_maze(pos, shape):
 
 def walls_to_graph(walls, shape):
     w, h = shape
-    directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+    directions = [(1, 0), (0, 1), (0, -1)]
 
     graph = nx.Graph()
     # define nodes for maze
-    for x in range(w):
-        for y in range(h):
-            if (x, y) not in walls:
-                # this is a free position, get its neighbors
-                for delta_x, delta_y in directions:
-                    neighbor = (x + delta_x, y + delta_y)
-                    # we don't need to check for getting neighbors out of the maze
-                    # because our mazes are all surrounded by walls, i.e. our
-                    # deltas will not put us out of the maze
-                    if neighbor not in walls and position_in_maze(neighbor, shape):
-                        # this is a genuine neighbor, add an edge in the graph
-                        graph.add_edge((x, y), neighbor)
+
+    coords = product(range(w), range(h))
+    not_walls = set(coords) - set(walls)
+
+    edges = []
+    for x, y in not_walls:
+        # this is a free position, get its neighbors
+        for delta_x, delta_y in directions:
+            neighbor = (x + delta_x, y + delta_y)
+            # we don't need to check for getting neighbors out of the maze
+            # because our mazes are all surrounded by walls, i.e. our
+            # deltas will not put us out of the maze
+            if neighbor not in walls and position_in_maze(neighbor, shape):
+                # this is a genuine neighbor, add an edge in the graph
+                edges.append(((x, y), neighbor))
+
+    graph.add_edges_from(edges)
     return graph
 
 
@@ -102,8 +106,10 @@ def find_chambers(graph, cuts, deadends, shape):
 def paint_chambers(graph, cuts, shape):
     w, h = shape
     chamber_tiles = set()
+    G = graph
+
     for cut in cuts:
-        G = graph.copy()
+        edges = list(G.edges(cut))
         G.remove_node(cut)
 
         # remove main chamber
@@ -112,6 +118,8 @@ def paint_chambers(graph, cuts, shape):
             min_x = min(chamber, key=lambda n: n[0])[0]
             if not (min_x < w // 2 and max_x >= w // 2):
                 chamber_tiles.update(set(chamber))
+        G.add_node(cut)
+        G.add_edges_from(edges)
 
     subgraph = graph.subgraph(chamber_tiles)
     chambers = list(nx.connected_components(subgraph))
@@ -146,9 +154,9 @@ def find_dead_ends(graph):
 names = []
 
 for size, deadend in [
-    ("small", False),
-    ("small", True),
-    ("normal", False),
+    # ("small", False),
+    # ("small", True),
+    # ("normal", False),
     ("normal", True),
 ]:
     names.extend(get_available_layouts(size=size, dead_ends=deadend))
@@ -182,9 +190,9 @@ custom_layout = """################################
 # names = ["normal_079"]
 # layouts = [parse_layout(get_layout_by_name("normal_079"))]
 
-for name, layout in track(zip(names, layouts), description="Processing..."):
+for s, (name, layout) in enumerate(zip(names, layouts)):
+    print(s)
     obj = dict()
-    print()
 
     obj["name"] = name
     obj["shape"] = (width, height) = shape = layout["shape"]
@@ -198,16 +206,12 @@ for name, layout in track(zip(names, layouts), description="Processing..."):
     obj["deadends"] = n_deadends = len(deadends) // 2
 
     cuts = find_cuts_faster(graph)
-    pprint(cuts)
     chambers, chamber_tiles = paint_chambers(graph, cuts, shape)
-    pprint(chambers)
     obj["chambers"] = n_chambers = len(chambers) // 2
 
     obj["chamber_size"] = len(chamber_tiles) // 2
-    chambers_to_food(get_layout_by_name(name), chamber_tiles, f"/tmp/{name}.layout")
+    # chambers_to_food(get_layout_by_name(name), chamber_tiles, f"/tmp/{name}.layout")
     # chambers_to_food(custom_layout, chamber_tiles, f"/tmp/{name}.layout")
-
-    pprint(obj)
 
     if n_chambers == 0:
         assert n_deadends == 0
