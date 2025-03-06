@@ -1185,7 +1185,7 @@ def test_apply_move_resets_bot_was_killed(game_state, bot_to_move, bot_was_kille
     bot_state = game.prepare_bot_state(game_state)
 
     # bot state should have proper bot_was_killed flag
-    assert bot_state['team']['bot_was_killed'] == bot_was_killed_flags[team_id::2]
+    assert bot_state['bot_was_killed'] == bot_was_killed_flags
 
     # apply a dummy move that should reset bot_was_killed for the current bot
     _new_test_state = game.apply_move(game_state, current_bot_position)

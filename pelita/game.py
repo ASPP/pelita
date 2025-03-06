@@ -662,6 +662,7 @@ def request_new_position(game_state):
 def prepare_bot_state(game_state, team_idx=None):
     """ Prepares the bot’s game state for the current bot.
 
+    NB: This will update the game_state to store new noisy positions.
     """
     if game_state['game_phase'] == 'INIT':
         # We assume that we are in get_initial phase
@@ -703,43 +704,32 @@ def prepare_bot_state(game_state, team_idx=None):
             zip(noised_positions['is_noisy'], noised_positions['enemy_positions'])
     ]
     game_state['noisy_positions'][enemy_team::2] = noisy_or_none
-    shaded_food = list(pos for pos, age in game_state['food_age'][own_team].items()
+
+    bots = game_state['bots'][:]
+    bots[enemy_team::2] = noised_positions['enemy_positions']
+
+    is_noisy = [False for _ in range(4)]
+    is_noisy[enemy_team::2] = noised_positions['is_noisy']
+
+    shaded_food_own = list(pos for pos, age in game_state['food_age'][own_team].items()
                        if age > 0)
-
-    team_state = {
-        'team_index': own_team,
-        'bot_positions': game_state['bots'][own_team::2],
-        'score': game_state['score'][own_team],
-        'kills': game_state['kills'][own_team::2],
-        'deaths': game_state['deaths'][own_team::2],
-        'bot_was_killed': game_state['bot_was_killed'][own_team::2],
-        'error_count': len(game_state['timeouts'][own_team]),
-        'food': list(game_state['food'][own_team]),
-        'shaded_food': shaded_food,
-        'name': game_state['team_names'][own_team],
-        'team_time': game_state['team_time'][own_team]
-    }
-
-    enemy_state = {
-        'team_index': enemy_team,
-        'bot_positions': noised_positions['enemy_positions'],
-        'is_noisy': noised_positions['is_noisy'],
-        'score': game_state['score'][enemy_team],
-        'kills': game_state['kills'][enemy_team::2],
-        'deaths': game_state['deaths'][enemy_team::2],
-        'bot_was_killed': game_state['bot_was_killed'][enemy_team::2],
-        'error_count': 0, # TODO. Could be left out for the enemy
-        'food': list(game_state['food'][enemy_team]),
-        'shaded_food': [],
-        'name': game_state['team_names'][enemy_team],
-        'team_time': game_state['team_time'][enemy_team]
-    }
+    shaded_food = [[], []]
+    shaded_food[own_team] = shaded_food_own
 
     bot_state = {
-        'team': team_state,
-        'enemy': enemy_state,
+        'bots': bots,
+        'score': game_state['score'][:],
+        'kills': game_state['kills'][:],
+        'deaths': game_state['deaths'][:],
+        'bot_was_killed': game_state['bot_was_killed'][:],
+        'error_count': [len(e) for e in game_state['timeouts'][:]],
+        'food': list(game_state['food'][:]),
+        'shaded_food': shaded_food,
+        'team_names': game_state['team_names'][:],
+        'team_time': game_state['team_time'][:],
+        'is_noisy': is_noisy,
         'round': game_state['round'],
-        'bot_turn': bot_turn,
+        'turn': turn,
         'timeout_length': game_state['timeout_length'],
         'max_rounds': game_state['max_rounds'],
     }
