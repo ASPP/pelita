@@ -38,13 +38,15 @@ def create_homezones(shape, walls):
                      for y in range(0, height) if (x, y) not in walls)
     ]
 
-def walls_to_graph(walls):
+def walls_to_graph(walls, shape=None):
     """Return a networkx Graph object given the walls of a maze.
 
     Parameters
     ----------
     walls : set[(x0,y0), (x1,y1), ...]
-         a set of wall coordinates
+        a set of wall coordinates
+    shape : (int, int)
+        the shape of the maze
 
     Returns
     -------
@@ -62,7 +64,10 @@ def walls_to_graph(walls):
     its adjacent squares by making ore single step (up, down, left, or right).
     """
     graph = nx.Graph()
-    width, height = wall_dimensions(walls)
+    if shape is not None:
+        width, height = shape
+    else:
+        width, height = wall_dimensions(walls)
 
     for x in range(width):
         for y in range(height):
@@ -158,7 +163,7 @@ class Team:
         # Cache the graph representation of the maze -> stores a read-only view of the
         # graph, so that local modifications in the move function are not carried
         # over
-        self._graph = walls_to_graph(self._walls).copy(as_view=True)
+        self._graph = walls_to_graph(self._walls, shape=self._shape).copy(as_view=True)
 
         return self.team_name
 

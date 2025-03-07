@@ -2,7 +2,9 @@ import pytest
 
 from pelita import base_utils
 from pelita import utils
+from pelita.layout import parse_layout
 from pelita.player import stopping_player
+from pelita.utils import walls_to_graph
 
 
 def test_default_rng():
@@ -110,3 +112,24 @@ def test_run_background_game():
         'draw': True
     }
 
+
+def test_walls_to_graph():
+    test_layout = (
+    """ ##################
+        #a#.  .  # .     #
+        #b#####    #####x#
+        #     . #  .  .#y#
+        ################## """)
+    parsed = parse_layout(test_layout)
+    w, h = parsed['shape']
+    n_walls = len(parsed['walls'])
+
+    g = walls_to_graph(parsed['walls'])
+
+    # Number of nodes is maze size - walls
+    assert len(g.nodes) == int(w) * int(h) - n_walls
+
+    # check that we can also take the shape as an argument
+    g = walls_to_graph(parsed['walls'], shape=(w, h))
+    # Number of nodes is maze size - walls
+    assert len(g.nodes) == int(w) * int(h) - n_walls
