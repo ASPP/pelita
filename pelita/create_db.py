@@ -16,28 +16,8 @@ def position_in_maze(pos, shape):
 
 
 def walls_to_graph(walls, shape):
-    w, h = shape
-    directions = [(1, 0), (0, 1), (0, -1)]
-
-    graph = nx.Graph()
-    # define nodes for maze
-
-    coords = product(range(w), range(h))
-    not_walls = set(coords) - set(walls)
-
-    edges = []
-    for x, y in not_walls:
-        # this is a free position, get its neighbors
-        for delta_x, delta_y in directions:
-            neighbor = (x + delta_x, y + delta_y)
-            # we don't need to check for getting neighbors out of the maze
-            # because our mazes are all surrounded by walls, i.e. our
-            # deltas will not put us out of the maze
-            if neighbor not in walls and position_in_maze(neighbor, shape):
-                # this is a genuine neighbor, add an edge in the graph
-                edges.append(((x, y), neighbor))
-
-    graph.add_edges_from(edges)
+    graph = nx.grid_2d_graph(*shape)
+    graph.remove_nodes_from(walls)
     return graph
 
 
