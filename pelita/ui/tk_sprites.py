@@ -144,11 +144,11 @@ class BotSprite(TkSprite):
 
         canvas.delete("speak"+self.tag)
         # We increase readability with a white border around the text.
-        canvas.create_text(self.bounding_box()[0][0]-1, self.bounding_box()[0][1], text=say, font=(None, 12), fill="white", tag="speak"+self.tag)
-        canvas.create_text(self.bounding_box()[0][0]+1, self.bounding_box()[0][1], text=say, font=(None, 12), fill="white", tag="speak"+self.tag)
-        canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1]-1, text=say, font=(None, 12), fill="white", tag="speak"+self.tag)
-        canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1]+1, text=say, font=(None, 12), fill="white", tag="speak"+self.tag)
-        canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1], text=say, font=(None, 12), fill="black", tag="speak"+self.tag)
+        canvas.create_text(self.bounding_box()[0][0]-1, self.bounding_box()[0][1], text=say, font=(None, 12), fill="white", tags="speak"+self.tag)
+        canvas.create_text(self.bounding_box()[0][0]+1, self.bounding_box()[0][1], text=say, font=(None, 12), fill="white", tags="speak"+self.tag)
+        canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1]-1, text=say, font=(None, 12), fill="white", tags="speak"+self.tag)
+        canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1]+1, text=say, font=(None, 12), fill="white", tags="speak"+self.tag)
+        canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1], text=say, font=(None, 12), fill="black", tags="speak"+self.tag)
 
         canvas.delete("show_id" + self.tag)
         # we print the bot_id in the lower left corner
@@ -156,11 +156,11 @@ class BotSprite(TkSprite):
             bot_name = layout.BOT_I2N[self.bot_id ]
             shift_x = 5
             shift_y = 8
-            canvas.create_text(self.bounding_box()[0][0]-1 + shift_x, self.bounding_box()[1][1] - shift_y, text=bot_name, font=(None, 12), fill="white", tag="show_id"+self.tag)
-            canvas.create_text(self.bounding_box()[0][0]+1 + shift_x, self.bounding_box()[1][1] - shift_y, text=bot_name, font=(None, 12), fill="white", tag="show_id"+self.tag)
-            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1]-1 - shift_y, text=bot_name, font=(None, 12), fill="white", tag="show_id"+self.tag)
-            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1]+1 - shift_y, text=bot_name, font=(None, 12), fill="white", tag="show_id"+self.tag)
-            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1] - shift_y, text=bot_name, font=(None, 12), fill="black", tag="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0]-1 + shift_x, self.bounding_box()[1][1] - shift_y, text=bot_name, font=(None, 12), fill="white", tags="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0]+1 + shift_x, self.bounding_box()[1][1] - shift_y, text=bot_name, font=(None, 12), fill="white", tags="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1]-1 - shift_y, text=bot_name, font=(None, 12), fill="white", tags="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1]+1 - shift_y, text=bot_name, font=(None, 12), fill="white", tags="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1] - shift_y, text=bot_name, font=(None, 12), fill="black", tags="show_id"+self.tag)
 
     def draw_bot(self, canvas, is_blue=True):
         direction = self.direction
@@ -177,7 +177,7 @@ class BotSprite(TkSprite):
 
         # bot body
         canvas.create_arc(self.bounding_box(), start=rotate(20, direction), extent=320, style="pieslice",
-                          width=0, outline=self.outline_col, fill=self.col, tag=self.tag)
+                          width=0, outline=self.outline_col, fill=self.col, tags=self.tag)
 
         # bot eye
         # first locate eye in the center
@@ -191,7 +191,7 @@ class BotSprite(TkSprite):
         # rotate based on direction
         eye_box = [cmath.exp(1j * math.radians(-direction)) * item for item in eye_box]
         eye_box = [self.screen((item.real, item.imag)) for item in eye_box]
-        canvas.create_oval(eye_box, fill=self.eye_col, width=0, tag=self.tag)
+        canvas.create_oval(eye_box, fill=self.eye_col, width=0, tags=self.tag)
 
     def draw(self, canvas, game_state):
         self.is_harvester = self.is_harvester_at(self.position)
@@ -212,7 +212,7 @@ class BotSprite(TkSprite):
 
         # ghost head
         canvas.create_arc((box_ll, box_tr), start=0, extent=180, style="pieslice" if not self.shadow else "arc",
-                          width=1, outline=self.outline_col, fill=self.col, tag=self.tag)
+                          width=1, outline=self.outline_col, fill=self.col, tags=self.tag)
 
         # ghost body
         box_ll = box_ll[0], box_ll[1] + (box_tr[1]-box_ll[1])/2.
@@ -235,9 +235,9 @@ class BotSprite(TkSprite):
 
         points = list(zip(x,y))
         if self.shadow:
-            canvas.create_line(points, width=1, fill=self.outline_col, tag=self.tag)
+            canvas.create_line(points, width=1, fill=self.outline_col, tags=self.tag)
         else:
-            canvas.create_polygon(points, width=1, outline=self.outline_col, fill=self.col, tag=self.tag)
+            canvas.create_polygon(points, width=1, outline=self.outline_col, fill=self.col, tags=self.tag)
 
         # ghost eyes
         eye_size = 0.15
@@ -245,11 +245,11 @@ class BotSprite(TkSprite):
         # right eye
         eye_box_r = [item+ 0.4 - 0.5j for item in eye_box]
         eye_box_r = [self.screen((item.real, item.imag)) for item in eye_box_r]
-        canvas.create_oval(eye_box_r, fill=self.eye_col, width=0, tag=self.tag)
+        canvas.create_oval(eye_box_r, fill=self.eye_col, width=0, tags=self.tag)
         # left eye
         eye_box_l = [item- 0.4 - 0.5j for item in eye_box]
         eye_box_l = [self.screen((item.real, item.imag)) for item in eye_box_l]
-        canvas.create_oval(eye_box_l, fill=self.eye_col, width=0, tag=self.tag)
+        canvas.create_oval(eye_box_l, fill=self.eye_col, width=0, tags=self.tag)
 
 class Wall(TkSprite):
     def __init__(self, mesh, wall_neighbors=None, **kwargs):
@@ -271,7 +271,7 @@ class Wall(TkSprite):
             # draw only a small dot.
             # TODO add diagonal lines
             canvas.create_line(self.screen((-0.3, 0)), self.screen((+0.3, 0)), fill=BROWN,
-                               width=scale, tag=(self.tag, "wall"), capstyle="round")
+                               width=scale, tags=(self.tag, "wall"), capstyle="round")
         else:
             neighbours = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
             for dx in [-1, 0, 1]:
@@ -287,14 +287,14 @@ class Wall(TkSprite):
                             pass
                         else:
                             canvas.create_line(self.screen((0, 0)), self.screen((2*dx, 2*dy)), fill=BROWN,
-                                               width=scale, tag=(self.tag, "wall"), capstyle="round")
+                                               width=scale, tags=(self.tag, "wall"), capstyle="round")
 
             # if we are drawing a closed square, fill in the internal part
             # detect the square when we are on the bottom-left vertex of it
             square_neighbors = {(0,0), (0,-1), (1,0),(1,-1)}
             if square_neighbors <= set(self.wall_neighbors):
                 canvas.create_line(self.screen((1,0)), self.screen((1,-2)), fill=BROWN,
-                                   width=scale, tag=(self.tag, "wall"))
+                                   width=scale, tags=(self.tag, "wall"))
 
 
 class Food(TkSprite):
@@ -322,16 +322,16 @@ class Food(TkSprite):
         if food_age and food_age + FOOD_WARNING_TIME > self.max_food_age:
             fill_col = GREY
             text_col = YELLOW
-        canvas.create_oval(self.bounding_box(0.4), fill=fill_col, width=0, tag=(self.tag, self.food_pos_tag(self.position), "food"))
+        canvas.create_oval(self.bounding_box(0.4), fill=fill_col, width=0, tags=(self.tag, self.food_pos_tag(self.position), "food"))
 
         canvas.delete("show_food_age" + str(self.position))
 
         # we print the bot_id in the lower left corner
         if food_age and show_lifetime:
-            tag=(self.tag, "show_food_age" + str(self.position), "food")
+            tags=(self.tag, "show_food_age" + str(self.position), "food")
 
             center = self.screen()
-            canvas.create_text(*center, text=food_age, font=(None, 10), fill=text_col, tag=tag)
+            canvas.create_text(*center, text=food_age, font=(None, 10), fill=text_col, tags=tag)
 
 class Arrow(TkSprite):
     def __init__(self, mesh, req_pos, success, head=True, **kwargs):
@@ -350,19 +350,19 @@ class Arrow(TkSprite):
                 self.screen((0.3, -0.3))
             ]
             canvas.create_line(points,
-                            fill=BROWN, width=scale, tag=(self.tag, "arrow"), capstyle="round")
+                            fill=BROWN, width=scale, tags=(self.tag, "arrow"), capstyle="round")
 
             points = [
                 self.screen((-0.3, -0.3)),
                 self.screen(( 0.3, 0.3))
             ]
             canvas.create_line(points,
-                            fill=BROWN, width=scale, tag=(self.tag, "arrow"), capstyle="round")
+                            fill=BROWN, width=scale, tags=(self.tag, "arrow"), capstyle="round")
 
         dist = manhattan_dist(self.req_pos, self.position)
         if dist == 0:
             canvas.create_arc(self.bounding_box(0.6), start=110, extent=320, style="arc", outline=BROWN,
-                                                width=scale, tag=(self.tag, "arrow"))
+                                                width=scale, tags=(self.tag, "arrow"))
             # arrow head
             head = cmath.rect(0.6, -110 * cmath.pi / 180)
             head_rotation = (-110 + 90) * cmath.pi / 180
@@ -380,7 +380,7 @@ class Arrow(TkSprite):
                 self.screen((head_right.real, head_right.imag))
             ]
             canvas.create_line(points,
-                            fill=BROWN, width=scale, tag=(self.tag, "arrow"), capstyle="round")
+                            fill=BROWN, width=scale, tags=(self.tag, "arrow"), capstyle="round")
 
         else:
             # dx, dy has to be duplicated because the self.screen coordinates go from -1 to 1
@@ -388,7 +388,7 @@ class Arrow(TkSprite):
             dx = (self.req_pos[0] - self.position[0]) * 2
             dy = (self.req_pos[1] - self.position[1]) * 2
             canvas.create_line(self.screen((0, 0)), self.screen((dx, dy)), fill=BROWN,
-                                                width=scale, tag=(self.tag, "arrow"), capstyle="round")
+                                                width=scale, tags=(self.tag, "arrow"), capstyle="round")
             # arrow head
             vector = dx + dy * 1j
             phase = cmath.phase(vector)
@@ -403,5 +403,5 @@ class Arrow(TkSprite):
             ]
             if self.head:
                 canvas.create_line(points,
-                                fill=BROWN, width=scale, tag=(self.tag, "arrow"), capstyle="round")
+                                fill=BROWN, width=scale, tags=(self.tag, "arrow"), capstyle="round")
 
