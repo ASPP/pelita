@@ -202,7 +202,7 @@ def walls_to_graph(maze):
     """
 
     h, w = maze.shape
-    directions = [west, east, north, south]
+    directions = [east, south]
 
     graph = nx.Graph()
     # define nodes for maze
@@ -258,38 +258,36 @@ def remove_all_dead_ends(maze):
     while True:
         maze_graph = walls_to_graph(maze)
         dead_ends = find_dead_ends(maze_graph, width)
+        for dead_end in dead_ends:
+            remove_dead_end(dead_end, maze)
+
         if len(dead_ends) == 0:
             break
 
-        remove_dead_end(dead_ends[0], maze)
 
-def find_chamber(graph):
-    """Detect chambers (rooms with a single square entrance).
+def find_chambers(graph, cuts, shape):
+    w, h = shape
+    chamber_tiles = set()
+    G = graph
 
-    Return (entrance, chamber), where `entrance` is the node representing the
-    entrance to the chamber (None if no chamber is found), and `chamber` is the
-    list of nodes within the chamber (empty list if no nodes are in the chamber).
+    for cut in cuts:
+        edges = list(G.edges(cut))
+        G.remove_node(cut)
 
-    The entrance to a chamber is a node that when removed from the graph
-    will result in the graph to be split into two disconnected graphs."""
-    # minimum_node_cut returns a set of nodes of minimum cardinality that
-    # disconnects the graph. This means that we have a chamber if the length
-    # of this set is one, i.e. there is one node that when removed disconnects
-    # the graph
-    cuts = nx.minimum_node_cut(graph)
-    if len(cuts) > 1:
-        # no chambers, yeah!
-        return None, []
-    entrance = cuts.pop()
-    # remove the cut, i.e. put a wall on the entrance
-    lgraph = nx.restricted_view(graph, [entrance],[])
-    # now get the resulting subgraphs
-    subgraphs = sorted(nx.connected_components(lgraph), key=len)
-    # let's get the smallest subgraph: this is going to be a chamber
-    # (other subgraphs are other chambers (if any) and the 'rest' of the graph
-    # return a list of nodes, instead of a set
-    chamber = list(subgraphs[0])
-    return entrance, chamber
+        # remove main chamber
+        for chamber in nx.connected_components(G):
+            max_x = max(chamber, key=lambda n: n[0])[0]
+            min_x = min(chamber, key=lambda n: n[0])[0]
+            if not (min_x < w // 2 and max_x >= w // 2):
+                chamber_tiles.update(set(chamber))
+        G.add_node(cut)
+        G.add_edges_from(edges)
+
+    subgraph = graph.subgraph(chamber_tiles)
+    chambers = list(nx.connected_components(subgraph))
+
+    return chambers, chamber_tiles
+
 
 def get_neighboring_walls(maze, locs):
     """Given a list of coordinates in the maze, return all neighboring walls.
@@ -325,22 +323,18 @@ def remove_all_chambers(maze, rng=None):
 
     maze_graph = walls_to_graph(maze)
     # this will find one of the chambers, if there is any
-    entrance, chamber = find_chamber(maze_graph)
-    while entrance is not None:
+    # entrance, chamber = find_chamber(maze_graph)
+    cuts = list(nx.articulation_points(maze_graph))
+    chambers, chamber_tiles = find_chambers(maze_graph, cuts, maze.shape)
+
+    for chamber in chambers:
         # get all the walls around the chamber
         walls = get_neighboring_walls(maze, chamber)
+
         # choose a wall at random among the neighboring one and get rid of it
-        bad_wall = rng.choice(walls)
-        maze[bad_wall[1], bad_wall[0]] = E
-        # we may have opened a door into this chamber, but there may be more
-        # chambers to get rid of. Or, the wall we picked wasn't good enough and
-        # didn't really open a new door to the chamber. I have no idea how to
-        # distinguish this two cases. If we knew how to, we would spare quite
-        # a few iterations here?
-        # Well, as long as we keep on doing this we will eventually get rid
-        # of all the chambers
-        maze_graph = walls_to_graph(maze)
-        entrance, chamber = find_chamber(maze_graph)
+        if walls:
+            bad_wall = rng.choice(walls)
+            maze[bad_wall[1], bad_wall[0]] = E
 
 
 def add_food(maze, max_food, rng=None):
