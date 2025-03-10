@@ -258,15 +258,15 @@ def remove_all_dead_ends(maze):
     while True:
         maze_graph = walls_to_graph(maze)
         dead_ends = find_dead_ends(maze_graph, width)
-        for dead_end in dead_ends:
-            remove_dead_end(dead_end, maze)
-
         if len(dead_ends) == 0:
             break
+        remove_dead_end(dead_ends[0], maze)
 
 
-def find_chambers(graph, cuts, shape):
-    w, h = shape
+def find_chambers(graph, shape):
+    cuts = set(nx.articulation_points(graph))
+
+    h, w = shape
     chamber_tiles = set()
     G = graph
 
@@ -321,20 +321,23 @@ def get_neighboring_walls(maze, locs):
 def remove_all_chambers(maze, rng=None):
     rng = default_rng(rng)
 
-    maze_graph = walls_to_graph(maze)
-    # this will find one of the chambers, if there is any
-    # entrance, chamber = find_chamber(maze_graph)
-    cuts = list(nx.articulation_points(maze_graph))
-    chambers, chamber_tiles = find_chambers(maze_graph, cuts, maze.shape)
+    while True:
+        maze_graph = walls_to_graph(maze)
+        # this will find one of the chambers, if there is any
+        # entrance, chamber = find_chamber(maze_graph)
+        chambers, chamber_tiles = find_chambers(maze_graph, maze.shape)
 
-    for chamber in chambers:
-        # get all the walls around the chamber
-        walls = get_neighboring_walls(maze, chamber)
+        if not chambers:
+            break
 
-        # choose a wall at random among the neighboring one and get rid of it
-        if walls:
-            bad_wall = rng.choice(walls)
-            maze[bad_wall[1], bad_wall[0]] = E
+        for chamber in chambers:
+            # get all the walls around the chamber
+            walls = get_neighboring_walls(maze, chamber)
+
+            # choose a wall at random among the neighboring one and get rid of it
+            if walls:
+                bad_wall = rng.choice(walls)
+                maze[bad_wall[1], bad_wall[0]] = E
 
 
 def add_food(maze, max_food, rng=None):
