@@ -293,10 +293,10 @@ def test_remove_all_chambers(maze_chamber):
     # we are removing just a few walls?
 
 @pytest.mark.parametrize('iteration', range(1,11))
-def test_get_new_maze(iteration):
+def test_create_maze(iteration):
     # generate a few mazes and check them for consistency
     local_seed = 12345 * iteration
-    maze_str = mg.get_new_maze(8,16,nfood=15,rng=local_seed)
+    maze_str = mg.create_maze(8,16,nfood=15,rng=local_seed)
     maze = mg.str_to_maze(maze_str)
     height, width = maze.shape
     # check that the returned maze has all the pacmen
@@ -330,7 +330,7 @@ def test_get_new_maze(iteration):
 
 def test_odd_width():
     with pytest.raises(ValueError):
-        mg.get_new_maze(2,3,1)
+        mg.create_maze(2,3,1)
 
 def test_add_food():
     mini = """########
