@@ -503,7 +503,8 @@ class TkApplication:
 
         for x in range(self.mesh_graph.mesh_width):
             x_pos = self.mesh_graph.mesh_to_screen_x(x, 0)
-            y_pos = self.mesh_graph.mesh_to_screen_y(-1, 0.6)
+            # the margin is not autoscaling, so we do the shift on the real grid
+            y_pos = self.mesh_graph.mesh_to_screen_y(0, -1) - label_size
             self.ui.game_canvas.create_text(x_pos, y_pos,
                 text=str(x),
                 font=(None, label_size),
@@ -511,7 +512,8 @@ class TkApplication:
                 justify=tkinter.CENTER, anchor=tkinter.CENTER)
 
         for y in range(self.mesh_graph.mesh_height):
-            x_pos = self.mesh_graph.mesh_to_screen_x(-1, 0.6)
+            # the margin is not autoscaling, so we do the shift on the real grid
+            x_pos = self.mesh_graph.mesh_to_screen_x(0, -1) - label_size
             y_pos = self.mesh_graph.mesh_to_screen_y(y, 0)
             self.ui.game_canvas.create_text(x_pos, y_pos,
                 text=str(y),
