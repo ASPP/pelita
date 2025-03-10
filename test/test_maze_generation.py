@@ -185,7 +185,13 @@ def test_remove_multiple_dead_ends():
     expected_maze = mg.str_to_maze(expected_maze)
     assert np.all(maze == expected_maze)
 
-def test_find_chamber():
+    graph = mg.walls_to_graph(maze)
+    width = maze.shape[1]
+    dead_ends = mg.find_dead_ends(graph, width)
+    assert len(dead_ends) == 0
+
+
+def test_find_chambers():
     # This maze has one single chamber, whose entrance is one of the
     # nodes (1,2), (1,3) or (1,4)
     maze_chamber = """############
@@ -204,28 +210,17 @@ def test_find_chamber():
     # now check that we detect it
     graph = mg.walls_to_graph(maze)
     # there are actually two nodes that can be considered entrances
-    entrance, chamber = mg.find_chamber(graph)
-    assert entrance in ((1,2), (1,3), (1,4))
-    # check that the chamber contains the right nodes. Convert to set, because
-    # the order is irrelevant
-    if entrance == (1,4):
-        expected_chamber = {(1,1), (1,2), (1,3), (2,1), (2,2), (3,1), (3,2)}
-    elif entrance == (1,3):
-        expected_chamber = {(1,1), (1,2), (2,1), (2,2), (3,1), (3,2)}
-    else:
-        expected_chamber = {(1,1), (2,1), (2,2), (3,1), (3,2)}
-    assert set(chamber) == expected_chamber
+    chambers, chamber_tiles = mg.find_chambers(graph, maze_orig.shape)
+    assert len(chambers) == 1
+    assert chambers[0] == {(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (3, 1), (3, 2)}
 
     # now remove the chamber and verify that we don't detect anything
     # we just remove wall (4,1) manually
     maze = mg.str_to_maze(maze_chamber)
     maze[1,4] = mg.E # REMEMBER! Indexing is maze[y,x]!!!
     graph = mg.walls_to_graph(maze)
-    entrance, chamber = mg.find_chamber(graph)
-    assert entrance is None
-    assert chamber == []
-
-
+    chambers, chamber_tiles = mg.find_chambers(graph, maze_orig.shape)
+    assert chambers == []
 
 
 maze_one_chamber = """############
