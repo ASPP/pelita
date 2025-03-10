@@ -43,8 +43,8 @@ def walls_to_graph(walls, shape=None):
 
     Parameters
     ----------
-    walls : set[(x0,y0), (x1,y1), ...]
-        a set of wall coordinates
+    walls : [(x0,y0), (x1,y1), ...]
+        a list of wall coordinates
     shape : (int, int)
         the shape of the maze
 
@@ -69,11 +69,16 @@ def walls_to_graph(walls, shape=None):
     else:
         width, height = wall_dimensions(walls)
 
+    # ensure that the walls are in a set for faster searches
+    walls = set(walls)
+
     for x in range(width):
         for y in range(height):
             if (x, y) not in walls:
                 # this is a free position, get its neighbors
-                for delta_x, delta_y in ((1,0), (-1,0), (0,1), (0,-1)):
+                # Only positive neighbours are needed as we are iterating
+                # all fields
+                for delta_x, delta_y in [(1, 0), (0, 1)]:
                     neighbor = (x + delta_x, y + delta_y)
                     # we don't need to check for getting neighbors out of the maze
                     # because our mazes are all surrounded by walls, i.e. our
