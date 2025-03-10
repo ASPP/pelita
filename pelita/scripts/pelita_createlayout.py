@@ -84,10 +84,10 @@ def main():
     args = parser.parse_args()
 
     maze_str = get_new_maze(args.height, args.width, nfood=args.food,
-                            seed=args.seed, dead_ends=args.dead_ends)
+                            dead_ends=args.dead_ends)
 
     sys.stdout.write(maze_str+'\n')
-    sys.stdout.close()
+    # sys.stdout.close()
 
 if __name__ == "__main__":
     main()
