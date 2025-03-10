@@ -7,7 +7,7 @@ The maze will be sent to sys.out .
 import sys
 import argparse
 
-from pelita.maze_generator import get_new_maze
+from pelita.maze_generator import create_maze
 
 HEIGHT = 16
 WIDTH = 32
@@ -83,7 +83,7 @@ def main():
 
     args = parser.parse_args()
 
-    maze_str = get_new_maze(args.height, args.width, nfood=args.food,
+    maze_str = create_maze(args.height, args.width, nfood=args.food,
                             rng=args.seed, dead_ends=args.dead_ends)
 
     sys.stdout.write(maze_str+'\n')
