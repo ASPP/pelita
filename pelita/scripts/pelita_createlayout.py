@@ -87,7 +87,7 @@ def main():
                             rng=args.seed, dead_ends=args.dead_ends)
 
     sys.stdout.write(maze_str+'\n')
-    sys.stdout.close()
+    sys.stdout.flush()
 
 if __name__ == "__main__":
     main()
