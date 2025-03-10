@@ -500,26 +500,33 @@ class TkApplication:
             draw_line(-0.5, y - 0.5, self.mesh_graph.mesh_width - 0.5, y - 0.5)
 
         label_size = 5
+        label_style = {
+            "font": (None, label_size),
+            "fill": "#884488",
+            "tag": "grid",
+            "justify": tkinter.CENTER,
+            "anchor": tkinter.CENTER
+        }
 
         for x in range(self.mesh_graph.mesh_width):
             x_pos = self.mesh_graph.mesh_to_screen_x(x, 0)
             # the margin is not autoscaling, so we do the shift on the real grid
             y_pos = self.mesh_graph.mesh_to_screen_y(0, -1) - label_size
-            self.ui.game_canvas.create_text(x_pos, y_pos,
-                text=str(x),
-                font=(None, label_size),
-                fill="#884488", tag="grid",
-                justify=tkinter.CENTER, anchor=tkinter.CENTER)
+            self.ui.game_canvas.create_text(x_pos, y_pos, text=str(x), **label_style)
 
         for y in range(self.mesh_graph.mesh_height):
             # the margin is not autoscaling, so we do the shift on the real grid
             x_pos = self.mesh_graph.mesh_to_screen_x(0, -1) - label_size
             y_pos = self.mesh_graph.mesh_to_screen_y(y, 0)
-            self.ui.game_canvas.create_text(x_pos, y_pos,
-                text=str(y),
-                font=(None, label_size),
-                fill="#884488", tag="grid",
-                justify=tkinter.CENTER, anchor=tkinter.CENTER)
+            self.ui.game_canvas.create_text(x_pos, y_pos, text=str(y), **label_style)
+
+        x_pos = self.mesh_graph.mesh_to_screen_x(self.mesh_graph.mesh_width, -0.7)
+        y_pos = self.mesh_graph.mesh_to_screen_y(0, -1) - label_size
+        self.ui.game_canvas.create_text(x_pos, y_pos, text="x", **label_style)
+
+        x_pos = self.mesh_graph.mesh_to_screen_x(0, -1) - label_size
+        y_pos = self.mesh_graph.mesh_to_screen_y(self.mesh_graph.mesh_height, -0.7)
+        self.ui.game_canvas.create_text(x_pos, y_pos, text="y", **label_style)
 
     def draw_line_of_sight(self, game_state):
         self.ui.game_canvas.delete("line_of_sight")
