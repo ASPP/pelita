@@ -499,6 +499,26 @@ class TkApplication:
         for y in range(self.mesh_graph.mesh_height + 1):
             draw_line(-0.5, y - 0.5, self.mesh_graph.mesh_width - 0.5, y - 0.5)
 
+        label_size = 5
+
+        for x in range(self.mesh_graph.mesh_width):
+            x_pos = self.mesh_graph.mesh_to_screen_x(x, 0)
+            y_pos = self.mesh_graph.mesh_to_screen_y(-1, 0.6)
+            self.ui.game_canvas.create_text(x_pos, y_pos,
+                text=str(x),
+                font=(None, label_size),
+                fill="#884488", tag="grid",
+                justify=tkinter.CENTER, anchor=tkinter.CENTER)
+
+        for y in range(self.mesh_graph.mesh_height):
+            x_pos = self.mesh_graph.mesh_to_screen_x(-1, 0.6)
+            y_pos = self.mesh_graph.mesh_to_screen_y(y, 0)
+            self.ui.game_canvas.create_text(x_pos, y_pos,
+                text=str(y),
+                font=(None, label_size),
+                fill="#884488", tag="grid",
+                justify=tkinter.CENTER, anchor=tkinter.CENTER)
+
     def draw_line_of_sight(self, game_state):
         self.ui.game_canvas.delete("line_of_sight")
         if not self._grid_enabled:
