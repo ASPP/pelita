@@ -265,25 +265,15 @@ viewer_opt.add_argument('--progress', action='store_const', const='progress',
                         dest='viewer', help=long_help('Use the progress viewer.'))
 viewer_opt.add_argument('--tk', action='store_const', const='tk',
                         dest='viewer', help='Use the tk viewer (default).')
-viewer_opt.add_argument('--tk-no-sync', action='store_const', const='tk-no-sync',
-                        dest='viewer', help=long_help('Uses the tk viewer in an unsynchronized mode.'))
 parser.set_defaults(viewer='tk')
 
 advanced_settings = parser.add_argument_group('Advanced settings')
 advanced_settings.add_argument('--reply-to', type=str, metavar='URL', dest='reply_to',
                                help=long_help('Communicate the result of the game on this channel.'))
-
-publisher_opt = advanced_settings.add_mutually_exclusive_group()
-publisher_opt.add_argument('--publish', type=str, metavar='URL', dest='publish_to',
-                           help=long_help('Publish the game to this zmq socket.'))
-publisher_opt.add_argument('--no-publish', const=False, action='store_const', dest='publish_to',
-                           help=long_help('Do not publish.'))
-parser.set_defaults(publish_to="tcp://127.0.0.1")
-
+advanced_settings.add_argument('--publish', type=str, metavar='URL', dest='publish_to',
+                               help=long_help('Publish the game to this zmq socket.'))
 advanced_settings.add_argument('--controller', type=str, metavar='URL', default="tcp://127.0.0.1",
                                help=long_help('Channel for controlling the game.'))
-advanced_settings.add_argument('--external-controller', const=True, action='store_const',
-                               help=long_help('Force control by an external controller.'))
 
 parser.epilog = """\
 Team Specification:
@@ -333,9 +323,6 @@ def main():
         print('\n'.join(layouts))
         sys.exit(0)
 
-    if args.viewer.startswith('tk') and not args.publish_to:
-        raise ValueError("Options --tk (or --tk-no-sync) and --no-publish are mutually exclusive.")
-
     if args.log:
         start_logging(args.log)
 
@@ -359,29 +346,32 @@ def main():
 
     if args.viewer == 'null':
         viewers = []
+    elif args.viewer == 'tk':
+        geometry = args.geometry
+        delay = int(1000./args.fps)
+        stop_at = args.stop_at
+        stop_after_kill = args.stop_after_kill
+
+        viewer_options = {
+            "fullscreen" : args.fullscreen,
+            "geometry": geometry,
+            "delay": delay,
+            "stop_at": stop_at,
+            "stop_after_kill": stop_after_kill
+        }
+        viewers = [('tk', viewer_options)]
     else:
-        viewers = [args.viewer]
-
-    geometry = args.geometry
-    delay = int(1000./args.fps)
-    stop_at = args.stop_at
-    stop_after_kill = args.stop_after_kill
-
-    viewer_options = {
-        "fullscreen" : args.fullscreen,
-        "geometry": geometry,
-        "delay": delay,
-        "stop_at": stop_at,
-        "stop_after_kill": stop_after_kill
-    }
+        viewers = [(args.viewer, None)]
 
     if args.reply_to:
         viewers.append(('reply-to', args.reply_to))
+    if args.publish_to:
+        viewers.append(('publish-to', args.publish_to))
     if args.write_replay:
         viewers.append(('write-replay-to', args.write_replay))
 
     if args.replayfile:
-        viewer_state = pelita.game.setup_viewers(viewers, options=viewer_options)
+        viewer_state = pelita.game.setup_viewers(viewers)
         if pelita.game.controller_exit(viewer_state, await_action='set_initial'):
             sys.exit(0)
 
@@ -460,7 +450,7 @@ def main():
     layout_dict = pelita.layout.parse_layout(layout_string)
     pelita.game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, rng=rng,
                          allow_camping=args.allow_camping, timeout_length=args.timeout_length, error_limit=args.error_limit,
-                         viewers=viewers, viewer_options=viewer_options,
+                         viewers=viewers,
                          store_output=args.store_output,
                          team_infos=(args.append_blue, args.append_red))
 
