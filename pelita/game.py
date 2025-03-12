@@ -93,7 +93,7 @@ def controller_exit(state, await_action='play_step'):
 
 def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300,
              rng=None, allow_camping=False, error_limit=5, timeout_length=3,
-             viewers=None, viewer_options=None, store_output=False,
+             viewers=None, store_output=False,
              team_names=(None, None), team_infos=(None, None),
              allow_exceptions=False, print_result=True):
     """ Run a pelita match.
@@ -141,8 +141,6 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300,
     viewers : list[viewer1, viewer2, ...]
            List of viewers to attach to the game. Implemented viewers: 'ascii',
            'progress', tk'. If None, no viewer is attached.
-
-    viewer_options : do not use!
 
     store_output : False or str
                 if store_output is a string it will be interpreted as a path to a
@@ -201,7 +199,6 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300,
                        allow_camping=allow_camping,
                        error_limit=error_limit, timeout_length=timeout_length,
                        rng=rng, viewers=viewers,
-                       viewer_options=viewer_options,
                        store_output=store_output, team_names=team_names,
                        team_infos=team_infos,
                        print_result=print_result)
@@ -221,15 +218,8 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300,
     return state
 
 
-def setup_viewers(viewers=None, options=None, print_result=True):
+def setup_viewers(viewers, print_result=True):
     """ Returns a list of viewers from the given strings. """
-    if viewers is None:
-        viewers = []
-
-    if options is None:
-        options = {}
-
-    zmq_publisher = None
 
     viewer_state = {
         'viewers': [],
@@ -237,35 +227,35 @@ def setup_viewers(viewers=None, options=None, print_result=True):
         'controller': None
     }
 
-    for viewer in viewers:
+    for v in viewers:
+        if isinstance(v, str):
+            viewer = v
+            viewer_opts = {}
+        else:
+            viewer, viewer_opts = v
+
         if viewer == 'ascii':
             viewer_state['viewers'].append(AsciiViewer())
         elif viewer == 'progress':
             viewer_state['viewers'].append(ProgressViewer())
-        elif len(viewer) == 2 and viewer[0] == 'reply-to':
-            viewer_state['viewers'].append(ReplyToViewer(viewer[1]))
-        elif len(viewer) == 2 and viewer[0] == 'write-replay-to':
-            viewer_state['viewers'].append(ReplayWriter(open(viewer[1], 'w')))
-        elif viewer in ('tk', 'tk-no-sync'):
-            if not zmq_publisher:
-                zmq_publisher = ZMQPublisher(address='tcp://127.0.0.1')
-                viewer_state['viewers'].append(zmq_publisher)
-            if viewer == 'tk':
-                viewer_state['controller'] = setup_controller()
-            if viewer_state['controller']:
-                proc = TkViewer(address=zmq_publisher.socket_addr, controller=viewer_state['controller'].socket_addr,
-                                stop_after=options.get('stop_at'),
-                                stop_after_kill=options.get('stop_after_kill'),
-                                geometry=options.get('geometry'),
-                                delay=options.get('delay'),
-                                fullscreen=options.get('fullscreen'))
-            else:
-                proc = TkViewer(address=zmq_publisher.socket_addr, controller=None,
-                                stop_after=options.get('stop_at'),
-                                stop_after_kill=options.get('stop_after_kill'),
-                                geometry=options.get('geometry'),
-                                delay=options.get('delay'),
-                                fullscreen=options.get('fullscreen'))
+        elif viewer == 'reply-to':
+            viewer_state['viewers'].append(ReplyToViewer(viewer_opts))
+        elif viewer == 'write-replay-to':
+            viewer_state['viewers'].append(ReplayWriter(open(viewer_opts, 'w')))
+        elif viewer == 'publish-to':
+            zmq_external_publisher = ZMQPublisher(address=viewer_opts, bind=False)
+            viewer_state['viewers'].append(zmq_external_publisher)
+        elif viewer == 'tk':
+            zmq_publisher = ZMQPublisher(address='tcp://127.0.0.1')
+            viewer_state['viewers'].append(zmq_publisher)
+            viewer_state['controller'] = setup_controller()
+
+            proc = TkViewer(address=zmq_publisher.socket_addr, controller=viewer_state['controller'].socket_addr,
+                            stop_after=viewer_opts.get('stop_at'),
+                            stop_after_kill=viewer_opts.get('stop_after_kill'),
+                            geometry=viewer_opts.get('geometry'),
+                            delay=viewer_opts.get('delay'),
+                            fullscreen=viewer_opts.get('fullscreen'))
 
         else:
             raise ValueError(f"Unknown viewer {viewer}.")
@@ -279,10 +269,12 @@ def setup_viewers(viewers=None, options=None, print_result=True):
 
 def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", rng=None,
                allow_camping=False, error_limit=5, timeout_length=3,
-               viewers=None, viewer_options=None, store_output=False,
+               viewers=None, store_output=False,
                team_names=(None, None), team_infos=(None, None),
                allow_exceptions=False, print_result=True):
     """ Generates a game state for the given teams and layout with otherwise default values. """
+    if viewers is None:
+        viewers = []
 
     # check that two teams have been given
     if not len(team_specs) == 2:
@@ -317,7 +309,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", rng=N
     if side_no_food:
         warn(f"Layout has no food for team {side_no_food}.", NoFoodWarning)
 
-    viewer_state = setup_viewers(viewers, options=viewer_options, print_result=print_result)
+    viewer_state = setup_viewers(viewers, print_result=print_result)
 
     rng = default_rng(rng)
 
