@@ -454,6 +454,7 @@ class TkApplication:
         self.mesh_graph.num_y = game_state['shape'][1]
 
         self.draw_grid()
+        self.draw_overlay(game_state.get('overlays', []))
         self.draw_selected(game_state)
         self.draw_line_of_sight(game_state)
         self.draw_bot_shadow(game_state)
@@ -522,6 +523,26 @@ class TkApplication:
         x_pos = self.mesh_graph.mesh_to_screen_x(0, -1) - label_size
         y_pos = self.mesh_graph.mesh_to_screen_y(self.mesh_graph.mesh_height, -0.7)
         self.ui_game_canvas.create_text(x_pos, y_pos, text="y", **label_style)
+
+    def draw_overlay(self, overlays):
+        """ Draws a light grid on the background.
+        """
+        self.ui_game_canvas.delete("overlay")
+        if not self._grid_enabled:
+            return
+
+        def draw_box(pos, fill_col):
+            ul = self.mesh_graph.mesh_to_screen(pos, (-1, -1))
+            ur = self.mesh_graph.mesh_to_screen(pos, (1, -1))
+            ll = self.mesh_graph.mesh_to_screen(pos, (-1, 1))
+            lr = self.mesh_graph.mesh_to_screen(pos, (1, 1))
+
+            self.ui_game_canvas.create_rectangle(*ul, *lr, width=0, fill=fill_col, tags=("overlay",))
+
+        for overlay in overlays:
+            if fill_col := overlay.get("fill"):
+                for pos in overlay.get("pos", []):
+                    draw_box(pos, fill_col)
 
     def draw_line_of_sight(self, game_state):
         self.ui_game_canvas.delete("line_of_sight")
