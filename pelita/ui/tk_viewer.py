@@ -151,7 +151,7 @@ class TkViewer:
             # we currently don’t care about the action
             game_state = message["__data__"]
             if game_state:
-                self.app.observe(game_state)
+                self.app.observe(game_state, self.standalone_mode)
 
             self._delay = 2
             self._after(2, self.read_queue)

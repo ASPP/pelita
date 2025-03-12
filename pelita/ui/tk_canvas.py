@@ -65,6 +65,11 @@ class MeshGraph:
         self.screen_width = screen_width
         self.padding = 10
 
+    def update_mesh_shape(self, shape):
+        mesh_width, mesh_height = shape
+        self.mesh_width = mesh_width
+        self.mesh_height = mesh_height
+
     @property
     def rect_width(self):
         """ The width of a single field.
@@ -170,15 +175,22 @@ class TkApplication:
 
         self.game_finish_overlay = lambda: None
 
-        self.mesh_graph = None
         self.geometry = geometry
+        if self.geometry is None:
+            screensize = (
+                max(250, self.window.winfo_screenwidth() - 100),
+                max(250, self.window.winfo_screenheight() - 100)
+                )
+        else:
+            screensize = self.geometry
+
+        self.mesh_graph = MeshGraph(0, 0, screensize[0], screensize[1])
+
         self.fullscreen = fullscreen
         self._fullscreen_enabled = fullscreen
 
         self._default_font = tkinter.font.nametofont("TkDefaultFont")
         self._default_font_size = self._default_font.cget('size')
-
-        self.size_changed = True
 
         self._grid_enabled = False
 
@@ -186,12 +198,11 @@ class TkApplication:
         self._fps = None
         self.selected = None
 
-        self.game_uuid = None
         self.bot_sprites = {}
         self.shadow_sprites = {}
+        self.init_bot_sprites([None] * 4)
 
-        self._universe = None
-        self._game_state = None
+        self._game_state = {}
 
         self.ui_header_canvas = tkinter.Canvas(window, height=50)
         self.ui_header_canvas.config(background="white", bd=0, highlightthickness=0, relief='ridge')
@@ -363,25 +374,7 @@ class TkApplication:
         if self.controller_socket:
             self.window.after_idle(self.request_initial)
 
-
-    def init_mesh(self, game_state):
-        width, height = game_state['shape']
-
-        if self.geometry is None:
-            screensize = (
-                max(250, self.window.winfo_screenwidth() - 100),
-                max(250, self.window.winfo_screenheight() - 100)
-                )
-        else:
-            screensize = self.geometry
-        scale_x = screensize[0] / width
-        scale_y = screensize[1] / height
-        scale = int(min(scale_x, scale_y, 50))
-
-        self.mesh_graph = MeshGraph(width, height, scale * width, scale * height)
-        self.init_bot_sprites(game_state['bots'])
-
-    def update(self, game_state=None):
+    def update(self, game_state=None, redraw=False):
         # Update the times for the fps calculation (if we are running)
         # Our fps is only relevant for how often the bots update our viewer.
         # When the viewer updates itself, we do not count it.
@@ -401,20 +394,22 @@ class TkApplication:
                 self._times = self._times[-3:]
 
         if game_state is not None:
+            if self._game_state.get("shape") != game_state.get("shape"):
+                redraw = True
+            if self._game_state.get("walls") != game_state.get("walls"):
+                redraw = True
+
             self._game_state = game_state
         game_state = self._game_state
         if not game_state:
             return
 
-        #if game_state['game_uuid'] != self.game_uuid:
-        if not self.game_uuid:
-            #self.game_uuid = game_state['game_uuid']
-            self.game_uuid = 1
-            self.init_mesh(game_state)
+        self.mesh_graph.update_mesh_shape(game_state['shape'])
 
+        # Check and adjust sizes
         if ((self.mesh_graph.screen_width, self.mesh_graph.screen_height)
             != (self.ui_game_canvas.winfo_width(), self.ui_game_canvas.winfo_height())):
-            self.size_changed = True
+            redraw = True
 
         self.mesh_graph.screen_width = self.ui_game_canvas.winfo_width()
         self.mesh_graph.screen_height = self.ui_game_canvas.winfo_height()
@@ -426,7 +421,8 @@ class TkApplication:
             if self._default_font.cget('size') != self._default_font_size:
                 self._default_font.configure(size=self._default_font_size)
 
-        self.draw_universe(game_state)
+
+        self.draw_universe(game_state, redraw=redraw)
 
         eaten_food = []
         for food_pos, food_item in self.food_items.items():
@@ -437,7 +433,6 @@ class TkApplication:
         for food_pos in eaten_food:
             del self.food_items[food_pos]
 
-
         winning_team_idx = game_state.get("whowins")
         if winning_team_idx is None:
             self.draw_end_of_game(None)
@@ -447,33 +442,32 @@ class TkApplication:
         elif winning_team_idx == 2:
             self.draw_game_draw()
 
-        self.size_changed = False
 
-    def draw_universe(self, game_state):
+    def draw_universe(self, game_state, redraw):
         self.mesh_graph.num_x = game_state['shape'][0]
         self.mesh_graph.num_y = game_state['shape'][1]
 
-        self.draw_grid()
         self.draw_overlay(game_state.get('overlays', []))
+        self.draw_grid(redraw=redraw)
         self.draw_selected(game_state)
         self.draw_line_of_sight(game_state)
         self.draw_bot_shadow(game_state)
-        self.draw_background()
-        self.draw_maze(game_state)
+        self.draw_background(redraw=redraw)
+        self.draw_maze(game_state, redraw=redraw)
         self.draw_food(game_state)
 
         self.draw_title(game_state)
-        self.draw_shadow_bots(game_state)
-        self.draw_bots(game_state)
+        self.draw_shadow_bots(game_state, redraw=redraw)
+        self.draw_bots(game_state, redraw=redraw)
 
         self.draw_moves(game_state)
 
         self.draw_status_info(game_state)
 
-    def draw_grid(self):
+    def draw_grid(self, redraw):
         """ Draws a light grid on the background.
         """
-        if not self.size_changed:
+        if not redraw:
             return
         self.ui_game_canvas.delete("grid")
 
@@ -549,6 +543,11 @@ class TkApplication:
         if not self._grid_enabled:
             return
 
+        bot = game_state.get('turn')
+        if bot is None:
+            # game has not started yet or we are in layout-only mode
+            return
+
         scale = self.mesh_graph.half_scale_x * 0.1
 
         def draw_box(pos):
@@ -558,11 +557,6 @@ class TkApplication:
             lr = self.mesh_graph.mesh_to_screen(pos, (1, 1))
 
             self.ui_game_canvas.create_rectangle(*ul, *lr, width=2, outline='#111', tags=("line_of_sight",))
-
-        bot = game_state['turn']
-        if bot is None:
-            # game has not started yet
-            return
 
         line_col = STRONG_BLUE if bot % 2 == 0 else STRONG_RED
         fill_col = LIGHT_BLUE if bot % 2 == 0 else LIGHT_RED
@@ -648,6 +642,11 @@ class TkApplication:
         if not self._grid_enabled:
             return
 
+        bot = game_state.get('turn')
+        if bot is None:
+            # game has not started yet or we are in layout-only mode
+            return
+
         border_col = "#000"
         fill_col = LIGHT_GREY
 
@@ -660,11 +659,6 @@ class TkApplication:
             lr = self.mesh_graph.mesh_to_screen(pos, (1, 1))
 
             self.ui_game_canvas.create_rectangle(*ul, *lr, width=2, outline='#111', tags=("bot_shadow",))
-
-        bot = game_state['turn']
-        if bot is None:
-            # game has not started yet
-            return
 
         try:
             old_pos = tuple(game_state['requested_moves'][bot]['previous_position'])
@@ -758,18 +752,16 @@ class TkApplication:
 
     def toggle_grid(self):
         self._grid_enabled = not self._grid_enabled
-        self.size_changed = True
         self._check_grid_toggle_state()
-        self.update()
+        self.update(redraw=True)
 
     def toggle_fullscreen(self):
         self._fullscreen_enabled = not self._fullscreen_enabled
-        self.size_changed = True
         if self._fullscreen_enabled:
             self.window.attributes('-fullscreen',True)
         else:
             self.window.attributes('-fullscreen',False)
-        self.update()
+        self.update(redraw=True)
 
     def _check_grid_toggle_state(self):
         if self._grid_enabled:
@@ -786,10 +778,10 @@ class TkApplication:
             self.selected = selected
         self.update()
 
-    def draw_background(self):
+    def draw_background(self, redraw):
         """ Draws a line between blue and red team.
         """
-        if not self.size_changed:
+        if not redraw:
             return
         self.ui_game_canvas.delete("background")
 
@@ -805,6 +797,9 @@ class TkApplication:
 
     def draw_title(self, game_state):
         self.ui_header_canvas.delete("title")
+
+        if "team_names" not in game_state:
+            return
 
         center = self.ui_header_canvas.winfo_width() // 2
 
@@ -868,27 +863,28 @@ class TkApplication:
         self.ui_header_canvas.create_text(self.ui_header_canvas.winfo_width() - 5, 20 + font_size, text=right_status + " ", font=(self._default_font, status_font_size), tags="title", anchor=tkinter.E)
 
     def draw_status_info(self, game_state):
-        round = "–" if game_state["round"] is None else game_state["round"]
-        max_rounds = "–" if game_state["max_rounds"] is None else game_state["max_rounds"]
-        turn = "–" if game_state["turn"] is None else game_state["turn"]
-        layout_name = "–" if game_state["layout_name"] is None else game_state["layout_name"]
+        if "round" in game_state:
+            round = "–" if game_state["round"] is None else game_state["round"]
+            max_rounds = "–" if game_state["max_rounds"] is None else game_state["max_rounds"]
+            turn = "–" if game_state["turn"] is None else game_state["turn"]
 
-        round_info = f"Round {round:>3}/{max_rounds}"
-        self.ui_status_round_info.config(text=round_info)
+            round_info = f"Round {round:>3}/{max_rounds}"
+            self.ui_status_round_info.config(text=round_info)
 
-        if self._fps is not None:
-            fps_info = "%.f fps" % self._fps
-        else:
-            fps_info = "– fps"
-        self.ui_status_fps_info.config(text=fps_info)
-
-        bot_colors = [BLUE, RED, BLUE, RED]
-        for idx, circle in enumerate(self.ui_bot_traffic_lights_c):
-            if turn == idx:
-                self.ui_bot_traffic_lights_canvas.itemconfig(circle, fill=bot_colors[idx])
+            if self._fps is not None:
+                fps_info = "%.f fps" % self._fps
             else:
-                self.ui_bot_traffic_lights_canvas.itemconfig(circle, fill="#bbb")
+                fps_info = "– fps"
+            self.ui_status_fps_info.config(text=fps_info)
 
+            bot_colors = [BLUE, RED, BLUE, RED]
+            for idx, circle in enumerate(self.ui_bot_traffic_lights_c):
+                if turn == idx:
+                    self.ui_bot_traffic_lights_canvas.itemconfig(circle, fill=bot_colors[idx])
+                else:
+                    self.ui_bot_traffic_lights_canvas.itemconfig(circle, fill="#bbb")
+
+        layout_name = "–" if game_state.get("layout_name") is None else game_state.get("layout_name")
         self.ui_status_layout_info.config(text=layout_name)
 
     def draw_selected(self, game_state):
@@ -981,11 +977,9 @@ class TkApplication:
         self.ui_game_canvas.delete(tkinter.ALL)
 
     def draw_food(self, game_state):
-#        if not self.size_changed:
-#            return
         self.ui_game_canvas.delete("food")
         self.food_items = {}
-        max_food_age = game_state["max_food_age"]
+        max_food_age = game_state.get("max_food_age")
         for position in game_state['food']:
             model_x, model_y = position
             food_age = game_state['food_age'].get(position, 0)
@@ -998,9 +992,10 @@ class TkApplication:
             food_item.draw(self.ui_game_canvas, show_lifetime=False)
             self.food_items[position] = food_item
 
-    def draw_maze(self, game_state):
-        if not self.size_changed:
+    def draw_maze(self, game_state, redraw):
+        if not redraw:
             return
+
         self.ui_game_canvas.delete("wall")
         # we keep all wall items stored in a list
         # some versions of Python seem to forget about drawing
@@ -1033,10 +1028,11 @@ class TkApplication:
         }
 
     def draw_moves(self, game_state):
-        if game_state['turn'] is None:
+        self.ui_game_canvas.delete("arrow")
+
+        if game_state.get('turn') is None:
             return
 
-        self.ui_game_canvas.delete("arrow")
         # we keep all arrow items stored in a list
         # some versions of Python seem to forget about drawing
         # them otherwise
@@ -1081,26 +1077,29 @@ class TkApplication:
             self.arrow_items.append(arrow_item)
 
 
-    def draw_bots(self, game_state):
+    def draw_bots(self, game_state, redraw):
         if game_state:
-            for bot_id, was_killed in enumerate(game_state["bot_was_killed"]):
+            for bot_id, was_killed in enumerate(game_state.get("bot_was_killed", [])):
                 if was_killed:
                     self.bot_sprites[bot_id].position = None
 
         for bot_id, bot_sprite in self.bot_sprites.items():
-            say = game_state and game_state["say"][bot_id]
+            if game_state and "say" in game_state:
+                say = game_state["say"][bot_id]
+            else:
+                say = ""
             bot_sprite.move_to(game_state["bots"][bot_sprite.bot_id],
                                self.ui_game_canvas,
                                game_state,
-                               force=self.size_changed,
+                               force=redraw,
                                say=say,
                                show_id=self._grid_enabled)
 
-    def draw_shadow_bots(self, game_state):
+    def draw_shadow_bots(self, game_state, redraw):
         # Draw the shadowbots when debug mode (grid) is enabled
         # Otherwise make sure that they are deleted
 
-        if game_state['turn'] is None:
+        if game_state.get('turn') is None:
             # We cannot show shadow bots before the first turn has been played,
             # as we would only see the bots from the set_initial phase, and
             # only the blue bots (those that were shown to the second, red, player).
@@ -1121,7 +1120,7 @@ class TkApplication:
                 bot_sprite.move_to(shadow_bots[bot_id],
                                     self.ui_game_canvas,
                                     game_state,
-                                    force=self.size_changed,
+                                    force=redraw,
                                     show_id=self._grid_enabled)
 
     def toggle_running(self):
@@ -1174,28 +1173,34 @@ class TkApplication:
             self._delay = self._min_delay
         self.request_step()
 
-    def observe(self, game_state):
-        step = (game_state['round'], game_state['turn'])
-        if step in self._observed_steps:
-            skip_request = True
+    def observe(self, game_state, standalone_mode=False):
+        # If in standalone mode, we will simply display everything that we receive
+
+        if standalone_mode:
+            self.running = False
         else:
-            skip_request = False
-            self._observed_steps.add(step)
+            step = (game_state['round'], game_state['turn'])
+            if step in self._observed_steps:
+                skip_request = True
+            else:
+                skip_request = False
+                self._observed_steps.add(step)
+
         # ensure walls, foods and bots positions are list of tuples
         game_state['walls'] = _ensure_list_tuples(game_state['walls'])
         game_state['food'] = _ensure_list_tuples(game_state['food'])
         game_state['bots'] = _ensure_list_tuples(game_state['bots'])
         game_state['shape'] = tuple(game_state['shape'])
-        game_state['food_age'] = {tuple(pos): food_age for pos, food_age in game_state['food_age']}
+        game_state['food_age'] = {tuple(pos): food_age for pos, food_age in game_state.get('food_age', [])}
 
         # check if a bot has been killed in the last round
         # gs.bot_was_killed does not reset the True state for a killed bot
         # until a whole round is over, so we have to cache previous values
         bot_was_killed = False
-        for last, now in zip(self._last_bot_was_killed, game_state['bot_was_killed']):
+        for last, now in zip(self._last_bot_was_killed, game_state.get('bot_was_killed', [])):
             if now and not last:
                 bot_was_killed = True
-        self._last_bot_was_killed = game_state['bot_was_killed']
+        self._last_bot_was_killed = game_state.get('bot_was_killed', [])
 
         if self._stop_after_kill and bot_was_killed:
             self.running = False
