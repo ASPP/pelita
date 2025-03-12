@@ -71,7 +71,9 @@ class TkViewer:
     app : The TkApplication class
 
     """
-    def __init__(self, address, controller_address=None, geometry=None, delay=1, stop_after=None, stop_after_kill=False, fullscreen=False):
+    def __init__(self, address, controller_address=None, standalone_mode=False,
+                       geometry=None, delay=1, stop_after=None, stop_after_kill=False,
+                       fullscreen=False):
         self.address = address
         self.controller_address = controller_address
         self.delay = delay
@@ -79,11 +81,15 @@ class TkViewer:
         self.fullscreen = fullscreen
         self.stop_after = stop_after
         self.stop_after_kill = stop_after_kill
+        self.standalone_mode = standalone_mode
 
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
         self.socket.setsockopt_unicode(zmq.SUBSCRIBE, "")
-        self.socket.connect(self.address)
+        if self.standalone_mode:
+            self.socket.bind(self.address)
+        else:
+            self.socket.connect(self.address)
         self.poll = zmq.Poller()
         self.poll.register(self.socket, zmq.POLLIN)
 
@@ -150,7 +156,7 @@ class TkViewer:
             self._delay = 2
             self._after(2, self.read_queue)
         except zmq.Again as e:
-            _logger.debug('Nothing received. Waiting %.3d seconds.', self._delay)
+            _logger.debug('Nothing received. Waiting %0.3d milliseconds.', self._delay)
             self._after(self._delay, self.read_queue)
             self._delay = self._delay * 2
         except zmq.ZMQError as e:

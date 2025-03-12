@@ -29,6 +29,8 @@ parser.add_argument('subscribe_sock', metavar="URL", type=str,
                     help='subscribe socket')
 parser.add_argument('--controller-address', metavar="URL", type=str,
                     help='controller address')
+parser.add_argument('--standalone-mode', const=True, action='store_const',
+                    help='Activate bind mode for a standalone viewer')
 parser.add_argument('--geometry', type=geometry_string,
                     help='geometry')
 parser.add_argument('--fullscreen', const=True, action='store_const',
@@ -61,6 +63,7 @@ def main():
         'geometry': args.geometry,
         'fullscreen' : args.fullscreen,
         'delay': args.delay,
+        'standalone_mode': args.standalone_mode,
         'stop_after': args.stop_after,
         'stop_after_kill': args.stop_after_kill
     }
