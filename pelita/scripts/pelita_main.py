@@ -68,8 +68,8 @@ def scan(team_spec):
             import time
             import select
             import sys
-            start = time.time()
-            while start + 5 > time.time():
+            start = time.monotonic()
+            while start + 5 > time.monotonic():
                 time.sleep(0.2)
                 (addr, team_name) = q.get(timeout=5)
                 #  if not players:
