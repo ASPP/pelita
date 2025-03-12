@@ -538,6 +538,9 @@ class TkApplication:
                 for pos in overlay.get("pos", []):
                     draw_box(pos, fill_col)
 
+        self.ui_game_canvas.tag_lower("overlay")
+        self.ui_game_canvas.tag_raise("wall")
+
     def draw_line_of_sight(self, game_state):
         self.ui_game_canvas.delete("line_of_sight")
         if not self._grid_enabled:
