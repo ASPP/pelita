@@ -499,23 +499,31 @@ class TkApplication:
         }
 
         for x in range(self.mesh_graph.mesh_width):
+            label = f"{x}"
+
             x_pos = self.mesh_graph.mesh_to_screen_x(x, 0)
             # the margin is not autoscaling, so we do the shift on the real grid
             y_pos = self.mesh_graph.mesh_to_screen_y(0, -1) - label_size
-            self.ui_game_canvas.create_text(x_pos, y_pos, text=str(x), **label_style)
+            self.ui_game_canvas.create_text(x_pos, y_pos, text=label, **label_style)
+            y_pos = self.mesh_graph.mesh_to_screen_y(self.mesh_graph.mesh_height, -1) + label_size
+            self.ui_game_canvas.create_text(x_pos, y_pos, text=label, **label_style)
 
         for y in range(self.mesh_graph.mesh_height):
+            label = f"{y}"
+
             # the margin is not autoscaling, so we do the shift on the real grid
             x_pos = self.mesh_graph.mesh_to_screen_x(0, -1) - label_size
             y_pos = self.mesh_graph.mesh_to_screen_y(y, 0)
-            self.ui_game_canvas.create_text(x_pos, y_pos, text=str(y), **label_style)
+            self.ui_game_canvas.create_text(x_pos, y_pos, text=label, **label_style)
+            x_pos = self.mesh_graph.mesh_to_screen_x(self.mesh_graph.mesh_width, -1) + label_size
+            self.ui_game_canvas.create_text(x_pos, y_pos, text=label, **label_style)
 
-        x_pos = self.mesh_graph.mesh_to_screen_x(self.mesh_graph.mesh_width, -0.7)
+        x_pos = self.mesh_graph.mesh_to_screen_x(0, -0.7)
         y_pos = self.mesh_graph.mesh_to_screen_y(0, -1) - label_size
         self.ui_game_canvas.create_text(x_pos, y_pos, text="x", **label_style)
 
         x_pos = self.mesh_graph.mesh_to_screen_x(0, -1) - label_size
-        y_pos = self.mesh_graph.mesh_to_screen_y(self.mesh_graph.mesh_height, -0.7)
+        y_pos = self.mesh_graph.mesh_to_screen_y(0, -0.7)
         self.ui_game_canvas.create_text(x_pos, y_pos, text="y", **label_style)
 
     def draw_overlay(self, overlays):
