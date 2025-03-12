@@ -684,33 +684,6 @@ class Bot:
         # sanitize text so that funny users can't break the GUI
         self._say = sanitize_say(text)
 
-    # def get_direction(self, position):
-        # """ Return the direction needed to get to the given position.
-
-        # Raises
-        # ======
-        # ValueError
-            # If the position cannot be reached by a legal move
-        # """
-        # direction = (position[0] - self.position[0], position[1] - self.position[1])
-        # if direction not in self.legal_directions:
-            # raise ValueError("Cannot reach position %s (would have been: %s)." % (position, direction))
-        # return direction
-
-    # def get_position(self, direction):
-        # """ Return the position reached with the given direction
-
-        # Raises
-        # ======
-        # ValueError
-            # If the direction is not legal.
-        # """
-        # if direction not in self.legal_directions:
-            # raise ValueError(f"Direction {direction} is not legal.")
-        # position = (direction[0] + self.position[0], direction[1] + self.position[1])
-        # return position
-
-
     def _repr_html_(self):
         """ Jupyter-friendly representation. """
         bot = self
@@ -816,7 +789,7 @@ def make_bots(game_state, *, walls, shape, initial_positions, homezone, rng, gra
     for idx, position in enumerate(game_state['bots']):
         tidx = idx % 2
         b = Bot(
-                bot_index=idx,
+                bot_index=idx // 2,
                 is_on_team=tidx == team_index,
                 score=game_state['score'][tidx],
                 deaths=game_state['deaths'][idx],
@@ -828,7 +801,7 @@ def make_bots(game_state, *, walls, shape, initial_positions, homezone, rng, gra
                 shaded_food=_ensure_list_tuples(game_state['shaded_food'][tidx]),
                 walls=walls,
                 shape=shape,
-                round=round,
+                round=game_state['round'],
                 bot_turn=bot_turn,
                 bot_char=BOT_I2N[idx],
                 random=rng,
