@@ -263,7 +263,7 @@ class TkApplication:
 
         self.ui_status_fps_info = tkinter.Label(self.ui_status_20,
             text="",
-            font=(None, 8),
+            font=(self._default_font, 8),
             foreground="black",
             background="white",
             justify=tkinter.CENTER)
@@ -271,7 +271,7 @@ class TkApplication:
 
         self.ui_status_selected = tkinter.Label(self.ui_status_22,
             text="",
-            font=(None, 8),
+            font=(self._default_font, 8),
             foreground="black",
             background="white",
             justify=tkinter.CENTER)
@@ -319,7 +319,7 @@ class TkApplication:
         for idx in range(4):
             spacing = 10
             x0, y0 = 2.5 + idx * spacing, 13
-            circle = self.ui_bot_traffic_lights_canvas.create_text(x0, y0, text=layout.BOT_I2N[idx], font=(None, 11), fill="black")
+            circle = self.ui_bot_traffic_lights_canvas.create_text(x0, y0, text=layout.BOT_I2N[idx], font=(self._default_font, 11), fill="black")
             self.ui_bot_traffic_lights_c.append(circle)
 
         self.ui_status_round_info = tkinter.Label(self.ui_status_02, text="", background="white")
@@ -836,15 +836,15 @@ class TkApplication:
         top = 15
         spacer = 3
 
-        middle_colon = self.ui_header_canvas.create_text(center, top, text=":", font=(None, font_size), tags="title", anchor=tkinter.CENTER)
+        middle_colon = self.ui_header_canvas.create_text(center, top, text=":", font=(self._default_font, font_size), tags="title", anchor=tkinter.CENTER)
         middle_colon_bottom = self.ui_header_canvas.bbox(middle_colon)[3]
         spacer = (self.ui_header_canvas.bbox(middle_colon)[3] - self.ui_header_canvas.bbox(middle_colon)[1]) / 2
 
-        self.ui_header_canvas.create_text(center, top, text=left_team, font=(None, font_size), fill=BLUE, tags="title", anchor=tkinter.E)
-        self.ui_header_canvas.create_text(center+2, top, text=right_team, font=(None, font_size), fill=RED, tags="title", anchor=tkinter.W)
+        self.ui_header_canvas.create_text(center, top, text=left_team, font=(self._default_font, font_size), fill=BLUE, tags="title", anchor=tkinter.E)
+        self.ui_header_canvas.create_text(center+2, top, text=right_team, font=(self._default_font, font_size), fill=RED, tags="title", anchor=tkinter.W)
 
-        bottom_text = self.ui_header_canvas.create_text(0 + 5, 20 + font_size, text=" " + left_status, font=(None, status_font_size), tags="title", anchor=tkinter.W)
-        self.ui_header_canvas.create_text(self.ui_header_canvas.winfo_width() - 5, 20 + font_size, text=right_status + " ", font=(None, status_font_size), tags="title", anchor=tkinter.E)
+        bottom_text = self.ui_header_canvas.create_text(0 + 5, 20 + font_size, text=" " + left_status, font=(self._default_font, status_font_size), tags="title", anchor=tkinter.W)
+        self.ui_header_canvas.create_text(self.ui_header_canvas.winfo_width() - 5, 20 + font_size, text=right_status + " ", font=(self._default_font, status_font_size), tags="title", anchor=tkinter.E)
 
     def draw_status_info(self, game_state):
         round = "–" if game_state["round"] is None else game_state["round"]
@@ -933,13 +933,13 @@ class TkApplication:
             for j in [-2, -1, 0, 1, 2]:
                 self.ui_game_canvas.create_text(center[0] - i, center[1] - j,
                         text=display_string,
-                        font=(None, font_size, "bold"),
+                        font=(self._default_font, font_size, "bold"),
                         fill="#ED1B22", tags="gameover",
                         justify=tkinter.CENTER, anchor=tkinter.CENTER)
 
         self.ui_game_canvas.create_text(center[0] , center[1] ,
                 text=display_string,
-                font=(None, font_size, "bold"),
+                font=(self._default_font, font_size, "bold"),
                 fill="#FFC903", tags="gameover",
                 justify=tkinter.CENTER, anchor=tkinter.CENTER)
 
@@ -1001,13 +1001,13 @@ class TkApplication:
         for sprite in self.bot_sprites.values():
             sprite.delete(self.ui_game_canvas)
         self.bot_sprites = {
-            idx: BotSprite(self.mesh_graph, team=idx % 2, bot_id=idx, position=bot)
+            idx: BotSprite(self.mesh_graph, team=idx % 2, bot_id=idx, position=bot, font=self._default_font)
             for idx, bot in enumerate(bot_positions)
         }
         for sprite in self.shadow_sprites.values():
             sprite.delete(self.ui_game_canvas)
         self.shadow_sprites = {
-            idx: BotSprite(self.mesh_graph, team=idx % 2, bot_id=idx, position=None, shadow=True)
+            idx: BotSprite(self.mesh_graph, team=idx % 2, bot_id=idx, position=None, shadow=True, font=self._default_font)
             for idx, bot in enumerate(bot_positions)
         }
 

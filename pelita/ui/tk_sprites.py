@@ -37,12 +37,13 @@ def pos_to_complex(pos):
     return x - y * 1j
 
 class TkSprite:
-    def __init__(self, mesh, *, position=None, _tag=None):
+    def __init__(self, mesh, *, position=None, _tag=None, font=None):
         self.mesh = mesh
 
         self._position = position
         self._direction = None
         self._tag = _tag
+        self._font = font
 
     @property
     def direction(self):
@@ -144,11 +145,11 @@ class BotSprite(TkSprite):
 
         canvas.delete("speak"+self.tag)
         # We increase readability with a white border around the text.
-        canvas.create_text(self.bounding_box()[0][0]-1, self.bounding_box()[0][1], text=say, font=(None, 12), fill="white", tags="speak"+self.tag)
-        canvas.create_text(self.bounding_box()[0][0]+1, self.bounding_box()[0][1], text=say, font=(None, 12), fill="white", tags="speak"+self.tag)
-        canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1]-1, text=say, font=(None, 12), fill="white", tags="speak"+self.tag)
-        canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1]+1, text=say, font=(None, 12), fill="white", tags="speak"+self.tag)
-        canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1], text=say, font=(None, 12), fill="black", tags="speak"+self.tag)
+        canvas.create_text(self.bounding_box()[0][0]-1, self.bounding_box()[0][1], text=say, font=(self._font, 12), fill="white", tags="speak"+self.tag)
+        canvas.create_text(self.bounding_box()[0][0]+1, self.bounding_box()[0][1], text=say, font=(self._font, 12), fill="white", tags="speak"+self.tag)
+        canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1]-1, text=say, font=(self._font, 12), fill="white", tags="speak"+self.tag)
+        canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1]+1, text=say, font=(self._font, 12), fill="white", tags="speak"+self.tag)
+        canvas.create_text(self.bounding_box()[0][0], self.bounding_box()[0][1], text=say, font=(self._font, 12), fill="black", tags="speak"+self.tag)
 
         canvas.delete("show_id" + self.tag)
         # we print the bot_id in the lower left corner
@@ -156,11 +157,11 @@ class BotSprite(TkSprite):
             bot_name = layout.BOT_I2N[self.bot_id ]
             shift_x = 5
             shift_y = 8
-            canvas.create_text(self.bounding_box()[0][0]-1 + shift_x, self.bounding_box()[1][1] - shift_y, text=bot_name, font=(None, 12), fill="white", tags="show_id"+self.tag)
-            canvas.create_text(self.bounding_box()[0][0]+1 + shift_x, self.bounding_box()[1][1] - shift_y, text=bot_name, font=(None, 12), fill="white", tags="show_id"+self.tag)
-            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1]-1 - shift_y, text=bot_name, font=(None, 12), fill="white", tags="show_id"+self.tag)
-            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1]+1 - shift_y, text=bot_name, font=(None, 12), fill="white", tags="show_id"+self.tag)
-            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1] - shift_y, text=bot_name, font=(None, 12), fill="black", tags="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0]-1 + shift_x, self.bounding_box()[1][1] - shift_y, text=bot_name, font=(self._font, 12), fill="white", tags="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0]+1 + shift_x, self.bounding_box()[1][1] - shift_y, text=bot_name, font=(self._font, 12), fill="white", tags="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1]-1 - shift_y, text=bot_name, font=(self._font, 12), fill="white", tags="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1]+1 - shift_y, text=bot_name, font=(self._font, 12), fill="white", tags="show_id"+self.tag)
+            canvas.create_text(self.bounding_box()[0][0] + shift_x, self.bounding_box()[1][1] - shift_y, text=bot_name, font=(self._font, 12), fill="black", tags="show_id"+self.tag)
 
     def draw_bot(self, canvas, is_blue=True):
         direction = self.direction
@@ -331,7 +332,7 @@ class Food(TkSprite):
             tags=(self.tag, "show_food_age" + str(self.position), "food")
 
             center = self.screen()
-            canvas.create_text(*center, text=food_age, font=(None, 10), fill=text_col, tags=tag)
+            canvas.create_text(*center, text=food_age, font=(self._font, 10), fill=text_col, tags=tag)
 
 class Arrow(TkSprite):
     def __init__(self, mesh, req_pos, success, head=True, **kwargs):
