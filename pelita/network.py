@@ -274,14 +274,20 @@ class ZMQPublisher:
     Parameters
     ----------
     address : string
-        The address which the publisher binds.
+        The address which the publisher binds or connects to.
+    bind : bool
+        Whether we are in bind or connect mode
     """
-    def __init__(self, address):
+    def __init__(self, address, bind=True):
         self.address = address
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PUB)
-        self.socket_addr = bind_socket(self.socket, self.address, '--publish')
-        _logger.debug("Bound zmq.PUB to {}".format(self.socket_addr))
+        if bind:
+            self.socket_addr = bind_socket(self.socket, self.address, '--publish')
+            _logger.debug("Bound zmq.PUB to {}".format(self.socket_addr))
+        else:
+            self.socket.connect(self.address)
+            _logger.debug("Connected zmq.PUB to {}".format(self.address))
 
     def _send(self, action, data):
         info = {'round': data['round'], 'turn': data['turn']}
