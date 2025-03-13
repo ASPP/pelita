@@ -432,3 +432,78 @@ def test_distribute_food():
     food = mg.distribute_food(all_tiles, chamber_tiles, 0, 0)
     assert len(food) == 0
 
+
+@pytest.mark.parametrize('iteration', range(1,11))
+def test_create_layout(iteration):
+    local_seed = 12345 * iteration
+    rng = Random(local_seed)
+
+    # edge cases
+    # width not even
+    with pytest.raises(ValueError):
+        mg.create_layout(0, 0, 9, 10, rng=rng)
+
+    # width too small
+    with pytest.raises(ValueError):
+        mg.create_layout(0, 0, 2, 10, rng=rng)
+
+    # height too small
+    with pytest.raises(ValueError):
+        mg.create_layout(0, 0, 10, 2, rng=rng)
+
+
+    width = rng.choice(range(16, 65, 2))
+    height = rng.randint(8, 32)
+    total_food = int(0.15 * width * height / 2)
+    trapped_food = int(total_food / 3)
+
+    ld = mg.create_layout(trapped_food, total_food, width, height, rng=rng)
+
+    walls = set(ld["walls"])
+
+    border = set()
+    for x in range(width):
+        border.add((x, 0))
+        border.add((x, height - 1))
+
+    for y in range(height):
+        border.add((0, y))
+        border.add((width - 1, y))
+
+    def split(nodes, width):
+        left = [node for node in nodes if node[0] < width // 2]
+        right = [node for node in nodes if node[0] >= width // 2]
+        return left, right
+
+    def is_full_mirror(left, right, width, height):
+        right_copy = right[:]
+
+        for x, y in left:
+            mirrored = (width - 1 - x, height - 1 - y)
+            if mirrored not in right:
+                return False
+            else:
+                right_copy.remove(mirrored)
+
+        if len(right_copy) > 0:
+            return False
+
+        return True
+
+    left_walls, right_walls = split(ld["walls"], width)
+    assert is_full_mirror(left_walls, right_walls, width, height)
+
+    left_food, right_food = split(ld["food"], width)
+    assert is_full_mirror(left_food, right_food, width, height)
+
+    assert border.issubset(set(ld["walls"]))
+    assert len(ld["food"]) == 2 * total_food
+    assert ld["bots"] == [
+        (1, height - 3),
+        (width - 2, 2),
+        (1, height - 2),
+        (width - 2, 1),
+    ]
+    # verify shape
+    assert min(ld["walls"]) == (0, 0)
+    assert max(ld["walls"]) == (width - 1, height - 1)
