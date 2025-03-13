@@ -507,3 +507,9 @@ def test_create_layout(iteration):
     # verify shape
     assert min(ld["walls"]) == (0, 0)
     assert max(ld["walls"]) == (width - 1, height - 1)
+
+    # verify that we generate exactly the same maze if started with the same seed
+    seed = rng.randint(1,100000)
+    l1 = mg.create_layout(trapped_food, total_food, width, height, rng=seed)
+    l2 = mg.create_layout(trapped_food, total_food, width, height, rng=seed)
+    assert l1 == l2
