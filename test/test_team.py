@@ -695,3 +695,34 @@ def test_bot_html_repr():
     # check that all is good
     assert state['fatal_errors'] == [[], []]
 
+
+def test_bot_repr():
+    test_layout = """
+        ##################
+        #.#... .##.     y#
+        # # #  .  .### #x#
+        # ####.   .      #
+        #      .   .#### #
+        #a# ###.  .  # # #
+        #b     .##. ...#.#
+        ##################
+    """
+
+    parsed = parse_layout(test_layout)
+
+    def asserting_team(bot, state):
+        bot_repr = repr(bot)
+        if bot.is_blue and bot.round == 1:
+            assert bot_repr == f"<Bot: {bot.char} (blue), {bot.position}, turn: {bot.turn}, round: 1>"
+        elif not bot.is_blue and bot.round == 1:
+            assert bot_repr == f"<Bot: {bot.char} (red), {bot.position}, turn: {bot.turn}, round: 1>"
+        else:
+            assert False, "Should never be here."
+
+        return bot.position
+
+    state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed,
+                     allow_exceptions=True)
+    # assertions might have been caught in run_game
+    # check that all is good
+    assert state['fatal_errors'] == [[], []]
