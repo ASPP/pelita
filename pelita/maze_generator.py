@@ -472,24 +472,30 @@ def distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=None
             f"number of trapped food ({trapped_food}) must not exceed total number of food ({total_food})"
         )
 
-    # breakpoint()
+    if total_food > len(all_tiles):
+        raise ValueError(
+            f"number of total food ({total_food}) exceeds available tiles in maze ({len(all_tiles)})"
+        )
 
-    # distribute as much food in chambers as possible
+    free_tiles = all_tiles - chamber_tiles
+
+    # distribute as much trapped food in chambers as possible
     tf_pos = sample_nodes(chamber_tiles, trapped_food, rng=rng)
 
     # distribute remaining food outside of chambers
     free_food = total_food - len(tf_pos)
 
-    free_tiles = all_tiles - chamber_tiles
-
-    # extend free_nodes with all available nodes
-    # if remaining food exceeds non-chamber squares
-    if free_food > len(free_tiles):
-        free_tiles = all_tiles - tf_pos
-
     ff_pos = sample_nodes(free_tiles, free_food, rng=rng)
 
-    return sorted(tf_pos | ff_pos)
+    # there were not enough tiles to distribute all leftover food
+    leftover_food = total_food - len(ff_pos) - len(tf_pos)
+    if leftover_food > 0:
+        leftover_tiles = chamber_tiles - tf_pos
+        leftover_food_pos = sample_nodes(leftover_tiles, leftover_food, rng=rng)
+    else:
+        leftover_food_pos = set()
+
+    return sorted(tf_pos | ff_pos | leftover_food_pos)
 
 
 def create_maze_food(trapped_food, total_food, width, height, rng=None):

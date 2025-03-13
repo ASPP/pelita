@@ -366,3 +366,69 @@ def test_add_food():
     mg.add_food(lmaze, 0)
     assert np.all(lmaze == maze)
 
+
+def test_distribute_food():
+    maze_chamber = """############
+                      #   #      #
+                      #   #      #
+                      # ###      #
+                      #          #
+                      #          #
+                      ############"""
+
+    maze = mg.str_to_maze(maze_chamber)
+    graph = mg.walls_to_graph(maze)
+    all_tiles = set(graph.nodes)
+    width = maze.shape[1]
+    chambers, chamber_tiles = mg.find_chambers(graph, width)
+
+    # expected exceptions
+    with pytest.raises(ValueError):
+        mg.distribute_food(all_tiles, chamber_tiles, 0, len(all_tiles) + 1)
+
+    with pytest.raises(ValueError):
+        mg.distribute_food(all_tiles, chamber_tiles, 10, 8)
+
+    # food is sorted, so that comparisons are stable for set seeds
+    # no intersection of food positions and chamber_tiles
+    trapped_food = 0
+    total_food = 10
+    food = mg.distribute_food(all_tiles, chamber_tiles, trapped_food, total_food)
+    assert sorted(food) == food
+    assert len(set(food) & chamber_tiles) == trapped_food
+
+    # trapped food is placed in chamber as requested
+    # all food is placed as requested
+    trapped_food = 3
+    food = mg.distribute_food(all_tiles, chamber_tiles, trapped_food, total_food)
+    assert len(set(food) & chamber_tiles) == trapped_food
+    assert len(food) == total_food
+
+    # food is completely contained in chamber
+    total_food = trapped_food = 3
+    food = mg.distribute_food(all_tiles, chamber_tiles, trapped_food, total_food)
+    assert set(food).issubset(chamber_tiles)
+    assert len(food) == total_food
+
+    # best effort placement of trapped food
+    trapped_food = 10  # > 7 chamber_tiles
+    total_food = 20
+    food = mg.distribute_food(all_tiles, chamber_tiles, trapped_food, total_food)
+    assert len(set(food) & chamber_tiles) == len(chamber_tiles)
+    assert len(food) == total_food
+
+    # distribute only leftover food in chambers, fill non-chambers first
+    trapped_food = 1
+    free_tiles = all_tiles - chamber_tiles
+    n_free_tiles = len(free_tiles)
+    leftover_food = 2
+    total_food = n_free_tiles + trapped_food + leftover_food
+    food = mg.distribute_food(all_tiles, chamber_tiles, trapped_food, total_food)
+    assert len(food) == total_food
+    assert (set(food) & free_tiles) == free_tiles
+    assert len(set(food) & chamber_tiles) == trapped_food + leftover_food
+
+    # edge case, no food at all
+    food = mg.distribute_food(all_tiles, chamber_tiles, 0, 0)
+    assert len(food) == 0
+
