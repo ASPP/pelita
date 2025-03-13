@@ -23,7 +23,6 @@ Rewritten again (but not completely) by Tiziano Zito
 import networkx as nx
 import numpy as np
 
-from pelita.team import walls_to_graph
 
 from .base_utils import default_rng
 
@@ -202,7 +201,7 @@ def _add_wall(maze, ngaps, vertical, rng):
             _add_wall(sub_maze, max(1, ngaps // 2), not vertical, rng=rng)
 
 
-def maze_to_graph(maze):
+def walls_to_graph(maze):
     """Transform a maze in a graph.
 
     The data on the nodes correspond to their coordinates, data on edges is
@@ -268,7 +267,7 @@ def remove_dead_end(dead_node, maze):
 def remove_all_dead_ends(maze):
     height, width = maze.shape
     while True:
-        maze_graph = walls_to_graph(maze, maze.shape)
+        maze_graph = walls_to_graph(maze)
         dead_ends = find_dead_ends(maze_graph, width)
         if len(dead_ends) == 0:
             break
@@ -309,7 +308,7 @@ def remove_all_chambers(maze, rng=None):
     rng = default_rng(rng)
 
     while True:
-        maze_graph = walls_to_graph(maze, maze.shape)
+        maze_graph = walls_to_graph(maze)
         # this will find one of the chambers, if there is any
         # entrance, chamber = find_chamber(maze_graph)
         chambers, chamber_tiles = find_chambers(maze_graph, maze.shape)
@@ -517,8 +516,8 @@ def create_maze_food(trapped_food, total_food, width, height, rng=None):
     walls = np.transpose((x, y)).tolist()
     walls = tuple(sorted(tuple(wall) for wall in walls))
 
-    half_graph = maze_to_graph(maze[:, : width // 2])
-    full_graph = maze_to_graph(maze)
+    half_graph = walls_to_graph(maze[:, : width // 2])
+    full_graph = walls_to_graph(maze)
 
     _, chamber_tiles = find_chambers(full_graph, (width, height))
 
