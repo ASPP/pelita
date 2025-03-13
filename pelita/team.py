@@ -726,6 +726,9 @@ class Bot:
             out.write(footer)
             return out.getvalue()
 
+    def __repr__(self):
+        return f'<Bot: {self.char} ({"blue" if self.is_blue else "red"}), {self.position}, turn: {self.turn}, round: {self.round}>'
+
 
 # def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_blue):
 def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, bot_turn, rng, graph):
