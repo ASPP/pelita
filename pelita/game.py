@@ -723,7 +723,7 @@ def prepare_bot_state(game_state, team_idx=None):
         'deaths': game_state['deaths'][:],
         'bot_was_killed': game_state['bot_was_killed'][:],
         'error_count': [len(e) for e in game_state['timeouts'][:]],
-        'food': list(game_state['food'][:]),
+        'food': [list(team_food) for team_food in game_state['food']],
         'shaded_food': shaded_food,
         'team_names': game_state['team_names'][:],
         'team_time': game_state['team_time'][:],
