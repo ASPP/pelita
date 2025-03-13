@@ -210,7 +210,8 @@ def test_find_chambers():
     # now check that we detect it
     graph = mg.walls_to_graph(maze)
     # there are actually two nodes that can be considered entrances
-    chambers, chamber_tiles = mg.find_chambers(graph, maze_orig.shape)
+    width = maze_orig.shape[1]
+    chambers, chamber_tiles = mg.find_chambers(graph, width)
     assert len(chambers) == 1
     assert chambers[0] == {(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (3, 1), (3, 2)}
 
@@ -219,7 +220,7 @@ def test_find_chambers():
     maze = mg.str_to_maze(maze_chamber)
     maze[1,4] = mg.E # REMEMBER! Indexing is maze[y,x]!!!
     graph = mg.walls_to_graph(maze)
-    chambers, chamber_tiles = mg.find_chambers(graph, maze_orig.shape)
+    chambers, chamber_tiles = mg.find_chambers(graph, width)
     assert chambers == []
 
 

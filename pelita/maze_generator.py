@@ -306,12 +306,13 @@ def get_neighboring_walls(maze, locs):
 
 def remove_all_chambers(maze, rng=None):
     rng = default_rng(rng)
+    width = maze.shape[1]
 
     while True:
         maze_graph = walls_to_graph(maze)
         # this will find one of the chambers, if there is any
         # entrance, chamber = find_chamber(maze_graph)
-        chambers, chamber_tiles = find_chambers(maze_graph, maze.shape)
+        chambers, chamber_tiles = find_chambers(maze_graph, width)
 
         if not chambers:
             break
@@ -426,16 +427,14 @@ def create_maze(height, width, nfood, dead_ends=False, rng=None):
     return maze_to_str(maze)
 
 
-def find_chambers(G: nx.Graph, shape):
-    w, h = shape
-
+def find_chambers(G: nx.Graph, width: int):
     main_chamber = set()
     chamber_tiles = set()
 
     for chamber in nx.biconnected_components(G):
         max_x = max(chamber, key=lambda n: n[0])[0]
         min_x = min(chamber, key=lambda n: n[0])[0]
-        if min_x < w // 2 <= max_x:
+        if min_x < width // 2 <= max_x:
             # only the main chamber covers both sides
             # our own mazes should only have one central chamber
             # but other configurations could have more than one
@@ -519,7 +518,7 @@ def create_maze_food(trapped_food, total_food, width, height, rng=None):
     half_graph = walls_to_graph(maze[:, : width // 2])
     full_graph = walls_to_graph(maze)
 
-    _, chamber_tiles = find_chambers(full_graph, (width, height))
+    _, chamber_tiles = find_chambers(full_graph, width)
 
     chamber_tiles = [tile for tile in chamber_tiles if tile[0] < width // 2]
     half_food = distribute_food(
