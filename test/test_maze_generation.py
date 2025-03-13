@@ -508,6 +508,17 @@ def test_create_layout(iteration):
     assert min(ld["walls"]) == (0, 0)
     assert max(ld["walls"]) == (width - 1, height - 1)
 
+    # verify that the types in the dictionary are as expected
+    def is_seq_of_tuples(seq_type, thing):
+        assert type(thing) is seq_type
+        for item in thing:
+            assert type(item) is tuple
+
+    is_seq_of_tuples(tuple, ld["walls"])
+    is_seq_of_tuples(list, ld["food"])
+    is_seq_of_tuples(list, ld["bots"])
+    assert type(ld["shape"]) is tuple
+
     # verify that we generate exactly the same maze if started with the same seed
     seed = rng.randint(1,100000)
     l1 = mg.create_layout(trapped_food, total_food, width, height, rng=seed)
