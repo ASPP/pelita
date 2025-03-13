@@ -222,11 +222,27 @@ class Team:
         move : dict
         """
 
-        me = make_bots(game_state,
+        for tidx in range(2):
+            game_state['food'][tidx] = _ensure_list_tuples(game_state['food'][tidx])
+            game_state['shaded_food'][tidx] = _ensure_list_tuples(game_state['shaded_food'][tidx])
+
+        me = make_bots(bot_positions=game_state['bots'],
+                       is_noisy=game_state['is_noisy'],
                        walls=self._walls,
                        shape=self._shape,
+                       food=game_state['food'],
+                       shaded_food=game_state['shaded_food'],
+                       round=game_state['round'],
+                       turn=game_state['turn'],
+                       score=game_state['score'],
+                       deaths=game_state['deaths'],
+                       kills=game_state['kills'],
+                       bot_was_killed=game_state['bot_was_killed'],
+                       error_count=game_state['error_count'],
                        initial_positions=self._initial_positions,
                        homezone=self._homezone,
+                       team_names=game_state['team_names'],
+                       team_time=game_state['team_time'],
                        rng=self._rng,
                        graph=self._graph)
 
@@ -774,11 +790,27 @@ class Bot:
         return f'<Bot: {self.char} (team {"blue" if self.is_blue else "red"}), pos: {self.position}, turn: {self.turn}, round: {self.round}>'
 
 
-# def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, bot_turn, rng, graph):
-def make_bots(game_state, *, walls, shape, initial_positions, homezone, rng, graph):
-    # print(game_state)
+def make_bots(*,
+              bot_positions,
+              is_noisy,
+              walls,
+              shape,
+              food,
+              shaded_food,
+              round,
+              turn,
+              score,
+              deaths,
+              kills,
+              bot_was_killed,
+              initial_positions,
+              homezone,
+              team_names,
+              team_time,
+              error_count,
+              rng,
+              graph):
 
-    turn = game_state['turn']
     team_index = turn % 2
     bot_turn = turn // 2
     enemy_index = 1 - team_index
@@ -786,32 +818,32 @@ def make_bots(game_state, *, walls, shape, initial_positions, homezone, rng, gra
     bots = []
     bots_dict = {}
 
-    for idx, position in enumerate(game_state['bots']):
+    for idx, position in enumerate(bot_positions):
         tidx = idx % 2
         b = Bot(
                 bot_index=idx // 2,
                 is_on_team=tidx == team_index,
-                score=game_state['score'][tidx],
-                deaths=game_state['deaths'][idx],
-                kills=game_state['kills'][idx],
-                was_killed=game_state['bot_was_killed'][idx],
-                is_noisy=game_state['is_noisy'][idx],
-                error_count=game_state['error_count'][tidx],
-                food=_ensure_list_tuples(game_state['food'][tidx]),
-                shaded_food=_ensure_list_tuples(game_state['shaded_food'][tidx]),
+                score=score[tidx],
+                deaths=deaths[idx],
+                kills=kills[idx],
+                was_killed=bot_was_killed[idx],
+                is_noisy=is_noisy[idx],
+                error_count=error_count[tidx],
+                food=food[tidx],
+                shaded_food=shaded_food[tidx],
                 walls=walls,
                 shape=shape,
-                round=game_state['round'],
+                round=round,
                 bot_turn=bot_turn,
                 bot_char=BOT_I2N[idx],
                 random=rng,
                 graph=graph,
-                position=tuple(game_state['bots'][idx]),
+                position=bot_positions[idx],
                 initial_position=initial_positions[idx],
                 is_blue=tidx % 2 == 0,
                 homezone=homezone[tidx],
-                team_name=game_state['team_names'][tidx],
-                team_time=game_state['team_time'][tidx]
+                team_name=team_names[tidx],
+                team_time=team_time[tidx]
         )
         b._bots = bots_dict
         bots.append(b)
