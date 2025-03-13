@@ -498,9 +498,15 @@ def distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=None
     return sorted(tf_pos | ff_pos | leftover_food_pos)
 
 
-def create_maze_food(trapped_food, total_food, width, height, rng=None):
+def create_layout(trapped_food, total_food, width, height, rng=None):
     if width % 2 != 0:
         raise ValueError(f"Width must be even ({width} given)")
+
+    if width < 4:
+        raise ValueError(f"Width must be at least 4, but {width} was given")
+
+    if height < 4:
+        raise ValueError(f"Height must be at least 4, but {height} was given")
 
     rng = default_rng(rng)
 
