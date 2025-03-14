@@ -558,4 +558,164 @@ def create_layout(trapped_food, total_food, width, height, rng=None):
     return layout_dict
 
 
-def create_maze_graph(trapped_food, total_food, width, height): ...
+def empty_graph(width, height):
+    graph = nx.grid_2d_graph(range(1, width - 1), range(1, height - 1))
+    walls = get_ring((0, 0), width, height)
+    return graph, walls
+
+
+def add(start, relative):
+    return start[0] + relative[0], start[1] + relative[1]
+
+
+def get_ring(start, width, height):
+    ring = set()
+    for x in range(width):
+        ring.add((x, 0))
+        ring.add((x, height - 1))
+
+    for y in range(1, height - 1):
+        ring.add((0, y))
+        ring.add((width - 1, y))
+
+    return set(add(start, ring_node) for ring_node in ring)
+
+
+def mirror(nodes, width, height):
+    nodes = set(nodes)
+    other = set((width - 1 - x, height - 1 - y) for x, y in nodes)
+    return nodes | other
+
+
+def transpose(nodes):
+    return [node[::-1] for node in nodes]
+
+
+def generate_wall_at(nodes, border, pos, ngaps, vertical, rng, gaps_pos=None):
+    if not vertical:
+        nodes = transpose(nodes)
+        border = set(transpose(border))
+
+    xmin, ymin = min(nodes)
+    xmax, ymax = max(nodes)
+    ch = ymax - ymin + 1
+
+    walls = [(pos, ymin + y) for y in range(ch)]
+
+    ngaps = max(1, ngaps)
+    if gaps_pos is None:
+        gaps_pos = list(range(ch))
+        rng.shuffle(gaps_pos)
+        gaps_pos = gaps_pos[:ngaps]
+
+        if (pos, ymin - 1) not in border:
+            gaps_pos.insert(0, 0)
+        if (pos, ymin + ch) not in border:
+            gaps_pos.insert(0, ch - 1)
+    walls_to_remove = [walls[gp] for gp in set(gaps_pos)]
+    for wall in walls_to_remove:
+        walls.remove(wall)
+
+    walls = set(walls)
+
+
+    sub_mazes = [
+        [node for node in nodes if node[0] < pos],
+        [node for node in nodes if node[0] > pos],
+    ]
+
+    sub_borders = [
+        set(b for b in border if b[0] <= pos) | walls,
+        set(b for b in border if b[0] >= pos) | walls,
+    ]
+
+
+    if not vertical:
+        sub_mazes = [transpose(sm) for sm in sub_mazes]
+        sub_borders = [set(transpose(sb)) for sb in sub_borders]
+        walls = set(transpose(walls))
+
+    return walls, sub_mazes, sub_borders
+
+
+def generate_half_maze(nodes, outer_walls, ngaps_center, rng=None):
+    rng = default_rng(rng)
+
+    xmin, ymin = min(nodes)
+    xmax, ymax = max(nodes)
+    cw = xmax - xmin + 1
+    ch = ymax - ymin + 1
+
+
+    candidates = list(range(ch // 2))
+    rng.shuffle(candidates)
+    half_gaps_pos = candidates[: ngaps_center // 2]
+    gaps_pos = []
+    for pos in half_gaps_pos:
+        gaps_pos.append(pos)
+        gaps_pos.append(ch - pos - 1)
+
+    pos = xmin + cw // 2 - 1
+
+    # add border at center
+    border, sub_mazes, sub_borders = generate_wall_at(
+        nodes,
+        outer_walls,
+        pos,
+        ngaps_center,
+        vertical=True,
+        rng=rng,
+        gaps_pos=gaps_pos,
+    )
+
+    inner_walls = generate_walls(
+        sub_mazes[0],
+        sub_borders[0],
+        ngaps_center // 2,
+        vertical=False,
+        rng=rng,
+    )
+
+    return outer_walls | border | inner_walls
+
+
+def generate_walls(nodes, border, ngaps, vertical, rng=None):
+    rng = default_rng(rng)
+
+    walls = set()
+
+    if not len(nodes) > 0:
+        return walls
+
+    xmin, ymin = min(nodes)
+    xmax, ymax = max(nodes)
+    cw = xmax - xmin + 1
+    ch = ymax - ymin + 1
+
+    if ch < 3 and cw < 3:
+        return walls
+
+    size = cw if vertical else ch
+
+    min_size = rng.randint(3, 5)
+    if size >= min_size:
+        off = xmin if vertical else ymin
+        pos = off + rng.randint(1, size - 2)
+        walls, sub_mazes, sub_borders = generate_wall_at(
+            nodes, border, pos, ngaps, vertical, rng=rng
+        )
+
+        for sub_maze, sub_border in zip(sub_mazes, sub_borders):
+            walls |= generate_walls(
+                sub_maze, sub_border, max(1, ngaps // 2), not vertical, rng=rng
+            )
+
+    return walls
+
+
+def create_maze_graph(trapped_food, total_food, width, height):
+    # get empty graph
+    # add walls
+    # distribute food
+    # populate layout_dict
+    ...
