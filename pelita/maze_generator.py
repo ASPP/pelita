@@ -20,11 +20,11 @@ Completely rewritten by Pietro Berkes
 Rewritten again (but not completely) by Tiziano Zito
 """
 
-import numpy as np
 import networkx as nx
+import numpy as np
+
 
 from .base_utils import default_rng
-
 
 north = (0, -1)
 south = (0, 1)
@@ -33,9 +33,9 @@ west = (-1, 0)
 
 
 # character constants for walls, food, and empty spaces
-W = b'#'
-F = b'.'
-E = b' '
+W = b"#"
+F = b"."
+E = b" "
 
 
 def empty_maze(height, width):
@@ -45,7 +45,7 @@ def empty_maze(height, width):
     An empty maze is made of empty tiles, except for the external walls.
     """
 
-    maze = np.empty((height, width), dtype='c')
+    maze = np.empty((height, width), dtype="c")
     maze.fill(E)
 
     # add external walls
@@ -59,14 +59,15 @@ def empty_maze(height, width):
 
 def maze_to_bytes(maze):
     """Return bytes representation of maze."""
-    lines = [b''.join(maze[i,:])
-             for i in range(maze.shape[0])]
-    return b'\n'.join(lines)
+    lines = [b"".join(maze[i, :]) for i in range(maze.shape[0])]
+    return b"\n".join(lines)
+
 
 def maze_to_str(maze):
     """Return a ascii-string representation of maze."""
     bytes_ = maze_to_bytes(maze)
-    return bytes_.decode('ascii')
+    return bytes_.decode("ascii")
+
 
 def bytes_to_maze(bytes_):
     """Return a maze numpy bytes array from a bytes representation."""
@@ -81,16 +82,18 @@ def bytes_to_maze(bytes_):
             # this crazyness is needed because bytes do not iterate like
             # strings: see the comments about iterating over bytes in
             # https://docs.python.org/3/library/stdtypes.html#bytes-objects
-            cols.append(line[idx:idx+1])
+            cols.append(line[idx : idx + 1])
         rows.append(cols)
 
     maze = np.array(rows, dtype=bytes)
     return maze
 
+
 def str_to_maze(str_):
     """Return a maze numpy bytes array from a ascii string representation."""
-    bytes_maze = str_.encode('ascii')
+    bytes_maze = str_.encode("ascii")
     return bytes_to_maze(bytes_maze)
+
 
 def create_half_maze(maze, ngaps_center, rng=None):
     """Fill the left half of the maze with random walls.
@@ -105,20 +108,27 @@ def create_half_maze(maze, ngaps_center, rng=None):
     # the gaps in the central wall have to be chosen such that they can
     # be mirrored
     ch = maze.shape[0] - 2
-    candidates = list(range(ch//2))
+    candidates = list(range(ch // 2))
     rng.shuffle(candidates)
-    half_gaps_pos = candidates[:ngaps_center // 2]
+    half_gaps_pos = candidates[: ngaps_center // 2]
     gaps_pos = []
     for pos in half_gaps_pos:
         gaps_pos.append(pos)
         gaps_pos.append(ch - pos - 1)
 
     # make wall
-    _add_wall_at(maze, (maze.shape[1] - 2) // 2 - 1, ngaps_center,
-                 vertical=True, rng=rng, gaps_pos=gaps_pos)
+    _add_wall_at(
+        maze,
+        (maze.shape[1] - 2) // 2 - 1,
+        ngaps_center,
+        vertical=True,
+        rng=rng,
+        gaps_pos=gaps_pos,
+    )
 
     # then, fill the left half with walls
-    _add_wall(maze[:, :maze.shape[1] // 2], ngaps_center // 2, vertical=False, rng=rng)
+    _add_wall(maze[:, : maze.shape[1] // 2], ngaps_center // 2, vertical=False, rng=rng)
+
 
 def _add_wall_at(maze, pos, ngaps, vertical, rng, gaps_pos=None):
     """
@@ -154,12 +164,13 @@ def _add_wall_at(maze, pos, ngaps, vertical, rng, gaps_pos=None):
     for gp in gaps_pos:
         center[gp, pos] = E
 
-    sub_mazes = [maze[:, :pos + 2], maze[:, pos + 1:]]
+    sub_mazes = [maze[:, : pos + 2], maze[:, pos + 1 :]]
 
     if not vertical:
         sub_mazes = [sm.T for sm in sub_mazes]
 
     return sub_mazes
+
 
 def _add_wall(maze, ngaps, vertical, rng):
     """Recursively build the walls of the maze.
@@ -182,7 +193,7 @@ def _add_wall(maze, ngaps, vertical, rng):
     min_size = rng.randint(3, 5)
     if size >= min_size:
         # place the wall at random spot
-        pos = rng.randint(1, size-2)
+        pos = rng.randint(1, size - 2)
         sub_mazes = _add_wall_at(maze, pos, ngaps, vertical, rng=rng)
 
         # recursively add walls
@@ -202,17 +213,17 @@ def walls_to_graph(maze):
     """
 
     h, w = maze.shape
-    directions = [west, east, north, south]
+    directions = [east, south]
 
     graph = nx.Graph()
     # define nodes for maze
     for x in range(w):
         for y in range(h):
             if maze[y, x] != W:
-                graph.add_node((x,y))
+                graph.add_node((x, y))
                 # this is a free position, get its neighbors too
                 for dx, dy in directions:
-                    nbx, nby = (x+dx, y+dy)
+                    nbx, nby = (x + dx, y + dy)
                     # do not go out of bounds
                     try:
                         if maze[nby, nbx] == E:
@@ -228,7 +239,7 @@ def find_dead_ends(graph, width):
 
     dead_ends = []
     for node in graph.nodes():
-        if graph.degree(node) == 1 and node[0] < width-1:
+        if graph.degree(node) == 1 and node[0] < width - 1:
             dead_ends.append(node)
 
     return dead_ends
@@ -244,9 +255,9 @@ def remove_dead_end(dead_node, maze):
     # not in the central wall x==w//2-1
     directions = (north, south, east, west)
     for direction in directions:
-        nbx = dead_node[0]+direction[0]
-        nby = dead_node[1]+direction[1]
-        if nbx not in (0,w-1,w//2-1) and nby not in (0,h-1):
+        nbx = dead_node[0] + direction[0]
+        nby = dead_node[1] + direction[1]
+        if nbx not in (0, w - 1, w // 2 - 1) and nby not in (0, h - 1):
             neighbor = maze[nby, nbx]
             if neighbor == W:
                 maze[nby, nbx] = E
@@ -260,36 +271,8 @@ def remove_all_dead_ends(maze):
         dead_ends = find_dead_ends(maze_graph, width)
         if len(dead_ends) == 0:
             break
-
         remove_dead_end(dead_ends[0], maze)
 
-def find_chamber(graph):
-    """Detect chambers (rooms with a single square entrance).
-
-    Return (entrance, chamber), where `entrance` is the node representing the
-    entrance to the chamber (None if no chamber is found), and `chamber` is the
-    list of nodes within the chamber (empty list if no nodes are in the chamber).
-
-    The entrance to a chamber is a node that when removed from the graph
-    will result in the graph to be split into two disconnected graphs."""
-    # minimum_node_cut returns a set of nodes of minimum cardinality that
-    # disconnects the graph. This means that we have a chamber if the length
-    # of this set is one, i.e. there is one node that when removed disconnects
-    # the graph
-    cuts = nx.minimum_node_cut(graph)
-    if len(cuts) > 1:
-        # no chambers, yeah!
-        return None, []
-    entrance = cuts.pop()
-    # remove the cut, i.e. put a wall on the entrance
-    lgraph = nx.restricted_view(graph, [entrance],[])
-    # now get the resulting subgraphs
-    subgraphs = sorted(nx.connected_components(lgraph), key=len)
-    # let's get the smallest subgraph: this is going to be a chamber
-    # (other subgraphs are other chambers (if any) and the 'rest' of the graph
-    # return a list of nodes, instead of a set
-    chamber = list(subgraphs[0])
-    return entrance, chamber
 
 def get_neighboring_walls(maze, locs):
     """Given a list of coordinates in the maze, return all neighboring walls.
@@ -300,47 +283,48 @@ def get_neighboring_walls(maze, locs):
     seen = []
     for nodex, nodey in locs:
         # if we are already on the border, skip this node
-        if nodex<=0 or nodex>=(width-1) or nodey<=0 or nodey>=(height-1):
+        if nodex <= 0 or nodex >= (width - 1) or nodey <= 0 or nodey >= (height - 1):
             continue
         # explore all directions around the current node
         for dirx, diry in (north, south, east, west):
             # get coordinates of neighbor in direction (dirx, diry)
-            adjx, adjy = nodex+dirx, nodey+diry
+            adjx, adjy = nodex + dirx, nodey + diry
             if (adjx, adjy) in seen:
                 # we have visited this neighbor already
                 continue
             else:
                 seen.append((adjx, adjy))
             # check that we still are inside the maze
-            if adjx<=0 or adjx>=(width-1) or adjy<=0 or adjy>=(height-1):
+            if adjx <= 0 or adjx >= (width - 1) or adjy <= 0 or adjy >= (height - 1):
                 # the neighbor is out of the maze
                 continue
-            if maze[adjy,adjx] == W:
+            if maze[adjy, adjx] == W:
                 # this is a wall, store it
                 walls.append((adjx, adjy))
     return walls
 
+
 def remove_all_chambers(maze, rng=None):
     rng = default_rng(rng)
+    width = maze.shape[1]
 
-    maze_graph = walls_to_graph(maze)
-    # this will find one of the chambers, if there is any
-    entrance, chamber = find_chamber(maze_graph)
-    while entrance is not None:
-        # get all the walls around the chamber
-        walls = get_neighboring_walls(maze, chamber)
-        # choose a wall at random among the neighboring one and get rid of it
-        bad_wall = rng.choice(walls)
-        maze[bad_wall[1], bad_wall[0]] = E
-        # we may have opened a door into this chamber, but there may be more
-        # chambers to get rid of. Or, the wall we picked wasn't good enough and
-        # didn't really open a new door to the chamber. I have no idea how to
-        # distinguish this two cases. If we knew how to, we would spare quite
-        # a few iterations here?
-        # Well, as long as we keep on doing this we will eventually get rid
-        # of all the chambers
+    while True:
         maze_graph = walls_to_graph(maze)
-        entrance, chamber = find_chamber(maze_graph)
+        # this will find one of the chambers, if there is any
+        # entrance, chamber = find_chamber(maze_graph)
+        chambers, chamber_tiles = find_chambers(maze_graph, width)
+
+        if not chambers:
+            break
+
+        for chamber in chambers:
+            # get all the walls around the chamber
+            walls = get_neighboring_walls(maze, chamber)
+
+            # choose a wall at random among the neighboring one and get rid of it
+            if walls:
+                bad_wall = rng.choice(walls)
+                maze[bad_wall[1], bad_wall[0]] = E
 
 
 def add_food(maze, max_food, rng=None):
@@ -354,9 +338,9 @@ def add_food(maze, max_food, rng=None):
         # no food needs to be added, return here
         return
     h, w = maze.shape
-    pacmen = [(1,h-2), (1,h-3)]
+    pacmen = [(1, h - 2), (1, h - 3)]
     # get all free slots on the left side, excluding the dividing border
-    free_y, free_x = np.where(maze[:,:w//2-1] == E)
+    free_y, free_x = np.where(maze[:, : w // 2 - 1] == E)
     # convert it to a list of coordinate tuples
     free = list(zip(free_x, free_y))
     # remove the pacmen starting coordinates (we have to check that they are
@@ -364,12 +348,12 @@ def add_food(maze, max_food, rng=None):
     [free.remove(pacman) for pacman in pacmen if pacman in free]
     # check if we have any free slots left
     if len(free) == 0 and max_food > 0:
-        raise ValueError(f'No space left for food in maze')
+        raise ValueError(f"No space left for food in maze")
     elif max_food > len(free):
         # check if we can indeed fit so much food in the maze
-        raise ValueError(f'Can not fit {max_food} pellet in {len(free)} free slots')
+        raise ValueError(f"Can not fit {max_food} pellet in {len(free)} free slots")
     elif max_food < 0:
-        raise ValueError(f'Can not add negative number of food ({max_food} given)')
+        raise ValueError(f"Can not add negative number of food ({max_food} given)")
 
     # now take max_food random positions out of this list
     food = rng.sample(free, max_food)
@@ -377,12 +361,22 @@ def add_food(maze, max_food, rng=None):
     for col, row in food:
         maze[row, col] = F
 
+
 def add_pacmen(maze):
     ## starting pacmen positions
-    maze[-2, 1] = b'b'
-    maze[-3, 1] = b'a'
-    maze[1, -2] = b'y'
-    maze[2, -2] = b'x'
+    maze[-2, 1] = b"b"
+    maze[-3, 1] = b"a"
+    maze[1, -2] = b"y"
+    maze[2, -2] = b"x"
+
+
+def hold_pacmen(maze):
+    ## starting pacmen positions
+    maze[-2, 1] = E
+    maze[-3, 1] = E
+    maze[1, -2] = E
+    maze[2, -2] = E
+
 
 def create_maze(height, width, nfood, dead_ends=False, rng=None):
     """Create a new maze in text format.
@@ -404,8 +398,8 @@ def create_maze(height, width, nfood, dead_ends=False, rng=None):
     entrance to the chamber, that when removed from the graph will result in the
     graph to be split into two disconnected graphs.
     """
-    if width%2 != 0:
-        raise ValueError(f'Width must be even ({width} given)')
+    if width % 2 != 0:
+        raise ValueError(f"Width must be even ({width} given)")
 
     rng = default_rng(rng)
 
@@ -425,9 +419,303 @@ def create_maze(height, width, nfood, dead_ends=False, rng=None):
     add_food(maze, nfood, rng=rng)
 
     # complete right part of maze with mirror copy
-    maze[:, width // 2:] = np.flipud(np.fliplr(maze[:, :width // 2]))
+    maze[:, width // 2 :] = np.flipud(np.fliplr(maze[:, : width // 2]))
 
     # add pacman
     add_pacmen(maze)
 
     return maze_to_str(maze)
+
+
+def find_chambers(G: nx.Graph, width: int):
+    main_chamber = set()
+    chamber_tiles = set()
+
+    for chamber in nx.biconnected_components(G):
+        max_x = max(chamber, key=lambda n: n[0])[0]
+        min_x = min(chamber, key=lambda n: n[0])[0]
+        if min_x < width // 2 <= max_x:
+            # only the main chamber covers both sides
+            # our own mazes should only have one central chamber
+            # but other configurations could have more than one
+            main_chamber.update(chamber)
+            continue
+        else:
+            chamber_tiles.update(set(chamber))
+
+    # remove shared articulation points with the main chamber
+    chamber_tiles -= main_chamber
+
+    # combine connected subgraphs
+    subgraphs = G.subgraph(chamber_tiles)
+    chambers = list(nx.connected_components(subgraphs))
+
+    return chambers, chamber_tiles
+
+
+def sample_nodes(nodes, k, rng=None):
+    rng = default_rng(rng)
+
+    if k < len(nodes):
+        return set(rng.sample(sorted(nodes), k=k))
+    else:
+        return nodes
+
+
+def distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=None):
+    # TODO: ensure that total_food <= len(graph.nodes)
+
+    rng = default_rng(rng)
+
+    if trapped_food > total_food:
+        raise ValueError(
+            f"number of trapped food ({trapped_food}) must not exceed total number of food ({total_food})"
+        )
+
+    if total_food > len(all_tiles):
+        raise ValueError(
+            f"number of total food ({total_food}) exceeds available tiles in maze ({len(all_tiles)})"
+        )
+
+    free_tiles = all_tiles - chamber_tiles
+
+    # distribute as much trapped food in chambers as possible
+    tf_pos = sample_nodes(chamber_tiles, trapped_food, rng=rng)
+
+    # distribute remaining food outside of chambers
+    free_food = total_food - len(tf_pos)
+
+    ff_pos = sample_nodes(free_tiles, free_food, rng=rng)
+
+    # there were not enough tiles to distribute all leftover food
+    leftover_food = total_food - len(ff_pos) - len(tf_pos)
+    if leftover_food > 0:
+        leftover_tiles = chamber_tiles - tf_pos
+        leftover_food_pos = sample_nodes(leftover_tiles, leftover_food, rng=rng)
+    else:
+        leftover_food_pos = set()
+
+    return sorted(tf_pos | ff_pos | leftover_food_pos)
+
+
+def create_layout(trapped_food, total_food, width, height, rng=None):
+    if width % 2 != 0:
+        raise ValueError(f"Width must be even ({width} given)")
+
+    if width < 4:
+        raise ValueError(f"Width must be at least 4, but {width} was given")
+
+    if height < 4:
+        raise ValueError(f"Height must be at least 4, but {height} was given")
+
+    rng = default_rng(rng)
+
+    maze = empty_maze(height, width)
+    create_half_maze(maze, height // 2, rng=rng)
+    maze[:, width // 2 :] = np.flipud(np.fliplr(maze[:, : width // 2]))
+
+    hold_pacmen(maze)
+
+    pacmen_pos = set(
+        [
+            (1, height - 3),
+            (1, height - 2),
+        ]
+    )
+
+    y, x = (maze == W).nonzero()
+    walls = np.transpose((x, y)).tolist()
+    walls = tuple(sorted(tuple(wall) for wall in walls))
+
+    half_graph = walls_to_graph(maze[:, : width // 2])
+    full_graph = walls_to_graph(maze)
+
+    _, chamber_tiles = find_chambers(full_graph, width)
+
+    chamber_tiles = [tile for tile in chamber_tiles if tile[0] < width // 2]
+    half_food = distribute_food(
+        set(half_graph.nodes) - pacmen_pos,
+        set(chamber_tiles) - pacmen_pos,
+        trapped_food,
+        total_food,
+        rng=rng,
+    )
+
+    other_half_food = [(width - 1 - x, height - 1 - y) for x, y in half_food]
+    food = sorted(half_food + other_half_food)
+
+    layout_dict = dict()
+    layout_dict["walls"] = walls
+    layout_dict["food"] = food
+    layout_dict["bots"] = [
+        (1, height - 3),
+        (width - 2, 2),
+        (1, height - 2),
+        (width - 2, 1),
+    ]
+    layout_dict["shape"] = (width, height)
+
+    return layout_dict
+
+
+def empty_graph(width, height):
+    graph = nx.grid_2d_graph(range(1, width - 1), range(1, height - 1))
+    walls = get_ring((0, 0), width, height)
+    return graph, walls
+
+
+def add(start, relative):
+    return start[0] + relative[0], start[1] + relative[1]
+
+
+def get_ring(start, width, height):
+    ring = set()
+    for x in range(width):
+        ring.add((x, 0))
+        ring.add((x, height - 1))
+
+    for y in range(1, height - 1):
+        ring.add((0, y))
+        ring.add((width - 1, y))
+
+    return set(add(start, ring_node) for ring_node in ring)
+
+
+def mirror(nodes, width, height):
+    nodes = set(nodes)
+    other = set((width - 1 - x, height - 1 - y) for x, y in nodes)
+    return nodes | other
+
+
+def transpose(nodes):
+    return [node[::-1] for node in nodes]
+
+
+def generate_wall_at(nodes, border, pos, ngaps, vertical, rng, gaps_pos=None):
+    if not vertical:
+        nodes = transpose(nodes)
+        border = set(transpose(border))
+
+    xmin, ymin = min(nodes)
+    xmax, ymax = max(nodes)
+    ch = ymax - ymin + 1
+
+    walls = [(pos, ymin + y) for y in range(ch)]
+
+    ngaps = max(1, ngaps)
+    if gaps_pos is None:
+        gaps_pos = list(range(ch))
+        rng.shuffle(gaps_pos)
+        gaps_pos = gaps_pos[:ngaps]
+
+        if (pos, ymin - 1) not in border:
+            gaps_pos.insert(0, 0)
+        if (pos, ymin + ch) not in border:
+            gaps_pos.insert(0, ch - 1)
+    walls_to_remove = [walls[gp] for gp in set(gaps_pos)]
+    for wall in walls_to_remove:
+        walls.remove(wall)
+
+    walls = set(walls)
+
+
+    sub_mazes = [
+        [node for node in nodes if node[0] < pos],
+        [node for node in nodes if node[0] > pos],
+    ]
+
+    sub_borders = [
+        set(b for b in border if b[0] <= pos) | walls,
+        set(b for b in border if b[0] >= pos) | walls,
+    ]
+
+
+    if not vertical:
+        sub_mazes = [transpose(sm) for sm in sub_mazes]
+        sub_borders = [set(transpose(sb)) for sb in sub_borders]
+        walls = set(transpose(walls))
+
+    return walls, sub_mazes, sub_borders
+
+
+def generate_half_maze(nodes, outer_walls, ngaps_center, rng=None):
+    rng = default_rng(rng)
+
+    xmin, ymin = min(nodes)
+    xmax, ymax = max(nodes)
+    cw = xmax - xmin + 1
+    ch = ymax - ymin + 1
+
+
+    candidates = list(range(ch // 2))
+    rng.shuffle(candidates)
+    half_gaps_pos = candidates[: ngaps_center // 2]
+    gaps_pos = []
+    for pos in half_gaps_pos:
+        gaps_pos.append(pos)
+        gaps_pos.append(ch - pos - 1)
+
+    pos = xmin + cw // 2 - 1
+
+    # add border at center
+    border, sub_mazes, sub_borders = generate_wall_at(
+        nodes,
+        outer_walls,
+        pos,
+        ngaps_center,
+        vertical=True,
+        rng=rng,
+        gaps_pos=gaps_pos,
+    )
+
+    inner_walls = generate_walls(
+        sub_mazes[0],
+        sub_borders[0],
+        ngaps_center // 2,
+        vertical=False,
+        rng=rng,
+    )
+
+    return outer_walls | border | inner_walls
+
+
+def generate_walls(nodes, border, ngaps, vertical, rng=None):
+    rng = default_rng(rng)
+
+    walls = set()
+
+    if not len(nodes) > 0:
+        return walls
+
+    xmin, ymin = min(nodes)
+    xmax, ymax = max(nodes)
+    cw = xmax - xmin + 1
+    ch = ymax - ymin + 1
+
+    if ch < 3 and cw < 3:
+        return walls
+
+    size = cw if vertical else ch
+
+    min_size = rng.randint(3, 5)
+    if size >= min_size:
+        off = xmin if vertical else ymin
+        pos = off + rng.randint(1, size - 2)
+        walls, sub_mazes, sub_borders = generate_wall_at(
+            nodes, border, pos, ngaps, vertical, rng=rng
+        )
+
+        for sub_maze, sub_border in zip(sub_mazes, sub_borders):
+            walls |= generate_walls(
+                sub_maze, sub_border, max(1, ngaps // 2), not vertical, rng=rng
+            )
+
+    return walls
+
+
+def create_maze_graph(trapped_food, total_food, width, height):
+    # get empty graph
+    # add walls
+    # distribute food
+    # populate layout_dict
+    ...
