@@ -25,6 +25,7 @@ import numpy as np
 
 
 from .base_utils import default_rng
+from .team import walls_to_graph as walls_to_graph_team
 
 north = (0, -1)
 south = (0, 1)
@@ -312,10 +313,13 @@ def remove_all_chambers(maze, rng=None):
         maze_graph = walls_to_graph(maze)
         # this will find one of the chambers, if there is any
         # entrance, chamber = find_chamber(maze_graph)
-        chambers, chamber_tiles = find_chambers(maze_graph, width)
+        chamber_tiles = find_chambers(maze_graph, width)
 
-        if not chambers:
+        if len(chamber_tiles) == 0:
             break
+
+        subgraphs = maze_graph.subgraph(chamber_tiles)
+        chambers = list(nx.connected_components(subgraphs))
 
         for chamber in chambers:
             # get all the walls around the chamber
@@ -447,24 +451,14 @@ def find_chambers(G: nx.Graph, width: int):
     chamber_tiles -= main_chamber
 
     # combine connected subgraphs
-    subgraphs = G.subgraph(chamber_tiles)
-    chambers = list(nx.connected_components(subgraphs))
+    #subgraphs = G.subgraph(chamber_tiles)
+    #chambers = list(nx.connected_components(subgraphs))
 
-    return chambers, chamber_tiles
-
-
-def sample_nodes(nodes, k, rng=None):
-    rng = default_rng(rng)
-
-    if k < len(nodes):
-        return set(rng.sample(sorted(nodes), k=k))
-    else:
-        return nodes
+    #return chambers, chamber_tiles
+    return chamber_tiles
 
 
 def distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=None):
-    # TODO: ensure that total_food <= len(graph.nodes)
-
     rng = default_rng(rng)
 
     if trapped_food > total_food:
@@ -495,10 +489,172 @@ def distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=None
     else:
         leftover_food_pos = set()
 
-    return sorted(tf_pos | ff_pos | leftover_food_pos)
+    return tf_pos | ff_pos | leftover_food_pos
 
 
-def create_layout(trapped_food, total_food, width, height, rng=None):
+
+def generate_walls(partition, walls, ngaps, vertical, rng=None):
+    rng = default_rng(rng)
+
+    (xmin, ymin), (xmax, ymax) = partition
+
+    # the size of the maze partition we work on
+    width = xmax - xmin + 1
+    height = ymax - ymin + 1
+
+    # if the partition is too small, stop
+    if height < 3 and width < 3:
+        return set()
+
+    # insert a wall only if there is some space in the around it in the
+    # orthogonal direction, i.e.:
+    # if the wall is vertical, then the relevant length is the width
+    # if the wall is horizontal, then the relevant length is the height
+    partition_length = width if vertical else height
+    if partition_length < rng.randint(3, 5):
+        return set()
+
+    # the raw/column to put the horizontal/vertical wall on
+    # the position is calculated starting from the left/top of the maze partition
+    # and then a random offset is added -> the resulting raw/column must not
+    # exceed the available length
+    pos = xmin if vertical else ymin
+    pos += rng.randint(1, partition_length - 2)
+
+    # the maximum length of the wall is the space we have in the same direction
+    # of the wall in the partition, i.e.
+    # if the wall is vertical, the maximum length is the height
+    # if the wall is horizontal, the maximum length is the width
+    max_length = height if vertical else width
+
+    # We can start with a full wall, but we want to make sure that we do not
+    # block the entrances to this partition. The entrances are
+    # - the tile before the beginning of this wall [entrance] and
+    # - the tile after the end of this wall [exit]
+    # if entrance or exit are _not_ walls, then the wall must leave the neighboring
+    # tiles also empty, i.e. the wall must be shortened accordingly
+    if vertical:
+        entrance_before = (pos, ymin - 1)
+        entrance_after = (pos, ymin + max_length)
+        begin = 0 if entrance_before in walls else 1
+        end = max_length if entrance_after in walls else max_length-1
+        wall = {(pos, ymin+y) for y in range(begin, end)}
+    else:
+        entrance_before = (xmin - 1, pos)
+        entrance_after = (xmin + max_length, pos)
+        begin = 0 if entrance_before in walls else 1
+        end = max_length if entrance_after in walls else max_length-1
+        wall = {(xmin+x, pos) for x in range(begin, end)}
+
+    # place the requested number of gaps in the otherwise full wall
+    # these gaps are indices in the direction of the wall, i.e.
+    # x if horizontal and y if vertical
+    # TODO: when we drop compatibility with numpy, this can be more easily done
+    # by just sampling ngaps out of the full wall set, i.e.
+    # gaps = rng.sample(wall, k=ngaps)
+    # for gap in gaps:
+    #     wall.remove(gap)
+    ngaps = max(1, ngaps)
+    wall_pos = list(range(max_length))
+    rng.shuffle(wall_pos)
+    gaps_pos = wall_pos[:ngaps]
+    for gap in wall_pos[:ngaps]:
+        if vertical:
+            wall.discard((pos, ymin+gap))
+        else:
+            wall.discard((xmin+gap, pos))
+
+    # collect this wall into the global wall set
+    walls |= wall
+
+    # define the two new partitions of the maze generated by this wall
+    # these are the parts of the maze to the left/right of a vertical wall
+    # or the top/bottom of a horizontal wall
+    if vertical:
+        partitions = [((xmin,  ymin), (pos-1, ymax)),
+                      ((pos+1, ymin), (xmax,  ymax))]
+    else:
+        partitions = [((xmin,  ymin), (xmax, pos-1)),
+                      ((xmin, pos+1), (xmax,  ymax))]
+
+    for partition in partitions:
+        walls |= generate_walls(
+            partition, walls, max(1, ngaps // 2), not vertical, rng=rng
+        )
+
+    return walls
+
+def generate_full_maze(width, height, ngaps_center, bots_pos, rng=None):
+    # use binary space partitioning
+    rng = default_rng(rng)
+
+    # outer walls are top, bottom, left and right edge
+    walls = {(x, 0) for x in range(width)} | \
+            {(x, height-1) for x in range(width)} | \
+            {(0, y) for y in range(height)} | \
+            {(width-1, y) for y in range(height)}
+
+    # Generate a wall with gaps at the border between the two homezones
+    # in the left side of the maze
+
+    # TODO: when we decide to break backward compatibility with the numpy version
+    # of create maze, this part can be delegated directly to generate_walls and
+    # then we need to rewrite mirror to mirror a set of coordinates around the center
+    # by discarding the lower part of the border
+
+    # Let us start with a full wall at the left side of the border
+    x_wall = width//2 - 1
+    wall = {(x_wall, y) for y in range(1, height - 1)}
+
+    # possible locations for gaps
+    # these gaps need to be symmetric around the center
+    # TODO: when we decide to break compatibility with the numpy version of
+    # create_maze we can rewrite this. See generate_walls for an example
+    ymax = (height - 2) // 2
+    candidates = list(range(ymax))
+    rng.shuffle(candidates)
+
+    for gap in candidates[:ngaps_center//2]:
+        wall.remove((x_wall, gap+1))
+        wall.remove((x_wall, ymax*2 - gap))
+
+    walls |= wall
+    partition = ((1, 1), (x_wall - 1, ymax * 2))
+
+
+    walls = generate_walls(
+        partition,
+        walls,
+        ngaps_center // 2,
+        vertical=False,
+        rng=rng,
+    )
+
+    # make space for the pacmen:
+    for bot in bots_pos:
+        if bot in walls:
+            walls.remove(bot)
+
+    walls = mirror(walls, width, height)
+    return walls
+
+
+def mirror(nodes, width, height):
+    nodes = set(nodes)
+    other = set((width - 1 - x, height - 1 - y) for x, y in nodes)
+    return nodes | other
+
+
+def sample_nodes(nodes, k, rng=None):
+    rng = default_rng(rng)
+
+    if k < len(nodes):
+        return set(rng.sample(sorted(nodes), k=k))
+    else:
+        return nodes
+
+
+def create_maze_graph(trapped_food=10, total_food=30, width=32, height=16, rng=None):
     if width % 2 != 0:
         raise ValueError(f"Width must be even ({width} given)")
 
@@ -510,212 +666,35 @@ def create_layout(trapped_food, total_food, width, height, rng=None):
 
     rng = default_rng(rng)
 
-    maze = empty_maze(height, width)
-    create_half_maze(maze, height // 2, rng=rng)
-    maze[:, width // 2 :] = np.flipud(np.fliplr(maze[:, : width // 2]))
+    # get the full maze with all the walls
+    pacmen_pos = set([(1, height - 3), (1, height - 2)])
+    walls = generate_full_maze(width, height, height//2, pacmen_pos, rng=rng)
 
-    hold_pacmen(maze)
+    # transform to graph to find dead ends and chambers for food distribution
+    graph = walls_to_graph_team(walls, shape=(width, height))
 
-    pacmen_pos = set(
-        [
-            (1, height - 3),
-            (1, height - 2),
-        ]
-    )
+    # the algorithm should actually guarantee this, but just to make sure, let's
+    # fail if the graph is not fully connected
+    if not nx.is_connected(graph):
+        raise ValueError(f"Generated maze is not fully connected, try a different random seed")
 
-    y, x = (maze == W).nonzero()
-    walls = np.transpose((x, y)).tolist()
-    walls = tuple(sorted(tuple(wall) for wall in walls))
+    chamber_tiles = find_chambers(graph, width)
 
-    half_graph = walls_to_graph(maze[:, : width // 2])
-    full_graph = walls_to_graph(maze)
+    # we want to distribute the food only on the left half of the maze
+    # important: no food on the border (x==width//2-1) and no food on the
+    # pacmen positions
 
-    _, chamber_tiles = find_chambers(full_graph, width)
+    border = width//2-1
+    chamber_tiles = {tile for tile in chamber_tiles if tile[0] < border} - pacmen_pos
+    all_tiles = {(x, y) for x in range(border) for y in range(height)}
+    all_tiles = all_tiles - walls - pacmen_pos
+    left_food = distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=rng)
+    food = mirror(left_food, width, height)
 
-    chamber_tiles = [tile for tile in chamber_tiles if tile[0] < width // 2]
-    half_food = distribute_food(
-        set(half_graph.nodes) - pacmen_pos,
-        set(chamber_tiles) - pacmen_pos,
-        trapped_food,
-        total_food,
-        rng=rng,
-    )
+    layout = { "walls" : tuple(sorted(walls)),
+               "food"  : sorted(food),
+               "bots"  : [ (1, height - 3), (width - 2, 2),
+                           (1, height - 2), (width - 2, 1) ],
+               "shape" : (width, height) }
 
-    other_half_food = [(width - 1 - x, height - 1 - y) for x, y in half_food]
-    food = sorted(half_food + other_half_food)
-
-    layout_dict = dict()
-    layout_dict["walls"] = walls
-    layout_dict["food"] = food
-    layout_dict["bots"] = [
-        (1, height - 3),
-        (width - 2, 2),
-        (1, height - 2),
-        (width - 2, 1),
-    ]
-    layout_dict["shape"] = (width, height)
-
-    return layout_dict
-
-
-def empty_graph(width, height):
-    graph = nx.grid_2d_graph(range(1, width - 1), range(1, height - 1))
-    walls = get_ring((0, 0), width, height)
-    return graph, walls
-
-
-def add(start, relative):
-    return start[0] + relative[0], start[1] + relative[1]
-
-
-def get_ring(start, width, height):
-    ring = set()
-    for x in range(width):
-        ring.add((x, 0))
-        ring.add((x, height - 1))
-
-    for y in range(1, height - 1):
-        ring.add((0, y))
-        ring.add((width - 1, y))
-
-    return set(add(start, ring_node) for ring_node in ring)
-
-
-def mirror(nodes, width, height):
-    nodes = set(nodes)
-    other = set((width - 1 - x, height - 1 - y) for x, y in nodes)
-    return nodes | other
-
-
-def transpose(nodes):
-    return [node[::-1] for node in nodes]
-
-
-def generate_wall_at(nodes, border, pos, ngaps, vertical, rng, gaps_pos=None):
-    if not vertical:
-        nodes = transpose(nodes)
-        border = set(transpose(border))
-
-    xmin, ymin = min(nodes)
-    xmax, ymax = max(nodes)
-    ch = ymax - ymin + 1
-
-    walls = [(pos, ymin + y) for y in range(ch)]
-
-    ngaps = max(1, ngaps)
-    if gaps_pos is None:
-        gaps_pos = list(range(ch))
-        rng.shuffle(gaps_pos)
-        gaps_pos = gaps_pos[:ngaps]
-
-        if (pos, ymin - 1) not in border:
-            gaps_pos.insert(0, 0)
-        if (pos, ymin + ch) not in border:
-            gaps_pos.insert(0, ch - 1)
-    walls_to_remove = [walls[gp] for gp in set(gaps_pos)]
-    for wall in walls_to_remove:
-        walls.remove(wall)
-
-    walls = set(walls)
-
-
-    sub_mazes = [
-        [node for node in nodes if node[0] < pos],
-        [node for node in nodes if node[0] > pos],
-    ]
-
-    sub_borders = [
-        set(b for b in border if b[0] <= pos) | walls,
-        set(b for b in border if b[0] >= pos) | walls,
-    ]
-
-
-    if not vertical:
-        sub_mazes = [transpose(sm) for sm in sub_mazes]
-        sub_borders = [set(transpose(sb)) for sb in sub_borders]
-        walls = set(transpose(walls))
-
-    return walls, sub_mazes, sub_borders
-
-
-def generate_half_maze(nodes, outer_walls, ngaps_center, rng=None):
-    rng = default_rng(rng)
-
-    xmin, ymin = min(nodes)
-    xmax, ymax = max(nodes)
-    cw = xmax - xmin + 1
-    ch = ymax - ymin + 1
-
-
-    candidates = list(range(ch // 2))
-    rng.shuffle(candidates)
-    half_gaps_pos = candidates[: ngaps_center // 2]
-    gaps_pos = []
-    for pos in half_gaps_pos:
-        gaps_pos.append(pos)
-        gaps_pos.append(ch - pos - 1)
-
-    pos = xmin + cw // 2 - 1
-
-    # add border at center
-    border, sub_mazes, sub_borders = generate_wall_at(
-        nodes,
-        outer_walls,
-        pos,
-        ngaps_center,
-        vertical=True,
-        rng=rng,
-        gaps_pos=gaps_pos,
-    )
-
-    inner_walls = generate_walls(
-        sub_mazes[0],
-        sub_borders[0],
-        ngaps_center // 2,
-        vertical=False,
-        rng=rng,
-    )
-
-    return outer_walls | border | inner_walls
-
-
-def generate_walls(nodes, border, ngaps, vertical, rng=None):
-    rng = default_rng(rng)
-
-    walls = set()
-
-    if not len(nodes) > 0:
-        return walls
-
-    xmin, ymin = min(nodes)
-    xmax, ymax = max(nodes)
-    cw = xmax - xmin + 1
-    ch = ymax - ymin + 1
-
-    if ch < 3 and cw < 3:
-        return walls
-
-    size = cw if vertical else ch
-
-    min_size = rng.randint(3, 5)
-    if size >= min_size:
-        off = xmin if vertical else ymin
-        pos = off + rng.randint(1, size - 2)
-        walls, sub_mazes, sub_borders = generate_wall_at(
-            nodes, border, pos, ngaps, vertical, rng=rng
-        )
-
-        for sub_maze, sub_border in zip(sub_mazes, sub_borders):
-            walls |= generate_walls(
-                sub_maze, sub_border, max(1, ngaps // 2), not vertical, rng=rng
-            )
-
-    return walls
-
-
-def create_maze_graph(trapped_food, total_food, width, height):
-    # get empty graph
-    # add walls
-    # distribute food
-    # populate layout_dict
-    ...
+    return layout
