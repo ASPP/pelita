@@ -212,6 +212,7 @@ class Team:
                        rng=self._rng,
                        graph=self._graph)
 
+        me._game_state = game_state
         team = me._team
 
         for idx, mybot in enumerate(team):
