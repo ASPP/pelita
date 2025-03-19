@@ -584,7 +584,7 @@ def generate_walls(partition, walls, ngaps, vertical, rng=None):
 
     return walls
 
-def generate_full_maze(width, height, ngaps_center, bots_pos, rng=None):
+def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     # use binary space partitioning
     rng = default_rng(rng)
 
@@ -635,7 +635,6 @@ def generate_full_maze(width, height, ngaps_center, bots_pos, rng=None):
         if bot in walls:
             walls.remove(bot)
 
-    walls = mirror(walls, width, height)
     return walls
 
 
@@ -666,31 +665,40 @@ def create_maze_graph(trapped_food=10, total_food=30, width=32, height=16, rng=N
 
     rng = default_rng(rng)
 
-    # get the full maze with all the walls
+    # get a full maze, but only the left half is filled with random walls
+    # this allows us to cut the execution time in two, because the following
+    # graph operations are quite expensive
     pacmen_pos = set([(1, height - 3), (1, height - 2)])
-    walls = generate_full_maze(width, height, height//2, pacmen_pos, rng=rng)
+    walls = generate_half_maze(width, height, height//2, pacmen_pos, rng=rng)
 
     # transform to graph to find dead ends and chambers for food distribution
-    graph = walls_to_graph_team(walls, shape=(width, height))
+    # IMPORTANT: we have to include one column of the right border in the graph
+    # generation, or our algorith to find chambers would get confused
+    graph = walls_to_graph_team(walls, shape=(width//2+1, height))
 
     # the algorithm should actually guarantee this, but just to make sure, let's
     # fail if the graph is not fully connected
     if not nx.is_connected(graph):
         raise ValueError(f"Generated maze is not fully connected, try a different random seed")
 
+    # this gives us a set of tiles that are "trapped" within chambers, i.e. tunnels
+    # with a dead-end or a section of tiles fully enclosed by walls except for a single
+    # tile entrance
     chamber_tiles = find_chambers(graph, width)
 
     # we want to distribute the food only on the left half of the maze
-    # important: no food on the border (x==width//2-1) and no food on the
-    # pacmen positions
-
-    border = width//2-1
+    # make sure that the tiles available for food distribution do not include
+    # those right on the border of the homezone
+    # also, no food on the initial positions of the pacmen
+    border = width//2 - 1
     chamber_tiles = {tile for tile in chamber_tiles if tile[0] < border} - pacmen_pos
     all_tiles = {(x, y) for x in range(border) for y in range(height)}
-    all_tiles = all_tiles - walls - pacmen_pos
-    left_food = distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=rng)
-    food = mirror(left_food, width, height)
+    free_tiles = all_tiles - walls - pacmen_pos
+    left_food = distribute_food(free_tiles, chamber_tiles, trapped_food, total_food, rng=rng)
 
+    # get the full maze with all walls and food by mirroring the left half
+    food = mirror(left_food, width, height)
+    walls = mirror(walls, width, height)
     layout = { "walls" : tuple(sorted(walls)),
                "food"  : sorted(food),
                "bots"  : [ (1, height - 3), (width - 2, 2),
@@ -698,3 +706,4 @@ def create_maze_graph(trapped_food=10, total_food=30, width=32, height=16, rng=N
                "shape" : (width, height) }
 
     return layout
+
