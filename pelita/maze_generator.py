@@ -674,6 +674,8 @@ def create_maze_graph(trapped_food=10, total_food=30, width=32, height=16, rng=N
     # transform to graph to find dead ends and chambers for food distribution
     # IMPORTANT: we have to include one column of the right border in the graph
     # generation, or our algorith to find chambers would get confused
+    # Note: this only works because in the right side of the maze we have no walls
+    # except for the surrounding ones.
     graph = walls_to_graph_team(walls, shape=(width//2+1, height))
 
     # the algorithm should actually guarantee this, but just to make sure, let's
@@ -690,6 +692,9 @@ def create_maze_graph(trapped_food=10, total_food=30, width=32, height=16, rng=N
     # make sure that the tiles available for food distribution do not include
     # those right on the border of the homezone
     # also, no food on the initial positions of the pacmen
+    # IMPORTANT: the relevant chamber tiles are only those in the left side of
+    # the maze. By detecing chambers on only half of the maze, we may still have
+    # spurious chambers on the right side
     border = width//2 - 1
     chamber_tiles = {tile for tile in chamber_tiles if tile[0] < border} - pacmen_pos
     all_tiles = {(x, y) for x in range(border) for y in range(height)}
