@@ -263,7 +263,32 @@ class Wall(TkSprite):
 
 
     def draw(self, canvas, game_state=None):
-        scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.6
+        scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.5
+        if game_state:
+            wall_col = col(48, 26, 22)
+
+            import random
+            r = random.randint(0, 15)
+            g = random.randint(0, 15)
+            b = random.randint(0, 15)
+            wall_col = col(r*16, g*16, b*16)
+
+            def rb_col(idx, width, phase=0):
+                import math
+                freq = math.pi * 2 / width
+                r = math.sin(freq * idx + 2 + phase) * 127 + 128
+                g = math.sin(freq * idx + 0 + phase) * 127 + 128
+                b = math.sin(freq * idx + 4 + phase) * 127 + 128
+                return (int(r), int(g), int(b))
+
+            x, y = self.position
+            if x == 0 or y == 0:
+                wall_col = col(*rb_col(x + y, 16, game_state))
+            elif x == self.mesh.mesh_width - 1 or y == self.mesh.mesh_height - 1:
+                wall_col = col(*rb_col(- x - y, 16, game_state))
+        else:
+            wall_col = col(48, 26, 22)
+
         if not ((0, 1) in self.wall_neighbors or
                 (1, 0) in self.wall_neighbors or
                 (0, -1) in self.wall_neighbors or
@@ -271,7 +296,7 @@ class Wall(TkSprite):
             # if there is no direct neighbour, we can’t connect.
             # draw only a small dot.
             # TODO add diagonal lines
-            canvas.create_line(self.screen((-0.3, 0)), self.screen((+0.3, 0)), fill=BROWN,
+            canvas.create_line(self.screen((-0.3, 0)), self.screen((+0.3, 0)), fill=wall_col,
                                width=scale, tags=(self.tag, "wall"), capstyle="round")
         else:
             neighbours = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
@@ -287,7 +312,7 @@ class Wall(TkSprite):
                             neighbours[(index - 1) % len(neighbours)] in self.wall_neighbors):
                             pass
                         else:
-                            canvas.create_line(self.screen((0, 0)), self.screen((2*dx, 2*dy)), fill=BROWN,
+                            canvas.create_line(self.screen((0, 0)), self.screen((2*dx, 2*dy)), fill=wall_col,
                                                width=scale, tags=(self.tag, "wall"), capstyle="round")
 
             # if we are drawing a closed square, fill in the internal part
