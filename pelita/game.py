@@ -15,6 +15,7 @@ from .layout import initial_positions, get_legal_positions
 from .network import setup_controller, ZMQPublisher
 from .base_utils import default_rng
 from .team import make_team
+from .spec import GameState
 from .viewer import ProgressViewer, AsciiViewer, ReplyToViewer, ReplayWriter, ResultPrinter
 
 _logger = logging.getLogger(__name__)
@@ -271,7 +272,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", rng=N
                allow_camping=False, error_limit=5, timeout_length=3,
                viewers=None, store_output=False,
                team_names=(None, None), team_infos=(None, None),
-               allow_exceptions=False, print_result=True):
+               allow_exceptions=False, print_result=True) -> GameState:
     """ Generates a game state for the given teams and layout with otherwise default values. """
     if viewers is None:
         viewers = []
@@ -315,7 +316,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", rng=N
 
     # Initialize the game state.
 
-    game_state = dict(
+    game_state: GameState = dict(
         ### The layout attributes
         #: Walls. Set of (int, int)
         walls=set(layout_dict['walls']),
@@ -666,7 +667,7 @@ def prepare_viewer_state(game_state):
     return viewer_state
 
 
-def play_turn(game_state, allow_exceptions=False):
+def play_turn(game_state: GameState, allow_exceptions=False):
     """ Plays the next turn of the game.
 
     This function increases the round and turn counters, requests a move
@@ -769,7 +770,7 @@ def play_turn(game_state, allow_exceptions=False):
     return game_state
 
 
-def apply_move(gamestate, bot_position):
+def apply_move(gamestate: GameState, bot_position):
     """Plays a single step of a bot by applying the game rules to the game state. The rules are:
     - if the playing team has an error count of >4 or a fatal error they lose
     - a legal step must not be on a wall, else the error count is increased by 1 and a random move is chosen for the bot
