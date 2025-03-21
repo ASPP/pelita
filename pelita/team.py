@@ -181,6 +181,9 @@ class Team:
         # Reset the team state
         self._state.clear()
 
+        self._game_state = {}
+        self._game_state.update(game_state)
+
         # Initialize the random number generator
         # with the seed that we received from game
         self._rng = Random(game_state['seed'])
@@ -193,6 +196,9 @@ class Team:
 
         # Store the shape, which is only transmitted once
         self._shape = tuple(game_state['shape'])
+
+        self._team_names = tuple(game_state['team_names'])
+        self._max_rounds = game_state['max_rounds']
 
         # Cache the initial positions so that we don’t have to calculate them at each step
         self._initial_positions = layout.initial_positions(self._walls, self._shape)
@@ -241,11 +247,13 @@ class Team:
                        error_count=game_state['error_count'],
                        initial_positions=self._initial_positions,
                        homezone=self._homezone,
-                       team_names=game_state['team_names'],
+                       team_names=self._team_names,
                        team_time=game_state['team_time'],
                        rng=self._rng,
                        graph=self._graph)
 
+        self._game_state.update(game_state)
+        me._game_state = self._game_state
         team = me._team
 
         for idx, mybot in enumerate(team):
