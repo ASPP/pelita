@@ -15,6 +15,7 @@ from .layout import initial_positions, get_legal_positions
 from .network import setup_controller, ZMQPublisher
 from .base_utils import default_rng
 from .team import make_team
+from .spec import GameState, Layout, Pos
 from .viewer import ProgressViewer, AsciiViewer, ReplyToViewer, ReplayWriter, ResultPrinter
 
 _logger = logging.getLogger(__name__)
@@ -267,11 +268,11 @@ def setup_viewers(viewers, print_result=True):
     return viewer_state
 
 
-def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", rng=None,
+def setup_game(team_specs, *, layout_dict: Layout, max_rounds=300, layout_name="", rng=None,
                allow_camping=False, error_limit=5, timeout_length=3,
                viewers=None, store_output=False,
                team_names=(None, None), team_infos=(None, None),
-               allow_exceptions=False, print_result=True):
+               allow_exceptions=False, print_result=True) -> GameState:
     """ Generates a game state for the given teams and layout with otherwise default values. """
     if viewers is None:
         viewers = []
@@ -315,120 +316,120 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", rng=N
 
     # Initialize the game state.
 
-    game_state = dict(
+    game_state: GameState = {
         ### The layout attributes
         #: Walls. Set of (int, int)
-        walls=set(layout_dict['walls']),
+        'walls': set(layout_dict['walls']),
 
         #: Shape of the maze. (int, int)
-        shape=layout_dict['shape'],
+        'shape': layout_dict['shape'],
 
         #: Food per team. List of sets of (int, int)
-        food=food,
+        'food': food,
 
         #: Food ages per team. Dict of (int, int) to int
-        food_age=[{}, {}],
+        'food_age': ({}, {}),
 
         ### Round/turn information
         #: Current bot, int, None
-        turn=None,
+        'turn': None,
 
         #: Current round, int, None
-        round=None,
+        'round': None,
 
         #: Is the game finished? bool
-        gameover=False,
+        'gameover': False,
 
         #: Who won? int, None
-        whowins=None,
+        'whowins': None,
 
         ### Bot/team status
         #: Positions of all bots. List of (int, int)
-        bots=layout_dict['bots'][:],
+        'bots': layout_dict['bots'][:],
 
         #: Score of the teams. List of int
-        score=[0] * 2,
+        'score': (0, 0),
 
         #: Fatal errors
-        fatal_errors=[[], []],
+        'fatal_errors': ([], []),
 
         #: Errors
-        errors=[{}, {}],
+        'errors': ({}, {}),
 
         ### Configuration
         #: Maximum number of rounds, int
-        max_rounds=max_rounds,
+        'max_rounds': max_rounds,
 
         #: Time till timeout, int
-        timeout=3,
+        'timeout': 3,
 
         #: Noise radius, int
-        noise_radius=NOISE_RADIUS,
+        'noise_radius': NOISE_RADIUS,
 
         #: Sight distance, int
-        sight_distance=SIGHT_DISTANCE,
+        'sight_distance': SIGHT_DISTANCE,
 
         #: Max food age
-        max_food_age=max_food_age,
+        'max_food_age': max_food_age,
 
         #: Shadow distance, int
-        shadow_distance=SHADOW_DISTANCE,
+        'shadow_distance': SHADOW_DISTANCE,
 
         ### Informative
         #: Name of the layout, str
-        layout_name=layout_name,
+        'layout_name': layout_name,
 
         #: Name of the teams. Tuple of str
-        team_names=team_names,
+        'team_names': team_names,
 
         #: Additional team info. Tuple of str|None
-        team_infos=team_infos,
+        'team_infos': team_infos,
 
         #: Time each team needed, list of float
-        team_time=[0, 0],
+        'team_time': (0.0, 0.0),
 
         # List of bot deaths, which counts the number of deaths per bot
         # In other words, deaths[bot_idx] is the number of times the bot
         # bot_idx has been killed until now.
-        deaths = [0]*4,
+        'deaths': [0] * 4,
 
         # List of bot kills, which counts the number of kills per bot
         # In other words, kills[bot_idx] is the number of times the bot
         # bot_idx has killed another bot until now.
-        kills = [0]*4,
+        'kills': [0] * 4,
 
         # List of boolean flags weather bot has been eaten since its last move
-        bot_was_killed = [False]*4,
+        'bot_was_killed':  [False]*4,
 
         # The noisy positions that the bot in `turn` has currently been shown.
         # None, if not noisy
-        noisy_positions = [None] * 4,
+        'noisy_positions':  [None] * 4,
 
         #: The moves that the bots returned. Keeps only the recent one at the respective bot’s index.
-        requested_moves=[None] * 4,
+        'requested_moves': [None] * 4,
 
         #: Messages the bots say. Keeps only the recent one at the respective bot’s index.
-        say=[""] * 4,
+        'say': [""] * 4,
 
         ### Internal
         #: Internal team representation
-        teams=[None] * 2,
+        'teams': [None] * 2,
 
         #: Random number generator
-        rng=rng,
+        'rng': rng,
 
         #: Timeout length, int, None
-        timeout_length=timeout_length,
+        'timeout_length': timeout_length,
 
         #: Error limit. A team loses when the limit is reached, int
-        error_limit=error_limit,
+        'error_limit': error_limit,
 
         #: Viewers, list
-        viewers=viewer_state['viewers'],
+        'viewers': viewer_state['viewers'],
 
         #: Controller
-        controller=viewer_state['controller']
-    )
+        'controller': viewer_state['controller']
+    }
 
     # Wait until the controller tells us that it is ready
     # We then can send the initial maze
@@ -525,6 +526,7 @@ def request_new_position(game_state):
 def prepare_bot_state(game_state, idx=None):
     """ Prepares the bot’s game state for the current bot.
 
+    NB: This will update the game_state to store new noisy positions.
     """
 
     bot_initialization = game_state.get('turn') is None and idx is not None
@@ -567,52 +569,41 @@ def prepare_bot_state(game_state, idx=None):
             zip(noised_positions['is_noisy'], noised_positions['enemy_positions'])
     ]
     game_state['noisy_positions'][enemy_team::2] = noisy_or_none
-    shaded_food = list(pos for pos, age in game_state['food_age'][own_team].items()
+
+    bots = game_state['bots'][:]
+    bots[enemy_team::2] = noised_positions['enemy_positions']
+
+    is_noisy = [False for _ in range(4)]
+    is_noisy[enemy_team::2] = noised_positions['is_noisy']
+
+    shaded_food_own = list(pos for pos, age in game_state['food_age'][own_team].items()
                        if age > 0)
-
-    team_state = {
-        'team_index': own_team,
-        'bot_positions': game_state['bots'][own_team::2],
-        'score': game_state['score'][own_team],
-        'kills': game_state['kills'][own_team::2],
-        'deaths': game_state['deaths'][own_team::2],
-        'bot_was_killed': game_state['bot_was_killed'][own_team::2],
-        'error_count': len(game_state['errors'][own_team]),
-        'food': list(game_state['food'][own_team]),
-        'shaded_food': shaded_food,
-        'name': game_state['team_names'][own_team],
-        'team_time': game_state['team_time'][own_team]
-    }
-
-    enemy_state = {
-        'team_index': enemy_team,
-        'bot_positions': noised_positions['enemy_positions'],
-        'is_noisy': noised_positions['is_noisy'],
-        'score': game_state['score'][enemy_team],
-        'kills': game_state['kills'][enemy_team::2],
-        'deaths': game_state['deaths'][enemy_team::2],
-        'bot_was_killed': game_state['bot_was_killed'][enemy_team::2],
-        'error_count': 0, # TODO. Could be left out for the enemy
-        'food': list(game_state['food'][enemy_team]),
-        'shaded_food': [],
-        'name': game_state['team_names'][enemy_team],
-        'team_time': game_state['team_time'][enemy_team]
-    }
+    shaded_food = [[], []]
+    shaded_food[own_team] = shaded_food_own
 
     bot_state = {
-        'team': team_state,
-        'enemy': enemy_state,
+        'bots': bots,
+        'score': game_state['score'][:],
+        'kills': game_state['kills'][:],
+        'deaths': game_state['deaths'][:],
+        'bot_was_killed': game_state['bot_was_killed'][:],
+        'error_count': [len(e) for e in game_state['errors'][:]],
+        'food': [list(team_food) for team_food in game_state['food']],
+        'shaded_food': shaded_food,
+        'team_time': game_state['team_time'][:],
+        'is_noisy': is_noisy,
         'round': game_state['round'],
-        'bot_turn': bot_turn,
+        'turn': turn,
         'timeout_length': game_state['timeout_length'],
-        'max_rounds': game_state['max_rounds'],
     }
 
     if bot_initialization:
         bot_state.update({
             'walls': game_state['walls'], # only in initial round
             'shape': game_state['shape'], # only in initial round
-            'seed': seed # only used in set_initial phase
+            'seed': seed, # only used in set_initial phase
+            'max_rounds': game_state['max_rounds'],
+            'team_names': game_state['team_names'][:],
         })
 
     return bot_state
@@ -676,7 +667,7 @@ def prepare_viewer_state(game_state):
     return viewer_state
 
 
-def play_turn(game_state, allow_exceptions=False):
+def play_turn(game_state: GameState, allow_exceptions=False):
     """ Plays the next turn of the game.
 
     This function increases the round and turn counters, requests a move
@@ -779,7 +770,7 @@ def play_turn(game_state, allow_exceptions=False):
     return game_state
 
 
-def apply_move(gamestate, bot_position):
+def apply_move(gamestate: GameState, bot_position):
     """Plays a single step of a bot by applying the game rules to the game state. The rules are:
     - if the playing team has an error count of >4 or a fatal error they lose
     - a legal step must not be on a wall, else the error count is increased by 1 and a random move is chosen for the bot
@@ -1036,8 +1027,8 @@ def check_exit_remote_teams(game_state):
                 pass
 
 
-def split_food(width, food):
-    team_food = [set(), set()]
+def split_food(width, food: list[Pos]):
+    team_food: tuple[set[Pos], set[Pos]] = (set(), set())
     for pos in food:
         idx = pos[0] // (width // 2)
         team_food[idx].add(pos)

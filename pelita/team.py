@@ -187,17 +187,32 @@ class Team:
         -------
         move : dict
         """
-        me = make_bots(walls=self._walls,
+
+        for tidx in range(2):
+            game_state['food'][tidx] = _ensure_list_tuples(game_state['food'][tidx])
+            game_state['shaded_food'][tidx] = _ensure_list_tuples(game_state['shaded_food'][tidx])
+
+        me = make_bots(bot_positions=game_state['bots'],
+                       is_noisy=game_state['is_noisy'],
+                       walls=self._walls,
                        shape=self._shape,
+                       food=game_state['food'],
+                       shaded_food=game_state['shaded_food'],
+                       round=game_state['round'],
+                       turn=game_state['turn'],
+                       score=game_state['score'],
+                       deaths=game_state['deaths'],
+                       kills=game_state['kills'],
+                       bot_was_killed=game_state['bot_was_killed'],
+                       error_count=game_state['error_count'],
                        initial_positions=self._initial_positions,
                        homezone=self._homezone,
-                       team=game_state['team'],
-                       enemy=game_state['enemy'],
-                       round=game_state['round'],
-                       bot_turn=game_state['bot_turn'],
+                       team_names=game_state['team_names'],
+                       team_time=game_state['team_time'],
                        rng=self._rng,
                        graph=self._graph)
 
+        me._game_state = game_state
         team = me._team
 
         for idx, mybot in enumerate(team):
@@ -576,7 +591,7 @@ class Bot:
         for direction in [(0, 0), (-1, 0), (1, 0), (0, 1), (0, -1)]:
             new_pos = (position[0] + direction[0],
                        position[1] + direction[1])
-            if not new_pos in self.walls:
+            if new_pos not in self.walls:
                 self.legal_positions.append(new_pos)
 
         # Attributes for Bot
@@ -615,33 +630,6 @@ class Bot:
     def say(self, text):
         """ Print some text in the graphical interface. """
         self._say = text
-
-    # def get_direction(self, position):
-        # """ Return the direction needed to get to the given position.
-
-        # Raises
-        # ======
-        # ValueError
-            # If the position cannot be reached by a legal move
-        # """
-        # direction = (position[0] - self.position[0], position[1] - self.position[1])
-        # if direction not in self.legal_directions:
-            # raise ValueError("Cannot reach position %s (would have been: %s)." % (position, direction))
-        # return direction
-
-    # def get_position(self, direction):
-        # """ Return the position reached with the given direction
-
-        # Raises
-        # ======
-        # ValueError
-            # If the direction is not legal.
-        # """
-        # if direction not in self.legal_directions:
-            # raise ValueError(f"Direction {direction} is not legal.")
-        # position = (direction[0] + self.position[0], direction[1] + self.position[1])
-        # return position
-
 
     def _repr_html_(self):
         """ Jupyter-friendly representation. """
@@ -730,72 +718,68 @@ class Bot:
         return f'<Bot: {self.char} ({"blue" if self.is_blue else "red"}), {self.position}, turn: {self.turn}, round: {self.round}>'
 
 
-# def __init__(self, *, bot_index, position, initial_position, walls, homezone, food, is_noisy, score, random, round, is_blue):
-def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, bot_turn, rng, graph):
-    bots = {}
+def make_bots(*,
+              bot_positions,
+              is_noisy,
+              walls,
+              shape,
+              food,
+              shaded_food,
+              round,
+              turn,
+              score,
+              deaths,
+              kills,
+              bot_was_killed,
+              initial_positions,
+              homezone,
+              team_names,
+              team_time,
+              error_count,
+              rng,
+              graph):
 
-    team_index = team['team_index']
-    enemy_index = enemy['team_index']
+    team_index = turn % 2
+    bot_turn = turn // 2
+    enemy_index = 1 - team_index
 
-    team_initial_positions = initial_positions[team_index::2]
-    enemy_initial_positions = initial_positions[enemy_index::2]
+    bots = []
+    bots_dict = {}
 
-    team_bots = []
-    for idx, position in enumerate(team['bot_positions']):
-        b = Bot(bot_index=idx,
-            is_on_team=True,
-            score=team['score'],
-            deaths=team['deaths'][idx],
-            kills=team['kills'][idx],
-            was_killed=team['bot_was_killed'][idx],
-            is_noisy=False,
-            error_count=team['error_count'],
-            food=_ensure_list_tuples(team['food']),
-            shaded_food=_ensure_list_tuples(team['shaded_food']),
-            walls=walls,
-            shape=shape,
-            round=round,
-            bot_turn=bot_turn,
-            bot_char=BOT_I2N[team_index + idx*2],
-            random=rng,
-            graph=graph,
-            position=team['bot_positions'][idx],
-            initial_position=team_initial_positions[idx],
-            is_blue=team_index % 2 == 0,
-            homezone=homezone[team_index],
-            team_name=team['name'],
-            team_time=team['team_time'])
-        b._bots = bots
-        team_bots.append(b)
+    for idx, position in enumerate(bot_positions):
+        tidx = idx % 2
+        b = Bot(
+                bot_index=idx // 2,
+                is_on_team=tidx == team_index,
+                score=score[tidx],
+                deaths=deaths[idx],
+                kills=kills[idx],
+                was_killed=bot_was_killed[idx],
+                is_noisy=is_noisy[idx],
+                error_count=error_count[tidx],
+                food=food[tidx],
+                shaded_food=shaded_food[tidx],
+                walls=walls,
+                shape=shape,
+                round=round,
+                bot_turn=bot_turn,
+                bot_char=BOT_I2N[idx],
+                random=rng,
+                graph=graph,
+                position=bot_positions[idx],
+                initial_position=initial_positions[idx],
+                is_blue=tidx % 2 == 0,
+                homezone=homezone[tidx],
+                team_name=team_names[tidx],
+                team_time=team_time[tidx]
+        )
+        b._bots = bots_dict
+        bots.append(b)
 
-    enemy_bots = []
-    for idx, position in enumerate(enemy['bot_positions']):
-        b = Bot(bot_index=idx,
-            is_on_team=False,
-            score=enemy['score'],
-            kills=enemy['kills'][idx],
-            deaths=enemy['deaths'][idx],
-            was_killed=enemy['bot_was_killed'][idx],
-            is_noisy=enemy['is_noisy'][idx],
-            error_count=enemy['error_count'],
-            food=_ensure_list_tuples(enemy['food']),
-            shaded_food=[],
-            walls=walls,
-            shape=shape,
-            round=round,
-            bot_char = BOT_I2N[team_index + idx*2],
-            random=rng,
-            graph=graph,
-            position=enemy['bot_positions'][idx],
-            initial_position=enemy_initial_positions[idx],
-            is_blue=enemy_index % 2 == 0,
-            homezone=homezone[enemy_index],
-            team_name=enemy['name'],
-            team_time=enemy['team_time'])
-        b._bots = bots
-        enemy_bots.append(b)
+    team_bots = [b for b in bots if b._is_on_team]
+    enemy_bots = [b for b in bots if not b._is_on_team]
 
-    bots['team'] = team_bots
-    bots['enemy'] = enemy_bots
+    bots_dict['team'] = team_bots
+    bots_dict['enemy'] = enemy_bots
+
     return team_bots[bot_turn]
-
