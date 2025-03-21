@@ -7,6 +7,12 @@ Shape: TypeAlias = tuple[int, int]
 Pos: TypeAlias = tuple[int, int]
 FoodAges: TypeAlias = dict[Pos, int]
 
+class Layout(TypedDict):
+    bots: list[Pos]
+    walls: set[Pos]
+    shape: Shape
+    food: tuple[set[Pos], set[Pos]]
+
 class GameState(TypedDict):
     walls: set[Pos]
     shape: Shape
@@ -17,17 +23,17 @@ class GameState(TypedDict):
     gameover: bool
     whowins: None|int
     bots: list[Pos]
-    score: list[int]
+    score: tuple[int, int]
     fatal_errors: tuple[list[Any], list[Any]]
     errors: tuple[Any, Any]
     max_rounds: int
     timeout: int
     noise_radius: int
     sight_distance: int
-    max_food_age: int
+    max_food_age: float|int
     shadow_distance: int
     layout_name: str
-    team_names: tuple[str, str]
+    team_names: tuple[None|str, None|str]
     team_infos: tuple[None|str, None|str]
     team_time: tuple[float, float]
     deaths: list[int]
