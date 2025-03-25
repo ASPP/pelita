@@ -54,7 +54,7 @@ def sample_nodes(nodes, k, rng=None):
         return nodes
 
 
-def find_chambers(graph, width):
+def find_trapped_tiles(graph, width, include_chambers=False):
     main_chamber = set()
     chamber_tiles = set()
 
@@ -74,11 +74,13 @@ def find_chambers(graph, width):
     chamber_tiles -= main_chamber
 
     # combine connected subgraphs
-    #subgraphs = G.subgraph(chamber_tiles)
-    #chambers = list(nx.connected_components(subgraphs))
+    if include_chambers:
+        subgraphs = graph.subgraph(chamber_tiles)
+        chambers = list(nx.connected_components(subgraphs))
+    else:
+        chambers = []
 
-    #return chambers, chamber_tiles
-    return chamber_tiles
+    return chamber_tiles, chambers
 
 
 def distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=None):
@@ -293,7 +295,7 @@ def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None)
     # this gives us a set of tiles that are "trapped" within chambers, i.e. tunnels
     # with a dead-end or a section of tiles fully enclosed by walls except for a single
     # tile entrance
-    chamber_tiles = find_chambers(graph, width)
+    chamber_tiles, _ = find_trapped_tiles(graph, width, include_chambers=False)
 
     # we want to distribute the food only on the left half of the maze
     # make sure that the tiles available for food distribution do not include

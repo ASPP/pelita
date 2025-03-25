@@ -1,4 +1,3 @@
-import textwrap
 from random import Random
 
 import networkx as nx
@@ -7,9 +6,15 @@ import pytest
 
 import pelita.maze_generator as mg
 import pelita.layout as pl
+import pelita.team as pt
 
 SEED = 103525239
 
+def layout_str_to_graph(l_str):
+    l_dict = pl.parse_layout(l_str, strict=False)
+    graph = pt.walls_to_graph(l_dict['walls'], shape=l_dict['shape'])
+    graph.shape = l_dict['shape']
+    return graph
 
 maze_103525239 = """
 ################################
@@ -37,102 +42,42 @@ def test_generate_maze_stability():
     old_layout = pl.parse_layout(maze_103525239)
     assert old_layout == new_layout
 
-@pytest.mark.xfail
-def test_find_chambers():
-    # This maze has one single chamber, whose entrance is one of the
-    # nodes (1,2), (1,3) or (1,4)
-    maze_chamber = """############
+def test_find_trapped_tiles():
+    # This maze has one single chamber
+    one_chamber = """############
+                     #   #      #
+                     #   #      #
+                     # ###      #
+                     #          #
+                     #          #
+                     ############"""
+
+    graph = layout_str_to_graph(one_chamber)
+    one_chamber_tiles, chambers = mg.find_trapped_tiles(graph, graph.shape[0], include_chambers=True)
+    assert len(chambers) == 1
+    tiles_1 = {(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (3, 1), (3, 2)}
+    assert one_chamber_tiles == tiles_1
+
+
+    two_chambers = """############
                       #   #      #
                       #   #      #
-                      # ###      #
-                      #          #
-                      #          #
+                      # ###  # ###
+                      #      #   #
+                      #      #   #
+                      #      #   #
+                      #      #   #
                       ############"""
+    graph = layout_str_to_graph(two_chambers)
+    two_chambers_tiles, chambers = mg.find_trapped_tiles(graph, graph.shape[0], include_chambers=True)
+    assert len(chambers) == 2
+    tiles_2 = {(8,3), (8,4), (8,5), (8,6), (8,7), (9,4), (9,5),
+               (9,6), (9,7), (10, 4), (10,5), (10,6), (10, 7) }
+    assert two_chambers_tiles == tiles_1 | tiles_2
 
-    maze = mg.str_to_maze(maze_chamber)
-    maze_orig = maze.copy()
-    mg.remove_all_dead_ends(maze)
-    # first, check that the chamber is not mistaken for a dead end
-    assert np.all(maze_orig == maze)
-    # now check that we detect it
-    graph = mg.walls_to_graph(maze)
-    # there are actually two nodes that can be considered entrances
-    width = maze_orig.shape[1]
-    chamber_tiles = mg.find_chambers(graph, width)
-    assert chamber_tiles == {(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (3, 1), (3, 2)}
-
-    # now remove the chamber and verify that we don't detect anything
-    # we just remove wall (4,1) manually
-    maze = mg.str_to_maze(maze_chamber)
-    maze[1,4] = mg.E # REMEMBER! Indexing is maze[y,x]!!!
-    graph = mg.walls_to_graph(maze)
-    chamber_tiles = mg.find_chambers(graph, width)
-    assert len(chamber_tiles) == 0
+    # only find chambers in the left side of the maze
 
 
-maze_one_chamber = """############
-                      #   #      #
-                      #   #      #
-                      # ###      #
-                      #          #
-                      #          #
-                      ############"""
-maze_two_chambers = """############
-                       #   #      #
-                       #   #      #
-                       # ###  # ###
-                       #      #   #
-                       #      #   #
-                       #      #   #
-                       #      #   #
-                       ############"""
-maze_neighbor_chambers = """####################
-                            #   ##   #         #
-                            #   ##   #         #
-                            # ###### #         #
-                            #                  #
-                            #                  #
-                            #                  #
-                            ####################"""
-maze_chamber_in_chamber = """######################
-                             #                    #
-                             #                    #
-                             #                    #
-                             ##### ####           #
-                             #        #           #
-                             #   #    #           #
-                             ######################"""
-maze_chamber_bonanza = """################################
-                          #   #   #                      #
-                          #   #   #                      #
-                          #   ### #                      #
-                          #                              #
-                          #                              #
-                          ###### ##########              #
-                          #               #              #
-                          #               #              #
-                          # ###########   #              #
-                          #           #                  #
-                          ##### ####  #   #              #
-                          #        #  #   #              #
-                          #   #    #  #   #              #
-                          ################################"""
-
-@pytest.mark.xfail
-@pytest.mark.parametrize("maze_chamber", (maze_one_chamber,
-                                          maze_two_chambers,
-                                          maze_neighbor_chambers,
-                                          maze_chamber_in_chamber,
-                                          maze_chamber_bonanza,))
-def test_remove_all_chambers(maze_chamber):
-    maze = mg.str_to_maze(maze_chamber)
-    mg.remove_all_chambers(maze)
-    # there are no more chambers if the connectivity of the graph is larger than 1
-    graph = mg.walls_to_graph(maze)
-    assert nx.node_connectivity(graph) > 1
-    #XXX: TODO -> an easy way of getting rid of chambers is to just remove all the
-    # walls. How can we test that this is not what we are doing but that instead
-    # we are removing just a few walls?
 
 @pytest.mark.xfail
 def test_add_food():
