@@ -116,8 +116,11 @@ def get_layout_by_name(layout_name):
         # reraise as ValueError with appropriate error message.
         raise ValueError(f"Layout: '{layout_name}' is not known.") from None
 
-def parse_layout(layout_str, food=None, bots=None):
+def parse_layout(layout_str, food=None, bots=None, strict=True):
     """Parse a layout string.
+
+    If strict is False, the layout string must not be valid and parse_layout will
+    try its best to interpret it. This is useful only during testing.
 
     A valid layout string is enclosed by walls and rectangular:
 
@@ -178,7 +181,7 @@ def parse_layout(layout_str, food=None, bots=None):
                 # set width of layout
                 width = len(row)
                 # check that width is even
-                if width % 2:
+                if width % 2 and strict:
                     raise ValueError(f"Layout width must be even (found {width})!")
                 rows.append(row)
                 continue
@@ -230,7 +233,7 @@ def parse_layout(layout_str, food=None, bots=None):
     for i, bot in enumerate(lbots):
         if bot is None and BOT_I2N[i] not in bots:
             missing_bots.append(BOT_I2N[i])
-    if missing_bots:
+    if missing_bots and strict:
             raise ValueError(f"Missing bot(s): {missing_bots}")
     lfood.sort()
 
