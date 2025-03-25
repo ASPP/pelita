@@ -30,10 +30,10 @@ maze_103525239 = """
 ################################
 """
 
-def test_create_maze_stability():
+def test_generate_maze_stability():
     # we only test that we keep in returning the same maze when the random
     # seed is fixed, in case something changes during future porting/refactoring
-    new_layout = mg.create_maze(rng=SEED)
+    new_layout = mg.generate_maze(rng=SEED)
     old_layout = pl.parse_layout(maze_103525239)
     assert old_layout == new_layout
 
@@ -259,22 +259,22 @@ np_maze_generator_86523 = """
 
 
 @pytest.mark.parametrize('iteration', range(100))
-def test_create_maze(iteration):
+def test_generate_maze(iteration):
     local_seed = SEED * iteration
     rng = Random(local_seed)
 
     # edge cases
     # width not even
     with pytest.raises(ValueError):
-        mg.create_maze(0, 0, 9, 10, rng=rng)
+        mg.generate_maze(0, 0, 9, 10, rng=rng)
 
     # width too small
     with pytest.raises(ValueError):
-        mg.create_maze(0, 0, 2, 10, rng=rng)
+        mg.generate_maze(0, 0, 2, 10, rng=rng)
 
     # height too small
     with pytest.raises(ValueError):
-        mg.create_maze(0, 0, 10, 2, rng=rng)
+        mg.generate_maze(0, 0, 10, 2, rng=rng)
 
 
     width = rng.choice(range(16, 65, 2))
@@ -282,7 +282,7 @@ def test_create_maze(iteration):
     total_food = int(0.15 * width * height / 2)
     trapped_food = int(total_food / 3)
 
-    ld = mg.create_maze(trapped_food, total_food, width, height, rng=rng)
+    ld = mg.generate_maze(trapped_food, total_food, width, height, rng=rng)
 
     walls = set(ld["walls"])
 
@@ -352,12 +352,12 @@ def test_create_maze(iteration):
 
     # verify that we generate exactly the same maze if started with the same seed
     seed = rng.randint(1,100000)
-    l1 = mg.create_maze(trapped_food, total_food, width, height, rng=seed)
-    l2 = mg.create_maze(trapped_food, total_food, width, height, rng=seed)
+    l1 = mg.generate_maze(trapped_food, total_food, width, height, rng=seed)
+    l2 = mg.generate_maze(trapped_food, total_food, width, height, rng=seed)
     assert l1 == l2
 
 @pytest.mark.parametrize('iteration', range(100))
-def test_create_maze_food(iteration):
+def test_generate_maze_food(iteration):
     local_seed = SEED + iteration
     rng = Random(local_seed)
 
@@ -365,7 +365,7 @@ def test_create_maze_food(iteration):
     height = 5
     total_food = 10
     trapped_food = 0
-    ld = mg.create_maze(trapped_food, total_food, width, height, rng=rng)
+    ld = mg.generate_maze(trapped_food, total_food, width, height, rng=rng)
     # check that we never place food on the border
     x_food = {x for (x, y) in ld['food']}
     assert width//2 not in x_food

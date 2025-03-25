@@ -115,7 +115,7 @@ def distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=None
     return tf_pos | ff_pos | leftover_food_pos
 
 
-def add_wall(partition, walls, ngaps, vertical, rng=None):
+def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
     rng = default_rng(rng)
 
     (xmin, ymin), (xmax, ymax) = partition
@@ -200,13 +200,13 @@ def add_wall(partition, walls, ngaps, vertical, rng=None):
                       ((xmin, pos+1), (xmax,  ymax))]
 
     for partition in partitions:
-        walls |= add_wall(
+        walls |= add_wall_and_split(
             partition, walls, max(1, ngaps // 2), not vertical, rng=rng
         )
 
     return walls
 
-def create_half_maze(width, height, ngaps_center, bots_pos, rng=None):
+def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     # use binary space partitioning
     rng = default_rng(rng)
 
@@ -244,7 +244,7 @@ def create_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     partition = ((1, 1), (x_wall - 1, ymax * 2))
 
 
-    walls = add_wall(
+    walls = add_wall_and_split(
         partition,
         walls,
         ngaps_center // 2,
@@ -260,7 +260,7 @@ def create_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     return walls
 
 
-def create_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None):
+def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None):
     if width % 2 != 0:
         raise ValueError(f"Width must be even ({width} given)")
 
@@ -276,7 +276,7 @@ def create_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None):
     # this allows us to cut the execution time in two, because the following
     # graph operations are quite expensive
     pacmen_pos = set([(1, height - 3), (1, height - 2)])
-    walls = create_half_maze(width, height, height//2, pacmen_pos, rng=rng)
+    walls = generate_half_maze(width, height, height//2, pacmen_pos, rng=rng)
 
     # transform to graph to find dead ends and chambers for food distribution
     # IMPORTANT: we have to include one column of the right border in the graph
