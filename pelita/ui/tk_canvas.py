@@ -200,7 +200,6 @@ class TkApplication:
 
         self.bot_sprites = {}
         self.shadow_sprites = {}
-        self.init_bot_sprites([None] * 4)
 
         self._game_state = {}
 
@@ -405,6 +404,7 @@ class TkApplication:
             return
 
         self.mesh_graph.update_mesh_shape(game_state['shape'])
+        self.init_bot_sprites(game_state["bots"])
 
         # Check and adjust sizes
         if ((self.mesh_graph.screen_width, self.mesh_graph.screen_height)
