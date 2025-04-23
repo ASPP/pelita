@@ -1,5 +1,6 @@
 from . import (game,
                layout,
+               maze_generator,
                network,
                viewer)
 

@@ -14,7 +14,6 @@ from rich.prompt import Prompt
 import zmq
 
 import pelita
-from pelita.game import DEAD_ENDS
 from .script_utils import start_logging
 
 from pelita.network import PELITA_PORT
@@ -437,17 +436,14 @@ def main():
             # use the basename of the path as a layout name
             layout_name = layout_path.parts[-1]
             layout_string = layout_path.read_text()
-        else:
-            # if the given layout is not a path, we assume it is the name of one
-            # of the built-in paths
-            layout_name = args.layout
-            layout_string = pelita.layout.get_layout_by_name(args.layout)
+            layout_dict = pelita.layout.parse_layout(layout_string)
     else:
-        layout_name, layout_string = pelita.layout.get_random_layout(args.size, rng=rng, dead_ends=DEAD_ENDS)
+        # args.size
+        layout_dict = pelita.maze_generator.generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=rng)
+        layout_name = f'random-{seed}'
 
     print("Using layout '%s'" % layout_name)
 
-    layout_dict = pelita.layout.parse_layout(layout_string)
     pelita.game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, rng=rng,
                          allow_camping=args.allow_camping, timeout_length=args.timeout_length, error_limit=args.error_limit,
                          viewers=viewers,
