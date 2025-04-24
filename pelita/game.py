@@ -39,8 +39,20 @@ MAX_FOOD_AGE = 30
 #: Food pellet shadow distance
 SHADOW_DISTANCE = 1
 
-#: Proportion of layouts with dead ends
-DEAD_ENDS = 0.25
+#: Default maze sizes
+MSIZE = {
+         'small' : (16, 8),
+         'normal': (32, 16),
+         'big'   : (64, 32),
+        }
+
+#: Food pellets (trapped_food, total_food) on left side of the maze for
+#  default maze sizes
+NFOOD = {
+         (16, 8) : (3, 10),
+         (32, 16): (10, 30),
+         (64, 32): (20, 60),
+        }
 
 class TkViewer:
     def __init__(self, *, address, controller, geometry=None, delay=None,
