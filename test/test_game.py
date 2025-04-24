@@ -10,7 +10,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from random import Random
 
-from pelita import game, layout
+from pelita import game, layout, maze_generator
 from pelita.exceptions import NoFoodWarning
 from pelita.game import initial_positions, get_legal_positions, apply_move, run_game, setup_game, play_turn
 from pelita.player import stepping_player, stopping_player
@@ -136,27 +136,15 @@ def test_initial_positions(simple_layout):
     assert i_pos == expected
 
 
-@pytest.mark.parametrize('layout_t', [layout.get_random_layout() for _ in range(30)])
-def test_initial_positions_same_in_layout_random(layout_t):
+@pytest.mark.parametrize('parsed_l', [maze_generator.generate_maze() for _ in range(30)])
+def test_initial_positions_same_in_layout_random(parsed_l):
     """Check initial positions are the same as what the layout says for 30 random layouts"""
-    layout_name, layout_string = layout_t # get_random_layout returns a tuple of name and string
-    parsed_l = layout.parse_layout(layout_string)
     exp = parsed_l["bots"]
     walls = parsed_l["walls"]
     shape = parsed_l["shape"]
     out = initial_positions(walls, shape)
     assert out == exp
 
-@pytest.mark.parametrize('layout_name', layout.get_available_layouts())
-def test_initial_positions_same_in_layout(layout_name):
-    """Check initial positions are the same as what the layout says for all layouts"""
-    l = layout.get_layout_by_name(layout_name=layout_name)
-    parsed_l = layout.parse_layout(l)
-    exp = parsed_l["bots"]
-    walls = parsed_l["walls"]
-    shape = parsed_l["shape"]
-    out = initial_positions(walls, shape)
-    assert out == exp
 
 def test_get_legal_positions_basic():
     """Check that the output of legal moves contains all legal moves for one example layout"""
@@ -165,12 +153,10 @@ def test_get_legal_positions_basic():
     exp = [(1, 4), (1, 6), (1, 5)]
     assert legal_positions == exp
 
-@pytest.mark.parametrize('layout_t', [layout.get_random_layout() for _ in range(50)])
+@pytest.mark.parametrize('parsed_l', [maze_generator.generate_maze() for _ in range(50)])
 @pytest.mark.parametrize('bot_idx', (0, 1, 2, 3))
-def test_get_legal_positions_random(layout_t, bot_idx):
+def test_get_legal_positions_random(parsed_l, bot_idx):
     """Check that the output of legal moves returns only moves that are 1 field away and not inside a wall"""
-    layout_name, layout_string = layout_t # get_random_layout returns a tuple of name and string
-    parsed_l = layout.parse_layout(layout_string)
     bot = parsed_l["bots"][bot_idx]
     legal_positions = get_legal_positions(parsed_l["walls"], parsed_l["shape"], bot)
     for move in legal_positions:
@@ -1010,8 +996,7 @@ def test_minimal_game():
     def move(b, s):
         return b.position
 
-    layout_name, layout_string = layout.get_random_layout()
-    l = layout.parse_layout(layout_string)
+    l = maze_generator.generate_maze()
     final_state = run_game([move, move], max_rounds=20, layout_dict=l)
     assert final_state['gameover'] is True
     assert final_state['score'] == [0, 0]
@@ -1027,8 +1012,7 @@ def test_minimal_losing_game_has_one_error():
     def move1(b, s):
         return b.position
 
-    layout_name, layout_string = layout.get_random_layout()
-    l = layout.parse_layout(layout_string)
+    l = maze_generator.generate_maze()
     final_state = run_game([move0, move1], max_rounds=20, layout_dict=l)
     assert final_state['gameover'] is True
     assert final_state['score'] == [0, 0]
@@ -1041,8 +1025,7 @@ def test_minimal_remote_game():
     def move(b, s):
         return b.position
 
-    layout_name, layout_string = layout.get_random_layout()
-    l = layout.parse_layout(layout_string)
+    l = maze_generator.generate_maze()
     final_state = run_game(["test/demo01_stopping.py", move], max_rounds=20, layout_dict=l)
     final_state = run_game(["test/demo01_stopping.py", 'test/demo02_random.py'], max_rounds=20, layout_dict=l)
     assert final_state['gameover'] is True
@@ -1052,8 +1035,7 @@ def test_minimal_remote_game():
 
 def test_non_existing_file():
     # TODO: Change error message to be more meaningful
-    layout_name, layout_string = layout.get_random_layout()
-    l = layout.parse_layout(layout_string)
+    l = maze_generator.generate_maze()
     res = run_game(["blah", "nothing"], max_rounds=1, layout_dict=l)
     assert res['fatal_errors'][0][0] == {
         'description': '("Could not load blah: No module named \'blah\'", \'ModuleNotFoundError\')',
@@ -1070,8 +1052,7 @@ def test_remote_errors(tmp_path):
     syntax_error = FIXTURE_DIR / 'player_syntax_error'
     import_error = FIXTURE_DIR / 'player_import_error'
 
-    layout_name, layout_string = layout.get_random_layout()
-    l = layout.parse_layout(layout_string)
+    l = maze_generator.generate_maze()
 
     res = run_game([str(syntax_error), str(import_error)], layout_dict=l, max_rounds=20)
     # Error messages have changed in Python 3.10. We can only do approximate maching
@@ -1119,8 +1100,7 @@ def test_bad_move_function(team_to_test):
     def move4(b): # TypeError: move4() takes 1 positional argument but 2 were given
         return (0, 0), 0
 
-    layout_name, layout_string = layout.get_random_layout()
-    l = layout.parse_layout(layout_string)
+    l = maze_generator.generate_maze()
 
     def test_run_game(move):
         # Flips the order of the teams depending on team_to_test
@@ -1288,8 +1268,7 @@ def test_double_suicide():
 
 
 def test_remote_game_closes_players_on_exit():
-    layout_name, layout_string = layout.get_random_layout()
-    l = layout.parse_layout(layout_string)
+    l = maze_generator.generate_maze()
 
     # run a remote demo game with "0" and "1"
     state = run_game(["0", "1"], layout_dict=l, max_rounds=20, allow_exceptions=True)
@@ -1300,8 +1279,7 @@ def test_remote_game_closes_players_on_exit():
 
 
 def test_manual_remote_game_closes_players():
-    layout_name, layout_string = layout.get_random_layout()
-    l = layout.parse_layout(layout_string)
+    l = maze_generator.generate_maze()
 
     # run a remote demo game with "0" and "1"
     state = setup_game(["0", "1"], layout_dict=l, max_rounds=10, allow_exceptions=True)
@@ -1319,8 +1297,7 @@ def test_manual_remote_game_closes_players():
 
 
 def test_invalid_setup_game_closes_players():
-    layout_name, layout_string = layout.get_random_layout()
-    l = layout.parse_layout(layout_string)
+    l = maze_generator.generate_maze()
 
     # setup a remote demo game with "0" and "1" but bad max rounds
     state = setup_game(["0", "1"], layout_dict=l, max_rounds=0, allow_exceptions=True)
