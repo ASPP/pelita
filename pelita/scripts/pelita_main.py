@@ -166,18 +166,28 @@ def scan_server(team_spec):
             return None
 
 
-def geometry_string(s):
-    """Get a X-style geometry definition and return a tuple.
+def w_h_string(s):
+    """Parse WxH strings and return a tuple.
 
     600x400 -> (600,400)
     """
+    if s in pelita.game.MSIZE:
+        return pelita.game.MSIZE[s]
     try:
         x_string, y_string = s.split('x')
-        geometry = (int(x_string), int(y_string))
+        w_h = (int(x_string), int(y_string))
     except ValueError:
-        msg = "%s is not a valid geometry specification" %s
+        msg = "%s is not a valid specification" %s
         raise argparse.ArgumentTypeError(msg) from None
-    return geometry
+    return w_h
+
+def parse_food_string(s):
+    try:
+        trapped, total = [int(item) for item in s.split(':')]
+    except ValueError:
+        msg = "%s is not a valid food specification" %s
+        raise argparse.ArgumentTypeError(msg) from None
+    return trapped, total
 
 
 def long_help(s):
@@ -221,16 +231,18 @@ game_settings.add_argument('--seed', type=int, metavar='SEED', default=None,
                            help='Initialize the random number generator with SEED.')
 game_settings.add_argument('--allow-camping', const=True, action='store_const',
                            help='Food does not age when in a bot’s shadow')
+game_settings.add_argument('--food', type=str, metavar="T:F", default=None,
+                        help="Distribute F food pellets for each team, with T being the number "
+                        "of food pellets that are \"trapped\" within tunnels and chambers. "
+                        " If not set use maze size specific defaults.")
 
 layout_opt = game_settings.add_mutually_exclusive_group()
 layout_opt.add_argument('--layout', metavar='LAYOUT',
-                        help='Use maze layout specified in LAYOUT. LAYOUT can be'
-                             ' a file containing a valid layout or the name of a '
-                             'built-in layout. Use --list-layouts to get a list '
-                             'of all available layouts.')
-layout_opt.add_argument('--size', metavar='STRING', default='normal',
+                        help='Use maze layout specified in LAYOUT. LAYOUT is'
+                             ' a file containing a valid layout string.')
+layout_opt.add_argument('--size', type=w_h_string, metavar="STRING", default='normal',
                         help="Pick a random maze layout of specified size."
-                        " Possible sizes: 'small' (16x8), 'normal' (32x16), 'big' (64x32), 'all' (any of the previous). Default: 'normal'")
+                        " Possible sizes: 'small' (16x8), 'normal' (32x16), 'big' (64x32), 'WxH' where W and H are integers. Default: 'normal'")
 
 timeout_opt = game_settings.add_mutually_exclusive_group()
 timeout_opt.add_argument('--timeout', type=float, metavar="SEC",
@@ -246,7 +258,7 @@ game_settings.add_argument('--stop-after-kill', dest='stop_after_kill', action='
                            help='Stop when a bot has been killed.')
 
 viewer_settings = parser.add_argument_group('Viewer settings')
-viewer_settings.add_argument('--geometry', type=geometry_string, metavar='NxM',
+viewer_settings.add_argument('--geometry', type=w_h_string, metavar='NxM',
                     help='Set initial size of the game window.')
 viewer_settings.add_argument('--fullscreen', const=True, action='store_const',
                     help='Make the game window run fullscreen')
@@ -428,9 +440,22 @@ def main():
             layout_name = layout_path.parts[-1]
             layout_string = layout_path.read_text()
             layout_dict = pelita.layout.parse_layout(layout_string)
+        else:
+            raise FileNotFoundError(f'Layout file "{layout_path}" does not exist.')
     else:
-        # args.size
-        layout_dict = pelita.maze_generator.generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=rng)
+        width, height = args.size
+
+        if args.food:
+            trapped_food, total_food = parse_food_string(args.food)
+        elif (width, height) in pelita.game.NFOOD:
+            trapped_food, total_food = pelita.game.NFOOD[(width, height)]
+        else:
+            raise ValueError('--food option must be specified if a custom maze size is set')
+
+        layout_dict = pelita.maze_generator.generate_maze(trapped_food=trapped_food,
+                                                          total_food=total_food,
+                                                          width=width,
+                                                          height=height, rng=rng)
         layout_name = f'random-{seed}'
 
     print("Using layout '%s'" % layout_name)
