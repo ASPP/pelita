@@ -223,6 +223,8 @@ parser.add_argument('--append-blue', type=str, metavar='INFO', default=None,
                     help=long_help('Append info about the blue team (such as group id).'))
 parser.add_argument('--append-red', type=str, metavar='INFO', default=None,
                     help=long_help('Append info about the red team (such as group id).'))
+parser.add_argument('--save-layout', help=long_help('Save current layout to a file'),
+                    metavar='LAYOUTFILE', dest='layoutfile')
 
 game_settings = parser.add_argument_group('Game settings')
 game_settings.add_argument('--rounds', type=int, default=300,
@@ -457,6 +459,11 @@ def main():
                                                           width=width,
                                                           height=height, rng=rng)
         layout_name = f'random-{seed}'
+
+    if args.layoutfile:
+        with open(args.layoutfile, 'wt') as layoutfile:
+            layoutfile.write(pelita.layout.layout_as_str(**layout_dict))
+        sys.exit(0)
 
     print("Using layout '%s'" % layout_name)
 
