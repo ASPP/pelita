@@ -5,34 +5,14 @@ import networkx as nx
 
 from .team import make_bots, create_homezones
 from .game import split_food, SHADOW_DISTANCE
-from .layout import (get_random_layout, get_layout_by_name, get_available_layouts,
-                     parse_layout, BOT_N2I, initial_positions)
+from .layout import parse_layout, BOT_N2I, initial_positions
 from .gamestate_filters import manhattan_dist
+from .maze_generator import generate_maze
+from .base_utils import default_rng
 
 # this import is needed for backward compatibility, do not remove or you'll break
 # older clients!
 from .team import walls_to_graph
-
-
-def _parse_layout_arg(*, layout=None, food=None, bots=None, rng=None):
-
-    # prepare layout argument to be passed to pelita.game.run_game
-    if layout is None:
-        layout_name, layout_str = get_random_layout(size='normal', rng=rng)
-        layout_dict = parse_layout(layout_str)
-    elif layout in get_available_layouts(size='all'):
-        # check if this is a built-in layout
-        layout_name = layout
-        layout_str = get_layout_by_name(layout)
-        layout_dict = parse_layout(layout_str)
-    else:
-        # OK, then it is a (user-provided) layout string
-        layout_str = layout
-        layout_name = '<string>'
-        # be strict and complain if the layout does not contain two bots and two enemies
-        layout_dict = parse_layout(layout_str, food=food, bots=bots)
-
-    return layout_dict, layout_name
 
 
 # this is a dumbed-down version of pelita.game.run_game, useful to be exposed to the
@@ -121,16 +101,19 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
     else:
         rng = Random(seed)
 
-    layout_dict, layout_name = _parse_layout_arg(layout=layout, rng=rng)
+    if layout is None:
+        layout_dict = generate_maze(rng=rng)
+    else:
+        layout_dict = parse_layout(layout, food=food, bots=bots)
 
     game_state = run_game((blue_move, red_move), layout_dict=layout_dict,
-                          layout_name=layout_name, max_rounds=max_rounds, rng=rng,
+                          layout_name='', max_rounds=max_rounds, rng=rng,
                           team_names=('blue', 'red'), allow_exceptions=True, print_result=False)
     out = {}
     out['seed'] = seed
     out['walls'] = game_state['walls']
     out['round'] = game_state['round']
-    out['layout'] = layout_name
+    out['layout'] = ''
     out['blue_food'] = list(game_state['food'][0])
     out['red_food'] = list(game_state['food'][1])
     out['blue_bots'] = game_state['bots'][::2]
@@ -169,9 +152,8 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
     Parameters
     ----------
     layout : str
-      specify the layout of the maze to play with. If None, a built-in
-      layout of normal size will be chosen at random. If specified it will
-      be interpreted as the name of a built-in layout, e.g. 'normal_083'.
+      The layout (as a string) to play with. If None, a random
+      layout of normal size will be generated.
 
     is_blue : bool
            when True, sets up up the game assuming your bots are in the blue team,
@@ -191,11 +173,13 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
 
     food : list[(x0,y0), (x1,y1),...]
         list of coordinates for food pellets. The food will be added to the one
-        already found in the layout string
+        already found in the layout string. The food list will be ignored if
+        layout is None.
 
     bots : dict{"a": (a_x,a_y), "b":(b_x,b_y), "x":(x_x,x_y), "y":(y_x,y_y)}
            dict of bot names and coordinates. The items found here  will override
-           the positions found in the layout.
+           the positions found in the layout. The bots dict will be ignored if
+           layout is None.
 
     is_noisy : dict{"a": True, "b": False, "x": True, "y": False}
               Dict of bot names and booleans for the bots' is_noisy property.
@@ -206,6 +190,7 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
     bot : Bot
        a Bot object suitable to be passed to a move function
     """
+    rng = default_rng(seed)
 
     if score is None:
         score = [0, 0]
@@ -218,7 +203,10 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
     is_noisy = is_noisy_default
 
 
-    layout, layout_name = _parse_layout_arg(layout=layout, food=food, bots=bots)
+    if layout is None:
+        layout = generate_maze(rng=rng)
+    else:
+        layout = parse_layout(layout, food=food, bots=bots)
 
     width, height = layout['shape']
 
@@ -237,7 +225,6 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
         enemy_positions = [layout['bots'][0], layout['bots'][2]]
         is_noisy_enemy = [is_noisy["a"], is_noisy["b"]]
 
-    rng = Random(seed)
 
     team = {
         'bot_positions': bot_positions,
