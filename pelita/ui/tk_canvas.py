@@ -336,9 +336,6 @@ class TkApplication:
         self.ui_status_round_info = tkinter.Label(self.ui_status_02, text="", background="white")
         self.ui_status_round_info.pack(side=tkinter.LEFT)
 
-        self.ui_status_layout_info = tkinter.Label(self.ui_status_11, text="", background="white")
-        self.ui_status_layout_info.pack(side=tkinter.LEFT)
-
         self.ui_header_canvas.pack(side=tkinter.TOP, fill=tkinter.BOTH)
 #        self.ui_sub_header.pack(side=tkinter.TOP, fill=tkinter.BOTH)
         self.ui_status_canvas.pack(side=tkinter.BOTTOM, fill=tkinter.BOTH)
@@ -895,8 +892,6 @@ class TkApplication:
                 else:
                     self.ui_bot_traffic_lights_canvas.itemconfig(circle, fill="#bbb")
 
-        layout_name = "–" if game_state.get("layout_name") is None else game_state.get("layout_name")
-        self.ui_status_layout_info.config(text=layout_name)
 
     def draw_selected(self, game_state):
         self.ui_game_canvas.delete("selected")

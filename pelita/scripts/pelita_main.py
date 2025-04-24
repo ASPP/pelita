@@ -436,10 +436,6 @@ def main():
         # first check if the given layout is a file
         layout_path = Path(args.layout)
         if layout_path.exists():
-            # OK, this is a valid file, load it
-            layout_name = str(layout_path)
-            # use the basename of the path as a layout name
-            layout_name = layout_path.parts[-1]
             layout_string = layout_path.read_text()
             layout_dict = pelita.layout.parse_layout(layout_string)
         else:
@@ -458,16 +454,13 @@ def main():
                                                           total_food=total_food,
                                                           width=width,
                                                           height=height, rng=rng)
-        layout_name = f'random-{seed}'
 
     if args.layoutfile:
         with open(args.layoutfile, 'wt') as layoutfile:
             layoutfile.write(pelita.layout.layout_as_str(**layout_dict))
         sys.exit(0)
 
-    print("Using layout '%s'" % layout_name)
-
-    pelita.game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, rng=rng,
+    pelita.game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, rng=rng,
                          allow_camping=args.allow_camping, timeout_length=args.timeout_length, error_limit=args.error_limit,
                          viewers=viewers,
                          store_output=args.store_output,

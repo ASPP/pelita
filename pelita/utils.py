@@ -107,7 +107,7 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
         layout_dict = parse_layout(layout, food=food, bots=bots)
 
     game_state = run_game((blue_move, red_move), layout_dict=layout_dict,
-                          layout_name='', max_rounds=max_rounds, rng=rng,
+                          max_rounds=max_rounds, rng=rng,
                           team_names=('blue', 'red'), allow_exceptions=True, print_result=False)
     out = {}
     out['seed'] = seed
