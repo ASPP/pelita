@@ -96,7 +96,6 @@ class BotSprite(TkSprite):
     def __init__(self, mesh, team=0, bot_id=0, shadow=False, **kwargs):
         self.bot_id = bot_id
         self.team = team
-        self.width = mesh.mesh_width
 
         self.shadow = shadow
 
@@ -115,9 +114,9 @@ class BotSprite(TkSprite):
 
     def is_harvester_at(self, pos):
         if self.team == 0:
-            return pos[0] >= self.width // 2
+            return pos[0] >= self.mesh.mesh_width // 2
         elif self.team == 1:
-            return pos[0] < self.width // 2
+            return pos[0] < self.mesh.mesh_width // 2
 
     def delete(self, canvas):
         canvas.delete("speak" + self.tag)
