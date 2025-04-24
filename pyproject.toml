@@ -45,7 +45,6 @@ pelita-tournament = "pelita.scripts.pelita_tournament:main"
 pelita-tkviewer = "pelita.scripts.pelita_tkviewer:main"
 pelita-player = "pelita.scripts.pelita_player:main"
 pelita-server = "pelita.scripts.pelita_server:main"
-pelita-createlayout = "pelita.scripts.pelita_createlayout:main"
 
 [tool.aliases]
 test = "pytest"
