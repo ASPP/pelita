@@ -207,8 +207,6 @@ parser.add_argument('--replay', help=long_help('Replay a dumped game'),
                     metavar='REPLAYFILE', dest='replayfile', const='pelita.dump', nargs='?')
 parser.add_argument('--store-output', help=long_help('Write all player’s stdout/stderr to the given folder (must exist)'),
                     metavar='FOLDER')
-parser.add_argument('--list-layouts', action='store_true',
-                    help='List all available built-in layouts.')
 parser.add_argument('--check-team', action="store_true",
                     help=long_help('Check that the team is valid (on first sight) and print its name.'))
 parser.add_argument('--append-blue', type=str, metavar='INFO', default=None,
@@ -313,13 +311,6 @@ def main():
 
     if args.version:
         print("Pelita {}".format(pelita.__version__))
-        sys.exit(0)
-
-    if args.list_layouts:
-        layouts = pelita.layout.get_available_layouts(size='all', dead_ends=False)
-        layouts += pelita.layout.get_available_layouts(size='all', dead_ends=True)
-        layouts.sort()
-        print('\n'.join(layouts))
         sys.exit(0)
 
     if args.log:
