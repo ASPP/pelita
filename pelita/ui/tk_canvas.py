@@ -489,7 +489,7 @@ class TkApplication:
         for y in range(self.mesh_graph.mesh_height + 1):
             draw_line(-0.5, y - 0.5, self.mesh_graph.mesh_width - 0.5, y - 0.5)
 
-        label_size = 5
+        label_size = 7
         label_style = {
             "font": (None, label_size),
             "fill": "#884488",
