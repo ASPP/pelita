@@ -119,7 +119,6 @@ def test_add_food():
     assert np.all(lmaze == maze)
 
 
-@pytest.mark.xfail
 def test_distribute_food():
     maze_chamber = """############
                       #   #      #
@@ -129,11 +128,9 @@ def test_distribute_food():
                       #          #
                       ############"""
 
-    maze = mg.str_to_maze(maze_chamber)
-    graph = mg.walls_to_graph(maze)
+    graph, shape = layout_str_to_graph(maze_chamber)
     all_tiles = set(graph.nodes)
-    width = maze.shape[1]
-    chamber_tiles = mg.find_chambers(graph, width)
+    chamber_tiles, _ = mg.find_trapped_tiles(graph, shape[0], include_chambers=True)
 
     # expected exceptions
     with pytest.raises(ValueError):
