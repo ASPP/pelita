@@ -284,7 +284,7 @@ def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None)
     ### TODO: hide the chamber_finding in another function, create the graph with
     # a wall on the right border + 1, so that find chambers works reliably and
     # we can get rid of the  {.... if tile[0] < border} in the following
-    # also, improve find_chambers so that it does not use x and width, but just
+    # also, improve find_trapped_tiles so that it does not use x and width, but just
     # requires two sets of nodes representing the left and the right of the border
     # and then the main chambers is that one that has a non-empty intersection
     # with both.
