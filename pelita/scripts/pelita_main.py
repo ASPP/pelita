@@ -239,9 +239,7 @@ game_settings.add_argument('--food', type=str, metavar="T:F", default=None,
                         " If not set use maze size specific defaults.")
 
 layout_opt = game_settings.add_mutually_exclusive_group()
-layout_opt.add_argument('--layout', metavar='LAYOUT',
-                        help='Use maze layout specified in LAYOUT. LAYOUT is'
-                             ' a file containing a valid layout string.')
+layout_opt.add_argument('--layout', metavar='FILENAME', help='Use layout from FILENAME')
 layout_opt.add_argument('--size', type=w_h_string, metavar="STRING", default='normal',
                         help="Pick a random maze layout of specified size."
                         " Possible sizes: 'small' (16x8), 'normal' (32x16), 'big' (64x32), 'WxH' where W and H are integers. Default: 'normal'")
