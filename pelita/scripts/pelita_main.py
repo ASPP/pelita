@@ -308,10 +308,6 @@ Team Specification:
         pelita my_stopping_bots.py my_stopping_bots.py
 
     Demo players can be found at https://github.com/ASPP/pelita_template
-
-Layout specification:
-    If --layout is not specified, the maze is chosen at random from the pool of
-    built-in normal-sized layouts. You can change this pool by using --size.
 """
 
 
