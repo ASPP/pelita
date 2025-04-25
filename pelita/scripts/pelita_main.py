@@ -223,7 +223,7 @@ parser.add_argument('--append-blue', type=str, metavar='INFO', default=None,
                     help=long_help('Append info about the blue team (such as group id).'))
 parser.add_argument('--append-red', type=str, metavar='INFO', default=None,
                     help=long_help('Append info about the red team (such as group id).'))
-parser.add_argument('--save-layout', help=long_help('Save current layout to a file'),
+parser.add_argument('--store-layout', help=long_help('Store current layout to a file'),
                     metavar='LAYOUTFILE', dest='layoutfile')
 
 game_settings = parser.add_argument_group('Game settings')
