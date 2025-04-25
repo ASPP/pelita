@@ -1,7 +1,5 @@
 from random import Random
 
-import networkx as nx
-import numpy as np
 import pytest
 
 import pelita.maze_generator as mg
@@ -58,7 +56,6 @@ def test_find_trapped_tiles():
     tiles_1 = {(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (3, 1), (3, 2)}
     assert one_chamber_tiles == tiles_1
 
-
     two_chambers = """############
                       #   #      #
                       #   #      #
@@ -74,10 +71,6 @@ def test_find_trapped_tiles():
     tiles_2 = {(8,3), (8,4), (8,5), (8,6), (8,7), (9,4), (9,5),
                (9,6), (9,7), (10, 4), (10,5), (10,6), (10, 7) }
     assert two_chambers_tiles == tiles_1 | tiles_2
-
-    # only find chambers in the left side of the maze
-
-
 
 def test_distribute_food():
     maze_chamber = """############
@@ -140,6 +133,7 @@ def test_distribute_food():
     food = mg.distribute_food(all_tiles, chamber_tiles, 0, 0)
     assert len(food) == 0
 
+
 np_maze_generator_86523 = """
 ################################
 # #  ..  ..  # ##    # ..  #  y#
@@ -158,7 +152,6 @@ np_maze_generator_86523 = """
 #b  #  .. #    ## #  ..  ..  # #
 ################################
 """
-
 
 @pytest.mark.parametrize('iteration', range(100))
 def test_generate_maze(iteration):

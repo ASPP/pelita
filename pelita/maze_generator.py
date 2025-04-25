@@ -33,6 +33,7 @@ Completely rewritten by Pietro Berkes
 Rewritten again (but not completely) by Tiziano Zito
 Rewritten completely by Jakob Zahn & Tiziano Zito
 """
+
 import networkx as nx
 
 from .base_utils import default_rng
@@ -181,7 +182,7 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
     ngaps = max(1, ngaps)
     wall_pos = list(range(max_length))
     rng.shuffle(wall_pos)
-    gaps_pos = wall_pos[:ngaps]
+
     for gap in wall_pos[:ngaps]:
         if vertical:
             wall.discard((pos, ymin+gap))
@@ -207,6 +208,7 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         )
 
     return walls
+
 
 def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     # use binary space partitioning
@@ -245,7 +247,6 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     walls |= wall
     partition = ((1, 1), (x_wall - 1, ymax * 2))
 
-
     walls = add_wall_and_split(
         partition,
         walls,
@@ -274,14 +275,14 @@ def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None)
 
     rng = default_rng(rng)
 
-    # get a full maze, but only the left half is filled with random walls
+    # generate a full maze, but only the left half is filled with random walls
     # this allows us to cut the execution time in two, because the following
     # graph operations are quite expensive
     pacmen_pos = set([(1, height - 3), (1, height - 2)])
     walls = generate_half_maze(width, height, height//2, pacmen_pos, rng=rng)
 
     ### TODO: hide the chamber_finding in another function, create the graph with
-    # a wall on the right border + 1, so taht find chambers works reliably and
+    # a wall on the right border + 1, so that find chambers works reliably and
     # we can get rid of the  {.... if tile[0] < border} in the following
     # also, improve find_chambers so that it does not use x and width, but just
     # requires two sets of nodes representing the left and the right of the border
@@ -290,7 +291,7 @@ def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None)
 
     # transform to graph to find dead ends and chambers for food distribution
     # IMPORTANT: we have to include one column of the right border in the graph
-    # generation, or our algorith to find chambers would get confused
+    # generation, or our algorithm to find chambers would get confused
     # Note: this only works because in the right side of the maze we have no walls
     # except for the surrounding ones.
     graph = walls_to_graph(walls, shape=(width//2+1, height))
@@ -298,7 +299,7 @@ def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None)
     # the algorithm should actually guarantee this, but just to make sure, let's
     # fail if the graph is not fully connected
     if not nx.is_connected(graph):
-        raise ValueError(f"Generated maze is not fully connected, try a different random seed")
+        raise ValueError("Generated maze is not fully connected, try a different random seed")
 
     # this gives us a set of tiles that are "trapped" within chambers, i.e. tunnels
     # with a dead-end or a section of tiles fully enclosed by walls except for a single
@@ -310,7 +311,7 @@ def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None)
     # those right on the border of the homezone
     # also, no food on the initial positions of the pacmen
     # IMPORTANT: the relevant chamber tiles are only those in the left side of
-    # the maze. By detecing chambers on only half of the maze, we may still have
+    # the maze. By detecting chambers on only half of the maze, we may still have
     # spurious chambers on the right side
     border = width//2 - 1
     chamber_tiles = {tile for tile in chamber_tiles if tile[0] < border} - pacmen_pos
@@ -328,4 +329,3 @@ def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None)
                "shape" : (width, height) }
 
     return layout
-
