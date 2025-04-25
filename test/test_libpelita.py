@@ -113,3 +113,41 @@ def test_write_replay_is_idempotent():
             # check that f and g have the same content
             assert first_run == second_run
 
+
+@pytest.mark.skipif(_mswindows, reason="NamedTemporaryFiles cannot be used in another process")
+def test_store_layout():
+    # TODO: The store layout functionality could be added to call_pelita
+    # so we don’t have to run the subprocess ourselves
+    with tempfile.NamedTemporaryFile() as f:
+        # run a quick game and save the game states to f
+
+        cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
+                '--store-layout', f.name,
+                '--size', 'small',
+                '--seed', '12345',
+                '--null']
+
+        subprocess.run(cmd, check=True)
+
+        f.seek(0)
+        first_run = f.read()
+        # check that we received something and it may be a layout
+        assert len(first_run) > 0
+        assert first_run[:17] == b"#" * 16 + b"\n"
+
+        # TODO check that the layout can be loaded again
+
+    # Check that the same seed generates the same layout
+    with tempfile.NamedTemporaryFile() as g:
+        cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
+                '--store-layout', g.name,
+                '--size', 'small',
+                '--seed', '12345',
+                '--null']
+
+        subprocess.run(cmd, check=True)
+
+        g.seek(0)
+        second_run = g.read()
+        # check that f and g have the same content
+        assert first_run == second_run
