@@ -170,9 +170,9 @@ def layout_as_str(*, walls, food=None, bots=None, shape=None):
     Example:
 
     Given:
-    {'walls': {(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
+    {'walls': [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
                (2, 4), (3, 0), (3, 2), (3, 4), (4, 0), (4, 2), (4, 4), (5, 0),
-               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)},
+               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)],
      'food': [(3, 3), (4, 1)],
      'bots': [(1, 1), (6, 2), (1, 2), (6, 3)],
      'shape': (8, 4)}
@@ -190,6 +190,8 @@ def layout_as_str(*, walls, food=None, bots=None, shape=None):
     The shape is optional. When it does not match the borders of the maze, a ValueError
     is raised.
     """
+    # make walls a set for faster access
+    walls = set(walls)
     width, height = wall_dimensions(walls)
 
     if shape is not None and not (width, height) == shape:
@@ -197,7 +199,10 @@ def layout_as_str(*, walls, food=None, bots=None, shape=None):
 
     # initialized empty containers
     if food is None:
-        food = []
+        food = set()
+    else:
+        food = set(food)
+
     if bots is None:
         bots = []
 
