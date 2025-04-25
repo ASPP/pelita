@@ -1,11 +1,9 @@
 import pytest
 
 import itertools
-import math
-from random import Random
 from textwrap import dedent
 
-from pelita.layout import *
+from pelita.layout import BOT_N2I, get_legal_positions, layout_as_str, parse_layout, wall_dimensions
 
 def test_legal_layout():
     layout = """
@@ -165,10 +163,10 @@ def test_broken_added_food():
              """
     added_food = [(10,10)]
     with pytest.raises(ValueError, match=r"food item at \(10, 10\) is .*"):
-        parsed_layout = parse_layout(layout, food=added_food)
+        parse_layout(layout, food=added_food)
     added_food = [(2,3)]
     with pytest.raises(ValueError, match=r"food item at \(2, 3\) is .*"):
-        parsed_layout = parse_layout(layout, food=added_food)
+        parse_layout(layout, food=added_food)
 
 def test_broken_added_bot():
     layout = """
@@ -181,10 +179,10 @@ def test_broken_added_bot():
              """
     added_bots = {'a': (10,10)}
     with pytest.raises(ValueError, match=r"bot a at \(10, 10\) is .*"):
-        parsed_layout = parse_layout(layout, bots=added_bots)
+        parse_layout(layout, bots=added_bots)
     added_bots = {'a':(2,3)}
     with pytest.raises(ValueError, match=r"bot a at \(2, 3\) is .*"):
-        parsed_layout = parse_layout(layout, bots=added_bots)
+        parse_layout(layout, bots=added_bots)
 
 def test_override_bot():
     layout = """
@@ -210,7 +208,7 @@ def test_wrong_bot_names():
              """
     added_bots = {'e': (1,1)}
     with pytest.raises(ValueError, match=r"Invalid Bot names in .*"):
-        parsed_layout = parse_layout(layout, bots=added_bots)
+        parse_layout(layout, bots=added_bots)
 
 def test_wrong_bot_names_2():
     layout = """
@@ -223,7 +221,7 @@ def test_wrong_bot_names_2():
              """
     added_bots = {'y': (1,1)}
     with pytest.raises(ValueError, match=r"Unknown character.*"):
-        parsed_layout = parse_layout(layout, bots=added_bots)
+        parse_layout(layout, bots=added_bots)
 
 def test_roundtrip():
     input_layout =  """ ########
@@ -272,6 +270,63 @@ def test_incomplete_roundtrip():
     layout = parse_layout(input_layout, bots=bots, food=food)
     out = layout_as_str(**layout)
     assert out == dedent(expected_layout)
+
+def test_layout_as_str():
+    input_layout =  """ ########
+                        #a #.  #
+                        #b    x#
+                        #  .# y#
+                        ########
+                        """
+    layout = parse_layout(input_layout)
+
+    expected_layout = """
+        ########
+        #  #   #
+        #      #
+        #   #  #
+        ########
+        """
+    out = layout_as_str(walls=layout['walls'])
+    assert out.strip() == dedent(expected_layout).strip()
+
+    expected_layout = """
+        ########
+        #  #.  #
+        #      #
+        #  .#  #
+        ########
+        """
+    out = layout_as_str(walls=layout['walls'], food=layout['food'])
+    assert out.strip() == dedent(expected_layout).strip()
+
+    expected_layout = """
+        ########
+        #a #   #
+        #b    x#
+        #   # y#
+        ########
+        """
+    out = layout_as_str(walls=layout['walls'], bots=layout['bots'])
+    assert out.strip() == dedent(expected_layout).strip()
+
+    expected_layout = """
+        ########
+        #a #.  #
+        #b    x#
+        #  .# y#
+        ########
+        """
+    out = layout_as_str(walls=layout['walls'], food=layout['food'], bots=layout['bots'])
+    assert out.strip() == dedent(expected_layout).strip()
+
+    with pytest.raises(TypeError):
+        # no walls
+        layout_as_str(food=layout['food'], bots=layout['bots'], shape=(1, 1))
+
+    with pytest.raises(ValueError):
+        # bad shape
+        layout_as_str(walls=layout['walls'], food=layout['food'], bots=layout['bots'], shape=(1, 1))
 
 
 def test_empty_lines():
@@ -376,6 +431,7 @@ def test_parse_layout_game_bad_number_of_bots(bots_hidden):
     if list(bots_hidden) == [False] * 4:
         # no bots are hidden. it should succeed
         parsed_layout = parse_layout(test_layout)
+        assert parsed_layout['bots'] == [(1, 1), (16, 3), (1, 2), (16, 2)]
     else:
         with pytest.raises(ValueError):
-            parsed_layout = parse_layout(test_layout)
+            parse_layout(test_layout)
