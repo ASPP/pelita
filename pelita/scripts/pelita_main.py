@@ -233,7 +233,7 @@ game_settings.add_argument('--seed', type=int, metavar='SEED', default=None,
                            help='Initialize the random number generator with SEED.')
 game_settings.add_argument('--allow-camping', const=True, action='store_const',
                            help='Food does not age when in a bot’s shadow')
-game_settings.add_argument('--food', type=str, metavar="T:F", default=None,
+game_settings.add_argument('--food', type=parse_food_string, metavar="T:F", default=None,
                         help="Distribute F food pellets for each team, with T being the number "
                         "of food pellets that are \"trapped\" within tunnels and chambers. "
                         " If not set use maze size specific defaults.")
@@ -438,7 +438,7 @@ def main():
         width, height = args.size
 
         if args.food:
-            trapped_food, total_food = parse_food_string(args.food)
+            trapped_food, total_food = args.food
         elif (width, height) in pelita.game.NFOOD:
             trapped_food, total_food = pelita.game.NFOOD[(width, height)]
         else:
