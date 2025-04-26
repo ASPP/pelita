@@ -63,7 +63,7 @@ class MeshGraph:
         self.mesh_height = mesh_height
         self.screen_height = screen_height
         self.screen_width = screen_width
-        self.padding = 10
+        self.padding = 15
 
     def update_mesh_shape(self, shape):
         mesh_width, mesh_height = shape
@@ -204,7 +204,7 @@ class TkApplication:
 
         self._game_state = {}
 
-        self.ui_header_canvas = tkinter.Canvas(window, height=50)
+        self.ui_header_canvas = tkinter.Canvas(window, height=45)
         self.ui_header_canvas.config(background="white", bd=0, highlightthickness=0, relief='ridge')
 
         self.ui_sub_header = tkinter.Frame(window, height=25)
@@ -489,7 +489,7 @@ class TkApplication:
         for y in range(self.mesh_graph.mesh_height + 1):
             draw_line(-0.5, y - 0.5, self.mesh_graph.mesh_width - 0.5, y - 0.5)
 
-        label_size = 5
+        label_size = 7
         label_style = {
             "font": (None, label_size),
             "fill": "#884488",
@@ -862,6 +862,7 @@ class TkApplication:
 
         top = 15
         spacer = 3
+        padding = 15
 
         middle_colon = self.ui_header_canvas.create_text(center, top, text=":", font=(self._default_font, font_size), tags="title", anchor=tkinter.CENTER)
         middle_colon_bottom = self.ui_header_canvas.bbox(middle_colon)[3]
@@ -870,8 +871,8 @@ class TkApplication:
         self.ui_header_canvas.create_text(center, top, text=left_team, font=(self._default_font, font_size), fill=BLUE, tags="title", anchor=tkinter.E)
         self.ui_header_canvas.create_text(center+2, top, text=right_team, font=(self._default_font, font_size), fill=RED, tags="title", anchor=tkinter.W)
 
-        bottom_text = self.ui_header_canvas.create_text(0 + 5, 20 + font_size, text=" " + left_status, font=(self._default_font, status_font_size), tags="title", anchor=tkinter.W)
-        self.ui_header_canvas.create_text(self.ui_header_canvas.winfo_width() - 5, 20 + font_size, text=right_status + " ", font=(self._default_font, status_font_size), tags="title", anchor=tkinter.E)
+        bottom_text = self.ui_header_canvas.create_text(0 + padding, 20 + font_size, text=" " + left_status, font=(self._default_font, status_font_size), tags="title", anchor=tkinter.W)
+        self.ui_header_canvas.create_text(self.ui_header_canvas.winfo_width() - padding, 20 + font_size, text=right_status + " ", font=(self._default_font, status_font_size), tags="title", anchor=tkinter.E)
 
     def draw_status_info(self, game_state):
         if "round" in game_state:
