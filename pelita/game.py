@@ -764,7 +764,7 @@ def play_turn(game_state, allow_exceptions=False):
         game_state = apply_move(game_state, position)
 
         # If there was no error, we claim a success in requested_moves
-        if (round, turn) not in game_state["errors"][team]:
+        if (round, turn) not in game_state["errors"][team] and not game_state['fatal_errors'][team]:
             game_state['requested_moves'][turn]['success'] = True
 
         # Check again, if we had errors or if this was the last move of the game (final round or food eaten)
@@ -837,13 +837,16 @@ def apply_move(gamestate, bot_position):
     # unless we have already made an error, check if we made a legal move
     if not (n_round, turn) in team_errors:
         if bot_position not in legal_positions:
-            error_dict = {
-                "reason": 'illegal move',
-                "bot_position": bot_position
-                }
-            # add the error to the team’s errors
-            game_print(turn, f"Illegal position. {bot_position} not in legal positions: {sorted(legal_positions)}.")
-            team_errors[(n_round, turn)] = error_dict
+            previous_position = gamestate["bots"][gamestate["turn"]]
+            game_print(turn, f"Illegal position. {previous_position}➔{bot_position} not in legal positions:"
+                             f" {sorted(legal_positions)}.")
+            exception_event = {
+                    'type': 'IllegalPosition',
+                    'description': f"bot{turn}: {previous_position}➔{bot_position}",
+                    'turn': turn,
+                    'round': n_round,
+            }
+            gamestate['fatal_errors'][team].append(exception_event)
 
     # only execute move if errors not exceeded
     gamestate.update(check_gameover(gamestate))
