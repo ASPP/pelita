@@ -223,7 +223,7 @@ parser.add_argument('--append-blue', type=str, metavar='INFO', default=None,
                     help=long_help('Append info about the blue team (such as group id).'))
 parser.add_argument('--append-red', type=str, metavar='INFO', default=None,
                     help=long_help('Append info about the red team (such as group id).'))
-parser.add_argument('--store-layout', help=long_help('Store current layout to a file'),
+parser.add_argument('--store-layout', help='Generate layout and store it in LAYOUTFILE',
                     metavar='LAYOUTFILE', dest='layoutfile')
 
 game_settings = parser.add_argument_group('Game settings')
@@ -420,7 +420,6 @@ def main():
 
     if args.seed is None:
         seed = random.randint(0, sys.maxsize)
-        print("Replay this game with --seed {seed}".format(seed=seed))
     else:
         seed = args.seed
 
@@ -450,9 +449,16 @@ def main():
                                                           height=height, rng=rng)
 
     if args.layoutfile:
+        # We only want to print this, when no seed has been given.
+        if args.seed is None and not args.layout:
+            print(f"Regenerate this layout with --seed {seed}")
         with open(args.layoutfile, 'wt') as layoutfile:
             layoutfile.write(pelita.layout.layout_as_str(**layout_dict))
         sys.exit(0)
+
+    if args.seed is None:
+        # We only want to print this, when no seed has been given.
+        print(f"Replay this game with --seed {seed}")
 
     pelita.game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, rng=rng,
                          allow_camping=args.allow_camping, timeout_length=args.timeout_length, error_limit=args.error_limit,
