@@ -1047,6 +1047,9 @@ def split_food(width, food):
     return team_food
 
 
+unicode_to_ascii = {
+        '➔' : '->'
+        }
 def game_print(turn, msg):
     allow_unicode = not _mswindows
     if turn % 2 == 0:
@@ -1055,4 +1058,7 @@ def game_print(turn, msg):
     elif turn % 2 == 1:
         pie = ('\033[91m' + 'ᗧ' + '\033[0m' + ' ') if allow_unicode else ''
         pie += f'red team, bot {turn // 2}'
+    if not allow_unicode:
+        for uchar, achar in unicode_to_ascii.items():
+            msg = msg.replace(uchar, achar)
     print(f'{pie}: {msg}')
