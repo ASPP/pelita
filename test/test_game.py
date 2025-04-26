@@ -182,8 +182,7 @@ def test_play_turn_apply_error(turn):
     """check that quits when there are too many errors"""
     game_state = setup_random_basic_gamestate()
     error_dict = {
-        "reason": 'illegal move',
-        "bot_position": (1, 2)
+        "type": 'PlayerTimeout',
     }
     game_state["turn"] = turn
     team = turn % 2
@@ -192,13 +191,32 @@ def test_play_turn_apply_error(turn):
     # we pretend that two rounds have already been played
     # so that the error dictionaries are sane
     game_state["round"] = 3
+    # add a timeout to the current bot
+    game_state["errors"][team][(3, turn%2)] = error_dict
+    game_state_new = apply_move(game_state, game_state["bots"][turn])
+    assert game_state_new["gameover"]
+    assert len(game_state_new["errors"][team]) == 5
+    assert game_state_new["whowins"] == int(not team)
+    assert game_state_new["errors"][team][(3, turn%2)] == error_dict
+
+
+@pytest.mark.parametrize('turn', (0, 1, 2, 3))
+def test_illegal_position_is_fatal(turn):
+    """check that quits when illegal position"""
+    game_state = setup_random_basic_gamestate()
+    game_state["turn"] = turn
+    team = turn % 2
+    # we pretend that two rounds have already been played
+    game_state["round"] = 3
 
     illegal_position = (0, 0) # should always be a wall
     game_state_new = apply_move(game_state, illegal_position)
     assert game_state_new["gameover"]
-    assert len(game_state_new["errors"][team]) == 5
+    assert len(game_state_new["fatal_errors"][team]) == 1
     assert game_state_new["whowins"] == int(not team)
-    assert set(game_state_new["errors"][team][(3, turn)].keys()) == set(["reason", "bot_position"])
+    assert game_state_new["fatal_errors"][team][0]['type'] == 'IllegalPosition'
+    assert '(0, 0)' in game_state_new["fatal_errors"][team][0]['description']
+
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
 def test_play_turn_fatal(turn):
@@ -214,17 +232,6 @@ def test_play_turn_fatal(turn):
     assert game_state_new["gameover"]
     assert game_state_new["whowins"] == int(not team)
 
-@pytest.mark.parametrize('turn', (0, 1, 2, 3))
-def test_play_turn_illegal_position(turn):
-    """check that illegal moves are added to error dict and bot still takes move"""
-    game_state = setup_random_basic_gamestate()
-    game_state["turn"] = turn
-    team = turn % 2
-    illegal_position = (0, 0) # should always be a wall
-    game_state_new = apply_move(game_state, illegal_position)
-    assert len(game_state_new["errors"][team]) == 1
-    assert game_state_new["errors"][team][(1, turn)].keys() == set(["reason", "bot_position"])
-    assert game_state_new["bots"][turn] in get_legal_positions(game_state["walls"], game_state["shape"], game_state["bots"][turn])
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
 @pytest.mark.parametrize('which_food', (0, 1))
@@ -1017,7 +1024,7 @@ def test_minimal_game():
     assert final_state['score'] == [0, 0]
     assert final_state['round'] == 20
 
-def test_minimal_losing_game_has_one_error():
+def test_minimal_losing_game_has_one_fatal_error():
     def move0(b, s):
         if b.round == 1 and b._bot_index == 0:
             # trigger a bad move in the first round
@@ -1032,9 +1039,9 @@ def test_minimal_losing_game_has_one_error():
     final_state = run_game([move0, move1], max_rounds=20, layout_dict=l)
     assert final_state['gameover'] is True
     assert final_state['score'] == [0, 0]
-    assert len(final_state['errors'][0]) == 1
-    assert len(final_state['errors'][1]) == 0
-    assert final_state['round'] == 20
+    assert len(final_state['fatal_errors'][0]) == 1
+    assert len(final_state['fatal_errors'][1]) == 0
+    assert final_state['round'] == 1
 
 
 def test_minimal_remote_game():
