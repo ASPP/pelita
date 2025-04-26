@@ -63,7 +63,7 @@ class MeshGraph:
         self.mesh_height = mesh_height
         self.screen_height = screen_height
         self.screen_width = screen_width
-        self.padding = 10
+        self.padding = 15
 
     def update_mesh_shape(self, shape):
         mesh_width, mesh_height = shape
