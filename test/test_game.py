@@ -335,7 +335,7 @@ def test_multiple_enemies_killing():
     ########
     """
     # dummy bots
-    stopping = lambda bot, s: (bot.position, s)
+    stopping = lambda bot, s: bot.position
 
     parsed_l0 = layout.parse_layout(l0, bots={'y':(3,2)})
     for bot in (0, 2):
@@ -383,7 +383,7 @@ def test_suicide():
     ########
     """
     # dummy bots
-    stopping = lambda bot, s: (bot.position, s)
+    stopping = lambda bot, s: bot.position
 
     parsed_l0 = layout.parse_layout(l0)
     for bot in (1, 3):
@@ -815,7 +815,7 @@ def setup_random_basic_gamestate(*, round=1, turn=0):
     """helper function for testing play turn"""
     parsed_l = layout.parse_layout(small_layout)
 
-    stopping = lambda bot, s: (bot.position, s)
+    stopping = lambda bot, s: bot.position
 
     game_state = setup_game([stopping, stopping], layout_dict=parsed_l)
     game_state['round'] = round
@@ -837,7 +837,7 @@ def setup_specific_basic_gamestate(round=0, turn=0):
 """
     parsed_l = layout.parse_layout(l)
 
-    stopping = lambda bot, s: (bot.position, s)
+    stopping = lambda bot, s: bot.position
 
     game_state = setup_game([stopping, stopping], layout_dict=parsed_l)
     game_state['round'] = round

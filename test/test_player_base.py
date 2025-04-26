@@ -154,7 +154,7 @@ class TestRandomPlayerSeeds:
             player_rngs = []
             def rng_test(bot, state):
                 player_rngs.append(bot.random)
-                return bot.position, state
+                return bot.position
             team = [
                 rng_test,
                 rng_test
