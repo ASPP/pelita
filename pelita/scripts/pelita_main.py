@@ -452,8 +452,11 @@ def main():
         # We only want to print this, when no seed has been given.
         if args.seed is None and not args.layout:
             print(f"Regenerate this layout with --seed {seed}")
-        with open(args.layoutfile, 'wt') as layoutfile:
-            layoutfile.write(pelita.layout.layout_as_str(**layout_dict))
+        if args.layoutfile == '-':
+            print(pelita.layout.layout_as_str(**layout_dict))
+        else:
+            with open(args.layoutfile, 'wt') as layoutfile:
+                layoutfile.write(pelita.layout.layout_as_str(**layout_dict))
         sys.exit(0)
 
     if args.seed is None:
