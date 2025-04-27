@@ -1,9 +1,5 @@
 
 import io
-import os
-import importlib.resources as importlib_resources
-
-from .base_utils import default_rng
 
 # bot to index conversion
 BOT_N2I = {'a': 0, 'b': 2, 'x': 1, 'y': 3}
