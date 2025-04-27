@@ -1,5 +1,6 @@
 import pytest
 
+import re
 import subprocess
 import sys
 import tempfile
@@ -151,3 +152,59 @@ def test_store_layout():
         second_run = g.read()
         # check that f and g have the same content
         assert first_run == second_run
+
+
+def test_random_layout_seed_is_random():
+    # NB: Test relies on randomness. It should be EXTREMELY unlikely that this test fails
+
+    # TODO: The store layout functionality could be added to call_pelita
+    # so we don’t have to run the subprocess ourselves
+
+    cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
+            '--store-layout', '-',
+            '--size', 'small',
+            '--null']
+
+    res = subprocess.run(cmd, check=True, text=True, stdout=subprocess.PIPE)
+    lines = res.stdout.split('\n')
+    seed0 = re.match(r'.+--seed (\d+)', lines[0]).group(1)
+
+    # seed can be converted to a number
+    assert int(seed0) >= 0
+
+    res = subprocess.run(cmd, check=True, text=True, stdout=subprocess.PIPE)
+    lines = res.stdout.split('\n')
+    seed1 = re.match(r'.+--seed (\d+)', lines[0]).group(1)
+
+    # seed can be converted to a number
+    assert int(seed1) >= 0
+
+    assert seed0 != seed1
+
+
+def test_random_layout_seed_is_stable():
+    # TODO: The store layout functionality could be added to call_pelita
+    # so we don’t have to run the subprocess ourselves
+
+    cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
+            '--store-layout', '-',
+            '--size', 'small',
+            '--null']
+
+    res = subprocess.run(cmd, check=True, text=True, stdout=subprocess.PIPE)
+    lines = res.stdout.split('\n')
+    seed = re.match(r'.+--seed (\d+)', lines[0]).group(1)
+
+    layout_str = lines[1:]
+    # check that we received something and it may be a layout
+    assert layout_str[0] == "#" * 16
+
+    # Check that the same seed generates the same layout
+    cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
+            '--store-layout', '-',
+            '--size', 'small',
+            '--seed', seed,
+            '--null']
+
+    res = subprocess.run(cmd, check=True, text=True, stdout=subprocess.PIPE)
+    assert res.stdout.split('\n') == layout_str
