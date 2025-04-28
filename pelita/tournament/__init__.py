@@ -64,7 +64,7 @@ def run_and_terminate_process(args, **kwargs):
         if p.returncode is not None:
             _logger.debug(f"Subprocess exited with {p.returncode}.")
         else:
-            _logger.debug(f"Subprocess has not exited yet.")
+            _logger.debug("Subprocess has not exited yet.")
     finally:
         if _mswindows:
             _logger.debug("Sending CTRL_BREAK_EVENT to {proc} with pid {pid}.".format(proc=p, pid=p.pid))
@@ -346,8 +346,8 @@ class Config:
                 print("Could not find executable in call {!r}".format(full_cmd))
                 print("Disabling speech synthesis.")
 
-                _logger.warn("Could not find executable in call {!r}".format(full_cmd))
-                _logger.warn("Disabling speech synthesis.")
+                _logger.warning("Could not find executable in call {!r}".format(full_cmd))
+                _logger.warning("Disabling speech synthesis.")
 
                 self.speak = False
                 self.wait_for_keypress()
@@ -363,7 +363,7 @@ class Config:
                     self._say_process_error = True
                     self.wait_for_keypress()
                 else:
-                    _logger.warn(err)
+                    _logger.warning(err)
 
 
     def input(self, str, values=None):

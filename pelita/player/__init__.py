@@ -1,3 +1,4 @@
+# ruff: noqa: F401
 
 from .base import (stepping_player, speaking_player,
                    round_based_player, move_exception_player,

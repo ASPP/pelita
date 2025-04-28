@@ -1,5 +1,6 @@
 import logging
 
+
 def start_logging(filename, module='pelita'):
     if not filename or filename == '-':
         hdlr = logging.StreamHandler()

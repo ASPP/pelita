@@ -577,7 +577,7 @@ class Bot:
         for direction in [(0, 0), (-1, 0), (1, 0), (0, 1), (0, -1)]:
             new_pos = (position[0] + direction[0],
                        position[1] + direction[1])
-            if not new_pos in self.walls:
+            if new_pos not in self.walls:
                 self.legal_positions.append(new_pos)
 
         # Attributes for Bot
@@ -661,9 +661,12 @@ class Bot:
                     else:
                         bg = ""
                     out.write("<td %s>" % bg)
-                    if (x, y) in bot.walls: out.write("#")
-                    if (x, y) in bot.food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
-                    if (x, y) in bot.enemy[0].food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
+                    if (x, y) in bot.walls:
+                        out.write("#")
+                    if (x, y) in bot.food:
+                        out.write('<span style="color: rgb(247, 150, 213)">●</span>')
+                    if (x, y) in bot.enemy[0].food:
+                        out.write('<span style="color: rgb(247, 150, 213)">●</span>')
                     for idx in range(2):
                         if bot._team[idx].position == (x, y):
                             if idx == bot.turn:

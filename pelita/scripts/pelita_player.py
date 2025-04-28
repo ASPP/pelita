@@ -121,7 +121,7 @@ def player_handle_request(socket, team, team_name_override=False, silent_bots=Fa
                 # but we don’t care if it fails at all
                 try:
                     retval.pop('say')
-                except:
+                except Exception:
                     pass
 
         elif action == "team_name":

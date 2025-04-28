@@ -1,8 +1,5 @@
 from random import Random
 
-import networkx as nx
-
-
 from .team import make_bots, create_homezones
 from .game import split_food, SHADOW_DISTANCE
 from .layout import parse_layout, BOT_N2I, initial_positions

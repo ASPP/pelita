@@ -65,8 +65,6 @@ def scan(team_spec):
             browser = ServiceBrowser(zeroconf, services, handlers=[on_service_state_change])
             players = []
             import time
-            import select
-            import sys
             start = time.monotonic()
             while start + 5 > time.monotonic():
                 time.sleep(0.2)
@@ -82,8 +80,8 @@ def scan(team_spec):
         finally:
             zeroconf.close()
     if players:
-        console.print(f"  [blue]r)[/] Random team")
-        console.print(f"  [blue]x)[/] Exit")
+        console.print("  [blue]r)[/] Random team")
+        console.print("  [blue]x)[/] Exit")
         console.print()
         console.print(f"Found {len(players)} player{'s' if len(players) != 1 else ''}.")
 
@@ -120,7 +118,7 @@ def scan_server(team_spec):
 
     console = Console()
 
-    console.print(f"[bold]Remote player requested. Scanning server for players.")
+    console.print("[bold]Remote player requested. Scanning server for players.")
 
     WAIT_TIMEOUT = 5000
     incoming = socket.poll(timeout=WAIT_TIMEOUT)
@@ -141,9 +139,9 @@ def scan_server(team_spec):
         players.append(addr)
 
     if players:
-        console.print(f"  [blue]r)[/] Random team")
-        console.print(f"  [blue]s)[/] Server default")
-        console.print(f"  [blue]x)[/] Exit")
+        console.print("  [blue]r)[/] Random team")
+        console.print("  [blue]s)[/] Server default")
+        console.print("  [blue]x)[/] Exit")
         console.print()
         console.print(f"Found {len(players)} player{'s' if len(players) != 1 else ''}.")
 

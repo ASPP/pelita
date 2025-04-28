@@ -1,9 +1,8 @@
 
-from random import Random
 
 from pelita.game import setup_game, run_game, play_turn
 from pelita.layout import parse_layout
-from pelita.player import (random_player, stopping_player, stepping_player,
+from pelita.player import (random_player, stepping_player,
                            round_based_player, speaking_player)
 
 

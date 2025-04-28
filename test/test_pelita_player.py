@@ -5,7 +5,6 @@ import py_compile
 import sys
 import tempfile
 
-import pelita
 from pelita.scripts.pelita_player import load_team_from_module, load_team
 
 _mswindows = (sys.platform == "win32")

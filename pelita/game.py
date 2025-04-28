@@ -296,7 +296,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
 
     width, height = layout.wall_dimensions(layout_dict['walls'])
     if not (width, height) == layout_dict["shape"]:
-        raise ValueError(f"layout_dict['walls'] does not match layout_dict['shape'].")
+        raise ValueError("layout_dict['walls'] does not match layout_dict['shape'].")
 
     for idx, pos in enumerate(layout_dict['bots']):
         if pos in layout_dict['walls']:
@@ -486,7 +486,8 @@ def setup_teams(team_specs, game_state, store_output=False, allow_exceptions=Fal
         except (FatalException, PlayerTimeout) as e:
             # TODO: Not sure if PlayerTimeout should let the other payer win.
             # It could simply be a network problem.
-            if allow_exceptions: raise
+            if allow_exceptions:
+                raise
             exception_event = {
                 'type': e.__class__.__name__,
                 'description': str(e),
@@ -726,7 +727,8 @@ def play_turn(game_state, allow_exceptions=False):
         else:
             game_state['say'][game_state['turn']] = ""
     except FatalException as e:
-        if allow_exceptions: raise
+        if allow_exceptions:
+            raise
         # FatalExceptions (such as PlayerDisconnect) should immediately
         # finish the game
         exception_event = {
@@ -739,7 +741,8 @@ def play_turn(game_state, allow_exceptions=False):
         position = None
         game_print(turn, f"{type(e).__name__}: {e}")
     except NonFatalException as e:
-        if allow_exceptions: raise
+        if allow_exceptions:
+            raise
         # NonFatalExceptions (such as Timeouts and ValueErrors in the JSON handling)
         # are collected and added to team_errors
         exception_event = {
@@ -841,7 +844,7 @@ def apply_move(gamestate, bot_position):
     legal_positions = get_legal_positions(walls, shape, gamestate["bots"][gamestate["turn"]])
 
     # unless we have already made an error, check if we made a legal move
-    if not (n_round, turn) in team_errors:
+    if (n_round, turn) not in team_errors:
         if bot_position not in legal_positions:
             previous_position = gamestate["bots"][gamestate["turn"]]
             game_print(turn, f"Illegal position. {previous_position}➔{bot_position} not in legal positions:"
