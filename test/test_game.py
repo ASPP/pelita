@@ -9,26 +9,17 @@ from random import Random
 
 import pytest
 
-from pelita import game, layout, maze_generator
+from pelita import game, maze_generator
 from pelita.exceptions import NoFoodWarning
 from pelita.game import (apply_move, get_legal_positions, initial_positions,
                          play_turn, run_game, setup_game)
+from pelita.layout import parse_layout
 from pelita.player import stepping_player, stopping_player
 
 _mswindows = (sys.platform == "win32")
 
 FIXTURE_DIR = Path(__file__).parent.resolve() / 'fixtures'
 
-small_layout = """
-################
-#    . ##. . .y#
-#  #       #.#x#
-#. #.     .  ..#
-#..  .     .# .#
-#a#.#       #  #
-#b. . .## .    #
-################
-"""
 
 @contextmanager
 def temp_wd(path):
@@ -39,6 +30,28 @@ def temp_wd(path):
         yield
     finally:
         os.chdir(old)
+
+small_layout = """
+##################
+#. ... .##.     y#
+# # #  .  .### #x#
+# # ##.   .      #
+#      .   .## # #
+#a# ###.  .  # # #
+#b     .##. ... .#
+##################
+"""
+
+@pytest.fixture
+def game_state(round=1, turn=0, layout=small_layout):
+    """helper fixture for a game_state"""
+    parsed_l = parse_layout(layout)
+
+    game_state = setup_game([stopping_player, stopping_player], layout_dict=parsed_l)
+    game_state['round'] = round
+    game_state['turn'] = turn
+    return game_state
+
 
 # dummy bot for setup_game tests
 def dummy_bot(_bot, _state):
@@ -54,7 +67,7 @@ def test_too_few_registered_teams():
         ################## """)
     team_1 = dummy_bot
     with pytest.raises(ValueError):
-        setup_game([team_1], layout_dict=layout.parse_layout(test_layout_4), max_rounds=300)
+        setup_game([team_1], layout_dict=parse_layout(test_layout_4), max_rounds=300)
 
 
 def test_too_many_registered_teams():
@@ -66,7 +79,7 @@ def test_too_many_registered_teams():
         ################## """)
     team_1 = dummy_bot
     with pytest.raises(ValueError):
-        setup_game([team_1] * 3, layout_dict=layout.parse_layout(test_layout_4), max_rounds=300)
+        setup_game([team_1] * 3, layout_dict=parse_layout(test_layout_4), max_rounds=300)
 
 
 @pytest.mark.parametrize('layout_str', [
@@ -84,7 +97,7 @@ def test_too_many_registered_teams():
     """])
 def test_no_food(layout_str):
     with pytest.warns(NoFoodWarning):
-        parsed = layout.parse_layout(layout_str)
+        parsed = parse_layout(layout_str)
         setup_game([dummy_bot, dummy_bot], layout_dict=parsed, max_rounds=300)
 
 
@@ -96,7 +109,7 @@ def test_initial_positions_basic():
     #x   y #
     ########
     """
-    parsed = layout.parse_layout(simple_layout)
+    parsed = parse_layout(simple_layout)
     out = initial_positions(parsed['walls'], parsed['shape'])
     exp = [(1, 1), (6, 2), (1, 2), (6, 1)]
     assert len(out) == 4
@@ -133,7 +146,7 @@ def test_initial_positions_basic():
     """,
     ])
 def test_initial_positions(simple_layout):
-    parsed = layout.parse_layout(simple_layout)
+    parsed = parse_layout(simple_layout)
     i_pos = initial_positions(parsed['walls'], parsed['shape'])
     expected = parsed['bots']
     assert len(i_pos) == 4
@@ -152,7 +165,7 @@ def test_initial_positions_same_in_layout_random(parsed_l):
 
 def test_get_legal_positions_basic():
     """Check that the output of legal moves contains all legal moves for one example layout"""
-    parsed_l = layout.parse_layout(small_layout)
+    parsed_l = parse_layout(small_layout)
     legal_positions = get_legal_positions(parsed_l["walls"], parsed_l["shape"], parsed_l["bots"][0])
     exp = [(1, 4), (1, 6), (1, 5)]
     assert legal_positions == exp
@@ -168,9 +181,8 @@ def test_get_legal_positions_random(parsed_l, bot_idx):
         assert  abs((move[0] - bot[0])+(move[1] - bot[1])) <= 1
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
-def test_play_turn_apply_error(turn):
+def test_play_turn_apply_error(game_state, turn):
     """check that quits when there are too many errors"""
-    game_state = setup_random_basic_gamestate()
     error_dict = {
         "type": 'PlayerTimeout',
     }
@@ -191,9 +203,8 @@ def test_play_turn_apply_error(turn):
 
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
-def test_illegal_position_is_fatal(turn):
+def test_illegal_position_is_fatal(game_state, turn):
     """check that quits when illegal position"""
-    game_state = setup_random_basic_gamestate()
     game_state["turn"] = turn
     team = turn % 2
     # we pretend that two rounds have already been played
@@ -209,9 +220,8 @@ def test_illegal_position_is_fatal(turn):
 
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
-def test_play_turn_fatal(turn):
+def test_play_turn_fatal(game_state, turn):
     """Checks that game quite after fatal error"""
-    game_state = setup_random_basic_gamestate()
     game_state["turn"] = turn
     team = turn % 2
     fatal_list = [{}, {}]
@@ -225,7 +235,7 @@ def test_play_turn_fatal(turn):
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
 @pytest.mark.parametrize('which_food', (0, 1))
-def test_play_turn_eating_enemy_food(turn, which_food):
+def test_play_turn_eating_enemy_food(game_state, turn, which_food):
     """Check that you eat enemy food but not your own"""
     ### 012345678901234567
     #0# ##################
@@ -236,8 +246,8 @@ def test_play_turn_eating_enemy_food(turn, which_food):
     #5# #a# ###.  .  # # #
     #6# #2     .##. ... .#
     #7# ##################
-    game_state = setup_specific_basic_gamestate(round=0, turn=turn)
     team = turn % 2
+    game_state['turn'] = turn
     prev_len_food = [len(team_food) for team_food in game_state["food"]]
 
     if which_food == 0:
@@ -266,7 +276,7 @@ def test_play_turn_eating_enemy_food(turn, which_food):
 
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
-def test_play_turn_killing(turn):
+def test_play_turn_killing(game_state, turn):
     """Check that you can kill enemies but not yourself"""
     ### 012345678901234567
     #0# ##################
@@ -277,7 +287,6 @@ def test_play_turn_killing(turn):
     #5# #a# ###.  .  # # #
     #6# #b     .##. ... .#
     #7# ##################
-    game_state = setup_specific_basic_gamestate()
     team = turn % 2
     game_state["turn"] = turn
     enemy_idx = (1, 3) if team == 0 else(0, 2)
@@ -292,7 +301,7 @@ def test_play_turn_killing(turn):
                                     (1, (16, 3)),
                                     (2, (2, 6)),
                                     (3, (15, 1))))
-def test_play_turn_friendly_fire(setups):
+def test_play_turn_friendly_fire(game_state, setups):
     """Check that you can kill enemies but not yourself"""
     ### 012345678901234567
     #0# ##################
@@ -303,7 +312,6 @@ def test_play_turn_friendly_fire(setups):
     #5# #a# ###.  .  # # #
     #6# #b     .##. ... .#
     #7# ##################
-    game_state = setup_specific_basic_gamestate()
     turn = setups[0]
     enemy_pos = setups[1]
     team = turn % 2
@@ -332,7 +340,7 @@ def test_multiple_enemies_killing():
     ########
     """
 
-    parsed_l0 = layout.parse_layout(l0, bots={'y':(3,2)})
+    parsed_l0 = parse_layout(l0, bots={'y':(3,2)})
     for bot in (0, 2):
         game_state = setup_game([dummy_bot, dummy_bot], layout_dict=parsed_l0)
 
@@ -346,7 +354,7 @@ def test_multiple_enemies_killing():
         # bots 1 and 3 are back to origin
         assert new_state['bots'][1::2] == [(6, 2), (6, 1)]
 
-    parsed_l1 = layout.parse_layout(l1, bots={'b':(4,2)})
+    parsed_l1 = parse_layout(l1, bots={'b':(4,2)})
     for bot in (1, 3):
         game_state = setup_game([dummy_bot, dummy_bot], layout_dict=parsed_l1)
 
@@ -378,7 +386,7 @@ def test_suicide():
     ########
     """
 
-    parsed_l0 = layout.parse_layout(l0)
+    parsed_l0 = parse_layout(l0)
     for bot in (1, 3):
         game_state = setup_game([dummy_bot, dummy_bot], layout_dict=parsed_l0)
 
@@ -394,7 +402,7 @@ def test_suicide():
         elif bot == 3:
             assert new_state['bots'][1::2] == [(3, 2), (6, 1)]
 
-    parsed_l1 = layout.parse_layout(l1)
+    parsed_l1 = parse_layout(l1)
     for bot in (0, 2):
         game_state = setup_game([dummy_bot, dummy_bot], layout_dict=parsed_l1)
 
@@ -441,7 +449,7 @@ def test_cascade_kill():
         if not bot.is_blue and bot.turn == 1 and bot.round == 1:
             return (6, 1)
         return bot.position
-    layouts = [layout.parse_layout(l, bots=b) for l,b in cascade]
+    layouts = [parse_layout(l, bots=b) for l,b in cascade]
     state = setup_game([move, move], max_rounds=5, layout_dict=layouts[0])
     assert state['bots'] == layouts[0]['bots']
     state = game.play_turn(state) # Bot 0 stands
@@ -495,7 +503,7 @@ def test_cascade_kill_2():
         if bot.is_blue and bot.turn == 0 and bot.round == 1:
             return (1, 1)
         return bot.position
-    layouts = [layout.parse_layout(l, bots=b) for l,b in cascade]
+    layouts = [parse_layout(l, bots=b) for l,b in cascade]
     state = setup_game([move, move], max_rounds=5, layout_dict=layouts[0])
     assert state['bots'] == layouts[0]['bots']
     state = game.play_turn(state) # Bot 0 moves, kills 3. Bot 2 and 3 are on same spot
@@ -547,7 +555,7 @@ def test_cascade_kill_rescue_1():
         if bot.is_blue and bot.turn == 1 and bot.round == 1:
             return (5, 1)
         return bot.position
-    layouts = [layout.parse_layout(l,bots=b) for l,b in cascade]
+    layouts = [parse_layout(l,bots=b) for l,b in cascade]
     state = setup_game([move, move], max_rounds=5, layout_dict=layouts[0])
     assert state['bots'] == layouts[0]['bots']
     state = game.play_turn(state) # Bot 0 moves, kills 3. Bot 2 and 3 are on same spot
@@ -593,7 +601,7 @@ def test_cascade_kill_rescue_2():
         if not bot.is_blue and bot.turn == 0 and bot.round == 1:
             return (5, 2)
         return bot.position
-    layouts = [layout.parse_layout(l, bots=b) for l,b in cascade]
+    layouts = [parse_layout(l, bots=b) for l,b in cascade]
     state = setup_game([move, move], max_rounds=5, layout_dict=layouts[0])
     assert state['bots'] == layouts[0]['bots']
     state = game.play_turn(state) # Bot 0 moves, kills 1. Bot 1 and 2 are on same spot
@@ -636,7 +644,7 @@ def test_cascade_suicide():
         if bot.is_blue and bot.turn == 0 and bot.round == 1:
             return (6, 1)
         return bot.position
-    layouts = [layout.parse_layout(l, bots=b) for l,b in cascade]
+    layouts = [parse_layout(l, bots=b) for l,b in cascade]
     state = setup_game([move, move], max_rounds=5, layout_dict=layouts[0])
     assert state['bots'] == layouts[0]['bots']
     state = game.play_turn(state) # Bot 0 moves onto 3. Gets killed. Bot 0 and 1 are on same spot.
@@ -654,7 +662,7 @@ def test_moving_through_maze():
         #.. x#
         #b  y#
         ###### """
-    parsed = layout.parse_layout(test_start)
+    parsed = parse_layout(test_start)
     teams = [
         stepping_player('>-v>>>-', '-^^->->'),
         stepping_player('<<-<<<-', '-------')
@@ -664,7 +672,7 @@ def test_moving_through_maze():
     # play first round
     for i in range(4):
         state = game.play_turn(state)
-    test_first_round = layout.parse_layout(
+    test_first_round = parse_layout(
         """ ######
             # a. #
             #..x #
@@ -677,7 +685,7 @@ def test_moving_through_maze():
 
     for i in range(4):
         state = game.play_turn(state)
-    test_second_round = layout.parse_layout(
+    test_second_round = parse_layout(
         """ ######
             # a. #
             #bx  #
@@ -690,7 +698,7 @@ def test_moving_through_maze():
 
     for i in range(4):
         state = game.play_turn(state)
-    test_third_round = layout.parse_layout(
+    test_third_round = parse_layout(
         """ ######
             #b . #
             #.a x#
@@ -703,7 +711,7 @@ def test_moving_through_maze():
 
     for i in range(4):
         state = game.play_turn(state)
-    test_fourth_round = layout.parse_layout(
+    test_fourth_round = parse_layout(
         """ ######
             #b . #
             #a x #
@@ -716,7 +724,7 @@ def test_moving_through_maze():
 
     for i in range(4):
         state = game.play_turn(state)
-    test_fifth_round = layout.parse_layout(
+    test_fifth_round = parse_layout(
         """ ######
             # b. #
             #.a x#
@@ -728,7 +736,7 @@ def test_moving_through_maze():
 
     for i in range(4):
         state = game.play_turn(state)
-    test_sixth_round = layout.parse_layout(
+    test_sixth_round = parse_layout(
         """
             ######
             # b. #
@@ -743,7 +751,7 @@ def test_moving_through_maze():
     for i in range(3): # !! Only move three bots
         state = game.play_turn(state)
 
-    test_seventh_round = layout.parse_layout(
+    test_seventh_round = parse_layout(
         """
             ######
             #  b #
@@ -762,10 +770,9 @@ def test_moving_through_maze():
 
 
 @pytest.mark.parametrize('score', ([[3, 3], 2], [[1, 13], 1], [[13, 1], 0]))
-def test_play_turn_maxrounds(score):
+def test_play_turn_maxrounds(game_state, score):
     """Check that game quits at maxrounds and choses correct winner"""
     # this works for ties as well, because there are no points to be gained at init positions
-    game_state = setup_random_basic_gamestate()
     game_state["round"] = 301
     game_state["score"] = score[0]
     game_state_new = game.play_turn(game_state)
@@ -775,7 +782,7 @@ def test_play_turn_maxrounds(score):
 def test_play_turn_move():
     """Checks that bot is moved to intended space"""
     turn = 0
-    parsed_l = layout.parse_layout(small_layout)
+    parsed_l = parse_layout(small_layout)
     game_state = {
         "food": parsed_l["food"],
         "walls": parsed_l["walls"],
@@ -803,37 +810,6 @@ def test_play_turn_move():
     assert game_state_new["bots"][turn] == legal_positions[0]
 
 
-
-def setup_random_basic_gamestate(*, round=1, turn=0):
-    """helper function for testing play turn"""
-    parsed_l = layout.parse_layout(small_layout)
-
-    game_state = setup_game([stopping_player, stopping_player], layout_dict=parsed_l)
-    game_state['round'] = round
-    game_state['turn'] = turn
-    return game_state
-
-
-def setup_specific_basic_gamestate(round=0, turn=0):
-    """helper function for testing play turn"""
-    l = """
-##################
-#. ... .##.     y#
-# # #  .  .### #x#
-# # ##.   .      #
-#      .   .## # #
-#a# ###.  .  # # #
-#b     .##. ... .#
-##################
-"""
-    parsed_l = layout.parse_layout(l)
-
-    game_state = setup_game([stopping_player, stopping_player], layout_dict=parsed_l)
-    game_state['round'] = round
-    game_state['turn'] = turn
-    return game_state
-
-
 def test_max_rounds():
     l = """
     ########
@@ -851,7 +827,7 @@ def test_max_rounds():
             # There should not be more then one round in this test
             raise RuntimeError("We should not be here in this test")
 
-    l = layout.parse_layout(l)
+    l = parse_layout(l)
     assert l['bots'][0] == (2, 1)
     assert l['bots'][1] == (5, 1)
     assert l['bots'][2] == (1, 1)
@@ -989,7 +965,7 @@ def test_finished_when_no_food(bot_to_move):
             return (3, 2)
         return bot.position
 
-    l = layout.parse_layout(l)
+    l = parse_layout(l)
     final_state = run_game([move, move], layout_dict=l, max_rounds=20)
     assert final_state['round'] == 1
     assert final_state['turn'] == bot_to_move
@@ -1159,7 +1135,7 @@ def test_setup_game_run_game_have_same_args():
 @pytest.mark.parametrize('bot_to_move', range(4))
 # all combinations of True False in a list of 4
 @pytest.mark.parametrize('bot_was_killed_flags', itertools.product(*[(True, False)] * 4))
-def test_apply_move_resets_bot_was_killed(bot_to_move, bot_was_killed_flags):
+def test_apply_move_resets_bot_was_killed(game_state, bot_to_move, bot_was_killed_flags):
     """ Check that `prepare_bot_state` sees the proper bot_was_killed flag
     and that `apply_move` will reset the flag to False. """
     team_id = bot_to_move % 2
@@ -1167,29 +1143,29 @@ def test_apply_move_resets_bot_was_killed(bot_to_move, bot_was_killed_flags):
     other_team_id = 1 - team_id
 
     # specify which bot should move
-    test_state = setup_random_basic_gamestate(turn=bot_to_move)
+    game_state['turn'] = bot_to_move
 
     bot_was_killed_flags = list(bot_was_killed_flags) # needs to be a list
-    test_state['bot_was_killed'] = bot_was_killed_flags[:] # copy to avoid reference issues
+    game_state['bot_was_killed'] = bot_was_killed_flags[:] # copy to avoid reference issues
 
     # create bot state for current turn
-    current_bot_position = test_state['bots'][bot_to_move]
-    bot_state = game.prepare_bot_state(test_state)
+    current_bot_position = game_state['bots'][bot_to_move]
+    bot_state = game.prepare_bot_state(game_state)
 
     # bot state should have proper bot_was_killed flag
     assert bot_state['team']['bot_was_killed'] == bot_was_killed_flags[team_id::2]
 
     # apply a dummy move that should reset bot_was_killed for the current bot
-    _new_test_state = game.apply_move(test_state, current_bot_position)
+    _new_test_state = game.apply_move(game_state, current_bot_position)
 
     # the bot_was_killed flag should be False again
-    assert test_state['bot_was_killed'][bot_to_move] is False
+    assert game_state['bot_was_killed'][bot_to_move] is False
 
     # the bot_was_killed flags for other bot should still be as before
-    assert test_state['bot_was_killed'][other_bot] == bot_was_killed_flags[other_bot]
+    assert game_state['bot_was_killed'][other_bot] == bot_was_killed_flags[other_bot]
 
     # all bot_was_killed flags for other team should still be as before
-    assert test_state['bot_was_killed'][other_team_id::2] == bot_was_killed_flags[other_team_id::2]
+    assert game_state['bot_was_killed'][other_team_id::2] == bot_was_killed_flags[other_team_id::2]
 
 
 def test_bot_does_not_eat_own_food():
@@ -1203,7 +1179,7 @@ def test_bot_does_not_eat_own_food():
         stepping_player('v', '<'),
         stepping_player('^', '<')
     ]
-    state = setup_game(teams, layout_dict=layout.parse_layout(test_layout), max_rounds=2)
+    state = setup_game(teams, layout_dict=parse_layout(test_layout), max_rounds=2)
     assert state['bots'] == [(1, 1), (3, 2), (2, 2), (4, 1)]
     assert state['food'] == [{(1, 2)}, {(3, 1)}]
     for i in range(4):
@@ -1226,11 +1202,11 @@ def test_suicide_win():
         stepping_player('>>', '--'),
         stepping_player('<-', '--')
     ]
-    state = setup_game(teams, layout_dict=layout.parse_layout(test_layout), max_rounds=2)
+    state = setup_game(teams, layout_dict=parse_layout(test_layout), max_rounds=2)
     assert state['bots'] == [(1, 1), (4, 1), (1, 3), (4, 3)]
     assert state['food'] == [{(1, 2)}, {(3, 1)}]
     # play until finished
-    state = run_game(teams, layout_dict=layout.parse_layout(test_layout), max_rounds=2)
+    state = run_game(teams, layout_dict=parse_layout(test_layout), max_rounds=2)
     # bot 0 has been reset
     assert state['bots'] == [(1, 2), (3, 1), (1, 3), (4, 3)]
     assert state['food'] == [{(1, 2)}, set()]
@@ -1253,7 +1229,7 @@ def test_double_suicide():
         stepping_player('-', '-'),
         stepping_player('<', '-')
     ]
-    state = setup_game(teams, layout_dict=layout.parse_layout(test_layout, bots={'a':(2,1)}),
+    state = setup_game(teams, layout_dict=parse_layout(test_layout, bots={'a':(2,1)}),
             max_rounds=2)
     assert state['bots'] == [(2, 1), (3, 1), (2, 1), (3, 2)]
     assert state['food'] == [{(1, 2)}, {(4, 2)}]
@@ -1341,7 +1317,7 @@ def test_requested_moves(move_request, expected_prev, expected_req, expected_suc
         move,
         stopping_player
     ]
-    state = setup_game(teams, layout_dict=layout.parse_layout(test_layout), max_rounds=2)
+    state = setup_game(teams, layout_dict=parse_layout(test_layout), max_rounds=2)
     assert state['requested_moves'] == [None, None, None, None]
     state = play_turn(state)
     assert state['requested_moves'][1:] == [None, None, None]
