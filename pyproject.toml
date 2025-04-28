@@ -46,6 +46,13 @@ pelita-tkviewer = "pelita.scripts.pelita_tkviewer:main"
 pelita-player = "pelita.scripts.pelita_player:main"
 pelita-server = "pelita.scripts.pelita_server:main"
 
+[project.optional-dependencies]
+test = [
+    "pytest>=4",
+    "pytest-cov",
+]
+doc = ["sphinx"]
+
 [tool.aliases]
 test = "pytest"
 
