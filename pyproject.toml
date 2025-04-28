@@ -67,3 +67,11 @@ omit = [
     "pelita/ui/*",
     "test/testplayers/*",
 ]
+
+[tool.ruff.lint]
+select = ["E", "F"]
+ignore = [
+    "E501", # ignore long lines
+    # "F841", # ignore unused variables
+    "E741", # ignore ambiguous variable name
+]

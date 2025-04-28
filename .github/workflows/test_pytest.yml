@@ -76,6 +76,15 @@ jobs:
       with:
         parallel-finished: true
 
+  ruff:
+    name: Run ruff static checker
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: astral-sh/ruff-action@v3
+      with:
+        src: pelita/
+
   tournament:
     # The tournament does not need to run everywhere.
     # Only test on the latest ubuntu/macos for recent versions of Python.
