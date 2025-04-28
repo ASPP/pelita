@@ -1,10 +1,9 @@
-import pytest
-
 import sys
 import tempfile
 from pathlib import Path
 from random import Random
 
+import pytest
 
 import pelita.game
 from pelita.tournament import call_pelita, run_and_terminate_process

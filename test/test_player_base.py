@@ -1,10 +1,9 @@
 
 
-from pelita.game import setup_game, run_game, play_turn
+from pelita.game import play_turn, run_game, setup_game
 from pelita.layout import parse_layout
-from pelita.player import (random_player, stepping_player,
-                           round_based_player, speaking_player)
-
+from pelita.player import (random_player, round_based_player, speaking_player,
+                           stepping_player)
 
 # some directions that are used in the tests
 north = (0, -1)

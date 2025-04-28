@@ -1,4 +1,5 @@
 import sys
+
 TEAM_NAME="p1"
 def move(b, s):
     print(f"{b.round} {b.turn} p1", file=sys.stdout)

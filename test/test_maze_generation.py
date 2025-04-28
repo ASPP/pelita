@@ -2,8 +2,8 @@ from random import Random
 
 import pytest
 
-import pelita.maze_generator as mg
 import pelita.layout as pl
+import pelita.maze_generator as mg
 import pelita.team as pt
 
 SEED = 103525239

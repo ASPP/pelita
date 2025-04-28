@@ -1,7 +1,4 @@
 """Tests for Pelita game module"""
-import pytest
-
-
 import inspect
 import itertools
 import os
@@ -10,9 +7,12 @@ from contextlib import contextmanager
 from pathlib import Path
 from random import Random
 
+import pytest
+
 from pelita import game, layout, maze_generator
 from pelita.exceptions import NoFoodWarning
-from pelita.game import initial_positions, get_legal_positions, apply_move, run_game, setup_game, play_turn
+from pelita.game import (apply_move, get_legal_positions, initial_positions,
+                         play_turn, run_game, setup_game)
 from pelita.player import stepping_player, stopping_player
 
 _mswindows = (sys.platform == "win32")

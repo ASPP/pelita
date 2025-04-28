@@ -1,15 +1,15 @@
 
-import pytest
-
 import collections
 from random import Random
 
+import pytest
+
+import pelita.game
+import pelita.utils
 from pelita import gamestate_filters as gf
-from pelita.game import setup_game, play_turn, prepare_bot_state, split_food
+from pelita.game import play_turn, prepare_bot_state, setup_game, split_food
 from pelita.layout import parse_layout
 from pelita.player import stepping_player
-import pelita.utils
-import pelita.game
 
 RNG = Random()
 

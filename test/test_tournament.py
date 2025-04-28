@@ -1,13 +1,13 @@
-import pytest
-from unittest.mock import MagicMock
-
 import re
 from random import Random
 from textwrap import dedent
+from unittest.mock import MagicMock
+
+import pytest
 
 from pelita import tournament
 from pelita.tournament import knockout_mode, roundrobin
-from pelita.tournament.knockout_mode import Team, Match, Bye
+from pelita.tournament.knockout_mode import Bye, Match, Team
 
 RNG = Random()
 

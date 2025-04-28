@@ -1,11 +1,11 @@
-import pytest
-
-from pathlib import Path
 import py_compile
 import sys
 import tempfile
+from pathlib import Path
 
-from pelita.scripts.pelita_player import load_team_from_module, load_team
+import pytest
+
+from pelita.scripts.pelita_player import load_team, load_team_from_module
 
 _mswindows = (sys.platform == "win32")
 

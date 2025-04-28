@@ -1,13 +1,12 @@
-import pytest
-
-import uuid
 import sys
+import uuid
 
+import pytest
 import zmq
 
 from pelita.network import bind_socket
-from pelita.team import make_team
 from pelita.scripts.pelita_player import player_handle_request
+from pelita.team import make_team
 
 _mswindows = (sys.platform == "win32")
 

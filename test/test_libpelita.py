@@ -1,9 +1,9 @@
-import pytest
-
 import re
 import subprocess
 import sys
 import tempfile
+
+import pytest
 
 from pelita.network import ZMQClientError
 from pelita.scripts.pelita_tournament import firstNN
