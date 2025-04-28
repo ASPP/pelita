@@ -567,6 +567,7 @@ class Bot:
         self.team_time = team_time
         self.error_count = error_count
         self.is_noisy = is_noisy
+        self.has_exact_position = not is_noisy
         self.graph = graph
 
         # The legal positions that the bot can reach from its current position,
@@ -689,7 +690,7 @@ class Bot:
             red = bot if not bot.turn else bot.other
 
         bot_positions = [blue.position, red.position, blue.other.position, red.other.position]
-        bot_noise = [blue.is_noisy, red.is_noisy, blue.other.is_noisy, red.other.is_noisy]
+        bot_exact = [blue.has_exact_position, red.has_exact_position, blue.other.has_exact_position, red.other.has_exact_position]
 
         header = ("{blue}{you_blue} vs {red}{you_red}.\n" +
                   "Playing on {col} side. Current turn: {turn}. "+
@@ -709,9 +710,9 @@ class Bot:
             red_timeouts=red.error_count,
         )
 
-        footer = ("Bots: {bots}\nNoisy: {noise}\nFood: {food}\n").format(
+        footer = ("Bots: {bots}\nExact: {exact}\nFood: {food}\n").format(
                   bots={BOT_I2N[idx]:pos for idx, pos in enumerate(bot_positions)},
-                  noise={BOT_I2N[idx]:state for idx, state in enumerate(bot_noise)},
+                  exact={BOT_I2N[idx]:state for idx, state in enumerate(bot_exact)},
                   food = bot.food + bot.enemy[0].food)
 
         with StringIO() as out:
