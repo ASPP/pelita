@@ -40,6 +40,10 @@ def temp_wd(path):
     finally:
         os.chdir(old)
 
+# dummy bot for setup_game tests
+def dummy_bot(_bot, _state):
+    raise NotImplementedError("This bot does not support moving")
+
 
 def test_too_few_registered_teams():
     test_layout_4 = (
@@ -48,7 +52,7 @@ def test_too_few_registered_teams():
         #b#####    #####x#
         #     . #  .  .#y#
         ################## """)
-    team_1 = stopping_player
+    team_1 = dummy_bot
     with pytest.raises(ValueError):
         setup_game([team_1], layout_dict=layout.parse_layout(test_layout_4), max_rounds=300)
 
@@ -60,7 +64,7 @@ def test_too_many_registered_teams():
         #b#####    #####x#
         #     . #  .  .#y#
         ################## """)
-    team_1 = stopping_player
+    team_1 = dummy_bot
     with pytest.raises(ValueError):
         setup_game([team_1] * 3, layout_dict=layout.parse_layout(test_layout_4), max_rounds=300)
 
@@ -81,7 +85,7 @@ def test_too_many_registered_teams():
 def test_no_food(layout_str):
     with pytest.warns(NoFoodWarning):
         parsed = layout.parse_layout(layout_str)
-        setup_game([stopping_player, stopping_player], layout_dict=parsed, max_rounds=300)
+        setup_game([dummy_bot, dummy_bot], layout_dict=parsed, max_rounds=300)
 
 
 def test_initial_positions_basic():
@@ -327,12 +331,10 @@ def test_multiple_enemies_killing():
     #  xay #
     ########
     """
-    # dummy bots
-    stopping = lambda bot, s: bot.position
 
     parsed_l0 = layout.parse_layout(l0, bots={'y':(3,2)})
     for bot in (0, 2):
-        game_state = setup_game([stopping, stopping], layout_dict=parsed_l0)
+        game_state = setup_game([dummy_bot, dummy_bot], layout_dict=parsed_l0)
 
         game_state['turn'] = bot
         # get position of bots x (and y)
@@ -346,7 +348,7 @@ def test_multiple_enemies_killing():
 
     parsed_l1 = layout.parse_layout(l1, bots={'b':(4,2)})
     for bot in (1, 3):
-        game_state = setup_game([stopping, stopping], layout_dict=parsed_l1)
+        game_state = setup_game([dummy_bot, dummy_bot], layout_dict=parsed_l1)
 
         game_state['turn'] = bot
         # get position of bots 0 (and 2)
@@ -375,12 +377,10 @@ def test_suicide():
     #  xayb#
     ########
     """
-    # dummy bots
-    stopping = lambda bot, s: bot.position
 
     parsed_l0 = layout.parse_layout(l0)
     for bot in (1, 3):
-        game_state = setup_game([stopping, stopping], layout_dict=parsed_l0)
+        game_state = setup_game([dummy_bot, dummy_bot], layout_dict=parsed_l0)
 
         game_state['turn'] = bot
         # get position of bot 2
@@ -396,7 +396,7 @@ def test_suicide():
 
     parsed_l1 = layout.parse_layout(l1)
     for bot in (0, 2):
-        game_state = setup_game([stopping, stopping], layout_dict=parsed_l1)
+        game_state = setup_game([dummy_bot, dummy_bot], layout_dict=parsed_l1)
 
         game_state['turn'] = bot
         # get position of bot 3
@@ -808,9 +808,7 @@ def setup_random_basic_gamestate(*, round=1, turn=0):
     """helper function for testing play turn"""
     parsed_l = layout.parse_layout(small_layout)
 
-    stopping = lambda bot, s: bot.position
-
-    game_state = setup_game([stopping, stopping], layout_dict=parsed_l)
+    game_state = setup_game([stopping_player, stopping_player], layout_dict=parsed_l)
     game_state['round'] = round
     game_state['turn'] = turn
     return game_state
@@ -830,9 +828,7 @@ def setup_specific_basic_gamestate(round=0, turn=0):
 """
     parsed_l = layout.parse_layout(l)
 
-    stopping = lambda bot, s: bot.position
-
-    game_state = setup_game([stopping, stopping], layout_dict=parsed_l)
+    game_state = setup_game([stopping_player, stopping_player], layout_dict=parsed_l)
     game_state['round'] = round
     game_state['turn'] = turn
     return game_state
