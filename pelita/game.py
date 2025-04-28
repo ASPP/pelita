@@ -996,7 +996,7 @@ def check_gameover(game_state, detect_final_move=False):
         # no one has reached the error limit
         pass
     elif num_errors[0] >= game_state['error_limit'] and num_errors[1] >= game_state['error_limit']:
-        # both teams have reached or exeeded the error limit
+        # both teams have reached or exceeded the error limit
         return { 'whowins' : 2, 'gameover' : True}
     else:
         # only one team has reached the error limit

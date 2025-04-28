@@ -188,8 +188,8 @@ class CI_Engine:
 
         for _ in  loop:
             # choose the player with the least number of played game,
-            # mix him with another random player
-            # mis the sides and let them play
+            # match with another random player
+            # mix the sides and let them play
             broken_players = {idx for idx, player in enumerate(self.players) if player.get('error')}
             game_count = [(self.dbwrapper.get_game_count(p['name']), idx) for idx, p in enumerate(self.players)]
             players_sorted = [idx for count, idx in sorted(game_count) if not idx in broken_players]

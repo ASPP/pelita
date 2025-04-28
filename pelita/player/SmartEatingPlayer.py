@@ -1,8 +1,9 @@
 
 from pelita.player import food_eating_player
 
+
 def smart_eating_player(bot, state):
-    # food eating player but won’t do kamikaze (although a sufficently smart
+    # food eating player but won’t do kamikaze (although a sufficiently smart
     # enemy will be able to kill the bot in its next turn as it doesn’t flee)
     next_pos = food_eating_player(bot, state)
 

@@ -61,7 +61,7 @@ def walls_to_graph(walls, shape=None):
     which are not walls.
     Edges in the graph are ((x1,y1), (x2,y2)) tuples of coordinates of two
     adjacent squares. Adjacent means that you can go from one square to one of
-    its adjacent squares by making ore single step (up, down, left, or right).
+    its adjacent squares by making one single step (up, down, left, or right).
     """
     graph = nx.Graph()
     if shape is not None:

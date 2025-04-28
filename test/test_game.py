@@ -1062,7 +1062,7 @@ def test_remote_errors(tmp_path):
     l = maze_generator.generate_maze()
 
     res = run_game([str(syntax_error), str(import_error)], layout_dict=l, max_rounds=20)
-    # Error messages have changed in Python 3.10. We can only do approximate maching
+    # Error messages have changed in Python 3.10. We can only do approximate matching
     assert "SyntaxError" in res['fatal_errors'][0][0].pop('description')
     assert res['fatal_errors'][0][0] == {
         'round': None,
@@ -1072,7 +1072,7 @@ def test_remote_errors(tmp_path):
     # Both teams fail during setup: DRAW
     assert res['whowins'] == 2
     res = run_game(["0", str(import_error)], layout_dict=l, max_rounds=20)
-    # Error messages have changed in Python 3.10. We can only do approximate maching
+    # Error messages have changed in Python 3.10. We can only do approximate matching
     assert "ModuleNotFoundError" in res['fatal_errors'][1][0].pop('description')
     assert res['fatal_errors'][1][0] == {
         'round': None,
@@ -1081,7 +1081,7 @@ def test_remote_errors(tmp_path):
     }
     assert res['whowins'] == 0
     res = run_game([str(import_error), "1"], layout_dict=l, max_rounds=20)
-    # Error messages have changed in Python 3.10. We can only do approximate maching
+    # Error messages have changed in Python 3.10. We can only do approximate matching
     assert "ModuleNotFoundError" in res['fatal_errors'][0][0].pop('description')
     assert res['fatal_errors'][0][0] == {
         'round': None,
