@@ -179,8 +179,6 @@ def test_generate_maze(iteration):
 
     ld = mg.generate_maze(trapped_food, total_food, width, height, rng=rng)
 
-    walls = set(ld["walls"])
-
     border = set()
     for x in range(width):
         border.add((x, 0))

@@ -12,14 +12,13 @@ from pelita.tournament import call_pelita, check_team
 _mswindows = (sys.platform == "win32")
 
 
-class TestLibpelitaUtils:
-    def test_firstNN(self):
-        assert firstNN(None, False, True) == False
-        assert firstNN(True, False, True) == True
-        assert firstNN(None, None, True) == True
-        assert firstNN(None, 2, True) == 2
-        assert firstNN(None, None, None) == None
-        assert firstNN() == None
+def test_firstNN():
+    assert firstNN(None, False, True) is False
+    assert firstNN(True, False, True) is True
+    assert firstNN(None, None, True) is True
+    assert firstNN(None, 2, True) == 2
+    assert firstNN(None, None, None) is None
+    assert firstNN() is None
 
 def test_call_pelita():
     rounds = 200
@@ -61,11 +60,11 @@ def test_bad_seeds(seed, success):
 
     teams = ["pelita/player/StoppingPlayer", "pelita/player/StoppingPlayer"]
     if success:
-        (state, stdout, stderr) = call_pelita(teams, rounds=rounds, viewer='null', size=size, seed=seed)
+        (state, _stdout, _stderr) = call_pelita(teams, rounds=rounds, viewer=viewer, size=size, seed=seed)
         assert state['gameover'] is True
     else:
         with pytest.raises(ValueError):
-                call_pelita(teams, rounds=rounds, viewer='null', size=size, seed=seed)
+                call_pelita(teams, rounds=rounds, viewer=viewer, size=size, seed=seed)
 
 
 def test_check_team_external():

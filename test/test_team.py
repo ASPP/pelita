@@ -127,7 +127,7 @@ def test_track_and_kill_count():
         # therefore, we only update old_deaths for the current team
 
         if state['turn'] is not None:
-            old_deaths[state['turn']] = state['deaths'][state['turn']]
+            old_deaths[state['turn']] = state['deaths'][state['turn']]  # noqa: F821
 
         old_deaths = state['deaths'][:]
         state = play_turn(state)

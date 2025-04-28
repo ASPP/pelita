@@ -35,7 +35,7 @@ def test_simpleclient(zmq_context):
     res = []
     def stopping(bot, state):
         print(bot)
-        res.append(True)
+        res.append("success")
         print(res)
         return bot.position
 
@@ -128,4 +128,4 @@ def test_simpleclient(zmq_context):
     }
     sock.send_json(exit_msg)
 
-    assert res[0] == True
+    assert res[0] == "success"

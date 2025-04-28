@@ -754,7 +754,7 @@ def test_moving_through_maze():
     assert test_seventh_round['bots'] == state['bots']
     assert test_seventh_round['food'] == list(state['food'][0]) + list(state['food'][1])
     assert state['score'] == [game.KILL_POINTS * 2 + 1, game.KILL_POINTS * 2 + 1]
-    assert state['gameover'] == True
+    assert state['gameover'] is True
     assert state['whowins'] == 2
 
     with pytest.raises(ValueError):
@@ -1180,10 +1180,10 @@ def test_apply_move_resets_bot_was_killed(bot_to_move, bot_was_killed_flags):
     assert bot_state['team']['bot_was_killed'] == bot_was_killed_flags[team_id::2]
 
     # apply a dummy move that should reset bot_was_killed for the current bot
-    new_test_state = game.apply_move(test_state, current_bot_position)
+    _new_test_state = game.apply_move(test_state, current_bot_position)
 
     # the bot_was_killed flag should be False again
-    assert test_state['bot_was_killed'][bot_to_move] == False
+    assert test_state['bot_was_killed'][bot_to_move] is False
 
     # the bot_was_killed flags for other bot should still be as before
     assert test_state['bot_was_killed'][other_bot] == bot_was_killed_flags[other_bot]
@@ -1234,7 +1234,7 @@ def test_suicide_win():
     # bot 0 has been reset
     assert state['bots'] == [(1, 2), (3, 1), (1, 3), (4, 3)]
     assert state['food'] == [{(1, 2)}, set()]
-    assert state['gameover'] == True
+    assert state['gameover'] is True
     assert state['whowins'] == 1
     assert state['round'] == 2
     assert state['turn'] == 0
@@ -1263,7 +1263,7 @@ def test_double_suicide():
     # bot 1 has been reset
     assert state['bots'] == [(2, 1), (4, 2), (2, 1), (3, 2)]
     assert state['food'] == [{(1, 2)}, {(4, 2)}]
-    assert state['gameover'] == False
+    assert state['gameover'] is False
     assert state['round'] == 1
     assert state['turn'] == 1
     # only a single KILL_POINT has been given
