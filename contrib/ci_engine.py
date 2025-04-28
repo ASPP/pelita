@@ -56,8 +56,8 @@ from rich.console import Console
 from rich.table import Table
 
 from pelita.network import ZMQClientError
-from pelita.tournament import check_team, call_pelita
 from pelita.scripts.script_utils import start_logging
+from pelita.tournament import call_pelita, check_team
 
 _logger = logging.getLogger(__name__)
 
