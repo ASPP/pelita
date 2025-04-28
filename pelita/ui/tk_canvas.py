@@ -18,6 +18,7 @@ except ImportError:
 
 import tkinter.font
 
+from .. import layout
 from ..game import next_round_turn
 from ..team import _ensure_list_tuples
 from .tk_sprites import (
@@ -36,7 +37,6 @@ from .tk_sprites import (
     Wall
 )
 from .tk_utils import wm_delete_window_handler
-from .. import layout
 
 _logger = logging.getLogger(__name__)
 

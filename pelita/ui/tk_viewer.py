@@ -3,8 +3,8 @@ import logging
 import os
 import shutil
 import sys
-
 import tkinter
+
 import zmq
 
 from .tk_canvas import TkApplication

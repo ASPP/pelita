@@ -8,17 +8,16 @@ import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
-from rich.console import Console
-from rich.markup import escape
-from rich.prompt import Prompt
 import zmq
+from rich.console import Console
+from rich.prompt import Prompt
 
 import pelita
-from .script_utils import start_logging
-
 from pelita.network import PELITA_PORT
 # TODO: The check_team option
 from pelita.tournament import check_team
+
+from .script_utils import start_logging
 
 # silence stupid warnings from logging module
 logging.root.manager.emittedNoHandlerWarning = 1
@@ -28,8 +27,9 @@ _logger = logging.getLogger(__name__)
 def scan(team_spec):
     if team_spec != "SCAN":
         return team_spec
+    from queue import Empty, Queue
+
     from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf
-    from queue import Queue, Empty
 
     SCAN_TIME = 5 # seconds
 

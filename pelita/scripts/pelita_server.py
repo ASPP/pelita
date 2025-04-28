@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
-from dataclasses import dataclass
 import json
 import logging
-
 import queue
 import shlex
 import signal
@@ -12,17 +10,19 @@ import sys
 import time
 import urllib
 import urllib.parse
-from typing import Optional, Dict, List
-from urllib.parse import urlparse
+from dataclasses import dataclass
 from random import Random
+from typing import Dict, List, Optional
+from urllib.parse import urlparse
 from weakref import WeakValueDictionary
 
 import click
-from rich import print as pprint
-from rich.progress import Progress, SpinnerColumn, MofNCompleteColumn, BarColumn, TextColumn, TimeElapsedColumn, Task
 import yaml
 import zeroconf
 import zmq
+from rich import print as pprint
+from rich.progress import (BarColumn, MofNCompleteColumn, Progress,
+                           SpinnerColumn, Task, TextColumn, TimeElapsedColumn)
 
 from ..network import PELITA_PORT
 from .script_utils import start_logging

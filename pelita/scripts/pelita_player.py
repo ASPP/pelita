@@ -5,14 +5,14 @@ import hashlib
 import importlib
 import json
 import logging
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import click
 import zmq
 
-from ..team import make_team
 from ..network import json_default_handler
+from ..team import make_team
 from .script_utils import start_logging
 
 _logger = logging.getLogger(__name__)

@@ -1,21 +1,23 @@
 """This is the game module. Written in 2019 in Born by Carlos and Lisa."""
 
 import logging
+import math
 import os
 import subprocess
 import sys
 import time
-import math
 from warnings import warn
 
 from . import layout
-from .exceptions import FatalException, NonFatalException, NoFoodWarning, PlayerTimeout
-from .gamestate_filters import noiser, update_food_age, relocate_expired_food
-from .layout import initial_positions, get_legal_positions
-from .network import setup_controller, ZMQPublisher
 from .base_utils import default_rng
+from .exceptions import (FatalException, NoFoodWarning, NonFatalException,
+                         PlayerTimeout)
+from .gamestate_filters import noiser, relocate_expired_food, update_food_age
+from .layout import get_legal_positions, initial_positions
+from .network import ZMQPublisher, setup_controller
 from .team import make_team
-from .viewer import ProgressViewer, AsciiViewer, ReplyToViewer, ReplayWriter, ResultPrinter
+from .viewer import (AsciiViewer, ProgressViewer, ReplayWriter, ReplyToViewer,
+                     ResultPrinter)
 
 _logger = logging.getLogger(__name__)
 _mswindows = (sys.platform == "win32")

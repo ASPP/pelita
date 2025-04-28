@@ -1,15 +1,15 @@
 from random import Random
 
-from .team import make_bots, create_homezones
-from .game import split_food, SHADOW_DISTANCE
-from .layout import parse_layout, BOT_N2I, initial_positions
-from .gamestate_filters import manhattan_dist
-from .maze_generator import generate_maze
 from .base_utils import default_rng
+from .game import SHADOW_DISTANCE, split_food
+from .gamestate_filters import manhattan_dist
+from .layout import BOT_N2I, initial_positions, parse_layout
+from .maze_generator import generate_maze
+from .team import create_homezones, make_bots
 
 # this import is needed for backward compatibility, do not remove or you'll break
 # older clients!
-from .team import walls_to_graph
+from .team import walls_to_graph  # isort: skip
 
 
 # this is a dumbed-down version of pelita.game.run_game, useful to be exposed to the

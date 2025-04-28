@@ -9,13 +9,14 @@ from pathlib import Path
 from random import Random
 from urllib.parse import urlparse
 
-import zmq
 import networkx as nx
+import zmq
 
 from . import layout
 from .exceptions import PlayerDisconnected, PlayerTimeout
-from .layout import layout_as_str, BOT_I2N, wall_dimensions
-from .network import ZMQClientError, ZMQConnection, ZMQReplyTimeout, ZMQUnreachablePeer, PELITA_PORT
+from .layout import BOT_I2N, layout_as_str, wall_dimensions
+from .network import (PELITA_PORT, ZMQClientError, ZMQConnection,
+                      ZMQReplyTimeout, ZMQUnreachablePeer)
 
 _logger = logging.getLogger(__name__)
 
