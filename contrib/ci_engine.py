@@ -192,7 +192,7 @@ class CI_Engine:
             # mix the sides and let them play
             broken_players = {idx for idx, player in enumerate(self.players) if player.get('error')}
             game_count = [(self.dbwrapper.get_game_count(p['name']), idx) for idx, p in enumerate(self.players)]
-            players_sorted = [idx for count, idx in sorted(game_count) if not idx in broken_players]
+            players_sorted = [idx for count, idx in sorted(game_count) if idx not in broken_players]
             a, rest = players_sorted[0], players_sorted[1:]
             b = rng.choice(rest)
             players = [a, b]
@@ -246,17 +246,23 @@ class CI_Engine:
         """
         win, loss, draw = 0, 0, 0
         p1_name = self.players[idx]['name']
-        p2_name = None if idx2 == None else self.players[idx2]['name']
+        p2_name = None if idx2 is None else self.players[idx2]['name']
         relevant_results = self.dbwrapper.get_results(p1_name, p2_name)
         for p1, p2, r in relevant_results:
             if (idx2 is None and p1_name == p1) or (idx2 is not None and p1_name == p1 and p2_name == p2):
-                if r == 0: win += 1
-                elif r == 1: loss += 1
-                elif r == -1: draw += 1
+                if r == 0:
+                    win += 1
+                elif r == 1:
+                    loss += 1
+                elif r == -1:
+                    draw += 1
             if (idx2 is None and p1_name == p2) or (idx2 is not None and p1_name == p2 and p2_name == p1):
-                if r == 1: win += 1
-                elif r == 0: loss += 1
-                elif r == -1: draw += 1
+                if r == 1:
+                    win += 1
+                elif r == 0:
+                    loss += 1
+                elif r == -1:
+                    draw += 1
         return win, loss, draw
 
     def get_errorcount(self, idx):
