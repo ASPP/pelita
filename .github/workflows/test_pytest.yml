@@ -82,8 +82,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: astral-sh/ruff-action@v3
-      with:
-        src: pelita/
 
   tournament:
     # The tournament does not need to run everywhere.

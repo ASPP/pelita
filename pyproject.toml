@@ -68,6 +68,9 @@ omit = [
     "test/testplayers/*",
 ]
 
+[tool.ruff]
+extend-exclude = ["test/fixtures"]
+
 [tool.ruff.lint]
 select = ["E", "F"]
 ignore = [
