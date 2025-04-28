@@ -265,3 +265,10 @@ def test_generate_maze_food(iteration):
     x_food = {x for (x, y) in ld['food']}
     assert width//2 not in x_food
     assert width//2 - 1 not in x_food
+
+def test_maze_generation_roundtrip():
+    maze = mg.generate_maze()
+    maze_str = pl.layout_as_str(**maze)
+    maze_from_str = pl.parse_layout(maze_str)
+
+    assert maze == maze_from_str

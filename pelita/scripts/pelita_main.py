@@ -14,7 +14,6 @@ from rich.prompt import Prompt
 import zmq
 
 import pelita
-from pelita.game import DEAD_ENDS
 from .script_utils import start_logging
 
 from pelita.network import PELITA_PORT
@@ -167,18 +166,28 @@ def scan_server(team_spec):
             return None
 
 
-def geometry_string(s):
-    """Get a X-style geometry definition and return a tuple.
+def w_h_string(s):
+    """Parse WxH strings and return a tuple.
 
     600x400 -> (600,400)
     """
+    if s in pelita.game.MSIZE:
+        return pelita.game.MSIZE[s]
     try:
         x_string, y_string = s.split('x')
-        geometry = (int(x_string), int(y_string))
+        w_h = (int(x_string), int(y_string))
     except ValueError:
-        msg = "%s is not a valid geometry specification" %s
+        msg = "%s is not a valid specification" %s
         raise argparse.ArgumentTypeError(msg) from None
-    return geometry
+    return w_h
+
+def parse_food_string(s):
+    try:
+        trapped, total = [int(item) for item in s.split(':')]
+    except ValueError:
+        msg = "%s is not a valid food specification" %s
+        raise argparse.ArgumentTypeError(msg) from None
+    return trapped, total
 
 
 def long_help(s):
@@ -208,14 +217,14 @@ parser.add_argument('--replay', help=long_help('Replay a dumped game'),
                     metavar='REPLAYFILE', dest='replayfile', const='pelita.dump', nargs='?')
 parser.add_argument('--store-output', help=long_help('Write all player’s stdout/stderr to the given folder (must exist)'),
                     metavar='FOLDER')
-parser.add_argument('--list-layouts', action='store_true',
-                    help='List all available built-in layouts.')
 parser.add_argument('--check-team', action="store_true",
                     help=long_help('Check that the team is valid (on first sight) and print its name.'))
 parser.add_argument('--append-blue', type=str, metavar='INFO', default=None,
                     help=long_help('Append info about the blue team (such as group id).'))
 parser.add_argument('--append-red', type=str, metavar='INFO', default=None,
                     help=long_help('Append info about the red team (such as group id).'))
+parser.add_argument('--store-layout', help='Generate layout and store it in LAYOUTFILE',
+                    metavar='LAYOUTFILE', dest='layoutfile')
 
 game_settings = parser.add_argument_group('Game settings')
 game_settings.add_argument('--rounds', type=int, default=300,
@@ -224,16 +233,16 @@ game_settings.add_argument('--seed', type=int, metavar='SEED', default=None,
                            help='Initialize the random number generator with SEED.')
 game_settings.add_argument('--allow-camping', const=True, action='store_const',
                            help='Food does not age when in a bot’s shadow')
+game_settings.add_argument('--food', type=parse_food_string, metavar="T:F", default=None,
+                        help="Distribute F food pellets for each team, with T being the number "
+                        "of food pellets that are \"trapped\" within tunnels and chambers. "
+                        " If not set use maze size specific defaults.")
 
 layout_opt = game_settings.add_mutually_exclusive_group()
-layout_opt.add_argument('--layout', metavar='LAYOUT',
-                        help='Use maze layout specified in LAYOUT. LAYOUT can be'
-                             ' a file containing a valid layout or the name of a '
-                             'built-in layout. Use --list-layouts to get a list '
-                             'of all available layouts.')
-layout_opt.add_argument('--size', metavar='STRING', default='normal',
+layout_opt.add_argument('--layout', metavar='FILENAME', help='Use layout from FILENAME')
+layout_opt.add_argument('--size', type=w_h_string, metavar="STRING", default='normal',
                         help="Pick a random maze layout of specified size."
-                        " Possible sizes: 'small' (16x8), 'normal' (32x16), 'big' (64x32), 'all' (any of the previous). Default: 'normal'")
+                        " Possible sizes: 'small' (16x8), 'normal' (32x16), 'big' (64x32), 'WxH' where W and H are integers. Default: 'normal'")
 
 timeout_opt = game_settings.add_mutually_exclusive_group()
 timeout_opt.add_argument('--timeout', type=float, metavar="SEC",
@@ -249,7 +258,7 @@ game_settings.add_argument('--stop-after-kill', dest='stop_after_kill', action='
                            help='Stop when a bot has been killed.')
 
 viewer_settings = parser.add_argument_group('Viewer settings')
-viewer_settings.add_argument('--geometry', type=geometry_string, metavar='NxM',
+viewer_settings.add_argument('--geometry', type=w_h_string, metavar='NxM',
                     help='Set initial size of the game window.')
 viewer_settings.add_argument('--fullscreen', const=True, action='store_const',
                     help='Make the game window run fullscreen')
@@ -299,10 +308,6 @@ Team Specification:
         pelita my_stopping_bots.py my_stopping_bots.py
 
     Demo players can be found at https://github.com/ASPP/pelita_template
-
-Layout specification:
-    If --layout is not specified, the maze is chosen at random from the pool of
-    built-in normal-sized layouts. You can change this pool by using --size.
 """
 
 
@@ -314,13 +319,6 @@ def main():
 
     if args.version:
         print("Pelita {}".format(pelita.__version__))
-        sys.exit(0)
-
-    if args.list_layouts:
-        layouts = pelita.layout.get_available_layouts(size='all', dead_ends=False)
-        layouts += pelita.layout.get_available_layouts(size='all', dead_ends=True)
-        layouts.sort()
-        print('\n'.join(layouts))
         sys.exit(0)
 
     if args.log:
@@ -422,7 +420,6 @@ def main():
 
     if args.seed is None:
         seed = random.randint(0, sys.maxsize)
-        print("Replay this game with --seed {seed}".format(seed=seed))
     else:
         seed = args.seed
 
@@ -432,23 +429,41 @@ def main():
         # first check if the given layout is a file
         layout_path = Path(args.layout)
         if layout_path.exists():
-            # OK, this is a valid file, load it
-            layout_name = str(layout_path)
-            # use the basename of the path as a layout name
-            layout_name = layout_path.parts[-1]
             layout_string = layout_path.read_text()
+            layout_dict = pelita.layout.parse_layout(layout_string)
         else:
-            # if the given layout is not a path, we assume it is the name of one
-            # of the built-in paths
-            layout_name = args.layout
-            layout_string = pelita.layout.get_layout_by_name(args.layout)
+            raise FileNotFoundError(f'Layout file "{layout_path}" does not exist.')
     else:
-        layout_name, layout_string = pelita.layout.get_random_layout(args.size, rng=rng, dead_ends=DEAD_ENDS)
+        width, height = args.size
 
-    print("Using layout '%s'" % layout_name)
+        if args.food:
+            trapped_food, total_food = args.food
+        elif (width, height) in pelita.game.NFOOD:
+            trapped_food, total_food = pelita.game.NFOOD[(width, height)]
+        else:
+            raise ValueError('--food option must be specified if a custom maze size is set')
 
-    layout_dict = pelita.layout.parse_layout(layout_string)
-    pelita.game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, layout_name=layout_name, rng=rng,
+        layout_dict = pelita.maze_generator.generate_maze(trapped_food=trapped_food,
+                                                          total_food=total_food,
+                                                          width=width,
+                                                          height=height, rng=rng)
+
+    if args.layoutfile:
+        # We only want to print this, when no seed has been given.
+        if args.seed is None and not args.layout:
+            print(f"Regenerate this layout with --seed {seed}")
+        if args.layoutfile == '-':
+            print(pelita.layout.layout_as_str(**layout_dict))
+        else:
+            with open(args.layoutfile, 'wt') as layoutfile:
+                layoutfile.write(pelita.layout.layout_as_str(**layout_dict))
+        sys.exit(0)
+
+    if args.seed is None:
+        # We only want to print this, when no seed has been given.
+        print(f"Replay this game with --seed {seed}")
+
+    pelita.game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, rng=rng,
                          allow_camping=args.allow_camping, timeout_length=args.timeout_length, error_limit=args.error_limit,
                          viewers=viewers,
                          store_output=args.store_output,

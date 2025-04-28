@@ -39,8 +39,20 @@ MAX_FOOD_AGE = 30
 #: Food pellet shadow distance
 SHADOW_DISTANCE = 1
 
-#: Proportion of layouts with dead ends
-DEAD_ENDS = 0.25
+#: Default maze sizes
+MSIZE = {
+         'small' : (16, 8),
+         'normal': (32, 16),
+         'big'   : (64, 32),
+        }
+
+#: Food pellets (trapped_food, total_food) on left side of the maze for
+#  default maze sizes
+NFOOD = {
+         (16, 8) : (3, 10),
+         (32, 16): (10, 30),
+         (64, 32): (20, 60),
+        }
 
 class TkViewer:
     def __init__(self, *, address, controller, geometry=None, delay=None,
@@ -91,7 +103,7 @@ def controller_exit(state, await_action='play_step'):
         elif todo in ('play_step', 'set_initial'):
             return False
 
-def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300,
+def run_game(team_specs, *, layout_dict, max_rounds=300,
              rng=None, allow_camping=False, error_limit=5, timeout_length=3,
              viewers=None, store_output=False,
              team_names=(None, None), team_infos=(None, None),
@@ -116,9 +128,6 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300,
 
     layout_dict : dict
                a dictionary representing a maze, as returned by pelita.layout.parse_layout
-
-    layout_name : str
-               a name for the layout (will be used in the UI).
 
     max_rounds : int
               The maximum number of rounds to play before the game is over. Default: 300.
@@ -194,8 +203,7 @@ def run_game(team_specs, *, layout_dict, layout_name="", max_rounds=300,
     # in background games
 
     # we create the initial game state
-    state = setup_game(team_specs, layout_dict=layout_dict,
-                       layout_name=layout_name, max_rounds=max_rounds,
+    state = setup_game(team_specs, layout_dict=layout_dict, max_rounds=max_rounds,
                        allow_camping=allow_camping,
                        error_limit=error_limit, timeout_length=timeout_length,
                        rng=rng, viewers=viewers,
@@ -267,7 +275,7 @@ def setup_viewers(viewers, print_result=True):
     return viewer_state
 
 
-def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", rng=None,
+def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
                allow_camping=False, error_limit=5, timeout_length=3,
                viewers=None, store_output=False,
                team_names=(None, None), team_infos=(None, None),
@@ -375,8 +383,6 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, layout_name="", rng=N
         shadow_distance=SHADOW_DISTANCE,
 
         ### Informative
-        #: Name of the layout, str
-        layout_name=layout_name,
 
         #: Name of the teams. Tuple of str
         team_names=team_names,

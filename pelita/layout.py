@@ -1,120 +1,10 @@
 
 import io
-import os
-import importlib.resources as importlib_resources
-
-from .base_utils import default_rng
 
 # bot to index conversion
 BOT_N2I = {'a': 0, 'b': 2, 'x': 1, 'y': 3}
 BOT_I2N = {0: 'a', 2: 'b', 1: 'x', 3: 'y'}
 
-
-def get_random_layout(size='normal', dead_ends=0, rng=None):
-    """ Return a random layout string from the available ones.
-
-    Parameters
-    ----------
-    size : str
-        only return layouts of size 'small', 'normal', 'big', 'all'.
-        Default is 'normal'.
-
-        'small'  -> width=16, height=8,  food=10
-        'normal' -> width=32, height=16, food=30
-        'big'    -> width=64, height=32, food=60
-        'all'    -> all of the above
-
-    dead_ends: float
-        Return a layout from the collection with dead ends with probabilty dead_ends.
-        By default never return a layout with dead_ends.
-
-    Returns
-    -------
-    layout : tuple(str, str)
-        the name of the layout, a random layout string
-
-    """
-
-    # set the random state
-    rng = default_rng(rng)
-
-    if dead_ends and rng.random() < dead_ends:
-        layouts_names = get_available_layouts(size=size, dead_ends=True)
-    else:
-        layouts_names = get_available_layouts(size=size, dead_ends=False)
-    layout_choice = rng.choice(layouts_names)
-    return layout_choice, get_layout_by_name(layout_choice)
-
-def get_available_layouts(size='normal', dead_ends=False):
-    """Return the names of the built-in layouts.
-
-    Parameters
-    ----------
-    size : str
-        only return layouts of size 'small', 'normal', 'big', 'all'.
-        Default is 'normal'.
-
-        'small'  -> width=16, height=8,  food=10
-        'normal' -> width=32, height=16, food=30
-        'big'    -> width=64, height=32, food=60
-        'all'    -> all of the above
-
-    dead_ends: bool
-        if set, only return layouts from the collection with dead_ends, otherwise
-        only return layouts without dead_ends
-
-    Returns
-    -------
-    layout_names : list of str
-        the available layouts
-
-    """
-    # loop in layouts directory and look for layout files
-    valid = ('small', 'normal', 'big', 'all')
-    if size not in valid:
-        raise ValueError(f"Invalid layout size ('{size}' given). Valid: {valid}")
-    if size == 'all':
-        size = ''
-
-    av_layouts = []
-    for file in os.listdir(importlib_resources.files('pelita._layouts')):
-        if dead_ends:
-            cond = file.endswith('.layout') and size in file and 'dead_ends' in file
-        else:
-            cond = file.endswith('.layout') and size in file and 'dead_ends' not in file
-        if cond:
-            av_layouts.append(file.removesuffix('.layout'))
-
-    return sorted(av_layouts)
-
-def get_layout_by_name(layout_name):
-    """Get a built-in layout by name
-
-    Parameters
-    ----------
-    layout_name : str
-        a valid layout name
-
-    Returns
-    -------
-    layout_str : str
-        the layout as a string
-
-    Raises
-    ------
-    KeyError
-        if the layout_name is not known
-
-    See Also
-    --------
-    get_available_layouts
-    """
-    try:
-        return importlib_resources.files('pelita._layouts').joinpath(layout_name + '.layout').read_text()
-    except FileNotFoundError:
-        # This happens if layout_name is not found in the layouts directory
-        # reraise as ValueError with appropriate error message.
-        raise ValueError(f"Layout: '{layout_name}' is not known.") from None
 
 def parse_layout(layout_str, food=None, bots=None, strict=True):
     """Parse a layout string.
@@ -132,15 +22,15 @@ def parse_layout(layout_str, food=None, bots=None, strict=True):
 
 
     Return a dict
-        {'walls': set_of_wall_coordinates,
-         'food' : list_of_food_coordinates,
-         'bots'  : list_of_bot_coordinates in the order (a,x,b,y),
+        {'walls': sorted tuple of wall coordinates,
+         'food' : list of food coordinates,
+         'bots'  : list of bot coordinates in the order [a, x, b, y],
          'shape': tuple of (height, width) of the layout}
 
     In the example above:
-    {'walls': {(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
+    {'walls': ((0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
                (2, 4), (3, 0), (3, 2), (3, 4), (4, 0), (4, 2), (4, 4), (5, 0),
-               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)},
+               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)),
      'food': [(3, 3), (4, 1)],
      'bots': [(1, 1), (6, 2), (1, 2), (6, 3)],
      'shape': (8, 4)}
@@ -276,9 +166,9 @@ def layout_as_str(*, walls, food=None, bots=None, shape=None):
     Example:
 
     Given:
-    {'walls': {(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
+    {'walls': [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
                (2, 4), (3, 0), (3, 2), (3, 4), (4, 0), (4, 2), (4, 4), (5, 0),
-               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)},
+               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)],
      'food': [(3, 3), (4, 1)],
      'bots': [(1, 1), (6, 2), (1, 2), (6, 3)],
      'shape': (8, 4)}
@@ -296,6 +186,8 @@ def layout_as_str(*, walls, food=None, bots=None, shape=None):
     The shape is optional. When it does not match the borders of the maze, a ValueError
     is raised.
     """
+    # make walls a set for faster access
+    walls = set(walls)
     width, height = wall_dimensions(walls)
 
     if shape is not None and not (width, height) == shape:
@@ -303,7 +195,10 @@ def layout_as_str(*, walls, food=None, bots=None, shape=None):
 
     # initialized empty containers
     if food is None:
-        food = []
+        food = set()
+    else:
+        food = set(food)
+
     if bots is None:
         bots = []
 

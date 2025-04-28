@@ -3,7 +3,8 @@ import time
 import pytest
 import networkx
 
-from pelita.layout import parse_layout, get_random_layout, initial_positions
+from pelita.layout import parse_layout, initial_positions
+from pelita.maze_generator import generate_maze
 from pelita.game import run_game, setup_game, play_turn, SHADOW_DISTANCE
 from pelita.gamestate_filters import manhattan_dist
 
@@ -330,8 +331,7 @@ def test_eaten_flag_suicide(bot_to_move):
 @pytest.mark.parametrize('_n_test', range(10))
 def test_initial_position(_n_test):
     """ Test that out test team receives the correct initial positions."""
-    layout_name, layout_string = get_random_layout()
-    l = parse_layout(layout_string)
+    l = generate_maze()
     initial_pos = initial_positions(l['walls'], l['shape'])
 
     def move(bot, state):

@@ -41,7 +41,7 @@ def remote_teams():
 
 
 def test_remote_call_pelita(remote_teams):
-    res, stdout, stderr = call_pelita(remote_teams, rounds=30, size='small', viewer='null', seed='2')
+    res, stdout, stderr = call_pelita(remote_teams, rounds=10, size='small', viewer='null', seed='2')
     assert res['whowins'] == 1
     assert res['fatal_errors'] == [[], []]
     # errors for call_pelita only contains the last thrown error, hence None

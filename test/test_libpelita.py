@@ -1,5 +1,6 @@
 import pytest
 
+import re
 import subprocess
 import sys
 import tempfile
@@ -113,3 +114,97 @@ def test_write_replay_is_idempotent():
             # check that f and g have the same content
             assert first_run == second_run
 
+
+@pytest.mark.skipif(_mswindows, reason="NamedTemporaryFiles cannot be used in another process")
+def test_store_layout():
+    # TODO: The store layout functionality could be added to call_pelita
+    # so we don’t have to run the subprocess ourselves
+    with tempfile.NamedTemporaryFile() as f:
+        # run a quick game and save the game states to f
+
+        cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
+                '--store-layout', f.name,
+                '--size', 'small',
+                '--seed', '12345',
+                '--null']
+
+        subprocess.run(cmd, check=True)
+
+        f.seek(0)
+        first_run = f.read()
+        # check that we received something and it may be a layout
+        assert len(first_run) > 0
+        assert first_run[:17] == b"#" * 16 + b"\n"
+
+        # TODO check that the layout can be loaded again
+
+    # Check that the same seed generates the same layout
+    with tempfile.NamedTemporaryFile() as g:
+        cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
+                '--store-layout', g.name,
+                '--size', 'small',
+                '--seed', '12345',
+                '--null']
+
+        subprocess.run(cmd, check=True)
+
+        g.seek(0)
+        second_run = g.read()
+        # check that f and g have the same content
+        assert first_run == second_run
+
+
+def test_random_layout_seed_is_random():
+    # NB: Test relies on randomness. It should be EXTREMELY unlikely that this test fails
+
+    # TODO: The store layout functionality could be added to call_pelita
+    # so we don’t have to run the subprocess ourselves
+
+    cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
+            '--store-layout', '-',
+            '--size', 'small',
+            '--null']
+
+    res = subprocess.run(cmd, check=True, text=True, stdout=subprocess.PIPE)
+    lines = res.stdout.split('\n')
+    seed0 = re.match(r'.+--seed (\d+)', lines[0]).group(1)
+
+    # seed can be converted to a number
+    assert int(seed0) >= 0
+
+    res = subprocess.run(cmd, check=True, text=True, stdout=subprocess.PIPE)
+    lines = res.stdout.split('\n')
+    seed1 = re.match(r'.+--seed (\d+)', lines[0]).group(1)
+
+    # seed can be converted to a number
+    assert int(seed1) >= 0
+
+    assert seed0 != seed1
+
+
+def test_random_layout_seed_is_stable():
+    # TODO: The store layout functionality could be added to call_pelita
+    # so we don’t have to run the subprocess ourselves
+
+    cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
+            '--store-layout', '-',
+            '--size', 'small',
+            '--null']
+
+    res = subprocess.run(cmd, check=True, text=True, stdout=subprocess.PIPE)
+    lines = res.stdout.split('\n')
+    seed = re.match(r'.+--seed (\d+)', lines[0]).group(1)
+
+    layout_str = lines[1:]
+    # check that we received something and it may be a layout
+    assert layout_str[0] == "#" * 16
+
+    # Check that the same seed generates the same layout
+    cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
+            '--store-layout', '-',
+            '--size', 'small',
+            '--seed', seed,
+            '--null']
+
+    res = subprocess.run(cmd, check=True, text=True, stdout=subprocess.PIPE)
+    assert res.stdout.split('\n') == layout_str
