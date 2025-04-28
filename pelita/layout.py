@@ -22,15 +22,15 @@ def parse_layout(layout_str, food=None, bots=None, strict=True):
 
 
     Return a dict
-        {'walls': set_of_wall_coordinates,
-         'food' : list_of_food_coordinates,
-         'bots'  : list_of_bot_coordinates in the order (a,x,b,y),
+        {'walls': sorted tuple of wall coordinates,
+         'food' : list of food coordinates,
+         'bots'  : list of bot coordinates in the order [a, x, b, y],
          'shape': tuple of (height, width) of the layout}
 
     In the example above:
-    {'walls': {(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
+    {'walls': ((0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0),
                (2, 4), (3, 0), (3, 2), (3, 4), (4, 0), (4, 2), (4, 4), (5, 0),
-               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)},
+               (5, 4), (6, 0), (6, 4), (7, 0), (7, 1), (7, 2), (7, 3), (7, 4)),
      'food': [(3, 3), (4, 1)],
      'bots': [(1, 1), (6, 2), (1, 2), (6, 3)],
      'shape': (8, 4)}
