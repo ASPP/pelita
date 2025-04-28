@@ -172,7 +172,7 @@ def call_pelita(team_specs, *, rounds, size, viewer, seed, team_infos=None, writ
                     try:
                         game_state = json.loads(reply_sock.recv_string())
                         finished = game_state.get("gameover", None)
-                        whowins = game_state.get("whowins", None)
+                        _whowins = game_state.get("whowins", None)
                         if finished:
                             final_game_state = game_state
                             # The game in the subprocess has finished but the process
@@ -338,7 +338,7 @@ class Config:
             cmd = shlex.split(self.speaker)
             full_cmd = [*cmd, tmp.name]
             try:
-                festival = subprocess.run(full_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+                _speaker_proc = subprocess.run(full_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
             except FileNotFoundError:
                 # If we could not find the executable then there is not need to keep on trying.
                 # Disabling speak. (Although self.say() will still attempt to speak.)

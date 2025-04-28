@@ -115,7 +115,7 @@ def zeroconf_register(zc, address, port, team_spec, path, print=print):
         try:
             zc.register_service(info)
             return info
-        except zeroconf.NonUniqueNameException as e:
+        except zeroconf.NonUniqueNameException:
             print(f"Name {full_name} already taken. Trying alternative")
             continue
 

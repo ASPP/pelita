@@ -113,14 +113,14 @@ def setup():
 
         try:
             which_say = sound["say"]
-            sound_options.append("(s)ay ({})".format(sound["say"]))
+            sound_options.append("(s)ay ({})".format(which_say))
             keys += "s"
         except KeyError:
             pass
 
         try:
             which_say = sound["flite"]
-            sound_options.append("(f)flite ({})".format(sound["flite"]))
+            sound_options.append("(f)flite ({})".format(which_say))
             keys += "f"
         except KeyError:
             pass

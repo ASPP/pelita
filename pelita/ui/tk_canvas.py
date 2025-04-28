@@ -21,21 +21,19 @@ import tkinter.font
 from ..game import next_round_turn
 from ..team import _ensure_list_tuples
 from .tk_sprites import (
-    BotSprite,
-    Food,
-    Wall,
-    Arrow,
-    RED,
     BLUE,
-    YELLOW,
     GREY,
     LIGHT_GREY,
+    # LIGHT_BLUE,
+    # LIGHT_RED,
+    RED,
     SELECTED,
-    BROWN,
-    LIGHT_BLUE,
-    LIGHT_RED,
     STRONG_BLUE,
     STRONG_RED,
+    Arrow,
+    BotSprite,
+    Food,
+    Wall
 )
 from .tk_utils import wm_delete_window_handler
 from .. import layout
@@ -471,14 +469,15 @@ class TkApplication:
         if not self._grid_enabled:
             return
 
-        scale = self.mesh_graph.half_scale_x * 0.01
+        # we don’t use scaling for the grid width currently
+        grid_width = 0.01
 
         def draw_line(x0, y0, x1, y1):
             x0_ = self.mesh_graph.mesh_to_screen_x(x0, 0)
             y0_ = self.mesh_graph.mesh_to_screen_y(y0, 0)
             x1_ = self.mesh_graph.mesh_to_screen_x(x1, 0)
             y1_ = self.mesh_graph.mesh_to_screen_y(y1, 0)
-            self.ui_game_canvas.create_line(x0_, y0_, x1_, y1_, width=0.01, fill="#884488", tags="grid")
+            self.ui_game_canvas.create_line(x0_, y0_, x1_, y1_, width=grid_width, fill="#884488", tags="grid")
 
         for x in range(self.mesh_graph.mesh_width + 1):
             draw_line(x - 0.5, -0.5, x - 0.5, self.mesh_graph.mesh_height - 0.5)
@@ -532,8 +531,6 @@ class TkApplication:
 
         def draw_box(pos, fill_col):
             ul = self.mesh_graph.mesh_to_screen(pos, (-1, -1))
-            ur = self.mesh_graph.mesh_to_screen(pos, (1, -1))
-            ll = self.mesh_graph.mesh_to_screen(pos, (-1, 1))
             lr = self.mesh_graph.mesh_to_screen(pos, (1, 1))
 
             self.ui_game_canvas.create_rectangle(*ul, *lr, width=0, fill=fill_col, tags=("overlay",))
@@ -556,18 +553,14 @@ class TkApplication:
             # game has not started yet or we are in layout-only mode
             return
 
-        scale = self.mesh_graph.half_scale_x * 0.1
-
         def draw_box(pos):
             ul = self.mesh_graph.mesh_to_screen(pos, (-1, -1))
-            ur = self.mesh_graph.mesh_to_screen(pos, (1, -1))
-            ll = self.mesh_graph.mesh_to_screen(pos, (-1, 1))
             lr = self.mesh_graph.mesh_to_screen(pos, (1, 1))
 
             self.ui_game_canvas.create_rectangle(*ul, *lr, width=2, outline='#111', tags=("line_of_sight",))
 
         line_col = STRONG_BLUE if bot % 2 == 0 else STRONG_RED
-        fill_col = LIGHT_BLUE if bot % 2 == 0 else LIGHT_RED
+        # fill_col = LIGHT_BLUE if bot % 2 == 0 else LIGHT_RED
 
         try:
             old_pos = tuple(game_state['requested_moves'][bot]['previous_position'])
@@ -601,8 +594,6 @@ class TkApplication:
 
         def draw_box(pos, fill_col):
             ul = self.mesh_graph.mesh_to_screen(pos, (-1, -1))
-            ur = self.mesh_graph.mesh_to_screen(pos, (1, -1))
-            ll = self.mesh_graph.mesh_to_screen(pos, (-1, 1))
             lr = self.mesh_graph.mesh_to_screen(pos, (1, 1))
 
             self.ui_game_canvas.create_rectangle(*ul, *lr, width=0, fill=fill_col, tags=("line_of_sight", "area_of_sight"))
@@ -655,15 +646,11 @@ class TkApplication:
             # game has not started yet or we are in layout-only mode
             return
 
-        border_col = "#000"
+        # border_col = "#000"
         fill_col = LIGHT_GREY
-
-        scale = self.mesh_graph.half_scale_x * 0.1
 
         def draw_box(pos):
             ul = self.mesh_graph.mesh_to_screen(pos, (-1, -1))
-            ur = self.mesh_graph.mesh_to_screen(pos, (1, -1))
-            ll = self.mesh_graph.mesh_to_screen(pos, (-1, 1))
             lr = self.mesh_graph.mesh_to_screen(pos, (1, 1))
 
             self.ui_game_canvas.create_rectangle(*ul, *lr, width=2, outline='#111', tags=("bot_shadow",))
@@ -688,32 +675,30 @@ class TkApplication:
         sight_distance = game_state["shadow_distance"]
         # starting from old_pos, iterate over all positions that are up to sight_distance
         # steps away and put a border around the fields.
-        border_cells_relative = set(
-            (dx, dy)
-            for dx in range(- sight_distance, sight_distance + 1)
-            for dy in range(- sight_distance, sight_distance + 1)
-            if abs(dx) + abs(dy) == sight_distance
-        )
+        # border_cells_relative = set(
+        #     (dx, dy)
+        #     for dx in range(- sight_distance, sight_distance + 1)
+        #     for dy in range(- sight_distance, sight_distance + 1)
+        #     if abs(dx) + abs(dy) == sight_distance
+        # )
 
         def in_maze(x, y):
             return 0 <= x < game_state['shape'][0] and  0 <= y < game_state['shape'][1]
 
-        def on_edge(x, y):
-            return x == 0 or x == game_state['shape'][0] - 1 or y == 0 or y == game_state['shape'][1] - 1
+        # def on_edge(x, y):
+        #     return x == 0 or x == game_state['shape'][0] - 1 or y == 0 or y == game_state['shape'][1] - 1
 
 
-        def draw_line(pos, line_col, loc):
-            x0_ = self.mesh_graph.mesh_to_screen_x(pos[0], loc[0])
-            y0_ = self.mesh_graph.mesh_to_screen_y(pos[1], loc[1])
-            x1_ = self.mesh_graph.mesh_to_screen_x(pos[0], loc[2])
-            y1_ = self.mesh_graph.mesh_to_screen_y(pos[1], loc[3])
-            self.ui_game_canvas.create_line(x0_, y0_, x1_, y1_, width=2, fill=line_col, tags=("bot_shadow"))
+        # def draw_line(pos, line_col, loc):
+        #     x0_ = self.mesh_graph.mesh_to_screen_x(pos[0], loc[0])
+        #     y0_ = self.mesh_graph.mesh_to_screen_y(pos[1], loc[1])
+        #     x1_ = self.mesh_graph.mesh_to_screen_x(pos[0], loc[2])
+        #     y1_ = self.mesh_graph.mesh_to_screen_y(pos[1], loc[3])
+        #     self.ui_game_canvas.create_line(x0_, y0_, x1_, y1_, width=2, fill=line_col, tags=("bot_shadow"))
 
 
         def draw_box(pos, fill_col):
             ul = self.mesh_graph.mesh_to_screen(pos, (-1, -1))
-            ur = self.mesh_graph.mesh_to_screen(pos, (1, -1))
-            ll = self.mesh_graph.mesh_to_screen(pos, (-1, 1))
             lr = self.mesh_graph.mesh_to_screen(pos, (1, 1))
 
             self.ui_game_canvas.create_rectangle(*ul, *lr, width=0, fill=fill_col, tags=("bot_shadow", "bot_shadow_area"))
@@ -779,7 +764,7 @@ class TkApplication:
 
     def on_click(self, event):
         raw_x, raw_y = event.x, event.y
-        selected = self.mesh_graph.screen_to_mesh_coord(event.x, event.y)
+        selected = self.mesh_graph.screen_to_mesh_coord(raw_x, raw_y)
         if self.selected == selected:
             self.selected = None
         else:
@@ -810,11 +795,6 @@ class TkApplication:
             return
 
         center = self.ui_header_canvas.winfo_width() // 2
-
-        try:
-            team_time = game_state["team_time"]
-        except (KeyError, TypeError):
-            team_time = [0, 0]
 
         left_name = game_state["team_names"][0]
         right_name = game_state["team_names"][1]
@@ -858,17 +838,15 @@ class TkApplication:
         status_font_size = max(font_size - 5, 3)
 
         top = 15
-        spacer = 3
         padding = 15
 
-        middle_colon = self.ui_header_canvas.create_text(center, top, text=":", font=(self._default_font, font_size), tags="title", anchor=tkinter.CENTER)
-        middle_colon_bottom = self.ui_header_canvas.bbox(middle_colon)[3]
-        spacer = (self.ui_header_canvas.bbox(middle_colon)[3] - self.ui_header_canvas.bbox(middle_colon)[1]) / 2
+        # middle colon
+        self.ui_header_canvas.create_text(center, top, text=":", font=(self._default_font, font_size), tags="title", anchor=tkinter.CENTER)
 
         self.ui_header_canvas.create_text(center, top, text=left_team, font=(self._default_font, font_size), fill=BLUE, tags="title", anchor=tkinter.E)
         self.ui_header_canvas.create_text(center+2, top, text=right_team, font=(self._default_font, font_size), fill=RED, tags="title", anchor=tkinter.W)
 
-        bottom_text = self.ui_header_canvas.create_text(0 + padding, 20 + font_size, text=" " + left_status, font=(self._default_font, status_font_size), tags="title", anchor=tkinter.W)
+        self.ui_header_canvas.create_text(0 + padding, 20 + font_size, text=" " + left_status, font=(self._default_font, status_font_size), tags="title", anchor=tkinter.W)
         self.ui_header_canvas.create_text(self.ui_header_canvas.winfo_width() - padding, 20 + font_size, text=right_status + " ", font=(self._default_font, status_font_size), tags="title", anchor=tkinter.E)
 
     def draw_status_info(self, game_state):
@@ -928,8 +906,6 @@ class TkApplication:
             self.ui_status_selected.config(text=field_status(self.selected))
 
             ul = self.mesh_graph.mesh_to_screen(self.selected, (-1, -1))
-            ur = self.mesh_graph.mesh_to_screen(self.selected, (1, -1))
-            ll = self.mesh_graph.mesh_to_screen(self.selected, (-1, 1))
             lr = self.mesh_graph.mesh_to_screen(self.selected, (1, 1))
 
             self.ui_game_canvas.create_rectangle(*ul, *lr, fill=SELECTED, tags=("selected",))
@@ -1058,17 +1034,17 @@ class TkApplication:
         except TypeError:
             req_pos = None
 
-        if game_state['requested_moves'][bot]['success'] and tuple(game_state['bots'][bot]) != tuple(game_state['requested_moves'][bot]['requested_position']):
+        if game_state['requested_moves'][bot]['success'] and tuple(game_state['bots'][bot]) != tuple(req_pos):
             # Bot has committed suicide. Show two arrows.
             arrow_item1 = Arrow(self.mesh_graph,
                             position=old_pos,
-                            req_pos=game_state['requested_moves'][bot]['requested_position'],
+                            req_pos=req_pos,
                             success=True,
                             head=False)
             arrow_item1.draw(self.ui_game_canvas)
 
             arrow_item2 = Arrow(self.mesh_graph,
-                            position=game_state['requested_moves'][bot]['requested_position'],
+                            position=req_pos,
                             req_pos=game_state['bots'][bot],
                             success=True)
             arrow_item2.draw(self.ui_game_canvas)

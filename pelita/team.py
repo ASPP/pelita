@@ -315,7 +315,7 @@ class RemoteTeam:
             WAIT_TIMEOUT = 5000
             incoming = socket.poll(timeout=WAIT_TIMEOUT)
             if incoming == zmq.POLLIN:
-                ok = socket.recv()
+                _ok = socket.recv()
             else:
                 # Server did not respond
                 raise PlayerTimeout()

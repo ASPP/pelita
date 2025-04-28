@@ -58,8 +58,8 @@ def run_player(team_spec, address, team_name_override=False, silent_bots=False):
             json_message = socket.recv_unicode()
             py_obj = json.loads(json_message)
             uuid_ = py_obj["__uuid__"]
-            action = py_obj["__action__"]
-            data = py_obj["__data__"]
+            _action = py_obj["__action__"]
+            _data = py_obj["__data__"]
 
             socket.send_json({
                 '__uuid__': uuid_,

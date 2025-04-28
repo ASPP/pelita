@@ -258,7 +258,7 @@ def setup_viewers(viewers, print_result=True):
             viewer_state['viewers'].append(zmq_publisher)
             viewer_state['controller'] = setup_controller()
 
-            proc = TkViewer(address=zmq_publisher.socket_addr, controller=viewer_state['controller'].socket_addr,
+            _proc = TkViewer(address=zmq_publisher.socket_addr, controller=viewer_state['controller'].socket_addr,
                             stop_after=viewer_opts.get('stop_at'),
                             stop_after_kill=viewer_opts.get('stop_after_kill'),
                             geometry=viewer_opts.get('geometry'),
@@ -512,7 +512,6 @@ def setup_teams(team_specs, game_state, store_output=False, allow_exceptions=Fal
 
 def request_new_position(game_state):
     team = game_state['turn'] % 2
-    bot_turn = game_state['turn'] // 2
     move_fun = game_state['teams'][team]
 
     bot_state = prepare_bot_state(game_state)
@@ -819,7 +818,6 @@ def apply_move(gamestate, bot_position):
     turn = gamestate["turn"]
     team = turn % 2
     enemy_idx = (1, 3) if team == 0 else (0, 2)
-    gameover = gamestate["gameover"]
     score = gamestate["score"]
     food = gamestate["food"]
     walls = gamestate["walls"]
@@ -829,10 +827,6 @@ def apply_move(gamestate, bot_position):
     kills = gamestate["kills"]
     deaths = gamestate["deaths"]
     bot_was_killed = gamestate["bot_was_killed"]
-    fatal_error = True if gamestate["fatal_errors"][team] else False
-    #TODO how are fatal errors passed to us? dict with same structure as regular errors?
-    #TODO do we need to communicate that fatal error was the reason for game over in any other way?
-
 
     # reset our own bot_was_killed flag
     bot_was_killed[turn] = False

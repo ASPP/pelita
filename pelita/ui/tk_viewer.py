@@ -155,7 +155,7 @@ class TkViewer:
 
             self._delay = 2
             self._after(2, self.read_queue)
-        except zmq.Again as e:
+        except zmq.Again:
             _logger.debug('Nothing received. Waiting %0.3d milliseconds.', self._delay)
             self._after(self._delay, self.read_queue)
             self._delay = self._delay * 2
