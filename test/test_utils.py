@@ -112,6 +112,38 @@ def test_run_background_game():
         'draw': True
     }
 
+def test_run_background_game_with_layout():
+    test_layout = (
+    """ ##################
+        #a#.  .  # .     #
+        #b#####    #####x#
+        #     . #  .  .#y#
+        ################## """)
+    result = utils.run_background_game(blue_move=stopping_player, red_move=stopping_player, layout=test_layout)
+    assert result['walls'] == set(parse_layout(test_layout)['walls'])
+
+    result.pop('seed')
+    result.pop('walls')
+    result.pop('layout')
+    result.pop('blue_food')
+    result.pop('red_food')
+    assert result == {
+        'round': 300,
+        'blue_bots': [(1, 1), (1, 2)],
+        'red_bots': [(16, 2), (16, 3)],
+        'blue_score': 0,
+        'red_score': 0,
+        'blue_errors': {},
+        'red_errors': {},
+        'blue_deaths': [0, 0],
+        'red_deaths': [0, 0],
+        'blue_kills': [0, 0],
+        'red_kills': [0, 0],
+        'blue_wins': False,
+        'red_wins': False,
+        'draw': True
+    }
+
 
 def test_walls_to_graph():
     test_layout = (
