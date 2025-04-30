@@ -1,5 +1,19 @@
 # Pelita changelog
 
+  * v2.5.2-rc1 (30. Apr 2025)
+
+    - On-the-fly layout generation
+    - On-the-fly food distribution with --food
+    - Removal of built-in layouts
+    - Making illegal moves a fatal error
+    - Added Bot.has_exact_position attribute
+    - Improved Bot.__repr__
+    - New --store-layout option
+    - New --stop-after-kill option
+    - Grid labels
+    - New --standalone-mode in tk viewer, enabling user-configured overlays on the maze
+    - Improved internals
+
   * v2.5.1 (09. Oct 2024)
 
     - 1000 new layouts with dead ends
