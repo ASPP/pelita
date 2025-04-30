@@ -1,10 +1,9 @@
-import pytest
-
 import sys
 import tempfile
 from pathlib import Path
 from random import Random
 
+import pytest
 
 import pelita.game
 from pelita.tournament import call_pelita, run_and_terminate_process
@@ -27,8 +26,6 @@ def remote_teams():
     port_stopping = RNG.randint(49153,65534)
     port_food_eater = port_stopping+1
 
-    addr_stopping = "127.0.0.1"
-    addr_food_eater = "127.0.0.1"
     remote = [sys.executable, '-m', 'pelita.scripts.pelita_server', 'remote-server', '--address', '127.0.0.1']
 
     remote_stopping = remote + ['--port', str(port_stopping), '--team', 'pelita/player/StoppingPlayer']
@@ -240,7 +237,7 @@ def test_remote_move_failures(player_name, is_setup_error, error_type):
         assert 'Could not load' in state['fatal_errors'][0][0]['description']
         assert error_type in state['fatal_errors'][0][0]['description']
         assert state['fatal_errors'][0][0]['turn'] == 0
-        assert state['fatal_errors'][0][0]['round'] == None
+        assert state['fatal_errors'][0][0]['round'] is None
         assert state['fatal_errors'][1] == []
         assert state['errors'] == [{}, {}]
 

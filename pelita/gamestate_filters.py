@@ -95,7 +95,7 @@ def alter_pos(bot_pos, noise_radius, rng, walls, shape):
         for i in range(x_min, x_max + 1) # max + 1 since range is not inclusive at upper end
         for j in range(y_min, y_max + 1) # max + 1 since range is not inclusive at upper end
         if manhattan_dist((i, j), bot_pos) <= noise_radius
-        and not (i, j) in walls # check that the bot won't returned as positioned on a wall square
+        and (i, j) not in walls # check that the bot won't returned as positioned on a wall square
     ]
 
     if len(possible_positions) < 1:

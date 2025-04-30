@@ -3,8 +3,8 @@ import json
 import logging
 import sys
 import time
-from urllib.parse import urlparse
 import uuid
+from urllib.parse import urlparse
 
 import zmq
 

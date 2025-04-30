@@ -1,12 +1,11 @@
-import pytest
-
-from pathlib import Path
 import py_compile
 import sys
 import tempfile
+from pathlib import Path
 
-import pelita
-from pelita.scripts.pelita_player import load_team_from_module, load_team
+import pytest
+
+from pelita.scripts.pelita_player import load_team, load_team_from_module
 
 _mswindows = (sys.platform == "win32")
 
@@ -33,7 +32,7 @@ def move(bot, state):
 
 class TestLoadFactory:
     def test_simple_module_import(self):
-        modules_before = list(sys.modules.keys())
+        # modules_before = list(sys.modules.keys())
         with tempfile.TemporaryDirectory() as d:
             module = Path(d) / "teamx"
             module.mkdir()
@@ -45,7 +44,7 @@ class TestLoadFactory:
             load_team_from_module(spec)
 
     def test_simple_file_import(self):
-        modules_before = list(sys.modules.keys())
+        # modules_before = list(sys.modules.keys())
         with tempfile.TemporaryDirectory() as d:
             module = Path(d) / "teamy"
             module.mkdir()
@@ -57,7 +56,7 @@ class TestLoadFactory:
             load_team_from_module(spec)
 
     def test_failing_import(self):
-        modules_before = list(sys.modules.keys())
+        # modules_before = list(sys.modules.keys())
         with tempfile.TemporaryDirectory() as d:
             module = Path(d) / "teamz"
             module.mkdir()
@@ -103,7 +102,7 @@ class TestLoadTeam:
     def test_simple_module_import_forbidden_names(self):
         names = ["", " ", "-", "∂", "0" * 26]
         for idx, name in enumerate(names):
-            modules_before = list(sys.modules.keys())
+            # modules_before = list(sys.modules.keys())
             with tempfile.TemporaryDirectory() as d:
                 module = Path(d) / ("teamx_%i" % idx)
                 module.mkdir()
@@ -126,7 +125,7 @@ class TestLoadTeam:
     def test_simple_module_import_allowed_names(self):
         names = ["a", "a a", "0" * 25]
         for idx, name in enumerate(names):
-            modules_before = list(sys.modules.keys())
+            # modules_before = list(sys.modules.keys())
             with tempfile.TemporaryDirectory() as d:
                 module = Path(d) / ("teamy_%i" % idx)
                 module.mkdir()

@@ -1,13 +1,13 @@
-import pytest
-from unittest.mock import MagicMock
-
 import re
 from random import Random
 from textwrap import dedent
+from unittest.mock import MagicMock
+
+import pytest
 
 from pelita import tournament
 from pelita.tournament import knockout_mode, roundrobin
-from pelita.tournament.knockout_mode import Team, Match, Bye
+from pelita.tournament.knockout_mode import Bye, Match, Team
 
 RNG = Random()
 
@@ -56,9 +56,9 @@ class TestKoMode:
 
     def test_prepared_matches(self):
         with pytest.raises(ValueError):
-            none = knockout_mode.prepare_matches([])
+            _none = knockout_mode.prepare_matches([])
         with pytest.raises(ValueError):
-            none = knockout_mode.prepare_matches([], bonusmatch=True)
+            _none = knockout_mode.prepare_matches([], bonusmatch=True)
 
         single = knockout_mode.prepare_matches([1])
         assert single == knockout_mode.Team(name=1)
@@ -271,7 +271,7 @@ class TestSingleMatch:
 
         team_ids = ["first_id", "first_id"]
         result = tournament.start_match(config, team_ids, rng=RNG)
-        assert result == False
+        assert result is False
         assert stdout[-1] == '‘pelita/player/StoppingPlayer’ and ‘pelita/player/StoppingPlayer’ had a draw.'
 
         team_ids = ["second_id", "first_id"]
@@ -351,7 +351,7 @@ class TestTournament:
         # group1 should win
         assert "group1" == tournament.start_match(config, ["group0", "group1"], rng=RNG)
         assert "group1" == tournament.start_match(config, ["group1", "group0"], rng=RNG)
-        assert False == tournament.start_match(config, ["group0", "group0"], rng=RNG)
+        assert tournament.start_match(config, ["group0", "group0"], rng=RNG) is False
 
         tournament.present_teams(config)
 

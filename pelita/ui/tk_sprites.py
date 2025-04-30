@@ -1,5 +1,6 @@
 import cmath
 import math
+
 from .. import layout
 from ..gamestate_filters import manhattan_dist
 
@@ -230,8 +231,10 @@ class BotSprite(TkSprite):
         else:
             y = [amplitude*math.cos(2*math.pi*(x_i-start[0])/period) + start[1] for x_i in x]
         # add container edges for the polygon
-        x.insert(0, box_ll[0]); y.insert(0, box_ll[1] - 1)
-        x.append(box_tr[0]); y.append(box_ll[1] - 1)
+        x.insert(0, box_ll[0])
+        y.insert(0, box_ll[1] - 1)
+        x.append(box_tr[0])
+        y.append(box_ll[1] - 1)
 
         points = list(zip(x,y))
         if self.shadow:
@@ -331,7 +334,7 @@ class Food(TkSprite):
             tags=(self.tag, "show_food_age" + str(self.position), "food")
 
             center = self.screen()
-            canvas.create_text(*center, text=food_age, font=(self._font, 10), fill=text_col, tags=tag)
+            canvas.create_text(*center, text=food_age, font=(self._font, 10), fill=text_col, tags=tags)
 
 class Arrow(TkSprite):
     def __init__(self, mesh, req_pos, success, head=True, **kwargs):

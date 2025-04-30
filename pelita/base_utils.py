@@ -1,5 +1,6 @@
 from random import Random
 
+
 def default_rng(seed=None):
     """Construct a new RNG from a given seed or return the same RNG.
 

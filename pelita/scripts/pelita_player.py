@@ -5,14 +5,14 @@ import hashlib
 import importlib
 import json
 import logging
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import click
 import zmq
 
-from ..team import make_team
 from ..network import json_default_handler
+from ..team import make_team
 from .script_utils import start_logging
 
 _logger = logging.getLogger(__name__)
@@ -58,8 +58,8 @@ def run_player(team_spec, address, team_name_override=False, silent_bots=False):
             json_message = socket.recv_unicode()
             py_obj = json.loads(json_message)
             uuid_ = py_obj["__uuid__"]
-            action = py_obj["__action__"]
-            data = py_obj["__data__"]
+            _action = py_obj["__action__"]
+            _data = py_obj["__data__"]
 
             socket.send_json({
                 '__uuid__': uuid_,
@@ -121,7 +121,7 @@ def player_handle_request(socket, team, team_name_override=False, silent_bots=Fa
                 # but we don’t care if it fails at all
                 try:
                     retval.pop('say')
-                except:
+                except Exception:
                     pass
 
         elif action == "team_name":

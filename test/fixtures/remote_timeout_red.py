@@ -1,4 +1,5 @@
 import time
+
 TEAM_NAME = "500ms timeout"
 def move(b, s):
     if b.round == 1 and b.turn == 1:

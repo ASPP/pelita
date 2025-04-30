@@ -22,7 +22,8 @@ def exit_handler(*args):
     # kill all processes in processgroup.
     # we need this in case we use the multiprocessing.
     if platform.system() == 'Windows':
-        import win32api, win32con
+        import win32api
+        import win32con
         handle = win32api.OpenProcess(win32con.PROCESS_TERMINATE,
                                       0, os.getpid())
         win32api.TerminateProcess( handle, 0 )

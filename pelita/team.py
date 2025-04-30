@@ -9,13 +9,14 @@ from pathlib import Path
 from random import Random
 from urllib.parse import urlparse
 
-import zmq
 import networkx as nx
+import zmq
 
 from . import layout
 from .exceptions import PlayerDisconnected, PlayerTimeout
-from .layout import layout_as_str, BOT_I2N, wall_dimensions
-from .network import ZMQClientError, ZMQConnection, ZMQReplyTimeout, ZMQUnreachablePeer, PELITA_PORT
+from .layout import BOT_I2N, layout_as_str, wall_dimensions
+from .network import (PELITA_PORT, ZMQClientError, ZMQConnection,
+                      ZMQReplyTimeout, ZMQUnreachablePeer)
 
 _logger = logging.getLogger(__name__)
 
@@ -61,7 +62,7 @@ def walls_to_graph(walls, shape=None):
     which are not walls.
     Edges in the graph are ((x1,y1), (x2,y2)) tuples of coordinates of two
     adjacent squares. Adjacent means that you can go from one square to one of
-    its adjacent squares by making ore single step (up, down, left, or right).
+    its adjacent squares by making one single step (up, down, left, or right).
     """
     graph = nx.Graph()
     if shape is not None:
@@ -315,7 +316,7 @@ class RemoteTeam:
             WAIT_TIMEOUT = 5000
             incoming = socket.poll(timeout=WAIT_TIMEOUT)
             if incoming == zmq.POLLIN:
-                ok = socket.recv()
+                _ok = socket.recv()
             else:
                 # Server did not respond
                 raise PlayerTimeout()
@@ -577,7 +578,7 @@ class Bot:
         for direction in [(0, 0), (-1, 0), (1, 0), (0, 1), (0, -1)]:
             new_pos = (position[0] + direction[0],
                        position[1] + direction[1])
-            if not new_pos in self.walls:
+            if new_pos not in self.walls:
                 self.legal_positions.append(new_pos)
 
         # Attributes for Bot
@@ -661,9 +662,12 @@ class Bot:
                     else:
                         bg = ""
                     out.write("<td %s>" % bg)
-                    if (x, y) in bot.walls: out.write("#")
-                    if (x, y) in bot.food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
-                    if (x, y) in bot.enemy[0].food: out.write('<span style="color: rgb(247, 150, 213)">●</span>')
+                    if (x, y) in bot.walls:
+                        out.write("#")
+                    if (x, y) in bot.food:
+                        out.write('<span style="color: rgb(247, 150, 213)">●</span>')
+                    if (x, y) in bot.enemy[0].food:
+                        out.write('<span style="color: rgb(247, 150, 213)">●</span>')
                     for idx in range(2):
                         if bot._team[idx].position == (x, y):
                             if idx == bot.turn:

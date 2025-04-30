@@ -2,8 +2,8 @@ from random import Random
 
 import pytest
 
-import pelita.maze_generator as mg
 import pelita.layout as pl
+import pelita.maze_generator as mg
 import pelita.team as pt
 
 SEED = 103525239
@@ -178,8 +178,6 @@ def test_generate_maze(iteration):
     trapped_food = int(total_food / 3)
 
     ld = mg.generate_maze(trapped_food, total_food, width, height, rng=rng)
-
-    walls = set(ld["walls"])
 
     border = set()
     for x in range(width):

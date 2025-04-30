@@ -1,12 +1,12 @@
-import time
 
-import pytest
 import networkx
+import pytest
 
-from pelita.layout import parse_layout, initial_positions
-from pelita.maze_generator import generate_maze
-from pelita.game import run_game, setup_game, play_turn, SHADOW_DISTANCE
+from pelita.game import SHADOW_DISTANCE, play_turn, run_game, setup_game
 from pelita.gamestate_filters import manhattan_dist
+from pelita.layout import initial_positions, parse_layout
+from pelita.maze_generator import generate_maze
+
 
 def stopping(bot, state):
     return bot.position
@@ -128,7 +128,7 @@ def test_track_and_kill_count():
         # therefore, we only update old_deaths for the current team
 
         if state['turn'] is not None:
-            old_deaths[state['turn']] = state['deaths'][state['turn']]
+            old_deaths[state['turn']] = state['deaths'][state['turn']]  # noqa: F821
 
         old_deaths = state['deaths'][:]
         state = play_turn(state)

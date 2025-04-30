@@ -1,15 +1,15 @@
 
-import pytest
-
 import collections
 from random import Random
 
+import pytest
+
+import pelita.game
+import pelita.utils
 from pelita import gamestate_filters as gf
-from pelita.game import setup_game, play_turn, prepare_bot_state, split_food
+from pelita.game import play_turn, prepare_bot_state, setup_game, split_food
 from pelita.layout import parse_layout
 from pelita.player import stepping_player
-import pelita.utils
-import pelita.game
 
 RNG = Random()
 
@@ -87,7 +87,6 @@ def sub_test_noiser(new_bots, old_bots, turn, should_noise, test_other):
 def test_noiser_no_negative_coordinates(bot_id):
 
     gamestate = make_gamestate()
-    old_bots = gamestate["bots"][:]
     walls = gamestate['walls']
     shape = gamestate['shape']
     bot_position = gamestate['bots'][bot_id]
@@ -259,7 +258,6 @@ def test_noiser_not_noising_at_noise_radius0():
     """ It is the any team's turn, and the noiser should
     not do anything, because noise radius is 0 """
 
-    test_collect = []
     for tt in range(4):
         gamestate = make_gamestate()
         old_bots = gamestate["bots"]
@@ -292,7 +290,6 @@ def test_noiser_noising_at_noise_radius_extreme(ii):
     gamestate["turn"] = RNG.randint(0, 3)
     team_id = gamestate["turn"] % 2
     old_bots = gamestate["bots"]
-    team_bots = old_bots[team_id::2]
     enemy_bots = old_bots[1 - team_id::2]
     noised = gf.noiser(walls=gamestate["walls"],
                        shape=gamestate["shape"],
@@ -578,9 +575,7 @@ def test_noise_manhattan_failure():
     # bot 0 should not be noised
     # bot 2 should not be noised
     parsed = parse_layout(test_layout)
-    expected = parsed['food'] + [parsed['bots'][0]]
 
-    position_bucket = collections.defaultdict(int)
     # check a few times
     for i in range(5):
         noised = gf.noiser(walls=parsed['walls'],

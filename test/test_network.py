@@ -1,13 +1,12 @@
-import pytest
-
-import uuid
 import sys
+import uuid
 
+import pytest
 import zmq
 
 from pelita.network import bind_socket
-from pelita.team import make_team
 from pelita.scripts.pelita_player import player_handle_request
+from pelita.team import make_team
 
 _mswindows = (sys.platform == "win32")
 
@@ -35,7 +34,7 @@ def test_simpleclient(zmq_context):
     res = []
     def stopping(bot, state):
         print(bot)
-        res.append(True)
+        res.append("success")
         print(res)
         return bot.position
 
@@ -128,4 +127,4 @@ def test_simpleclient(zmq_context):
     }
     sock.send_json(exit_msg)
 
-    assert res[0] == True
+    assert res[0] == "success"

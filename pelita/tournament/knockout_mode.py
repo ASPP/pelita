@@ -84,8 +84,6 @@ class Team(namedtuple("Team", ["name"]), MatrixElem):
 
 class Bye(namedtuple("Bye", ["team"]), MatrixElem):
     def to_s(self, size=None, trafo=identity, highlighted=False):
-        prefix = "──"
-        # return show_team("…", prefix=prefix, padLeft=" ", padRight=" ", size=size)
         return self.box("", size=size)
 
 class Match(namedtuple("Match", ["t1", "t2"]), MatrixElem):

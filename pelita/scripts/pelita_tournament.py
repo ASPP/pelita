@@ -5,15 +5,16 @@ import datetime
 import itertools
 import re
 import shlex
+import shutil
 import sys
 from pathlib import Path
 from random import Random
 
-import shutil
 import yaml
 
 from .. import tournament
 from .script_utils import start_logging
+
 
 def firstNN(*args):
     """
@@ -113,14 +114,14 @@ def setup():
 
         try:
             which_say = sound["say"]
-            sound_options.append("(s)ay ({})".format(sound["say"]))
+            sound_options.append("(s)ay ({})".format(which_say))
             keys += "s"
         except KeyError:
             pass
 
         try:
             which_say = sound["flite"]
-            sound_options.append("(f)flite ({})".format(sound["flite"]))
+            sound_options.append("(f)flite ({})".format(which_say))
             keys += "f"
         except KeyError:
             pass

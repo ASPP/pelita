@@ -8,17 +8,16 @@ import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
-from rich.console import Console
-from rich.markup import escape
-from rich.prompt import Prompt
 import zmq
+from rich.console import Console
+from rich.prompt import Prompt
 
 import pelita
-from .script_utils import start_logging
-
 from pelita.network import PELITA_PORT
 # TODO: The check_team option
 from pelita.tournament import check_team
+
+from .script_utils import start_logging
 
 # silence stupid warnings from logging module
 logging.root.manager.emittedNoHandlerWarning = 1
@@ -28,8 +27,9 @@ _logger = logging.getLogger(__name__)
 def scan(team_spec):
     if team_spec != "SCAN":
         return team_spec
+    from queue import Empty, Queue
+
     from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf
-    from queue import Queue, Empty
 
     SCAN_TIME = 5 # seconds
 
@@ -60,13 +60,11 @@ def scan(team_spec):
     console = Console()
 
     console.print(f"[bold]Remote player requested. Scanning network for players ({SCAN_TIME}s).")
-    with console.status("[red bold]Searching for other players …") as status:
+    with console.status("[red bold]Searching for other players …") as _status:
         try:
-            browser = ServiceBrowser(zeroconf, services, handlers=[on_service_state_change])
+            _browser = ServiceBrowser(zeroconf, services, handlers=[on_service_state_change])
             players = []
             import time
-            import select
-            import sys
             start = time.monotonic()
             while start + 5 > time.monotonic():
                 time.sleep(0.2)
@@ -82,8 +80,8 @@ def scan(team_spec):
         finally:
             zeroconf.close()
     if players:
-        console.print(f"  [blue]r)[/] Random team")
-        console.print(f"  [blue]x)[/] Exit")
+        console.print("  [blue]r)[/] Random team")
+        console.print("  [blue]x)[/] Exit")
         console.print()
         console.print(f"Found {len(players)} player{'s' if len(players) != 1 else ''}.")
 
@@ -120,7 +118,7 @@ def scan_server(team_spec):
 
     console = Console()
 
-    console.print(f"[bold]Remote player requested. Scanning server for players.")
+    console.print("[bold]Remote player requested. Scanning server for players.")
 
     WAIT_TIMEOUT = 5000
     incoming = socket.poll(timeout=WAIT_TIMEOUT)
@@ -141,9 +139,9 @@ def scan_server(team_spec):
         players.append(addr)
 
     if players:
-        console.print(f"  [blue]r)[/] Random team")
-        console.print(f"  [blue]s)[/] Server default")
-        console.print(f"  [blue]x)[/] Exit")
+        console.print("  [blue]r)[/] Random team")
+        console.print("  [blue]s)[/] Server default")
+        console.print("  [blue]x)[/] Exit")
         console.print()
         console.print(f"Found {len(players)} player{'s' if len(players) != 1 else ''}.")
 

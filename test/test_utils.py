@@ -1,7 +1,6 @@
 import pytest
 
-from pelita import base_utils
-from pelita import utils
+from pelita import base_utils, utils
 from pelita.layout import parse_layout
 from pelita.player import stopping_player
 from pelita.utils import walls_to_graph

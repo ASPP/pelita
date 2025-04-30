@@ -2,7 +2,7 @@
 def random_explorer_player(bot, state):
     """ Least visited random player. Will prefer moving to a position it’s never seen before. """
 
-    if not bot.turn in state:
+    if bot.turn not in state:
         # initialize bot
         state[bot.turn] = { 'visited': [] }
 

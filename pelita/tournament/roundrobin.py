@@ -1,6 +1,7 @@
-from collections import Counter
 import itertools
+from collections import Counter
 from typing import List, Tuple
+
 
 def create_matchplan(teams: List[str], rng) -> List[Tuple[str, str]]:
     """ Takes a list of team ids and returns a list of tuples of team ids with

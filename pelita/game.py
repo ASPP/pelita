@@ -1,21 +1,23 @@
 """This is the game module. Written in 2019 in Born by Carlos and Lisa."""
 
 import logging
+import math
 import os
 import subprocess
 import sys
 import time
-import math
 from warnings import warn
 
 from . import layout
-from .exceptions import FatalException, NonFatalException, NoFoodWarning, PlayerTimeout
-from .gamestate_filters import noiser, update_food_age, relocate_expired_food
-from .layout import initial_positions, get_legal_positions
-from .network import setup_controller, ZMQPublisher
 from .base_utils import default_rng
+from .exceptions import (FatalException, NoFoodWarning, NonFatalException,
+                         PlayerTimeout)
+from .gamestate_filters import noiser, relocate_expired_food, update_food_age
+from .layout import get_legal_positions, initial_positions
+from .network import ZMQPublisher, setup_controller
 from .team import make_team
-from .viewer import ProgressViewer, AsciiViewer, ReplyToViewer, ReplayWriter, ResultPrinter
+from .viewer import (AsciiViewer, ProgressViewer, ReplayWriter, ReplyToViewer,
+                     ResultPrinter)
 
 _logger = logging.getLogger(__name__)
 _mswindows = (sys.platform == "win32")
@@ -258,7 +260,7 @@ def setup_viewers(viewers, print_result=True):
             viewer_state['viewers'].append(zmq_publisher)
             viewer_state['controller'] = setup_controller()
 
-            proc = TkViewer(address=zmq_publisher.socket_addr, controller=viewer_state['controller'].socket_addr,
+            _proc = TkViewer(address=zmq_publisher.socket_addr, controller=viewer_state['controller'].socket_addr,
                             stop_after=viewer_opts.get('stop_at'),
                             stop_after_kill=viewer_opts.get('stop_after_kill'),
                             geometry=viewer_opts.get('geometry'),
@@ -296,7 +298,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
 
     width, height = layout.wall_dimensions(layout_dict['walls'])
     if not (width, height) == layout_dict["shape"]:
-        raise ValueError(f"layout_dict['walls'] does not match layout_dict['shape'].")
+        raise ValueError("layout_dict['walls'] does not match layout_dict['shape'].")
 
     for idx, pos in enumerate(layout_dict['bots']):
         if pos in layout_dict['walls']:
@@ -486,7 +488,8 @@ def setup_teams(team_specs, game_state, store_output=False, allow_exceptions=Fal
         except (FatalException, PlayerTimeout) as e:
             # TODO: Not sure if PlayerTimeout should let the other payer win.
             # It could simply be a network problem.
-            if allow_exceptions: raise
+            if allow_exceptions:
+                raise
             exception_event = {
                 'type': e.__class__.__name__,
                 'description': str(e),
@@ -511,7 +514,6 @@ def setup_teams(team_specs, game_state, store_output=False, allow_exceptions=Fal
 
 def request_new_position(game_state):
     team = game_state['turn'] % 2
-    bot_turn = game_state['turn'] // 2
     move_fun = game_state['teams'][team]
 
     bot_state = prepare_bot_state(game_state)
@@ -726,7 +728,8 @@ def play_turn(game_state, allow_exceptions=False):
         else:
             game_state['say'][game_state['turn']] = ""
     except FatalException as e:
-        if allow_exceptions: raise
+        if allow_exceptions:
+            raise
         # FatalExceptions (such as PlayerDisconnect) should immediately
         # finish the game
         exception_event = {
@@ -739,7 +742,8 @@ def play_turn(game_state, allow_exceptions=False):
         position = None
         game_print(turn, f"{type(e).__name__}: {e}")
     except NonFatalException as e:
-        if allow_exceptions: raise
+        if allow_exceptions:
+            raise
         # NonFatalExceptions (such as Timeouts and ValueErrors in the JSON handling)
         # are collected and added to team_errors
         exception_event = {
@@ -816,7 +820,6 @@ def apply_move(gamestate, bot_position):
     turn = gamestate["turn"]
     team = turn % 2
     enemy_idx = (1, 3) if team == 0 else (0, 2)
-    gameover = gamestate["gameover"]
     score = gamestate["score"]
     food = gamestate["food"]
     walls = gamestate["walls"]
@@ -826,10 +829,6 @@ def apply_move(gamestate, bot_position):
     kills = gamestate["kills"]
     deaths = gamestate["deaths"]
     bot_was_killed = gamestate["bot_was_killed"]
-    fatal_error = True if gamestate["fatal_errors"][team] else False
-    #TODO how are fatal errors passed to us? dict with same structure as regular errors?
-    #TODO do we need to communicate that fatal error was the reason for game over in any other way?
-
 
     # reset our own bot_was_killed flag
     bot_was_killed[turn] = False
@@ -841,7 +840,7 @@ def apply_move(gamestate, bot_position):
     legal_positions = get_legal_positions(walls, shape, gamestate["bots"][gamestate["turn"]])
 
     # unless we have already made an error, check if we made a legal move
-    if not (n_round, turn) in team_errors:
+    if (n_round, turn) not in team_errors:
         if bot_position not in legal_positions:
             previous_position = gamestate["bots"][gamestate["turn"]]
             game_print(turn, f"Illegal position. {previous_position}➔{bot_position} not in legal positions:"
@@ -996,7 +995,7 @@ def check_gameover(game_state, detect_final_move=False):
         # no one has reached the error limit
         pass
     elif num_errors[0] >= game_state['error_limit'] and num_errors[1] >= game_state['error_limit']:
-        # both teams have reached or exeeded the error limit
+        # both teams have reached or exceeded the error limit
         return { 'whowins' : 2, 'gameover' : True}
     else:
         # only one team has reached the error limit

@@ -5,8 +5,9 @@ import os
 import sys
 
 import pelita
-from .script_utils import start_logging
 from pelita.ui.tk_viewer import TkViewer
+
+from .script_utils import start_logging
 
 
 def geometry_string(s):

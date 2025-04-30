@@ -1,6 +1,5 @@
-import pytest
-
 import ci_engine
+import pytest
 
 
 @pytest.fixture

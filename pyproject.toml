@@ -46,6 +46,13 @@ pelita-tkviewer = "pelita.scripts.pelita_tkviewer:main"
 pelita-player = "pelita.scripts.pelita_player:main"
 pelita-server = "pelita.scripts.pelita_server:main"
 
+[project.optional-dependencies]
+test = [
+    "pytest>=4",
+    "pytest-cov",
+]
+doc = ["sphinx"]
+
 [tool.aliases]
 test = "pytest"
 
@@ -59,4 +66,15 @@ omit = [
     "pelita/scripts/*",
     "pelita/ui/*",
     "test/testplayers/*",
+]
+
+[tool.ruff]
+extend-exclude = ["test/fixtures"]
+
+[tool.ruff.lint]
+select = ["E", "F"]
+ignore = [
+    "E501", # ignore long lines
+    # "F841", # ignore unused variables
+    "E741", # ignore ambiguous variable name
 ]

@@ -1,9 +1,11 @@
-import pytest
-
 import itertools
 from textwrap import dedent
 
-from pelita.layout import BOT_N2I, get_legal_positions, layout_as_str, parse_layout, wall_dimensions
+import pytest
+
+from pelita.layout import (BOT_N2I, get_legal_positions, layout_as_str,
+                           parse_layout, wall_dimensions)
+
 
 def test_legal_layout():
     layout = """

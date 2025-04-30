@@ -1,5 +1,4 @@
 import contextlib
-from dataclasses import dataclass
 import io
 import json
 import logging
@@ -11,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from dataclasses import dataclass
 
 import yaml
 import zmq
@@ -64,7 +64,7 @@ def run_and_terminate_process(args, **kwargs):
         if p.returncode is not None:
             _logger.debug(f"Subprocess exited with {p.returncode}.")
         else:
-            _logger.debug(f"Subprocess has not exited yet.")
+            _logger.debug("Subprocess has not exited yet.")
     finally:
         if _mswindows:
             _logger.debug("Sending CTRL_BREAK_EVENT to {proc} with pid {pid}.".format(proc=p, pid=p.pid))
@@ -172,7 +172,7 @@ def call_pelita(team_specs, *, rounds, size, viewer, seed, team_infos=None, writ
                     try:
                         game_state = json.loads(reply_sock.recv_string())
                         finished = game_state.get("gameover", None)
-                        whowins = game_state.get("whowins", None)
+                        _whowins = game_state.get("whowins", None)
                         if finished:
                             final_game_state = game_state
                             # The game in the subprocess has finished but the process
@@ -338,7 +338,7 @@ class Config:
             cmd = shlex.split(self.speaker)
             full_cmd = [*cmd, tmp.name]
             try:
-                festival = subprocess.run(full_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+                _speaker_proc = subprocess.run(full_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
             except FileNotFoundError:
                 # If we could not find the executable then there is not need to keep on trying.
                 # Disabling speak. (Although self.say() will still attempt to speak.)
@@ -346,8 +346,8 @@ class Config:
                 print("Could not find executable in call {!r}".format(full_cmd))
                 print("Disabling speech synthesis.")
 
-                _logger.warn("Could not find executable in call {!r}".format(full_cmd))
-                _logger.warn("Disabling speech synthesis.")
+                _logger.warning("Could not find executable in call {!r}".format(full_cmd))
+                _logger.warning("Disabling speech synthesis.")
 
                 self.speak = False
                 self.wait_for_keypress()
@@ -363,7 +363,7 @@ class Config:
                     self._say_process_error = True
                     self.wait_for_keypress()
                 else:
-                    _logger.warn(err)
+                    _logger.warning(err)
 
 
     def input(self, str, values=None):
