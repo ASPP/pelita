@@ -1,6 +1,6 @@
 # Pelita changelog
 
-  * v2.5.2-rc1 (30. Apr 2025)
+  * v2.5.2 (5. May 2025)
 
     - On-the-fly layout generation
     - On-the-fly food distribution with --food
