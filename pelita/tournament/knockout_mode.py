@@ -1,4 +1,3 @@
-import itertools
 import math
 import queue
 from collections import defaultdict, namedtuple
@@ -275,6 +274,9 @@ def prepare_matches(teams, bonusmatch=False):
 
     if bonusmatch:
         bonus_team = teams.pop()
+        if not teams:
+            # seems we have a winner
+            return Team(bonus_team)
 
     bracket = build_bracket(teams)
     match_tree = build_match_tree(bracket)

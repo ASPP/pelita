@@ -83,6 +83,47 @@ def test_match_id():
     match_id.next_repeat()
     assert match_id == tournament.MatchID(round=1, match=2, match_repeat=3)
 
+@pytest.mark.parametrize('teams, bonusmatch, output', [
+    ([], False, None),
+    ([], True, None),
+    ([1], False, Team(name=1)),
+    ([1], True, Team(name=1)),
+    ([1, 2], False, Match(t1=Team(name=1), t2=Team(name=2))),
+    ([1, 2], True, Match(t1=Team(name=1), t2=Team(name=2))),
+    ([1, 2, 3], False, Match(t1=Bye(team=Team(name=1)), t2=Match(t1=Team(name=2), t2=Team(name=3)))),
+    ([1, 2, 3], True, Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Bye(team=Team(name=3)))),
+    ([1, 2, 3, 4], False,
+     Match(t1=Match(t1=Team(name=1), t2=Team(name=4)),
+           t2=Match(t1=Team(name=2), t2=Team(name=3)))
+    ),
+    ([1, 2, 3, 4], True,
+     Match(Match(t1=Bye(team=Team(name=1)), t2=Match(t1=Team(name=2), t2=Team(name=3))),
+           t2=Bye(team=Bye(team=Team(name=4))))
+    ),
+    ([1, 2, 3, 4, 5], False,
+     Match(t1=Match(t1=Bye(team=Team(name=1)), t2=Match(t1=Team(name=4), t2=Team(name=5))),
+           t2=Match(t1=Bye(team=Team(name=2)), t2=Bye(team=Team(name=3))))
+    ),
+    ([1, 2, 3, 4, 5], True,
+     Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=4)), t2=Match(t1=Team(name=2), t2=Team(name=3))),
+           t2=Bye(team=Bye(team=Team(name=5))))
+    ),
+    ([1, 2, 3, 4, 5, 6], False,
+     Match(t1=Match(t1=Bye(team=Team(name=1)), t2=Match(t1=Team(name=4), t2=Team(name=5))),
+           t2=Match(t1=Bye(team=Team(name=2)), t2=Match(t1=Team(name=3), t2=Team(name=6))))
+    ),
+    ([1, 2, 3, 4, 5, 6], True,
+     Match(t1=Match(t1=Match(t1=Bye(team=Team(name=1)), t2=Match(t1=Team(name=4), t2=Team(name=5))), t2=Match(t1=Bye(team=Team(name=2)), t2=Bye(team=Team(name=3)))),
+           t2=Bye(team=Bye(team=Bye(team=Team(name=6)))))
+    ),
+])
+def test_prepare_matches(teams, bonusmatch, output):
+    if output:
+        assert knockout_mode.prepare_matches(teams, bonusmatch) == output
+    else:
+        with pytest.raises(ValueError):
+            _match_tree = knockout_mode.prepare_matches(teams, bonusmatch)
+
 @pytest.mark.parametrize('teams, bonusmatch, check_output', [
     ([1, 2, 3], False, """
         1 ───────┐  ┏━━━━━┓
