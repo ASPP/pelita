@@ -11,6 +11,58 @@ from pelita.tournament.knockout_mode import Bye, Match, Team
 
 RNG = Random()
 
+@pytest.mark.parametrize('teams, output', [
+    ([1], 1),
+    ([1, 2], [1, 2]),
+    ([1, 2, 3, 4], [[1, 4], [2, 3]]),
+    ([1, 2, 3, 4, 5], [[[1, None], [4, 5]], [[2, None], [3, None]]]),
+    ([1, 2, 3, 4, 5, 6, 7, 8], [[[1, 8], [4, 5]], [[2, 7], [3, 6]]]),
+    (list(range(1, 17)),
+       [[[[1, 16], [8, 9]], [[4, 13], [5, 12]]],
+        [[[2, 15], [7, 10]], [[3, 14], [6, 11]]]]
+    )
+])
+def test_build_bracket(teams, output):
+    assert knockout_mode.build_bracket(teams) == output
+
+
+@pytest.mark.parametrize('teams, output', [
+    ([1], Team(name=1)),
+    ([1, 2], Match(t1=Team(name=1), t2=Team(name=2))),
+    ([1, 2, 3, 4],
+     Match(t1=Match(t1=Team(name=1), t2=Team(name=4)),
+           t2=Match(t1=Team(name=2), t2=Team(name=3)))
+    ),
+    ([1, 2, 3, 4, 5],
+     Match(t1=Match(t1=Bye(team=Team(name=1)), t2=Match(t1=Team(name=4), t2=Team(name=5))),
+           t2=Match(t1=Bye(team=Team(name=2)), t2=Bye(team=Team(name=3))))
+    ),
+    ([1, 2, 3, 4, 5, 6, 7, 8],
+     Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=8)), t2=Match(t1=Team(name=4), t2=Team(name=5))),
+           t2=Match(t1=Match(t1=Team(name=2), t2=Team(name=7)), t2=Match(t1=Team(name=3), t2=Team(name=6))))
+    ),
+])
+def test_build_match_tree(teams, output):
+    bracket = knockout_mode.build_bracket(teams)
+    assert knockout_mode.build_match_tree(bracket) == output
+
+@pytest.mark.parametrize('tree, is_balanced, tree_depth', [
+    (Team(name=1), True, 1),
+    (Match(t1=Bye(team=Team(name=1)), t2=Match(t1=Team(name=4), t2=Team(name=5))), True, 3),
+    (Match(t1=Match(t1=Bye(team=Team(name=1)), t2=Match(t1=Team(name=4), t2=Team(name=5))),
+           t2=Match(t1=Bye(team=Team(name=2)), t2=Bye(team=Team(name=3)))), True, 4),
+    (Match(t1=Team(name=1), t2=Match(t1=Team(name=4), t2=Team(name=5))), False, 3),
+    (Match(t1=Bye(team=Team(name=1)), t2=Team(name=5)), False, 3),
+    (Match(t1=Match(t1=Team(name=1), t2=Team(name=4)),
+           t2=Match(t1=Team(name=2), t2=Team(name=3))), True, 3),
+    # unbalanced subtrees
+    (Match(t1=Match(t1=Team(name=1), t2=Bye(team=Team(name=4))),
+           t2=Match(t1=Team(name=2), t2=Bye(team=Team(name=3)))), False, 4)
+])
+def test_is_balanced(tree, is_balanced, tree_depth):
+    assert knockout_mode.is_balanced(tree) == is_balanced
+    assert knockout_mode.tree_depth(tree) == tree_depth
+
 def test_match_id():
     assert str(tournament.MatchID()) == 'round1-match01'
     assert str(tournament.MatchID(round=1)) == 'round1-match01'
@@ -31,73 +83,50 @@ def test_match_id():
     match_id.next_repeat()
     assert match_id == tournament.MatchID(round=1, match=2, match_repeat=3)
 
-
-class TestKoMode:
-    def test_sort_ranks(self):
-        sort_ranks = knockout_mode.sort_ranks
-        assert sort_ranks([0, 1, 2, 3, 4, 5, 6]) == [0, 5, 1, 4, 2, 3, 6]
-        assert sort_ranks([0, 1, 2, 3, 4, 5]) == [0, 5, 1, 4, 2, 3]
-        assert sort_ranks([0, 1, 2, 3, 4]) == [0, 3, 1, 2, 4]
-        assert sort_ranks([0, 1, 2, 3]) == [0, 3, 1, 2]
-        assert sort_ranks([0, 1, 2]) == [0, 1, 2]
-        assert sort_ranks([0, 1]) == [0, 1]
-        assert sort_ranks([0]) == [0]
-        assert sort_ranks([]) == []
-
-        assert sort_ranks([0, 1, 2, 3, 4, 5, 6], bonusmatch=True) == [0, 5, 1, 4, 2, 3, 6]
-        assert sort_ranks([0, 1, 2, 3, 4, 5], bonusmatch=True) == [0, 3, 1, 2, 4, 5]
-        assert sort_ranks([0, 1, 2, 3, 4], bonusmatch=True) == [0, 3, 1, 2, 4]
-        assert sort_ranks([0, 1, 2, 3], bonusmatch=True) == [0, 1, 2, 3]
-        assert sort_ranks([0, 1, 2], bonusmatch=True) == [0, 1, 2]
-        assert sort_ranks([0, 1], bonusmatch=True) == [0, 1]
-        assert sort_ranks([0], bonusmatch=True) == [0]
-        assert sort_ranks([], bonusmatch=True) == []
-
-
-    def test_prepared_matches(self):
-        with pytest.raises(ValueError):
-            _none = knockout_mode.prepare_matches([])
-        with pytest.raises(ValueError):
-            _none = knockout_mode.prepare_matches([], bonusmatch=True)
-
-        single = knockout_mode.prepare_matches([1])
-        assert single == knockout_mode.Team(name=1)
-        single = knockout_mode.prepare_matches([1], bonusmatch=True)
-        assert single == knockout_mode.Team(name=1)
-
-        pair = knockout_mode.prepare_matches([1,2])
-        assert pair == Match(t1=Team(name=1), t2=Team(name=2))
-        pair = knockout_mode.prepare_matches([1,2], bonusmatch=True)
-        assert pair == Match(t1=Team(name=1), t2=Team(name=2))
-
-        triple = knockout_mode.prepare_matches([1,2,3])
-        assert triple == Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Bye(team=Team(name=3)))
-        triple = knockout_mode.prepare_matches([1,2,3], bonusmatch=True)
-        assert triple == Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Bye(team=Team(name=3)))
-
-        matches = knockout_mode.prepare_matches([1,2,3,4])
-        outcome = Match(t1=Match(t1=Team(name=1), t2=Team(name=4)), t2=Match(t1=Team(name=2), t2=Team(name=3)))
-        assert matches == outcome
-        matches = knockout_mode.prepare_matches([1,2,3,4], bonusmatch=True)
-        outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=2)), t2=Bye(team=Team(name=3))), t2=Bye(team=Bye(team=Team(name=4))))
-        assert matches == outcome
-
-        matches = knockout_mode.prepare_matches([1,2,3,4,5])
-        outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=4)), t2=Match(t1=Team(name=2), t2=Team(name=3))), t2=Bye(team=Bye(team=Team(name=5))))
-        assert matches == outcome
-        matches = knockout_mode.prepare_matches([1,2,3,4,5], bonusmatch=True)
-        outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=4)), t2=Match(t1=Team(name=2), t2=Team(name=3))), t2=Bye(team=Bye(team=Team(name=5))))
-        assert matches == outcome
-
-        matches = knockout_mode.prepare_matches([1,2,3,4,5,6])
-        outcome = Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=6)), t2=Match(t1=Team(name=2), t2=Team(name=5))), t2=Bye(team=Match(t1=Team(name=3), t2=Team(name=4))))
-        assert matches == outcome
-        matches = knockout_mode.prepare_matches([1,2,3,4,5,6], bonusmatch=True)
-        outcome = Match(t1=Match(t1=Match(t1=Match(t1=Team(name=1), t2=Team(name=4)), t2=Match(t1=Team(name=2), t2=Team(name=3))), t2=Bye(team=Bye(team=Team(name=5)))), t2=Bye(team=Bye(team=Bye(team=Team(name=6)))))
-        assert matches == outcome
-
-
 @pytest.mark.parametrize('teams, bonusmatch, check_output', [
+    ([1, 2, 3], False, """
+        1 ───────┐  ┏━━━━━┓
+                 ├──┨ ??? ┃
+        2 ┐      │  ┗━━━━━┛
+          ├─ ??? ┘
+        3 ┘
+        """),
+    ([1, 2, 3], True, """
+        1 ┐
+          ├─ ??? ┐  ┏━━━━━┓
+        2 ┘      ├──┨ ??? ┃
+                 │  ┗━━━━━┛
+        3 ───────┘
+        """),
+    ([1, 2, 3, 4], False, """
+        1 ┐
+          ├─ ??? ┐
+        4 ┘      │  ┏━━━━━┓
+                 ├──┨ ??? ┃
+        2 ┐      │  ┗━━━━━┛
+          ├─ ??? ┘
+        3 ┘
+        """),
+    ([1, 2, 3, 4], True, """
+        1 ───────┐
+                 ├─ ??? ┐
+        2 ┐      │      │  ┏━━━━━┓
+          ├─ ??? ┘      ├──┨ ??? ┃
+        3 ┘             │  ┗━━━━━┛
+                        │
+        4 ──────────────┘
+        """),
+    ([1, 2, 3, 4, 5], False, """
+        1 ───────┐
+                 ├─ ??? ┐
+        4 ┐      │      │
+          ├─ ??? ┘      │  ┏━━━━━┓
+        5 ┘             ├──┨ ??? ┃
+                        │  ┗━━━━━┛
+        2 ───────┐      │
+                 ├─ ??? ┘
+        3 ───────┘
+        """),
     ([1, 2, 3, 4, 5], True, """
         1 ┐
           ├─ ??? ┐
@@ -110,28 +139,28 @@ class TestKoMode:
         5 ──────────────┘
         """),
     ([1, 2, 3, 4, 5, 6], False, """
-        1 ┐
-          ├─ ??? ┐
-        6 ┘      │
+        1 ───────┐
                  ├─ ??? ┐
-        2 ┐      │      │
+        4 ┐      │      │
           ├─ ??? ┘      │  ┏━━━━━┓
         5 ┘             ├──┨ ??? ┃
                         │  ┗━━━━━┛
-        3 ┐             │
-          ├─ ??? ───────┘
-        4 ┘
+        2 ───────┐      │
+                 ├─ ??? ┘
+        3 ┐      │
+          ├─ ??? ┘
+        6 ┘
         """),
     ([1, 2, 3, 4, 5, 6], True, """
-        1 ┐
-          ├─ ??? ┐
-        4 ┘      │
+        1 ───────┐
                  ├─ ??? ┐
-        2 ┐      │      │
-          ├─ ??? ┘      ├─ ??? ┐
-        3 ┘             │      │  ┏━━━━━┓
-                        │      ├──┨ ??? ┃
-        5 ──────────────┘      │  ┗━━━━━┛
+        4 ┐      │      │
+          ├─ ??? ┘      │
+        5 ┘             ├─ ??? ┐
+                        │      │
+        2 ───────┐      │      │  ┏━━━━━┓
+                 ├─ ??? ┘      ├──┨ ??? ┃
+        3 ───────┘             │  ┗━━━━━┛
                                │
         6 ─────────────────────┘
         """),
@@ -358,11 +387,5 @@ class TestTournament:
         state = tournament.State(config, rng=RNG)
         rr_ranking = tournament.play_round1(config, state, rng=RNG)
 
-        if config.bonusmatch:
-            sorted_ranking = knockout_mode.sort_ranks(rr_ranking[:-1]) + [rr_ranking[-1]]
-        else:
-            sorted_ranking = knockout_mode.sort_ranks(rr_ranking)
-
-        winner = tournament.play_round2(config, sorted_ranking, state, rng=RNG)
+        winner = tournament.play_round2(config, rr_ranking, state, rng=RNG)
         assert winner == 'group1'
-

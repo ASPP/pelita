@@ -5,52 +5,6 @@ from collections import defaultdict, namedtuple
 from io import StringIO
 
 
-def sort_ranks(teams, bonusmatch=False):
-    """ Re-orders a ranked list of teams such that
-    the best and worst team are next to each other,
-    the second best and second best are next to each other, etc.
-
-    If bonusmatch is True, then the worst team will be left
-    out until the final match
-
-    Parameters
-    ----------
-    teams : ranked list of teams
-
-    Raises
-    ------
-    TypeError
-        if new_data is not a list
-    ValueError
-        if new_data has inappropriate length
-
-    """
-    if len(teams) < 2:
-        return teams
-
-    if bonusmatch:
-        # pop last item from teams list
-        bonus_team = [teams.pop()]
-    else:
-        bonus_team = []
-
-    # if the number of teams is not even, we need to leave out another team
-    l = len(teams)
-    if l % 2 != 0:
-        # pop last item from teams list
-        remainder_team = [teams.pop()]
-    else:
-        remainder_team = []
-
-    # top half
-    good_teams = teams[:l//2]
-    # bottom half
-    bad_teams = reversed(teams[l//2:2*(l//2)])
-
-    pairs = [team for pair in zip(good_teams, bad_teams)
-                  for team in pair]
-    return pairs + remainder_team + bonus_team
-
 def identity(x):
     return x
 
@@ -226,39 +180,104 @@ def print_knockout(tree, name_trafo=identity, highlight=None):
         return output.getvalue()
 
 
-def makepairs(matches):
-    if len(matches) == 0:
-        raise ValueError("Cannot prepare matches (no teams given).")
-    while not len(matches) == 1:
-        m = []
-        pairs = itertools.zip_longest(matches[::2], matches[1::2])
-        for p1, p2 in pairs:
-            if p2 is not None:
-                m.append(Match(p1, p2)) #  winner=None))
-            else:
-                m.append(Bye(p1))
-        matches = m
-    return matches[0]
+def build_bracket(teams):
+    """
+    Build a match tree from the given list of teams.
+
+    Given a ranking in teams, we want to ensure that the best teams
+    only play against each other in the last possible moment.
+
+    Examples:
+
+        1 ──┐
+            ├─
+        2 ┐ │
+          ├─┘
+        3 ┘
+
+        1 ┐
+          ├─┐
+        4 ┘ │
+            ├─
+        2 ┐ │
+          ├─┘
+        3 ┘
+
+        1 ──┐
+            ├─┐
+        4 ┐ │ │
+          ├─┘ │
+        5 ┘   ├─
+              │
+        2 ──┐ │
+            ├─┘
+        3 ──┘
+
+    Note that this is the situation without a bonus match. The team that is selected for the
+    bonus round, will be removed from the list before building the match tree and then added
+    in a final step, leading to a pattern like:
+
+        1 ┐
+          ├─┐
+        4 ┘ │
+            ├─┐
+        2 ┐ │ │
+          ├─┘ ├─
+        3 ┘   │
+              │
+        5 ────┘
+
+
+    There is a formula in https://oeis.org/A131271 but the recursive method
+    may be simpler to follow: For each four teams we reserve the first and the last team
+    in a list for the top bracket; places two and three in a list for the bottom bracket.
+    We then apply the algorithm recursively to the top and bottom bracket.
+    """
+    if len(teams) == 1:
+        return teams[0]
+
+    # fill missing teams so we have a power of 2 positions
+    depth = int(math.log2(len(teams)))
+    fill = len(teams) - 2**depth
+    teams = teams + fill * [None]
+
+    # recursively match first against fourth, second against third
+    top_bracket = []
+    bottom_bracket = []
+    for idx, team in enumerate(teams):
+        match idx % 4:
+            case 0|3:
+                top_bracket.append(team)
+            case _:
+                bottom_bracket.append(team)
+    return [build_bracket(top_bracket), build_bracket(bottom_bracket)]
+
+def build_match_tree(bracket):
+    match bracket:
+        case [t1, None]:
+            return Bye(team=build_match_tree(t1))
+        case [None, t2]:
+            # build_bracket should not create this pattern
+            # but we catch it anyway
+            return Bye(team=build_match_tree(t2))
+        case [t1, t2]:
+            return Match(t1=build_match_tree(t1), t2=build_match_tree(t2))
+        case name:
+            return Team(name=name)
+
 
 def prepare_matches(teams, bonusmatch=False):
-    """ Takes a ranked list of teams, matches them according to sort_ranks
-    and returns the Match tree.
+    """ Takes a ranked list of teams and returns the Match tree.
     """
 
     if not teams:
         raise ValueError("No teams given to sort.")
 
-    teams_sorted = sort_ranks(teams, bonusmatch=bonusmatch)
-
-    # If there is a bonus match, we must ensure that it will be played
-    # at the very last
     if bonusmatch:
-        bonus_team = teams_sorted.pop()
-        if not teams_sorted:
-            return Team(bonus_team)
+        bonus_team = teams.pop()
 
-    # pair up the games and return the tree starting from the winning team
-    match_tree = makepairs([Team(t) for t in teams_sorted])
+    bracket = build_bracket(teams)
+    match_tree = build_match_tree(bracket)
 
     if bonusmatch:
         # now add enough Byes to the bonus_team
@@ -276,20 +295,23 @@ def prepare_matches(teams, bonusmatch=False):
     return match_tree
 
 def is_balanced(tree):
-    if isinstance(tree, Match):
-        return is_balanced(tree.t1) and is_balanced(tree.t2) and tree_depth(tree.t1) == tree_depth(tree.t2)
-    if isinstance(tree, Bye):
-        return True
-    if isinstance(tree, Team):
-        return True
+    match tree:
+        case Match(t1, t2):
+            # subtrees must have the same maximum depth
+            # and be balanced at all spots
+            return (is_balanced(t1) and is_balanced(t2)
+                    and tree_depth(t1) == tree_depth(t2))
+        case Bye(_) | Team(_):
+           return True
 
 def tree_depth(tree):
-    if isinstance(tree, Match):
-        return 1 + max(tree_depth(tree.t1), tree_depth(tree.t2))
-    if isinstance(tree, Bye):
-        return 1 + tree_depth(tree.team)
-    if isinstance(tree, Team):
-        return 1
+    match tree:
+        case Match(t1, t2):
+            return 1 + max(tree_depth(t1), tree_depth(t2))
+        case Bye(team):
+            return 1 + tree_depth(team)
+        case Team(_):
+            return 1
 
 def tree_enumerate(tree):
     enumerated = defaultdict(list)
