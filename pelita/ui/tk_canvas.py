@@ -841,13 +841,13 @@ class TkApplication:
         padding = 15
 
         # middle colon
-        self.ui_header_canvas.create_text(center, top, text=":", font=(self._default_font, font_size), tags="title", anchor=tkinter.CENTER)
+        self.ui_header_canvas.create_text(center, top, text=":", font=(self._default_font, font_size), fill="black", tags="title", anchor=tkinter.CENTER)
 
         self.ui_header_canvas.create_text(center, top, text=left_team, font=(self._default_font, font_size), fill=BLUE, tags="title", anchor=tkinter.E)
         self.ui_header_canvas.create_text(center+2, top, text=right_team, font=(self._default_font, font_size), fill=RED, tags="title", anchor=tkinter.W)
 
-        self.ui_header_canvas.create_text(0 + padding, 20 + font_size, text=" " + left_status, font=(self._default_font, status_font_size), tags="title", anchor=tkinter.W)
-        self.ui_header_canvas.create_text(self.ui_header_canvas.winfo_width() - padding, 20 + font_size, text=right_status + " ", font=(self._default_font, status_font_size), tags="title", anchor=tkinter.E)
+        self.ui_header_canvas.create_text(0 + padding, 20 + font_size, text=" " + left_status, font=(self._default_font, status_font_size), fill="black", tags="title", anchor=tkinter.W)
+        self.ui_header_canvas.create_text(self.ui_header_canvas.winfo_width() - padding, 20 + font_size, text=right_status + " ", font=(self._default_font, status_font_size), fill="black", tags="title", anchor=tkinter.E)
 
     def draw_status_info(self, game_state):
         if "round" in game_state:
