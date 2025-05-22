@@ -209,40 +209,41 @@ class TkApplication:
         self.ui_sub_header.config(background="white")
 
         self.ui_status_canvas = tkinter.Frame(window, height=25)
-        self.ui_status_canvas.config(background="white")
 
         self.ui_game_canvas = tkinter.Canvas(window)
         self.ui_game_canvas.config(background="white", bd=0, highlightthickness=0, relief='ridge')
         self.ui_game_canvas.bind('<Configure>', lambda e: window.after_idle(self.update))
         self.ui_game_canvas.bind('<Button-1>', self.on_click)
 
-        self.ui_status_00 = tkinter.Frame(self.ui_status_canvas, background="white", padx=5, pady=0)
-        self.ui_status_01 = tkinter.Frame(self.ui_status_canvas, background="white", padx=5, pady=0)
-        self.ui_status_02 = tkinter.Frame(self.ui_status_canvas, background="white", padx=5, pady=0)
-        self.ui_status_10 = tkinter.Frame(self.ui_status_canvas, background="white", padx=5, pady=0)
-        self.ui_status_11 = tkinter.Frame(self.ui_status_canvas, background="white", padx=5, pady=0)
-        self.ui_status_12 = tkinter.Frame(self.ui_status_canvas, background="white", padx=5, pady=0)
-        self.ui_status_20 = tkinter.Frame(self.ui_status_canvas, background="white", padx=5, pady=0)
-        self.ui_status_21 = tkinter.Frame(self.ui_status_canvas, background="white", padx=5, pady=0)
-        self.ui_status_22 = tkinter.Frame(self.ui_status_canvas, background="white", padx=5, pady=0)
+        self.ui_status_margin = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
+        self.ui_status_01 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
+        self.ui_status_00 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
+        self.ui_status_02 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
+        self.ui_status_10 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
+        self.ui_status_11 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
+        self.ui_status_12 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
+        self.ui_status_20 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
+        self.ui_status_21 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
+        self.ui_status_22 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
 
-        self.ui_status_00.grid(row=0, column=0, sticky="W")
-        self.ui_status_01.grid(row=0, column=1, sticky="WE")
-        self.ui_status_02.grid(row=0, column=2, sticky="E")
-        self.ui_status_10.grid(row=1, column=0, sticky="W")
-        self.ui_status_11.grid(row=1, column=1, columnspan=2, sticky="E")
-#        self.ui_status_12.grid(row=1, column=2, sticky="E")
-        self.ui_status_20.grid(row=2, column=0, sticky="W")
-        self.ui_status_21.grid(row=2, column=1, sticky="W")
-        self.ui_status_22.grid(row=2, column=2, sticky="E")
+        # We need a small margin on the top so that it looks better
+        self.ui_status_margin.grid(row=0, column=0, columnspan=3, sticky="E", ipady=2)
+
+        self.ui_status_00.grid(row=1, column=0, sticky="W")
+        self.ui_status_01.grid(row=1, column=1, sticky="WE")
+        self.ui_status_02.grid(row=1, column=2, sticky="E")
+        self.ui_status_10.grid(row=2, column=0, sticky="W")
+        self.ui_status_11.grid(row=2, column=1, columnspan=2, sticky="E")
+#        self.ui_status_12.grid(row=2, column=2, sticky="E")
+        self.ui_status_20.grid(row=3, column=0, sticky="W")
+        self.ui_status_21.grid(row=3, column=1, sticky="W")
+        self.ui_status_22.grid(row=3, column=2, sticky="E")
 
         self.ui_status_canvas.grid_columnconfigure(0, weight=1, uniform='status')
         self.ui_status_canvas.grid_columnconfigure(1, weight=1, uniform='status')
         self.ui_status_canvas.grid_columnconfigure(2, weight=1, uniform='status')
 
         self.ui_button_game_speed_slower = tkinter.Button(self.ui_status_10,
-            foreground="black",
-            background="white",
             justify=tkinter.CENTER,
             text="slower",
             padx=12,
@@ -250,8 +251,6 @@ class TkApplication:
         self.ui_button_game_speed_slower.pack(side=tkinter.LEFT)
 
         self.ui_button_game_speed_faster = tkinter.Button(self.ui_status_10,
-            foreground="black",
-            background="white",
             justify=tkinter.CENTER,
             text="faster",
             padx=12,
@@ -261,8 +260,6 @@ class TkApplication:
         self._check_speed_button_state()
 
         self.ui_button_game_toggle_grid = tkinter.Button(self.ui_status_10,
-            foreground="black",
-            background="white",
             justify=tkinter.CENTER,
             padx=12,
             command=self.toggle_grid)
@@ -273,65 +270,53 @@ class TkApplication:
         self.ui_status_fps_info = tkinter.Label(self.ui_status_20,
             text="",
             font=(self._default_font, 8),
-            foreground="black",
-            background="white",
             justify=tkinter.CENTER)
         self.ui_status_fps_info.pack(side=tkinter.LEFT)
 
         self.ui_status_selected = tkinter.Label(self.ui_status_22,
             text="",
             font=(self._default_font, 8),
-            foreground="black",
-            background="white",
             justify=tkinter.CENTER)
         self.ui_status_selected.pack(side=tkinter.RIGHT)
 
         tkinter.Button(self.ui_status_00,
-                       foreground="black",
-                       background="white",
                        justify=tkinter.CENTER,
                        text="PLAY/PAUSE",
                        padx=12,
                        command=self.toggle_running).pack(side=tkinter.LEFT, expand=tkinter.YES)
 
         tkinter.Button(self.ui_status_00,
-                       foreground="black",
-                       background="white",
                        justify=tkinter.CENTER,
                        text="STEP",
                        padx=12,
                        command=self.request_step).pack(side=tkinter.LEFT, expand=tkinter.YES)
 
         tkinter.Button(self.ui_status_00,
-                       foreground="black",
-                       background="white",
                        justify=tkinter.CENTER,
                        text="ROUND",
                        padx=12,
                        command=self.request_round).pack(side=tkinter.LEFT, expand=tkinter.YES)
 
         tkinter.Button(self.ui_status_01,
-                       foreground="black",
-                       background="white",
                        justify=tkinter.CENTER,
                        text="QUIT",
                        width=30,
                        padx=12,
                        command=self.quit).pack(side=tkinter.TOP, fill=tkinter.BOTH, anchor=tkinter.CENTER)
 
-        # Add circles to show which bot is active.
-        self.ui_bot_traffic_lights_canvas = tkinter.Canvas(self.ui_status_02, height=25, width=44,
-                                                           background="white", bd=0, highlightthickness=0,
+        # Show bot indexes
+        self.ui_bot_indexes_canvas = tkinter.Canvas(self.ui_status_02, height=25, width=44,
+                                                           bd=0, highlightthickness=0,
                                                            relief='ridge')
-        self.ui_bot_traffic_lights_canvas.pack(side=tkinter.LEFT)
+        self.ui_bot_indexes_canvas.pack(side=tkinter.LEFT)
         self.ui_bot_traffic_lights_c = []
         for idx in range(4):
             spacing = 10
-            x0, y0 = 2.5 + idx * spacing, 13
-            circle = self.ui_bot_traffic_lights_canvas.create_text(x0, y0, text=layout.BOT_I2N[idx], font=(self._default_font, 11), fill="black")
-            self.ui_bot_traffic_lights_c.append(circle)
+            x0, y0 = 4 + idx * spacing, 13
+            bot_char = self.ui_bot_indexes_canvas.create_text(x0, y0, text=layout.BOT_I2N[idx])
+            self.ui_bot_traffic_lights_c.append(bot_char)
 
-        self.ui_status_round_info = tkinter.Label(self.ui_status_02, text="", background="white")
+        self.ui_status_round_info = tkinter.Label(self.ui_status_02, text="")
         self.ui_status_round_info.pack(side=tkinter.LEFT)
 
         self.ui_header_canvas.pack(side=tkinter.TOP, fill=tkinter.BOTH)
@@ -867,9 +852,9 @@ class TkApplication:
             bot_colors = [BLUE, RED, BLUE, RED]
             for idx, circle in enumerate(self.ui_bot_traffic_lights_c):
                 if turn == idx:
-                    self.ui_bot_traffic_lights_canvas.itemconfig(circle, fill=bot_colors[idx])
+                    self.ui_bot_indexes_canvas.itemconfig(circle, fill=bot_colors[idx])
                 else:
-                    self.ui_bot_traffic_lights_canvas.itemconfig(circle, fill="#bbb")
+                    self.ui_bot_indexes_canvas.itemconfig(circle, fill="#bbb")
 
 
     def draw_selected(self, game_state):
