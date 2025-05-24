@@ -1,5 +1,4 @@
 import logging
-import time
 
 import zmq
 
@@ -40,6 +39,33 @@ from .tk_utils import wm_delete_window_handler
 
 _logger = logging.getLogger(__name__)
 
+# Design variables
+
+# Height of the title (team scores)
+HEADER_HEIGHT = 40
+
+# Padding around the maze cells (used in grid mode)
+MAZE_PADDING = 13
+
+# Extra padding around status section
+STATUS_PADDING_TOP = 0
+STATUS_PADDING_BOTTOM = 2
+
+# Padding for the grid items in the status section
+GRID_PADDING_X = 5
+
+# Distance from top to headline text
+HEADER_MARGIN_TOP = 3
+
+# Distance from headline text to subheader
+SUBHEADER_MARGIN_TOP = 10
+
+# The size of the status section on the bottom is generated automatically.
+# To have default geometry with square cells, this must be checked with
+#
+#   STATUS_HEIGHT = TkApplication.ui_status_frame.winfo_height()
+#
+# A good geometry is then (w, w/2 + HEADER_HEIGHT+STATUS_HEIGHT)
 
 def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
     no_lines = display_string.count("\n") + 1
@@ -56,12 +82,13 @@ class MeshGraph:
     """ A `MeshGraph` is a structure of `mesh_width` * `mesh_height` rectangles,
     covering an area of `screen_width`, `screen_height`.
     """
-    def __init__(self, mesh_width, mesh_height, screen_width, screen_height):
+    def __init__(self, mesh_width, mesh_height, screen_width, screen_height, top_margin=0):
         self.mesh_width = mesh_width
         self.mesh_height = mesh_height
         self.screen_height = screen_height
         self.screen_width = screen_width
-        self.padding = 15
+        self.top_margin = top_margin
+        self.padding = MAZE_PADDING
 
     def update_mesh_shape(self, shape):
         mesh_width, mesh_height = shape
@@ -85,7 +112,7 @@ class MeshGraph:
         """ The height of a single field.
         """
         # we have to adjust by one pixel for the border
-        height = float(self.screen_height - 1 - 2 * self.padding) / self.mesh_height
+        height = float(self.screen_height - 1 - 2 * self.padding - self.top_margin) / self.mesh_height
         # if the UI is not initialized yet (or just really really small) this may
         # result in a negative value. Ensure that it is always positive or zero.
         if height < 0:
@@ -122,7 +149,7 @@ class MeshGraph:
         # coords are between -1 and +1: shift on [0, 1]
         trafo_y = (model_y + 1.0) / 2.0
 
-        real_y = self.rect_height * (mesh_y + trafo_y) + self.padding
+        real_y = self.rect_height * (mesh_y + trafo_y) + self.padding + self.top_margin
         return real_y
 
     def screen_to_mesh_coord(self, screen_x, screen_y):
@@ -130,7 +157,7 @@ class MeshGraph:
         # or None, when it is outside of the mesh
 
         x = int((screen_x - self.padding) / self.rect_width)
-        y = int((screen_y - self.padding) / self.rect_height)
+        y = int((screen_y - self.padding - self.top_margin) / self.rect_height)
 
         if not 0 <= x < self.mesh_width or not 0 <= y < self.mesh_height:
             return None
@@ -182,7 +209,7 @@ class TkApplication:
         else:
             screensize = self.geometry
 
-        self.mesh_graph = MeshGraph(0, 0, screensize[0], screensize[1])
+        self.mesh_graph = MeshGraph(0, 0, screensize[0], screensize[1], top_margin=HEADER_HEIGHT)
 
         self.fullscreen = fullscreen
         self._fullscreen_enabled = fullscreen
@@ -192,8 +219,6 @@ class TkApplication:
 
         self._grid_enabled = False
 
-        self._times = []
-        self._fps = None
         self.selected = None
 
         self.bot_sprites = {}
@@ -202,127 +227,93 @@ class TkApplication:
 
         self._game_state = {}
 
-        self.ui_header_canvas = tkinter.Canvas(window, height=45)
-        self.ui_header_canvas.config(background="white", bd=0, highlightthickness=0, relief='ridge')
-
-        self.ui_sub_header = tkinter.Frame(window, height=25)
-        self.ui_sub_header.config(background="white")
-
-        self.ui_status_canvas = tkinter.Frame(window, height=25)
-
         self.ui_game_canvas = tkinter.Canvas(window)
-        self.ui_game_canvas.config(background="white", bd=0, highlightthickness=0, relief='ridge')
+        self.ui_game_canvas.configure(background="white", bd=0, highlightthickness=0, relief='flat')
         self.ui_game_canvas.bind('<Configure>', lambda e: window.after_idle(self.update))
         self.ui_game_canvas.bind('<Button-1>', self.on_click)
 
-        self.ui_status_margin = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
-        self.ui_status_01 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
-        self.ui_status_00 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
-        self.ui_status_02 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
-        self.ui_status_10 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
-        self.ui_status_11 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
-        self.ui_status_12 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
-        self.ui_status_20 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
-        self.ui_status_21 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
-        self.ui_status_22 = tkinter.Frame(self.ui_status_canvas, padx=5, pady=0)
+        self.ui_status_frame = tkinter.Frame(window)
+        self.ui_status_frame.configure(bd=0, relief="flat")
+
+        self.ui_status_01 = tkinter.Frame(self.ui_status_frame)
+        self.ui_status_00 = tkinter.Frame(self.ui_status_frame)
+        self.ui_status_02 = tkinter.Frame(self.ui_status_frame)
+        self.ui_status_10 = tkinter.Frame(self.ui_status_frame)
+        self.ui_status_11 = tkinter.Frame(self.ui_status_frame)
+        self.ui_status_12 = tkinter.Frame(self.ui_status_frame)
+        self.ui_status_margin_top = tkinter.Frame(self.ui_status_frame)
+        self.ui_status_margin_bottom = tkinter.Frame(self.ui_status_frame)
 
         # We need a small margin on the top so that it looks better
-        self.ui_status_margin.grid(row=0, column=0, columnspan=3, sticky="E", ipady=2)
+        self.ui_status_margin_top.grid(row=1, column=0, columnspan=3, sticky="E", ipady=STATUS_PADDING_TOP)
 
-        self.ui_status_00.grid(row=1, column=0, sticky="W")
-        self.ui_status_01.grid(row=1, column=1, sticky="WE")
-        self.ui_status_02.grid(row=1, column=2, sticky="E")
-        self.ui_status_10.grid(row=2, column=0, sticky="W")
-        self.ui_status_11.grid(row=2, column=1, columnspan=2, sticky="E")
-#        self.ui_status_12.grid(row=2, column=2, sticky="E")
-        self.ui_status_20.grid(row=3, column=0, sticky="W")
-        self.ui_status_21.grid(row=3, column=1, sticky="W")
-        self.ui_status_22.grid(row=3, column=2, sticky="E")
+        self.ui_status_00.grid(row=2, column=0, sticky="W", padx=GRID_PADDING_X)
+        self.ui_status_01.grid(row=2, column=1, sticky="WE")
+        self.ui_status_02.grid(row=2, column=2, sticky="E", padx=GRID_PADDING_X)
+        self.ui_status_10.grid(row=3, column=0, sticky="W", padx=GRID_PADDING_X)
+        self.ui_status_11.grid(row=3, column=1, sticky="WE")
+        self.ui_status_12.grid(row=3, column=2, sticky="E", padx=GRID_PADDING_X)
 
-        self.ui_status_canvas.grid_columnconfigure(0, weight=1, uniform='status')
-        self.ui_status_canvas.grid_columnconfigure(1, weight=1, uniform='status')
-        self.ui_status_canvas.grid_columnconfigure(2, weight=1, uniform='status')
+        self.ui_status_margin_bottom.grid(row=4, column=0, columnspan=3, sticky="E", ipady=STATUS_PADDING_BOTTOM)
+
+        self.ui_status_frame.grid_columnconfigure(0, weight=2, uniform='status')
+        self.ui_status_frame.grid_columnconfigure(1, weight=1, uniform='status')
+        self.ui_status_frame.grid_columnconfigure(2, weight=2, uniform='status')
 
         self.ui_button_game_speed_slower = tkinter.Button(self.ui_status_10,
-            justify=tkinter.CENTER,
             text="slower",
-            padx=12,
+            font=(self._default_font, 8),
             command=self.delay_inc)
         self.ui_button_game_speed_slower.pack(side=tkinter.LEFT)
 
         self.ui_button_game_speed_faster = tkinter.Button(self.ui_status_10,
-            justify=tkinter.CENTER,
             text="faster",
-            padx=12,
+            font=(self._default_font, 8),
             command=self.delay_dec)
         self.ui_button_game_speed_faster.pack(side=tkinter.LEFT)
 
         self._check_speed_button_state()
 
         self.ui_button_game_toggle_grid = tkinter.Button(self.ui_status_10,
-            justify=tkinter.CENTER,
-            padx=12,
+            font=(self._default_font, 8),
             command=self.toggle_grid)
         self.ui_button_game_toggle_grid.pack(side=tkinter.LEFT)
 
         self._check_grid_toggle_state()
 
-        self.ui_status_fps_info = tkinter.Label(self.ui_status_20,
+        self.ui_status_selected = tkinter.Label(self.ui_status_12,
             text="",
-            font=(self._default_font, 8),
-            justify=tkinter.CENTER)
-        self.ui_status_fps_info.pack(side=tkinter.LEFT)
-
-        self.ui_status_selected = tkinter.Label(self.ui_status_22,
-            text="",
-            font=(self._default_font, 8),
-            justify=tkinter.CENTER)
+            font=(self._default_font, 8))
         self.ui_status_selected.pack(side=tkinter.RIGHT)
 
         tkinter.Button(self.ui_status_00,
-                       justify=tkinter.CENTER,
                        text="PLAY/PAUSE",
-                       padx=12,
-                       command=self.toggle_running).pack(side=tkinter.LEFT, expand=tkinter.YES)
+                       command=self.toggle_running).pack(side=tkinter.LEFT, expand=True)
 
         tkinter.Button(self.ui_status_00,
-                       justify=tkinter.CENTER,
                        text="STEP",
-                       padx=12,
-                       command=self.request_step).pack(side=tkinter.LEFT, expand=tkinter.YES)
+                       command=self.request_step).pack(side=tkinter.LEFT, expand=True)
 
         tkinter.Button(self.ui_status_00,
-                       justify=tkinter.CENTER,
                        text="ROUND",
-                       padx=12,
-                       command=self.request_round).pack(side=tkinter.LEFT, expand=tkinter.YES)
+                       command=self.request_round).pack(side=tkinter.LEFT, expand=True)
 
         tkinter.Button(self.ui_status_01,
-                       justify=tkinter.CENTER,
                        text="QUIT",
-                       width=30,
-                       padx=12,
                        command=self.quit).pack(side=tkinter.TOP, fill=tkinter.BOTH, anchor=tkinter.CENTER)
 
-        # Show bot indexes
-        self.ui_bot_indexes_canvas = tkinter.Canvas(self.ui_status_02, height=25, width=44,
-                                                           bd=0, highlightthickness=0,
-                                                           relief='ridge')
-        self.ui_bot_indexes_canvas.pack(side=tkinter.LEFT)
-        self.ui_bot_traffic_lights_c = []
+        self.ui_bot_indexes = []
         for idx in range(4):
-            spacing = 10
-            x0, y0 = 4 + idx * spacing, 13
-            bot_char = self.ui_bot_indexes_canvas.create_text(x0, y0, text=layout.BOT_I2N[idx])
-            self.ui_bot_traffic_lights_c.append(bot_char)
+            label = tkinter.Label(self.ui_status_02, text=layout.BOT_I2N[idx], width=1, justify='right', anchor='e')
 
-        self.ui_status_round_info = tkinter.Label(self.ui_status_02, text="")
+            label.pack(side=tkinter.LEFT)
+            self.ui_bot_indexes.append(label)
+
+        self.ui_status_round_info = tkinter.Label(self.ui_status_02, text="", width=10, justify='right', anchor='e')
         self.ui_status_round_info.pack(side=tkinter.LEFT)
 
-        self.ui_header_canvas.pack(side=tkinter.TOP, fill=tkinter.BOTH)
-#        self.ui_sub_header.pack(side=tkinter.TOP, fill=tkinter.BOTH)
-        self.ui_status_canvas.pack(side=tkinter.BOTTOM, fill=tkinter.BOTH)
-        self.ui_game_canvas.pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=tkinter.YES)#fill=tkinter.BOTH, expand=tkinter.YES)
+        self.ui_game_canvas.pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=True)
+        self.ui_status_frame.pack(side=tkinter.TOP, fill=tkinter.X)
 
         self._min_delay = 1
         self._delay = delay
@@ -355,24 +346,6 @@ class TkApplication:
             self.window.after_idle(self.request_initial)
 
     def update(self, game_state=None, redraw=False):
-        # Update the times for the fps calculation (if we are running)
-        # Our fps is only relevant for how often the bots update our viewer.
-        # When the viewer updates itself, we do not count it.
-        if self.running and game_state:
-            self._times.append(time.monotonic())
-            if len(self._times) > 3:
-                # take the mean of the last two time differences
-                # this could also be improved by taking up to four if available
-                try:
-                    self._fps = 2 / ((self._times[-1] - self._times[-2]) + (self._times[-2] - self._times[-3]))
-                except ZeroDivisionError:
-                    self._fps = 1 / 0.001
-            else:
-                self._fps = None
-            if len(self._times) > 100:
-                # Garbage collect old times
-                self._times = self._times[-3:]
-
         if game_state is not None:
             if self._game_state.get("shape") != game_state.get("shape"):
                 redraw = True
@@ -400,7 +373,6 @@ class TkApplication:
         else:
             if self._default_font.cget('size') != self._default_font_size:
                 self._default_font.configure(size=self._default_font_size)
-
 
         self.draw_universe(game_state, redraw=redraw)
 
@@ -743,9 +715,9 @@ class TkApplication:
 
     def _check_grid_toggle_state(self):
         if self._grid_enabled:
-            self.ui_button_game_toggle_grid.config(text="debug")
+            self.ui_button_game_toggle_grid.configure(text="debug")
         else:
-            self.ui_button_game_toggle_grid.config(text="debug")
+            self.ui_button_game_toggle_grid.configure(text="debug")
 
     def on_click(self, event):
         raw_x, raw_y = event.x, event.y
@@ -774,12 +746,12 @@ class TkApplication:
             self.ui_game_canvas.create_line(x_orig, y_top, x_orig, y_bottom, width=scale, fill=color, tags="background")
 
     def draw_title(self, game_state):
-        self.ui_header_canvas.delete("title")
+        self.ui_game_canvas.delete("title")
 
         if "team_names" not in game_state:
             return
 
-        center = self.ui_header_canvas.winfo_width() // 2
+        center = self.ui_game_canvas.winfo_width() // 2
 
         left_name = game_state["team_names"][0]
         right_name = game_state["team_names"][1]
@@ -797,7 +769,7 @@ class TkApplication:
         right_team = f" {right_score} {right_name} {right_info}"
 
         font_size = guess_size(left_team + ' : ' + right_team,
-                               self.ui_header_canvas.winfo_width(),
+                               self.ui_game_canvas.winfo_width(),
                                30,
                                rel_size = 1)
 
@@ -822,17 +794,18 @@ class TkApplication:
         right_status = status(1)
         status_font_size = max(font_size - 5, 3)
 
-        top = 15
-        padding = 15
+        top = HEADER_MARGIN_TOP
+        status_top = top + font_size + SUBHEADER_MARGIN_TOP
+        padding = MAZE_PADDING
 
         # middle colon
-        self.ui_header_canvas.create_text(center, top, text=":", font=(self._default_font, font_size), fill="black", tags="title", anchor=tkinter.CENTER)
+        self.ui_game_canvas.create_text(center, top, text=":", font=(self._default_font, font_size), fill="black", tags="title", anchor=tkinter.N)
 
-        self.ui_header_canvas.create_text(center, top, text=left_team, font=(self._default_font, font_size), fill=BLUE, tags="title", anchor=tkinter.E)
-        self.ui_header_canvas.create_text(center+2, top, text=right_team, font=(self._default_font, font_size), fill=RED, tags="title", anchor=tkinter.W)
+        self.ui_game_canvas.create_text(center, top, text=left_team, font=(self._default_font, font_size), fill=BLUE, tags="title", anchor=tkinter.NE)
+        self.ui_game_canvas.create_text(center+2, top, text=right_team, font=(self._default_font, font_size), fill=RED, tags="title", anchor=tkinter.NW)
 
-        self.ui_header_canvas.create_text(0 + padding, 20 + font_size, text=" " + left_status, font=(self._default_font, status_font_size), fill="black", tags="title", anchor=tkinter.W)
-        self.ui_header_canvas.create_text(self.ui_header_canvas.winfo_width() - padding, 20 + font_size, text=right_status + " ", font=(self._default_font, status_font_size), fill="black", tags="title", anchor=tkinter.E)
+        self.ui_game_canvas.create_text(0 + padding, status_top, text=" " + left_status, font=(self._default_font, status_font_size), fill="black", tags="title", anchor=tkinter.NW)
+        self.ui_game_canvas.create_text(self.ui_game_canvas.winfo_width() - padding, status_top, text=right_status + " ", font=(self._default_font, status_font_size), fill="black", tags="title", anchor=tkinter.NE)
 
     def draw_status_info(self, game_state):
         if "round" in game_state:
@@ -841,20 +814,12 @@ class TkApplication:
             turn = "–" if game_state["turn"] is None else game_state["turn"]
 
             round_info = f"Round {round:>3}/{max_rounds}"
-            self.ui_status_round_info.config(text=round_info)
-
-            if self._fps is not None:
-                fps_info = "%.f fps" % self._fps
-            else:
-                fps_info = "– fps"
-            self.ui_status_fps_info.config(text=fps_info)
+            self.ui_status_round_info.configure(text=round_info)
 
             bot_colors = [BLUE, RED, BLUE, RED]
-            for idx, circle in enumerate(self.ui_bot_traffic_lights_c):
-                if turn == idx:
-                    self.ui_bot_indexes_canvas.itemconfig(circle, fill=bot_colors[idx])
-                else:
-                    self.ui_bot_indexes_canvas.itemconfig(circle, fill="#bbb")
+            for idx, label in enumerate(self.ui_bot_indexes):
+                label.configure(fg=bot_colors[idx] if turn == idx else "#bbb")
+
 
 
     def draw_selected(self, game_state):
@@ -888,7 +853,7 @@ class TkApplication:
 
                 return f"{pos} in {zone} zone: {contents}"
 
-            self.ui_status_selected.config(text=field_status(self.selected))
+            self.ui_status_selected.configure(text=field_status(self.selected))
 
             ul = self.mesh_graph.mesh_to_screen(self.selected, (-1, -1))
             lr = self.mesh_graph.mesh_to_screen(self.selected, (1, 1))
@@ -896,7 +861,7 @@ class TkApplication:
             self.ui_game_canvas.create_rectangle(*ul, *lr, fill=SELECTED, tags=("selected",))
             self.ui_game_canvas.tag_lower("selected")
         else:
-            self.ui_status_selected.config(text="nothing selected")
+            self.ui_status_selected.configure(text="nothing selected")
 
 
     def draw_end_of_game(self, display_string):
@@ -1019,7 +984,7 @@ class TkApplication:
         except TypeError:
             req_pos = None
 
-        if game_state['requested_moves'][bot]['success'] and tuple(game_state['bots'][bot]) != tuple(req_pos):
+        if game_state['requested_moves'][bot]['success'] and req_pos and tuple(game_state['bots'][bot]) != tuple(req_pos):
             # Bot has committed suicide. Show two arrows.
             arrow_item1 = Arrow(self.mesh_graph,
                             position=old_pos,
@@ -1092,11 +1057,6 @@ class TkApplication:
                                     show_id=self._grid_enabled)
 
     def toggle_running(self):
-        # We change from running to stopping or the other way round
-        # Clean up the times for fps calculation as they will be wrong
-        self._fps = None
-        self._times = []
-
         self.running = not self.running
         if self.running:
             self.request_step()
@@ -1222,8 +1182,8 @@ class TkApplication:
             # may not be available yet (or may be None).
             # If this is the case, we’ll do nothing at all.
             if self._delay <= self._min_delay:
-                self.ui_button_game_speed_faster.config(state=tkinter.DISABLED)
+                self.ui_button_game_speed_faster.configure(state=tkinter.DISABLED)
             else:
-                self.ui_button_game_speed_faster.config(state=tkinter.NORMAL)
+                self.ui_button_game_speed_faster.configure(state=tkinter.NORMAL)
         except AttributeError:
             pass
