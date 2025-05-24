@@ -309,7 +309,7 @@ class TkApplication:
             label.pack(side=tkinter.LEFT)
             self.ui_bot_indexes.append(label)
 
-        self.ui_status_round_info = tkinter.Label(self.ui_status_02, text="", width=10, justify='right', anchor='e')
+        self.ui_status_round_info = tkinter.Label(self.ui_status_02, text="", justify='right', anchor='e')
         self.ui_status_round_info.pack(side=tkinter.LEFT)
 
         self.ui_game_canvas.pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=True)
