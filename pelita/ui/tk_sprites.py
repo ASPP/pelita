@@ -118,7 +118,7 @@ class BotSprite(TkSprite):
         canvas.delete("show_id" + self.tag)
         super().delete(canvas)
 
-    def move_to(self, new_pos, canvas, game_state=None, force=None, say="", show_id=False):
+    def move_to(self, new_pos, canvas, game_state, force=None, say="", show_id=False):
         old_direction = self.direction
         old_position = self.position
 
