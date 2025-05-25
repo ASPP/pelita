@@ -1,4 +1,5 @@
 import logging
+import platform
 
 import zmq
 
@@ -6,7 +7,6 @@ try:
     import tkinter
 except ImportError:
     # if we are on linux, we suggest to install the python3-tk package
-    import platform
     if 'Linux' in platform.platform():
         message = '\nYour Python installation is missing tkinter\n\n'
         if platform.freedesktop_os_release()['ID'] == 'debian':
@@ -40,9 +40,16 @@ from .tk_utils import wm_delete_window_handler
 _logger = logging.getLogger(__name__)
 
 # Design variables
+#
+# The size of the status section on the bottom is generated automatically.
+# To have default geometry with square cells, this must be checked with
+#
+#   STATUS_HEIGHT = TkApplication.ui_status_frame.winfo_height()
+#
+# A good geometry is then (w, w/2 + HEADER_HEIGHT+STATUS_HEIGHT)
 
 # Height of the title (team scores)
-HEADER_HEIGHT = 40
+HEADER_HEIGHT = 45
 
 # Padding around the maze cells (used in grid mode)
 MAZE_PADDING = 13
@@ -53,6 +60,7 @@ STATUS_PADDING_BOTTOM = 2
 
 # Padding for the grid items in the status section
 GRID_PADDING_X = 5
+GRID_PADDING_Y = 0
 
 # Distance from top to headline text
 HEADER_MARGIN_TOP = 3
@@ -60,12 +68,36 @@ HEADER_MARGIN_TOP = 3
 # Distance from headline text to subheader
 SUBHEADER_MARGIN_TOP = 10
 
-# The size of the status section on the bottom is generated automatically.
-# To have default geometry with square cells, this must be checked with
+STATUS_FRAME_STYLE = {
+    "background": "WHITE",
+}
+
+BUTTON_STYLE = {
+    "background": "WHITE",
+    # "padx": '3',
+    # "pady": '1',
+    "height": 0,
+}
+
+BUTTON_PADDING = {
+    "padx": "5",
+    "pady": "1",
+}
+
+LABEL_STYLE = {
+    "background": "WHITE",
+}
+
+# We must not add background colour and widths/padding to buttons on
+# macOS tkinter or it will look bad! (When testing, also check dark mode)
 #
-#   STATUS_HEIGHT = TkApplication.ui_status_frame.winfo_height()
-#
-# A good geometry is then (w, w/2 + HEADER_HEIGHT+STATUS_HEIGHT)
+# alternatively, check 'aqua' in (widget.tk.call('tk', 'windowingsystem'))
+if "macOS" in platform.platform():
+    STATUS_FRAME_STYLE = {}
+    BUTTON_STYLE = {}
+    BUTTON_PADDING = {}
+    LABEL_STYLE = {}
+
 
 def guess_size(display_string, bounding_width, bounding_height, rel_size=0):
     no_lines = display_string.count("\n") + 1
@@ -200,16 +232,7 @@ class TkApplication:
 
         self.game_finish_overlay = lambda: None
 
-        self.geometry = geometry
-        if self.geometry is None:
-            screensize = (
-                max(250, self.window.winfo_screenwidth() - 100),
-                max(250, self.window.winfo_screenheight() - 100)
-                )
-        else:
-            screensize = self.geometry
-
-        self.mesh_graph = MeshGraph(0, 0, screensize[0], screensize[1], top_margin=HEADER_HEIGHT)
+        self.mesh_graph = MeshGraph(0, 0, 0, 0, top_margin=HEADER_HEIGHT)
 
         self.fullscreen = fullscreen
         self._fullscreen_enabled = fullscreen
@@ -232,84 +255,89 @@ class TkApplication:
         self.ui_game_canvas.bind('<Configure>', lambda e: window.after_idle(self.update))
         self.ui_game_canvas.bind('<Button-1>', self.on_click)
 
-        self.ui_status_frame = tkinter.Frame(window)
+        self.ui_status_frame = tkinter.Frame(window, **STATUS_FRAME_STYLE)
         self.ui_status_frame.configure(bd=0, relief="flat")
 
-        self.ui_status_01 = tkinter.Frame(self.ui_status_frame)
-        self.ui_status_00 = tkinter.Frame(self.ui_status_frame)
-        self.ui_status_02 = tkinter.Frame(self.ui_status_frame)
-        self.ui_status_10 = tkinter.Frame(self.ui_status_frame)
-        self.ui_status_11 = tkinter.Frame(self.ui_status_frame)
-        self.ui_status_12 = tkinter.Frame(self.ui_status_frame)
-        self.ui_status_margin_top = tkinter.Frame(self.ui_status_frame)
-        self.ui_status_margin_bottom = tkinter.Frame(self.ui_status_frame)
+        self.ui_status_margin_top = tkinter.Frame(self.ui_status_frame, **STATUS_FRAME_STYLE)
+        self.ui_status_margin_bottom = tkinter.Frame(self.ui_status_frame, **STATUS_FRAME_STYLE)
+        self.ui_status_01 = tkinter.Frame(self.ui_status_frame, **STATUS_FRAME_STYLE)
+        self.ui_status_00 = tkinter.Frame(self.ui_status_frame, **STATUS_FRAME_STYLE)
+        self.ui_status_02 = tkinter.Frame(self.ui_status_frame, **STATUS_FRAME_STYLE)
+        self.ui_status_10 = tkinter.Frame(self.ui_status_frame, **STATUS_FRAME_STYLE)
+        self.ui_status_11 = tkinter.Frame(self.ui_status_frame, **STATUS_FRAME_STYLE)
+        self.ui_status_12 = tkinter.Frame(self.ui_status_frame, **STATUS_FRAME_STYLE)
 
-        # We need a small margin on the top so that it looks better
+        # We need a small margin rows so that it looks better
         self.ui_status_margin_top.grid(row=1, column=0, columnspan=3, sticky="E", ipady=STATUS_PADDING_TOP)
-
-        self.ui_status_00.grid(row=2, column=0, sticky="W", padx=GRID_PADDING_X)
-        self.ui_status_01.grid(row=2, column=1, sticky="WE")
-        self.ui_status_02.grid(row=2, column=2, sticky="E", padx=GRID_PADDING_X)
-        self.ui_status_10.grid(row=3, column=0, sticky="W", padx=GRID_PADDING_X)
-        self.ui_status_11.grid(row=3, column=1, sticky="WE")
-        self.ui_status_12.grid(row=3, column=2, sticky="E", padx=GRID_PADDING_X)
-
         self.ui_status_margin_bottom.grid(row=4, column=0, columnspan=3, sticky="E", ipady=STATUS_PADDING_BOTTOM)
 
-        self.ui_status_frame.grid_columnconfigure(0, weight=2, uniform='status')
-        self.ui_status_frame.grid_columnconfigure(1, weight=1, uniform='status')
-        self.ui_status_frame.grid_columnconfigure(2, weight=2, uniform='status')
+        self.ui_status_00.grid(row=2, column=0, sticky="W", padx=GRID_PADDING_X, pady=GRID_PADDING_Y)
+        self.ui_status_01.grid(row=2, column=1, sticky="WE", pady=GRID_PADDING_Y)
+        self.ui_status_02.grid(row=2, column=2, sticky="E", padx=GRID_PADDING_X, pady=GRID_PADDING_Y)
+
+        self.ui_status_10.grid(row=3, column=0, sticky="W", padx=GRID_PADDING_X, pady=GRID_PADDING_Y)
+        self.ui_status_11.grid(row=3, column=1, sticky="WE", pady=GRID_PADDING_Y)
+        self.ui_status_12.grid(row=3, column=2, sticky="E", padx=GRID_PADDING_X, pady=GRID_PADDING_Y)
+
+        self.ui_status_frame.grid_columnconfigure(0, weight=4, uniform='status')
+        self.ui_status_frame.grid_columnconfigure(1, weight=3, uniform='status')
+        self.ui_status_frame.grid_columnconfigure(2, weight=4, uniform='status')
 
         self.ui_button_game_speed_slower = tkinter.Button(self.ui_status_10,
             text="slower",
-            font=(self._default_font, 8),
-            command=self.delay_inc)
-        self.ui_button_game_speed_slower.pack(side=tkinter.LEFT)
+            command=self.delay_inc,
+            **BUTTON_STYLE)
+        self.ui_button_game_speed_slower.pack(side=tkinter.LEFT, **BUTTON_PADDING)
 
         self.ui_button_game_speed_faster = tkinter.Button(self.ui_status_10,
             text="faster",
-            font=(self._default_font, 8),
-            command=self.delay_dec)
-        self.ui_button_game_speed_faster.pack(side=tkinter.LEFT)
+            command=self.delay_dec,
+            **BUTTON_STYLE)
+        self.ui_button_game_speed_faster.pack(side=tkinter.LEFT, **BUTTON_PADDING)
 
         self._check_speed_button_state()
 
         self.ui_button_game_toggle_grid = tkinter.Button(self.ui_status_10,
-            font=(self._default_font, 8),
-            command=self.toggle_grid)
-        self.ui_button_game_toggle_grid.pack(side=tkinter.LEFT)
+            command=self.toggle_grid,
+            **BUTTON_STYLE)
+        self.ui_button_game_toggle_grid.pack(side=tkinter.LEFT, **BUTTON_PADDING)
 
         self._check_grid_toggle_state()
 
         self.ui_status_selected = tkinter.Label(self.ui_status_12,
             text="",
-            font=(self._default_font, 8))
+            font=(self._default_font, 8),
+            **LABEL_STYLE)
         self.ui_status_selected.pack(side=tkinter.RIGHT)
 
         tkinter.Button(self.ui_status_00,
                        text="PLAY/PAUSE",
-                       command=self.toggle_running).pack(side=tkinter.LEFT, expand=True)
+                       command=self.toggle_running,
+                       **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
 
         tkinter.Button(self.ui_status_00,
                        text="STEP",
-                       command=self.request_step).pack(side=tkinter.LEFT, expand=True)
+                       command=self.request_step,
+                       **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
 
         tkinter.Button(self.ui_status_00,
                        text="ROUND",
-                       command=self.request_round).pack(side=tkinter.LEFT, expand=True)
+                       command=self.request_round,
+                       **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
 
         tkinter.Button(self.ui_status_01,
                        text="QUIT",
-                       command=self.quit).pack(side=tkinter.TOP, fill=tkinter.BOTH, anchor=tkinter.CENTER)
+                       command=self.quit,
+                       **BUTTON_STYLE).pack(side=tkinter.TOP, fill=tkinter.BOTH, anchor=tkinter.CENTER)
 
         self.ui_bot_indexes = []
         for idx in range(4):
-            label = tkinter.Label(self.ui_status_02, text=layout.BOT_I2N[idx], width=1, justify='right', anchor='e')
+            label = tkinter.Label(self.ui_status_02, text=layout.BOT_I2N[idx], width=1, justify='right', anchor='e', **LABEL_STYLE)
 
             label.pack(side=tkinter.LEFT)
             self.ui_bot_indexes.append(label)
 
-        self.ui_status_round_info = tkinter.Label(self.ui_status_02, text="", justify='right', anchor='e')
+        self.ui_status_round_info = tkinter.Label(self.ui_status_02, text="", justify='right', anchor='e', **LABEL_STYLE)
         self.ui_status_round_info.pack(side=tkinter.LEFT)
 
         self.ui_game_canvas.pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=True)
