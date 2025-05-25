@@ -215,7 +215,7 @@ class Trafo:
         return self.mesh_graph.mesh_to_screen((self.mesh_x, self.mesh_y), (model_x, model_y))
 
 class TkApplication:
-    def __init__(self, window, controller_address=None,
+    def __init__(self, window: tkinter.Tk, controller_address=None,
                  geometry=None, delay=1, stop_after=None, stop_after_kill=False, fullscreen=False):
         self.window = window
         self.window.configure(background="white")
@@ -295,7 +295,7 @@ class TkApplication:
             **BUTTON_STYLE)
         self.ui_button_game_speed_faster.pack(side=tkinter.LEFT, **BUTTON_PADDING)
 
-        self._check_speed_button_state()
+        # self._check_speed_button_state()
 
         self.ui_button_game_toggle_grid = tkinter.Button(self.ui_status_10,
             command=self.toggle_grid,
@@ -1202,6 +1202,7 @@ class TkApplication:
         self._check_speed_button_state()
 
     def _check_speed_button_state(self):
+        print(self._delay)
         try:
             # self.ui_button_game_speed_faster
             # may not be available yet (or may be None).
