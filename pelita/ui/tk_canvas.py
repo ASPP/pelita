@@ -424,9 +424,6 @@ class TkApplication:
 
 
     def draw_universe(self, game_state, redraw):
-        self.mesh_graph.num_x = game_state['shape'][0]
-        self.mesh_graph.num_y = game_state['shape'][1]
-
         self.draw_overlay(game_state.get('overlays', []))
         self.draw_grid(redraw=redraw)
         self.draw_selected(game_state)

@@ -308,7 +308,7 @@ class Food(TkSprite):
         return "Food" + str(position)
 
     def draw(self, canvas, game_state=None, show_lifetime=False):
-        if self.position[0] < self.mesh.num_x/2:
+        if self.position[0] < self.mesh.mesh_width // 2:
             fill_col = BLUE
         else:
             fill_col = RED
