@@ -169,7 +169,7 @@ class CI_Engine:
         self.dbwrapper.add_gameresult(p1_name, p2_name, result, final_state, stdout, stderr)
 
 
-    def start(self, n):
+    def start(self, n, thread_count):
         """Start the Engine.
 
         This method will start and infinite loop, testing each agent
@@ -810,11 +810,12 @@ class DB_Wrapper:
               type=click.File('r'),
               help='Configuration file')
 @click.option('-n', help='run N times', type=int, default=0)
+@click.option('--thread-count', '-t', help='run in parallel', type=int, default=0)
 @click.option('--print', is_flag=True, default=False,
               help='Print scores and exit.')
 @click.option('--nohash', is_flag=True, default=False,
               help='Do not hash the players')
-def main(log, config, n, print, nohash):
+def main(log, config, n, thread_count, print, nohash):
     if log is not None:
         start_logging(log, __name__)
         start_logging(log, 'pelita')
@@ -825,7 +826,7 @@ def main(log, config, n, print, nohash):
     else:
         if not nohash:
             ci_engine.load_players()
-        ci_engine.start(n)
+        ci_engine.start(n, thread_count)
 
 if __name__ == '__main__':
     main()
