@@ -3,6 +3,7 @@
 import logging
 import math
 import os
+import shlex
 import subprocess
 import sys
 import time
@@ -96,7 +97,7 @@ class TkViewer:
         external_call = [sys.executable,
                         '-m',
                         tkviewer] + viewer_args
-        _logger.debug("Executing: %r", external_call)
+        _logger.debug("Executing: %r", shlex.join(external_call))
         # os.setsid will keep the viewer from closing when the main process exits
         # a better solution might be to decouple the viewer from the main process
         if _mswindows:
