@@ -1,6 +1,7 @@
 
 import logging
 import os
+import shlex
 import subprocess
 import sys
 import time
@@ -464,7 +465,7 @@ class SubprocessTeam(RemoteTeam):
                             team_spec,
                             address]
 
-        _logger.debug("Executing: %r", external_call)
+        _logger.debug("Executing: %r", shlex.join(external_call))
         if store_output == subprocess.DEVNULL:
             return (subprocess.Popen(external_call, stdout=store_output), None, None)
         elif store_output:
