@@ -37,29 +37,6 @@ def firstNN(*args):
     """
     return next(filter(lambda x: x is not None, args), None)
 
-
-def shlex_unsplit(cmd):
-    """
-    Translates a list of command arguments into bash-like ‘human’ readable form.
-    Pseudo-reverses shlex.split()
-
-    Example
-    -------
-        >>> shlex_unsplit(["command", "-f", "Hello World"])
-        "command -f 'Hello World'"
-
-    Parameters
-    ----------
-    cmd : list of string
-        command + parameter list
-
-    Returns
-    -------
-    string
-    """
-    return " ".join(shlex.quote(arg) for arg in cmd)
-
-
 def create_directory(prefix):
     for suffix in itertools.count(0):
         path = Path('{}-{:02d}'.format(prefix, suffix))
@@ -139,9 +116,9 @@ def setup():
             print("Please enter the location of the sound-giving binary:")
             sound_path = input()
         elif res == "s":
-            sound_path = shlex_unsplit(sound["say"])
+            sound_path = shlex.join(sound["say"])
         elif res == "f":
-            sound_path = shlex_unsplit(sound["flite"])
+            sound_path = shlex.join(sound["flite"])
         else:
             continue
 
