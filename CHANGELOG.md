@@ -1,5 +1,10 @@
 # Pelita changelog
 
+  * v2.5.3 (28. May 2025)
+
+    - Redesigned status area
+    - Tkinter buttons and backgrounds are not colourised anymore on macOS
+
   * v2.5.2 (5. May 2025)
 
     - On-the-fly layout generation
