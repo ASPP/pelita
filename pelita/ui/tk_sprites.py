@@ -4,25 +4,19 @@ import math
 from .. import layout
 from ..gamestate_filters import manhattan_dist
 
-
-def col(red, green, blue):
-    """Convert the given colours [0, 255] to HTML hex colours."""
-    return "#%02x%02x%02x" % (red, green, blue)
-
-RED = col(235, 90, 90)
-BLUE = col(94, 158, 217)
+RED = '#EB5A5A'
+BLUE = '#5E9ED9'
 
 LIGHT_BLUE = '#B9D9F6'
 STRONG_BLUE = '#1E6BB1'
 LIGHT_RED = '#FFB0B0'
 STRONG_RED = '#A91919'
 
-YELLOW = col(242, 255, 83)
 YELLOW = '#FFE38B'
-GREY = col(80, 80, 80)
-LIGHT_GREY = col(230, 230, 230)
-SELECTED = col(200, 200, 200)
-BROWN = col(48, 26, 22)
+GREY = '#505050'
+LIGHT_GREY = '#E6E6E6'
+SELECTED = '#C8C8C8'
+BROWN = '#301A16'
 
 SHADOW_RED = '#B37373'
 SHADOW_BLUE = '#6D92B3'
@@ -124,7 +118,7 @@ class BotSprite(TkSprite):
         canvas.delete("show_id" + self.tag)
         super().delete(canvas)
 
-    def move_to(self, new_pos, canvas, game_state=None, force=None, say="", show_id=False):
+    def move_to(self, new_pos, canvas, game_state, force=None, say="", show_id=False):
         old_direction = self.direction
         old_position = self.position
 
@@ -314,7 +308,7 @@ class Food(TkSprite):
         return "Food" + str(position)
 
     def draw(self, canvas, game_state=None, show_lifetime=False):
-        if self.position[0] < self.mesh.num_x/2:
+        if self.position[0] < self.mesh.mesh_width // 2:
             fill_col = BLUE
         else:
             fill_col = RED

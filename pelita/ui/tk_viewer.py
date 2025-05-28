@@ -77,7 +77,7 @@ class TkViewer:
         self.address = address
         self.controller_address = controller_address
         self.delay = delay
-        self.geometry = geometry if geometry else (900, 580)
+        self.geometry = geometry if geometry else (900, 565)
         self.fullscreen = fullscreen
         self.stop_after = stop_after
         self.stop_after_kill = stop_after_kill
