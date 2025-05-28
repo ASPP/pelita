@@ -1,4 +1,4 @@
-As of ``v2.5.2-9-gda964874`` the developers and contributors are::
+As of ``v2.5.2-11-gdcdb8ea4`` the developers and contributors are::
 
     Rike-Benjamin Schuppner
     Valentin Haenel
