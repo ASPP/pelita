@@ -12,7 +12,7 @@ import urllib
 import urllib.parse
 from dataclasses import dataclass
 from random import Random
-from typing import Dict, List, Optional
+from typing import Dict, List
 from urllib.parse import urlparse
 from weakref import WeakValueDictionary
 
@@ -40,7 +40,7 @@ SEND_QUEUE_TIMEOUT = 5. # seconds
 
 @dataclass
 class GameInfo:
-    round: Optional[int]
+    round: int | None
     max_rounds: int
     my_index: int
     my_name: str
@@ -48,7 +48,7 @@ class GameInfo:
     enemy_name: str
     enemy_score: int
     finished: bool = False
-    last_msg: Optional[bytes] = None
+    last_msg: bytes | None = None
 
     def status(self):
         plural = "" if self.round == 1 else "s"
@@ -464,7 +464,7 @@ class PelitaServer:
                         plural = "" if count == 1 else "es"
                         progress.console.log(f"Cleaned up {count} process{plural}. ({len(self.connection_map)} still running.)")
 
-def load_team_info(team_spec: str) -> Optional[TeamInfo]:
+def load_team_info(team_spec: str) -> TeamInfo | None:
     # Takes a team_spec, tries to run it and returns a team info object
 
     # TODO: Improve path handling for manual override and duplicate detection
@@ -472,7 +472,7 @@ def load_team_info(team_spec: str) -> Optional[TeamInfo]:
     team_name = _check_team(team_spec)
     if not team_name:
         pprint(f"Team {team_spec} did not return a filename. Skipping.")
-        return
+        return None
 
     team_info = TeamInfo(team_spec, team_name)
 
