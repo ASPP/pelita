@@ -71,10 +71,10 @@ CFG_FILE = './ci.cfg'
 
 EXIT = threading.Event()
 
-def signal_handler(signal, frame):
+def signal_handler(_signal, _frame):
     _logger.warning('Program terminated by kill or ctrl-c')
     EXIT.set()
-    sys.exit(0)
+    sys.exit()
 
 signal.signal(signal.SIGINT, signal_handler)
 
@@ -265,6 +265,11 @@ class CI_Engine:
                 self.dbwrapper.add_gameresult(*res)
             except queue.Empty:
                 pass
+            except Exception:
+                pass
+
+            if EXIT.is_set():
+                break
 
         q.join()  # block until all spawned tasks are done
 
