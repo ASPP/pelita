@@ -46,10 +46,13 @@ import configparser
 import itertools
 import json
 import logging
+import queue
 import shlex
+import signal
 import sqlite3
 import subprocess
 import sys
+import threading
 from random import Random
 
 import click
@@ -64,6 +67,15 @@ _logger = logging.getLogger(__name__)
 
 # the path of the configuration file
 CFG_FILE = './ci.cfg'
+
+EXIT = threading.Event()
+
+def signal_handler(signal, frame):
+    _logger.warning('Program terminated by kill or ctrl-c')
+    EXIT.set()
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
 
 def hash_team(team_spec):
     external_call = [sys.executable,
@@ -145,13 +157,20 @@ class CI_Engine:
 
         """
         team_specs = [self.players[i]['path'] for i in (p1, p2)]
-        print(f"Playing {self.players[p1]['name']} against {self.players[p2]['name']}.")
 
         final_state, stdout, stderr = call_pelita(team_specs,
                                                             rounds=self.rounds,
                                                             size=self.size,
                                                             viewer=self.viewer,
-                                                            seed=self.seed)
+                                                            seed=self.seed,
+                                                            exit_flag=EXIT
+                                                            )
+
+        if not final_state:
+            print(stdout, stderr)
+            p1_name, p2_name = self.players[p1]['name'], self.players[p2]['name']
+            res = (p1_name, p2_name, None, final_state, stdout, stderr)
+            return res
 
         if final_state['whowins'] == 2:
             result = -1
@@ -166,7 +185,8 @@ class CI_Engine:
         if stderr:
             _logger.warning('Stderr: %r', stderr)
         p1_name, p2_name = self.players[p1]['name'], self.players[p2]['name']
-        self.dbwrapper.add_gameresult(p1_name, p2_name, result, final_state, stdout, stderr)
+        res = (p1_name, p2_name, result, final_state, stdout, stderr)
+        return res
 
 
     def start(self, n, thread_count):
@@ -187,7 +207,29 @@ class CI_Engine:
         loop = itertools.repeat(None) if n == 0 else itertools.repeat(None, n)
         rng = Random()
 
-        for _ in  loop:
+        def worker(q, r, lock=threading.Lock()):
+            for task in iter(q.get, None):  # blocking get until None is received
+                try:
+                    # print(task)
+                    count, slf, p1, p2 = task
+
+                    print(f"Playing #{count}: {self.players[p1]['name']} against {self.players[p2]['name']}.")
+
+                    res = slf.run_game(p1, p2)
+                    r.put((count, (p1, p2), res))
+                    #with lock:
+                finally:
+                    q.task_done()
+
+        worker_count = thread_count
+        q = queue.Queue(maxsize=worker_count)
+        r = queue.Queue()
+        threads = [threading.Thread(target=worker, args=[q, r], daemon=False)
+                for _ in range(worker_count)]
+        for t in threads:
+            t.start()
+
+        for count, _ in enumerate(loop):
             # choose the player with the least number of played game,
             # match with another random player
             # mix the sides and let them play
@@ -199,9 +241,30 @@ class CI_Engine:
             players = [a, b]
             rng.shuffle(players)
 
-            self.run_game(players[0], players[1])
-            self.pretty_print_results(highlight=[self.players[players[0]]['name'], self.players[players[1]]['name']])
-            print('------------------------------')
+            q.put((count, self, players[0], players[1]))
+
+            try:
+                count, players, res = r.get_nowait()
+                print(f"Storing #{count}: {self.players[players[0]]['name']} against {self.players[players[1]]['name']}.")
+                self.dbwrapper.add_gameresult(*res)
+            except queue.Empty:
+                pass
+
+        q.join()  # block until all spawned tasks are done
+
+        while True:
+            try:
+                count, players, res = r.get_nowait()
+                print(f"Storing #{count}: {self.players[players[0]]['name']} against {self.players[players[1]]['name']}.")
+                self.dbwrapper.add_gameresult(*res)
+            except queue.Empty:
+                break
+
+        for _ in threads:  # signal workers to quit
+            q.put(None)
+
+        for t in threads:  # wait until workers exit
+            t.join()
 
 
     def get_results(self, idx, idx2=None):
@@ -308,12 +371,14 @@ class CI_Engine:
         FROM games
         """).fetchall()
         for p1, p2, result in g:
+            change = 0
             if result == 0:
                 change = elo_change(elo[p1], elo[p2], 1)
             if result == 1:
                 change = elo_change(elo[p1], elo[p2], 0)
             if result == -1:
                 change = elo_change(elo[p1], elo[p2], 0.5)
+
             elo[p1] += change
             elo[p2] -= change
 
@@ -583,6 +648,8 @@ class DB_Wrapper:
             STDOUT and STDERR of the game
 
         """
+        if not final_state:
+            return
         self.cursor.execute("""
         INSERT INTO games
         VALUES (?, ?, ?, ?, ?, ?)
