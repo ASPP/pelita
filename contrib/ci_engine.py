@@ -233,7 +233,7 @@ class CI_Engine:
                     q.task_done()
 
         worker_count = thread_count
-        q = queue.Queue(maxsize=worker_count)
+        q = queue.Queue(maxsize=1)
         r = queue.Queue()
         threads = [threading.Thread(target=worker, args=[q, r], daemon=False)
                 for _ in range(worker_count)]
@@ -495,7 +495,7 @@ class CI_Engine:
         table.add_column("Error count")
         table.add_column("# Fatal Errors")
 
-        elo = self.gen_elo()
+        elo = dict(self.dbwrapper.get_elo())
 
         result.sort(reverse=True)
         for [score, win, draw, loss, name, team_name, error_count, fatalerror_count] in result:
@@ -508,7 +508,7 @@ class CI_Engine:
                 f"{draw}",
                 f"{loss}",
                 f"{score:6.3f}",
-                f"{elo[name]: >4.0f}",
+                f"{elo.get(name, 0): >4.0f}",
                 f"{error_count}",
                 f"{fatalerror_count}",
                 style=style,
@@ -911,6 +911,84 @@ class DB_Wrapper:
         else:
             return self.cursor.execute(query).fetchall()
 
+
+    def get_elo(self):
+        query = """
+        WITH RECURSIVE
+        ordered_matches AS (
+        SELECT
+            ROW_NUMBER() OVER (ORDER BY rowid) AS match_num,
+            player1,
+            player2,
+            result
+        FROM games
+        ),
+
+        -- Initialize with first match
+        elo_recursive(match_num, player1, player2, result,
+                    rating1, rating2,
+                    rating_json) AS (
+        SELECT
+            match_num,
+            player1,
+            player2,
+            result,
+            1500.0,
+            1500.0,
+            json_object(player1, 1500.0, player2, 1500.0)
+        FROM ordered_matches
+        WHERE match_num = 1
+
+        UNION ALL
+
+        SELECT
+            om.match_num,
+            om.player1,
+            om.player2,
+            om.result,
+
+            -- Get ratings from JSON state
+            IFNULL(CAST(json_extract(er.rating_json, '$.' || om.player1) AS REAL), 1500.0),
+            IFNULL(CAST(json_extract(er.rating_json, '$.' || om.player2) AS REAL), 1500.0),
+
+            -- Update JSON state with new ratings
+            json_set(
+                er.rating_json,
+                '$.' || om.player1,
+                ROUND(
+                IFNULL(CAST(json_extract(er.rating_json, '$.' || om.player1) AS REAL), 1500.0) +
+                32 * ((CASE om.result WHEN 0 THEN 1.0 WHEN -1 THEN 0.5 ELSE 0.0 END) -
+                1.0 / (1 + pow(10, (
+                    IFNULL(CAST(json_extract(er.rating_json, '$.' || om.player2) AS REAL), 1500.0) -
+                    IFNULL(CAST(json_extract(er.rating_json, '$.' || om.player1) AS REAL), 1500.0)
+                ) / 400.0))), 2),
+                '$.' || om.player2,
+                ROUND(
+                IFNULL(CAST(json_extract(er.rating_json, '$.' || om.player2) AS REAL), 1500.0) +
+                32 * ((CASE om.result WHEN 0 THEN 0.0 WHEN -1 THEN 0.5 ELSE 1.0 END) -
+                1.0 / (1 + pow(10, (
+                    IFNULL(CAST(json_extract(er.rating_json, '$.' || om.player1) AS REAL), 1500.0) -
+                    IFNULL(CAST(json_extract(er.rating_json, '$.' || om.player2) AS REAL), 1500.0)
+                ) / 400.0))), 2)
+            )
+        FROM ordered_matches om
+        JOIN elo_recursive er ON om.match_num = er.match_num + 1
+        ),
+
+        final AS (
+        SELECT rating_json
+        FROM elo_recursive
+        ORDER BY match_num DESC
+        LIMIT 1
+        )
+        SELECT
+        key AS player,
+        ROUND(value, 2) AS rating
+        FROM final, json_each(rating_json)
+        ORDER BY rating DESC;
+
+        """
+        return self.cursor.execute(query).fetchall()
 
 def run(args):
     with open(args.config) as f:
