@@ -42,7 +42,9 @@ stabilized.
 """
 
 import argparse
+import collections
 import configparser
+import heapq
 import itertools
 import json
 import logging
@@ -166,7 +168,6 @@ class CI_Engine:
                                                             )
 
         if not final_state:
-            print(stdout, stderr)
             p1_name, p2_name = self.players[p1]['name'], self.players[p2]['name']
             res = (p1_name, p2_name, None, final_state, stdout, stderr)
             return res
@@ -206,10 +207,22 @@ class CI_Engine:
         loop = itertools.repeat(None) if n == 0 else itertools.repeat(None, n)
         rng = Random()
 
+        game_counts = self.dbwrapper.get_game_counts()
+        game_count_heap = []
+        for player_id, player in enumerate(self.players):
+            if player.get('error'):
+                continue
+
+            count = game_counts[player['name']]
+
+            tie_breaker = rng.random()
+            val = [count, tie_breaker, player_id]
+            heapq.heappush(game_count_heap, val)
+
+
         def worker(q, r, lock=threading.Lock()):
             for task in iter(q.get, None):  # blocking get until None is received
                 try:
-                    # print(task)
                     count, slf, p1, p2 = task
 
                     print(f"Playing #{count}: {self.players[p1]['name']} against {self.players[p2]['name']}.")
@@ -232,15 +245,19 @@ class CI_Engine:
             # choose the player with the least number of played game,
             # match with another random player
             # mix the sides and let them play
-            broken_players = {idx for idx, player in enumerate(self.players) if player.get('error')}
-            game_count = [(self.dbwrapper.get_game_count(p['name']), idx) for idx, p in enumerate(self.players)]
-            players_sorted = [idx for count, idx in sorted(game_count) if idx not in broken_players]
-            a, rest = players_sorted[0], players_sorted[1:]
-            b = rng.choice(rest)
-            players = [a, b]
+
+            a = heapq.heappop(game_count_heap)
+            b_i = rng.randrange(len(game_count_heap))
+            b = game_count_heap[b_i]
+            players = [a[2], b[2]]
             rng.shuffle(players)
 
             q.put((count, self, players[0], players[1]))
+
+            del game_count_heap[b_i]
+            game_count_heap.append([b[0] + 1, rng.random(), b[2]])
+            heapq.heapify(game_count_heap)
+            heapq.heappush(game_count_heap, [a[0] + 1, rng.random(), a[2]])
 
             try:
                 count, players, res = r.get_nowait()
@@ -363,7 +380,7 @@ class CI_Engine:
             return k * (outcome - expected)
 
         from collections import defaultdict
-        elo = defaultdict(lambda: 1500)
+        elo = defaultdict(lambda: 1500.)
 
         g = self.dbwrapper.cursor.execute("""
         SELECT player1, player2, result
@@ -707,6 +724,32 @@ class DB_Wrapper:
             raise ValueError('Player %s does not exist in database.' % p_name)
         return res[0]
 
+    def get_game_counts(self):
+        """Get number of games per player.
+
+        Returns
+        -------
+        relevant_results : dict[name, int]
+
+        """
+        self.cursor.execute("""
+            SELECT p.name, COUNT(g.player) AS num_games
+                FROM
+                    players p
+                    LEFT JOIN
+                    (
+                        SELECT player1 AS player FROM games
+                        UNION ALL
+                        SELECT player2 AS player FROM games
+                    ) g
+                ON p.name = g.player
+                GROUP BY p.name
+        """)
+        counts = collections.Counter()
+        for name, val in self.cursor.fetchall():
+            counts[name] += val
+        return counts
+
     def get_game_count(self, p1_name, p2_name=None):
         """Get number of games involving player1 (AND player2 if specified).
 
@@ -879,6 +922,11 @@ def print_scores(args):
         ci_engine = CI_Engine(f)
         ci_engine.pretty_print_results()
 
+def hash_teams(args):
+    with open(args.config) as f:
+        ci_engine = CI_Engine(f)
+        ci_engine.load_players()
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -892,11 +940,15 @@ if __name__ == '__main__':
     parser_run = subparsers.add_parser('run')
     parser_run.add_argument('-n', help='run N times', type=int, default=0)
     parser_run.add_argument('--thread-count', '-t', help='run in parallel', type=int, default=1)
-    parser_run.add_argument('--no-hash', help='Do not hash the players prior to running', type=bool, default=False)
+    parser_run.add_argument('--no-hash', help='Do not hash the players prior to running', action='store_true', default=False)
     parser_run.set_defaults(func=run)
 
     parser_print_scores = subparsers.add_parser('print-scores')
     parser_print_scores.set_defaults(func=print_scores)
+
+    parser_hash = subparsers.add_parser('hash-teams')
+    parser_hash.set_defaults(func=hash_teams)
+    parser_hash.add_argument('--thread-count', '-t', help='run in parallel', type=int, default=1)
 
     args = parser.parse_args()
 
