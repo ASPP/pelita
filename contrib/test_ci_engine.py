@@ -137,3 +137,5 @@ def test_wins_losses(db_wrapper):
     assert db_wrapper.get_game_count('p1', 'p2') == 3
     assert db_wrapper.get_game_count('p2', 'p1') == 3
     assert db_wrapper.get_game_count('p3', 'p1') == 1
+
+    assert db_wrapper.get_game_counts() == dict(p1=4, p2=3, p3=1)
