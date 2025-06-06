@@ -496,6 +496,7 @@ class CI_Engine:
         table.add_column("# Fatal Errors")
 
         elo = dict(self.dbwrapper.get_elo())
+        # elo = self.gen_elo()
 
         result.sort(reverse=True)
         for [score, win, draw, loss, name, team_name, error_count, fatalerror_count] in result:
