@@ -105,6 +105,11 @@ def player_handle_request(socket, team, team_name_override=False, silent_bots=Fa
 
     try:
         json_message = socket.recv_unicode()
+    except Exception:
+        # Exit without sending a value back on the socket
+        return True
+
+    try:
         py_obj = json.loads(json_message)
         msg_id = py_obj["__uuid__"]
         action = py_obj["__action__"]
