@@ -41,7 +41,7 @@ stabilized.
 
 """
 
-
+import argparse
 import configparser
 import itertools
 import json
@@ -55,7 +55,6 @@ import sys
 import threading
 from random import Random
 
-import click
 from rich.console import Console
 from rich.table import Table
 
@@ -868,32 +867,41 @@ class DB_Wrapper:
             return self.cursor.execute(query).fetchall()
 
 
-@click.command()
-@click.option('--log',
-              is_flag=False, flag_value="-", default=None, metavar='LOGFILE',
-              help="print debugging log information to LOGFILE (default 'stderr')")
-@click.option('--config',
-              default=CFG_FILE,
-              type=click.File('r'),
-              help='Configuration file')
-@click.option('-n', help='run N times', type=int, default=0)
-@click.option('--thread-count', '-t', help='run in parallel', type=int, default=0)
-@click.option('--print', is_flag=True, default=False,
-              help='Print scores and exit.')
-@click.option('--nohash', is_flag=True, default=False,
-              help='Do not hash the players')
-def main(log, config, n, thread_count, print, nohash):
-    if log is not None:
-        start_logging(log, __name__)
-        start_logging(log, 'pelita')
-
-    ci_engine = CI_Engine(config)
-    if print:
-        ci_engine.pretty_print_results()
-    else:
-        if not nohash:
+def run(args):
+    with open(args.config) as f:
+        ci_engine = CI_Engine(f)
+        if not args.no_hash:
             ci_engine.load_players()
-        ci_engine.start(n, thread_count)
+        ci_engine.start(args.n, args.thread_count)
+
+def print_scores(args):
+    with open(args.config) as f:
+        ci_engine = CI_Engine(f)
+        ci_engine.pretty_print_results()
+
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--log', help="Print debugging log information to LOGFILE (default 'stderr').",
+                        metavar='LOGFILE', const='-', nargs='?')
+    parser.add_argument('--config', help="Print debugging log information to LOGFILE (default 'stderr').",
+                        metavar='FILE', default=CFG_FILE)
+
+    subparsers = parser.add_subparsers(required=True)
+
+    parser_run = subparsers.add_parser('run')
+    parser_run.add_argument('-n', help='run N times', type=int, default=0)
+    parser_run.add_argument('--thread-count', '-t', help='run in parallel', type=int, default=1)
+    parser_run.add_argument('--no-hash', help='Do not hash the players prior to running', type=bool, default=False)
+    parser_run.set_defaults(func=run)
+
+    parser_print_scores = subparsers.add_parser('print-scores')
+    parser_print_scores.set_defaults(func=print_scores)
+
+    args = parser.parse_args()
+
+    if args.log is not None:
+        start_logging(args.log, __name__)
+        start_logging(args.log, 'pelita')
+
+    args.func(args)
