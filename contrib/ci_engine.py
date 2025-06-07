@@ -430,8 +430,8 @@ class CI_Engine:
         res = self.dbwrapper.get_wins_losses()
         rows = { k: list(v) for k, v in itertools.groupby(res, key=lambda x:x[0]) }
 
-        good_players = [p for p in self.players if not p.get('error')]
-        bad_players = [p for p in self.players if p.get('error')]
+        good_players = [p for p, player in self.players.items() if not player.get('error')]
+        bad_players = [p for p, player in self.players.items() if player.get('error')]
 
         num_rows_per_player = (len(good_players) // MAX_COLUMNS) + 1
         row_style = [*([""] * num_rows_per_player), *(["dim"] * num_rows_per_player)]
@@ -461,26 +461,26 @@ class CI_Engine:
                 yield batch
 
         result = []
-        for idx, p in enumerate(good_players):
-            win, loss, draw = self.get_results(idx)
-            error_count, fatalerror_count = self.get_errorcount(idx)
+        for idx, pname in enumerate(good_players):
+            win, loss, draw = self.get_results(pname)
+            error_count, fatalerror_count = self.get_errorcount(pname)
             try:
-                team_name = self.get_team_name(idx)
+                team_name = self.get_team_name(pname)
             except ValueError:
                 team_name = None
             score = 0 if (win+loss+draw) == 0 else (win-loss) / (win+loss+draw)
-            result.append([score, win, draw, loss, p['name'], team_name, error_count, fatalerror_count])
+            result.append([score, win, draw, loss, pname, team_name, error_count, fatalerror_count])
             wdl = f"{win:3d},{draw:3d},{loss:3d}"
 
             try:
-                row = rows[p['name']]
+                row = rows[pname]
             except KeyError:
                 continue
             vals = { k: (w,l,d) for _p1, k, w, l, d in row }
 
             cross_results = []
-            for idx2, p2 in enumerate(good_players):
-                win, loss, draw = vals.get(p2['name'], (0, 0, 0))
+            for idx2, p2name in enumerate(good_players):
+                win, loss, draw = vals.get(p2name, (0, 0, 0))
                 if idx == idx2:
                     cross_results.append("  - - - ")
                 else:
@@ -488,7 +488,7 @@ class CI_Engine:
 
             for c, r in enumerate(batched(cross_results, MAX_COLUMNS)):
                 if c == 0:
-                    table.add_row(f"{idx}", p['name'], f"{score:.2f}", wdl, *r)
+                    table.add_row(f"{idx}", pname, f"{score:.2f}", wdl, *r)
                 else:
                     table.add_row("", "", "", "", *r)
 
@@ -529,7 +529,7 @@ class CI_Engine:
         console.print(table)
 
         for p in bad_players:
-            print("% 30s ***%30s***" % (p['name'], p['error']))
+            print("% 30s ***%30s***" % (p, self.players[p]['error']))
 
 
 class DB_Wrapper:
