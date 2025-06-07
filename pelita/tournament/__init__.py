@@ -93,7 +93,7 @@ def run_and_terminate_process(args, **kwargs):
                     p.kill()
 
 
-def call_pelita(team_specs, *, rounds, size, viewer, seed, team_infos=None, write_replay=False, store_output=False):
+def call_pelita(team_specs, *, rounds, size, viewer, seed, team_infos=None, write_replay=False, store_output=False, exit_flag=None):
     """ Starts a new process with the given command line arguments and waits until finished.
 
     Returns
@@ -161,6 +161,11 @@ def call_pelita(team_specs, *, rounds, size, viewer, seed, team_infos=None, writ
 
             while True:
                 evts = dict(poll.poll(1000))
+
+                if exit_flag and exit_flag.is_set():
+                    # An external process tells us to quit
+                    _logger.info("Received exit signal")
+                    break
 
                 if not evts and proc.poll() is not None:
                     # no more events and proc has finished.

@@ -41,17 +41,25 @@ stabilized.
 
 """
 
-
+import argparse
+import asyncio
+import collections
+from concurrent.futures import ThreadPoolExecutor
 import configparser
+import heapq
 import itertools
 import json
 import logging
+import operator
+import queue
+import shlex
+import signal
 import sqlite3
 import subprocess
 import sys
+import threading
 from random import Random
 
-import click
 from rich.console import Console
 from rich.table import Table
 
@@ -64,25 +72,39 @@ _logger = logging.getLogger(__name__)
 # the path of the configuration file
 CFG_FILE = './ci.cfg'
 
-def hash_team(team_spec):
+EXIT = threading.Event()
+
+def signal_handler(_signal, _frame):
+    _logger.warning('Program terminated by kill or ctrl-c')
+    EXIT.set()
+
+signal.signal(signal.SIGINT, signal_handler)
+
+async def hash_team(team_spec, semaphore):
     external_call = [sys.executable,
                     '-m',
                     'pelita.scripts.pelita_player',
                     'hash-team',
                     team_spec]
-    _logger.debug("Executing: %r", external_call)
-    res = subprocess.run(external_call, capture_output=True, text=True)
-    return res.stdout.strip().split("\n")[-1].strip()
+    async with semaphore:
+        _logger.debug("Executing: %r", shlex.join(external_call))
+        proc = await asyncio.create_subprocess_exec(*external_call,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await proc.communicate()
+
+    return stdout.decode().strip().split("\n")[-1].strip()
 
 class CI_Engine:
     """Continuous Integration Engine."""
 
     def __init__(self, cfgfile):
-        self.players = []
+        self.players = {}
         config = configparser.ConfigParser()
         config.read_file(cfgfile)
         for name, path in  config.items('agents'):
-            self.players.append({'name': name, 'path': path})
+            self.players[name]= {'path': path}
 
         self.rounds = config['general'].getint('rounds', None)
         self.size = config['general'].get('size', None)
@@ -92,44 +114,62 @@ class CI_Engine:
         self.db_file = config.get('general', 'db_file')
         self.dbwrapper = DB_Wrapper(self.db_file)
 
-    def load_players(self):
+    def load_players(self, concurrency=1):
         hash_cache = {}
 
         # remove players from db which are not in the config anymore
         for pname in self.dbwrapper.get_players():
-            if pname not in [p['name'] for p in self.players]:
+            if pname not in self.players:
                 _logger.debug('Removing %s from database, because it is not among the current players.' % (pname))
                 self.dbwrapper.remove_player(pname)
 
+        semaphore = asyncio.Semaphore(concurrency)
+
+        async def do_hash():
+            players = [(pname, player['path']) for pname, player in self.players.items()]
+            tasks = [asyncio.create_task(hash_team(player[1], semaphore)) for player in players]
+            hashes = await asyncio.gather(*tasks)
+            return {player[0]: hash for (player, hash) in zip(players, hashes)}
+
+        hash_cache = asyncio.run(do_hash())
+
         # add new players into db
-        for player in self.players:
-            pname, path = player['name'], player['path']
+        for pname, player in self.players.items():
+            path = player['path']
             if pname not in self.dbwrapper.get_players():
                 _logger.debug('Adding %s to database.' % pname)
-                hash_cache[path] = hash_team(path)
-                self.dbwrapper.add_player(pname, hash_cache[path])
+                self.dbwrapper.add_player(pname, hash_cache[pname])
 
         # reset players where the directory hash changed
-        for player in self.players:
+        for pname, player in self.players.items():
             path = player['path']
-            pname = player['name']
-            new_hash = hash_cache.get(path, hash_team(path))
+            new_hash = hash_cache[pname]
             if new_hash != self.dbwrapper.get_player_hash(pname):
                 _logger.debug('Resetting %s because its module hash changed.' % pname)
                 self.dbwrapper.remove_player(pname)
                 self.dbwrapper.add_player(pname, new_hash)
 
-        for player in self.players:
-            path = player['path']
-            pname = player['name']
+        def check_team_name(args):
+            pname, path = args
             try:
                 _logger.debug('Querying team name for %s.' % pname)
-                team_name = check_team(player['path'])
-                self.dbwrapper.add_team_name(pname, team_name)
+                team_name = check_team(path)
+                return { 'team_name': team_name }
             except ZMQClientError as e:
                 e_type, e_msg = e.args
-                _logger.debug(f'Could not import {player} at path {path} ({e_type}): {e_msg}')
-                player['error'] = e.args
+                _logger.debug(f'Could not import {pname} at path {path} ({e_type}): {e_msg}')
+                return { 'error': e.args }
+
+        with ThreadPoolExecutor(max_workers=concurrency) as executor:
+            players = [(pname, player['path']) for pname, player in self.players.items()]
+            team_names = executor.map(check_team_name, players)
+
+            for (pname, path), team_name in zip(players, team_names):
+                if 'error' in team_name:
+                    self.players[pname]['error'] = team_name['error']
+                else:
+                    self.dbwrapper.add_team_name(pname, team_name['team_name'])
+
 
     def run_game(self, p1, p2):
         """Run a single game.
@@ -143,14 +183,19 @@ class CI_Engine:
             the indices of the players
 
         """
-        team_specs = [self.players[i]['path'] for i in (p1, p2)]
-        print(f"Playing {self.players[p1]['name']} against {self.players[p2]['name']}.")
+        team_specs = [self.players[p1]['path'], self.players[p2]['path']]
 
         final_state, stdout, stderr = call_pelita(team_specs,
                                                             rounds=self.rounds,
                                                             size=self.size,
                                                             viewer=self.viewer,
-                                                            seed=self.seed)
+                                                            seed=self.seed,
+                                                            exit_flag=EXIT
+                                                            )
+
+        if not final_state:
+            res = (p1, p2, None, final_state, stdout, stderr)
+            return res
 
         if final_state['whowins'] == 2:
             result = -1
@@ -164,11 +209,11 @@ class CI_Engine:
         _logger.debug('Stdout: %r', stdout)
         if stderr:
             _logger.warning('Stderr: %r', stderr)
-        p1_name, p2_name = self.players[p1]['name'], self.players[p2]['name']
-        self.dbwrapper.add_gameresult(p1_name, p2_name, result, final_state, stdout, stderr)
+        res = (p1, p2, result, final_state, stdout, stderr)
+        return res
 
 
-    def start(self, n):
+    def start(self, n, thread_count):
         """Start the Engine.
 
         This method will start and infinite loop, testing each agent
@@ -186,24 +231,96 @@ class CI_Engine:
         loop = itertools.repeat(None) if n == 0 else itertools.repeat(None, n)
         rng = Random()
 
-        for _ in  loop:
+        game_counts = self.dbwrapper.get_game_counts()
+        # game_count_heap = []
+
+        # TODO add error handling
+        # for player_id, player in enumerate(self.players):
+            # if player.get('error'):
+                # continue
+
+            # count = game_counts[player['name']]
+
+            # tie_breaker = rng.random()
+            # val = [count, tie_breaker, player_id]
+            # heapq.heappush(game_count_heap, val)
+
+
+        def worker(q, r, lock=threading.Lock()):
+            for task in iter(q.get, None):  # blocking get until None is received
+                try:
+                    count, slf, p1, p2 = task
+
+                    print(f"Playing #{count}: {p1} against {p2}.")
+
+                    res = slf.run_game(p1, p2)
+                    r.put((count, (p1, p2), res))
+                    #with lock:
+                finally:
+                    q.task_done()
+
+        worker_count = thread_count
+        q = queue.Queue(maxsize=thread_count)
+        r = queue.Queue()
+        threads = [threading.Thread(target=worker, args=[q, r], daemon=False)
+                for _ in range(worker_count)]
+        for t in threads:
+            t.start()
+
+        for count, _ in enumerate(loop):
             # choose the player with the least number of played game,
             # match with another random player
             # mix the sides and let them play
-            broken_players = {idx for idx, player in enumerate(self.players) if player.get('error')}
-            game_count = [(self.dbwrapper.get_game_count(p['name']), idx) for idx, p in enumerate(self.players)]
-            players_sorted = [idx for count, idx in sorted(game_count) if idx not in broken_players]
-            a, rest = players_sorted[0], players_sorted[1:]
-            b = rng.choice(rest)
+
+            players_sorted = sorted(list(game_counts.items()), key=operator.itemgetter(1))
+            print(players_sorted)
+            a = players_sorted[0][0]
+            b = rng.choice(players_sorted[1:])[0]
+
             players = [a, b]
             rng.shuffle(players)
 
-            self.run_game(players[0], players[1])
-            self.pretty_print_results(highlight=[self.players[players[0]]['name'], self.players[players[1]]['name']])
-            print('------------------------------')
+            q.put((count, self, players[0], players[1]))
+
+            game_counts[a] += 1
+            game_counts[b] += 1
+
+            try:
+                count, players, res = r.get_nowait()
+                final_state = res[3]
+                if final_state:
+                    print(f"Storing #{count}: {players[0]} against {players[1]}.")
+                else:
+                    print(f"Not storing #{count}: {players[0]} against {players[1]}.")
+                self.dbwrapper.add_gameresult(*res)
+            except queue.Empty:
+                pass
+
+            if EXIT.is_set():
+                break
+
+        q.join()  # block until all spawned tasks are done
+
+        while True:
+            try:
+                count, players, res = r.get_nowait()
+                final_state = res[3]
+                if final_state:
+                    print(f"Storing #{count}: {players[0]} against {players[1]}.")
+                else:
+                    print(f"Not storing #{count}: {players[0]} against {players[1]}.")
+                self.dbwrapper.add_gameresult(*res)
+            except queue.Empty:
+                break
+
+        for _ in threads:  # signal workers to quit
+            q.put(None)
+
+        for t in threads:  # wait until workers exit
+            t.join()
 
 
-    def get_results(self, idx, idx2=None):
+    def get_results(self, p1_name, p2_name=None):
         """Get the results so far.
 
         This method goes through the internal list of of all game
@@ -245,18 +362,16 @@ class CI_Engine:
 
         """
         win, loss, draw = 0, 0, 0
-        p1_name = self.players[idx]['name']
-        p2_name = None if idx2 is None else self.players[idx2]['name']
         relevant_results = self.dbwrapper.get_results(p1_name, p2_name)
         for p1, p2, r in relevant_results:
-            if (idx2 is None and p1_name == p1) or (idx2 is not None and p1_name == p1 and p2_name == p2):
+            if (p2_name is None and p1_name == p1) or (p2_name is not None and p1_name == p1 and p2_name == p2):
                 if r == 0:
                     win += 1
                 elif r == 1:
                     loss += 1
                 elif r == -1:
                     draw += 1
-            if (idx2 is None and p1_name == p2) or (idx2 is not None and p1_name == p2 and p2_name == p1):
+            if (p2_name is None and p1_name == p2) or (p2_name is not None and p1_name == p2 and p2_name == p1):
                 if r == 1:
                     win += 1
                 elif r == 0:
@@ -265,7 +380,7 @@ class CI_Engine:
                     draw += 1
         return win, loss, draw
 
-    def get_errorcount(self, idx):
+    def get_errorcount(self, p_name):
         """Gets the error count for team idx
 
         Parameters
@@ -279,17 +394,15 @@ class CI_Engine:
             the number of errors for this player
 
         """
-        p_name = self.players[idx]['name']
         error_count, fatalerror_count = self.dbwrapper.get_errorcount(p_name)
         return error_count, fatalerror_count
 
-    def get_team_name(self, idx):
+    def get_team_name(self, p_name):
         """Get last registered team name.
 
         team_name : string
         """
 
-        p_name = self.players[idx]['name']
         return self.dbwrapper.get_team_name(p_name)
 
     def gen_elo(self):
@@ -300,19 +413,21 @@ class CI_Engine:
             return k * (outcome - expected)
 
         from collections import defaultdict
-        elo = defaultdict(lambda: 1500)
+        elo = defaultdict(lambda: 1500.)
 
         g = self.dbwrapper.cursor.execute("""
         SELECT player1, player2, result
         FROM games
         """).fetchall()
         for p1, p2, result in g:
+            change = 0
             if result == 0:
                 change = elo_change(elo[p1], elo[p2], 1)
             if result == 1:
                 change = elo_change(elo[p1], elo[p2], 0)
             if result == -1:
                 change = elo_change(elo[p1], elo[p2], 0.5)
+
             elo[p1] += change
             elo[p2] -= change
 
@@ -335,8 +450,8 @@ class CI_Engine:
         res = self.dbwrapper.get_wins_losses()
         rows = { k: list(v) for k, v in itertools.groupby(res, key=lambda x:x[0]) }
 
-        good_players = [p for p in self.players if not p.get('error')]
-        bad_players = [p for p in self.players if p.get('error')]
+        good_players = [p for p, player in self.players.items() if not player.get('error')]
+        bad_players = [p for p, player in self.players.items() if player.get('error')]
 
         num_rows_per_player = (len(good_players) // MAX_COLUMNS) + 1
         row_style = [*([""] * num_rows_per_player), *(["dim"] * num_rows_per_player)]
@@ -366,26 +481,26 @@ class CI_Engine:
                 yield batch
 
         result = []
-        for idx, p in enumerate(good_players):
-            win, loss, draw = self.get_results(idx)
-            error_count, fatalerror_count = self.get_errorcount(idx)
+        for idx, pname in enumerate(good_players):
+            win, loss, draw = self.get_results(pname)
+            error_count, fatalerror_count = self.get_errorcount(pname)
             try:
-                team_name = self.get_team_name(idx)
+                team_name = self.get_team_name(pname)
             except ValueError:
                 team_name = None
             score = 0 if (win+loss+draw) == 0 else (win-loss) / (win+loss+draw)
-            result.append([score, win, draw, loss, p['name'], team_name, error_count, fatalerror_count])
+            result.append([score, win, draw, loss, pname, team_name, error_count, fatalerror_count])
             wdl = f"{win:3d},{draw:3d},{loss:3d}"
 
             try:
-                row = rows[p['name']]
+                row = rows[pname]
             except KeyError:
                 continue
             vals = { k: (w,l,d) for _p1, k, w, l, d in row }
 
             cross_results = []
-            for idx2, p2 in enumerate(good_players):
-                win, loss, draw = vals.get(p2['name'], (0, 0, 0))
+            for idx2, p2name in enumerate(good_players):
+                win, loss, draw = vals.get(p2name, (0, 0, 0))
                 if idx == idx2:
                     cross_results.append("  - - - ")
                 else:
@@ -393,7 +508,7 @@ class CI_Engine:
 
             for c, r in enumerate(batched(cross_results, MAX_COLUMNS)):
                 if c == 0:
-                    table.add_row(f"{idx}", p['name'], f"{score:.2f}", wdl, *r)
+                    table.add_row(f"{idx}", pname, f"{score:.2f}", wdl, *r)
                 else:
                     table.add_row("", "", "", "", *r)
 
@@ -411,7 +526,8 @@ class CI_Engine:
         table.add_column("Error count")
         table.add_column("# Fatal Errors")
 
-        elo = self.gen_elo()
+        elo = dict(self.dbwrapper.get_elo())
+        # elo = self.gen_elo()
 
         result.sort(reverse=True)
         for [score, win, draw, loss, name, team_name, error_count, fatalerror_count] in result:
@@ -424,7 +540,7 @@ class CI_Engine:
                 f"{draw}",
                 f"{loss}",
                 f"{score:6.3f}",
-                f"{elo[name]: >4.0f}",
+                f"{elo.get(name, 0): >4.0f}",
                 f"{error_count}",
                 f"{fatalerror_count}",
                 style=style,
@@ -433,7 +549,7 @@ class CI_Engine:
         console.print(table)
 
         for p in bad_players:
-            print("% 30s ***%30s***" % (p['name'], p['error']))
+            print("% 30s ***%30s***" % (p, self.players[p]['error']))
 
 
 class DB_Wrapper:
@@ -582,6 +698,8 @@ class DB_Wrapper:
             STDOUT and STDERR of the game
 
         """
+        if not final_state:
+            return
         self.cursor.execute("""
         INSERT INTO games
         VALUES (?, ?, ?, ?, ?, ?)
@@ -639,6 +757,32 @@ class DB_Wrapper:
         if res is None:
             raise ValueError('Player %s does not exist in database.' % p_name)
         return res[0]
+
+    def get_game_counts(self):
+        """Get number of games per player.
+
+        Returns
+        -------
+        relevant_results : dict[name, int]
+
+        """
+        self.cursor.execute("""
+            SELECT p.name, COUNT(g.player) AS num_games
+                FROM
+                    players p
+                    LEFT JOIN
+                    (
+                        SELECT player1 AS player FROM games
+                        UNION ALL
+                        SELECT player2 AS player FROM games
+                    ) g
+                ON p.name = g.player
+                GROUP BY p.name
+        """)
+        counts = collections.Counter()
+        for name, val in self.cursor.fetchall():
+            counts[name] += val
+        return counts
 
     def get_game_count(self, p1_name, p2_name=None):
         """Get number of games involving player1 (AND player2 if specified).
@@ -800,31 +944,128 @@ class DB_Wrapper:
             return self.cursor.execute(query).fetchall()
 
 
-@click.command()
-@click.option('--log',
-              is_flag=False, flag_value="-", default=None, metavar='LOGFILE',
-              help="print debugging log information to LOGFILE (default 'stderr')")
-@click.option('--config',
-              default=CFG_FILE,
-              type=click.File('r'),
-              help='Configuration file')
-@click.option('-n', help='run N times', type=int, default=0)
-@click.option('--print', is_flag=True, default=False,
-              help='Print scores and exit.')
-@click.option('--nohash', is_flag=True, default=False,
-              help='Do not hash the players')
-def main(log, config, n, print, nohash):
-    if log is not None:
-        start_logging(log, __name__)
-        start_logging(log, 'pelita')
+    def get_elo(self):
+        query = """
+        WITH RECURSIVE
+        ordered_matches AS (
+        SELECT
+            ROW_NUMBER() OVER (ORDER BY rowid) AS match_num,
+            player1,
+            player2,
+            result
+        FROM games
+        ),
 
-    ci_engine = CI_Engine(config)
-    if print:
+        -- Initialize with first match
+        elo_recursive(match_num, player1, player2, result,
+                    rating1, rating2,
+                    rating_json) AS (
+        SELECT
+            match_num,
+            player1,
+            player2,
+            result,
+            1500.0,
+            1500.0,
+            json_object(player1, 1500.0, player2, 1500.0)
+        FROM ordered_matches
+        WHERE match_num = 1
+
+        UNION ALL
+
+        SELECT
+            om.match_num,
+            om.player1,
+            om.player2,
+            om.result,
+
+            -- Get ratings from JSON state
+            IFNULL(CAST(json_extract(er.rating_json, '$.' || om.player1) AS REAL), 1500.0),
+            IFNULL(CAST(json_extract(er.rating_json, '$.' || om.player2) AS REAL), 1500.0),
+
+            -- Update JSON state with new ratings
+            json_set(
+                er.rating_json,
+                '$.' || om.player1,
+                ROUND(
+                IFNULL(CAST(json_extract(er.rating_json, '$.' || om.player1) AS REAL), 1500.0) +
+                32 * ((CASE om.result WHEN 0 THEN 1.0 WHEN -1 THEN 0.5 ELSE 0.0 END) -
+                1.0 / (1 + pow(10, (
+                    IFNULL(CAST(json_extract(er.rating_json, '$.' || om.player2) AS REAL), 1500.0) -
+                    IFNULL(CAST(json_extract(er.rating_json, '$.' || om.player1) AS REAL), 1500.0)
+                ) / 400.0))), 2),
+                '$.' || om.player2,
+                ROUND(
+                IFNULL(CAST(json_extract(er.rating_json, '$.' || om.player2) AS REAL), 1500.0) +
+                32 * ((CASE om.result WHEN 0 THEN 0.0 WHEN -1 THEN 0.5 ELSE 1.0 END) -
+                1.0 / (1 + pow(10, (
+                    IFNULL(CAST(json_extract(er.rating_json, '$.' || om.player1) AS REAL), 1500.0) -
+                    IFNULL(CAST(json_extract(er.rating_json, '$.' || om.player2) AS REAL), 1500.0)
+                ) / 400.0))), 2)
+            )
+        FROM ordered_matches om
+        JOIN elo_recursive er ON om.match_num = er.match_num + 1
+        ),
+
+        final AS (
+        SELECT rating_json
+        FROM elo_recursive
+        ORDER BY match_num DESC
+        LIMIT 1
+        )
+        SELECT
+        key AS player,
+        ROUND(value, 2) AS rating
+        FROM final, json_each(rating_json)
+        ORDER BY rating DESC;
+
+        """
+        return self.cursor.execute(query).fetchall()
+
+def run(args):
+    with open(args.config) as f:
+        ci_engine = CI_Engine(f)
+        if not args.no_hash:
+            ci_engine.load_players(concurrency=args.thread_count)
+        ci_engine.start(args.n, args.thread_count)
+
+def print_scores(args):
+    with open(args.config) as f:
+        ci_engine = CI_Engine(f)
         ci_engine.pretty_print_results()
-    else:
-        if not nohash:
-            ci_engine.load_players()
-        ci_engine.start(n)
+
+def hash_teams(args):
+    with open(args.config) as f:
+        ci_engine = CI_Engine(f)
+        ci_engine.load_players(concurrency=args.thread_count)
+
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--log', help="Print debugging log information to LOGFILE (default 'stderr').",
+                        metavar='LOGFILE', const='-', nargs='?')
+    parser.add_argument('--config', help="Print debugging log information to LOGFILE (default 'stderr').",
+                        metavar='FILE', default=CFG_FILE)
+
+    subparsers = parser.add_subparsers(required=True)
+
+    parser_run = subparsers.add_parser('run')
+    parser_run.add_argument('-n', help='run N times', type=int, default=0)
+    parser_run.add_argument('--thread-count', '-t', help='run in parallel', type=int, default=1)
+    parser_run.add_argument('--no-hash', help='Do not hash the players prior to running', action='store_true', default=False)
+    parser_run.set_defaults(func=run)
+
+    parser_print_scores = subparsers.add_parser('print-scores')
+    parser_print_scores.set_defaults(func=print_scores)
+
+    parser_hash = subparsers.add_parser('hash-teams')
+    parser_hash.set_defaults(func=hash_teams)
+    parser_hash.add_argument('--thread-count', '-t', help='run in parallel', type=int, default=1)
+
+    args = parser.parse_args()
+
+    if args.log is not None:
+        start_logging(args.log, __name__)
+        start_logging(args.log, 'pelita')
+
+    args.func(args)
