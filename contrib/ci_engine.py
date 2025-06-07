@@ -260,7 +260,7 @@ class CI_Engine:
                     q.task_done()
 
         worker_count = thread_count
-        q = queue.Queue(maxsize=1)
+        q = queue.Queue(maxsize=thread_count)
         r = queue.Queue()
         threads = [threading.Thread(target=worker, args=[q, r], daemon=False)
                 for _ in range(worker_count)]
