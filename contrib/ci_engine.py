@@ -169,6 +169,12 @@ class CI_Engine:
                 else:
                     self.dbwrapper.add_team_name(pname, team_name['team_name'])
 
+        for pname in self.players:
+             if 'error' in self.players[pname]:
+                 print(pname, self.players[pname])
+             else:
+                 print(pname, self.players[pname], self.dbwrapper.get_team_name(pname))
+
 
     def run_game(self, p1, p2):
         """Run a single game.
@@ -232,6 +238,10 @@ class CI_Engine:
 
         game_counts = self.dbwrapper.get_game_counts()
 
+        for pname, player in self.players.items():
+            if "error" in player and pname in game_counts:
+                del game_counts[pname]
+
         def worker(q, r, lock=threading.Lock()):
             for task in iter(q.get, None):  # blocking get until None is received
                 try:
@@ -259,6 +269,7 @@ class CI_Engine:
             # mix the sides and let them play
 
             players_sorted = sorted(list(game_counts.items()), key=operator.itemgetter(1))
+
             a = players_sorted[0][0]
             b = rng.choice(players_sorted[1:])[0]
 
