@@ -502,7 +502,7 @@ def play_remote(team_spec, pair_addr, silent_bots=False):
                     pair_addr,
                     *(['--silent-bots'] if silent_bots else []),
                     ]
-    _logger.debug("Executing: %r", external_call)
+    _logger.debug("Executing: %r", shlex.join(external_call))
     sub = subprocess.Popen(external_call)
     return sub
 
@@ -513,7 +513,7 @@ def _check_team(team_spec):
                     'pelita.scripts.pelita_player',
                     'check-team',
                     team_spec]
-    _logger.debug("Executing: %r", external_call)
+    _logger.debug("Executing: %r", shlex.join(external_call))
     res = subprocess.run(external_call, capture_output=True, text=True)
     return res.stdout.strip()
 

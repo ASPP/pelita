@@ -1,6 +1,7 @@
 
 import logging
 import os
+import shlex
 import subprocess
 import sys
 import traceback
@@ -13,6 +14,7 @@ import networkx as nx
 import zmq
 
 from . import layout
+from .base_utils import default_zmq_context
 from .exceptions import PlayerDisconnected, PlayerTimeout
 from .layout import BOT_I2N, layout_as_str, wall_dimensions
 from .network import (PELITA_PORT, ZMQClientError, ZMQConnection,
@@ -278,8 +280,7 @@ class RemoteTeam:
         the remote clients will be suppressed.
     """
     def __init__(self, team_spec, *, team_name=None, zmq_context=None, idx=None, store_output=False):
-        if zmq_context is None:
-            zmq_context = zmq.Context()
+        zmq_context = default_zmq_context(zmq_context)
 
         self._team_spec = team_spec
         self._team_name = team_name
@@ -357,7 +358,7 @@ class RemoteTeam:
                          team_spec,
                          address]
 
-        _logger.debug("Executing: %r", external_call)
+        _logger.debug("Executing: %r", shlex.join(external_call))
         if store_output == subprocess.DEVNULL:
             return (subprocess.Popen(external_call, stdout=store_output), None, None)
         elif store_output:
@@ -379,8 +380,7 @@ class RemoteTeam:
             return self._team_name
 
         try:
-            msg_id = self.zmqconnection.send("team_name", {})
-            team_name = self.zmqconnection.recv_timeout(msg_id, self._request_timeout)
+            team_name = self.zmqconnection.recv_timeout(None, self._request_timeout * 10)
             if team_name:
                 self._team_name = team_name
             return team_name
@@ -505,8 +505,7 @@ def make_team(team_spec, team_name=None, zmq_context=None, idx=None, store_outpu
     elif isinstance(team_spec, str):
         _logger.info("Making a remote team for %s", team_spec)
         # set up the zmq connections and build a RemoteTeam
-        if not zmq_context:
-            zmq_context = zmq.Context()
+        zmq_context = default_zmq_context(zmq_context)
         team_player = RemoteTeam(team_spec=team_spec, zmq_context=zmq_context, idx=idx, store_output=store_output)
     else:
         raise TypeError(f"Not possible to create team from {team_spec} (wrong type).")

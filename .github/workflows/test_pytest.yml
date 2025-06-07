@@ -137,5 +137,5 @@ jobs:
     - name: Run ci_engine session
       run: |
         cd contrib
-        python ci_engine.py -n 5
+        python ci_engine.py run -n 5
       timeout-minutes: 5
