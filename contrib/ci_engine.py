@@ -45,10 +45,10 @@ import argparse
 import asyncio
 import collections
 import configparser
-import heapq
 import itertools
 import json
 import logging
+import operator
 import queue
 import shlex
 import signal
@@ -222,17 +222,6 @@ class CI_Engine:
         rng = Random()
 
         game_counts = self.dbwrapper.get_game_counts()
-        game_count_heap = []
-        for player_id, player in enumerate(self.players):
-            if player.get('error'):
-                continue
-
-            count = game_counts[player['name']]
-
-            tie_breaker = rng.random()
-            val = [count, tie_breaker, player_id]
-            heapq.heappush(game_count_heap, val)
-
 
         def worker(q, r, lock=threading.Lock()):
             for task in iter(q.get, None):  # blocking get until None is received
@@ -260,18 +249,17 @@ class CI_Engine:
             # match with another random player
             # mix the sides and let them play
 
-            a = heapq.heappop(game_count_heap)
-            b_i = rng.randrange(len(game_count_heap))
-            b = game_count_heap[b_i]
-            players = [a[2], b[2]]
+            players_sorted = sorted(list(game_counts.items()), key=operator.itemgetter(1))
+            a = players_sorted[0][0]
+            b = rng.choice(players_sorted[1:])[0]
+
+            players = [a, b]
             rng.shuffle(players)
 
             q.put((count, self, players[0], players[1]))
 
-            del game_count_heap[b_i]
-            game_count_heap.append([b[0] + 1, rng.random(), b[2]])
-            heapq.heapify(game_count_heap)
-            heapq.heappush(game_count_heap, [a[0] + 1, rng.random(), a[2]])
+            game_counts[a] += 1
+            game_counts[b] += 1
 
             try:
                 count, players, res = r.get_nowait()
