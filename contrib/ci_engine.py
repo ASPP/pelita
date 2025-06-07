@@ -44,6 +44,7 @@ stabilized.
 import argparse
 import asyncio
 import collections
+from concurrent.futures import ThreadPoolExecutor
 import configparser
 import heapq
 import itertools
@@ -148,16 +149,27 @@ class CI_Engine:
                 self.dbwrapper.remove_player(pname)
                 self.dbwrapper.add_player(pname, new_hash)
 
-        for pname, player in self.players.items():
-            path = player['path']
+        def check_team_name(args):
+            pname, path = args
             try:
                 _logger.debug('Querying team name for %s.' % pname)
-                team_name = check_team(player['path'])
-                self.dbwrapper.add_team_name(pname, team_name)
+                team_name = check_team(path)
+                return { 'team_name': team_name }
             except RemotePlayerFailure as e:
                 e_type, e_msg = e.args
-                _logger.debug(f'Could not import {player} at path {path} ({e_type}): {e_msg}')
-                player['error'] = e.args
+                _logger.debug(f'Could not import {pname} at path {path} ({e_type}): {e_msg}')
+                return { 'error': e.args }
+
+        with ThreadPoolExecutor(max_workers=concurrency) as executor:
+            players = [(pname, player['path']) for pname, player in self.players.items()]
+            team_names = executor.map(check_team_name, players)
+
+            for (pname, path), team_name in zip(players, team_names):
+                if 'error' in team_name:
+                    self.players[pname]['error'] = team_name['error']
+                else:
+                    self.dbwrapper.add_team_name(pname, team_name['team_name'])
+
 
     def run_game(self, p1, p2):
         """Run a single game.
