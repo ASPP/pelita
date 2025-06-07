@@ -42,6 +42,7 @@ stabilized.
 """
 
 import argparse
+import asyncio
 import collections
 import configparser
 import heapq
@@ -77,15 +78,21 @@ def signal_handler(_signal, _frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-def hash_team(team_spec):
+async def hash_team(team_spec, semaphore):
     external_call = [sys.executable,
                     '-m',
                     'pelita.scripts.pelita_player',
                     'hash-team',
                     team_spec]
-    _logger.debug("Executing: %r", shlex.join(external_call))
-    res = subprocess.run(external_call, capture_output=True, text=True)
-    return res.stdout.strip().split("\n")[-1].strip()
+    async with semaphore:
+        _logger.debug("Executing: %r", shlex.join(external_call))
+        proc = await asyncio.create_subprocess_exec(*external_call,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await proc.communicate()
+
+    return stdout.decode().strip().split("\n")[-1].strip()
 
 class CI_Engine:
     """Continuous Integration Engine."""
@@ -105,7 +112,7 @@ class CI_Engine:
         self.db_file = config.get('general', 'db_file')
         self.dbwrapper = DB_Wrapper(self.db_file)
 
-    def load_players(self):
+    def load_players(self, concurrency=1):
         hash_cache = {}
 
         # remove players from db which are not in the config anymore
@@ -114,19 +121,27 @@ class CI_Engine:
                 _logger.debug('Removing %s from database, because it is not among the current players.' % (pname))
                 self.dbwrapper.remove_player(pname)
 
+        semaphore = asyncio.Semaphore(concurrency)
+
+        async def do_hash():
+            tasks = [asyncio.create_task(hash_team(player['path'], semaphore)) for player in self.players]
+            hashes = await asyncio.gather(*tasks)
+            return {player['path']: hash for (player, hash) in zip(self.players, hashes)}
+
+        hash_cache = asyncio.run(do_hash())
+
         # add new players into db
         for player in self.players:
             pname, path = player['name'], player['path']
             if pname not in self.dbwrapper.get_players():
                 _logger.debug('Adding %s to database.' % pname)
-                hash_cache[path] = hash_team(path)
                 self.dbwrapper.add_player(pname, hash_cache[path])
 
         # reset players where the directory hash changed
         for player in self.players:
             path = player['path']
             pname = player['name']
-            new_hash = hash_cache.get(path, hash_team(path))
+            new_hash = hash_cache.get(path)
             if new_hash != self.dbwrapper.get_player_hash(pname):
                 _logger.debug('Resetting %s because its module hash changed.' % pname)
                 self.dbwrapper.remove_player(pname)
@@ -995,7 +1010,7 @@ def run(args):
     with open(args.config) as f:
         ci_engine = CI_Engine(f)
         if not args.no_hash:
-            ci_engine.load_players()
+            ci_engine.load_players(concurrency=args.thread_count)
         ci_engine.start(args.n, args.thread_count)
 
 def print_scores(args):
@@ -1006,7 +1021,7 @@ def print_scores(args):
 def hash_teams(args):
     with open(args.config) as f:
         ci_engine = CI_Engine(f)
-        ci_engine.load_players()
+        ci_engine.load_players(concurrency=args.thread_count)
 
 
 if __name__ == '__main__':
