@@ -287,7 +287,11 @@ class CI_Engine:
 
             try:
                 count, players, res = r.get_nowait()
-                print(f"Storing #{count}: {players[0]} against {players[1]}.")
+                final_state = res[3]
+                if final_state:
+                    print(f"Storing #{count}: {players[0]} against {players[1]}.")
+                else:
+                    print(f"Not storing #{count}: {players[0]} against {players[1]}.")
                 self.dbwrapper.add_gameresult(*res)
             except queue.Empty:
                 pass
@@ -300,7 +304,11 @@ class CI_Engine:
         while True:
             try:
                 count, players, res = r.get_nowait()
-                print(f"Storing #{count}: {players[0]} against {players[1]}.")
+                final_state = res[3]
+                if final_state:
+                    print(f"Storing #{count}: {players[0]} against {players[1]}.")
+                else:
+                    print(f"Not storing #{count}: {players[0]} against {players[1]}.")
                 self.dbwrapper.add_gameresult(*res)
             except queue.Empty:
                 break
