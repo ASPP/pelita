@@ -459,7 +459,7 @@ class TkApplication:
         if winning_team_idx is None:
             self.draw_end_of_game(None)
         elif winning_team_idx in (0, 1):
-            team_name = game_state["team_names"][winning_team_idx]
+            team_name = game_state["team_names"][winning_team_idx] or "???"
             self.draw_game_over(team_name)
         elif winning_team_idx == 2:
             self.draw_game_draw()
@@ -820,8 +820,8 @@ class TkApplication:
 
         center = self.ui_game_canvas.winfo_width() // 2
 
-        left_name = game_state["team_names"][0]
-        right_name = game_state["team_names"][1]
+        left_name = game_state["team_names"][0] or '???'
+        right_name = game_state["team_names"][1] or '???'
 
         left_score = game_state["score"][0]
         right_score = game_state["score"][1]
