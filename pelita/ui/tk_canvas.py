@@ -1202,7 +1202,7 @@ class TkApplication:
         self._check_speed_button_state()
 
     def _check_speed_button_state(self):
-        print(self._delay)
+        # print(self._delay)
         try:
             # self.ui_button_game_speed_faster
             # may not be available yet (or may be None).
