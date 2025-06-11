@@ -249,20 +249,37 @@ def test_generate_maze(iteration):
     l2 = mg.generate_maze(trapped_food, total_food, width, height, rng=seed)
     assert l1 == l2
 
-@pytest.mark.parametrize('iteration', range(100))
+
+#   0 1 2 3 4 5 6 7 8 9
+# 0 # # # # # # # # # #
+# 1 # O O O X X O O y #
+# 2 # a O O X X O O x #
+# 3 # b O O X X O O O #
+# 4 # # # # # # # # # #
+#
+# We should always create a maze which only has
+# walls on the border, so we know how many free
+# tiles we have. In the sketch above "O" are free
+# tiles, "X" is the border, "a" and "b" the free
+# initial bot positions
+@pytest.mark.parametrize('iteration', range(10))
 def test_generate_maze_food(iteration):
     local_seed = SEED + iteration
     rng = Random(local_seed)
 
     width = 10
     height = 5
-    total_food = 10
+    total_food = 7
     trapped_food = 0
     ld = mg.generate_maze(trapped_food, total_food, width, height, rng=rng)
     # check that we never place food on the border
     x_food = {x for (x, y) in ld['food']}
     assert width//2 not in x_food
     assert width//2 - 1 not in x_food
+    with pytest.raises(ValueError):
+        # there are not enough free tiles for 8 pellets
+        total_food = 8
+        ld = mg.generate_maze(trapped_food, total_food, width, height, rng=rng)
 
 def test_maze_generation_roundtrip():
     maze = mg.generate_maze()
@@ -270,3 +287,11 @@ def test_maze_generation_roundtrip():
     maze_from_str = pl.parse_layout(maze_str)
 
     assert maze == maze_from_str
+
+def test_reproducer_for_issue_893():
+    width = 10
+    height = 5
+    total_food = 1
+    trapped_food = 0
+    ld = mg.generate_maze(trapped_food, total_food, width, height, rng = SEED)
+    assert len(ld['walls']) >= (2*width + 2*(height-2))
