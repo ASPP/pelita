@@ -270,3 +270,11 @@ def test_maze_generation_roundtrip():
     maze_from_str = pl.parse_layout(maze_str)
 
     assert maze == maze_from_str
+
+def test_reproducer_for_issue_893():
+    width = 10
+    height = 5
+    total_food = 1
+    trapped_food = 0
+    ld = mg.generate_maze(trapped_food, total_food, width, height, rng = SEED)
+    assert len(ld['walls']) >= (2*width + 2*(height-2))
