@@ -129,7 +129,7 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
 
     # if the partition is too small, stop
     if height < 3 and width < 3:
-        return set()
+        return walls
 
     # insert a wall only if there is some space in the around it in the
     # orthogonal direction, i.e.:
@@ -137,7 +137,7 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
     # if the wall is horizontal, then the relevant length is the height
     partition_length = width if vertical else height
     if partition_length < rng.randint(3, 5):
-        return set()
+        return walls
 
     # the raw/column to put the horizontal/vertical wall on
     # the position is calculated starting from the left/top of the maze partition
