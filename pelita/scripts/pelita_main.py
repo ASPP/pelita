@@ -332,7 +332,7 @@ def main():
             try:
                 team_name = check_team(team_spec)
                 print("NAME:", team_name)
-            except pelita.network.ZMQClientError as e:
+            except pelita.network.RemotePlayerFailure as e:
                 if e.error_type == 'ModuleNotFoundError':
                     #print(f"{e.message}")
                     pass

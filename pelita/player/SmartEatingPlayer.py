@@ -15,6 +15,8 @@ def smart_eating_player(bot, state):
         state[bot.turn]['next_food'] = None
         return bot.position
 
+    bot.say(f"Going {next_pos}")
+
     return next_pos
 
 

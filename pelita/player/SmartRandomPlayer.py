@@ -15,6 +15,7 @@ def smart_random_player(bot, state):
             return new_pos # get it
         else:
             smart_positions.append(new_pos)
+    bot.say(f"Hello")
 
     if smart_positions:
         return bot.random.choice(smart_positions)
