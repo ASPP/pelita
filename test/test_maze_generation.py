@@ -5,6 +5,7 @@ import pytest
 import pelita.layout as pl
 import pelita.maze_generator as mg
 import pelita.team as pt
+import pelita.game as pg
 
 SEED = 103525239
 
@@ -295,3 +296,13 @@ def test_reproducer_for_issue_893():
     trapped_food = 0
     ld = mg.generate_maze(trapped_food, total_food, width, height, rng = SEED)
     assert len(ld['walls']) >= (2*width + 2*(height-2))
+
+@pytest.mark.parametrize('iteration', range(100))
+def test_default_food_is_fitting(iteration):
+    local_seed = SEED + iteration
+    rng = Random(local_seed)
+
+    for width, height in pg.MSIZE.values():
+        trapped_food, total_food = pg.NFOOD[(width, height)]
+        mg.generate_maze(trapped_food, total_food, width, height, rng=rng)
+

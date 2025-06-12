@@ -38,7 +38,7 @@ import networkx as nx
 
 from .base_utils import default_rng
 from .team import walls_to_graph
-
+from .exceptions import CannotFitFood
 
 def mirror(nodes, width, height):
     nodes = set(nodes)
@@ -93,7 +93,7 @@ def distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=None
         )
 
     if total_food > len(all_tiles):
-        raise ValueError(
+        raise CannotFitFood(
             f"number of total food ({total_food}) exceeds available tiles in maze ({len(all_tiles)})"
         )
 
