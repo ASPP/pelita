@@ -90,6 +90,36 @@ def walls_to_graph(walls, shape=None):
     return graph
 
 
+def sanitize_say(string):
+    """Make input string sane (for a certain definition of sane)"""
+    sane = []
+    # first of all, verify that the whole thing is valid unicode
+    # this should always be True, but who knows where do they get
+    # their strings from
+    try:
+        string.encode('utf8')
+    except UnicodeEncodeError:
+        raise ValueError(f'{string} is not valid Unicode')
+    for c in string:
+        if c == '\n':
+            # convert newlines to blanks
+            char = ' '
+        elif int(c.encode('utf8').hex(), 16) <= int("ffff", 16):
+            # the character must belong to the Unicode Base Multilingual Plane
+            # we get rid of most bullshit with this
+            # thanks to Joseph Hale:
+            # https://jhale.dev/posts/detecting-basic-multilingual-plane/
+            char = c
+        else:
+            # ignore anything else
+            continue
+        sane.append(char)
+        if len(sane) == 30:
+            # break out of the loop when we have 30 chars
+            break
+
+    return ''.join(sane)
+
 
 class Team:
     """
@@ -616,7 +646,8 @@ class Bot:
 
     def say(self, text):
         """ Print some text in the graphical interface. """
-        self._say = text
+        # sanitize text so that funny users can't break the GUI
+        self._say = sanitize_say(text)
 
     # def get_direction(self, position):
         # """ Return the direction needed to get to the given position.
