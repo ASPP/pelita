@@ -17,3 +17,7 @@ class PlayerDisconnected(FatalException):
 class NoFoodWarning(Warning):
     """ Warns when a layout has no food during setup. """
     pass
+
+class CannotFitFood(ValueError):
+    """Can not distribute food in the maze"""
+    pass
