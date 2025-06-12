@@ -135,6 +135,9 @@ class TkViewer:
             pass
 
     def read_queue(self):
+
+        # TODO: Use game status to break the loop when the game has finished
+
         # We increase the polling delay up to 100ms each try to avoid
         # using too much cpu when there are no messages anyway.
         if self._delay > 100:
@@ -169,11 +172,15 @@ class TkViewer:
 
         # Patched to quit after `KeyboardInterrupt`s.
         """
+        # print("Schedule after", delay)
         def wrapped_fun():
             try:
                 fun(*args)
             except KeyboardInterrupt:
                 print("KBI")
+
                 _logger.info("Detected KeyboardInterrupt. Exiting.")
+
+                # TODO: This does not exist!
                 self.quit()
         self.root.after(delay, wrapped_fun)

@@ -8,7 +8,7 @@ from .maze_generator import generate_maze
 from .team import create_homezones, make_bots
 
 # this import is needed for backward compatibility, do not remove or you'll break
-# older clients!
+# older (<2.5) clients!
 from .team import walls_to_graph  # isort: skip
 
 

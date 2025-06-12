@@ -9,8 +9,8 @@ from random import Random
 
 import pytest
 
-from pelita import game, maze_generator
-from pelita.exceptions import NoFoodWarning
+from pelita import game, layout, maze_generator
+from pelita.exceptions import FatalException, NoFoodWarning
 from pelita.game import (apply_move, get_legal_positions, initial_positions,
                          play_turn, run_game, setup_game)
 from pelita.layout import parse_layout
@@ -1284,6 +1284,23 @@ def test_invalid_setup_game_closes_players():
     # Check that both processes have exited
     assert state["teams"][0].proc[0].wait(timeout=3) == 0
     assert state["teams"][1].proc[0].wait(timeout=3) == 0
+
+def test_raises():
+    layout_name, layout_string = layout.get_random_layout()
+    l = layout.parse_layout(layout_string)
+
+    # setup a remote demo game with "0" and "1" but bad max rounds
+    path = FIXTURE_DIR / "player_move_division_by_zero"
+    state = setup_game([str(path), "1"], layout_dict=l, max_rounds=2)
+    with pytest.raises(FatalException):
+        while not state["gameover"]:
+            state = play_turn(state, allow_exceptions=True)
+
+    assert state["gameover"] is False
+    # Check that both processes have exited
+    assert state["teams"][0].proc.wait(timeout=3) == 0
+    assert state["teams"][1].proc.wait(timeout=3) == 0
+
 
 
 @pytest.mark.parametrize('move_request, expected_prev, expected_req, expected_success', [
