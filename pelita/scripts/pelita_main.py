@@ -16,6 +16,7 @@ import pelita
 from pelita.network import PELITA_PORT
 # TODO: The check_team option
 from pelita.tournament import check_team
+from pelita.exceptions import CannotFitFood
 
 from .script_utils import start_logging
 
@@ -436,15 +437,37 @@ def main():
 
         if args.food:
             trapped_food, total_food = args.food
+            using_default_specs = False
         elif (width, height) in pelita.game.NFOOD:
             trapped_food, total_food = pelita.game.NFOOD[(width, height)]
+            using_default_specs = True
         else:
             raise ValueError('--food option must be specified if a custom maze size is set')
 
-        layout_dict = pelita.maze_generator.generate_maze(trapped_food=trapped_food,
-                                                          total_food=total_food,
-                                                          width=width,
-                                                          height=height, rng=rng)
+        # try to get a maze
+        for count in range(100):
+            # we try 100 times, but only if size and food are set at default values
+            # otherwise we fail immediately
+            # Note that default values are set such that they should not fail.
+            # Because we can not prove that mathematically, let's just have
+            # this safety-net.
+            layout_created = False
+            try:
+                layout_dict = pelita.maze_generator.generate_maze(trapped_food=trapped_food,
+                                                                  total_food=total_food,
+                                                                  width=width,
+                                                                  height=height, rng=rng)
+                layout_created = True
+                break
+            except CannotFitFood:
+                if not using_default_specs:
+                    # this can happen if the user manually specified size and/or
+                    # food values. We re-raise the exception in this case
+                    raise
+        # If we still fail after 100 tries, there's something seriously wrong
+        # somewhere and we should give up
+        if not layout_created:
+            raise ValueError('Cannot create maze with default values: something is wrong!')
 
     if args.layoutfile:
         # We only want to print this, when no seed has been given.
