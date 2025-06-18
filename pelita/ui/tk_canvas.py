@@ -117,22 +117,61 @@ class MeshGraph:
     def __init__(self, mesh_width, mesh_height, screen_width, screen_height, top_margin=0):
         self.mesh_width = mesh_width
         self.mesh_height = mesh_height
-        self.screen_height = screen_height
-        self.screen_width = screen_width
+        self.screen_shape = (screen_width, screen_height)
         self.top_margin = top_margin
         self.padding = MAZE_PADDING
+        self.extra_x = 0
+        self.extra_y = 0
 
     def update_mesh_shape(self, shape):
         mesh_width, mesh_height = shape
         self.mesh_width = mesh_width
         self.mesh_height = mesh_height
 
+    def update_screen_shape(self, width, height):
+        # Sets extra padding variables to make the cells as square as possible
+        # Returns true when the padding variables have changed and a full redraw is required
+
+        if self.screen_shape == (width, height):
+            return False
+
+        self.screen_shape = (width, height)
+
+        old_extra_x, old_extra_y = self.extra_x, self.extra_y
+
+        if self.mesh_width and self.mesh_height:
+            scale_factor = (
+                self.mesh_width * (self.screen_height - 1 - 2 * self.padding - self.top_margin)
+                - self.mesh_height * (self.screen_width - 1 - 2 * self.padding)
+            )
+
+            if scale_factor >= 0:
+                self.extra_x = 0
+                self.extra_y = scale_factor/ (2 * self.mesh_width)
+
+            else:
+                self.extra_x = - scale_factor / (2 * self.mesh_height)
+                self.extra_y = 0
+
+        if (old_extra_x, old_extra_y) == (self.extra_x, self.extra_y):
+            return False
+        else:
+            return True
+
+    @property
+    def screen_width(self):
+        return self.screen_shape[0]
+
+    @property
+    def screen_height(self):
+        return self.screen_shape[1]
+
     @property
     def rect_width(self):
         """ The width of a single field.
         """
         # we have to adjust by one pixel for the border
-        width = float(self.screen_width - 1 - 2 * self.padding) / self.mesh_width
+        width = float(self.screen_width - 1 - 2 * self.padding - 2 * self.extra_x) / self.mesh_width
         # if the UI is not initialized yet (or just really really small) this may
         # result in a negative value. Ensure that it is always positive or zero.
         if width < 0:
@@ -144,7 +183,7 @@ class MeshGraph:
         """ The height of a single field.
         """
         # we have to adjust by one pixel for the border
-        height = float(self.screen_height - 1 - 2 * self.padding - self.top_margin) / self.mesh_height
+        height = float(self.screen_height - 1 - 2 * self.padding - 2 * self.extra_y - self.top_margin) / self.mesh_height
         # if the UI is not initialized yet (or just really really small) this may
         # result in a negative value. Ensure that it is always positive or zero.
         if height < 0:
@@ -174,22 +213,22 @@ class MeshGraph:
         # coords are between -1 and +1: shift on [0, 1]
         trafo_x = (model_x + 1.0) / 2.0
 
-        real_x = self.rect_width * (mesh_x + trafo_x) + self.padding
+        real_x = self.rect_width * (mesh_x + trafo_x) + self.padding + self.extra_x
         return real_x
 
     def mesh_to_screen_y(self, mesh_y, model_y):
         # coords are between -1 and +1: shift on [0, 1]
         trafo_y = (model_y + 1.0) / 2.0
 
-        real_y = self.rect_height * (mesh_y + trafo_y) + self.padding + self.top_margin
+        real_y = self.rect_height * (mesh_y + trafo_y) + self.padding + self.extra_y + self.top_margin
         return real_y
 
     def screen_to_mesh_coord(self, screen_x, screen_y):
         # returns the mesh coordinate of the selected screen coordinate
         # or None, when it is outside of the mesh
 
-        x = int((screen_x - self.padding) / self.rect_width)
-        y = int((screen_y - self.padding - self.top_margin) / self.rect_height)
+        x = int((screen_x - self.padding - self.extra_x) / self.rect_width)
+        y = int((screen_y - self.padding - self.extra_y - self.top_margin) / self.rect_height)
 
         if not 0 <= x < self.mesh_width or not 0 <= y < self.mesh_height:
             return None
@@ -213,6 +252,8 @@ class Trafo:
 
     def screen(self, model_x, model_y):
         return self.mesh_graph.mesh_to_screen((self.mesh_x, self.mesh_y), (model_x, model_y))
+
+
 
 class TkApplication:
     def __init__(self, window, controller_address=None,
@@ -250,7 +291,7 @@ class TkApplication:
 
         self._game_state = {}
 
-        self.ui_game_canvas = tkinter.Canvas(window)
+        self.ui_game_canvas = tkinter.Canvas(self.window)
         self.ui_game_canvas.configure(background="white", bd=0, highlightthickness=0, relief='flat')
         self.ui_game_canvas.bind('<Configure>', lambda e: window.after_idle(self.update))
         self.ui_game_canvas.bind('<Button-1>', self.on_click)
@@ -392,8 +433,9 @@ class TkApplication:
             != (self.ui_game_canvas.winfo_width(), self.ui_game_canvas.winfo_height())):
             redraw = True
 
-        self.mesh_graph.screen_width = self.ui_game_canvas.winfo_width()
-        self.mesh_graph.screen_height = self.ui_game_canvas.winfo_height()
+        changed = self.mesh_graph.update_screen_shape(self.ui_game_canvas.winfo_width(), self.ui_game_canvas.winfo_height())
+        if changed:
+            redraw = True
 
         if self.mesh_graph.screen_width < 600:
             if self._default_font.cget('size') != 8:
