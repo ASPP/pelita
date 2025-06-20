@@ -12,11 +12,10 @@ import click
 import zmq
 
 from ..network import json_default_handler
-from ..team import make_team
+from ..team import Team
 from .script_utils import start_logging
 
 _logger = logging.getLogger(__name__)
-
 
 @contextlib.contextmanager
 def with_sys_path(dirname):
@@ -38,8 +37,6 @@ def run_player(team_spec, address, team_name_override=False, silent_bots=False):
         the address of the remote team socket
 
     """
-
-    address = address.replace('*', 'localhost')
     # Connect to the given address
     context = zmq.Context()
     socket = context.socket(zmq.PAIR)
@@ -50,31 +47,25 @@ def run_player(team_spec, address, team_name_override=False, silent_bots=False):
 
     try:
         team = load_team(team_spec)
+        _logger.info(f"Running player '{team_spec}' ({team.team_name})")
+
     except Exception as e:
         # We could not load the team.
-        # Wait for the set_initial message from the server
-        # and reply with an error.
-        try:
-            json_message = socket.recv_unicode()
-            py_obj = json.loads(json_message)
-            uuid_ = py_obj["__uuid__"]
-            _action = py_obj["__action__"]
-            _data = py_obj["__data__"]
+        # Send an error to the server
 
-            socket.send_json({
-                '__uuid__': uuid_,
-                '__error__': e.__class__.__name__,
-                '__error_msg__': f'Could not load {team_spec}: {e}'
-            })
-        except zmq.ZMQError as e:
-            raise IOError('failed to connect the client to address %s: %s'
-                          % (address, e))
-        # TODO: Do not raise here but wait for zmq to return a sensible error message
-        # We need a way to distinguish between syntax errors in the client
-        # and general zmq disconnects
-        raise
+        error = {
+            '__error__': e.__class__.__name__,
+            '__error_msg__': f'Could not load {team_spec}: {e}',
+        }
 
-    _logger.info(f"Running player '{team_spec}' ({team.team_name})")
+        socket.send_json(error)
+        # TODO: Exit with a status code?
+        return False
+
+    data = {
+        'team_name': team.team_name,
+    }
+    socket.send_json({'__status__': 'ok', '__data__': data})
 
     while True:
         cont = player_handle_request(socket, team, team_name_override=team_name_override, silent_bots=silent_bots)
@@ -111,7 +102,7 @@ def player_handle_request(socket, team, team_name_override=False, silent_bots=Fa
 
     try:
         py_obj = json.loads(json_message)
-        msg_id = py_obj["__uuid__"]
+        msg_id = py_obj.get("__uuid__") # if an uuid is given, we must reply with a value
         action = py_obj["__action__"]
         data = py_obj["__data__"]
         _logger.debug("<o-- %r [%s]", action, msg_id)
@@ -122,11 +113,9 @@ def player_handle_request(socket, team, team_name_override=False, silent_bots=Fa
         elif action == "get_move":
             retval = team.get_move(**data)
             if silent_bots:
-                # We want to remove a speak attribute
-                # but we don’t care if it fails at all
                 try:
-                    retval.pop('say')
-                except Exception:
+                    del retval['say']
+                except KeyError:
                     pass
 
         elif action == "team_name":
@@ -187,15 +176,16 @@ def player_handle_request(socket, team, team_name_override=False, silent_bots=Fa
         return False
 
     finally:
-        # we use our own json_default_handler
-        # to automatically convert numpy ints to json
-        json_message = json.dumps(message_obj, default=json_default_handler)
-        # return the message
-        socket.send_unicode(json_message)
-        if '__error__' in message_obj:
-            _logger.warning("o-!> %r [%s]", message_obj['__error__'], msg_id)
-        else:
-            _logger.debug("o--> %r [%s]", message_obj['__return__'], msg_id)
+        if msg_id is not None:
+            # we use our own json_default_handler
+            # to automatically convert numpy ints to json
+            json_message = json.dumps(message_obj, default=json_default_handler)
+            # return the message
+            socket.send_unicode(json_message)
+            if '__error__' in message_obj:
+                _logger.warning("o-!> %r [%s]", message_obj['__error__'], msg_id)
+            else:
+                _logger.debug("o--> %r [%s]", message_obj['__return__'], msg_id)
 
 
 def check_team_name(name):
@@ -270,13 +260,13 @@ def load_team_from_module(path: str):
     FileNotFoundError
         if the parent folder cannot be found
     """
-    path = Path(path)
+    module_path = Path(path)
 
-    if not path.parent.exists():
-        raise FileNotFoundError("Folder {} does not exist.".format(path.parent))
+    if not module_path.parent.exists():
+        raise FileNotFoundError("Folder {} does not exist.".format(module_path.parent))
 
-    dirname = str(path.parent)
-    modname = path.stem
+    dirname = str(module_path.parent)
+    modname = module_path.stem
 
     if modname in sys.modules:
         raise ValueError("A module named ‘{}’ has already been imported.".format(modname))
@@ -290,15 +280,25 @@ def load_team_from_module(path: str):
 def team_from_module(module):
     """ Looks for a move function and a team name in
     `module` and returns a team.
+
+    Raises
+    ------
+    TypeError
+        move not a function or TEAM_NAME not a string
+    AttributeError
+        no move or no TEAM_NAME attribute
+
     """
     # look for a new-style team
     move = module.move
     name = module.TEAM_NAME
+
     if not callable(move):
         raise TypeError("move is not a function")
     if not isinstance(name, str):
         raise TypeError("TEAM_NAME is not a string")
-    team, _ = make_team(move, team_name=name)
+
+    team = Team(move, team_name=name)
     return team
 
 
