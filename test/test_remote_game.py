@@ -60,7 +60,7 @@ def test_remote_run_game(remote_teams):
     assert state['errors'] == [{}, {}]
 
 
-@pytest.mark.xfail(reason="TODO: Fails in CI for macOS. Unclear why.")
+#@pytest.mark.xfail(reason="TODO: Fails in CI for macOS. Unclear why.")
 def test_remote_timeout():
     # We have a slow player that also generates a bad move
     # in its second turn.
@@ -83,13 +83,15 @@ def test_remote_timeout():
                                  timeout_length=0.4)
 
     assert state['whowins'] == 0
-    assert state['fatal_errors'] == [[], []]
-    assert state['errors'] == [{},
-        {(1, 1): {'description': '', 'type': 'PlayerTimeout'},
-        (1, 3): {'bot_position': (-2, 0), 'reason': 'illegal move'},
-        (2, 1): {'description': '', 'type': 'PlayerTimeout'},
-        (2, 3): {'description': '', 'type': 'PlayerTimeout'},
-        (3, 1): {'description': '', 'type': 'PlayerTimeout'}}]
+    assert state['fatal_errors'][0] == []
+    assert state['fatal_errors'][1][0]['type'] == 'IllegalPosition'
+    assert state['fatal_errors'][1][0]['turn'] == 3
+    assert state['fatal_errors'][1][0]['round'] == 2
+    assert state['errors'][0] == {}
+    assert set(state['errors'][1].keys()) == {(1, 1), (1, 3), (2, 1)}
+    assert state['errors'][1][(1, 1)]['type'] == 'timeout'
+    assert state['errors'][1][(1, 3)]['type'] == 'timeout'
+    assert state['errors'][1][(2, 1)]['type'] == 'timeout'
 
 
 def test_remote_dumps_are_written():
