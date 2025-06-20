@@ -258,14 +258,17 @@ class PelitaServer:
 
             if msg_obj.get('TEAM') == 'ADD':
                 team_info = load_team_info(team_spec)
+                if not team_info:
+                    return
                 self.team_infos.append(team_info)
-                info = zeroconf_register(self.zc, self.advertise, self.port, team.spec, team.server_path, print=progress.console.print)
+                # TODO broken
+                info = zeroconf_register(self.zc, self.advertise, self.port, team_info.spec, team_info.server_path, print=progress.console.print)
                 if info:
-                    self.team_serviceinfo_mapping[(team.spec, team.server_path)] = info
+                    self.team_serviceinfo_mapping[(team_info.spec, team_info.server_path)] = info
 
             if msg_obj.get('TEAM') == 'REMOVE':
                 # TODO: cannot remove from self.team_infos yet
-                info = self.team_serviceinfo_mapping[(team.spec, team.server_path)]
+                info = self.team_serviceinfo_mapping[(team_info.spec, team_info.server_path)]
                 zeroconf_deregister(self.zc, info)
 
         elif "SCAN" in msg_obj:
@@ -334,7 +337,8 @@ class PelitaServer:
 
             # Send a reply to the requester (that the process has started)
             # Otherwise they might already start querying for the team name
-            self.router_sock.send_multipart([dealer_id, b"OK"])
+            ## TODO: Still needed?
+            # self.router_sock.send_multipart([dealer_id, b"OK"])
 
         else:
             _logger.info("Unknown incoming DEALER and not a request.")

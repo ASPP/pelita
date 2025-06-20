@@ -158,8 +158,8 @@ def test_remote_dumps_with_failure(failing_team):
         fail_turn = 0
     elif failing_team == 1:
         fail_turn = 1
-    assert state['fatal_errors'][failing_team][0] == {'type': 'FatalException',
-                                           'description': 'Exception in client (ZeroDivisionError): division by zero',
+    assert state['fatal_errors'][failing_team][0] == {'type': 'ZeroDivisionError',
+                                           'description': 'division by zero',
                                            'turn': fail_turn,
                                            'round': 2}
     assert state['fatal_errors'][1 - failing_team] == []
@@ -231,9 +231,10 @@ def test_remote_move_failures(player_name, is_setup_error, error_type):
                                       max_rounds=2,
                                       layout_dict=pelita.layout.parse_layout(layout))
 
-        assert state['whowins'] == 1
+        assert state['whowins'] == -1
+        assert state['game_phase'] == 'FAILURE'
 
-        assert state['fatal_errors'][0][0]['type'] == 'PlayerDisconnected'
+        assert state['fatal_errors'][0][0]['type'] == 'RemotePlayerFailure'
         assert 'Could not load' in state['fatal_errors'][0][0]['description']
         assert error_type in state['fatal_errors'][0][0]['description']
         assert state['fatal_errors'][0][0]['turn'] == 0
@@ -247,9 +248,9 @@ def test_remote_move_failures(player_name, is_setup_error, error_type):
                                       layout_dict=pelita.layout.parse_layout(layout))
 
         assert state['whowins'] == 1
+        assert state['game_phase'] == 'FINISHED'
 
-        assert state['fatal_errors'][0][0]['type'] == 'FatalException'
-        assert f'Exception in client ({error_type})' in state['fatal_errors'][0][0]['description']
+        assert state['fatal_errors'][0][0]['type'] == error_type
         assert state['fatal_errors'][0][0]['turn'] == 0
         assert state['fatal_errors'][0][0]['round'] == 1
         assert state['fatal_errors'][1] == []

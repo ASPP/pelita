@@ -31,8 +31,12 @@ LOGFILE = None
 
 
 def check_team(team_spec):
+
     """ Instantiates a team from a team_spec and returns its name """
     team, _zmq_context = make_team(team_spec)
+    if hasattr(team, 'zmqconnection'):
+        # TODO: Handle timeout
+        team.wait_ready(3)
     return team.team_name
 
 

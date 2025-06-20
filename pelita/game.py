@@ -8,13 +8,14 @@ import sys
 import time
 from warnings import warn
 
+import zmq
+
 from . import layout
 from .base_utils import default_rng
-from .exceptions import (FatalException, NoFoodWarning, NonFatalException,
-                         PlayerTimeout)
+from .exceptions import NoFoodWarning, PelitaBotError
 from .gamestate_filters import noiser, relocate_expired_food, update_food_age, in_homezone
 from .layout import get_legal_positions, initial_positions
-from .network import ZMQPublisher, setup_controller
+from .network import RemotePlayerFailure, RemotePlayerRecvTimeout, RemotePlayerSendError, ZMQPublisher, setup_controller
 from .team import make_team
 from .viewer import (AsciiViewer, ProgressViewer, ReplayWriter, ReplyToViewer,
                      ResultPrinter)
@@ -340,6 +341,9 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
         food_age=[{}, {}],
 
         ### Round/turn information
+        #: Phase
+        game_phase='INIT',
+
         #: Current bot, int, None
         turn=None,
 
@@ -438,6 +442,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
         controller=viewer_state['controller']
     )
 
+
     # Wait until the controller tells us that it is ready
     # We then can send the initial maze
     # This call *blocks* until the controller replies
@@ -460,13 +465,21 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
     update_viewers(game_state)
 
     # exit remote teams in case we are game over
-    check_exit_remote_teams(game_state)
+    if game_state['gameover']:
+        exit_remote_teams(game_state)
+
+    if game_state['game_phase'] == 'INIT':
+        send_initial(game_state, allow_exceptions=allow_exceptions)
+        game_state.update(check_gameover(game_state, detect_final_move=True))
+        game_state['game_phase'] = 'RUNNING'
 
     return game_state
 
 
 def setup_teams(team_specs, game_state, store_output=False, allow_exceptions=False):
     """ Creates the teams according to the `teams`. """
+
+    assert game_state['game_phase'] == 'INIT'
 
     # we start with a dummy zmq_context
     # make_team will generate and return a new zmq_context,
@@ -476,76 +489,206 @@ def setup_teams(team_specs, game_state, store_output=False, allow_exceptions=Fal
     teams = []
     # First, create all teams
     # If a team is a RemoteTeam, this will start a subprocess
-    for idx, team_spec in enumerate(team_specs):
-        team, zmq_context = make_team(team_spec, idx=idx, zmq_context=zmq_context, store_output=store_output, team_name=game_state['team_names'][idx])
+    for team_idx, team_spec in enumerate(team_specs):
+        team, zmq_context = make_team(team_spec, idx=team_idx, zmq_context=zmq_context, store_output=store_output, team_name=game_state['team_names'][team_idx])
         teams.append(team)
 
-    # Send the initial state to the teams and await the team name (if the teams are local, the name can be get from the game_state directly
-    team_names = []
-    for idx, team in enumerate(teams):
-        try:
-            team_name = team.set_initial(idx, prepare_bot_state(game_state, idx))
-        except (FatalException, PlayerTimeout) as e:
-            # TODO: Not sure if PlayerTimeout should let the other payer win.
-            # It could simply be a network problem.
-            if allow_exceptions:
-                raise
+    # Await that the teams signal readiness and get the team name
+    initial_timeout = 4
+    start = time.monotonic()
+
+    has_remote_teams = any(hasattr(team, 'zmqconnection') for team in teams)
+    remote_sockets = {}
+
+    if has_remote_teams:
+        poll = zmq.Poller()
+        for team_idx, team in enumerate(teams):
+            if hasattr(team, 'zmqconnection'):
+                poll.register(team.zmqconnection.socket, zmq.POLLIN)
+                remote_sockets[team.zmqconnection.socket] = team_idx
+
+    break_error = False
+    while remote_sockets and not break_error:
+        timeout_left = int((initial_timeout - time.monotonic() + start) * 1000)
+        if timeout_left <= 0:
+            break
+
+        # socket -> zmq.POLLIN id
+        evts = dict(poll.poll(timeout_left))
+        for socket in evts:
+            team_idx = remote_sockets[socket]
+            team = teams[team_idx]
+
+            try:
+                _state = team.wait_ready(timeout=0)
+            except (RemotePlayerSendError, RemotePlayerRecvTimeout, RemotePlayerFailure) as e:
+
+                if allow_exceptions:
+                    exit_remote_teams(game_state)
+                    raise
+
+                exception_event = {
+                    'type': e.__class__.__name__,
+                    'description': str(e),
+                    'turn': team_idx,
+                    'round': None,
+                }
+                game_state['fatal_errors'][team_idx].append(exception_event)
+
+                if len(e.args) > 1:
+                    game_print(team_idx, f"{type(e).__name__} ({e.args[0]}): {e.args[1]}")
+                else:
+                    game_print(team_idx, f"{type(e).__name__}: {e}")
+                break_error = True
+
+            del remote_sockets[socket]
+
+    # Handle timeouts
+    if not break_error and remote_sockets:
+        break_error = True
+        for socket, team_idx in remote_sockets.items():
             exception_event = {
-                'type': e.__class__.__name__,
-                'description': str(e),
-                'turn': idx,
+                'type': 'Timeout',
+                'description': 'Team did not start (timeout).',
+                'turn': team_idx,
                 'round': None,
             }
-            game_state['fatal_errors'][idx].append(exception_event)
-            if len(e.args) > 1:
-                game_print(idx, f"{type(e).__name__} ({e.args[0]}): {e.args[1]}")
-                team_name = f"%%%{e.args[0]}%%%"
-            else:
-                game_print(idx, f"{type(e).__name__}: {e}")
-                team_name = "%%%error%%%"
-        team_names.append(team_name)
+
+            game_state['fatal_errors'][team_idx].append(exception_event)
+            game_print(team_idx, f"Team '{teams[team_idx]._team_spec}' did not start (timeout).")
+
+    game_phase = "FAILURE" if break_error else game_state["game_phase"]
+
+    # Send the initial state to the teams
+    team_names = [team.team_name for team in teams]
 
     team_state = {
         'teams': teams,
-        'team_names': team_names
+        'team_names': team_names,
+        'game_phase': game_phase
     }
     return team_state
 
+def send_initial(game_state, allow_exceptions=False):
+    assert game_state["game_phase"] == "INIT"
+
+    teams = game_state['teams']
+
+    for team_idx, team in enumerate(teams):
+        try:
+            _res = team.set_initial(team_idx, prepare_bot_state(game_state, team_idx))
+
+        except RemotePlayerFailure as e:
+            if allow_exceptions:
+                exit_remote_teams(game_state)
+                raise PelitaBotError(e.error_type, e.error_msg)
+
+            exception_event = {
+                'type': e.error_type,
+                'description': e.error_msg,
+                'turn': team_idx,
+                'round': None,
+            }
+            game_state['fatal_errors'][team_idx].append(exception_event)
+            game_print(team_idx, f"{e.error_type}: {e.error_msg}")
+
+        except RemotePlayerSendError:
+            if allow_exceptions:
+                exit_remote_teams(game_state)
+                raise PelitaBotError('Send error', 'Remote team unavailable')
+
+            exception_event = {
+                'type': 'Send error',
+                'description': 'Remote team unavailable',
+                'turn': team_idx,
+                'round': None,
+            }
+            game_state['fatal_errors'][team_idx].append(exception_event)
+            game_print(team_idx, "Send error: Remote team unavailable")
+
+        except RemotePlayerRecvTimeout:
+            if allow_exceptions:
+                exit_remote_teams(game_state)
+                raise PelitaBotError('timeout', 'Timeout in set initial')
+
+            # Time out in set_initial
+            exception_event = {
+                'type': 'timeout',
+                'description': 'Timeout in set initial',
+                'turn': team_idx,
+                'round': None,
+            }
+            game_state['fatal_errors'][team_idx].append(exception_event)
+            game_print(team_idx, "timeout: Timeout in set initial")
+
 
 def request_new_position(game_state):
-    team = game_state['turn'] % 2
-    move_fun = game_state['teams'][team]
+    round = game_state['round']
+    turn = game_state['turn']
+    team_idx = game_state['turn'] % 2
+    _bot_turn = game_state['turn'] // 2
+    team = game_state['teams'][team_idx]
 
     bot_state = prepare_bot_state(game_state)
 
+    try:
+        start_time = time.monotonic()
+        bot_reply = team.get_move(bot_state)
 
-    start_time = time.monotonic()
+    except RemotePlayerFailure as e:
+        bot_reply = {
+            'error': e.error_type,
+            'error_msg': e.error_msg
+        }
 
-    new_position = move_fun.get_move(bot_state)
+    except RemotePlayerSendError:
+        bot_reply = {
+            'error': 'Send error',
+            'error_msg': 'Remote team unavailable'
+        }
+
+    except RemotePlayerRecvTimeout:
+        # There was a timeout. Execute a random move
+
+        legal_positions = get_legal_positions(game_state["walls"], game_state["shape"],
+                                              game_state["bots"][game_state["turn"]])
+        req_position = game_state['rng'].choice(legal_positions)
+        game_print(turn, f"Player timeout. Setting a legal position at random: {req_position}")
+
+        bot_reply = {
+            'move': req_position,
+            'error': 'timeout',
+        }
+        timeout_event = {
+            'type': 'timeout',
+            'description': f"Player timeout. Setting a legal position at random: {req_position}"
+        }
+        game_state['errors'][team_idx][(round, turn)] = timeout_event
+
 
     duration = time.monotonic() - start_time
     # update the team_time
-    game_state['team_time'][team] += duration
+    game_state['team_time'][team_idx] += duration
 
-    return new_position
+    return bot_reply
 
 
-def prepare_bot_state(game_state, idx=None):
+def prepare_bot_state(game_state, team_idx=None):
     """ Prepares the bot’s game state for the current bot.
 
     """
 
-    bot_initialization = game_state.get('turn') is None and idx is not None
-    bot_finalization = game_state.get('turn') is not None and idx is not None
+    bot_initialization = game_state.get('turn') is None and team_idx is not None
+    bot_finalization = game_state.get('turn') is not None and team_idx is not None
 
     if bot_initialization:
         # We assume that we are in get_initial phase
-        turn = idx
+        turn = team_idx
         bot_turn = None
         seed = game_state['rng'].randint(0, sys.maxsize)
     elif bot_finalization:
         # Called for remote players in _exit
-        turn = idx
+        turn = team_idx
         bot_turn = None
         seed = None
     else:
@@ -622,7 +765,6 @@ def prepare_bot_state(game_state, idx=None):
             'shape': game_state['shape'], # only in initial round
             'seed': seed # only used in set_initial phase
         })
-
     return bot_state
 
 
@@ -683,7 +825,6 @@ def prepare_viewer_state(game_state):
 
     return viewer_state
 
-
 def play_turn(game_state, allow_exceptions=False):
     """ Plays the next turn of the game.
 
@@ -712,47 +853,35 @@ def play_turn(game_state, allow_exceptions=False):
     game_state.update(update_food_age(game_state, team, SHADOW_DISTANCE))
     game_state.update(relocate_expired_food(game_state, team, SHADOW_DISTANCE))
 
-    # request a new move from the current team
-    try:
-        position_dict = request_new_position(game_state)
-        if "error" in position_dict:
-            error_type, error_string = position_dict['error']
-            raise FatalException(f"Exception in client ({error_type}): {error_string}")
-        try:
-            position = tuple(position_dict['move'])
-        except TypeError as e:
-            raise NonFatalException(f"Type error {e}")
+    position_dict = request_new_position(game_state)
 
-        if position_dict.get('say'):
-            game_state['say'][game_state['turn']] = position_dict['say']
-        else:
-            game_state['say'][game_state['turn']] = ""
-    except FatalException as e:
+    if "error" in position_dict and not position_dict['error'] == 'timeout':
+        error_type = position_dict['error']
+        error_string = position_dict.get('error_msg', '')
+
         if allow_exceptions:
-            raise
+            exit_remote_teams(game_state)
+            raise PelitaBotError(error_type, error_string)
+
         # FatalExceptions (such as PlayerDisconnect) should immediately
         # finish the game
         exception_event = {
-            'type': e.__class__.__name__,
-            'description': str(e),
+            'type': error_type,
+            'description': error_string,
             'turn': game_state['turn'],
             'round': game_state['round'],
         }
         game_state['fatal_errors'][team].append(exception_event)
         position = None
-        game_print(turn, f"{type(e).__name__}: {e}")
-    except NonFatalException as e:
-        if allow_exceptions:
-            raise
-        # NonFatalExceptions (such as Timeouts and ValueErrors in the JSON handling)
-        # are collected and added to team_errors
-        exception_event = {
-            'type': e.__class__.__name__,
-            'description': str(e)
-        }
-        game_state['errors'][team][(round, turn)] = exception_event
-        position = None
-        game_print(turn, f"{type(e).__name__}: {e}")
+        game_print(turn, f"{error_type}: {error_string}")
+
+    else:
+        position = position_dict['move']
+
+    if position_dict.get('say'):
+        game_state['say'][game_state['turn']] = position_dict['say']
+    else:
+        game_state['say'][game_state['turn']] = ""
 
     # If the returned move looks okay, we add it to the list of requested moves
     old_position = game_state['bots'][turn]
@@ -784,7 +913,8 @@ def play_turn(game_state, allow_exceptions=False):
     update_viewers(game_state)
 
     # exit remote teams in case we are game over
-    check_exit_remote_teams(game_state)
+    if game_state['gameover']:
+        exit_remote_teams(game_state)
 
     return game_state
 
@@ -862,7 +992,9 @@ def apply_move(gamestate, bot_position):
         state of the game after applying current turn
 
     """
-    # TODO is a timeout counted as an error?
+    # TODO: gamestate should be immutable
+    assert gamestate["game_phase"] == "RUNNING"
+
     # define local variables
     bots = gamestate["bots"]
     turn = gamestate["turn"]
@@ -905,14 +1037,6 @@ def apply_move(gamestate, bot_position):
     if gamestate['gameover']:
         return gamestate
 
-    # Now check if we must make a random move
-    if (n_round, turn) in team_errors:
-        # There was an error for this round and turn
-        # but the game is not over.
-        # We execute a random move
-        bot_position = gamestate['rng'].choice(legal_positions)
-        game_print(turn, f"Setting a legal position at random: {bot_position}")
-
     # take step
     bots[turn] = bot_position
     _logger.info(f"Bot {turn} moves to {bot_position}.")
@@ -943,6 +1067,7 @@ def apply_move(gamestate, bot_position):
         "kills": kills,
         "bot_was_killed": bot_was_killed,
         "errors": errors,
+        "game_phase": "RUNNING",
         }
 
     gamestate.update(gamestate_new)
@@ -991,9 +1116,27 @@ def check_gameover(game_state, detect_final_move=False):
 
     Returns
     -------
-    dict { 'gameover' , 'whowins' }
+    dict { 'gameover' , 'whowins', 'game_phase' }
         Flags if the game is over and who won it
     """
+    if game_state['game_phase'] == 'FAILURE':
+        return {
+            'whowins' : -1,
+            'gameover' : True,
+            'game_phase': game_state['game_phase']
+        }
+
+    if game_state['gameover']:
+        return {
+            'whowins' : game_state['whowins'],
+            'gameover' : game_state['gameover'],
+            'game_phase': game_state['game_phase']
+        }
+    if game_state['game_phase'] == 'INIT':
+        num_fatals = [len(f) for f in game_state['fatal_errors']]
+        if num_fatals[0] > 0 or num_fatals[1] > 0:
+            # TODO: We must flag failure
+            return { 'whowins' : -1, 'gameover' : True, 'game_phase': 'FAILURE' }
 
     # If any team has a fatal error, this team loses.
     # If both teams have a fatal error, it’s a draw.
@@ -1003,12 +1146,12 @@ def check_gameover(game_state, detect_final_move=False):
         pass
     elif num_fatals[0] > 0 and num_fatals[1] > 0:
         # both teams have fatal errors: it is a draw
-        return { 'whowins' : 2, 'gameover' : True}
+        return { 'whowins' : 2, 'gameover' : True, 'game_phase': 'FINISHED' }
     else:
         # some one has fatal errors
         for team in (0, 1):
             if num_fatals[team] > 0:
-                return { 'whowins' : 1 - team, 'gameover' : True}
+                return { 'whowins' : 1 - team, 'gameover' : True,  'game_phase': 'FINISHED' }
 
     # If any team has reached error_limit errors, this team loses.
     # If both teams have reached error_limit errors, it’s a draw.
@@ -1021,12 +1164,12 @@ def check_gameover(game_state, detect_final_move=False):
         pass
     elif num_errors[0] >= game_state['error_limit'] and num_errors[1] >= game_state['error_limit']:
         # both teams have reached or exceeded the error limit
-        return { 'whowins' : 2, 'gameover' : True}
+        return { 'whowins' : 2, 'gameover' : True, 'game_phase': 'FINISHED' }
     else:
         # only one team has reached the error limit
         for team in (0, 1):
             if num_errors[team] >= game_state['error_limit']:
-                return { 'whowins' : 1 - team, 'gameover' : True}
+                return { 'whowins' : 1 - team, 'gameover' : True, 'game_phase': 'FINISHED' }
 
     if detect_final_move:
         # No team wins/loses because of errors?
@@ -1046,27 +1189,27 @@ def check_gameover(game_state, detect_final_move=False):
                 whowins = 1
             else:
                 whowins = 2
-            return { 'whowins' : whowins, 'gameover' : True}
+            return { 'whowins' : whowins, 'gameover' : True, 'game_phase': 'FINISHED' }
 
-    return { 'whowins' : None, 'gameover' : False}
+    return { 'whowins' : None, 'gameover' : False, 'game_phase': game_state['game_phase']}
 
 
-def check_exit_remote_teams(game_state):
+def exit_remote_teams(game_state):
     """ If the we are gameover, we want the remote teams to shut down. """
-    if game_state['gameover']:
-        _logger.info("Gameover. Telling teams to exit.")
-        for idx, team in enumerate(game_state['teams']):
-            if len(game_state['fatal_errors'][idx]) > 0:
-                _logger.info(f"Not sending exit to team {idx} which had a fatal error.")
-                # We pretend we already send the exit message, otherwise
-                # the team’s __del__ method will do it once more.
-                team._sent_exit = True
-                continue
-            try:
-                team_game_state = prepare_bot_state(game_state, idx=idx)
-                team._exit(team_game_state)
-            except AttributeError:
-                pass
+    _logger.info("Telling teams to exit.")
+    for idx, team in enumerate(game_state['teams']):
+        if len(game_state['fatal_errors'][idx]) > 0:
+            _logger.info(f"Not sending exit to team {idx} which had a fatal error.")
+            # We pretend we already send the exit message, otherwise
+            # the team’s __del__ method will do it once more.
+            team._sent_exit = True
+            continue
+        try:
+            team_game_state = prepare_bot_state(game_state, team_idx=idx)
+            team._exit(team_game_state)
+        except AttributeError:
+            pass
+
 
 
 def split_food(width, food):

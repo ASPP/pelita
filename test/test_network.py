@@ -68,7 +68,7 @@ def test_simpleclient(zmq_context):
 
     assert sock.recv_json() == {
         '__uuid__': _uuid,
-        '__return__': 'test stopping player'
+        '__return__': None
     }
 
     _uuid = uuid.uuid4().__str__()
