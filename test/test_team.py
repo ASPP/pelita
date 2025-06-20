@@ -713,9 +713,9 @@ def test_bot_repr():
     def asserting_team(bot, state):
         bot_repr = repr(bot)
         if bot.is_blue and bot.round == 1:
-            assert bot_repr == f"<Bot: {bot.char} (blue), {bot.position}, turn: {bot.turn}, round: 1>"
+            assert bot_repr == f"<Bot: {bot.char} (team blue), pos: {bot.position}, turn: {bot.turn}, round: 1>"
         elif not bot.is_blue and bot.round == 1:
-            assert bot_repr == f"<Bot: {bot.char} (red), {bot.position}, turn: {bot.turn}, round: 1>"
+            assert bot_repr == f"<Bot: {bot.char} (team red), pos: {bot.position}, turn: {bot.turn}, round: 1>"
         else:
             assert False, "Should never be here."
 
