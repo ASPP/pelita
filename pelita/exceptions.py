@@ -8,7 +8,7 @@ class GameOverError(Exception):
     pass
 
 class PelitaBotError(Exception):
-    """ Raised when allow_exceptions is turned on """
+    """ Raised when raise_bot_exceptions is turned on """
     pass
 
 class PelitaIllegalGameState(Exception):
