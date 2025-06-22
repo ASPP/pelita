@@ -652,24 +652,23 @@ def prepare_bot_state(game_state, team_idx=None):
     """ Prepares the bot’s game state for the current bot.
 
     """
-
-    bot_initialization = game_state.get('turn') is None and team_idx is not None
-    bot_finalization = game_state.get('turn') is not None and team_idx is not None
-
-    if bot_initialization:
+    if game_state['game_phase'] == 'INIT':
         # We assume that we are in get_initial phase
         turn = team_idx
         bot_turn = None
         seed = game_state['rng'].randint(0, sys.maxsize)
-    elif bot_finalization:
+    elif game_state['game_phase'] == 'FINISHED':
         # Called for remote players in _exit
         turn = team_idx
         bot_turn = None
         seed = None
-    else:
+    elif game_state['game_phase'] == 'RUNNING':
         turn = game_state['turn']
         bot_turn = game_state['turn'] // 2
         seed = None
+    else:
+        _logger.warning("Got bad game_state in prepare_bot_state")
+        return
 
     bot_position = game_state['bots'][turn]
     own_team = turn % 2
@@ -734,7 +733,7 @@ def prepare_bot_state(game_state, team_idx=None):
         'max_rounds': game_state['max_rounds'],
     }
 
-    if bot_initialization:
+    if game_state['game_phase'] == 'INIT':
         bot_state.update({
             'walls': game_state['walls'], # only in initial round
             'shape': game_state['shape'], # only in initial round
