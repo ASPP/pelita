@@ -43,7 +43,7 @@ def test_remote_call_pelita(remote_teams):
     assert res['fatal_errors'] == [[], []]
     # errors for call_pelita only contains the last thrown error, hence None
     # TODO: should be aligned so that call_pelita and run_game return the same thing
-    assert res['errors'] == [None, None]
+    assert res['timeouts'] == [None, None]
 
 
 def test_remote_run_game(remote_teams):
@@ -57,7 +57,7 @@ def test_remote_run_game(remote_teams):
     state = pelita.game.run_game(remote_teams, max_rounds=30, layout_dict=pelita.layout.parse_layout(layout))
     assert state['whowins'] == 1
     assert state['fatal_errors'] == [[], []]
-    assert state['errors'] == [{}, {}]
+    assert state['timeouts'] == [{}, {}]
 
 
 #@pytest.mark.xfail(reason="TODO: Fails in CI for macOS. Unclear why.")
@@ -87,11 +87,11 @@ def test_remote_timeout():
     assert state['fatal_errors'][1][0]['type'] == 'IllegalPosition'
     assert state['fatal_errors'][1][0]['turn'] == 3
     assert state['fatal_errors'][1][0]['round'] == 2
-    assert state['errors'][0] == {}
-    assert set(state['errors'][1].keys()) == {(1, 1), (1, 3), (2, 1)}
-    assert state['errors'][1][(1, 1)]['type'] == 'timeout'
-    assert state['errors'][1][(1, 3)]['type'] == 'timeout'
-    assert state['errors'][1][(2, 1)]['type'] == 'timeout'
+    assert state['timeouts'][0] == {}
+    assert set(state['timeouts'][1].keys()) == {(1, 1), (1, 3), (2, 1)}
+    assert state['timeouts'][1][(1, 1)]['type'] == 'timeout'
+    assert state['timeouts'][1][(1, 3)]['type'] == 'timeout'
+    assert state['timeouts'][1][(2, 1)]['type'] == 'timeout'
 
 
 def test_remote_dumps_are_written():
@@ -116,7 +116,7 @@ def test_remote_dumps_are_written():
 
     assert state['whowins'] == 2
     assert state['fatal_errors'] == [[], []]
-    assert state['errors'] == [{}, {}]
+    assert state['timeouts'] == [{}, {}]
 
     path = Path(out_folder.name)
     blue_lines = (path / 'blue.out').read_text().split('\n')
@@ -165,7 +165,7 @@ def test_remote_dumps_with_failure(failing_team):
                                            'turn': fail_turn,
                                            'round': 2}
     assert state['fatal_errors'][1 - failing_team] == []
-    assert state['errors'] == [{}, {}]
+    assert state['timeouts'] == [{}, {}]
 
     path = Path(out_folder.name)
 
@@ -242,7 +242,7 @@ def test_remote_move_failures(player_name, is_setup_error, error_type):
         assert state['fatal_errors'][0][0]['turn'] == 0
         assert state['fatal_errors'][0][0]['round'] is None
         assert state['fatal_errors'][1] == []
-        assert state['errors'] == [{}, {}]
+        assert state['timeouts'] == [{}, {}]
 
     else:
         state = pelita.game.run_game([str(failing_player), str(good_player)],
@@ -256,4 +256,4 @@ def test_remote_move_failures(player_name, is_setup_error, error_type):
         assert state['fatal_errors'][0][0]['turn'] == 0
         assert state['fatal_errors'][0][0]['round'] == 1
         assert state['fatal_errors'][1] == []
-        assert state['errors'] == [{}, {}]
+        assert state['timeouts'] == [{}, {}]
