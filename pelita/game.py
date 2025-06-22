@@ -110,7 +110,7 @@ def run_game(team_specs, *, layout_dict, max_rounds=300,
              rng=None, allow_camping=False, error_limit=5, timeout_length=3,
              viewers=None, store_output=False,
              team_names=(None, None), team_infos=(None, None),
-             allow_exceptions=False, print_result=True):
+             raise_bot_exceptions=False, print_result=True):
     """ Run a pelita match.
 
     Parameters
@@ -168,11 +168,11 @@ def run_game(team_specs, *, layout_dict, max_rounds=300,
     team_info : tuple(team_info_0, team_info_1)
               a tuple containing additional team info.
 
-    allow_exceptions : bool
+    raise_bot_exceptions : bool
                     when True, allow teams to raise Exceptions. This is especially
                     useful when running local games, where you typically want to
                     see Exceptions do debug them. When running remote games,
-                    allow_exceptions should be False, so that the game can collect
+                    raise_bot_exceptions should be False, so that the game can collect
                     the exceptions and cleanly create a game-over state if
                     needed.
 
@@ -224,7 +224,7 @@ def run_game(team_specs, *, layout_dict, max_rounds=300,
             break
 
         # play the next turn
-        state = play_turn(state, allow_exceptions=allow_exceptions)
+        state = play_turn(state, raise_bot_exceptions=raise_bot_exceptions)
 
     return state
 
@@ -282,7 +282,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
                allow_camping=False, error_limit=5, timeout_length=3,
                viewers=None, store_output=False,
                team_names=(None, None), team_infos=(None, None),
-               allow_exceptions=False, print_result=True):
+               raise_bot_exceptions=False, print_result=True):
     """ Generates a game state for the given teams and layout with otherwise default values. """
     if viewers is None:
         viewers = []
@@ -457,7 +457,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
     # to answer to the server.
     update_viewers(game_state)
 
-    team_state = setup_teams(team_specs, game_state, store_output=store_output, allow_exceptions=allow_exceptions)
+    team_state = setup_teams(team_specs, game_state, store_output=store_output, raise_bot_exceptions=raise_bot_exceptions)
     game_state.update(team_state)
 
     # Check if the game has finished (might happen if we set it up with max_rounds=0).
@@ -471,14 +471,14 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
         exit_remote_teams(game_state)
 
     if game_state['game_phase'] == 'INIT':
-        send_initial(game_state, allow_exceptions=allow_exceptions)
+        send_initial(game_state, raise_bot_exceptions=raise_bot_exceptions)
         game_state.update(check_gameover(game_state))
         game_state['game_phase'] = 'RUNNING'
 
     return game_state
 
 
-def setup_teams(team_specs, game_state, store_output=False, allow_exceptions=False):
+def setup_teams(team_specs, game_state, store_output=False, raise_bot_exceptions=False):
     """ Creates the teams according to the `teams`. """
 
     assert game_state['game_phase'] == 'INIT'
@@ -525,7 +525,7 @@ def setup_teams(team_specs, game_state, store_output=False, allow_exceptions=Fal
                 _state = team.wait_ready(timeout=0)
             except (RemotePlayerSendError, RemotePlayerRecvTimeout, RemotePlayerFailure) as e:
 
-                if allow_exceptions:
+                if raise_bot_exceptions:
                     exit_remote_teams(game_state)
                     raise
 
@@ -557,7 +557,7 @@ def setup_teams(team_specs, game_state, store_output=False, allow_exceptions=Fal
     }
     return team_state
 
-def send_initial(game_state, allow_exceptions=False):
+def send_initial(game_state, raise_bot_exceptions=False):
     assert game_state["game_phase"] == "INIT"
 
     teams = game_state['teams']
@@ -567,7 +567,7 @@ def send_initial(game_state, allow_exceptions=False):
             _res = team.set_initial(team_idx, prepare_bot_state(game_state, team_idx))
 
         except RemotePlayerFailure as e:
-            if allow_exceptions:
+            if raise_bot_exceptions:
                 exit_remote_teams(game_state)
                 raise PelitaBotError(e.error_type, e.error_msg)
 
@@ -575,7 +575,7 @@ def send_initial(game_state, allow_exceptions=False):
             game_print(team_idx, f"{e.error_type}: {e.error_msg}")
 
         except RemotePlayerSendError:
-            if allow_exceptions:
+            if raise_bot_exceptions:
                 exit_remote_teams(game_state)
                 raise PelitaBotError('Send error', 'Remote team unavailable')
 
@@ -583,7 +583,7 @@ def send_initial(game_state, allow_exceptions=False):
             game_print(team_idx, "Send error: Remote team unavailable")
 
         except RemotePlayerRecvTimeout:
-            if allow_exceptions:
+            if raise_bot_exceptions:
                 exit_remote_teams(game_state)
                 raise PelitaBotError('timeout', 'Timeout in set initial')
 
@@ -799,7 +799,7 @@ def prepare_viewer_state(game_state):
 
     return viewer_state
 
-def play_turn(game_state, allow_exceptions=False):
+def play_turn(game_state, raise_bot_exceptions=False):
     """ Plays the next turn of the game.
 
     This function increases the round and turn counters, requests a move
@@ -833,7 +833,7 @@ def play_turn(game_state, allow_exceptions=False):
         error_type = position_dict['error']
         error_string = position_dict.get('error_msg', '')
 
-        if allow_exceptions:
+        if raise_bot_exceptions:
             exit_remote_teams(game_state)
             raise PelitaBotError(error_type, error_string)
 
