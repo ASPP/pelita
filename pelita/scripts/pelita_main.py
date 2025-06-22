@@ -368,7 +368,7 @@ def main():
 
     if args.replayfile:
         viewer_state = pelita.game.setup_viewers(viewers)
-        if pelita.game.controller_exit(viewer_state, await_action='set_initial'):
+        if pelita.game.controller_await(viewer_state, await_action='set_initial'):
             sys.exit(0)
 
         old_game = Path(args.replayfile).read_text().split("\x04")
@@ -382,7 +382,7 @@ def main():
             state['food'] = list(map(tuple, state['food']))
             for viewer in viewer_state['viewers']:
                 viewer.show_state(state)
-            if pelita.game.controller_exit(viewer_state):
+            if pelita.game.controller_await(viewer_state):
                 break
 
         sys.exit(0)
