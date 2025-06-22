@@ -1262,7 +1262,7 @@ def test_remote_game_closes_players_on_exit():
     l = maze_generator.generate_maze()
 
     # run a remote demo game with "0" and "1"
-    state = run_game(["0", "1"], layout_dict=l, max_rounds=20, allow_exceptions=True)
+    state = run_game(["0", "1"], layout_dict=l, max_rounds=20, raise_bot_exceptions=True)
     assert state["gameover"]
     # Check that both processes have exited
     assert state["teams"][0].proc.wait(timeout=3) == 0
@@ -1273,7 +1273,7 @@ def test_manual_remote_game_closes_players():
     l = maze_generator.generate_maze()
 
     # run a remote demo game with "0" and "1"
-    state = setup_game(["0", "1"], layout_dict=l, max_rounds=10, allow_exceptions=True)
+    state = setup_game(["0", "1"], layout_dict=l, max_rounds=10, raise_bot_exceptions=True)
     assert not state["gameover"]
     while not state["gameover"]:
         # still running
@@ -1291,7 +1291,7 @@ def test_invalid_setup_game_closes_players():
     l = maze_generator.generate_maze()
 
     # setup a remote demo game with "0" and "1" but bad max rounds
-    state = setup_game(["0", "1"], layout_dict=l, max_rounds=0, allow_exceptions=True)
+    state = setup_game(["0", "1"], layout_dict=l, max_rounds=0, raise_bot_exceptions=True)
     assert state["game_phase"] == "FAILURE"
     # Check that both processes have exited
     assert state["teams"][0].proc.wait(timeout=3) == 0
@@ -1304,7 +1304,7 @@ def test_raises_and_exits_cleanly():
     state = setup_game([str(path), "1"], layout_dict=l, max_rounds=2)
     with pytest.raises(PelitaBotError):
         while not state["gameover"]:
-            state = play_turn(state, allow_exceptions=True)
+            state = play_turn(state, raise_bot_exceptions=True)
 
     # This is the state before the exception
     assert state["gameover"] is False
