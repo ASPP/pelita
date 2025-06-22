@@ -1292,7 +1292,7 @@ def test_invalid_setup_game_closes_players():
 
     # setup a remote demo game with "0" and "1" but bad max rounds
     state = setup_game(["0", "1"], layout_dict=l, max_rounds=0, allow_exceptions=True)
-    assert state["gameover"]
+    assert state["game_phase"] == "FAILURE"
     # Check that both processes have exited
     assert state["teams"][0].proc.wait(timeout=3) == 0
     assert state["teams"][1].proc.wait(timeout=3) == 0

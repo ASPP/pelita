@@ -1134,6 +1134,17 @@ def check_gameover(game_state):
             'game_phase': 'FINISHED'
         }
     if game_state['game_phase'] == 'INIT':
+        next_step = next_round_turn(game_state)
+        next_round = next_step['round']
+
+        # Fail if there is not enough food or rounds
+        food_left = [len(f) for f in game_state['food']]
+        if next_round > game_state['max_rounds'] or any(f == 0 for f in food_left):
+            return {
+                'whowins': -1,
+                'gameover': True,
+                'game_phase': 'FAILURE'
+            }
         return {
             'whowins' : None,
             'gameover' : False,
