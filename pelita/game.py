@@ -93,7 +93,7 @@ class TkViewer:
             p = subprocess.Popen(external_call, preexec_fn=os.setsid)
         return p
 
-def controller_exit(state, await_action='play_step'):
+def controller_await(state, await_action='play_step'):
     """Wait for the controller to receive a action from a viewer
 
     action can be 'exit' (return True), 'play_setup', 'set_initial' (return True)
@@ -215,11 +215,11 @@ def run_game(team_specs, *, layout_dict, max_rounds=300,
                        print_result=print_result)
 
     # Play the game until it is gameover.
-    while not state.get('gameover'):
+    while state['game_phase'] == 'RUNNING':
 
         # this is only needed if we have a controller, for example a viewer
         # this function call *blocks* until the viewer has replied
-        if controller_exit(state):
+        if controller_await(state):
             # if the controller asks us, we'll exit and stop playing
             break
 
@@ -449,7 +449,10 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
     # Wait until the controller tells us that it is ready
     # We then can send the initial maze
     # This call *blocks* until the controller replies
-    if controller_exit(game_state, await_action='set_initial'):
+    if controller_await(game_state, await_action='set_initial'):
+        # controller_await has flagged exit
+        # We should return with an error
+        game_state['game_phase'] = 'FAILURE'
         return game_state
 
     # Send maze before team creation.
