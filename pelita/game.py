@@ -469,14 +469,19 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
     # Send updated game state with team names to the viewers
     update_viewers(game_state)
 
-    # exit remote teams in case we are game over
-    if game_state['gameover']:
-        exit_remote_teams(game_state)
-
     if game_state['game_phase'] == 'INIT':
+        # All good.
         send_initial(game_state, raise_bot_exceptions=raise_bot_exceptions)
         game_state.update(check_gameover(game_state))
+
+    # send_initial might have changed our game phase to FAILURE or FINISHED
+    if game_state['game_phase'] == 'INIT':
         game_state['game_phase'] = 'RUNNING'
+    else:
+        # exit remote teams in case there was a failure or the game has finished
+        # In this case, we also want to update the viewers
+        update_viewers(game_state)
+        exit_remote_teams(game_state)
 
     return game_state
 
@@ -811,12 +816,12 @@ def play_turn(game_state, raise_bot_exceptions=False):
     Raises
     ------
     ValueError
-        If gamestate['gameover'] is True
+        If game_state["game_phase"] != "RUNNING":
     """
     # TODO: Return a copy of the game_state
 
     # if the game is already over, we return a value error
-    if game_state['gameover']:
+    if game_state["game_phase"] != "RUNNING":
         raise ValueError("Game is already over!")
 
     # Now update the round counter
@@ -862,7 +867,7 @@ def play_turn(game_state, raise_bot_exceptions=False):
         'success': False # Success is set to true after apply_move
     }
 
-    if not game_state['gameover']:
+    if game_state["game_phase"] == "RUNNING":
         # ok. we can apply the move for this team
         # try to execute the move and return the new state
         game_state = apply_move(game_state, position)
@@ -875,7 +880,7 @@ def play_turn(game_state, raise_bot_exceptions=False):
     update_viewers(game_state)
 
     # exit remote teams in case we are game over
-    if game_state['gameover']:
+    if game_state["game_phase"] != "RUNNING":
         exit_remote_teams(game_state)
 
     return game_state
@@ -1040,6 +1045,8 @@ def next_round_turn(game_state):
     ValueError
         If gamestate['gameover'] is True
     """
+
+    # TODO: This should take a whole game_phase
 
     if game_state['gameover']:
         raise ValueError("Game is already over")
