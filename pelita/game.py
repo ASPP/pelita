@@ -871,9 +871,6 @@ def play_turn(game_state, raise_bot_exceptions=False):
         if (round, turn) not in game_state['timeouts'][team] and not game_state['fatal_errors'][team]:
             game_state['requested_moves'][turn]['success'] = True
 
-        # Check again, if we had errors or if this was the last move of the game (final round or food eaten)
-        game_state.update(check_gameover(game_state))
-
     # Send updated game state with team names to the viewers
     update_viewers(game_state)
 
@@ -977,22 +974,18 @@ def apply_move(gamestate, bot_position):
     # reset our own bot_was_killed flag
     bot_was_killed[turn] = False
 
-    # previous errors
-    team_errors = gamestate["timeouts"][team]
-
     # the allowed moves for the current bot
     legal_positions = get_legal_positions(walls, shape, gamestate["bots"][gamestate["turn"]])
 
-    # unless we have already made an error, check if we made a legal move
-    if (n_round, turn) not in team_errors:
-        if bot_position not in legal_positions:
-            previous_position = gamestate["bots"][gamestate["turn"]]
-            game_print(turn, f"Illegal position. {previous_position}➔{bot_position} not in legal positions:"
-                             f" {sorted(legal_positions)}.")
-            add_fatal_error(gamestate, round=n_round, turn=turn, type='IllegalPosition', msg=f"bot{turn}: {previous_position}➔{bot_position}")
+    # check if we made a legal move
+    if bot_position not in legal_positions:
+        previous_position = gamestate["bots"][gamestate["turn"]]
+        game_print(turn, f"Illegal position. {previous_position}➔{bot_position} not in legal positions:"
+                            f" {sorted(legal_positions)}.")
+        add_fatal_error(gamestate, round=n_round, turn=turn, type='IllegalPosition', msg=f"bot{turn}: {previous_position}➔{bot_position}")
 
     # only execute move if errors not exceeded
-    if gamestate['gameover']:
+    if not gamestate['game_phase'] == "RUNNING":
         return gamestate
 
     # take step
@@ -1015,8 +1008,6 @@ def apply_move(gamestate, bot_position):
     # we check if we killed or have been killed and update the gamestate accordingly
     gamestate.update(apply_bot_kills(gamestate))
 
-    errors = gamestate["timeouts"]
-    errors[team] = team_errors
     gamestate_new = {
         "food": food,
         "bots": bots,
@@ -1024,11 +1015,14 @@ def apply_move(gamestate, bot_position):
         "deaths": deaths,
         "kills": kills,
         "bot_was_killed": bot_was_killed,
-        "timeouts": errors,
         "game_phase": "RUNNING",
-        }
+    }
 
     gamestate.update(gamestate_new)
+
+    # Check if this was the last move of the game (final round or food eaten)
+    gamestate.update(check_gameover(gamestate))
+
     return gamestate
 
 
