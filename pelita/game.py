@@ -625,7 +625,7 @@ def request_new_position(game_state):
         }
 
     except RemotePlayerRecvTimeout:
-        if game_state['error_limit'] != 0 and len(game_state['timeouts'][team_idx]) >= game_state['error_limit']:
+        if game_state['error_limit'] != 0 and len(game_state['timeouts'][team_idx]) + 1 >= game_state['error_limit']:
             # We had too many timeouts already. Trigger a fatal_error.
             # If error_limit is 0, the game will go on.
             bot_reply = {
