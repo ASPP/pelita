@@ -7,6 +7,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from random import Random
 
+from pelita.network import RemotePlayerRecvTimeout
 import pytest
 
 from pelita import game, layout, maze_generator
@@ -179,29 +180,6 @@ def test_get_legal_positions_random(parsed_l, bot_idx):
     for move in legal_positions:
         assert move not in parsed_l["walls"]
         assert  abs((move[0] - bot[0])+(move[1] - bot[1])) <= 1
-
-@pytest.mark.parametrize('turn', (0, 1, 2, 3))
-@pytest.mark.skip("TODO: Timeout handling has moved")
-def test_play_turn_apply_error(game_state, turn):
-    """check that quits when there are too many errors"""
-    error_dict = {
-        "type": 'PlayerTimeout',
-    }
-    game_state["turn"] = turn
-    team = turn % 2
-    game_state["timeouts"] = [{(r, t): error_dict for r in (1, 2) for t in (0, 1)},
-                            {(r, t): error_dict for r in (1, 2) for t in (0, 1)}]
-    # we pretend that two rounds have already been played
-    # so that the error dictionaries are sane
-    game_state["round"] = 3
-    # add a timeout to the current bot
-    game_state["timeouts"][team][(3, turn%2)] = error_dict
-    game_state_new = apply_move(game_state, game_state["bots"][turn])
-    assert game_state_new["gameover"]
-    assert len(game_state_new["timeouts"][team]) == 5
-    assert game_state_new["whowins"] == int(not team)
-    assert game_state_new["timeouts"][team][(3, turn%2)] == error_dict
-
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
 def test_illegal_position_is_fatal(game_state, turn):
@@ -885,39 +863,81 @@ def test_last_round_check(max_rounds, current_round, turn, game_phase, gameover)
         (((0, 4), (0, 4)), False),
         (((0, 5), (0, 0)), 1),
         (((0, 0), (0, 5)), 0),
-        (((0, 5), (0, 5)), 2),
+        (((0, 5), (0, 5)), 1), # earlier team fails first
         (((1, 0), (0, 0)), 1),
         (((0, 0), (1, 0)), 0),
-        (((1, 0), (1, 0)), 2),
-        (((1, 1), (1, 0)), 2),
+        (((1, 0), (1, 0)), 1), # earlier team fails first
+        (((1, 1), (1, 0)), 1), # earlier team fails first
         (((1, 0), (0, 5)), 1),
         (((0, 5), (1, 0)), 0),
     ]
 )
-@pytest.mark.skip("TODO: Timeout handling has moved")
 def test_error_finishes_game(team_errors, team_wins):
     # the mapping is as follows:
     # [(num_fatal_0, num_errors_0), (num_fatal_1, num_errors_1), result_flag]
-    # the result flag: 0/1: team 0/1 wins, 2: draw, False: no winner yet
+    # the result flag: 0/1: team 0/1 wins, 2: draw, False: draw after 20 rounds
 
-    (fatal_0, errors_0), (fatal_1, errors_1) = team_errors
-    # just faking a bunch of errors in our game state
-    state = {
-        "game_phase": "RUNNING",
-        "gameover": False,
-        "error_limit": 5,
-        "fatal_errors": [[None] * fatal_0, [None] * fatal_1],
-        "timeouts": [[None] * errors_0, [None] * errors_1],
-        'turn': 0,
-        'round': 1
-    }
+    (fatal_0, timeouts_0), (fatal_1, timeouts_1) = team_errors
+
+    def move0(b, s):
+        if not s:
+            s['count'] = 0
+        s['count'] += 1
+
+        if s['count'] <= fatal_0:
+            return None
+
+        if s['count'] <= timeouts_0:
+            raise RemotePlayerRecvTimeout
+
+        return b.position
+
+    def move1(b, s):
+        if not s:
+            s['count'] = 0
+        s['count'] += 1
+
+        if s['count'] <= fatal_1:
+            return None
+
+        if s['count'] <= timeouts_1:
+            raise RemotePlayerRecvTimeout
+
+        return b.position
+
+    l = maze_generator.generate_maze()
+    state = game.setup_game([move0, move1], max_rounds=20, layout_dict=l)
+
+    # We must patch apply_move_fn so that RemotePlayerRecvTimeout is not caught
+    # and we can actually test timeouts
+    def apply_move_fn(move_fn, bot, state):
+        move = move_fn(bot, state)
+        if move is None:
+            return {
+                'error': 'Some fatal error',
+                'error_msg': 'Some fatal error'
+            }
+        return { "move": move }
+
+    state['teams'][0].apply_move_fn = apply_move_fn
+    state['teams'][1].apply_move_fn = apply_move_fn
+
+    # Play the game until it is gameover.
+    while state['game_phase'] == 'RUNNING':
+        # play the next turn
+        state = play_turn(state)
+
     res = game.check_gameover(state)
     if team_wins is False:
-        assert res["whowins"] is None
-        assert res["gameover"] is False
+        assert res["whowins"] == 2
+        assert res["gameover"] is True
+        assert state["round"] == 20
+        assert len(state['timeouts'][0]) == timeouts_0
+        assert len(state['timeouts'][1]) == timeouts_1
     else:
         assert res["whowins"] == team_wins
         assert res["gameover"] is True
+        assert state["round"] < 20
 
 
 @pytest.mark.parametrize('bot_to_move', [0, 1, 2, 3])
