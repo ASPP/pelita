@@ -334,9 +334,9 @@ class ZMQPublisher:
     bind : bool
         Whether we are in bind or connect mode
     """
-    def __init__(self, address, bind=True):
+    def __init__(self, address, bind=True, zmq_context=None):
         self.address = address
-        self.context = zmq.Context()
+        self.context = default_zmq_context(zmq_context)
         self.socket = self.context.socket(zmq.PUB)
         if bind:
             self.socket_addr = bind_socket(self.socket, self.address, '--publish')
@@ -406,9 +406,3 @@ class Controller:
                 if action in expected_actions:
                     return action
                 _logger.warning('Unexpected action %r. (Expected: %s) Ignoring.', action, ", ".join(expected_actions))
-
-
-def setup_controller(zmq_context=None):
-    zmq_context = default_zmq_context(zmq_context)
-    controller = Controller(zmq_context=zmq_context)
-    return controller
