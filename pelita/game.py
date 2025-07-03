@@ -15,7 +15,7 @@ from .base_utils import default_rng
 from .exceptions import NoFoodWarning, PelitaBotError, PelitaIllegalGameState
 from .gamestate_filters import noiser, relocate_expired_food, update_food_age, in_homezone
 from .layout import get_legal_positions, initial_positions
-from .network import RemotePlayerFailure, RemotePlayerRecvTimeout, RemotePlayerSendError, ZMQPublisher, setup_controller
+from .network import Controller, RemotePlayerFailure, RemotePlayerRecvTimeout, RemotePlayerSendError, ZMQPublisher
 from .team import make_team
 from .viewer import (AsciiViewer, ProgressViewer, ReplayWriter, ReplyToViewer,
                      ResultPrinter)
@@ -254,12 +254,14 @@ def setup_viewers(viewers, print_result=True):
         elif viewer == 'write-replay-to':
             viewer_state['viewers'].append(ReplayWriter(open(viewer_opts, 'w')))
         elif viewer == 'publish-to':
-            zmq_external_publisher = ZMQPublisher(address=viewer_opts, bind=False)
+            zmq_context = zmq.Context()
+            zmq_external_publisher = ZMQPublisher(address=viewer_opts, bind=False, zmq_context=zmq_context)
             viewer_state['viewers'].append(zmq_external_publisher)
         elif viewer == 'tk':
-            zmq_publisher = ZMQPublisher(address='tcp://127.0.0.1')
+            zmq_context = zmq.Context()
+            zmq_publisher = ZMQPublisher(address='tcp://127.0.0.1', zmq_context=zmq_context)
             viewer_state['viewers'].append(zmq_publisher)
-            viewer_state['controller'] = setup_controller()
+            viewer_state['controller'] = Controller(zmq_context=zmq_context)
 
             _proc = TkViewer(address=zmq_publisher.socket_addr, controller=viewer_state['controller'].socket_addr,
                             stop_after=viewer_opts.get('stop_at'),
