@@ -534,12 +534,12 @@ def setup_teams(team_specs, game_state, store_output=False, raise_bot_exceptions
             try:
                 _state = team.wait_ready(timeout=0)
             except (RemotePlayerSendError, RemotePlayerRecvTimeout, RemotePlayerFailure) as e:
-                add_fatal_error(game_state, round=None, turn=team_idx, type=e.__class__.__name__, msg=str(e), raise_bot_exceptions=raise_bot_exceptions)
-
                 if len(e.args) > 1:
                     game_print(team_idx, f"{type(e).__name__} ({e.args[0]}): {e.args[1]}")
                 else:
                     game_print(team_idx, f"{type(e).__name__}: {e}")
+
+                add_fatal_error(game_state, round=None, turn=team_idx, type=e.__class__.__name__, msg=str(e), raise_bot_exceptions=raise_bot_exceptions)
                 break_error = True
 
             del remote_sockets[socket]
@@ -548,8 +548,8 @@ def setup_teams(team_specs, game_state, store_output=False, raise_bot_exceptions
     if not break_error and remote_sockets:
         break_error = True
         for socket, team_idx in remote_sockets.items():
-            add_fatal_error(game_state, round=None, turn=team_idx, type='Timeout', msg='Team did not start (timeout).', raise_bot_exceptions=raise_bot_exceptions)
             game_print(team_idx, f"Team '{teams[team_idx]._team_spec}' did not start (timeout).")
+            add_fatal_error(game_state, round=None, turn=team_idx, type='Timeout', msg='Team did not start (timeout).', raise_bot_exceptions=raise_bot_exceptions)
 
     # if we encountered an error, the game_phase should have been set to FAILURE
 
@@ -572,16 +572,16 @@ def send_initial(game_state, raise_bot_exceptions=False):
             _res = team.set_initial(team_idx, prepare_bot_state(game_state, team_idx))
 
         except RemotePlayerFailure as e:
-            add_fatal_error(game_state, round=None, turn=team_idx, type=e.error_type, msg=e.error_msg, raise_bot_exceptions=raise_bot_exceptions)
             game_print(team_idx, f"{e.error_type}: {e.error_msg}")
+            add_fatal_error(game_state, round=None, turn=team_idx, type=e.error_type, msg=e.error_msg, raise_bot_exceptions=raise_bot_exceptions)
 
         except RemotePlayerSendError:
-            add_fatal_error(game_state, round=None, turn=team_idx, type='Send error', msg='Remote team unavailable', raise_bot_exceptions=raise_bot_exceptions)
             game_print(team_idx, "Send error: Remote team unavailable")
+            add_fatal_error(game_state, round=None, turn=team_idx, type='Send error', msg='Remote team unavailable', raise_bot_exceptions=raise_bot_exceptions)
 
         except RemotePlayerRecvTimeout:
-            add_fatal_error(game_state, round=None, turn=team_idx, type='timeout', msg='Timeout in set initial', raise_bot_exceptions=raise_bot_exceptions)
             game_print(team_idx, "timeout: Timeout in set initial")
+            add_fatal_error(game_state, round=None, turn=team_idx, type='timeout', msg='Timeout in set initial', raise_bot_exceptions=raise_bot_exceptions)
 
 
 def request_new_position(game_state):
@@ -826,11 +826,11 @@ def play_turn(game_state, raise_bot_exceptions=False):
         error_type = position_dict['error']
         error_string = position_dict.get('error_msg', '')
 
-        # FatalExceptions (such as PlayerDisconnect) should immediately
-        # finish the game
-        add_fatal_error(game_state, round=game_state['round'], turn=game_state['turn'], type=error_type, msg=error_string, raise_bot_exceptions=raise_bot_exceptions)
-        position = None
         game_print(turn, f"{error_type}: {error_string}")
+        add_fatal_error(game_state, round=game_state['round'], turn=game_state['turn'],
+                        type=error_type, msg=error_string,
+                        raise_bot_exceptions=raise_bot_exceptions)
+        position = None
 
     else:
         position = position_dict['move']
