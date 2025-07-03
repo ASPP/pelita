@@ -1326,8 +1326,9 @@ def test_raises_and_exits_cleanly():
         while not state["gameover"]:
             state = play_turn(state, raise_bot_exceptions=True)
 
-    # This is the state before the exception
-    assert state["gameover"] is False
+    # Game state is updated before the exception is raised
+    assert state["gameover"] is True
+    assert state["fatal_errors"][0][0]["type"] == "ZeroDivisionError"
     # Check that both processes have exited
     assert state["teams"][0].proc.wait(timeout=3) == 0
     assert state["teams"][1].proc.wait(timeout=3) == 0
