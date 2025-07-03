@@ -455,15 +455,19 @@ class TkApplication:
         for food_pos in eaten_food:
             del self.food_items[food_pos]
 
-        winning_team_idx = game_state.get("whowins")
-        if winning_team_idx is None:
-            self.draw_end_of_game(None)
-        elif winning_team_idx in (0, 1):
-            team_name = game_state["team_names"][winning_team_idx] or "???"
-            self.draw_game_over(team_name)
-        elif winning_team_idx == 2:
-            self.draw_game_draw()
+        if game_state.get("game_phase") == "FINISHED":
+            winning_team_idx = game_state.get("whowins")
+            if winning_team_idx in (0, 1):
+                team_name = game_state["team_names"][winning_team_idx] or "???"
+                self.draw_game_over(team_name)
+            elif winning_team_idx == 2:
+                self.draw_game_draw()
 
+        elif game_state.get("game_phase") == "FAILURE":
+            self.draw_game_failure()
+
+        else:
+            self.draw_end_of_game(None)
 
     def draw_universe(self, game_state, redraw):
         self.draw_overlay(game_state.get('overlays', []))
@@ -960,7 +964,6 @@ class TkApplication:
                 fill="#FFC903", tags="gameover",
                 justify=tkinter.CENTER, anchor=tkinter.CENTER)
 
-
     def draw_game_over(self, win_name):
         """ Draw the game over string. """
         # shorten the winning name
@@ -972,6 +975,10 @@ class TkApplication:
     def draw_game_draw(self):
         """ Draw the game draw string. """
         self.draw_end_of_game("GAME OVER\nDRAW!")
+
+    def draw_game_failure(self):
+        """ Draw the game draw string. """
+        self.draw_end_of_game("No Game\nCannot run Pelita")
 
     def clear(self):
         self.ui_game_canvas.delete(tkinter.ALL)
