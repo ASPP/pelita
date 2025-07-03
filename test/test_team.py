@@ -735,6 +735,8 @@ def test_bot_repr():
     ("a \ra", "a  a"), # line break becomes space
     ("I ♥ ℙ𝜺ℓ𝒾𝓽😱", "I  "), # Higher place unicode gets removed
     ("αβγ", "αβγ"),
+    ("123456789 123456789 123456789 ", "123456789 123456789 123456789 "), # just right
+    ("123456789 123456789 123456789 1", "123456789 123456789 123456789 "), # too long
     ])
 def test_bot_say(say, expected):
     test_layout = """
