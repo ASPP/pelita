@@ -838,6 +838,7 @@ def check_kill_death(team, turn, boundary, game_state):
             _logger.info(f"Bot {enemy_idx} reappears at {bots[enemy_idx]}.")
             # we update for the killed bot as well, seeing as they could land on an enemy
             kd_state = check_kill_death(1-team, enemy_idx, boundary, kd_state)
+    
     return kd_state
 
 def apply_move(gamestate, bot_position):
@@ -933,7 +934,7 @@ def apply_move(gamestate, bot_position):
             # This is modifying the old game state
             score[team] = score[team] + 1
         
-    # we check if we killed or have been killed and update the state accordingly
+    # we check if we killed or have been killed and update the gamestate accordingly
     gamestate.update(check_kill_death(team, turn, boundary,gamestate))                               
         
 
