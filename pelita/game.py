@@ -799,46 +799,44 @@ def check_kill_death(team, turn, boundary, game_state):
     kd_state = {}
     kd_state.update(game_state)
 
-    bots = kd_state["bots"]
-    score = kd_state["score"]
     walls = kd_state["walls"]
     shape = kd_state["shape"]
-    kills = kd_state["kills"]
-    deaths = kd_state["deaths"]
-    bot_was_killed = kd_state["bot_was_killed"]
 
     enemy_idx = (1, 3) if team == 0 else (0, 2)
 
     # check if we have been eaten
-    if not bot_in_homezone(team, bots[turn], boundary):
-        
-        enemies_on_target = [idx for idx in enemy_idx if bots[idx] == bots[turn]]
+    # we do this first, because we may kill someone after being respawned, so the check
+    # for kills needs to happen after the check for being eaten
+    if not bot_in_homezone(team, kd_state["bots"][turn], boundary):
+        enemies_on_target = [idx for idx in enemy_idx if kd_state["bots"][idx] == kd_state["bots"][turn]]
         if len(enemies_on_target) > 0:
-            _logger.info(f"Bot {turn} was eaten by bots {enemies_on_target} at {bots[turn]}.")
-            score[1 - team] = score[1 - team] + KILL_POINTS
+            _logger.info(f"Bot {turn} was eaten by bots {enemies_on_target} at {kd_state['bots'][turn]}.")
+            kd_state["score"][1 - team] = kd_state["score"][1 - team] + KILL_POINTS
             init_positions = initial_positions(walls, shape)
-            bots[turn] = init_positions[turn]
-            
-            deaths[turn] += 1
-            kills[enemies_on_target[0]] += 1
-            bot_was_killed[turn] = True
-            _logger.info(f"Bot {turn} reappears at {bots[turn]}.")
+            kd_state["bots"][turn] = init_positions[turn]
+            kd_state["deaths"][turn] += 1
+            kd_state["kills"][enemies_on_target[0]] += 1
+            kd_state["bot_was_killed"][turn] = True
+            _logger.info(f"Bot {turn} reappears at {kd_state['bots'][turn]}.")
 
     # check if we killed someone
-    if bot_in_homezone(team, bots[turn], boundary):
-        killed_enemies = [idx for idx in enemy_idx if bots[turn] == bots[idx]]
+    if bot_in_homezone(team, kd_state["bots"][turn], boundary):
+        killed_enemies = [idx for idx in enemy_idx if kd_state["bots"][turn] == kd_state["bots"][idx]]
         for enemy_idx in killed_enemies:
-            _logger.info(f"Bot {turn} eats enemy bot {enemy_idx} at {bots[turn]}.")
-            score[team] = score[team] + KILL_POINTS
+            _logger.info(f"Bot {turn} eats enemy bot {enemy_idx} at {kd_state['bots'][turn]}.")
+            kd_state["score"][team] = kd_state["score"][team] + KILL_POINTS
             init_positions = initial_positions(walls, shape)
-            bots[enemy_idx] = init_positions[enemy_idx]
-            kills[turn] += 1
-            deaths[enemy_idx] += 1
-            bot_was_killed[enemy_idx] = True
-            _logger.info(f"Bot {enemy_idx} reappears at {bots[enemy_idx]}.")
+            kd_state["bots"][enemy_idx] = init_positions[enemy_idx]
+            kd_state["kills"][turn] += 1
+            kd_state["deaths"][enemy_idx] += 1
+            kd_state["bot_was_killed"][enemy_idx] = True
+            _logger.info(f"Bot {enemy_idx} reappears at {kd_state['bots'][enemy_idx]}.")
             # we update for the killed bot as well, seeing as they could land on an enemy
-            kd_state = check_kill_death(1-team, enemy_idx, boundary, kd_state)
-    
+            # We run the kill check recursively until there are no killed enemies anymore.
+            # This is necessary to deal with "cascade" kill situations like the one described
+            # in GitHub issue #891 and the corresponding test cases in test_game.py 
+            kd_state.update(check_kill_death(1-team, enemy_idx, boundary, kd_state))
+
     return kd_state
 
 def apply_move(gamestate, bot_position):
