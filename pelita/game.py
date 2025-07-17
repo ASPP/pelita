@@ -12,7 +12,7 @@ from . import layout
 from .base_utils import default_rng
 from .exceptions import (FatalException, NoFoodWarning, NonFatalException,
                          PlayerTimeout)
-from .gamestate_filters import noiser, relocate_expired_food, update_food_age
+from .gamestate_filters import noiser, relocate_expired_food, update_food_age, in_homezone
 from .layout import get_legal_positions, initial_positions
 from .network import ZMQPublisher, setup_controller
 from .team import make_team
@@ -788,13 +788,9 @@ def play_turn(game_state, allow_exceptions=False):
 
     return game_state
 
-def bot_in_homezone(team, bot_position, boundary):
-    if team == 0:
-        return bot_position[0] < boundary
-    elif team == 1:
-        return bot_position[0] >= boundary
 
-def check_kill_death(team, turn, boundary, game_state):
+
+def check_kill_death(team, turn, game_state):
     
     kd_state = {}
     kd_state.update(game_state)
@@ -807,7 +803,7 @@ def check_kill_death(team, turn, boundary, game_state):
     # check if we have been eaten
     # we do this first, because we may kill someone after being respawned, so the check
     # for kills needs to happen after the check for being eaten
-    if not bot_in_homezone(team, kd_state["bots"][turn], boundary):
+    if not in_homezone(kd_state["bots"][turn], team, shape):
         enemies_on_target = [idx for idx in enemy_idx if kd_state["bots"][idx] == kd_state["bots"][turn]]
         if len(enemies_on_target) > 0:
             _logger.info(f"Bot {turn} was eaten by bots {enemies_on_target} at {kd_state['bots'][turn]}.")
@@ -820,7 +816,7 @@ def check_kill_death(team, turn, boundary, game_state):
             _logger.info(f"Bot {turn} reappears at {kd_state['bots'][turn]}.")
 
     # check if we killed someone
-    if bot_in_homezone(team, kd_state["bots"][turn], boundary):
+    if in_homezone(kd_state["bots"][turn], team, shape):
         killed_enemies = [idx for idx in enemy_idx if kd_state["bots"][turn] == kd_state["bots"][idx]]
         for enemy_idx in killed_enemies:
             _logger.info(f"Bot {turn} eats enemy bot {enemy_idx} at {kd_state['bots'][turn]}.")
@@ -835,7 +831,7 @@ def check_kill_death(team, turn, boundary, game_state):
             # We run the kill check recursively until there are no killed enemies anymore.
             # This is necessary to deal with "cascade" kill situations like the one described
             # in GitHub issue #891 and the corresponding test cases in test_game.py 
-            kd_state.update(check_kill_death(1-team, enemy_idx, boundary, kd_state))
+            kd_state.update(check_kill_death(1-team, enemy_idx, kd_state))
 
     return kd_state
 
@@ -919,13 +915,13 @@ def apply_move(gamestate, bot_position):
     bots[turn] = bot_position
     _logger.info(f"Bot {turn} moves to {bot_position}.")
     # then apply rules
-    boundary = gamestate['shape'][0] / 2
+
     # bot in homezone needs to be a function 
     # because a bot position can change multiple times in a turn
     # example: bot is killed and respawns on top of an enemy
     
     # update food list
-    if not bot_in_homezone(team, bot_position, boundary):
+    if not in_homezone(bot_position, team, shape):
         if bot_position in food[1 - team]:
             _logger.info(f"Bot {turn} eats food at {bot_position}.")
             food[1 - team].remove(bot_position)
@@ -933,7 +929,7 @@ def apply_move(gamestate, bot_position):
             score[team] = score[team] + 1
         
     # we check if we killed or have been killed and update the gamestate accordingly
-    gamestate.update(check_kill_death(team, turn, boundary,gamestate))                               
+    gamestate.update(check_kill_death(team, turn, gamestate))                               
         
 
     errors = gamestate["errors"]
