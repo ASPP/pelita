@@ -12,7 +12,7 @@ from . import layout
 from .base_utils import default_rng
 from .exceptions import (FatalException, NoFoodWarning, NonFatalException,
                          PlayerTimeout)
-from .gamestate_filters import noiser, relocate_expired_food, update_food_age
+from .gamestate_filters import noiser, relocate_expired_food, update_food_age, in_homezone
 from .layout import get_legal_positions, initial_positions
 from .network import ZMQPublisher, setup_controller
 from .team import make_team
@@ -789,6 +789,54 @@ def play_turn(game_state, allow_exceptions=False):
     return game_state
 
 
+def apply_bot_kills(game_state):
+    state = {}
+    state.update(game_state)
+
+    init_positions = initial_positions(state["walls"], state["shape"])
+
+    # we check for kills at the current bot’s position
+    # if any bot respawns during this process, its respawn position will be added to the list
+    # and be checked as well
+    turn = game_state["turn"]
+    targets_to_check = [state["bots"][turn]]
+
+    while targets_to_check:
+        target_pos = targets_to_check.pop()
+
+        # only the team in the homezone can kill
+        ghost_team = 0 if in_homezone(target_pos, 0, state["shape"]) else 1
+
+        bots_on_target = [idx for idx, pos in enumerate(state["bots"]) if pos == target_pos]
+
+        ghosts_on_target = [idx for idx in bots_on_target if idx % 2 == ghost_team]
+        pacmen_on_target = [idx for idx in bots_on_target if idx % 2 != ghost_team]
+
+        if not ghosts_on_target:
+            # no ghost, no killing
+            continue
+
+        for killable_bot in pacmen_on_target:
+            _logger.info(f"Bot {killable_bot} was eaten by bots {ghosts_on_target} at {target_pos}.")
+
+            # respawn
+            state["bots"][killable_bot] = init_positions[killable_bot]
+            _logger.info(f"Bot {killable_bot} reappears at {state['bots'][killable_bot]}.")
+
+            # we need to check the respawn location for cascading kills
+            # (see github issue #891 for reasoning and examples)
+            # NB: this assumes that initial_positions only returns positions in the respective home zones
+            # otherwise this function may never finish
+            targets_to_check.append(state['bots'][killable_bot])
+
+            # add points
+            state["score"][ghost_team] += KILL_POINTS
+            state["deaths"][killable_bot] += 1
+            state["kills"][ghosts_on_target[0]] += 1
+            state["bot_was_killed"][killable_bot] = True
+
+    return state
+
 def apply_move(gamestate, bot_position):
     """Plays a single step of a bot by applying the game rules to the game state. The rules are:
     - if the playing team has an error count of >4 or a fatal error they lose
@@ -819,7 +867,6 @@ def apply_move(gamestate, bot_position):
     bots = gamestate["bots"]
     turn = gamestate["turn"]
     team = turn % 2
-    enemy_idx = (1, 3) if team == 0 else (0, 2)
     score = gamestate["score"]
     food = gamestate["food"]
     walls = gamestate["walls"]
@@ -870,43 +917,21 @@ def apply_move(gamestate, bot_position):
     bots[turn] = bot_position
     _logger.info(f"Bot {turn} moves to {bot_position}.")
     # then apply rules
-    # is bot in home or enemy territory
-    boundary = gamestate['shape'][0] / 2
-    if team == 0:
-        bot_in_homezone = bot_position[0] < boundary
-    elif team == 1:
-        bot_in_homezone = bot_position[0] >= boundary
+
+    # bot in homezone needs to be a function
+    # because a bot position can change multiple times in a turn
+    # example: bot is killed and respawns on top of an enemy
+
     # update food list
-    if not bot_in_homezone:
+    if not in_homezone(bot_position, team, shape):
         if bot_position in food[1 - team]:
             _logger.info(f"Bot {turn} eats food at {bot_position}.")
             food[1 - team].remove(bot_position)
             # This is modifying the old game state
             score[team] = score[team] + 1
-    # check if we killed someone
-    if bot_in_homezone:
-        killed_enemies = [idx for idx in enemy_idx if bot_position == bots[idx]]
-        for enemy_idx in killed_enemies:
-            _logger.info(f"Bot {turn} eats enemy bot {enemy_idx} at {bot_position}.")
-            score[team] = score[team] + KILL_POINTS
-            init_positions = initial_positions(walls, shape)
-            bots[enemy_idx] = init_positions[enemy_idx]
-            kills[turn] += 1
-            deaths[enemy_idx] += 1
-            bot_was_killed[enemy_idx] = True
-            _logger.info(f"Bot {enemy_idx} reappears at {bots[enemy_idx]}.")
-    else:
-        # check if we have been eaten
-        enemies_on_target = [idx for idx in enemy_idx if bots[idx] == bot_position]
-        if len(enemies_on_target) > 0:
-            _logger.info(f"Bot {turn} was eaten by bots {enemies_on_target} at {bot_position}.")
-            score[1 - team] = score[1 - team] + KILL_POINTS
-            init_positions = initial_positions(walls, shape)
-            bots[turn] = init_positions[turn]
-            deaths[turn] += 1
-            kills[enemies_on_target[0]] += 1
-            bot_was_killed[turn] = True
-            _logger.info(f"Bot {turn} reappears at {bots[turn]}.")
+
+    # we check if we killed or have been killed and update the gamestate accordingly
+    gamestate.update(apply_bot_kills(gamestate))
 
     errors = gamestate["errors"]
     errors[team] = team_errors
