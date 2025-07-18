@@ -825,6 +825,9 @@ def check_kill_death(turn, game_state):
             _logger.info(f"Bot {killable_bot} reappears at {kd_state['bots'][killable_bot]}.")
 
             # we need to check the respawn location for cascading kills
+            # (see github issue #891 for reasoning and examples)
+            # NB: this assumes that initial_positions only returns positions in the respective home zones
+            # otherwise this function may never finish
             targets_to_check.append(kd_state['bots'][killable_bot])
 
             # add points
