@@ -547,6 +547,79 @@ def test_cascade_suicide():
     assert state["deaths"] == [1, 1, 1, 0]
     assert state["bot_was_killed"] == [True, True, True, False]
 
+def test_double_cascade_a():
+    # test that a dual kill will also cascade properly
+    cascade = [
+    ("""
+    ########
+    #xa.. b#
+    #      #
+    ########
+    """,{'y': (1, 1)}),
+
+    ("""
+    ########
+    #a .. y#
+    #b    x#
+    ########
+    """, {}),
+    ]
+    def move(bot, state):
+        if bot.is_blue and bot.turn == 0 and bot.round == 1:
+            return (1, 1)
+        return bot.position
+    layouts = [parse_layout(l, bots=b) for l,b in cascade]
+    state = setup_game([move, move], max_rounds=5, layout_dict=layouts[0])
+    assert state['bots'] == layouts[0]['bots']
+
+    # x and y are on the same spot
+    assert state['bots'][1] == state['bots'][3]
+
+    # Bot a moves, kills bots x, y. Bot y lands on and kills Bot b, bot x respawns, bot b respawns
+    state = game.play_turn(state)
+
+    assert state['bots'] == layouts[1]['bots']
+    assert state["score"] == [game.KILL_POINTS * 2, game.KILL_POINTS]
+    assert state["deaths"] == [0,1,1,1]
+    assert state["kills"] == [2,0,0,1]
+    assert state["bot_was_killed"] == [False, True, True, True]
+
+def test_double_cascade_b():
+    # test that a dual kill will also cascade properly
+    cascade = [
+    ("""
+    ########
+    #xa..  #
+    #     b#
+    ########
+    """,{'y': (1, 1)}),
+
+    ("""
+    ########
+    #a .. y#
+    #b    x#
+    ########
+    """, {}),
+    ]
+    def move(bot, state):
+        if bot.is_blue and bot.turn == 0 and bot.round == 1:
+            return (1, 1)
+        return bot.position
+    layouts = [parse_layout(l, bots=b) for l,b in cascade]
+    state = setup_game([move, move], max_rounds=5, layout_dict=layouts[0])
+    assert state['bots'] == layouts[0]['bots']
+
+    # x and y are on the same spot
+    assert state['bots'][1] == state['bots'][3]
+
+    # Bot a moves, kills bots x, y. Bot x lands on and kills Bot b, bot y respawns, bot b respawns
+    state = game.play_turn(state)
+
+    assert state['bots'] == layouts[1]['bots']
+    assert state["score"] == [game.KILL_POINTS * 2, game.KILL_POINTS]
+    assert state["deaths"] == [0,1,1,1]
+    assert state["kills"] == [2,1,0,0]
+    assert state["bot_was_killed"] == [False, True, True, True]
 
 def test_moving_through_maze():
     test_start = """
