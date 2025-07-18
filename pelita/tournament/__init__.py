@@ -406,8 +406,23 @@ class Config:
             except IndexError:
                 pass
 
+    def metadata(self):
+        return {
+            'teams': self.teams,
+            'location': self.location,
+            'date': self.date,
+            'rounds': self.rounds,
+            'size': self.size,
+            'greeting': self.greeting,
+            'farewell': self.farewell,
+            'host': self.host,
+            'seed': self.seed,
+            'bonusmatch': self.bonusmatch
+        }
+
     def init_tournament(self):
-        self.send_remote("INIT")
+        metadata = self.metadata()
+        self.send_remote("INIT", metadata)
 
     def clear_page(self):
         self.send_remote("CLEAR")
